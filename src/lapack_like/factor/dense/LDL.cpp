@@ -21,30 +21,32 @@ namespace El {
 
 // Unpivoted
 // =========
-
 template<typename F>
 void LDL( Matrix<F>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("LDL"))
+    DEBUG_ONLY(CSE cse("LDL"))
     ldl::Var3( A, conjugate );
 }
 
 template<typename F>
 void LDL( AbstractDistMatrix<F>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("LDL"))
+    DEBUG_ONLY(CSE cse("LDL"))
     ldl::Var3( A, conjugate );
 }
 
+template<typename F>
+void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate )
+{ LDL( A.Matrix(), conjugate ); }
+
 // Pivoted
 // =======
-
 template<typename F>
 void LDL
 ( Matrix<F>& A, Matrix<F>& dSub, 
   Matrix<Int>& p, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LDL"))
+    DEBUG_ONLY(CSE cse("LDL"))
     ldl::Pivoted( A, dSub, p, conjugate, ctrl );
 }
 
@@ -54,13 +56,14 @@ void LDL
   AbstractDistMatrix<Int>& p, bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("LDL"))
+    DEBUG_ONLY(CSE cse("LDL"))
     ldl::Pivoted( A, dSub, p, conjugate, ctrl );
 }
 
 #define PROTO(F) \
   template void LDL( Matrix<F>& A, bool conjugate ); \
   template void LDL( AbstractDistMatrix<F>& A, bool conjugate ); \
+  template void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate ); \
   template void LDL \
   ( Matrix<F>& A, Matrix<F>& dSub, \
     Matrix<Int>& p, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \

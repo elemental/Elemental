@@ -22,7 +22,7 @@ ChanUpper
   AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::ChanUpper");
+        CSE cse("svd::ChanUpper");
         AssertSameGrids( APre, s, VPre );
         if( APre.Height() < APre.Width() )
             LogicError("A must be at least as tall as it is wide");
@@ -63,7 +63,7 @@ ChanUpper
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::ChanUpper");    
+        CSE cse("svd::ChanUpper");    
         AssertSameGrids( APre, s );
         if( heightRatio <= 1.0 )
             LogicError("Nonsensical switchpoint");
@@ -95,7 +95,7 @@ Chan
   AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::Chan");
+        CSE cse("svd::Chan");
         AssertSameGrids( APre, s, VPre );
         if( heightRatio <= 1.0 )
             LogicError("Nonsensical switchpoint for SVD");
@@ -139,7 +139,7 @@ Chan
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
   double heightRatio=1.2 )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::Chan"))
+    DEBUG_ONLY(CSE cse("svd::Chan"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

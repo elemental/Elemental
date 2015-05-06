@@ -22,7 +22,7 @@ inline void
 UVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::UVar2");
+        CSE cse("cholesky::UVar2");
         if( A.Height() != A.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -53,7 +53,7 @@ inline void
 UVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::UVar2");
+        CSE cse("cholesky::UVar2");
         if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -97,7 +97,7 @@ UVar2( AbstractDistMatrix<F>& APre )
         Axpy( F(-1), X11, A11 );
 
         A11_STAR_STAR = A11;
-        LocalCholesky( UPPER, A11_STAR_STAR );
+        Cholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         X12Adj_MR_STAR.AlignWith( A02 );

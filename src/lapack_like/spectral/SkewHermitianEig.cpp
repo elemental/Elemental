@@ -19,7 +19,7 @@ void SkewHermitianEig
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
+    DEBUG_ONLY(CSE cse("SkewHermitianEig"))
     Matrix<Complex<Base<F>>> A;
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );
@@ -33,7 +33,7 @@ void SkewHermitianEig
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
+    DEBUG_ONLY(CSE cse("SkewHermitianEig"))
     DistMatrix<Complex<Base<F>>> A(G.Grid());
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );
@@ -49,7 +49,7 @@ void SkewHermitianEig
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
+    DEBUG_ONLY(CSE cse("SkewHermitianEig"))
     Matrix<Complex<Base<F>>> A;
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );
@@ -64,7 +64,7 @@ void SkewHermitianEig
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
+    DEBUG_ONLY(CSE cse("SkewHermitianEig"))
     DistMatrix<Complex<Base<F>>> A(G.Grid());
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );

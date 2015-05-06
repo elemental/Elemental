@@ -18,7 +18,7 @@ void Overwrite
   Matrix<F>& A, const Matrix<F>& B, 
   Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("ls::Overwrite"))
+    DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
     Matrix<F> t;
     Matrix<Base<F>> d;
@@ -43,7 +43,7 @@ void Overwrite
   AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& B, 
   AbstractDistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("ls::Overwrite"))
+    DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -73,7 +73,7 @@ void LeastSquares
   const Matrix<F>& A, const Matrix<F>& B, 
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CSE cse("LeastSquares"))
     Matrix<F> ACopy( A );
     ls::Overwrite( orientation, ACopy, B, X );
 }
@@ -84,7 +84,7 @@ void LeastSquares
   const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
         AbstractDistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CSE cse("LeastSquares"))
     DistMatrix<F> ACopy( A );
     ls::Overwrite( orientation, ACopy, B, X ); 
 }
@@ -154,7 +154,7 @@ inline void Equilibrated
   Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("ls::Equilibrated");
+      CSE cse("ls::Equilibrated");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -270,7 +270,7 @@ void LeastSquares
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CSE cse("LeastSquares"))
     typedef Base<F> Real;
 
     SparseMatrix<F> ABar;
@@ -340,7 +340,7 @@ void Equilibrated
   Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl, bool time )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("ls::Equilibrated");
+      CSE cse("ls::Equilibrated");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -557,7 +557,7 @@ void LeastSquares
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
+    DEBUG_ONLY(CSE cse("LeastSquares"))
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
 

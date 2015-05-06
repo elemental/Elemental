@@ -17,7 +17,7 @@ template<typename T>
 inline void
 Ascii( Matrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Ascii"))
+    DEBUG_ONLY(CSE cse("read::Ascii"))
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
@@ -65,7 +65,7 @@ template<typename T>
 inline void
 Ascii( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Ascii"))
+    DEBUG_ONLY(CSE cse("read::Ascii"))
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
@@ -113,7 +113,7 @@ template<typename T>
 inline void
 Ascii( AbstractBlockDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Ascii"))
+    DEBUG_ONLY(CSE cse("read::Ascii"))
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);

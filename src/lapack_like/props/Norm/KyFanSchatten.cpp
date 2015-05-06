@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("KyFanSchattenNorm"))
+    DEBUG_ONLY(CSE cse("KyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -32,7 +32,7 @@ template<typename F>
 Base<F> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianKyFanSchattenNorm"))
+    DEBUG_ONLY(CSE cse("HermitianKyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -51,7 +51,7 @@ template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanSchattenNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricKyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -70,7 +70,7 @@ Base<F> SymmetricKyFanSchattenNorm
 template<typename F> 
 Base<F> KyFanSchattenNorm( const AbstractDistMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("KyFanSchattenNorm"))
+    DEBUG_ONLY(CSE cse("KyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -92,7 +92,7 @@ template<typename F>
 Base<F> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianKyFanSchattenNorm"))
+    DEBUG_ONLY(CSE cse("HermitianKyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -114,7 +114,7 @@ template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanSchattenNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricKyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 

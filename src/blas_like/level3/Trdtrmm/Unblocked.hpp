@@ -15,7 +15,7 @@ inline void
 LUnblocked( Matrix<F>& L, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::LUnblocked");
+        CSE cse("trdtrmm::LUnblocked");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
     )
@@ -69,7 +69,7 @@ inline void
 LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::LUnblocked");
+        CSE cse("trdtrmm::LUnblocked");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
     )
@@ -157,7 +157,7 @@ inline void
 UUnblocked( Matrix<F>& U, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::UUnblocked");
+        CSE cse("trdtrmm::UUnblocked");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
     )

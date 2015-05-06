@@ -42,7 +42,7 @@ void Mehrotra
         Matrix<Real>& z,       Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -294,7 +294,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& zPre,       AbstractDistMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
 
@@ -574,7 +574,7 @@ void Mehrotra
         Matrix<Real>& z,                Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -859,7 +859,7 @@ void Mehrotra
         DistMultiVec<Real>& z,              DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;

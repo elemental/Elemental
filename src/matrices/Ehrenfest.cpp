@@ -19,7 +19,7 @@ namespace El {
 template<typename F>
 void Ehrenfest( Matrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
+    DEBUG_ONLY(CSE cse("Ehrenfest"))
     typedef Base<F> Real;
 
     Zeros( P, n, n );
@@ -35,7 +35,7 @@ void Ehrenfest( Matrix<F>& P, Int n )
 template<typename F>
 void Ehrenfest( AbstractDistMatrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
+    DEBUG_ONLY(CSE cse("Ehrenfest"))
     typedef Base<F> Real;
 
     Zeros( P, n, n );
@@ -52,7 +52,7 @@ void Ehrenfest( AbstractDistMatrix<F>& P, Int n )
 template<typename F>
 void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
+    DEBUG_ONLY(CSE cse("Ehrenfest"))
     typedef Base<F> Real;
 
     Zeros( P, n, n );
@@ -69,7 +69,7 @@ void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n )
 template<typename F>
 void EhrenfestStationary( Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
+    DEBUG_ONLY(CSE cse("EhrenfestStationary"))    
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n-1 );
@@ -83,7 +83,7 @@ void EhrenfestStationary( Matrix<F>& PInf, Int n )
 template<typename F>
 void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
+    DEBUG_ONLY(CSE cse("EhrenfestStationary"))    
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n-1 );
@@ -97,7 +97,7 @@ void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 template<typename F>
 void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
+    DEBUG_ONLY(CSE cse("EhrenfestStationary"))    
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n-1 );
@@ -111,7 +111,7 @@ void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
 template<typename F>
 void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
+    DEBUG_ONLY(CSE cse("Ehrenfest"))
     Ehrenfest( P, n );
     EhrenfestStationary( PInf, n );
 }
@@ -119,7 +119,7 @@ void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
 template<typename F>
 void Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
+    DEBUG_ONLY(CSE cse("Ehrenfest"))
     Ehrenfest( P, n );
     PInf.SetGrid( P.Grid() );
     PInf.AlignWith( P.DistData() );
@@ -130,7 +130,7 @@ template<typename F>
 void Ehrenfest
 ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
+    DEBUG_ONLY(CSE cse("Ehrenfest"))
     Ehrenfest( P, n );
     PInf.SetGrid( P.Grid() );
     PInf.AlignWith( P.DistData() );
@@ -140,7 +140,7 @@ void Ehrenfest
 template<typename F>
 void EhrenfestDecay( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
+    DEBUG_ONLY(CSE cse("EhrenfestDecay"))
     Ehrenfest( A, n );
     Matrix<F> PInf;
     EhrenfestStationary( PInf, n );
@@ -150,7 +150,7 @@ void EhrenfestDecay( Matrix<F>& A, Int n )
 template<typename F>
 void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
+    DEBUG_ONLY(CSE cse("EhrenfestDecay"))
     Ehrenfest( A, n );
     unique_ptr<AbstractDistMatrix<F>> 
       PInf( A.Construct(A.Grid(),A.Root()) );

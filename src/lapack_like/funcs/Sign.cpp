@@ -21,7 +21,7 @@ inline void
 NewtonStep
 ( const Matrix<F>& X, Matrix<F>& XNew, SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_ONLY(CallStackEntry cse("sign::NewtonStep"))
+    DEBUG_ONLY(CSE cse("sign::NewtonStep"))
     typedef Base<F> Real;
 
     // Calculate mu while forming XNew := inv(X)
@@ -51,7 +51,7 @@ NewtonStep
 ( const DistMatrix<F>& X, DistMatrix<F>& XNew, 
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_ONLY(CallStackEntry cse("sign::NewtonStep"))
+    DEBUG_ONLY(CSE cse("sign::NewtonStep"))
     typedef Base<F> Real;
 
     // Calculate mu while forming B := inv(X)
@@ -79,7 +79,7 @@ template<typename F>
 inline void
 NewtonSchulzStep( const Matrix<F>& X, Matrix<F>& XTmp, Matrix<F>& XNew )
 {
-    DEBUG_ONLY(CallStackEntry cse("sign::NewtonSchulzStep"))
+    DEBUG_ONLY(CSE cse("sign::NewtonSchulzStep"))
     typedef Base<F> Real;
     const Int n = X.Height();
  
@@ -96,7 +96,7 @@ inline void
 NewtonSchulzStep
 ( const DistMatrix<F>& X, DistMatrix<F>& XTmp, DistMatrix<F>& XNew )
 {
-    DEBUG_ONLY(CallStackEntry cse("sign::NewtonSchulzStep"))
+    DEBUG_ONLY(CSE cse("sign::NewtonSchulzStep"))
     typedef Base<F> Real;
     const Int n = X.Height();
 
@@ -115,7 +115,7 @@ template<typename F>
 inline Int
 Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
+    DEBUG_ONLY(CSE cse("sign::Newton"))
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -154,7 +154,7 @@ template<typename F>
 inline Int
 Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
+    DEBUG_ONLY(CSE cse("sign::Newton"))
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -196,14 +196,14 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 template<typename F>
 void Sign( Matrix<F>& A, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sign"))
+    DEBUG_ONLY(CSE cse("Sign"))
     sign::Newton( A, ctrl );
 }
 
 template<typename F>
 void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sign"))
+    DEBUG_ONLY(CSE cse("Sign"))
     Matrix<F> ACopy( A );
     sign::Newton( A, ctrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
@@ -212,7 +212,7 @@ void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 template<typename F>
 void Sign( AbstractDistMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sign"))
+    DEBUG_ONLY(CSE cse("Sign"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -225,7 +225,7 @@ void Sign
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& NPre, 
   const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sign"))
+    DEBUG_ONLY(CSE cse("Sign"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto NPtr = WriteProxy<F,MC,MR>( &NPre );     auto& N = *NPtr;
@@ -247,7 +247,7 @@ template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
+    DEBUG_ONLY(CSE cse("HermitianSign"))
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -275,7 +275,7 @@ void HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
+    DEBUG_ONLY(CSE cse("HermitianSign"))
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -311,7 +311,7 @@ void HermitianSign
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
+    DEBUG_ONLY(CSE cse("HermitianSign"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -343,7 +343,7 @@ void HermitianSign
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& NPre,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
+    DEBUG_ONLY(CSE cse("HermitianSign"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto NPtr = WriteProxy<F,MC,MR>( &NPre );     auto& N = *NPtr;

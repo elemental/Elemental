@@ -72,7 +72,7 @@ void Overwrite
   Matrix<F>& C, Matrix<F>& D, 
   Matrix<F>& X, bool computeResidual )
 {
-    DEBUG_ONLY(CallStackEntry cse("lse::Overwrite"))
+    DEBUG_ONLY(CSE cse("lse::Overwrite"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Height();
@@ -159,7 +159,7 @@ void Overwrite
   AbstractDistMatrix<F>& CPre, AbstractDistMatrix<F>& DPre, 
   AbstractDistMatrix<F>& XPre, bool computeResidual )
 {
-    DEBUG_ONLY(CallStackEntry cse("lse::Overwrite"))
+    DEBUG_ONLY(CSE cse("lse::Overwrite"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
@@ -259,7 +259,7 @@ void LSE
   const Matrix<F>& C, const Matrix<F>& D, 
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    DEBUG_ONLY(CSE cse("LSE"))
     Matrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -270,7 +270,7 @@ void LSE
   const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, 
         AbstractDistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    DEBUG_ONLY(CSE cse("LSE"))
     DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -282,7 +282,7 @@ void LSE
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    DEBUG_ONLY(CSE cse("LSE"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -393,7 +393,7 @@ void LSE
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LSE"))
+    DEBUG_ONLY(CSE cse("LSE"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();

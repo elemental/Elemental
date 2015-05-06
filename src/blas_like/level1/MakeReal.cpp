@@ -17,7 +17,7 @@ void MakeReal( Matrix<Real>& A )
 template<typename Real>
 void MakeReal( Matrix<Complex<Real>>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeReal"))
+    DEBUG_ONLY(CSE cse("MakeReal"))
     Complex<Real>* ABuffer = A.Buffer();
     const Int height = A.Height();
     const Int width = A.Width();
@@ -30,7 +30,7 @@ void MakeReal( Matrix<Complex<Real>>& A )
 template<typename T>
 void MakeReal( AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeReal"))
+    DEBUG_ONLY(CSE cse("MakeReal"))
     MakeReal( A.Matrix() );
 }
 

@@ -14,7 +14,7 @@ template<typename T,typename S>
 void GetMappedDiagonal
 ( const Matrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetMappedDiagonal"))
+    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
     const Int diagLength = A.DiagonalLength(offset);
     d.Resize( diagLength, 1 );
 
@@ -38,7 +38,7 @@ void GetMappedDiagonal
   function<S(T)> func, Int offset )
 { 
     DEBUG_ONLY(
-      CallStackEntry cse("GetMappedDiagonal");
+      CSE cse("GetMappedDiagonal");
       AssertSameGrids( A, dPre );
     )
     ProxyCtrl ctrl;
@@ -81,7 +81,7 @@ template<typename T,typename S>
 void GetMappedDiagonal
 ( const SparseMatrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetMappedDiagonal"))
+    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
     Ones( d, El::DiagonalLength(A.Height(),A.Width(),offset), 1 );
     const Int numEntries = A.NumEntries();
     for( Int e=0; e<numEntries; ++e )
@@ -98,7 +98,7 @@ void GetMappedDiagonal
 ( const DistSparseMatrix<T>& A, DistMultiVec<S>& d, 
   function<S(T)> func, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetMappedDiagonal"))
+    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
     if( A.Height() != A.Width() )
         LogicError("DistSparseMatrix GetMappedDiagonal assumes square matrix");
     if( offset != 0 )

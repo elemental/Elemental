@@ -26,11 +26,24 @@ void InterleaveMatrixUpdate
           &B[rowStrideB*j], colStrideB );
 }
 
+template<typename T>
+void UpdateWithLocalData
+( T alpha, const AbstractDistMatrix<T>& A, DistMatrix<T,STAR,STAR>& B )
+{
+    DEBUG_ONLY(CSE cse("axpy::util::UpdateWithLocalData"))
+    axpy::util::InterleaveMatrixUpdate
+    ( alpha, A.LocalHeight(), A.LocalWidth(),
+      A.LockedBuffer(),                    1,             1,
+      B.Buffer(A.ColShift(),A.RowShift()), A.ColStride(), A.RowStride() );
+}
+
 #define PROTO(T) \
   template void InterleaveMatrixUpdate \
   ( T alpha, Int height, Int width, \
     const T* A, Int colStrideA, Int rowStrideA, \
-          T* B, Int colStrideB, Int rowStrideB );
+          T* B, Int colStrideB, Int rowStrideB ); \
+  template void UpdateWithLocalData \
+  ( T alpha, const AbstractDistMatrix<T>& A, DistMatrix<T,STAR,STAR>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

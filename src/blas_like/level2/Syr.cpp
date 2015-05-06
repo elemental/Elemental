@@ -16,7 +16,7 @@ void Syr
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Syr");
+        CSE cse("Syr");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( x.Width() != 1 && x.Height() != 1 )
@@ -48,7 +48,7 @@ void Syr
                  AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Syr");
+        CSE cse("Syr");
         AssertSameGrids( APre, xPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");

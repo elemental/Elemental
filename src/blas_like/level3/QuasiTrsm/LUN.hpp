@@ -18,7 +18,7 @@ template<typename F>
 inline void
 LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNUnb"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LUNUnb"))
     const Int m = X.Height();
     const Int n = X.Width();
     typedef Base<F> Real;
@@ -101,7 +101,7 @@ template<typename F>
 inline void
 LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUN"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LUN"))
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -139,7 +139,7 @@ LUNLarge
 ( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNLarge"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LUNLarge"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -200,7 +200,7 @@ LUNMedium
 ( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNMedium"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LUNMedium"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -262,7 +262,7 @@ LUNSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("quasitrsm::LUNSmall");
+      CSE cse("quasitrsm::LUNSmall");
       AssertSameGrids( U, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError

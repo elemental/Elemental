@@ -21,7 +21,7 @@ namespace El {
 template<typename F> 
 void LU( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("LU"))
+    DEBUG_ONLY(CSE cse("LU"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -46,7 +46,7 @@ void LU( Matrix<F>& A )
 template<typename F> 
 void LU( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("LU"))
+    DEBUG_ONLY(CSE cse("LU"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -72,7 +72,7 @@ void LU( AbstractDistMatrix<F>& APre )
         auto A22 = A( ind2, ind2 );
 
         A11_STAR_STAR = A11;
-        LocalLU( A11_STAR_STAR );
+        LU( A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_MC_STAR.AlignWith( A22 );
@@ -95,12 +95,16 @@ void LU( AbstractDistMatrix<F>& APre )
     }
 }
 
+template<typename F> 
+void LU( DistMatrix<F,STAR,STAR>& A )
+{ LU( A.Matrix() ); }
+
 // Performs LU factorization with partial pivoting
 
 template<typename F> 
 void LU( Matrix<F>& A, Matrix<Int>& p )
 {
-    DEBUG_ONLY(CallStackEntry cse("LU"))
+    DEBUG_ONLY(CSE cse("LU"))
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -148,7 +152,7 @@ void LU( Matrix<F>& A, Matrix<Int>& p )
 template<typename F> 
 void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 {
-    DEBUG_ONLY(CallStackEntry cse("LU"))
+    DEBUG_ONLY(CSE cse("LU"))
     lu::Full( A, p, q );
 }
 
@@ -156,7 +160,7 @@ template<typename F>
 void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LU");
+        CSE cse("LU");
         AssertSameGrids( APre, pPre );
     )
 
@@ -227,13 +231,14 @@ void LU
 ( AbstractDistMatrix<F>& A, 
   AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q )
 {
-    DEBUG_ONLY(CallStackEntry cse("LU"))
+    DEBUG_ONLY(CSE cse("LU"))
     lu::Full( A, p, q );
 }
 
 #define PROTO(F) \
   template void LU( Matrix<F>& A ); \
   template void LU( AbstractDistMatrix<F>& A ); \
+  template void LU( DistMatrix<F,STAR,STAR>& A ); \
   template void LU( Matrix<F>& A, Matrix<Int>& p ); \
   template void LU( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p ); \
   template void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q ); \

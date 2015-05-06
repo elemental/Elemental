@@ -13,28 +13,28 @@ namespace El {
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
+    DEBUG_ONLY(CSE cse("MakeHermitian"))
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
+    DEBUG_ONLY(CSE cse("MakeHermitian"))
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
+    DEBUG_ONLY(CSE cse("MakeHermitian"))
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
+    DEBUG_ONLY(CSE cse("MakeHermitian"))
     MakeSymmetric( uplo, A, true );
 }
 

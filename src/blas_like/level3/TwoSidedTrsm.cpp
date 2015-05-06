@@ -18,7 +18,7 @@ template<typename F>
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoSidedTrsm"))
+    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -30,20 +30,29 @@ void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
   AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoSidedTrsm"))
+    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
         twotrsm::UVar4( diag, A, B );
 }
 
-#define PROTO(T) \
+template<typename F>
+void TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag,
+  DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
+{ TwoSidedTrsm( uplo, diag, A.Matrix(), B.LockedMatrix() ); }
+
+#define PROTO(F) \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    Matrix<T>& A, const Matrix<T>& B ); \
+    Matrix<F>& A, const Matrix<F>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+    AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B ); \
+  template void TwoSidedTrsm \
+  ( UpperOrLower uplo, UnitOrNonUnit diag, \
+    DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

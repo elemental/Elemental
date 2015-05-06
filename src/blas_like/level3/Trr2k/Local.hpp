@@ -26,7 +26,7 @@ LocalTrr2kKernel
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
   T gamma,       AbstractDistMatrix<T>& E )
 {
-    DEBUG_ONLY(CallStackEntry cse("LocalTrr2kKernel"))
+    DEBUG_ONLY(CSE cse("LocalTrr2kKernel"))
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;
@@ -131,7 +131,7 @@ void LocalTrr2k
   T gamma,       AbstractDistMatrix<T>& E )
 {
     using namespace trr2k;
-    DEBUG_ONLY(CallStackEntry cse("LocalTrr2k"))
+    DEBUG_ONLY(CSE cse("LocalTrr2k"))
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;

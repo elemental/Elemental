@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
     AImag.Resize( m, n );

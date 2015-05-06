@@ -20,7 +20,7 @@ template<typename F>
 inline void
 PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, Base<F> tol )
 {
-    DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
+    DEBUG_ONLY(CSE cse("id::PseudoTrsm"))
     typedef Base<F> Real;
     const Int m = RR.Height();
     const Int n = RR.Width();
@@ -67,7 +67,7 @@ PseudoTrsm
 ( const AbstractDistMatrix<F>& RLPre, AbstractDistMatrix<F>& RRPre,
   Base<F> tol )
 {
-    DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
+    DEBUG_ONLY(CSE cse("id::PseudoTrsm"))
 
     auto RLPtr = ReadProxy<F,STAR,STAR>( &RLPre );    auto& RL = *RLPtr;
     auto RRPtr = ReadWriteProxy<F,STAR,VR>( &RRPre ); auto& RR = *RRPtr;
@@ -85,7 +85,7 @@ BusingerGolub
 ( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
+    DEBUG_ONLY(CSE cse("id::BusingerGolub"))
     typedef Base<F> Real;
     const Int n = A.Width();
 
@@ -111,7 +111,7 @@ BusingerGolub
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p, 
   AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
+    DEBUG_ONLY(CSE cse("id::BusingerGolub"))
     typedef Base<F> Real;
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -141,7 +141,7 @@ void ID
 ( const Matrix<F>& A, Matrix<Int>& p, 
         Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ID"))
+    DEBUG_ONLY(CSE cse("ID"))
     Matrix<F> B( A );
     id::BusingerGolub( B, p, Z, ctrl );
 }
@@ -151,7 +151,7 @@ void ID
 ( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
 {
-    DEBUG_ONLY(CallStackEntry cse("ID"))
+    DEBUG_ONLY(CSE cse("ID"))
     Matrix<F> B;
     if( canOverwrite )
         View( B, A );
@@ -165,7 +165,7 @@ void ID
 ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
         AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ID"))
+    DEBUG_ONLY(CSE cse("ID"))
     DistMatrix<F> B( A );
     id::BusingerGolub( B, p, Z, ctrl );
 }
@@ -175,7 +175,7 @@ void ID
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
   AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
 {
-    DEBUG_ONLY(CallStackEntry cse("ID"))
+    DEBUG_ONLY(CSE cse("ID"))
     if( canOverwrite )
     {
         id::BusingerGolub( A, p, Z, ctrl );

@@ -16,7 +16,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Scatter"))
+    DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
 
     const Int m = A.Height();
@@ -84,7 +84,7 @@ void Scatter
 ( const BlockDistMatrix<T,CIRC,CIRC>& A,
         AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Scatter"))
+    DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }
@@ -95,7 +95,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         DistMatrix<T,STAR,STAR>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Scatter"))
+    DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -130,7 +130,7 @@ void Scatter
 ( const BlockDistMatrix<T,CIRC,CIRC>& A,
         BlockDistMatrix<T,STAR,STAR>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Scatter"))
+    DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

@@ -14,7 +14,7 @@ template<typename Real>
 Real MaxStepInPositiveCone
 ( const Matrix<Real>& s, const Matrix<Real>& ds, Real upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxStepInPositiveCone"))
+    DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
     const Int k = s.Height();
     Real alpha = upperBound;
     for( Int i=0; i<k; ++i )
@@ -32,7 +32,7 @@ Real MaxStepInPositiveCone
 ( const AbstractDistMatrix<Real>& sPre, 
   const AbstractDistMatrix<Real>& dsPre, Real upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxStepInPositiveCone"))
+    DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
 
     auto sPtr = ReadProxy<Real,MC,MR>(&sPre);
     auto& s = *sPtr;
@@ -65,7 +65,7 @@ template<typename Real>
 Real MaxStepInPositiveCone
 ( const DistMultiVec<Real>& s, const DistMultiVec<Real>& ds, Real upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxStepInPositiveCone"))
+    DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
     Real alpha = upperBound;
     const Int kLocal = s.LocalHeight();
     for( Int iLoc=0; iLoc<kLocal; ++iLoc )

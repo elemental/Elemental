@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Hanowa( Matrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hanowa"))
+    DEBUG_ONLY(CSE cse("Hanowa"))
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
     A.Resize( n, n );
@@ -41,7 +41,7 @@ void Hanowa( Matrix<T>& A, Int n, T mu )
 template<typename T>
 void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hanowa"))
+    DEBUG_ONLY(CSE cse("Hanowa"))
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
     A.Resize( n, n );

@@ -22,7 +22,7 @@ inline Int RegularizedSolveAfterNoPromote
   bool progress )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
+      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
     )
     auto bOrig = b;
     const Base<F> bNorm = Nrm2( b );
@@ -99,7 +99,7 @@ inline Int RegularizedSolveAfterNoPromote
   bool progress )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
+      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
     )
     auto bOrig = b;
     const Base<F> bNorm = Nrm2( b );
@@ -179,7 +179,7 @@ inline Int RegularizedSolveAfterPromote
   Base<F> relTol,                    Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
     typedef Promote<Real> RealProm;
     typedef Promote<F> FProm;
@@ -266,7 +266,7 @@ inline Int RegularizedSolveAfterPromote
   Base<F> relTol,                    Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
     typedef Promote<Real> RealProm;
     typedef Promote<F> FProm;
@@ -364,7 +364,7 @@ Int RegularizedSolveAfter
   Base<F> relTol,                    Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
            ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress );
 }
@@ -378,7 +378,7 @@ Int RegularizedSolveAfter
   Base<F> relTol,                    Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, 
              b, relTol, maxRefineIts, progress );
@@ -393,7 +393,7 @@ inline Int RegularizedSolveAfterNoPromote
   bool progress )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
+      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
     )
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
@@ -470,7 +470,7 @@ inline Int RegularizedSolveAfterNoPromote
   bool progress )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
+      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
     )
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
@@ -553,7 +553,7 @@ inline Int RegularizedSolveAfterPromote
   Base<F> relTol,                          Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
     typedef Promote<Real> RealProm;
     typedef Promote<F> FProm;
@@ -642,7 +642,7 @@ inline Int RegularizedSolveAfterPromote
   Base<F> relTol,                          Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
     typedef Promote<Real> RealProm;
     typedef Promote<F> FProm;
@@ -742,7 +742,7 @@ Int RegularizedSolveAfter
   Base<F> relTol,                          Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
     ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress );
 }
@@ -756,7 +756,7 @@ Int RegularizedSolveAfter
   Base<F> relTol,                        Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::RegularizedSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
     ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress );
 }
@@ -769,7 +769,7 @@ Int IRSolveAfter
   Base<F> relTol,                  Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::IRSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     auto bOrig = b;
     const Base<F> bNorm = Nrm2( b );
 
@@ -833,7 +833,7 @@ Int IRSolveAfter
   Base<F> relTol,                  Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::IRSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     auto bOrig = b;
     const Base<F> bNorm = Nrm2( b );
 
@@ -897,7 +897,7 @@ Int IRSolveAfter
   Base<F> relTol,                      Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::IRSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -966,7 +966,7 @@ Int IRSolveAfter
   Base<F> relTol,                        Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::IRSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -1036,7 +1036,7 @@ Int LGMRESSolveAfter
   Base<F> relTolRefine,             Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -1234,7 +1234,7 @@ Int LGMRESSolveAfter
   Base<F> relTolRefine,             Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -1431,7 +1431,7 @@ Int LGMRESSolveAfter
   Base<F> relTolRefine,                Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -1637,7 +1637,7 @@ Int LGMRESSolveAfter
   Base<F> relTolRefine,                  Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -1847,7 +1847,7 @@ Int FGMRESSolveAfter
   Base<F> relTolRefine,             Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -2045,7 +2045,7 @@ Int FGMRESSolveAfter
   Base<F> relTolRefine,             Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -2242,7 +2242,7 @@ Int FGMRESSolveAfter
   Base<F> relTolRefine,                Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -2451,7 +2451,7 @@ Int FGMRESSolveAfter
   Base<F> relTolRefine,                  Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -2659,7 +2659,7 @@ Int SolveAfter
   const SymmFront<F>& front,        Matrix<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
     {
     case REG_REFINE_FGMRES:
@@ -2693,7 +2693,7 @@ Int SolveAfter
   const SymmFront<F>& front,        Matrix<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
     {
     case REG_REFINE_FGMRES:
@@ -2726,7 +2726,7 @@ Int SolveAfter
   const DistSymmFront<F>& front,        DistMultiVec<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
     {
     case REG_REFINE_FGMRES:
@@ -2760,7 +2760,7 @@ Int SolveAfter
   const DistSymmFront<F>& front,         DistMultiVec<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("reg_qsd_ldl::SolveAfter"))
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
     switch( ctrl.alg )
     {
     case REG_REFINE_FGMRES:

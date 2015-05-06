@@ -17,7 +17,7 @@ template<typename F>
 inline void
 PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::PanelHouseholder"))
+    DEBUG_ONLY(CSE cse("qr::PanelHouseholder"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -72,7 +72,7 @@ PanelHouseholder
 ( DistMatrix<F>& A, AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("qr::PanelHouseholder");
+        CSE cse("qr::PanelHouseholder");
         AssertSameGrids( A, t, d );
     )
     typedef Base<F> Real;

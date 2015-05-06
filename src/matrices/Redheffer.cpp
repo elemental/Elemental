@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void Redheffer( Matrix<T>& R, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Redheffer"))
+    DEBUG_ONLY(CSE cse("Redheffer"))
     R.Resize( n, n );
     auto redhefferFill = 
       []( Int i, Int j ) -> T
@@ -25,7 +25,7 @@ void Redheffer( Matrix<T>& R, Int n )
 template<typename T>
 void Redheffer( AbstractDistMatrix<T>& R, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Redheffer"))
+    DEBUG_ONLY(CSE cse("Redheffer"))
     R.Resize( n, n );
     auto redhefferFill = 
       []( Int i, Int j ) -> T
@@ -37,7 +37,7 @@ void Redheffer( AbstractDistMatrix<T>& R, Int n )
 template<typename T>
 void Redheffer( AbstractBlockDistMatrix<T>& R, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Redheffer"))
+    DEBUG_ONLY(CSE cse("Redheffer"))
     R.Resize( n, n );
     auto redhefferFill = 
       []( Int i, Int j ) -> T

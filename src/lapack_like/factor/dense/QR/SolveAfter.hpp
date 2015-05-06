@@ -21,7 +21,7 @@ void SolveAfter
   const Matrix<F>& t, const Matrix<Base<F>>& d, 
   const Matrix<F>& B,       Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::SolveAfter"))
+    DEBUG_ONLY(CSE cse("qr::SolveAfter"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( m < n )
@@ -79,7 +79,7 @@ void SolveAfter
   const AbstractDistMatrix<Base<F>>& d,    const AbstractDistMatrix<F>& B, 
         AbstractDistMatrix<F      >& XPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::SolveAfter"))
+    DEBUG_ONLY(CSE cse("qr::SolveAfter"))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Grid& g = APre.Grid();

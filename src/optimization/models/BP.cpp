@@ -18,7 +18,7 @@ void BP
         Matrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BP"))
+    DEBUG_ONLY(CSE cse("BP"))
     if( ctrl.useIPM )
         bp::IPM( A, b, x, ctrl.ipmCtrl );
     else
@@ -31,7 +31,7 @@ void BP
         AbstractDistMatrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BP"))
+    DEBUG_ONLY(CSE cse("BP"))
     if( ctrl.useIPM )
         bp::IPM( A, b, x, ctrl.ipmCtrl );
     else
@@ -44,7 +44,7 @@ void BP
         Matrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BP"))
+    DEBUG_ONLY(CSE cse("BP"))
     if( !ctrl.useIPM )
         LogicError("ADMM-based BP not yet supported for sparse matrices");
     bp::IPM( A, b, x, ctrl.ipmCtrl );
@@ -56,7 +56,7 @@ void BP
         DistMultiVec<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BP"))
+    DEBUG_ONLY(CSE cse("BP"))
     if( !ctrl.useIPM )
         LogicError("ADMM-based BP not yet supported for sparse matrices");
     bp::IPM( A, b, x, ctrl.ipmCtrl );

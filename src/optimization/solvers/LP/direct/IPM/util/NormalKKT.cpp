@@ -34,7 +34,7 @@ void NormalKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKT"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
 
     // d := sqrt(z) <> sqrt(x)
     // =======================
@@ -59,7 +59,7 @@ void NormalKKT
   const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKT"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
 
     // From sqrt(x) and sqrt(z)
     // ========================
@@ -87,7 +87,7 @@ void NormalKKT
   const Matrix<Real>& x,       const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKT"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
 
     // d := sqrt(z) <> sqrt(x)
     // =======================
@@ -113,7 +113,7 @@ void NormalKKT
   const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, 
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKT"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     if( !mpi::Congruent( comm, x.Comm() ) )
@@ -147,7 +147,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKTRHS"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
 
     // Form the portion of the right-hand side to be multiplied by A
     // =============================================================
@@ -170,7 +170,7 @@ void NormalKKTRHS
   const AbstractDistMatrix<Real>& rmu,        
         AbstractDistMatrix<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKTRHS"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
 
     // Form the portion of the right-hand side to be multiplied by A
     // =============================================================
@@ -193,7 +193,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKTRHS"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
 
     // Form the portion of the right-hand side to be multiplied by A
     // =============================================================
@@ -216,7 +216,7 @@ void NormalKKTRHS
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::NormalKKTRHS"))
+    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     if( !mpi::Congruent( comm, rmu.Comm() ) )
@@ -257,7 +257,7 @@ void ExpandNormalSolution
         Matrix<Real>& dx, const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
 
     // dz := r_c + A^T dy
     // ==================
@@ -281,7 +281,7 @@ void ExpandNormalSolution
         AbstractDistMatrix<Real>& dx, const AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
 
     // dz := r_c + A^T dy
     // ==================
@@ -305,7 +305,7 @@ void ExpandNormalSolution
         Matrix<Real>& dx,      const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
 
     // dz := r_c + A^T dy
     // ==================
@@ -329,7 +329,7 @@ void ExpandNormalSolution
         DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
 
     // dz := r_c + A^T dy
     // ==================

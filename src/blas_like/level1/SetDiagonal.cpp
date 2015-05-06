@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void SetDiagonal( Matrix<T>& A, const Matrix<T>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
+    DEBUG_ONLY(CSE cse("SetDiagonal"))
     function<void(T&,T)> func
     ( []( T& beta, T gamma ) { beta = gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
@@ -22,7 +22,7 @@ void SetDiagonal( Matrix<T>& A, const Matrix<T>& d, Int offset )
 template<typename T>
 void SetRealPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("SetRealPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("SetRealPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetRealPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
@@ -31,7 +31,7 @@ void SetRealPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 template<typename T>
 void SetImagPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("SetImagPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("SetImagPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetImagPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
@@ -41,7 +41,7 @@ template<typename T,Dist U,Dist V>
 void SetDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<T>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
+    DEBUG_ONLY(CSE cse("SetDiagonal"))
     function<void(T&,T)> func
     ( []( T& beta, T gamma ) { beta = gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
@@ -51,7 +51,7 @@ template<typename T,Dist U,Dist V>
 void SetRealPartOfDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("SetRealPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("SetRealPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetRealPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
@@ -61,7 +61,7 @@ template<typename T,Dist U,Dist V>
 void SetImagPartOfDiagonal
 ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("SetImagPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("SetImagPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( []( T& beta, Base<T> gamma ) { SetImagPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );

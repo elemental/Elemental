@@ -16,7 +16,7 @@ namespace hessenberg {
 template<typename F>
 inline void UUnb( Matrix<F>& A, Matrix<F>& t )
 {
-    DEBUG_ONLY(CallStackEntry cse("hessenberg::UUnb"))
+    DEBUG_ONLY(CSE cse("hessenberg::UUnb"))
     const Int n = A.Height();
     const Int tHeight = Max(n-1,0);
     t.Resize( tHeight, 1 );
@@ -75,7 +75,7 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
 template<typename F> 
 inline void UUnb( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("hessenberg::UUnb"))
+    DEBUG_ONLY(CSE cse("hessenberg::UUnb"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;

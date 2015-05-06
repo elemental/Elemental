@@ -23,7 +23,7 @@ RLT
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::RLT");
+      CSE cse("trsm::RLT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )

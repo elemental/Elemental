@@ -19,7 +19,7 @@ namespace El {
 template<typename Real> 
 void BullsHead( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("BullsHead"))
+    DEBUG_ONLY(CSE cse("BullsHead"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -32,7 +32,7 @@ void BullsHead( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("BullsHead"))
+    DEBUG_ONLY(CSE cse("BullsHead"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -45,7 +45,7 @@ void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("BullsHead"))
+    DEBUG_ONLY(CSE cse("BullsHead"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;

@@ -19,7 +19,7 @@ SUMMA_NTA
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::SUMMA_NTA");
+      CSE cse("gemm::SUMMA_NTA");
       AssertSameGrids( APre, BPre, CPre );
       if( orientB == NORMAL )
           LogicError("B must be (Conjugate)Transposed");
@@ -71,7 +71,7 @@ SUMMA_NTB
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::SUMMA_NTB");
+      CSE cse("gemm::SUMMA_NTB");
       AssertSameGrids( APre, BPre, CPre );
       if( orientB == NORMAL )
           LogicError("B must be (Conjugate)Transposed");
@@ -126,7 +126,7 @@ SUMMA_NTC
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::SUMMA_NTC");
+      CSE cse("gemm::SUMMA_NTC");
       AssertSameGrids( APre, BPre, CPre );
       if( orientB == NORMAL )
           LogicError("B must be (Conjugate)Transposed");
@@ -180,7 +180,7 @@ SUMMA_NT
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
-    DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_NT"))
+    DEBUG_ONLY(CSE cse("gemm::SUMMA_NT"))
     const Int m = C.Height();
     const Int n = C.Width();
     const Int k = A.Width();

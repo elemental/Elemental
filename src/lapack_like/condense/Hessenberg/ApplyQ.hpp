@@ -18,7 +18,7 @@ void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("hessenberg::ApplyQ"))
+    DEBUG_ONLY(CSE cse("hessenberg::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -42,7 +42,7 @@ void ApplyQ
   const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
         AbstractDistMatrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("hessenberg::ApplyQ"))
+    DEBUG_ONLY(CSE cse("hessenberg::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );

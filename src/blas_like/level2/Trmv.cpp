@@ -16,7 +16,7 @@ void Trmv
   const Matrix<T>& A, Matrix<T>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trmv");
+        CSE cse("Trmv");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("x must be a vector");
         if( A.Height() != A.Width() )

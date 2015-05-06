@@ -24,7 +24,7 @@ namespace El {
 template<typename F>
 void ChangeFrontType( SymmFront<F>& front, SymmFrontType type, bool recurse )
 {
-    DEBUG_ONLY(CallStackEntry cse("ChangeFrontType"))
+    DEBUG_ONLY(CSE cse("ChangeFrontType"))
 
     if( type == SYMM_1D || type == SYMM_2D || 
         type == ConvertTo1D(front.type) || type == ConvertTo2D(front.type) )
@@ -44,7 +44,7 @@ template<typename F>
 void ChangeFrontType
 ( DistSymmFront<F>& front, SymmFrontType type, bool recurse )
 {
-    DEBUG_ONLY(CallStackEntry cse("ChangeFrontType"))
+    DEBUG_ONLY(CSE cse("ChangeFrontType"))
 
     if( type == SYMM_1D || type == ConvertTo1D(front.type) )
     {

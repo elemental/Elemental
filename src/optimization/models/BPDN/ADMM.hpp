@@ -37,7 +37,7 @@ Int ADMM
         Base<F> lambda,       Matrix<F>& z, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bpdn::ADMM"))
+    DEBUG_ONLY(CSE cse("bpdn::ADMM"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -163,7 +163,7 @@ Int ADMM
         Base<F> lambda,                    AbstractDistMatrix<F>& zPre, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bpdn::ADMM"))
+    DEBUG_ONLY(CSE cse("bpdn::ADMM"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto bPtr = ReadProxy<F,MC,MR>( &bPre );  auto& b = *bPtr;

@@ -22,7 +22,7 @@ void Syr2k
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Syr2k");
+        CSE cse("Syr2k");
         if( orientation == NORMAL )
         {
             if( A.Height() != C.Height() || A.Height() != C.Width() ||
@@ -63,7 +63,7 @@ void Syr2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
   bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syr2k"))
+    DEBUG_ONLY(CSE cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
@@ -75,7 +75,7 @@ void Syr2k
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syr2k"))
+    DEBUG_ONLY(CSE cse("Syr2k"))
     if( uplo == LOWER && orientation == NORMAL )
         syr2k::LN( alpha, A, B, beta, C, conjugate );
     else if( uplo == LOWER )
@@ -92,7 +92,7 @@ void Syr2k
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
                  AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syr2k"))
+    DEBUG_ONLY(CSE cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );

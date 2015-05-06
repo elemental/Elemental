@@ -13,7 +13,7 @@ namespace El {
 void ExplicitPermutation( const Matrix<Int>& p, Matrix<Int>& P )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ExplicitPermutation");
+        CSE cse("ExplicitPermutation");
         if( p.Width() != 1 )
             LogicError("p must be a column vector");
     )
@@ -27,7 +27,7 @@ void ExplicitPermutation
 ( const AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& P )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ExplicitPermutation");
+        CSE cse("ExplicitPermutation");
         if( p.Width() != 1 )
             LogicError("p must be a column vector");
     )

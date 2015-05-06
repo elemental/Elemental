@@ -37,7 +37,7 @@ LLVF
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::LLVF");
+        CSE cse("apply_packed_reflectors::LLVF");
         if( H.Height() != A.Height() )
             LogicError("A and H must be the same height");
     )
@@ -84,7 +84,7 @@ LLVF
         AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::LLVF");
+        CSE cse("apply_packed_reflectors::LLVF");
         if( HPre.Height() != APre.Height() )
             LogicError("A and H must be the same height");
         AssertSameGrids( HPre, tPre, APre );

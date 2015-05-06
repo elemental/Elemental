@@ -101,6 +101,9 @@ void InterleaveMatrixUpdate
 ( T alpha, Int localHeight, Int localWidth,
   const T* A, Int colStrideA, Int rowStrideA,
         T* B, Int colStrideB, Int rowStrideB );
+template<typename T>
+void UpdateWithLocalData
+( T alpha, const AbstractDistMatrix<T>& A, DistMatrix<T,STAR,STAR>& B );
 
 } // namespace util
 } // namespace axpy

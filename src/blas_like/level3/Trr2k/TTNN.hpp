@@ -23,7 +23,7 @@ void Trr2kTTNN
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
   T gamma,       AbstractDistMatrix<T>& E )
 {
-    DEBUG_ONLY(CallStackEntry cse("trr2k::Trr2kTTNN"))
+    DEBUG_ONLY(CSE cse("trr2k::Trr2kTTNN"))
     Trr2kNNTT
     ( uplo, orientA, orientB, beta, C, D, alpha, A, B, gamma, E );
 }

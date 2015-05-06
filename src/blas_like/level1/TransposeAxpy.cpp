@@ -13,7 +13,7 @@ namespace El {
 template<typename T,typename S>
 void TransposeAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("TransposeAxpy"))
+    DEBUG_ONLY(CSE cse("TransposeAxpy"))
     const T alpha = T(alphaS);
     const Int mX = X.Height();
     const Int nX = X.Width();
@@ -75,7 +75,7 @@ template<typename T,typename S>
 void TransposeAxpy
 ( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("TransposeAxpy"))
+    DEBUG_ONLY(CSE cse("TransposeAxpy"))
     if( X.Height() != Y.Width() || X.Width() != Y.Height() )
         LogicError("X and Y must have transposed dimensions");
     const T alpha = T(alphaS);
@@ -96,7 +96,7 @@ void TransposeAxpy
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("TransposeAxpy");
+        CSE cse("TransposeAxpy");
         AssertSameGrids( A, B );
         if( A.Height() != B.Width() || A.Width() != B.Height() )
             LogicError("A and B must have transposed dimensions");
@@ -128,7 +128,7 @@ void TransposeAxpy
 ( S alphaS, const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B,
   bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("TransposeAxpy"))
+    DEBUG_ONLY(CSE cse("TransposeAxpy"))
     if( A.Height() != B.Width() || A.Width() != B.Height() )
         LogicError("A and B must have transposed dimensions");
     if( A.Comm() != B.Comm() )

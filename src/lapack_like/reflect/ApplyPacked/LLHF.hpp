@@ -36,7 +36,7 @@ LLHF
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::LLHF");
+        CSE cse("apply_packed_reflectors::LLHF");
         if( H.Width() != A.Height() )
             LogicError("H's width must match A's height");
     )
@@ -81,7 +81,7 @@ LLHF
         AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::LLHF");
+        CSE cse("apply_packed_reflectors::LLHF");
         if( HPre.Width() != APre.Height() )
             LogicError("H's width must match A's height");
         AssertSameGrids( HPre, tPre, APre );

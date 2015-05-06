@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void GetDiagonal( const Matrix<T>& A, Matrix<T>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetDiagonal"))
+    DEBUG_ONLY(CSE cse("GetDiagonal"))
     function<T(T)> identity( []( T alpha ) { return alpha; } ); 
     GetMappedDiagonal( A, d, identity, offset );
 }
@@ -22,7 +22,7 @@ template<typename T>
 void GetRealPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetRealPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("GetRealPartOfDiagonal"))
     function<Base<T>(T)> realPart
     ( []( T alpha ) { return RealPart(alpha); } ); 
     GetMappedDiagonal( A, d, realPart, offset );
@@ -32,7 +32,7 @@ template<typename T>
 void GetImagPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetImagPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("GetImagPartOfDiagonal"))
     function<Base<T>(T)> imagPart
     ( []( T alpha ) { return ImagPart(alpha); } ); 
     GetMappedDiagonal( A, d, imagPart, offset );
@@ -68,7 +68,7 @@ template<typename T,Dist U,Dist V>
 void GetDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<T>& d, Int offset )
 { 
-    DEBUG_ONLY(CallStackEntry cse("GetDiagonal"))
+    DEBUG_ONLY(CSE cse("GetDiagonal"))
     function<T(T)> identity( []( T alpha ) { return alpha; } );
     GetMappedDiagonal( A, d, identity, offset );
 }
@@ -77,7 +77,7 @@ template<typename T,Dist U,Dist V>
 void GetRealPartOfDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 { 
-    DEBUG_ONLY(CallStackEntry cse("GetRealPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("GetRealPartOfDiagonal"))
     function<Base<T>(T)> realPart
     ( []( T alpha ) { return RealPart(alpha); } );
     GetMappedDiagonal( A, d, realPart, offset );
@@ -87,7 +87,7 @@ template<typename T,Dist U,Dist V>
 void GetImagPartOfDiagonal
 ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 { 
-    DEBUG_ONLY(CallStackEntry cse("GetImagPartOfDiagonal"))
+    DEBUG_ONLY(CSE cse("GetImagPartOfDiagonal"))
     function<Base<T>(T)> imagPart
     ( []( T alpha ) { return ImagPart(alpha); } );
     GetMappedDiagonal( A, d, imagPart, offset );

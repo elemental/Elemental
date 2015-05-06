@@ -26,7 +26,7 @@ void DiagonalScale
 ( const SymmNodeInfo& info, const SymmFront<F>& front, 
   MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -45,7 +45,7 @@ void DiagonalScale
 ( const DistSymmNodeInfo& info, const DistSymmFront<F>& front, 
   DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
 
     if( front.child == nullptr )
     {
@@ -66,7 +66,7 @@ void DiagonalScale
 ( const DistSymmNodeInfo& info, const DistSymmFront<F>& front, 
   DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
 
     if( front.child == nullptr )
     {

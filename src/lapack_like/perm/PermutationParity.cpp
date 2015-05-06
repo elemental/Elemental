@@ -20,7 +20,7 @@ namespace El {
 bool PermutationParity( const Matrix<Int>& origPerm )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PermutationParity");
+        CSE cse("PermutationParity");
         if( origPerm.Width() != 1 )
             LogicError("permutation must be a column vector");
     )
@@ -53,7 +53,7 @@ bool PermutationParity( const Matrix<Int>& origPerm )
 bool PermutationParity( const AbstractDistMatrix<Int>& pPre ) 
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PermutationParity");
+        CSE cse("PermutationParity");
         if( pPre.Width() != 1 )
             LogicError("permutation must be a column vector");
     )

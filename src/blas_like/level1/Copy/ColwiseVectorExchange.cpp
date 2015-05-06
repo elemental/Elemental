@@ -17,7 +17,7 @@ void ColwiseVectorExchange
 ( const DistMatrix<T,ProductDist<U,V>(),STAR>& A,
         DistMatrix<T,ProductDist<V,U>(),STAR>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::ColwiseVectorExchange"))
+    DEBUG_ONLY(CSE cse("copy::ColwiseVectorExchange"))
     AssertSameGrids( A, B );
     if( !B.Participating() )
         return;

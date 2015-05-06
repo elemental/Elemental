@@ -18,7 +18,7 @@ void PartialColAllGather
         AbstractDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("transpose::PartialColAllGather");
+        CSE cse("transpose::PartialColAllGather");
         if( B.ColDist() != A.RowDist() || 
             B.RowDist() != Partial(A.ColDist()) )
             LogicError("Incompatible distributions");
@@ -37,7 +37,7 @@ void PartialColAllGather
         AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("transpose::PartialColAllGather");
+        CSE cse("transpose::PartialColAllGather");
         if( B.ColDist() != A.RowDist() || 
             B.RowDist() != Partial(A.ColDist()) )
             LogicError("Incompatible distributions");

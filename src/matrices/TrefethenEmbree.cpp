@@ -19,7 +19,7 @@ namespace El {
 template<typename Real> 
 void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("TrefethenEmbree"))
+    DEBUG_ONLY(CSE cse("TrefethenEmbree"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -34,7 +34,7 @@ void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("TrefethenEmbree"))
+    DEBUG_ONLY(CSE cse("TrefethenEmbree"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -49,7 +49,7 @@ void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("TrefethenEmbree"))
+    DEBUG_ONLY(CSE cse("TrefethenEmbree"))
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;

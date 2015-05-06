@@ -17,7 +17,7 @@ template<typename T>
 inline void
 Binary( Matrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Binary"))
+    DEBUG_ONLY(CSE cse("read::Binary"))
     std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
@@ -45,7 +45,7 @@ template<typename T>
 inline void
 Binary( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Binary"))
+    DEBUG_ONLY(CSE cse("read::Binary"))
     std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
@@ -107,7 +107,7 @@ template<typename T>
 inline void
 Binary( AbstractBlockDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Binary"))
+    DEBUG_ONLY(CSE cse("read::Binary"))
     std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);

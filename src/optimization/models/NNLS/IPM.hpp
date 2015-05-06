@@ -31,7 +31,7 @@ void IPM
         Matrix<Real>& X, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("nnls::IPM"))
+    DEBUG_ONLY(CSE cse("nnls::IPM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
@@ -63,7 +63,7 @@ void IPM
         AbstractDistMatrix<Real>& XPre,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("nnls::IPM"))
+    DEBUG_ONLY(CSE cse("nnls::IPM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
@@ -100,7 +100,7 @@ void IPM
         Matrix<Real>& X, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("nnls::IPM"))
+    DEBUG_ONLY(CSE cse("nnls::IPM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
@@ -134,7 +134,7 @@ void IPM
         DistMultiVec<Real>& X, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("IPM"))
+    DEBUG_ONLY(CSE cse("IPM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 

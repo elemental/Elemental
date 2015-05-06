@@ -73,7 +73,7 @@ void Initialize
         Matrix<Real>& z,       Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -190,7 +190,7 @@ void Initialize
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -311,7 +311,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -450,7 +450,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();

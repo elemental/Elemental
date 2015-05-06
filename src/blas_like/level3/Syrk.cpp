@@ -21,7 +21,7 @@ void Syrk
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Syrk");
+      CSE cse("Syrk");
       if( orientation == NORMAL )
       {
           if( A.Height() != C.Height() || A.Height() != C.Width() )
@@ -57,7 +57,7 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syrk"))
+    DEBUG_ONLY(CSE cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
@@ -69,7 +69,7 @@ void Syrk
   T alpha, const AbstractDistMatrix<T>& A, 
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syrk"))
+    DEBUG_ONLY(CSE cse("Syrk"))
     if( uplo == LOWER && orientation == NORMAL )
         syrk::LN( alpha, A, beta, C, conjugate );
     else if( uplo == LOWER )
@@ -86,7 +86,7 @@ void Syrk
   T alpha, const AbstractDistMatrix<T>& A, 
                  AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syrk"))
+    DEBUG_ONLY(CSE cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
@@ -98,7 +98,7 @@ void Syrk
   T alpha, const SparseMatrix<T>& A, 
   T beta,        SparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syrk"))
+    DEBUG_ONLY(CSE cse("Syrk"))
 
     if( orientation == NORMAL )
     {
@@ -162,7 +162,7 @@ void Syrk
   T alpha, const SparseMatrix<T>& A, 
                  SparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syrk"))
+    DEBUG_ONLY(CSE cse("Syrk"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
@@ -178,7 +178,7 @@ void Syrk
   T alpha, const DistSparseMatrix<T>& A, 
   T beta,        DistSparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syrk"))
+    DEBUG_ONLY(CSE cse("Syrk"))
 
     if( orientation == NORMAL )
     {
@@ -269,7 +269,7 @@ void Syrk
   T alpha, const DistSparseMatrix<T>& A, 
                  DistSparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Syrk"))
+    DEBUG_ONLY(CSE cse("Syrk"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )

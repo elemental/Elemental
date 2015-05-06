@@ -16,7 +16,7 @@ namespace El {
 template<typename T>
 void Print( const Matrix<T>& A, string title, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print"))
+    DEBUG_ONLY(CSE cse("Print"))
     if( title != "" )
         os << title << endl;
     
@@ -35,7 +35,7 @@ template<typename T>
 void Print
 ( const AbstractDistMatrix<T>& A, string title, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print"))
+    DEBUG_ONLY(CSE cse("Print"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -53,7 +53,7 @@ template<typename T>
 void Print
 ( const AbstractBlockDistMatrix<T>& A, string title, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print"))
+    DEBUG_ONLY(CSE cse("Print"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -70,7 +70,7 @@ void Print
 template<typename T>
 void Print( const DistMultiVec<T>& X, string title, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [DistMultiVec]"))
+    DEBUG_ONLY(CSE cse("Print [DistMultiVec]"))
     const Int commRank = mpi::Rank( X.Comm() );
     if( commRank == 0 )
     {
@@ -86,7 +86,7 @@ void Print( const DistMultiVec<T>& X, string title, ostream& os )
 
 void Print( const Graph& graph, string msg, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [Graph]"))
+    DEBUG_ONLY(CSE cse("Print [Graph]"))
     if( msg != "" )
         os << msg << endl;
     const Int numEdges = graph.NumEdges();
@@ -99,7 +99,7 @@ void Print( const Graph& graph, string msg, ostream& os )
 
 void Print( const DistGraph& graph, string msg, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [DistGraph]"))
+    DEBUG_ONLY(CSE cse("Print [DistGraph]"))
     const mpi::Comm comm = graph.Comm();
     const int commRank = mpi::Rank( comm );
     if( commRank == 0 )
@@ -117,7 +117,7 @@ void Print( const DistGraph& graph, string msg, ostream& os )
 template<typename T>
 void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
+    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
     if( msg != "" )
         os << msg << endl;
     const Int numEntries = A.NumEntries();
@@ -132,7 +132,7 @@ void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 template<typename T>
 void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [DistSparseMatrix]"))
+    DEBUG_ONLY(CSE cse("Print [DistSparseMatrix]"))
     const mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
 
@@ -154,7 +154,7 @@ void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 void PrintLocal
 ( const DistSymmNodeInfo& info, string msg, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("PrintLocal [DistSymmNodeInfo]"))
+    DEBUG_ONLY(CSE cse("PrintLocal [DistSymmNodeInfo]"))
     LogicError("This routine needs to be rewritten");
 }
 
@@ -164,7 +164,7 @@ void PrintLocal
 template<typename T>
 void Print( const vector<T>& x, string title, ostream& os )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print"))
+    DEBUG_ONLY(CSE cse("Print"))
     if( title != "" )
         os << title << endl;
     

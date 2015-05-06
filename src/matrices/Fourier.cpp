@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 void Fourier( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Fourier"))
+    DEBUG_ONLY(CSE cse("Fourier"))
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );
@@ -27,7 +27,7 @@ void Fourier( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Fourier"))
+    DEBUG_ONLY(CSE cse("Fourier"))
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );
@@ -41,7 +41,7 @@ void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Fourier"))
+    DEBUG_ONLY(CSE cse("Fourier"))
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );

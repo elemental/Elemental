@@ -30,7 +30,7 @@ inline void LowerBackwardMultiply
 ( const SymmNodeInfo& info, 
   const SymmFront<F>& front, MatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerBackwardMultiply"))
+    DEBUG_ONLY(CSE cse("LowerBackwardMultiply"))
 
     auto* dupMV = X.duplicateMV;
     auto* dupMat = X.duplicateMat;
@@ -91,7 +91,7 @@ inline void LowerBackwardMultiply
 ( const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMultiVecNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerBackwardMultiply"))
+    DEBUG_ONLY(CSE cse("LowerBackwardMultiply"))
     if( front.duplicate != nullptr )
     {
         LowerBackwardMultiply
@@ -189,7 +189,7 @@ inline void LowerBackwardMultiply
 ( const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerBackwardMultiply"))
+    DEBUG_ONLY(CSE cse("LowerBackwardMultiply"))
     if( front.duplicate != nullptr )
     {
         LowerBackwardMultiply

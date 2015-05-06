@@ -25,7 +25,7 @@ LocalAccumulateRUN
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LocalAccumulateRUN");
+      CSE cse("trmm::LocalAccumulateRUN");
       AssertSameGrids( U, X, ZTrans );
       if( U.Height() != U.Width() || U.Height() != X.Width() ||
           U.Height() != ZTrans.Height() )
@@ -71,7 +71,7 @@ RUNA
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RUNA");
+      CSE cse("trmm::RUNA");
       AssertSameGrids( UPre, XPre );
       // TODO: More input checks
     )
@@ -116,7 +116,7 @@ RUNCOld
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RUNCOld");
+      CSE cse("trmm::RUNCOld");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
           LogicError
@@ -166,7 +166,7 @@ RUNC
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RUNC");
+      CSE cse("trmm::RUNC");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
           LogicError
@@ -219,7 +219,7 @@ inline void
 RUN
 ( UnitOrNonUnit diag, const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trmm::RUN"))
+    DEBUG_ONLY(CSE cse("trmm::RUN"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
         RUNA( diag, U, X );

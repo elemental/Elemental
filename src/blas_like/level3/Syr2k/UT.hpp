@@ -17,7 +17,7 @@ UT
   T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("syr2k::UT");
+      CSE cse("syr2k::UT");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width() ||
           BPre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||

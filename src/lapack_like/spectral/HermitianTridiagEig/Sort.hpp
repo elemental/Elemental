@@ -19,7 +19,7 @@ namespace herm_eig {
 template<typename F>
 void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))
+    DEBUG_ONLY(CSE cse("herm_eig::Sort"))
     if( sort == UNSORTED )
         return;
 
@@ -44,7 +44,7 @@ template<typename Real,typename F>
 void Sort
 ( AbstractDistMatrix<Real>& w, AbstractDistMatrix<F>& Z, SortType sort )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))
+    DEBUG_ONLY(CSE cse("herm_eig::Sort"))
     if( sort == UNSORTED )
         return;
 

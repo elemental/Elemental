@@ -17,7 +17,7 @@ template<typename F>
 inline void
 Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::Full"))
+    DEBUG_ONLY(CSE cse("lu::Full"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -66,7 +66,7 @@ Full
   AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::Full");
+        CSE cse("lu::Full");
         AssertSameGrids( APre, p, q );
     )
     const Int m = APre.Height();

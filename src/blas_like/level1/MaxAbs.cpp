@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
+    DEBUG_ONLY(CSE cse("VectorMaxAbs"))
     typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -64,7 +64,7 @@ ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x )
 template<typename T>
 ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
+    DEBUG_ONLY(CSE cse("VectorMaxAbs"))
     typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -129,7 +129,7 @@ ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x )
 template<typename T>
 Entry<Base<T>> MaxAbs( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
+    DEBUG_ONLY(CSE cse("MaxAbs"))
     typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -166,7 +166,7 @@ template<typename T>
 Entry<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("MaxAbs");
+      CSE cse("MaxAbs");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -216,7 +216,7 @@ Entry<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A )
 template<typename T>
 Entry<Base<T>> MaxAbs( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
+    DEBUG_ONLY(CSE cse("MaxAbs"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -250,7 +250,7 @@ Entry<Base<T>> MaxAbs( const SparseMatrix<T>& A )
 template<typename T>
 Entry<Base<T>> MaxAbs( const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
+    DEBUG_ONLY(CSE cse("MaxAbs"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -285,7 +285,7 @@ template<typename T>
 Entry<Base<T>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMaxAbs");
+      CSE cse("SymmetricMaxAbs");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -341,7 +341,7 @@ Entry<Base<T>> SymmetricMaxAbs
 ( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMaxAbs");
+      CSE cse("SymmetricMaxAbs");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
@@ -414,7 +414,7 @@ template<typename T>
 Entry<Base<T>> SymmetricMaxAbs
 ( UpperOrLower uplo, const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxAbs"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxAbs"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -450,7 +450,7 @@ template<typename T>
 Entry<Base<T>> SymmetricMaxAbs
 ( UpperOrLower uplo, const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxAbs"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxAbs"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;

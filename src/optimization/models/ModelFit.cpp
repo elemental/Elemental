@@ -22,7 +22,7 @@ Int ModelFit
   const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ModelFit"))
+    DEBUG_ONLY(CSE cse("ModelFit"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -108,7 +108,7 @@ Int ModelFit
         AbstractDistMatrix<Real>& wPre, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ModelFit"))
+    DEBUG_ONLY(CSE cse("ModelFit"))
 
     auto APtr = ReadProxy<Real,MC,MR>( &APre );  auto& A = *APtr;
     auto bPtr = ReadProxy<Real,MC,MR>( &bPre );  auto& b = *bPtr;

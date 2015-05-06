@@ -13,7 +13,7 @@ namespace El {
 void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("InvertPermutation");
+      CSE cse("InvertPermutation");
       if( p.Width() != 1 )
           LogicError("p must be a column vector");
     )
@@ -38,7 +38,7 @@ void InvertPermutation
 ( const AbstractDistMatrix<Int>& pPre, AbstractDistMatrix<Int>& pInvPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("InvertPermutation");
+      CSE cse("InvertPermutation");
       if( pPre.Width() != 1 )
           LogicError("p must be a column vector");
     )

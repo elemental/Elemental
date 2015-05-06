@@ -17,7 +17,7 @@ template<typename Real>
 inline vector<Real>
 LogBinomial( Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("LogBinomial"))
+    DEBUG_ONLY(CSE cse("LogBinomial"))
     vector<Real> binom(n+1,0), binomTmp(n+1,0);
     for( Int j=1; j<=n; ++j )
     {
@@ -34,7 +34,7 @@ template<typename Real>
 inline vector<Real>
 LogEulerian( Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("LogEulerian"))
+    DEBUG_ONLY(CSE cse("LogEulerian"))
     vector<Real> euler(n,0), eulerTmp(n,0);
     for( Int j=1; j<n; ++j )
     {

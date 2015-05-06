@@ -17,7 +17,7 @@ namespace El {
 template<typename F>
 void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hessenberg"))
+    DEBUG_ONLY(CSE cse("Hessenberg"))
     if( uplo == UPPER )
         hessenberg::U( A, t );
     else
@@ -28,7 +28,7 @@ template<typename F>
 void Hessenberg
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hessenberg"))
+    DEBUG_ONLY(CSE cse("Hessenberg"))
     if( uplo == UPPER )
         hessenberg::U( A, t );
     else
@@ -40,7 +40,7 @@ namespace hessenberg {
 template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("hessenberg::ExplicitCondensed"))
+    DEBUG_ONLY(CSE cse("hessenberg::ExplicitCondensed"))
     Matrix<F> t;
     Hessenberg( uplo, A, t );
     if( uplo == LOWER )
@@ -52,7 +52,7 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 template<typename F> 
 void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("hessenberg::ExplicitCondensed"))
+    DEBUG_ONLY(CSE cse("hessenberg::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
     Hessenberg( uplo, A, t );
     if( uplo == LOWER )

@@ -15,7 +15,7 @@ namespace El {
 template<typename F>
 ValueInt<Base<F>> VectorMinAbs( const Matrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMinAbs"))
+    DEBUG_ONLY(CSE cse("VectorMinAbs"))
     typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -63,7 +63,7 @@ ValueInt<Base<F>> VectorMinAbs( const Matrix<F>& x )
 template<typename F>
 ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMinAbs"))
+    DEBUG_ONLY(CSE cse("VectorMinAbs"))
     typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -128,7 +128,7 @@ ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x )
 template<typename F>
 Entry<Base<F>> MinAbs( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MinAbs"))
+    DEBUG_ONLY(CSE cse("MinAbs"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -165,7 +165,7 @@ template<typename F>
 Entry<Base<F>> MinAbs( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("MinAbs");
+      CSE cse("MinAbs");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -216,7 +216,7 @@ template<typename F>
 Entry<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMinAbs");
+      CSE cse("SymmetricMinAbs");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -274,7 +274,7 @@ Entry<Base<F>>
 SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMinAbs");
+      CSE cse("SymmetricMinAbs");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

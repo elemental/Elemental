@@ -22,7 +22,7 @@ inline void
 CholeskyLVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hpd_inv::CholeskyLVar2");
+        CSE cse("hpd_inv::CholeskyLVar2");
         if( A.Height() != A.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -70,7 +70,7 @@ inline void
 CholeskyLVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hpd_inv::CholeskyLVar2");
+        CSE cse("hpd_inv::CholeskyLVar2");
         if( APre.Height() != APre.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -116,7 +116,7 @@ CholeskyLVar2( AbstractDistMatrix<F>& APre )
         A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        LocalCholesky( LOWER, A11_STAR_STAR );
+        Cholesky( LOWER, A11_STAR_STAR );
 
         A10_STAR_VR = A10;
         LocalTrsm
@@ -150,7 +150,7 @@ CholeskyLVar2( AbstractDistMatrix<F>& APre )
 
         LocalTriangularInverse( LOWER, NON_UNIT, A11_STAR_STAR );
 
-        LocalTrtrmm( LOWER, A11_STAR_STAR, true );
+        Trtrmm( LOWER, A11_STAR_STAR, true );
 
         A11 = A11_STAR_STAR;
         A10 = A10_STAR_VR;

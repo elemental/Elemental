@@ -34,7 +34,7 @@ void AugmentedKKT
   const Matrix<Real>& x, const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -57,7 +57,7 @@ void AugmentedKKT
   const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -83,7 +83,7 @@ void AugmentedKKT
   const Matrix<Real>& x,       const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumEntries();
@@ -135,7 +135,7 @@ void AugmentedKKT
   const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -235,7 +235,7 @@ void AugmentedKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKTRHS"))
+    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKTRHS"))
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), yInd(n,n+m);
@@ -263,7 +263,7 @@ void AugmentedKKTRHS
   const AbstractDistMatrix<Real>& rmu,
         AbstractDistMatrix<Real>& dPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::AugmentedKKTRHS"))
+    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKTRHS"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -301,7 +301,7 @@ void AugmentedKKTRHS
   const DistMultiVec<Real>& rmu, 
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::FormAugmentedSystem"))
+    DEBUG_ONLY(CSE cse("qp::direct::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
     Zeros( d, m+n, 1 );
@@ -350,7 +350,7 @@ void ExpandAugmentedSolution
         Matrix<Real>& dx,        Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
 
@@ -380,7 +380,7 @@ void ExpandAugmentedSolution
         AbstractDistMatrix<Real>& dxPre,        AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dzPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -426,7 +426,7 @@ void ExpandAugmentedSolution
         DistMultiVec<Real>& dx,        DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandAugmentedSolution"))
+    DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
     mpi::Comm comm = z.Comm();

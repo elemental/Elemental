@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Forsythe( Matrix<T>& J, Int n, T alpha, T lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("Forsythe"))
+    DEBUG_ONLY(CSE cse("Forsythe"))
     Jordan( J, n, lambda );
     if( n > 0 )
         J.Set( n-1, 0, alpha );
@@ -22,7 +22,7 @@ void Forsythe( Matrix<T>& J, Int n, T alpha, T lambda )
 template<typename T>
 void Forsythe( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("Forsythe"))
+    DEBUG_ONLY(CSE cse("Forsythe"))
     Jordan( J, n, lambda );
     if( n > 0 )
         J.Set( n-1, 0, alpha );
@@ -31,7 +31,7 @@ void Forsythe( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda )
 template<typename T>
 void Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("Forsythe"))
+    DEBUG_ONLY(CSE cse("Forsythe"))
     Jordan( J, n, lambda );
     if( n > 0 )
         J.Set( n-1, 0, alpha );

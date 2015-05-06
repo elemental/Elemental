@@ -17,7 +17,7 @@ namespace El {
 template<typename F>
 void Kahan( Matrix<F>& A, Int n, F phi )
 {
-    DEBUG_ONLY(CallStackEntry cse("Kahan"))
+    DEBUG_ONLY(CSE cse("Kahan"))
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
@@ -32,7 +32,7 @@ void Kahan( Matrix<F>& A, Int n, F phi )
 template<typename F>
 void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
 {
-    DEBUG_ONLY(CallStackEntry cse("Kahan"))
+    DEBUG_ONLY(CSE cse("Kahan"))
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
@@ -47,7 +47,7 @@ void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
 template<typename F>
 void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi )
 {
-    DEBUG_ONLY(CallStackEntry cse("Kahan"))
+    DEBUG_ONLY(CSE cse("Kahan"))
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;

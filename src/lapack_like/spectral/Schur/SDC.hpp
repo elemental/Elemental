@@ -27,7 +27,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 ComputePartition( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::ComputePartition"))
+    DEBUG_ONLY(CSE cse("schur::ComputePartition"))
     typedef Base<F> Real;
     const Int n = A.Height();
     if( n == 0 ) 
@@ -74,7 +74,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 ComputePartition( DistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::ComputePartition"))
+    DEBUG_ONLY(CSE cse("schur::ComputePartition"))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -136,7 +136,7 @@ inline ValueInt<Base<F>>
 SignDivide
 ( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
+    DEBUG_ONLY(CSE cse("schur::SignDivide"))
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -178,7 +178,7 @@ SignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
   const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
+    DEBUG_ONLY(CSE cse("schur::SignDivide"))
     const Grid& g = A.Grid();
 
     // G := sgn(G)
@@ -220,7 +220,7 @@ inline ValueInt<Base<F>>
 RandomizedSignDivide
 ( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
+    DEBUG_ONLY(CSE cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
@@ -282,7 +282,7 @@ RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ,
   const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
+    DEBUG_ONLY(CSE cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -344,7 +344,7 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const ValueInt<Real> median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
@@ -410,7 +410,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -481,7 +481,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A, Matrix<Real>& Q, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
@@ -548,7 +548,7 @@ SpectralDivide
 ( Matrix<Complex<Real>>& A, Matrix<Complex<Real>>& Q, 
   const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -618,7 +618,7 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
@@ -686,7 +686,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -760,7 +760,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A, DistMatrix<Real>& Q, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const auto median = Median(GetDiagonal(A));
@@ -829,7 +829,7 @@ SpectralDivide
 ( DistMatrix<Complex<Real>>& A, DistMatrix<Complex<Real>>& Q,
   const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
+    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -904,7 +904,7 @@ SDC
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
+    DEBUG_ONLY(CSE cse("schur::SDC"))
     const Int n = A.Height();
     w.Resize( n, 1 );
     if( n <= ctrl.cutoff )
@@ -946,7 +946,7 @@ SDC
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
   bool fullTriangle=true, const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
+    DEBUG_ONLY(CSE cse("schur::SDC"))
     const Int n = A.Height();
     w.Resize( n, 1 );
     Q.Resize( n, n );
@@ -1063,7 +1063,7 @@ inline void PushSubproblems
   DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
+    DEBUG_ONLY(CSE cse("schur::PushSubproblems"))
     const Grid& grid = ATL.Grid();
 
     // Split based on the work estimates
@@ -1090,7 +1090,7 @@ inline void PullSubproblems
   DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
+    DEBUG_ONLY(CSE cse("schur::PullSubproblems"))
     const Grid& grid = ATL.Grid();
     const bool sameGrid = ( wT.Grid() == wTSub.Grid() );
 
@@ -1147,7 +1147,7 @@ SDC
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("schur::SDC");
+        CSE cse("schur::SDC");
         AssertSameGrids( APre, wPre );
     )
     typedef Base<F> Real;
@@ -1220,7 +1220,7 @@ inline void PushSubproblems
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
+    DEBUG_ONLY(CSE cse("schur::PushSubproblems"))
     const Grid& grid = ATL.Grid();
 
     // Split based on the work estimates
@@ -1253,7 +1253,7 @@ inline void PullSubproblems
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
+    DEBUG_ONLY(CSE cse("schur::PullSubproblems"))
     const Grid& grid = ATL.Grid();
     const bool sameGrid = ( wT.Grid() == wTSub.Grid() );
 
@@ -1323,7 +1323,7 @@ SDC
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("schur::SDC");
+        CSE cse("schur::SDC");
         AssertSameGrids( APre, wPre, QPre );
     )
     typedef Base<F> Real;

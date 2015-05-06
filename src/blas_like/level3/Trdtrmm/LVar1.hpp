@@ -15,7 +15,7 @@ inline void
 LVar1( Matrix<F>& L, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::LVar1");
+        CSE cse("trdtrmm::LVar1");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
     )
@@ -49,7 +49,7 @@ inline void
 LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::LVar1");
+        CSE cse("trdtrmm::LVar1");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
     )
@@ -89,7 +89,7 @@ inline void
 LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::LVar1");
+        CSE cse("trdtrmm::LVar1");
         if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
     )
@@ -137,7 +137,7 @@ LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
         ( LEFT, LOWER, orientation, UNIT, F(1), L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
-        LocalTrdtrmm( LOWER, L11_STAR_STAR, conjugate );
+        Trdtrmm( LOWER, L11_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
     }
 }
@@ -149,7 +149,7 @@ LVar1
   bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::LVar1");
+        CSE cse("trdtrmm::LVar1");
         if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
     )
@@ -209,7 +209,7 @@ LVar1
         ( LEFT, LOWER, orientation, UNIT, F(1), L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
-        LocalTrdtrmm( LOWER, L11_STAR_STAR, dSub1_STAR_STAR, conjugate );
+        Trdtrmm( LOWER, L11_STAR_STAR, dSub1_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
 
         k += nb;

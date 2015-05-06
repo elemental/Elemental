@@ -18,7 +18,7 @@ void MultiShiftTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("MultiShiftTrsm"))
+    DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
     if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
@@ -36,7 +36,7 @@ void MultiShiftTrsm
   F alpha, const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& shifts, 
   AbstractDistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("MultiShiftTrsm"))
+    DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
     if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )

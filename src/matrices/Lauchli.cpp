@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Lauchli( Matrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("Lauchli"))
+    DEBUG_ONLY(CSE cse("Lauchli"))
     Zeros( A, n+1, n );
 
     // Set the first row to all ones
@@ -27,7 +27,7 @@ void Lauchli( Matrix<T>& A, Int n, T mu )
 template<typename T>
 void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("Lauchli"))
+    DEBUG_ONLY(CSE cse("Lauchli"))
     Zeros( A, n+1, n );
 
     // Set the first row to all ones

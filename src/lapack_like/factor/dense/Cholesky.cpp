@@ -25,7 +25,7 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Cholesky");
+        CSE cse("Cholesky");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -39,7 +39,7 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Cholesky");
+        CSE cse("Cholesky");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -53,7 +53,7 @@ template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ReverseCholesky");
+        CSE cse("ReverseCholesky");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -66,7 +66,7 @@ void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 template<typename F> 
 void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Cholesky"))
+    DEBUG_ONLY(CSE cse("Cholesky"))
     if( uplo == LOWER )
         cholesky::LVar3( A );
     else
@@ -77,22 +77,32 @@ template<typename F>
 void Cholesky
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p )
 {
-    DEBUG_ONLY(CallStackEntry cse("Cholesky"))
+    DEBUG_ONLY(CSE cse("Cholesky"))
     if( uplo == LOWER )
         cholesky::LVar3( A, p );
     else
         cholesky::UVar3( A, p );
 }
 
+template<typename F>
+void Cholesky
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+{ Cholesky( uplo, A.Matrix() ); }
+
 template<typename F> 
 void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("ReverseCholesky"))
+    DEBUG_ONLY(CSE cse("ReverseCholesky"))
     if( uplo == LOWER )
         cholesky::ReverseLVar3( A );
     else
         cholesky::ReverseUVar3( A );
 }
+
+template<typename F>
+void ReverseCholesky
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+{ ReverseCholesky( uplo, A.Matrix() ); }
 
 // Either 
 //         L' L'^H := L L^H + alpha V V^H
@@ -101,7 +111,7 @@ void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 template<typename F>
 void CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("CholeskyMod"))
+    DEBUG_ONLY(CSE cse("CholeskyMod"))
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
@@ -115,7 +125,7 @@ void CholeskyMod
 ( UpperOrLower uplo, AbstractDistMatrix<F>& T, 
   Base<F> alpha, AbstractDistMatrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("CholeskyMod"))
+    DEBUG_ONLY(CSE cse("CholeskyMod"))
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
@@ -127,7 +137,7 @@ void CholeskyMod
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
+    DEBUG_ONLY(CSE cse("HPSDCholesky"))
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
 
@@ -140,7 +150,7 @@ void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
+    DEBUG_ONLY(CSE cse("HPSDCholesky"))
 
     // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -158,9 +168,12 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 #define PROTO(F) \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A ); \
   template void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
+  template void Cholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
   template void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A ); \
   template void ReverseCholesky \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
+  template void ReverseCholesky \
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p ); \
   template void Cholesky \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p ); \

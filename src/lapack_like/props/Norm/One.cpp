@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 Base<F> OneNorm( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("OneNorm"))
+    DEBUG_ONLY(CSE cse("OneNorm"))
     typedef Base<F> R;
     R maxColSum = 0;
     const Int height = A.Height();
@@ -31,7 +31,7 @@ Base<F> OneNorm( const Matrix<F>& A )
 template<typename F>
 Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
+    DEBUG_ONLY(CSE cse("HermitianOneNorm"))
     typedef Base<F> R;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
@@ -67,14 +67,14 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 Base<F> SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricOneNorm"))
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
 Base<F> OneNorm( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("OneNorm"))
+    DEBUG_ONLY(CSE cse("OneNorm"))
     typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
@@ -110,7 +110,7 @@ Base<F> OneNorm( const AbstractDistMatrix<F>& A )
 template<typename F>
 Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
+    DEBUG_ONLY(CSE cse("HermitianOneNorm"))
     typedef Base<F> R;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
@@ -222,7 +222,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 template<typename F>
 Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricOneNorm"))
     return HermitianOneNorm( uplo, A );
 }
 

@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 void Ris( Matrix<F>& R, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ris"))
+    DEBUG_ONLY(CSE cse("Ris"))
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
@@ -23,7 +23,7 @@ void Ris( Matrix<F>& R, Int n )
 template<typename F>
 void Ris( AbstractDistMatrix<F>& R, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ris"))
+    DEBUG_ONLY(CSE cse("Ris"))
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
@@ -33,7 +33,7 @@ void Ris( AbstractDistMatrix<F>& R, Int n )
 template<typename F>
 void Ris( AbstractBlockDistMatrix<F>& R, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ris"))
+    DEBUG_ONLY(CSE cse("Ris"))
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };

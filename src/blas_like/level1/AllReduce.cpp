@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
-    DEBUG_ONLY(CallStackEntry cse("AllReduce"))
+    DEBUG_ONLY(CSE cse("AllReduce"))
     if( !A.Participating() )
         return;
 
@@ -47,7 +47,7 @@ void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 template<typename T>
 void AllReduce( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
-    DEBUG_ONLY(CallStackEntry cse("AllReduce"))
+    DEBUG_ONLY(CSE cse("AllReduce"))
     if( !A.Participating() )
         return;
 

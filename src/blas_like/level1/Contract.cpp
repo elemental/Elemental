@@ -15,7 +15,7 @@ void Contract
 ( const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Contract"))
+    DEBUG_ONLY(CSE cse("Contract"))
     AssertSameGrids( A, B );
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
@@ -66,7 +66,7 @@ void Contract
 ( const AbstractBlockDistMatrix<T>& A,
         AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Contract"))
+    DEBUG_ONLY(CSE cse("Contract"))
     AssertSameGrids( A, B );
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();

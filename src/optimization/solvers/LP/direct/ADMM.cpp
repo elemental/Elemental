@@ -28,7 +28,7 @@ Int ADMM
         Matrix<Real>& z,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::ADMM"))
+    DEBUG_ONLY(CSE cse("lp::direct::ADMM"))
     
     // Cache a custom partially-pivoted LU factorization of 
     //    |  rho*I   A^H | = | B11  B12 |
@@ -179,7 +179,7 @@ Int ADMM
         AbstractDistMatrix<Real>& zPre, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::ADMM"))
+    DEBUG_ONLY(CSE cse("lp::direct::ADMM"))
 
     auto APtr = ReadProxy<Real,MC,MR>( &APre );  auto& A = *APtr;
     auto bPtr = ReadProxy<Real,MC,MR>( &bPre );  auto& b = *bPtr;

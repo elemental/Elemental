@@ -16,7 +16,7 @@ void SymmetricInverse
 ( UpperOrLower uplo, Matrix<F>& A, bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
+    DEBUG_ONLY(CSE cse("SymmetricInverse"))
     if( uplo == LOWER )
     {
         Matrix<Int> p;
@@ -41,7 +41,7 @@ void SymmetricInverse
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
+    DEBUG_ONLY(CSE cse("SymmetricInverse"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -71,7 +71,7 @@ void LocalSymmetricInverse
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LocalSymmetricInverse"))
+    DEBUG_ONLY(CSE cse("LocalSymmetricInverse"))
     SymmetricInverse( uplo, A.Matrix(), conjugate, ctrl );
 }
 

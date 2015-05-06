@@ -26,7 +26,7 @@ namespace ldl {
 template<typename F>
 InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
+    DEBUG_ONLY(CSE cse("ldl::Inertia"))
     typedef Base<F> Real;
     const Int n = d.Height();
     DEBUG_ONLY(
@@ -70,7 +70,7 @@ Inertia
   const DistMatrix<F,MC,STAR>& dSub, 
   const DistMatrix<F,MC,STAR>& dSubPrev )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
+    DEBUG_ONLY(CSE cse("ldl::Inertia"))
     typedef Base<F> Real;
 
     const Int n = d.Height();
@@ -146,7 +146,7 @@ template<typename F>
 InertiaType Inertia
 ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
+    DEBUG_ONLY(CSE cse("ldl::Inertia"))
     typedef Base<F> Real;
     const Grid& g = d.Grid();
 

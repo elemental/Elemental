@@ -16,7 +16,7 @@ void Tikhonov
   const Matrix<F>& A, const Matrix<F>& B, 
   const Matrix<F>& G,       Matrix<F>& X, TikhonovAlg alg )
 {
-    DEBUG_ONLY(CallStackEntry cse("Tikhonov"))
+    DEBUG_ONLY(CSE cse("Tikhonov"))
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
@@ -69,7 +69,7 @@ void Tikhonov
   const AbstractDistMatrix<F>& G,          AbstractDistMatrix<F>& XPre, 
   TikhonovAlg alg )
 {
-    DEBUG_ONLY(CallStackEntry cse("Tikhonov"))
+    DEBUG_ONLY(CSE cse("Tikhonov"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto BPtr = ReadProxy<F,MC,MR>( &BPre );  auto& B = *BPtr;
@@ -183,7 +183,7 @@ void Tikhonov
   const SparseMatrix<F>& G,       Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Tikhonov"))
+    DEBUG_ONLY(CSE cse("Tikhonov"))
     
     // Explicitly form W := op(A)
     // ==========================
@@ -234,7 +234,7 @@ void Tikhonov
   const DistSparseMatrix<F>& G,       DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Tikhonov"))
+    DEBUG_ONLY(CSE cse("Tikhonov"))
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
     

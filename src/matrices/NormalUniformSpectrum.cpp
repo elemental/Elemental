@@ -17,7 +17,7 @@ template<typename Real>
 void NormalUniformSpectrum
 ( Matrix<Complex<Real>>& A, Int n, Complex<Real> center, Real radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
+    DEBUG_ONLY(CSE cse("NormalUniformSpectrum"))
     typedef Complex<Real> C;
     A.Resize( n, n );
 
@@ -40,7 +40,7 @@ void NormalUniformSpectrum
 ( AbstractDistMatrix<Complex<Real>>& APre, Int n, 
   Complex<Real> center, Real radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
+    DEBUG_ONLY(CSE cse("NormalUniformSpectrum"))
     typedef Complex<Real> C;
 
     auto APtr = WriteProxy<C,MC,MR>( &APre );

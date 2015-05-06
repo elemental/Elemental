@@ -16,7 +16,7 @@ void Filter
 ( const DistMatrix<T,Collect<U>(),Collect<V>()>& A,
         DistMatrix<T,        U,           V   >& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Filter"))
+    DEBUG_ONLY(CSE cse("copy::Filter"))
     AssertSameGrids( A, B );
 
     B.Resize( A.Height(), A.Width() );
@@ -36,7 +36,7 @@ void Filter
 ( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A,
         BlockDistMatrix<T,        U,           V   >& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Filter"))
+    DEBUG_ONLY(CSE cse("copy::Filter"))
     LogicError("This routine is not yet written");
 }
 

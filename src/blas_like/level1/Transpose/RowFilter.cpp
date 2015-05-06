@@ -18,7 +18,7 @@ void RowFilter
         AbstractDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("transpose::RowFilter");
+        CSE cse("transpose::RowFilter");
         if( A.ColDist() != Collect(B.RowDist()) ||
             A.RowDist() != B.ColDist() )
             LogicError("Incompatible distributions");
@@ -44,7 +44,7 @@ void RowFilter
         AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("transpose::RowFilter");
+        CSE cse("transpose::RowFilter");
         if( A.ColDist() != Collect(B.RowDist()) ||
             A.RowDist() != B.ColDist() )
             LogicError("Incompatible distributions");

@@ -16,7 +16,7 @@ template<typename T,Dist U,Dist V>
 void TranslateBetweenGrids
 ( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::TranslateBetweenGrids"))
+    DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids"))
     LogicError("General TranslateBetweenGrids not yet supported");
 }
 
@@ -24,7 +24,7 @@ template<typename T>
 void TranslateBetweenGrids
 ( const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::TranslateBetweenGrids [MC,MR]"))
+    DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids [MC,MR]"))
 
     B.Resize( A.Height(), A.Width() );
     // Just need to ensure that each viewing comm contains the other team's
@@ -208,7 +208,7 @@ template<typename T>
 void TranslateBetweenGrids
 ( const DistMatrix<T,STAR,STAR>& A, DistMatrix<T,STAR,STAR>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::TranslateBetweenGrids [STAR,STAR]"))
+    DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids [STAR,STAR]"))
     const Int height = A.Height();
     const Int width = A.Width();
     B.Resize( height, width );

@@ -20,7 +20,7 @@ void LocalAccumulateRL
         DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("symm::LocalAccumulateRL");
+      CSE cse("symm::LocalAccumulateRL");
       AssertSameGrids
       ( A, B_STAR_MC, BTrans_MR_STAR, ZTrans_MC_STAR, ZTrans_MR_STAR );
       if( A.Height() != A.Width() ||
@@ -97,7 +97,7 @@ RLA
   T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("symm::RLA");
+      CSE cse("symm::RLA");
       AssertSameGrids( APre, BPre, CPre );
     )
     const Int m = CPre.Height();
@@ -158,7 +158,7 @@ RLC
   T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("symm::RLC");
+      CSE cse("symm::RLC");
       AssertSameGrids( APre, BPre, CPre );
     )
     const Int n = CPre.Width();
@@ -218,7 +218,7 @@ RL
 ( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, bool conjugate=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("symm::RL"))
+    DEBUG_ONLY(CSE cse("symm::RL"))
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )
         symm::RLA( alpha, A, B, beta, C, conjugate );

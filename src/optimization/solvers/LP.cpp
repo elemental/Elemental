@@ -20,7 +20,7 @@ void LP
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_ADMM )
         lp::direct::ADMM( A, b, c, x, ctrl.admmCtrl );
     else if( ctrl.approach == LP_IPF )
@@ -40,7 +40,7 @@ void LP
         Matrix<Real>& z,       Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_IPF )
         lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -57,7 +57,7 @@ void LP
         AbstractDistMatrix<Real>& z, 
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_ADMM )
         lp::direct::ADMM( A, b, c, x, ctrl.admmCtrl );
     else if( ctrl.approach == LP_IPF )
@@ -77,7 +77,7 @@ void LP
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_IPF )
         lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -94,7 +94,7 @@ void LP
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_IPF )
         lp::direct::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -112,7 +112,7 @@ void LP
         Matrix<Real>& z,             Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_IPF )
         lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -129,7 +129,7 @@ void LP
         DistMultiVec<Real>& z, 
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_IPF )
         lp::direct::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
@@ -147,7 +147,7 @@ void LP
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LP"))
+    DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_IPF )
         lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )

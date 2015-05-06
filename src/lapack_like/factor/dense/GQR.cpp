@@ -15,7 +15,7 @@ void GQR
 ( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA, 
   Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB )
 {
-    DEBUG_ONLY(CallStackEntry cse("GQR"))
+    DEBUG_ONLY(CSE cse("GQR"))
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
     RQ( B, tB, dB );
@@ -28,7 +28,7 @@ void GQR
   AbstractDistMatrix<F>& BPre, 
   AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB )
 {
-    DEBUG_ONLY(CallStackEntry cse("GQR"))
+    DEBUG_ONLY(CSE cse("GQR"))
   
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
@@ -43,7 +43,7 @@ namespace gqr {
 template<typename F> 
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("gqr::ExplicitTriang"))
+    DEBUG_ONLY(CSE cse("gqr::ExplicitTriang"))
     Matrix<F> tA;
     Matrix<Base<F>> dA;
     QR( A, tA, dA );
@@ -55,7 +55,7 @@ void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 template<typename F> 
 void ExplicitTriang( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("gqr::ExplicitTriang"))
+    DEBUG_ONLY(CSE cse("gqr::ExplicitTriang"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;

@@ -16,7 +16,7 @@ template<typename F>
 void HatanoNelson
 ( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic )
 {
-    DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
+    DEBUG_ONLY(CSE cse("HatanoNelson"))
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
     Zeros( A, n, n );
@@ -39,7 +39,7 @@ void HatanoNelson
 ( AbstractDistMatrix<F>& A, Int n, 
   F center, Base<F> radius, F g, bool periodic )
 {
-    DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
+    DEBUG_ONLY(CSE cse("HatanoNelson"))
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
 

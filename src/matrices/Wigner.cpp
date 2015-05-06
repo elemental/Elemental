@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("Wigner"))
+    DEBUG_ONLY(CSE cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }
@@ -21,7 +21,7 @@ void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev )
 template<typename F>
 void Wigner( AbstractDistMatrix<F>& A, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("Wigner"))
+    DEBUG_ONLY(CSE cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }

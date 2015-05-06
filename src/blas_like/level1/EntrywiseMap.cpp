@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -24,7 +24,7 @@ void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
 template<typename T>
 void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     T* vBuf = A.ValueBuffer();
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
@@ -42,7 +42,7 @@ void EntrywiseMap( AbstractBlockDistMatrix<T>& A, function<T(T)> func )
 template<typename T>
 void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     T* vBuf = A.ValueBuffer();
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )
@@ -56,7 +56,7 @@ void EntrywiseMap( DistMultiVec<T>& A, function<T(T)> func )
 template<typename S,typename T>
 void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
@@ -69,7 +69,7 @@ template<typename S,typename T>
 void EntrywiseMap
 ( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
@@ -142,7 +142,7 @@ void EntrywiseMap
 ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
   function<T(S)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numLocalEntries = A.NumLocalEntries();
@@ -161,7 +161,7 @@ template<typename S,typename T>
 void EntrywiseMap
 ( const DistMultiVec<S>& A, DistMultiVec<T>& B, function<T(S)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseMap"))
+    DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
     B.SetComm( A.Comm() );

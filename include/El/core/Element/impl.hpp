@@ -60,7 +60,7 @@ inline void SetRealPart( Complex<Real>& alpha, const Real& beta )
 template<typename Real>
 inline void SetImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_ONLY(CallStackEntry cse("SetImagPart"))
+    DEBUG_ONLY(CSE cse("SetImagPart"))
     LogicError("Nonsensical assignment");
 }
 template<typename Real>
@@ -79,7 +79,7 @@ inline void UpdateRealPart( Complex<Real>& alpha, const Real& beta )
 template<typename Real>
 inline void UpdateImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateImagPart"))
+    DEBUG_ONLY(CSE cse("UpdateImagPart"))
     LogicError("Nonsensical update");
 }
 template<typename Real>

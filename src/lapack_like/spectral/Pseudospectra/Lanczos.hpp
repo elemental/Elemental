@@ -24,7 +24,7 @@ ComputeNewEstimates
   const vector<Matrix<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -56,7 +56,7 @@ ComputeNewEstimates
   const vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
     ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts.Matrix() );
 }
 
@@ -74,7 +74,7 @@ Deflate
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    DEBUG_ONLY(CSE cse("pspec::Deflate"))
     Timer timer;
     if( progress )
         timer.Start();
@@ -116,7 +116,7 @@ Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    DEBUG_ONLY(CSE cse("pspec::Deflate"))
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
@@ -223,7 +223,7 @@ Lanczos
 ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Lanczos"))
+    DEBUG_ONLY(CSE cse("pspec::Lanczos"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -410,7 +410,7 @@ Lanczos
         AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Lanczos"))
+    DEBUG_ONLY(CSE cse("pspec::Lanczos"))
     using namespace pspec;
     typedef Complex<Real> C;
 

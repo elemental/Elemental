@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void Hilbert( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hilbert"))
+    DEBUG_ONLY(CSE cse("Hilbert"))
     A.Resize( n, n );
     auto hilbertFill = []( Int i, Int j ) { return F(1)/F(i+j+1); };
     IndexDependentFill( A, function<F(Int,Int)>(hilbertFill) );
@@ -22,7 +22,7 @@ void Hilbert( Matrix<F>& A, Int n )
 template<typename F>
 void Hilbert( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hilbert"))
+    DEBUG_ONLY(CSE cse("Hilbert"))
     A.Resize( n, n );
     auto hilbertFill = []( Int i, Int j ) { return F(1)/F(i+j+1); };
     IndexDependentFill( A, function<F(Int,Int)>(hilbertFill) );
@@ -31,7 +31,7 @@ void Hilbert( AbstractDistMatrix<F>& A, Int n )
 template<typename F>
 void Hilbert( AbstractBlockDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hilbert"))
+    DEBUG_ONLY(CSE cse("Hilbert"))
     A.Resize( n, n );
     auto hilbertFill = []( Int i, Int j ) { return F(1)/F(i+j+1); };
     IndexDependentFill( A, function<F(Int,Int)>(hilbertFill) );

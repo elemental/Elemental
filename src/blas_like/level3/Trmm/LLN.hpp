@@ -25,7 +25,7 @@ LocalAccumulateLLN
         DistMatrix<T,MC,  STAR>& Z )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LocalAccumulateLLN");
+      CSE cse("trmm::LocalAccumulateLLN");
       AssertSameGrids( L, XTrans, Z );
       if( L.Height() != L.Width() ||
           L.Height() != XTrans.Width() ||
@@ -73,7 +73,7 @@ LLNA
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LLNA");
+      CSE cse("trmm::LLNA");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
           LogicError
@@ -117,7 +117,7 @@ LLNCOld
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LLNCOld");
+      CSE cse("trmm::LLNCOld");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
           LogicError
@@ -175,7 +175,7 @@ LLNC
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LLNC");
+      CSE cse("trmm::LLNC");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
           LogicError
@@ -227,7 +227,7 @@ inline void
 LLN
 ( UnitOrNonUnit diag, const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trmm::LLN"))
+    DEBUG_ONLY(CSE cse("trmm::LLN"))
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )
         LLNA( diag, L, X );

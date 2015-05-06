@@ -17,7 +17,7 @@ template<typename F>
 void HermitianUniformSpectrum
 ( Matrix<F>& A, Int n, Base<F> lower, Base<F> upper )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
+    DEBUG_ONLY(CSE cse("HermitianUniformSpectrum"))
     A.Resize( n, n );
     typedef Base<F> Real;
 
@@ -41,7 +41,7 @@ template<typename F>
 void HermitianUniformSpectrum
 ( AbstractDistMatrix<F>& APre, Int n, Base<F> lower, Base<F> upper )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
+    DEBUG_ONLY(CSE cse("HermitianUniformSpectrum"))
     APre.Resize( n, n );
     const Grid& grid = APre.Grid();
     typedef Base<F> Real;

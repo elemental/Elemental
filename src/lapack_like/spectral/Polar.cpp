@@ -19,7 +19,7 @@ namespace El {
 template<typename F>
 void Polar( Matrix<F>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Polar"))
+    DEBUG_ONLY(CSE cse("Polar"))
     if( ctrl.qdwh )
         ctrl.numIts = polar::QDWH( A, ctrl );
     else
@@ -29,7 +29,7 @@ void Polar( Matrix<F>& A, const PolarCtrl& ctrl )
 template<typename F>
 void Polar( AbstractDistMatrix<F>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Polar"))
+    DEBUG_ONLY(CSE cse("Polar"))
     if( ctrl.qdwh )
         ctrl.numIts = polar::QDWH( A, ctrl );
     else
@@ -39,7 +39,7 @@ void Polar( AbstractDistMatrix<F>& A, const PolarCtrl& ctrl )
 template<typename F>
 void Polar( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Polar"))
+    DEBUG_ONLY(CSE cse("Polar"))
     if( ctrl.qdwh )
         ctrl.numIts = polar::QDWH( A, P, ctrl );
     else
@@ -50,7 +50,7 @@ template<typename F>
 void Polar
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Polar"))
+    DEBUG_ONLY(CSE cse("Polar"))
     if( ctrl.qdwh )
         ctrl.numIts = polar::QDWH( A, P, ctrl );
     else
@@ -60,7 +60,7 @@ void Polar
 template<typename F>
 void HermitianPolar( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
+    DEBUG_ONLY(CSE cse("HermitianPolar"))
     if( ctrl.qdwh )
         ctrl.numIts = herm_polar::QDWH( uplo, A, ctrl );
     else
@@ -71,7 +71,7 @@ template<typename F>
 void HermitianPolar
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
+    DEBUG_ONLY(CSE cse("HermitianPolar"))
     if( ctrl.qdwh )
         ctrl.numIts = herm_polar::QDWH( uplo, A, ctrl );
     else
@@ -82,7 +82,7 @@ template<typename F>
 void HermitianPolar
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
+    DEBUG_ONLY(CSE cse("HermitianPolar"))
     if( ctrl.qdwh )
         ctrl.numIts = herm_polar::QDWH( uplo, A, P, ctrl );
     else
@@ -94,7 +94,7 @@ void HermitianPolar
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, 
   const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
+    DEBUG_ONLY(CSE cse("HermitianPolar"))
     if( ctrl.qdwh )
         ctrl.numIts = herm_polar::QDWH( uplo, A, P, ctrl );
     else

@@ -19,7 +19,7 @@ template<typename F>
 void L( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("herm_tridiag::L");
+        CSE cse("herm_tridiag::L");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -63,7 +63,7 @@ void L
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("herm_tridiag::L");
+        CSE cse("herm_tridiag::L");
         AssertSameGrids( APre, tPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");

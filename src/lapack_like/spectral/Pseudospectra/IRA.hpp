@@ -23,7 +23,7 @@ ComputeNewEstimates
   Matrix<Real>& activeEsts,
   Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -60,7 +60,7 @@ ComputeNewEstimates
         DistMatrix<Real,MR,STAR>& activeEsts,
         Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
     ComputeNewEstimates
     ( HList, activeConverged.LockedMatrix(), activeEsts.Matrix(), n );
 }
@@ -72,7 +72,7 @@ Restart
   const Matrix<Int>& activeConverged,
   vector<Matrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )
@@ -128,7 +128,7 @@ Restart
   vector<Matrix<Real>>& VRealList,
   vector<Matrix<Real>>& VImagList )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int n = VRealList[0].Height();
     const Int numShifts = VRealList[0].Width();
     if( numShifts == 0 )
@@ -194,7 +194,7 @@ Restart
   const DistMatrix<Int,MR,STAR>& activeConverged,
   vector<DistMatrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -210,7 +210,7 @@ Restart
   vector<DistMatrix<Real>>& VRealList,
   vector<DistMatrix<Real>>& VImagList )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
     vector<Matrix<Real>> VRealLocList(basisSize+1),
                          VImagLocList(basisSize+1);
@@ -229,7 +229,7 @@ IRA
 ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::IRA"))
+    DEBUG_ONLY(CSE cse("pspec::IRA"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -452,7 +452,7 @@ IRA
 ( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::IRA"))
+    DEBUG_ONLY(CSE cse("pspec::IRA"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -666,7 +666,7 @@ IRA
         AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::IRA"))
+    DEBUG_ONLY(CSE cse("pspec::IRA"))
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -946,7 +946,7 @@ IRA
         AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::IRA"))
+    DEBUG_ONLY(CSE cse("pspec::IRA"))
     using namespace pspec;
     typedef Complex<Real> C;
 

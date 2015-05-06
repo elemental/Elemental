@@ -17,7 +17,7 @@ template<typename T>
 inline void
 UVar1( Matrix<T>& U, bool conjugate=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("trtrmm::UVar1"))
+    DEBUG_ONLY(CSE cse("trtrmm::UVar1"))
     const Int n = U.Height();
     const Int bsize = Blocksize();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE ); 
@@ -44,7 +44,7 @@ inline void
 UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trtrmm::UVar1");
+        CSE cse("trtrmm::UVar1");
         if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
     )
@@ -90,7 +90,7 @@ UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
           T(1), U11_STAR_STAR, U01_VC_STAR );
         U01 = U01_VC_STAR;
 
-        LocalTrtrmm( UPPER, U11_STAR_STAR, conjugate );
+        Trtrmm( UPPER, U11_STAR_STAR, conjugate );
         U11 = U11_STAR_STAR;
     }
 }

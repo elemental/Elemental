@@ -29,7 +29,7 @@ template<typename F>
 inline void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("FrontVanillaLowerForwardMultiply");
+        CSE cse("FrontVanillaLowerForwardMultiply");
         if( L.Height() < L.Width() || L.Height() != X.Height() )
             LogicError
             ("Nonconformal multiply:\n",
@@ -47,7 +47,7 @@ template<typename F>
 inline void 
 FrontLowerForwardMultiply( const SymmFront<F>& front, Matrix<F>& W )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerForwardMultiply"))
+    DEBUG_ONLY(CSE cse("FrontLowerForwardMultiply"))
     const SymmFrontType type = front.type;
     if( Unfactored(type) )
         LogicError("Cannot multiply against an unfactored front");
@@ -62,7 +62,7 @@ inline void FrontVanillaLowerForwardMultiply
 ( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerForwardMultiply");
+      CSE cse("FrontVanillaLowerForwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -97,7 +97,7 @@ inline void FrontVanillaLowerForwardMultiply
 ( const DistMatrix<F>& L, DistMatrix<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerForwardMultiply");
+      CSE cse("FrontVanillaLowerForwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -130,7 +130,7 @@ inline void
 FrontLowerForwardMultiply
 ( const DistSymmFront<F>& front, DistMatrix<F,VC,STAR>& W )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerForwardMultiply"))
+    DEBUG_ONLY(CSE cse("FrontLowerForwardMultiply"))
     const SymmFrontType type = front.type;
 
     if( type == LDL_1D )
@@ -143,7 +143,7 @@ template<typename F>
 inline void 
 FrontLowerForwardMultiply( const DistSymmFront<F>& front, DistMatrix<F>& W )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerForwardMultiply"))
+    DEBUG_ONLY(CSE cse("FrontLowerForwardMultiply"))
     const SymmFrontType type = front.type;
 
     if( type == LDL_2D )

@@ -29,14 +29,14 @@ SpyWidget::~SpyWidget()
 
 void SpyWidget::paintEvent( QPaintEvent* event )
 {
-    DEBUG_ONLY(CallStackEntry cse("SpyWidget::paintEvent"))
+    DEBUG_ONLY(CSE cse("SpyWidget::paintEvent"))
     QStylePainter painter( this );
     painter.drawPixmap( 0, 0, pixmap_ );
 }
 
 void SpyWidget::Spy( const Matrix<Int>* A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SpyWidget::Spy"))
+    DEBUG_ONLY(CSE cse("SpyWidget::Spy"))
     const Int m = A->Height();
     const Int n = A->Width();
 

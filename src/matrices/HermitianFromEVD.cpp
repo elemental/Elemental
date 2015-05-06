@@ -17,7 +17,7 @@ void HermitianFromEVD
 ( UpperOrLower uplo, Matrix<F>& A,
   const Matrix<Base<F>>& w, const Matrix<F>& Z )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
+    DEBUG_ONLY(CSE cse("HermitianFromEVD"))
     Matrix<F> Z1Copy, Y1;
 
     const Int m = Z.Height();
@@ -45,7 +45,7 @@ void HermitianFromEVD
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
   const AbstractDistMatrix<Base<F>>& wPre, const AbstractDistMatrix<F>& ZPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
+    DEBUG_ONLY(CSE cse("HermitianFromEVD"))
     typedef Base<F> Real;
 
     auto APtr = WriteProxy<F,MC,MR>( &APre );     auto& A = *APtr;

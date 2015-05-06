@@ -26,19 +26,19 @@ void Trmm
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trmm");
-        if( A.Height() != A.Width() )
-            LogicError("Triangular matrix must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trmm");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trmm");
-        }
+      CSE cse("Trmm");
+      if( A.Height() != A.Width() )
+          LogicError("Triangular matrix must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal Trmm");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal Trmm");
+      }
     )
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -55,7 +55,7 @@ void Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("Trmm"))
+    DEBUG_ONLY(CSE cse("Trmm"))
     Scale( alpha, X );
     if( side == LEFT && uplo == LOWER )
     {
@@ -87,6 +87,23 @@ void Trmm
     }
 }
 
+template<typename T>
+void LocalTrmm
+( LeftOrRight side, UpperOrLower uplo,
+  Orientation orientation, UnitOrNonUnit diag,
+  T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B )
+{
+    DEBUG_ONLY(
+      CSE cse("LocalTrmm");
+      if( (side == LEFT && B.ColDist() != STAR) ||
+          (side == RIGHT && B.RowDist() != STAR) )
+          LogicError
+          ("Dist of RHS must conform with that of triangle");
+    )
+    Trmm
+    ( side, uplo, orientation, diag, alpha, A.LockedMatrix(), B.Matrix() );
+}
+
 #define PROTO(T) \
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
@@ -95,7 +112,11 @@ void Trmm
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  template void LocalTrmm \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    Orientation orientation, UnitOrNonUnit diag, \
+    T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

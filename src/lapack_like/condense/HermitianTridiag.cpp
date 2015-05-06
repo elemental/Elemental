@@ -20,7 +20,7 @@ namespace El {
 template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
+    DEBUG_ONLY(CSE cse("HermitianTridiag"))
     if( uplo == LOWER )
         herm_tridiag::L( A, t );
     else
@@ -32,7 +32,7 @@ void HermitianTridiag
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
   const HermitianTridiagCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
+    DEBUG_ONLY(CSE cse("HermitianTridiag"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
@@ -117,7 +117,7 @@ namespace herm_tridiag {
 template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_tridiag::ExplicitCondensed"))
+    DEBUG_ONLY(CSE cse("herm_tridiag::ExplicitCondensed"))
     Matrix<F> t;
     HermitianTridiag( uplo, A, t );
     if( uplo == UPPER )
@@ -132,7 +132,7 @@ void ExplicitCondensed
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
   const HermitianTridiagCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_tridiag::ExplicitCondensed"))
+    DEBUG_ONLY(CSE cse("herm_tridiag::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
     HermitianTridiag( uplo, A, t, ctrl );
     if( uplo == UPPER )

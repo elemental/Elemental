@@ -18,7 +18,7 @@ inline void
 AsciiMatlab
 ( const Matrix<T>& A, string basename="matrix", string title="matrix" )
 {
-    DEBUG_ONLY(CallStackEntry cse("write::AsciiMatlab"))
+    DEBUG_ONLY(CSE cse("write::AsciiMatlab"))
     // Empty titles are not legal
     if( title == "" )
         title = "matrix";

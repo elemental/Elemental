@@ -28,7 +28,7 @@ template<typename F>
 inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("ldl::ProcessFrontVanilla");
+      CSE cse("ldl::ProcessFrontVanilla");
       if( ABR.Height() != ABR.Width() )
           LogicError("ABR must be square");
       if( AL.Height() != AL.Width() + ABR.Width() )
@@ -73,7 +73,7 @@ void ProcessFrontIntraPiv
 ( Matrix<F>& AL, Matrix<F>& subdiag, Matrix<Int>& piv, Matrix<F>& ABR,
   bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontIntraPiv"))
+    DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -95,7 +95,7 @@ template<typename F>
 inline void ProcessFrontBlock
 ( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate, bool intraPiv )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontBlock"))
+    DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
     Matrix<F> ATL, ABL;
     PartitionDown( AL, ATL, ABL, AL.Width() );
 
@@ -144,7 +144,7 @@ inline void ProcessFrontBlock
 template<typename F>
 inline void ProcessFront( SymmFront<F>& front, SymmFrontType factorType )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFront"))
+    DEBUG_ONLY(CSE cse("ldl::ProcessFront"))
     front.type = factorType;
     const bool pivoted = PivotedFactorization( factorType );
     if( BlockFactorization(factorType) )
@@ -167,7 +167,7 @@ inline void ProcessFrontVanilla
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("ldl::ProcessFrontVanilla");
+      CSE cse("ldl::ProcessFrontVanilla");
       if( ABR.Height() != ABR.Width() )
           LogicError("ABR must be square");
       if( AL.Height() != AL.Width()+ABR.Height() )
@@ -206,7 +206,7 @@ inline void ProcessFrontVanilla
         auto AL22 = AL( ind2, ind2 );
 
         AL11_STAR_STAR = AL11; 
-        LocalLDL( AL11_STAR_STAR, conjugate );
+        LDL( AL11_STAR_STAR, conjugate );
         GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
 
@@ -239,7 +239,7 @@ void ProcessFrontIntraPiv
 ( DistMatrix<F>& AL, DistMatrix<F,MD,STAR>& subdiag, 
   DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& ABR, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontIntraPiv"))
+    DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
     const Grid& g = AL.Grid();
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -270,7 +270,7 @@ template<typename F>
 inline void ProcessFrontBlock
 ( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate, bool intraPiv )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::ProcessFrontBlock"))
+    DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
     const Grid& g = AL.Grid();
     DistMatrix<F> ATL(g), ABL(g);
     PartitionDown( AL, ATL, ABL, AL.Width() );
@@ -318,7 +318,7 @@ template<typename F>
 inline void ProcessFront( DistSymmFront<F>& front, SymmFrontType factorType )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("ldl::ProcessFront");
+      CSE cse("ldl::ProcessFront");
       if( FrontIs1D(front.type) )
           LogicError("Expected front to be in a 2D distribution");
     )

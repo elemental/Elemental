@@ -37,7 +37,7 @@ inline void
 LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("expand_packed_reflectors::LV");
+        CSE cse("expand_packed_reflectors::LV");
         if( offset > 0 || offset < -H.Height() )
             LogicError("Transforms out of bounds");
         if( t.Height() != H.DiagonalLength( offset ) )
@@ -120,7 +120,7 @@ LV
   AbstractDistMatrix<F>& HPre, const AbstractDistMatrix<F>& tPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("expand_packed_reflectors::LV");
+        CSE cse("expand_packed_reflectors::LV");
         AssertSameGrids( HPre, tPre );
         if( offset > 0 || offset < -HPre.Height() )
             LogicError("Transforms out of bounds");

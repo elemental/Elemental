@@ -17,7 +17,7 @@ template<typename F>
 void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::MultiplyAfter");
+        CSE cse("ldl::MultiplyAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -35,7 +35,7 @@ void MultiplyAfter
 ( const AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::MultiplyAfter");
+        CSE cse("ldl::MultiplyAfter");
         AssertSameGrids( APre, B );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
@@ -59,7 +59,7 @@ void MultiplyAfter
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::MultiplyAfter");
+        CSE cse("ldl::MultiplyAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -88,7 +88,7 @@ void MultiplyAfter
   bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::MultiplyAfter");
+        CSE cse("ldl::MultiplyAfter");
         AssertSameGrids( APre, BPre, p );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");

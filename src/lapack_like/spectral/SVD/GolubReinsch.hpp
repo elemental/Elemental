@@ -21,7 +21,7 @@ GolubReinsch
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& VPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
@@ -104,7 +104,7 @@ GolubReinschFlame
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& VPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschFlame"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
@@ -191,7 +191,7 @@ GolubReinsch
 ( AbstractDistMatrix<double>& A, AbstractDistMatrix<double>& s, 
   AbstractDistMatrix<double>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
 }
 
@@ -201,7 +201,7 @@ GolubReinsch
 ( AbstractDistMatrix<Complex<double>>& A, AbstractDistMatrix<double>& s, 
   AbstractDistMatrix<Complex<double>>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
 }
 #endif // EL_HAVE_FLA_BSVD
@@ -210,7 +210,7 @@ template<typename F>
 inline void
 GolubReinsch( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

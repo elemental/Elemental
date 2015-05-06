@@ -17,7 +17,7 @@ template<typename F>
 inline void
 QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QR"))
+    DEBUG_ONLY(CSE cse("schur::QR"))
     const Int n = A.Height();
     w.Resize( n, 1 );
     lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), fullTriangle );
@@ -36,7 +36,7 @@ QR
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
   bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QR"))
+    DEBUG_ONLY(CSE cse("schur::QR"))
     const Int n = A.Height();
     Q.Resize( n, n );
     w.Resize( n, 1 );
@@ -57,7 +57,7 @@ QR
 ( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QR"))
+    DEBUG_ONLY(CSE cse("schur::QR"))
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
     const int bhandle = blacs::Handle( A.DistComm().comm );
@@ -119,7 +119,7 @@ QR
 ( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
   BlockDistMatrix<F>& Q, bool fullTriangle, const HessQRCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QR"))
+    DEBUG_ONLY(CSE cse("schur::QR"))
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
     const int bhandle = blacs::Handle( A.DistComm().comm );
@@ -199,7 +199,7 @@ QR
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QR"))
+    DEBUG_ONLY(CSE cse("schur::QR"))
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 #ifdef EL_HAVE_SCALAPACK
@@ -257,7 +257,7 @@ QR
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
   AbstractDistMatrix<F>& QPre, bool fullTriangle, const HessQRCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QR"))
+    DEBUG_ONLY(CSE cse("schur::QR"))
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
 #ifdef EL_HAVE_SCALAPACK

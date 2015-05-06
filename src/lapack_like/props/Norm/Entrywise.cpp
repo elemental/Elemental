@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
     // TODO: Make this more numerically stable
     typedef Base<F> Real;
     Real sum = 0;
@@ -28,7 +28,7 @@ Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 template<typename F> 
 Base<F> EntrywiseNorm( const SparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
     // TODO: Make this more numerically stable
     typedef Base<F> Real;
     Real sum = 0;
@@ -42,7 +42,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -86,7 +86,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
     // TODO: Make this more numerically stable
     typedef Base<F> Real;
     Real sum = 0;
@@ -107,7 +107,7 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
@@ -115,14 +115,14 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 template<typename F> 
 Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
     typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
@@ -143,7 +143,7 @@ Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
 template<typename F> 
 Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
     typedef Base<F> Real;
 
     Real localSum = 0;
@@ -158,7 +158,7 @@ Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p )
 template<typename F> 
 Base<F> EntrywiseNorm( const DistMultiVec<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
     typedef Base<F> Real;
 
     Real localSum = 0;
@@ -174,7 +174,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -229,7 +229,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
     typedef Base<F> Real;
 
     Real localSum = 0;
@@ -252,7 +252,7 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
@@ -260,7 +260,7 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 

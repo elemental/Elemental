@@ -25,7 +25,7 @@ LLTLarge
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LLTLarge");
+      CSE cse("trsm::LLTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -85,7 +85,7 @@ LLTMedium
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LLTMedium");
+      CSE cse("trsm::LLTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -146,7 +146,7 @@ LLTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LLTSmall");
+      CSE cse("trsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -178,7 +178,7 @@ LLTSmall
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
-        AddInLocalData( X1, Z1_STAR_STAR );
+        axpy::util::UpdateWithLocalData( F(1), X1, Z1_STAR_STAR );
         El::AllReduce( Z1_STAR_STAR, X1.DistComm() );
 
         // X1 := L11^-1 X1
@@ -198,7 +198,7 @@ LLTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LLTSmall");
+      CSE cse("trsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

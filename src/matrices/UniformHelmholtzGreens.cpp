@@ -21,7 +21,7 @@ namespace El {
 template<typename Real>
 void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
+    DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const Real k0 = 2*pi/lambda;
@@ -76,7 +76,7 @@ template<typename Real>
 void UniformHelmholtzGreens
 ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
+    DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const Real k0 = 2*pi/lambda;
@@ -135,7 +135,7 @@ template<typename Real>
 void UniformHelmholtzGreens
 ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
+    DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const Real k0 = 2*pi/lambda;

@@ -23,7 +23,7 @@ RUT
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::RUT");
+      CSE cse("trsm::RUT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )

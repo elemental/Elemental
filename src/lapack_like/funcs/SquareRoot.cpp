@@ -24,7 +24,7 @@ inline void
 NewtonStep
 ( const Matrix<F>& A, const Matrix<F>& X, Matrix<F>& XNew, Matrix<F>& XTmp )
 {
-    DEBUG_ONLY(CallStackEntry cse("square_root::NewtonStep"))
+    DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
     // XNew := inv(X) A
     XTmp = X;
     Matrix<Int> p;
@@ -43,7 +43,7 @@ NewtonStep
 ( const DistMatrix<F>& A, const DistMatrix<F>& X, 
   DistMatrix<F>& XNew, DistMatrix<F>& XTmp )
 {
-    DEBUG_ONLY(CallStackEntry cse("square_root::NewtonStep"))
+    DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
     // XNew := inv(X) A
     XTmp = X;
     DistMatrix<Int,VC,STAR> p(X.Grid());
@@ -60,7 +60,7 @@ template<typename F>
 inline int
 Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
+    DEBUG_ONLY(CSE cse("square_root::Newton"))
     typedef Base<F> Real;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
@@ -100,7 +100,7 @@ template<typename F>
 inline int
 Newton( AbstractDistMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
+    DEBUG_ONLY(CSE cse("square_root::Newton"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -146,14 +146,14 @@ Newton( AbstractDistMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 template<typename F>
 void SquareRoot( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
+    DEBUG_ONLY(CSE cse("SquareRoot"))
     square_root::Newton( A, ctrl );
 }
 
 template<typename F>
 void SquareRoot( AbstractDistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
+    DEBUG_ONLY(CSE cse("SquareRoot"))
     square_root::Newton( A, ctrl );
 }
 
@@ -164,7 +164,7 @@ template<typename F>
 void HPSDSquareRoot
 ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
+    DEBUG_ONLY(CSE cse("HPSDSquareRoot"))
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -212,7 +212,7 @@ void HPSDSquareRoot
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
+    DEBUG_ONLY(CSE cse("HPSDSquareRoot"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

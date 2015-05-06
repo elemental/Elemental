@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
 {
-    DEBUG_ONLY(CallStackEntry cse("Broadcast"))
+    DEBUG_ONLY(CSE cse("Broadcast"))
     if( mpi::Size(comm) == 1 )
         return;
     if( !A.Participating() )
@@ -51,7 +51,7 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
 template<typename T>
 void Broadcast( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank )
 {
-    DEBUG_ONLY(CallStackEntry cse("Broadcast"))
+    DEBUG_ONLY(CSE cse("Broadcast"))
     if( mpi::Size(comm) == 1 )
         return;
     if( !A.Participating() )

@@ -16,7 +16,7 @@ namespace schur {
 template<typename Real>
 void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::RealToComplex"))
+    DEBUG_ONLY(CSE cse("schur::RealToComplex"))
     DEBUG_ONLY(CheckRealSchur(UQuasi))
     typedef Complex<Real> C;
 
@@ -56,7 +56,7 @@ void RealToComplex
 ( const AbstractDistMatrix<        Real >& UQuasiPre, 
         AbstractDistMatrix<Complex<Real>>& UPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::RealToComplex"))
+    DEBUG_ONLY(CSE cse("schur::RealToComplex"))
     typedef Complex<Real> C;
 
     auto UQuasiPtr = ReadProxy<Real,MC,MR>( &UQuasiPre );

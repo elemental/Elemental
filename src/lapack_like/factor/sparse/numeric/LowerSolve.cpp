@@ -18,7 +18,7 @@ void LowerSolve
 ( Orientation orientation, const SymmNodeInfo& info, 
   const SymmFront<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerSolve"))
+    DEBUG_ONLY(CSE cse("LowerSolve"))
     if( orientation == NORMAL )
         LowerForwardSolve( info, front, X );
     else
@@ -30,7 +30,7 @@ void LowerSolve
 ( Orientation orientation, const DistSymmNodeInfo& info, 
   const DistSymmFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerSolve"))
+    DEBUG_ONLY(CSE cse("LowerSolve"))
     if( orientation == NORMAL )
         LowerForwardSolve( info, front, X );
     else
@@ -42,7 +42,7 @@ void LowerSolve
 ( Orientation orientation, const DistSymmNodeInfo& info, 
   const DistSymmFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerSolve"))
+    DEBUG_ONLY(CSE cse("LowerSolve"))
     if( orientation == NORMAL )
         LowerForwardSolve( info, front, X );
     else

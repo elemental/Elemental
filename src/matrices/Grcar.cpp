@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void Grcar( Matrix<T>& A, Int n, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("Grcar"))
+    DEBUG_ONLY(CSE cse("Grcar"))
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
     Zeros( A, n, n );
@@ -26,7 +26,7 @@ void Grcar( Matrix<T>& A, Int n, Int k )
 template<typename T>
 void Grcar( AbstractDistMatrix<T>& A, Int n, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("Grcar"))
+    DEBUG_ONLY(CSE cse("Grcar"))
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
     Zeros( A, n, n );
@@ -39,7 +39,7 @@ void Grcar( AbstractDistMatrix<T>& A, Int n, Int k )
 template<typename T>
 void Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("Grcar"))
+    DEBUG_ONLY(CSE cse("Grcar"))
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
     Zeros( A, n, n );

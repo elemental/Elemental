@@ -27,19 +27,19 @@ void Trsm
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trsm");
-        if( A.Height() != A.Width() )
-            LogicError("Triangular matrix must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
-        }
+      CSE cse("Trsm");
+      if( A.Height() != A.Width() )
+          LogicError("Triangular matrix must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal Trsm");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal Trsm");
+      }
     )
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -65,20 +65,20 @@ void Trsm
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trsm");
-        AssertSameGrids( A, B );
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
-        }
+      CSE cse("Trsm");
+      AssertSameGrids( A, B );
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal Trsm");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal Trsm");
+      }
     )
     Scale( alpha, B );
 
@@ -156,6 +156,25 @@ void Trsm
 // TODO: Greatly improve (and allow the user to modify) the mechanism for 
 //       choosing between the different TRSM algorithms.
 
+template<typename F>
+void LocalTrsm
+( LeftOrRight side, UpperOrLower uplo,
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X,
+  bool checkIfSingular )
+{
+    DEBUG_ONLY(
+      CSE cse("LocalTrsm");
+      if( (side == LEFT && X.ColDist() != STAR) ||
+          (side == RIGHT && X.RowDist() != STAR) )
+          LogicError
+          ("Dist of RHS must conform with that of triangle");
+    )
+    Trsm
+    ( side, uplo, orientation, diag,
+      alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
+}
+
 #define PROTO(F) \
   template void Trsm \
   ( LeftOrRight side, UpperOrLower uplo, \
@@ -174,7 +193,12 @@ void Trsm
   template void trsm::LLTSmall \
   ( Orientation orientation, UnitOrNonUnit diag, \
     const DistMatrix<F,VR,STAR>& A, DistMatrix<F,VR,STAR>& B, \
-    bool checkIfSingular ); 
+    bool checkIfSingular ); \
+  template void LocalTrsm \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    Orientation orientation, UnitOrNonUnit diag, \
+    F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X, \
+    bool checkIfSingular );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

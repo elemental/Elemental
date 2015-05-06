@@ -127,7 +127,7 @@ TrrkNNKernel
   T beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("TrrkNNKernel");
+        CSE cse("TrrkNNKernel");
         CheckInputNN( A, B, C );
     )
     Matrix<T> AT, AB;
@@ -166,7 +166,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrkKernel");
+        CSE cse("LocalTrrkKernel");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
@@ -209,7 +209,7 @@ TrrkNTKernel
   T beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("TrrkNTKernel");
+        CSE cse("TrrkNTKernel");
         CheckInputNT( orientationOfB, A, B, C );
     )
     Matrix<T> AT, AB;
@@ -249,7 +249,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrkKernel");
+        CSE cse("LocalTrrkKernel");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
@@ -292,7 +292,7 @@ TrrkTNKernel
   T beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("TrrkTNKernel");
+        CSE cse("TrrkTNKernel");
         CheckInputTN( orientationOfA, A, B, C );
     )
     Matrix<T> AL, AR;
@@ -332,7 +332,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrkKernel");
+        CSE cse("LocalTrrkKernel");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
@@ -376,7 +376,7 @@ TrrkTTKernel
   T beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("TrrkTTKernel");
+        CSE cse("TrrkTTKernel");
         CheckInputTT( orientationOfA, orientationOfB, A, B, C );
     )
     Matrix<T> AL, AR;
@@ -417,7 +417,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrkKernel");
+        CSE cse("LocalTrrkKernel");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
@@ -459,7 +459,7 @@ void TrrkNN
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("trrk::TrrkNN");
+        CSE cse("trrk::TrrkNN");
         CheckInputNN( A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -503,7 +503,7 @@ void TrrkNT
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("trrk::TrrkNT");
+        CSE cse("trrk::TrrkNT");
         CheckInputNT( orientationOfB, A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -547,7 +547,7 @@ void TrrkTN
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("trrk::TrrkTN");
+        CSE cse("trrk::TrrkTN");
         CheckInputTN( orientationOfA, A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -591,7 +591,7 @@ void TrrkTT
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("trrk::TrrkTT");
+        CSE cse("trrk::TrrkTT");
         CheckInputTT( orientationOfA, orientationOfB, A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -640,7 +640,7 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrk");
+        CSE cse("LocalTrrk");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
@@ -687,7 +687,7 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrk");
+        CSE cse("LocalTrrk");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
@@ -734,7 +734,7 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrk");
+        CSE cse("LocalTrrk");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
@@ -781,7 +781,7 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CallStackEntry cse("LocalTrrk");
+        CSE cse("LocalTrrk");
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();

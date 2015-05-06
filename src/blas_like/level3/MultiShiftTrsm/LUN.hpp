@@ -17,7 +17,7 @@ LeftUnb
   Matrix<F>& T, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(
-        CallStackEntry cse("mstrsm::LeftUnb");
+        CSE cse("mstrsm::LeftUnb");
         if( shifts.Height() != X.Width() )
             LogicError("Incompatible number of shifts");
     )
@@ -48,7 +48,7 @@ template<typename F>
 inline void
 LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUN"))
+    DEBUG_ONLY(CSE cse("mstrsm::LUN"))
     Scale( alpha, X );
     const Int m = X.Height();
     const Int bsize = Blocksize();
@@ -78,7 +78,7 @@ LUN
 ( F alpha, const AbstractDistMatrix<F>& UPre, 
   const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUN"))
+    DEBUG_ONLY(CSE cse("mstrsm::LUN"))
 
     auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
     auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;

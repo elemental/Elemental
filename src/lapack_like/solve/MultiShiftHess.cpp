@@ -24,7 +24,7 @@ template<typename F>
 inline void
 LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mshs::LN"))
+    DEBUG_ONLY(CSE cse("mshs::LN"))
     Scale( alpha, X );
 
     const Int m = X.Height();
@@ -116,7 +116,7 @@ template<typename F>
 inline void
 UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mshs::UN"))
+    DEBUG_ONLY(CSE cse("mshs::UN"))
     Scale( alpha, X );
 
     const Int m = X.Height();
@@ -213,7 +213,7 @@ LN
 ( F alpha, const AbstractDistMatrix<F>& H, 
   const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mshs::LN"))
+    DEBUG_ONLY(CSE cse("mshs::LN"))
 
     auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre ); 
     auto& X = *XPtr;
@@ -330,7 +330,7 @@ UN
 ( F alpha, const AbstractDistMatrix<F>& H, 
   const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mshs::UN"))
+    DEBUG_ONLY(CSE cse("mshs::UN"))
 
     auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre );
     auto& X = *XPtr;
@@ -446,7 +446,7 @@ void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
   F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("MultiShiftHessSolve"))
+    DEBUG_ONLY(CSE cse("MultiShiftHessSolve"))
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -469,7 +469,7 @@ void MultiShiftHessSolve
   F alpha, const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& shifts, 
   AbstractDistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("MultiShiftHessSolve"))
+    DEBUG_ONLY(CSE cse("MultiShiftHessSolve"))
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )

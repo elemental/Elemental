@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void TriW( Matrix<T>& A, Int n, T alpha, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("TriW"))
+    DEBUG_ONLY(CSE cse("TriW"))
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
@@ -25,7 +25,7 @@ void TriW( Matrix<T>& A, Int n, T alpha, Int k )
 template<typename T>
 void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("TriW"))
+    DEBUG_ONLY(CSE cse("TriW"))
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );
@@ -37,7 +37,7 @@ void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k )
 template<typename T>
 void TriW( AbstractBlockDistMatrix<T>& A, Int n, T alpha, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("TriW"))
+    DEBUG_ONLY(CSE cse("TriW"))
     if( k < 0 )
         LogicError("Number of superdiagonals must be non-negative");
     Zeros( A, n, n );

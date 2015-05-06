@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void ConjugateDiagonal( Matrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ConjugateDiagonal"))
+    DEBUG_ONLY(CSE cse("ConjugateDiagonal"))
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = A.DiagonalLength(offset);
@@ -28,7 +28,7 @@ void ConjugateDiagonal( Matrix<T>& A, Int offset )
 template<typename T>
 void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ConjugateDiagonal"))
+    DEBUG_ONLY(CSE cse("ConjugateDiagonal"))
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
     Matrix<T>& ALoc = A.Matrix();
@@ -47,7 +47,7 @@ void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset )
 template<typename T>
 void ConjugateDiagonal( AbstractBlockDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ConjugateDiagonal"))
+    DEBUG_ONLY(CSE cse("ConjugateDiagonal"))
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
     Matrix<T>& ALoc = A.Matrix();

@@ -16,30 +16,31 @@ namespace El {
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, 
+  T beta,        Matrix<T>& y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Gemv");
-        if( ( x.Height() != 1 && x.Width() != 1 ) ||
-            ( y.Height() != 1 && y.Width() != 1 ) )
-            LogicError
-            ("Nonconformal: \n",DimsString(x,"x"),"\n",DimsString(y,"y"));
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-        if( orientation == NORMAL )
-        {
-            if( A.Height() != yLength || A.Width() != xLength )
-                LogicError
-                ("Nonconformal: \n",DimsString(A,"A"),"\n",
-                 DimsString(x,"x"),"\n",DimsString(y,"y"));
-        }
-        else
-        {
-            if( A.Width() != yLength || A.Height() != xLength )
-                LogicError
-                ("Nonconformal: \n",DimsString(A,"A"),"\n",
-                 DimsString(x,"x"),"\n",DimsString(y,"y"));
-        }
+      CSE cse("Gemv");
+      if( ( x.Height() != 1 && x.Width() != 1 ) ||
+          ( y.Height() != 1 && y.Width() != 1 ) )
+          LogicError
+          ("Nonconformal: \n",DimsString(x,"x"),"\n",DimsString(y,"y"));
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+      if( orientation == NORMAL )
+      {
+          if( A.Height() != yLength || A.Width() != xLength )
+              LogicError
+              ("Nonconformal: \n",DimsString(A,"A"),"\n",
+               DimsString(x,"x"),"\n",DimsString(y,"y"));
+      }
+      else
+      {
+          if( A.Width() != yLength || A.Height() != xLength )
+              LogicError
+              ("Nonconformal: \n",DimsString(A,"A"),"\n",
+               DimsString(x,"x"),"\n",DimsString(y,"y"));
+      }
     )
     const char transChar = OrientationToChar( orientation );
     const Int m = A.Height();
@@ -63,9 +64,10 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& x, Matrix<T>& y )
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, 
+                 Matrix<T>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gemv"))
+    DEBUG_ONLY(CSE cse("Gemv"))
     if( orientation == NORMAL )
         Zeros( y, A.Height(), 1 );
     else
@@ -76,11 +78,10 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-           const AbstractDistMatrix<T>& x,
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
   T beta,        AbstractDistMatrix<T>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gemv"))
+    DEBUG_ONLY(CSE cse("Gemv"))
     if( orientation == NORMAL )
         gemv::Normal( alpha, A, x, beta, y );
     else
@@ -90,11 +91,10 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-           const AbstractDistMatrix<T>& x,
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
                  AbstractDistMatrix<T>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gemv"))
+    DEBUG_ONLY(CSE cse("Gemv"))
     y.AlignWith( A );
     if( orientation == NORMAL )
         Zeros( y, A.Height(), 1 );
@@ -103,21 +103,41 @@ void Gemv
     Gemv( orientation, alpha, A, x, T(0), y );
 }
 
+template<typename T>
+void LocalGemv
+( Orientation orientation,
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y )
+{
+    DEBUG_ONLY(CSE cse("LocalGemv"))
+    // TODO: Add error checking here
+    Gemv
+    ( orientation ,
+      alpha, A.LockedMatrix(), x.LockedMatrix(),
+      beta,                    y.Matrix() );
+}
+
 #define PROTO(T) \
   template void Gemv \
-  ( Orientation orientation, T alpha, \
-    const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y ); \
+  ( Orientation orientation, \
+    T alpha, const Matrix<T>& A, const Matrix<T>& x, \
+    T beta,        Matrix<T>& y ); \
   template void Gemv \
-  ( Orientation orientation, T alpha, \
-    const Matrix<T>& A, const Matrix<T>& x, Matrix<T>& y ); \
+  ( Orientation orientation, \
+    T alpha, const Matrix<T>& A, const Matrix<T>& x, \
+                   Matrix<T>& y ); \
   template void Gemv \
-  ( Orientation orientation, T alpha, \
-    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-    T beta, AbstractDistMatrix<T>& y ); \
+  ( Orientation orientation, \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
+    T beta,        AbstractDistMatrix<T>& y ); \
   template void Gemv \
-  ( Orientation orientation, T alpha, \
-    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-          AbstractDistMatrix<T>& y );
+  ( Orientation orientation, \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
+                   AbstractDistMatrix<T>& y ); \
+  template void LocalGemv \
+  ( Orientation orientation, \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
+    T beta,        AbstractDistMatrix<T>& y );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> Condition( const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("Condition"))
+    DEBUG_ONLY(CSE cse("Condition"))
     Base<F> norm = 0;
     switch( type )
     {
@@ -41,7 +41,7 @@ Base<F> Condition( const Matrix<F>& A, NormType type )
 template<typename F> 
 Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("Condition"))
+    DEBUG_ONLY(CSE cse("Condition"))
     Base<F> norm = 0;
     switch( type )
     {

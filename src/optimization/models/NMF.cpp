@@ -19,7 +19,7 @@ void NMF
         Matrix<Real>& X, Matrix<Real>& Y,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NMF"))
+    DEBUG_ONLY(CSE cse("NMF"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 
@@ -42,7 +42,7 @@ void NMF
         AbstractDistMatrix<Real>& XPre, AbstractDistMatrix<Real>& YPre,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NMF"))
+    DEBUG_ONLY(CSE cse("NMF"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 

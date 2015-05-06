@@ -21,7 +21,7 @@ template<typename F>
 void SVD
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD"))
     if( ctrl.thresholded )
     {
         svd::Thresholded( A, s, V, ctrl.tol, ctrl.relative );
@@ -40,7 +40,7 @@ void SVD
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD"))
     if( ctrl.thresholded )
     {
         if( A.ColDist() == VC && A.RowDist() == STAR )
@@ -61,7 +61,7 @@ void SVD
 template<typename F>
 void SVD( Matrix<F>& A, Matrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CallStackEntry cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD"))
     const Int m = A.Height();
     const Int n = A.Width();
     s.Resize( Min(m,n), 1 );
@@ -73,7 +73,7 @@ void SVD
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD"))
     // TODO: Add more options
     svd::Chan( A, s, ctrl.valChanRatio );
 }

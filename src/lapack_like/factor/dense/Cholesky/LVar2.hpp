@@ -22,7 +22,7 @@ inline void
 LVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LVar2");
+        CSE cse("cholesky::LVar2");
         if( A.Height() != A.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -53,7 +53,7 @@ inline void
 LVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LVar2");
+        CSE cse("cholesky::LVar2");
         if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -90,7 +90,7 @@ LVar2( AbstractDistMatrix<F>& APre )
         AxpyContract( F(-1), X11_MC_STAR, A11 );
 
         A11_STAR_STAR = A11;
-        LocalCholesky( LOWER, A11_STAR_STAR );
+        Cholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         X21_MC_STAR.AlignWith( A20 );

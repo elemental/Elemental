@@ -51,7 +51,7 @@ inline void LocalColAccumulateUGeneral
   bool conjugate, const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("symv::LocalColAccumulateUGeneral");
+        CSE cse("symv::LocalColAccumulateUGeneral");
         AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
             z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
@@ -128,7 +128,7 @@ inline void LocalColAccumulateUSquareTwoTrmv
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("symv::LocalColAccumulateUTwoTrmv");
+        CSE cse("symv::LocalColAccumulateUTwoTrmv");
         AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
             z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
@@ -256,7 +256,7 @@ inline void LocalColAccumulateU
         DistMatrix<T,MR,STAR>& z_MR_STAR,
   bool conjugate, const SymvCtrl<T>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("symv::LocalColAccumulateU"))
+    DEBUG_ONLY(CSE cse("symv::LocalColAccumulateU"))
     if( ctrl.avoidTrmvBasedLocalSymv || A.Grid().Height() != A.Grid().Width() )
         LocalColAccumulateUGeneral
         ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
@@ -277,7 +277,7 @@ inline void LocalRowAccumulateU
   bool conjugate, const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("symv::LocalRowAccumulateU");
+        CSE cse("symv::LocalRowAccumulateU");
         AssertSameGrids( A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
         if( x_STAR_MC.Height() != 1 || x_STAR_MR.Height() != 1 ||
             z_STAR_MC.Height() != 1 || z_STAR_MR.Height() != 1 )

@@ -19,7 +19,7 @@ void ApplyQ
   const Matrix<F>& A, const Matrix<F>& t, const Matrix<Base<F>>& d, 
   Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ApplyQ"))
+    DEBUG_ONLY(CSE cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal==onLeft;
@@ -69,7 +69,7 @@ void ApplyQ
   const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& tPre, 
   const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ApplyQ"))
+    DEBUG_ONLY(CSE cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal==onLeft;

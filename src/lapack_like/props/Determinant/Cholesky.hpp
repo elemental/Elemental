@@ -17,7 +17,7 @@ template<typename F>
 SafeProduct<Base<F>> AfterCholesky
 ( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
+    DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -40,7 +40,7 @@ template<typename F>
 inline SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))
+    DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
     SafeProduct<Base<F>> det( A.Height() );
     try
     {
@@ -59,7 +59,7 @@ template<typename F>
 SafeProduct<Base<F>> AfterCholesky
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
+    DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -92,7 +92,7 @@ template<typename F>
 inline SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))
+    DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

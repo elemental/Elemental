@@ -71,7 +71,7 @@ void PartialColAllGather
 template<typename T>
 void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Transpose"))
+    DEBUG_ONLY(CSE cse("Transpose"))
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( n, m );
@@ -99,7 +99,7 @@ template<typename T>
 void Transpose
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Transpose"))
+    DEBUG_ONLY(CSE cse("Transpose"))
     const DistData AData = A.DistData();
     const DistData BData = B.DistData();
 
@@ -162,7 +162,7 @@ void Transpose
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B, 
   bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Transpose"))
+    DEBUG_ONLY(CSE cse("Transpose"))
     const BlockDistData AData = A.DistData();
     const BlockDistData BData = B.DistData();
     if( AData.colDist == BData.rowDist &&
@@ -225,7 +225,7 @@ template<typename T>
 void Transpose
 ( const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Transpose"))
+    DEBUG_ONLY(CSE cse("Transpose"))
     Zeros( B, A.Width(), A.Height() );
     TransposeAxpy( T(1), A, B, conjugate );
 }
@@ -234,7 +234,7 @@ template<typename T>
 void Transpose
 ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Transpose"))
+    DEBUG_ONLY(CSE cse("Transpose"))
     B.SetComm( A.Comm() );
     Zeros( B, A.Width(), A.Height() );
     TransposeAxpy( T(1), A, B, conjugate );

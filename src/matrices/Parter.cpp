@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 void Parter( Matrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Parter"))
+    DEBUG_ONLY(CSE cse("Parter"))
     P.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto parterFill = [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); };
@@ -23,7 +23,7 @@ void Parter( Matrix<F>& P, Int n )
 template<typename F>
 void Parter( AbstractDistMatrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Parter"))
+    DEBUG_ONLY(CSE cse("Parter"))
     P.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto parterFill = [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); };
@@ -33,7 +33,7 @@ void Parter( AbstractDistMatrix<F>& P, Int n )
 template<typename F>
 void Parter( AbstractBlockDistMatrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Parter"))
+    DEBUG_ONLY(CSE cse("Parter"))
     P.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto parterFill = [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); };

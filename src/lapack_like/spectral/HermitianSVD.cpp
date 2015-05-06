@@ -19,7 +19,7 @@ void HermitianSVD
 ( UpperOrLower uplo,
   Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
+    DEBUG_ONLY(CSE cse("HermitianSVD"))
 #if 1
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
@@ -59,7 +59,7 @@ void HermitianSVD
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& U, AbstractDistMatrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
+    DEBUG_ONLY(CSE cse("HermitianSVD"))
 
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
@@ -86,7 +86,7 @@ void HermitianSVD
 template<typename F>
 void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
+    DEBUG_ONLY(CSE cse("HermitianSVD"))
 #if 1
     typedef Base<F> Real;
     // Grab the eigenvalues of A
@@ -107,7 +107,7 @@ template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
+    DEBUG_ONLY(CSE cse("HermitianSVD"))
 
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );

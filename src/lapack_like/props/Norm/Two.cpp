@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> TwoNorm( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
+    DEBUG_ONLY(CSE cse("TwoNorm"))
     Matrix<F> B( A );
     Matrix<Base<F>> s;
     SVD( B, s );
@@ -23,7 +23,7 @@ Base<F> TwoNorm( const Matrix<F>& A )
 template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
+    DEBUG_ONLY(CSE cse("HermitianTwoNorm"))
     Matrix<F> B( A );
     Matrix<Base<F>> s;
     HermitianSVD( uplo, B, s );
@@ -33,7 +33,7 @@ Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricTwoNorm"))
     Matrix<F> B( A );
     Matrix<Base<F>> s;
     MakeSymmetric( uplo, B );
@@ -44,7 +44,7 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F> 
 Base<F> TwoNorm( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
+    DEBUG_ONLY(CSE cse("TwoNorm"))
     DistMatrix<F> B( A );
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -54,7 +54,7 @@ Base<F> TwoNorm( const AbstractDistMatrix<F>& A )
 template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
+    DEBUG_ONLY(CSE cse("HermitianTwoNorm"))
     DistMatrix<F> B( A );
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
@@ -64,7 +64,7 @@ Base<F> HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 template<typename F>
 Base<F> SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricTwoNorm"))
     DistMatrix<F> B( A );
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

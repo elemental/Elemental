@@ -14,7 +14,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_ONLY(CallStackEntry cse("ExtremalSingValEst"))
+    DEBUG_ONLY(CSE cse("ExtremalSingValEst"))
     typedef Base<F> Real;
     Matrix<Real> T;
     ProductLanczos( A, T, basisSize );
@@ -39,7 +39,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_ONLY(CallStackEntry cse("ExtremalSingValEst"))
+    DEBUG_ONLY(CSE cse("ExtremalSingValEst"))
     typedef Base<F> Real;
     Matrix<Real> T;
     ProductLanczos( A, T, basisSize );

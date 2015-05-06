@@ -19,7 +19,7 @@ void Multiply
   T beta,                                  Matrix<T>& Y )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Multiply");
+      CSE cse("Multiply");
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
     )
@@ -89,7 +89,7 @@ void Multiply
   T beta,                                      DistMultiVec<T>& Y )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Multiply");
+      CSE cse("Multiply");
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
       if( !mpi::Congruent( A.Comm(), X.Comm() ) || 

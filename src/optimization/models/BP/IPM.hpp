@@ -40,7 +40,7 @@ void IPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bp::IPM"))
+    DEBUG_ONLY(CSE cse("bp::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -75,7 +75,7 @@ void IPM
         AbstractDistMatrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bp::IPM"))
+    DEBUG_ONLY(CSE cse("bp::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -111,7 +111,7 @@ void IPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bp::IPM"))
+    DEBUG_ONLY(CSE cse("bp::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -151,7 +151,7 @@ void IPM
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bp::IPM"))
+    DEBUG_ONLY(CSE cse("bp::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

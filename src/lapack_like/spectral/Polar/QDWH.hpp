@@ -29,7 +29,7 @@ template<typename F>
 inline Int 
 QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
+    DEBUG_ONLY(CSE cse("polar::QDWHInner"))
     typedef Base<F> Real;
     typedef Complex<Real> Cpx;
     const Int m = A.Height();
@@ -118,7 +118,7 @@ template<typename F>
 inline Int 
 QDWH( Matrix<F>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
+    DEBUG_ONLY(CSE cse("polar::QDWH"))
     typedef Base<F> Real;
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
@@ -154,7 +154,7 @@ template<typename F>
 inline Int 
 QDWH( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
+    DEBUG_ONLY(CSE cse("polar::QDWH"))
     Matrix<F> ACopy( A );
     const Int numIts = QDWH( A, ctrl );
     Zeros( P, A.Height(), A.Height() );
@@ -168,7 +168,7 @@ inline Int
 QDWHInner
 ( AbstractDistMatrix<F>& APre, Base<F> sMinUpper, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
+    DEBUG_ONLY(CSE cse("polar::QDWHInner"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -263,7 +263,7 @@ template<typename F>
 inline Int 
 QDWH( AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
+    DEBUG_ONLY(CSE cse("polar::QDWH"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
     auto& A = *APtr;
@@ -305,7 +305,7 @@ QDWH
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre, 
   const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
+    DEBUG_ONLY(CSE cse("polar::QDWH"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
@@ -327,7 +327,7 @@ inline int
 QDWHInner
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
+    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
@@ -424,7 +424,7 @@ template<typename F>
 inline Int 
 QDWH( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
+    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     typedef Base<F> Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
@@ -450,7 +450,7 @@ inline Int
 QDWH
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
+    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     Matrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );
@@ -466,7 +466,7 @@ QDWHInner
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, Base<F> sMinUpper, 
   const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
+    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     if( APre.Height() != APre.Width() )
         LogicError("Height must be same as width");
 
@@ -565,7 +565,7 @@ template<typename F>
 inline Int 
 QDWH( UpperOrLower uplo, AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
+    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -596,7 +596,7 @@ QDWH
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre, 
   const PolarCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
+    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;

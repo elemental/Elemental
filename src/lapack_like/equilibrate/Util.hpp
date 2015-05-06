@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 inline Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("MinAbsNonzero"))
+    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -33,7 +33,7 @@ inline Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 template<typename F>
 inline Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("MinAbsNonzero"))
+    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;
     const Int numEntries = A.NumEntries();
     Real minAbs = upperBound;
@@ -50,7 +50,7 @@ template<typename F>
 inline Base<F> MinAbsNonzero
 ( const AbstractDistMatrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("MinAbsNonzero"))
+    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;
     Real minAbs;
     if( A.Participating() )
@@ -65,7 +65,7 @@ inline Base<F> MinAbsNonzero
 template<typename F>
 inline Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("MinAbsNonzero"))
+    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;
     const Int numEntries = A.NumLocalEntries();
     Real minLocAbs = upperBound;
@@ -83,7 +83,7 @@ inline void MaxEntryColumnScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,V,STAR>& scaling )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxEntryColumnScaling"))
+    DEBUG_ONLY(CSE cse("MaxEntryColumnScaling"))
     typedef Base<F> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
@@ -104,7 +104,7 @@ inline void GeometricColumnScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,V,STAR>& geomScaling )
 {
-    DEBUG_ONLY(CallStackEntry cse("GeometricColumnScaling"))
+    DEBUG_ONLY(CSE cse("GeometricColumnScaling"))
     typedef Base<F> Real;
 
     DistMatrix<Real,V,STAR> maxScaling(A.Grid());
@@ -141,7 +141,7 @@ inline void StackedGeometricColumnScaling
   const DistMatrix<F,      U,V   >& B,
         DistMatrix<Base<F>,V,STAR>& geomScaling )
 {
-    DEBUG_ONLY(CallStackEntry cse("StackedGeometricColumnScaling"))
+    DEBUG_ONLY(CSE cse("StackedGeometricColumnScaling"))
     // NOTE: Assuming A.ColComm() == B.ColComm() and that the row alignments
     //       are equal
     typedef Base<F> Real;
@@ -191,7 +191,7 @@ inline void MaxEntryRowScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,U,STAR>& scaling )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxEntryRowScaling"))
+    DEBUG_ONLY(CSE cse("MaxEntryRowScaling"))
     typedef Base<F> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
@@ -213,7 +213,7 @@ inline void GeometricRowScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,U,STAR>& geomScaling )
 {
-    DEBUG_ONLY(CallStackEntry cse("GeometricRowScaling"))
+    DEBUG_ONLY(CSE cse("GeometricRowScaling"))
     typedef Base<F> Real;
 
     DistMatrix<Real,U,STAR> maxScaling(A.Grid());

@@ -16,7 +16,7 @@ namespace lu {
 template<typename F>
 void Panel( Matrix<F>& A, Matrix<Int>& pivots )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::Panel"))
+    DEBUG_ONLY(CSE cse("lu::Panel"))
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
@@ -64,7 +64,7 @@ void Panel
   DistMatrix<Int,STAR,STAR>& pivots )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::Panel");
+        CSE cse("lu::Panel");
         AssertSameGrids( A, B, pivots );
         if( A.Width() != B.Width() )
             LogicError("A and B must be the same width");

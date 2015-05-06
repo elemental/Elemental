@@ -37,7 +37,7 @@ DistSymmFront<F>::DistSymmFront
   bool conjugate )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::DistSymmFront"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::DistSymmFront"))
     Pull( A, reordering, sep, info, conjugate );
 }
 
@@ -50,7 +50,7 @@ void DistSymmFront<F>::Pull
   bool conjugate )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistSymmFront::Pull");
+      CSE cse("DistSymmFront::Pull");
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
@@ -341,7 +341,7 @@ void DistSymmFront<F>::Push
   const DistSeparator& rootSep, 
   const DistSymmNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::Push"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::Push"))
     LogicError("This routine needs to be written");
 }
 
@@ -351,7 +351,7 @@ void DistSymmFront<F>::Unpack
   const DistSeparator& rootSep, 
   const DistSymmNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::Unpack"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::Unpack"))
     mpi::Comm comm = rootInfo.grid->Comm();
     const int commSize = mpi::Size(comm);
     A.SetComm( comm );
@@ -607,7 +607,7 @@ void DistSymmFront<F>::Unpack
 template<typename F>
 Int DistSymmFront<F>::NumLocalEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::NumLocalEntries"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::NumLocalEntries"))
     Int numEntries = 0;
     function<void(const DistSymmFront<F>&)> count =
       [&]( const DistSymmFront<F>& front )
@@ -633,7 +633,7 @@ Int DistSymmFront<F>::NumLocalEntries() const
 template<typename F>
 Int DistSymmFront<F>::NumTopLeftLocalEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::NumTopLeftLocalEntries"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::NumTopLeftLocalEntries"))
     Int numEntries = 0;
     function<void(const DistSymmFront<F>&)> count =
       [&]( const DistSymmFront<F>& front )
@@ -665,7 +665,7 @@ Int DistSymmFront<F>::NumTopLeftLocalEntries() const
 template<typename F>
 Int DistSymmFront<F>::NumBottomLeftLocalEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::NumBottomLeftLocalEntries"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::NumBottomLeftLocalEntries"))
     Int numEntries = 0;
     function<void(const DistSymmFront<F>&)> count =
       [&]( const DistSymmFront<F>& front )
@@ -699,7 +699,7 @@ Int DistSymmFront<F>::NumBottomLeftLocalEntries() const
 template<typename F>
 double DistSymmFront<F>::LocalFactorGFlops( bool selInv ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::LocalFactorGFlops"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::LocalFactorGFlops"))
     double gflops = 0.;
     function<void(const DistSymmFront<F>&)> count =
       [&]( const DistSymmFront<F>& front )
@@ -736,7 +736,7 @@ double DistSymmFront<F>::LocalFactorGFlops( bool selInv ) const
 template<typename F>
 double DistSymmFront<F>::LocalSolveGFlops( Int numRHS ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::LocalSolveGFlops"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::LocalSolveGFlops"))
     double gflops = 0.;
     function<void(const DistSymmFront<F>&)> count =
       [&]( const DistSymmFront<F>& front )
@@ -771,7 +771,7 @@ double DistSymmFront<F>::LocalSolveGFlops( Int numRHS ) const
 template<typename F>
 void DistSymmFront<F>::ComputeRecvInds( const DistSymmNodeInfo& info ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::ComputeRecvInds"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::ComputeRecvInds"))
 
     vector<int> gridHeights, gridWidths;
     GetChildGridDims( info, gridHeights, gridWidths );
@@ -850,7 +850,7 @@ template<typename F>
 void DistSymmFront<F>::ComputeCommMeta
 ( const DistSymmNodeInfo& info, bool computeRecvInds ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::ComputeCommMeta"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::ComputeCommMeta"))
     commMeta.Empty();
     if( child == nullptr )
         return;

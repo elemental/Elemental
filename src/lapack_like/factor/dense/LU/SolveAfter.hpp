@@ -17,7 +17,7 @@ template<typename F>
 void SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CSE cse("lu::SolveAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -41,7 +41,7 @@ void SolveAfter
   const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CSE cse("lu::SolveAfter");
         AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
@@ -66,7 +66,7 @@ void SolveAfter
   const Matrix<Int>& p, Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CSE cse("lu::SolveAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -94,7 +94,7 @@ void SolveAfter
   const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CSE cse("lu::SolveAfter");
         AssertSameGrids( A, B, p );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
@@ -125,7 +125,7 @@ void SolveAfter
         Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CSE cse("lu::SolveAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -158,7 +158,7 @@ void SolveAfter
         AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CSE cse("lu::SolveAfter");
         AssertSameGrids( A, B, p, q );
         if( A.Height() != A.Width() )
             LogicError("A must be square");

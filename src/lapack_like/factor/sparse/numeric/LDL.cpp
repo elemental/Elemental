@@ -27,7 +27,7 @@ template<typename F>
 void LDL
 ( const SymmNodeInfo& info, SymmFront<F>& front, SymmFrontType newType )
 {
-    DEBUG_ONLY(CallStackEntry cse("LDL"))
+    DEBUG_ONLY(CSE cse("LDL"))
     if( !Unfactored(front.type) )
         LogicError("Matrix is already factored");
 
@@ -45,7 +45,7 @@ template<typename F>
 void LDL
 ( const DistSymmNodeInfo& info, DistSymmFront<F>& front, SymmFrontType newType )
 {
-    DEBUG_ONLY(CallStackEntry cse("LDL"))
+    DEBUG_ONLY(CSE cse("LDL"))
     if( !Unfactored(front.type) )
         LogicError("Matrix is already factored");
 

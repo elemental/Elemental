@@ -18,7 +18,7 @@ void BPDN
         Real lambda,           Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BPDN"))
+    DEBUG_ONLY(CSE cse("BPDN"))
     if( ctrl.useIPM )
         bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );
     else
@@ -31,7 +31,7 @@ void BPDN
         Real lambda,                       AbstractDistMatrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BPDN"))
+    DEBUG_ONLY(CSE cse("BPDN"))
     if( ctrl.useIPM )
         bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );
     else
@@ -44,7 +44,7 @@ void BPDN
         Real lambda,                 Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BPDN"))
+    DEBUG_ONLY(CSE cse("BPDN"))
     if( !ctrl.useIPM )
         LogicError("ADMM-based BPDN not yet supported for sparse matrices");
     bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );
@@ -56,7 +56,7 @@ void BPDN
         Real lambda,                     DistMultiVec<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("BPDN"))
+    DEBUG_ONLY(CSE cse("BPDN"))
     if( !ctrl.useIPM )
         LogicError("ADMM-based BPDN not yet supported for sparse matrices");
     bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );

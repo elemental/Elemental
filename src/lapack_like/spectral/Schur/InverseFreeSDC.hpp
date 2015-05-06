@@ -26,7 +26,7 @@ template<typename F>
 inline int
 InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
+    DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -94,7 +94,7 @@ template<typename F>
 inline int
 InverseFreeSign( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
+    DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
 
     auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre );
     auto& X = *XPtr;
@@ -167,7 +167,7 @@ template<typename F>
 inline Base<F>
 InverseFreeSignDivide( Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))
+    DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -209,7 +209,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))
+    DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
 
     auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre );
     auto& X = *XPtr;

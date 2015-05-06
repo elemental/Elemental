@@ -14,7 +14,7 @@ template<typename Real>
 void LowerClip( Matrix<Real>& X, Real lowerBound )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LowerClip");
+        CSE cse("LowerClip");
         if( IsComplex<Real>::val )
             LogicError("Lower clip does not apply to complex data");
     )
@@ -26,7 +26,7 @@ template<typename Real>
 void UpperClip( Matrix<Real>& X, Real upperBound )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("UpperClip");
+        CSE cse("UpperClip");
         if( IsComplex<Real>::val )
             LogicError("Upper clip does not apply to complex data");
     )
@@ -38,7 +38,7 @@ template<typename Real>
 void Clip( Matrix<Real>& X, Real lowerBound, Real upperBound )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Clip");
+        CSE cse("Clip");
         if( IsComplex<Real>::val )
             LogicError("Clip does not apply to complex data");
     )

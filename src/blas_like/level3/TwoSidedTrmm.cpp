@@ -18,7 +18,7 @@ template<typename T>
 void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoSidedTrmm"))
+    DEBUG_ONLY(CSE cse("TwoSidedTrmm"))
     if( uplo == LOWER )
         twotrmm::LVar4( diag, A, B );
     else
@@ -30,12 +30,18 @@ void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
   AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoSidedTrmm"))
+    DEBUG_ONLY(CSE cse("TwoSidedTrmm"))
     if( uplo == LOWER )
         twotrmm::LVar4( diag, A, B );
     else
         twotrmm::UVar4( diag, A, B );
 }
+
+template<typename T>
+void TwoSidedTrmm
+( UpperOrLower uplo, UnitOrNonUnit diag,
+  DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B )
+{ TwoSidedTrmm( uplo, diag, A.Matrix(), B.LockedMatrix() ); }
 
 #define PROTO(T) \
   template void TwoSidedTrmm \
@@ -43,7 +49,10 @@ void TwoSidedTrmm
     Matrix<T>& A, const Matrix<T>& B ); \
   template void TwoSidedTrmm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+    AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
+  template void TwoSidedTrmm \
+  ( UpperOrLower uplo, UnitOrNonUnit diag, \
+    DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

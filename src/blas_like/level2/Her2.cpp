@@ -15,7 +15,7 @@ void Her2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Her2"))
+    DEBUG_ONLY(CSE cse("Her2"))
     Syr2( uplo, T(alpha), x, y, A, true );
 }
 
@@ -25,7 +25,7 @@ void Her2
   T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
                  AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Her2"))
+    DEBUG_ONLY(CSE cse("Her2"))
     Syr2( uplo, T(alpha), x, y, A, true );
 }
 

@@ -17,7 +17,7 @@ namespace El {
 template<typename F>
 void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-    DEBUG_ONLY(CallStackEntry cse("Bidiag"))
+    DEBUG_ONLY(CSE cse("Bidiag"))
     if( A.Height() >= A.Width() )
         bidiag::U( A, tP, tQ );
     else
@@ -29,7 +29,7 @@ void Bidiag
 ( AbstractDistMatrix<F>& A, 
   AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ )
 {
-    DEBUG_ONLY(CallStackEntry cse("Bidiag"))
+    DEBUG_ONLY(CSE cse("Bidiag"))
     if( A.Height() >= A.Width() )
         bidiag::U( A, tP, tQ );
     else
@@ -41,7 +41,7 @@ namespace bidiag {
 template<typename F>
 void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
 {
-    DEBUG_ONLY(CallStackEntry cse("bidiag::Explicit"))
+    DEBUG_ONLY(CSE cse("bidiag::Explicit"))
     Matrix<F> tP, tQ;
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
@@ -73,7 +73,7 @@ void Explicit
 ( AbstractDistMatrix<F>& APre, 
   AbstractDistMatrix<F>& PPre, AbstractDistMatrix<F>& QPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("bidiag::Explicit"))
+    DEBUG_ONLY(CSE cse("bidiag::Explicit"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
@@ -108,7 +108,7 @@ void Explicit
 template<typename F>
 void ExplicitCondensed( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("bidiag::ExplicitCondensed"))
+    DEBUG_ONLY(CSE cse("bidiag::ExplicitCondensed"))
     Matrix<F> tP, tQ;
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
@@ -126,7 +126,7 @@ void ExplicitCondensed( Matrix<F>& A )
 template<typename F> 
 void ExplicitCondensed( AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("bidiag::ExplicitCondensed"))
+    DEBUG_ONLY(CSE cse("bidiag::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )

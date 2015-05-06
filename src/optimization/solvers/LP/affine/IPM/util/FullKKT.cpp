@@ -39,7 +39,7 @@ void KKT
   const Matrix<Real>& s, const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -84,7 +84,7 @@ void KKT
   const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& zPre,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -133,7 +133,7 @@ void KKT
   const Matrix<Real>& s,       const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
@@ -146,7 +146,7 @@ void KKT
   const DistMultiVec<Real>& s,     const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);

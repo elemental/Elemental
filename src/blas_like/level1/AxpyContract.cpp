@@ -19,7 +19,7 @@ void PartialColScatter
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("axpy_contract::PartialColScatter"))
+    DEBUG_ONLY(CSE cse("axpy_contract::PartialColScatter"))
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("A and B must be the same size");
@@ -80,7 +80,7 @@ void PartialRowScatter
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("axpy_contract::PartialRowScatter"))
+    DEBUG_ONLY(CSE cse("axpy_contract::PartialRowScatter"))
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrix sizes did not match");
@@ -131,7 +131,7 @@ void ColScatter
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("axpy_contract::ColScatter"))
+    DEBUG_ONLY(CSE cse("axpy_contract::ColScatter"))
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("A and B must be the same size");
@@ -238,7 +238,7 @@ void RowScatter
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("axpy_contract::RowScatter"))
+    DEBUG_ONLY(CSE cse("axpy_contract::RowScatter"))
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrix sizes did not match");
@@ -383,7 +383,7 @@ void Scatter
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("axpy_contract::Scatter"))
+    DEBUG_ONLY(CSE cse("axpy_contract::Scatter"))
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Sizes of A and B must match");
@@ -433,7 +433,7 @@ void AxpyContract
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("AxpyContract"))
+    DEBUG_ONLY(CSE cse("AxpyContract"))
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == U && A.RowDist() == V )
@@ -458,7 +458,7 @@ void AxpyContract
   const AbstractBlockDistMatrix<T>& A,
         AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("AxpyContract"))
+    DEBUG_ONLY(CSE cse("AxpyContract"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

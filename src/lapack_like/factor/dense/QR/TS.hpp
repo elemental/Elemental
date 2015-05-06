@@ -18,7 +18,7 @@ template<typename F>
 void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("qr::ts::Reduce");
+        CSE cse("qr::ts::Reduce");
         if( A.RowDist() != STAR )
             LogicError("Invalid row distribution for TSQR");
     )
@@ -183,7 +183,7 @@ template<typename F>
 void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("qr::ts::Scatter");
+        CSE cse("qr::ts::Scatter");
         if( A.RowDist() != STAR )
             LogicError("Invalid row distribution for TSQR");
     )

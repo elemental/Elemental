@@ -22,7 +22,7 @@ void Schur
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Schur"))
+    DEBUG_ONLY(CSE cse("Schur"))
     if( ctrl.useSDC )
     {
         if( fullTriangle )
@@ -42,7 +42,7 @@ void Schur
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Schur"))
+    DEBUG_ONLY(CSE cse("Schur"))
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
@@ -54,7 +54,7 @@ void Schur
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Schur"))
+    DEBUG_ONLY(CSE cse("Schur"))
 #ifdef EL_HAVE_SCALAPACK
     if( ctrl.useSDC )
     {
@@ -84,7 +84,7 @@ void Schur
 ( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Schur"))
+    DEBUG_ONLY(CSE cse("Schur"))
 #ifdef EL_HAVE_SCALAPACK
     schur::QR( A, w, fullTriangle, ctrl.qrCtrl );
 #else
@@ -97,7 +97,7 @@ void Schur
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w, 
   AbstractDistMatrix<F>& Q, bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Schur"))
+    DEBUG_ONLY(CSE cse("Schur"))
 #ifdef EL_HAVE_SCALAPACK
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
@@ -113,7 +113,7 @@ void Schur
 ( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w, 
   BlockDistMatrix<F>& Q, bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Schur"))
+    DEBUG_ONLY(CSE cse("Schur"))
 #ifdef EL_HAVE_SCALAPACK
     schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl );
 #else

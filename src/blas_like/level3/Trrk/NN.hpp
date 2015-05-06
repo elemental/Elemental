@@ -21,7 +21,7 @@ void TrrkNN
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trrk::TrrkNN");
+      CSE cse("trrk::TrrkNN");
       if( CPre.Height() != CPre.Width() || APre.Height() != CPre.Height() || 
           BPre.Width() != CPre.Width() || APre.Width() != BPre.Height() )
           LogicError("Nonconformal TrrkNN");

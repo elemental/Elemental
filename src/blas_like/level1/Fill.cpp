@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Fill( Matrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Fill"))
+    DEBUG_ONLY(CSE cse("Fill"))
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
@@ -24,21 +24,21 @@ void Fill( Matrix<T>& A, T alpha )
 template<typename T>
 void Fill( AbstractDistMatrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Fill"))
+    DEBUG_ONLY(CSE cse("Fill"))
     Fill( A.Matrix(), alpha );
 }
 
 template<typename T>
 void Fill( AbstractBlockDistMatrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Fill"))
+    DEBUG_ONLY(CSE cse("Fill"))
     Fill( A.Matrix(), alpha );
 }
 
 template<typename T>
 void Fill( DistMultiVec<T>& A, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Fill"))
+    DEBUG_ONLY(CSE cse("Fill"))
     Fill( A.Matrix(), alpha );
 }
 

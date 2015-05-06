@@ -14,7 +14,7 @@ template<typename T,typename S>
 void UpdateMappedDiagonal
 ( Matrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateMappedDiagonal"))
+    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
@@ -35,7 +35,7 @@ void UpdateMappedDiagonal
 ( SparseMatrix<T>& A, const Matrix<S>& d, 
   function<void(T&,S)> func, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateMappedDiagonal"))
+    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
 
     const Int numUpdates = d.Height();
     A.Reserve( A.NumEntries() + numUpdates );
@@ -59,7 +59,7 @@ void UpdateMappedDiagonal
   function<void(T&,S)> func, Int offset )
 { 
     DEBUG_ONLY(
-      CallStackEntry cse("UpdateMappedDiagonal");
+      CSE cse("UpdateMappedDiagonal");
       AssertSameGrids( A, dPre );
     )
     ProxyCtrl ctrl;
@@ -102,7 +102,7 @@ void UpdateMappedDiagonal
 ( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, 
   function<void(T&,S)> func, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateMappedDiagonal"))
+    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
     if( offset != 0 )
         LogicError("Offset assumed to be zero for distributed sparse matrices");
 

@@ -18,7 +18,7 @@ void Exchange
   int sendRank, int recvRank, mpi::Comm comm )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("copy::Exchange");
+      CSE cse("copy::Exchange");
       AssertSameGrids( A, B );
     )
     const int myRank = mpi::Rank( comm );

@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void Gear( Matrix<T>& G, Int n, Int s, Int t )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gear"))
+    DEBUG_ONLY(CSE cse("Gear"))
     if( s == 0 || s > n || s < -n )
         LogicError("Invalid s value");
     if( t == 0 || t > n || t < -n )
@@ -28,7 +28,7 @@ void Gear( Matrix<T>& G, Int n, Int s, Int t )
 template<typename T>
 void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gear"))
+    DEBUG_ONLY(CSE cse("Gear"))
     if( s == 0 || s > n || s < -n )
         LogicError("Invalid s value");
     if( t == 0 || t > n || t < -n )
@@ -43,7 +43,7 @@ void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t )
 template<typename T>
 void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gear"))
+    DEBUG_ONLY(CSE cse("Gear"))
     if( s == 0 || s > n || s < -n )
         LogicError("Invalid s value");
     if( t == 0 || t > n || t < -n )

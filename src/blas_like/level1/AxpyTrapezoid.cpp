@@ -15,7 +15,7 @@ void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, const Matrix<T>& X, Matrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("AxpyTrapezoid");
+        CSE cse("AxpyTrapezoid");
         if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
             X.Height() != Y.Height() )
             LogicError("Nonconformal AxpyTrapezoid");
@@ -47,7 +47,7 @@ void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
   const SparseMatrix<T>& X, SparseMatrix<T>& Y, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("AxpyTrapezoid"))
+    DEBUG_ONLY(CSE cse("AxpyTrapezoid"))
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
     const T alpha = T(alphaS);
@@ -69,7 +69,7 @@ void AxpyTrapezoid
   const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("AxpyTrapezoid");
+        CSE cse("AxpyTrapezoid");
         AssertSameGrids( X, Y );
         if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
             X.Height() != Y.Height() )
@@ -128,7 +128,7 @@ void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
   const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("AxpyTrapezoid"))
+    DEBUG_ONLY(CSE cse("AxpyTrapezoid"))
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
     if( X.Comm() != Y.Comm() )

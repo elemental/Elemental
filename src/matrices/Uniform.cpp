@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void MakeUniform( Matrix<T>& A, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
+    DEBUG_ONLY(CSE cse("MakeUniform"))
     auto sampleBall = [=]() { return SampleBall(center,radius); };
     EntrywiseFill( A, function<T()>(sampleBall) );
 }
@@ -23,7 +23,7 @@ void MakeUniform( Matrix<T>& A, T center, Base<T> radius )
 template<typename T>
 void Uniform( Matrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("Uniform"))
+    DEBUG_ONLY(CSE cse("Uniform"))
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
@@ -31,7 +31,7 @@ void Uniform( Matrix<T>& A, Int m, Int n, T center, Base<T> radius )
 template<typename T>
 void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
+    DEBUG_ONLY(CSE cse("MakeUniform"))
     if( A.RedundantRank() == 0 )
         MakeUniform( A.Matrix(), center, radius );
     Broadcast( A, A.RedundantComm(), 0 );
@@ -40,7 +40,7 @@ void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
 template<typename T>
 void MakeUniform( AbstractBlockDistMatrix<T>& A, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
+    DEBUG_ONLY(CSE cse("MakeUniform"))
     if( A.RedundantRank() == 0 )
         MakeUniform( A.Matrix(), center, radius );
     Broadcast( A, A.RedundantComm(), 0 );
@@ -49,7 +49,7 @@ void MakeUniform( AbstractBlockDistMatrix<T>& A, T center, Base<T> radius )
 template<typename T>
 void Uniform( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("Uniform"))
+    DEBUG_ONLY(CSE cse("Uniform"))
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
@@ -58,7 +58,7 @@ template<typename T>
 void Uniform
 ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("Uniform"))
+    DEBUG_ONLY(CSE cse("Uniform"))
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
@@ -66,7 +66,7 @@ void Uniform
 template<typename T>
 void MakeUniform( DistMultiVec<T>& X, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
+    DEBUG_ONLY(CSE cse("MakeUniform"))
     const int localHeight = X.LocalHeight();
     const int width = X.Width();
     for( int j=0; j<width; ++j )
@@ -77,7 +77,7 @@ void MakeUniform( DistMultiVec<T>& X, T center, Base<T> radius )
 template<typename T>
 void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CallStackEntry cse("Uniform"))
+    DEBUG_ONLY(CSE cse("Uniform"))
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }

@@ -20,11 +20,11 @@ void Trstrm
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trstrm");
-        if( A.Height() != A.Width() || X.Height() != X.Width() )
-            LogicError("Triangular matrices must be square");
-        if( A.Height() != X.Height() )
-            LogicError("Nonconformal Trstrm");
+      CSE cse("Trstrm");
+      if( A.Height() != A.Width() || X.Height() != X.Width() )
+          LogicError("Triangular matrices must be square");
+      if( A.Height() != X.Height() )
+          LogicError("Nonconformal Trstrm");
     )
     if( side == LEFT && uplo == LOWER )
     {
@@ -74,7 +74,7 @@ void Trstrm
   F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("Trstrm"))
+    DEBUG_ONLY(CSE cse("Trstrm"))
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -116,6 +116,18 @@ void Trstrm
     */
 }
 
+template<typename F>
+void Trstrm
+( LeftOrRight side, UpperOrLower uplo,
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& X,
+  bool checkIfSingular )
+{
+    Trstrm
+    ( side, uplo, orientation, diag,
+      alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
+}
+
 #define PROTO(F) \
   template void Trstrm \
   ( LeftOrRight side, UpperOrLower uplo, \
@@ -125,6 +137,11 @@ void Trstrm
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
     F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X, \
+    bool checkIfSingular ); \
+  template void Trstrm \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    Orientation orientation, UnitOrNonUnit diag, \
+    F alpha, const DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& X, \
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO

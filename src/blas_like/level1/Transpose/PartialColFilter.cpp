@@ -18,7 +18,7 @@ void PartialColFilter
         AbstractDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("transpose::PartialColFilter");
+        CSE cse("transpose::PartialColFilter");
         if( A.ColDist() != B.RowDist() ||
             A.RowDist() != Partial(B.ColDist()) )
             LogicError("Incompatible distributions");
@@ -44,7 +44,7 @@ void PartialColFilter
         AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("transpose::PartialColFilter");
+        CSE cse("transpose::PartialColFilter");
         if( A.ColDist() != B.RowDist() ||
             A.RowDist() != Partial(B.ColDist()) )
             LogicError("Incompatible distributions");

@@ -44,7 +44,7 @@ void IPF
         Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::IPF"))    
+    DEBUG_ONLY(CSE cse("qp::direct::IPF"))    
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -249,7 +249,7 @@ void IPF
         AbstractDistMatrix<Real>& zPre, 
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::IPF"))    
+    DEBUG_ONLY(CSE cse("qp::direct::IPF"))    
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
 
@@ -478,7 +478,7 @@ void IPF
         Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::IPF"))    
+    DEBUG_ONLY(CSE cse("qp::direct::IPF"))    
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -757,7 +757,7 @@ void IPF
         DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::IPF"))    
+    DEBUG_ONLY(CSE cse("qp::direct::IPF"))    
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
 

@@ -23,7 +23,7 @@ Int ADMM
         Matrix<F>& z, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bp::ADMM"))
+    DEBUG_ONLY(CSE cse("bp::ADMM"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
     // NOTE: If m >= n and A has full column rank, then basis pursuit is 
     //       irrelevant, as there is a unique solution, which is found 
@@ -155,7 +155,7 @@ Int ADMM
         AbstractDistMatrix<F>& zPre,
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bp::ADMM"))
+    DEBUG_ONLY(CSE cse("bp::ADMM"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto bPtr = ReadProxy<F,MC,MR>( &bPre );  auto& b = *bPtr;

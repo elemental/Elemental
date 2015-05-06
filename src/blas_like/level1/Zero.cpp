@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Zero( Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
+    DEBUG_ONLY(CSE cse("Zero"))
     const Int height = A.Height();
     const Int width = A.Width();
     EL_PARALLEL_FOR
@@ -24,21 +24,21 @@ void Zero( Matrix<T>& A )
 template<typename T>
 void Zero( AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
+    DEBUG_ONLY(CSE cse("Zero"))
     Zero( A.Matrix() );
 }
 
 template<typename T>
 void Zero( AbstractBlockDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
+    DEBUG_ONLY(CSE cse("Zero"))
     Zero( A.Matrix() );
 }
 
 template<typename T>
 void Zero( SparseMatrix<T>& A, bool clearMemory )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
+    DEBUG_ONLY(CSE cse("Zero"))
     const Int m = A.Height();
     const Int n = A.Width();
     A.Empty( clearMemory );
@@ -48,7 +48,7 @@ void Zero( SparseMatrix<T>& A, bool clearMemory )
 template<typename T>
 void Zero( DistSparseMatrix<T>& A, bool clearMemory )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
+    DEBUG_ONLY(CSE cse("Zero"))
     const Int m = A.Height();
     const Int n = A.Width();
     A.Empty( clearMemory );
@@ -58,7 +58,7 @@ void Zero( DistSparseMatrix<T>& A, bool clearMemory )
 template<typename T>
 void Zero( DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
+    DEBUG_ONLY(CSE cse("Zero"))
     const int localHeight = X.LocalHeight();
     const int width = X.Width();
     for( int j=0; j<width; ++j )

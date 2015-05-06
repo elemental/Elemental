@@ -25,7 +25,7 @@ LocalAccumulateRLN
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LocalAccumulateRLN");
+      CSE cse("trmm::LocalAccumulateRLN");
       AssertSameGrids( L, X, ZTrans );
       if( L.Height() != L.Width() ||
           L.Height() != X.Width() ||
@@ -75,7 +75,7 @@ RLNA
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RLNA");
+      CSE cse("trmm::RLNA");
       AssertSameGrids( LPre, XPre );
       // TODO: More checks
     )
@@ -122,7 +122,7 @@ RLNCOld
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RLNCOld");
+      CSE cse("trmm::RLNCOld");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -171,7 +171,7 @@ RLNC
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RLNC");
+      CSE cse("trmm::RLNC");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -224,7 +224,7 @@ RLN
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trmm::RLN"))
+    DEBUG_ONLY(CSE cse("trmm::RLN"))
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         RLNA( diag, L, X );

@@ -21,7 +21,7 @@ namespace El {
 template<typename F> 
 void DruinskyToledo( Matrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("DruinskyToledo"))
+    DEBUG_ONLY(CSE cse("DruinskyToledo"))
     const Int n = 2*k;
     Zeros( A, n, n );
     if( k == 0 )
@@ -64,7 +64,7 @@ void DruinskyToledo( Matrix<F>& A, Int k )
 template<typename F> 
 void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("DruinskyToledo"))
+    DEBUG_ONLY(CSE cse("DruinskyToledo"))
     const Int n = 2*k;
     Zeros( A, n, n );
     if( k == 0 )

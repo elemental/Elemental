@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 Base<F> TwoNormEstimate( const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
+    DEBUG_ONLY(CSE cse("TwoNormEstimate"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -48,7 +48,7 @@ template<typename F>
 Base<F> TwoNormEstimate
 ( const AbstractDistMatrix<F>& APre, Base<F> tol, Int maxIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
+    DEBUG_ONLY(CSE cse("TwoNormEstimate"))
     typedef Base<F> Real;
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
@@ -101,7 +101,7 @@ template<typename F>
 Base<F> HermitianTwoNormEstimate
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
+    DEBUG_ONLY(CSE cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -137,7 +137,7 @@ Base<F> HermitianTwoNormEstimate
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& APre, Base<F> tol, 
   Int maxIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
+    DEBUG_ONLY(CSE cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
@@ -176,7 +176,7 @@ template<typename F>
 Base<F> SymmetricTwoNormEstimate
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
+    DEBUG_ONLY(CSE cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -214,7 +214,7 @@ Base<F> SymmetricTwoNormEstimate
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& APre, Base<F> tol, 
   Int maxIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
+    DEBUG_ONLY(CSE cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );

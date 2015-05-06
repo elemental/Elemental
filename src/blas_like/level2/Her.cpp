@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Her( UpperOrLower uplo, Base<T> alpha, const Matrix<T>& x, Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Her"))
+    DEBUG_ONLY(CSE cse("Her"))
     Syr( uplo, T(alpha), x, A, true );
 }
 
@@ -23,7 +23,7 @@ void Her
   Base<T> alpha, const AbstractDistMatrix<T>& x, 
                        AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Her"))
+    DEBUG_ONLY(CSE cse("Her"))
     Syr( uplo, T(alpha), x, A, true );
 }
 

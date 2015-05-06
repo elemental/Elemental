@@ -17,7 +17,7 @@ template<typename T>
 inline void
 MatrixMarket( Matrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::MatrixMarket"))
+    DEBUG_ONLY(CSE cse("read::MatrixMarket"))
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
@@ -222,7 +222,7 @@ template<typename T>
 inline void
 MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::MatrixMarket"))
+    DEBUG_ONLY(CSE cse("read::MatrixMarket"))
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
     {
@@ -238,7 +238,7 @@ template<typename T>
 inline void
 MatrixMarket( AbstractBlockDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::MatrixMarket"))
+    DEBUG_ONLY(CSE cse("read::MatrixMarket"))
     BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
     {

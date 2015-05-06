@@ -19,7 +19,7 @@ template<typename F>
 Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svt::PivotedQR");
+        CSE cse("svt::PivotedQR");
         if( numSteps > Min(A.Height(),A.Width()) )
             LogicError("number of steps is too large");
     )
@@ -64,7 +64,7 @@ Int PivotedQR
 ( AbstractDistMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svt::PivotedQR");
+        CSE cse("svt::PivotedQR");
         if( numSteps > Min(APre.Height(),APre.Width()) )
             LogicError("number of steps is too large");
     )

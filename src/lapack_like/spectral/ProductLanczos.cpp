@@ -35,7 +35,7 @@ template<typename F>
 void ProductLanczos
 ( const SparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize )
 {
-    DEBUG_ONLY(CallStackEntry cse("ProductLanczos"))
+    DEBUG_ONLY(CSE cse("ProductLanczos"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -114,7 +114,7 @@ Base<F> ProductLanczosDecomp
         Matrix<Base<F>>& T, Matrix<F>& v,
   Int basisSize )
 {
-    DEBUG_ONLY(CallStackEntry cse("ProductLanczosDecomp"))
+    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -199,7 +199,7 @@ template<typename F>
 void ProductLanczos
 ( const DistSparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize )
 {
-    DEBUG_ONLY(CallStackEntry cse("ProductLanczos"))
+    DEBUG_ONLY(CSE cse("ProductLanczos"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -284,7 +284,7 @@ Base<F> ProductLanczosDecomp
         Matrix<Base<F>>& T,     DistMultiVec<F>& v,
   Int basisSize )
 {
-    DEBUG_ONLY(CallStackEntry cse("ProductLanczosDecomp"))
+    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();

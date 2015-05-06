@@ -17,7 +17,7 @@ inline Complex<Real>
 Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("pml::Profile");
+        CSE cse("pml::Profile");
         if( x < 0 || x > w )
             LogicError("Evaluation point not in PML interval");
     )
@@ -50,7 +50,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -89,7 +89,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -131,7 +131,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -173,7 +173,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -219,7 +219,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -277,7 +277,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -338,7 +338,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -399,7 +399,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -464,7 +464,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -540,7 +540,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -619,7 +619,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -698,7 +698,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CallStackEntry cse("HelmholtzPML"))
+    DEBUG_ONLY(CSE cse("HelmholtzPML"))
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;

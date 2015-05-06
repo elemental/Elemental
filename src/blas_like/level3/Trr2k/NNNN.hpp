@@ -21,7 +21,7 @@ void Trr2kNNNN
   T gamma,       AbstractDistMatrix<T>& EPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trr2k::Trr2kNNNN");
+      CSE cse("trr2k::Trr2kNNNN");
       if( EPre.Height() != EPre.Width()  || APre.Width()  != CPre.Width()  ||
           APre.Height() != EPre.Height() || CPre.Height() != EPre.Height() ||
           BPre.Width()  != EPre.Width()  || DPre.Width()  != EPre.Width()  ||

@@ -18,13 +18,13 @@ namespace El {
 inline Int Length( Int n, Int shift, Int stride )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Length");
-        if( n < 0 )
-            LogicError("n must be non-negative");
-        if( shift < 0 || shift >= stride )
-            LogicError("Invalid shift: shift=",shift,", stride=",stride);
-        if( stride <= 0 )
-            LogicError("Modulus must be positive");
+      CSE cse("Length");
+      if( n < 0 )
+          LogicError("n must be non-negative");
+      if( shift < 0 || shift >= stride )
+          LogicError("Invalid shift: shift=",shift,", stride=",stride);
+      if( stride <= 0 )
+          LogicError("Modulus must be positive");
     )
     return Length_( n, shift, stride );
 }
@@ -37,7 +37,7 @@ inline Int Length_( Int n, Int shift, Int stride )
 inline Int
 Length( Int n, Int rank, Int align, Int stride )
 {
-    DEBUG_ONLY(CallStackEntry cse("Length"))
+    DEBUG_ONLY(CSE cse("Length"))
     const Int shift = Shift( rank, align, stride );
     return Length( n, shift, stride );
 }
@@ -52,11 +52,11 @@ inline Int Length_
 inline Int MaxLength( Int n, Int stride )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MaxLength");
-        if( n < 0 )
-            LogicError("n must be non-negative");
-        if( stride <= 0 )
-            LogicError("Modulus must be positive");
+      CSE cse("MaxLength");
+      if( n < 0 )
+          LogicError("n must be non-negative");
+      if( stride <= 0 )
+          LogicError("Modulus must be positive");
     )
     return MaxLength_( n, stride );
 }
@@ -73,14 +73,14 @@ inline Int GlobalIndex( Int iLoc, Int shift, Int numProcs )
 inline Int BlockedLength( Int n, Int shift, Int bsize, Int cut, Int stride )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("BlockedLength");
-        if( n < 0 )
-            LogicError("n must be non-negative");
-        if( shift < 0 || shift >= stride )
-            LogicError("Invalid shift: shift=",shift,", stride=",stride);
-        if( stride <= 0 )
-            LogicError("Modulus must be positive");
-        // TODO: bsize and cut checks
+      CSE cse("BlockedLength");
+      if( n < 0 )
+          LogicError("n must be non-negative");
+      if( shift < 0 || shift >= stride )
+          LogicError("Invalid shift: shift=",shift,", stride=",stride);
+      if( stride <= 0 )
+          LogicError("Modulus must be positive");
+      // TODO: bsize and cut checks
     )
     return BlockedLength_( n, shift, bsize, cut, stride );
 }
@@ -118,7 +118,7 @@ inline Int BlockedLength_( Int n, Int shift, Int bsize, Int cut, Int stride )
 inline Int
 BlockedLength( Int n, Int rank, Int align, Int bsize, Int cut, Int stride )
 {
-    DEBUG_ONLY(CallStackEntry cse("BlockedLength"))
+    DEBUG_ONLY(CSE cse("BlockedLength"))
     const Int shift = Shift( rank, align, stride );
     return BlockedLength( n, shift, bsize, cut, stride );
 }
@@ -133,11 +133,11 @@ inline Int BlockedLength_
 inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MaxBlockedLength");
-        if( n < 0 )
-            LogicError("n must be non-negative");
-        if( stride <= 0 )
-            LogicError("Modulus must be positive");
+      CSE cse("MaxBlockedLength");
+      if( n < 0 )
+          LogicError("n must be non-negative");
+      if( stride <= 0 )
+          LogicError("Modulus must be positive");
     )
     return MaxBlockedLength_( n, bsize, cut, stride );
 }
@@ -168,9 +168,9 @@ GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs )
 inline Int Mod( Int a, Int b )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Mod");
-        if( b <= 0 )
-            LogicError("b is assumed to be positive");
+      CSE cse("Mod");
+      if( b <= 0 )
+          LogicError("b is assumed to be positive");
     )
     return Mod_( a, b );
 }
@@ -185,13 +185,13 @@ inline Int Mod_( Int a, Int b )
 inline Int Shift( Int rank, Int align, Int stride )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Shift");
-        if( rank < 0 || rank >= stride )
-            LogicError("Invalid rank: rank=",rank,", stride=",stride);
-        if( align < 0 || align >= stride )
-            LogicError("Invalid alignment: align=",align,", stride=",stride);
-        if( stride <= 0 )
-            LogicError("Stride must be positive");
+      CSE cse("Shift");
+      if( rank < 0 || rank >= stride )
+          LogicError("Invalid rank: rank=",rank,", stride=",stride);
+      if( align < 0 || align >= stride )
+          LogicError("Invalid alignment: align=",align,", stride=",stride);
+      if( stride <= 0 )
+          LogicError("Stride must be positive");
     )
     return Shift_( rank, align, stride );
 }
@@ -221,8 +221,9 @@ DiagonalLength( Int height, Int width, Int offset )
 inline Int GCD( Int a, Int b )
 {
     DEBUG_ONLY(
-        if( a < 0 || b < 0 )
-            LogicError("GCD called with negative argument");
+      CSE cse("GCD");
+      if( a < 0 || b < 0 )
+          LogicError("GCD called with negative argument");
     )
     return GCD_( a, b );
 }

@@ -27,7 +27,7 @@ void ProcessEvents( int numMsecs )
 template<typename Real>
 void Display( const Matrix<Real>& A, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display"))
+    DEBUG_ONLY(CSE cse("Display"))
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
     {
@@ -58,7 +58,7 @@ void Display( const Matrix<Real>& A, string title )
 template<typename Real>
 void Display( const Matrix<Complex<Real>>& A, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display"))
+    DEBUG_ONLY(CSE cse("Display"))
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
     {
@@ -96,7 +96,7 @@ void Display( const Matrix<Complex<Real>>& A, string title )
 template<typename T>
 void Display( const AbstractDistMatrix<T>& A, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display"))
+    DEBUG_ONLY(CSE cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -113,7 +113,7 @@ void Display( const AbstractDistMatrix<T>& A, string title )
 template<typename T>
 void Display( const AbstractBlockDistMatrix<T>& A, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display"))
+    DEBUG_ONLY(CSE cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -130,7 +130,7 @@ void Display( const AbstractBlockDistMatrix<T>& A, string title )
 template<typename T>
 void Display( const DistMultiVec<T>& X, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display [DistMultiVec]"))
+    DEBUG_ONLY(CSE cse("Display [DistMultiVec]"))
     const Int commRank = mpi::Rank( X.Comm() );
     if( commRank == 0 )
     {
@@ -146,7 +146,7 @@ void Display( const DistMultiVec<T>& X, string title )
 
 void Display( const Graph& graph, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display [Graph]"))
+    DEBUG_ONLY(CSE cse("Display [Graph]"))
 #ifdef HAVE_QT5
     auto graphMat = new Matrix<int>;
     const int m = graph.NumTargets();
@@ -173,7 +173,7 @@ void Display( const Graph& graph, string title )
 
 void Display( const DistGraph& graph, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Display [DistGraph]"))
+    DEBUG_ONLY(CSE cse("Display [DistGraph]"))
     const mpi::Comm comm = graph.Comm();
     const int commRank = mpi::Rank( comm );
 
@@ -192,7 +192,7 @@ void Display( const DistGraph& graph, string title )
 template<typename Real>
 void Display( const SparseMatrix<Real>& A, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
+    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
 #ifdef HAVE_QT5
     auto AFull = new Matrix<double>;
     const int m = A.Height();
@@ -221,7 +221,7 @@ void Display( const SparseMatrix<Real>& A, string title )
 template<typename Real>
 void Display( const SparseMatrix<Complex<Real>>& A, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
+    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
 #ifdef HAVE_QT5
     auto AFull = new Matrix<Complex<double>>;
     const int m = A.Height();
@@ -254,7 +254,7 @@ void Display( const SparseMatrix<Complex<Real>>& A, string title )
 template<typename T>
 void Display( const DistSparseMatrix<T>& A, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Print [SparseMatrix]"))
+    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
     const mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
     
@@ -273,7 +273,7 @@ void Display( const DistSparseMatrix<T>& A, string title )
 void DisplayLocal
 ( const DistSymmNodeInfo& info, bool beforeFact, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayLocal [DistSymmNodeInfo]"))
+    DEBUG_ONLY(CSE cse("DisplayLocal [DistSymmNodeInfo]"))
 #ifdef HAVE_QT5
     const int n = info.distNodes.back().size + info.distNodes.back().off;
     auto graphMat = new Matrix<int>;

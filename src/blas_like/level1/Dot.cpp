@@ -13,21 +13,21 @@ namespace El {
 template<typename T> 
 T Dot( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Dot"))
+    DEBUG_ONLY(CSE cse("Dot"))
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Dot"))
+    DEBUG_ONLY(CSE cse("Dot"))
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Dot"))
+    DEBUG_ONLY(CSE cse("Dot"))
     return HilbertSchmidt( A, B );
 }
 

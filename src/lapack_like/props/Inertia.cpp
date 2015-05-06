@@ -14,7 +14,7 @@ template<typename F>
 InertiaType Inertia
 ( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Inertia"))
+    DEBUG_ONLY(CSE cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     Matrix<Int> p;
@@ -28,7 +28,7 @@ InertiaType Inertia
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Inertia"))
+    DEBUG_ONLY(CSE cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
 

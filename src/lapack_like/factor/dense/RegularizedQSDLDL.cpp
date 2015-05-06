@@ -20,7 +20,7 @@ Var3Unb
   bool aPriori )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_qsd_ldl::Var3Unb");
+        CSE cse("reg_qsd_ldl::Var3Unb");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( regCand.Height() != A.Height() || regCand.Width() != 1 )
@@ -73,7 +73,7 @@ Var3
   bool aPriori )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_qsd_ldl::Var3");
+        CSE cse("reg_qsd_ldl::Var3");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -113,7 +113,7 @@ Var3
   bool aPriori )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reg_qsd_ldl::Var3");
+        CSE cse("reg_qsd_ldl::Var3");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         // TODO: regCand and reg checks
@@ -197,7 +197,7 @@ void RegularizedQSDLDL
         Matrix<Base<F>>& reg,
   bool aPriori )
 {
-    DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
+    DEBUG_ONLY(CSE cse("RegularizedQSDLDL"))
     reg_qsd_ldl::Var3( A, pivTol, regCand, reg, aPriori );
 }
 
@@ -208,7 +208,7 @@ void RegularizedQSDLDL
         AbstractDistMatrix<Base<F>>& reg,
   bool aPriori )
 {
-    DEBUG_ONLY(CallStackEntry cse("RegularizedQSDLDL"))
+    DEBUG_ONLY(CSE cse("RegularizedQSDLDL"))
     reg_qsd_ldl::Var3( A, pivTol, regCand, reg, aPriori );
 }
 

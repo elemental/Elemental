@@ -17,7 +17,7 @@ QuasiDiagonalSolve
   const Matrix<FMain>& d, const Matrix<F>& dSub, 
   Matrix<F>& X, bool conjugated )
 {
-    DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalSolve"))
+    DEBUG_ONLY(CSE cse("QuasiDiagonalSolve"))
     const Int m = X.Height();
     const Int n = X.Width();
 
@@ -120,7 +120,7 @@ LeftQuasiDiagonalSolve
   const DistMatrix<F,U,V>& XNext,
   bool conjugated )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeftQuasiDiagonalSolve"))
+    DEBUG_ONLY(CSE cse("LeftQuasiDiagonalSolve"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int m = X.Height();
@@ -210,7 +210,7 @@ RightQuasiDiagonalSolve
   const DistMatrix<F,U,V>& XNext,
   bool conjugated )
 {
-    DEBUG_ONLY(CallStackEntry cse("RightQuasiDiagonalSolve"))
+    DEBUG_ONLY(CSE cse("RightQuasiDiagonalSolve"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int n = X.Width();
@@ -292,7 +292,7 @@ QuasiDiagonalSolve
   const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub, 
   DistMatrix<F,U,V>& X, bool conjugated )
 {
-    DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalSolve"))
+    DEBUG_ONLY(CSE cse("QuasiDiagonalSolve"))
     const Grid& g = X.Grid();
     const Int colAlign = X.ColAlign();
     const Int rowAlign = X.RowAlign();

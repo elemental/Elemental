@@ -18,7 +18,7 @@ inline void
 LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("triang_inv::LVar3Unb");
+        CSE cse("triang_inv::LVar3Unb");
         if( L.Height() != L.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -48,7 +48,7 @@ inline void
 LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("triang_inv::LVar3");
+        CSE cse("triang_inv::LVar3");
         if( L.Height() != L.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -79,7 +79,7 @@ inline void
 LVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& LPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("triang_inv::LVar3");
+        CSE cse("triang_inv::LVar3");
         if( LPre.Height() != LPre.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )

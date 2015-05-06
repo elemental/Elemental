@@ -14,7 +14,7 @@ template<typename F>
 F SoftThreshold( F alpha, Base<F> tau )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SoftThreshold");
+        CSE cse("SoftThreshold");
         if( tau < 0 )
             LogicError("Negative threshold does not make sense");
     )
@@ -25,7 +25,7 @@ F SoftThreshold( F alpha, Base<F> tau )
 template<typename F>
 void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
+    DEBUG_ONLY(CSE cse("SoftThreshold"))
     if( relative )
         tau *= MaxNorm(A);
     auto softThresh = [&]( F alpha ) { return SoftThreshold(alpha,tau); };
@@ -35,7 +35,7 @@ void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative )
 template<typename F>
 void SoftThreshold( AbstractDistMatrix<F>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
+    DEBUG_ONLY(CSE cse("SoftThreshold"))
     if( relative )
         tau *= MaxNorm(A);
     auto softThresh = [&]( F alpha ) { return SoftThreshold(alpha,tau); };

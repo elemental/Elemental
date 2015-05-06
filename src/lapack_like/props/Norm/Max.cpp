@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 Base<T> MaxNorm( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    DEBUG_ONLY(CSE cse("MaxNorm"))
     typedef Base<T> Real;
     Real maxAbs = 0;
     const Int height = A.Height();
@@ -27,7 +27,7 @@ Base<T> MaxNorm( const Matrix<T>& A )
 template<typename T> 
 Base<T> MaxNorm( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    DEBUG_ONLY(CSE cse("MaxNorm"))
     typedef Base<T> Real;
     Real maxAbs = 0;
     const Int numEntries = A.NumEntries();
@@ -39,7 +39,7 @@ Base<T> MaxNorm( const SparseMatrix<T>& A )
 template<typename T>
 Base<T> HermitianMaxNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
+    DEBUG_ONLY(CSE cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -65,7 +65,7 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const Matrix<T>& A )
 template<typename T> 
 Base<T> HermitianMaxNorm( UpperOrLower uplo, const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
+    DEBUG_ONLY(CSE cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -85,21 +85,21 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const SparseMatrix<T>& A )
 template<typename T>
 Base<T> SymmetricMaxNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 
 template<typename T>
 Base<T> SymmetricMaxNorm( UpperOrLower uplo, const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 
 template<typename T>
 Base<T> MaxNorm( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    DEBUG_ONLY(CSE cse("MaxNorm"))
     Base<T> norm=0;
     if( A.Participating() )
     {
@@ -113,7 +113,7 @@ Base<T> MaxNorm( const AbstractDistMatrix<T>& A )
 template<typename T>
 Base<T> MaxNorm( const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    DEBUG_ONLY(CSE cse("MaxNorm"))
 
     Base<T> localNorm = 0;
     const Int numLocalEntries = A.NumLocalEntries();
@@ -126,7 +126,7 @@ Base<T> MaxNorm( const DistSparseMatrix<T>& A )
 template<typename T>
 Base<T> MaxNorm( const DistMultiVec<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    DEBUG_ONLY(CSE cse("MaxNorm"))
     
     Base<T> localNorm = 0;
     const Int localHeight = A.LocalHeight();
@@ -141,7 +141,7 @@ Base<T> MaxNorm( const DistMultiVec<T>& A )
 template<typename T>
 Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
+    DEBUG_ONLY(CSE cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -181,7 +181,7 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 template<typename T>
 Base<T> HermitianMaxNorm( UpperOrLower uplo, const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
+    DEBUG_ONLY(CSE cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -201,14 +201,14 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const DistSparseMatrix<T>& A )
 template<typename T>
 Base<T> SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 
 template<typename T>
 Base<T> SymmetricMaxNorm( UpperOrLower uplo, const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 

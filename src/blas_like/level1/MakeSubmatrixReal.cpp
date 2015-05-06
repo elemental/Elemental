@@ -15,7 +15,7 @@ void MakeSubmatrixReal
 (       Matrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeSubmatrixReal"))
+    DEBUG_ONLY(CSE cse("MakeSubmatrixReal"))
     const Int m = I.size();
     const Int n = J.size();
 
@@ -36,7 +36,7 @@ void MakeSubmatrixReal
 (       AbstractDistMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeSubmatrixReal"))
+    DEBUG_ONLY(CSE cse("MakeSubmatrixReal"))
     const Int m = I.size();
     const Int n = J.size();
 

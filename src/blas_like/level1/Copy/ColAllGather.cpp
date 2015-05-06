@@ -16,7 +16,7 @@ template<typename T>
 void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ) 
 {
     DEBUG_ONLY(
-        CallStackEntry cse("copy::ColAllGather");
+        CSE cse("copy::ColAllGather");
         if( B.ColDist() != Collect(A.ColDist()) ||
             B.RowDist() != A.RowDist() )
             LogicError("Incompatible distributions");
@@ -200,7 +200,7 @@ template<typename T>
 void ColAllGather
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::ColAllGather"))
+    DEBUG_ONLY(CSE cse("copy::ColAllGather"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

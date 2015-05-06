@@ -17,7 +17,7 @@ UN
   const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsv::UN");
+        CSE cse("trsv::UN");
         AssertSameGrids( UPre, xPre );
         if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");

@@ -22,7 +22,7 @@ namespace El {
 template<typename F> 
 void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("RQ"))
+    DEBUG_ONLY(CSE cse("RQ"))
     rq::Householder( A, t, d );
 }
 
@@ -31,7 +31,7 @@ void RQ
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
   AbstractDistMatrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("RQ"))
+    DEBUG_ONLY(CSE cse("RQ"))
     rq::Householder( A, t, d );
 }
 

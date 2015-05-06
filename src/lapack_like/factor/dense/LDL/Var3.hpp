@@ -19,7 +19,7 @@ inline void
 Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::Var3Unb");
+        CSE cse("ldl::Var3Unb");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -71,7 +71,7 @@ inline void
 Var3( Matrix<F>& A, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::Var3");
+        CSE cse("ldl::Var3");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -105,7 +105,7 @@ inline void
 Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::Var3");
+        CSE cse("ldl::Var3");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )
@@ -136,7 +136,7 @@ Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
         auto A22 = A( ind2, ind2 );
 
         A11_STAR_STAR = A11;
-        LocalLDL( A11_STAR_STAR, conjugate );
+        LDL( A11_STAR_STAR, conjugate );
         GetDiagonal( A11_STAR_STAR, d1_STAR_STAR );
         A11 = A11_STAR_STAR;
 

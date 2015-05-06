@@ -19,7 +19,7 @@ Int NumNonSecondOrder
 ( const Matrix<Real>& x, 
   const Matrix<Int>& orders, const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonSecondOrder"))
+    DEBUG_ONLY(CSE cse("NumNonSecondOrder"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -50,7 +50,7 @@ Int NumNonSecondOrder
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonSecondOrder"))
+    DEBUG_ONLY(CSE cse("NumNonSecondOrder"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -206,7 +206,7 @@ Int NumNonSecondOrder
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonSecondOrder"))
+    DEBUG_ONLY(CSE cse("NumNonSecondOrder"))
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();

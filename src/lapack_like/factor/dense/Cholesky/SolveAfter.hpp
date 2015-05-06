@@ -18,7 +18,7 @@ void SolveAfter
 ( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::SolveAfter");
+        CSE cse("cholesky::SolveAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -46,7 +46,7 @@ void SolveAfter
   const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::SolveAfter");
+        CSE cse("cholesky::SolveAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( p.Height() != A.Height() )
@@ -81,7 +81,7 @@ void SolveAfter
   const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::SolveAfter");
+        CSE cse("cholesky::SolveAfter");
         AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
@@ -111,7 +111,7 @@ void SolveAfter
         AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::SolveAfter");
+        CSE cse("cholesky::SolveAfter");
         AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");

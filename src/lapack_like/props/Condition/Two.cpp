@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> TwoCondition( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
+    DEBUG_ONLY(CSE cse("TwoCondition"))
     typedef Base<F> Real;
     Matrix<F> B( A );
     Matrix<Real> s;
@@ -29,7 +29,7 @@ Base<F> TwoCondition( const Matrix<F>& A )
 template<typename F> 
 Base<F> TwoCondition( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
+    DEBUG_ONLY(CSE cse("TwoCondition"))
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );

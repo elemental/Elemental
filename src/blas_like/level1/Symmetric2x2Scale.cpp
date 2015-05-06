@@ -16,7 +16,7 @@ Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<F>& D, Matrix<F>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Scale"))
+    DEBUG_ONLY(CSE cse("Symmetric2x2Scale"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( side == LEFT && uplo == LOWER )
@@ -64,7 +64,7 @@ FirstHalfOfSymmetric2x2Scale
   const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("FirstHalfOfSymmetric2x2Scale");
+        CSE cse("FirstHalfOfSymmetric2x2Scale");
         if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
             LogicError("a1 and a2 must be the same size");
     )
@@ -118,7 +118,7 @@ SecondHalfOfSymmetric2x2Scale
   const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SecondHalfOfSymmetric2x2Scale");
+        CSE cse("SecondHalfOfSymmetric2x2Scale");
         if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
             LogicError("a1 and a2 must be the same size");
     )
@@ -171,7 +171,7 @@ Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
   const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Scale"))
+    DEBUG_ONLY(CSE cse("Symmetric2x2Scale"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();

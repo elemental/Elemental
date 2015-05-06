@@ -16,7 +16,7 @@ void ApplySymmetricPivots
   const Matrix<Int>& p, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ApplySymmetricPivots");
+        CSE cse("ApplySymmetricPivots");
         if( p.Width() != 1 )
             LogicError("p must be a column vector");
         if( p.Height() > A.Width() )
@@ -36,7 +36,7 @@ void ApplySymmetricPivots
   const AbstractDistMatrix<Int>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ApplySymmetricPivots");
+        CSE cse("ApplySymmetricPivots");
         if( pivots.Width() != 1 )
             LogicError("p must be a column vector");
         if( pivots.Height() > A.Width() )
@@ -56,7 +56,7 @@ void ApplyInverseSymmetricPivots
   const Matrix<Int>& p, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ApplyInverseSymmetricPivots");
+        CSE cse("ApplyInverseSymmetricPivots");
         if( p.Width() != 1 )
             LogicError("pivots must be a column vector");
         if( p.Height() > A.Width() )
@@ -76,7 +76,7 @@ void ApplyInverseSymmetricPivots
   const AbstractDistMatrix<Int>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ApplyInverseSymmetricPivots");
+        CSE cse("ApplyInverseSymmetricPivots");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
         if( pivots.Height() > A.Width() )

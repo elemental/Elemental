@@ -45,7 +45,7 @@ template<typename F>
 inline void
 DivideAndConquerSVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::DivideAndConquerSVD"))
+    DEBUG_ONLY(CSE cse("svd::DivideAndConquerSVD"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min(m,n);
@@ -64,7 +64,7 @@ template<typename F>
 inline void
 QRSVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::QRSVD"))
+    DEBUG_ONLY(CSE cse("svd::QRSVD"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min(m,n);

@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void MakeIdentity( Matrix<T>& I )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
+    DEBUG_ONLY(CSE cse("MakeIdentity"))
     Zero( I );
     FillDiagonal( I, T(1) );
 }
@@ -21,7 +21,7 @@ void MakeIdentity( Matrix<T>& I )
 template<typename T>
 void MakeIdentity( AbstractDistMatrix<T>& I )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
+    DEBUG_ONLY(CSE cse("MakeIdentity"))
     Zero( I );
     FillDiagonal( I, T(1) );
 }
@@ -29,7 +29,7 @@ void MakeIdentity( AbstractDistMatrix<T>& I )
 template<typename T>
 void MakeIdentity( AbstractBlockDistMatrix<T>& I )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
+    DEBUG_ONLY(CSE cse("MakeIdentity"))
     Zero( I );
     FillDiagonal( I, T(1) );
 }
@@ -37,7 +37,7 @@ void MakeIdentity( AbstractBlockDistMatrix<T>& I )
 template<typename T>
 void Identity( Matrix<T>& I, Int m, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Identity"))
+    DEBUG_ONLY(CSE cse("Identity"))
     I.Resize( m, n );
     MakeIdentity( I );
 }
@@ -45,7 +45,7 @@ void Identity( Matrix<T>& I, Int m, Int n )
 template<typename T>
 void Identity( AbstractDistMatrix<T>& I, Int m, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Identity"))
+    DEBUG_ONLY(CSE cse("Identity"))
     I.Resize( m, n );
     MakeIdentity( I );
 }
@@ -53,7 +53,7 @@ void Identity( AbstractDistMatrix<T>& I, Int m, Int n )
 template<typename T>
 void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Identity"))
+    DEBUG_ONLY(CSE cse("Identity"))
     I.Resize( m, n );
     MakeIdentity( I );
 }
@@ -61,7 +61,7 @@ void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n )
 template<typename T>
 void Identity( SparseMatrix<T>& I, Int m, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Identity"))
+    DEBUG_ONLY(CSE cse("Identity"))
     Zeros( I, m, n );
     I.Reserve( Min(m,n) );
     for( Int j=0; j<Min(m,n); ++j )
@@ -72,7 +72,7 @@ void Identity( SparseMatrix<T>& I, Int m, Int n )
 template<typename T>
 void Identity( DistSparseMatrix<T>& I, Int m, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Identity"))
+    DEBUG_ONLY(CSE cse("Identity"))
     Zeros( I, m, n );
     const Int localHeight = I.LocalHeight();
 

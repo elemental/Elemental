@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> FrobeniusNorm( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
     Real scale = 0;
     Real scaledSquare = 1;
@@ -28,7 +28,7 @@ Base<F> FrobeniusNorm( const Matrix<F>& A )
 template<typename F> 
 Base<F> FrobeniusNorm( const SparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
     Real scale = 0;
     Real scaledSquare = 1;
@@ -41,7 +41,7 @@ Base<F> FrobeniusNorm( const SparseMatrix<F>& A )
 template<typename F>
 Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -80,7 +80,7 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F> 
 Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("HermitianFrobeniusNorm"))
     typedef Base<F> Real;
     Real scale = 0;
     Real scaledSquare = 1;
@@ -105,21 +105,21 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
 template<typename F>
 Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
 }
 
 template<typename F>
 Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
 }
 
 template<typename F> 
 Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
@@ -155,7 +155,7 @@ Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
 template<typename F> 
 Base<F> FrobeniusNorm( const DistSparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
     Real norm;
 
@@ -187,7 +187,7 @@ template<typename F>
 Base<F> HermitianFrobeniusNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -258,7 +258,7 @@ template<typename F>
 Base<F> HermitianFrobeniusNorm
 ( UpperOrLower uplo, const DistSparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("HermitianFrobeniusNorm"))
     typedef Base<F> Real;
     Real norm;
 
@@ -301,7 +301,7 @@ template<typename F>
 Base<F> SymmetricFrobeniusNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
 }
 
@@ -309,14 +309,14 @@ template<typename F>
 Base<F> SymmetricFrobeniusNorm
 ( UpperOrLower uplo, const DistSparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
 }
 
 template<typename F> 
 Base<F> FrobeniusNorm( const DistMultiVec<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
     Real norm;
     Real locScale=0, locScaledSquare=1;

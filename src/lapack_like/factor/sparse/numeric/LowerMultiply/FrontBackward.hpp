@@ -28,7 +28,7 @@ inline void FrontVanillaLowerBackwardMultiply
 ( const Matrix<F>& L, Matrix<F>& X, bool conjugate )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerBackwardMultiply");
+      CSE cse("FrontVanillaLowerBackwardMultiply");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal multiply:\n",
@@ -47,7 +47,7 @@ template<typename F>
 inline void FrontLowerBackwardMultiply
 ( const SymmFront<F>& front, Matrix<F>& W, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerBackwardMultiply"))
+    DEBUG_ONLY(CSE cse("FrontLowerBackwardMultiply"))
     SymmFrontType type = front.type;
     if( Unfactored(type) )
         LogicError("Cannot multiply against an unfactored matrix");
@@ -64,7 +64,7 @@ inline void FrontVanillaLowerBackwardMultiply
   bool conjugate )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerBackwardMultiply");
+      CSE cse("FrontVanillaLowerBackwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -103,7 +103,7 @@ inline void FrontVanillaLowerBackwardMultiply
 ( const DistMatrix<F>& L, DistMatrix<F>& X, bool conjugate )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerBackwardMultiply");
+      CSE cse("FrontVanillaLowerBackwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -132,7 +132,7 @@ template<typename F>
 inline void FrontLowerBackwardMultiply
 ( const DistSymmFront<F>& front, DistMatrix<F>& W, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerBackwardMultiply"))
+    DEBUG_ONLY(CSE cse("FrontLowerBackwardMultiply"))
     SymmFrontType type = front.type;
     if( Unfactored(type) )
         LogicError("Cannot multiply against an unfactored matrix");
@@ -147,7 +147,7 @@ template<typename F>
 inline void FrontLowerBackwardMultiply
 ( const DistSymmFront<F>& front, DistMatrix<F,VC,STAR>& W, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerBackwardMultiply"))
+    DEBUG_ONLY(CSE cse("FrontLowerBackwardMultiply"))
     SymmFrontType type = front.type;
     if( Unfactored(type) )
         LogicError("Cannot multiply against an unfactored matrix");

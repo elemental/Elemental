@@ -21,14 +21,14 @@ namespace El {
 template<typename T>
 inline void View( Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("View"))
+    DEBUG_ONLY(CSE cse("View"))
     A.Attach( B.Height(), B.Width(), B.Buffer(), B.LDim() );
 }
 
 template<typename T>
 inline void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedView"))
+    DEBUG_ONLY(CSE cse("LockedView"))
     A.LockedAttach( B.Height(), B.Width(), B.LockedBuffer(), B.LDim() );
 }
 
@@ -55,8 +55,8 @@ template<typename T>
 inline void View( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("View");
-        AssertSameDist( A.DistData(), B.DistData() );
+      CSE cse("View");
+      AssertSameDist( A.DistData(), B.DistData() );
     )
     A.Attach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
@@ -68,8 +68,8 @@ inline void LockedView
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedView");
-        AssertSameDist( A.DistData(), B.DistData() );
+      CSE cse("LockedView");
+      AssertSameDist( A.DistData(), B.DistData() );
     )
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
@@ -102,8 +102,8 @@ template<typename T>
 inline void View( AbstractBlockDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("View");
-        AssertSameDist( A.DistData(), B.DistData() );
+      CSE cse("View");
+      AssertSameDist( A.DistData(), B.DistData() );
     )
     A.Attach
     ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
@@ -115,8 +115,8 @@ inline void LockedView
 ( AbstractBlockDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedView");
-        AssertSameDist( A.DistData(), B.DistData() );
+      CSE cse("LockedView");
+      AssertSameDist( A.DistData(), B.DistData() );
     )
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
@@ -127,8 +127,8 @@ template<typename T>
 inline void View( AbstractDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("View");
-        AssertSameDist( A.DistData(), B.DistData() );
+      CSE cse("View");
+      AssertSameDist( A.DistData(), B.DistData() );
     )
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
@@ -143,8 +143,8 @@ inline void LockedView
 ( AbstractDistMatrix<T>& A, const AbstractBlockDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedView");
-        AssertSameDist( A.DistData(), B.DistData() );
+      CSE cse("LockedView");
+      AssertSameDist( A.DistData(), B.DistData() );
     )
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
@@ -166,16 +166,16 @@ inline void View
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("View");
-        if( i < 0 || j < 0 )
-            LogicError("Indices must be non-negative");
-        if( height < 0 || width < 0 )
-            LogicError("Height and width must be non-negative");
-        if( (i+height) > B.Height() || (j+width) > B.Width() )
-            LogicError
-            ("Trying to view outside of a Matrix: (",i,",",j,") up to (", 
-             i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
-             " Matrix");
+      CSE cse("View");
+      if( i < 0 || j < 0 )
+          LogicError("Indices must be non-negative");
+      if( height < 0 || width < 0 )
+          LogicError("Height and width must be non-negative");
+      if( (i+height) > B.Height() || (j+width) > B.Width() )
+          LogicError
+          ("Trying to view outside of a Matrix: (",i,",",j,") up to (", 
+           i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
+           " Matrix");
     )
     A.Attach( height, width, B.Buffer(i,j), B.LDim() );
 }
@@ -186,16 +186,16 @@ inline void LockedView
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedView");
-        if( i < 0 || j < 0 )
-            LogicError("Indices must be non-negative");
-        if( height < 0 || width < 0 )
-            LogicError("Height and width must be non-negative");
-        if( (i+height) > B.Height() || (j+width) > B.Width() )
-            LogicError
-            ("Trying to view outside of a Matrix: (",i,",",j,") up to (",
-             i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
-             " Matrix");
+      CSE cse("LockedView");
+      if( i < 0 || j < 0 )
+          LogicError("Indices must be non-negative");
+      if( height < 0 || width < 0 )
+          LogicError("Height and width must be non-negative");
+      if( (i+height) > B.Height() || (j+width) > B.Width() )
+          LogicError
+          ("Trying to view outside of a Matrix: (",i,",",j,") up to (",
+           i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
+           " Matrix");
     )
     A.LockedAttach( height, width, B.LockedBuffer(i,j), B.LDim() );
 }
@@ -273,9 +273,9 @@ inline void View
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("View");
-        AssertSameDist( A.DistData(), B.DistData() );
-        B.AssertValidSubmatrix( i, j, height, width );
+      CSE cse("View");
+      AssertSameDist( A.DistData(), B.DistData() );
+      B.AssertValidSubmatrix( i, j, height, width );
     )
     const Int colAlign = (B.ColAlign()+i) % B.ColStride();
     const Int rowAlign = (B.RowAlign()+j) % B.RowStride();
@@ -300,9 +300,9 @@ inline void LockedView
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LockedView");
-        AssertSameDist( A.DistData(), B.DistData() );
-        B.AssertValidSubmatrix( i, j, height, width );
+      CSE cse("LockedView");
+      AssertSameDist( A.DistData(), B.DistData() );
+      B.AssertValidSubmatrix( i, j, height, width );
     )
     const Int colAlign = (B.ColAlign()+i) % B.ColStride();
     const Int rowAlign = (B.RowAlign()+j) % B.RowStride();

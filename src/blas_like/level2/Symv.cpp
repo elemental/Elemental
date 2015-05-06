@@ -20,7 +20,7 @@ void Symv
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Symv");
+        CSE cse("Symv");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -60,7 +60,7 @@ void Symv
   const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Symv");
+        CSE cse("Symv");
         AssertSameGrids( APre, xPre, yPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");

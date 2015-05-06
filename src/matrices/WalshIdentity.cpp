@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void WalshIdentity( Matrix<T>& A, Int k, bool binary )
 {
-    DEBUG_ONLY(CallStackEntry cse("WalshIdentity"))
+    DEBUG_ONLY(CSE cse("WalshIdentity"))
     if( k < 1 )
       LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
@@ -27,7 +27,7 @@ void WalshIdentity( Matrix<T>& A, Int k, bool binary )
 template<typename T>
 void WalshIdentity( AbstractDistMatrix<T>& A, Int k, bool binary )
 {
-    DEBUG_ONLY(CallStackEntry cse("WalshIdentity"))
+    DEBUG_ONLY(CSE cse("WalshIdentity"))
     if( k < 1 )
       LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;

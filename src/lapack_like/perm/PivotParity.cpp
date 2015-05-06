@@ -17,7 +17,7 @@ namespace El {
 bool PivotParity( const Matrix<Int>& p, Int pivotOffset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotParity");
+        CSE cse("PivotParity");
         if( p.Width() != 1 )
             LogicError("p must be a column vector");
         if( pivotOffset < 0 )
@@ -34,7 +34,7 @@ bool PivotParity( const Matrix<Int>& p, Int pivotOffset )
 bool PivotParity( const AbstractDistMatrix<Int>& pPre, Int pivotOffset ) 
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotParity");
+        CSE cse("PivotParity");
         if( pPre.Width() != 1 )
             LogicError("p must be a column vector");
         if( pivotOffset < 0 )

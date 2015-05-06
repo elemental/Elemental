@@ -72,7 +72,7 @@ void Var1
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ds::Var1"))
+    DEBUG_ONLY(CSE cse("ds::Var1"))
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), tInd(2*n,3*n);
     Matrix<Real> c, AHat, bHat, G, h;
@@ -136,7 +136,7 @@ void Var1
         AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ds::Var1"))
+    DEBUG_ONLY(CSE cse("ds::Var1"))
 
     auto APtr = ReadProxy<Real,MC,MR>(&APre);
     auto& A = *APtr;
@@ -205,7 +205,7 @@ void Var2
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ds::Var2"))
+    DEBUG_ONLY(CSE cse("ds::Var2"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m), tInd(2*n+m,3*n+m);
@@ -282,7 +282,7 @@ void Var2
         AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ds::Var2"))
+    DEBUG_ONLY(CSE cse("ds::Var2"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -360,7 +360,7 @@ void Var2
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ds::Var2"))
+    DEBUG_ONLY(CSE cse("ds::Var2"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesA = A.NumEntries();
@@ -441,7 +441,7 @@ void Var2
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ds::Var2"))
+    DEBUG_ONLY(CSE cse("ds::Var2"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numLocalEntriesA = A.NumLocalEntries();
@@ -627,7 +627,7 @@ void DS
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("DS"))
+    DEBUG_ONLY(CSE cse("DS"))
     ds::Var1( A, b, lambda, x, ctrl );
 }
 
@@ -638,7 +638,7 @@ void DS
         AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("DS"))
+    DEBUG_ONLY(CSE cse("DS"))
     ds::Var1( A, b, lambda, x, ctrl );
 }
 
@@ -649,7 +649,7 @@ void DS
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("DS"))
+    DEBUG_ONLY(CSE cse("DS"))
     ds::Var2( A, b, lambda, x, ctrl );
 }
 
@@ -660,7 +660,7 @@ void DS
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("DS"))
+    DEBUG_ONLY(CSE cse("DS"))
     ds::Var2( A, b, lambda, x, ctrl );
 }
 

@@ -15,7 +15,7 @@ namespace El {
 template<typename Real>
 void Sort( Matrix<Real>& X, SortType sort )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sort"))
+    DEBUG_ONLY(CSE cse("Sort"))
     if( IsComplex<Real>::val )
         LogicError("Complex numbers do not have a natural ordering");
     if( sort == UNSORTED )
@@ -35,7 +35,7 @@ void Sort( Matrix<Real>& X, SortType sort )
 template<typename Real>
 void Sort( AbstractDistMatrix<Real>& X, SortType sort )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sort"))
+    DEBUG_ONLY(CSE cse("Sort"))
     if( sort == UNSORTED )
         return;
 
@@ -63,7 +63,7 @@ template<typename Real>
 vector<ValueInt<Real>> TaggedSort
 ( const Matrix<Real>& x, SortType sort )
 {
-    DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
+    DEBUG_ONLY(CSE cse("TaggedSort"))
     if( IsComplex<Real>::val )
         LogicError("Complex numbers do not have a natural ordering");
     const Int m = x.Height();
@@ -94,7 +94,7 @@ template<typename Real>
 vector<ValueInt<Real>> TaggedSort
 ( const AbstractDistMatrix<Real>& x, SortType sort )
 {
-    DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
+    DEBUG_ONLY(CSE cse("TaggedSort"))
     if( x.ColDist()==STAR && x.RowDist()==STAR )
     {
         return TaggedSort( x.LockedMatrix(), sort );

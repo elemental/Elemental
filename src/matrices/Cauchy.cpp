@@ -13,7 +13,7 @@ namespace El {
 template<typename F1,typename F2> 
 void Cauchy( Matrix<F1>& A, const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Cauchy"))
+    DEBUG_ONLY(CSE cse("Cauchy"))
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );
@@ -37,7 +37,7 @@ void Cauchy
 ( AbstractDistMatrix<F1>& A, 
   const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Cauchy"))
+    DEBUG_ONLY(CSE cse("Cauchy"))
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );
@@ -61,7 +61,7 @@ void Cauchy
 ( AbstractBlockDistMatrix<F1>& A, 
   const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Cauchy"))
+    DEBUG_ONLY(CSE cse("Cauchy"))
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );

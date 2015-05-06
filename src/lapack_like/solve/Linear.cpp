@@ -29,7 +29,7 @@ inline void
 RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RowEchelon");
+      CSE cse("RowEchelon");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
@@ -73,7 +73,7 @@ inline void
 RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("RowEchelon");
+      CSE cse("RowEchelon");
       AssertSameGrids( A, B );
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
@@ -155,7 +155,7 @@ namespace lin_solve {
 template<typename F> 
 void Overwrite( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_solve::Overwrite"))
+    DEBUG_ONLY(CSE cse("lin_solve::Overwrite"))
     // Perform Gaussian elimination
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
@@ -165,7 +165,7 @@ template<typename F>
 void Overwrite
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lin_solve::Overwrite"))
+    DEBUG_ONLY(CSE cse("lin_solve::Overwrite"))
     // Perform Gaussian elimination
 
     // NOTE: Since only the upper triangle of the factorization is formed,
@@ -182,7 +182,7 @@ void Overwrite
 template<typename F> 
 void LinearSolve( const Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    DEBUG_ONLY(CSE cse("LinearSolve"))
     Matrix<F> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
 }
@@ -191,7 +191,7 @@ template<typename F>
 void LinearSolve
 ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    DEBUG_ONLY(CSE cse("LinearSolve"))
     DistMatrix<F> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
 }
@@ -201,7 +201,7 @@ void LinearSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    DEBUG_ONLY(CSE cse("LinearSolve"))
     Matrix<F> X;
     LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
@@ -212,7 +212,7 @@ void LinearSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LinearSolve"))
+    DEBUG_ONLY(CSE cse("LinearSolve"))
     DistMultiVec<F> X;
     X.SetComm( B.Comm() );
     LeastSquares( NORMAL, A, B, X, ctrl );

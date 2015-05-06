@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void HCat( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("HCat"))
+    DEBUG_ONLY(CSE cse("HCat"))
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat");
     const Int m = A.Height();
@@ -30,7 +30,7 @@ void HCat( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 template<typename T>
 void VCat( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("VCat"))
+    DEBUG_ONLY(CSE cse("VCat"))
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat");
     const Int mA = A.Height();
@@ -49,7 +49,7 @@ inline void HCat
 ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy"))
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat");
     const Int m = A.Height();
@@ -71,7 +71,7 @@ void VCat
 ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("VCat"))
+    DEBUG_ONLY(CSE cse("VCat"))
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat");
     const Int mA = A.Height();
@@ -93,7 +93,7 @@ void HCat
 ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
         SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("HCat"))
+    DEBUG_ONLY(CSE cse("HCat"))
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat"); 
 
@@ -117,7 +117,7 @@ void VCat
 ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
         SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("VCat"))
+    DEBUG_ONLY(CSE cse("VCat"))
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat"); 
 
@@ -141,7 +141,7 @@ void HCat
 ( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("HCat"))
+    DEBUG_ONLY(CSE cse("HCat"))
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat"); 
     /*
@@ -171,7 +171,7 @@ void VCat
 ( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("VCat"))
+    DEBUG_ONLY(CSE cse("VCat"))
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat"); 
     /*
@@ -234,7 +234,7 @@ void HCat
 ( const DistMultiVec<T>& A, const DistMultiVec<T>& B,
         DistMultiVec<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("HCat"))
+    DEBUG_ONLY(CSE cse("HCat"))
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height for HCat");
 
@@ -261,7 +261,7 @@ void VCat
 ( const DistMultiVec<T>& A, const DistMultiVec<T>& B,
         DistMultiVec<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("VCat"))
+    DEBUG_ONLY(CSE cse("VCat"))
     if( A.Width() != B.Width() )
         LogicError("A and B must be the same width for VCat");
 

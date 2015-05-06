@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 Int NumNonPositive( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonPositive"))
+    DEBUG_ONLY(CSE cse("NumNonPositive"))
     Int numNonPos = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -27,7 +27,7 @@ Int NumNonPositive( const Matrix<Real>& A )
 template<typename Real>
 Int NumNonPositive( const SparseMatrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonPositive"))
+    DEBUG_ONLY(CSE cse("NumNonPositive"))
     Int numNonPos = 0;
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
@@ -40,7 +40,7 @@ Int NumNonPositive( const SparseMatrix<Real>& A )
 template<typename Real>
 Int NumNonPositive( const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonPositive"))
+    DEBUG_ONLY(CSE cse("NumNonPositive"))
     Int numNonPos = 0;
     if( A.Participating() )
     {
@@ -54,7 +54,7 @@ Int NumNonPositive( const AbstractDistMatrix<Real>& A )
 template<typename Real>
 Int NumNonPositive( const DistSparseMatrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonPositive"))
+    DEBUG_ONLY(CSE cse("NumNonPositive"))
 
     Int numLocalNonPos = 0;
     const Int numLocalEntries = A.NumLocalEntries(); 
@@ -68,7 +68,7 @@ Int NumNonPositive( const DistSparseMatrix<Real>& A )
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("NumNonPositive"))
+    DEBUG_ONLY(CSE cse("NumNonPositive"))
 
     Int numLocalNonPos = 0;
     const Int localHeight = A.LocalHeight();

@@ -16,7 +16,7 @@ void Gather
 ( const AbstractDistMatrix<T>& A,
         DistMatrix<T,CIRC,CIRC>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Gather"))
+    DEBUG_ONLY(CSE cse("copy::Gather"))
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -82,7 +82,7 @@ void Gather
 ( const AbstractBlockDistMatrix<T>& A,
         BlockDistMatrix<T,CIRC,CIRC>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Gather"))
+    DEBUG_ONLY(CSE cse("copy::Gather"))
     AssertSameGrids( A, B );
 
     const Int height = A.Height();

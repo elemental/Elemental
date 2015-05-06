@@ -17,7 +17,7 @@ void Ridge
         Base<F> gamma,      Matrix<F>& X, 
   RidgeAlg alg )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ridge"))
+    DEBUG_ONLY(CSE cse("Ridge"))
 
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
@@ -93,7 +93,7 @@ void Ridge
         Base<F> gamma,                     AbstractDistMatrix<F>& XPre, 
   RidgeAlg alg )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ridge"))
+    DEBUG_ONLY(CSE cse("Ridge"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto BPtr = ReadProxy<F,MC,MR>( &BPre );  auto& B = *BPtr;
@@ -174,7 +174,7 @@ void Ridge
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Ridge");
+      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -195,7 +195,7 @@ void Ridge
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Ridge");
+      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )

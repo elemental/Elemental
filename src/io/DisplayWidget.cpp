@@ -31,7 +31,7 @@ DisplayWidget<T>::~DisplayWidget()
 template<typename T>
 void DisplayWidget<T>::paintEvent( QPaintEvent* event )
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::paintEvent"))
+    DEBUG_ONLY(CSE cse("DisplayWidget::paintEvent"))
     QStylePainter painter( this );
     painter.drawPixmap( 0, 0, pixmap_ );
 }
@@ -39,7 +39,7 @@ void DisplayWidget<T>::paintEvent( QPaintEvent* event )
 template<typename T>
 void DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayReal"))
+    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayReal"))
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
@@ -65,7 +65,7 @@ template<typename T>
 void DisplayWidget<T>::DisplayReal
 ( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal )
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayReal"))
+    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayReal"))
     const Int m = A->Height();
     const Int n = A->Width();
     if( m == 0 || n == 0 )
@@ -105,7 +105,7 @@ void DisplayWidget<T>::DisplayReal
 template<typename T>
 void DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayImag"))
+    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayImag"))
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
@@ -131,7 +131,7 @@ template<typename T>
 void DisplayWidget<T>::DisplayImag
 ( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal )
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayImag"))
+    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayImag"))
     const Int m = A->Height();
     const Int n = A->Width();
     if( m == 0 || n == 0 )
@@ -171,7 +171,7 @@ void DisplayWidget<T>::DisplayImag
 template<typename T>
 void DisplayWidget<T>::SavePng( string basename ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::SavePng"))
+    DEBUG_ONLY(CSE cse("DisplayWidget::SavePng"))
     string filename = basename + ".png";
     QFile file( filename.c_str() );
     file.open( QIODevice::WriteOnly );

@@ -31,7 +31,7 @@ inline void
 Process
 ( const SymmNodeInfo& info, SymmFront<F>& front, SymmFrontType factorType )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::Process"))
+    DEBUG_ONLY(CSE cse("ldl::Process"))
 
     const int updateSize = info.lowerStruct.size();
     auto& FL = front.L;
@@ -76,7 +76,7 @@ Process
 ( const DistSymmNodeInfo& info, DistSymmFront<F>& front, 
   SymmFrontType factorType )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::Process"))
+    DEBUG_ONLY(CSE cse("ldl::Process"))
 
     // Switch to a sequential algorithm if possible
     if( front.duplicate != nullptr )

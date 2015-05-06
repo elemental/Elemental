@@ -14,7 +14,7 @@ void GetSubgraph
 ( const Graph& graph, Range<Int> I, Range<Int> J,
         Graph& subgraph )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubgraph"))
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
     if( I.end == END )
         I.end = graph.NumSources();
     if( J.end == END )
@@ -65,7 +65,7 @@ void GetSubgraph
 ( const DistGraph& graph, Range<Int> I, Range<Int> J,
         DistGraph& subgraph )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubgraph"))
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
     if( I.end == END )
         I.end = graph.NumSources();
     if( J.end == END )

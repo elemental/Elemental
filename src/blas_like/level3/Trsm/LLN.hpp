@@ -22,7 +22,7 @@ LLNLarge
   const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("trsm::LLNLarge"))
+    DEBUG_ONLY(CSE cse("trsm::LLNLarge"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -75,7 +75,7 @@ LLNMedium
   const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("trsm::LLNMedium"))
+    DEBUG_ONLY(CSE cse("trsm::LLNMedium"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -129,7 +129,7 @@ LLNSmall
         DistMatrix<F,colDist,STAR>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LLNSmall");
+      CSE cse("trsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

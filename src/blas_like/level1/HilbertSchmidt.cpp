@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("HilbertSchmidt"))
+    DEBUG_ONLY(CSE cse("HilbertSchmidt"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     T innerProd(0);
@@ -31,7 +31,7 @@ template<typename T>
 T HilbertSchmidt
 ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("HilbertSchmidt"))
+    DEBUG_ONLY(CSE cse("HilbertSchmidt"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     AssertSameGrids( A, B );
@@ -61,7 +61,7 @@ T HilbertSchmidt
 template<typename T>
 T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("HilbertSchmidt"))
+    DEBUG_ONLY(CSE cse("HilbertSchmidt"))
     if( !mpi::Congruent( A.Comm(), B.Comm() ) )
         LogicError("A and B must be congruent");
     if( A.Height() != B.Height() || A.Width() != B.Width() )

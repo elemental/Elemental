@@ -18,7 +18,7 @@ namespace El {
 template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
-    DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
+    DEBUG_ONLY(CSE cse("Pseudoinverse"))
 
     // Get the SVD of A
     typedef Base<F> Real;
@@ -51,7 +51,7 @@ template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
+    DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
 
     // Get the EVD of A
     typedef Base<F> Real;
@@ -79,7 +79,7 @@ void HermitianPseudoinverse
 template<typename F>
 void Pseudoinverse( AbstractDistMatrix<F>& APre, Base<F> tolerance )
 {
-    DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
+    DEBUG_ONLY(CSE cse("Pseudoinverse"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -116,7 +116,7 @@ template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, Base<F> tolerance )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
+    DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

@@ -18,7 +18,7 @@ Cannon_NN
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::Cannon_NN");
+      CSE cse("gemm::Cannon_NN");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -102,7 +102,7 @@ SUMMA_NNA
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::SUMMA_NNA");
+      CSE cse("gemm::SUMMA_NNA");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -153,7 +153,7 @@ SUMMA_NNB
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::SUMMA_NNB");
+      CSE cse("gemm::SUMMA_NNB");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -201,7 +201,7 @@ SUMMA_NNC
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::SUMMA_NNC");
+      CSE cse("gemm::SUMMA_NNC");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -249,7 +249,7 @@ SUMMA_NNDot
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("gemm::SUMMA_NNDot");
+      CSE cse("gemm::SUMMA_NNDot");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -343,7 +343,7 @@ SUMMA_NN
 ( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
-    DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_NN"))
+    DEBUG_ONLY(CSE cse("gemm::SUMMA_NN"))
     const Int m = C.Height();
     const Int n = C.Width();
     const Int sumDim = A.Width();

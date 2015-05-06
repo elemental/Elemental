@@ -22,7 +22,7 @@ inline void
 UUpdate( Matrix<F>& U, Matrix<F>& V )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::mod::UUpdate");
+        CSE cse("cholesky::mod::UUpdate");
         if( U.Height() != U.Width() )
             LogicError("Cholesky factors must be square");
         if( V.Height() != U.Height() )
@@ -78,7 +78,7 @@ inline void
 UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::mod::UUpdate");
+        CSE cse("cholesky::mod::UUpdate");
         if( UPre.Height() != UPre.Width() )
             LogicError("Cholesky factors must be square");
         if( VPre.Height() != UPre.Height() )
@@ -148,7 +148,7 @@ inline void
 UDowndate( Matrix<F>& U, Matrix<F>& V )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::mod::UDowndate");
+        CSE cse("cholesky::mod::UDowndate");
         if( U.Height() != U.Width() )
             LogicError("Cholesky factors must be square");
         if( V.Height() != U.Height() )
@@ -204,7 +204,7 @@ inline void
 UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::mod::UDowndate");
+        CSE cse("cholesky::mod::UDowndate");
         if( UPre.Height() != UPre.Width() )
             LogicError("Cholesky factors must be square");
         if( VPre.Height() != UPre.Height() )
@@ -275,7 +275,7 @@ template<typename F>
 inline void
 UMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::UMod"))
+    DEBUG_ONLY(CSE cse("cholesky::UMod"))
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;
@@ -295,7 +295,7 @@ template<typename F>
 inline void
 UMod( AbstractDistMatrix<F>& U, Base<F> alpha, AbstractDistMatrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::UMod"))
+    DEBUG_ONLY(CSE cse("cholesky::UMod"))
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;

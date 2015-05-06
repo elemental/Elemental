@@ -16,7 +16,7 @@ namespace schur {
 template<typename Real>
 void CheckRealSchur( const Matrix<Real>& U, bool standardForm )
 {
-    DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
+    DEBUG_ONLY(CSE cse("CheckRealSchur")) 
     const Int n = U.Height();
 
     auto uMain = GetDiagonal(U);
@@ -55,14 +55,14 @@ void CheckRealSchur( const Matrix<Real>& U, bool standardForm )
 template<typename Real>
 void CheckRealSchur( const Matrix<Complex<Real>>& U, bool standardForm )
 {
-    DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
+    DEBUG_ONLY(CSE cse("CheckRealSchur")) 
     LogicError("ChceckRealSchur called for complex matrix");
 }
 
 template<typename Real>
 void CheckRealSchur( const AbstractDistMatrix<Real>& UPre, bool standardForm )
 {
-    DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
+    DEBUG_ONLY(CSE cse("CheckRealSchur")) 
 
     auto UPtr = ReadProxy<Real,MC,MR>( &UPre );
     auto& U = *UPtr;
@@ -109,7 +109,7 @@ template<typename Real>
 void CheckRealSchur
 ( const AbstractDistMatrix<Complex<Real>>& U, bool standardForm )
 {
-    DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
+    DEBUG_ONLY(CSE cse("CheckRealSchur")) 
     LogicError("ChceckRealSchur called for complex matrix");
 }
 

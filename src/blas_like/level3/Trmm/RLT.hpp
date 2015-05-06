@@ -25,7 +25,7 @@ LocalAccumulateRLT
         DistMatrix<T,MC,STAR>& ZTrans )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LocalAccumulateRLT");
+      CSE cse("trmm::LocalAccumulateRLT");
       AssertSameGrids( L, XTrans, ZTrans );
       if( L.Height() != L.Width() ||
           L.Height() != XTrans.Height() ||
@@ -75,7 +75,7 @@ RLTA
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RLTA");
+      CSE cse("trmm::RLTA");
       AssertSameGrids( LPre, XPre );
       // TODO: More error checks
     )
@@ -120,7 +120,7 @@ RLTC
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RLTC");
+      CSE cse("trmm::RLTC");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected Adjoint/Transpose option");
@@ -177,7 +177,7 @@ RLT
 ( Orientation orientation, UnitOrNonUnit diag,
   const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trmm::RLT"))
+    DEBUG_ONLY(CSE cse("trmm::RLT"))
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         RLTA( orientation, diag, L, X );

@@ -16,7 +16,7 @@ LUT
 ( Orientation orientation, F alpha, 
   Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUT"))
+    DEBUG_ONLY(CSE cse("mstrsm::LUT"))
     Scale( alpha, X );
 
     const Int m = X.Height();
@@ -47,7 +47,7 @@ LUT
   const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUT"))
+    DEBUG_ONLY(CSE cse("mstrsm::LUT"))
 
     auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
     auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;

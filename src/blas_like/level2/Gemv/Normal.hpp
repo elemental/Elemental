@@ -17,7 +17,7 @@ inline void Normal
   T beta,        AbstractDistMatrix<T>& yPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemv::Normal");
+        CSE cse("gemv::Normal");
         AssertSameGrids( APre, xPre, yPre );
         if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
             ( yPre.Width() != 1 && yPre.Height() != 1 )   )
@@ -104,7 +104,7 @@ inline void Normal
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemv::Normal");
+        CSE cse("gemv::Normal");
         AssertSameGrids( A, x, y );
         if( x.Width() != 1 || y.Width() != 1 )
             LogicError("x and y are assumed to be column vectors");

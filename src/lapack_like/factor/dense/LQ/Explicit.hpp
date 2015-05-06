@@ -16,7 +16,7 @@ namespace lq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitTriang"))
+    DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     LQ( A, t, d );
@@ -31,7 +31,7 @@ void ExplicitTriang( Matrix<F>& A )
 template<typename F>
 void ExplicitTriang( AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitTriang"))
+    DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
@@ -47,7 +47,7 @@ void ExplicitTriang( AbstractDistMatrix<F>& A )
 template<typename F>
 void ExplicitUnitary( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitUnitary"))
+    DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     LQ( A, t, d );
@@ -62,7 +62,7 @@ void ExplicitUnitary( Matrix<F>& A )
 template<typename F>
 void ExplicitUnitary( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::ExplicitUnitary"))
+    DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
     const Grid& g = APre.Grid();
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -83,7 +83,7 @@ void ExplicitUnitary( AbstractDistMatrix<F>& APre )
 template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
+    DEBUG_ONLY(CSE cse("lq::Explicit"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     LQ( A, t, d );
@@ -105,7 +105,7 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
 template<typename F>
 void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
+    DEBUG_ONLY(CSE cse("lq::Explicit"))
     const Grid& g = APre.Grid();
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );

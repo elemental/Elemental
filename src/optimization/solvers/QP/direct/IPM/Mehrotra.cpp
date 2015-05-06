@@ -40,7 +40,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -316,7 +316,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
 
@@ -619,7 +619,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -939,7 +939,7 @@ void Mehrotra
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;

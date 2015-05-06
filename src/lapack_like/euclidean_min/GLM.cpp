@@ -56,7 +56,7 @@ namespace glm {
 template<typename F> 
 void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("glm::Overwrite"))
+    DEBUG_ONLY(CSE cse("glm::Overwrite"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Width();
@@ -111,7 +111,7 @@ void Overwrite
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
   AbstractDistMatrix<F>& DPre, AbstractDistMatrix<F>& YPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("glm::Overwrite"))
+    DEBUG_ONLY(CSE cse("glm::Overwrite"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
@@ -179,7 +179,7 @@ void GLM
   const Matrix<F>& D, 
         Matrix<F>& X, Matrix<F>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("GLM"))
+    DEBUG_ONLY(CSE cse("GLM"))
     Matrix<F> ACopy( A ), BCopy( B );
     X = D;
     glm::Overwrite( ACopy, BCopy, X, Y );
@@ -191,7 +191,7 @@ void GLM
   const AbstractDistMatrix<F>& D, 
         AbstractDistMatrix<F>& X,       AbstractDistMatrix<F>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("GLM"))
+    DEBUG_ONLY(CSE cse("GLM"))
     DistMatrix<F> ACopy( A ), BCopy( B );
     Copy( D, X );
     glm::Overwrite( ACopy, BCopy, X, Y );
@@ -204,7 +204,7 @@ void GLM
         Matrix<F>& X,             Matrix<F>& Y, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("GLM"))
+    DEBUG_ONLY(CSE cse("GLM"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -322,7 +322,7 @@ void GLM
         DistMultiVec<F>& X,           DistMultiVec<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("GLM"))
+    DEBUG_ONLY(CSE cse("GLM"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();

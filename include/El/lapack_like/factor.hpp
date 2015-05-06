@@ -21,11 +21,15 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+template<typename F>
+void Cholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+template<typename F>
+void ReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p );
@@ -122,6 +126,8 @@ template<typename F>
 void LDL( Matrix<F>& A, bool conjugate );
 template<typename F>
 void LDL( AbstractDistMatrix<F>& A, bool conjugate );
+template<typename F>
+void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate );
 
 // Return an implicit representation of a pivoted LDL factorization of A
 // ---------------------------------------------------------------------
@@ -352,6 +358,8 @@ template<typename F>
 void LU( Matrix<F>& A );
 template<typename F>
 void LU( AbstractDistMatrix<F>& A );
+template<typename F>
+void LU( DistMatrix<F,STAR,STAR>& A );
 
 // LU with partial pivoting
 // ------------------------
@@ -793,48 +801,6 @@ void Skeleton
 ( const AbstractDistMatrix<F>& A,
   AbstractDistMatrix<Int>& pR, AbstractDistMatrix<Int>& pC,
   AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-
-// Inline convenience functions
-// ############################
-// TODO: Statically instantiate routines with modest numbers of instances
-
-// Cholesky
-// ========
-template<typename F>
-inline void
-LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalCholesky"))
-    Cholesky( uplo, A.Matrix() );
-}
-
-template<typename F>
-inline void
-LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalReverseCholesky"))
-    ReverseCholesky( uplo, A.Matrix() );
-}
-
-// LDL
-// ===
-template<typename F>
-inline void
-LocalLDL( DistMatrix<F,STAR,STAR>& A, bool conjugate )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalLDL"))
-    LDL( A.Matrix(), conjugate );
-}
-
-// LU
-// ==
-template<typename F>
-inline void
-LocalLU( DistMatrix<F,STAR,STAR>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalLU"))
-    LU( A.Matrix() );
-}
 
 } // namespace El
 

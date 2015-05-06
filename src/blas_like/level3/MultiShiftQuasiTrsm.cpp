@@ -25,19 +25,19 @@ void MultiShiftQuasiTrsm
   F alpha, const Matrix<F>& A, const Matrix<F>& shifts, Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MultiShiftQuasiTrsm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal");
-        }
+      CSE cse("MultiShiftQuasiTrsm");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal");
+      }
     )
     Scale( alpha, B );
     // TODO: Call the single right-hand side algorithm if appropriate
@@ -85,19 +85,19 @@ void MultiShiftQuasiTrsm
         Matrix<Real>& BReal, Matrix<Real>& BImag )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MultiShiftQuasiTrsm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != BReal.Height() )
-                LogicError("Nonconformal");
-        }
-        else
-        {
-            if( A.Height() != BReal.Width() )
-                LogicError("Nonconformal");
-        }
+      CSE cse("MultiShiftQuasiTrsm");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != BReal.Height() )
+              LogicError("Nonconformal");
+      }
+      else
+      {
+          if( A.Height() != BReal.Width() )
+              LogicError("Nonconformal");
+      }
     )
     Scale( alpha, BReal, BImag );
     // TODO: Call the single right-hand side algorithm if appropriate
@@ -145,20 +145,20 @@ void MultiShiftQuasiTrsm
   AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MultiShiftQuasiTrsm");
-        AssertSameGrids( A, B );
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal");
-        }
+      CSE cse("MultiShiftQuasiTrsm");
+      AssertSameGrids( A, B );
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal");
+      }
     )
     Scale( alpha, B );
     // TODO: Call the single right-hand side algorithm if appropriate
@@ -239,23 +239,23 @@ void MultiShiftQuasiTrsm
         AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MultiShiftQuasiTrsm");
-        AssertSameGrids( A, BReal, BImag );
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( BReal.Height() != BImag.Height() ||
-            BReal.Width() != BImag.Width() )
-            LogicError("BReal and BImag must be the same size");
-        if( side == LEFT )
-        {
-            if( A.Height() != BReal.Height() )
-                LogicError("Nonconformal");
-        }
-        else
-        {
-            if( A.Height() != BReal.Width() )
-                LogicError("Nonconformal");
-        }
+      CSE cse("MultiShiftQuasiTrsm");
+      AssertSameGrids( A, BReal, BImag );
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( BReal.Height() != BImag.Height() ||
+          BReal.Width() != BImag.Width() )
+          LogicError("BReal and BImag must be the same size");
+      if( side == LEFT )
+      {
+          if( A.Height() != BReal.Height() )
+              LogicError("Nonconformal");
+      }
+      else
+      {
+          if( A.Height() != BReal.Width() )
+              LogicError("Nonconformal");
+      }
     )
     Scale( alpha, BReal, BImag );
     // TODO: Call the single right-hand side algorithm if appropriate
@@ -325,27 +325,91 @@ void MultiShiftQuasiTrsm
     }
 }
 
+template<typename F>
+void LocalMultiShiftQuasiTrsm
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  F alpha, const DistMatrix<F,STAR,STAR>& A,
+           const AbstractDistMatrix<F>& shifts,
+                 AbstractDistMatrix<F>& X )
+{
+    DEBUG_ONLY(
+      CSE cse("LocalMultiShiftQuasiTrsm");
+      if( shifts.RowDist() != STAR )
+          LogicError("shifts must only be distributed within columns");
+      if( (side == LEFT &&  
+           (X.ColDist() != STAR || shifts.ColDist() != X.RowDist())) ||
+          (side == RIGHT && 
+           (X.RowDist() != STAR || shifts.ColDist() != X.ColDist())) )
+          LogicError
+          ("Dist of RHS and shifts must conform with that of triangle");
+    )
+    MultiShiftQuasiTrsm
+    ( side, uplo, orientation,
+      alpha, A.LockedMatrix(), shifts.LockedMatrix(), X.Matrix() );
+}
+
+template<typename Real>
+void LocalMultiShiftQuasiTrsm
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  Complex<Real> alpha,
+  const DistMatrix<Real,STAR,STAR>& A,
+  const AbstractDistMatrix<Complex<Real>>& shifts,
+        AbstractDistMatrix<Real>& XReal,
+        AbstractDistMatrix<Real>& XImag )
+{
+    DEBUG_ONLY(
+      CSE cse("LocalMultiShiftQuasiTrsm");
+      if( shifts.RowDist() != STAR )
+          LogicError("shifts must only be distributed within columns");
+      if( XReal.ColDist() != XImag.ColDist() ||
+          XReal.RowDist() != XImag.RowDist() )
+          LogicError("XReal and XImag must have the same distribution");
+      if( (side == LEFT && 
+           (XReal.ColDist() != STAR || shifts.ColDist() != XReal.RowDist())) ||
+          (side == RIGHT && 
+           (XReal.RowDist() != STAR || shifts.ColDist() != XReal.ColDist())) )
+          LogicError
+          ("Dist of RHS and shifts must conform with that of triangle");
+    )
+    MultiShiftQuasiTrsm
+    ( side, uplo, orientation,
+      alpha, A.LockedMatrix(), shifts.LockedMatrix(),
+             XReal.Matrix(), XImag.Matrix() );
+}
+
 #define PROTO(F) \
-    template void MultiShiftQuasiTrsm \
-    ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-      F alpha, const Matrix<F>& A, const Matrix<F>& shifts, Matrix<F>& B ); \
-    template void MultiShiftQuasiTrsm \
-    ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-      F alpha, const AbstractDistMatrix<F>& A, \
-      const AbstractDistMatrix<F>& shifts, AbstractDistMatrix<F>& B );
+  template void MultiShiftQuasiTrsm \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    F alpha, const Matrix<F>& A, const Matrix<F>& shifts, Matrix<F>& B ); \
+  template void MultiShiftQuasiTrsm \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    F alpha, const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& shifts, AbstractDistMatrix<F>& B ); \
+  template void LocalMultiShiftQuasiTrsm \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    F alpha, const DistMatrix<F,STAR,STAR>& A, \
+             const AbstractDistMatrix<F>& shifts, \
+                   AbstractDistMatrix<F>& X );
 
 #define PROTO_REAL(Real) \
-    PROTO(Real) \
-    template void MultiShiftQuasiTrsm \
-    ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-      Complex<Real> alpha, const Matrix<Real>& A, \
-      const Matrix<Complex<Real>>& shifts, \
-      Matrix<Real>& BReal, Matrix<Real>& BImag ); \
-    template void MultiShiftQuasiTrsm \
-    ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-      Complex<Real> alpha, const AbstractDistMatrix<Real>& A, \
-      const AbstractDistMatrix<Complex<Real>>& shifts, \
-      AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag );
+  PROTO(Real) \
+  template void MultiShiftQuasiTrsm \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    Complex<Real> alpha, const Matrix<Real>& A, \
+    const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& BReal, Matrix<Real>& BImag ); \
+  template void MultiShiftQuasiTrsm \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    Complex<Real> alpha, const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Complex<Real>>& shifts, \
+    AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag ); \
+  template void LocalMultiShiftQuasiTrsm \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    Complex<Real> alpha, \
+    const DistMatrix<Real,STAR,STAR>& A, \
+    const AbstractDistMatrix<Complex<Real>>& shifts, \
+          AbstractDistMatrix<Real>& XReal, \
+          AbstractDistMatrix<Real>& XImag );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

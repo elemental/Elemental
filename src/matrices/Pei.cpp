@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void Pei( Matrix<T>& P, Int n, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Pei"))
+    DEBUG_ONLY(CSE cse("Pei"))
     Ones( P, n, n );
     ShiftDiagonal( P, alpha );
 }
@@ -21,7 +21,7 @@ void Pei( Matrix<T>& P, Int n, T alpha )
 template<typename T>
 void Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Pei"))
+    DEBUG_ONLY(CSE cse("Pei"))
     Ones( P, n, n );
     ShiftDiagonal( P, alpha );
 }
@@ -29,7 +29,7 @@ void Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
 template<typename T>
 void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Pei"))
+    DEBUG_ONLY(CSE cse("Pei"))
     Ones( P, n, n );
     ShiftDiagonal( P, alpha );
 }

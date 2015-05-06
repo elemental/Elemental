@@ -20,7 +20,7 @@ template<typename F>
 inline LDLPivot
 BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanA"))
+    DEBUG_ONLY(CSE cse("ldl::pivot::BunchKaufmanA"))
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
@@ -75,7 +75,7 @@ template<typename F>
 inline LDLPivot
 BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanA"))
+    DEBUG_ONLY(CSE cse("ldl::pivot::BunchKaufmanA"))
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
@@ -133,7 +133,7 @@ inline LDLPivot
 PanelBunchKaufmanA
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Base<F> gamma )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA"))
+    DEBUG_ONLY(CSE cse("ldl::pivot::PanelBunchKaufmanA"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();
@@ -229,7 +229,7 @@ PanelBunchKaufmanA
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
   Base<F> gamma )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA"))
+    DEBUG_ONLY(CSE cse("ldl::pivot::PanelBunchKaufmanA"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();

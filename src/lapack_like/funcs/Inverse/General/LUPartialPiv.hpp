@@ -23,7 +23,7 @@ namespace inverse {
 template<typename F> 
 void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
 {
-    DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
+    DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     if( A.Height() != p.Height() )
@@ -70,7 +70,7 @@ template<typename F>
 inline void
 LUPartialPiv( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("inverse::LUPartialPiv"))
+    DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     Matrix<Int> p;
@@ -82,7 +82,7 @@ template<typename F>
 void AfterLUPartialPiv
 ( AbstractDistMatrix<F>& APre, const AbstractDistMatrix<Int>& p )
 {
-    DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
+    DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -150,7 +150,7 @@ template<typename F>
 inline void
 LUPartialPiv( AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("inverse::LUPartialPiv"))
+    DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();

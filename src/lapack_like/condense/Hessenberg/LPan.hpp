@@ -27,7 +27,7 @@ inline void LPan
     const Int nU = U.Width();
     const Int n = A.Height();
     DEBUG_ONLY(
-        CallStackEntry cse("hessenberg::LPan");
+        CSE cse("hessenberg::LPan");
         if( nU >= n )            
             LogicError("V is too wide for the panel factorization");
         if( U.Height() != A.Height() )
@@ -122,7 +122,7 @@ inline void LPan
     const Int nU = U_MC_STAR.Width();
     const Int n = A.Height();
     DEBUG_ONLY(
-        CallStackEntry cse("hessenberg::UPan");
+        CSE cse("hessenberg::UPan");
         AssertSameGrids( A, t, U_MC_STAR, U_MR_STAR, V_MR_STAR, G_STAR_STAR );
         if( A.ColAlign() != U_MC_STAR.ColAlign() )
             LogicError("A and U[MC,* ] must be aligned");

@@ -20,7 +20,7 @@ template<typename F>
 inline void
 SVD( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
+    DEBUG_ONLY(CSE cse("polar::SVD"))
     // Get the SVD of A
     typedef Base<F> Real;
     Matrix<Real> s;
@@ -36,7 +36,7 @@ template<typename F>
 inline void
 SVD( Matrix<F>& A, Matrix<F>& P )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
+    DEBUG_ONLY(CSE cse("polar::SVD"))
     // Get the SVD of A
     typedef Base<F> Real;
     Matrix<Real> s;
@@ -55,7 +55,7 @@ template<typename F>
 inline void
 SVD( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
+    DEBUG_ONLY(CSE cse("polar::SVD"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -76,7 +76,7 @@ template<typename F>
 inline void
 SVD( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
+    DEBUG_ONLY(CSE cse("polar::SVD"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;

@@ -21,7 +21,7 @@ Snapshot
   const Matrix<Int>& itCounts,
   Int numIts, bool deflate, SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Snapshot"));
+    DEBUG_ONLY(CSE cse("pspec::Snapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
@@ -99,7 +99,7 @@ FinalSnapshot
 ( const Matrix<Real>& estimates, const Matrix<Int>& itCounts, 
   SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FinalSnapshot"));
+    DEBUG_ONLY(CSE cse("pspec::FinalSnapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
@@ -158,7 +158,7 @@ Snapshot
   const DistMatrix<Int, VR,STAR>& itCounts,
   Int numIts, bool deflate, SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Snapshot"));
+    DEBUG_ONLY(CSE cse("pspec::Snapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
@@ -239,7 +239,7 @@ FinalSnapshot
   const DistMatrix<Int, VR,STAR>& itCounts,
   SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FinalSnapshot"));
+    DEBUG_ONLY(CSE cse("pspec::FinalSnapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {

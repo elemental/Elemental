@@ -24,7 +24,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissectionRecursion"))
+    DEBUG_ONLY(CSE cse("NaturalNestedDissectionRecursion"))
     if( graph.NumSources() <= cutoff )
     {
         // Fill in this node of the local separator tree
@@ -135,7 +135,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissectionRecursion"))
+    DEBUG_ONLY(CSE cse("NaturalNestedDissectionRecursion"))
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -263,7 +263,7 @@ void NaturalNestedDissection
         SymmNodeInfo& info,
         Int cutoff )
 {
-    DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissection"))
+    DEBUG_ONLY(CSE cse("NaturalNestedDissection"))
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
@@ -294,7 +294,7 @@ void NaturalNestedDissection
         Int cutoff, 
         bool storeFactRecvInds )
 {
-    DEBUG_ONLY(CallStackEntry cse("NaturalNestedDissection"))
+    DEBUG_ONLY(CSE cse("NaturalNestedDissection"))
     // NOTE: There is a potential memory leak here if sep or info is reused 
 
     DistMap perm( graph.NumSources(), graph.Comm() );
@@ -330,7 +330,7 @@ Int NaturalBisect
         Graph& rightChild,
         vector<Int>& perm )
 {
-    DEBUG_ONLY(CallStackEntry cse("NaturalBisect"))
+    DEBUG_ONLY(CSE cse("NaturalBisect"))
     const Int numSources = graph.NumSources();
     if( numSources == 0 )
         LogicError("There is no reason to bisect an empty sequential graph");
@@ -457,7 +457,7 @@ Int NaturalBisect
         DistMap& perm,
         bool& onLeft )
 {
-    DEBUG_ONLY(CallStackEntry cse("NaturalBisect"))
+    DEBUG_ONLY(CSE cse("NaturalBisect"))
     const Int numSources = graph.NumSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     const Int numLocalSources = graph.NumLocalSources();

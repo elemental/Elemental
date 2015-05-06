@@ -136,7 +136,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
+    DEBUG_ONLY(CSE cse("HermitianEig"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     if( ctrl.useSDC )
@@ -184,7 +184,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
+    DEBUG_ONLY(CSE cse("HermitianEig"))
     const Int n = A.Height();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
@@ -234,7 +234,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
+    DEBUG_ONLY(CSE cse("HermitianEig"))
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -310,7 +310,7 @@ void HermitianEig
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
+    DEBUG_ONLY(CSE cse("HermitianEig"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     if( ctrl.useSDC )
@@ -370,7 +370,7 @@ void HermitianEig
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
+    DEBUG_ONLY(CSE cse("HermitianEig"))
     const Int n = A.Height();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
@@ -432,7 +432,7 @@ void HermitianEig
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
+    DEBUG_ONLY(CSE cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = APre.Height();
     if( APre.Height() != APre.Width() )

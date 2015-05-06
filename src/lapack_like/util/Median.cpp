@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 ValueInt<Real> Median( const Matrix<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("Median"))
+    DEBUG_ONLY(CSE cse("Median"))
     if( IsComplex<Real>::val )
         LogicError("Complex numbers do not have a natural ordering");
     const Int m = x.Height();
@@ -39,7 +39,7 @@ ValueInt<Real> Median( const Matrix<Real>& x )
 template<typename Real>
 ValueInt<Real> Median( const AbstractDistMatrix<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("Median"))
+    DEBUG_ONLY(CSE cse("Median"))
     if( x.ColDist() == STAR && x.RowDist() == STAR )
     {
         return Median( x.LockedMatrix() );

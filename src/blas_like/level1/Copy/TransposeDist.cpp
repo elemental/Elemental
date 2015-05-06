@@ -15,7 +15,7 @@ namespace copy {
 template<typename T,Dist U,Dist V>
 void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::TransposeDist"))
+    DEBUG_ONLY(CSE cse("copy::TransposeDist"))
     AssertSameGrids( A, B );
 
     const Grid& g = B.Grid();

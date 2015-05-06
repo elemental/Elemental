@@ -19,7 +19,7 @@ template<typename F>
 inline void
 UnbObj( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::UnbObj"))
+    DEBUG_ONLY(CSE cse("lu::UnbObj"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -44,7 +44,7 @@ template<typename F>
 inline void
 Unb( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::Unb"))
+    DEBUG_ONLY(CSE cse("lu::Unb"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<Min(m,n); ++j )

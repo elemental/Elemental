@@ -18,7 +18,7 @@ inline void
 LVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("twotrsm::LVar5");
+      CSE cse("twotrsm::LVar5");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( L.Height() != L.Width() )
@@ -77,7 +77,7 @@ LVar5
   AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& LPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("twotrsm::LVar5");
+      CSE cse("twotrsm::LVar5");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( LPre.Height() != LPre.Width() )
@@ -117,7 +117,7 @@ LVar5
         // A11 := inv(L11) A11 inv(L11)'
         L11_STAR_STAR = L11;
         A11_STAR_STAR = A11;
-        LocalTwoSidedTrsm( LOWER, diag, A11_STAR_STAR, L11_STAR_STAR );
+        TwoSidedTrsm( LOWER, diag, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // Y21 := L21 A11

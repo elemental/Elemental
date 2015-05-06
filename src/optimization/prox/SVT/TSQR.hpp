@@ -18,7 +18,7 @@ namespace svt {
 template<typename F>
 Int TSQR( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("SVT"))
+    DEBUG_ONLY(CSE cse("SVT"))
 
     auto APtr = ReadWriteProxy<F,VC,STAR>( &APre ); 
     auto& A = *APtr;

@@ -22,7 +22,7 @@ template<typename F>
 F Row( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reflector::Row");    
+        CSE cse("reflector::Row");    
         if( x.Height() != 1 )
             LogicError("x must be a row vector");
         if( x.ColRank() != x.ColAlign() )
@@ -95,7 +95,7 @@ template<typename F>
 F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("reflector::Row");    
+        CSE cse("reflector::Row");    
         if( chi.ColRank() != chi.ColAlign() || x.ColRank() != x.ColAlign() )
             LogicError("Reflecting from incorrect process");
     )

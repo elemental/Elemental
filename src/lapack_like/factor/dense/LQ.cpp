@@ -20,7 +20,7 @@ namespace El {
 template<typename F> 
 void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("LQ"))
+    DEBUG_ONLY(CSE cse("LQ"))
     lq::Householder( A, t, d );
 }
 
@@ -29,7 +29,7 @@ void LQ
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
   AbstractDistMatrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("LQ"))
+    DEBUG_ONLY(CSE cse("LQ"))
     lq::Householder( A, t, d );
 }
 

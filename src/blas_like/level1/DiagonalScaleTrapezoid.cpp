@@ -16,7 +16,7 @@ void DiagonalScaleTrapezoid
   const Matrix<TDiag>& d, Matrix<T>& A, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("DiagonalScaleTrapezoid");
+        CSE cse("DiagonalScaleTrapezoid");
         if( side==LEFT && (d.Height()!=A.Height() || d.Width()!=1) )
             LogicError("d should have been a vector of the height of A");
         if( side==RIGHT && (d.Height()!=A.Width() || d.Width()!=1) )
@@ -85,7 +85,7 @@ void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScaleTrapezoid"))
+    DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -206,7 +206,7 @@ void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
@@ -219,7 +219,7 @@ void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   const Matrix<TDiag>& d, SparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScaleTrapezoid"))
+    DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
     LogicError("This routine is not yet written");
 }
 
@@ -228,7 +228,7 @@ void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScaleTrapezoid"))
+    DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
     LogicError("This routine is not yet written");
 }
 

@@ -18,9 +18,9 @@ template<typename F>
 void Trdtrmm( UpperOrLower uplo, Matrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trdtrdmm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Trdtrdmm");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         trdtrmm::LVar1( A, conjugate );
@@ -33,9 +33,9 @@ void Trdtrmm
 ( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trdtrdmm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Trdtrdmm");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         trdtrmm::LVar1( A, dOff, conjugate );
@@ -47,9 +47,9 @@ template<typename F>
 void Trdtrmm( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trdtrmm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Trdtrmm");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         trdtrmm::LVar1( A, conjugate );
@@ -64,15 +64,26 @@ void Trdtrmm
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trdtrmm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Trdtrmm");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         trdtrmm::LVar1( A, dOff, conjugate );
     else
         LogicError("Not yet written");
 }
+
+template<typename F>
+void Trdtrmm
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate )
+{ Trdtrmm( uplo, A.Matrix(), conjugate ); }
+
+template<typename F>
+void Trdtrmm
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
+  const DistMatrix<F,STAR,STAR>& dOff, bool conjugate )
+{ Trdtrmm( uplo, A.Matrix(), dOff.LockedMatrix(), conjugate ); }
 
 #define PROTO(F) \
   template void Trdtrmm( UpperOrLower uplo, Matrix<F>& A, bool conjugate ); \
@@ -83,7 +94,12 @@ void Trdtrmm
   template void Trdtrmm \
   ( UpperOrLower uplo, \
     AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, \
-    bool conjugate );
+    bool conjugate ); \
+  template void Trdtrmm \
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate ); \
+  template void Trdtrmm \
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, \
+    const DistMatrix<F,STAR,STAR>& dOff, bool conjugate );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -42,7 +42,7 @@ SymmFront<F>::SymmFront
   bool conjugate )
 : parent(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmFront::SymmFront"))
+    DEBUG_ONLY(CSE cse("SymmFront::SymmFront"))
     Pull( A, reordering, info, conjugate );
 }
 
@@ -54,7 +54,7 @@ void SymmFront<F>::Pull
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmFront::Pull");
+        CSE cse("SymmFront::Pull");
         if( A.Height() != (Int)reordering.size() )
             LogicError("Mapping was not the right size");
     )
@@ -129,7 +129,7 @@ void SymmFront<F>::Push
   const vector<Int>& reordering,
   const SymmNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmFront::Push"))
+    DEBUG_ONLY(CSE cse("SymmFront::Push"))
 
     // Invert the reordering
     const Int n = reordering.size();
@@ -190,7 +190,7 @@ template<typename F>
 void SymmFront<F>::Unpack
 ( SparseMatrix<F>& A, const SymmNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmFront::Push"))
+    DEBUG_ONLY(CSE cse("SymmFront::Push"))
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
 
@@ -243,7 +243,7 @@ void SymmFront<F>::Unpack
 template<typename F>
 Int SymmFront<F>::NumEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmFront::NumEntries"))
+    DEBUG_ONLY(CSE cse("SymmFront::NumEntries"))
     Int numEntries = 0;
     function<void(const SymmFront<F>&)> count =
       [&]( const SymmFront<F>& front )
@@ -264,7 +264,7 @@ Int SymmFront<F>::NumEntries() const
 template<typename F>
 Int SymmFront<F>::NumTopLeftEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmFront::NumTopLeftEntries"))
+    DEBUG_ONLY(CSE cse("SymmFront::NumTopLeftEntries"))
     Int numEntries = 0;
     function<void(const SymmFront<F>&)> count =
       [&]( const SymmFront<F>& front )
@@ -281,7 +281,7 @@ Int SymmFront<F>::NumTopLeftEntries() const
 template<typename F>
 Int SymmFront<F>::NumBottomLeftEntries() const
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmFront::NumBottomLeftEntries"))
+    DEBUG_ONLY(CSE cse("SymmFront::NumBottomLeftEntries"))
     Int numEntries = 0;
     function<void(const SymmFront<F>&)> count =
       [&]( const SymmFront<F>& front )
@@ -299,7 +299,7 @@ Int SymmFront<F>::NumBottomLeftEntries() const
 template<typename F>
 double SymmFront<F>::FactorGFlops() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistSymmFront::FactorGFlops"))
+    DEBUG_ONLY(CSE cse("DistSymmFront::FactorGFlops"))
     double gflops = 0.;
     function<void(const SymmFront<F>&)> count =
       [&]( const SymmFront<F>& front )
@@ -318,7 +318,7 @@ double SymmFront<F>::FactorGFlops() const
 template<typename F>
 double SymmFront<F>::SolveGFlops( Int numRHS ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmFront::SolveGFlops"))
+    DEBUG_ONLY(CSE cse("SymmFront::SolveGFlops"))
     double gflops = 0.;
     function<void(const SymmFront<F>&)> count =
       [&]( const SymmFront<F>& front )

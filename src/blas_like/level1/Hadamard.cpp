@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hadamard"))
+    DEBUG_ONLY(CSE cse("Hadamard"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     C.Resize( A.Height(), A.Width() );
@@ -32,7 +32,7 @@ void Hadamard
 ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
         AbstractDistMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Hadamard"))
+    DEBUG_ONLY(CSE cse("Hadamard"))
     const DistData ADistData = A.DistData();
     const DistData BDistData = B.DistData();
     DistData CDistData = C.DistData();

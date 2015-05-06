@@ -34,7 +34,7 @@ void CP
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("CP"))
+    DEBUG_ONLY(CSE cse("CP"))
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<Real> c, AHat, bHat, G, h;
@@ -88,7 +88,7 @@ void CP
         AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("CP"))
+    DEBUG_ONLY(CSE cse("CP"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -143,7 +143,7 @@ void CP
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("CP"))
+    DEBUG_ONLY(CSE cse("CP"))
     const Int m = A.Height();
     const Int n = A.Width();
     SparseMatrix<Real> AHat, G;
@@ -205,7 +205,7 @@ void CP
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("CP"))
+    DEBUG_ONLY(CSE cse("CP"))
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

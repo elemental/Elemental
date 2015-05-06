@@ -13,14 +13,14 @@ namespace El {
 template<typename T>
 void Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    DEBUG_ONLY(CSE cse("Adjoint"))
     Transpose( A, B, true );
 }
 
 template<typename T>
 void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    DEBUG_ONLY(CSE cse("Adjoint"))
     Transpose( A, B, true );
 }
 
@@ -28,21 +28,21 @@ template<typename T>
 void Adjoint
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    DEBUG_ONLY(CSE cse("Adjoint"))
     Transpose( A, B, true );
 }
 
 template<typename T>
 void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    DEBUG_ONLY(CSE cse("Adjoint"))
     Transpose( A, B, true );
 }
 
 template<typename T>
 void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    DEBUG_ONLY(CSE cse("Adjoint"))
     Transpose( A, B, true );
 }
 

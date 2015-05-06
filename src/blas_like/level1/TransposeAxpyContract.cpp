@@ -15,7 +15,7 @@ void TransposeAxpyContract
 ( T alpha, const AbstractDistMatrix<T>& A, 
                  AbstractDistMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("TransposeAxpyContract"))
+    DEBUG_ONLY(CSE cse("TransposeAxpyContract"))
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == V && A.RowDist() == U )
@@ -61,7 +61,7 @@ void TransposeAxpyContract
 ( T alpha, const AbstractBlockDistMatrix<T>& A, 
                  AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("TransposeAxpyContract"))
+    DEBUG_ONLY(CSE cse("TransposeAxpyContract"))
     LogicError("Not yet implemented");
 }
 

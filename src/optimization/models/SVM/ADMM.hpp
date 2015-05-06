@@ -19,7 +19,7 @@ Int ADMM
         Real gamma,            Matrix<Real>& w,
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("svm::ADMM"))
+    DEBUG_ONLY(CSE cse("svm::ADMM"))
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]
@@ -55,7 +55,7 @@ Int ADMM
         Real gamma,                        AbstractDistMatrix<Real>& w, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("svm::ADMM"))
+    DEBUG_ONLY(CSE cse("svm::ADMM"))
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]

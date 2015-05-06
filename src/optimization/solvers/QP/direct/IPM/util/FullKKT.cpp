@@ -37,7 +37,7 @@ void KKT
   const Matrix<Real>& x, const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -87,7 +87,7 @@ void KKT
   const AbstractDistMatrix<Real>& xPre, const AbstractDistMatrix<Real>& zPre,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -141,7 +141,7 @@ void KKT
   const Matrix<Real>& x,       const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -211,7 +211,7 @@ void KKT
   const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKT"))
+    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -332,7 +332,7 @@ void KKTRHS
   const Matrix<Real>& rmu, const Matrix<Real>& z, 
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKTRHS"))
+    DEBUG_ONLY(CSE cse("qp::direct::KKTRHS"))
     const Int m = rb.Height();
     const Int n = rc.Height();
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
@@ -357,7 +357,7 @@ void KKTRHS
   const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& z, 
         AbstractDistMatrix<Real>& dPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKTRHS"))
+    DEBUG_ONLY(CSE cse("qp::direct::KKTRHS"))
 
     auto dPtr = WriteProxy<Real,MC,MR>(&dPre); 
     auto& d = *dPtr;
@@ -386,7 +386,7 @@ void KKTRHS
   const DistMultiVec<Real>& rmu, const DistMultiVec<Real>& z, 
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::KKTRHS"))
+    DEBUG_ONLY(CSE cse("qp::direct::KKTRHS"))
     const Int m = rb.Height();
     const Int n = rc.Height();
     Zeros( d, m+2*n, 1 );
@@ -442,7 +442,7 @@ void ExpandSolution
         Matrix<Real>& dx, Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandSolution"))
+    DEBUG_ONLY(CSE cse("qp::direct::ExpandSolution"))
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
@@ -453,7 +453,7 @@ void ExpandSolution
         AbstractDistMatrix<Real>& dx, AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandSolution"))
+    DEBUG_ONLY(CSE cse("qp::direct::ExpandSolution"))
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
@@ -464,7 +464,7 @@ void ExpandSolution
         DistMultiVec<Real>& dx, DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::ExpandSolution"))
+    DEBUG_ONLY(CSE cse("qp::direct::ExpandSolution"))
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 

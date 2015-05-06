@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void EntrywiseFill( Matrix<T>& A, function<T(void)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseFill"))
+    DEBUG_ONLY(CSE cse("EntrywiseFill"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )

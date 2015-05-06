@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
+    DEBUG_ONLY(CSE cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
 }
@@ -21,7 +21,7 @@ Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 Base<F> LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
 {
-    DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
+    DEBUG_ONLY(CSE cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
 }
@@ -29,7 +29,7 @@ Base<F> LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
 template<typename F> 
 Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
+    DEBUG_ONLY(CSE cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
 }
@@ -38,7 +38,7 @@ template<typename F>
 Base<F> LogBarrier
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite )
 {
-    DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
+    DEBUG_ONLY(CSE cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
 }

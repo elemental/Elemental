@@ -63,7 +63,7 @@ bool PivotedFactorization( SymmFrontType type )
 
 SymmFrontType ConvertTo2D( SymmFrontType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("ConvertTo2D"))
+    DEBUG_ONLY(CSE cse("ConvertTo2D"))
     SymmFrontType newType;
     switch( type )
     {
@@ -88,7 +88,7 @@ SymmFrontType ConvertTo2D( SymmFrontType type )
 
 SymmFrontType ConvertTo1D( SymmFrontType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("ConvertTo1D"))
+    DEBUG_ONLY(CSE cse("ConvertTo1D"))
     SymmFrontType newType;
     switch( type )
     {
@@ -113,7 +113,7 @@ SymmFrontType ConvertTo1D( SymmFrontType type )
 
 SymmFrontType AppendSelInv( SymmFrontType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("AppendSelInv"))
+    DEBUG_ONLY(CSE cse("AppendSelInv"))
     SymmFrontType newType=LDL_SELINV_2D;
     switch( type )
     {
@@ -128,7 +128,7 @@ SymmFrontType AppendSelInv( SymmFrontType type )
 
 SymmFrontType RemoveSelInv( SymmFrontType type )
 {
-    DEBUG_ONLY(CallStackEntry cse("RemoveSelInv"))
+    DEBUG_ONLY(CSE cse("RemoveSelInv"))
     SymmFrontType newType=LDL_2D;
     switch( type )
     {

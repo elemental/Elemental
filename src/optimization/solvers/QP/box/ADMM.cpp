@@ -31,7 +31,7 @@ Int ADMM
   Real lb, Real ub, Matrix<Real>& Z, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::box::ADMM"))
+    DEBUG_ONLY(CSE cse("qp::box::ADMM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     const Int n = Q.Height();
@@ -139,7 +139,7 @@ Int ADMM
   Real lb, Real ub, AbstractDistMatrix<Real>& ZPre, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::box::ADMM"))
+    DEBUG_ONLY(CSE cse("qp::box::ADMM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
 

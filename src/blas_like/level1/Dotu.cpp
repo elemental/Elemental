@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Dotu"))
+    DEBUG_ONLY(CSE cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     T sum(0);
@@ -30,7 +30,7 @@ T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 template<typename T> 
 T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Dotu"))
+    DEBUG_ONLY(CSE cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     AssertSameGrids( A, B );
@@ -59,7 +59,7 @@ T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 template<typename T>
 T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Dotu"))
+    DEBUG_ONLY(CSE cse("Dotu"))
     if( !mpi::Congruent( A.Comm(), B.Comm() ) )
         LogicError("A and B must be congruent");
     if( A.Height() != B.Height() || A.Width() != B.Width() )

@@ -16,7 +16,7 @@ namespace qr {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitTriang"))
+    DEBUG_ONLY(CSE cse("qr::ExplicitTriang"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     if( ctrl.colPiv )
@@ -34,7 +34,7 @@ void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 template<typename F>
 void ExplicitTriang( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitTriang"))
+    DEBUG_ONLY(CSE cse("qr::ExplicitTriang"))
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
     if( ctrl.colPiv )
@@ -52,7 +52,7 @@ void ExplicitTriang( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 template<typename F>
 void ExplicitUnitary( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitUnitary"))
+    DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     if( ctrl.colPiv )
@@ -71,7 +71,7 @@ void ExplicitUnitary( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 template<typename F>
 void ExplicitUnitary( AbstractDistMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ExplicitUnitary"))
+    DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -95,7 +95,7 @@ void ExplicitUnitary( AbstractDistMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
 template<typename F>
 void Explicit( Matrix<F>& A, Matrix<F>& R, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    DEBUG_ONLY(CSE cse("qr::Explicit"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     if( ctrl.colPiv )
@@ -124,7 +124,7 @@ void Explicit
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, 
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    DEBUG_ONLY(CSE cse("qr::Explicit"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -157,7 +157,7 @@ template<typename F>
 void Explicit
 ( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    DEBUG_ONLY(CSE cse("qr::Explicit"))
     Matrix<F> t;
     Matrix<Base<F>> d;
     Matrix<Int> p;
@@ -183,7 +183,7 @@ void Explicit
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, 
   AbstractDistMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    DEBUG_ONLY(CSE cse("qr::Explicit"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

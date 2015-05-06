@@ -25,7 +25,7 @@ template<typename F>
 inline void MakeExtendedKahan
 ( Matrix<F>& A, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
+    DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
     typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
@@ -71,7 +71,7 @@ template<typename F>
 inline void MakeExtendedKahan
 ( AbstractDistMatrix<F>& A, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
+    DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
     typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
@@ -119,7 +119,7 @@ inline void MakeExtendedKahan
 template<typename F>
 void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
+    DEBUG_ONLY(CSE cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
     A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );
@@ -128,7 +128,7 @@ void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 template<typename F>
 void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
+    DEBUG_ONLY(CSE cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
     A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );

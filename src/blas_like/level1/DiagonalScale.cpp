@@ -15,7 +15,7 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const Matrix<TDiag>& d, Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int ldim = A.LDim();
@@ -54,7 +54,7 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( side == LEFT )
     {
         ProxyCtrl ctrl;
@@ -84,7 +84,7 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
@@ -97,7 +97,7 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const Matrix<TDiag>& d, SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const bool conjugate = ( orientation == ADJOINT );
@@ -132,7 +132,7 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), A.Comm() ) )
@@ -171,7 +171,7 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const DistMultiVec<TDiag>& d, DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
+    DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), X.Comm() ) )

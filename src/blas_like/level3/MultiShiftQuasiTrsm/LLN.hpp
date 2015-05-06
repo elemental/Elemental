@@ -19,7 +19,7 @@ template<typename F>
 inline void
 LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LLNUnb"))
+    DEBUG_ONLY(CSE cse("msquasitrsm::LLNUnb"))
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -97,7 +97,7 @@ template<typename F>
 inline void
 LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LLN"))
+    DEBUG_ONLY(CSE cse("msquasitrsm::LLN"))
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -128,7 +128,7 @@ LLNLarge
 ( const AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& shiftsPre, 
   AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LLNLarge"))
+    DEBUG_ONLY(CSE cse("msquasitrsm::LLNLarge"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -185,7 +185,7 @@ LLNMedium
 ( const AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& shiftsPre, 
         AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LLNMedium"))
+    DEBUG_ONLY(CSE cse("msquasitrsm::LLNMedium"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -249,7 +249,7 @@ LLNSmall
         DistMatrix<F,     colDist,STAR        >& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("msquasitrsm::LLNSmall");
+      CSE cse("msquasitrsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

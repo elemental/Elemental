@@ -25,7 +25,7 @@ LUTLarge
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LUTLarge");
+      CSE cse("trsm::LUTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -84,7 +84,7 @@ LUTMedium
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LUTMedium");
+      CSE cse("trsm::LUTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -144,7 +144,7 @@ LUTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LUTSmall");
+      CSE cse("trsm::LUTSmall");
       AssertSameGrids( U, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

@@ -17,7 +17,7 @@ template<typename F>
 inline Base<F>
 ColNorms( const Matrix<F>& A, vector<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
+    DEBUG_ONLY(CSE cse("qr::ColNorms"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -35,7 +35,7 @@ template<typename Real>
 inline ValueInt<Real>
 FindPivot( const vector<Real>& norms, Int col )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::FindPivot"))
+    DEBUG_ONLY(CSE cse("qr::FindPivot"))
     const auto maxNorm = std::max_element( norms.begin()+col, norms.end() );
     ValueInt<Real> pivot;
     pivot.value = *maxNorm;
@@ -48,7 +48,7 @@ inline void BusingerGolub
 ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& p,
   const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
+    DEBUG_ONLY(CSE cse("qr::BusingerGolub"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -159,7 +159,7 @@ inline ValueInt<Base<F>>
 FindColPivot
 ( const DistMatrix<F>& A, const vector<Base<F>>& norms, Int col )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::FindColPivot"))
+    DEBUG_ONLY(CSE cse("qr::FindColPivot"))
     typedef Base<F> Real;
     const Int localColsBefore = A.LocalColOffset(col);
     const ValueInt<Real> localPivot = FindPivot( norms, localColsBefore );
@@ -173,7 +173,7 @@ template<typename F>
 inline Base<F>
 ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
+    DEBUG_ONLY(CSE cse("qr::ColNorms"))
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -229,7 +229,7 @@ ReplaceColNorms
 ( const DistMatrix<F>& A, vector<Int>& inaccurateNorms, 
   vector<Base<F>>& norms, vector<Base<F>>& origNorms )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ReplaceColNorms"))
+    DEBUG_ONLY(CSE cse("qr::ReplaceColNorms"))
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int numInaccurate = inaccurateNorms.size();
@@ -283,7 +283,7 @@ inline void BusingerGolub
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("qr::BusingerGolub");
+        CSE cse("qr::BusingerGolub");
         AssertSameGrids( APre, t, d, p );
     )
     typedef Base<F> Real;

@@ -17,7 +17,7 @@ void GetSubmatrix
 ( const Matrix<T>& A, Range<Int> I, Range<Int> J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     auto ASubView = A(I,J);
     ASub = ASubView;
 }
@@ -26,7 +26,7 @@ template<typename T>
 Matrix<T> GetSubmatrix
 ( const Matrix<T>& A, Range<Int> I, Range<Int> J )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     Matrix<T> ASub;
     GetSubmatrix( A, I, J, ASub );
     return ASub;
@@ -37,7 +37,7 @@ void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     unique_ptr<AbstractDistMatrix<T>> 
       ASubView( A.Construct(A.Grid(),A.Root()) );
     LockedView( *ASubView, A, I, J );
@@ -58,7 +58,7 @@ void GetSubmatrix
 ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     if( I.end == END )
         I.end = A.Height();
     if( J.end == END )
@@ -111,7 +111,7 @@ void GetSubmatrix
 ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     if( I.end == END )
         I.end = A.Height();
     if( J.end == END )
@@ -183,7 +183,7 @@ void GetSubmatrix
 ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     if( I.end == END )
         I.end = A.Height();
     if( J.end == END )
@@ -266,7 +266,7 @@ void GetSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
 
@@ -286,7 +286,7 @@ template<typename T>
 Matrix<T> GetSubmatrix
 ( const Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     Matrix<T> ASub;
     GetSubmatrix( A, I, J, ASub );
     return ASub;
@@ -298,7 +298,7 @@ void GetSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("GetSubmatrix"))
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
     const Grid& g = A.Grid();

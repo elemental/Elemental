@@ -20,7 +20,7 @@ template<typename F>
 inline void
 Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Householder"))
+    DEBUG_ONLY(CSE cse("qr::Householder"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -53,7 +53,7 @@ Householder
   AbstractDistMatrix<Base<F>>& dPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("qr::Householder");
+        CSE cse("qr::Householder");
         AssertSameGrids( APre, tPre, dPre );
     )
     const Int m = APre.Height();

@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void Circulant( Matrix<T>& A, const vector<T>& a )
 {
-    DEBUG_ONLY(CallStackEntry cse("Circulant"))
+    DEBUG_ONLY(CSE cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
@@ -23,7 +23,7 @@ void Circulant( Matrix<T>& A, const vector<T>& a )
 template<typename T>
 void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
 {
-    DEBUG_ONLY(CallStackEntry cse("Circulant"))
+    DEBUG_ONLY(CSE cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
@@ -33,7 +33,7 @@ void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
 template<typename T>
 void Circulant( AbstractBlockDistMatrix<T>& A, const vector<T>& a )
 {
-    DEBUG_ONLY(CallStackEntry cse("Circulant"))
+    DEBUG_ONLY(CSE cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };

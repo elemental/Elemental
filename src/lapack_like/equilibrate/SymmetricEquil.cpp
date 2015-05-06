@@ -17,7 +17,7 @@ void SymmetricEquil
   bool scaleTwoNorm, Int basisSize, 
   bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricEquil"))
     // TODO: Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -44,7 +44,7 @@ void SymmetricEquil
   bool geomEquil, bool diagEquil,
   bool scaleTwoNorm, Int basisSize, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricEquil"))
     ProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
@@ -78,7 +78,7 @@ void SymmetricEquil
   bool geomEquil, bool diagEquil,
   bool scaleTwoNorm, Int basisSize, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricEquil"))
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -119,7 +119,7 @@ void SymmetricEquil
   bool geomEquil, bool diagEquil,
   bool scaleTwoNorm, Int basisSize, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricEquil"))
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);

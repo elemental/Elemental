@@ -17,7 +17,7 @@ void NormalFromEVD
 (       Matrix<Complex<Real>>& A,
   const Matrix<Complex<Real>>& w, const Matrix<Complex<Real>>& Z )
 {
-    DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
+    DEBUG_ONLY(CSE cse("NormalFromEVD"))
     typedef Complex<Real> C;
 
     Matrix<C> Y1, Z1Copy;
@@ -44,7 +44,7 @@ void NormalFromEVD
   const AbstractDistMatrix<Complex<Real>>& wPre, 
   const AbstractDistMatrix<Complex<Real>>& ZPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
+    DEBUG_ONLY(CSE cse("NormalFromEVD"))
     typedef Complex<Real> C;
 
     auto APtr = WriteProxy<C,MC,MR>( &APre );  auto& A = *APtr;

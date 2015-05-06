@@ -14,7 +14,7 @@ namespace El {
 template<typename F>
 void MakeGaussian( Matrix<F>& A, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
+    DEBUG_ONLY(CSE cse("MakeGaussian"))
     auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
     EntrywiseFill( A, function<F()>(sampleNormal) );
 }
@@ -22,7 +22,7 @@ void MakeGaussian( Matrix<F>& A, F mean, Base<F> stddev )
 template<typename F>
 void MakeGaussian( AbstractDistMatrix<F>& A, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
+    DEBUG_ONLY(CSE cse("MakeGaussian"))
     if( A.RedundantRank() == 0 )
         MakeGaussian( A.Matrix(), mean, stddev );
     Broadcast( A, A.RedundantComm(), 0 );
@@ -31,7 +31,7 @@ void MakeGaussian( AbstractDistMatrix<F>& A, F mean, Base<F> stddev )
 template<typename F>
 void MakeGaussian( AbstractBlockDistMatrix<F>& A, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
+    DEBUG_ONLY(CSE cse("MakeGaussian"))
     if( A.RedundantRank() == 0 )
         MakeGaussian( A.Matrix(), mean, stddev );
     Broadcast( A, A.RedundantComm(), 0 );
@@ -40,7 +40,7 @@ void MakeGaussian( AbstractBlockDistMatrix<F>& A, F mean, Base<F> stddev )
 template<typename F>
 void MakeGaussian( DistMultiVec<F>& A, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
+    DEBUG_ONLY(CSE cse("MakeGaussian"))
     auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
     EntrywiseFill( A, function<F()>(sampleNormal) );
 }
@@ -48,7 +48,7 @@ void MakeGaussian( DistMultiVec<F>& A, F mean, Base<F> stddev )
 template<typename F>
 void Gaussian( Matrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
+    DEBUG_ONLY(CSE cse("Gaussian"))
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
@@ -57,7 +57,7 @@ template<typename F>
 void Gaussian
 ( AbstractDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
+    DEBUG_ONLY(CSE cse("Gaussian"))
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
@@ -66,7 +66,7 @@ template<typename F>
 void Gaussian
 ( AbstractBlockDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
+    DEBUG_ONLY(CSE cse("Gaussian"))
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
@@ -75,7 +75,7 @@ template<typename F>
 void Gaussian
 ( DistMultiVec<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
+    DEBUG_ONLY(CSE cse("Gaussian"))
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }

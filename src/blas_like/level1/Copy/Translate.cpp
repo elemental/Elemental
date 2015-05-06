@@ -16,7 +16,7 @@ namespace copy {
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Translate"))
+    DEBUG_ONLY(CSE cse("copy::Translate"))
     if( A.Grid() != B.Grid() )
     {
         copy::TranslateBetweenGrids( A, B );
@@ -116,7 +116,7 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 template<typename T,Dist U,Dist V>
 void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::Translate"))
+    DEBUG_ONLY(CSE cse("copy::Translate"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int blockHeight = A.BlockHeight();

@@ -13,14 +13,14 @@ namespace El {
 template<typename T,typename S>
 void AdjointAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointAxpy"))
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
     TransposeAxpy( alphaS, X, Y, true );
 }
 
 template<typename T,typename S>
 void AdjointAxpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointAxpy"))
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
     TransposeAxpy( alphaS, X, Y, true );
 }
 
@@ -28,7 +28,7 @@ template<typename T,typename S>
 void AdjointAxpy
 ( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointAxpy"))
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
     TransposeAxpy( alphaS, X, Y, true );
 }
 
@@ -36,7 +36,7 @@ template<typename T,typename S>
 void AdjointAxpy
 ( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointAxpy"))
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
     TransposeAxpy( alphaS, X, Y, true );
 }
 

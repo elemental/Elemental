@@ -16,7 +16,7 @@ void AllGather
 ( const DistMatrix<T,        U,           V   >& A, 
         DistMatrix<T,Collect<U>(),Collect<V>()>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::AllGather"))
+    DEBUG_ONLY(CSE cse("copy::AllGather"))
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -84,7 +84,7 @@ void AllGather
 ( const BlockDistMatrix<T,        U,           V   >& A, 
         BlockDistMatrix<T,Collect<U>(),Collect<V>()>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::AllGather"))
+    DEBUG_ONLY(CSE cse("copy::AllGather"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

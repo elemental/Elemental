@@ -15,7 +15,7 @@ inline void
 UVar1( Matrix<F>& U, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::UVar1");
+        CSE cse("trdtrmm::UVar1");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
     )
@@ -51,7 +51,7 @@ inline void
 UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trdtrmm::UVar1");
+        CSE cse("trdtrmm::UVar1");
         if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
     )
@@ -99,7 +99,7 @@ UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
         ( RIGHT, UPPER, orientation, UNIT, F(1), U11_STAR_STAR, U01_VR_STAR );
         U01 = U01_VR_STAR;
 
-        LocalTrdtrmm( UPPER, U11_STAR_STAR, conjugate );
+        Trdtrmm( UPPER, U11_STAR_STAR, conjugate );
         U11 = U11_STAR_STAR;
     }
 }

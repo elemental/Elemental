@@ -24,7 +24,7 @@ Int SparseInvCov
 ( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z,
   const SparseInvCovCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
+    DEBUG_ONLY(CSE cse("SparseInvCov"))
     typedef Base<F> Real;
     const Int n = D.Width();
 
@@ -112,7 +112,7 @@ Int SparseInvCov
 ( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& ZPre,
   const SparseInvCovCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
+    DEBUG_ONLY(CSE cse("SparseInvCov"))
 
     auto ZPtr = WriteProxy<F,MC,MR>( &ZPre );
     auto& Z = *ZPtr;

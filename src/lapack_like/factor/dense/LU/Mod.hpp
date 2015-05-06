@@ -32,7 +32,7 @@ void LUMod
 ( Matrix<F>& A, Matrix<Int>& p, 
   const Matrix<F>& u, const Matrix<F>& v, bool conjugate, Base<F> tau )
 {
-    DEBUG_ONLY(CallStackEntry cse("LUMod"))
+    DEBUG_ONLY(CSE cse("LUMod"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -276,7 +276,7 @@ void LUMod
   const AbstractDistMatrix<F>& u, const AbstractDistMatrix<F>& v, 
   bool conjugate, Base<F> tau )
 {
-    DEBUG_ONLY(CallStackEntry cse("LUMod"))
+    DEBUG_ONLY(CSE cse("LUMod"))
     const Grid& g = APre.Grid();
     typedef Base<F> Real;
 

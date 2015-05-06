@@ -14,7 +14,7 @@ template<typename T>
 void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Geru");
+        CSE cse("Geru");
         if( ( x.Height() != 1 && x.Width() != 1 ) ||
             ( y.Height() != 1 && y.Width() != 1 ) )
             LogicError("x and y must be vectors");
@@ -38,7 +38,7 @@ void Geru
                  AbstractDistMatrix<T>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Geru");
+        CSE cse("Geru");
         AssertSameGrids( APre, xPre, yPre );
         if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
             ( yPre.Width() != 1 && yPre.Height() != 1 )   )

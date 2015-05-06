@@ -16,7 +16,7 @@ void RowAllToAllDemote
   ( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A, 
           DistMatrix<T,                U,             V   >& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::RowAllToAllDemote"))
+    DEBUG_ONLY(CSE cse("copy::RowAllToAllDemote"))
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -107,7 +107,7 @@ void RowAllToAllDemote
   ( const BlockDistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A, 
           BlockDistMatrix<T,                U,             V   >& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::RowAllToAllDemote"))
+    DEBUG_ONLY(CSE cse("copy::RowAllToAllDemote"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

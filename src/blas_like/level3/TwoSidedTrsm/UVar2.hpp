@@ -18,7 +18,7 @@ inline void
 UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("twotrsm::UVar2");
+      CSE cse("twotrsm::UVar2");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( U.Height() != U.Width() )
@@ -85,7 +85,7 @@ UVar2
   AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& UPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("twotrsm::UVar2");
+      CSE cse("twotrsm::UVar2");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( UPre.Height() != UPre.Width() )
@@ -174,7 +174,7 @@ UVar2
 
         // A11 := inv(U11)' A11 inv(U11)
         A11_STAR_STAR = A11;
-        LocalTwoSidedTrsm( UPPER, diag, A11_STAR_STAR, U11_STAR_STAR );
+        TwoSidedTrsm( UPPER, diag, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - A02' U01

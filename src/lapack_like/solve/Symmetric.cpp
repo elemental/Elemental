@@ -18,7 +18,7 @@ void Overwrite
   Matrix<F>& A, Matrix<F>& B, 
   bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("symm_solve::Overwrite"))
+    DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
     Matrix<Int> p; 
@@ -39,7 +39,7 @@ void Overwrite
   AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
   bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("symm_solve::Overwrite"))
+    DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
 
@@ -66,7 +66,7 @@ void SymmetricSolve
   const Matrix<F>& A, Matrix<F>& B, 
   bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DEBUG_ONLY(CSE cse("SymmetricSolve"))
     Matrix<F> ACopy( A );
     symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
 }
@@ -77,7 +77,7 @@ void SymmetricSolve
   const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
   bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DEBUG_ONLY(CSE cse("SymmetricSolve"))
     DistMatrix<F> ACopy( A );
     symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
 }
@@ -88,7 +88,7 @@ void SymmetricSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B,
   bool conjugate, bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DEBUG_ONLY(CSE cse("SymmetricSolve"))
 
     if( tryLDL )
     {
@@ -121,7 +121,7 @@ void SymmetricSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
   bool conjugate, bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
+    DEBUG_ONLY(CSE cse("SymmetricSolve"))
     if( tryLDL )
     {
         DistSymmNodeInfo info;

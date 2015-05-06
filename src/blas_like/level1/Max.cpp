@@ -14,7 +14,7 @@ template<typename Real>
 ValueInt<Real>
 VectorMax( const Matrix<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
+    DEBUG_ONLY(CSE cse("VectorMax"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -62,7 +62,7 @@ template<typename Real>
 ValueInt<Real>
 VectorMax( const AbstractDistMatrix<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
+    DEBUG_ONLY(CSE cse("VectorMax"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -126,7 +126,7 @@ VectorMax( const AbstractDistMatrix<Real>& x )
 template<typename Real>
 ValueInt<Real> VectorMax( const DistMultiVec<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
+    DEBUG_ONLY(CSE cse("VectorMax"))
     const Int height = x.Height();
     DEBUG_ONLY(
         if( x.Width() != 1 )
@@ -165,7 +165,7 @@ ValueInt<Real> VectorMax( const DistMultiVec<Real>& x )
 template<typename Real>
 Entry<Real> Max( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Max"))
+    DEBUG_ONLY(CSE cse("Max"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -201,7 +201,7 @@ template<typename Real>
 Entry<Real> Max( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("Max");
+      CSE cse("Max");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -251,7 +251,7 @@ template<typename Real>
 Entry<Real> SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMax");
+      CSE cse("SymmetricMax");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -308,7 +308,7 @@ Entry<Real>
 SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMax");
+      CSE cse("SymmetricMax");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

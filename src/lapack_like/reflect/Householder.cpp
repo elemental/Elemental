@@ -42,7 +42,7 @@ template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LeftReflector");
+        CSE cse("LeftReflector");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("x must be a vector");
     )
@@ -100,7 +100,7 @@ F LeftReflector( F& chi, Matrix<F>& x )
 template<typename F>
 F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeftReflector"))
+    DEBUG_ONLY(CSE cse("LeftReflector"))
 
     F alpha = chi.Get( 0, 0 );
     const F tau = LeftReflector( alpha, x );
@@ -113,7 +113,7 @@ template<typename F>
 F LeftReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LeftReflector");
+        CSE cse("LeftReflector");
         AssertSameGrids( chi, x );
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
@@ -137,7 +137,7 @@ template<typename F>
 F LeftReflector( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("LeftReflector");
+        CSE cse("LeftReflector");
         if( x.Width() != 1 )
             LogicError("x must be a column vector");
     )
@@ -164,7 +164,7 @@ template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("RightReflector");
+        CSE cse("RightReflector");
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
         if( x.Height() != 1 && x.Width() != 1 )
@@ -180,7 +180,7 @@ template<typename F>
 F RightReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("RightReflector");
+        CSE cse("RightReflector");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("x must be a vector");
     )
@@ -194,7 +194,7 @@ template<typename F>
 F RightReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("RightReflector");
+        CSE cse("RightReflector");
         AssertSameGrids( chi, x );
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
@@ -218,7 +218,7 @@ template<typename F>
 F RightReflector( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("RightReflector");
+        CSE cse("RightReflector");
         if( x.Height() != 1 )
             LogicError("x must be a row vector");
     )

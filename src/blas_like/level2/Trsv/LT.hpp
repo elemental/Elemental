@@ -19,7 +19,7 @@ LT
   const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsv::LT");
+        CSE cse("trsv::LT");
         if( orientation == NORMAL )
             LogicError("Expected a (conjugate-)transpose option");
         AssertSameGrids( LPre, xPre );

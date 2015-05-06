@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void ColumnNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    DEBUG_ONLY(CSE cse("ColumnNorms"))
     const Int m = X.Height();
     const Int n = X.Width();
     norms.Resize( n, 1 );
@@ -28,7 +28,7 @@ template<typename F,Dist U,Dist V>
 void ColumnNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    DEBUG_ONLY(CSE cse("ColumnNorms"))
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
@@ -50,7 +50,7 @@ void ColumnNorms
 template<typename F>
 void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    DEBUG_ONLY(CSE cse("ColumnNorms"))
     typedef Base<F> Real;
     const Int localHeight = X.LocalHeight();
     const Int width = X.Width();
@@ -102,7 +102,7 @@ void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 template<typename F>
 void ColumnNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    DEBUG_ONLY(CSE cse("ColumnNorms"))
     SparseMatrix<F> ATrans;
     Transpose( A, ATrans );
     RowNorms( ATrans, norms );
@@ -111,7 +111,7 @@ void ColumnNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 template<typename F>
 void ColumnNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    DEBUG_ONLY(CSE cse("ColumnNorms"))
     DistSparseMatrix<F> ATrans(A.Comm());
     Transpose( A, ATrans );
     RowNorms( ATrans, norms );
@@ -123,7 +123,7 @@ template<typename Real>
 void ColumnNorms
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag, Matrix<Real>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    DEBUG_ONLY(CSE cse("pspec::ColumnNorms"))
     const Int m = XReal.Height();
     const Int n = XReal.Width();
     norms.Resize( n, 1 );
@@ -140,7 +140,7 @@ void ColumnNorms
 ( const DistMatrix<Real,U,V>& XReal,
   const DistMatrix<Real,U,V>& XImag, DistMatrix<Real,V,STAR>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    DEBUG_ONLY(CSE cse("pspec::ColumnNorms"))
     if( XReal.RowAlign() != norms.ColAlign() )
         LogicError("Invalid norms alignment");
     const Int n = XReal.Width();
@@ -167,7 +167,7 @@ void ColumnNorms
 ( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
         Matrix<Real>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnNorms"))
+    DEBUG_ONLY(CSE cse("ColumnNorms"))
     LogicError("This routine not yet written");
 }
 

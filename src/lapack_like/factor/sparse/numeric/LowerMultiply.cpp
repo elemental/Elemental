@@ -18,7 +18,7 @@ void LowerMultiply
 ( Orientation orientation, const SymmNodeInfo& info, 
   const SymmFront<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerMultiply"))
+    DEBUG_ONLY(CSE cse("LowerMultiply"))
     if( orientation == NORMAL )
         LowerForwardMultiply( info, front, X );
     else
@@ -30,7 +30,7 @@ void LowerMultiply
 ( Orientation orientation, const DistSymmNodeInfo& info, 
   const DistSymmFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerMultiply"))
+    DEBUG_ONLY(CSE cse("LowerMultiply"))
     if( orientation == NORMAL )
         LowerForwardMultiply( info, front, X );
     else
@@ -42,7 +42,7 @@ void LowerMultiply
 ( Orientation orientation, const DistSymmNodeInfo& info, 
   const DistSymmFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerMultiply"))
+    DEBUG_ONLY(CSE cse("LowerMultiply"))
     if( orientation == NORMAL )
         LowerForwardMultiply( info, front, X );
     else

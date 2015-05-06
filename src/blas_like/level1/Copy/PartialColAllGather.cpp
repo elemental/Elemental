@@ -16,7 +16,7 @@ void PartialColAllGather
 ( const DistMatrix<T,        U,   V>& A, 
         DistMatrix<T,Partial<U>(),V>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::PartialColAllGather"))
+    DEBUG_ONLY(CSE cse("copy::PartialColAllGather"))
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -119,7 +119,7 @@ void PartialColAllGather
 ( const BlockDistMatrix<T,        U,   V>& A, 
         BlockDistMatrix<T,Partial<U>(),V>& B ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::PartialColAllGather"))
+    DEBUG_ONLY(CSE cse("copy::PartialColAllGather"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

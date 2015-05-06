@@ -20,7 +20,7 @@ void QuasiTrsv
 ( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& x, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))
+    DEBUG_ONLY(CSE cse("QuasiTrsv"))
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -43,7 +43,7 @@ void QuasiTrsv
   const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))
+    DEBUG_ONLY(CSE cse("QuasiTrsv"))
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )

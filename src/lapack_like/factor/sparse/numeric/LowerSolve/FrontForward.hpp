@@ -29,7 +29,7 @@ template<typename F>
 inline void FrontVanillaLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerForwardSolve");
+      CSE cse("FrontVanillaLowerForwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
@@ -47,7 +47,7 @@ template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const Matrix<F>& L, const Matrix<Int>& p, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontIntraPivLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontIntraPivLowerForwardSolve"))
     Matrix<F> XT, XB;
     PartitionDown( X, XT, XB, L.Width() );
     PermuteRows( XT, p );
@@ -58,7 +58,7 @@ template<typename F>
 inline void FrontBlockLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontBlockLowerForwardSolve");
+      CSE cse("FrontBlockLowerForwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
@@ -80,7 +80,7 @@ template<typename F>
 inline void 
 FrontLowerForwardSolve( const SymmFront<F>& front, Matrix<F>& W )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontLowerForwardSolve"))
     const SymmFrontType type = front.type;
     if( Unfactored(type) )
         LogicError("Cannot solve against an unfactored front");
@@ -185,7 +185,7 @@ inline void FrontVanillaLowerForwardSolve
   bool singleL11AllGather=true )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerForwardSolve");
+      CSE cse("FrontVanillaLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -206,7 +206,7 @@ inline void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L, const DistMatrix<Int,VC,STAR>& p, 
   DistMatrix<F,VC,STAR>& X, bool singleL11AllGather=true )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontIntraPivLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
@@ -222,7 +222,7 @@ inline void FrontVanillaLowerForwardSolve
 ( const DistMatrix<F>& L, DistMatrix<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontVanillaLowerForwardSolve");
+      CSE cse("FrontVanillaLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -255,7 +255,7 @@ template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontIntraPivLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
@@ -271,7 +271,7 @@ inline void FrontFastLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontFastLowerForwardSolve");
+      CSE cse("FrontFastLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -311,7 +311,7 @@ inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L, const DistMatrix<Int,VC,STAR>& p,
   DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontFastIntraPivLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontFastIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     if( mpi::WorldRank() == 0 )
@@ -329,7 +329,7 @@ inline void FrontFastLowerForwardSolve
 ( const DistMatrix<F>& L, DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontFastLowerForwardSolve");
+      CSE cse("FrontFastLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -385,7 +385,7 @@ inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p,
   DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontFastIntraPivLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontFastIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
@@ -401,7 +401,7 @@ inline void FrontFastLowerForwardSolve
 ( const DistMatrix<F>& L, DistMatrix<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontFastLowerForwardSolve");
+      CSE cse("FrontFastLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -434,7 +434,7 @@ template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontFastIntraPivLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontFastIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
@@ -450,7 +450,7 @@ inline void FrontBlockLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontBlockLowerForwardSolve");
+      CSE cse("FrontBlockLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -490,7 +490,7 @@ inline void FrontBlockLowerForwardSolve
 ( const DistMatrix<F>& L, DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontBlockLowerForwardSolve");
+      CSE cse("FrontBlockLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -544,7 +544,7 @@ inline void FrontBlockLowerForwardSolve
 ( const DistMatrix<F>& L, DistMatrix<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("FrontBlockLowerForwardSolve");
+      CSE cse("FrontBlockLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -578,7 +578,7 @@ inline void
 FrontLowerForwardSolve
 ( const DistSymmFront<F>& front, DistMatrix<F,VC,STAR>& W )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontLowerForwardSolve"))
     const SymmFrontType type = front.type;
 
     if( type == LDL_1D )
@@ -604,7 +604,7 @@ inline void
 FrontLowerForwardSolve
 ( const DistSymmFront<F>& front, DistMatrix<F>& W )
 {
-    DEBUG_ONLY(CallStackEntry cse("FrontLowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("FrontLowerForwardSolve"))
     const SymmFrontType type = front.type;
 
     if( type == LDL_2D )

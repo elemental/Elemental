@@ -22,7 +22,7 @@ namespace El {
 template<typename F>
 void Sylvester( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sylvester"))
+    DEBUG_ONLY(CSE cse("Sylvester"))
     Sign( W, ctrl );
     Matrix<F> WTL, WTR,
               WBL, WBR;
@@ -51,7 +51,7 @@ void Sylvester
 ( Int m, AbstractDistMatrix<F>& WPre, AbstractDistMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Sylvester"))
+    DEBUG_ONLY(CSE cse("Sylvester"))
 
     auto WPtr = ReadProxy<F,MC,MR>( &WPre );
     auto& W = *WPtr;
@@ -87,7 +87,7 @@ void Sylvester
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Sylvester");
+        CSE cse("Sylvester");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( B.Height() != B.Width() )
@@ -116,7 +116,7 @@ void Sylvester
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Sylvester");
+        CSE cse("Sylvester");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( B.Height() != B.Width() )

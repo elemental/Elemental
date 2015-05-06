@@ -24,7 +24,7 @@ namespace El {
 template<typename F>
 void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricGeomEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
     // TODO: Ensure A is symmetric
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -113,7 +113,7 @@ void SymmetricGeomEquil
 ( AbstractDistMatrix<F>& APre, 
   AbstractDistMatrix<Base<F>>& dPre, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricGeomEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
     typedef Base<F> Real;
 
     ProxyCtrl control;
@@ -210,7 +210,7 @@ template<typename F>
 void SymmetricGeomEquil
 ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricGeomEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
     typedef Base<F> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -317,7 +317,7 @@ template<typename F>
 void SymmetricGeomEquil
 ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricGeomEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();

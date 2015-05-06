@@ -25,7 +25,7 @@ LocalAccumulateRUT
         DistMatrix<T,MC,STAR>& ZTrans )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LocalAccumulateRUT");
+      CSE cse("trmm::LocalAccumulateRUT");
       AssertSameGrids( U, XTrans, ZTrans );
       if( U.Height() != U.Width() ||
           U.Height() != XTrans.Height() ||
@@ -74,7 +74,7 @@ RUTA
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RUTA");
+      CSE cse("trmm::RUTA");
       AssertSameGrids( UPre, XPre );
       // TODO: More input checks
     )
@@ -119,7 +119,7 @@ RUTC
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::RUTC");
+      CSE cse("trmm::RUTC");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected Adjoint/Transpose option");
@@ -175,7 +175,7 @@ RUT
 ( Orientation orientation, UnitOrNonUnit diag,
   const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trmm::RUT"))
+    DEBUG_ONLY(CSE cse("trmm::RUT"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
         RUTA( orientation, diag, U, X );

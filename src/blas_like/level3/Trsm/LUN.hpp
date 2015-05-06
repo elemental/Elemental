@@ -21,7 +21,7 @@ LUNLarge
   const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("trsm::LUNLarge"))
+    DEBUG_ONLY(CSE cse("trsm::LUNLarge"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -74,7 +74,7 @@ LUNMedium
   const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("trsm::LUNMedium"))
+    DEBUG_ONLY(CSE cse("trsm::LUNMedium"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -128,7 +128,7 @@ LUNSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trsm::LUNSmall");
+      CSE cse("trsm::LUNSmall");
       AssertSameGrids( U, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError

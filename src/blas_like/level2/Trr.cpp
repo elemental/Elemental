@@ -18,7 +18,7 @@ void Trr
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trr");
+        CSE cse("Trr");
         if( x.Width() != 1 || y.Width() != 1 )
             LogicError("x and y must be of width 1");
     )
@@ -63,7 +63,7 @@ void Trr
                  AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trr");
+        CSE cse("Trr");
         if( xPre.Width() != 1 || yPre.Width() != 1 )
             LogicError("x and y must be of width 1");
     )

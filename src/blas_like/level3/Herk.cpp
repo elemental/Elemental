@@ -15,7 +15,7 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const Matrix<T>& A, Base<T> beta, Matrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -24,7 +24,7 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const Matrix<T>& A, Matrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, T(alpha), A, T(0), C, true );
@@ -36,7 +36,7 @@ void Herk
   Base<T> alpha, const AbstractDistMatrix<T>& A, 
   Base<T> beta,        AbstractDistMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -45,7 +45,7 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, T(alpha), A, T(0), C, true );
@@ -57,7 +57,7 @@ void Herk
   Base<T> alpha, const SparseMatrix<T>& A,
   Base<T> beta,        SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -67,7 +67,7 @@ void Herk
   Base<T> alpha, const SparseMatrix<T>& A,
                        SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     Syrk( uplo, orientation, T(alpha), A, C, true );
 }
 
@@ -77,7 +77,7 @@ void Herk
   Base<T> alpha, const DistSparseMatrix<T>& A,
   Base<T> beta,        DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -87,7 +87,7 @@ void Herk
   Base<T> alpha, const DistSparseMatrix<T>& A,
                        DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Herk"))
+    DEBUG_ONLY(CSE cse("Herk"))
     Syrk( uplo, orientation, T(alpha), A, C, true );
 }
 

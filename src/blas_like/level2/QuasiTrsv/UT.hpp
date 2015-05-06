@@ -17,7 +17,7 @@ UTUnb
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::UTUnb");
+        CSE cse("quasitrsv::UTUnb");
         if( U.Height() != U.Width() )
             LogicError("L must be square");
         if( x.Width() != 1 && x.Height() != 1 )
@@ -115,7 +115,7 @@ UT
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::UT");
+        CSE cse("quasitrsv::UT");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
         if( x.Width() != 1 && x.Height() != 1 )
@@ -173,7 +173,7 @@ UT
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::UT");
+        CSE cse("quasitrsv::UT");
         AssertSameGrids( UPre, xPre );
         if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");

@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -45,7 +45,7 @@ template<typename T>
 void
 MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -90,7 +90,7 @@ void
 MakeTrapezoidal
 ( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -133,7 +133,7 @@ MakeTrapezoidal
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
     {
@@ -149,7 +149,7 @@ void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
     const Int firstLocalRow = A.FirstLocalRow();
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )

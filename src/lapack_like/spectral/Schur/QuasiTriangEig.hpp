@@ -18,7 +18,7 @@ void QuasiTriangEig
 ( const Matrix<F>& dMain, const Matrix<F>& dSub, const Matrix<F>& dSup,
   Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
+    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
     const Int n = dMain.Height();
     Matrix<F> H11(2,2);
     w.Resize( n, 1 );
@@ -46,7 +46,7 @@ void QuasiTriangEig
 template<typename F>
 void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
+    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
     auto dMain = GetDiagonal(U);
     auto dSub = GetDiagonal(U,-1);
     auto dSup = GetDiagonal(U,+1);
@@ -56,7 +56,7 @@ void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 template<typename F>
 Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
+    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
     Matrix<Complex<Base<F>>> w;
     QuasiTriangEig( U, w );
     return w;
@@ -66,7 +66,7 @@ template<typename F>
 void QuasiTriangEig
 ( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<Complex<Base<F>>>& w )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
+    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
 
     auto UPtr = ReadProxy<F,MC,MR>( &UPre );
     auto& U = *UPtr;
@@ -87,7 +87,7 @@ template<typename F>
 DistMatrix<Complex<Base<F>>,VR,STAR> 
 QuasiTriangEig( const AbstractDistMatrix<F>& U )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
+    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
     DistMatrix<Complex<Base<F>>,VR,STAR> w(U.Grid());
     QuasiTriangEig( U, w );
     return w;

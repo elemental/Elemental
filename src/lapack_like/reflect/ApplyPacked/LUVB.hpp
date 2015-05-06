@@ -36,7 +36,7 @@ LUVB
 ( Conjugation conjugation, Int offset, 
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("apply_packed_reflectors::LUVB"))
+    DEBUG_ONLY(CSE cse("apply_packed_reflectors::LUVB"))
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
         if( t.Height() != diagLength )
@@ -80,7 +80,7 @@ LUVB
         AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::LUVB");
+        CSE cse("apply_packed_reflectors::LUVB");
         AssertSameGrids( HPre, tPre, APre );
     )
 

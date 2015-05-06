@@ -15,7 +15,7 @@ inline void
 LLTUnb
 ( bool conjugate, const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LLTUnb"))
+    DEBUG_ONLY(CSE cse("msquasitrsm::LLTUnb"))
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -97,7 +97,7 @@ LLT
   const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("msquasitrsm::LLT");
+      CSE cse("msquasitrsm::LLT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -148,7 +148,7 @@ LLTLarge
         AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("msquasitrsm::LLTLarge");
+      CSE cse("msquasitrsm::LLTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -219,7 +219,7 @@ LLTMedium
   const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("msquasitrsm::LLTMedium");
+      CSE cse("msquasitrsm::LLTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -298,7 +298,7 @@ LLTSmall
         DistMatrix<F,colDist,STAR>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("msquasitrsm::LLTSmall");
+      CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -335,7 +335,7 @@ LLTSmall
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
-        AddInLocalData( X1, Z1_STAR_STAR );
+        axpy::util::UpdateWithLocalData( F(1), X1, Z1_STAR_STAR );
         El::AllReduce( Z1_STAR_STAR, X1.DistComm() );
 
         // X1 := L11^-1 X1
@@ -361,7 +361,7 @@ LLTSmall
         DistMatrix<F,rowDist,STAR>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("msquasitrsm::LLTSmall");
+      CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

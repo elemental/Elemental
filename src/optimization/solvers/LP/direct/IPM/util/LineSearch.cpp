@@ -26,7 +26,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::IPFLineSearch"))
+    DEBUG_ONLY(CSE cse("lp::direct::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -164,7 +164,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::IPFLineSearch"))
+    DEBUG_ONLY(CSE cse("lp::direct::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -317,7 +317,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::IPFLineSearch"))
+    DEBUG_ONLY(CSE cse("lp::direct::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )
@@ -455,7 +455,7 @@ Real IPFLineSearch
   Real bTol, Real cTol,
   const IPFLineSearchCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::IPFLineSearch"))
+    DEBUG_ONLY(CSE cse("lp::direct::IPFLineSearch"))
     if( ctrl.gamma <= Real(0) || ctrl.gamma >= Real(1) )
         LogicError("gamma must be in (0,1)");
     if( ctrl.beta < Real(1) )

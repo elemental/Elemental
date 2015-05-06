@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void Covariance( const Matrix<F>& D, Matrix<F>& S )
 {
-    DEBUG_ONLY(CallStackEntry cse("Covariance"))
+    DEBUG_ONLY(CSE cse("Covariance"))
     const Int numObs = D.Height();
     const Int n = D.Width();
 
@@ -38,7 +38,7 @@ template<typename F>
 void Covariance
 ( const AbstractDistMatrix<F>& DPre, AbstractDistMatrix<F>& SPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("Covariance"))
+    DEBUG_ONLY(CSE cse("Covariance"))
 
     auto DPtr = ReadProxy<F,MC,MR>( &DPre );  auto& D = *DPtr;
     auto SPtr = WriteProxy<F,MC,MR>( &SPre ); auto& S = *SPtr;

@@ -32,7 +32,7 @@ void NNLS
         Matrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NNLS"))
+    DEBUG_ONLY(CSE cse("NNLS"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     if( ctrl.useIPM )
@@ -47,7 +47,7 @@ void NNLS
         AbstractDistMatrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NNLS"))
+    DEBUG_ONLY(CSE cse("NNLS"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     if( ctrl.useIPM )
@@ -62,7 +62,7 @@ void NNLS
         Matrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NNLS"))
+    DEBUG_ONLY(CSE cse("NNLS"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     if( !ctrl.useIPM )
@@ -76,7 +76,7 @@ void NNLS
         DistMultiVec<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NNLS"))
+    DEBUG_ONLY(CSE cse("NNLS"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     if( !ctrl.useIPM )

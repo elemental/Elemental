@@ -20,7 +20,7 @@ void LocalAccumulateLU
         DistMatrix<T,MR,  STAR>& Z_MR_STAR )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("symm::LocalAccumulateLU");
+      CSE cse("symm::LocalAccumulateLU");
       AssertSameGrids( A, B_MC_STAR, BTrans_STAR_MR, Z_MC_STAR, Z_MR_STAR );
       if( A.Height() != A.Width() ||
           A.Height() != B_MC_STAR.Height() ||
@@ -96,7 +96,7 @@ LUA
   bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("symm::LUA");
+      CSE cse("symm::LUA");
       AssertSameGrids( APre, BPre, CPre );
     )
     const Int m = CPre.Height();
@@ -155,7 +155,7 @@ LUC
   bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("symm::LUC");
+      CSE cse("symm::LUC");
       AssertSameGrids( APre, BPre, CPre );
     )
     const Int m = CPre.Height();
@@ -216,7 +216,7 @@ LU
 ( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, bool conjugate=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("symm::LU"))
+    DEBUG_ONLY(CSE cse("symm::LU"))
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Width() )
         symm::LUA( alpha, A, B, beta, C, conjugate );

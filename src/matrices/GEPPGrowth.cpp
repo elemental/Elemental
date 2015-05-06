@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void GEPPGrowth( Matrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("GEPPGrowth"))
+    DEBUG_ONLY(CSE cse("GEPPGrowth"))
     Identity( A, n, n );
     if( n <= 1 )
         return;
@@ -30,7 +30,7 @@ void GEPPGrowth( Matrix<T>& A, Int n )
 template<typename T>
 void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("GEPPGrowth"))
+    DEBUG_ONLY(CSE cse("GEPPGrowth"))
     Identity( A, n, n );
     if( n <= 1 )
         return;

@@ -13,7 +13,7 @@ namespace El {
 template<typename S,typename T> 
 void Toeplitz( Matrix<S>& A, Int m, Int n, const vector<T>& a )
 {
-    DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
+    DEBUG_ONLY(CSE cse("Toeplitz"))
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
@@ -25,7 +25,7 @@ void Toeplitz( Matrix<S>& A, Int m, Int n, const vector<T>& a )
 template<typename S,typename T>
 void Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const vector<T>& a )
 {
-    DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
+    DEBUG_ONLY(CSE cse("Toeplitz"))
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
@@ -38,7 +38,7 @@ template<typename S,typename T>
 void Toeplitz
 ( AbstractBlockDistMatrix<S>& A, Int m, Int n, const vector<T>& a )
 {
-    DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
+    DEBUG_ONLY(CSE cse("Toeplitz"))
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");

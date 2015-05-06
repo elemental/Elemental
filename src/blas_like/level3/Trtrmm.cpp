@@ -18,9 +18,9 @@ template<typename T>
 void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trtrmm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Trtrmm");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         trtrmm::LVar1( A, conjugate );
@@ -32,7 +32,7 @@ template<typename T>
 void Trtrmm( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trtrmm");
+        CSE cse("Trtrmm");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -42,10 +42,16 @@ void Trtrmm( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate )
         trtrmm::UVar1( A, conjugate );
 }
 
+template<typename T>
+void Trtrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate )
+{ Trtrmm( uplo, A.Matrix(), conjugate ); }
+
 #define PROTO(T) \
   template void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate ); \
   template void Trtrmm \
-  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate );
+  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate ); \
+  template void Trtrmm \
+  ( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

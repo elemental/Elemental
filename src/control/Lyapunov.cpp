@@ -22,7 +22,7 @@ void Lyapunov
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Lyapunov");
+        CSE cse("Lyapunov");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( C.Height() != A.Height() || C.Width() != A.Height() )
@@ -47,7 +47,7 @@ void Lyapunov
         AbstractDistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Sylvester");
+        CSE cse("Sylvester");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( C.Height() != A.Height() || C.Width() != A.Height() )

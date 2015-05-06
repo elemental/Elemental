@@ -14,7 +14,7 @@ void PivotsToPermutation
 ( const Matrix<Int>& pivots, Matrix<Int>& perm, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotsToPermutation");
+        CSE cse("PivotsToPermutation");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
     )
@@ -47,7 +47,7 @@ void PivotsToPermutation
   Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotsToInversePermutation");
+        CSE cse("PivotsToInversePermutation");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
     )
@@ -80,7 +80,7 @@ void PivotsToInversePermutation
 ( const Matrix<Int>& pivots, Matrix<Int>& invPerm, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotsToInversePermutation");
+        CSE cse("PivotsToInversePermutation");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
     )
@@ -113,7 +113,7 @@ void PivotsToInversePermutation
   Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotsToInversePermutation");
+        CSE cse("PivotsToInversePermutation");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
     )

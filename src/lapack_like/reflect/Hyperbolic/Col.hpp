@@ -19,7 +19,7 @@ template<typename F>
 F Col( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hyp_reflector::Col");
+        CSE cse("hyp_reflector::Col");
         if( x.Width() != 1 )
             LogicError("x must be a column vector");
         if( x.RowRank() != x.RowAlign() )
@@ -60,7 +60,7 @@ template<typename F>
 F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hyp_reflector::Col");
+        CSE cse("hyp_reflector::Col");
         if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
             LogicError("Reflecting from incorrect process");
     )

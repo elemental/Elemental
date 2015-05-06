@@ -18,7 +18,7 @@ inline void
 LVar3Unb( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LVar3Unb");
+        CSE cse("cholesky::LVar3Unb");
         if( A.Height() != A.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -48,7 +48,7 @@ inline void
 ReverseLVar3Unb( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::ReverseLVar3Unb");
+        CSE cse("cholesky::ReverseLVar3Unb");
         if( A.Height() != A.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -78,7 +78,7 @@ inline void
 LVar3( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LVar3");
+        CSE cse("cholesky::LVar3");
         if( A.Height() != A.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -106,7 +106,7 @@ inline void
 ReverseLVar3( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::ReverseLVar3");
+        CSE cse("cholesky::ReverseLVar3");
         if( A.Height() != A.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -135,7 +135,7 @@ inline void
 LVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LVar3");
+        CSE cse("cholesky::LVar3");
         if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -163,7 +163,7 @@ LVar3( AbstractDistMatrix<F>& APre )
         auto A22 = A( ind2, ind2 );
 
         A11_STAR_STAR = A11;
-        LocalCholesky( LOWER, A11_STAR_STAR );
+        Cholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_VC_STAR.AlignWith( A22 );
@@ -193,7 +193,7 @@ inline void
 ReverseLVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::ReverseLVar3");
+        CSE cse("cholesky::ReverseLVar3");
         if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -221,7 +221,7 @@ ReverseLVar3( AbstractDistMatrix<F>& APre )
         auto A11 = A( ind1, ind1 );
 
         A11_STAR_STAR = A11;
-        LocalReverseCholesky( LOWER, A11_STAR_STAR );
+        ReverseCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A10_STAR_VR.AlignWith( A00 );

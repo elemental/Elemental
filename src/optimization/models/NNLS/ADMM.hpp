@@ -29,7 +29,7 @@ Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& B, Matrix<Real>& X, 
   const qp::box::ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("nnls::ADMM"))
+    DEBUG_ONLY(CSE cse("nnls::ADMM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
@@ -47,7 +47,7 @@ Int ADMM
         AbstractDistMatrix<Real>& X,
   const qp::box::ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("nnls::ADMM"))
+    DEBUG_ONLY(CSE cse("nnls::ADMM"))
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();

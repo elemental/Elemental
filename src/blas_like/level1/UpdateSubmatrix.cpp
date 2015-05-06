@@ -16,7 +16,7 @@ void UpdateSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   T alpha, const Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateSubmatrix"))
+    DEBUG_ONLY(CSE cse("UpdateSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
 
@@ -38,7 +38,7 @@ void UpdateRealPartOfSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateRealPartOfSubmatrix"))
+    DEBUG_ONLY(CSE cse("UpdateRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
 
@@ -60,7 +60,7 @@ void UpdateImagPartOfSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateImagPartOfSubmatrix"))
+    DEBUG_ONLY(CSE cse("UpdateImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
 
@@ -82,7 +82,7 @@ void UpdateSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   T alpha, const AbstractDistMatrix<T>& ASubPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateSubmatrix"))
+    DEBUG_ONLY(CSE cse("UpdateSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
 
@@ -119,7 +119,7 @@ void UpdateRealPartOfSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASubPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateRealPartOfSubmatrix"))
+    DEBUG_ONLY(CSE cse("UpdateRealPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
 
@@ -156,7 +156,7 @@ void UpdateImagPartOfSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASubPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("UpdateImagPartOfSubmatrix"))
+    DEBUG_ONLY(CSE cse("UpdateImagPartOfSubmatrix"))
     const Int m = I.size();
     const Int n = J.size();
 

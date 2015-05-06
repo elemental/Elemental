@@ -13,7 +13,7 @@ namespace El {
 template<typename T,typename S>
 void Scale( S alphaS, Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Scale"))
+    DEBUG_ONLY(CSE cse("Scale"))
     const T alpha = T(alphaS);
     if( alpha != T(1) )
     {
@@ -30,7 +30,7 @@ void Scale( S alphaS, Matrix<T>& A )
 template<typename Real,typename S>
 void Scale( S alphaS, Matrix<Real>& AReal, Matrix<Real>& AImag )
 {
-    DEBUG_ONLY(CallStackEntry cse("Scale"))
+    DEBUG_ONLY(CSE cse("Scale"))
     typedef Complex<Real> C;
     const Int m = AReal.Height();
     const Int n = AReal.Width();

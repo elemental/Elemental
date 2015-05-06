@@ -15,7 +15,7 @@ namespace El {
 template<typename F> 
 void Demmel( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Demmel"))
+    DEBUG_ONLY(CSE cse("Demmel"))
     typedef Base<F> Real;
     A.Resize( n, n );
     if( n == 1 )
@@ -40,7 +40,7 @@ void Demmel( Matrix<F>& A, Int n )
 template<typename F>
 void Demmel( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Demmel"))
+    DEBUG_ONLY(CSE cse("Demmel"))
     typedef Base<F> Real;
     A.Resize( n, n );
     if( n == 1 )
@@ -65,7 +65,7 @@ void Demmel( AbstractDistMatrix<F>& A, Int n )
 template<typename F>
 void Demmel( AbstractBlockDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Demmel"))
+    DEBUG_ONLY(CSE cse("Demmel"))
     typedef Base<F> Real;
     A.Resize( n, n );
     if( n == 1 )

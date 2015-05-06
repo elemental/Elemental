@@ -56,7 +56,7 @@ void IPM
         Real lambda,           Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bpdn::IPM"))
+    DEBUG_ONLY(CSE cse("bpdn::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -114,7 +114,7 @@ void IPM
         Real lambda,                       AbstractDistMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bpdn::IPM"))
+    DEBUG_ONLY(CSE cse("bpdn::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -172,7 +172,7 @@ void IPM
         Real lambda,                 Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bpdn::IPM"))
+    DEBUG_ONLY(CSE cse("bpdn::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -239,7 +239,7 @@ void IPM
         Real lambda,                     DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("bpdn::IPM"))
+    DEBUG_ONLY(CSE cse("bpdn::IPM"))
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

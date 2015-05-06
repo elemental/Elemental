@@ -13,7 +13,7 @@ namespace El {
 template<typename S,typename T> 
 void Diagonal( Matrix<S>& D, const vector<T>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    DEBUG_ONLY(CSE cse("Diagonal"))
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -24,7 +24,7 @@ void Diagonal( Matrix<S>& D, const vector<T>& d )
 template<typename S,typename T> 
 void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    DEBUG_ONLY(CSE cse("Diagonal"))
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -37,7 +37,7 @@ void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    DEBUG_ONLY(CSE cse("Diagonal"))
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -52,7 +52,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    DEBUG_ONLY(CSE cse("Diagonal"))
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -69,7 +69,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& dPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    DEBUG_ONLY(CSE cse("Diagonal"))
     auto dPtr = ReadProxy<T,STAR,STAR>(&dPre);
     auto& d = *dPtr;
 
@@ -89,7 +89,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& dPre )
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const vector<T>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    DEBUG_ONLY(CSE cse("Diagonal"))
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -104,7 +104,7 @@ void Diagonal( AbstractBlockDistMatrix<S>& D, const vector<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    DEBUG_ONLY(CSE cse("Diagonal"))
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();

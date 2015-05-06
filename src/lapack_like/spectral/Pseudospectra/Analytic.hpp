@@ -23,7 +23,7 @@ Analytic
         Matrix<Real         >& invNorms,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
+    DEBUG_ONLY(CSE cse("pspec::Analytic"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = w.Height();
@@ -62,7 +62,7 @@ Analytic
         AbstractDistMatrix<Real>& invNormsPre,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
+    DEBUG_ONLY(CSE cse("pspec::Analytic"))
     using namespace pspec;
     typedef Complex<Real> C;
 

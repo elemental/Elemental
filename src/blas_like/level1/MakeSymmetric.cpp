@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
+    DEBUG_ONLY(CSE cse("MakeSymmetric"))
     const Int n = A.Width();
     if( A.Height() != n )
         LogicError("Cannot make non-square matrix symmetric");
@@ -55,7 +55,7 @@ template<typename T>
 void MakeSymmetric
 ( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
+    DEBUG_ONLY(CSE cse("MakeSymmetric"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -75,7 +75,7 @@ void MakeSymmetric
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
+    DEBUG_ONLY(CSE cse("MakeSymmetric"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -124,7 +124,7 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
+    DEBUG_ONLY(CSE cse("MakeSymmetric"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 

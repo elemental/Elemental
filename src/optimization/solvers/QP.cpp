@@ -22,7 +22,7 @@ void QP
         Matrix<Real>& z, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )
@@ -39,7 +39,7 @@ void QP
         AbstractDistMatrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )
@@ -56,7 +56,7 @@ void QP
         Matrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )
@@ -73,7 +73,7 @@ void QP
         DistMultiVec<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )
@@ -94,7 +94,7 @@ void QP
         Matrix<Real>& z,       Matrix<Real>& s, 
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )
@@ -113,7 +113,7 @@ void QP
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )
@@ -132,7 +132,7 @@ void QP
         Matrix<Real>& z,             Matrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )
@@ -151,7 +151,7 @@ void QP
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QP"))
+    DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else if( ctrl.approach == QP_IPF )

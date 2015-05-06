@@ -19,7 +19,7 @@ template<typename F>
 inline LDLPivot
 Full( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
+    DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
     const auto diagMax = VectorMaxAbs( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -31,7 +31,7 @@ template<typename F>
 inline LDLPivot
 Full( const DistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
+    DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
     const auto diagMax = VectorMaxAbs( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -43,7 +43,7 @@ template<typename F>
 inline LDLPivot
 PanelFull( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::PanelFull"))
+    DEBUG_ONLY(CSE cse("cholesky::pivot::PanelFull"))
     // Form updated diagonal
     auto d = GetDiagonal(A);
     const Int height = d.Height();
@@ -67,7 +67,7 @@ PanelFull
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::pivot::PanelFull");
+        CSE cse("cholesky::pivot::PanelFull");
         if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
             LogicError("A, X, and Y are not properly aligned");
     )
@@ -104,7 +104,7 @@ inline void
 LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LUnblockedPivoted");
+        CSE cse("cholesky::LUnblockedPivoted");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -151,7 +151,7 @@ LUnblockedPivoted
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LUnblockedPivoted");
+        CSE cse("cholesky::LUnblockedPivoted");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         AssertSameGrids( APre, p );
@@ -205,7 +205,7 @@ LPanelPivoted
 ( Matrix<F>& AFull, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
+    DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -268,7 +268,7 @@ LPanelPivoted
 ( DistMatrix<F>& AFull, AbstractDistMatrix<Int>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
+    DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -333,7 +333,7 @@ inline void
 LVar3( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LVar3");
+        CSE cse("cholesky::LVar3");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -370,7 +370,7 @@ inline void
 LVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::LVar3");
+        CSE cse("cholesky::LVar3");
         AssertSameGrids( APre, pPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");

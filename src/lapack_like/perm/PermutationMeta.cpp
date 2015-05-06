@@ -15,7 +15,7 @@ PermutationMeta::PermutationMeta
   const AbstractDistMatrix<Int>& invPerm )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PermutationMeta::PermutationMeta");
+        CSE cse("PermutationMeta::PermutationMeta");
         AssertSameGrids( perm, invPerm );
         if( perm.ColDist() != invPerm.ColDist() )
             LogicError("perm and invPerm must have the same column dist");

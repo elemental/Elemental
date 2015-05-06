@@ -21,7 +21,7 @@ void HermitianGenDefEig
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("HermitianGenDefEig");
+        CSE cse("HermitianGenDefEig");
         if( A.Height() != A.Width() || B.Height() != B.Width() )
             LogicError("Hermitian matrices must be square.");
     )
@@ -43,7 +43,7 @@ void HermitianGenDefEig
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("HermitianGenDefEig");
+        CSE cse("HermitianGenDefEig");
         AssertSameGrids( APre, BPre, w );
         if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
             LogicError("Hermitian matrices must be square.");
@@ -71,7 +71,7 @@ void HermitianGenDefEig
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("HermitianGenDefEig");
+        CSE cse("HermitianGenDefEig");
         if( A.Height() != A.Width() || B.Height() != B.Width() )
             LogicError("Hermitian matrices must be square.");
     )
@@ -103,7 +103,7 @@ void HermitianGenDefEig
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("HermitianGenDefEig");
+        CSE cse("HermitianGenDefEig");
         AssertSameGrids( APre, BPre, w, XPre );
         if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
             LogicError("Hermitian matrices must be square.");

@@ -22,7 +22,7 @@ namespace El {
 template<typename F>
 void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ricatti"))
+    DEBUG_ONLY(CSE cse("Ricatti"))
     Sign( W, ctrl );
     const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
@@ -46,7 +46,7 @@ void Ricatti
 ( AbstractDistMatrix<F>& WPre, AbstractDistMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Ricatti"))
+    DEBUG_ONLY(CSE cse("Ricatti"))
 
     auto WPtr = ReadProxy<F,MC,MR>( &WPre );
     auto& W = *WPtr;
@@ -77,7 +77,7 @@ void Ricatti
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Sylvester");
+        CSE cse("Sylvester");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( K.Height() != K.Width() )
@@ -111,7 +111,7 @@ void Ricatti
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Sylvester");
+        CSE cse("Sylvester");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( K.Height() != K.Width() )

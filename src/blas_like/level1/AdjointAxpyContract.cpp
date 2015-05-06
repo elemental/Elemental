@@ -15,7 +15,7 @@ void AdjointAxpyContract
 ( T alpha, const AbstractDistMatrix<T>& A, 
                  AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointAxpyContract"))
+    DEBUG_ONLY(CSE cse("AdjointAxpyContract"))
     TransposeAxpyContract( alpha, A, B, true );
 }
 
@@ -24,7 +24,7 @@ void AdjointAxpyContract
 ( T alpha, const AbstractBlockDistMatrix<T>& A, 
                  AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointAxpyContract"))
+    DEBUG_ONLY(CSE cse("AdjointAxpyContract"))
     TransposeAxpyContract( alpha, A, B, true );
 }
 

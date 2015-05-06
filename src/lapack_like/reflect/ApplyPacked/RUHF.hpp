@@ -37,7 +37,7 @@ RUHF
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::RUHF");
+        CSE cse("apply_packed_reflectors::RUHF");
         if( A.Width() != H.Width() )
             LogicError("H and A must have the same width");
     )
@@ -84,7 +84,7 @@ RUHF
         AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::RUHF");
+        CSE cse("apply_packed_reflectors::RUHF");
         if( APre.Width() != HPre.Width() )
             LogicError("A and H must have the same width");
         AssertSameGrids( HPre, tPre, APre );

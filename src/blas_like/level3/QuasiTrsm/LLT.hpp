@@ -20,7 +20,7 @@ template<typename F>
 inline void
 LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLTUnb"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LLTUnb"))
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -110,7 +110,7 @@ LLT
   const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("quasitrsm::LLT");
+      CSE cse("quasitrsm::LLT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -156,7 +156,7 @@ LLTLarge
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("quasitrsm::LLTLarge");
+      CSE cse("quasitrsm::LLTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -224,7 +224,7 @@ LLTMedium
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("quasitrsm::LLTMedium");
+      CSE cse("quasitrsm::LLTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -294,7 +294,7 @@ LLTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("quasitrsm::LLTSmall");
+      CSE cse("quasitrsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -331,7 +331,7 @@ LLTSmall
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
-        AddInLocalData( X1, Z1_STAR_STAR );
+        axpy::util::UpdateWithLocalData( F(1), X1, Z1_STAR_STAR );
         El::AllReduce( Z1_STAR_STAR, X1.DistComm() );
 
         // X1 := L11^-1 X1
@@ -356,7 +356,7 @@ LLTSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("quasitrsm::LLTSmall");
+      CSE cse("quasitrsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

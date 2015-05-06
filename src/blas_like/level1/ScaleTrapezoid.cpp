@@ -13,7 +13,7 @@ namespace El {
 template<typename T,typename S>
 void ScaleTrapezoid( S alphaS, UpperOrLower uplo, Matrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
+    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -47,7 +47,7 @@ void
 ScaleTrapezoid
 ( S alphaS, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
+    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -91,7 +91,7 @@ void
 ScaleTrapezoid
 ( S alpha, UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
+    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
     const Int numEntries = A.NumEntries();
     const Int* sBuf = A.LockedSourceBuffer();
     const Int *tBuf = A.LockedTargetBuffer();
@@ -110,7 +110,7 @@ void
 ScaleTrapezoid
 ( S alpha, UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
+    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
     const Int numLocalEntries = A.NumLocalEntries();
     const Int* sBuf = A.LockedSourceBuffer();
     const Int *tBuf = A.LockedTargetBuffer();

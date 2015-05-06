@@ -17,7 +17,7 @@ template<typename F>
 SafeProduct<F> AfterLUPartialPiv
 ( const Matrix<F>& A, const Matrix<Int>& p )
 {
-    DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
+    DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
     if( A.Height() != p.Height() )
@@ -47,7 +47,7 @@ SafeProduct<F> AfterLUPartialPiv
 template<typename F>
 inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("det::LUPartialPiv"))
+    DEBUG_ONLY(CSE cse("det::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
     SafeProduct<F> det( A.Height() );
@@ -69,7 +69,7 @@ template<typename F>
 SafeProduct<F> AfterLUPartialPiv
 ( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<Int>& pPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
+    DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
     AssertSameGrids( APre, pPre );
@@ -113,7 +113,7 @@ template<typename F>
 inline SafeProduct<F> 
 LUPartialPiv( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_ONLY(CallStackEntry cse("det::LUPartialPiv"))
+    DEBUG_ONLY(CSE cse("det::LUPartialPiv"))
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 

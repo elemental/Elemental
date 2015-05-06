@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Full( const SparseMatrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Full"))
+    DEBUG_ONLY(CSE cse("Full"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
@@ -25,7 +25,7 @@ void Full( const SparseMatrix<T>& A, Matrix<T>& B )
 template<typename T>
 void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("Full"))
+    DEBUG_ONLY(CSE cse("Full"))
 
     auto BPtr = WriteProxy<T,MC,MR>(&BPre);
     auto& B = *BPtr;
@@ -67,7 +67,7 @@ void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& BPre )
 template<typename T>
 Matrix<T> Full( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Full"))
+    DEBUG_ONLY(CSE cse("Full"))
     Matrix<T> B;
     Full( A, B );
     return B;

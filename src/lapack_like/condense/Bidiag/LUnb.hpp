@@ -17,7 +17,7 @@ template<typename F>
 inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("bidiag::LUnb");
+        CSE cse("bidiag::LUnb");
         if( A.Height() > A.Width() )
             LogicError("A must be at least as wide as it is tall");
     )
@@ -106,7 +106,7 @@ inline void LUnb
   AbstractDistMatrix<F>& tPPre, AbstractDistMatrix<F>& tQPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("bidiag::LUnb");
+        CSE cse("bidiag::LUnb");
         AssertSameGrids( APre, tPPre, tQPre );
         if( APre.Height() > APre.Width() )
             LogicError("A must be at least as wide as it is tall");

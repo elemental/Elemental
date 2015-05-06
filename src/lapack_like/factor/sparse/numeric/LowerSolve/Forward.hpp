@@ -30,7 +30,7 @@ inline void LowerForwardSolve
 ( const SymmNodeInfo& info, 
   const SymmFront<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("LowerForwardSolve"))
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -78,7 +78,7 @@ inline void LowerForwardSolve
 ( const DistSymmNodeInfo& info,
   const DistSymmFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("LowerForwardSolve"))
+    DEBUG_ONLY(CSE cse("LowerForwardSolve"))
 
     const bool frontIs1D = FrontIs1D( front.type );
     const Grid& grid = ( frontIs1D ? front.L1D.Grid() : front.L2D.Grid() );
@@ -180,7 +180,7 @@ inline void LowerForwardSolve
   const DistSymmFront<F>& front, DistMatrixNode<F>& X )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("DistLowerForwardSolve");
+      CSE cse("DistLowerForwardSolve");
       if( FrontIs1D(front.type) )
           LogicError("Front was not 2D");
     )

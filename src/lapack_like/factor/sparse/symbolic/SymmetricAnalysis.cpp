@@ -209,7 +209,7 @@ inline void ComputeStructAndRelInds
 
 Int SymmetricAnalysis( const SymmNode& node, SymmNodeInfo& info, Int myOff )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricAnalysis"))
+    DEBUG_ONLY(CSE cse("SymmetricAnalysis"))
 
     // Recurse on the children
     // NOTE: Cleanup of existing info children should be added
@@ -304,7 +304,7 @@ Int SymmetricAnalysis( const SymmNode& node, SymmNodeInfo& info, Int myOff )
 void SymmetricAnalysis
 ( const DistSymmNode& node, DistSymmNodeInfo& info, bool computeFactRecvInds )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricAnalysis"))
+    DEBUG_ONLY(CSE cse("SymmetricAnalysis"))
 
     // Duplicate the communicator from the distributed eTree 
     mpi::Dup( node.comm, info.comm );

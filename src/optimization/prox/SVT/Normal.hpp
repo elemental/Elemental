@@ -17,7 +17,7 @@ namespace svt {
 template<typename F>
 Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svt::Normal"))
+    DEBUG_ONLY(CSE cse("svt::Normal"))
     typedef Base<F> Real;
     Matrix<F> U( A );
     Matrix<Real> s;
@@ -34,7 +34,7 @@ Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 template<typename F>
 Int Normal( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svt::Normal"))
+    DEBUG_ONLY(CSE cse("svt::Normal"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

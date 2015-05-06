@@ -18,7 +18,7 @@ namespace El {
 SpyWindow::SpyWindow( QWidget* parent )
 : QWidget(parent)
 {
-    DEBUG_ONLY(CallStackEntry cse("SpyWindow::SpyWindow"))
+    DEBUG_ONLY(CSE cse("SpyWindow::SpyWindow"))
     matrix_ = 0;
 
     // For the real matrix
@@ -41,7 +41,7 @@ SpyWindow::~SpyWindow()
 void
 SpyWindow::Spy( const Matrix<Int>* matrix, QString title )
 {
-    DEBUG_ONLY(CallStackEntry cse("SpyWindow::Spy"))
+    DEBUG_ONLY(CSE cse("SpyWindow::Spy"))
     if( matrix_ != 0 )
         delete matrix_;
     matrix_ = matrix;

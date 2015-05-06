@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void RowNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("RowNorms"))
+    DEBUG_ONLY(CSE cse("RowNorms"))
     const Int m = A.Height();
     const Int n = A.Width();
     norms.Resize( m, 1 );
@@ -28,7 +28,7 @@ template<typename F,Dist U,Dist V>
 void RowNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("RowNorms"))
+    DEBUG_ONLY(CSE cse("RowNorms"))
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     norms.AlignWith( A );
@@ -49,7 +49,7 @@ void RowNorms
 template<typename F>
 void RowNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("RowNorms"))
+    DEBUG_ONLY(CSE cse("RowNorms"))
     const Int m = A.Height();
     norms.Resize( m, 1 );
 
@@ -68,7 +68,7 @@ void RowNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 template<typename F>
 void RowNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("RowNorms"))
+    DEBUG_ONLY(CSE cse("RowNorms"))
 
     norms.SetComm( A.Comm() );
     norms.Resize( A.Height(), 1 );

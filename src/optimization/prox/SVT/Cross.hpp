@@ -17,7 +17,7 @@ namespace svt {
 template<typename F>
 Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
+    DEBUG_ONLY(CSE cse("svt::Cross"))
     typedef Base<F> Real;
     Matrix<F> U( A );
     Matrix<Real> s;
@@ -39,7 +39,7 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
 template<typename F>
 Int Cross( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
+    DEBUG_ONLY(CSE cse("svt::Cross"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -65,7 +65,7 @@ Int Cross( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 template<typename F>
 Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
+    DEBUG_ONLY(CSE cse("svt::Cross"))
     typedef Base<F> Real;
     DistMatrix<F,VC,STAR> U( A );
     DistMatrix<Real,STAR,STAR> s( A.Grid() );

@@ -19,7 +19,7 @@ Transpose
   T beta,        AbstractDistMatrix<T>& yPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemv::Transpose");
+        CSE cse("gemv::Transpose");
         AssertSameGrids( APre, xPre, yPre );
         if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
             ( yPre.Width() != 1 && yPre.Height() != 1 )   )
@@ -121,7 +121,7 @@ Transpose
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("gemv::Transpose");
+        CSE cse("gemv::Transpose");
         AssertSameGrids( A, x, y );
         if( x.Width() != 1 || y.Width() != 1 )
             LogicError("Expected x and y to be column vectors");

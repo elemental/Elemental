@@ -25,7 +25,7 @@ LocalAccumulateLUN
         DistMatrix<T,MC,  STAR>& Z )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LocalAccumulateLUN");
+      CSE cse("trmm::LocalAccumulateLUN");
       AssertSameGrids( U, XTrans, Z );
       if( U.Height() != U.Width() ||
           U.Height() != XTrans.Width() ||
@@ -76,7 +76,7 @@ LUNA
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LUNA");
+      CSE cse("trmm::LUNA");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
           LogicError
@@ -121,7 +121,7 @@ LUNCOld
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LUNCOld");
+      CSE cse("trmm::LUNCOld");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
           LogicError
@@ -179,7 +179,7 @@ LUNC
   const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LUNC");
+      CSE cse("trmm::LUNC");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
           LogicError
@@ -230,7 +230,7 @@ inline void
 LUN
 ( UnitOrNonUnit diag, const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trmm::LUN"))
+    DEBUG_ONLY(CSE cse("trmm::LUN"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         LUNA( diag, U, X );

@@ -23,7 +23,7 @@ ComputeNewEstimates
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -58,7 +58,7 @@ ComputeNewEstimates
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
     ComputeNewEstimates
     ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), 
       activeEsts.Matrix() );
@@ -72,7 +72,7 @@ Restart
   const Matrix<Int>& activeConverged,
   vector<Matrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )
@@ -117,7 +117,7 @@ Restart
   const DistMatrix<Int,MR,STAR>& activeConverged,
   vector<DistMatrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int basisSize = HDiagList[0].size();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -132,7 +132,7 @@ IRL
 ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::IRL"))
+    DEBUG_ONLY(CSE cse("pspec::IRL"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -358,7 +358,7 @@ IRL
         AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::IRL"))
+    DEBUG_ONLY(CSE cse("pspec::IRL"))
     using namespace pspec;
     typedef Complex<Real> C;
 

@@ -15,7 +15,7 @@ inline void
 LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::LNUnb");
+        CSE cse("quasitrsv::LNUnb");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
         if( x.Width() != 1 && x.Height() != 1 )
@@ -102,7 +102,7 @@ inline void
 LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::LN");
+        CSE cse("quasitrsv::LN");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
         if( x.Width() != 1 && x.Height() != 1 )
@@ -152,7 +152,7 @@ LN
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::LN");
+        CSE cse("quasitrsv::LN");
         AssertSameGrids( LPre, xPre );
         if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");

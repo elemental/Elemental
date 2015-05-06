@@ -37,7 +37,7 @@ RLVB
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::RLVB");
+        CSE cse("apply_packed_reflectors::RLVB");
         if( H.Height() != A.Width() )
             LogicError("H's height must match A's width");
     )
@@ -85,7 +85,7 @@ RLVB
         AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("apply_packed_reflectors::RLVB");
+        CSE cse("apply_packed_reflectors::RLVB");
         AssertSameGrids( HPre, tPre, APre );
     )
 

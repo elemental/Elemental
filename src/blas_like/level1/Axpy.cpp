@@ -13,7 +13,7 @@ namespace El {
 template<typename T,typename S>
 void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Axpy"))
+    DEBUG_ONLY(CSE cse("Axpy"))
     const T alpha = T(alphaS);
     const Int mX = X.Height();
     const Int nX = X.Width();
@@ -56,7 +56,7 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Axpy"))
+    DEBUG_ONLY(CSE cse("Axpy"))
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
     const T alpha = T(alphaS);
@@ -71,7 +71,7 @@ template<typename T,typename S>
 void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Axpy");
+        CSE cse("Axpy");
         AssertSameGrids( X, Y );
     )
     const T alpha = T(alphaS);
@@ -96,7 +96,7 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 {
-    DEBUG_ONLY(CallStackEntry cse("Axpy"))
+    DEBUG_ONLY(CSE cse("Axpy"))
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
     if( X.Comm() != Y.Comm() )
@@ -115,7 +115,7 @@ template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Axpy");
+        CSE cse("Axpy");
         if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
             LogicError("X and Y must have congruent communicators");
         if( X.Height() != Y.Height() )

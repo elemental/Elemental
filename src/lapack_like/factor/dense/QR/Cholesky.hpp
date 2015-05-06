@@ -23,7 +23,7 @@ namespace qr {
 template<typename F> 
 void Cholesky( Matrix<F>& A, Matrix<F>& R )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Cholesky"))
+    DEBUG_ONLY(CSE cse("qr::Cholesky"))
     if( A.Height() < A.Width() )
         LogicError("A^H A will be singular");
     Herk( UPPER, ADJOINT, Base<F>(1), A, R );
@@ -34,7 +34,7 @@ void Cholesky( Matrix<F>& A, Matrix<F>& R )
 template<typename F> 
 void Cholesky( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& RPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::Cholesky"))
+    DEBUG_ONLY(CSE cse("qr::Cholesky"))
     const Int m = APre.Height();
     const Int n = APre.Width();
     if( m < n )

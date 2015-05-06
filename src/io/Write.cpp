@@ -22,7 +22,7 @@ void Write
 ( const Matrix<T>& A, 
   string basename, FileFormat format, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Write"))
+    DEBUG_ONLY(CSE cse("Write"))
     switch( format )
     {
     case ASCII:         write::Ascii( A, basename, title );       break;
@@ -48,7 +48,7 @@ void Write
 ( const AbstractDistMatrix<T>& A, 
   string basename, FileFormat format, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Write"))
+    DEBUG_ONLY(CSE cse("Write"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -67,7 +67,7 @@ void Write
 ( const AbstractBlockDistMatrix<T>& A, 
   string basename, FileFormat format, string title )
 {
-    DEBUG_ONLY(CallStackEntry cse("Write"))
+    DEBUG_ONLY(CSE cse("Write"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )

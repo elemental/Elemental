@@ -18,7 +18,7 @@ void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
-    DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
+    DEBUG_ONLY(CSE cse("ExpandPackedReflectors"))
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
@@ -30,7 +30,7 @@ void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t )
 {
-    DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
+    DEBUG_ONLY(CSE cse("ExpandPackedReflectors"))
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else

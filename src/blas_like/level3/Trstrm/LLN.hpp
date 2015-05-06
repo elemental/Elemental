@@ -17,7 +17,7 @@ template<typename F>
 inline void
 LLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trstrm::LLNUnb"))
+    DEBUG_ONLY(CSE cse("trstrm::LLNUnb"))
     const bool isUnit = ( diag==UNIT );
     const Int n = L.Height();
     const Int LLDim = L.LDim();
@@ -55,7 +55,7 @@ LLN
 ( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X,
   bool checkIfSingular=true )
 {
-    DEBUG_ONLY(CallStackEntry cse("trstrm::LLN"))
+    DEBUG_ONLY(CSE cse("trstrm::LLN"))
     const Int n = L.Height();
     const Int bsize = Blocksize();
 
@@ -94,7 +94,7 @@ LLN
   F alpha, const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("trstrm::LLN"))
+    DEBUG_ONLY(CSE cse("trstrm::LLN"))
     const Int n = LPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -132,7 +132,7 @@ LLN
         LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, X10_STAR_VR,
           checkIfSingular );
-        LocalTrstrm
+        Trstrm
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, X11_STAR_STAR,
           checkIfSingular );
         X11 = X11_STAR_STAR;

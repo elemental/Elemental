@@ -20,7 +20,7 @@ inline void TallAbsoluteThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::TallAbsoluteThresholded");
+        CSE cse("svd::TallAbsoluteThresholded");
         if( A.Height() < A.Width() )
             LogicError("A must be at least as tall as it is wide");
         if( tol < 0 )
@@ -84,7 +84,7 @@ inline void TallRelativeThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::TallRelativeThresholded");
+        CSE cse("svd::TallRelativeThresholded");
         if( A.Height() < A.Width() )
             LogicError("A must be at least as tall as it is wide");
         if( relTol < 0 )
@@ -139,7 +139,7 @@ inline void TallThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
   Base<F> tol, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
         TallRelativeThresholded( A, s, V, tol );
     else
@@ -153,7 +153,7 @@ TallAbsoluteThresholded
   AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::TallAbsoluteThresholded");
+        CSE cse("svd::TallAbsoluteThresholded");
         AssertSameGrids( APre, s, VPre );
         if( APre.Height() < APre.Width() )
             LogicError("A must be at least as tall as it is wide");
@@ -234,7 +234,7 @@ TallRelativeThresholded
   AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::TallRelativeThresholded");
+        CSE cse("svd::TallRelativeThresholded");
         AssertSameGrids( APre, s, VPre );
         if( APre.Height() < APre.Width() )
             LogicError("A must be at least as tall as it is wide");
@@ -302,7 +302,7 @@ inline void TallThresholded
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
         TallRelativeThresholded( A, s, V, tol );
     else
@@ -316,7 +316,7 @@ TallAbsoluteThresholded
   AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::TallAbsoluteThresholded");
+        CSE cse("svd::TallAbsoluteThresholded");
         AssertSameGrids( A, sPre, VPre );
         if( A.Height() < A.Width() )
             LogicError("A must be at least as tall as it is wide");
@@ -396,7 +396,7 @@ TallRelativeThresholded
   AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::TallRelativeThresholded");
+        CSE cse("svd::TallRelativeThresholded");
         AssertSameGrids( A, sPre, VPre );
         if( A.Height() < A.Width() )
             LogicError("A must be at least as tall as it is wide");
@@ -464,7 +464,7 @@ void TallThresholded
 ( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
         TallRelativeThresholded( A, s, V, tol );
     else
@@ -477,7 +477,7 @@ WideAbsoluteThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::WideAbsoluteThresholded");
+        CSE cse("svd::WideAbsoluteThresholded");
         if( A.Width() < A.Height() )
             LogicError("A must be at least as wide as it is tall");
         if( tol < 0 )
@@ -542,7 +542,7 @@ WideRelativeThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::WideThresholded");
+        CSE cse("svd::WideThresholded");
         if( A.Width() < A.Height() )
             LogicError("A must be at least as wide as it is tall");
         if( relTol < 0 )
@@ -597,7 +597,7 @@ inline void WideThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
   Base<F> tol, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
     if( relative )
         WideRelativeThresholded( A, s, V, tol );
     else
@@ -611,7 +611,7 @@ WideAbsoluteThresholded
   AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::WideAbsoluteThresholded");
+        CSE cse("svd::WideAbsoluteThresholded");
         if( APre.Width() < APre.Height() )
             LogicError("A must be at least as wide as it is tall");
         if( tol < 0 )
@@ -692,7 +692,7 @@ WideRelativeThresholded
   AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("svd::WideRelativeThresholded");
+        CSE cse("svd::WideRelativeThresholded");
         AssertSameGrids( APre, s, VPre );
         if( APre.Width() < APre.Height() )
             LogicError("A must be at least as wide as it is tall");
@@ -760,7 +760,7 @@ inline void WideThresholded
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
     if( relative )
         WideRelativeThresholded( A, s, V, tol );
     else
@@ -775,7 +775,7 @@ void Thresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
   Base<F> tol, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
+    DEBUG_ONLY(CSE cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )
         TallThresholded( A, s, V, tol, relative );
     else
@@ -787,7 +787,7 @@ void Thresholded
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
   AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
+    DEBUG_ONLY(CSE cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )
         TallThresholded( A, s, V, tol, relative );
     else

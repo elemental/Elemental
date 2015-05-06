@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void KMS( Matrix<T>& K, Int n, T rho )
 {
-    DEBUG_ONLY(CallStackEntry cse("KMS"))
+    DEBUG_ONLY(CSE cse("KMS"))
     K.Resize( n, n );
     auto kmsFill = 
       [=]( Int i, Int j ) -> T
@@ -25,7 +25,7 @@ void KMS( Matrix<T>& K, Int n, T rho )
 template<typename T>
 void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 {
-    DEBUG_ONLY(CallStackEntry cse("KMS"))
+    DEBUG_ONLY(CSE cse("KMS"))
     K.Resize( n, n );
     auto kmsFill = 
       [=]( Int i, Int j ) -> T
@@ -37,7 +37,7 @@ void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 template<typename T>
 void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
 {
-    DEBUG_ONLY(CallStackEntry cse("KMS"))
+    DEBUG_ONLY(CSE cse("KMS"))
     K.Resize( n, n );
     auto kmsFill = 
       [=]( Int i, Int j ) -> T

@@ -72,7 +72,7 @@ void Initialize
         Matrix<Real>& z,       Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -188,7 +188,7 @@ void Initialize
         AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -308,7 +308,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
@@ -329,7 +329,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::affine::Initialize"))
+    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);

@@ -25,7 +25,7 @@ LocalAccumulateLLT
         DistMatrix<T,MR,STAR>& Z )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LocalAccumulateLLT");
+      CSE cse("trmm::LocalAccumulateLLT");
       AssertSameGrids( L, X, Z );
       if( L.Height() != L.Width() || L.Height() != X.Height() ||
           L.Height() != Z.Height() )
@@ -71,7 +71,7 @@ LLTA
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LLTA");
+      CSE cse("trmm::LLTA");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -117,7 +117,7 @@ LLTCOld
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LLTCOld");
+      CSE cse("trmm::LLTCOld");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -178,7 +178,7 @@ LLTC
   const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("trmm::LLTC");
+      CSE cse("trmm::LLTC");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -236,7 +236,7 @@ LLT
 ( Orientation orientation, UnitOrNonUnit diag,
   const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("trmm::LLT"))
+    DEBUG_ONLY(CSE cse("trmm::LLT"))
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )
         LLTA( orientation, diag, L, X );

@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Inv"))
+    DEBUG_ONLY(CSE cse("Symmetric2x2Inv"))
     typedef Base<F> Real;
     if( uplo == LOWER )
     {

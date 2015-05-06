@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void IndexDependentFill( Matrix<T>& A, function<T(Int,Int)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("IndexDependentFill"))
+    DEBUG_ONLY(CSE cse("IndexDependentFill"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -25,7 +25,7 @@ template<typename T>
 void IndexDependentFill
 ( AbstractDistMatrix<T>& A, function<T(Int,Int)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("IndexDependentFill"))
+    DEBUG_ONLY(CSE cse("IndexDependentFill"))
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
@@ -43,7 +43,7 @@ template<typename T>
 void IndexDependentFill
 ( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("IndexDependentFill"))
+    DEBUG_ONLY(CSE cse("IndexDependentFill"))
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )

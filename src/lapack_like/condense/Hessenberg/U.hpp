@@ -20,7 +20,7 @@ template<typename F>
 inline void U( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hessenberg::U");
+        CSE cse("hessenberg::U");
         // Is this requirement necessary?!?
         if( t.Viewing() )
             LogicError("t must not be a view");
@@ -79,7 +79,7 @@ template<typename F>
 inline void U( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hessenberg::U");
+        CSE cse("hessenberg::U");
         AssertSameGrids( APre, tPre );
     )
 

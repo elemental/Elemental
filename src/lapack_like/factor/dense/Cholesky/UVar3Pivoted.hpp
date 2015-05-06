@@ -20,7 +20,7 @@ inline void
 UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::UUnblockedPivoted");
+        CSE cse("cholesky::UUnblockedPivoted");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -69,7 +69,7 @@ inline void
 UUnblockedPivoted( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::UUnblockedPivoted");
+        CSE cse("cholesky::UUnblockedPivoted");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         AssertSameGrids( APre, p );
@@ -126,7 +126,7 @@ UPanelPivoted
 ( Matrix<F>& AFull, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
+    DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -189,7 +189,7 @@ UPanelPivoted
 ( DistMatrix<F>& AFull, AbstractDistMatrix<Int>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
 {
-    DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
+    DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -254,7 +254,7 @@ inline void
 UVar3( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::UVar3");
+        CSE cse("cholesky::UVar3");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -292,7 +292,7 @@ inline void
 UVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("cholesky::UVar3");
+        CSE cse("cholesky::UVar3");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )

@@ -18,61 +18,40 @@ template<typename T>
 void Gemv
 ( Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
-
 template<typename T>
 void Gemv
 ( Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, Matrix<T>& y );
-
 template<typename T>
 void Gemv
 ( Orientation orientation,
   T alpha, const AbstractDistMatrix<T>& A,
            const AbstractDistMatrix<T>& x,
   T beta,        AbstractDistMatrix<T>& y );
-
 template<typename T>
 void Gemv
 ( Orientation orientation,
   T alpha, const AbstractDistMatrix<T>& A,
            const AbstractDistMatrix<T>& x,
                  AbstractDistMatrix<T>& y );
-
 template<typename T>
-inline void LocalGemv
+void LocalGemv
 ( Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& y )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalGemv"))
-    // TODO: Add error checking here
-    Gemv
-    ( orientation ,
-      alpha, A.LockedMatrix(), x.LockedMatrix(),
-      beta,                    y.Matrix() );
-}
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y );
 
 // Ger
 // ===
 template<typename T>
 void Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
-
 template<typename T>
 void Ger
 ( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, 
                  AbstractDistMatrix<T>& A );
-
 template<typename T>
-inline void LocalGer
-( T alpha, const AbstractDistMatrix<T>& x,
-           const AbstractDistMatrix<T>& y,
-                 AbstractDistMatrix<T>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalGer"))
-    // TODO: Add error checking here
-    Ger( alpha, x.LockedMatrix(), y.LockedMatrix(), A.Matrix() );
-}
+void LocalGer
+( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A );
 
 // Geru
 // ====

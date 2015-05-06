@@ -23,7 +23,7 @@ RLN
   const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("trsm::RLN"))
+    DEBUG_ONLY(CSE cse("trsm::RLN"))
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();

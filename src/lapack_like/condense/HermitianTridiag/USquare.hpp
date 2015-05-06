@@ -20,7 +20,7 @@ void USquare
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("herm_tridiag::USquare");
+        CSE cse("herm_tridiag::USquare");
         AssertSameGrids( APre, tPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");

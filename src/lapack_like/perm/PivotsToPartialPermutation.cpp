@@ -15,7 +15,7 @@ void PivotsToPartialPermutation
   Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotsToPartialPermutation");
+        CSE cse("PivotsToPartialPermutation");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
     )
@@ -63,7 +63,7 @@ void PivotsToPartialPermutation
         AbstractDistMatrix<Int>& pInv, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PivotsToPartialPermutation");
+        CSE cse("PivotsToPartialPermutation");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
     )

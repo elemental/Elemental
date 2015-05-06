@@ -15,7 +15,7 @@ inline void
 UNUnb( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::UNUnb");
+        CSE cse("quasitrsv::UNUnb");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
         if( x.Width() != 1 && x.Height() != 1 )
@@ -96,7 +96,7 @@ inline void
 UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::UN");
+        CSE cse("quasitrsv::UN");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
         if( x.Width() != 1 && x.Height() != 1 )
@@ -150,7 +150,7 @@ UN
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsv::UN");
+        CSE cse("quasitrsv::UN");
         AssertSameGrids( UPre, xPre );
         if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");

@@ -17,7 +17,7 @@ void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
   Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("hpd_solve::Overwrite"))
+    DEBUG_ONLY(CSE cse("hpd_solve::Overwrite"))
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }
@@ -27,7 +27,7 @@ void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
   AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("hpd_solve::Overwrite"))
+    DEBUG_ONLY(CSE cse("hpd_solve::Overwrite"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
     auto BPtr = WriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
@@ -43,7 +43,7 @@ void HPDSolve
 ( UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    DEBUG_ONLY(CSE cse("HPDSolve"))
     Matrix<F> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
@@ -53,7 +53,7 @@ void HPDSolve
 ( UpperOrLower uplo, Orientation orientation, 
   const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    DEBUG_ONLY(CSE cse("HPDSolve"))
     DistMatrix<F> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
@@ -64,7 +64,7 @@ void HPDSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    DEBUG_ONLY(CSE cse("HPDSolve"))
     SymmNodeInfo info;
     Separator rootSep;
     vector<Int> map, invMap;
@@ -89,7 +89,7 @@ void HPDSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
+    DEBUG_ONLY(CSE cse("HPDSolve"))
     DistSymmNodeInfo info;
     DistSeparator rootSep;
     DistMap map, invMap;

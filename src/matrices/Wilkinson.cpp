@@ -13,7 +13,7 @@ namespace El {
 template<typename T> 
 void Wilkinson( Matrix<T>& A, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
+    DEBUG_ONLY(CSE cse("Wilkinson"))
     const Int n = 2*k+1;
     Zeros( A, n, n );
     FillDiagonal( A, T(1), -1 );
@@ -28,7 +28,7 @@ void Wilkinson( Matrix<T>& A, Int k )
 template<typename T>
 void Wilkinson( AbstractDistMatrix<T>& A, Int k )
 {
-    DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
+    DEBUG_ONLY(CSE cse("Wilkinson"))
     const Int n = 2*k+1;
     Zeros( A, n, n );
     FillDiagonal( A, T(1), -1 );

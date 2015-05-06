@@ -17,7 +17,7 @@ void Conjugate( Matrix<Real>& A )
 template<typename Real>
 void Conjugate( Matrix<Complex<Real>>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
+    DEBUG_ONLY(CSE cse("Conjugate (in-place)"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -28,7 +28,7 @@ void Conjugate( Matrix<Complex<Real>>& A )
 template<typename T>
 void Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Conjugate"))
+    DEBUG_ONLY(CSE cse("Conjugate"))
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
@@ -40,14 +40,14 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B )
 template<typename T>
 void Conjugate( AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
+    DEBUG_ONLY(CSE cse("Conjugate (in-place)"))
     Conjugate( A.Matrix() );
 }
 
 template<typename T>
 void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("Conjugate"))
+    DEBUG_ONLY(CSE cse("Conjugate"))
     Copy( A, B );
     Conjugate( B );
 }

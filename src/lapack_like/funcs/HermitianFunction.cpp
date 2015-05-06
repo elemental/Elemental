@@ -17,7 +17,7 @@ template<typename F>
 void HermitianFunction
 ( UpperOrLower uplo, Matrix<F>& A, function<Base<F>(Base<F>)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
+    DEBUG_ONLY(CSE cse("HermitianFunction [Real]"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Base<F> Real;
@@ -39,7 +39,7 @@ void HermitianFunction
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
   function<Base<F>(Base<F>)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
+    DEBUG_ONLY(CSE cse("HermitianFunction [Real]"))
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
@@ -71,7 +71,7 @@ void HermitianFunction
 ( UpperOrLower uplo, Matrix<Complex<Real>>& A, 
   function<Complex<Real>(Real)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
+    DEBUG_ONLY(CSE cse("HermitianFunction [Complex]"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;
@@ -99,7 +99,7 @@ void HermitianFunction
 ( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& APre, 
   function<Complex<Real>(Real)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
+    DEBUG_ONLY(CSE cse("HermitianFunction [Complex]"))
 
     auto APtr = ReadWriteProxy<Complex<Real>,MC,MR>( &APre );
     auto& A = *APtr;

@@ -16,7 +16,7 @@ void PermuteRows
 {
     const Int b = perm.Height();
     DEBUG_ONLY(
-        CallStackEntry cse("PermuteRows");
+        CSE cse("PermuteRows");
         if( A.Height() < b || b != invPerm.Height() )
             LogicError
             ("perm and invPerm must be vectors of equal length that are not "
@@ -63,7 +63,7 @@ void PermuteRows
 template<typename T> 
 void PermuteRows( Matrix<T>& A, const Matrix<Int>& perm )
 {
-    DEBUG_ONLY(CallStackEntry cse("PermuteRows"))
+    DEBUG_ONLY(CSE cse("PermuteRows"))
     Matrix<Int> invPerm;
     InvertPermutation( perm, invPerm );
     PermuteRows( A, perm, invPerm );
@@ -72,7 +72,7 @@ void PermuteRows( Matrix<T>& A, const Matrix<Int>& perm )
 template<typename T> 
 void InversePermuteRows( Matrix<T>& A, const Matrix<Int>& invPerm )
 {
-    DEBUG_ONLY(CallStackEntry cse("InversePermuteRows"))
+    DEBUG_ONLY(CSE cse("InversePermuteRows"))
     Matrix<Int> perm;
     InvertPermutation( invPerm, perm );
     PermuteRows( A, perm, invPerm );
@@ -82,7 +82,7 @@ template<typename T>
 void PermuteRows( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("PermuteRows");
+        CSE cse("PermuteRows");
         if( A.ColComm() != oldMeta.comm )
             LogicError("Invalid communicator in metadata");
         if( A.ColAlign() != oldMeta.align )
@@ -140,7 +140,7 @@ void PermuteRows
   const AbstractDistMatrix<Int>& permPre,
   const AbstractDistMatrix<Int>& invPermPre )
 {
-    DEBUG_ONLY(CallStackEntry cse("PermuteRows"))
+    DEBUG_ONLY(CSE cse("PermuteRows"))
 
     ProxyCtrl ctrl;
     ctrl.rootConstrain = true;
@@ -164,7 +164,7 @@ void PermuteRows
   const AbstractDistMatrix<Int>& perm,
   const AbstractDistMatrix<Int>& invPerm )
 {
-    DEBUG_ONLY(CallStackEntry cse("PermuteRows"))
+    DEBUG_ONLY(CSE cse("PermuteRows"))
     const Dist U = APre.ColDist();
     const Dist V = APre.RowDist();
     #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
@@ -178,7 +178,7 @@ template<typename T>
 void PermuteRows
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm )
 {
-    DEBUG_ONLY(CallStackEntry cse("PermuteRows"))
+    DEBUG_ONLY(CSE cse("PermuteRows"))
     const Grid& g = A.Grid();
     DistMatrix<Int,VC,STAR> invPerm(g);
     InvertPermutation( perm, invPerm );
@@ -189,7 +189,7 @@ template<typename T>
 void InversePermuteRows
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& invPerm )
 {
-    DEBUG_ONLY(CallStackEntry cse("InversePermuteRows"))
+    DEBUG_ONLY(CSE cse("InversePermuteRows"))
     const Grid& g = A.Grid();
     DistMatrix<Int,VC,STAR> perm(g);
     InvertPermutation( invPerm, perm );

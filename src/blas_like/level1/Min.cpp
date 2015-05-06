@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 ValueInt<Real> VectorMin( const Matrix<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMin"))
+    DEBUG_ONLY(CSE cse("VectorMin"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -60,7 +60,7 @@ ValueInt<Real> VectorMin( const Matrix<Real>& x )
 template<typename Real>
 ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMin"))
+    DEBUG_ONLY(CSE cse("VectorMin"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -125,7 +125,7 @@ ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x )
 template<typename Real>
 ValueInt<Real> VectorMin( const DistMultiVec<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMin"))
+    DEBUG_ONLY(CSE cse("VectorMin"))
     const Int height = x.Height();
     DEBUG_ONLY(
         if( x.Width() != 1 )
@@ -164,7 +164,7 @@ ValueInt<Real> VectorMin( const DistMultiVec<Real>& x )
 template<typename Real>
 Entry<Real> Min( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Min"))
+    DEBUG_ONLY(CSE cse("Min"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -200,7 +200,7 @@ template<typename Real>
 Entry<Real> Min( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Min");
+        CSE cse("Min");
         if( !A.Grid().InGrid() )
             LogicError("Viewing processes are not allowed");
     )
@@ -250,7 +250,7 @@ template<typename Real>
 Entry<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMin");
+      CSE cse("SymmetricMin");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -307,7 +307,7 @@ Entry<Real>
 SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("SymmetricMin");
+      CSE cse("SymmetricMin");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

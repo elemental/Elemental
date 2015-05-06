@@ -21,7 +21,7 @@ namespace El {
 template<typename F> 
 void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("QR"))
+    DEBUG_ONLY(CSE cse("QR"))
     qr::Householder( A, t, d );
 }
 
@@ -30,7 +30,7 @@ void QR
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
   AbstractDistMatrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("QR"))
+    DEBUG_ONLY(CSE cse("QR"))
     qr::Householder( A, t, d );
 }
 
@@ -42,7 +42,7 @@ void QR
 ( Matrix<F>& A, Matrix<F>& t, 
   Matrix<Base<F>>& d, Matrix<Int>& p, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QR"))
+    DEBUG_ONLY(CSE cse("QR"))
     qr::BusingerGolub( A, t, d, p, ctrl );
 }
 
@@ -52,7 +52,7 @@ void QR
   AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("QR"))
+    DEBUG_ONLY(CSE cse("QR"))
     qr::BusingerGolub( A, t, d, p, ctrl );
 }
 

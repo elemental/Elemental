@@ -17,7 +17,7 @@ LN
   const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("trsv::LN");
+        CSE cse("trsv::LN");
         AssertSameGrids( LPre, xPre );
         if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");

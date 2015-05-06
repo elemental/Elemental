@@ -13,7 +13,7 @@ namespace El {
 template<typename T,typename S>
 void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ShiftDiagonal"))
+    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
@@ -27,7 +27,7 @@ void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
 template<typename T,typename S>
 void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ShiftDiagonal"))
+    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -45,7 +45,7 @@ void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 template<typename T,typename S>
 void ShiftDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ShiftDiagonal"))
+    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -63,7 +63,7 @@ void ShiftDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
 template<typename T,typename S>
 void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ShiftDiagonal"))
+    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int m = A.Height();
     const Int n = A.Width();
     A.Reserve( A.Capacity()+m );
@@ -78,7 +78,7 @@ void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset )
 template<typename T,typename S>
 void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ShiftDiagonal"))
+    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int mLocal = A.LocalHeight();
     const Int firstLocalRow = A.FirstLocalRow();
     const Int n = A.Width();

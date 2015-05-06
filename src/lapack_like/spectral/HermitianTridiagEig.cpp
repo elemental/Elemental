@@ -76,7 +76,7 @@ void HermitianTridiagEig
 ( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, SortType sort, 
   const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
+    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, dSub, w, sort, subset );
 }
 
@@ -202,7 +202,7 @@ void HermitianTridiagEig
         AbstractDistMatrix<Base<F>>& w, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
+    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, dSub, w, sort, subset );
 }
 
@@ -286,7 +286,7 @@ void HermitianTridiagEig
 ( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, Matrix<F>& Z, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
+    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
 }
 
@@ -467,7 +467,7 @@ void HermitianTridiagEig
         AbstractDistMatrix<Base<F>>& w,       AbstractDistMatrix<F>& Z, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
+    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
 }
 
@@ -476,7 +476,7 @@ Int HermitianTridiagEigEstimate
 ( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm, Real vl, Real vu )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEigEstimate"))
+    DEBUG_ONLY(CSE cse("HermitianTridiagEigEstimate"))
     const Int n = d.Height();
     DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() );
     DistMatrix<double,STAR,STAR> dSub_STAR_STAR( d.Grid() );
@@ -499,7 +499,7 @@ void HermitianTridiagEigPostEstimate
         AbstractDistMatrix<Real>& wPre,       AbstractDistMatrix<Real>& ZPre,
   SortType sort, Real vl, Real vu )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEigPostEstimate"))
+    DEBUG_ONLY(CSE cse("HermitianTridiagEigPostEstimate"))
 
     ProxyCtrl wCtrl, ZCtrl;
     wCtrl.colConstrain = true;

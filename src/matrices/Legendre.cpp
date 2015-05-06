@@ -14,7 +14,7 @@ template<typename F>
 inline void
 MakeLegendre( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
+    DEBUG_ONLY(CSE cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
     Zero( A );
@@ -33,7 +33,7 @@ template<typename F>
 inline void
 MakeLegendre( AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
+    DEBUG_ONLY(CSE cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
     Zero( A );
@@ -61,7 +61,7 @@ template<typename F>
 inline void
 MakeLegendre( AbstractBlockDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
+    DEBUG_ONLY(CSE cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
     Zero( A );
@@ -88,7 +88,7 @@ MakeLegendre( AbstractBlockDistMatrix<F>& A )
 template<typename F> 
 void Legendre( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Legendre"))
+    DEBUG_ONLY(CSE cse("Legendre"))
     A.Resize( n, n );
     MakeLegendre( A );
 }
@@ -96,7 +96,7 @@ void Legendre( Matrix<F>& A, Int n )
 template<typename F> 
 void Legendre( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Legendre"))
+    DEBUG_ONLY(CSE cse("Legendre"))
     A.Resize( n, n );
     MakeLegendre( A );
 }
@@ -104,7 +104,7 @@ void Legendre( AbstractDistMatrix<F>& A, Int n )
 template<typename F> 
 void Legendre( AbstractBlockDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Legendre"))
+    DEBUG_ONLY(CSE cse("Legendre"))
     A.Resize( n, n );
     MakeLegendre( A );
 }

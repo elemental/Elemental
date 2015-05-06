@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 void Jordan( Matrix<T>& J, Int n, T lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("Jordan"))
+    DEBUG_ONLY(CSE cse("Jordan"))
     Zeros( J, n, n );
     FillDiagonal( J, lambda );
     FillDiagonal( J, T(1), 1 );
@@ -22,7 +22,7 @@ void Jordan( Matrix<T>& J, Int n, T lambda )
 template<typename T>
 void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("Jordan"))
+    DEBUG_ONLY(CSE cse("Jordan"))
     Zeros( J, n, n );
     FillDiagonal( J, lambda );
     FillDiagonal( J, T(1), 1 );
@@ -31,7 +31,7 @@ void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda )
 template<typename T>
 void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda )
 {
-    DEBUG_ONLY(CallStackEntry cse("Jordan"))
+    DEBUG_ONLY(CSE cse("Jordan"))
     Zeros( J, n, n );
     FillDiagonal( J, lambda );
     FillDiagonal( J, T(1), 1 );

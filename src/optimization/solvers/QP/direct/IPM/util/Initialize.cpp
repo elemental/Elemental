@@ -79,7 +79,7 @@ void Initialize
         Matrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::Initialize"))
+    DEBUG_ONLY(CSE cse("qp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( primalInit )
@@ -183,7 +183,7 @@ void Initialize
         AbstractDistMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CallStackEntry cse("qp::direct::Initialize"))
+    DEBUG_ONLY(CSE cse("qp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -291,7 +291,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
+    DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( primalInit )
@@ -418,7 +418,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("lp::direct::Initialize"))
+    DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

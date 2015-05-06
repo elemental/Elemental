@@ -521,7 +521,7 @@ void RPCA
 ( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("RPCA"))
+    DEBUG_ONLY(CSE cse("RPCA"))
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl ); 
     else
@@ -534,7 +534,7 @@ void RPCA
         AbstractDistMatrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("RPCA"))
+    DEBUG_ONLY(CSE cse("RPCA"))
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl ); 
     else

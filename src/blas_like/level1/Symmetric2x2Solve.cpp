@@ -16,7 +16,7 @@ Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<F>& D, Matrix<F>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Solve"))
+    DEBUG_ONLY(CSE cse("Symmetric2x2Solve"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -121,7 +121,7 @@ FirstHalfOfSymmetric2x2Solve
   const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("FirstHalfOfSymmetric2x2Solve");
+        CSE cse("FirstHalfOfSymmetric2x2Solve");
         if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
             LogicError("a1 and a2 must be the same size");
     )
@@ -225,7 +225,7 @@ SecondHalfOfSymmetric2x2Solve
   const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SecondHalfOfSymmetric2x2Solve");
+        CSE cse("SecondHalfOfSymmetric2x2Solve");
         if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
             LogicError("a1 and a2 must be the same size");
     )
@@ -328,7 +328,7 @@ Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
   const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Solve"))
+    DEBUG_ONLY(CSE cse("Symmetric2x2Solve"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();

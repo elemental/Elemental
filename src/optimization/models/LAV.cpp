@@ -39,7 +39,7 @@ void LAV
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LAV"))
+    DEBUG_ONLY(CSE cse("LAV"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
@@ -89,7 +89,7 @@ void LAV
         AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LAV"))
+    DEBUG_ONLY(CSE cse("LAV"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -140,7 +140,7 @@ void LAV
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LAV"))
+    DEBUG_ONLY(CSE cse("LAV"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
@@ -197,7 +197,7 @@ void LAV
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("LAV"))
+    DEBUG_ONLY(CSE cse("LAV"))
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

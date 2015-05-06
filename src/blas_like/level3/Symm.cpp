@@ -21,7 +21,7 @@ void Symm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
   bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Symm"))
+    DEBUG_ONLY(CSE cse("Symm"))
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
     if( conjugate )
@@ -48,7 +48,7 @@ void Symm
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CallStackEntry cse("Symm"))
+    DEBUG_ONLY(CSE cse("Symm"))
     if( side == LEFT && uplo == LOWER )
         symm::LL( alpha, A, B, beta, C, conjugate );
     else if( side == LEFT )

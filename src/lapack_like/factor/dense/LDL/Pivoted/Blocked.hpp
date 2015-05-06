@@ -21,7 +21,7 @@ Blocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::pivot::Blocked");
+        CSE cse("ldl::pivot::Blocked");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -72,7 +72,7 @@ Blocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ldl::pivot::Blocked");
+        CSE cse("ldl::pivot::Blocked");
         AssertSameGrids( APre, dSubPre, pPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");

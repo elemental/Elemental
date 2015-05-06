@@ -24,7 +24,7 @@ void Skeleton
   Matrix<Int>& permR, Matrix<Int>& permC, 
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Skeleton"))
+    DEBUG_ONLY(CSE cse("Skeleton"))
     // Find the row permutation
     Matrix<F> B;
     Adjoint( A, B );
@@ -67,7 +67,7 @@ void Skeleton
   AbstractDistMatrix<Int>& permR, AbstractDistMatrix<Int>& permC, 
   AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Skeleton"))
+    DEBUG_ONLY(CSE cse("Skeleton"))
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );
     auto& A = *APtr;

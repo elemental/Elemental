@@ -14,7 +14,7 @@ template<typename T>
 void ApplyColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ApplyColPivots");
+        CSE cse("ApplyColPivots");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
         if( pivots.Height() > A.Width() )
@@ -45,7 +45,7 @@ void ApplyInverseColPivots
 ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("ApplyInverseColPivots");
+        CSE cse("ApplyInverseColPivots");
         if( pivots.Width() != 1 )
             LogicError("pivots must be a column vector");
         if( pivots.Height() > A.Width() )
@@ -75,7 +75,7 @@ template<typename T>
 void ApplyColPivots
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ApplyColPivots"))
+    DEBUG_ONLY(CSE cse("ApplyColPivots"))
     DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
                             invPerm(pivots.Grid());
     if( pivots.Height() == A.Width() )
@@ -94,7 +94,7 @@ template<typename T>
 void ApplyInverseColPivots
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, Int offset )
 {
-    DEBUG_ONLY(CallStackEntry cse("ApplyInverseColPivots"))
+    DEBUG_ONLY(CSE cse("ApplyInverseColPivots"))
     DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
                             invPerm(pivots.Grid());
     if( pivots.Height() == A.Width() )

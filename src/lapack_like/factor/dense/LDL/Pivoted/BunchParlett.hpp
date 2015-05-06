@@ -18,7 +18,7 @@ template<typename F>
 inline LDLPivot
 BunchParlett( const Matrix<F>& A, Base<F> gamma )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
+    DEBUG_ONLY(CSE cse("ldl::pivot::BunchParlett"))
     typedef Base<F> Real;
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
@@ -46,7 +46,7 @@ template<typename F>
 inline LDLPivot
 BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
+    DEBUG_ONLY(CSE cse("ldl::pivot::BunchParlett"))
     typedef Base<F> Real;
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );

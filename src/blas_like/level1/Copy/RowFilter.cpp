@@ -17,7 +17,7 @@ void RowFilter
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("copy::RowFilter");
+        CSE cse("copy::RowFilter");
         if( A.ColDist() != B.ColDist() ||
             A.RowDist() != Collect(B.RowDist()) )
             LogicError("Incompatible distributions");
@@ -83,7 +83,7 @@ template<typename T>
 void RowFilter
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::RowFilter"))
+    DEBUG_ONLY(CSE cse("copy::RowFilter"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

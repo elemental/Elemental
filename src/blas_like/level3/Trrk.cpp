@@ -23,7 +23,7 @@ void Trrk
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Trrk"))
+    DEBUG_ONLY(CSE cse("Trrk"))
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
         trrk::TrrkNN( uplo, alpha, A, B, beta, C );
     else if( orientationOfA==NORMAL )
@@ -41,7 +41,7 @@ void Trrk
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C )
 {
-    DEBUG_ONLY(CallStackEntry cse("Trrk"))
+    DEBUG_ONLY(CSE cse("Trrk"))
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
         trrk::TrrkNN( uplo, alpha, A, B, beta, C );
     else if( orientationOfA==NORMAL )

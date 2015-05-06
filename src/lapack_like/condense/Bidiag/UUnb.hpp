@@ -16,7 +16,7 @@ namespace bidiag {
 template<typename F>
 inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-    DEBUG_ONLY(CallStackEntry cse("bidiag::UUnb"))
+    DEBUG_ONLY(CSE cse("bidiag::UUnb"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int tPHeight = Max(n-1,0);
@@ -104,7 +104,7 @@ inline void UUnb
   AbstractDistMatrix<F>& tPPre, AbstractDistMatrix<F>& tQPre )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("bidiag::UUnb");
+        CSE cse("bidiag::UUnb");
         AssertSameGrids( APre, tPPre, tQPre );
     )
 

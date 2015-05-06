@@ -35,7 +35,7 @@ void ApplyPackedReflectors
   Conjugation conjugation,
   Int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
+    DEBUG_ONLY(CSE cse("ApplyPackedReflectors"))
     if( side == LEFT )
     {
         if( uplo == LOWER )
@@ -97,7 +97,7 @@ void ApplyPackedReflectors
   const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t, 
         AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
+    DEBUG_ONLY(CSE cse("ApplyPackedReflectors"))
     if( side == LEFT )
     {
         if( uplo == LOWER )

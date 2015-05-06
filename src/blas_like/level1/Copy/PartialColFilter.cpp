@@ -16,7 +16,7 @@ void PartialColFilter
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("copy::PartialColFilter");
+        CSE cse("copy::PartialColFilter");
         if( A.ColDist() != Partial(B.ColDist()) ||
             A.RowDist() != B.RowDist() )
             LogicError("Incompatible distributions");
@@ -92,7 +92,7 @@ template<typename T>
 void PartialColFilter
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("copy::PartialColFilter"))
+    DEBUG_ONLY(CSE cse("copy::PartialColFilter"))
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

@@ -17,7 +17,7 @@ inline void
 FixDiagonal
 ( Conjugation conjugation, const Matrix<F>& t, Matrix<F>& SInv )
 {
-    DEBUG_ONLY(CallStackEntry cse("FixDiagonal"))
+    DEBUG_ONLY(CSE cse("FixDiagonal"))
     for( Int j=0; j<SInv.Height(); ++j )
     {
         const F value = t.Get(j,0);
@@ -35,7 +35,7 @@ FixDiagonal
   const DistMatrix<F,STAR,STAR>& t,
         DistMatrix<F,STAR,STAR>& SInv )
 {
-    DEBUG_ONLY(CallStackEntry cse("FixDiagonal"))
+    DEBUG_ONLY(CSE cse("FixDiagonal"))
     for( Int j=0; j<SInv.Height(); ++j )
     {
         const F value = t.GetLocal(j,0);

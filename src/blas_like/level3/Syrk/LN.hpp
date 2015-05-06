@@ -17,7 +17,7 @@ LN
   T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("syrk::LN");
+      CSE cse("syrk::LN");
       AssertSameGrids( APre, CPre );
       if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() )
           LogicError

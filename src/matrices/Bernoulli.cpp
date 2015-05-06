@@ -13,21 +13,21 @@ namespace El {
 template<typename T>
 void Bernoulli( Matrix<T>& A, Int m, Int n )
 { 
-    DEBUG_ONLY(CallStackEntry cse("Bernoulli"))
+    DEBUG_ONLY(CSE cse("Bernoulli"))
     ThreeValued( A, m, n, 1. );
 }
 
 template<typename T>
 void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Bernoulli"))
+    DEBUG_ONLY(CSE cse("Bernoulli"))
     ThreeValued( A, m, n, 1. );
 }
 
 template<typename T>
 void Bernoulli( AbstractBlockDistMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CallStackEntry cse("Bernoulli"))
+    DEBUG_ONLY(CSE cse("Bernoulli"))
     ThreeValued( A, m, n, 1. );
 }
 

@@ -26,7 +26,7 @@ Deflate
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    DEBUG_ONLY(CSE cse("pspec::Deflate"))
     Timer timer;
     if( progress )
         timer.Start();
@@ -64,7 +64,7 @@ Deflate
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    DEBUG_ONLY(CSE cse("pspec::Deflate"))
     Timer timer;
     if( progress )
         timer.Start();
@@ -102,7 +102,7 @@ Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    DEBUG_ONLY(CSE cse("pspec::Deflate"))
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
@@ -155,7 +155,7 @@ Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    DEBUG_ONLY(CSE cse("pspec::Deflate"))
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
@@ -209,7 +209,7 @@ Power
 ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Power"))
+    DEBUG_ONLY(CSE cse("pspec::Power"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -339,7 +339,7 @@ Power
         AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Power"))
+    DEBUG_ONLY(CSE cse("pspec::Power"))
     using namespace pspec;
     typedef Complex<Real> C;
 

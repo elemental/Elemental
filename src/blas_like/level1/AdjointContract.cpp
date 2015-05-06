@@ -14,7 +14,7 @@ template<typename T>
 void AdjointContract
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointContract"))
+    DEBUG_ONLY(CSE cse("AdjointContract"))
     TransposeContract( A, B, true );
 }
 
@@ -23,7 +23,7 @@ void AdjointContract
 ( const AbstractBlockDistMatrix<T>& A, 
         AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("AdjointContract"))
+    DEBUG_ONLY(CSE cse("AdjointContract"))
     TransposeContract( A, B, true );
 }
 

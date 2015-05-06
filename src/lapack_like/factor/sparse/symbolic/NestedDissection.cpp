@@ -33,7 +33,7 @@ NestedDissectionRecursion
         Int off, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NestedDissectionRecursion"))
+    DEBUG_ONLY(CSE cse("NestedDissectionRecursion"))
     if( graph.NumSources() <= ctrl.cutoff )
     {
         // Fill in this node of the local separator tree
@@ -140,7 +140,7 @@ NestedDissectionRecursion
         Int off, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NestedDissectionRecursion"))
+    DEBUG_ONLY(CSE cse("NestedDissectionRecursion"))
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -261,7 +261,7 @@ void NestedDissection
         SymmNodeInfo& info,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NestedDissection"))
+    DEBUG_ONLY(CSE cse("NestedDissection"))
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
@@ -287,7 +287,7 @@ void NestedDissection
         DistSymmNodeInfo& info,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("NestedDissection"))
+    DEBUG_ONLY(CSE cse("NestedDissection"))
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     DistMap perm( graph.NumSources(), graph.Comm() );
@@ -311,7 +311,7 @@ Int Bisect
 ( const Graph& graph, Graph& leftChild, Graph& rightChild,
   vector<Int>& perm, const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Bisect"))
+    DEBUG_ONLY(CSE cse("Bisect"))
 #ifdef EL_HAVE_METIS
     // METIS assumes that there are no self-connections or connections 
     // outside the sources, so we must manually remove them from our graph
@@ -392,7 +392,7 @@ Int Bisect
         bool& onLeft, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("Bisect"))
+    DEBUG_ONLY(CSE cse("Bisect"))
 #ifdef EL_HAVE_METIS
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size( comm );
@@ -591,7 +591,7 @@ Int Bisect
 
 void EnsurePermutation( const vector<Int>& map )
 {
-    DEBUG_ONLY(CallStackEntry cse("EnsurePermutation"))
+    DEBUG_ONLY(CSE cse("EnsurePermutation"))
     const Int numSources = map.size();
     vector<Int> timesMapped( numSources, 0 );
     for( Int i=0; i<numSources; ++i )
@@ -605,7 +605,7 @@ void EnsurePermutation( const vector<Int>& map )
 
 void EnsurePermutation( const DistMap& map )
 {
-    DEBUG_ONLY(CallStackEntry cse("EnsurePermutation"))
+    DEBUG_ONLY(CSE cse("EnsurePermutation"))
     mpi::Comm comm = map.Comm();
     const int commRank = mpi::Rank( comm );
     const Int numSources = map.NumSources();
@@ -628,7 +628,7 @@ void BuildChildrenFromPerm
   Int rightChildSize, Graph& rightChild )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("BuildChildrenFromPerm");
+      CSE cse("BuildChildrenFromPerm");
       const Int sepSize = graph.NumSources() - leftChildSize - rightChildSize;
     )
     const Int numSources = graph.NumSources();
@@ -703,7 +703,7 @@ void BuildChildFromPerm
   Int leftChildSize, Int rightChildSize,
   bool& onLeft, DistGraph& child )
 {
-    DEBUG_ONLY(CallStackEntry cse("BuildChildFromPerm"))
+    DEBUG_ONLY(CSE cse("BuildChildFromPerm"))
     const Int numTargets = graph.NumTargets();
     const Int numLocalSources = graph.NumLocalSources();
     DEBUG_ONLY(
@@ -925,7 +925,7 @@ void BuildMap
 ( const Separator& rootSep, 
         vector<Int>& map )
 {
-    DEBUG_ONLY(CallStackEntry cse("BuildMap"))
+    DEBUG_ONLY(CSE cse("BuildMap"))
     const Int numSources = rootSep.off + rootSep.inds.size();
     map.resize( numSources );
 
@@ -944,7 +944,7 @@ void BuildMap
 ( const DistSeparator& rootSep, 
         DistMap& map )
 {
-    DEBUG_ONLY(CallStackEntry cse("BuildMap"))
+    DEBUG_ONLY(CSE cse("BuildMap"))
 
     const Int numSources = rootSep.off + rootSep.inds.size();
     mpi::Comm comm = rootSep.comm;

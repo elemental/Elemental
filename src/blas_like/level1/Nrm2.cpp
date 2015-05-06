@@ -14,7 +14,7 @@ template<typename F>
 Base<F> Nrm2( const Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Nrm2");
+        CSE cse("Nrm2");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("Expected vector input");
     )
@@ -30,7 +30,7 @@ template<typename F>
 Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Nrm2");
+        CSE cse("Nrm2");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("x must be a vector");
     )
@@ -41,7 +41,7 @@ template<typename F>
 Base<F> Nrm2( const DistMultiVec<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Nrm2");
+        CSE cse("Nrm2");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("x must be a vector");
     )

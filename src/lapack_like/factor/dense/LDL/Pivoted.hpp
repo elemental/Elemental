@@ -28,7 +28,7 @@ Pivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
+    DEBUG_ONLY(CSE cse("ldl::Pivoted"))
     switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:
@@ -48,7 +48,7 @@ Pivoted
   AbstractDistMatrix<Int>& p, bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
+    DEBUG_ONLY(CSE cse("ldl::Pivoted"))
     switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:

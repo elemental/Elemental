@@ -25,7 +25,7 @@ OneNormConvergenceTest
         Matrix<Int >& activeItCounts,
         Int numIts )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::OneNormConvergenceTest"))
+    DEBUG_ONLY(CSE cse("pspec::OneNormConvergenceTest"))
     typedef Complex<Real> C;
     const Int n = activeX.Height();
 
@@ -94,7 +94,7 @@ OneNormConvergenceTest
         Int numIts )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("pspec::OneNormConvergenceTest");
+        CSE cse("pspec::OneNormConvergenceTest");
         if( activeX.Height() != activeY.Height() || 
             activeY.Height() != activeZ.Height() )
             LogicError("active{X,Y,Z} should be the same height");
@@ -192,7 +192,7 @@ HagerHigham
   const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
+    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -348,7 +348,7 @@ HagerHigham
   const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
+    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -521,7 +521,7 @@ HagerHigham
         AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
+    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
     typedef Complex<Real> C;
 
     auto UPtr = ReadProxy<C,MC,MR>( &UPre ); 
@@ -721,7 +721,7 @@ HagerHigham
         AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
+    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
 

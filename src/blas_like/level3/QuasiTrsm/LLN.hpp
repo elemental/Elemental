@@ -18,7 +18,7 @@ template<typename F>
 inline void
 LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLNUnb"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LLNUnb"))
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -107,7 +107,7 @@ template<typename F>
 inline void
 LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLN"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LLN"))
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -138,7 +138,7 @@ LLNLarge
 ( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLNLarge"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LLNLarge"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -191,7 +191,7 @@ LLNMedium
 ( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLNMedium"))
+    DEBUG_ONLY(CSE cse("quasitrsm::LLNMedium"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -246,7 +246,7 @@ LLNSmall
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-      CallStackEntry cse("quasitrsm::LLNSmall");
+      CSE cse("quasitrsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

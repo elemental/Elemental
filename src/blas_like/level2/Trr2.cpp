@@ -18,7 +18,7 @@ void Trr2
   bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trr2");
+        CSE cse("Trr2");
         if( X.Width() != 2 || Y.Width() != 2 )
             LogicError("X and Y must be of width 2");
     )
@@ -67,7 +67,7 @@ void Trr2
                  AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Trr2");
+        CSE cse("Trr2");
         if( XPre.Width() != 2 || YPre.Width() != 2 )
             LogicError("X and Y must be of width 2");
     )

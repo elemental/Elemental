@@ -34,7 +34,7 @@ DistMultiVecNode<T>::DistMultiVecNode
   const DistMultiVec<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::DistMultiVecNode"))
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::DistMultiVecNode"))
     Pull( invMap, info, X );
 }
 
@@ -42,7 +42,7 @@ template<typename T>
 DistMultiVecNode<T>::DistMultiVecNode( const DistMatrixNode<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::DistMultiVecNode"))
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::DistMultiVecNode"))
     *this = X;
 }
 
@@ -50,7 +50,7 @@ template<typename T>
 const DistMultiVecNode<T>&
 DistMultiVecNode<T>::operator=( const DistMatrixNode<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::operator="))
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::operator="))
 
     if( X.child == nullptr )
     {
@@ -78,7 +78,7 @@ void DistMultiVecNode<T>::Pull
 ( const DistMap& invMap, const DistSymmNodeInfo& info,
   const DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::Pull"))
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::Pull"))
     const Int width = X.Width();
 
     // Count the number of indices assigned to this process
@@ -253,7 +253,7 @@ void DistMultiVecNode<T>::Pull
 template<typename T>
 Int DistMultiVecNode<T>::LocalHeight() const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::LocalHeight"))
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::LocalHeight"))
     Int localHeight = 0;
     function<void(const DistMultiVecNode<T>&)> count = 
       [&]( const DistMultiVecNode<T>& node )
@@ -275,7 +275,7 @@ void DistMultiVecNode<T>::Push
 ( const DistMap& invMap, const DistSymmNodeInfo& info,
         DistMultiVec<T>& X ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::Push"))
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::Push"))
 
     mpi::Comm comm = info.comm;
     const Int height = info.size + info.off;
@@ -424,7 +424,7 @@ void DistMultiVecNode<T>::Push
 template<typename T>
 void DistMultiVecNode<T>::ComputeCommMeta( const DistSymmNodeInfo& info ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMultiVecNode::ComputeCommMeta"))
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::ComputeCommMeta"))
     if( commMeta.numChildSendInds.size() != 0 )
         return;
 

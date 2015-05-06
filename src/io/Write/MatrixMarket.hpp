@@ -17,7 +17,7 @@ template<typename T>
 inline void
 MatrixMarket( const Matrix<T>& A, string basename="matrix" )
 {
-    DEBUG_ONLY(CallStackEntry cse("write::MatrixMarket"))
+    DEBUG_ONLY(CSE cse("write::MatrixMarket"))
     
     string filename = basename + "." + FileExtension(MATRIX_MARKET);
     ofstream file( filename.c_str(), std::ios::binary );
