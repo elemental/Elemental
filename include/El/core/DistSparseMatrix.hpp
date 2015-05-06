@@ -59,7 +59,7 @@ public:
 
     // Make a copy
     // -----------
-    // TODO: operator=
+    const DistSparseMatrix<T>& operator=( const DistSparseMatrix<T>& A );
     // TODO: Move assignment
 
     // Make a copy of a submatrix

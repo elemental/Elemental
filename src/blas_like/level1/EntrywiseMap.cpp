@@ -70,11 +70,9 @@ void EntrywiseMap
 ( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func )
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
-    const Int m = A.Height();
-    const Int n = A.Width();
     const Int numEntries = A.NumEntries();
     B.Empty();
-    B.Resize( m, n );
+    B.Resize( A.Height(), A.Width() );
     B.Reserve( numEntries );
     for( Int k=0; k<numEntries; ++k )
         B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
@@ -143,17 +141,13 @@ void EntrywiseMap
   function<T(S)> func )
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
-    const Int m = A.Height();
-    const Int n = A.Width();
     const Int numLocalEntries = A.NumLocalEntries();
-    const Int firstLocalRow = A.FirstLocalRow();
     B.Empty();
     B.SetComm( A.Comm() );
-    B.Resize( m, n );
+    B.Resize( A.Height(), A.Width() );
     B.Reserve( numLocalEntries );
     for( Int k=0; k<numLocalEntries; ++k )
-        B.QueueLocalUpdate
-        ( A.Row(k)-firstLocalRow, A.Col(k), func(A.Value(k)) );
+        B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
     B.ProcessQueues();
 }
 
@@ -162,10 +156,8 @@ void EntrywiseMap
 ( const DistMultiVec<S>& A, DistMultiVec<T>& B, function<T(S)> func )
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
-    const Int m = A.Height();
-    const Int n = A.Width();
     B.SetComm( A.Comm() );
-    B.Resize( m, n );
+    B.Resize( A.Height(), A.Width() );
     EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );
 }
 

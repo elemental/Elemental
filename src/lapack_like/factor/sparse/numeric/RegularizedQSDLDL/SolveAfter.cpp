@@ -21,9 +21,7 @@ inline Int RegularizedSolveAfterNoPromote
   Base<F> relTol,                    Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(
-      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
-    )
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
     const Base<F> bNorm = Nrm2( b );
 
@@ -91,16 +89,14 @@ inline Int RegularizedSolveAfterNoPromote
 // and the sparse-direct factorization is of inv(diag(dR)) A inv(diag(dC)).
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
-( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap,   const SymmNodeInfo& info,
-  const SymmFront<F>& front,         Matrix<F>& b,
-  Base<F> relTol,                    Int maxRefineIts,
+  const vector<Int>& invMap, const SymmNodeInfo& info,
+  const SymmFront<F>& front,       Matrix<F>& b,
+  Base<F> relTol,                  Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(
-      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
-    )
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
     const Base<F> bNorm = Nrm2( b );
 
@@ -173,10 +169,10 @@ inline Int RegularizedSolveAfterNoPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,   const SymmNodeInfo& info,
-  const SymmFront<F>& front,         Matrix<F>& b,
-  Base<F> relTol,                    Int maxRefineIts,
+( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, const SymmNodeInfo& info,
+  const SymmFront<F>& front,       Matrix<F>& b,
+  Base<F> relTol,                  Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
@@ -259,11 +255,11 @@ inline Int RegularizedSolveAfterPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap,   const SymmNodeInfo& info,
-  const SymmFront<F>& front,         Matrix<F>& b,
-  Base<F> relTol,                    Int maxRefineIts,
+  const vector<Int>& invMap, const SymmNodeInfo& info,
+  const SymmFront<F>& front,       Matrix<F>& b,
+  Base<F> relTol,                  Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
@@ -371,11 +367,11 @@ Int RegularizedSolveAfter
 
 template<typename F>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap,   const SymmNodeInfo& info,
-  const SymmFront<F>& front,         Matrix<F>& b,
-  Base<F> relTol,                    Int maxRefineIts,
+  const vector<Int>& invMap, const SymmNodeInfo& info,
+  const SymmFront<F>& front,       Matrix<F>& b,
+  Base<F> relTol,                  Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
@@ -386,15 +382,13 @@ Int RegularizedSolveAfter
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
-  Base<F> relTol,                          Int maxRefineIts,
+( const DistSparseMatrix<F>& A,  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,         const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,       DistMultiVec<F>& b,
+  Base<F> relTol,                      Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(
-      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
-    )
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -462,16 +456,14 @@ inline Int RegularizedSolveAfterNoPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
-  Base<F> relTol,                          Int maxRefineIts,
+  const DistMap& invMap,          const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,        DistMultiVec<F>& b,
+  Base<F> relTol,                       Int maxRefineIts,
   bool progress )
 {
-    DEBUG_ONLY(
-      CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote")
-    )
+    DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = b.Comm();
     const Int commRank = mpi::Rank(comm);
 
@@ -547,10 +539,10 @@ inline Int RegularizedSolveAfterNoPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
-  Base<F> relTol,                          Int maxRefineIts,
+( const DistSparseMatrix<F>& A,  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,         const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,       DistMultiVec<F>& b,
+  Base<F> relTol,                      Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
@@ -635,11 +627,11 @@ inline Int RegularizedSolveAfterPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
-  Base<F> relTol,                          Int maxRefineIts,
+  const DistMap& invMap,          const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,        DistMultiVec<F>& b,
+  Base<F> relTol,                       Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
@@ -736,10 +728,10 @@ inline Int RegularizedSolveAfterPromote
 
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& b,
-  Base<F> relTol,                          Int maxRefineIts,
+( const DistSparseMatrix<F>& A,  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,         const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,       DistMultiVec<F>& b,
+  Base<F> relTol,                      Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
@@ -749,11 +741,11 @@ Int RegularizedSolveAfter
 
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap,           const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,         DistMultiVec<F>& b,
-  Base<F> relTol,                        Int maxRefineIts,
+  const DistMap& invMap,          const DistSymmNodeInfo& info,
+  const DistSymmFront<F>& front,        DistMultiVec<F>& b,
+  Base<F> relTol,                       Int maxRefineIts,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))

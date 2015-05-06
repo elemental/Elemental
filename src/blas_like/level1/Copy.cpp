@@ -290,8 +290,6 @@ template<typename S,typename T>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
-    const Int m = A.Height();
-    const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     const Int commSize = mpi::Size( comm ); 
     if( !mpi::Congruent( B.Grid().Comm(), comm ) )
@@ -299,12 +297,13 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
         LogicError("Trivial cross and redundant communicators required");
 
-    Zeros( B, m, n );
+    Zeros( B, A.Height(), A.Width() );
 
     // Compute the number of entries of A to send to each member of B
     // ==============================================================
+    const Int numEntries = A.NumLocalEntries();
     vector<int> sendCounts(commSize,0);
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
+    for( Int k=0; k<numEntries; ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
@@ -317,7 +316,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     const int totalSend = Scan( sendCounts, sendOffs );
     vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
+    for( Int k=0; k<numEntries; ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);

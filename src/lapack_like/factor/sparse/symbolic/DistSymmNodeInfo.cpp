@@ -24,7 +24,7 @@
 namespace El {
 
 DistSymmNodeInfo::DistSymmNodeInfo( DistSymmNodeInfo* parentNode )
-: parent(parentNode), child(nullptr), duplicate(nullptr)
+: comm(mpi::COMM_WORLD), parent(parentNode), child(nullptr), duplicate(nullptr)
 { }
 
 DistSymmNodeInfo::~DistSymmNodeInfo()

@@ -45,7 +45,16 @@ DistSparseMatrix<T>::~DistSparseMatrix()
 
 // Make a copy
 // -----------
-// TODO
+template<typename T>
+const DistSparseMatrix<T>& 
+DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator="))
+    distGraph_ = A.distGraph_;
+    vals_ = A.vals_;
+    remoteVals_ = A.remoteVals_;
+    return *this;
+}
 
 // Make a copy of a submatrix
 // --------------------------
