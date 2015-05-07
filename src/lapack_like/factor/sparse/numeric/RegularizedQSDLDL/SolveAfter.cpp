@@ -389,7 +389,7 @@ inline Int RegularizedSolveAfterNoPromote
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
-    mpi::Comm comm = b.Comm();
+    mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
     DistMultiVec<F> bOrig(comm);
@@ -464,7 +464,7 @@ inline Int RegularizedSolveAfterNoPromote
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
-    mpi::Comm comm = b.Comm();
+    mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
     DistMultiVec<F> bOrig(comm);
@@ -550,7 +550,7 @@ inline Int RegularizedSolveAfterPromote
     typedef Promote<Real> RealProm;
     typedef Promote<F> FProm;
 
-    mpi::Comm comm = b.Comm();
+    mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
     DistMultiVec<FProm> bProm(comm), bOrigProm(comm);
@@ -639,7 +639,7 @@ inline Int RegularizedSolveAfterPromote
     typedef Promote<Real> RealProm;
     typedef Promote<F> FProm;
 
-    mpi::Comm comm = b.Comm();
+    mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
     DistMultiVec<FProm> bProm(comm), bOrigProm(comm);
@@ -890,7 +890,7 @@ Int IRSolveAfter
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
-    mpi::Comm comm = b.Comm();
+    mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
     DistMultiVec<F> bOrig(comm);
@@ -959,7 +959,7 @@ Int IRSolveAfter
   bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
-    mpi::Comm comm = b.Comm();
+    mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
     DistMultiVec<F> bOrig(comm);
