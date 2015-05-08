@@ -188,7 +188,6 @@ void DistGraph::SetComm( mpi::Comm comm )
 
     if( comm_ != mpi::COMM_WORLD )
         mpi::Free( comm_ );
-
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
     else
