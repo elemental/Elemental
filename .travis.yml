@@ -22,7 +22,7 @@ install:
   - echo deb http://llvm.org/apt/precise/ llvm-toolchain-precise main | sudo tee -a /etc/apt/sources.list
   - curl http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
   - sudo apt-get update -qq -y
-  - sudo apt-get install -qq -y lcov clang-3.7 gcc-4.9 g++-4.9 gfortran-4.9 libstdc++-4.9-dev libopenblas-dev liblapack-dev
+  - sudo apt-get install -qq -y lcov clang-3.7 gcc-4.9 g++-4.9 gfortran-4.9 libstdc++-4.9-dev
   - git pull --recurse-submodules
   - sh travis/install-mpi.sh $MPI
   - sudo pip install cpp-coveralls
@@ -42,7 +42,7 @@ script:
   - mkdir build && cd build;
     cmake .. -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCXX_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DC_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DFortran_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
-  - make -j3 && sudo make -j2 install && sudo ctest -j3 --output-on-failure
+  - make -j2 && sudo make -j2 install && sudo ctest -j2 --output-on-failure
 
 after_success:
   - lcov --directory . --capture --output-file coverage.info # capture coverage info
