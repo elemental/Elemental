@@ -165,27 +165,6 @@ option(EL_VECTOR_WARNINGS
        "Warn when vector redistribution chances are missed" OFF)
 mark_as_advanced(EL_VECTOR_WARNINGS)
 
-# Handle RPATHs for Mac
-# =====================
-set(CMAKE_MACOSX_RPATH TRUE)
-
-# use, i.e. don't skip the full RPATH for the build tree
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-
-# when building, don't use the install RPATH already
-# (but later on when installing)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-
-# add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# the RPATH to be used when installing, but only if it's not a system directory
-list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-if("${isSystemDir}" STREQUAL "-1")
-   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-endif()
-
 # Build logic
 # ===========
 
@@ -248,6 +227,30 @@ if(BUILD_SHARED_LIBS AND WIN32)
   option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
 else()
   option(EL_DECLSPEC "Use __declspec(dllexport)?" OFF)
+endif()
+
+# Handle RPATHs for Mac
+# ---------------------
+if(APPLE)
+  set(CMAKE_MACOSX_RPATH TRUE)
+
+  # use, i.e. don't skip the full RPATH for the build tree
+  set(CMAKE_SKIP_BUILD_RPATH FALSE)
+
+  # when building, don't use the install RPATH already
+  # (but later on when installing)
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+  # Add automatically determined parts of RPATH which point to directories 
+  # outside the build tree to the install RPATH
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+  # RPATH to be used when installing, but only if it's not a system directory
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES 
+    "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  if("${isSystemDir}" STREQUAL "-1")
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  endif()
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
@@ -414,10 +417,10 @@ endif()
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
 
-# Build experimental drivers
+# Experimental
+# ============
 if(EL_EXPERIMENTAL)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
-
   # Build the G3D example(s)
   set(G3D_EXPERS G3DGemm)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
@@ -437,15 +440,12 @@ if(EL_EXPERIMENTAL)
   endforeach()
 endif()
 
-# If Elemental is a subproject, then pass some variables to the parent
-if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  include(./cmake/ElSub.cmake)
-endif()
-
-# Tests
+# Tests and examples
+# ==================
 include(CTest)
 
-#Install sandbox test
+# Sandbox test
+# ------------
 install(FILES ${PROJECT_SOURCE_DIR}/sandbox/Makefile DESTINATION sandbox)
 install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
 add_executable(sandbox-test ${PROJECT_SOURCE_DIR}/sandbox/test.cpp)
@@ -459,7 +459,8 @@ endif()
 add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin 
   COMMAND sandbox-test)
 
-# Build the test drivers if necessary
+# Test drivers
+# ------------
 if(EL_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
   set(TEST_TYPES core blas_like lapack_like optimization)
@@ -490,7 +491,8 @@ if(EL_TESTS)
   endforeach()
 endif()
 
-# Build the example drivers if necessary
+# Examples
+# --------
 if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
   set(EXAMPLE_TYPES
@@ -524,4 +526,23 @@ if(EL_EXAMPLES)
         COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
   endforeach()
+endif()
+
+# CPack
+# =====
+set(CPACK_PACKAGE_NAME "Elemental")
+set(CPACK_PACKAGE_VENDOR "Elemental project")
+set(CPACK_PACKAGE_VERSION_MAJOR ${EL_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${EL_VERSION_MINOR})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
+  "Distributed-memory 'direct' linear algebra and optimization")
+set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/cmake/El.png)
+include(CPack)
+
+# Subproject
+# ==========
+# TODO: See if this is still functioning
+# If Elemental is a subproject, then pass some variables to the parent
+if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  include(./cmake/ElSub.cmake)
 endif()
