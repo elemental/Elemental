@@ -33,8 +33,10 @@ void UpdateWithLocalData
     DEBUG_ONLY(CSE cse("axpy::util::UpdateWithLocalData"))
     axpy::util::InterleaveMatrixUpdate
     ( alpha, A.LocalHeight(), A.LocalWidth(),
-      A.LockedBuffer(),                    1,             1,
-      B.Buffer(A.ColShift(),A.RowShift()), A.ColStride(), A.RowStride() );
+      A.LockedBuffer(),                    
+      1,             A.LDim(),
+      B.Buffer(A.ColShift(),A.RowShift()), 
+      A.ColStride(), A.RowStride()*B.LDim() );
 }
 
 #define PROTO(T) \

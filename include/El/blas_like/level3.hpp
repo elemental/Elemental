@@ -407,6 +407,16 @@ void LocalTrmm
 
 // Trsm
 // ====
+namespace TrsmAlgorithmNS {
+enum TrsmAlgorithm {
+  TRSM_DEFAULT,
+  TRSM_LARGE,
+  TRSM_MEDIUM,
+  TRSM_SMALL
+};
+}
+using namespace TrsmAlgorithmNS;
+
 template<typename F>
 void Trsm
 ( LeftOrRight side, UpperOrLower uplo,
@@ -418,18 +428,7 @@ void Trsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
-  bool checkIfSingular=false );
-
-// TODO: Greatly improve (and allow the user to modify) the mechanism for 
-//       choosing between the different TRSM algorithms.
-// NOTE: Currently instantiated for U in {VC,VR}
-namespace trsm {
-template<typename F,Dist U>
-void LLTSmall
-( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F,U,STAR>& A, DistMatrix<F,U,STAR>& B,
-  bool checkIfSingular=false );
-} // namespace trsm
+  bool checkIfSingular=false, TrsmAlgorithm alg=TRSM_DEFAULT );
 
 template<typename F>
 void LocalTrsm

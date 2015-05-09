@@ -314,120 +314,115 @@ void DistGraph::ProcessQueues()
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
-    if( !consistent_ )
+    // Send the remote edges
+    // =====================
+    int commSize = mpi::Size( comm_ );
     {
-        int commSize = mpi::Size( comm_ );
-
-        // Send the remote edges
-        // =====================
+        // Compute the send counts
+        // -----------------------
+        vector<int> sendCounts(commSize);
+        for( auto s : remoteSources_ )
+            ++sendCounts[SourceOwner(s)];
+        // Pack the send data
+        // ------------------
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        auto offs = sendOffs;
+        vector<Int> sendSources(totalSend), sendTargets(totalSend);
+        for( Int i=0; i<remoteSources_.size(); ++i ) 
         {
-            // Compute the send counts
-            // -----------------------
-            vector<int> sendCounts(commSize);
-            for( auto s : remoteSources_ )
-                ++sendCounts[SourceOwner(s)];
-            // Pack the send data
-            // ------------------
-            vector<int> sendOffs;
-            const int totalSend = Scan( sendCounts, sendOffs );
-            auto offs = sendOffs;
-            vector<Int> sendSources(totalSend), sendTargets(totalSend);
-            for( Int i=0; i<remoteSources_.size(); ++i ) 
-            {
-                const int owner = SourceOwner(remoteSources_[i]);
-                sendSources[offs[owner]] = remoteSources_[i];
-                sendTargets[offs[owner]] = remoteTargets_[i]; 
-                ++offs[owner];
-            }
-            SwapClear( remoteSources_ );
-            SwapClear( remoteTargets_ );
-            // Exchange and unpack
-            // -------------------
-            auto recvSources = 
-              mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
-            auto recvTargets = 
-              mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
-            for( Int i=0; i<recvSources.size(); ++i )
-                QueueConnection( recvSources[i], recvTargets[i] );
+            const int owner = SourceOwner(remoteSources_[i]);
+            sendSources[offs[owner]] = remoteSources_[i];
+            sendTargets[offs[owner]] = remoteTargets_[i]; 
+            ++offs[owner];
         }
-
-        // Send the remote edge removals
-        // =============================
-        {
-            // Compute the send counts
-            // -----------------------
-            vector<int> sendCounts(commSize);
-            for( Int i=0; i<remoteRemovals_.size(); ++i )
-                ++sendCounts[SourceOwner(remoteRemovals_[i].first)];
-            // Pack the send data
-            // ------------------
-            vector<int> sendOffs;
-            const int totalSend = Scan( sendCounts, sendOffs );
-            auto offs = sendOffs;
-            vector<Int> sendSources(totalSend), sendTargets(totalSend);
-            for( Int i=0; i<remoteRemovals_.size(); ++i ) 
-            {
-                const int owner = SourceOwner(remoteRemovals_[i].first);
-                sendSources[offs[owner]] = remoteRemovals_[i].first;
-                sendTargets[offs[owner]] = remoteRemovals_[i].second; 
-                ++offs[owner];
-            }
-            SwapClear( remoteRemovals_ );
-            // Exchange and unpack
-            // -------------------
-            auto recvSources = 
-              mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
-            auto recvTargets = 
-              mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
-            for( Int i=0; i<recvSources.size(); ++i )
-                QueueDisconnection( recvSources[i], recvTargets[i] );
-        }
-
-        // Ensure that the kept local edges are sorted and unique
-        // ======================================================
-        const Int numLocalEdges = sources_.size();
-        Int numRemoved = 0;
-        vector<pair<Int,Int>> pairs( numLocalEdges );
-        for( Int e=0; e<numLocalEdges; ++e )
-        {
-            pair<Int,Int> candidate(sources_[e],targets_[e]);
-            if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
-            {
-                pairs[e-numRemoved].first = sources_[e];
-                pairs[e-numRemoved].second = targets_[e];
-            }
-            else
-            {
-                ++numRemoved;
-            }
-        }
-        SwapClear( markedForRemoval_ );
-        pairs.resize( numLocalEdges-numRemoved );
-        std::sort( pairs.begin(), pairs.end(), ComparePairs );
-        // Compress out duplicates
-        Int lastUnique=0;
-        for( Int e=1; e<numLocalEdges; ++e )
-        {
-            if( pairs[e] != pairs[lastUnique] )
-            {
-                ++lastUnique;
-                if( e != lastUnique )
-                    pairs[lastUnique] = pairs[e];
-            }
-        }
-        const Int numUnique = lastUnique+1;
-        pairs.resize( numUnique );
-        sources_.resize( numUnique );
-        targets_.resize( numUnique );
-        for( Int e=0; e<numUnique; ++e )
-        {
-            sources_[e] = pairs[e].first;
-            targets_[e] = pairs[e].second;
-        }
-        ComputeEdgeOffsets();
-
-        consistent_ = true;
+        SwapClear( remoteSources_ );
+        SwapClear( remoteTargets_ );
+        // Exchange and unpack
+        // -------------------
+        auto recvSources = 
+          mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
+        auto recvTargets = 
+          mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
+        for( Int i=0; i<recvSources.size(); ++i )
+            QueueConnection( recvSources[i], recvTargets[i] );
     }
+
+    // Send the remote edge removals
+    // =============================
+    {
+        // Compute the send counts
+        // -----------------------
+        vector<int> sendCounts(commSize);
+        for( Int i=0; i<remoteRemovals_.size(); ++i )
+            ++sendCounts[SourceOwner(remoteRemovals_[i].first)];
+        // Pack the send data
+        // ------------------
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        auto offs = sendOffs;
+        vector<Int> sendSources(totalSend), sendTargets(totalSend);
+        for( Int i=0; i<remoteRemovals_.size(); ++i ) 
+        {
+            const int owner = SourceOwner(remoteRemovals_[i].first);
+            sendSources[offs[owner]] = remoteRemovals_[i].first;
+            sendTargets[offs[owner]] = remoteRemovals_[i].second; 
+            ++offs[owner];
+        }
+        SwapClear( remoteRemovals_ );
+        // Exchange and unpack
+        // -------------------
+        auto recvSources = 
+          mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
+        auto recvTargets = 
+          mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
+        for( Int i=0; i<recvSources.size(); ++i )
+            QueueDisconnection( recvSources[i], recvTargets[i] );
+    }
+
+    // Ensure that the kept local edges are sorted and unique
+    // ======================================================
+    const Int numLocalEdges = sources_.size();
+    Int numRemoved = 0;
+    vector<pair<Int,Int>> pairs( numLocalEdges );
+    for( Int e=0; e<numLocalEdges; ++e )
+    {
+        pair<Int,Int> candidate(sources_[e],targets_[e]);
+        if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
+        {
+            pairs[e-numRemoved].first = sources_[e];
+            pairs[e-numRemoved].second = targets_[e];
+        }
+        else
+        {
+            ++numRemoved;
+        }
+    }
+    SwapClear( markedForRemoval_ );
+    pairs.resize( numLocalEdges-numRemoved );
+    std::sort( pairs.begin(), pairs.end(), ComparePairs );
+    // Compress out duplicates
+    Int lastUnique=0;
+    for( Int e=1; e<numLocalEdges; ++e )
+    {
+        if( pairs[e] != pairs[lastUnique] )
+        {
+            ++lastUnique;
+            if( e != lastUnique )
+                pairs[lastUnique] = pairs[e];
+        }
+    }
+    const Int numUnique = lastUnique+1;
+    pairs.resize( numUnique );
+    sources_.resize( numUnique );
+    targets_.resize( numUnique );
+    for( Int e=0; e<numUnique; ++e )
+    {
+        sources_[e] = pairs[e].first;
+        targets_[e] = pairs[e].second;
+    }
+    ComputeEdgeOffsets();
+    consistent_ = true;
 }
 
 // Basic queries

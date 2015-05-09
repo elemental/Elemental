@@ -217,129 +217,122 @@ void DistSparseMatrix<T>::ProcessQueues()
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
-
-    if( !distGraph_.consistent_ )
+    // Send the remote updates
+    // =======================
+    int commSize = mpi::Size( distGraph_.comm_ );
     {
-        int commSize = mpi::Size( distGraph_.comm_ );
-
-        // Send the remote updates
-        // =======================
-        {
-            // Compute the send counts
-            // -----------------------
-            vector<int> sendCounts(commSize);
-            for( auto s : distGraph_.remoteSources_ )
-                ++sendCounts[RowOwner(s)];
-            // Pack the send data
-            // ------------------
-            vector<int> sendOffs;
-            const int totalSend = Scan( sendCounts, sendOffs );
-            auto offs = sendOffs;
-            vector<Entry<T>> sendBuf(totalSend);
-            for( Int i=0; i<distGraph_.remoteSources_.size(); ++i )
-            {
-                const int owner = RowOwner(distGraph_.remoteSources_[i]);
-                sendBuf[offs[owner]++] = 
-                    Entry<T>
-                    { distGraph_.remoteSources_[i],
-                      distGraph_.remoteTargets_[i], remoteVals_[i] };
-            }
-            SwapClear( distGraph_.remoteSources_ );
-            SwapClear( distGraph_.remoteTargets_ );
-            SwapClear( remoteVals_ );
-            // Exchange and unpack
-            // -------------------
-            auto recvBuf=
-              mpi::AllToAll( sendBuf, sendCounts, sendOffs, distGraph_.comm_ );
-            for( auto& entry : recvBuf )
-                QueueUpdate( entry );
-        }
-
-        // Send the remote entry removals
-        // ==============================
-        {
-            // Compute the send counts
-            // -----------------------
-            vector<int> sendCounts(commSize);
-            for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
-                ++sendCounts[RowOwner(distGraph_.remoteRemovals_[i].first)];
-            // Pack the send data
-            // ------------------
-            vector<int> sendOffs;
-            const int totalSend = Scan( sendCounts, sendOffs );
-            auto offs = sendOffs;
-            vector<Int> sendRows(totalSend), sendCols(totalSend);
-            for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
-            {
-                const int owner = RowOwner(distGraph_.remoteRemovals_[i].first);
-                sendRows[offs[owner]] = distGraph_.remoteRemovals_[i].first;
-                sendCols[offs[owner]] = distGraph_.remoteRemovals_[i].second;
-                ++offs[owner];
-            }
-            SwapClear( distGraph_.remoteRemovals_ );
-            // Exchange and unpack
-            // -------------------
-            auto recvRows = 
-              mpi::AllToAll(sendRows,sendCounts,sendOffs,distGraph_.comm_);
-            auto recvCols = 
-              mpi::AllToAll(sendCols,sendCounts,sendOffs,distGraph_.comm_);
-            for( Int i=0; i<recvRows.size(); ++i )
-                QueueZero( recvRows[i], recvCols[i] );
-        }
-
-        // Ensure that the kept local triplets are sorted and combined
-        // ===========================================================
-        const Int numLocalEntries = vals_.size();
-        Int numRemoved = 0;
-        vector<Entry<T>> entries( numLocalEntries );
-        for( Int s=0; s<numLocalEntries; ++s )
-        {
-            pair<Int,Int> 
-              candidate(distGraph_.sources_[s],distGraph_.targets_[s]);
-            if( distGraph_.markedForRemoval_.find(candidate) ==
-                distGraph_.markedForRemoval_.end() )
-            {
-                entries[s-numRemoved].i = distGraph_.sources_[s];
-                entries[s-numRemoved].j = distGraph_.targets_[s];
-                entries[s-numRemoved].value = vals_[s];
-            }
-            else
-            {
-                ++numRemoved;
-            }
-        }
-        SwapClear( distGraph_.markedForRemoval_ );
-        entries.resize( numLocalEntries-numRemoved );
-        std::sort( entries.begin(), entries.end(), CompareEntries );
-        // Combine duplicates
+        // Compute the send counts
+        // -----------------------
+        vector<int> sendCounts(commSize);
+        for( auto s : distGraph_.remoteSources_ )
+            ++sendCounts[RowOwner(s)];
+        // Pack the send data
         // ------------------
-        Int lastUnique=0;
-        for( Int s=1; s<numLocalEntries; ++s )
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        auto offs = sendOffs;
+        vector<Entry<T>> sendBuf(totalSend);
+        for( Int i=0; i<distGraph_.remoteSources_.size(); ++i )
         {
-            if( entries[s].i != entries[lastUnique].i ||
-                entries[s].j != entries[lastUnique].j )
-            {
-                ++lastUnique;
-                entries[lastUnique] = entries[s];
-            }
-            else
-                entries[lastUnique].value += entries[s].value;
+            const int owner = RowOwner(distGraph_.remoteSources_[i]);
+            sendBuf[offs[owner]++] = 
+                Entry<T>
+                { distGraph_.remoteSources_[i],
+                  distGraph_.remoteTargets_[i], remoteVals_[i] };
         }
-        const Int numUnique = lastUnique+1;
-        entries.resize( numUnique );
-        distGraph_.sources_.resize( numUnique );
-        distGraph_.targets_.resize( numUnique );
-        vals_.resize( numUnique );
-        for( Int s=0; s<numUnique; ++s )
-        {
-            distGraph_.sources_[s] = entries[s].i;
-            distGraph_.targets_[s] = entries[s].j;
-            vals_[s] = entries[s].value;
-        }
-        distGraph_.ComputeEdgeOffsets();
-
-        distGraph_.consistent_ = true;
+        SwapClear( distGraph_.remoteSources_ );
+        SwapClear( distGraph_.remoteTargets_ );
+        SwapClear( remoteVals_ );
+        // Exchange and unpack
+        // -------------------
+        auto recvBuf=
+          mpi::AllToAll( sendBuf, sendCounts, sendOffs, distGraph_.comm_ );
+        for( auto& entry : recvBuf )
+            QueueUpdate( entry );
     }
+
+    // Send the remote entry removals
+    // ==============================
+    {
+        // Compute the send counts
+        // -----------------------
+        vector<int> sendCounts(commSize);
+        for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+            ++sendCounts[RowOwner(distGraph_.remoteRemovals_[i].first)];
+        // Pack the send data
+        // ------------------
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        auto offs = sendOffs;
+        vector<Int> sendRows(totalSend), sendCols(totalSend);
+        for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+        {
+            const int owner = RowOwner(distGraph_.remoteRemovals_[i].first);
+            sendRows[offs[owner]] = distGraph_.remoteRemovals_[i].first;
+            sendCols[offs[owner]] = distGraph_.remoteRemovals_[i].second;
+            ++offs[owner];
+        }
+        SwapClear( distGraph_.remoteRemovals_ );
+        // Exchange and unpack
+        // -------------------
+        auto recvRows = 
+          mpi::AllToAll(sendRows,sendCounts,sendOffs,distGraph_.comm_);
+        auto recvCols = 
+          mpi::AllToAll(sendCols,sendCounts,sendOffs,distGraph_.comm_);
+        for( Int i=0; i<recvRows.size(); ++i )
+            QueueZero( recvRows[i], recvCols[i] );
+    }
+
+    // Ensure that the kept local triplets are sorted and combined
+    // ===========================================================
+    const Int numLocalEntries = vals_.size();
+    Int numRemoved = 0;
+    vector<Entry<T>> entries( numLocalEntries );
+    for( Int s=0; s<numLocalEntries; ++s )
+    {
+        pair<Int,Int> candidate(distGraph_.sources_[s],distGraph_.targets_[s]);
+        if( distGraph_.markedForRemoval_.find(candidate) ==
+            distGraph_.markedForRemoval_.end() )
+        {
+            entries[s-numRemoved].i = distGraph_.sources_[s];
+            entries[s-numRemoved].j = distGraph_.targets_[s];
+            entries[s-numRemoved].value = vals_[s];
+        }
+        else
+        {
+            ++numRemoved;
+        }
+    }
+    SwapClear( distGraph_.markedForRemoval_ );
+    entries.resize( numLocalEntries-numRemoved );
+    std::sort( entries.begin(), entries.end(), CompareEntries );
+    // Combine duplicates
+    // ------------------
+    Int lastUnique=0;
+    for( Int s=1; s<numLocalEntries; ++s )
+    {
+        if( entries[s].i != entries[lastUnique].i ||
+            entries[s].j != entries[lastUnique].j )
+        {
+            ++lastUnique;
+            entries[lastUnique] = entries[s];
+        }
+        else
+            entries[lastUnique].value += entries[s].value;
+    }
+    const Int numUnique = lastUnique+1;
+    entries.resize( numUnique );
+    distGraph_.sources_.resize( numUnique );
+    distGraph_.targets_.resize( numUnique );
+    vals_.resize( numUnique );
+    for( Int s=0; s<numUnique; ++s )
+    {
+        distGraph_.sources_[s] = entries[s].i;
+        distGraph_.targets_[s] = entries[s].j;
+        vals_[s] = entries[s].value;
+    }
+    distGraph_.ComputeEdgeOffsets();
+    distGraph_.consistent_ = true;
 }
 
 // Queries

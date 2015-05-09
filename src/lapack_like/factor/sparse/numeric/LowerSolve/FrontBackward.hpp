@@ -34,7 +34,7 @@ void BackwardMany
 {
     // TODO: Replace this with modified inline code?
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    trsm::LLTSmall( orientation, UNIT, L, X );
+    Trsm( LEFT, LOWER, orientation, UNIT, F(1), L, X, false, TRSM_SMALL );
 }
 
 template<typename F>

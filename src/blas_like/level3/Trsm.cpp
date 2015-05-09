@@ -57,12 +57,13 @@ void Trsm
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
+// TODO: Make the TRSM_DEFAULT switching mechanism smarter (perhaps, empirical)
 template<typename F>
 void Trsm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
-  bool checkIfSingular )
+  bool checkIfSingular, TrsmAlgorithm alg )
 {
     DEBUG_ONLY(
       CSE cse("Trsm");
@@ -103,58 +104,235 @@ void Trsm
     {
         if( orientation == NORMAL )
         {
-            if( B.Width() > 5*p )
+            if( alg == TRSM_DEFAULT )
+            {
+                if( B.Width() > 5*p )
+                    trsm::LLNLarge( diag, A, B, checkIfSingular );
+                else
+                    trsm::LLNMedium( diag, A, B, checkIfSingular );
+            }
+            else if( alg == TRSM_LARGE )
                 trsm::LLNLarge( diag, A, B, checkIfSingular );
-            else
+            else if( alg == TRSM_MEDIUM )
                 trsm::LLNMedium( diag, A, B, checkIfSingular );
+            else if( alg == TRSM_SMALL )
+            {
+                if( A.ColDist() == VR )
+                {
+                    auto APtr = ReadProxy<F,VR,STAR>(&A); 
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = APost.ColAlign();
+                    auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl);
+                    auto& BPost = *BPtr;
+                    trsm::LLNSmall( diag, APost, BPost, checkIfSingular );
+                }
+                else
+                {
+                    auto APtr = ReadProxy<F,VC,STAR>(&A); 
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = APost.ColAlign();
+                    auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
+                    auto& BPost = *BPtr;
+                    trsm::LLNSmall( diag, APost, BPost, checkIfSingular );
+                }
+            }
+            else
+                LogicError("Unsupported TRSM algorithm");
         }
         else
         {
-            if( B.Width() > 5*p )
-                trsm::LLTLarge
-                ( orientation, diag, A, B, checkIfSingular );
+            if( alg == TRSM_DEFAULT )
+            {
+                if( B.Width() > 5*p )
+                    trsm::LLTLarge( orientation, diag, A, B, checkIfSingular );
+                else
+                    trsm::LLTMedium( orientation, diag, A, B, checkIfSingular );
+            }
+            else if( alg == TRSM_LARGE )
+                trsm::LLTLarge( orientation, diag, A, B, checkIfSingular );
+            else if( alg == TRSM_MEDIUM )
+                trsm::LLTMedium( orientation, diag, A, B, checkIfSingular );
+            else if( alg == TRSM_SMALL )
+            {
+                if( A.ColDist() == VR )
+                {
+                    auto APtr = ReadProxy<F,VR,STAR>(&A); 
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = APost.ColAlign();
+                    auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl); 
+                    auto& BPost = *BPtr; 
+                    trsm::LLTSmall
+                    ( orientation, diag, APost, BPost, checkIfSingular );
+                }
+                else if( A.RowDist() == VC )
+                {
+                    auto APtr = ReadProxy<F,STAR,VC>(&A); 
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = APost.RowAlign();
+                    auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
+                    auto& BPost = *BPtr;
+                    trsm::LLTSmall
+                    ( orientation, diag, APost, BPost, checkIfSingular );
+                }
+                else if( A.RowDist() == VR )
+                {
+                    auto APtr = ReadProxy<F,STAR,VR>(&A); 
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = A.RowAlign();
+                    auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl);
+                    auto& BPost = *BPtr;
+                    trsm::LLTSmall
+                    ( orientation, diag, APost, BPost, checkIfSingular );
+                }
+                else
+                {
+                    auto APtr = ReadProxy<F,VC,STAR>(&A); 
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = A.ColAlign();
+                    auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl); 
+                    auto& BPost = *BPtr;
+                    trsm::LLTSmall
+                    ( orientation, diag, APost, BPost, checkIfSingular );
+                }
+            } 
             else
-                trsm::LLTMedium
-                ( orientation, diag, A, B, checkIfSingular );
+                LogicError("Unsupported TRSM algorithm");
         }
     }
     else if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
         {
-            if( B.Width() > 5*p )
+            if( alg == TRSM_DEFAULT )
+            {
+                if( B.Width() > 5*p )
+                    trsm::LUNLarge( diag, A, B, checkIfSingular );
+                else
+                    trsm::LUNMedium( diag, A, B, checkIfSingular );
+            }
+            else if( alg == TRSM_LARGE )
                 trsm::LUNLarge( diag, A, B, checkIfSingular );
-            else
+            else if( alg == TRSM_MEDIUM )
                 trsm::LUNMedium( diag, A, B, checkIfSingular );
+            else if( alg == TRSM_SMALL )
+            {
+                if( A.ColDist() == VR )
+                {
+                    auto APtr = ReadProxy<F,VR,STAR>(&A);
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = A.ColAlign();
+                    auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl);
+                    auto& BPost = *BPtr;
+                    trsm::LUNSmall( diag, APost, BPost, checkIfSingular );
+                }
+                else
+                {
+                    auto APtr = ReadProxy<F,VC,STAR>(&A);
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = A.ColAlign();
+                    auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
+                    auto& BPost = *BPtr;
+                    trsm::LUNSmall( diag, APost, BPost, checkIfSingular );
+                }
+            }
+            else
+                LogicError("Unsupported TRSM algorithm"); 
         }
         else
         {
-            if( B.Width() > 5*p )
-                trsm::LUTLarge
-                ( orientation, diag, A, B, checkIfSingular );
+            if( alg == TRSM_DEFAULT )
+            {
+                if( B.Width() > 5*p )
+                    trsm::LUTLarge( orientation, diag, A, B, checkIfSingular );
+                else
+                    trsm::LUTMedium( orientation, diag, A, B, checkIfSingular );
+            }
+            else if( alg == TRSM_LARGE )
+                trsm::LUTLarge( orientation, diag, A, B, checkIfSingular );
+            else if( alg == TRSM_MEDIUM )
+                trsm::LUTMedium( orientation, diag, A, B, checkIfSingular );
+            else if( alg == TRSM_SMALL )
+            {
+                if( A.RowDist() == VC )
+                {
+                    auto APtr = ReadProxy<F,STAR,VC>(&A);
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = A.RowAlign();
+                    auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
+                    auto& BPost = *BPtr;
+                    trsm::LUTSmall
+                    ( orientation, diag, APost, BPost, checkIfSingular );
+                }
+                else
+                {
+                    auto APtr = ReadProxy<F,STAR,VR>(&A);
+                    auto& APost = *APtr;
+                    ProxyCtrl ctrl;
+                    ctrl.colConstrain = true;
+                    ctrl.colAlign = A.RowAlign();
+                    auto BPtr = ReadWriteProxy<F,VR,STAR>(&B);
+                    auto& BPost = *BPtr;
+                    trsm::LUTSmall
+                    ( orientation, diag, APost, BPost, checkIfSingular );
+                }
+            }
             else
-                trsm::LUTMedium
-                ( orientation, diag, A, B, checkIfSingular );
+                LogicError("Unsupported TRSM algorithm");
         }
     }
     else if( side == RIGHT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            trsm::RLN( diag, A, B, checkIfSingular );
+        {
+            if( alg == TRSM_DEFAULT )
+                trsm::RLN( diag, A, B, checkIfSingular );
+            else
+                LogicError("Unsupported TRSM algorithm");
+        }
         else
-            trsm::RLT( orientation, diag, A, B, checkIfSingular );
+        {
+            if( alg == TRSM_DEFAULT )
+                trsm::RLT( orientation, diag, A, B, checkIfSingular );
+            else
+                LogicError("Unsupported TRSM algorithm");
+        }
     }
     else if( side == RIGHT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            trsm::RUN( diag, A, B, checkIfSingular );
+        {
+            if( alg == TRSM_DEFAULT )
+                trsm::RUN( diag, A, B, checkIfSingular );
+            else
+                LogicError("Unsupported TRSM algorithm");
+        }
         else
-            trsm::RUT( orientation, diag, A, B, checkIfSingular );
+        {
+            if( alg == TRSM_DEFAULT )
+                trsm::RUT( orientation, diag, A, B, checkIfSingular );
+            else
+                LogicError("Unsupported TRSM algorithm");
+        }
     }
 }
-
-// TODO: Greatly improve (and allow the user to modify) the mechanism for 
-//       choosing between the different TRSM algorithms.
 
 template<typename F>
 void LocalTrsm
@@ -185,15 +363,7 @@ void LocalTrsm
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
     F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    bool checkIfSingular ); \
-  template void trsm::LLTSmall \
-  ( Orientation orientation, UnitOrNonUnit diag, \
-    const DistMatrix<F,VC,STAR>& A, DistMatrix<F,VC,STAR>& B, \
-    bool checkIfSingular ); \
-  template void trsm::LLTSmall \
-  ( Orientation orientation, UnitOrNonUnit diag, \
-    const DistMatrix<F,VR,STAR>& A, DistMatrix<F,VR,STAR>& B, \
-    bool checkIfSingular ); \
+    bool checkIfSingular, TrsmAlgorithm alg ); \
   template void LocalTrsm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
