@@ -286,6 +286,7 @@ set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 # Parallel Multiple Relatively Robust Representations
 # ---------------------------------------------------
 add_subdirectory(external/pmrrr)
+add_dependencies(pmrrr External)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
