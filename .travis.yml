@@ -32,15 +32,15 @@ install:
   - gem install coveralls-lcov
 
 before_script:
-  - if test x$CC = xclang; then export CC=clang-3.7; export CXX=clang++-3.7; fi
-  - if test x$CC = xgcc; then export CC=gcc-4.9; export CXX=g++-4.9; fi
+  - if test x$CC = xclang; then export CC=clang-3.7; export CXX=clang++-3.7; export F77=gfortran-4.9; fi
+  - if test x$CC = xgcc; then export CC=gcc-4.9; export CXX=g++-4.9; export F77=gfortran-4.9; fi
   - sudo hostname localhost
   - test $MPI == mpich2 && MPIEXEC='mpiexec -launcher fork' || true
   - lcov --directory . --zerocounters
 
 script:
   - mkdir build && cd build;
-    cmake .. -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCXX_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DC_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DFortran_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install;
+    cmake .. -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -DCMAKE_Fortran_COMPILER=$F77 -DCXX_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DC_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DFortran_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
   - make -j2 && sudo make -j2 install && sudo ctest -j2 --output-on-failure
 
