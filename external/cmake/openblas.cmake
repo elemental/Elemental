@@ -83,7 +83,7 @@ elseif(FORTRAN_WORKS)
     endif() 
 
     set(OPENBLAS_LIBS libopenblas)
-    if(CMAKE_COMPILER_IS_GNUCC)
+    if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
       set(OPENBLAS_LIBS ${OPENBLAS_LIBS} gfortran pthread m)
     endif()
     set(EL_HAVE_OPENBLAS TRUE)
