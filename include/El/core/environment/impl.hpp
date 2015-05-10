@@ -141,7 +141,7 @@ Scan( const vector<T>& counts, vector<T>& offsets )
 {
     offsets.resize( counts.size() );
     T total = 0;
-    for( Int i=0; i<counts.size(); ++i )
+    for( size_t i=0; i<counts.size(); ++i )
     {
         offsets[i] = total;
         total += counts[i];
