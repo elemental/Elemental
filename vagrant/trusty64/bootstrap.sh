@@ -8,19 +8,13 @@ apt-get install -y qt5-default
 #apt-get install -y imagemagick
 
 # Python visualization
-apt-get install -y python-matplotlib
-apt-get install -y python-networkx
+apt-get install -y python-matplotlib python-networkx
 
 # Compilers
-apt-get install -y gfortran-4.8
-apt-get install -y clang-3.5
+apt-get install -y gfortran-4.8 clang-3.5
 
 # Message Passing Interface
 apt-get install -y libmpich2-dev
-
-# BLAS and LAPACK
-apt-get install -y libopenblas-dev
-apt-get install -y liblapack-dev
 
 # Configuration
 apt-get install -y cmake
@@ -29,9 +23,5 @@ apt-get install -y cmake
 apt-get install -y git
 
 # Check out Elemental
-git clone --recursive https://github.com/elemental/Elemental
+git clone https://github.com/elemental/Elemental
 chown -R vagrant Elemental
-
-# Check out ScaLAPACK
-git clone https://github.com/poulson/scalapack
-chown -R vagrant scalapack
