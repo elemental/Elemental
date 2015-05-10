@@ -67,14 +67,17 @@ else()
   if(BUILD_SHARED_LIBS)
     add_library(libmetis SHARED IMPORTED)
     add_library(libparmetis SHARED IMPORTED)
-    set_property(TARGET libmetis PROPERTY IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}metis${CMAKE_SHARED_LIBRARY_SUFFIX})
-    set_property(TARGET libparmetis PROPERTY IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}parmetis${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set(METIS_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}metis${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set(PARMETIS_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}parmetis${CMAKE_SHARED_LIBRARY_SUFFIX})
+
   else()
     add_library(libmetis STATIC IMPORTED)
     add_library(libparmetis STATIC IMPORTED)
-    set_property(TARGET libmetis PROPERTY IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}metis${CMAKE_STATIC_LIBRARY_SUFFIX})
-    set_property(TARGET libparmetis PROPERTY IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}parmetis${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(METIS_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}metis${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(PARMETIS_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}parmetis${CMAKE_STATIC_LIBRARY_SUFFIX})
   endif() 
+  set_property(TARGET libmetis PROPERTY IMPORTED_LOCATION ${METIS_LIB})
+  set_property(TARGET libparmetis PROPERTY IMPORTED_LOCATION ${PARMETIS_LIB})
 
   # parmetislib.h is needed for ElParallelBisect, which uses ParMETIS internals
   # to construct the vertex separation routine. Furthermore, parmetis includes
@@ -84,7 +87,7 @@ else()
                       ${source_dir}/metis/include
                       ${source_dir}/metis/GKlib)
 
-  set(PARMETIS_LIBS libparmetis libmetis)
+  set(PARMETIS_LIBS ${PARMETIS_LIB} ${METIS_LIB})
   set(EL_BUILT_PARMETIS TRUE)
 endif()
 

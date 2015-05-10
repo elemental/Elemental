@@ -52,13 +52,15 @@ else()
   # Add a target for libmetis (either shared or static)
   if(BUILD_SHARED_LIBS)
     add_library(libmetis SHARED IMPORTED)
-    set_property(TARGET libmetis PROPERTY IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}metis${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set(METIS_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}metis${CMAKE_SHARED_LIBRARY_SUFFIX})
+
   else()
     add_library(libmetis STATIC IMPORTED)
-    set_property(TARGET libmetis PROPERTY IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}metis${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(METIS_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}metis${CMAKE_STATIC_LIBRARY_SUFFIX})
   endif() 
+  set_property(TARGET libmetis PROPERTY IMPORTED_LOCATION ${METIS_LIB})
 
-  set(METIS_LIBS libmetis)
+  set(METIS_LIBS ${METIS_LIB})
   set(EL_BUILT_METIS TRUE)
 endif()
 
