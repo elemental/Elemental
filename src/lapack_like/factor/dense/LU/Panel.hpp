@@ -16,12 +16,11 @@ namespace lu {
 template<typename F>
 void Panel( Matrix<F>& A, Matrix<Int>& pivots )
 {
-    DEBUG_ONLY(CSE cse("lu::Panel"))
-    const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-        if( m < n )
-            LogicError("Must be a column panel");
+      CSE cse("lu::Panel");
+      if( A.Height() < n )
+          LogicError("Must be a column panel");
     )
     pivots.Resize( n, 1 );
 
@@ -63,20 +62,19 @@ void Panel
   DistMatrix<F,  MC,  STAR>& B, 
   DistMatrix<Int,STAR,STAR>& pivots )
 {
-    DEBUG_ONLY(
-        CSE cse("lu::Panel");
-        AssertSameGrids( A, B, pivots );
-        if( A.Width() != B.Width() )
-            LogicError("A and B must be the same width");
-    )
     typedef Base<F> Real;
+    const Int n = A.Width();
+    DEBUG_ONLY(
+      CSE cse("lu::Panel");
+      AssertSameGrids( A, B, pivots );
+      if( n != B.Width() )
+          LogicError("A and B must be the same width");
+    )
 
     // For packing rows of data for pivoting
-    const Int n = A.Width();
     vector<F> pivotBuffer( n );
 
     pivots.Resize( n, 1 );
-
     for( Int k=0; k<n; ++k )
     {
         const Range<Int> ind1( k ), ind2( k+1, END );

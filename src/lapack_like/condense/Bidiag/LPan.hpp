@@ -17,25 +17,23 @@ template<typename F>
 inline void
 LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 {
-    const Int mA = A.Height();
-    const Int nA = A.Width();
     const Int nX = X.Width();
     DEBUG_ONLY(
-        CSE cse("bidiag::LPan");
-        if( tP.Height() != nX || tP.Width() != 1 )
-            LogicError("tP was not the right size");
-        if( tQ.Height() != nX || tQ.Width() != 1 )
-            LogicError("tQ was not the right size");
-        if( mA > nA )
-            LogicError("A must be at least as wide as it is tall"); 
-        if( mA != X.Height() )
-            LogicError("A and X must have the same height");
-        if( nA != Y.Width() )
-            LogicError("A and Y must have the same width");
-        if( Y.Height() != nX )
-            LogicError("X is the wrong height");
-        if( Y.Width() < nX )
-            LogicError("Y must be a row panel");
+      CSE cse("bidiag::LPan");
+      if( tP.Height() != nX || tP.Width() != 1 )
+          LogicError("tP was not the right size");
+      if( tQ.Height() != nX || tQ.Width() != 1 )
+          LogicError("tQ was not the right size");
+      if( A.Height() > A.Width() )
+          LogicError("A must be at least as wide as it is tall"); 
+      if( A.Height() != X.Height() )
+          LogicError("A and X must have the same height");
+      if( A.Width() != Y.Width() )
+          LogicError("A and Y must have the same width");
+      if( Y.Height() != nX )
+          LogicError("X is the wrong height");
+      if( Y.Width() < nX )
+          LogicError("Y must be a row panel");
     )
     typedef Base<F> Real;
 
@@ -169,32 +167,30 @@ LPan
   DistMatrix<F,MC,  STAR>& AL_MC_STAR,
   DistMatrix<F,STAR,MR  >& AT_STAR_MR )
 {
-    const Int mA = A.Height();
-    const Int nA = A.Width();
     const Int nX = X.Width();
     DEBUG_ONLY(
-        CSE cse("bidiag::LPan");
-        AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, AT_STAR_MR );
-        if( A.ColAlign() != X.ColAlign() ||
-            A.RowAlign() != X.RowAlign() )
-            LogicError("A and X must be aligned");
-        if( A.ColAlign() != Y.ColAlign() ||
-            A.RowAlign() != Y.RowAlign() )
-            LogicError("A and Y must be aligned");
-        if( tP.Height() != nX || tP.Width() != 1 )
-            LogicError("tP was not the right size");
-        if( tQ.Height() != nX || tQ.Width() != 1 )
-            LogicError("tQ was not the right size");
-        if( mA > nA )
-            LogicError("A must be at least as wide as it is tall"); 
-        if( mA != X.Height() )
-            LogicError("A and X must have the same height");
-        if( nA != Y.Width() )
-            LogicError("A and Y must have the same width");
-        if( Y.Height() != nX )
-            LogicError("X is the wrong height");
-        if( Y.Width() < nX )
-            LogicError("Y must be a row panel");
+      CSE cse("bidiag::LPan");
+      AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, AT_STAR_MR );
+      if( A.ColAlign() != X.ColAlign() ||
+          A.RowAlign() != X.RowAlign() )
+          LogicError("A and X must be aligned");
+      if( A.ColAlign() != Y.ColAlign() ||
+          A.RowAlign() != Y.RowAlign() )
+          LogicError("A and Y must be aligned");
+      if( tP.Height() != nX || tP.Width() != 1 )
+          LogicError("tP was not the right size");
+      if( tQ.Height() != nX || tQ.Width() != 1 )
+          LogicError("tQ was not the right size");
+      if( A.Height() > A.Width() )
+          LogicError("A must be at least as wide as it is tall"); 
+      if( A.Height() != X.Height() )
+          LogicError("A and X must have the same height");
+      if( A.Width() != Y.Width() )
+          LogicError("A and Y must have the same width");
+      if( Y.Height() != nX )
+          LogicError("X is the wrong height");
+      if( Y.Width() < nX )
+          LogicError("Y must be a row panel");
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -237,8 +233,8 @@ LPan
         auto A2R      = A( ind2, indR );
         auto A22      = A( ind2, ind2 );
 
-        auto alpha21T = A( IR(k+1),    ind1 );
-        auto a21B     = A( IR(k+2,mA), ind1 );
+        auto alpha21T = A( IR(k+1),     ind1 );
+        auto a21B     = A( IR(k+2,END), ind1 );
 
         auto x10 = X( ind1, ind0 );
         auto XB0 = X( indB, ind0 );

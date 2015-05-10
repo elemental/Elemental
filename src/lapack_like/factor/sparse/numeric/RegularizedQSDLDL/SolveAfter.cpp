@@ -2674,6 +2674,7 @@ Int SolveAfter
           ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
+        return -1;
     }
 }
 
@@ -2708,6 +2709,7 @@ Int SolveAfter
           ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
+        return -1;
     }
 }
 
@@ -2741,6 +2743,7 @@ Int SolveAfter
           ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
+        return -1;
     }
 }
 
@@ -2775,6 +2778,7 @@ Int SolveAfter
           ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
+        return -1;
     }
 }
 

@@ -451,7 +451,7 @@ Int Bisect
         // Gather the number of local valid edges on the root process
         vector<Int> edgeSizes( commSize ), edgeOffs;
         mpi::AllGather( &numLocalValidEdges, 1, edgeSizes.data(), 1, comm );
-        Int numEdges;
+        Int numEdges=0;
         if( commRank == 0 )
         {
             edgeOffs.resize( commSize );
@@ -934,7 +934,7 @@ void BuildMap
       {
         for( auto* child : sep.children )  
             buildMap( *child );
-        for( Int t=0; t<sep.inds.size(); ++t )
+        for( size_t t=0; t<sep.inds.size(); ++t )
             map[sep.inds[t]] = sep.off + t;
       };
     buildMap( rootSep );

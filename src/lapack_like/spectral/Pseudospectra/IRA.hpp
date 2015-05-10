@@ -753,7 +753,7 @@ IRA
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( activeEsts.LocalHeight() );
-        for( Int jLoc=0; jLoc<HList.size(); ++jLoc )
+        for( size_t jLoc=0; jLoc<HList.size(); ++jLoc )
             Zeros( HList[jLoc], basisSize+1, basisSize );
 
         if( progress )
@@ -1035,7 +1035,7 @@ IRA
             Zeros( activeConverged, numActive, 1 );
         }
         HList.resize( activeEsts.LocalHeight() );
-        for( Int jLoc=0; jLoc<HList.size(); ++jLoc )
+        for( size_t jLoc=0; jLoc<HList.size(); ++jLoc )
             Zeros( HList[jLoc], basisSize+1, basisSize );
 
         if( progress )

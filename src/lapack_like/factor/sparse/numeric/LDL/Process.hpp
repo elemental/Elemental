@@ -117,7 +117,7 @@ Process
     // Compute the metadata for sharing child updates
     front.ComputeCommMeta( info, true );
     mpi::Comm comm = front.L2D.DistComm();
-    const unsigned commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
     const auto& childU = childFront.work;
     vector<int> sendSizes(commSize), recvSizes(commSize);
     for( int q=0; q<commSize; ++q )
