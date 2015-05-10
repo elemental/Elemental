@@ -54,7 +54,7 @@ if(USE_FOUND_SCALAPACK)
   set(SCALAPACK_LIBS ${ScaLAPACK})
   set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SCALAPACK_LIBS})
   set(EL_HAVE_SCALAPACK TRUE)
-elseif(EL_HAVE_F90_INTERFACE)
+elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
   if(NOT DEFINED SCALAPACK_URL)
     set(SCALAPACK_URL https://github.com/poulson/scalapack.git)
   endif()
@@ -63,11 +63,13 @@ elseif(EL_HAVE_F90_INTERFACE)
   set(SCALAPACK_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/scalapack/source)
   set(SCALAPACK_BINARY_DIR ${PROJECT_BINARY_DIR}/download/scalapack/build)
 
-  # Convert MPI_C_LIBRARIES and MPI_Fortran_LIBRARIES into lists with a 
-  # '^^' delimiter rather than a ';' delimiter (following the advice from
+  # Convert various MPI lists (delimted with ';') to use a '^^' delimiter
+  # (following the advice from
   # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html)
   # due to running into build problems within ScaLAPACK's linking of OpenMPI 
   # Fortran libraries.
+  string(REPLACE ";" "^^" MPI_C_INCSTRING "${MPI_C_INCLUDE_PATH}")
+  string(REPLACE ";" "^^" MPI_Fortran_INCSTRING "${MPI_Fortran_INCLUDE_PATH}")
   string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBS}")
   string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBS}")
   ExternalProject_Add(project_scalapack
@@ -84,8 +86,8 @@ elseif(EL_HAVE_F90_INTERFACE)
       -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
       -D CMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
-      -D MPI_C_INCLUDE_PATH=${MPI_C_INCLUDE_PATH}
-      -D MPI_Fortran_INCLUDE_PATH=${MPI_Fortran_INCLUDE_PATH}
+      -D MPI_C_INCLUDE_PATH:STRING=${MPI_C_INCSTRING}
+      -D MPI_Fortran_INCLUDE_PATH:STRING=${MPI_Fortran_INCSTRING}
       -D MPI_C_COMPILE_FLAGS=${MPI_C_COMPILE_FLAGS}
       -D MPI_Fortran_COMPILE_FLAGS=${MPI_Fortran_COMPILE_FLAGS}
       -D MPI_C_LIBRARIES:STRING=${MPI_C_LIBSTRING}

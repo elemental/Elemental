@@ -18,6 +18,23 @@ if(NOT EL_HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
 endif()
 
+# Test for whether or not we have Fortran MPI support
+# ===================================================
+if(MPI_Fortran_FOUND)
+  set(MPIF_EXISTS FALSE)
+  foreach(FORTRAN_INCLUDE_PATH ${MPI_Fortran_INCLUDE_PATH})
+    if(EXISTS "${MPI_Fortran_INCLUDE_PATH}/mpif.h")
+      set(MPIF_EXISTS TRUE)
+    endif()
+  endforeach()
+  if(MPIF_EXISTS)
+    set(EL_HAVE_MPI_FORTRAN TRUE)
+  else()
+    message(WARNING 
+      "Fortran MPI support detected, but mpif.h was not found in ${MPI_Fortran_INCLUDE_PATH}")
+  endif()
+endif()
+
 # Ensure that we have MPI2 by looking for MPI_Type_create_struct
 # ==============================================================
 check_function_exists(MPI_Type_create_struct EL_HAVE_MPI_TYPE_CREATE_STRUCT)
