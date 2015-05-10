@@ -101,7 +101,9 @@ elseif(EL_HAVE_F90_INTERFACE)
       -D CMAKE_INSTALL_RPATH=${CMAKE_INSTALL_RPATH}
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   )
-  add_dependencies(External project_scalapack)
+  if(EL_BUILT_OPENBLAS)
+    add_dependencies(project_scalapack project_openblas)
+  endif()
 
   # Extract the source and install directories
   ExternalProject_Get_Property(project_scalapack source_dir install_dir)

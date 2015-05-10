@@ -275,7 +275,6 @@ endif()
 
 # Import several external math libraries (e.g., BLAS/LAPACK/METIS/ParMETIS)
 # -------------------------------------------------------------------------
-add_custom_target(External)
 include(tests/Math)
 
 # Now append the extra flags
@@ -286,7 +285,9 @@ set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 # Parallel Multiple Relatively Robust Representations
 # ---------------------------------------------------
 add_subdirectory(external/pmrrr)
-add_dependencies(pmrrr External)
+if(EL_BUILT_OPENBLAS)
+  add_dependencies(pmrrr project_openblas)
+endif()
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
@@ -332,7 +333,19 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # Define the main library for Elemental
 # -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
-add_dependencies(El El_config External)
+add_dependencies(El El_config)
+if(EL_BUILT_OPENBLAS)
+  add_dependencies(El project_openblas)
+endif()
+if(EL_BUILT_SCALAPACK)
+  add_dependencies(El project_scalapack)
+endif()
+if(EL_BUILT_METIS)
+  add_dependencies(El project_metis)
+endif()
+if(EL_BUILT_PARMETIS)
+  add_dependencies(El project_parmetis)
+endif()
 set(LINK_LIBS pmrrr ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})

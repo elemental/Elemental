@@ -45,7 +45,6 @@ else()
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
   )
-  add_dependencies(External project_mpich)
 
   # Extract the installation directory
   ExternalProject_Get_Property(project_mpich install_dir)

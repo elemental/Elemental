@@ -45,7 +45,6 @@ else()
     INSTALL_COMMAND ""
     UPDATE_COMMAND "" 
   )
-  add_dependencies(External project_metis)
 
   # Extract the installation directory
   ExternalProject_Get_Property(project_metis install_dir)

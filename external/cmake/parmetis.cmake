@@ -59,7 +59,6 @@ else()
       -D CMAKE_INSTALL_RPATH=${CMAKE_INSTALL_RPATH}
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   )
-  add_dependencies(External project_parmetis)
 
   # Extract the source and install directories
   ExternalProject_Get_Property(project_parmetis source_dir install_dir)

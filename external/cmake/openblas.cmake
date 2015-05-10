@@ -69,7 +69,6 @@ elseif(FORTRAN_WORKS)
       BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} libs netlib shared
       INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install PREFIX=<INSTALL_DIR>
     )
-    add_dependencies(External project_openblas)
 
     # Extract the installation directory
     ExternalProject_Get_Property(project_openblas install_dir)
