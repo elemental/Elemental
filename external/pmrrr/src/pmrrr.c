@@ -7,6 +7,9 @@
  * Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -80,35 +83,13 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
 	  int *Zsupp)
 {
   /* Input parameter */
-  int         n      = *np;
-  bool        onlyW  = (jobz[0]  == 'N' || jobz[0]  == 'n');
-  bool        wantZ  = (jobz[0]  == 'V' || jobz[0]  == 'v');
-  bool        cntval = (jobz[0]  == 'C' || jobz[0]  == 'c');
-  bool        alleig = (range[0] == 'A' || range[0] == 'a');
-  bool        valeig = (range[0] == 'V' || range[0] == 'v');
-  bool        indeig = (range[0] == 'I' || range[0] == 'i');
-
-  /* Work space */
-  double      *Werr,   *Wgap,  *gersch, *Dcopy, *E2copy;
-  int         *iblock, *iproc, *Windex, *Zindex, *isplit;
-
-  /* Structures to store variables */
-  proc_t      *procinfo;
-  in_t        *Dstruct;  
-  val_t       *Wstruct;
-  vec_t       *Zstruct;
-  tol_t       *tolstruct;
-
-  /* Multiprocessing and multithreading */
-  int         nproc, pid, nthreads;             
-  char        *ompvar;
-  MPI_Comm    comm_dup;
-  int         is_init, is_final, thread_support;
-
-  /* Others */
-  double      scale;              
-  int         i, info;
-  int         ifirst, ilast, isize, ifirst_tmp, ilast_tmp, chunk, iil, iiu;
+  int  n      = *np;
+  bool onlyW = toupper(jobz[0]) == 'N';
+  bool wantZ = toupper(jobz[0]) == 'V';
+  bool cntval = toupper(jobz[0]) == 'C';
+  bool alleig = toupper(range[0]) == 'A';
+  bool valeig = toupper(range[0]) == 'V';
+  bool indeig = toupper(range[0]) == 'I';
 
   /* Check input parameters */
   if(!(onlyW  || wantZ  || cntval)) return 1;
@@ -121,17 +102,22 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   }
   
   /* MPI & multithreading info */
+  int is_init, is_final;
   MPI_Initialized(&is_init);
   MPI_Finalized(&is_final);
   if (is_init!=1 || is_final==1) {
-    fprintf(stderr, "ERROR: MPI is not active! (init=%d, final=%d) \n", is_init, is_final);
-    exit(1);
+    fprintf(stderr, "ERROR: MPI is not active! (init=%d, final=%d) \n", 
+      is_init, is_final);
+    return 1;
   }
+  MPI_Comm comm_dup;
   MPI_Comm_dup(comm, &comm_dup);
+  int nproc, pid, thread_support;
   MPI_Comm_size(comm_dup, &nproc);
   MPI_Comm_rank(comm_dup, &pid);
   MPI_Query_thread(&thread_support);
 
+  int nthreads;
   if ( !(thread_support == MPI_THREAD_MULTIPLE ||
          thread_support == MPI_THREAD_FUNNELED) ) {
     /* Disable multithreading; note: to support multithreading with 
@@ -139,7 +125,7 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
      * is not supported at the moment */
     nthreads = 1;
   } else {
-    ompvar = getenv("PMR_NUM_THREADS");
+    char *ompvar = getenv("PMR_NUM_THREADS");
     if (ompvar == NULL) {
       nthreads = DEFAULT_NUM_THREADS;
     } else {
@@ -149,18 +135,17 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
 
 #if defined(MVAPICH2_VERSION)
   if (nthreads>1) {
-    int           mv2_affinity=1;
-    char        *mv2_string = getenv("MV2_ENABLE_AFFINITY");
-    if (mv2_string != NULL) {
+    int mv2_affinity=1;
+    char *mv2_string = getenv("MV2_ENABLE_AFFINITY");
+    if (mv2_string != NULL) 
       mv2_affinity = atoi(mv2_string);
-    }    
-    if (mv2_affinity!=0 && pid==0) {
-      fprintf(stderr, "WARNING: You are using MVAPICH2 with affinity enabled, probably by default. \n");
-      fprintf(stderr, "WARNING: This will cause performance issues if MRRR uses Pthreads. \n");
-      fprintf(stderr, "WARNING: Please rerun your job with MV2_ENABLE_AFFINITY=0 or PMR_NUM_THREADS=1. \n");
-      fflush(stderr);
-    }    
-    nthreads = 1; 
+    if (mv2_affinity!=0) {
+      nthreads = 1;
+      if (pid==0) {
+        fprintf(stderr, "WARNING: PMRRR incurs a significant performance penalty when multithreaded with MVAPICH2 with affinity enabled. The number of threads has been reduced to one; please rerun with MV2_ENABLE_AFFINITY=0 or PMR_NUM_THREADS=1 in the future.\n");
+        fflush(stderr);
+      }
+    }
   }
 #endif
 
@@ -181,6 +166,7 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   }
 
   /* Check if computation should be done by multiple processes */
+  int info;
   if (n < DSTEMR_IF_SMALLER) {
     info = handle_small_cases(jobz, range, np, D, E, vl, vu, il,
 			      iu, tryracp, comm, nzp, offsetp, W,
@@ -190,32 +176,19 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   }
 
   /* Allocate memory */
-  Werr    = (double *)   malloc( n * sizeof(double) );
-  assert(Werr != NULL);
-  Wgap      = (double *) malloc( n * sizeof(double) );
-  assert(Wgap != NULL);
-  gersch    = (double *) malloc( 2*n*sizeof(double) );
-  assert(gersch != NULL);
-  iblock    = (int *)    calloc( n , sizeof(int) );
-  assert(iblock != NULL);
-  iproc     = (int *)    malloc( n * sizeof(int) );
-  assert(iproc != NULL);
-  Windex    = (int *)    malloc( n * sizeof(int) );
-  assert(Windex != NULL);
-  isplit    = (int *)    malloc( n * sizeof(int) );
-  assert(isplit != NULL);
-  Zindex    = (int *)    malloc( n * sizeof(int) );
-  assert(Zindex != NULL);
-  procinfo  = (proc_t *) malloc( sizeof(proc_t) );
-  assert(procinfo != NULL);
-  Dstruct   = (in_t *)   malloc( sizeof(in_t) );
-  assert(Dstruct != NULL);
-  Wstruct   = (val_t *)  malloc( sizeof(val_t) );
-  assert(Wstruct != NULL);
-  Zstruct   = (vec_t *)  malloc( sizeof(vec_t) );
-  assert(Zstruct != NULL);
-  tolstruct = (tol_t *)  malloc( sizeof(tol_t) );
-  assert(tolstruct != NULL);
+  double *Werr = (double*)malloc(n*sizeof(double)); assert(Werr!=NULL);
+  double *Wgap = (double*)malloc(n*sizeof(double)); assert(Wgap!=NULL);
+  double *gersch = (double*)malloc(2*n*sizeof(double)); assert(gersch!=NULL);
+  int *iblock = (int*)calloc(n,sizeof(int)); assert(iblock!=NULL);
+  int *iproc  = (int*)malloc(n*sizeof(int)); assert(iproc!=NULL);
+  int *Windex = (int*)malloc(n*sizeof(int)); assert(Windex!=NULL);
+  int *isplit = (int*)malloc(n*sizeof(int)); assert(isplit!=NULL);
+  int *Zindex = (int*)malloc(n*sizeof(int)); assert(Zindex!=NULL);
+  proc_t *procinfo = (proc_t*)malloc(sizeof(proc_t)); assert(procinfo!=NULL);
+  in_t *Dstruct = (in_t*)malloc(sizeof(in_t)); assert(Dstruct!=NULL);
+  val_t *Wstruct = (val_t*)malloc(sizeof(val_t)); assert(Wstruct!=NULL);
+  vec_t *Zstruct = (vec_t*)malloc(sizeof(vec_t)); assert(Zstruct!=NULL);
+  tol_t *tolstruct = (tol_t*)malloc(sizeof(tol_t)); assert(tolstruct!=NULL);
 
   /* Bundle variables into a structures */
   procinfo->pid            = pid;
@@ -224,50 +197,50 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   procinfo->nthreads       = nthreads;
   procinfo->thread_support = thread_support;
 
-  Dstruct->n               = n;
-  Dstruct->D               = D;
-  Dstruct->E               = E;
-  Dstruct->isplit          = isplit;
+  Dstruct->n      = n;
+  Dstruct->D      = D;
+  Dstruct->E      = E;
+  Dstruct->isplit = isplit;
 
-  Wstruct->n               = n;
-  Wstruct->vl              = vl;
-  Wstruct->vu              = vu;
-  Wstruct->il              = il;
-  Wstruct->iu              = iu;
-  Wstruct->W               = W;
-  Wstruct->Werr            = Werr;
-  Wstruct->Wgap            = Wgap;
-  Wstruct->Windex          = Windex;
-  Wstruct->iblock          = iblock;
-  Wstruct->iproc           = iproc;
-  Wstruct->gersch          = gersch;
+  Wstruct->n      = n;
+  Wstruct->vl     = vl;
+  Wstruct->vu     = vu;
+  Wstruct->il     = il;
+  Wstruct->iu     = iu;
+  Wstruct->W      = W;
+  Wstruct->Werr   = Werr;
+  Wstruct->Wgap   = Wgap;
+  Wstruct->Windex = Windex;
+  Wstruct->iblock = iblock;
+  Wstruct->iproc  = iproc;
+  Wstruct->gersch = gersch;
 
-  Zstruct->ldz             = *ldz;
-  Zstruct->nz              = 0;
-  Zstruct->Z               = Z;
-  Zstruct->Zsupp           = Zsupp;
-  Zstruct->Zindex          = Zindex;
+  Zstruct->ldz    = *ldz;
+  Zstruct->nz     = 0;
+  Zstruct->Z      = Z;
+  Zstruct->Zsupp  = Zsupp;
+  Zstruct->Zindex = Zindex;
 
   /* Scale matrix to allowable range, returns 1.0 if not scaled */
-  scale = scale_matrix(Dstruct, Wstruct, valeig);
+  double scale = scale_matrix(Dstruct, Wstruct, valeig);
 
   /*  Test if matrix warrants more expensive computations which
    *  guarantees high relative accuracy */
-  if (*tryracp) {
+  if (*tryracp)
     odrrr(&n, D, E, &info); /* 0 - rel acc */
-  }
   else info = -1;
 
+  int i;
+  double *Dcopy, *E2copy;
   if (info == 0) {
     /* This case is extremely rare in practice */ 
     tolstruct->split = DBL_EPSILON;
     /* Copy original data needed for refinement later */
-    Dcopy  = (double *) malloc( n * sizeof(double) );
-    assert(Dcopy != NULL);
+    Dcopy = (double*)malloc(n*sizeof(double)); assert(Dcopy!=NULL);
     memcpy(Dcopy, D, n*sizeof(double));  
-    E2copy = (double *) malloc( n * sizeof(double) );
-    assert(E2copy != NULL);
-    for (i=0; i<n-1; i++) E2copy[i] = E[i]*E[i];
+    E2copy = (double*)malloc(n*sizeof(double)); assert(E2copy!=NULL);
+    for (i=0; i<n-1; i++) 
+      E2copy[i] = E[i]*E[i];
   } else {
     /* Neg. threshold forces old splitting criterion */
     tolstruct->split = -DBL_EPSILON; 
@@ -288,7 +261,7 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   }
 
   /*  Compute all eigenvalues: sorted by block */
-  info = plarre(procinfo, jobz, range, Dstruct, Wstruct, tolstruct, nzp, offsetp);
+  info = plarre(procinfo,jobz,range,Dstruct,Wstruct,tolstruct,nzp,offsetp);
   assert(info == 0);
 
   /* If just number of local eigenvectors are queried */
@@ -304,8 +277,9 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
 
     /* Refine to high relative with respect to input T */
     if (*tryracp) {
-      info = refine_to_highrac(procinfo, jobz, Dcopy, E2copy, 
-			                        Dstruct, nzp, Wstruct, tolstruct);
+      info = 
+        refine_to_highrac
+        (procinfo, jobz, Dcopy, E2copy, Dstruct, nzp, Wstruct, tolstruct);
       assert(info == 0);
     }
 
@@ -313,11 +287,13 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
     qsort(W, n, sizeof(double), cmp);
 
     /* Only keep subset ifirst:ilast */
-    iil = *il;
-    iiu = *iu;    
-    ifirst_tmp = iil;
+    int ifirst, ilast, isize;
+    int iil = *il;
+    int iiu = *iu;
+    int ifirst_tmp=iil;
     for (i=0; i<nproc; i++) {
-      chunk  = (iiu-iil+1)/nproc + (i < (iiu-iil+1)%nproc);
+      int chunk  = (iiu-iil+1)/nproc + (i < (iiu-iil+1)%nproc);
+      int ilast_tmp;
       if (i == nproc-1) {
 	ilast_tmp = iiu;
       } else {
@@ -341,9 +317,9 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
     /* If matrix was scaled, rescale eigenvalues */
     invscale_eigenvalues(Wstruct, scale, *nzp);
 
-    clean_up(comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
-	     isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,
-	     tolstruct);
+    clean_up
+    (comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
+     isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct, tolstruct);
 
     return 0;
   } /* end of only eigenvalues to compute */
@@ -377,9 +353,6 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   return 0;
 } /* end pmrrr */
 
-
-
-
 /*
  * Free's on allocated memory of pmrrr routine
  */
@@ -407,9 +380,6 @@ void clean_up(MPI_Comm comm, double *Werr, double *Wgap,
   free(tolstruct);
 }
 
-
-
-
 /*
  * Wrapper to call LAPACKs DSTEMR for small matrices
  */
@@ -420,23 +390,20 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
 		       int *myfirstp, double *W, double *Z, int *ldzp,
 		       int *Zsupp)
 {
-  bool   cntval  = (jobz[0]  == 'C' || jobz[0]  == 'c');
-  bool   onlyW   = (jobz[0]  == 'N' || jobz[0]  == 'n');
-  bool   wantZ   = (jobz[0]  == 'V' || jobz[0]  == 'v');
-  bool   indeig  = (range[0] == 'I' || range[0] == 'i');
-  int    n       = *np;
-  int    ldz_tmp = *np;
-  int    ldz     = *ldzp;
+  bool cntval = toupper(jobz[0]) == 'C';
+  bool onlyW = toupper(jobz[0]) == 'N';
+  bool wantZ = toupper(jobz[0]) == 'V';
+  bool indeig = toupper(range[0]) == 'I';
+  int n       = *np;
+  int ldz_tmp = *np;
+  int ldz     = *ldzp;
 
-  int    nproc, pid;
-  int    m, lwork, *iwork, liwork, info;
-  double *Z_tmp, *work, cnt;
-  int    i, itmp, MINUSONE=-1;
-  int    chunk, myfirst, mylast, mysize;
-
+  int nproc, pid;
   MPI_Comm_size(comm, &nproc);
   MPI_Comm_rank(comm, &pid);
   
+  int lwork, liwork;
+  double *Z_tmp;
   if (onlyW) {
     lwork  = 12*n;
     liwork =  8*n;
@@ -446,22 +413,22 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
   } else if (wantZ) {
     lwork  = 18*n;
     liwork = 10*n;
+    int itmp;
     if (indeig) itmp = *iup-*ilp+1;
     else        itmp = n;
-    Z_tmp = (double *) malloc(n*itmp * sizeof(double));
-    assert(Z_tmp != NULL);
+    Z_tmp = (double*)malloc(n*itmp*sizeof(double)); assert(Z_tmp!=NULL);
   } else {
     return 1;
   }
 
-  work = (double *) malloc( lwork  * sizeof(double));
-  assert(work != NULL);
-  iwork = (int *)   malloc( liwork * sizeof(int));
-  assert(iwork != NULL);
+  double *work = (double*)malloc(lwork*sizeof(double)); assert(work != NULL);
+  int *iwork = (int*)malloc(liwork*sizeof(int)); assert(iwork!=NULL);
 
   if (cntval) {
     /* Note: at the moment, jobz="C" should never get here, since
      * it is blocked before. */
+    int m, info, MINUSONE=-1;
+    double cnt;
     odstmr("V", "V", np, D, E, vlp, vup, ilp, iup, &m, W, &cnt,
 	   &ldz_tmp, &MINUSONE, Zsupp, tryracp, work, &lwork, iwork,
 	   &liwork, &info);
@@ -472,15 +439,16 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
     return 0;
   }
 
+  int m, info;
   odstmr(jobz, range, np, D, E, vlp, vup, ilp, iup, &m, W, Z_tmp,
 	 &ldz_tmp, np, Zsupp, tryracp, work, &lwork, iwork,
 	 &liwork, &info);
   assert(info == 0);
 
-  chunk   = iceil(m,nproc);
-  myfirst = imin(pid * chunk, m);
-  mylast  = imin((pid+1)*chunk - 1, m - 1);
-  mysize  = mylast - myfirst + 1;
+  int chunk   = iceil(m,nproc);
+  int myfirst = imin(pid * chunk, m);
+  int mylast  = imin((pid+1)*chunk - 1, m - 1);
+  int mysize  = mylast - myfirst + 1;
 
   if (mysize > 0) {
     memmove(W, &W[myfirst], mysize*sizeof(double));
@@ -490,6 +458,7 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
 	memcpy(Z, &Z_tmp[myfirst*ldz_tmp], n*mysize*sizeof(double));
       } else {
 	/* copy each vector seperately */
+        int i;
 	for (i=0; i<mysize; i++)
 	  memcpy(&Z[i*ldz], &Z_tmp[(myfirst+i)*ldz_tmp], 
 		 n*sizeof(double));
@@ -519,19 +488,15 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
   double          *vl = Wstruct->vl;
   double          *vu = Wstruct->vu;
 
-  double           scale = 1.0;
-  double           T_norm;              
-  double           smlnum, bignum, rmin, rmax;
-  int              IONE = 1, itmp;
-
   /* Set some machine dependent constants */
-  smlnum = DBL_MIN / DBL_EPSILON;
-  bignum = 1.0 / smlnum;
-  rmin   = sqrt(smlnum);
-  rmax   = fmin(sqrt(bignum), 1.0 / sqrt(sqrt(DBL_MIN)));
+  double smlnum = DBL_MIN / DBL_EPSILON;
+  double bignum = 1.0 / smlnum;
+  double rmin   = sqrt(smlnum);
+  double rmax   = fmin(sqrt(bignum), 1.0 / sqrt(sqrt(DBL_MIN)));
 
   /*  Scale matrix to allowable range */
-  T_norm = odnst("M", &n, D, E);  /* returns max(|T(i,j)|) */
+  double scale = 1.0;
+  double T_norm = odnst("M", &n, D, E);  /* returns max(|T(i,j)|) */
   if (T_norm > 0 && T_norm < rmin) {
     scale = rmin / T_norm;
   } else if (T_norm > rmax) {
@@ -540,7 +505,8 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
 
   if (scale != 1.0) {  /* FP cmp okay */
     /* Scale matrix and matrix norm */
-    itmp = n-1;
+    int itmp = n-1;
+    int IONE = 1;
     pmrrr_dscal(&n,    &scale, D, &IONE);
     pmrrr_dscal(&itmp, &scale, E, &IONE);
     if (valeig == true) {
@@ -553,9 +519,6 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
   return scale;
 }
 
-
-
-
 /*
  * If matrix scaled, rescale eigenvalues
  */
@@ -563,42 +526,38 @@ static
 void invscale_eigenvalues(val_t *Wstruct, double scale,
 			  int size)
 {
-  double *vl = Wstruct->vl;
-  double *vu = Wstruct->vu;
-  double *W  = Wstruct->W;
-  double invscale = 1.0 / scale;
-  int    IONE = 1;
-
   if (scale != 1.0) {  /* FP cmp okay */
+    double *vl = Wstruct->vl;
+    double *vu = Wstruct->vu;
+    double *W  = Wstruct->W;
+
+    double invscale = 1.0 / scale;
     *vl *= invscale;
     *vu *= invscale;
+    int IONE = 1;
     pmrrr_dscal(&size, &invscale, W, &IONE);
   }
 }
 
-
-
-
 static 
-int sort_eigenpairs_local(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruct)
+int sort_eigenpairs_local
+(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruct)
 {
-  int              n        = Wstruct->n;
-  double *restrict W        = Wstruct->W;
-  double *restrict work     = Wstruct->gersch;
-  int              ldz      = Zstruct->ldz;
-  double *restrict Z        = Zstruct->Z;
-  int    *restrict Zsupp    = Zstruct->Zsupp;
+  int              n     = Wstruct->n;
+  double *restrict W     = Wstruct->W;
+  double *restrict work  = Wstruct->gersch;
+  int              ldz   = Zstruct->ldz;
+  double *restrict Z     = Zstruct->Z;
+  int    *restrict Zsupp = Zstruct->Zsupp;
  
-  bool             sorted;
-  int              j;
-  double           tmp;
-  int              itmp1, itmp2;
-  
   /* Make sure that sorted correctly; ineffective implementation,
    * but usually no or very little swapping should be done here */
-  sorted = false;
+  int itmp;
+  double tmp;
+  bool sorted = false;
   while (sorted == false) {
     sorted = true;
+    int j;
     for (j=0; j<m-1; j++) {
       if (W[j] > W[j+1]) {
 	sorted = false;
@@ -607,26 +566,26 @@ int sort_eigenpairs_local(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruc
 	W[j]   = W[j+1];
 	W[j+1] = tmp;
 	/* swap eigenvalue support */
-	itmp1 = Zsupp[2*j];
-	Zsupp[2*j] = Zsupp[2*(j+1)];
-	Zsupp[2*(j+1)] = itmp1;
-	itmp2 = Zsupp[2*j + 1];
-	Zsupp[2*j + 1] = Zsupp[2*(j+1) + 1];
-	Zsupp[2*(j+1) +1 ] = itmp2;
+	itmp           = Zsupp[2*j];
+	Zsupp[2*j]     = Zsupp[2*(j+1)];
+	Zsupp[2*(j+1)] = itmp;
+	itmp             = Zsupp[2*j+1];
+	Zsupp[2*j+1]     = Zsupp[2*(j+1)+1];
+	Zsupp[2*(j+1)+1] = itmp;
 	/* swap eigenvector */
 	memcpy(work, &Z[j*ldz], n*sizeof(double));
 	memcpy(&Z[j*ldz], &Z[(j+1)*ldz], n*sizeof(double));
 	memcpy(&Z[(j+1)*ldz], work, n*sizeof(double));
       }
     }
-  } /* end while */
+  } 
 
   return 0;
 }
 
 static 
-int sort_eigenpairs_global(proc_t *procinfo, int m, val_t *Wstruct, 
-			   vec_t *Zstruct)
+int sort_eigenpairs_global
+(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruct)
 {
   int              pid   = procinfo->pid;
   int              nproc = procinfo->nproc;
@@ -637,50 +596,43 @@ int sort_eigenpairs_global(proc_t *procinfo, int m, val_t *Wstruct,
   double *restrict Z     = Zstruct->Z;
   int    *restrict Zsupp = Zstruct->Zsupp;
 
-  double           *minW, *maxW, *minmax; 
-  int              i, p, lp, itmp[2];
-  bool             sorted;
-  MPI_Status       status;
-  double              nan_value = 0.0/0.0;
-  
-  minW   = (double *) malloc(  nproc*sizeof(double));
-  assert(minW != NULL);
-  maxW   = (double *) malloc(  nproc*sizeof(double));
-  assert(maxW != NULL);
-  minmax = (double *) malloc(2*nproc*sizeof(double));
-  assert(minmax != NULL);
+  double *minW = (double*)malloc(nproc*sizeof(double)); assert(minW!=NULL);
+  double *maxW = (double*)malloc(nproc*sizeof(double)); assert(maxW!=NULL);
+  double *minmax=(double*)malloc(2*nproc*sizeof(double)); assert(minmax!=NULL);
 
+  double nan_value = 0.0/0.0;
   if (m == 0) {
-    MPI_Allgather(&nan_value, 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
-		  procinfo->comm); 
-    MPI_Allgather(&nan_value, 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
-		  procinfo->comm); 
+    MPI_Allgather
+    (&nan_value, 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, procinfo->comm); 
+    MPI_Allgather
+    (&nan_value, 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, procinfo->comm); 
   } else {
-    MPI_Allgather(&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
-		  procinfo->comm); 
-    MPI_Allgather(&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
-		  procinfo->comm); 
+    MPI_Allgather
+    (&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, procinfo->comm); 
+    MPI_Allgather
+    (&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, procinfo->comm); 
   }
 
+  int i;
   for (i=0; i<nproc; i++) {
     minmax[2*i]   = minW[i];
     minmax[2*i+1] = maxW[i];
   }
 
-  sorted = true;
+  bool sorted = true;
   for (i=0; i<2*nproc-1; i++) {
     if (minmax[i] > minmax[i+1]) sorted = false;
   }
 
   /* Make sure that sorted correctly; ineffective implementation,
    * but usually no or very little swapping should be done here */
+  MPI_Status status;
   while (sorted == false) {
-
     sorted = true;
 
+    int p;
     for (p=1; p<nproc; p++) {
-
-      lp =  p - 1;
+      int lp =  p - 1;
 
       /* swap one pair of eigenvalues and eigenvectors */
       if ((pid == lp || pid == p) && minW[p] < maxW[lp]) {
@@ -702,6 +654,7 @@ int sort_eigenpairs_global(proc_t *procinfo, int m, val_t *Wstruct,
 
       /* swap eigenvector support as well; 
        * (would better be recomputed here though) */
+      int itmp[2];
       if ((pid == lp || pid == p) && minW[p] < maxW[lp]) {
 	if (pid == lp) {
           MPI_Sendrecv(&Zsupp[2*(m-1)], 2, MPI_INT, p, lp, 
@@ -741,10 +694,9 @@ int sort_eigenpairs_global(proc_t *procinfo, int m, val_t *Wstruct,
       minmax[2*i+1] = maxW[i];
     }
     
-    for (i=0; i<2*nproc-1; i++) {
-      if (minmax[i] > minmax[i+1]) sorted = false;
-    }
-    
+    for (i=0; i<2*nproc-1; i++)
+      if (minmax[i] > minmax[i+1]) 
+        sorted = false;
   } /* end while not sorted */
 
   free(minW);
@@ -759,20 +711,16 @@ static
 int sort_eigenpairs(proc_t *procinfo, val_t *Wstruct, vec_t *Zstruct)
 {
   /* From inputs */
-  int              pid      = procinfo->pid;
-  int              n        = Wstruct->n;
-  double *restrict W        = Wstruct->W;
-  int    *restrict Windex   = Wstruct->Windex;
-  int    *restrict iproc    = Wstruct->iproc;
-  int    *restrict Zindex   = Zstruct->Zindex;
-
-  /* Others */
-  int           im, j;
-  sort_struct_t *sort_array;
+  int              pid    = procinfo->pid;
+  int              n      = Wstruct->n;
+  double *restrict W      = Wstruct->W;
+  int    *restrict Windex = Wstruct->Windex;
+  int    *restrict iproc  = Wstruct->iproc;
+  int    *restrict Zindex = Zstruct->Zindex;
 
   /* Make the first nz elements of W contains the eigenvalues
    * associated to the process */
-  im = 0;
+  int j, im=0;
   for (j=0; j<n; j++) {
     if (iproc[j] == pid) {
       W[im]      = W[j];
@@ -782,7 +730,7 @@ int sort_eigenpairs(proc_t *procinfo, val_t *Wstruct, vec_t *Zstruct)
     }
   }
 
-  sort_array = (sort_struct_t *) malloc(im*sizeof(sort_struct_t));
+  sort_struct_t *sort_array = (sort_struct_t*)malloc(im*sizeof(sort_struct_t));
 
   for (j=0; j<im; j++) {
     sort_array[j].lambda    = W[j]; 
@@ -824,9 +772,9 @@ int sort_eigenpairs(proc_t *procinfo, val_t *Wstruct, vec_t *Zstruct)
  * even no work at all is not uncommon. 
  */
 static 
-int refine_to_highrac(proc_t *procinfo, char *jobz, double *D,
-		      double *E2, in_t *Dstruct, int *nzp,
-		      val_t *Wstruct, tol_t *tolstruct)
+int refine_to_highrac
+(proc_t *procinfo, char *jobz, double *D, double *E2, in_t *Dstruct, int *nzp,
+ val_t *Wstruct, tol_t *tolstruct)
 {
   int              n      = Dstruct->n;
   int              nsplit = Dstruct->nsplit;
@@ -834,36 +782,23 @@ int refine_to_highrac(proc_t *procinfo, char *jobz, double *D,
   double           spdiam = Dstruct->spdiam;
   double *restrict W      = Wstruct->W;
   double *restrict Werr   = Wstruct->Werr;
-  double           pivmin = tolstruct->pivmin; 
-  double           tol    = 4 * DBL_EPSILON; 
   
-  double *work;
-  int    *iwork;
-  int    ifirst, ilast, offset, info;
-  int    j;
-  int    ibegin, iend, isize, nbl;
+  double *work = (double*)malloc(2*n*sizeof(double)); assert(work!=NULL);
+  int *iwork = (int*)malloc(2*n*sizeof(int)); assert(iwork!=NULL);
 
-  work  = (double *) malloc( 2*n * sizeof(double) );
-  assert (work != NULL);
-  iwork = (int *)    malloc( 2*n * sizeof(int)    );
-  assert (iwork != NULL);
-
-  ibegin  = 0;
+  int j, ibegin=0;
   for (j=0; j<nsplit; j++) {
-    
-    iend   = isplit[j] - 1;
-    isize  = iend - ibegin + 1;
-    nbl    = isize;
-    
+    int iend = isplit[j] - 1;
+    int isize = iend - ibegin + 1;
+    int nbl = isize;
     if (nbl == 1) {
       ibegin = iend + 1;
       continue;
     }
     
-    ifirst  = 1;
-    ilast   = nbl;
-    offset  = 0;
-
+    int ifirst=1, ilast=nbl, offset=0, info;
+    double tol = 4*DBL_EPSILON;
+    double pivmin = tolstruct->pivmin; 
     odrrj(&isize, &D[ibegin], &E2[ibegin], &ifirst, &ilast, &tol,
 	  &offset, &W[ibegin], &Werr[ibegin], work, iwork, &pivmin,
 	  &spdiam, &info);
@@ -920,30 +855,23 @@ int cmp(const void *a1, const void *a2)
 int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *myfirstp, double *W)
 {
   MPI_Comm comm_dup;
-  int      nproc;
-  double   *work;
-  int      *rcount, *rdispl;
-
   MPI_Comm_dup(comm, &comm_dup);
+  int nproc;
   MPI_Comm_size(comm_dup, &nproc);
 
-  rcount = (int *) malloc( nproc * sizeof(int) );
-  assert(rcount != NULL);
-  rdispl = (int *) malloc( nproc * sizeof(int) );
-  assert(rdispl != NULL);
-  work = (double *) malloc((*nz+1) * sizeof(double));
-  assert(work != NULL);
+  int *rcount = (int*)malloc(nproc*sizeof(int)); assert(rcount!=NULL);
+  int *rdispl = (int*)malloc(nproc*sizeof(int)); assert(rdispl!=NULL);
+  double *work = (double*)malloc((*nz+1)*sizeof(double)); assert(work!=NULL);
 
-  if (*nz > 0) {
-    memcpy(work, W, (*nz) * sizeof(double) );
-  }
+  if (*nz > 0)
+    memcpy(work, W, (*nz)*sizeof(double) );
 
   MPI_Allgather(nz, 1, MPI_INT, rcount, 1, MPI_INT, comm_dup);
 
   MPI_Allgather(myfirstp, 1, MPI_INT, rdispl, 1, MPI_INT, comm_dup);
   
-  MPI_Allgatherv(work, *nz, MPI_DOUBLE, W, rcount, rdispl,
- 		 MPI_DOUBLE, comm_dup);
+  MPI_Allgatherv
+  (work, *nz, MPI_DOUBLE, W, rcount, rdispl, MPI_DOUBLE, comm_dup);
 
   MPI_Comm_free(&comm_dup);
   free(rcount);
@@ -953,10 +881,9 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *myfirstp, double *W)
   return 0;
 }
 
-void pmr_comm_eigvals_(MPI_Fint *comm, int *nz, int *myfirstp, 
-		       double *W, int *info)
+void pmr_comm_eigvals_
+(MPI_Fint *comm, int *nz, int *myfirstp, double *W, int *info)
 {
   MPI_Comm c_comm = MPI_Comm_f2c(*comm);
-
   *info = PMR_comm_eigvals(c_comm, nz, myfirstp, W);
 }
