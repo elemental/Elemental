@@ -42,7 +42,7 @@ script:
   - mkdir build && cd build;
     cmake .. -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -DCMAKE_Fortran_COMPILER=$F77 -DCXX_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DC_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DFortran_FLAGS="-g -Os -Wall -fprofile-arcs -ftest-coverage -Wl,--no-keep-memory" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
-  - make && sudo make install && sudo ctest --output-on-failure
+  - make VERBOSE=ON && sudo make install && sudo ctest --output-on-failure
 
 after_success:
   - lcov --directory . --capture --output-file coverage.info # capture coverage info

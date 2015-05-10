@@ -68,8 +68,8 @@ elseif(EL_HAVE_F90_INTERFACE)
   # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html)
   # due to running into build problems within ScaLAPACK's linking of OpenMPI 
   # Fortran libraries.
-  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBSTRING}")
-  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBSTRING}")
+  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBS}")
+  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBS}")
   ExternalProject_Add(project_scalapack
     PREFIX ${CMAKE_INSTALL_PREFIX}
     GIT_REPOSITORY ${SCALAPACK_URL}
