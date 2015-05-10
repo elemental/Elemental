@@ -392,7 +392,6 @@ DistMatrix<T> GetSubmatrix
     return ASub;
 }
 
-
 #define PROTO(T) \
   /* Contiguous */ \
   template void GetSubmatrix \

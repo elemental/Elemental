@@ -1260,31 +1260,10 @@ void SetSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   const Matrix<T>& ASub );
 template<typename T>
-void SetRealPartOfSubmatrix
-(       Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const Matrix<Base<T>>& ASub );
-template<typename T>
-void SetImagPartOfSubmatrix
-(       Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const Matrix<Base<T>>& ASub );
-
-template<typename T>
 void SetSubmatrix
 (       AbstractDistMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J, 
   const AbstractDistMatrix<T>& ASub );
-template<typename T>
-void SetRealPartOfSubmatrix
-(       AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const AbstractDistMatrix<Base<T>>& ASub );
-template<typename T>
-void SetImagPartOfSubmatrix
-(       AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const AbstractDistMatrix<Base<T>>& ASub );
 
 // Swap
 // ====
@@ -1537,31 +1516,10 @@ void UpdateSubmatrix
   const vector<Int>& I, const vector<Int>& J, 
   T alpha, const Matrix<T>& ASub );
 template<typename T>
-void UpdateRealPartOfSubmatrix
-(       Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  Base<T> alpha, const Matrix<Base<T>>& ASub );
-template<typename T>
-void UpdateImagPartOfSubmatrix
-(       Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  Base<T> alpha, const Matrix<Base<T>>& ASub );
-
-template<typename T>
 void UpdateSubmatrix
 (       AbstractDistMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J, 
   T alpha, const AbstractDistMatrix<T>& ASub );
-template<typename T>
-void UpdateRealPartOfSubmatrix
-(       AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
-template<typename T>
-void UpdateImagPartOfSubmatrix
-(       AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  Base<T> alpha, const AbstractDistMatrix<Base<T>>& ASub );
 
 // Zero
 // ====

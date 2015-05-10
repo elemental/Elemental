@@ -33,160 +33,75 @@ void SetSubmatrix
 }
 
 template<typename T>
-void SetRealPartOfSubmatrix
-(       Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const Matrix<Base<T>>& ASub )
-{
-    DEBUG_ONLY(CSE cse("SetRealPartOfSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
-
-    // Fill in our locally-owned entries
-    for( Int jSub=0; jSub<n; ++jSub )
-    {
-        const Int j = J[jSub];
-        for( Int iSub=0; iSub<m; ++iSub )
-        {
-            const Int i = I[iSub];
-            A.SetRealPart( i, j, ASub.Get(iSub,jSub) );
-        }
-    }
-}
-
-template<typename T>
-void SetImagPartOfSubmatrix
-(       Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const Matrix<Base<T>>& ASub )
-{
-    DEBUG_ONLY(CSE cse("SetImagPartOfSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
-
-    // Fill in our locally-owned entries
-    for( Int jSub=0; jSub<n; ++jSub )
-    {
-        const Int j = J[jSub];
-        for( Int iSub=0; iSub<m; ++iSub )
-        {
-            const Int i = I[iSub];
-            A.SetImagPart( i, j, ASub.Get(iSub,jSub) );
-        }
-    }
-}
-
-// TODO: Implement the following routines in a manner similar to the new 
-//       GetSubmatrix implementations (which avoid giving every process a full
-//       copy of the submatrix)
-template<typename T>
 void SetSubmatrix
 (       AbstractDistMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J, 
-  const AbstractDistMatrix<T>& ASubPre )
+  const AbstractDistMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("SetSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
+    const Grid& g = A.Grid();
+    mpi::Comm comm = g.ViewingComm();
+    const int commSize = mpi::Size( comm );
 
-    auto ASubPtr = ReadProxy<T,STAR,STAR>(&ASubPre);
-    const auto& ASub = *ASubPtr;
+    // TODO: Intelligently pick the redundant rank to pack from?
 
-    if( A.Participating() )
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    if( ASub.RedundantRank() == 0 )
     {
-        // Fill in our locally-owned entries
-        for( Int jSub=0; jSub<n; ++jSub )
+        for( Int jLoc=0; jLoc<ASub.LocalWidth(); ++jLoc )
         {
-            const Int j = J[jSub];
-            if( A.IsLocalCol(j) )
+            const Int jSub = ASub.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<ASub.LocalHeight(); ++iLoc )
             {
-                const Int jLoc = A.LocalCol(j);
-                for( Int iSub=0; iSub<m; ++iSub )
-                {
-                    const Int i = I[iSub];
-                    if( A.IsLocalRow(i) )
-                    {
-                        const Int iLoc = A.LocalRow(i);
-                        A.SetLocal( iLoc, jLoc, ASub.GetLocal(iSub,jSub) );
-                    }
-                }
+                const Int iSub = ASub.GlobalRow(iLoc);
+                const int owner = 
+                  g.VCToViewing(
+                    g.CoordsToVC
+                    ( A.ColDist(), A.RowDist(),
+                      A.Owner(I[iSub],J[jSub]), A.Root() )
+                  );
+                ++sendCounts[owner];
             }
         }
     }
-}
 
-template<typename T>
-void SetRealPartOfSubmatrix
-(       AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const AbstractDistMatrix<Base<T>>& ASubPre )
-{
-    DEBUG_ONLY(CSE cse("SetRealPartOfSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
-
-    auto ASubPtr = ReadProxy<Base<T>,STAR,STAR>(&ASubPre);
-    const auto& ASub = *ASubPtr;
-
-    if( A.Participating() )
+    // Pack the data
+    // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    vector<Entry<T>> sendBuf(totalSend);
+    if( ASub.RedundantRank() == 0 )
     {
-        // Fill in our locally-owned entries
-        for( Int jSub=0; jSub<n; ++jSub )
+        auto offs = sendOffs;
+        for( Int jLoc=0; jLoc<ASub.LocalWidth(); ++jLoc )
         {
-            const Int j = J[jSub];
-            if( A.IsLocalCol(j) )
+            const Int jSub = ASub.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<ASub.LocalHeight(); ++iLoc )
             {
-                const Int jLoc = A.LocalCol(j);
-                for( Int iSub=0; iSub<m; ++iSub )
-                {
-                    const Int i = I[iSub];
-                    if( A.IsLocalRow(i) )
-                    {
-                        const Int iLoc = A.LocalRow(i);
-                        A.SetLocalRealPart
-                        ( iLoc, jLoc, ASub.GetLocal(iSub,jSub) );
-                    }
-                }
+                const Int iSub = ASub.GlobalRow(iLoc);
+                const int owner = 
+                  g.VCToViewing(
+                    g.CoordsToVC
+                    ( A.ColDist(), A.RowDist(),
+                      A.Owner(I[iSub],J[jSub]), A.Root() )
+                  );
+                const T value = ASub.GetLocal(iLoc,jLoc);
+                sendBuf[offs[owner]++] = Entry<T>{ I[iSub], J[jSub], value };
             }
         }
     }
-}
 
-template<typename T>
-void SetImagPartOfSubmatrix
-(       AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-  const AbstractDistMatrix<Base<T>>& ASubPre )
-{
-    DEBUG_ONLY(CSE cse("SetImagPartOfSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
-
-    auto ASubPtr = ReadProxy<Base<T>,STAR,STAR>(&ASubPre);
-    const auto& ASub = *ASubPtr;
-
-    if( A.Participating() )
-    {
-        // Fill in our locally-owned entries
-        for( Int jSub=0; jSub<n; ++jSub )
-        {
-            const Int j = J[jSub];
-            if( A.IsLocalCol(j) )
-            {
-                const Int jLoc = A.LocalCol(j);
-                for( Int iSub=0; iSub<m; ++iSub )
-                {
-                    const Int i = I[iSub];
-                    if( A.IsLocalRow(i) )
-                    {
-                        const Int iLoc = A.LocalRow(i);
-                        A.SetLocalImagPart
-                        ( iLoc, jLoc, ASub.GetLocal(iSub,jSub) );
-                    }
-                }
-            }
-        }
-    }
+    // Exchange and unpack the data
+    // ============================
+    auto recvBuf = mpi::AllToAll(sendBuf,sendCounts,sendOffs,comm);
+    Int recvBufSize = recvBuf.size();
+    mpi::Broadcast( recvBufSize, 0, A.RedundantComm() );
+    recvBuf.resize( recvBufSize );
+    mpi::Broadcast( recvBuf.data(), recvBufSize, 0, A.RedundantComm() );
+    for( auto& entry : recvBuf )
+        A.Set( entry );
 }
 
 // TODO: DistMultiVec version similar to GetSubmatrix implementation
@@ -196,26 +111,10 @@ void SetImagPartOfSubmatrix
   (       Matrix<T>& A, \
     const vector<Int>& I, const vector<Int>& J, \
     const Matrix<T>& ASub ); \
-  template void SetRealPartOfSubmatrix \
-  (       Matrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J, \
-    const Matrix<Base<T>>& ASub ); \
-  template void SetImagPartOfSubmatrix \
-  (       Matrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J, \
-    const Matrix<Base<T>>& ASub ); \
   template void SetSubmatrix \
   (       AbstractDistMatrix<T>& A, \
     const vector<Int>& I, const vector<Int>& J, \
-    const AbstractDistMatrix<T>& ASub ); \
-  template void SetRealPartOfSubmatrix \
-  (       AbstractDistMatrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J, \
-    const AbstractDistMatrix<Base<T>>& ASub ); \
-  template void SetImagPartOfSubmatrix \
-  (       AbstractDistMatrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J, \
-    const AbstractDistMatrix<Base<T>>& ASub );
+    const AbstractDistMatrix<T>& ASub );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
