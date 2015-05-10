@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -41,7 +44,9 @@
 #ifndef TTASKS_H
 #define TTASKS_H
 
-#include <semaphore.h>
+#ifndef DISABLE_PTHREADS
+ #include <semaphore.h>
+#endif
 #include "global.h"
 #include "queue.h"
 #include "rrr.h"
@@ -90,9 +95,11 @@ typedef struct {
   int        bl_size;
   double     bl_spdiam;
   int        producer_tid; // not longer needed
+#ifndef DISABLE_PTHREADS
   sem_t      *sem; /* since semt_t is a handle could also store it
 		      instead of pointer to it, but pointer is all
                       that is needed */
+#endif
 } refine_t;
 
 
@@ -108,6 +115,11 @@ task_t *PMR_create_c_task(int first, int last, int depth,
 
 task_t *PMR_create_r_task(int begin, int end, double *D,
 			  double *DLL, int p, int q, int bl_size,
-			  double bl_spdiam, int tid, sem_t *sem);
+			  double bl_spdiam, int tid);
+
+int PMR_refine_sem_init(refine_t *refine);
+int PMR_refine_sem_destroy(refine_t *refine);
+int PMR_refine_sem_post(refine_t *refine);
+int PMR_refine_sem_wait(refine_t *refine);
 
 #endif

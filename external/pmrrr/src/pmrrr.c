@@ -43,21 +43,10 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <assert.h>
-#include <float.h>
-
-#include "mpi.h"
 #include "pmrrr.h"
-#include "pmrrr/global.h"
 #include "pmrrr/plarre.h"
 #include "pmrrr/plarrv.h"
 #include "pmrrr/structs.h"
-
 
 static int handle_small_cases(char*, char*, int*, double*, double*,
 			      double*, double*, int*, int*, int*,
@@ -122,13 +111,13 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   int         ifirst, ilast, isize, ifirst_tmp, ilast_tmp, chunk, iil, iiu;
 
   /* Check input parameters */
-  if(!(onlyW  || wantZ  || cntval)) return(1);
-  if(!(alleig || valeig || indeig)) return(1);
-  if(n <= 0) return(1);
+  if(!(onlyW  || wantZ  || cntval)) return 1;
+  if(!(alleig || valeig || indeig)) return 1;
+  if(n <= 0) return 1;
   if (valeig) {
-    if(*vu<=*vl) return(1);
+    if(*vu<=*vl) return 1;
   } else if (indeig) {
-    if (*il<1 || *il>n || *iu<*il || *iu>n) return(1);
+    if (*il<1 || *il>n || *iu<*il || *iu>n) return 1;
   }
   
   /* MPI & multithreading info */
@@ -183,11 +172,11 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
     if ( alleig || n < DSTEMR_IF_SMALLER ) {
       *nzp = iceil(n,nproc);
       MPI_Comm_free(&comm_dup);
-      return(0);
+      return 0;
     } else if (indeig) {
       *nzp = iceil(*iu-*il+1,nproc);
       MPI_Comm_free(&comm_dup);
-      return(0);
+      return 0;
     }
   }
 
@@ -197,7 +186,7 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
 			      iu, tryracp, comm, nzp, offsetp, W,
 			      Z, ldz, Zsupp);
     MPI_Comm_free(&comm_dup);
-    return(info);
+    return info;
   }
 
   /* Allocate memory */
@@ -307,7 +296,7 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
     clean_up(comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
 	     isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,
 	     tolstruct);
-    return(0);
+    return 0;
   }
 
   /* If only eigenvalues are to be computed */
@@ -356,7 +345,7 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
 	     isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,
 	     tolstruct);
 
-    return(0);
+    return 0;
   } /* end of only eigenvalues to compute */
 
   /* Compute eigenvectors */
@@ -385,7 +374,7 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
     free(E2copy);
   }
 
-  return(0);
+  return 0;
 } /* end pmrrr */
 
 
@@ -462,7 +451,7 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
     Z_tmp = (double *) malloc(n*itmp * sizeof(double));
     assert(Z_tmp != NULL);
   } else {
-    return(1);
+    return 1;
   }
 
   work = (double *) malloc( lwork  * sizeof(double));
@@ -480,7 +469,7 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
     
     *nzp = (int) ceil(cnt/nproc);
     free(work); free(iwork);
-    return(0);
+    return 0;
   }
 
   odstmr(jobz, range, np, D, E, vlp, vup, ilp, iup, &m, W, Z_tmp,
@@ -515,11 +504,8 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
   free(work);
   free(iwork);
 
-  return(0);
+  return 0;
 }
-
-
-
 
 /*
  * Scale matrix to allowable range, returns 1.0 if not scaled
@@ -564,7 +550,7 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
     }
   } /* end scaling */
 
-  return(scale);
+  return scale;
 }
 
 
@@ -635,11 +621,8 @@ int sort_eigenpairs_local(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruc
     }
   } /* end while */
 
-  return(0);
+  return 0;
 }
-
-
-
 
 static 
 int sort_eigenpairs_global(proc_t *procinfo, int m, val_t *Wstruct, 
@@ -768,11 +751,8 @@ int sort_eigenpairs_global(proc_t *procinfo, int m, val_t *Wstruct,
   free(maxW);
   free(minmax);
 
-  return(0);
+  return 0;
 }
-
-
-
 
 /* Routine to sort the eigenpairs */
 static 
@@ -832,12 +812,8 @@ int sort_eigenpairs(proc_t *procinfo, val_t *Wstruct, vec_t *Zstruct)
 
   free(sort_array);
 
-  return(0);
+  return 0;
 }
-
-
-
-
 
 /*
  * Refines the eigenvalue to high relative accuracy with
@@ -898,11 +874,8 @@ int refine_to_highrac(proc_t *procinfo, char *jobz, double *D,
   
   free(work);
   free(iwork);
-  return(0);
+  return 0;
 }
-
-
-
 
 /* 
  * Compare function for using qsort() on an array of 
@@ -918,13 +891,10 @@ int cmpb(const void *a1, const void *a2)
 
   /* Within block local index decides */
   if (arg1->ind < arg2->ind) 
-    return(-1);
+    return -1;
   else
-    return(1);
+    return 1;
 }
-
-
-
 
 /*
  * Compare function for using qsort() on an array
@@ -937,13 +907,10 @@ int cmp(const void *a1, const void *a2)
   double arg2 = *(double *)a2;
 
   if (arg1 < arg2)
-    return(-1);
+    return -1;
   else
-    return(1);
+    return 1;
 }
-
-
-
 
 /*
  * Routine to communicate eigenvalues such that every process has
@@ -983,7 +950,7 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *myfirstp, double *W)
   free(rdispl);
   free(work);
 
-  return(0);
+  return 0;
 }
 
 void pmr_comm_eigvals_(MPI_Fint *comm, int *nz, int *myfirstp, 

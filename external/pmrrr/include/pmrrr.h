@@ -41,6 +41,12 @@
 #ifndef PPMRRR_H
 #define PPMRRR_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <float.h>
+#include <assert.h>
 #include "mpi.h"
 #include "pmrrr/global.h"
 

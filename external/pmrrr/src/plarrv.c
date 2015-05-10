@@ -4,6 +4,9 @@
  * Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -40,23 +43,13 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <assert.h>
-#include <pthread.h>
-#include "mpi.h"
 #include "pmrrr.h"
 #include "pmrrr/plarrv.h"
 #include "pmrrr/process_task.h"
-#include "pmrrr/global.h"
 #include "pmrrr/rrr.h"
 #include "pmrrr/queue.h"
 #include "pmrrr/structs.h"
 #include "pmrrr/counter.h"
-
 
 static int assign_to_proc(proc_t *procinfo, in_t *Dstruct,
 			  val_t *Wstruct, vec_t *Zstruct, int *nzp,
@@ -79,32 +72,27 @@ static void retrieve_auxarg3(auxarg3_t*, int*, proc_t**, val_t**,
 /*
  * Computation of eigenvectors of a symmetric tridiagonal
  */
-int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
-	   vec_t *Zstruct, tol_t *tolstruct, int *nzp,
-	   int *myfirstp)
+#ifndef DISABLE_PTHREADS
+int plarrv
+(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
+ vec_t *Zstruct, tol_t *tolstruct, int *nzp, int *myfirstp)
 {
   /* Input variables */
-  int            nthreads = procinfo->nthreads;
-  int            n        = Dstruct->n;
-  double         *W       = Wstruct->W;
+  int     nthreads = procinfo->nthreads;
+  int     n        = Dstruct->n;
+  double  *W       = Wstruct->W;
 
-  /* Work space */
-  double         *Wshifted;
- 
   /* Multi-threading */
   pthread_t      *threads;   
   pthread_attr_t attr;
-  void           *status;
   auxarg3_t      *auxarg;
   counter_t      *num_left;
   
   /* Others */
-  int            info, i;
-  workQ_t        *workQ;
-
+  int info, i;
 
   /* Allocate work space and copy eigenvalues */
-  Wshifted = (double *) malloc( n * sizeof(double) );
+  double *Wshifted = (double *) malloc( n * sizeof(double) );
   assert(Wshifted != NULL);
 
   memcpy(Wshifted, W, n*sizeof(double));
@@ -114,11 +102,10 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   assert(threads != NULL);
 
   /* Assign eigenvectors to processes */
-  assign_to_proc(procinfo, Dstruct, Wstruct, Zstruct, nzp,
-		            myfirstp);
+  assign_to_proc(procinfo, Dstruct, Wstruct, Zstruct, nzp, myfirstp);
 
   /* Create work queue Q, counter, threads to empty Q */
-  workQ    = create_workQ( );
+  workQ_t *workQ = create_workQ();
   num_left = PMR_create_counter(*nzp);
 
   threads[0] = pthread_self();
@@ -141,7 +128,7 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   /* Empty the work queue */
   auxarg = create_auxarg3(0, procinfo, Wstruct, Zstruct, tolstruct,
 			  workQ, num_left);
-  status = empty_workQ((void *) auxarg);
+  void *status = empty_workQ((void *) auxarg);
   assert(status == NULL);
 
   /* Join all the worker thread */
@@ -157,11 +144,49 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   destroy_workQ(workQ);
   PMR_destroy_counter(num_left);
 
-  return(0);
+  return 0;
 }
+#else
+int plarrv
+(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
+ vec_t *Zstruct, tol_t *tolstruct, int *nzp, int *myfirstp)
+{
+  /* Input variables */
+  int     n  = Dstruct->n;
+  double  *W = Wstruct->W;
 
+  /* Allocate work space and copy eigenvalues */
+  double *Wshifted = (double *) malloc( n * sizeof(double) );
+  assert(Wshifted != NULL);
 
+  memcpy(Wshifted, W, n*sizeof(double));
+  Wstruct->Wshifted = Wshifted;
 
+  /* Assign eigenvectors to processes */
+  assign_to_proc(procinfo, Dstruct, Wstruct, Zstruct, nzp, myfirstp);
+
+  /* Create work queue Q, counter, threads to empty Q */
+  workQ_t *workQ = create_workQ();
+  counter_t *num_left = PMR_create_counter(*nzp);
+
+  /* Initialize work queue of process */
+  int info = init_workQ(procinfo, Dstruct, Wstruct, nzp, workQ);
+  assert(info == 0);
+
+  /* Empty the work queue */
+  auxarg3_t *auxarg = 
+    create_auxarg3(0, procinfo, Wstruct, Zstruct, tolstruct, workQ, num_left);
+  void *status = empty_workQ((void *) auxarg);
+  assert(status == NULL);
+
+  /* Clean up */
+  free(Wshifted);
+  destroy_workQ(workQ);
+  PMR_destroy_counter(num_left);
+
+  return 0;
+}
+#endif
 
 /* 
  * Assign the computation of eigenvectors to the processes
@@ -254,11 +279,8 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   }
   
   free(array);
-  return(0);
+  return 0;
 }
-
-
-
 
 /* 
  * Compare function for using qsort() on an array of 
@@ -277,20 +299,17 @@ int cmpa(const void *a1, const void *a2)
     return (arg1->local_ind - arg2->local_ind);
   } else {
     if (arg1->lambda < arg2->lambda) {
-      return(-1);
+      return -1;
     } else if (arg1->lambda > arg2->lambda) {
-      return(1);
+      return 1;
     } else {
       if (arg1->local_ind < arg2->local_ind)
-	return(-1);
+	return -1;
       else
-	return(1);
+	return 1;
     }
   }
 }
-
-
-
 
 /*
  * Initialize work queue by putting all tasks for the process
@@ -575,11 +594,8 @@ int init_workQ(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
     ibegin = iend + 1;
   } /* end loop over blocks */ 
 
-  return(0);
+  return 0;
 }
-
-
-
 
 /*
  * Processes all the tasks put in the work queue.
@@ -651,11 +667,8 @@ void *empty_workQ(void *argin)
   free(work);
   free(iwork);
 
-  return(NULL);
+  return NULL;
 }
-
-
-
 
 static workQ_t *create_workQ()
 {
@@ -667,11 +680,8 @@ static workQ_t *create_workQ()
   wq->s_queue = PMR_create_empty_queue();
   wq->c_queue = PMR_create_empty_queue();
 
-  return(wq);
+  return wq;
 }
-
-
-
 
 static void destroy_workQ(workQ_t *wq)
 {
@@ -680,9 +690,6 @@ static void destroy_workQ(workQ_t *wq)
   PMR_destroy_queue(wq->c_queue);
   free(wq);
 }
-
-
-
 
 static auxarg3_t*
 create_auxarg3(int tid, proc_t *procinfo, val_t *Wstruct,
@@ -702,11 +709,8 @@ create_auxarg3(int tid, proc_t *procinfo, val_t *Wstruct,
   arg->workQ  = workQ;
   arg->num_left    = num_left;
 
-  return(arg);
+  return arg;
 }
-
-
-
 
 static void 
 retrieve_auxarg3(auxarg3_t *arg, int *tid, proc_t **procinfo,

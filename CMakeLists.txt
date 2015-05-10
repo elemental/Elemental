@@ -114,6 +114,11 @@ option(EL_BUILD_METIS "Build METIS" OFF)
 # Advanced options
 # ----------------
 
+if(APPLE)
+  option(HAVE_PACKAGEMAKER "Have Mac OS X PackageMaker?" OFF)
+  mark_as_advanced(HAVE_PACKAGEMAKER)
+endif()
+
 # Whether or not to have the Memory class zero initialize what it allocates.
 # If valgrind was detected and is running, this will be forced anyway.
 option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
@@ -258,22 +263,7 @@ include(tests/Fortran)
 include(tests/CXX)
 include(tests/MPI)
 include(tests/OpenMP)
-
-# Import Qt5 if possible
-# ----------------------
 include(tests/Qt5)
-if(EL_HAVE_QT5)
-  set(EL_HEADERS_PREMOC
-      "include/El/io/DisplayWindow-premoc.hpp;include/El/io/ComplexDisplayWindow-premoc.hpp")
-  qt_wrap_cpp(El EL_MOC_SRC ${EL_HEADERS_PREMOC})
-  include_directories(${Qt5Widgets_INCLUDE_DIRS})
-  add_definitions(${Qt5Widgets_DEFINITIONS})
-  set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
-
-  # Qt5Widgets_DIR = Qt5_LIBDIR/cmake/Qt5Widgets
-  get_filename_component(Qt5_CMAKEDIR ${Qt5Widgets_DIR} PATH)
-  get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
-endif()
 
 # Allow valgrind support if possible (if running valgrind, explicitly zero init)
 # ------------------------------------------------------------------------------
@@ -293,12 +283,8 @@ include(tests/Math)
 set(CXX_FLAGS "${CXX_FLAGS} ${EXTRA_FLAGS}")
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 
-# Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
-# ---------------------------------------------------------------------------
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/pmrrr/CMakeLists.txt")
-   message(FATAL_ERROR
-      "${CMAKE_SOURCE_DIR}/external/pmrrr is not correctly set up. If you are building from source, make sure all git submodules in the source directory are checked out, e.g. with\ncd ${CMAKE_SOURCE_DIR} && git pull --recurse-submodules")
-endif()
+# Parallel Multiple Relatively Robust Representations
+# ---------------------------------------------------
 add_subdirectory(external/pmrrr)
 
 # Create a file which can be included in Makefile's.
@@ -308,86 +294,60 @@ include(CreateElVars)
 # The main library
 # ================
 
-# Grab the .c and .cpp files
-# --------------------------
+# Get the combined list of source files for Elemental
+# ---------------------------------------------------
 file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR}
-  "src/*.c" "src/*.cpp")
-# Grab the C/C++ headers
-file(GLOB_RECURSE EL_C_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR}
-  "include/*.h" "include/*.hpp")
-set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE};${EL_C_CPP_HEADERS};${EL_MOC_SRC}")
-
-# Form the list of libraries that need to be linked
-# -------------------------------------------------
-set(LINK_LIBS ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+  "src/*.c" "src/*.cpp" "include/*.h" "include/*.hpp" )
 if(EL_HAVE_QT5)
-  set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
+  set(EL_HEADERS_PREMOC
+    "include/El/io/DisplayWindow-premoc.hpp;include/El/io/ComplexDisplayWindow-premoc.hpp")
+  qt_wrap_cpp(El EL_MOC_SRC ${EL_HEADERS_PREMOC})
+  include_directories(${Qt5Widgets_INCLUDE_DIRS})
+  add_definitions(${Qt5Widgets_DEFINITIONS})
+  set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
+
+  # Qt5Widgets_DIR = Qt5_LIBDIR/cmake/Qt5Widgets
+  get_filename_component(Qt5_CMAKEDIR ${Qt5Widgets_DIR} PATH)
+  get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
+
+  set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE};${EL_MOC_SRC}")
+else()
+  set(EL_C_CPP_FILES "${EL_C_CPP_SOURCE}")
 endif()
+
+# Handle the header preparation and installation
+# ----------------------------------------------
+configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.in
+               ${PROJECT_BINARY_DIR}/include/El/config.h)
+install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
+        DESTINATION include/El)
+add_custom_target(El_config DEPENDS ${PROJECT_BINARY_DIR}/include/El/config.h)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Define the main library for Elemental
 # -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
-add_dependencies(El External)
-target_link_libraries(El pmrrr ${LINK_LIBS})
+add_dependencies(El El_config External)
+set(LINK_LIBS pmrrr ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+if(EL_HAVE_QT5)
+  set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
+endif()
+target_link_libraries(El ${LINK_LIBS})
 if(MPI_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
 endif()
 install(TARGETS El DESTINATION lib)
 
-# Create the Elemental C/C++ configuration header
-# -----------------------------------------------
-configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.in
-               ${PROJECT_BINARY_DIR}/include/El/config.h)
-install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
-        DESTINATION include/El)
-
-# Define the header-file preparation rules
-# ----------------------------------------
-set(PREPARED_HEADERS)
-foreach(HEADER ${EL_C_CPP_HEADERS})
-  add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${HEADER}
-            ${PROJECT_BINARY_DIR}/${HEADER}
-    DEPENDS "${PROJECT_SOURCE_DIR}/${HEADER}")
-  list(APPEND PREPARED_HEADERS ${PROJECT_BINARY_DIR}/${HEADER})
-
-  get_filename_component(HEADER_PATH ${HEADER} PATH)
-  install(FILES ${PROJECT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
-endforeach()
-add_custom_target(prepare_El_headers DEPENDS ${PREPARED_HEADERS})
-add_dependencies(El prepare_El_headers)
-# TODO: Ensure that source files depend on header files
-
 # Decide if/how to install the Python interface
 # ---------------------------------------------
 if(BUILD_SHARED_LIBS)
   # Create the environment file for Python which hardcodes the installation dir
-  # ---------------------------------------------------------------------------
   configure_file(${PROJECT_SOURCE_DIR}/cmake/environment.py.in
-                 ${PROJECT_BINARY_DIR}/include/El/core/environment.py)
-  install(FILES ${PROJECT_BINARY_DIR}/include/El/core/environment.py
-          DESTINATION include/El/core)
-
-  # Grab the unprocessed python files
-  # ---------------------------------
-  file(GLOB_RECURSE EL_PYTHON_SOURCE 
-    RELATIVE ${PROJECT_SOURCE_DIR} "include/*.py")
-
-  set(PREPARED_PYTHON)
-  foreach(PY_SOURCE ${EL_PYTHON_SOURCE})
-    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${PY_SOURCE}
-      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${PY_SOURCE}
-              ${PROJECT_BINARY_DIR}/${PY_SOURCE}
-      DEPENDS "${PROJECT_SOURCE_DIR}/${PY_SOURCE}")
-    list(APPEND PREPARED_PYTHON ${PROJECT_BINARY_DIR}/${PY_SOURCE})
-
-    get_filename_component(PY_SOURCE_PATH ${PY_SOURCE} PATH)
-    install(FILES ${PROJECT_BINARY_DIR}/${PY_SOURCE} 
-      DESTINATION ${PY_SOURCE_PATH})
-  endforeach()
-  add_custom_target(prepare_El_python DEPENDS ${PREPARED_PYTHON})
-  add_dependencies(El prepare_El_python)
-
+                 ${PROJECT_BINARY_DIR}/python/core/environment.py)
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
       if(INSTALL_PYTHON_INTO_USER_SITE)
@@ -404,18 +364,19 @@ if(BUILD_SHARED_LIBS)
       set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} 
         CACHE PATH "Destination for Python site package directory")
     endif()
-    install(DIRECTORY ${PROJECT_BINARY_DIR}/include/
-      DESTINATION ${PYTHON_SITE_PACKAGES} 
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/python/
+      DESTINATION ${PYTHON_SITE_PACKAGES}/El 
       FILES_MATCHING PATTERN "*.py")
+    install(FILES ${PROJECT_BINARY_DIR}/python/core/environment.py
+      DESTINATION ${PYTHON_SITE_PACKAGES}/El/core)
   else()
-    install(DIRECTORY ${PROJECT_BINARY_DIR}/include/
-      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/python/
+      DESTINATION python/El
       FILES_MATCHING PATTERN "*.py")
+    install(FILES ${PROJECT_BINARY_DIR}/python/core/environment.py
+      DESTINATION python/El/core)
   endif()
 endif()
-
-# Make sure the Elemental headers can be found
-include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Experimental
 # ============
@@ -530,12 +491,20 @@ endif()
 
 # CPack
 # =====
+# While PackageMaker is deprecated, productbuild is not yet supported by CPack.
+# Furthermore, it is possible to download the "Late July 2012" version of
+# PackageMaker (which curiously has a release date of August 7, 2012) from 
+# Apple, but it appears to be incompatible with Yosemite.
+#
+# Lastly, the current CPack configuration does not yet allow the Python
+# interface to be installed within a different directory than the main library
+# (e.g., into the user-level or system-wide site-packages directory).
 set(CPACK_PACKAGE_NAME "Elemental")
-set(CPACK_PACKAGE_VENDOR "Elemental project")
+set(CPACK_PACKAGE_VENDOR "libelemental.org")
 set(CPACK_PACKAGE_VERSION_MAJOR ${EL_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${EL_VERSION_MINOR})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
-  "Distributed-memory 'direct' linear algebra and optimization")
+  "Distributed-memory linear algebra and optimization")
 set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/cmake/El.png)
 include(CPack)
 

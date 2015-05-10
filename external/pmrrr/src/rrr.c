@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -44,16 +47,51 @@
 #include "pmrrr/rrr.h"
 #include "pmrrr/global.h"
 
+int PMR_rrr_init_lock(rrr_t *RRR)
+{
+#ifndef DISABLE_PTHREADS
+  int info = pthread_mutex_init(&RRR->mutex, NULL);
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
 
+void PMR_rrr_destroy_lock(rrr_t *RRR)
+{
+#ifndef DISABLE_PTHREADS
+  pthread_mutex_destroy(&RRR->mutex);
+#endif
+}
+
+int PMR_rrr_lock(rrr_t *RRR)
+{
+#ifndef DISABLE_PTHREADS
+  int info = pthread_mutex_lock(&RRR->mutex);
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
+
+int PMR_rrr_unlock(rrr_t *RRR)
+{
+#ifndef DISABLE_PTHREADS
+  int info = pthread_mutex_unlock(&RRR->mutex);
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
 
 rrr_t *PMR_create_rrr(double *restrict D, double *restrict L,
 		      double *restrict DL, double *restrict DLL,
 		      int size, int depth)
 {
-  int   info;
-  rrr_t *RRR;
-
-  RRR = (rrr_t *) malloc( sizeof(rrr_t) );
+  rrr_t* RRR = (rrr_t *) malloc( sizeof(rrr_t) );
   assert(RRR != NULL);
 
   RRR->D                 = D;
@@ -66,13 +104,9 @@ rrr_t *PMR_create_rrr(double *restrict D, double *restrict L,
   RRR->copied_parent_rrr = false;
   RRR->ndepend           = 0;
 
-  info = pthread_mutex_init(&RRR->mutex, NULL);
-  assert(info == 0);
-
-  return(RRR);
+  int info = PMR_rrr_init_lock(RRR);
+  return RRR;
 }
-
-
  
 rrr_t *PMR_reset_rrr(rrr_t *RRR, double *restrict D, 
 		     double *restrict L, double *restrict DL, 
@@ -86,75 +120,41 @@ rrr_t *PMR_reset_rrr(rrr_t *RRR, double *restrict D,
   RRR->depth            = depth;
   RRR->parent_processed = false;
 
-  return(RRR);
+  return RRR;
 }
-
-
 
 int PMR_increment_rrr_dependencies(rrr_t *RRR)
 {
-  /* returns number of dependencies */
-  int i, info;
-
-  info = pthread_mutex_lock(&RRR->mutex);
-  assert(info == 0);
-  
+  int info = PMR_rrr_lock(RRR);
   RRR->ndepend++;
-  i = RRR->ndepend;
-  
-  info = pthread_mutex_unlock(&RRR->mutex);
-  assert(info == 0);
-  
-  return(i);
+  int i = RRR->ndepend;
+  info |= PMR_rrr_unlock(RRR);
+  return i;
 }
-
-
 
 int PMR_set_parent_processed_flag(rrr_t *RRR)
 {
-  int info;
-  
-  info = pthread_mutex_lock(&RRR->mutex);
-  assert(info == 0);
-  
+  int info = PMR_rrr_lock(RRR);
   RRR->parent_processed = true;
-  
-  info = pthread_mutex_unlock(&RRR->mutex);
-  assert(info == 0);
-
-  return(info);
+  info |= PMR_rrr_unlock(RRR);
+  return info;
 }
-
-
 
 int PMR_set_copied_parent_rrr_flag(rrr_t *RRR, bool val)
 {
-  int info;
-  
-  info = pthread_mutex_lock(&RRR->mutex);
-  assert(info == 0);
-  
+  int info = PMR_rrr_lock(RRR);
   RRR->copied_parent_rrr = val;
-  
-  info = pthread_mutex_unlock(&RRR->mutex);
-  assert(info == 0);
-
-  return(info);
+  info |= PMR_rrr_unlock(RRR);
+  return info;
 }
 
-
-
+/* return 0 on success, otherwise 1 */
 int PMR_try_destroy_rrr(rrr_t *RRR)
 {
-  /* return 0 on success, otherwise 1 */
-  
-  int info, tmp=0;
-
-  info = pthread_mutex_lock(&RRR->mutex);
-  assert(info == 0);
+  int info = PMR_rrr_lock(RRR);
 
   RRR->ndepend--;
-
+  int tmp=0;
   if (RRR->ndepend == 0 &&
       RRR->parent_processed == true) {
 
@@ -171,14 +171,14 @@ int PMR_try_destroy_rrr(rrr_t *RRR)
     tmp = 1;
   }
   
-  info = pthread_mutex_unlock(&RRR->mutex);
-  assert(info == 0);
+  info |= PMR_rrr_unlock(RRR);
+  PMR_rrr_destroy_lock(RRR);
 
   if (tmp == 1) {
     free(RRR);
-    return(0);
+    return 0;
   } else {
-    return(1);
+    return 1;
   }
 }
 

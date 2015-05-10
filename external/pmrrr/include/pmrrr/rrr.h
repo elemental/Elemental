@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -41,7 +44,9 @@
 #ifndef RRR_H
 #define RRR_H
 
-#include <pthread.h>
+#ifndef DISABLE_PTHREADS
+ #include <pthread.h>
+#endif
 #include "global.h"
 
 typedef struct {
@@ -54,7 +59,9 @@ typedef struct {
   bool            parent_processed;
   bool            copied_parent_rrr;
   int             ndepend;
+#ifndef DISABLE_PTHREADS
   pthread_mutex_t mutex;
+#endif
 } rrr_t;
 
 
@@ -70,5 +77,10 @@ int  PMR_increment_rrr_dependencies(rrr_t *RRR);
 int  PMR_set_parent_processed_flag (rrr_t *RRR);
 int  PMR_set_copied_parent_rrr_flag(rrr_t *RRR, bool val);
 int  PMR_try_destroy_rrr(rrr_t *RRR);
+
+int PMR_rrr_init_lock(rrr_t *RRR);
+void PMR_rrr_destroy_lock(rrr_t *RRR);
+int PMR_rrr_lock(rrr_t *RRR);
+int PMR_rrr_unlock(rrr_t *RRR);
 
 #endif

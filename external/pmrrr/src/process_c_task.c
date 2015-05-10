@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -38,17 +41,8 @@
  *
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <assert.h>
-#include <semaphore.h>
-#include "mpi.h"
 #include "pmrrr.h"
 #include "pmrrr/plarrv.h"
-#include "pmrrr/global.h"
 #include "pmrrr/queue.h"
 #include "pmrrr/counter.h"
 #include "pmrrr/rrr.h"
@@ -345,7 +339,6 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
   int              left, own_part, others_part, num_tasks;
   int              ts_begin, ts_end, chunk, count;
   task_t           *task;
-  sem_t            sem;
   int              num_iter;
 
   /* Determine if refinement should be split into tasks */
@@ -359,7 +352,6 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
     num_tasks   = iceil(rf_size, own_part) - 1; /* >1 */
     chunk       = others_part/num_tasks;        /* floor */
 
-    sem_init(&sem, 0, 0);
     ts_begin = rf_begin;
     p        = Windex[rf_begin];
     for (i=0; i<num_tasks; i++) {
@@ -367,12 +359,12 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
       q      = p        + chunk - 1;
 
       task = PMR_create_r_task(ts_begin, ts_end, D, DLL, p, q, 
-			       bl_size, bl_spdiam, tid, &sem);
+			       bl_size, bl_spdiam, tid);
      
       if (ts_begin <= ts_end)
 	PMR_insert_task_at_back(workQ->r_queue, task);
       else
-	sem_post(&sem); /* case chunk=0 */
+        PMR_refine_sem_post(task->data); /* case chunk=0 */
 
       ts_begin = ts_end + 1;
       p        = q      + 1;
@@ -407,10 +399,10 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
     /* Barrier: wait until all created tasks finished */
     count = num_tasks;
     while (count > 0) {
-      while (sem_wait(&sem) != 0) { };
+      while ( PMR_refine_sem_wait(task->data) != 0 ) { };
       count--;
     }
-    sem_destroy(&sem);
+    PMR_refine_sem_destroy(task->data);
 
     /* Edit right gap at splitting point */
     ts_begin = rf_begin;

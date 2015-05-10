@@ -114,11 +114,53 @@ task_t *PMR_create_c_task(int first, int last, int depth,
   return(t);
 }
 
+int PMR_refine_sem_init(refine_t *refine)
+{
+#ifndef DISABLE_PTHREADS
+  int info = sem_init(refine->sem, 0, 0);
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
 
+int PMR_refine_sem_destroy(refine_t *refine)
+{
+#ifndef DISABLE_PTHREADS
+  int info = sem_destroy(refine->sem);
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
+
+int PMR_refine_sem_wait(refine_t *refine)
+{
+#ifndef DISABLE_PTHREADS
+  int info = sem_wait(refine->sem);
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
+
+int PMR_refine_sem_post(refine_t *refine)
+{
+#ifndef DISABLE_PTHREADS
+  int info = sem_post(refine->sem);
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
 
 task_t *PMR_create_r_task(int begin, int end, double *D,
 			  double *DLL, int p, int q, int bl_size,
-			  double bl_spdiam, int tid, sem_t *sem)
+			  double bl_spdiam, int tid)
 {
   task_t   *t;
   refine_t *r;
@@ -138,12 +180,13 @@ task_t *PMR_create_r_task(int begin, int end, double *D,
   r->bl_size      = bl_size;
   r->bl_spdiam    = bl_spdiam;
   r->producer_tid = tid;
-  r->sem          = sem;
+
+  PMR_refine_sem_init(r);
 
   t->data = (void *) r;
   t->flag = REFINE_TASK_FLAG;
   t->next = NULL;
   t->prev = NULL;
 
-  return(t);
+  return t;
 }

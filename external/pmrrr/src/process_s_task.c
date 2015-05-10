@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -37,21 +40,12 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <assert.h>
 #include "pmrrr.h"
-#include "pmrrr/global.h"
 #include "pmrrr/rrr.h"
 #include "pmrrr/counter.h"
 #include "pmrrr/structs.h"
 #include "pmrrr/tasks.h"
 #include "pmrrr/process_task.h"
-
 
 int PMR_process_s_task(singleton_t *sng, int tid, proc_t *procinfo,
 		       val_t *Wstruct, vec_t *Zstruct, 
@@ -312,5 +306,5 @@ int PMR_process_s_task(singleton_t *sng, int tid, proc_t *procinfo,
   free(sng);
   PMR_try_destroy_rrr(RRR);
 
-  return(0);
+  return 0;
 }

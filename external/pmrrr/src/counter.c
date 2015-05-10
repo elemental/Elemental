@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -39,142 +42,110 @@
  */
 
 #include <stdlib.h>
-#include <pthread.h>
 #include <assert.h>
 #include "pmrrr/global.h"
 #include "pmrrr/counter.h"
 
+int PMR_counter_init_lock(counter_t *counter)
+{
+#ifndef DISABLE_PTHREADS
+ #ifdef NOSPINLOCKS
+  int info = pthread_mutex_init(&counter->lock, NULL);
+ #else
+  int info = pthread_spin_init(&counter->lock, PTHREAD_PROCESS_PRIVATE);
+ #endif
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
 
+void PMR_counter_destroy_lock(counter_t *counter)
+{
+#ifndef DISABLE_PTHREADS
+ #ifdef NOSPINLOCKS
+  pthread_mutex_destroy(&counter->lock);
+ #else
+  pthread_spin_destroy(&counter->lock);
+ #endif
+#endif
+}
+
+int PMR_counter_lock(counter_t *counter)
+{
+#ifndef DISABLE_PTHREADS
+ #ifdef NOSPINLOCKS
+  int info = pthread_mutex_lock(&counter->lock);
+ #else
+  int info = pthread_spin_lock(&counter->lock);
+ #endif
+  assert(info == 0);
+ return info;
+#else
+  return 0;
+#endif
+}
+
+int PMR_counter_unlock(counter_t *counter)
+{
+#ifndef DISABLE_PTHREADS
+ #ifdef NOSPINLOCKS
+  int info = pthread_mutex_unlock(&counter->lock);
+ #else
+  int info = pthread_spin_unlock(&counter->lock);
+ #endif
+  assert(info == 0);
+  return info;
+#else
+  return 0;
+#endif
+}
 
 counter_t *PMR_create_counter(int init_value)
 {
-  int info;
-  counter_t *counter;
-
-  counter = (counter_t *) malloc( sizeof(counter_t) );
-  
+  counter_t *counter = (counter_t *) malloc( sizeof(counter_t) );
   counter->value = init_value;
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_init(&counter->lock, NULL);
-#else
-  info = pthread_spin_init(&counter->lock, PTHREAD_PROCESS_PRIVATE);
-#endif
-  assert(info == 0);
-  
-  return(counter);
+  int info = PMR_counter_init_lock(counter);
+  return counter;
 }
-
-
 
 void PMR_destroy_counter(counter_t *counter)
 {
-#ifdef NOSPINLOCKS
-  pthread_mutex_destroy(&counter->lock);
-#else
-  pthread_spin_destroy(&counter->lock);
-#endif
+  PMR_counter_destroy_lock(counter);
   free(counter);
 }
 
-
-
 int PMR_get_counter_value(counter_t *counter)
 {
-  int value, info;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_lock(&counter->lock);
-#else
-  info = pthread_spin_lock(&counter->lock);
-#endif
-  assert(info == 0);
-
-  value = counter->value;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_unlock(&counter->lock);
-#else
-  info = pthread_spin_unlock(&counter->lock);
-#endif
-  assert(info == 0);
-
-  return(value);
+  int info = PMR_counter_lock(counter);
+  int value = counter->value;
+  info |= PMR_counter_unlock(counter);
+  return value;
 }
-
-
 
 inline int PMR_set_counter_value(counter_t *counter, int value)
 {
-  int info;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_lock(&counter->lock);
-#else
-  info = pthread_spin_lock(&counter->lock);
-#endif
-  assert(info == 0);
-
+  int info = PMR_counter_lock(counter);
   counter->value = value;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_unlock(&counter->lock);
-#else
-  info = pthread_spin_unlock(&counter->lock);
-#endif
-  assert(info == 0);
-  
-  return(value);
+  info |= PMR_counter_unlock(counter);
+  return value;
 }
-
-
 
 int PMR_decrement_counter(counter_t *counter, int amount)
 {
-  int value, info;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_lock(&counter->lock);
-#else
-  info = pthread_spin_lock(&counter->lock);
-#endif
-  assert(info == 0);
-
+  int info = PMR_counter_lock(counter);
   counter->value -= amount;
-  value = counter->value;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_unlock(&counter->lock);
-#else
-  info = pthread_spin_unlock(&counter->lock);
-#endif
-  assert(info == 0);
-
-  return(value);
+  int value = counter->value;
+  info |= PMR_counter_unlock(counter);
+  return value;
 }
-
-
-
 
 int PMR_increment_counter(counter_t *counter, int amount)
 {
-  int value, info;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_lock(&counter->lock);
-#else
-  info = pthread_spin_lock(&counter->lock);
-#endif
-  assert(info == 0);
-
+  int info = PMR_counter_lock(counter);
   counter->value += amount;
-  value = counter->value;
-
-#ifdef NOSPINLOCKS
-  info = pthread_mutex_unlock(&counter->lock);
-#else
-  info = pthread_spin_unlock(&counter->lock);
-#endif
-  assert(info == 0);
-
-  return(value);
+  int value = counter->value;
+  info |= PMR_counter_unlock(counter);
+  return value;
 }

@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -38,14 +41,7 @@
  *
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <semaphore.h>
-#include <assert.h>
-#include "mpi.h"
 #include "pmrrr.h"
-#include "pmrrr/global.h"
 #include "pmrrr/plarrv.h"
 #include "pmrrr/queue.h"
 #include "pmrrr/counter.h"
@@ -53,10 +49,8 @@
 #include "pmrrr/tasks.h"
 #include "pmrrr/process_task.h"
 
-
 int PMR_process_r_task(refine_t *rf, proc_t *procinfo, val_t *Wstruct,
 		       tol_t *tolstruct, double *work, int *iwork);
-
 
 /*
  * Executes all tasks which are in the r-queue at the moment of the 
@@ -111,9 +105,6 @@ void PMR_process_r_queue(int tid, proc_t *procinfo, val_t *Wstruct,
     } /* end if task removed */
   } /* end for t */
 } /* end process_entire_r_queue */
-  
-
-
 
 /*
  * Process the task of refining a subset of eigenvalues.
@@ -130,7 +121,6 @@ int PMR_process_r_task(refine_t *rf, proc_t *procinfo,
   int              q         = rf->q;
   int              bl_size   = rf->bl_size;
   double           bl_spdiam = rf->bl_spdiam;
-  sem_t            *sem      = rf->sem;
 
   double *restrict Werr      = Wstruct->Werr;
   double *restrict Wgap      = Wstruct->Wgap;
@@ -161,8 +151,8 @@ int PMR_process_r_task(refine_t *rf, proc_t *procinfo,
     Wgap[ts_begin] = savegap;
   }  
 
-  sem_post(sem);
+  PMR_refine_sem_post(rf);
   free(rf);
 
-  return(0);
+  return 0;
 }

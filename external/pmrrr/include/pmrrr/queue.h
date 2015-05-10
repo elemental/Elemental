@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -41,7 +44,9 @@
 #ifndef QQUEUE_H
 #define QQUEUE_H
 
-#include <pthread.h>
+#ifndef DISABLE_PTHREADS
+ #include <pthread.h>
+#endif
 #include "global.h"
 
 typedef struct task_aux task_t;
@@ -56,10 +61,12 @@ typedef struct {
   int                num_tasks;
   task_t            *head;
   task_t            *back;
-#ifdef NOSPINLOCKS
+#ifndef DISABLE_PTHREADS
+ #ifdef NOSPINLOCKS
   pthread_mutex_t    lock;
-#else
+ #else
   pthread_spinlock_t lock;
+ #endif
 #endif
 } queue_t;
 
@@ -72,5 +79,10 @@ task_t  *PMR_remove_task_at_front(queue_t *queue);
 task_t  *PMR_remove_task_at_back (queue_t *queue);
 int     PMR_get_num_tasks(queue_t *queue);
 void    PMR_destroy_queue(queue_t *queue);
+
+int PMR_queue_init_lock(queue_t *queue);
+void PMR_queue_destroy_lock(queue_t *queue);
+int PMR_queue_lock(queue_t *queue);
+int PMR_queue_unlock(queue_t *queue);
 
 #endif
