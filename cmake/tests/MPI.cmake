@@ -67,6 +67,20 @@ check_c_source_compiles("${MPI_LONG_DOUBLE_CODE}" EL_HAVE_MPI_LONG_DOUBLE)
 check_c_source_compiles("${MPI_LONG_DOUBLE_COMPLEX_CODE}" 
   EL_HAVE_MPI_LONG_DOUBLE_COMPLEX)
 
+# Check if MPI_C_FLOAT_COMPLEX and MPI_C_DOUBLE_COMPLEX exist
+# ===========================================================
+set(MPI_C_COMPLEX_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Datatype floatCpx = MPI_C_FLOAT_COMPLEX;
+         MPI_Datatype doubleCpx = MPI_C_DOUBLE_COMPLEX;
+         MPI_Finalize();
+         return 0;
+     }")
+check_c_source_compiles("${MPI_C_COMPLEX_CODE}" EL_HAVE_MPI_C_COMPLEX)
+
 # Detect support for various optional MPI routines
 # ================================================
 check_function_exists(MPI_Reduce_scatter_block EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)

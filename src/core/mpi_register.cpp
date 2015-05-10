@@ -282,14 +282,33 @@ template<> Datatype TypeMap<double>() { return MPI_DOUBLE; }
 template<> Datatype TypeMap<Quad>()   { return ::QuadType; }
 #endif
 
-/* NOTE: I'm not sure of whether it is better to manually implement these
-         or not. MPI_COMPLEX and MPI_DOUBLE_COMPLEX are dangerous since it 
-         appears that recent versions of MPICH leave them as NULL when 
-         compiling with Clang. */
-template<> Datatype TypeMap<Complex<float>>()  { return MPI_C_FLOAT_COMPLEX; }
-template<> Datatype TypeMap<Complex<double>>() { return MPI_C_DOUBLE_COMPLEX; }
+/* I'm not sure of whether it is better to manually implement these
+   or not. MPI_COMPLEX and MPI_DOUBLE_COMPLEX are dangerous since it 
+   appears that recent versions of MPICH leave them as NULL when 
+   compiling with Clang. 
+
+   It also appears that certain versions of OpenMPI do not support 
+   MPI_C_FLOAT_COMPLEX and MPI_C_DOUBLE_COMPLEX, and so we will, for now,
+   use these by default and fall back to MPI_COMPLEX and 
+   MPI_DOUBLE_COMPLEX otherwise. */
+template<> Datatype TypeMap<Complex<float>>()  
+{ 
+#ifdef EL_HAVE_MPI_C_COMPLEX
+    return MPI_C_FLOAT_COMPLEX; 
+#else
+    return MPI_COMPLEX;
+#endif
+}
+template<> Datatype TypeMap<Complex<double>>() 
+{ 
+#ifdef EL_HAVE_MPI_C_COMPLEX
+    return MPI_C_DOUBLE_COMPLEX; 
+#else
+    return MPI_DOUBLE_COMPLEX;
+#endif
+}
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Complex<Quad>>()   { return ::QuadComplexType; }
+template<> Datatype TypeMap<Complex<Quad>>() { return ::QuadComplexType; }
 #endif
 
 template<> Datatype TypeMap<ValueInt<Int>>()
