@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015 Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -47,6 +50,7 @@
 #include <math.h>
 #include <float.h>
 #include <assert.h>
+#include <ctype.h>
 #include "mpi.h"
 #include "pmrrr/global.h"
 
@@ -268,8 +272,7 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
 /* LAPACK and BLAS function prototypes
  * Note: type specifier 'extern' does not matter in declaration
  * so here used to mark routines from LAPACK and BLAS libraries */
-extern void pmrrr_dscal(int*, double*, double*, int*);
-
+extern int    odscal(int*, double*, double*, int*);
 extern double odnst(char*, int*, double*, double*);
 extern void   odrrr(int*, double*, double*, int*);
 extern void   odrra(int*, double*, double*, double*, double*, 

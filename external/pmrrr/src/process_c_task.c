@@ -40,7 +40,6 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
 #include "pmrrr.h"
 #include "pmrrr/plarrv.h"
 #include "pmrrr/queue.h"
@@ -49,80 +48,73 @@
 #include "pmrrr/structs.h"
 #include "pmrrr/process_task.h"
 
-
 #define THREE            3.0
 #define FOUR             4.0
 
+static inline 
+rrr_t* compute_new_rrr
+(cluster_t *cl, int tid, proc_t *procinfo,
+ val_t *Wstruct, vec_t *Zstruct,
+ tol_t *tolstruct, double *work, int *iwork);
 
 static inline 
-rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
-		       val_t *Wstruct, vec_t *Zstruct,
-		       tol_t *tolstruct, double *work, int *iwork);
+int refine_eigvals
+(cluster_t *cl, int rf_begin, int rf_end,
+ int tid, proc_t *procinfo,
+ rrr_t *RRR, val_t *Wstruct, vec_t *Zstruct,
+ tol_t *tolstruct, counter_t *num_left, 
+ workQ_t *workQ, double *work, int *iwork);
 
 static inline 
-int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
-		   int tid, proc_t *procinfo,
-		   rrr_t *RRR, val_t *Wstruct, vec_t *Zstruct,
-		   tol_t *tolstruct, counter_t *num_left, 
-		   workQ_t *workQ, double *work, 
-		   int *iwork);
-
-static inline 
-int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
-				int tid, val_t *Wstruct, rrr_t *RRR);
+int communicate_refined_eigvals
+(cluster_t *cl, proc_t *procinfo, int tid, val_t *Wstruct, rrr_t *RRR);
 
 static inline 
 int test_comm_status(cluster_t *cl, val_t *Wstruct);
 
 static inline 
-int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo,
-		    rrr_t *RRR, val_t *Wstruct, vec_t *Zstruct,
-		    workQ_t *workQ,
-		    counter_t *num_left);
+int create_subtasks
+(cluster_t *cl, int tid, proc_t *procinfo,
+ rrr_t *RRR, val_t *Wstruct, vec_t *Zstruct,
+ workQ_t *workQ, counter_t *num_left);
 
-
-
-
-int PMR_process_c_task(cluster_t *cl, int tid, proc_t *procinfo,
-		       val_t *Wstruct, vec_t *Zstruct, 
-		       tol_t *tolstruct, workQ_t *workQ, 
-		       counter_t *num_left, double *work, int *iwork)
+int PMR_process_c_task
+(cluster_t *cl, int tid, proc_t *procinfo,
+ val_t *Wstruct, vec_t *Zstruct, 
+ tol_t *tolstruct, workQ_t *workQ, 
+ counter_t *num_left, double *work, int *iwork)
 {
-  /* From inputs */
-  int   depth      = cl->depth;
-  int   left_pid   = cl->left_pid;
-  int   right_pid  = cl->right_pid;
-  int   pid        = procinfo->pid;
-  int   n          = Wstruct->n;
-
-  /* Others */
-  rrr_t *RRR;
-  int   rf_begin, rf_end;
-  int   status;
+  int   depth     = cl->depth;
+  int   left_pid  = cl->left_pid;
+  int   right_pid = cl->right_pid;
+  int   pid       = procinfo->pid;
+  int   n         = Wstruct->n;
 
   /* Protection against infinitely deep trees */
   assert(depth < n);
 
   /* Check if task only need to be split into subtasks */
+  int status;
   if (cl->wait_until_refined == true) {
     status = test_comm_status(cl, Wstruct);
     if (status == COMM_COMPLETE) {
-      create_subtasks(cl, tid, procinfo, cl->RRR, Wstruct, Zstruct,
-		      workQ, num_left);
-      return(C_TASK_PROCESSED);
+      create_subtasks
+      (cl, tid, procinfo, cl->RRR, Wstruct, Zstruct, workQ, num_left);
+      return C_TASK_PROCESSED;
     } else {
-      return(C_TASK_NOT_PROCESSED);
+      return C_TASK_NOT_PROCESSED;
     }
   }
 
   /* Otherwise: compute new rrr, refine part own cluster,
    * communicate the refined eigenvalues if necessary,
    * and create subtasks if possible */
-
-  RRR = compute_new_rrr(cl, tid, procinfo, Wstruct, Zstruct,
-			tolstruct, work, iwork);
+  rrr_t *RRR = 
+    compute_new_rrr
+    (cl, tid, procinfo, Wstruct, Zstruct, tolstruct, work, iwork);
 
   /* Refine eigenvalues 'rf_begin' to 'rf_end' */
+  int rf_begin, rf_end;
   if (left_pid != right_pid) {
     rf_begin = imax(cl->begin, cl->proc_W_begin);
     rf_end   = imin(cl->end,   cl->proc_W_end);
@@ -130,98 +122,75 @@ int PMR_process_c_task(cluster_t *cl, int tid, proc_t *procinfo,
   if (pid == left_pid ) rf_begin = cl->begin;
   if (pid == right_pid) rf_end   = cl->end;
 
-  refine_eigvals(cl, rf_begin, rf_end, tid, procinfo, RRR,
-		 Wstruct, Zstruct, tolstruct, num_left,
-		 workQ, work, iwork);
+  refine_eigvals
+  (cl, rf_begin, rf_end, tid, procinfo, RRR,
+   Wstruct, Zstruct, tolstruct, num_left, workQ, work, iwork);
 
   /* Communicate results: non-blocking */
   status = COMM_COMPLETE;
   if (left_pid != right_pid) {
-
-    status = communicate_refined_eigvals(cl, procinfo, tid,
-					 Wstruct, RRR);
+    status = communicate_refined_eigvals(cl, procinfo, tid, Wstruct, RRR);
     /* status = COMM_INCOMPLETE if communication not finished */
   }
 
   if (status == COMM_COMPLETE) {
-    
-    create_subtasks(cl, tid, procinfo, RRR, Wstruct, Zstruct,
-		    workQ, num_left);
-
-    return(C_TASK_PROCESSED);
+    create_subtasks(cl, tid, procinfo, RRR, Wstruct, Zstruct, workQ, num_left);
+    return C_TASK_PROCESSED;
   } else {
-    return(C_TASK_NOT_PROCESSED);
+    return C_TASK_NOT_PROCESSED;
   }
-
 } /* end process_c_task */
 
-
-
-
-
 static inline 
-rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
-		       val_t *Wstruct, vec_t *Zstruct,
-		       tol_t *tolstruct, double *work, int *iwork)
+rrr_t* compute_new_rrr
+(cluster_t *cl, int tid, proc_t *procinfo,
+ val_t *Wstruct, vec_t *Zstruct,
+ tol_t *tolstruct, double *work, int *iwork)
 {
-  /* From inputs */
-  int              cl_begin    = cl->begin;
-  int              cl_end      = cl->end;
-  int              cl_size     = cl_end - cl_begin + 1;
-  int              depth       = cl->depth;
-  int              bl_begin    = cl->bl_begin;
-  int              bl_end      = cl->bl_end;
-  int              bl_size     = bl_end - bl_begin + 1;
-  double           bl_spdiam   = cl->bl_spdiam;
-  rrr_t            *RRR_parent = cl->RRR;
+  int    cl_begin    = cl->begin;
+  int    cl_end      = cl->end;
+  int    cl_size     = cl_end - cl_begin + 1;
+  int    depth       = cl->depth;
+  int    bl_begin    = cl->bl_begin;
+  int    bl_end      = cl->bl_end;
+  int    bl_size     = bl_end - bl_begin + 1;
+  double bl_spdiam   = cl->bl_spdiam;
+  rrr_t  *RRR_parent = cl->RRR;
 
-  double *restrict Werr        = Wstruct->Werr;
-  double *restrict Wgap        = Wstruct->Wgap;
-  int    *restrict Windex      = Wstruct->Windex;
-  double *restrict Wshifted    = Wstruct->Wshifted;
-
-  double           pivmin      = tolstruct->pivmin;
-
-  /* New RRR */
-  double           *restrict D,         *restrict L;
-  double           *restrict DL,        *restrict DLL;
-  double           *restrict D_parent,  *restrict L_parent;
-  double           *DL_parent,          *DLL_parent;
-  double           left_gap, right_gap, tau, fudge;
-  rrr_t            *RRR;
-  double           RQtol = 2*DBL_EPSILON;
-  double           savegap;
-
-  /* Others */
-  int              i, k, p, info;
-  double           tmp;
-  int              offset, IONE=1;
+  double *restrict Werr     = Wstruct->Werr;
+  double *restrict Wgap     = Wstruct->Wgap;
+  int    *restrict Windex   = Wstruct->Windex;
+  double *restrict Wshifted = Wstruct->Wshifted;
 
   /* Allocate memory for new representation for cluster */
-  D   = (double *) malloc(bl_size * sizeof(double));
-  assert(D != NULL);
-  
-  L   = (double *) malloc(bl_size * sizeof(double));
-  assert(L != NULL);
-  
-  DL  = (double *) malloc(bl_size * sizeof(double));
-  assert(DL != NULL);
-  
-  DLL = (double *) malloc(bl_size * sizeof(double));
-  assert(DLL != NULL);
+  double *D = (double*)malloc(bl_size*sizeof(double)); 
+  double *L = (double*)malloc(bl_size*sizeof(double)); 
+  double *DL = (double*)malloc(bl_size*sizeof(double)); 
+  double *DLL = (double*)malloc(bl_size*sizeof(double)); 
+  assert(D!=NULL);
+  assert(L!=NULL);
+  assert(DL!=NULL);
+  assert(DLL!=NULL);
 
   /* Recompute DL and DLL */
-  D_parent = RRR_parent->D;
-  L_parent = RRR_parent->L;
+  int i;
+  double tmp;
+  double *D_parent = RRR_parent->D;
+  double *L_parent = RRR_parent->L;
   for (i=0; i<bl_size-1; i++) {
     tmp    = D_parent[i]*L_parent[i];
     DL[i]  = tmp;
     DLL[i] = tmp*L_parent[i];
   }
-  DL_parent  = DL;
-  DLL_parent = DLL;
+  double *DL_parent  = DL;
+  double *DLL_parent = DLL;
+
+  double RQtol = 2*DBL_EPSILON;
+  double pivmin = tolstruct->pivmin;
 
   /* to shift as close as possible refine extremal eigenvalues */
+  int k, p;
+  double savegap;
   for (k=0; k<2; k++) {
     if (k == 0) {
       p              = Windex[cl_begin];
@@ -233,12 +202,12 @@ rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
       Wgap[cl_end]   = 0.0;
     }
     
-    offset  = Windex[cl_begin] - 1;
-
-    odrrb(&bl_size, D_parent, DLL_parent, &p, &p, &RQtol,
-	  &RQtol, &offset, &Wshifted[cl_begin], &Wgap[cl_begin],
-	  &Werr[cl_begin], work, iwork, &pivmin, &bl_spdiam,
-	  &bl_size, &info);
+    int info;
+    int offset  = Windex[cl_begin] - 1;
+    odrrb
+    (&bl_size, D_parent, DLL_parent, &p, &p, &RQtol,
+     &RQtol, &offset, &Wshifted[cl_begin], &Wgap[cl_begin],
+     &Werr[cl_begin], work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
     assert( info == 0 );
 
     if (k == 0) {
@@ -249,14 +218,18 @@ rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
     }
   } /* end k */
 
-  left_gap  = cl->lgap;
-  right_gap = Wgap[cl_end];
+  double left_gap  = cl->lgap;
+  double right_gap = Wgap[cl_end];
 
   /* Compute new RRR and store it in D and L */
-  odrrf(&bl_size, D_parent, L_parent, DL_parent,
-        &IONE, &cl_size, &Wshifted[cl_begin], &Wgap[cl_begin],
-        &Werr[cl_begin], &bl_spdiam, &left_gap, &right_gap,
-        &pivmin, &tau, D, L, work, &info);
+  int info;
+  int IONE=1;
+  double tau;
+  odrrf
+  (&bl_size, D_parent, L_parent, DL_parent,
+   &IONE, &cl_size, &Wshifted[cl_begin], &Wgap[cl_begin],
+   &Werr[cl_begin], &bl_spdiam, &left_gap, &right_gap,
+   &pivmin, &tau, D, L, work, &info);
   assert(info == 0);
 
   /* Update shift and store it */
@@ -276,49 +249,42 @@ rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
     free(RRR_parent->D);
     free(RRR_parent->L);
   }
-  RRR = PMR_reset_rrr(RRR_parent, D, L, DL, DLL, bl_size, depth+1);
+  rrr_t *RRR = PMR_reset_rrr(RRR_parent, D, L, DL, DLL, bl_size, depth+1);
   
   /* Update shifted eigenvalues */
   for (k=cl_begin; k<=cl_end; k++) {
-    fudge  = THREE * DBL_EPSILON * fabs( Wshifted[k] );
+    double fudge = THREE*DBL_EPSILON*fabs(Wshifted[k]);
     Wshifted[k] -= tau;
-    fudge += FOUR * DBL_EPSILON * fabs( Wshifted[k] );
+    fudge += FOUR*DBL_EPSILON*fabs(Wshifted[k]);
     Werr[k] += fudge;
   }
 
   /* Assure that structure is not freed while it is processed */
   PMR_increment_rrr_dependencies(RRR);
 
-  return(RRR);
+  return RRR;
 } /* end compute_new_rrr */
-
-
-
-
 
 /* 
  * Refine eigenvalues with respect to new rrr 
  */
 static inline 
-int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
-		   int tid, proc_t *procinfo, rrr_t *RRR, 
-		   val_t *Wstruct, vec_t *Zstruct,
-		   tol_t *tolstruct, counter_t *num_left,
-		   workQ_t *workQ, double *work,
-		   int *iwork)
+int refine_eigvals
+(cluster_t *cl, int rf_begin, int rf_end,
+ int tid, proc_t *procinfo, rrr_t *RRR, 
+ val_t *Wstruct, vec_t *Zstruct,
+ tol_t *tolstruct, counter_t *num_left,
+ workQ_t *workQ, double *work, int *iwork)
 {
-  /* From inputs */
-  int              rf_size   = rf_end-rf_begin+1;
-  int              bl_begin  = cl->bl_begin;
-  int              bl_end    = cl->bl_end;
-  int              bl_size   = bl_end - bl_begin + 1;
-  double           bl_spdiam = cl->bl_spdiam;
+  int    rf_size   = rf_end-rf_begin+1;
+  int    bl_begin  = cl->bl_begin;
+  int    bl_end    = cl->bl_end;
+  int    bl_size   = bl_end - bl_begin + 1;
+  double bl_spdiam = cl->bl_spdiam;
 
-  int              nthreads  = procinfo->nthreads;
-
-  double *restrict D         = RRR->D;
-  double *restrict L         = RRR->L;
-  double *restrict DLL       = RRR->DLL;
+  double *restrict D   = RRR->D;
+  double *restrict L   = RRR->L;
+  double *restrict DLL = RRR->DLL;
 
   double *restrict W         = Wstruct->W;
   double *restrict Werr      = Wstruct->Werr;
@@ -326,40 +292,34 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
   int    *restrict Windex    = Wstruct->Windex;
   double *restrict Wshifted  = Wstruct->Wshifted;
 
-  int              nz        = Zstruct->nz;
-
-  double           pivmin    = tolstruct->pivmin;
-  double           rtol1     = tolstruct->rtol1;
-  double           rtol2     = tolstruct->rtol2;
-
-  /* Others */
-  int              info, i, p, q, offset;
-  double           sigma, savegap;
-  int              MIN_REFINE_CHUNK = fmax(2,nz/(4*nthreads));
-  int              left, own_part, others_part, num_tasks;
-  int              ts_begin, ts_end, chunk, count;
-  task_t           *task;
-  int              num_iter;
+  double pivmin = tolstruct->pivmin;
+  double rtol1 = tolstruct->rtol1;
+  double rtol2 = tolstruct->rtol2;
 
   /* Determine if refinement should be split into tasks */
-  left = PMR_get_counter_value(num_left);
-  own_part = (int) fmax( ceil( (double) left / nthreads ),
-			 MIN_REFINE_CHUNK);
+  int left = PMR_get_counter_value(num_left);
+  int nz = Zstruct->nz;
+  int nthreads = procinfo->nthreads;
+  int MIN_REFINE_CHUNK = fmax(2,nz/(4*nthreads));
+  int own_part = (int)fmax(ceil((double)left/nthreads),MIN_REFINE_CHUNK);
 
+  int offset, i, p, q;
+  double savegap;
+  task_t *task;
   if (own_part < rf_size) {
+    int others_part = rf_size - own_part;
+    int num_tasks   = iceil(rf_size, own_part) - 1; /* >1 */
+    int chunk       = others_part/num_tasks;        /* floor */
 
-    others_part = rf_size - own_part;
-    num_tasks   = iceil(rf_size, own_part) - 1; /* >1 */
-    chunk       = others_part/num_tasks;        /* floor */
-
-    ts_begin = rf_begin;
-    p        = Windex[rf_begin];
+    int ts_begin=rf_begin, ts_end;
+    p = Windex[rf_begin];
     for (i=0; i<num_tasks; i++) {
       ts_end = ts_begin + chunk - 1;
       q      = p        + chunk - 1;
 
-      task = PMR_create_r_task(ts_begin, ts_end, D, DLL, p, q, 
-			       bl_size, bl_spdiam, tid);
+      task = 
+        PMR_create_r_task
+        (ts_begin, ts_end, D, DLL, p, q, bl_size, bl_spdiam, tid);
      
       if (ts_begin <= ts_end)
 	PMR_insert_task_at_back(workQ->r_queue, task);
@@ -375,20 +335,22 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
 
     /* Call bisection routine to refine the values */
     if (ts_begin <= ts_end) {
-      odrrb(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
-	    &Wshifted[ts_begin], &Wgap[ts_begin], &Werr[ts_begin],
-	    work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
+      int info;
+      odrrb
+      (&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
+       &Wshifted[ts_begin], &Wgap[ts_begin], &Werr[ts_begin],
+       work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
       assert( info == 0 );
     }
 
     /* Empty "all" r-queue refine tasks before waiting */
-    num_iter = PMR_get_num_tasks(workQ->r_queue);
+    int num_iter = PMR_get_num_tasks(workQ->r_queue);
     for (i=0; i<num_iter; i++) {
       task = PMR_remove_task_at_front(workQ->r_queue);
       if (task != NULL) {
 	if (task->flag == REFINE_TASK_FLAG) {
-	  PMR_process_r_task((refine_t *) task->data, procinfo, 
-			     Wstruct, tolstruct, work, iwork);
+	  PMR_process_r_task
+          ((refine_t*)task->data, procinfo, Wstruct, tolstruct, work, iwork);
 	  free(task);
 	} else {
 	  PMR_insert_task_at_back(workQ->r_queue, task);
@@ -397,7 +359,7 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
     } /* end for i */
     
     /* Barrier: wait until all created tasks finished */
-    count = num_tasks;
+    int count = num_tasks;
     while (count > 0) {
       while ( PMR_refine_sem_wait(task->data) != 0 ) { };
       count--;
@@ -414,7 +376,6 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
       
       ts_begin = ts_end + 1;
     }
-
   } else {
     /* Refinement of cluster without creating tasks */
     
@@ -431,76 +392,53 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
     }  
     
     /* Bisection routine to refine the values */
-    odrrb(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
-	  &Wshifted[rf_begin], &Wgap[rf_begin], &Werr[rf_begin],
-	  work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
+    int info;
+    odrrb
+    (&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
+     &Wshifted[rf_begin], &Wgap[rf_begin], &Werr[rf_begin],
+     work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
     assert( info == 0 );
     
-    if (p == q) {
+    if (p == q)
       Wgap[rf_begin] = savegap;
-    }  
-  
   } /* end refine with or without creating tasks */
 
-  sigma     = L[bl_size-1];
-  
   /* refined eigenvalues with all shifts applied in W */
-  for (i=rf_begin; i<=rf_end; i++) {
+  double sigma = L[bl_size-1];
+  for (i=rf_begin; i<=rf_end; i++)
     W[i] = Wshifted[i] + sigma;
-  }
 
-  return(0);
+  return 0;
 } /* end refine_eigvals */
 
-
-
-
-
-
-
-
 static inline 
-int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
-				int tid, val_t *Wstruct, rrr_t *RRR)
+int communicate_refined_eigvals
+(cluster_t *cl, proc_t *procinfo, int tid, val_t *Wstruct, rrr_t *RRR)
 {
-  /* From inputs */
-  int              cl_begin     = cl->begin;
-  int              cl_end       = cl->end;
-  int              bl_begin     = cl->bl_begin;
-  int              bl_end       = cl->bl_end;
-  int              proc_W_begin = cl->proc_W_begin;
-  int              proc_W_end   = cl->proc_W_end;
-  int              left_pid     = cl->left_pid;
-  int              right_pid    = cl->right_pid;
-  int              num_messages;
-  //  int              num_messages = 4*(right_pid - left_pid);
+  int cl_begin     = cl->begin;
+  int cl_end       = cl->end;
+  int bl_begin     = cl->bl_begin;
+  int bl_end       = cl->bl_end;
+  int proc_W_begin = cl->proc_W_begin;
+  int proc_W_end   = cl->proc_W_end;
+  int left_pid     = cl->left_pid;
+  int right_pid    = cl->right_pid;
+  int pid          = procinfo->pid;
 
-  int              pid          = procinfo->pid;
+  double *restrict W        = Wstruct->W;
+  double *restrict Werr     = Wstruct->Werr;
+  double *restrict Wgap     = Wstruct->Wgap;
+  double *restrict Wshifted = Wstruct->Wshifted;
+  int    *restrict iproc    = Wstruct->iproc;
 
-  double *restrict W            = Wstruct->W;
-  double *restrict Werr         = Wstruct->Werr;
-  double *restrict Wgap         = Wstruct->Wgap;
-  double *restrict Wshifted     = Wstruct->Wshifted;
-  int    *restrict iproc        = Wstruct->iproc;
-
-  /* Others */
-  int              p, i_msg, u, k, i;
-  int              my_begin, my_end, my_size;
-  int              other_begin, other_end, other_size;
-  double           sigma;
-  int              status, communication_done;
-  MPI_Request      *requests;
-  MPI_Status       *stats;
-  comm_t           *comm;
-  bool             proc_involved;
-
-  my_begin = imax(cl_begin, proc_W_begin);
-  my_end   = imin(cl_end,   proc_W_end);
+  int my_begin = imax(cl_begin, proc_W_begin);
+  int my_end   = imin(cl_end,   proc_W_end);
   if (pid == left_pid ) my_begin = cl_begin;
   if (pid == right_pid) my_end   = cl_end;
-  my_size  = my_end - my_begin + 1;
+  int my_size  = my_end - my_begin + 1;
 
-  num_messages = 0;
+  int i, k;
+  int num_messages = 0;
   for (i=left_pid; i<=right_pid; i++) {
     for (k=cl_begin; k<=cl_end; k++) {
       if (iproc[k] == i) {
@@ -510,15 +448,14 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
     }    
   }
 
-  requests = (MPI_Request *) malloc( num_messages *
-					  sizeof(MPI_Request) );
-  stats    = (MPI_Status  *) malloc( num_messages * 
-					  sizeof(MPI_Status) );
+  MPI_Request *requests=(MPI_Request*)malloc(num_messages*sizeof(MPI_Request));
+  MPI_Status *stats = (MPI_Status*)malloc(num_messages*sizeof(MPI_Status));
 
-  i_msg = 0;
+  int p;
+  int i_msg = 0;
+  int other_begin, other_end, other_size;
   for (p=left_pid; p<=right_pid; p++) {
-
-    proc_involved = false;
+    bool proc_involved = false;
     for (k=cl_begin; k<=cl_end; k++) {
       if (iproc[k] == p) {
 	proc_involved = true;
@@ -526,8 +463,8 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
       }
     }
 
+    int u;
     if (p != pid && proc_involved == true) {
-
       /* send message to process p (non-blocking) */
       MPI_Isend(&Wshifted[my_begin], my_size, MPI_DOUBLE, p,
 		my_begin, procinfo->comm, &requests[4*i_msg]);
@@ -576,17 +513,15 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
      
       i_msg++;
     }
-
   } /* end for p */
   num_messages = 4*i_msg; /* messages actually send */
 
-  status = MPI_Testall(num_messages, requests, 
-		       &communication_done, stats);
+  int communication_done;
+  int status = MPI_Testall(num_messages, requests, &communication_done, stats);
   assert(status == MPI_SUCCESS);
 
   if (communication_done == true) {
-
-    sigma     = RRR->L[bl_end-bl_begin];
+    double sigma = RRR->L[bl_end-bl_begin];
     for (k=cl_begin; k<cl_end; k++) {
       W[k]    = Wshifted[k] + sigma;
       Wgap[k] = fmax(0, Wshifted[k+1]-Werr[k+1] 
@@ -598,8 +533,7 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
     free(stats);
     status = COMM_COMPLETE;
   } else {
-   
-    comm = (comm_t *) malloc( sizeof(comm_t) );
+    comm_t *comm = (comm_t*)malloc(sizeof(comm_t));
     assert(comm != NULL);
 
     comm->num_messages      = num_messages;
@@ -611,13 +545,8 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
     status = COMM_INCOMPLETE;
   }
   
-  return(status);
+  return status;
 } /* end communicate_refined_eigvals */
-
-
-
-
-
 
 static inline 
 int test_comm_status(cluster_t *cl, val_t *Wstruct)
@@ -636,19 +565,16 @@ int test_comm_status(cluster_t *cl, val_t *Wstruct)
   double      *restrict Wgap      = Wstruct->Wgap;
   double      *restrict Wshifted  = Wstruct->Wshifted;
 
-  int         status, k, communication_done;
-  double      sigma;
-
   /* Test if communication complete */
-  status = MPI_Testall(num_messages, requests, 
-		       &communication_done, stats);
+  int communication_done;
+  int status = MPI_Testall(num_messages, requests, &communication_done, stats);
   assert(status == MPI_SUCCESS);
 
   if (communication_done == true) {
-
     cl->wait_until_refined = false;
 
-    sigma     = RRR->L[bl_end-bl_begin];
+    int k;
+    double sigma = RRR->L[bl_end-bl_begin];
     for (k=cl_begin; k<cl_end; k++) {
       W[k]    = Wshifted[k] + sigma;
       Wgap[k] = fmax(0, Wshifted[k+1]-Werr[k+1] 
@@ -664,17 +590,15 @@ int test_comm_status(cluster_t *cl, val_t *Wstruct)
     status = COMM_INCOMPLETE;
   }
 
-  return(status);
+  return status;
 } /* test_comm_status */
 
-
-
-
-
+/* TODO: Refactor this routine */
 static inline 
-int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo, 
-		    rrr_t *RRR, val_t *Wstruct, vec_t *Zstruct,
-		    workQ_t *workQ, counter_t *num_left)
+int create_subtasks
+(cluster_t *cl, int tid, proc_t *procinfo, 
+ rrr_t *RRR, val_t *Wstruct, vec_t *Zstruct,
+ workQ_t *workQ, counter_t *num_left)
 {
   /* From inputs */
   int              cl_begin  = cl->begin;
@@ -686,10 +610,10 @@ int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo,
   double           bl_spdiam = cl->bl_spdiam;
   double           lgap;
 
-  int              pid       = procinfo->pid;
-  int              nproc     = procinfo->nproc;
-  int              nthreads  = procinfo->nthreads;
-  bool           proc_involved=true;
+  int  pid       = procinfo->pid;
+  int  nproc     = procinfo->nproc;
+  int  nthreads  = procinfo->nthreads;
+  bool proc_involved=true;
 
   double *restrict Wgap      = Wstruct->Wgap;
   double *restrict Wshifted  = Wstruct->Wshifted;
@@ -872,5 +796,5 @@ int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo,
   PMR_try_destroy_rrr(RRR);
   free(cl);
 
-  return(0);
+  return 0;
 } /* end create_subtasks */

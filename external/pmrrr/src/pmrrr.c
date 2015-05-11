@@ -507,8 +507,8 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
     /* Scale matrix and matrix norm */
     int itmp = n-1;
     int IONE = 1;
-    pmrrr_dscal(&n,    &scale, D, &IONE);
-    pmrrr_dscal(&itmp, &scale, E, &IONE);
+    odscal(&n,    &scale, D, &IONE);
+    odscal(&itmp, &scale, E, &IONE);
     if (valeig == true) {
       /* Scale eigenvalue bounds */
       *vl *= scale;
@@ -535,7 +535,7 @@ void invscale_eigenvalues(val_t *Wstruct, double scale,
     *vl *= invscale;
     *vu *= invscale;
     int IONE = 1;
-    pmrrr_dscal(&size, &invscale, W, &IONE);
+    odscal(&size, &invscale, W, &IONE);
   }
 }
 

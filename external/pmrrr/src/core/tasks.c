@@ -1,6 +1,9 @@
 /* Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
  *
+ * Copyright (c) 2015, Jack Poulson
+ * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or 
  * without modification, are permitted provided that the following
  * conditions are met:
@@ -37,7 +40,6 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -45,52 +47,36 @@
 #include "pmrrr/tasks.h"
 #include "pmrrr/rrr.h"
 
-
-task_t *PMR_create_s_task(int first, int last, int depth,
-			  int bl_begin, int bl_end, 
-			  double spdiam, double lgap, rrr_t *RRR)
+task_t *PMR_create_s_task
+(int first, int last, int depth, int bl_begin, int bl_end, 
+ double spdiam, double lgap, rrr_t *RRR)
 {
-  task_t      *t;
-  singleton_t *s;
+  task_t *t = (task_t*)malloc(sizeof(task_t)); assert(t!=NULL);
+  singleton_t *s = (singleton_t*)malloc(sizeof(singleton_t)); assert(s!=NULL);
 
-  t = (task_t *) malloc(sizeof(task_t));
-  assert(t != NULL);
-  
-  s = (singleton_t *) malloc( sizeof(singleton_t) );
-  assert(s != NULL);
+  s->begin     = first;
+  s->end       = last;
+  s->depth     = depth;  
+  s->bl_begin  = bl_begin;
+  s->bl_end    = bl_end;
+  s->bl_spdiam = spdiam;
+  s->lgap      = lgap;
+  s->RRR       = RRR;
 
-  s->begin        = first;
-  s->end          = last;
-  s->depth        = depth;  
-  s->bl_begin     = bl_begin;
-  s->bl_end       = bl_end;
-  s->bl_spdiam    = spdiam;
-  s->lgap         = lgap;
-  s->RRR          = RRR;
-
-  t->data = (void *) s;
+  t->data = (void*)s;
   t->flag = SINGLETON_TASK_FLAG;
   t->next = NULL;
   t->prev = NULL;
 
-  return(t);
+  return t;
 }
 
-
-task_t *PMR_create_c_task(int first, int last, int depth, 
-			  int bl_begin, int bl_end, double spdiam,
-			  double lgap, int proc_W_begin, 
-			  int proc_W_end, int lpid, int rpid, 
-			  rrr_t *RRR)
+task_t *PMR_create_c_task
+(int first, int last, int depth, int bl_begin, int bl_end, double spdiam,
+ double lgap, int proc_W_begin, int proc_W_end, int lpid, int rpid, rrr_t *RRR)
 {
-  task_t    *t;
-  cluster_t *c;
-
-  t = (task_t *) malloc(sizeof(task_t));
-  assert(t != NULL);
-  
-  c = (cluster_t *) malloc( sizeof(cluster_t) );
-  assert(c != NULL);
+  task_t *t = (task_t*)malloc(sizeof(task_t)); assert(t!=NULL);
+  cluster_t *c = (cluster_t*)malloc(sizeof(cluster_t)); assert(c!=NULL);
 
   c->begin              = first;
   c->end                = last;
@@ -106,12 +92,12 @@ task_t *PMR_create_c_task(int first, int last, int depth,
   c->RRR                = RRR;
   c->wait_until_refined = false;
 
-  t->data = (void *) c;
+  t->data = (void*)c;
   t->flag = CLUSTER_TASK_FLAG;
   t->next = NULL;
   t->prev = NULL;
 
-  return(t);
+  return t;
 }
 
 int PMR_refine_sem_init(refine_t *refine)
@@ -158,18 +144,12 @@ int PMR_refine_sem_post(refine_t *refine)
 #endif
 }
 
-task_t *PMR_create_r_task(int begin, int end, double *D,
-			  double *DLL, int p, int q, int bl_size,
-			  double bl_spdiam, int tid)
+task_t *PMR_create_r_task
+(int begin, int end, double *D, double *DLL, 
+ int p, int q, int bl_size, double bl_spdiam, int tid)
 {
-  task_t   *t;
-  refine_t *r;
-
-  t = (task_t *) malloc(sizeof(task_t));
-  assert(t != NULL);
-  
-  r = (refine_t *) malloc( sizeof(refine_t) );
-  assert(r != NULL); 
+  task_t *t = (task_t*)malloc(sizeof(task_t)); assert(t!=NULL);
+  refine_t *r = (refine_t*)malloc(sizeof(refine_t)); assert(r!=NULL); 
 
   r->begin        = begin;
   r->end          = end;
@@ -183,7 +163,7 @@ task_t *PMR_create_r_task(int begin, int end, double *D,
 
   PMR_refine_sem_init(r);
 
-  t->data = (void *) r;
+  t->data = (void*)r;
   t->flag = REFINE_TASK_FLAG;
   t->next = NULL;
   t->prev = NULL;

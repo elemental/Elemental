@@ -40,7 +40,6 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
 #include "pmrrr.h"
 #include "pmrrr/plarrv.h"
 #include "pmrrr/queue.h"
@@ -50,70 +49,58 @@
 #include "pmrrr/process_task.h"
 
 int PMR_process_r_task(refine_t *rf, proc_t *procinfo, val_t *Wstruct,
-		       tol_t *tolstruct, double *work, int *iwork);
+                       tol_t *tolstruct, double *work, int *iwork);
 
 /*
  * Executes all tasks which are in the r-queue at the moment of the 
  * call. This routine is called to make sure that all tasks in the 
  * queue are dequeued before continueing with other tasks.
  */
-void PMR_process_r_queue(int tid, proc_t *procinfo, val_t *Wstruct, 
-			 vec_t *Zstruct, tol_t *tolstruct, 
-			 workQ_t *workQ, counter_t *num_left, 
-			 double *work, int *iwork)
+void PMR_process_r_queue
+(int tid, proc_t *procinfo, val_t *Wstruct, 
+ vec_t *Zstruct, tol_t *tolstruct, 
+ workQ_t *workQ, counter_t *num_left, 
+ double *work, int *iwork)
 {
-  int        thread_support = procinfo->thread_support;
-  int        t, num_tasks;
-  int        status;
-  task_t     *task;
+  int thread_support = procinfo->thread_support;
+  int num_tasks = PMR_get_num_tasks(workQ->r_queue);
 
-  num_tasks = PMR_get_num_tasks(workQ->r_queue);
-
+  int t;
   for (t=0; t<num_tasks; t++) {
-    
-    task = PMR_remove_task_at_front(workQ->r_queue);
-
-    if ( task != NULL ) {
-    
+    task_t *task = PMR_remove_task_at_front(workQ->r_queue);
+    if (task != NULL) {
       if (task->flag == CLUSTER_TASK_FLAG) {
-
-	if (thread_support != MPI_THREAD_FUNNELED || tid == 0) {
-	  /* if MPI_THREAD_FUNNELED only tid==0 should process 
+        if (thread_support != MPI_THREAD_FUNNELED || tid == 0) {
+          /* if MPI_THREAD_FUNNELED only tid==0 should process 
            * these tasks, otherwise any thread can do it */
-	  status = PMR_process_c_task((cluster_t *) task->data,
-				      tid, procinfo, Wstruct,
-				      Zstruct, tolstruct, workQ,
-				      num_left, work, iwork);
-	  
-	  if (status == C_TASK_PROCESSED) {
-	    free(task);
-	  } else {
-	    PMR_insert_task_at_back(workQ->r_queue, task);
-	  }
-	} else {
-	    PMR_insert_task_at_back(workQ->r_queue, task);
-	}
-
+          int status = 
+            PMR_process_c_task
+            ((cluster_t*)task->data, tid, procinfo, Wstruct,
+             Zstruct, tolstruct, workQ, num_left, work, iwork);
+          if (status == C_TASK_PROCESSED)
+            free(task);
+          else
+            PMR_insert_task_at_back(workQ->r_queue, task);
+        } else {
+          PMR_insert_task_at_back(workQ->r_queue, task);
+        }
       } /* end if cluster task */
-
-      if (task->flag == REFINE_TASK_FLAG) {
-	PMR_process_r_task((refine_t *) task->data, procinfo,
-			   Wstruct, tolstruct, work, iwork);
-	free(task);
+      else if (task->flag == REFINE_TASK_FLAG) {
+        PMR_process_r_task
+        ((refine_t*)task->data, procinfo, Wstruct, tolstruct, work, iwork);
+        free(task);
       }
- 
     } /* end if task removed */
   } /* end for t */
-} /* end process_entire_r_queue */
+} /* end process_r_queue */
 
 /*
  * Process the task of refining a subset of eigenvalues.
  */
-int PMR_process_r_task(refine_t *rf, proc_t *procinfo, 
-		       val_t *Wstruct, tol_t *tolstruct, 
-		       double *work, int *iwork)
+int PMR_process_r_task
+(refine_t *rf, proc_t *procinfo, 
+ val_t *Wstruct, tol_t *tolstruct, double *work, int *iwork)
 {
-  /* From inputs */
   int              ts_begin  = rf->begin;
   double *restrict D         = rf->D;
   double *restrict DLL       = rf->DLL;
@@ -126,30 +113,26 @@ int PMR_process_r_task(refine_t *rf, proc_t *procinfo,
   double *restrict Wgap      = Wstruct->Wgap;
   int    *restrict Windex    = Wstruct->Windex;
   double *restrict Wshifted  = Wstruct->Wshifted;
-  
-  double           rtol1     = tolstruct->rtol1;
-  double           rtol2     = tolstruct->rtol2;
-  double           pivmin    = tolstruct->pivmin;
 
-  /* Others */
-  int    info, offset;
   double savegap;
-
-  offset = Windex[ts_begin] - 1;
-
   if (p == q) {
     savegap = Wgap[ts_begin];
     Wgap[ts_begin] = 0.0;
   }  
 
-  odrrb(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
-        &Wshifted[ts_begin], &Wgap[ts_begin], &Werr[ts_begin],
-        work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
+  int info;
+  int offset = Windex[ts_begin]-1;
+  double rtol1  = tolstruct->rtol1;
+  double rtol2  = tolstruct->rtol2;
+  double pivmin = tolstruct->pivmin;
+  odrrb
+  (&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
+   &Wshifted[ts_begin], &Wgap[ts_begin], &Werr[ts_begin],
+   work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
   assert(info == 0);
 
-  if (p == q) {
+  if (p == q)
     Wgap[ts_begin] = savegap;
-  }  
 
   PMR_refine_sem_post(rf);
   free(rf);

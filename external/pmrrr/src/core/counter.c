@@ -40,7 +40,6 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
 #include <stdlib.h>
 #include <assert.h>
 #include "pmrrr/global.h"

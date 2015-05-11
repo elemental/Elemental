@@ -40,7 +40,6 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -87,12 +86,11 @@ int PMR_rrr_unlock(rrr_t *RRR)
 #endif
 }
 
-rrr_t *PMR_create_rrr(double *restrict D, double *restrict L,
-		      double *restrict DL, double *restrict DLL,
-		      int size, int depth)
+rrr_t *PMR_create_rrr
+(double *restrict D, double *restrict L,
+ double *restrict DL, double *restrict DLL, int size, int depth)
 {
-  rrr_t* RRR = (rrr_t *) malloc( sizeof(rrr_t) );
-  assert(RRR != NULL);
+  rrr_t* RRR = (rrr_t*)malloc(sizeof(rrr_t)); assert(RRR!=NULL);
 
   RRR->D                 = D;
   RRR->L                 = L;
@@ -108,9 +106,10 @@ rrr_t *PMR_create_rrr(double *restrict D, double *restrict L,
   return RRR;
 }
  
-rrr_t *PMR_reset_rrr(rrr_t *RRR, double *restrict D, 
-		     double *restrict L, double *restrict DL, 
-		     double *restrict DLL, int size, int depth)
+rrr_t *PMR_reset_rrr
+(rrr_t *RRR, double *restrict D, 
+ double *restrict L, double *restrict DL, 
+ double *restrict DLL, int size, int depth)
 {
   RRR->D                = D;
   RRR->L                = L;
@@ -155,19 +154,15 @@ int PMR_try_destroy_rrr(rrr_t *RRR)
 
   RRR->ndepend--;
   int tmp=0;
-  if (RRR->ndepend == 0 &&
-      RRR->parent_processed == true) {
-
+  if (RRR->ndepend == 0 && RRR->parent_processed == true) {
     if (RRR->depth >0) {
       free(RRR->D);
       free(RRR->L);
     }
-
     if (RRR->depth >=0) {
       free(RRR->DL);
       free(RRR->DLL);
     }
-    
     tmp = 1;
   }
   
@@ -181,4 +176,3 @@ int PMR_try_destroy_rrr(rrr_t *RRR)
     return 1;
   }
 }
-

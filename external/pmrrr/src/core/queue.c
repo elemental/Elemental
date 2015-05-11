@@ -40,7 +40,6 @@
  * code, kindly reference a paper related to this work.
  *
  */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -105,8 +104,7 @@ int PMR_queue_unlock(queue_t *queue)
 
 queue_t *PMR_create_empty_queue(void)
 {
-  queue_t* queue = (queue_t *) malloc(sizeof(queue_t));
-  assert(queue != NULL);
+  queue_t* queue = (queue_t*)malloc(sizeof(queue_t)); assert(queue!=NULL);
   
   queue->num_tasks = 0;
   queue->head      = NULL;
