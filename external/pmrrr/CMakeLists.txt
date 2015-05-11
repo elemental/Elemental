@@ -24,8 +24,9 @@ endif()
 option(HAVE_SPINLOCKS "Enable if pthread lib supports spinlocks" OFF)
 MARK_AS_ADVANCED(HAVE_SPINLOCKS)
 if(NOT HAVE_SPINLOCKS)
-  set(C_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
+  set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
 endif()
+set(C_FLAGS "${C_FLAGS} ${C_BASE_FLAGS}")
 
 # Ensure that an MPI C compiler was found
 if(NOT MPI_C_FOUND)
@@ -44,7 +45,7 @@ if(NOT DISABLE_PTHREADS)
   endif()
 endif()
     
-set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${C_BASE_FLAGS} ${C_FLAGS}")
+set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${C_FLAGS}")
 
 if(NOT DISABLE_PTHREADS AND NOT CMAKE_THREAD_LIBS_INIT)
   set(CMAKE_THREAD_PREFER_PTHREAD ON)
