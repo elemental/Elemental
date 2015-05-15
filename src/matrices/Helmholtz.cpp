@@ -37,11 +37,11 @@ template<typename F>
 void Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     Zeros( H, n, n );
 
-    const R hInv = n+1; 
-    const R hInvSquared = hInv*hInv;
+    const Real hInv = n+1; 
+    const Real hInvSquared = hInv*hInv;
     const F mainTerm = 2*hInvSquared - shift;
 
     const Int localHeight = H.LocalHeight();
@@ -61,11 +61,11 @@ template<typename F>
 void Helmholtz( SparseMatrix<F>& H, Int n, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     Zeros( H, n, n );
 
-    const R hInv = n+1; 
-    const R hInvSquared = hInv*hInv;
+    const Real hInv = n+1; 
+    const Real hInvSquared = hInv*hInv;
     const F mainTerm = 2*hInvSquared - shift;
 
     H.Reserve( 3*n );
@@ -84,11 +84,11 @@ template<typename F>
 void Helmholtz( DistSparseMatrix<F>& H, Int n, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     Zeros( H, n, n );
 
-    const R hInv = n+1; 
-    const R hInvSquared = hInv*hInv;
+    const Real hInv = n+1; 
+    const Real hInvSquared = hInv*hInv;
     const F mainTerm = 2*hInvSquared - shift;
 
     const Int localHeight = H.LocalHeight(); 
@@ -96,11 +96,11 @@ void Helmholtz( DistSparseMatrix<F>& H, Int n, F shift )
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = H.GlobalRow(iLoc);
-        H.QueueLocalUpdate( iLoc, i, mainTerm );
+        H.QueueUpdate( i, i, mainTerm );
         if( i != 0 )
-            H.QueueLocalUpdate( iLoc, i-1, -hInvSquared );
+            H.QueueUpdate( i, i-1, -hInvSquared );
         if( i != n-1 )
-            H.QueueLocalUpdate( iLoc, i+1, -hInvSquared );
+            H.QueueUpdate( i, i+1, -hInvSquared );
     }
     H.ProcessQueues();
 }
@@ -112,14 +112,14 @@ template<typename F>
 void Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1; 
-    const R hyInv = ny+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
+    const Real hxInv = nx+1; 
+    const Real hyInv = ny+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
     for( Int i=0; i<n; ++i )
     {
@@ -142,14 +142,14 @@ template<typename F>
 void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1; 
-    const R hyInv = ny+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
+    const Real hxInv = nx+1; 
+    const Real hyInv = ny+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
 
     const Int localHeight = H.LocalHeight();
@@ -175,14 +175,14 @@ template<typename F>
 void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1;
-    const R hyInv = ny+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
+    const Real hxInv = nx+1;
+    const Real hyInv = ny+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
 
     H.Reserve( 5*n );
@@ -208,14 +208,14 @@ template<typename F>
 void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1;
-    const R hyInv = ny+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
+    const Real hxInv = nx+1;
+    const Real hyInv = ny+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
 
     const Int localHeight = H.LocalHeight();
@@ -226,15 +226,15 @@ void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, F shift )
         const Int x = i % nx;
         const Int y = i/nx;
 
-        H.QueueLocalUpdate( iLoc, i, mainTerm );
+        H.QueueUpdate( i, i, mainTerm );
         if( x != 0 )
-            H.QueueLocalUpdate( iLoc, i-1, -hxInvSquared );
+            H.QueueUpdate( i, i-1, -hxInvSquared );
         if( x != nx-1 )
-            H.QueueLocalUpdate( iLoc, i+1, -hxInvSquared );
+            H.QueueUpdate( i, i+1, -hxInvSquared );
         if( y != 0 )
-            H.QueueLocalUpdate( iLoc, i-nx, -hyInvSquared );
+            H.QueueUpdate( i, i-nx, -hyInvSquared );
         if( y != ny-1 )
-            H.QueueLocalUpdate( iLoc, i+nx, -hyInvSquared );
+            H.QueueUpdate( i, i+nx, -hyInvSquared );
     }
     H.ProcessQueues();
 }
@@ -246,16 +246,16 @@ template<typename F>
 void Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1; 
-    const R hyInv = ny+1;
-    const R hzInv = nz+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
-    const R hzInvSquared = hzInv*hzInv;
+    const Real hxInv = nx+1; 
+    const Real hyInv = ny+1;
+    const Real hzInv = nz+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
+    const Real hzInvSquared = hzInv*hzInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared+hzInvSquared) - shift;
     for( Int i=0; i<n; ++i )
     {
@@ -283,16 +283,16 @@ template<typename F>
 void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1; 
-    const R hyInv = ny+1;
-    const R hzInv = nz+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
-    const R hzInvSquared = hzInv*hzInv;
+    const Real hxInv = nx+1; 
+    const Real hyInv = ny+1;
+    const Real hzInv = nz+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
+    const Real hzInvSquared = hzInv*hzInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared+hzInvSquared) - shift;
 
     const Int localHeight = H.LocalHeight();
@@ -323,16 +323,16 @@ template<typename F>
 void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1; 
-    const R hyInv = ny+1;
-    const R hzInv = nz+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
-    const R hzInvSquared = hzInv*hzInv;
+    const Real hxInv = nx+1; 
+    const Real hyInv = ny+1;
+    const Real hzInv = nz+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
+    const Real hzInvSquared = hzInv*hzInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared+hzInvSquared) - shift;
 
     H.Reserve( 7*n );
@@ -363,16 +363,16 @@ template<typename F>
 void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
     DEBUG_ONLY(CSE cse("Helmholtz"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
 
-    const R hxInv = nx+1; 
-    const R hyInv = ny+1;
-    const R hzInv = nz+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
-    const R hzInvSquared = hzInv*hzInv;
+    const Real hxInv = nx+1; 
+    const Real hyInv = ny+1;
+    const Real hzInv = nz+1;
+    const Real hxInvSquared = hxInv*hxInv;
+    const Real hyInvSquared = hyInv*hyInv;
+    const Real hzInvSquared = hzInv*hzInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared+hzInvSquared) - shift;
 
     const Int localHeight = H.LocalHeight();
@@ -384,19 +384,19 @@ void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
         const Int y = (i/nx) % ny;
         const Int z = i/(nx*ny);
 
-        H.QueueLocalUpdate( iLoc, i, mainTerm );
+        H.QueueUpdate( i, i, mainTerm );
         if( x != 0 )
-            H.QueueLocalUpdate( iLoc, i-1, -hxInvSquared );
+            H.QueueUpdate( i, i-1, -hxInvSquared );
         if( x != nx-1 )
-            H.QueueLocalUpdate( iLoc, i+1, -hxInvSquared );
+            H.QueueUpdate( i, i+1, -hxInvSquared );
         if( y != 0 )
-            H.QueueLocalUpdate( iLoc, i-nx, -hyInvSquared );
+            H.QueueUpdate( i, i-nx, -hyInvSquared );
         if( y != ny-1 )
-            H.QueueLocalUpdate( iLoc, i+nx, -hyInvSquared );
+            H.QueueUpdate( i, i+nx, -hyInvSquared );
         if( z != 0 )
-            H.QueueLocalUpdate( iLoc, i-nx*ny, -hzInvSquared );
+            H.QueueUpdate( i, i-nx*ny, -hzInvSquared );
         if( z != nz-1 )
-            H.QueueLocalUpdate( iLoc, i+nx*ny, -hzInvSquared );
+            H.QueueUpdate( i, i+nx*ny, -hzInvSquared );
     }
     H.ProcessQueues();
 }

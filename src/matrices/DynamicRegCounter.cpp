@@ -93,22 +93,22 @@ void DynamicRegCounter( DistSparseMatrix<T>& A, Int n )
             // Handle the upper-left quadrant, 4 J_{1/2}^T J_{1/2}
             // ---------------------------------------------------
             if( i == 0 )
-                A.QueueLocalUpdate( iLoc, i, T(1) );
+                A.QueueUpdate( i, i, T(1) );
             else
-                A.QueueLocalUpdate( iLoc, i, T(5) );
+                A.QueueUpdate( i, i, T(5) );
             if( i > 0 )
-                A.QueueLocalUpdate( iLoc, i-1, T(2) );
+                A.QueueUpdate( i, i-1, T(2) );
             if( i < n-1 )
-                A.QueueLocalUpdate( iLoc, i+1, T(2) );
+                A.QueueUpdate( i, i+1, T(2) );
 
             // Handle the upper-right quadrant, I
             // ----------------------------------
-            A.QueueLocalUpdate( iLoc, i+n, T(1) );
+            A.QueueUpdate( i, i+n, T(1) );
         }
         else
         {
-            A.QueueLocalUpdate( iLoc, i-n, T(1) );
-            A.QueueLocalUpdate( iLoc, i, T(-1) );
+            A.QueueUpdate( i, i-n, T(1) );
+            A.QueueUpdate( i, i, T(-1) );
         }
     }
     A.ProcessQueues();

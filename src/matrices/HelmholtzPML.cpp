@@ -203,11 +203,11 @@ void HelmholtzPML
 
         const C mainTerm = (xTermL+xTermR) - omega*omega*sInvM;
 
-        H.QueueLocalUpdate( iLoc, i, mainTerm );
+        H.QueueUpdate( i, i, mainTerm );
         if( x != 0 )
-            H.QueueLocalUpdate( iLoc, i-1, -xTermL );
+            H.QueueUpdate( i, i-1, -xTermL );
         if( x != n-1 )
-            H.QueueLocalUpdate( iLoc, i+1, -xTermR );
+            H.QueueUpdate( i, i+1, -xTermR );
     }
     H.ProcessQueues();
 }
@@ -444,15 +444,15 @@ void HelmholtzPML
         const C mainTerm = (xTermL+xTermR+yTermL+yTermR) - 
                            omega*omega*sxInvM*syInvM;
 
-        H.QueueLocalUpdate( iLoc, i, mainTerm );
+        H.QueueUpdate( i, i, mainTerm );
         if( x != 0 )
-            H.QueueLocalUpdate( iLoc, i-1, -xTermL );
+            H.QueueUpdate( i, i-1, -xTermL );
         if( x != nx-1 )
-            H.QueueLocalUpdate( iLoc, i+1, -xTermR );
+            H.QueueUpdate( i, i+1, -xTermR );
         if( y != 0 )
-            H.QueueLocalUpdate( iLoc, i-nx, -yTermL );
+            H.QueueUpdate( i, i-nx, -yTermL );
         if( y != ny-1 )
-            H.QueueLocalUpdate( iLoc, i+nx, -yTermR );
+            H.QueueUpdate( i, i+nx, -yTermR );
     }
     H.ProcessQueues();
 }
@@ -757,19 +757,19 @@ void HelmholtzPML
         const C mainTerm = (xTermL+xTermR+yTermL+yTermR+zTermL+zTermR) - 
                            omega*omega*sxInvM*syInvM*szInvM;
 
-        H.QueueLocalUpdate( iLoc, i, mainTerm );
+        H.QueueUpdate( i, i, mainTerm );
         if( x != 0 )
-            H.QueueLocalUpdate( iLoc, i-1, -xTermL );
+            H.QueueUpdate( i, i-1, -xTermL );
         if( x != nx-1 )
-            H.QueueLocalUpdate( iLoc, i+1, -xTermR );
+            H.QueueUpdate( i, i+1, -xTermR );
         if( y != 0 )
-            H.QueueLocalUpdate( iLoc, i-nx, -yTermL );
+            H.QueueUpdate( i, i-nx, -yTermL );
         if( y != ny-1 )
-            H.QueueLocalUpdate( iLoc, i+nx, -yTermR );
+            H.QueueUpdate( i, i+nx, -yTermR );
         if( z != 0 )
-            H.QueueLocalUpdate( iLoc, i-nx*ny, -zTermL );
+            H.QueueUpdate( i, i-nx*ny, -zTermL );
         if( z != nz-1 )
-            H.QueueLocalUpdate( iLoc, i+nx*ny, -zTermR );
+            H.QueueUpdate( i, i+nx*ny, -zTermR );
     }
     H.ProcessQueues();
 }

@@ -83,7 +83,7 @@ void Identity( DistSparseMatrix<T>& I, Int m, Int n )
     {
         const Int i = I.GlobalRow(iLoc);
         if( i < n )
-            I.QueueLocalUpdate( iLoc, i, T(1) );
+            I.QueueUpdate( i, i, T(1) );
     }
     I.ProcessQueues();
 }
