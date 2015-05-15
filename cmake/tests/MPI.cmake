@@ -8,15 +8,37 @@ endif()
 include_directories(${MPI_C_INCLUDE_PATH})
 set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_C_COMPILE_FLAGS}")
 
+# NOTE: 
+# check_function_exists only supports cdecl calling conventions, despite the
+# fact that MS-MPI uses __stdcall. Thus, it is best to avoid using 
+# check_function_exists in favor of check_c_source_compiles.
+# Thanks to Ahn Vo for discovering this issue!
+#
+# TODO: Propagate the usage of check_c_source_compiles beyond MPI_Reduce_scatter
+#       to the rest of this file.
+
 # Ensure that we have MPI1 by looking for MPI_Reduce_scatter
 # ==========================================================
 set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
 set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
-check_function_exists(MPI_Reduce_scatter EL_HAVE_MPI_REDUCE_SCATTER)
+set(MPI_REDUCE_SCATTER_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         int *recvCounts;
+         double *a, *b;  
+         MPI_Reduce_scatter
+         ( a, b, recvCounts, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+         MPI_Finalize();
+         return 0;
+     }")
+check_c_source_compiles("${MPI_REDUCE_SCATTER_CODE}" EL_HAVE_MPI_REDUCE_SCATTER)
 if(NOT EL_HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
 endif()
+
 
 # Test for whether or not we have Fortran MPI support
 # ===================================================
