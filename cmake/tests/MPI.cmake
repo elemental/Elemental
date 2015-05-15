@@ -13,9 +13,6 @@ set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_C_COMPILE_FLAGS}")
 # fact that MS-MPI uses __stdcall. Thus, it is best to avoid using 
 # check_function_exists in favor of check_c_source_compiles.
 # Thanks to Ahn Vo for discovering this issue!
-#
-# TODO: Propagate the usage of check_c_source_compiles beyond MPI_Reduce_scatter
-#       to the rest of this file.
 
 # Ensure that we have MPI1 by looking for MPI_Reduce_scatter
 # ==========================================================
@@ -59,7 +56,22 @@ endif()
 
 # Ensure that we have MPI2 by looking for MPI_Type_create_struct
 # ==============================================================
-check_function_exists(MPI_Type_create_struct EL_HAVE_MPI_TYPE_CREATE_STRUCT)
+set(MPI_TYPE_CREATE_STRUCT_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         int count=2;
+         int blockLengths[2];
+         MPI_Aint displs[2];
+         MPI_Datatype types[2];
+         MPI_Datatype newType;
+         MPI_Type_create_struct( count, blockLengths, displs, types, &newType );
+         MPI_Finalize();
+         return 0;
+     }")
+check_c_source_compiles("${MPI_TYPE_CREATE_STRUCT_CODE}" 
+  EL_HAVE_MPI_TYPE_CREATE_STRUCT)
 if(NOT EL_HAVE_MPI_TYPE_CREATE_STRUCT)
   message(FATAL_ERROR "Could not find MPI_Type_create_struct")
 endif()
@@ -112,22 +124,91 @@ set(MPI_C_COMPLEX_CODE
     "#include \"mpi.h\"
      int main( int argc, char* argv[] )
      {
-         MPI_Init( &argc, &argv );
-         MPI_Datatype floatCpx = MPI_C_FLOAT_COMPLEX;
-         MPI_Datatype doubleCpx = MPI_C_DOUBLE_COMPLEX;
-         MPI_Finalize();
-         return 0;
+       MPI_Init( &argc, &argv );
+       MPI_Datatype floatCpx = MPI_C_FLOAT_COMPLEX;
+       MPI_Datatype doubleCpx = MPI_C_DOUBLE_COMPLEX;
+       MPI_Finalize();
+       return 0;
      }")
 check_c_source_compiles("${MPI_C_COMPLEX_CODE}" EL_HAVE_MPI_C_COMPLEX)
 
 # Detect support for various optional MPI routines
 # ================================================
-check_function_exists(MPI_Reduce_scatter_block EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
-check_function_exists(MPI_Iallgather EL_HAVE_MPI3_NONBLOCKING_COLLECTIVES)
-check_function_exists(MPIX_Iallgather EL_HAVE_MPIX_NONBLOCKING_COLLECTIVES)
-check_function_exists(MPI_Init_thread EL_HAVE_MPI_INIT_THREAD)
-check_function_exists(MPI_Query_thread EL_HAVE_MPI_QUERY_THREAD)
-check_function_exists(MPI_Comm_set_errhandler EL_HAVE_MPI_COMM_SET_ERRHANDLER)
+set(MPI_REDUCE_SCATTER_BLOCK_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+       MPI_Init( &argc, &argv );
+       double *a, *b; 
+       MPI_Reduce_scatter_block( a, b, 5, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+       MPI_Finalize();
+       return 0;
+     }")
+check_c_source_compiles("${MPI_REDUCE_SCATTER_BLOCK_CODE}" 
+  EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
+set(MPI_IALLGATHER_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+       MPI_Init( &argc, &argv );
+       double *a, *b;
+       MPI_Request request;
+       MPI_Iallgather
+       ( a, 5, MPI_DOUBLE, 
+         b, 5, MPI_DOUBLE, MPI_COMM_WORLD, &request );
+       MPI_Finalize();
+       return 0;
+     }")
+check_c_source_compiles("${MPI_IALLGATHER_CODE}" 
+  EL_HAVE_MPI3_NONBLOCKING_COLLECTIVES)
+set(MPIX_IALLGATHER_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+       MPI_Init( &argc, &argv );
+       double *a, *b;
+       MPI_Request request;
+       MPIX_Iallgather
+       ( a, 5, MPI_DOUBLE, 
+         b, 5, MPI_DOUBLE, MPI_COMM_WORLD, &request );
+       MPI_Finalize();
+       return 0;
+     }")
+check_c_source_compiles("${MPIX_IALLGATHER_CODE}" 
+  EL_HAVE_MPIX_NONBLOCKING_COLLECTIVES)
+set(MPI_INIT_THREAD_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+       int required=MPI_THREAD_SINGLE, provided;
+       MPI_Init_thread( &argc, &argv, required, &provided );
+       MPI_Finalize();
+       return 0;
+     }")
+check_c_source_compiles("${MPI_INIT_THREAD_CODE}" EL_HAVE_MPI_INIT_THREAD)
+set(MPI_QUERY_THREAD_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+       MPI_Init( &argc, &argv );
+       int provided;
+       MPI_Query_thread( &provided );
+       MPI_Finalize();
+       return 0;
+     }")
+check_c_source_compiles("${MPI_QUERY_THREAD_CODE}" EL_HAVE_MPI_QUERY_THREAD )
+set(MPI_COMM_SET_ERRHANDLER_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+       MPI_Init( &argc, &argv );
+       MPI_Errhandler handler;
+       MPI_Comm_set_errhandler( MPI_COMM_WORLD, handler );
+       MPI_Finalize();
+       return 0;
+     }")
+check_c_source_compiles("${MPI_COMM_SET_ERRHANDLER_CODE}" 
+  EL_HAVE_MPI_COMM_SET_ERRHANDLER)
 # Detecting MPI_IN_PLACE and MPI_Comm_f2c requires test compilation
 # -----------------------------------------------------------------
 set(MPI_IN_PLACE_CODE
