@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 include(ExternalProject)
+include(ElCheckFunctionExists)
 
 if(NOT EL_BUILD_OPENBLAS)
   find_library(OpenBLAS NAMES openblas PATHS ${MATH_PATHS})
@@ -16,10 +17,10 @@ if(NOT EL_BUILD_OPENBLAS)
     else()
       set(CMAKE_REQUIRED_LIBRARIES ${OpenBLAS})
     endif()
-    check_function_exists(dgemm   EL_HAVE_DGEMM_OPENBLAS)
-    check_function_exists(dgemm_  EL_HAVE_DGEMM_POST_OPENBLAS)
-    check_function_exists(dsytrd  EL_HAVE_DSYTRD_OPENBLAS)
-    check_function_exists(dsytrd_ EL_HAVE_DSYTRD_POST_OPENBLAS)
+    El_check_function_exists(dgemm   EL_HAVE_DGEMM_OPENBLAS)
+    El_check_function_exists(dgemm_  EL_HAVE_DGEMM_POST_OPENBLAS)
+    El_check_function_exists(dsytrd  EL_HAVE_DSYTRD_OPENBLAS)
+    El_check_function_exists(dsytrd_ EL_HAVE_DSYTRD_POST_OPENBLAS)
     if(EL_HAVE_DGEMM_OPENBLAS OR EL_HAVE_DGEMM_POST_OPENBLAS)
       set(EL_HAVE_OPENBLAS_BLAS TRUE)
     else()

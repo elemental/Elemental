@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 include(ExternalProject)
+include(ElCheckFunctionExists)
 
 set(USE_FOUND_SCALAPACK FALSE)
 if(NOT EL_BUILD_SCALAPACK)
@@ -17,17 +18,18 @@ if(NOT EL_BUILD_SCALAPACK)
        EXISTS "${ScaLAPACK_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}blacs${CMAKE_STATIC_LIBRARY_SUFFIX}")
       message(WARNING "Found blacs library in ${ScaLAPACK_DIR}; ScaLAPACK appears to be too old to link to")
     else()
-      set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
+      set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
+      set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
       set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
       set(CMAKE_REQUIRED_LIBRARIES ${ScaLAPACK} ${MATH_LIBS} ${MPI_C_LIBRARIES})
       # NOTE: pdsyngst was chosen because MKL ScaLAPACK only defines pdsyngst_,
       #       but not pdsyngst, despite defining both pdpotrf and pdpotrf_. 
-      check_function_exists(pdsyngst  EL_HAVE_PDSYNGST)
-      check_function_exists(pdsyngst_ EL_HAVE_PDSYNGST_POST)
-      check_function_exists(Csys2blacs_handle EL_HAVE_CSYS2BLACS)
+      El_check_function_exists(pdsyngst  EL_HAVE_PDSYNGST)
+      El_check_function_exists(pdsyngst_ EL_HAVE_PDSYNGST_POST)
+      El_check_function_exists(Csys2blacs_handle EL_HAVE_CSYS2BLACS)
       if(EL_HAVE_PDSYNGST)
-        check_function_exists(pdlaqr0 EL_HAVE_PDLAQR0)
-        check_function_exists(pdlaqr1 EL_HAVE_PDLAQR1)
+        El_check_function_exists(pdlaqr0 EL_HAVE_PDLAQR0)
+        El_check_function_exists(pdlaqr1 EL_HAVE_PDLAQR1)
         if(NOT EL_HAVE_PDLAQR0 OR NOT EL_HAVE_PDLAQR1 OR 
            NOT EL_HAVE_CSYS2BLACS)
           message(STATUS "Found ${ScaLAPACK}, but PDLAQR{0,1} and Csys2blacs_handle were not supported.")
@@ -36,8 +38,8 @@ if(NOT EL_BUILD_SCALAPACK)
           set(EL_HAVE_SCALAPACK_SUFFIX FALSE)
         endif()
       elseif(EL_HAVE_PDSYNGST_POST)
-        check_function_exists(pdlaqr0_ EL_HAVE_PDLAQR0_POST)
-        check_function_exists(pdlaqr1_ EL_HAVE_PDLAQR1_POST)
+        El_check_function_exists(pdlaqr0_ EL_HAVE_PDLAQR0_POST)
+        El_check_function_exists(pdlaqr1_ EL_HAVE_PDLAQR1_POST)
         if(NOT EL_HAVE_PDLAQR0_POST OR NOT EL_HAVE_PDLAQR1_POST OR
            NOT EL_HAVE_CSYS2BLACS)
           message(STATUS "Found ${ScaLAPACK} but PDLAQR{0,1} and Csys2blacs_handle were not supported.")
