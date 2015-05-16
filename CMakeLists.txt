@@ -228,6 +228,13 @@ if(NOT WIN32)
   endforeach()
 endif()
 
+# Disable the requirement for safe exception handling in MSVC builds (otherwise there are conflicts with OpenBLAS)
+if(MSVC)
+  set(CMAKE_EXE_LINKER_FLAGS_${UPPER_BUILD_TYPE} "${CMAKE_EXE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
+  set(CMAKE_SHARED_LINKER_FLAGS_${UPPER_BUILD_TYPE} "${CMAKE_SHARED_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
+  set(CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE} "${CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
+endif()
+
 if(BUILD_SHARED_LIBS AND WIN32)
   option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
 else()
