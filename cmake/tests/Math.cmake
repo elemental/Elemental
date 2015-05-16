@@ -111,7 +111,7 @@ else()
   # ----------
   # NOTE: MATH_LIBS may involve MPI functionality (e.g., ScaLAPACK) and so
   #       MPI flags should be added for the detection
-  set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
   set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
   set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS} ${MPI_C_LIBRARIES})
   if(EL_BLAS_SUFFIX)
