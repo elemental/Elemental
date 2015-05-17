@@ -69,6 +69,10 @@ endif()
 if(MPI_LINK_FLAGS)
   set_target_properties(pmrrr PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
 endif()
+if(MSVC)
+  include(GenerateExportHeader)
+  generate_export_header(pmrrr)
+endif()
 install(TARGETS pmrrr DESTINATION lib)
 
 # Install and include the header files

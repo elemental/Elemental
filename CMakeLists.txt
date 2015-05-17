@@ -367,6 +367,10 @@ target_link_libraries(El ${LINK_LIBS})
 if(MPI_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
 endif()
+if(MSVC)
+  include(GenerateExportHeader)
+  generate_export_header(El)
+endif()
 install(TARGETS El DESTINATION lib)
 
 # Decide if/how to install the Python interface
