@@ -106,4 +106,22 @@
 
 #cmakedefine EL_HAVE_VALGRIND
 
+/* METIS/ParMETIS:
+   Ensure that preprocessor defs are compatible with GKlib.h */
+#cmakedefine METIS_PCRE
+#cmakedefine METIS_GKREGEX
+#cmakedefine MSVC
+#cmakedefine BUILD_SHARED_LIBS
+#ifdef METIS_PCRE
+# define __WITHPCRE__
+#endif
+#ifdef METIS_GKREGEX
+# define USE_GKREGEX
+#endif
+#if defined(MSVC) && defined(BUILD_SHARED_LIBS)
+# define METIS_EXPORT __declspec(dllexport)
+#else
+# define METIS_EXPORT
+#endif
+
 #endif /* EL_CONFIG_H */
