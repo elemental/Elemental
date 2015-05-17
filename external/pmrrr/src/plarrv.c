@@ -178,8 +178,9 @@ int plarrv
  * Assign the computation of eigenvectors to the processes
  */
 static  
-int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
-                   vec_t *Zstruct, int *nzp, int *myfirstp)
+int assign_to_proc
+(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
+ vec_t *Zstruct, int *nzp, int *myfirstp)
 {
   /* From inputs */
   int              pid     = procinfo->pid;
@@ -195,21 +196,15 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   int    *restrict iproc   = Wstruct->iproc;
   int    *restrict Zindex  = Zstruct->Zindex;
   
-  /* Others */
-  int               i, id, j, k, isize, iblk, ishift,
-                    ibegin, iend, chunk, ind;
-  double            sigma;
-  sort_struct_t     *array;
-
-  array = (sort_struct_t *) malloc(n*sizeof(sort_struct_t));
+  sort_struct_t *array = (sort_struct_t *) malloc(n*sizeof(sort_struct_t));
   
+  int i;
   for (i=0; i<n; i++) {
     /* Find shift of block */
-    iblk                    = iblock[i];
-    ishift                  = isplit[iblk-1] - 1;
-    sigma                   = L[ishift];
+    int iblk = iblock[i];
+    int ishift  = isplit[iblk-1] - 1;
     /* Apply shift so that unshifted eigenvalues can be sorted */
-    array[i].lambda    = W[i] + sigma; 
+    array[i].lambda    = W[i] + L[ishift]; 
     array[i].local_ind = Windex[i];
     array[i].block_ind = iblk;
     array[i].ind       = i;
@@ -220,18 +215,19 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   qsort(array, n, sizeof(sort_struct_t), cmpa);
 
   /* Mark eigenvectors that do not need to be computed */
+  int j;
   for (j = 0; j < il-1; j++ ) {
-    ind = array[j].ind;
-    iproc[ind]  = -1;
-    Zindex[ind] = -1;
+    iproc[array[j].ind]  = -1;
+    Zindex[array[j].ind] = -1;
   }
 
-  isize = iu - il + 1;
+  int isize = iu - il + 1;
 
-  ibegin = il - 1;
+  int ibegin=il-1, iend;
+  int id;
   for (id=0; id<nproc; id++) {
 
-    chunk = imax(1, isize/nproc + (id < isize%nproc));
+    int chunk = imax(1, isize/nproc + (id < isize%nproc));
     
     if (id==nproc-1) {
       iend = iu - 1;
@@ -240,11 +236,10 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
       iend = imin(iend, iu -1);
     }
 
-    k = 0;
+    int k = 0;
     for (j=ibegin; j<=iend; j++) {
-      ind = array[j].ind;
-      iproc[ind]  = id;
-      Zindex[ind] = k;
+      iproc[array[j].ind]  = id;
+      Zindex[array[j].ind] = k;
       k++;
     }
 
@@ -259,9 +254,8 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   } /* end id */
 
   for (j = iend+1; j < n; j++ ) {
-    ind = array[j].ind;
-    iproc[ind]  = -1;
-    Zindex[ind] = -1;
+    iproc[array[j].ind]  = -1;
+    Zindex[array[j].ind] = -1;
   }
   
   free(array);

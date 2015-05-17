@@ -51,22 +51,21 @@
 #include "pmrrr/plarrv.h"
 #include "pmrrr/structs.h"
 
-static int handle_small_cases(char*, char*, int*, double*, double*,
-			      double*, double*, int*, int*, int*,
-			      MPI_Comm, int*, int*, double*, double*,
-			      int*, int*);
-static int cmp(const void*, const void*);
-static int cmpb(const void*, const void*);
+static int handle_small_cases
+(char*, char*, int*, double*, double*,
+ double*, double*, int*, int*, int*,
+ MPI_Comm, int*, int*, double*, double*,int*, int*);
+
 static double scale_matrix(in_t*, val_t*, bool);
 static void invscale_eigenvalues(val_t*, double, int);
-static int sort_eigenpairs(proc_t*, val_t*, vec_t*);
-static void clean_up(MPI_Comm, double*, double*, double*, 
-		     int*, int*, int*, int*, int*, proc_t*, 
-		     in_t*, val_t*, vec_t*, tol_t*);
-static int refine_to_highrac(proc_t*, char*, double*, double*,
-			     in_t*, int*, val_t*, tol_t*);
+static void clean_up
+(MPI_Comm, double*, double*, double*, 
+ int*, int*, int*, int*, int*, proc_t*, 
+ in_t*, val_t*, vec_t*, tol_t*);
+static int refine_to_highrac
+(proc_t*, char*, double*, double*,in_t*, int*, val_t*, tol_t*);
 
-
+static int cmp(const void*, const void*);
 
 
 /* 
@@ -76,11 +75,11 @@ static int refine_to_highrac(proc_t*, char*, double*, double*,
  * See README or 'pmrrr.h' for details.
  */
 
-int pmrrr(char *jobz, char *range, int *np, double  *D,
-	  double *E, double *vl, double *vu, int *il,
-	  int *iu, int *tryracp, MPI_Comm comm, int *nzp,
-	  int *offsetp, double *W, double *Z, int *ldz,
-	  int *Zsupp)
+int pmrrr
+(char *jobz, char *range, int *np, double  *D,
+ double *E, double *vl, double *vu, int *il,
+ int *iu, int *tryracp, MPI_Comm comm, int *nzp,
+ int *offsetp, double *W, double *Z, int *ldz, int *Zsupp)
 {
   /* Input parameter */
   int  n      = *np;
@@ -339,8 +338,17 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
   /* If matrix was scaled, rescale eigenvalues */
   invscale_eigenvalues(Wstruct, scale, n);
 
-  /* Sort eigenvalues and eigenvectors of process */
-  sort_eigenpairs(procinfo, Wstruct, Zstruct);
+  /* Make the first nz elements of W contains the eigenvalues
+   * associated to the process */
+  int j, im=0;
+  for (j=0; j<n; j++) {
+    if (iproc[j] == pid) {
+      W[im]      = W[j];
+      Windex[im] = Windex[j];
+      Zindex[im] = Zindex[j];
+      im++;
+    }
+  }
 
   clean_up(comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
 	   isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,
@@ -357,12 +365,12 @@ int pmrrr(char *jobz, char *range, int *np, double  *D,
  * Free's on allocated memory of pmrrr routine
  */
 static  
-void clean_up(MPI_Comm comm, double *Werr, double *Wgap,
-	      double *gersch, int *iblock, int *iproc,
-	      int *Windex, int *isplit, int *Zindex,
-	      proc_t *procinfo, in_t *Dstruct,
-	      val_t *Wstruct, vec_t *Zstruct,
-	      tol_t *tolstruct)
+void clean_up
+(MPI_Comm comm, double *Werr, double *Wgap,
+ double *gersch, int *iblock, int *iproc,
+ int *Windex, int *isplit, int *Zindex,
+ proc_t *procinfo, in_t *Dstruct,
+ val_t *Wstruct, vec_t *Zstruct, tol_t *tolstruct)
 {
   MPI_Comm_free(&comm);
   free(Werr);
@@ -384,11 +392,11 @@ void clean_up(MPI_Comm comm, double *Werr, double *Wgap,
  * Wrapper to call LAPACKs DSTEMR for small matrices
  */
 static
-int handle_small_cases(char *jobz, char *range, int *np, double  *D,
-		       double *E, double *vlp, double *vup, int *ilp,
-		       int *iup, int *tryracp, MPI_Comm comm, int *nzp,
-		       int *myfirstp, double *W, double *Z, int *ldzp,
-		       int *Zsupp)
+int handle_small_cases
+(char *jobz, char *range, int *np, double  *D,
+ double *E, double *vlp, double *vup, int *ilp,
+ int *iup, int *tryracp, MPI_Comm comm, int *nzp,
+ int *myfirstp, double *W, double *Z, int *ldzp, int *Zsupp)
 {
   bool cntval = toupper(jobz[0]) == 'C';
   bool onlyW = toupper(jobz[0]) == 'N';
@@ -523,8 +531,7 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
  * If matrix scaled, rescale eigenvalues
  */
 static 
-void invscale_eigenvalues(val_t *Wstruct, double scale,
-			  int size)
+void invscale_eigenvalues(val_t *Wstruct, double scale, int size)
 {
   if (scale != 1.0) {  /* FP cmp okay */
     double *vl = Wstruct->vl;
@@ -537,230 +544,6 @@ void invscale_eigenvalues(val_t *Wstruct, double scale,
     int IONE = 1;
     odscal(&size, &invscale, W, &IONE);
   }
-}
-
-static 
-int sort_eigenpairs_local
-(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruct)
-{
-  int              n     = Wstruct->n;
-  double *restrict W     = Wstruct->W;
-  double *restrict work  = Wstruct->gersch;
-  int              ldz   = Zstruct->ldz;
-  double *restrict Z     = Zstruct->Z;
-  int    *restrict Zsupp = Zstruct->Zsupp;
- 
-  /* Make sure that sorted correctly; ineffective implementation,
-   * but usually no or very little swapping should be done here */
-  int itmp;
-  double tmp;
-  bool sorted = false;
-  while (sorted == false) {
-    sorted = true;
-    int j;
-    for (j=0; j<m-1; j++) {
-      if (W[j] > W[j+1]) {
-	sorted = false;
-	/* swap eigenvalue */
-	tmp    = W[j];
-	W[j]   = W[j+1];
-	W[j+1] = tmp;
-	/* swap eigenvalue support */
-	itmp           = Zsupp[2*j];
-	Zsupp[2*j]     = Zsupp[2*(j+1)];
-	Zsupp[2*(j+1)] = itmp;
-	itmp             = Zsupp[2*j+1];
-	Zsupp[2*j+1]     = Zsupp[2*(j+1)+1];
-	Zsupp[2*(j+1)+1] = itmp;
-	/* swap eigenvector */
-	memcpy(work, &Z[j*ldz], n*sizeof(double));
-	memcpy(&Z[j*ldz], &Z[(j+1)*ldz], n*sizeof(double));
-	memcpy(&Z[(j+1)*ldz], work, n*sizeof(double));
-      }
-    }
-  } 
-
-  return 0;
-}
-
-static 
-int sort_eigenpairs_global
-(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruct)
-{
-  int              pid   = procinfo->pid;
-  int              nproc = procinfo->nproc;
-  int              n     = Wstruct->n;
-  double *restrict W     = Wstruct->W;
-  double *restrict work  = Wstruct->gersch;
-  int              ldz   = Zstruct->ldz;
-  double *restrict Z     = Zstruct->Z;
-  int    *restrict Zsupp = Zstruct->Zsupp;
-
-  double *minW = (double*)malloc(nproc*sizeof(double)); assert(minW!=NULL);
-  double *maxW = (double*)malloc(nproc*sizeof(double)); assert(maxW!=NULL);
-  double *minmax=(double*)malloc(2*nproc*sizeof(double)); assert(minmax!=NULL);
-
-  double nan_value = 0.0/0.0;
-  if (m == 0) {
-    MPI_Allgather
-    (&nan_value, 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, procinfo->comm); 
-    MPI_Allgather
-    (&nan_value, 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, procinfo->comm); 
-  } else {
-    MPI_Allgather
-    (&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, procinfo->comm); 
-    MPI_Allgather
-    (&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, procinfo->comm); 
-  }
-
-  int i;
-  for (i=0; i<nproc; i++) {
-    minmax[2*i]   = minW[i];
-    minmax[2*i+1] = maxW[i];
-  }
-
-  bool sorted = true;
-  for (i=0; i<2*nproc-1; i++) {
-    if (minmax[i] > minmax[i+1]) sorted = false;
-  }
-
-  /* Make sure that sorted correctly; ineffective implementation,
-   * but usually no or very little swapping should be done here */
-  MPI_Status status;
-  while (sorted == false) {
-    sorted = true;
-
-    int p;
-    for (p=1; p<nproc; p++) {
-      int lp =  p - 1;
-
-      /* swap one pair of eigenvalues and eigenvectors */
-      if ((pid == lp || pid == p) && minW[p] < maxW[lp]) {
-	if (pid == lp) {
-	  W[m-1] = minW[p];
-          MPI_Sendrecv(&Z[(m-1)*ldz], n, MPI_DOUBLE, p, lp, 
-		       work, n, MPI_DOUBLE, p, p, 
-		       procinfo->comm, &status);
-	  memcpy(&Z[(m-1)*ldz], work, n*sizeof(double));
-	}
-	if (pid == p) {
-	  W[0]   = maxW[p-1];
-          MPI_Sendrecv(&Z[0], n, MPI_DOUBLE, lp, p, 
-		       work,  n, MPI_DOUBLE, lp, lp, 
-		       procinfo->comm, &status);
-	  memcpy(&Z[0], work, n*sizeof(double));
-	}
-      }
-
-      /* swap eigenvector support as well; 
-       * (would better be recomputed here though) */
-      int itmp[2];
-      if ((pid == lp || pid == p) && minW[p] < maxW[lp]) {
-	if (pid == lp) {
-          MPI_Sendrecv(&Zsupp[2*(m-1)], 2, MPI_INT, p, lp, 
-		       itmp, 2, MPI_INT, p, p, 
-		       procinfo->comm, &status);
-	  Zsupp[2*(m-1)]     = itmp[0];
-	  Zsupp[2*(m-1) + 1] = itmp[1];
-	}
-	if (pid == p) {
-          MPI_Sendrecv(&Zsupp[0], 2, MPI_INT, lp, p, 
-		       itmp,  2, MPI_INT, lp, lp, 
-		       procinfo->comm, &status);
-	  Zsupp[0] = itmp[0];
-	  Zsupp[1] = itmp[1];
-	}
-      }
-    }
-
-    /* sort local again */
-    sort_eigenpairs_local(procinfo, m, Wstruct, Zstruct);
-    
-    /* check again if globally sorted */
-    if (m == 0) {
-      MPI_Allgather(&nan_value, 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
-		    procinfo->comm); 
-      MPI_Allgather(&nan_value, 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
-		    procinfo->comm);       
-    } else {
-      MPI_Allgather(&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
-		    procinfo->comm); 
-      MPI_Allgather(&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
-		    procinfo->comm); 
-    }
-    
-    for (i=0; i<nproc; i++) {
-      minmax[2*i]   = minW[i];
-      minmax[2*i+1] = maxW[i];
-    }
-    
-    for (i=0; i<2*nproc-1; i++)
-      if (minmax[i] > minmax[i+1]) 
-        sorted = false;
-  } /* end while not sorted */
-
-  free(minW);
-  free(maxW);
-  free(minmax);
-
-  return 0;
-}
-
-/* Routine to sort the eigenpairs */
-static 
-int sort_eigenpairs(proc_t *procinfo, val_t *Wstruct, vec_t *Zstruct)
-{
-  /* From inputs */
-  int              pid    = procinfo->pid;
-  int              n      = Wstruct->n;
-  double *restrict W      = Wstruct->W;
-  int    *restrict Windex = Wstruct->Windex;
-  int    *restrict iproc  = Wstruct->iproc;
-  int    *restrict Zindex = Zstruct->Zindex;
-
-  /* Make the first nz elements of W contains the eigenvalues
-   * associated to the process */
-  int j, im=0;
-  for (j=0; j<n; j++) {
-    if (iproc[j] == pid) {
-      W[im]      = W[j];
-      Windex[im] = Windex[j];
-      Zindex[im] = Zindex[j];
-      im++;
-    }
-  }
-
-  sort_struct_t *sort_array = (sort_struct_t*)malloc(im*sizeof(sort_struct_t));
-
-  for (j=0; j<im; j++) {
-    sort_array[j].lambda    = W[j]; 
-    sort_array[j].local_ind = Windex[j];
-    sort_array[j].block_ind = 0;
-    sort_array[j].ind       = Zindex[j];
-  }
-
-  /* Sort according to Zindex */
-  qsort(sort_array, im, sizeof(sort_struct_t), cmpb);
-
-  for (j=0; j<im; j++) {
-    W[j]      = sort_array[j].lambda; 
-    Windex[j] = sort_array[j].local_ind;
-  }
-
-  /* Make sure eigenpairs are sorted locally; this is a very 
-   * inefficient way sorting, but in general no or very little 
-   * swapping of eigenpairs is expected here */
-  sort_eigenpairs_local(procinfo, im, Wstruct, Zstruct);
-
-  /* Make sure eigenpairs are sorted globally; this is a very 
-   * inefficient way sorting, but in general no or very little 
-   * swapping of eigenpairs is expected here */
-  if (ASSERT_SORTED_EIGENPAIRS == true)
-    sort_eigenpairs_global(procinfo, im, Wstruct, Zstruct);
-
-  free(sort_array);
-
-  return 0;
 }
 
 /*
@@ -810,25 +593,6 @@ int refine_to_highrac
   free(work);
   free(iwork);
   return 0;
-}
-
-/* 
- * Compare function for using qsort() on an array of 
- * sort_structs
- */
-static 
-int cmpb(const void *a1, const void *a2)
-{
-  sort_struct_t *arg1, *arg2;
-
-  arg1 = (sort_struct_t *) a1;
-  arg2 = (sort_struct_t *) a2;
-
-  /* Within block local index decides */
-  if (arg1->ind < arg2->ind) 
-    return -1;
-  else
-    return 1;
 }
 
 /*
