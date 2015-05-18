@@ -17,6 +17,11 @@ include(FindCXXFeatures)
 message(STATUS "CXX11_COMPILER_FLAGS=${CXX11_COMPILER_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 
+option(TEST_CONSTEXPR "Test the MSVC bug via the use of a constexpr?" ON)
+if(TEST_CONSTEXPR)
+  add_definitions(-DUSE_CONSTEXPR)
+endif()
+
 option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
 file(GLOB CONSTEXPR_CPP RELATIVE ${PROJECT_SOURCE_DIR} "*.cpp")
 
