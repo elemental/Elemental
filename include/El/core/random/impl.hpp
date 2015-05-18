@@ -319,7 +319,7 @@ inline Int
 SampleBall<Int>( Int center, Int radius )
 {
     const double u = SampleBall<double>( center, radius );
-    return round(u);
+    return std::lround(u);
 }
 
 } // namespace El
