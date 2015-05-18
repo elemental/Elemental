@@ -11,15 +11,9 @@
 #include "El.hpp"
 
 #ifdef EL_HAVE_PARMETIS
-#include "parmetis.h"
-extern "C" {
-void ElParallelBisect
-( idx_t* vtxDist, idx_t* xAdj, idx_t* adjacency,
-  idx_t* nparseps, idx_t* nseqseps, real_t* imbalance, idx_t* options,
-  idx_t* perm, idx_t* sizes, MPI_Comm* comm );
-} // extern "C"
+# include "parmetis.h"
 #else
-#include "metis.h"
+# include "metis.h"
 #endif
 
 namespace El {
@@ -570,7 +564,7 @@ Int Bisect
         idx_t nseqseps = ctrl.numSeqSeps;
         idx_t nparseps = ctrl.numDistSeps;
         real_t imbalance = 1.1;
-        ElParallelBisect
+        ParMETIS_ComputeVertexSeparator
         ( vtxDist.data(), xAdj.data(), adjacency.data(), &nparseps, &nseqseps, 
           &imbalance, NULL, perm_idx_t.data(), sizes.data(), &comm.comm );
 

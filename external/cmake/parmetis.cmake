@@ -12,10 +12,14 @@ set(USE_FOUND_PARMETIS FALSE)
 if(NOT EL_BUILD_PARMETIS)
   find_package(ParMETIS)
   if(PARMETIS_FOUND)
-    if(EXISTS "${PARMETIS_DIR}/libparmetis/parmetislib.h")
+    include(CheckFunctionExists)
+    set(CMAKE_REQUIRED_LIBRARIES ${PARMETIS_LIBRARIES})
+    check_function_exists(ParMETIS_ComputeVertexSeparator 
+      HAVE_PARMETIS_VERTEXSEP)
+    if(HAVE_PARMETIS_VERTEXSEP)
       set(USE_FOUND_PARMETIS TRUE)
     else()
-      message(WARNING "ParMETIS was found, but parmetislib.h was not, and so ParMETIS must be built again to allow for a custom parallel vertex separation routine to be built")
+      message(WARNING "ParMETIS was found, but the custom add-on ParMETIS_ComputeVertexSeparator was not, so a custom version of the library must be built")
     endif()
   endif()
 endif()
@@ -24,9 +28,7 @@ if(USE_FOUND_PARMETIS)
   # find_package returns 'PARMETIS_LIBRARIES' but ParMETIS's CMakeLists.txt
   # returns 'PARMETIS_LIBS'
   set(PARMETIS_LIBS ${PARMETIS_LIBRARIES})
-
-  # parmetislib.h is needed for ElParallelBisect, which uses ParMETIS internals
-  include_directories(${PARMETIS_DIR}/include ${PARMETIS_DIR}/libparmetis)
+  include_directories(${PARMETIS_DIR}/include)
 else()
   if(NOT DEFINED PARMETIS_URL)
     set(PARMETIS_URL https://github.com/poulson/parmetis.git)
@@ -87,14 +89,6 @@ else()
   endif() 
   set_property(TARGET libmetis PROPERTY IMPORTED_LOCATION ${METIS_LIB})
   set_property(TARGET libparmetis PROPERTY IMPORTED_LOCATION ${PARMETIS_LIB})
-
-  # parmetislib.h is needed for ElParallelBisect, which uses ParMETIS internals
-  # to construct the vertex separation routine. Furthermore, parmetis includes
-  # files from metis/ and metis/GKlib/
-  include_directories(${source_dir}/include 
-                      ${source_dir}/libparmetis 
-                      ${source_dir}/metis/include
-                      ${source_dir}/metis/GKlib)
 
   set(PARMETIS_LIBS ${PARMETIS_LIB} ${METIS_LIB})
   set(EL_BUILT_PARMETIS TRUE)

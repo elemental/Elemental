@@ -16,6 +16,8 @@
 #define EL_CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 #cmakedefine EL_RELEASE
 #cmakedefine EL_HYBRID
+#cmakedefine BUILD_SHARED_LIBS
+#cmakedefine MSVC
 
 #define EL_MPI_LINK_FLAGS      "@MPI_LINK_FLAGS@"
 
@@ -97,29 +99,49 @@
 #cmakedefine EL_VECTOR_WARNINGS
 #cmakedefine EL_AVOID_OMP_FMA
 
-#cmakedefine EL_DECLSPEC
-#ifdef EL_DECLSPEC
-# define EL_EXPORT __declspec(dllexport)
+#ifdef BUILD_SHARED_LIBS
+# if defined _WIN32 || defined __CYGWIN__
+#  ifdef __GNUC__ /* Compiling with GNU on Windows */
+#   ifdef EL_EXPORTS
+#    define EL_EXPORT __attribute__ ((dllexport))
+#   else
+#    define EL_EXPORT __attribute__ ((dllimport))
+#   endif
+#  else  /* Compiling with non-GNU on Windows (check for MSVC?) */
+#   ifdef EL_EXPORTS
+#    define EL_EXPORT __declspec(dllexport)
+#   else
+#    define EL_EXPORT __declspec(dllimport)
+#   endif
+#  endif
+#  define EL_LOCAL
+# else
+#  if __GNUC__ >= 4
+#   define EL_EXPORT __attribute__ ((visibility ("default")))
+#   define EL_LOCAL  __attribute__ ((visibility ("hidden")))
+#  else
+#   define EL_EXPORT
+#   define EL_LOCAL
+#  endif
+# endif
 #else
 # define EL_EXPORT
+# define EL_LOCAL
 #endif
 
 #cmakedefine EL_HAVE_VALGRIND
 
-/* METIS/ParMETIS:
-   Ensure that preprocessor defs are compatible with GKlib.h */
-#cmakedefine METIS_PCRE
-#cmakedefine METIS_GKREGEX
-#cmakedefine MSVC
-#cmakedefine BUILD_SHARED_LIBS
-#ifdef METIS_PCRE
-# define __WITHPCRE__
-#endif
-#ifdef METIS_GKREGEX
-# define USE_GKREGEX
-#endif
-#if defined(MSVC) && defined(BUILD_SHARED_LIBS)
-# define METIS_EXPORT __declspec(dllexport)
+/* METIS/ParMETIS */
+#ifdef BUILD_SHARED_LIBS
+# if defined _WIN32 || defined __CYGWIN__
+#  ifdef __GNUC__ /* Compiling with GNU on Windows */
+#   define METIS_EXPORT __attribute__ ((dllimport))
+#  else  /* Compiling with non-GNU on Windows (check for MSVC?) */
+#   define METIS_EXPORT __declspec(dllimport)
+#  endif
+# else
+#  define METIS_EXPORT
+# endif
 #else
 # define METIS_EXPORT
 #endif

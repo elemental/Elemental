@@ -241,12 +241,6 @@ if(MSVC)
   set(CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE} "${CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
 endif()
 
-if(BUILD_SHARED_LIBS AND WIN32)
-  option(EL_DECLSPEC "Use __declspec(dllexport)?" ON)
-else()
-  option(EL_DECLSPEC "Use __declspec(dllexport)?" OFF)
-endif()
-
 # Handle RPATHs for Mac
 # ---------------------
 if(APPLE)
@@ -366,10 +360,6 @@ endif()
 target_link_libraries(El ${LINK_LIBS})
 if(MPI_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
-endif()
-if(MSVC)
-  include(GenerateExportHeader)
-  generate_export_header(El)
 endif()
 install(TARGETS El DESTINATION lib)
 
