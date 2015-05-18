@@ -23,31 +23,25 @@ enum Dist
   CIRC
 };
 
-template<Dist U> constexpr Dist Collect()       { return STAR; }
-template<>       constexpr Dist Collect<CIRC>() { return CIRC; }
+template<Dist U> constexpr Dist Collect() { return (U == CIRC) ? CIRC : STAR; }
 
 template<typename T,Dist U,Dist V>
 class DistMatrix { };
 
 template<typename T,Dist U,Dist V>
 void AllGather
-( const DistMatrix<T,        U,           V   >& A, 
-        DistMatrix<T,Collect<U>(),Collect<V>()>& B ) 
-{ 
-    std::cout << "U=" << U << ", V=" << V << std::endl; 
-}
+(const DistMatrix<T,U,V>& A, DistMatrix<T,Collect<U>(),Collect<V>()>& B)
+{ }
 
-int main( int argc, char* argv[] )
+#ifdef USE_CONSTEXPR
+template void AllGather(const DistMatrix<int,MC,MR>& A, DistMatrix<int,Collect<MC>(),Collect<MR>()>& B);
+template void AllGather(const DistMatrix<double,CIRC,CIRC>& A, DistMatrix<double,Collect<CIRC>(),Collect<CIRC>()>& B);
+#else
+template void AllGather(const DistMatrix<int,MC,MR>& A, DistMatrix<int,STAR,STAR>& B);
+template void AllGather(const DistMatrix<double,CIRC,CIRC>& A, DistMatrix<double,CIRC,CIRC>& B);
+#endif
+
+int main(int argc, char* argv[])
 {
-    {
-        DistMatrix<double,MC,MR> A;
-        DistMatrix<double,STAR,STAR> B;
-        AllGather( A, B );
-    }
-    {
-        DistMatrix<int,CIRC,CIRC> A;
-        DistMatrix<int,CIRC,CIRC> B;
-        AllGather( A, B );
-    }
-    return 0;
+	return 0;
 }
