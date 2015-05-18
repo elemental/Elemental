@@ -73,6 +73,7 @@ else()
 
   # Extract the source and install directories
   ExternalProject_Get_Property(project_parmetis source_dir install_dir)
+  include_directories("${install_dir}/include")
 
   # Add targets for libmetis and libparmetis (either shared or static)
   if(BUILD_SHARED_LIBS)

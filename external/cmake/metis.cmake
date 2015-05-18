@@ -58,6 +58,7 @@ else()
 
   # Extract the installation directory
   ExternalProject_Get_Property(project_metis install_dir)
+  include_directories("${install_dir}/include")
 
   # Add a target for libmetis (either shared or static)
   if(BUILD_SHARED_LIBS)
