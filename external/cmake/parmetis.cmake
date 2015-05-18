@@ -28,7 +28,7 @@ if(USE_FOUND_PARMETIS)
   # find_package returns 'PARMETIS_LIBRARIES' but ParMETIS's CMakeLists.txt
   # returns 'PARMETIS_LIBS'
   set(PARMETIS_LIBS ${PARMETIS_LIBRARIES})
-  include_directories(${PARMETIS_DIR}/include)
+  include_directories(${PARMETIS_INCLUDE_DIR})
 else()
   if(NOT DEFINED PARMETIS_URL)
     set(PARMETIS_URL https://github.com/poulson/parmetis.git)

@@ -16,6 +16,7 @@ if(METIS_FOUND)
   # find_package returns 'METIS_LIBRARIES' but METIS's CMakeLists.txt
   # returns 'METIS_LIBS'
   set(METIS_LIBS ${METIS_LIBRARIES})
+  include_directories(${METIS_INCLUDE_DIRS})
 else()
   if(NOT DEFINED METIS_URL)
     set(METIS_URL https://github.com/poulson/Metis.git)
