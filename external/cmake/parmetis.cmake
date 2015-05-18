@@ -38,9 +38,9 @@ else()
 
   option(METIS_PCRE OFF)
   if(MSVC OR MINGW)
-    option(METIS_GKREGEX ON)
+    option(METIS_GKREGEX "Use GKlib's internal regex?" ON)
   else()
-    option(METIS_GKREGEX OFF)
+    option(METIS_GKREGEX "Use GKlib's internal regex?" OFF)
   endif()
 
   ExternalProject_Add(project_parmetis 
