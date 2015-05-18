@@ -38,12 +38,10 @@ else()
 
   option(METIS_PCRE OFF)
   if(MSVC OR MINGW)
-    option(METIS_GKREGEX OFF)
-  else()
     option(METIS_GKREGEX ON)
+  else()
+    option(METIS_GKREGEX OFF)
   endif()
-  set(METIS_PCRE ${METIS_PCRE} PARENT_SCOPE)
-  set(METIS_GKREGEX ${METIS_GKREGEX} PARENT_SCOPE)
 
   ExternalProject_Add(project_parmetis 
     PREFIX ${CMAKE_INSTALL_PREFIX}
