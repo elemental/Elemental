@@ -61,7 +61,7 @@ public:
     // -----------
     type& operator=( const type& A );
     type& operator=( const absType& A );
-    void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
+    void CopyFromRoot( const El::Matrix<T>& A, bool includingViewers=false );
     void CopyFromNonRoot( bool includingViewers=false );
     template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
 

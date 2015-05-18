@@ -61,7 +61,7 @@ public:
     template<Dist U,Dist V> type& operator=( const DistMatrix<T,U,V>& A );
     type& operator=( const type& A );
     type& operator=( const absType& A );
-    void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
+    void CopyFromRoot( const El::Matrix<T>& A, bool includingViewers=false );
     void CopyFromNonRoot( bool includingViewers=false );
     // Move assignment
     type& operator=( type&& A );
