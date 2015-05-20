@@ -10,8 +10,21 @@ include(ExternalProject)
 include(ElCheckFunctionExists)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+  set(GFORTRAN_PATHS /usr/lib
+                     /usr/lib64
+                     /usr/local/lib
+                     /usr/local/lib64
+                     /usr/lib/openmpi/lib
+                     /usr/lib/gcc/x86_64-linux-gnu/4.8
+                     /usr/lib/gcc/x86_64-linux-gnu/4.9
+                     /lib/x86_64-linux-gnu
+                     /usr/lib/x86_64-linux-gnu
+                     /usr/lib/openblas-base
+                     /usr/lib64/openblas-base
+                     /usr/local/lib/gcc/4.8
+                     /usr/local/lib/gcc/4.9)
   if(NOT GFORTRAN_LIB)
-    find_library(GFORTRAN_LIB NAMES gfortran PATHS /usr/local/lib/gcc/4.9)
+    find_library(GFORTRAN_LIB NAMES gfortran PATHS ${GFORTRAN_PATHS})
     if(NOT GFORTRAN_LIB)
       if(APPLE)
         message(FATAL_ERROR "Could not find gfortran library; please consider setting the GFORTRAN_LIB variable. If you installed gfortran via homebrew, please see the issue filed at https://github.com/Homebrew/homebrew/issues/8539")
