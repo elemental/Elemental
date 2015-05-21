@@ -52,6 +52,7 @@ elseif(APPLE)
     set(CMAKE_REQUIRED_LIBRARIES "-framework Accelerate")
     El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_ACCELERATE)
     El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_ACCELERATE)
+    set(CMAKE_REQUIRED_LIBRARIES)
     if(EL_HAVE_DPOTRF_VECLIB OR EL_HAVE_DPOTRF_POST_VECLIB)
       set(MATH_LIBS "-framework vecLib" CACHE STRING ${MATH_DESC})
       message(STATUS "Using Apple vecLib framework.")
@@ -94,6 +95,12 @@ else()
   endif()
 endif()
 
+# Experiment with downloading and building BLIS
+# =============================================
+if(EL_TEST_BLIS)
+  include(blis)
+endif()
+
 # Check/predict the BLAS and LAPACK underscore conventions
 # ========================================================
 if(EL_BUILT_OPENBLAS)
@@ -103,14 +110,14 @@ if(EL_BUILT_OPENBLAS)
     include(scalapack)
   endif()
 else()
-  # Check BLAS
-  # ----------
-  # NOTE: MATH_LIBS may involve MPI functionality (e.g., ScaLAPACK) and so
-  #       MPI flags should be added for the detection
   set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
   set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
   set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
   set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS} ${MPI_C_LIBRARIES})
+  # Check BLAS
+  # ----------
+  # NOTE: MATH_LIBS may involve MPI functionality (e.g., ScaLAPACK) and so
+  #       MPI flags should be added for the detection
   if(EL_BLAS_SUFFIX)
     El_check_function_exists(daxpy${EL_BLAS_SUFFIX} EL_HAVE_DAXPY_SUFFIX)
     if(NOT EL_HAVE_DAXPY_SUFFIX)
@@ -204,6 +211,13 @@ else()
       endif()
     endif()
   endif()
+
+  # Clean up the requirements since they cause problems in other Find packages,
+  # such as FindThreads
+  set(CMAKE_REQUIRED_FLAGS)
+  set(CMAKE_REQUIRED_LINKER_FLAGS)
+  set(CMAKE_REQUIRED_INCLUDES)
+  set(CMAKE_REQUIRED_LIBRARIES)
 endif()
 
 # Check for quad-precision support
@@ -237,6 +251,7 @@ if(NOT EL_DISABLE_QUAD)
     else()
       message(WARNING "Found libquadmath but could not use it in C++")
     endif()
+    set(CMAKE_REQUIRED_LIBRARIES)
   endif()
 endif()
 

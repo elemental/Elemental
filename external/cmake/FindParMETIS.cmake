@@ -97,6 +97,7 @@ if (PARMETIS_INCLUDE_DIR AND PARMETIS_LIBRARY AND METIS_LIBRARY)
   include(CheckCXXSourceRuns)
   check_cxx_source_runs("
 #include \"mpi.h\"
+#define METIS_EXPORT
 #include \"parmetis.h\"
 int main( int argc, char* argv[] )
 {
@@ -106,6 +107,9 @@ int main( int argc, char* argv[] )
   return 0;
 }
 " PARMETIS_TEST_RUNS)
+
+  set(CMAKE_REQUIRED_INCLUDES)
+  set(CMAKE_REQUIRED_LIBRARIES)
 endif()
 
 # Standard package handling

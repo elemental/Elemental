@@ -32,3 +32,4 @@ set(OMP_COLLAPSE_CODE
          return 0; 
      }")
 check_cxx_source_compiles("${OMP_COLLAPSE_CODE}" EL_HAVE_OMP_COLLAPSE)
+set(CMAKE_REQUIRED_FLAGS)

@@ -46,15 +46,15 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
       message(FATAL_ERROR "Could not find standard math library")
     endif()
   endif()
-  set(FORTRAN_ADDONS ${GFORTRAN_LIB} ${CMAKE_THREAD_LIBS_INIT} ${STD_MATH_LIB})
+  set(GNU_ADDONS ${GFORTRAN_LIB} ${CMAKE_THREAD_LIBS_INIT} ${STD_MATH_LIB})
 else()
-  set(FORTRAN_ADDONS)
+  set(GNU_ADDONS)
 endif()
 
 if(NOT EL_BUILD_OPENBLAS)
   find_library(OpenBLAS NAMES openblas PATHS ${MATH_PATHS})
   if(OpenBLAS)
-    set(CMAKE_REQUIRED_LIBRARIES ${OpenBLAS} ${FORTRAN_ADDONS})
+    set(CMAKE_REQUIRED_LIBRARIES ${OpenBLAS} ${GNU_ADDONS})
     El_check_function_exists(dgemm   EL_HAVE_DGEMM_OPENBLAS)
     El_check_function_exists(dgemm_  EL_HAVE_DGEMM_POST_OPENBLAS)
     El_check_function_exists(dsytrd  EL_HAVE_DSYTRD_OPENBLAS)
@@ -73,67 +73,61 @@ if(NOT EL_BUILD_OPENBLAS)
 endif()
 
 if(EL_HAVE_OPENBLAS_BLAS AND EL_HAVE_OPENBLAS_LAPACK)
-  set(OPENBLAS_LIBS ${OpenBLAS} ${FORTRAN_ADDONS})
+  set(OPENBLAS_LIBS ${OpenBLAS} ${GNU_ADDONS})
   set(EL_HAVE_OPENBLAS TRUE)
   set(EL_BUILT_OPENBLAS FALSE) 
   message(STATUS "Using OpenBLAS+LAPACK found at ${OpenBLAS}")
-elseif(FORTRAN_WORKS)
-  if(MSVC)
-    set(EL_HAVE_OPENBLAS FALSE)
-    set(EL_BUILT_OPENBLAS FALSE)
-  else()
-    # TODO: Check out from GitHub
-    if(NOT DEFINED OPENBLAS_URL)
-      set(OPENBLAS_URL https://github.com/xianyi/OpenBLAS.git)
-    endif()
-    message(STATUS "Will pull OpenBLAS from ${OPENBLAS_URL}")
-
-    set(OPENBLAS_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/OpenBLAS/source)
-    set(OPENBLAS_BINARY_DIR ${PROJECT_BINARY_DIR}/download/OpenBLAS/build)
-
-    if(APPLE)
-      if(NOT OPENBLAS_ARCH_COMMAND)
-        # This is a hack but is a good default for modern Mac's
-        set(OPENBLAS_ARCH_COMMAND TARGET=SANDYBRIDGE)
-      endif()
-    else()
-      if(NOT OPENBLAS_ARCH_COMMAND)
-        set(OPENBLAS_ARCH_COMMAND)
-      endif()
-    endif()
-
-    ExternalProject_Add(project_openblas
-      PREFIX ${CMAKE_INSTALL_PREFIX}
-      GIT_REPOSITORY ${OPENBLAS_URL}
-      GIT_TAG "v0.2.14"
-      STAMP_DIR ${OPENBLAS_BINARY_DIR}/stamp
-      BUILD_IN_SOURCE 1
-      SOURCE_DIR ${OPENBLAS_SOURCE_DIR}
-      TMP_DIR    ${OPENBLAS_BINARY_DIR}/tmp
-      INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-      CONFIGURE_COMMAND ""
-      UPDATE_COMMAND "" 
-      BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${OPENBLAS_ARCH_COMMAND} libs netlib shared
-      INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install PREFIX=<INSTALL_DIR>
-    )
-
-    # Extract the installation directory
-    ExternalProject_Get_Property(project_openblas install_dir)
-
-    # Add a target for libopenblas (either shared or static)
-    if(BUILD_SHARED_LIBS)
-      add_library(libopenblas SHARED IMPORTED)
-      set(OPENBLAS_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}openblas${CMAKE_SHARED_LIBRARY_SUFFIX})
-    else()
-      add_library(libopenblas STATIC IMPORTED)
-      set(OPENBLAS_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}openblas${CMAKE_STATIC_LIBRARY_SUFFIX})
-    endif() 
-    set_property(TARGET libopenblas PROPERTY IMPORTED_LOCATION ${OPENBLAS_LIB})
-
-    set(OPENBLAS_LIBS ${OPENBLAS_LIB} ${FORTRAN_ADDONS})
-    set(EL_HAVE_OPENBLAS TRUE)
-    set(EL_BUILT_OPENBLAS TRUE)
+elseif(FORTRAN_WORKS AND NOT MSVC)
+  if(NOT DEFINED OPENBLAS_URL)
+    set(OPENBLAS_URL https://github.com/xianyi/OpenBLAS.git)
   endif()
+  message(STATUS "Will pull OpenBLAS from ${OPENBLAS_URL}")
+
+  set(OPENBLAS_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/OpenBLAS/source)
+  set(OPENBLAS_BINARY_DIR ${PROJECT_BINARY_DIR}/download/OpenBLAS/build)
+
+  if(APPLE)
+    if(NOT OPENBLAS_ARCH_COMMAND)
+      # This is a hack but is a good default for modern Mac's
+      set(OPENBLAS_ARCH_COMMAND TARGET=SANDYBRIDGE)
+    endif()
+  else()
+    if(NOT OPENBLAS_ARCH_COMMAND)
+      set(OPENBLAS_ARCH_COMMAND)
+    endif()
+  endif()
+
+  ExternalProject_Add(project_openblas
+    PREFIX ${CMAKE_INSTALL_PREFIX}
+    GIT_REPOSITORY ${OPENBLAS_URL}
+    GIT_TAG "v0.2.14"
+    STAMP_DIR ${OPENBLAS_BINARY_DIR}/stamp
+    BUILD_IN_SOURCE 1
+    SOURCE_DIR ${OPENBLAS_SOURCE_DIR}
+    TMP_DIR    ${OPENBLAS_BINARY_DIR}/tmp
+    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+    CONFIGURE_COMMAND ""
+    UPDATE_COMMAND "" 
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${OPENBLAS_ARCH_COMMAND} libs netlib shared
+    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install PREFIX=<INSTALL_DIR>
+  )
+
+  # Extract the installation directory
+  ExternalProject_Get_Property(project_openblas install_dir)
+
+  # Add a target for libopenblas (either shared or static)
+  if(BUILD_SHARED_LIBS)
+    add_library(libopenblas SHARED IMPORTED)
+    set(OPENBLAS_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}openblas${CMAKE_SHARED_LIBRARY_SUFFIX})
+  else()
+    add_library(libopenblas STATIC IMPORTED)
+    set(OPENBLAS_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}openblas${CMAKE_STATIC_LIBRARY_SUFFIX})
+  endif() 
+  set_property(TARGET libopenblas PROPERTY IMPORTED_LOCATION ${OPENBLAS_LIB})
+
+  set(OPENBLAS_LIBS ${OPENBLAS_LIB} ${GNU_ADDONS})
+  set(EL_HAVE_OPENBLAS TRUE)
+  set(EL_BUILT_OPENBLAS TRUE)
 else()
   set(EL_HAVE_OPENBLAS FALSE)
   set(EL_BUILT_OPENBLAS FALSE)

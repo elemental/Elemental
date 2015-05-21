@@ -109,3 +109,6 @@ else()
   set(RESTRICT "")
   message(STATUS "Could not find a restrict keyword.")
 endif()
+
+set(CMAKE_REQUIRED_FLAGS)
+set(CMAKE_REQUIRED_DEFINITIONS)

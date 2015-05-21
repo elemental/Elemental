@@ -14,7 +14,7 @@
 #
 cmake_minimum_required(VERSION 2.8.12)
 
-project(Elemental)
+project(Elemental C CXX)
 set(EL_VERSION_MAJOR 0)
 set(EL_VERSION_MINOR 86-dev)
 
