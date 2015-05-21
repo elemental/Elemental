@@ -109,6 +109,9 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
       -D CMAKE_INSTALL_RPATH=${CMAKE_INSTALL_RPATH}
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   )
+  if(EL_BUILT_BLIS)
+    add_dependencies(project_scalapack project_blis)
+  endif()
   if(EL_BUILT_OPENBLAS)
     add_dependencies(project_scalapack project_openblas)
   endif()
@@ -116,7 +119,7 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
   # Extract the source and install directories
   ExternalProject_Get_Property(project_scalapack source_dir install_dir)
 
-  # Add targets for libmetis and libparmetis (either shared or static)
+  # Add targets for libscalapack (either shared or static)
   if(BUILD_SHARED_LIBS)
     add_library(libscalapack SHARED IMPORTED)
     set(SCALAPACK_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}scalapack${CMAKE_SHARED_LIBRARY_SUFFIX})
