@@ -97,10 +97,10 @@ void PrintConfig( ostream& os )
 #else
       "  Have FLAME bidiagonal SVD:    NO\n"
 #endif
-#ifdef EL_HAVE_OPENMP
-      "  Have OpenMP:                  YES\n"
+#ifdef EL_HYBRID
+      "  Hybrid mode:                  YES\n"
 #else
-      "  Have OpenMP:                  NO\n"
+      "  Hybrid mode:                  NO\n"
 #endif
 #ifdef EL_HAVE_QT5
       "  Have Qt5:                     YES\n"
@@ -287,7 +287,7 @@ void Initialize( int& argc, char**& argv )
             LogicError
             ("Cannot initialize elemental after finalizing MPI");
         }
-#ifdef EL_HAVE_OPENMP
+#ifdef EL_HYBRID
         const Int provided = 
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
@@ -304,7 +304,7 @@ void Initialize( int& argc, char**& argv )
     }
     else
     {
-#ifdef EL_HAVE_OPENMP
+#ifdef EL_HYBRID
         const Int provided = mpi::QueryThread();
         if( provided != mpi::THREAD_MULTIPLE )
         {
@@ -460,19 +460,19 @@ DEBUG_ONLY(
 
     void PushCallStack( string s )
     { 
-#ifdef EL_HAVE_OPENMP
+#ifdef EL_HYBRID
         if( omp_get_thread_num() != 0 )
             return;
-#endif // EL_HAVE_OPENMP
+#endif
         ::callStack.push(s); 
     }
 
     void PopCallStack()
     { 
-#ifdef EL_HAVE_OPENMP
+#ifdef EL_HYBRID
         if( omp_get_thread_num() != 0 )
             return;
-#endif // EL_HAVE_OPENMP
+#endif
         ::callStack.pop(); 
     }
 

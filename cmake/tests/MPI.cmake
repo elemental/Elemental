@@ -5,7 +5,6 @@ if(NOT MPI_C_FOUND)
   message(FATAL_ERROR "MPI C compiler was not found and is required")
 endif()
 include_directories(${MPI_C_INCLUDE_PATH})
-set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_C_COMPILE_FLAGS}")
 
 # NOTE: 
 # check_function_exists only supports cdecl calling conventions, despite the

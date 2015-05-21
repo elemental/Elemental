@@ -42,8 +42,7 @@
 # define DEBUG_ONLY(cmd) cmd;
 #endif
 
-// If defined, the _OPENMP macro contains the date of the specification
-#ifdef EL_HAVE_OPENMP
+#ifdef EL_HYBRID
 # include <omp.h>
 # define EL_PARALLEL_FOR _Pragma("omp parallel for")
 # ifdef EL_HAVE_OMP_COLLAPSE

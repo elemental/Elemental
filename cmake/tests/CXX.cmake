@@ -2,7 +2,6 @@ include(FindCXXFeatures)
 include(CheckCXXSourceCompiles)
 
 message(STATUS "CXX11_COMPILER_FLAGS=${CXX11_COMPILER_FLAGS}")
-set(EXTRA_FLAGS "${CXX11_COMPILER_FLAGS}")
 set(CMAKE_REQUIRED_FLAGS ${CXX11_COMPILER_FLAGS})
 
 # Required features

@@ -31,10 +31,12 @@ endif()
 if(NOT EL_BUILD_BLIS)
   find_library(BLIS NAMES blis PATHS ${MATH_PATHS})
   if(BLIS)
+    set(CMAKE_REQUIRED_LINKER_FLAGS)
     set(CMAKE_REQUIRED_LIBRARIES ${BLIS} ${GNU_ADDONS})
-    El_check_function_exists(dgemm   EL_HAVE_DGEMM_BLIS)
-    El_check_function_exists(dgemm_  EL_HAVE_DGEMM_POST_BLIS)
-    if(EL_HAVE_DGEMM_BLIS OR EL_HAVE_DGEMM_POST_BLIS)
+    El_check_function_exists(dgemm_ EL_HAVE_DGEMM_BLIS)
+    set(CMAKE_REQUIRED_LINKER_FLAGS ${OpenMP_C_FLAGS})
+    El_check_function_exists(dgemm_ EL_HAVE_DGEMM_OPENMP_BLIS)
+    if(EL_HAVE_DGEMM_POST_BLIS OR EL_HAVE_DGEMM_OPENMP_BLIS)
       set(EL_HAVE_BLIS_BLAS TRUE)
     else()
       message(WARNING "BLIS was found as ${BLIS}, but BLAS support was not detected")
@@ -45,6 +47,11 @@ endif()
 
 if(EL_HAVE_BLIS_BLAS)
   set(BLIS_LIBS ${BLIS} ${GNU_ADDONS})
+  if(EL_HAVE_DGEMM_POST_BLIS)
+    set(BLIS_LINK_FLAGS)
+  else()
+    set(BLIS_LINK_FLAGS ${OpenMP_CXX_FLAGS})
+  endif()
   set(EL_HAVE_BLIS TRUE)
   set(EL_BUILT_BLIS FALSE) 
   message(STATUS "Using BLIS found at ${BLIS}")
@@ -76,7 +83,7 @@ elseif(NOT MSVC)
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
     CONFIGURE_COMMAND ""
     UPDATE_COMMAND "" 
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} -p <INSTALL_DIR> ${BLIS_ARCH}
+    BUILD_COMMAND ${BLIS_SOURCE_DIR}/configure -p <INSTALL_DIR> ${BLIS_ARCH}
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
   )
 
@@ -89,6 +96,9 @@ elseif(NOT MSVC)
   set_property(TARGET libblis PROPERTY IMPORTED_LOCATION ${BLIS_LIB})
 
   set(BLIS_LIBS ${BLIS_LIB} ${GNU_ADDONS})
+  # If we used the 'auto' configuration, we don't know if BLIS used OpenMP or
+  # not, and so we might as well add it as a link flag
+  set(BLIS_LINK_FLAGS ${OpenMP_CXX_FLAGS})
   set(EL_HAVE_BLIS TRUE)
   set(EL_BUILT_BLIS TRUE)
 else()

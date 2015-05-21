@@ -268,9 +268,29 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 include(tests/Fortran)
 include(tests/CXX)
+set(CXX_FLAGS "${CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 include(tests/MPI)
+set(CXX_FLAGS "${CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 include(tests/OpenMP)
+if(EL_HYBRID)
+  set(CXX_FLAGS "${CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 include(tests/Qt5)
+if(EL_HAVE_QT5)
+  set(CXX_FLAGS "${CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+endif()
+
+set(EL_LINK_FLAGS)
+if(MPI_LINK_FLAGS)
+  set(EL_LINK_FLAGS ${MPI_LINK_FLAGS})
+endif()
+if(BLIS_FLAGS)
+  if(EL_LINK_FLAGS)
+    set(EL_LINK_FLAGS "${EL_LINK_FLAGS} ${BLIS_FLAGS}")
+  else()
+    set(EL_LINK_FLAGS ${BLIS_FLAGS})
+  endif()
+endif()
 
 # Allow valgrind support if possible (if running valgrind, explicitly zero init)
 # ------------------------------------------------------------------------------
@@ -284,14 +304,16 @@ endif()
 # -------------------------------------------------------------------------
 include(tests/Math)
 
-# Now append the extra flags
-# --------------------------
-set(CXX_FLAGS "${CXX_FLAGS} ${EXTRA_FLAGS}")
+# Now that testing is done, set the CXX build flags
+# -------------------------------------------------
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 
 # Parallel Multiple Relatively Robust Representations
 # ---------------------------------------------------
 add_subdirectory(external/pmrrr)
+if(EL_BUILT_BLIS)
+  add_dependencies(pmrrr project_blis)
+endif()
 if(EL_BUILT_OPENBLAS)
   add_dependencies(pmrrr project_openblas)
 endif()
@@ -313,7 +335,6 @@ if(EL_HAVE_QT5)
   qt_wrap_cpp(El EL_MOC_SRC ${EL_HEADERS_PREMOC})
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
-  set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
 
   # Qt5Widgets_DIR = Qt5_LIBDIR/cmake/Qt5Widgets
   get_filename_component(Qt5_CMAKEDIR ${Qt5Widgets_DIR} PATH)
@@ -341,6 +362,9 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
 add_dependencies(El El_config)
+if(EL_BUILT_BLIS)
+  add_dependencies(El project_blis)
+endif()
 if(EL_BUILT_OPENBLAS)
   add_dependencies(El project_openblas)
 endif()
@@ -358,8 +382,8 @@ if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
 endif()
 target_link_libraries(El ${LINK_LIBS})
-if(MPI_LINK_FLAGS)
-  set_target_properties(El PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+if(EL_LINK_FLAGS)
+  set_target_properties(El PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
 install(TARGETS El DESTINATION lib)
 
@@ -414,9 +438,9 @@ if(EL_EXPERIMENTAL)
     target_link_libraries(experimental-g3d-${EXPER} El)
     set_target_properties(experimental-g3d-${EXPER} PROPERTIES
       OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
+    if(EL_LINK_FLAGS)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
-        LINK_FLAGS ${MPI_LINK_FLAGS})
+        LINK_FLAGS ${EL_LINK_FLAGS})
     endif()
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
   endforeach()
@@ -435,8 +459,8 @@ set_source_files_properties(${PROJECT_SOURCE_DIR}/sandbox/test.cpp PROPERTIES OB
 target_link_libraries(sandbox-test El)
 set_target_properties(sandbox-test PROPERTIES OUTPUT_NAME sandbox-test 
   RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-if(MPI_LINK_FLAGS)
-  set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+if(EL_LINK_FLAGS)
+  set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
 add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin 
   COMMAND sandbox-test)
@@ -460,9 +484,9 @@ if(EL_TESTS)
       target_link_libraries(tests-${TYPE}-${TESTNAME} El)
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
         OUTPUT_NAME ${TESTNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-      if(MPI_LINK_FLAGS)
+      if(EL_LINK_FLAGS)
         set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
-          LINK_FLAGS ${MPI_LINK_FLAGS})
+          LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
       install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
@@ -498,9 +522,9 @@ if(EL_EXAMPLES)
       target_link_libraries(examples-${TYPE}-${EXNAME} El)
       set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
         OUTPUT_NAME ${EXNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-      if(MPI_LINK_FLAGS)
+      if(EL_LINK_FLAGS)
         set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
-          LINK_FLAGS ${MPI_LINK_FLAGS})
+          LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
         DESTINATION bin/examples/${TYPE})
@@ -531,7 +555,6 @@ include(CPack)
 
 # Subproject
 # ==========
-# TODO: See if this is still functioning
 # If Elemental is a subproject, then pass some variables to the parent
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   include(./cmake/ElSub.cmake)

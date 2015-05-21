@@ -79,10 +79,10 @@ ElError ElPrintConfig( FILE* stream )
 #else
       "  Have FLAME bidiagonal SVD:    NO\n"
 #endif
-#ifdef EL_HAVE_OPENMP
-      "  Have OpenMP:                  YES\n"
+#ifdef EL_HYBRID
+      "  Hybrid mode:                  YES\n"
 #else
-      "  Have OpenMP:                  NO\n"
+      "  Hybrid mode:                  NO\n"
 #endif
 #ifdef EL_HAVE_QT5
       "  Have Qt5:                     YES\n"
