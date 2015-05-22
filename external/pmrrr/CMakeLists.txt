@@ -70,8 +70,8 @@ else()
   target_link_libraries(pmrrr 
     ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${MATH_LIBS})
 endif()
-if(MPI_LINK_FLAGS)
-  set_target_properties(pmrrr PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
+if(EL_LINK_FLAGS)
+  set_target_properties(pmrrr PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
 install(TARGETS pmrrr DESTINATION lib)
 

@@ -36,16 +36,29 @@ endif()
 if(MATH_LIBS)
   message(STATUS "Using user-defined MATH_LIBS=${MATH_LIBS}")
 elseif(APPLE)
-  if(EL_PREFER_OPENBLAS)
+  # Attempt to find/build BLIS+LAPACK if prompted
+  # ---------------------------------------------
+  if(EL_PREFER_BLIS_LAPACK)
+    include(ExternalBLISLAPACK)
+    if(EL_HAVE_BLIS_LAPACK)
+      set(MATH_LIBS ${BLIS_LAPACK_LIBS})
+      message("Will use BLIS+LAPACK via MATH_LIBS=${MATH_LIBS}")
+    endif()
+  endif()
+
+  # Attempt to find/build OpenBLAS if prompted
+  # ------------------------------------------
+  if(NOT MATH_LIBS AND EL_PREFER_OPENBLAS)
     include(ExternalOpenBLAS)
     if(EL_HAVE_OPENBLAS)
       set(MATH_LIBS ${OPENBLAS_LIBS})
-      message("Will use OpenBLAS via MATH_LIBS=${MATH_LIBS}")
+      message("Will use OpenBLAS+LAPACK via MATH_LIBS=${MATH_LIBS}")
     endif()
   endif()
+
+  # Default to vecLib (older) or Accelerate (newer)
+  # -----------------------------------------------
   if(NOT MATH_LIBS)
-    # The defaults will be either vecLib (older) or Accelerate (newer)
-    # ----------------------------------------------------------------
     set(CMAKE_REQUIRED_LIBRARIES "-framework vecLib")
     El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_VECLIB)
     El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_VECLIB)
@@ -62,17 +75,29 @@ elseif(APPLE)
     endif()
   endif()
 else()
+  # Attempt to find/build OpenBLAS unless requested not to
+  # ------------------------------------------------------
   if(NOT EL_DISABLE_OPENBLAS)
     include(ExternalOpenBLAS)
     if(EL_HAVE_OPENBLAS)
-      foreach(NAME ${OPENBLAS_LIBS})
-        list(APPEND MATH_LIBS "${NAME}")
-      endforeach()
+      set(MATH_LIBS ${OPENBLAS_LIBS})
       message("Will use OpenBLAS via MATH_LIBS=${MATH_LIBS}")
     endif()
   endif()
-  if(NOT EL_HAVE_OPENBLAS)
-    # Look for default BLAS and LAPACK
+
+  # Attempt to find/build BLIS+LAPACK unless requested not to
+  # ---------------------------------------------------------
+  if(NOT MATH_LIBS AND NOT EL_DISABLE_BLIS_LAPACK)
+    include(ExternalBLISLAPACK)
+    if(EL_HAVE_BLIS_LAPACK)
+      set(MATH_LIBS ${BLIS_LAPACK_LIBS})
+      message("Will use OpenBLAS via MATH_LIBS=${MATH_LIBS}")
+    endif()
+  endif()
+
+  # Look for reference implementations of BLAS+LAPACK
+  # -------------------------------------------------
+  if(NOT MATH_LIBS)
     set(REFERENCE_REQUIRED LAPACK BLAS)
     find_library(BLAS_LIB NAMES blas PATHS ${MATH_PATHS})
     find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${MATH_PATHS})
@@ -95,15 +120,9 @@ else()
   endif()
 endif()
 
-# Experiment with downloading and building BLIS
-# =============================================
-if(EL_TEST_BLIS)
-  include(ExternalBLIS)
-endif()
-
 # Check/predict the BLAS and LAPACK underscore conventions
 # ========================================================
-if(EL_BUILT_OPENBLAS)
+if(EL_BUILT_BLIS_LAPACK OR EL_BUILT_OPENBLAS)
   # EL_[HAVE_]{BLAS,LAPACK}_SUFFIX will be read through openblas_config.h
   set(EL_HAVE_FLA_BSVD FALSE)
   if(NOT EL_DISABLE_SCALAPACK)

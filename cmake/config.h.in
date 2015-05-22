@@ -19,53 +19,54 @@
 #cmakedefine BUILD_SHARED_LIBS
 #cmakedefine MSVC
 
-#define EL_MPI_LINK_FLAGS      "@MPI_LINK_FLAGS@"
-
-/* C compiler info */
-#define EL_CMAKE_C_COMPILER    "@CMAKE_C_COMPILER@"
-#define EL_MPI_C_COMPILER      "@MPI_C_COMPILER@"
-#define EL_MPI_C_INCLUDE_PATH  "@MPI_C_INCLUDE_PATH@"
-#define EL_MPI_C_COMPILE_FLAGS "@MPI_C_COMPILE_FLAGS@"
-#define EL_MPI_C_LIBRARIES     "@MPI_C_LIBRARIES@"
-
-/* C++ compiler info */
-#define EL_CMAKE_CXX_COMPILER    "@CMAKE_CXX_COMPILER@"
-#define EL_CXX_FLAGS             "@CXX_FLAGS@"
-#define EL_MPI_CXX_COMPILER      "@MPI_CXX_COMPILER@"
-#define EL_MPI_CXX_INCLUDE_PATH  "@MPI_CXX_INCLUDE_PATH@"
-#define EL_MPI_CXX_COMPILE_FLAGS "@MPI_CXX_COMPILE_FLAGS@"
-#define EL_MPI_CXX_LIBRARIES     "@MPI_CXX_LIBRARIES@"
-
-/* Math libraries */
-#define EL_MATH_LIBS "@MATH_LIBS@"
-#cmakedefine EL_BUILT_OPENBLAS
-#ifdef EL_BUILT_OPENBLAS
-  #include "@CMAKE_INSTALL_PREFIX@/include/openblas_config.h"
-#else
-  #cmakedefine EL_HAVE_BLAS_SUFFIX
-  #cmakedefine EL_HAVE_LAPACK_SUFFIX
-  #define EL_BLAS_SUFFIX @EL_BLAS_SUFFIX@
-  #define EL_LAPACK_SUFFIX @EL_LAPACK_SUFFIX@
+/* Compiler information */
+#define EL_CMAKE_C_COMPILER   "@CMAKE_C_COMPILER@"
+#define EL_CMAKE_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
+#define EL_CXX_FLAGS          "@CXX_FLAGS@"
+#cmakedefine EL_HAVE_F90_INTERFACE
+#ifdef EL_HAVE_F90_INTERFACE
+# include "El/FCMangle.h"
 #endif
-#cmakedefine EL_HAVE_SCALAPACK
-#cmakedefine EL_BUILT_SCALAPACK
-#ifndef EL_BUILT_SCALAPACK
-  #cmakedefine EL_HAVE_SCALAPACK_SUFFIX
-  #define EL_SCALAPACK_SUFFIX @EL_SCALAPACK_SUFFIX@
-#endif
-#cmakedefine EL_HAVE_FLA_BSVD
-#cmakedefine EL_HAVE_QUAD
-#cmakedefine EL_HAVE_QUADMATH
 #define EL_FORT_LOGICAL @EL_FORT_LOGICAL@
 #define EL_FORT_TRUE    @EL_FORT_TRUE@
 #define EL_FORT_FALSE   @EL_FORT_FALSE@
 
-/* Basic configuration options */
+/* Message Passing Interface */
+#define EL_MPI_C_COMPILER        "@MPI_C_COMPILER@"
+#define EL_MPI_C_INCLUDE_PATH    "@MPI_C_INCLUDE_PATH@"
+#define EL_MPI_C_COMPILE_FLAGS   "@MPI_C_COMPILE_FLAGS@"
+#define EL_MPI_C_LIBRARIES       "@MPI_C_LIBRARIES@"
+#define EL_MPI_CXX_COMPILER      "@MPI_CXX_COMPILER@"
+#define EL_MPI_CXX_INCLUDE_PATH  "@MPI_CXX_INCLUDE_PATH@"
+#define EL_MPI_CXX_COMPILE_FLAGS "@MPI_CXX_COMPILE_FLAGS@"
+#define EL_MPI_CXX_LIBRARIES     "@MPI_CXX_LIBRARIES@"
+#define EL_MPI_LINK_FLAGS        "@MPI_LINK_FLAGS@"
+
+/* Math libraries */
+#define EL_MATH_LIBS "@MATH_LIBS@"
+#cmakedefine EL_BUILT_BLIS_LAPACK
+#cmakedefine EL_BUILT_OPENBLAS
+#if !defined(EL_BUILT_BLIS_LAPACK) && !defined(EL_BUILT_OPENBLAS)
+ #cmakedefine EL_HAVE_BLAS_SUFFIX
+ #cmakedefine EL_HAVE_LAPACK_SUFFIX
+ #define EL_BLAS_SUFFIX @EL_BLAS_SUFFIX@
+ #define EL_LAPACK_SUFFIX @EL_LAPACK_SUFFIX@
+#endif
+#cmakedefine EL_HAVE_SCALAPACK
+#cmakedefine EL_BUILT_SCALAPACK
+#ifndef EL_BUILT_SCALAPACK
+ #cmakedefine EL_HAVE_SCALAPACK_SUFFIX
+ #define EL_SCALAPACK_SUFFIX @EL_SCALAPACK_SUFFIX@
+#endif
+#cmakedefine EL_HAVE_FLA_BSVD
+#cmakedefine EL_HAVE_QUAD
+#cmakedefine EL_HAVE_QUADMATH
+
+/* Miscellaneous configuration options */
 #define EL_RESTRICT @RESTRICT@
 #cmakedefine EL_HAVE_OPENMP
 #cmakedefine EL_HAVE_OMP_COLLAPSE
 #cmakedefine EL_HAVE_QT5
-#cmakedefine EL_HAVE_F90_INTERFACE
 #cmakedefine EL_AVOID_COMPLEX_MPI
 #cmakedefine EL_HAVE_CXX11RANDOM
 #cmakedefine EL_HAVE_STEADYCLOCK

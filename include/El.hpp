@@ -11,9 +11,6 @@
 #define EL_HPP
 
 #include "El/config.h"
-#ifdef EL_HAVE_F90_INTERFACE
-# include "El/FCMangle.h"
-#endif
 
 #include "El/core.hpp"
 #include "El/blas_like.hpp"

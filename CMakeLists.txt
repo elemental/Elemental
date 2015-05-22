@@ -280,18 +280,6 @@ if(EL_HAVE_QT5)
   set(CXX_FLAGS "${CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 endif()
 
-set(EL_LINK_FLAGS)
-if(MPI_LINK_FLAGS)
-  set(EL_LINK_FLAGS ${MPI_LINK_FLAGS})
-endif()
-if(BLIS_FLAGS)
-  if(EL_LINK_FLAGS)
-    set(EL_LINK_FLAGS "${EL_LINK_FLAGS} ${BLIS_FLAGS}")
-  else()
-    set(EL_LINK_FLAGS ${BLIS_FLAGS})
-  endif()
-endif()
-
 # Allow valgrind support if possible (if running valgrind, explicitly zero init)
 # ------------------------------------------------------------------------------
 include(FindValgrind)
@@ -304,15 +292,26 @@ endif()
 # -------------------------------------------------------------------------
 include(tests/Math)
 
-# Now that testing is done, set the CXX build flags
-# -------------------------------------------------
+# Now that testing is done, set the CXX build and link flags
+# ----------------------------------------------------------
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
+set(EL_LINK_FLAGS)
+if(MPI_LINK_FLAGS)
+  set(EL_LINK_FLAGS ${MPI_LINK_FLAGS})
+endif()
+if(EL_BUILT_BLIS_LAPACK)
+  if(EL_LINK_FLAGS)
+    set(EL_LINK_FLAGS "${EL_LINK_FLAGS} ${OpenMP_CXX_FLAGS}")
+  else()
+    set(EL_LINK_FLAGS ${OpenMP_CXX_FLAGS})
+  endif()
+endif()
 
 # Parallel Multiple Relatively Robust Representations
 # ---------------------------------------------------
 add_subdirectory(external/pmrrr)
-if(EL_BUILT_BLIS)
-  add_dependencies(pmrrr project_blis)
+if(EL_BUILT_BLIS_LAPACK)
+  add_dependencies(pmrrr project_blis_lapack)
 endif()
 if(EL_BUILT_OPENBLAS)
   add_dependencies(pmrrr project_openblas)
@@ -362,8 +361,8 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
 add_dependencies(El El_config)
-if(EL_BUILT_BLIS)
-  add_dependencies(El project_blis)
+if(EL_BUILT_BLIS_LAPACK)
+  add_dependencies(El project_blis_lapack)
 endif()
 if(EL_BUILT_OPENBLAS)
   add_dependencies(El project_openblas)

@@ -1,0 +1,126 @@
+#
+#  Copyright 2009-2015, Jack Poulson
+#  All rights reserved.
+#
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
+#  http://opensource.org/licenses/BSD-2-Clause
+#
+include(ExternalProject)
+include(ElCheckFunctionExists)
+
+find_package(OpenMP)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+  if(NOT CMAKE_THREAD_LIBS_INIT)
+    set(CMAKE_THREAD_PREFER_PTHREAD ON)
+    find_package(Threads REQUIRED)
+    if(NOT CMAKE_USE_PTHREADS_INIT)
+      message(FATAL_ERROR "Could not find a pthreads library")
+    endif()
+  endif()
+  if(NOT STD_MATH_LIB)
+    find_library(STD_MATH_LIB m)
+    if(NOT STD_MATH_LIB)
+      message(FATAL_ERROR "Could not find standard math library")
+    endif()
+  endif()
+  set(GNU_ADDONS ${CMAKE_THREAD_LIBS_INIT} ${STD_MATH_LIB})
+else()
+  set(GNU_ADDONS)
+endif()
+
+if(NOT EL_BUILD_BLIS_LAPACK)
+  # NOTE: The following tests will assume that liblapack is NOT sufficient
+  #       by itself and must be supported with a valid BLAS library 
+  find_library(BLIS NAMES blis PATHS ${MATH_PATHS})
+  find_library(LAPACK NAMES lapack PATHS ${MATH_PATHS})
+  if(BLIS AND LAPACK)
+    set(CMAKE_REQUIRED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+    set(CMAKE_REQUIRED_LIBRARIES ${LAPACK} ${BLIS} ${GNU_ADDONS})
+    El_check_function_exists(dgemm   EL_HAVE_DGEMM)
+    El_check_function_exists(dgemm_  EL_HAVE_DGEMM_POST)
+    El_check_function_exists(dstegr  EL_HAVE_DSTEGR)
+    El_check_function_exists(dstegr_ EL_HAVE_DSTEGR_POST)
+    if(EL_HAVE_DGEMM AND EL_HAVE_DSTEGR)
+      set(USE_FOUND_BLIS_LAPACK TRUE)
+      set(EL_BLAS_SUFFIX)
+      set(EL_LAPACK_SUFFIX)
+    elseif(EL_HAVE_DGEMM_POST AND EL_HAVE_DSTEGR_POST)
+      set(USE_FOUND_BLIS_LAPACK TRUE)
+      set(EL_BLAS_SUFFIX _)
+      set(EL_LAPACK_SUFFIX _)
+    endif() 
+    set(CMAKE_REQUIRED_LINKER_FLAGS)
+    set(CMAKE_REQUIRED_LIBRARIES)
+  endif()
+endif()
+
+if(USE_FOUND_BLIS_LAPACK)
+  set(BLIS_LAPACK_LIBS ${LAPACK} ${BLIS} ${GNU_ADDONS})
+  set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BLIS_LAPACK_LIBS})
+  set(EL_BUILT_BLIS_LAPACK FALSE)
+  set(EL_HAVE_BLIS_LAPACK TRUE)
+elseif(EL_HAVE_F90_INTERFACE)
+  if(NOT DEFINED LAPACK_URL)
+    set(LAPACK_URL https://github.com/poulson/lapack)
+  endif()
+  message(STATUS "Will download LAPACK from ${LAPACK_URL}")
+
+  set(LAPACK_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/blis_lapack/source)
+  set(LAPACK_BINARY_DIR ${PROJECT_BINARY_DIR}/download/blis_lapack/build)
+
+  # NOTE: The following should build and install OpenBLAS
+  ExternalProject_Add(project_blis_lapack
+    PREFIX ${CMAKE_INSTALL_PREFIX}
+    GIT_REPOSITORY ${LAPACK_URL}
+    STAMP_DIR  ${LAPACK_BINARY_DIR}/stamp
+    SOURCE_DIR ${LAPACK_SOURCE_DIR}
+    BINARY_DIR ${LAPACK_BINARY_DIR}
+    TMP_DIR    ${LAPACK_BINARY_DIR}/tmp
+    UPDATE_COMMAND ""
+    CMAKE_ARGS 
+      -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+      -D CMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+      -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
+      -D USE_OPTIMIZED_BLAS=ON
+      -D BUILD_BLIS=ON
+      -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}
+      -D CMAKE_SKIP_BUILD_RPATH=${CMAKE_SKIP_BUILD_RPATH}
+      -D CMAKE_BUILD_WITH_INSTALL_RPATH=${CMAKE_BUILD_WITH_INSTALL_RPATH}
+      -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=${CMAKE_INSTALL_RPATH_USE_LINK_PATH} 
+      -D CMAKE_INSTALL_RPATH=${CMAKE_INSTALL_RPATH}
+    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+  )
+
+  # Extract the source and install directories
+  ExternalProject_Get_Property(project_blis_lapack source_dir install_dir)
+
+  # Add a target for libblis (static) 
+  # TODO: Allow for shared library versions of BLIS once the BLIS build system
+  #       has been improved.
+  add_library(libblis STATIC IMPORTED)
+  set(BLIS_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}blis${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set_property(TARGET libblis PROPERTY IMPORTED_LOCATION ${BLIS_LIB})
+
+  # Add a target for liblapack (either shared or static)
+  if(BUILD_SHARED_LIBS)
+    add_library(liblapack SHARED IMPORTED)
+    set(LAPACK_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}lapack${CMAKE_SHARED_LIBRARY_SUFFIX})
+  else()
+    add_library(liblapack STATIC IMPORTED)
+    set(LAPACK_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}lapack${CMAKE_STATIC_LIBRARY_SUFFIX})
+  endif() 
+  set_property(TARGET liblapack PROPERTY IMPORTED_LOCATION ${LAPACK_LIB})
+
+  set(BLIS_LAPACK_LIBS ${LAPACK_LIB} ${BLIS_LIB} ${GNU_ADDONS})
+  set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BLIS_LAPACK_LIBS})
+  set(EL_BUILT_BLIS_LAPACK TRUE)
+  set(EL_HAVE_BLIS_LAPACK TRUE)
+else()
+  set(EL_BUILT_BLIS_LAPACK FALSE)
+  set(EL_HAVE_BLIS_LAPACK FALSE)
+endif()

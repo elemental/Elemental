@@ -81,10 +81,10 @@
 #define EL_CONCAT2(name1,name2) name1 ## name2
 #define EL_CONCAT(name1,name2) EL_CONCAT2(name1,name2)
 
-#ifdef EL_BUILT_OPENBLAS
+#if defined(EL_BUILT_BLIS_LAPACK) || defined(EL_BUILT_OPENBLAS)
 
-# define EL_BLAS(name) BLASFUNC(name)
-# define EL_LAPACK(name) BLASFUNC(name)
+# define EL_BLAS(name) FC_GLOBAL(name,name)
+# define EL_LAPACK(name) FC_GLOBAL(name,name)
 
 #else
 
@@ -100,7 +100,7 @@
 #  define EL_LAPACK(name) name
 # endif
 
-#endif /* EL_BUILT_OPENBLAS */
+#endif
 
 #if defined(EL_HAVE_SCALAPACK)
 # if defined(EL_BUILT_SCALAPACK)
