@@ -33,15 +33,15 @@ extern "C" {
   { EL_TRY( CReflect(A)->Reserve(numLocalEntries,numRemoteEntries) ) } \
   ElError ElDistSparseMatrixUpdate_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, \
-    ElInt row, ElInt col, CREFLECT(T) value, bool passive ) \
-  { EL_TRY( CReflect(A)->Update(row,col,CReflect(value),passive) ) } \
+    ElInt row, ElInt col, CREFLECT(T) value ) \
+  { EL_TRY( CReflect(A)->Update(row,col,CReflect(value)) ) } \
   ElError ElDistSparseMatrixUpdateLocal_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, \
     ElInt localRow, ElInt col, CREFLECT(T) value ) \
   { EL_TRY( CReflect(A)->UpdateLocal(localRow,col,CReflect(value)) ) } \
   ElError ElDistSparseMatrixZero_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col, bool passive ) \
-  { EL_TRY( CReflect(A)->Zero(row,col,passive) ) } \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt row, ElInt col ) \
+  { EL_TRY( CReflect(A)->Zero(row,col) ) } \
   ElError ElDistSparseMatrixZeroLocal_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt col ) \
   { EL_TRY( CReflect(A)->ZeroLocal(localRow,col) ) } \
@@ -62,6 +62,9 @@ extern "C" {
   ElError ElDistSparseMatrixProcessQueues_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->ProcessQueues() ) } \
+  ElError ElDistSparseMatrixProcessLocalQueues_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A ) \
+  { EL_TRY( CReflect(A)->ProcessLocalQueues() ) } \
   ElError ElDistSparseMatrixHeight_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt* height ) \
   { EL_TRY( *height = CReflect(A)->Height() ) } \
@@ -86,9 +89,9 @@ extern "C" {
   ElError ElDistSparseMatrixCapacity_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt* capacity ) \
   { EL_TRY( *capacity = CReflect(A)->Capacity() ) } \
-  ElError ElDistSparseMatrixConsistent_ ## SIG \
+  ElError ElDistSparseMatrixLocallyConsistent_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, bool* consistent ) \
-  { EL_TRY( *consistent = CReflect(A)->Consistent() ) } \
+  { EL_TRY( *consistent = CReflect(A)->LocallyConsistent() ) } \
   ElError ElDistSparseMatrixComm_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, MPI_Comm* comm ) \
   { EL_TRY( *comm = CReflect(A)->Comm().comm ) } \

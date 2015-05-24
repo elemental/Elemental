@@ -42,17 +42,17 @@ class DistGraph(object):
   def Reserve(self,numLocalEdges,numRemoteEdges=0):
     lib.ElDistGraphReserve(self.obj,numLocalEdges,numRemoteEdges)
 
-  lib.ElDistGraphConnect.argtypes = [c_void_p,iType,iType,bType]
-  def Connect(self,source,target,passive=True):
-    lib.ElDistGraphConnect(self.obj,source,target,passive)
+  lib.ElDistGraphConnect.argtypes = [c_void_p,iType,iType]
+  def Connect(self,source,target):
+    lib.ElDistGraphConnect(self.obj,source,target)
 
   lib.ElDistGraphConnectLocal.argtypes = [c_void_p,iType,iType]
   def ConnectLocal(self,localSource,target):
     lib.ElDistGraphConnectLocal(self.obj,localSource,target)
 
-  lib.ElDistGraphDisconnect.argtypes = [c_void_p,iType,iType,bType]
-  def Disconnect(self,source,target,passive=True):
-    lib.ElDistGraphDisconnect(self.obj,source,target,passive)
+  lib.ElDistGraphDisconnect.argtypes = [c_void_p,iType,iType]
+  def Disconnect(self,source,target):
+    lib.ElDistGraphDisconnect(self.obj,source,target)
 
   lib.ElDistGraphDisconnectLocal.argtypes = [c_void_p,iType,iType]
   def DisconnectLocal(self,localSource,target):
@@ -77,6 +77,10 @@ class DistGraph(object):
   lib.ElDistGraphProcessQueues.argtypes = [c_void_p]
   def ProcessQueues(self):
     lib.ElDistGraphProcessQueues(self.obj)
+
+  lib.ElDistGraphProcessLocalQueues.argtypes = [c_void_p]
+  def ProcessLocalQueues(self):
+    lib.ElDistGraphProcessLocalQueues(self.obj)
 
   # Queries
   # =======
@@ -116,10 +120,10 @@ class DistGraph(object):
     lib.ElDistGraphCapacity(self.obj,pointer(capacity))
     return capacity.value
 
-  lib.ElDistGraphConsistent.argtypes = [c_void_p,POINTER(bType)]
-  def Consistent(self):
+  lib.ElDistGraphLocallyConsistent.argtypes = [c_void_p,POINTER(bType)]
+  def LocallyConsistent(self):
     consistent = bType()
-    lib.ElDistGraphConsistent(self.obj,pointer(consistent))
+    lib.ElDistGraphLocallyConsistent(self.obj,pointer(consistent))
     return consistent.value
 
   lib.ElDistGraphComm.argtypes = [c_void_p,POINTER(mpi.Comm)]

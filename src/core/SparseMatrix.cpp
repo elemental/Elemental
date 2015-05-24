@@ -96,6 +96,9 @@ void SparseMatrix<T>::Empty( bool clearMemory )
 template<typename T>
 void SparseMatrix<T>::Resize( Int height, Int width )
 {
+    DEBUG_ONLY(CSE cse("SparseMatrix::Resize"))
+    if( Height() == height && Width() == width )
+        return;
     graph_.Resize( height, width );
     vals_.resize( 0 );
 }
@@ -254,60 +257,59 @@ void SparseMatrix<T>::ProcessQueues()
           graph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
-    if( !graph_.consistent_ )
+    if( graph_.consistent_ )
+        return;
+
+    const Int numEntries = vals_.size();
+    Int numRemoved = 0;
+    vector<Entry<T>> entries( numEntries );
+    for( Int s=0; s<numEntries; ++s )
     {
-        const Int numEntries = vals_.size();
-        Int numRemoved = 0;
-        vector<Entry<T>> entries( numEntries );
-        for( Int s=0; s<numEntries; ++s )
+        pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
+        if( graph_.markedForRemoval_.find(candidate) == 
+            graph_.markedForRemoval_.end() )
         {
-            pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
-            if( graph_.markedForRemoval_.find(candidate) == 
-                graph_.markedForRemoval_.end() )
-            {
-                entries[s-numRemoved].i = graph_.sources_[s];
-                entries[s-numRemoved].j = graph_.targets_[s];
-                entries[s-numRemoved].value = vals_[s];
-            }
-            else
-            {
-                ++numRemoved;
-            }
+            entries[s-numRemoved].i = graph_.sources_[s];
+            entries[s-numRemoved].j = graph_.targets_[s];
+            entries[s-numRemoved].value = vals_[s];
         }
-        graph_.markedForRemoval_.clear();
-        entries.resize( numEntries-numRemoved );
-        std::sort( entries.begin(), entries.end(), CompareEntries );
-
-        // Compress out duplicates
-        Int lastUnique=0;
-        for( Int s=1; s<numEntries; ++s )
+        else
         {
-            if( entries[s].i != entries[lastUnique].i ||
-                entries[s].j != entries[lastUnique].j )
-            {
-                ++lastUnique;
-                entries[lastUnique] = entries[s];
-            }
-            else
-                entries[lastUnique].value += entries[s].value;
+            ++numRemoved;
         }
-        const Int numUnique = lastUnique+1;
-        entries.resize( numUnique );
-
-        graph_.sources_.resize( numUnique );
-        graph_.targets_.resize( numUnique );
-        vals_.resize( numUnique );
-        for( Int s=0; s<numUnique; ++s )
-        {
-            graph_.sources_[s] = entries[s].i;
-            graph_.targets_[s] = entries[s].j;
-            vals_[s] = entries[s].value;
-        }
-
-        graph_.ComputeEdgeOffsets();
-
-        graph_.consistent_ = true;
     }
+    graph_.markedForRemoval_.clear();
+    entries.resize( numEntries-numRemoved );
+    std::sort( entries.begin(), entries.end(), CompareEntries );
+
+    // Compress out duplicates
+    Int lastUnique=0;
+    for( Int s=1; s<numEntries; ++s )
+    {
+        if( entries[s].i != entries[lastUnique].i ||
+            entries[s].j != entries[lastUnique].j )
+        {
+            ++lastUnique;
+            entries[lastUnique] = entries[s];
+        }
+        else
+            entries[lastUnique].value += entries[s].value;
+    }
+    const Int numUnique = lastUnique+1;
+    entries.resize( numUnique );
+
+    graph_.sources_.resize( numUnique );
+    graph_.targets_.resize( numUnique );
+    vals_.resize( numUnique );
+    for( Int s=0; s<numUnique; ++s )
+    {
+        graph_.sources_[s] = entries[s].i;
+        graph_.targets_[s] = entries[s].j;
+        vals_[s] = entries[s].value;
+    }
+
+    graph_.ComputeEdgeOffsets();
+    graph_.consistent_ = true;
 }
 
 template<typename T>

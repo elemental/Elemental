@@ -33,15 +33,15 @@ ElError ElDistGraphReserve
 { EL_TRY( CReflect(graph)->Reserve(numLocalEdges,numRemoteEdges) ) }
 
 ElError 
-ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col, bool passive )
-{ EL_TRY( CReflect(graph)->Connect( row, col, passive ) ) }
+ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col )
+{ EL_TRY( CReflect(graph)->Connect( row, col ) ) }
 
 ElError ElDistGraphConnectLocal( ElDistGraph graph, ElInt localRow, ElInt col )
 { EL_TRY( CReflect(graph)->ConnectLocal( localRow, col ) ) }
 
 ElError 
-ElDistGraphDisconnect( ElDistGraph graph, ElInt row, ElInt col, bool passive )
-{ EL_TRY( CReflect(graph)->Disconnect( row, col, passive ) ) }
+ElDistGraphDisconnect( ElDistGraph graph, ElInt row, ElInt col )
+{ EL_TRY( CReflect(graph)->Disconnect( row, col ) ) }
 
 ElError ElDistGraphDisconnectLocal
 ( ElDistGraph graph, ElInt localRow, ElInt col )
@@ -66,6 +66,9 @@ ElError ElDistGraphQueueLocalDisconnection
 ElError ElDistGraphProcessQueues( ElDistGraph graph )
 { EL_TRY( CReflect(graph)->ProcessQueues() ) }
 
+ElError ElDistGraphProcessLocalQueues( ElDistGraph graph )
+{ EL_TRY( CReflect(graph)->ProcessLocalQueues() ) }
+
 ElError ElDistGraphNumSources( ElConstDistGraph graph, ElInt* numSources )
 { EL_TRY( *numSources = CReflect(graph)->NumSources() ) } 
 
@@ -86,8 +89,8 @@ ElError ElDistGraphNumLocalEdges( ElConstDistGraph graph, ElInt* numLocalEdges )
 ElError ElDistGraphCapacity( ElConstDistGraph graph, ElInt* capacity )
 { EL_TRY( *capacity = CReflect(graph)->Capacity() ) } 
 
-ElError ElDistGraphConsistent( ElConstDistGraph graph, bool* consistent )
-{ EL_TRY( *consistent = CReflect(graph)->Consistent() ) }
+ElError ElDistGraphLocallyConsistent( ElConstDistGraph graph, bool* consistent )
+{ EL_TRY( *consistent = CReflect(graph)->LocallyConsistent() ) }
 
 ElError ElDistGraphComm( ElConstDistGraph graph, MPI_Comm* comm )
 { EL_TRY( *comm = CReflect(graph)->Comm().comm ) }

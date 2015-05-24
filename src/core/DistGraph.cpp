@@ -117,7 +117,7 @@ void DistGraph::Empty( bool clearMemory )
     firstLocalSource_ = 0;
     numLocalSources_ = 0;
     blocksize_ = 0;
-    consistent_ = true;
+    locallyConsistent_ = true;
     if( clearMemory )
     {
         SwapClear( sources_ );
@@ -138,6 +138,9 @@ void DistGraph::Resize( Int numVertices )
 
 void DistGraph::Resize( Int numSources, Int numTargets )
 {
+    if( numSources_ == numSources && numTargets == numTargets_ )
+        return;
+
     const int commRank = mpi::Rank( comm_ );
     const int commSize = mpi::Size( comm_ );
     numSources_ = numSources;
@@ -156,7 +159,7 @@ void DistGraph::Resize( Int numSources, Int numTargets )
     for( Int e=0; e<=numLocalSources_; ++e )
         localEdgeOffsets_[e] = 0;
 
-    consistent_ = true;
+    locallyConsistent_ = true;
 }
 
 // Change the distribution
@@ -178,7 +181,7 @@ void DistGraph::InitializeLocalData()
 
     sources_.resize( 0 );
     targets_.resize( 0 );
-    consistent_ = true;
+    locallyConsistent_ = true;
 }
 
 void DistGraph::SetComm( mpi::Comm comm )
@@ -206,32 +209,32 @@ void DistGraph::Reserve( Int numLocalEdges, Int numRemoteEdges )
     remoteTargets_.reserve( numRemoteEdges );
 }
 
-void DistGraph::Connect( Int source, Int target, bool passive )
+void DistGraph::Connect( Int source, Int target )
 {
     DEBUG_ONLY(CSE cse("DistGraph::Connect"))
-    QueueConnection( source, target, passive );
-    ProcessQueues();
+    QueueConnection( source, target, true );
+    ProcessLocalQueues();
 }
 
 void DistGraph::ConnectLocal( Int localSource, Int target )
 {
     DEBUG_ONLY(CSE cse("DistGraph::ConnectLocal"))
     QueueLocalConnection( localSource, target );
-    ProcessQueues();
+    ProcessLocalQueues();
 }
 
-void DistGraph::Disconnect( Int source, Int target, bool passive )
+void DistGraph::Disconnect( Int source, Int target )
 {
     DEBUG_ONLY(CSE cse("DistGraph::Disconnect"))
-    QueueDisconnection( source, target, passive );
-    ProcessQueues();
+    QueueDisconnection( source, target, true );
+    ProcessLocalQueues();
 }
 
 void DistGraph::DisconnectLocal( Int localSource, Int target )
 {
     DEBUG_ONLY(CSE cse("DistGraph::DisconnectLocal"))
     QueueLocalDisconnection( localSource, target );
-    ProcessQueues();
+    ProcessLocalQueues();
 }
 
 void DistGraph::QueueConnection( Int source, Int target, bool passive )
@@ -248,7 +251,6 @@ void DistGraph::QueueConnection( Int source, Int target, bool passive )
     {
         remoteSources_.push_back( source );
         remoteTargets_.push_back( target );
-        consistent_ = false;
     }
 }
 
@@ -270,7 +272,7 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
         ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
     sources_.push_back( firstLocalSource_+localSource );
     targets_.push_back( target );
-    consistent_ = false;
+    locallyConsistent_ = false;
 }
 
 void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
@@ -286,7 +288,6 @@ void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
     else if( !passive )
     {
         remoteRemovals_.push_back( pair<Int,Int>(source,target) );
-        consistent_ = false;
     }
 }
 
@@ -304,7 +305,7 @@ void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
         ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
     markedForRemoval_.insert
     ( pair<Int,Int>(firstLocalSource_+localSource,target) );
-    consistent_ = false;
+    locallyConsistent_ = false;
 }
 
 void DistGraph::ProcessQueues()
@@ -382,6 +383,14 @@ void DistGraph::ProcessQueues()
 
     // Ensure that the kept local edges are sorted and unique
     // ======================================================
+    ProcessLocalQueues();
+}
+
+void DistGraph::ProcessLocalQueues()
+{
+    DEBUG_ONLY(CSE cse("DistGraph::ProcessLocalQueues"))
+    if( locallyConsistent_ )
+        return;
     const Int numLocalEdges = sources_.size();
     Int numRemoved = 0;
     vector<pair<Int,Int>> pairs( numLocalEdges );
@@ -394,7 +403,7 @@ void DistGraph::ProcessQueues()
             pairs[e-numRemoved].second = targets_[e];
         }
         else
-        {
+        {   
             ++numRemoved;
         }
     }
@@ -422,7 +431,7 @@ void DistGraph::ProcessQueues()
         targets_[e] = pairs[e].second;
     }
     ComputeEdgeOffsets();
-    consistent_ = true;
+    locallyConsistent_ = true;
 }
 
 // Basic queries
@@ -447,7 +456,7 @@ Int DistGraph::Capacity() const
     return Min(sources_.capacity(),targets_.capacity());
 }
 
-bool DistGraph::Consistent() const { return consistent_; }
+bool DistGraph::LocallyConsistent() const { return locallyConsistent_; }
 
 // Distribution information
 // ------------------------
@@ -501,7 +510,7 @@ Int DistGraph::EdgeOffset( Int localSource ) const
           LogicError
           ("Out of bounds localSource: ",localSource,
            " is not in [0,",numLocalSources_,")");
-      AssertConsistent();
+      AssertLocallyConsistent();
     )
     return localEdgeOffsets_[localSource];
 }
@@ -510,7 +519,7 @@ Int DistGraph::NumConnections( Int localSource ) const
 {
     DEBUG_ONLY(
       CSE cse("DistGraph::NumConnections");
-      AssertConsistent();
+      AssertLocallyConsistent();
     )
     if( localSource == END ) localSource = numLocalSources_ - 1;
     return EdgeOffset(localSource+1) - EdgeOffset(localSource);
@@ -551,9 +560,9 @@ void DistGraph::ComputeEdgeOffsets()
         localEdgeOffsets_[sourceOffset] = numLocalEdges;
 }
 
-void DistGraph::AssertConsistent() const
+void DistGraph::AssertLocallyConsistent() const
 {
-    if( !consistent_ )
+    if( !locallyConsistent_ )
         LogicError("DistGraph was not consistent");
 }
 

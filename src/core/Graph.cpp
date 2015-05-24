@@ -104,6 +104,10 @@ void Graph::Resize( Int numVertices )
 
 void Graph::Resize( Int numSources, Int numTargets )
 {
+    DEBUG_ONLY(CSE cse("Graph::Resize"))
+    if( numSources_ == numSources && numTargets_ == numTargets )
+        return;
+
     numSources_ = numSources;
     numTargets_ = numTargets;
     sources_.resize( 0 );
@@ -174,50 +178,49 @@ void Graph::ProcessQueues()
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
-    if( !consistent_ )
+    if( consistent_ )
+        return;
+
+    const Int numEdges = sources_.size();
+    // TODO: Consider switching to using the following by default so that
+    //       no extra allocation/memcpy is required
+    Int numRemoved=0;
+    vector<pair<Int,Int>> pairs( numEdges );
+    for( Int e=0; e<numEdges; ++e )
     {
-        const Int numEdges = sources_.size();
-        // TODO: Consider switching to using the following by default so that
-        //       no extra allocation/memcpy is required
-        Int numRemoved=0;
-        vector<pair<Int,Int>> pairs( numEdges );
-        for( Int e=0; e<numEdges; ++e )
+        pair<Int,Int> candidate(sources_[e],targets_[e]);
+        if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
         {
-            pair<Int,Int> candidate(sources_[e],targets_[e]);
-            if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
-            {
-                pairs[e-numRemoved].first = sources_[e];
-                pairs[e-numRemoved].second = targets_[e];
-            }
-            else
-            {
-                ++numRemoved;
-            }
+            pairs[e-numRemoved].first = sources_[e];
+            pairs[e-numRemoved].second = targets_[e];
         }
-        markedForRemoval_.clear();
-        pairs.resize( numEdges-numRemoved );
-        std::sort( pairs.begin(), pairs.end(), ComparePairs );
-
-        // Compress out duplicates
-        Int lastUnique=0;
-        for( Int e=1; e<pairs.size(); ++e )
-            if( pairs[e] != pairs[lastUnique] )
-                pairs[++lastUnique] = pairs[e];
-        const Int numUnique = lastUnique+1;
-        pairs.resize( numUnique );
-
-        sources_.resize( numUnique );
-        targets_.resize( numUnique );
-        for( Int e=0; e<numUnique; ++e )
+        else
         {
-            sources_[e] = pairs[e].first;
-            targets_[e] = pairs[e].second;
+            ++numRemoved;
         }
-
-        ComputeEdgeOffsets();
-
-        consistent_ = true;
     }
+    markedForRemoval_.clear();
+    pairs.resize( numEdges-numRemoved );
+    std::sort( pairs.begin(), pairs.end(), ComparePairs );
+
+    // Compress out duplicates
+    Int lastUnique=0;
+    for( Int e=1; e<pairs.size(); ++e )
+        if( pairs[e] != pairs[lastUnique] )
+            pairs[++lastUnique] = pairs[e];
+    const Int numUnique = lastUnique+1;
+    pairs.resize( numUnique );
+
+    sources_.resize( numUnique );
+    targets_.resize( numUnique );
+    for( Int e=0; e<numUnique; ++e )
+    {
+        sources_[e] = pairs[e].first;
+        targets_[e] = pairs[e].second;
+    }
+
+    ComputeEdgeOffsets();
+    consistent_ = true;
 }
 
 // Queries

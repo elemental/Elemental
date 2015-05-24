@@ -81,9 +81,9 @@ public:
 
     // Expensive independent updates and explicit zeroing
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    void Update( const Entry<T>& entry, bool passive=true );
-    void Update( Int row, Int col, T value, bool passive=true );
-    void Zero( Int row, Int col, bool passive=true );
+    void Update( const Entry<T>& entry );
+    void Update( Int row, Int col, T value );
+    void Zero( Int row, Int col );
 
     void UpdateLocal( const Entry<T>& localEntry );
     void UpdateLocal( Int localRow, Int col, T value );
@@ -100,6 +100,7 @@ public:
     void QueueLocalZero( Int localRow, Int col );
 
     void ProcessQueues();
+    void ProcessLocalQueues();
 
     // Queries
     // =======
@@ -114,7 +115,7 @@ public:
     Int LocalHeight() const;
     Int NumLocalEntries() const;
     Int Capacity() const;
-    bool Consistent() const;
+    bool LocallyConsistent() const;
 
     // Distribution information
     // ------------------------
@@ -148,7 +149,7 @@ private:
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 
-    void AssertConsistent() const;
+    void AssertLocallyConsistent() const;
 
     template<typename U> friend class SparseMatrix;
     template<typename U> friend struct DistSymmFront;

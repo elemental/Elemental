@@ -108,23 +108,23 @@ void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 }
 
 template<typename T>
-void DistSparseMatrix<T>::Update( Int row, Int col, T value, bool passive )
+void DistSparseMatrix<T>::Update( Int row, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::Update"))
-    QueueUpdate( row, col, value, passive );
-    ProcessQueues();
+    QueueUpdate( row, col, value, true );
+    ProcessLocalQueues();
 }
 
 template<typename T>
-void DistSparseMatrix<T>::Update( const Entry<T>& entry, bool passive )
-{ Update( entry.i, entry.j, entry.value, passive ); }
+void DistSparseMatrix<T>::Update( const Entry<T>& entry )
+{ Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::UpdateLocal"))
     QueueLocalUpdate( localRow, col, value );
-    ProcessQueues();
+    ProcessLocalQueues();
 }
 
 template<typename T>
@@ -132,11 +132,11 @@ void DistSparseMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
 { UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
-void DistSparseMatrix<T>::Zero( Int row, Int col, bool passive )
+void DistSparseMatrix<T>::Zero( Int row, Int col )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::Zero"))
-    QueueZero( row, col, passive );
-    ProcessQueues();
+    QueueZero( row, col, true );
+    ProcessLocalQueues();
 }
 
 template<typename T>
@@ -144,7 +144,7 @@ void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::ZeroLocal"))
     QueueLocalZero( localRow, col );
-    ProcessQueues();
+    ProcessLocalQueues();
 }
 
 template<typename T>
@@ -162,7 +162,6 @@ void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
         distGraph_.remoteSources_.push_back( row ); 
         distGraph_.remoteTargets_.push_back( col );
         remoteVals_.push_back( value );
-        distGraph_.consistent_ = false;
     }
 }
 
@@ -190,14 +189,9 @@ void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
     if( row == END ) row = Height() - 1;
     if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
-    {
         QueueLocalZero( row-FirstLocalRow(), col );
-    }
     else if( !passive )
-    {
         distGraph_.remoteRemovals_.push_back( pair<Int,Int>(row,col) );
-        distGraph_.consistent_ = false;
-    }
 }
 
 template<typename T>
@@ -285,6 +279,16 @@ void DistSparseMatrix<T>::ProcessQueues()
 
     // Ensure that the kept local triplets are sorted and combined
     // ===========================================================
+    ProcessLocalQueues();
+}
+
+template<typename T>
+void DistSparseMatrix<T>::ProcessLocalQueues()
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::ProcessLocalQueues"))
+    if( distGraph_.locallyConsistent_ )
+        return;
+
     const Int numLocalEntries = vals_.size();
     Int numRemoved = 0;
     vector<Entry<T>> entries( numLocalEntries );
@@ -332,7 +336,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         vals_[s] = entries[s].value;
     }
     distGraph_.ComputeEdgeOffsets();
-    distGraph_.consistent_ = true;
+    distGraph_.locallyConsistent_ = true;
 }
 
 // Queries
@@ -374,8 +378,8 @@ Int DistSparseMatrix<T>::Capacity() const
 }
 
 template<typename T>
-bool DistSparseMatrix<T>::Consistent() const
-{ return distGraph_.Consistent(); }
+bool DistSparseMatrix<T>::LocallyConsistent() const
+{ return distGraph_.LocallyConsistent(); }
 
 // Distribution information
 // ------------------------
@@ -438,7 +442,7 @@ T DistSparseMatrix<T>::Value( Int localInd ) const
         CSE cse("DistSparseMatrix::Value");
         if( localInd < 0 || localInd >= (Int)vals_.size() )
             LogicError("Entry number out of bounds");
-        AssertConsistent();
+        AssertLocallyConsistent();
     )
     return vals_[localInd];
 }
@@ -470,9 +474,9 @@ bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 { return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
 template<typename T>
-void DistSparseMatrix<T>::AssertConsistent() const
+void DistSparseMatrix<T>::AssertLocallyConsistent() const
 { 
-    if( !Consistent() )
+    if( !LocallyConsistent() )
         LogicError("Distributed sparse matrix must be consistent");
 }
 

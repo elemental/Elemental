@@ -51,20 +51,20 @@ EL_EXPORT ElError ElDistGraphSetComm( ElDistGraph graph, MPI_Comm comm );
 EL_EXPORT ElError ElDistGraphReserve
 ( ElDistGraph graph, ElInt numLocalEdges, ElInt numRemoteEdges );
 
-/* void DistGraph::Connect( Int row, Int col, bool passive )
-   --------------------------------------------------------- */
+/* void DistGraph::Connect( Int row, Int col )
+   ------------------------------------------- */
 EL_EXPORT ElError 
-ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col, bool passive );
+ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col );
 
 /* void DistGraph::ConnectLocal( Int localRow, Int col )
    ----------------------------------------------------- */
 EL_EXPORT ElError ElDistGraphConnectLocal
 ( ElDistGraph graph, ElInt localRow, ElInt col );
 
-/* void DistGraph::Disconnect( Int row, Int col, bool passive )
-   ------------------------------------------------------------ */
+/* void DistGraph::Disconnect( Int row, Int col )
+   ---------------------------------------------- */
 EL_EXPORT ElError ElDistGraphDisconnect
-( ElDistGraph graph, ElInt row, ElInt col, bool passive );
+( ElDistGraph graph, ElInt row, ElInt col );
 
 /* void DistGraph::DisconnectLocal( Int localRow, Int col )
    -------------------------------------------------------- */
@@ -94,6 +94,10 @@ EL_EXPORT ElError ElDistGraphQueueLocalDisconnection
 /* void DistGraph::ProcessQueues()
    ------------------------------- */ 
 EL_EXPORT ElError ElDistGraphProcessQueues( ElDistGraph graph );
+
+/* void DistGraph::ProcessLocalQueues()
+   ------------------------------------ */
+EL_EXPORT ElError ElDistGraphProcessLocalQueues( ElDistGraph graph );
 
 /* Queries
    ======= */

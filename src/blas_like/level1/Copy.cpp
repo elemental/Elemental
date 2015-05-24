@@ -159,9 +159,9 @@ void Copy( const Graph& A, DistGraph& B )
     // Directly assign instead of queueing up the individual edges
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
-    B.consistent_ = A.consistent_;
+    B.locallyConsistent_ = A.consistent_;
     B.localEdgeOffsets_ = A.edgeOffsets_;
-    B.ProcessQueues();
+    B.ProcessLocalQueues();
 }
 
 void Copy( const DistGraph& A, Graph& B )
@@ -177,7 +177,7 @@ void Copy( const DistGraph& A, Graph& B )
     // Directly assign instead of queueing up the individual edges
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
-    B.consistent_ = A.consistent_;
+    B.consistent_ = A.locallyConsistent_;
     B.edgeOffsets_ = A.localEdgeOffsets_;
     B.ProcessQueues();
 }
@@ -193,9 +193,9 @@ void Copy( const DistGraph& A, DistGraph& B )
     // Directly assign instead of queueing up the individual edges
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
-    B.consistent_ = A.consistent_;
+    B.locallyConsistent_ = A.locallyConsistent_;
     B.localEdgeOffsets_ = A.localEdgeOffsets_;
-    B.ProcessQueues();
+    B.ProcessLocalQueues();
 }
 
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )

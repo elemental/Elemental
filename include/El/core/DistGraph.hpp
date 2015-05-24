@@ -59,9 +59,9 @@ public:
     void Reserve( Int numLocalEdges, Int numRemoteEdges=0 );
 
     // Safe edge insertion/removal procedure
-    void Connect( Int source, Int target, bool passive=true );
+    void Connect( Int source, Int target );
     void ConnectLocal( Int localSource, Int target );
-    void Disconnect( Int source, Int target, bool passive=true ); 
+    void Disconnect( Int source, Int target ); 
     void DisconnectLocal( Int localSource, Int target );
 
     // For inserting/removing a sequence of edges and then forcing consistency
@@ -70,6 +70,7 @@ public:
     void QueueDisconnection( Int source, Int target, bool passive=true );
     void QueueLocalDisconnection( Int localSource, Int target );
     void ProcessQueues();
+    void ProcessLocalQueues();
 
     // Queries
     // =======
@@ -82,7 +83,7 @@ public:
     Int NumLocalSources() const;
     Int NumLocalEdges() const;
     Int Capacity() const;
-    bool Consistent() const;
+    bool LocallyConsistent() const;
 
     // Distribution information
     // ------------------------
@@ -118,13 +119,13 @@ private:
     void InitializeLocalData();
 
     // Helpers for local indexing
-    bool consistent_;
+    bool locallyConsistent_;
     vector<Int> localEdgeOffsets_;
     void ComputeEdgeOffsets();
 
     static bool ComparePairs( const pair<Int,Int>& a, const pair<Int,Int>& b );
 
-    void AssertConsistent() const;
+    void AssertLocallyConsistent() const;
 
     friend class Graph;
     friend void Copy( const Graph& A, DistGraph& B );

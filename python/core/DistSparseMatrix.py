@@ -110,13 +110,13 @@ class DistSparseMatrix(object):
     elif self.tag == zTag: lib.ElDistSparseMatrixReserve_z(*args)
     else: DataExcept()
 
-  lib.ElDistSparseMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType,bType]
-  lib.ElDistSparseMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType,bType]
-  lib.ElDistSparseMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType,bType]
-  lib.ElDistSparseMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType,bType]
-  lib.ElDistSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType,bType]
-  def Update(self,row,col,value,passive=True):
-    args = [self.obj,row,col,value,passive]
+  lib.ElDistSparseMatrixUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+  lib.ElDistSparseMatrixUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+  lib.ElDistSparseMatrixUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+  lib.ElDistSparseMatrixUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+  lib.ElDistSparseMatrixUpdate_z.argtypes = [c_void_p,iType,iType,zType]
+  def Update(self,row,col,value):
+    args = [self.obj,row,col,value]
     if   self.tag == iTag: lib.ElDistSparseMatrixUpdate_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixUpdate_s(*args)
     elif self.tag == dTag: lib.ElDistSparseMatrixUpdate_d(*args)
@@ -143,9 +143,9 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixZero_d.argtypes = \
   lib.ElDistSparseMatrixZero_c.argtypes = \
   lib.ElDistSparseMatrixZero_z.argtypes = \
-    [c_void_p,iType,iType,bType]
-  def Zero(self,row,col,passive=True):
-    args = [self.obj,row,col,passive]
+    [c_void_p,iType,iType]
+  def Zero(self,row,col):
+    args = [self.obj,row,col]
     if   self.tag == iTag: lib.ElDistSparseMatrixZero_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixZero_s(*args)
     elif self.tag == dTag: lib.ElDistSparseMatrixZero_d(*args)
@@ -249,6 +249,21 @@ class DistSparseMatrix(object):
     elif self.tag == dTag: lib.ElDistSparseMatrixProcessQueues_d(*args)
     elif self.tag == cTag: lib.ElDistSparseMatrixProcessQueues_c(*args)
     elif self.tag == zTag: lib.ElDistSparseMatrixProcessQueues_z(*args)
+    else: DataExcept()
+
+  lib.ElDistSparseMatrixProcessLocalQueues_i.argtypes = \
+  lib.ElDistSparseMatrixProcessLocalQueues_s.argtypes = \
+  lib.ElDistSparseMatrixProcessLocalQueues_d.argtypes = \
+  lib.ElDistSparseMatrixProcessLocalQueues_c.argtypes = \
+  lib.ElDistSparseMatrixProcessLocalQueues_z.argtypes = \
+    [c_void_p]
+  def ProcessLocalQueues(self):
+    args = [self.obj]
+    if   self.tag == iTag: lib.ElDistSparseMatrixProcessLocalQueues_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixProcessLocalQueues_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixProcessLocalQueues_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixProcessLocalQueues_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixProcessLocalQueues_z(*args)
     else: DataExcept()
 
   # Queries
@@ -385,20 +400,20 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return capacity.value
 
-  lib.ElDistSparseMatrixConsistent_i.argtypes = \
-  lib.ElDistSparseMatrixConsistent_s.argtypes = \
-  lib.ElDistSparseMatrixConsistent_d.argtypes = \
-  lib.ElDistSparseMatrixConsistent_c.argtypes = \
-  lib.ElDistSparseMatrixConsistent_z.argtypes = \
+  lib.ElDistSparseMatrixLocallyConsistent_i.argtypes = \
+  lib.ElDistSparseMatrixLocallyConsistent_s.argtypes = \
+  lib.ElDistSparseMatrixLocallyConsistent_d.argtypes = \
+  lib.ElDistSparseMatrixLocallyConsistent_c.argtypes = \
+  lib.ElDistSparseMatrixLocallyConsistent_z.argtypes = \
     [c_void_p,POINTER(bType)]
-  def Consistent(self):
+  def LocallyConsistent(self):
     consistent = bType()
     args = [self.obj,pointer(consistent)]
-    if   self.tag == iTag: lib.ElDistSparseMatrixConsistent_i(*args)
-    elif self.tag == sTag: lib.ElDistSparseMatrixConsistent_s(*args)
-    elif self.tag == dTag: lib.ElDistSparseMatrixConsistent_d(*args)
-    elif self.tag == cTag: lib.ElDistSparseMatrixConsistent_c(*args)
-    elif self.tag == zTag: lib.ElDistSparseMatrixConsistent_z(*args)
+    if   self.tag == iTag: lib.ElDistSparseMatrixLocallyConsistent_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixLocallyConsistent_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixLocallyConsistent_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixLocallyConsistent_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixLocallyConsistent_z(*args)
     else: DataExcept()
     return consistent.value
 

@@ -95,7 +95,7 @@ void UpdateSubmatrix
 
     // Exchange and unpack the data
     // ============================
-    auto recvBuf = mpi::AllToAll(sendBuf,sendCounts,sendOffs,comm);
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     Int recvBufSize = recvBuf.size();
     mpi::Broadcast( recvBufSize, 0, A.RedundantComm() );
     recvBuf.resize( recvBufSize );
