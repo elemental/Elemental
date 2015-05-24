@@ -8,6 +8,7 @@
 #
 include(ExternalProject)
 include(ElCheckFunctionExists)
+include(ElLibraryName)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   set(GFORTRAN_PATHS /usr/lib

@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 include(ExternalProject)
+include(ElLibraryName)
 
 # NOTE: There is no test for MPICH since it will be assumed that tests/MPI
 #       was already run (and did not find MPI)

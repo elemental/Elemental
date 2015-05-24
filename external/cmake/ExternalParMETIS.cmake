@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 include(ExternalProject)
+include(ElLibraryName)
 
 set(USE_FOUND_PARMETIS FALSE)
 if(NOT EL_BUILD_PARMETIS)

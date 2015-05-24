@@ -8,6 +8,7 @@
 #
 include(ExternalProject)
 include(ElCheckFunctionExists)
+include(ElLibraryName)
 
 set(USE_FOUND_SCALAPACK FALSE)
 if(NOT EL_BUILD_SCALAPACK)

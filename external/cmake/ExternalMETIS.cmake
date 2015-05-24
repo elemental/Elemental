@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 include(ExternalProject)
+include(ElLibraryName)
 
 if(NOT EL_BUILD_METIS)
   find_package(METIS)
