@@ -70,6 +70,23 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
   set(SCALAPACK_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/scalapack/source)
   set(SCALAPACK_BINARY_DIR ${PROJECT_BINARY_DIR}/download/scalapack/build)
 
+  # TODO: Extend to support user-supplied BLAS+LAPACK
+  if(APPLE)
+    if(EL_PREFER_BLIS_LAPACK)
+      set(LAPACK_COMMAND -D BUILD_BLIS_LAPACK=ON)
+    elseif(EL_PREFER_OPENBLAS)
+      set(LAPACK_COMMAND -D BUILD_OPENBLAS=ON)
+    else()
+      set(LAPACK_COMMAND -D FORCE_APPLE_MATH=ON)
+    endif()
+  else()
+    if(EL_PREFER_BLIS_LAPACK)
+      set(LAPACK_COMMAND -D BUILD_BLIS_LAPACK=ON)
+    else()
+      set(LAPACK_COMMAND -D BUILD_OPENBLAS=ON)
+    endif()
+  endif()
+
   # Convert various MPI lists (delimted with ';') to use a '^^' delimiter
   # (following the advice from
   # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html)
@@ -100,7 +117,7 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
       -D MPI_C_LIBRARIES:STRING=${MPI_C_LIBSTRING}
       -D MPI_Fortran_LIBRARIES:STRING=${MPI_Fortran_LIBSTRING}
       -D MPI_LINK_FLAGS=${MPI_LINK_FLAGS}
-      -D LAPACK_LIBRARIES=${MATH_LIBS}
+      ${LAPACK_COMMAND}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
       -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}
@@ -110,13 +127,6 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
       -D CMAKE_INSTALL_RPATH=${CMAKE_INSTALL_RPATH}
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   )
-  # TODO: Incorporate these into my ScaLAPACK fork
-  if(EL_BUILT_BLIS)
-    add_dependencies(project_scalapack project_blis)
-  endif()
-  if(EL_BUILT_OPENBLAS)
-    add_dependencies(project_scalapack project_openblas)
-  endif()
 
   # Extract the source and install directories
   ExternalProject_Get_Property(project_scalapack source_dir install_dir)
@@ -126,8 +136,46 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
   El_library_name(scalapack_name scalapack)
   set(SCALAPACK_LIB ${install_dir}/lib/${scalapack_name})
   set_property(TARGET libscalapack PROPERTY IMPORTED_LOCATION ${SCALAPACK_LIB})
+  if(WIN32)
+    add_library(libscalapack-F ${LIBRARY_TYPE} IMPORTED)
+    El_library_name(scalapack-F_name scalapack-F)
+    set(SCALAPACKF_LIB ${install_dir}/lib${scalapack_name})
+    set_property(TARGET libscalapack-F PROPERTY 
+      IMPORTED_LOCATION ${SCALAPACKF_LIB})
+  endif()
 
-  set(SCALAPACK_LIBS ${SCALAPACK_LIB})
+  if(EL_PREFER_BLIS_LAPACK)
+    add_library(liblapack ${LIBRARY_TYPE} IMPORTED)
+    El_library_name(lapack_name lapack)
+    set(LAPACK_LIB ${install_dir}/lib/${lapack_name})
+    set_property(TARGET liblapack PROPERTY IMPORTED_LOCATION ${LAPACK_LIB})
+
+    add_library(libblis ${LIBRARY_TYPE} IMPORTED)
+    El_library_name(blis_name blis)
+    set(BLIS_LIB ${install_dir}/lib/${blis_name})
+    set_property(TARGET libblis PROPERTY IMPORTED_LOCATION ${BLIS_LIB})
+
+    set(EL_BUILT_BLIS_LAPACK TRUE)
+    if(WIN32)
+      set(SCALAPACK_LIBS ${SCALAPACK_LIB} ${SCALAPACKF_LIB} 
+        ${LAPACK_LIB} ${BLIS_LIB})
+    else()
+      set(SCALAPACK_LIBS ${SCALAPACK_LIB} ${LAPACK_LIB} ${BLIS_LIB})
+    endif()
+  else()
+    add_library(libopenblas ${LIBRARY_TYPE} IMPORTED)
+    El_library_name(openblas_name openblas)
+    set(OPENBLAS_LIB ${install_dir}/lib/${openblas_name})
+    set_property(TARGET libopenblas PROPERTY IMPORTED_LOCATION ${OPENBLAS_LIB})
+
+    set(EL_BUILT_OPENBLAS TRUE)
+    if(WIN32)
+      set(SCALAPACK_LIBS ${SCALAPACK_LIB} ${SCALAPACKF_LIB} ${OPENBLAS_LIB})
+    else()
+      set(SCALAPACK_LIBS ${SCALAPACK_LIB} ${OPENBLAS_LIB})
+    endif()
+  endif()
+
   set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SCALAPACK_LIBS})
   set(EL_BUILT_SCALAPACK TRUE)
   set(EL_HAVE_SCALAPACK TRUE)
