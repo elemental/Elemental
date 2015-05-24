@@ -1,3 +1,11 @@
+#
+#  Copyright 2009-2015, Jack Poulson
+#  All rights reserved.
+#
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
+#  http://opensource.org/licenses/BSD-2-Clause
+#
 include(ElCheckFunctionExists)
 include(CheckCXXSourceCompiles)
 
@@ -36,7 +44,7 @@ endif()
 if(MATH_LIBS)
   message(STATUS "Will attempt to use user-defined MATH_LIBS=${MATH_LIBS}")
 elseif(NOT EL_DISABLE_SCALAPACK)
-  include(ExternalScaLAPACK)
+  include(external_projects/ElMath/ScaLAPACK)
   if(EL_HAVE_SCALAPACK)
     set(MATH_LIBS ${SCALAPACK_LIBS})  
   endif()
@@ -46,7 +54,7 @@ if(APPLE AND NOT MATH_LIBS)
   # Attempt to find/build BLIS+LAPACK if prompted
   # ---------------------------------------------
   if(EL_PREFER_BLIS_LAPACK)
-    include(ExternalBLISLAPACK)
+    include(external_projects/ElMath/BLIS_LAPACK)
     if(EL_HAVE_BLIS_LAPACK)
       set(MATH_LIBS ${BLIS_LAPACK_LIBS})
       message("Will use BLIS+LAPACK via MATH_LIBS=${MATH_LIBS}")
@@ -56,7 +64,7 @@ if(APPLE AND NOT MATH_LIBS)
   # Attempt to find/build OpenBLAS if prompted
   # ------------------------------------------
   if(NOT MATH_LIBS AND EL_PREFER_OPENBLAS)
-    include(ExternalOpenBLAS)
+    include(external_projects/ElMath/OpenBLAS)
     if(EL_HAVE_OPENBLAS)
       set(MATH_LIBS ${OPENBLAS_LIBS})
       message("Will use OpenBLAS+LAPACK via MATH_LIBS=${MATH_LIBS}")
@@ -87,7 +95,7 @@ if(NOT MATH_LIBS)
   # Attempt to find/build OpenBLAS unless requested not to
   # ------------------------------------------------------
   if(NOT EL_DISABLE_OPENBLAS)
-    include(ExternalOpenBLAS)
+    include(external_projects/ElMath/OpenBLAS)
     if(EL_HAVE_OPENBLAS)
       set(MATH_LIBS ${OPENBLAS_LIBS})
       message("Will use OpenBLAS via MATH_LIBS=${MATH_LIBS}")
@@ -97,7 +105,7 @@ if(NOT MATH_LIBS)
   # Attempt to find/build BLIS+LAPACK unless requested not to
   # ---------------------------------------------------------
   if(NOT MATH_LIBS AND NOT EL_DISABLE_BLIS_LAPACK)
-    include(ExternalBLISLAPACK)
+    include(external_projects/ElMath/BLIS_LAPACK)
     if(EL_HAVE_BLIS_LAPACK)
       set(MATH_LIBS ${BLIS_LAPACK_LIBS})
       message("Will use BLIS via MATH_LIBS=${MATH_LIBS}")
@@ -278,7 +286,7 @@ if(NOT EL_DISABLE_QUAD)
 endif()
 
 if(EL_DISABLE_PARMETIS)
-  include(ExternalMETIS)
+  include(external_projects/ElMath/METIS)
 else()
-  include(ExternalParMETIS)
+  include(external_projects/ElMath/ParMETIS)
 endif()

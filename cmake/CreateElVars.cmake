@@ -35,6 +35,6 @@ endforeach()
 
 # TODO: Generalize this for non-Unix architectures
 set(QT5_LIBSTRING "-L${Qt5_LIBDIR} -lQt5Widgets -lQt5Gui -lQt5Core")
-configure_file(${PROJECT_SOURCE_DIR}/cmake/ElVars.cmake
+configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/ElVars.in
                ${PROJECT_BINARY_DIR}/conf/ElVars @ONLY)
 install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)

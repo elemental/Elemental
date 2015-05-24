@@ -18,7 +18,8 @@ project(Elemental C CXX)
 set(EL_VERSION_MAJOR 0)
 set(EL_VERSION_MINOR 86-dev)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # Configuration options
 # =====================
@@ -270,17 +271,16 @@ if(APPLE)
   endif()
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
-include(tests/Fortran)
-include(tests/CXX)
+include(detect/Fortran)
+include(detect/CXX)
 set(CXX_FLAGS "${CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
-include(tests/MPI)
+include(detect/MPI)
 set(CXX_FLAGS "${CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-include(tests/OpenMP)
+include(detect/OpenMP)
 if(EL_HYBRID)
   set(CXX_FLAGS "${CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
-include(tests/Qt5)
+include(detect/Qt5)
 if(EL_HAVE_QT5)
   set(CXX_FLAGS "${CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 endif()
@@ -295,7 +295,7 @@ endif()
 
 # Import several external math libraries (e.g., BLAS/LAPACK/METIS/ParMETIS)
 # -------------------------------------------------------------------------
-include(tests/Math)
+include(external_projects/ElMath)
 
 # Now that testing is done, set the CXX build and link flags
 # ----------------------------------------------------------
@@ -355,7 +355,7 @@ endif()
 
 # Handle the header preparation and installation
 # ----------------------------------------------
-configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.in
+configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/config.h.in
                ${PROJECT_BINARY_DIR}/include/El/config.h)
 install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
         DESTINATION include/El)
@@ -400,7 +400,7 @@ install(TARGETS El DESTINATION lib)
 # ---------------------------------------------
 if(BUILD_SHARED_LIBS)
   # Create the environment file for Python which hardcodes the installation dir
-  configure_file(${PROJECT_SOURCE_DIR}/cmake/environment.py.in
+  configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/environment.py.in
                  ${PROJECT_BINARY_DIR}/python/core/environment.py)
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
@@ -566,5 +566,5 @@ include(CPack)
 # ==========
 # If Elemental is a subproject, then pass some variables to the parent
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  include(./cmake/ElSub.cmake)
+  include(ElSub)
 endif()

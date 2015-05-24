@@ -1,3 +1,11 @@
+#
+#  Copyright 2009-2015, Jack Poulson
+#  All rights reserved.
+#
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
+#  http://opensource.org/licenses/BSD-2-Clause
+#
 include(language_support_v2)
 
 # NOTE: There is not a consistent ABI for Fortran's LOGICAL. Though it is
@@ -19,7 +27,7 @@ if(NOT EL_FORT_FALSE)
 endif()
 
 # Go ahead and check for Fortran, but keep in mind that CMake's 'OPTIONAL' 
-# argument for enable_language is still completely broken as of 2.8.8
+# argument for enable_language is still completely broken as of 3.0.2
 workaround_9220(Fortran FORTRAN_WORKS)
 if(FORTRAN_WORKS)
   enable_language(Fortran OPTIONAL)
