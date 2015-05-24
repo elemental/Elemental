@@ -91,7 +91,7 @@ else()
     include(ExternalBLISLAPACK)
     if(EL_HAVE_BLIS_LAPACK)
       set(MATH_LIBS ${BLIS_LAPACK_LIBS})
-      message("Will use OpenBLAS via MATH_LIBS=${MATH_LIBS}")
+      message("Will use BLIS via MATH_LIBS=${MATH_LIBS}")
     endif()
   endif()
 
@@ -123,7 +123,6 @@ endif()
 # Check/predict the BLAS and LAPACK underscore conventions
 # ========================================================
 if(EL_BUILT_BLIS_LAPACK OR EL_BUILT_OPENBLAS)
-  # EL_[HAVE_]{BLAS,LAPACK}_SUFFIX will be read through openblas_config.h
   set(EL_HAVE_FLA_BSVD FALSE)
   if(NOT EL_DISABLE_SCALAPACK)
     include(ExternalScaLAPACK)

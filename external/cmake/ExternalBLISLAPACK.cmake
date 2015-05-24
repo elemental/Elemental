@@ -8,6 +8,7 @@
 #
 include(ExternalProject)
 include(ElCheckFunctionExists)
+include(ElLibraryName)
 
 find_package(OpenMP)
 
@@ -70,7 +71,14 @@ elseif(EL_HAVE_F90_INTERFACE)
   set(LAPACK_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/blis_lapack/source)
   set(LAPACK_BINARY_DIR ${PROJECT_BINARY_DIR}/download/blis_lapack/build)
 
-  # NOTE: The following should build and install OpenBLAS
+  # Provide a way for Elemental to pass down the BLIS architecture
+  if(BLIS_ARCH)
+    set(BLIS_ARCH_COMMAND -D BLIS_ARCH=${BLIS_ARCH})
+  else()
+    set(BLIS_ARCH_COMMAND)
+  endif()
+
+  # Set up a target for building and installing OpenBLAS
   ExternalProject_Add(project_blis_lapack
     PREFIX ${CMAKE_INSTALL_PREFIX}
     GIT_REPOSITORY ${LAPACK_URL}
@@ -85,7 +93,7 @@ elseif(EL_HAVE_F90_INTERFACE)
       -D CMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
       -D USE_OPTIMIZED_BLAS=ON
-      -D BUILD_BLIS=ON
+      -D BUILD_BLIS=ON ${BLIS_ARCH_COMMAND}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
       -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}
@@ -99,21 +107,16 @@ elseif(EL_HAVE_F90_INTERFACE)
   # Extract the source and install directories
   ExternalProject_Get_Property(project_blis_lapack source_dir install_dir)
 
-  # Add a target for libblis (static) 
-  # TODO: Allow for shared library versions of BLIS once the BLIS build system
-  #       has been improved.
-  add_library(libblis STATIC IMPORTED)
-  set(BLIS_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}blis${CMAKE_STATIC_LIBRARY_SUFFIX})
+  # Add a target for libblis 
+  add_library(libblis ${LIBRARY_TYPE} IMPORTED)
+  El_library_name(blis_name blis)
+  set(BLIS_LIB ${install_dir}/lib/${blis_name})
   set_property(TARGET libblis PROPERTY IMPORTED_LOCATION ${BLIS_LIB})
 
-  # Add a target for liblapack (either shared or static)
-  if(BUILD_SHARED_LIBS)
-    add_library(liblapack SHARED IMPORTED)
-    set(LAPACK_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}lapack${CMAKE_SHARED_LIBRARY_SUFFIX})
-  else()
-    add_library(liblapack STATIC IMPORTED)
-    set(LAPACK_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}lapack${CMAKE_STATIC_LIBRARY_SUFFIX})
-  endif() 
+  # Add a target for liblapack
+  add_library(liblapack ${LIBRARY_TYPE} IMPORTED)
+  El_library_name(lapack_name lapack)
+  set(LAPACK_LIB ${install_dir}/lib/${lapack_name})
   set_property(TARGET liblapack PROPERTY IMPORTED_LOCATION ${LAPACK_LIB})
 
   set(BLIS_LAPACK_LIBS ${LAPACK_LIB} ${BLIS_LIB} ${GNU_ADDONS})

@@ -175,6 +175,11 @@ mark_as_advanced(EL_VECTOR_WARNINGS)
 
 # Build logic
 # ===========
+if(BUILD_SHARED_LIBS)
+  set(LIBRARY_TYPE SHARED)
+else()
+  set(LIBRARY_TYPE STATIC)
+endif()
 
 # Elemental must be built "out-of-source", so we start by ensuring that the
 # source and build directories are different.

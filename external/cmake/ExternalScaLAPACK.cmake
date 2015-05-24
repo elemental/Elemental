@@ -109,6 +109,7 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
       -D CMAKE_INSTALL_RPATH=${CMAKE_INSTALL_RPATH}
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   )
+  # TODO: Incorporate these into my ScaLAPACK fork
   if(EL_BUILT_BLIS)
     add_dependencies(project_scalapack project_blis)
   endif()
@@ -120,13 +121,9 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
   ExternalProject_Get_Property(project_scalapack source_dir install_dir)
 
   # Add targets for libscalapack (either shared or static)
-  if(BUILD_SHARED_LIBS)
-    add_library(libscalapack SHARED IMPORTED)
-    set(SCALAPACK_LIB ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}scalapack${CMAKE_SHARED_LIBRARY_SUFFIX})
-  else()
-    add_library(libscalapack STATIC IMPORTED)
-    set(SCALAPACK_LIB ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}scalapack${CMAKE_STATIC_LIBRARY_SUFFIX})
-  endif() 
+  add_library(libscalapack ${LIBRARY_TYPE} IMPORTED)
+  El_library_name(scalapack_name scalapack)
+  set(SCALAPACK_LIB ${install_dir}/lib/${scalapack_name})
   set_property(TARGET libscalapack PROPERTY IMPORTED_LOCATION ${SCALAPACK_LIB})
 
   set(SCALAPACK_LIBS ${SCALAPACK_LIB})
