@@ -110,7 +110,7 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     const double runTime = mpi::Time() - startTime;
     const double mD = double(m);
     const double nD = double(n);
-    const double realGFlops = (8.*mD*nD*nD - 8./3.*nD*nD*nD)/(1.e9*runTime);
+    const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {

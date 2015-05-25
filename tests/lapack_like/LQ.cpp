@@ -111,7 +111,7 @@ void TestLQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     const double runTime = mpi::Time() - startTime;
     const double mD = double(m);
     const double nD = double(n);
-    const double realGFlops = (8.*mD*mD*nD - 8./3.*mD*mD*mD)/(1.e9*runTime);
+    const double realGFlops = (2.*mD*mD*nD - 2./3.*mD*mD*mD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
