@@ -10,6 +10,7 @@ Functionality priorities
 
 Fundamental functionality additions
 -----------------------------------
+[o] Second-order and semidefinite cone support
 [o] Non-naive Lanczos
 [o] 2D sparse matrix distributions
 [o] Matrix type tags for, for example, merging {Gemm,Hemm,Trmm,etc.} into "*"
@@ -93,22 +94,12 @@ Consistency/modularity
 [-] Consistent implementation of unblocked routines
 [-] Safe down-casting of integers in BLAS/LAPACK calls
 
-Documentation
--------------
-[o] Finish adding per-directory README's (e.g., cmake/toolchains/)
-
-Licensing
----------
-
 External Interfaces
 -------------------
 [o] Expose BlockDistMatrix to C and Python (as well as ScaLAPACK interface)
 
 Build system
 ------------
-[o] Support PMRRR when pthreads are not available (e.g., Windows)
-[o] Support for automatically downloading/installing BLIS
-[o] Support for automatically downloading/installing netlib BLAS/LAPACK
 [o] Attempt to shorten build via extern templates
 
 MPI and Threading
