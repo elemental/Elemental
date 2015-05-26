@@ -87,9 +87,16 @@ if(EL_USE_64BIT_BLAS_INTS)
     set(EL_USE_64BIT_INTS ON)
 endif()
 
-option(EL_DISABLE_OPENBLAS "Avoid OpenBLAS and search for reference BLAS" OFF)
-option(EL_PREFER_OPENBLAS "Prefer OpenBLAS to Apple's vecLib/Accelerate?" OFF)
+option(EL_DISABLE_BLIS_LAPACK "Avoid BLIS+LAPACK" OFF)
+option(EL_PREFER_BLIS_LAPACK "Prefer BLIS+LAPACK over alternatives?" OFF)
+option(EL_BUILD_BLIS_LAPACK "Avoid search for BLIS and instead buiild?" OFF)
+
+option(EL_DISABLE_OPENBLAS "Avoid OpenBLAS" OFF)
+option(EL_PREFER_OPENBLAS "Prefer OpenBLAS over alternatives?" OFF)
 option(EL_BUILD_OPENBLAS "Avoid search for OpenBLAS and instead build?" OFF)
+
+option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" OFF)
+option(EL_BUILD_SCALAPACK "Avoid search for ScaLAPACK and instead build?" OFF)
 
 # By default, a search is performed for ParMETIS via find_package, and, if this
 # search fails, ParMETIS is downloaded from the official location:

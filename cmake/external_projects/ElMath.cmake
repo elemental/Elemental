@@ -42,18 +42,20 @@ else()
   set(MATH_DESC "Unthreaded BLAS/LAPACK link flags")
 endif()
 if(MATH_LIBS)
-  message(STATUS "Will attempt to use user-defined MATH_LIBS=${MATH_LIBS}")
-elseif(NOT EL_DISABLE_SCALAPACK)
+  set(USER_MATH_LIBS ${MATH_LIBS})
+  message(STATUS "Will attempt to extend user-defined MATH_LIBS=${MATH_LIBS}")
+endif()
+if(NOT EL_DISABLE_SCALAPACK)
   include(external_projects/ElMath/ScaLAPACK)
   if(EL_HAVE_SCALAPACK)
-    set(MATH_LIBS ${SCALAPACK_LIBS})  
+    set(MATH_LIBS ${SCALAPACK_LIBS})
   endif()
 endif()
 
-if(APPLE AND NOT MATH_LIBS)
+if(APPLE)
   # Attempt to find/build BLIS+LAPACK if prompted
   # ---------------------------------------------
-  if(EL_PREFER_BLIS_LAPACK)
+  if(NOT MATH_LIBS AND EL_PREFER_BLIS_LAPACK)
     include(external_projects/ElMath/BLIS_LAPACK)
     if(EL_HAVE_BLIS_LAPACK)
       set(MATH_LIBS ${BLIS_LAPACK_LIBS})
@@ -91,49 +93,47 @@ if(APPLE AND NOT MATH_LIBS)
   endif()
 endif()
 
+# Attempt to find/build OpenBLAS unless requested not to
+# ------------------------------------------------------
+if(NOT MATH_LIBS AND NOT EL_PREFER_BLIS_LAPACK AND NOT EL_DISABLE_OPENBLAS)
+  include(external_projects/ElMath/OpenBLAS)
+  if(EL_HAVE_OPENBLAS)
+    set(MATH_LIBS ${OPENBLAS_LIBS})
+    message("Will use OpenBLAS via MATH_LIBS=${MATH_LIBS}")
+  endif()
+endif()
+
+# Attempt to find/build BLIS+LAPACK unless requested not to
+# ---------------------------------------------------------
+if(NOT MATH_LIBS AND NOT EL_DISABLE_BLIS_LAPACK)
+  include(external_projects/ElMath/BLIS_LAPACK)
+  if(EL_HAVE_BLIS_LAPACK)
+    set(MATH_LIBS ${BLIS_LAPACK_LIBS})
+    message("Will use BLIS via MATH_LIBS=${MATH_LIBS}")
+  endif()
+endif()
+
+# Look for reference implementations of BLAS+LAPACK
+# -------------------------------------------------
 if(NOT MATH_LIBS)
-  # Attempt to find/build OpenBLAS unless requested not to
-  # ------------------------------------------------------
-  if(NOT EL_DISABLE_OPENBLAS)
-    include(external_projects/ElMath/OpenBLAS)
-    if(EL_HAVE_OPENBLAS)
-      set(MATH_LIBS ${OPENBLAS_LIBS})
-      message("Will use OpenBLAS via MATH_LIBS=${MATH_LIBS}")
-    endif()
-  endif()
-
-  # Attempt to find/build BLIS+LAPACK unless requested not to
-  # ---------------------------------------------------------
-  if(NOT MATH_LIBS AND NOT EL_DISABLE_BLIS_LAPACK)
-    include(external_projects/ElMath/BLIS_LAPACK)
-    if(EL_HAVE_BLIS_LAPACK)
-      set(MATH_LIBS ${BLIS_LAPACK_LIBS})
-      message("Will use BLIS via MATH_LIBS=${MATH_LIBS}")
-    endif()
-  endif()
-
-  # Look for reference implementations of BLAS+LAPACK
-  # -------------------------------------------------
-  if(NOT MATH_LIBS)
-    set(REFERENCE_REQUIRED LAPACK BLAS)
-    find_library(BLAS_LIB NAMES blas PATHS ${MATH_PATHS})
-    find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${MATH_PATHS})
-    set(REFERENCE_FOUND TRUE)
-    foreach(NAME ${REFERENCE_REQUIRED})
-      if(${NAME}_LIB)
-        message(STATUS "Found ${NAME}_LIB: ${${NAME}_LIB}")
-        list(APPEND MATH_LIBS ${${NAME}_LIB})
-      else()
-        message(STATUS "Could not find ${NAME}_LIB")
-        set(MATH_LIBS "")
-        set(REFERENCE_FOUND FALSE)
-      endif()
-    endforeach()
-    if(REFERENCE_FOUND)
-      message(WARNING "Using reference BLAS/LAPACK; performance will be poor")
+  set(REFERENCE_REQUIRED LAPACK BLAS)
+  find_library(BLAS_LIB NAMES blas PATHS ${MATH_PATHS})
+  find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${MATH_PATHS})
+  set(REFERENCE_FOUND TRUE)
+  foreach(NAME ${REFERENCE_REQUIRED})
+    if(${NAME}_LIB)
+      message(STATUS "Found ${NAME}_LIB: ${${NAME}_LIB}")
+      list(APPEND MATH_LIBS ${${NAME}_LIB})
     else()
-      message(FATAL_ERROR "Could not find BLAS/LAPACK. Please specify MATH_LIBS")
+      message(STATUS "Could not find ${NAME}_LIB")
+      set(MATH_LIBS "")
+      set(REFERENCE_FOUND FALSE)
     endif()
+  endforeach()
+  if(REFERENCE_FOUND)
+    message(WARNING "Using reference BLAS/LAPACK; performance will be poor")
+  else()
+    message(FATAL_ERROR "Could not find BLAS/LAPACK. Please specify MATH_LIBS")
   endif()
 endif()
 
@@ -194,53 +194,8 @@ if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
 
   # Check for libFLAME support
   # ==========================
+  # TODO: Make this an external project
   El_check_function_exists(FLA_Bsvd_v_opd_var1 EL_HAVE_FLA_BSVD)
-
-  # Check for ScaLAPACK support
-  # ===========================
-  if(NOT EL_DISABLE_SCALAPACK)
-    if(EL_SCALAPACK_SUFFIX)
-      El_check_function_exists(pdsyngst${EL_SCALAPACK_SUFFIX} EL_HAVE_PDSYNGST)
-      El_check_function_exists(Csys2blacs_handle EL_HAVE_CSYS2BLACS)
-      if(NOT EL_HAVE_PDSYNGST OR NOT EL_HAVE_CSYS2BLACS)
-        message(WARNING "Could not find pdsyngst${EL_SCALAPACK_SUFFIX} or Csys2blacs_handle")
-        set(EL_HAVE_SCALAPACK FALSE)
-      else()
-        set(EL_HAVE_SCALAPACK TRUE)
-        set(EL_HAVE_SCALAPACK_SUFFIX TRUE)
-      endif()
-    else()
-      # NOTE: pdsyngst was chosen because MKL ScaLAPACK only defines pdsyngst_,
-      #       but not pdsyngst, despite defining both pdpotrf and pdpotrf_. 
-      El_check_function_exists(pdsyngst  EL_HAVE_PDSYNGST)
-      El_check_function_exists(pdsyngst_ EL_HAVE_PDSYNGST_POST)
-      El_check_function_exists(Csys2blacs_handle EL_HAVE_CSYS2BLACS)
-      if(EL_HAVE_PDSYNGST)
-        El_check_function_exists(pdlaqr0 EL_HAVE_PDLAQR0)
-        El_check_function_exists(pdlaqr1 EL_HAVE_PDLAQR1)
-        if(NOT EL_HAVE_PDLAQR0 OR NOT EL_HAVE_PDLAQR1 OR 
-           NOT EL_HAVE_CSYS2BLACS)
-          message(STATUS "ScaLAPACK must support PDLAQR{0,1} and Csys2blacs_handle.")
-        else()
-          set(EL_HAVE_SCALAPACK TRUE)
-          set(EL_HAVE_SCALAPACK_SUFFIX FALSE)
-        endif()
-      elseif(EL_HAVE_PDSYNGST_POST)
-        El_check_function_exists(pdlaqr0_ EL_HAVE_PDLAQR0_POST)
-        El_check_function_exists(pdlaqr1_ EL_HAVE_PDLAQR1_POST)
-        if(NOT EL_HAVE_PDLAQR0_POST OR NOT EL_HAVE_PDLAQR1_POST OR
-           NOT EL_HAVE_CSYS2BLACS)
-          message(STATUS "ScaLAPACK must support PDLAQR{0,1} and Csys2blacs_handle.")
-        else()
-          set(EL_HAVE_SCALAPACK TRUE)
-          set(EL_HAVE_SCALAPACK_SUFFIX TRUE)
-          set(EL_SCALAPACK_SUFFIX _)
-        endif()
-      else()
-        message(STATUS "Did not detect ScaLAPACK")
-      endif()
-    endif()
-  endif()
 
   # Clean up the requirements since they cause problems in other Find packages,
   # such as FindThreads
