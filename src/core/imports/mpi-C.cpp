@@ -41,4 +41,7 @@ ElError ElMPIGroupFree( MPI_Group* group )
 ElError ElMPIWorldRank( int* rank )
 { EL_TRY( *rank = El::mpi::WorldRank() ) }
 
+ElError ElMPIWorldSize( int* size )
+{ EL_TRY( *size = El::mpi::WorldSize() ) }
+
 } // extern "C"

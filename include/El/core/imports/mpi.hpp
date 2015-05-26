@@ -127,6 +127,7 @@ void Free( Datatype& type );
 
 // Communicator manipulation
 int WorldRank();
+int WorldSize();
 int Rank( Comm comm );
 int Size( Comm comm );
 void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm );

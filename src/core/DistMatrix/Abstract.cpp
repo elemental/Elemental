@@ -179,7 +179,7 @@ AbstractDistMatrix<T>::MakeConsistent( bool includingViewers )
         message[8] = root_;
     }
 
-    const El::Grid& g = *grid_;
+    const auto& g = *grid_;
     if( !g.InGrid() && !includingViewers )
         LogicError("Non-participating process called MakeConsistent");
     if( g.InGrid() )
@@ -228,7 +228,7 @@ AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
         message[1] = width_;
     }
 
-    const El::Grid& g = *grid_;
+    const auto& g = *grid_;
     if( !g.InGrid() && !includingViewers )
         LogicError("Non-participating process called MakeSizeConsistent");
     if( g.InGrid() )
@@ -946,32 +946,93 @@ AbstractDistMatrix<T>::Conjugate( Int i, Int j )
         ConjugateLocal( LocalRow(i), LocalCol(j) );
 }
 
+// Batch remote updates
+// --------------------
+template<typename T>
+void AbstractDistMatrix<T>::Reserve( Int numRemoteEntries )
+{ 
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::Reserve"))
+    remoteUpdates_.reserve( numRemoteEntries ); 
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueueUpdate"))
+    remoteUpdates_.push_back( entry );
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::QueueUpdate( Int i, Int j, T value )
+{ QueueUpdate( Entry<T>{i,j,value} ); }
+
+template<typename T>
+void AbstractDistMatrix<T>::ProcessQueues()
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessQueues"))
+    const auto& g = Grid();
+    mpi::Comm comm = g.ViewingComm();
+    const int commSize = mpi::Size( comm );
+
+    // Compute the metadata
+    // ====================
+    vector<int> sendCounts(commSize,0);
+    for( const auto& entry : remoteUpdates_ )
+    {
+        const int owner = 
+          g.VCToViewing( 
+            g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
+          );
+        ++sendCounts[owner];
+    }
+
+    // Pack the data
+    // =============
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    vector<Entry<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
+    for( const auto& entry : remoteUpdates_ )
+    {
+        const int owner = 
+          g.VCToViewing( 
+            g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
+          );
+        sendBuf[offs[owner]++] = entry;
+    }
+
+    // Exchange and unpack the data
+    // ============================
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    Int recvBufSize = recvBuf.size();
+    mpi::Broadcast( recvBufSize, 0, RedundantComm() );
+    recvBuf.resize( recvBufSize );
+    mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
+    for( const auto& entry : recvBuf )
+        Update( entry );
+}
+
 // Local entry manipulation
 // ------------------------
 
 template<typename T>
-T
-AbstractDistMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
+T AbstractDistMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
 { return matrix_.Get(iLoc,jLoc); }
 
 template<typename T>
-Base<T>
-AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
+Base<T> AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetRealPart(iLoc,jLoc); }
 
 template<typename T>
-Base<T>
-AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
+Base<T> AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetImagPart(iLoc,jLoc); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
+void AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
 { matrix_.Set(iLoc,jLoc,alpha); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::SetLocal( const Entry<T>& localEntry )
+void AbstractDistMatrix<T>::SetLocal( const Entry<T>& localEntry )
 { SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
@@ -1065,7 +1126,7 @@ template<typename T>
 int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalRoot"))
-    const El::Grid& grid = Grid();
+    const auto& grid = Grid();
 
     if( ColDist() == MC && RowDist() == MR )
     {
@@ -1111,7 +1172,7 @@ template<typename T>
 int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalAlign"))
-    const El::Grid& grid = Grid();
+    const auto& grid = Grid();
 
     if( ColDist() == MC && RowDist() == MR )
     {

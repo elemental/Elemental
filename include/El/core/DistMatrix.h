@@ -1216,6 +1216,40 @@ EL_EXPORT ElError ElDistMatrixMakeReal_z( ElDistMatrix_z A, ElInt i, ElInt j );
 EL_EXPORT ElError ElDistMatrixConjugate_c( ElDistMatrix_c A, ElInt i, ElInt j );
 EL_EXPORT ElError ElDistMatrixConjugate_z( ElDistMatrix_z A, ElInt i, ElInt j );
 
+/* void AbstractDistMatrix<T>::Reserve( Int numRemoteEntries )
+   ----------------------------------------------------------- */
+EL_EXPORT ElError ElDistMatrixReserve_i
+( ElDistMatrix_i A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMatrixReserve_s
+( ElDistMatrix_s A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMatrixReserve_d
+( ElDistMatrix_d A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMatrixReserve_c
+( ElDistMatrix_c A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMatrixReserve_z
+( ElDistMatrix_z A, ElInt numRemoteEntries );
+
+/* void AbstractDistMatrix<T>::QueueUpdate( Int i, Int j, T value )
+   ---------------------------------------------------------------- */
+EL_EXPORT ElError ElDistMatrixQueueUpdate_i
+( ElDistMatrix_i A, ElInt i, ElInt j, ElInt value );
+EL_EXPORT ElError ElDistMatrixQueueUpdate_s
+( ElDistMatrix_s A, ElInt i, ElInt j, float value );
+EL_EXPORT ElError ElDistMatrixQueueUpdate_d
+( ElDistMatrix_d A, ElInt i, ElInt j, double value );
+EL_EXPORT ElError ElDistMatrixQueueUpdate_c
+( ElDistMatrix_c A, ElInt i, ElInt j, complex_float value );
+EL_EXPORT ElError ElDistMatrixQueueUpdate_z
+( ElDistMatrix_z A, ElInt i, ElInt j, complex_double value );
+
+/* void AbstractDistMatrix<T>::ProcessQueues()
+   ------------------------------------------- */
+EL_EXPORT ElError ElDistMatrixProcessQueues_i( ElDistMatrix_i A );
+EL_EXPORT ElError ElDistMatrixProcessQueues_s( ElDistMatrix_s A );
+EL_EXPORT ElError ElDistMatrixProcessQueues_d( ElDistMatrix_d A );
+EL_EXPORT ElError ElDistMatrixProcessQueues_c( ElDistMatrix_c A );
+EL_EXPORT ElError ElDistMatrixProcessQueues_z( ElDistMatrix_z A );
+
 /* T AbstractDistMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
    ------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGetLocal_i

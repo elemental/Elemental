@@ -1638,6 +1638,50 @@ class DistMatrix(object):
     if   self.tag == cTag: lib.ElDistMatrixConjugate_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixConjugate_z(*args)
 
+  lib.ElDistMatrixReserve_i.argtypes = \
+  lib.ElDistMatrixReserve_s.argtypes = \
+  lib.ElDistMatrixReserve_d.argtypes = \
+  lib.ElDistMatrixReserve_c.argtypes = \
+  lib.ElDistMatrixReserve_z.argtypes = \
+    [c_void_p,iType]
+  def Reserve(self,numRemoteEntries):
+    args = [self.obj,numRemoteEntries]
+    if   self.tag == iTag: lib.ElDistMatrixReserve_i(*args)
+    elif self.tag == sTag: lib.ElDistMatrixReserve_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixReserve_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixReserve_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixReserve_z(*args)
+    else: DataExcept()
+
+  lib.ElDistMatrixQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+  lib.ElDistMatrixQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+  lib.ElDistMatrixQueueUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+  lib.ElDistMatrixQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+  lib.ElDistMatrixQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
+  def QueueUpdate(self,i,j,value):
+    args = [self.obj,i,j,value]
+    if   self.tag == iTag: lib.ElDistMatrixQueueUpdate_i(*args)
+    elif self.tag == sTag: lib.ElDistMatrixQueueUpdate_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixQueueUpdate_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixQueueUpdate_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixQueueUpdate_z(*args)
+    else: DataExcept()
+
+  lib.ElDistMatrixProcessQueues_i.argtypes = \
+  lib.ElDistMatrixProcessQueues_s.argtypes = \
+  lib.ElDistMatrixProcessQueues_d.argtypes = \
+  lib.ElDistMatrixProcessQueues_c.argtypes = \
+  lib.ElDistMatrixProcessQueues_z.argtypes = \
+    [c_void_p]
+  def ProcessQueues(self):
+    args = [self.obj]
+    if   self.tag == iTag: lib.ElDistMatrixProcessQueues_i(*args) 
+    elif self.tag == sTag: lib.ElDistMatrixProcessQueues_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixProcessQueues_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixProcessQueues_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixProcessQueues_z(*args)
+    else: DataExcept()
+
   def GetLocal(self,iLoc,jLoc): 
     return self.LockedMatrix().Get(iLoc,jLoc)
 

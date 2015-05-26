@@ -77,3 +77,8 @@ def WorldRank():
   rank = c_int()
   lib.ElMPIWorldRank(pointer(rank))
   return rank.value
+
+def WorldSize():
+  size = c_int()
+  lib.ElMPIWorldSize(pointer(size))
+  return size.value

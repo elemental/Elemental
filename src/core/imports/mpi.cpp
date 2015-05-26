@@ -120,6 +120,12 @@ int WorldRank()
     return Rank( mpi::COMM_WORLD ); 
 }
 
+int WorldSize()
+{
+    DEBUG_ONLY(CSE cse("mpi::WorldSize"))
+    return Size( mpi::COMM_WORLD );
+}
+
 int Rank( Comm comm )
 {
     DEBUG_ONLY(CSE cse("mpi::Rank"))

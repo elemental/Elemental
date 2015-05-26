@@ -214,6 +214,13 @@ public:
     void    MakeReal( Int i, Int j );
     void    Conjugate( Int i, Int j );
 
+    // Batch updating of remote entries
+    // ---------------------------------
+    void Reserve( Int numRemoteEntries );
+    void QueueUpdate( const Entry<T>& entry );
+    void QueueUpdate( Int i, Int j, T value );
+    void ProcessQueues();
+
     // Local entry manipulation
     // ------------------------
     // NOTE: Clearly each of the following routines could instead be performed
@@ -270,6 +277,10 @@ protected:
         colShift_, rowShift_;
     int root_;
     const El::Grid* grid_;
+
+    // Remote updates
+    // --------------
+    vector<Entry<T>> remoteUpdates_;
 
     // Private constructors
     // ====================

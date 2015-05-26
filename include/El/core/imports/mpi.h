@@ -30,6 +30,7 @@ EL_EXPORT ElError ElMPICommFree( MPI_Comm* comm );
 EL_EXPORT ElError ElMPIGroupFree( MPI_Group* group );
 
 EL_EXPORT ElError ElMPIWorldRank( int* rank );
+EL_EXPORT ElError ElMPIWorldSize( int* size );
 
 #ifdef __cplusplus
 } // extern "C"
