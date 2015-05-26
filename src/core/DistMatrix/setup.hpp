@@ -128,6 +128,38 @@ DM::ConstructDiagonal
 { return new DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
                           DiagRow<COLDIST,ROWDIST>()>(g,root); }
 
+// Assignment and reconfiguration
+// ==============================
+
+// Return a view
+// -------------
+template<typename T>
+DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
+{
+    DEBUG_ONLY(CSE cse("DM( ind, ind )"))
+    if( this->Locked() )
+        return LockedView( *this, indVert, indHorz );
+    else
+        return View( *this, indVert, indHorz );
+}
+
+template<typename T>
+const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
+{
+    DEBUG_ONLY(CSE cse("DM( ind, ind ) const"))
+    return LockedView( *this, indVert, indHorz );
+}
+
+// Copy
+// ----
+template<typename T>
+DM& DM::operator=( const DM& A )
+{
+    DEBUG_ONLY(CSE cse("DM = DM"))
+    copy::Translate( A, *this );
+    return *this;
+}
+
 template<typename T>
 template<Dist U,Dist V>
 DM& DM::operator=( const BlockDistMatrix<T,U,V>& A )

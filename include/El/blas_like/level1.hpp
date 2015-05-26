@@ -298,6 +298,12 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 template<typename S,typename T>
 void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B );
 
+template<typename T>
+void CopyFromRoot
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers=false );
+template<typename T>
+void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers=false );
+
 void Copy( const Graph& A, Graph& B );
 void Copy( const Graph& A, DistGraph& B );
 void Copy( const DistGraph& A, Graph& B );

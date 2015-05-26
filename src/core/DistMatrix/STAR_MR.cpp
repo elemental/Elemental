@@ -21,35 +21,8 @@ namespace El {
 // Assignment and reconfiguration
 // ==============================
 
-// Return a view
-// -------------
-template<typename T>
-DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
-{
-    DEBUG_ONLY(CSE cse("DM[STAR,MR]( ind, ind )"))
-    if( this->Locked() )
-        return LockedView( *this, indVert, indHorz );
-    else
-        return View( *this, indVert, indHorz );
-}
-
-template<typename T>
-const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
-{
-    DEBUG_ONLY(CSE cse("DM[STAR,MR]( ind, ind )"))
-    return LockedView( *this, indVert, indHorz );
-}
-
 // Make a copy
 // -----------
-template<typename T>
-DM& DM::operator=( const DM& A )
-{
-    DEBUG_ONLY(CSE cse("DM[STAR,MR] = DM[STAR,MR]"))
-    copy::Translate( A, *this );
-    return *this;
-}
-
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 

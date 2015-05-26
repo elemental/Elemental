@@ -21,36 +21,8 @@ namespace El {
 // Assignment and reconfiguration
 // ==============================
 
-// Return a view
-// -------------
-
-template<typename T>
-DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
-{
-    DEBUG_ONLY(CSE cse("DM[CIRC,CIRC]( ind, ind )"))
-    if( this->Locked() )
-        return LockedView( *this, indVert, indHorz );
-    else
-        return View( *this, indVert, indHorz );
-}
-
-template<typename T>
-const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
-{
-    DEBUG_ONLY(CSE cse("DM[CIRC,CIRC]( ind, ind )"))
-    return LockedView( *this, indVert, indHorz );
-}
-
 // Make a copy
 // -----------
-template<typename T>
-DM& DM::operator=( const DM& A )
-{
-    DEBUG_ONLY(CSE cse("DM[CIRC,CIRC] = DM[CIRC,CIRC]"))
-    copy::Translate( A, *this );
-    return *this;
-}
-
 template<typename T>
 DM& DM::operator=( const AbstractDistMatrix<T>& A )
 {
@@ -60,29 +32,6 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 }
 
 // TODO: operator= for BlockDistMatrix
-
-template<typename T>
-void DM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
-{
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC]::CopyFromRoot"))
-    if( this->CrossRank() != this->Root() )
-        LogicError("Called CopyFromRoot from non-root");
-
-    this->Resize( A.Height(), A.Width() );
-    this->MakeSizeConsistent( includingViewers );
-
-    this->matrix_ = A;
-}
-
-template<typename T>
-void DM::CopyFromNonRoot( bool includingViewers )
-{
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC]::CopyFromNonRoot"))
-    if( this->CrossRank() == this->Root() )
-        LogicError("Called CopyFromNonRoot from root");
-
-    this->MakeSizeConsistent( includingViewers );
-}
 
 // Basic queries
 // =============

@@ -69,14 +69,14 @@ int main( int argc, char *argv[] )
         if( commRank == 0 ) 
         {
             timer.Start();
-            ARoot.CopyFromRoot( A );
-            BRoot.CopyFromRoot( B );
+            CopyFromRoot( A, ARoot );
+            CopyFromRoot( B, BRoot );
             cout << "Populate root node: " << timer.Stop() << " secs" << endl;
         }
         else
         {
-            ARoot.CopyFromNonRoot();
-            BRoot.CopyFromNonRoot();
+            CopyFromNonRoot( ARoot );
+            CopyFromNonRoot( BRoot );
         }
 
         mpi::Barrier( comm );

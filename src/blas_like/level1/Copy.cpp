@@ -198,6 +198,27 @@ void Copy( const DistGraph& A, DistGraph& B )
     B.ProcessLocalQueues();
 }
 
+template<typename T>
+void CopyFromRoot
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
+{
+    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    if( B.CrossRank() != B.Root() )
+        LogicError("Called CopyFromRoot from non-root");
+    B.Resize( A.Height(), A.Width() );
+    B.MakeSizeConsistent( includingViewers );
+    B.Matrix() = A;
+}
+
+template<typename T>
+void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
+{
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    if( B.CrossRank() == B.Root() )
+        LogicError("Called CopyFromNonRoot from root");
+    B.MakeSizeConsistent( includingViewers );
+}
+
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
 {
     DEBUG_ONLY(CSE cse("CopyFromRoot"))
@@ -599,6 +620,10 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 
 #define SAME(T) \
   CONVERT(T,T) \
+  template void CopyFromRoot \
+  ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers ); \
+  template void CopyFromNonRoot \
+  ( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers ); \
   template void CopyFromRoot \
   ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
   template void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root ); \

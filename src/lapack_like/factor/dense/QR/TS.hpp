@@ -261,11 +261,11 @@ FormR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
         const Int n = A.Width();
         auto R = RootQR(A,treeData);
         auto RTop = R( IR(0,n), IR(0,n) );
-        RRoot.CopyFromRoot( RTop );
+        CopyFromRoot( RTop, RRoot );
         MakeTrapezoidal( UPPER, RRoot );
     }
     else
-        RRoot.CopyFromNonRoot();
+        CopyFromNonRoot( RRoot );
     DistMatrix<F,STAR,STAR> R(g);
     R = RRoot;
     return R;
