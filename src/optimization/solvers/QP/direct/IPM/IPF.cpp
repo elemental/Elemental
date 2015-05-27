@@ -821,6 +821,7 @@ void IPF
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }
 
+    DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -927,14 +928,24 @@ void IPF
             // Factor the regularized, full KKT system
             // ---------------------------------------
             KKT( Q, A, x, z, JOrig, false );
+            // Cache the metadata for the finalized JOrig
+            if( numIts == 0 )
+                metaOrig = JOrig.InitializeMultMeta();
+            else
+                JOrig.multMeta = metaOrig;
             J = JOrig;
             SymmetricGeomEquil( J, dInner, ctrl.print );
             UpdateRealPartOfDiagonal( J, Real(1), reg );
+            // Cache the metadata for the finalized J
             if( numIts == 0 )
             {
+                meta = J.InitializeMultMeta();
+
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
                 InvertMap( map, invMap );
             }
+            else
+                J.multMeta = meta;
             JFront.Pull( J, map, rootSep, info );
             LDL( info, JFront, LDL_2D );
 
@@ -950,14 +961,26 @@ void IPF
             // Factor the regularized, "augmented" KKT system
             // ----------------------------------------------
             AugmentedKKT( Q, A, x, z, JOrig, false );
+            // Cache the metadata for the finalized JOrig
+            if( numIts == 0 )
+                metaOrig = JOrig.InitializeMultMeta();
+            else
+                JOrig.multMeta = metaOrig;
             J = JOrig;
             SymmetricGeomEquil( J, dInner, ctrl.print );
             UpdateRealPartOfDiagonal( J, Real(1), reg );
-            if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
+            // Cache the metadata for the finalized J
+            if( numIts == 0 )
             {
-                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
+                meta = J.InitializeMultMeta();
+                if( ctrl.primalInit && ctrl.dualInit )
+                {
+                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                    InvertMap( map, invMap );
+                }
             }
+            else
+                J.multMeta = meta; 
             JFront.Pull( J, map, rootSep, info );
             LDL( info, JFront, LDL_2D );
 

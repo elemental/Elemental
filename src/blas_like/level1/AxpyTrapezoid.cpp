@@ -144,7 +144,7 @@ void AxpyTrapezoid
         if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
             Y.QueueLocalUpdate( i-firstLocalRow, j, alpha*X.Value(k) );
     }
-    Y.ProcessQueues();
+    Y.ProcessLocalQueues();
 }
 
 #define PROTO_TYPES(T,S) \

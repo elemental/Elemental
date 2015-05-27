@@ -641,7 +641,6 @@ void Mehrotra
             reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
     }
 
-    // TODO: Add ctrl.allowInnerEquil
     Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
@@ -920,6 +919,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         cout << "  Init: " << timer.Stop() << " secs" << endl;
 
+    DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -938,7 +938,6 @@ void Mehrotra
             reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
     }
 
-    // TODO: Add ctrl.allowInnerEquil
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
@@ -1016,21 +1015,37 @@ void Mehrotra
         // Construct the full KKT system
         // -----------------------------
         KKT( A, G, s, z, JOrig, false );
+        // Cache the metadata for the finalized JOrig
+        if( numIts == 0 )
+            metaOrig = JOrig.InitializeMultMeta();
+        else
+            JOrig.multMeta = metaOrig;
         J = JOrig;
+        if( commRank == 0 )
+            timer.Start();
         SymmetricEquil
         ( J, dInner, 
           false, ctrl.innerEquil, 
           ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
+        if( commRank == 0 && ctrl.time )
+            cout << "  Equilibration: " << timer.Stop() << " secs" << endl;
         UpdateRealPartOfDiagonal( J, Real(1), reg );
-        if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
+        // Cache the metadata for the finalized J
+        if( numIts == 0 )
         {
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-            if( commRank == 0 && ctrl.time )
-                cout << "  ND: " << timer.Stop() << " secs" << endl;
-            InvertMap( map, invMap );
+            meta = J.InitializeMultMeta();
+            if( ctrl.primalInit && ctrl.dualInit )
+            {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  ND: " << timer.Stop() << " secs" << endl;
+                InvertMap( map, invMap );
+            }
         }
+        else
+            J.multMeta = meta;
         JFront.Pull( J, map, rootSep, info );
         if( commRank == 0 && ctrl.time )
             timer.Start();

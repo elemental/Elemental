@@ -214,7 +214,7 @@ void Kronecker
             }
         }
     }
-    C.ProcessQueues();
+    C.ProcessLocalQueues();
 }
 
 template<typename T> 

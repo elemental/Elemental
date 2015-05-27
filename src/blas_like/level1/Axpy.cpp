@@ -30,19 +30,19 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
         const Int XStride = ( nX==1 ? 1  : ldX );
         const Int YStride = ( nY==1 ? 1  : ldY );
         DEBUG_ONLY(
-            const Int mY = Y.Height();
-            const Int YLength = ( nY==1 ? mY : nY );
-            if( XLength != YLength )
-                LogicError("Nonconformal Axpy");
+          const Int mY = Y.Height();
+          const Int YLength = ( nY==1 ? mY : nY );
+          if( XLength != YLength )
+              LogicError("Nonconformal Axpy");
         )
         blas::Axpy( XLength, alpha, XBuf, XStride, YBuf, YStride );
     }
     else
     {
         DEBUG_ONLY(
-            const Int mY = Y.Height();
-            if( mX != mY || nX != nY )
-                LogicError("Nonconformal Axpy");
+          const Int mY = Y.Height();
+          if( mX != mY || nX != nY )
+              LogicError("Nonconformal Axpy");
         )
         if( nX <= mX )
             for( Int j=0; j<nX; ++j )
@@ -71,8 +71,8 @@ template<typename T,typename S>
 void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
     DEBUG_ONLY(
-        CSE cse("Axpy");
-        AssertSameGrids( X, Y );
+      CSE cse("Axpy");
+      AssertSameGrids( X, Y );
     )
     const T alpha = T(alphaS);
 
@@ -108,20 +108,20 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     for( Int k=0; k<numLocalEntries; ++k ) 
         Y.QueueLocalUpdate
         ( X.Row(k)-firstLocalRow, X.Col(k), alpha*X.Value(k) );
-    Y.ProcessQueues();
+    Y.ProcessLocalQueues();
 }
 
 template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
 {
     DEBUG_ONLY(
-        CSE cse("Axpy");
-        if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
-            LogicError("X and Y must have congruent communicators");
-        if( X.Height() != Y.Height() )
-            LogicError("X and Y must be the same height");
-        if( X.Width() != Y.Width() )
-            LogicError("X and Y must be the same width");
+      CSE cse("Axpy");
+      if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
+          LogicError("X and Y must have congruent communicators");
+      if( X.Height() != Y.Height() )
+          LogicError("X and Y must be the same height");
+      if( X.Width() != Y.Width() )
+          LogicError("X and Y must be the same width");
     )
     Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
 }

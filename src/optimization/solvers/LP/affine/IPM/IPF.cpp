@@ -752,6 +752,7 @@ void IPF
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
+    DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -845,14 +846,26 @@ void IPF
         // Factor the regularized, "full" KKT system
         // -----------------------------------------
         KKT( A, G, s, z, JOrig, false );
+        // Cache the metadata for the finalized JOrig
+        if( numIts == 0 )
+            metaOrig = JOrig.InitializeMultMeta();
+        else
+            JOrig.multMeta = metaOrig;
         J = JOrig;
         SymmetricGeomEquil( J, dInner, ctrl.print );
         UpdateRealPartOfDiagonal( J, Real(1), reg );
-        if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
+        // Cache the metadata for the finalized J
+        if( numIts == 0 ) 
         {
-            NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-            InvertMap( map, invMap );
+            meta = J.InitializeMultMeta();
+            if( ctrl.primalInit && ctrl.dualInit )
+            {
+                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                InvertMap( map, invMap );
+            }
         }
+        else
+            J.multMeta = meta;
         JFront.Pull( J, map, rootSep, info );
         LDL( info, JFront, LDL_2D );
 

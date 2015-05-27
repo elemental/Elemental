@@ -163,7 +163,7 @@ void HCat
         C.QueueLocalUpdate( A.Row(e)-firstLocalRow, A.Col(e), A.Value(e) );
     for( Int e=0; e<numEntriesB; ++e )
         C.QueueLocalUpdate( B.Row(e)-firstLocalRow, B.Col(e)+nA, B.Value(e) );
-    C.ProcessQueues();
+    C.ProcessLocalQueues();
 }
 
 template<typename T>

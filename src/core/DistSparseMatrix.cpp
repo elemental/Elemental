@@ -53,6 +53,7 @@ DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
     distGraph_ = A.distGraph_;
     vals_ = A.vals_;
     remoteVals_ = A.remoteVals_;
+    multMeta = A.multMeta;
     return *this;
 }
 
@@ -468,6 +469,79 @@ const T* DistSparseMatrix<T>::LockedValueBuffer() const
 
 // Auxiliary routines
 // ==================
+template<typename T>
+DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::InitializeMultMeta"))
+    if( multMeta.ready )
+        return multMeta;
+    mpi::Comm comm = Comm();
+    const int commSize = mpi::Size( comm );
+    auto& meta = multMeta;
+ 
+    // Compute the set of row indices that we need from X in a normal
+    // multiply or update of Y in the adjoint case
+    const Int numLocalEntries = NumLocalEntries();
+    set<Int> indexSet;
+    for( Int e=0; e<numLocalEntries; ++e )
+        indexSet.insert( Col(e) );
+    const Int numRecvInds = indexSet.size();
+    vector<Int> recvInds( numRecvInds );
+    meta.recvSizes.clear();
+    meta.recvSizes.resize( commSize, 0 );
+    meta.recvOffs.resize( commSize );
+    const Int vecBlocksize = Width() / commSize;
+    {
+        Int off=0, lastOff=0, qPrev=0;
+        set<Int>::const_iterator setIt;
+        for( setIt=indexSet.begin(); setIt!=indexSet.end(); ++setIt )
+        {
+            const Int j = *setIt;
+            const Int q = RowToProcess( j, vecBlocksize, commSize );
+            while( qPrev != q )
+            {
+                meta.recvSizes[qPrev] = off - lastOff;
+                meta.recvOffs[qPrev+1] = off;
+
+                lastOff = off;
+                ++qPrev;
+            }
+            recvInds[off++] = j;
+        }
+        while( qPrev != commSize-1 )
+        {
+            meta.recvSizes[qPrev] = off - lastOff;
+            meta.recvOffs[qPrev+1] = off;
+            lastOff = off;
+            ++qPrev;
+        }
+        meta.recvSizes[commSize-1] = off - lastOff;
+    }
+
+    // Coordinate
+    meta.sendSizes.resize( commSize );
+    mpi::AllToAll( meta.recvSizes.data(), 1, meta.sendSizes.data(), 1, comm );
+    Int numSendInds=0;
+    meta.sendOffs.resize( commSize );
+    for( int q=0; q<commSize; ++q )
+    {
+        meta.sendOffs[q] = numSendInds;
+        numSendInds += meta.sendSizes[q];
+    }
+    meta.sendInds.resize( numSendInds );
+    mpi::AllToAll
+    ( recvInds.data(),      meta.recvSizes.data(), meta.recvOffs.data(),
+      meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+      comm );
+
+    meta.colOffs.resize( numLocalEntries );
+    for( Int s=0; s<numLocalEntries; ++s )
+        meta.colOffs[s] = Find( recvInds, Col(s) );
+    meta.numRecvInds = numRecvInds;
+    meta.ready = true;
+
+    return meta;
+}
 
 template<typename T>
 bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )

@@ -118,7 +118,7 @@ void UpdateMappedDiagonal
         A.QueueLocalUpdate( iLoc, i, alpha );
     }
 
-    A.ProcessQueues(); 
+    A.ProcessLocalQueues(); 
 }
 
 #define PROTO_DIST_TYPES(S,T,U,V) \

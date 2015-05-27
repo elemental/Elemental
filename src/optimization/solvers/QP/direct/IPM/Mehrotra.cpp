@@ -1012,6 +1012,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         cout << "  Init: " << timer.Stop() << " secs" << endl;
 
+    DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistSymmFront<Real> JFront;
     DistMultiVec<Real> d(comm), 
@@ -1118,15 +1119,25 @@ void Mehrotra
                 KKT( Q, A, x, z, JOrig, false );
             else
                 AugmentedKKT( Q, A, x, z, JOrig, false );
+            // Cache the metadata for the finalized JOrig
+            if( numIts == 0 )
+                metaOrig = JOrig.InitializeMultMeta();
+            else
+                JOrig.multMeta = metaOrig;
             J = JOrig;
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             SymmetricEquil
             ( J, dInner,
               false, ctrl.innerEquil, 
               ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Equilibration: " << timer.Stop() << " secs" << endl;
             UpdateRealPartOfDiagonal( J, Real(1), reg );
-
+            // Cache the metadata for the finalized J
             if( numIts == 0 )
             {
+                meta = J.InitializeMultMeta();
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 NestedDissection( J.LockedDistGraph(), map, rootSep, info );
@@ -1134,6 +1145,8 @@ void Mehrotra
                     cout << "  ND: " << timer.Stop() << " secs" << endl;
                 InvertMap( map, invMap );
             }
+            else
+                J.multMeta = meta;
             JFront.Pull( J, map, rootSep, info );
             if( commRank == 0 && ctrl.time )
                 timer.Start();

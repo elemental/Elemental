@@ -102,72 +102,8 @@ void Multiply
     // Y := beta Y
     Scale( beta, Y );
 
-    SparseMultMeta<T>& meta = A.multMeta;
-    if( !meta.ready )
-    {
-        // Compute the set of row indices that we need from X in a normal
-        // multiply or update of Y in the adjoint case
-        const Int numLocalEntries = A.NumLocalEntries();
-        set<Int> indexSet;
-        for( Int e=0; e<numLocalEntries; ++e )
-            indexSet.insert( A.Col(e) );
-        const Int numRecvInds = indexSet.size();
-        vector<Int> recvInds( numRecvInds );
-        meta.recvSizes.clear();
-        meta.recvSizes.resize( commSize, 0 );
-        meta.recvOffs.resize( commSize );
-        const Int blocksize = 
-          ( orientation == NORMAL ? X.Blocksize() : Y.Blocksize() );;
-        {
-            Int off=0, lastOff=0, qPrev=0;
-            set<Int>::const_iterator setIt;
-            for( setIt=indexSet.begin(); setIt!=indexSet.end(); ++setIt )
-            {
-                const Int j = *setIt;
-                const Int q = RowToProcess( j, blocksize, commSize );
-                while( qPrev != q )
-                {
-                    meta.recvSizes[qPrev] = off - lastOff;
-                    meta.recvOffs[qPrev+1] = off;
-
-                    lastOff = off;
-                    ++qPrev;
-                }
-                recvInds[off++] = j;
-            }
-            while( qPrev != commSize-1 )
-            {
-                meta.recvSizes[qPrev] = off - lastOff;
-                meta.recvOffs[qPrev+1] = off;
-                lastOff = off;
-                ++qPrev;
-            }
-            meta.recvSizes[commSize-1] = off - lastOff;
-        }
-
-        // Coordinate
-        meta.sendSizes.resize( commSize );
-        mpi::AllToAll
-        ( meta.recvSizes.data(), 1, meta.sendSizes.data(), 1, comm );
-        Int numSendInds=0;
-        meta.sendOffs.resize( commSize );
-        for( int q=0; q<commSize; ++q )
-        {
-            meta.sendOffs[q] = numSendInds;
-            numSendInds += meta.sendSizes[q];
-        }
-        meta.sendInds.resize( numSendInds );
-        mpi::AllToAll
-        ( recvInds.data(),      meta.recvSizes.data(), meta.recvOffs.data(),
-          meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(), 
-          comm );
-
-        meta.colOffs.resize( numLocalEntries );
-        for( Int s=0; s<numLocalEntries; ++s )
-            meta.colOffs[s] = Find( recvInds, A.Col(s) );
-        meta.numRecvInds = numRecvInds;
-        meta.ready = true;
-    }
+    A.InitializeMultMeta();
+    const auto& meta = A.multMeta;
 
     // Convert the sizes and offsets to be compatible with the current width
     const Int b = X.Width();

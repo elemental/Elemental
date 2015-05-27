@@ -14,8 +14,7 @@
 
 namespace El {
 
-template<typename T>
-struct SparseMultMeta
+struct DistSparseMultMeta
 {
     bool ready;
     // NOTE: The 'send' and 'recv' roles reverse for adjoint multiplication
@@ -24,7 +23,7 @@ struct SparseMultMeta
                 recvSizes, recvOffs;
     vector<Int> sendInds, colOffs;
 
-    SparseMultMeta() : ready(false), numRecvInds(0) { }
+    DistSparseMultMeta() : ready(false), numRecvInds(0) { }
 
     void Clear()
     {
@@ -36,6 +35,18 @@ struct SparseMultMeta
         SwapClear( recvOffs );
         SwapClear( sendInds );
         SwapClear( colOffs );
+    }
+
+    const DistSparseMultMeta& operator=( const DistSparseMultMeta& meta )
+    {
+        ready = meta.ready;
+        numRecvInds = meta.numRecvInds;
+        sendSizes = meta.sendSizes;
+        sendOffs = meta.sendOffs;
+        recvSizes = meta.recvSizes;
+        recvOffs = meta.recvOffs;
+        sendInds = meta.sendInds;
+        colOffs = meta.colOffs;
     }
 };
 
@@ -138,7 +149,8 @@ public:
     const Int* LockedTargetBuffer() const;
     const T* LockedValueBuffer() const;
 
-    mutable SparseMultMeta<T> multMeta;
+    mutable DistSparseMultMeta multMeta;
+    DistSparseMultMeta InitializeMultMeta() const;
 
 private:
     El::DistGraph distGraph_;

@@ -74,6 +74,7 @@ void EntrywiseMap
     B.Empty();
     B.Resize( A.Height(), A.Width() );
     B.Reserve( numEntries );
+    // TODO: Consider avoiding the need for sorting
     for( Int k=0; k<numEntries; ++k )
         B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
     B.ProcessQueues();
@@ -146,9 +147,11 @@ void EntrywiseMap
     B.SetComm( A.Comm() );
     B.Resize( A.Height(), A.Width() );
     B.Reserve( numLocalEntries );
+    // TODO: Consider avoiding the need for sorting
     for( Int k=0; k<numLocalEntries; ++k )
         B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
-    B.ProcessQueues();
+    B.ProcessLocalQueues();
+    B.multMeta = A.multMeta;
 }
 
 template<typename S,typename T>

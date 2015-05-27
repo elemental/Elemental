@@ -89,7 +89,7 @@ void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset )
         if( i+offset >= 0 && i+offset < n )
             A.QueueLocalUpdate( iLocal, i+offset, alpha );
     }
-    A.ProcessQueues();
+    A.ProcessLocalQueues();
 }
 
 #define PROTO_TYPES(T,S) \
