@@ -47,6 +47,7 @@ struct DistSparseMultMeta
         recvOffs = meta.recvOffs;
         sendInds = meta.sendInds;
         colOffs = meta.colOffs;
+        return *this;
     }
 };
 
