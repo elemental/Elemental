@@ -123,8 +123,6 @@ private:
     vector<Int> localEdgeOffsets_;
     void ComputeEdgeOffsets();
 
-    static bool ComparePairs( const pair<Int,Int>& a, const pair<Int,Int>& b );
-
     void AssertLocallyConsistent() const;
 
     friend class Graph;

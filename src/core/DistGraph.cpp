@@ -409,7 +409,7 @@ void DistGraph::ProcessLocalQueues()
     }
     SwapClear( markedForRemoval_ );
     pairs.resize( numLocalEdges-numRemoved );
-    std::sort( pairs.begin(), pairs.end(), ComparePairs );
+    std::sort( pairs.begin(), pairs.end() );
     // Compress out duplicates
     Int lastUnique=0;
     for( Int e=1; e<numLocalEdges; ++e )
@@ -533,10 +533,6 @@ const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
 
 // Auxiliary routines
 // ==================
-
-bool DistGraph::ComparePairs
-( const pair<Int,Int>& a, const pair<Int,Int>& b )
-{ return a.first < b.first || (a.first == b.first && a.second < b.second); }
 
 void DistGraph::ComputeEdgeOffsets()
 {

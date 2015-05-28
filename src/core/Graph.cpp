@@ -201,7 +201,7 @@ void Graph::ProcessQueues()
     }
     markedForRemoval_.clear();
     pairs.resize( numEdges-numRemoved );
-    std::sort( pairs.begin(), pairs.end(), ComparePairs );
+    std::sort( pairs.begin(), pairs.end() );
 
     // Compress out duplicates
     Int lastUnique=0;
@@ -298,10 +298,6 @@ const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }
 // Auxiliary functions
 // ===================
 
-bool Graph::ComparePairs
-( const pair<Int,Int>& a, const pair<Int,Int>& b )
-{ return a.first < b.first || (a.first  == b.first && a.second < b.second); }
-
 void Graph::ComputeEdgeOffsets()
 {
     DEBUG_ONLY(CSE cse("Graph::ComputeEdgeOffsets"))
@@ -314,8 +310,8 @@ void Graph::ComputeEdgeOffsets()
     {
         const Int source = Source( edge );
         DEBUG_ONLY(
-            if( source < prevSource )
-                RuntimeError("sources were not properly sorted");
+          if( source < prevSource )
+              RuntimeError("sources were not properly sorted");
         )
         while( source != prevSource )
         {

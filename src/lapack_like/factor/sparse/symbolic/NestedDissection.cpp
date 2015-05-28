@@ -912,7 +912,7 @@ void BuildChildFromPerm
             }
         }
     }
-    child.ProcessQueues();
+    child.ProcessLocalQueues();
 }
 
 void BuildMap

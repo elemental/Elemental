@@ -560,6 +560,7 @@ void LeastSquares
     DEBUG_ONLY(CSE cse("LeastSquares"))
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
+    const int commRank = mpi::Rank(comm);
 
     DistSparseMatrix<F> ABar(comm);
     if( orientation == NORMAL )
@@ -600,7 +601,7 @@ void LeastSquares
     {
         // Scale ABar down to roughly unit two-norm
         normScale = TwoNormEstimate( ABar, ctrl.basisSize );
-        if( ctrl.progress )
+        if( ctrl.progress && commRank == 0 )
             cout << "Estimated || A ||_2 ~= " << normScale << endl;
         Scale( F(1)/normScale, ABar );
         Scale( normScale, dR );

@@ -96,8 +96,6 @@ private:
     vector<Int> edgeOffsets_;
     void ComputeEdgeOffsets();
 
-    static bool ComparePairs( const pair<Int,Int>& a, const pair<Int,Int>& b );
-
     void AssertConsistent() const;
 
     friend class DistGraph;
