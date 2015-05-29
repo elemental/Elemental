@@ -6,8 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El
-import time
+import El, time
 
 m = 250
 n = 500
@@ -16,6 +15,7 @@ startLambda = 0
 endLambda = 1
 display = True
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 def Rectang(height,width):
   A = El.DistMatrix()
@@ -57,7 +57,6 @@ for j in xrange(0,numLambdas):
     print "|| A x - b ||_2 =", eTwoNorm
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

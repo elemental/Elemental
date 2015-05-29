@@ -17,6 +17,7 @@ manualInit = False
 display = False
 progress = True
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # Make a sparse matrix with the last column dense
 def Rectang(height,width):
@@ -127,7 +128,6 @@ if testIPF:
     print "IPF c^T x =", obj
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

@@ -9,12 +9,13 @@
 import El
 import time
 
-n0 = 50
-n1 = 50
+n0 = 200
+n1 = 200
 lambda1 = 3
 lambda2 = 4
-display = True
+display = False
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # Place a 2D finite-difference matrices next to an identity
 # and then make the last column dense
@@ -94,7 +95,6 @@ if worldRank == 0:
   print "|| A x - b ||_2 =", eTwoNorm
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

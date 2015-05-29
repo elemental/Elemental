@@ -8,9 +8,9 @@
 #
 import El, time
 
-n0 = n1 = 20
+n0 = n1 = 100
 display = False
-output = True
+output = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
@@ -72,35 +72,20 @@ if display:
   El.Display( y, "y" )
 if output:
   El.Print( y, "y" )
-yNrm = El.Nrm2(y)
-if worldRank == 0:
-  print "|| y ||_2 =", yNrm
 
-ctrl = El.LeastSquaresCtrl_d()
-ctrl.progress = True
-startLS = time.clock()
-x = El.LeastSquares(A,y,ctrl)
-endLS = time.clock()
+AAdj = El.DistSparseMatrix()
+El.Adjoint( A, AAdj )
+z = El.DistMultiVec()
+El.Uniform( z, A.Width(), 1 )
+El.SparseMultiply( El.ADJOINT, 1., A, y, 0., z )
+zNrm2 = El.FrobeniusNorm( z )
+El.SparseMultiply( El.NORMAL, -1., AAdj, y, 1., z )
+eNrm2 = El.FrobeniusNorm( z )
 if worldRank == 0:
-  print "LS time:", endLS-startLS, "seconds"
-xNrm = El.Nrm2(x)
-if display:
-  El.Display( x, "x" )
-if output:
-  El.Print( x, "x" )
-if worldRank == 0:
-  print "|| x ||_2 =", xNrm
-El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
-if display:
-  El.Display( y, "A x - y" )
-if output:
-  El.Print( y, "A x - y" )
-eNrm = El.Nrm2(y)
-if worldRank == 0:
-  print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
+  print "|| A^H y ||_2 =", zNrm2
+  print "|| error ||_2 =", eNrm2
 
 # Require the user to press a button before the figures are closed
-
 El.Finalize()
 if worldSize == 1:
   raw_input('Press Enter to exit')

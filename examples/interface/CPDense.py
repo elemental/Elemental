@@ -12,6 +12,7 @@ m = 2000
 n = 1000
 display = True
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 def Rectang(height,width):
   A = El.DistMatrix()
@@ -69,7 +70,6 @@ if worldRank == 0:
   print "|| A x_{LS} - b ||_oo =", rLSInfNorm
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

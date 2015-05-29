@@ -13,7 +13,8 @@ numColsB = 3
 numRHS = 1
 display = False
 output = False
-commRank = El.mpi.WorldRank()
+worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # NOTE: Increasing the magnitudes of the off-diagonal entries by an order of
 #       magnitude makes the condition number vastly higher.
@@ -85,7 +86,7 @@ ctrl.qsdCtrl.progress = True
 startGLM = time.clock()
 X,Y = El.GLM(A,B,D,ctrl)
 endGLM = time.clock()
-if commRank == 0:
+if worldRank == 0:
   print "GLM time:", endGLM-startGLM, "seconds"
 if display:
   El.Display( X, "X" )
@@ -95,7 +96,7 @@ if output:
   El.Print( Y, "Y" )
 
 YNorm = El.FrobeniusNorm( Y )
-if commRank == 0:
+if worldRank == 0:
   print "|| Y ||_F =", YNorm
 
 E = El.DistMultiVec()
@@ -107,7 +108,7 @@ if display:
   El.Display( E, "D - A X - B Y" )
 if output:
   El.Print( E, "D - A X - B Y" )
-if commRank == 0:
+if worldRank == 0:
   print "|| D - A X - B Y ||_F / || D ||_F =", residNorm/DNorm
 
 # Now try solving a weighted least squares problem
@@ -123,7 +124,7 @@ def SolveWeighted(A,B,D,lambd):
     El.Print( AEmb, "[lambda*A, B]" )
 
   ctrl.alpha = baseAlpha
-  if commRank == 0:
+  if worldRank == 0:
     print "lambda=", lambd, ": ctrl.alpha=", ctrl.alpha
   XEmb=El.LeastSquares(AEmb,D,ctrl)
 
@@ -132,14 +133,14 @@ def SolveWeighted(A,B,D,lambd):
   El.Scale( lambd, X )
 
   YNorm = El.FrobeniusNorm( Y )
-  if commRank == 0:
+  if worldRank == 0:
     print "lambda=", lambd, ": || Y ||_F =", YNorm
 
   El.Copy( D, E )
   El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
   El.SparseMultiply( El.NORMAL, -1., B, Y, 1., E )
   residNorm = El.FrobeniusNorm( E )
-  if commRank == 0:
+  if worldRank == 0:
     print "lambda=", lambd, ": || D - A X - B Y ||_F / || D ||_F =", residNorm/DNorm
 
 SolveWeighted(A,B,D,1)
@@ -150,7 +151,6 @@ SolveWeighted(A,B,D,10000)
 SolveWeighted(A,B,D,100000)
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

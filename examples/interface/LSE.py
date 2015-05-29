@@ -13,7 +13,8 @@ numRowsB = 5
 numRHS = 1
 display = False
 output = False
-commRank = El.mpi.WorldRank()
+worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # NOTE: Increasing the magnitudes of the off-diagonal entries by an order of
 #       magnitude makes the condition number vastly higher.
@@ -90,7 +91,7 @@ ctrl.qsdCtrl.progress = True
 startLSE = time.clock()
 X = El.LSE(A,B,C,D,ctrl)
 endLSE = time.clock()
-if commRank == 0:
+if worldRank == 0:
   print "LSE time:", endLSE-startLSE, "seconds"
 if display:
   El.Display( X, "X" )
@@ -106,7 +107,7 @@ if display:
   El.Display( E, "C - A X" )
 if output:
   El.Print( E, "C - A X" )
-if commRank == 0:
+if worldRank == 0:
   print "|| C - A X ||_F / || C ||_F =", residNorm/CNorm
 
 El.Copy( D, E )
@@ -116,7 +117,7 @@ if display:
   El.Display( E, "D - B X" )
 if output:
   El.Print( E, "D - B X" )
-if commRank == 0:
+if worldRank == 0:
   print "|| D - B X ||_F / || D ||_F =", equalNorm/DNorm
 
 # Now try solving a weighted least squares problem
@@ -136,7 +137,7 @@ def SolveWeighted(A,B,C,D,lambd):
     El.Print( AEmb, "AEmb" )
 
   ctrl.alpha = baseAlpha
-  if commRank == 0:
+  if worldRank == 0:
     print "lambda=", lambd, ": ctrl.alpha=", ctrl.alpha
   X=El.LeastSquares(AEmb,CEmb,ctrl)
 
@@ -147,7 +148,7 @@ def SolveWeighted(A,B,C,D,lambd):
     El.Display( E, "C - A X" )
   if output:
     El.Print( E, "C - A X" )
-  if commRank == 0:
+  if worldRank == 0:
     print "lambda=", lambd, ": || C - A X ||_F / || C ||_F =", residNorm/CNorm
 
   El.Copy( D, E )
@@ -157,7 +158,7 @@ def SolveWeighted(A,B,C,D,lambd):
     El.Display( E, "D - B X" )
   if output:
     El.Print( E, "D - B X" )
-  if commRank == 0:
+  if worldRank == 0:
     print "lambda=", lambd, ": || D - B X ||_F / || D ||_F =", equalNorm/DNorm
 
 SolveWeighted(A,B,C,D,1)
@@ -168,7 +169,6 @@ SolveWeighted(A,B,C,D,10000)
 SolveWeighted(A,B,C,D,100000)
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

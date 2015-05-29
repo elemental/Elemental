@@ -11,6 +11,7 @@ import El, time
 n0 = n1 = 100
 display = False
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # Stack two 2D finite-difference matrices on top of each other
 # and make the last column dense
@@ -74,9 +75,8 @@ y = El.DistMultiVec()
 El.Uniform( y, 2*n0*n1, 1 )
 if display:
   El.Display( y, "y" )
-rank = El.mpi.WorldRank()
 yNrm = El.Nrm2(y)
-if rank == 0:
+if worldRank == 0:
   print "|| y ||_2 =", yNrm
 
 startLS = time.clock()
@@ -87,17 +87,17 @@ if worldRank == 0:
 xNrm = El.Nrm2(x)
 if display:
   El.Display( x, "x" )
-if rank == 0:
+if worldRank == 0:
   print "|| x ||_2 =", xNrm
 El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
-if rank == 0:
+if worldRank == 0:
   print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
+
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

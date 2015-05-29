@@ -13,6 +13,7 @@ n0 = n1 = 200
 display = False
 output = False
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # A 2D finite-difference matrix with a dense last column
 def FD2D(N0,N1):
@@ -55,8 +56,7 @@ if output:
   El.Print( y, "y" )
 
 yNrm = El.Nrm2(y)
-rank = El.mpi.WorldRank()
-if rank == 0:
+if worldRank == 0:
   print "|| y ||_2 =", yNrm
 
 ctrl = El.LeastSquaresCtrl_d()
@@ -82,7 +82,7 @@ if display:
 if output:
   El.Print( x, "x" )
 xNrm = El.Nrm2(x)
-if rank == 0:
+if worldRank == 0:
   print "|| x ||_2 =", xNrm
 
 El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
@@ -91,12 +91,11 @@ if display:
 if output:
   El.Print( y, "A x - y" )
 eNrm = El.Nrm2(y)
-if rank == 0:
+if worldRank == 0:
   print "|| y ||_2 =", yNrm
   print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

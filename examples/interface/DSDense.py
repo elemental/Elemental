@@ -16,6 +16,7 @@ startLambda = 0.01
 endLambda = 1
 display = True
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 def Rectang(height,width):
   A = El.DistMatrix()
@@ -65,7 +66,6 @@ for j in xrange(0,numLambdas):
     print "|| A^T (b - A x) ||_oo =", tInfNorm
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

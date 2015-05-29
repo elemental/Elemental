@@ -27,7 +27,7 @@ box.imagWidth = 4
 El.DisplayPortrait(portrait,box,"spectral portrait of 2*J_{1/2}(n)")
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
+worldSize = El.mpi.WorldSize()
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

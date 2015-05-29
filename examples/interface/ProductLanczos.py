@@ -12,7 +12,8 @@ n0 = n1 = 50
 basisSize = 15
 display = False
 output = False
-commRank = El.mpi.WorldRank()
+worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # Stack two 2D finite-difference matrices on top of each other
 # and make the last column dense
@@ -81,11 +82,10 @@ if output:
   El.Print( V, "V" )
   El.Print( T, "T" )
   El.Print( v, "v" )
-  if commRank == 0:
+  if worldRank == 0:
     print "beta=", beta
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

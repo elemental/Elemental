@@ -79,7 +79,6 @@ if worldRank == 0:
   print "|| A x - b ||_2 =", eTwoNorm
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

@@ -38,7 +38,7 @@ if El.mpi.WorldRank() == 0:
   El.Display( LCF(truncOct), "Trunacted octahedral graph" )
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
+worldSize = El.mpi.WorldSize()
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

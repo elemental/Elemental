@@ -19,6 +19,7 @@ startLambda = 1
 endLambda = 10
 display = True
 worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # Stack two 2D finite-difference matrices on top of each other
 # and make the last column dense
@@ -105,7 +106,6 @@ for j in xrange(0,numLambdas):
     El.Display( x, "[w;beta;z]" )
 
 # Require the user to press a button before the figures are closed
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')

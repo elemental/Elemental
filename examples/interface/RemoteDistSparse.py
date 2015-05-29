@@ -12,8 +12,8 @@ n0 = 50
 n1 = 50
 display = True
 output = True
-commRank = El.mpi.Rank( El.mpi.COMM_WORLD() )
-commSize = El.mpi.Size( El.mpi.COMM_WORLD() )
+worldRank = El.mpi.WorldRank()
+worldSize = El.mpi.WorldSize()
 
 # Stack two 2D finite-difference matrices on top of each other
 # and make the last column dense
@@ -22,9 +22,9 @@ def RemoteStackedFD2D(N0,N1):
   height = 2*N0*N1
   width = N0*N1
   A.Resize(height,width)
-  customLocalHeight = (height/commSize) + 1
+  customLocalHeight = (height/worldSize) + 1
   A.Reserve(6*customLocalHeight,6*customLocalHeight)
-  for s in xrange(commRank,height,commSize):
+  for s in xrange(worldRank,height,worldSize):
     if s < N0*N1:
       x0 = s % N0
       x1 = s / N0
@@ -62,5 +62,5 @@ if output:
 
 # Require the user to press a button before the figures are closed
 El.Finalize()
-if commSize == 1:
+if worldSize == 1:
   raw_input('Press Enter to exit')
