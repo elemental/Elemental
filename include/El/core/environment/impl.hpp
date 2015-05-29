@@ -71,10 +71,12 @@ inline void ReportException( const exception& e, ostream& os )
     } 
     catch( exception& castExcept ) 
     { 
-        if( string(castExcept.what()) != "" )
+        if( string(e.what()) != "" )
         {
             os << "Process " << mpi::WorldRank() << " caught error message:\n"
-               << castExcept.what() << endl;
+               << e.what() 
+               << " (with castExcept.what()=" << castExcept.what() << ")" 
+               << endl;
         }
         DEBUG_ONLY(DumpCallStack(os))
         mpi::Abort( mpi::COMM_WORLD, 1 );

@@ -59,13 +59,14 @@ DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
 }
 
 DistGraph::DistGraph( const Graph& graph )
+: numSources_(-1), numTargets_(-1)
 {
     DEBUG_ONLY(CSE cse("DistGraph::DistGraph"))
     *this = graph;
 }
 
 DistGraph::DistGraph( const DistGraph& graph )
-: comm_(mpi::COMM_WORLD)
+: numSources_(-1), numTargets_(-1), comm_(mpi::COMM_WORLD)
 {
     DEBUG_ONLY(CSE cse("DistGraph::DistGraph"))
     if( &graph != this )

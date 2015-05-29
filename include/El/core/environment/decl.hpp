@@ -173,6 +173,9 @@ DimsString( const MatType& A, string label="Matrix" )
     return os.str();
 }
 
+// This is defined in choice.hpp
+class ArgException;
+
 // An exception which signifies that a matrix was unexpectedly singular.
 class SingularMatrixException : public std::runtime_error 
 {
@@ -229,7 +232,6 @@ DEBUG_ONLY(
 )
 
 void ReportException( const exception& e, ostream& os=cerr );
-class ArgException;
 
 void ComplainIfDebug();
 

@@ -34,6 +34,7 @@ Graph::Graph( Int numSources, Int numTargets )
 }
 
 Graph::Graph( const Graph& graph )
+: numSources_(-1), numTargets_(-1)
 {
     DEBUG_ONLY(CSE cse("Graph::Graph"))
     if( &graph != this )
@@ -43,6 +44,7 @@ Graph::Graph( const Graph& graph )
 }
     
 Graph::Graph( const DistGraph& graph )
+: numSources_(-1), numTargets_(-1)
 {
     DEBUG_ONLY(CSE cse("Graph::Graph"))
     *this = graph;

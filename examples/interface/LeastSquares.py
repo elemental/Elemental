@@ -8,8 +8,9 @@
 #
 import El, time
 
-n0 = n1 = 100
+n0 = n1 = 20
 display = False
+output = True
 worldRank = El.mpi.WorldRank()
 
 # Stack two 2D finite-difference matrices on top of each other
@@ -61,12 +62,15 @@ def StackedFD2D(N0,N1):
 A = StackedFD2D(n0,n1)
 if display:
   El.Display( A, "A" )
-  El.Display( A.DistGraph(), "Graph of A" )
+if output:
+  El.Print( A, "A" )
 
 y = El.DistMultiVec()
 El.Uniform( y, 2*n0*n1, 1 )
 if display:
   El.Display( y, "y" )
+if output:
+  El.Print( y, "y" )
 rank = El.mpi.WorldRank()
 yNrm = El.Nrm2(y)
 if rank == 0:
@@ -82,11 +86,15 @@ if worldRank == 0:
 xNrm = El.Nrm2(x)
 if display:
   El.Display( x, "x" )
+if output:
+  El.Print( x, "x" )
 if rank == 0:
   print "|| x ||_2 =", xNrm
 El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
+if output:
+  El.Print( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if rank == 0:
   print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm

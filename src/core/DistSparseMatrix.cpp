@@ -440,10 +440,10 @@ template<typename T>
 T DistSparseMatrix<T>::Value( Int localInd ) const
 { 
     DEBUG_ONLY(
-        CSE cse("DistSparseMatrix::Value");
-        if( localInd < 0 || localInd >= (Int)vals_.size() )
-            LogicError("Entry number out of bounds");
-        AssertLocallyConsistent();
+      CSE cse("DistSparseMatrix::Value");
+      if( localInd < 0 || localInd >= (Int)vals_.size() )
+          LogicError("Entry number out of bounds");
+      AssertLocallyConsistent();
     )
     return vals_[localInd];
 }
