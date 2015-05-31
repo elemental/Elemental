@@ -12,6 +12,64 @@
 
 namespace El {
 
+// Graph reordering
+// ================
+struct BisectCtrl
+{
+    bool sequential;
+    Int numDistSeps;
+    Int numSeqSeps;
+    Int cutoff;
+    bool storeFactRecvInds;
+
+    BisectCtrl()
+    : sequential(true), numDistSeps(1), numSeqSeps(1), cutoff(128),
+      storeFactRecvInds(false)
+    { }
+};
+
+Int Bisect
+( const Graph& graph,
+        Graph& leftChild,
+        Graph& rightChild,
+        vector<Int>& perm,
+  const BisectCtrl& ctrl=BisectCtrl() );
+
+// NOTE: for two or more processes
+Int Bisect
+( const DistGraph& graph,
+        DistGraph& child,
+        DistMap& perm,
+        bool& onLeft,
+  const BisectCtrl& ctrl=BisectCtrl() );
+
+Int NaturalBisect
+( Int nx, Int ny, Int nz,
+  const Graph& graph,
+  Int& nxLeft, Int& nyLeft, Int& nzLeft,
+  Graph& leftChild,
+  Int& nxRight, Int& nyRight, Int& nzRight,
+  Graph& rightChild, vector<Int>& perm );
+
+// NOTE: for two or more processes
+Int NaturalBisect
+( Int nx, Int ny, Int nz,
+  const DistGraph& graph,
+  Int& nxChild, Int& nyChild, Int& nzChild,
+  DistGraph& child, DistMap& perm, bool& onLeft );
+
+void EnsurePermutation( const vector<Int>& map );
+void EnsurePermutation( const DistMap& map );
+
+void BuildChildrenFromPerm
+( const Graph& graph, const vector<Int>& perm,
+  Int leftChildSize, Graph& leftChild,
+  Int rightChildSize, Graph& rightChild );
+void BuildChildFromPerm
+( const DistGraph& graph, const DistMap& perm,
+  Int leftChildSize, Int rightChildSize,
+  bool& onLeft, DistGraph& child );
+
 // Median
 // ======
 template<typename Real>

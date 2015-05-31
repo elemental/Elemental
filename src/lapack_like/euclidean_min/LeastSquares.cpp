@@ -224,11 +224,11 @@ inline void Equilibrated
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
     vector<Int> map, invMap;
-    SymmNodeInfo info;
-    Separator rootSep;
-    NestedDissection( J.LockedGraph(), map, rootSep, info );
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
+    ldl::NestedDissection( J.LockedGraph(), map, rootSep, info );
     InvertMap( map, invMap );
-    SymmFront<F> JFront( J, map, info );
+    ldl::Front<F> JFront( J, map, info );
     LDL( info, JFront );
 
     // Successively solve each of the linear systems
@@ -505,15 +505,15 @@ void Equilibrated
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
     DistMap map, invMap;
-    DistSymmNodeInfo info;
-    DistSeparator rootSep;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
     if( commRank == 0 && time )
         timer.Start();
-    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+    ldl::NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     if( commRank == 0 && time )
         cout << "  ND: " << timer.Stop() << " secs" << endl;
     InvertMap( map, invMap );
-    DistSymmFront<F> JFront( J, map, rootSep, info );
+    ldl::DistFront<F> JFront( J, map, rootSep, info );
 
     if( commRank == 0 && time )
         timer.Start();

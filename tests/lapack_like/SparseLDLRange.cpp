@@ -74,14 +74,14 @@ int main( int argc, char* argv[] )
             cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
-        DistSymmNodeInfo info;
-        DistSeparator sep;
+        ldl::DistNodeInfo info;
+        ldl::DistSeparator sep;
         DistMap map, invMap;
         if( natural )
-            NaturalNestedDissection
+            ldl::NaturalNestedDissection
             ( n1, n2, n3, graph, map, sep, info, cutoff );
         else
-            NestedDissection( graph, map, sep, info, ctrl );
+            ldl::NestedDissection( graph, map, sep, info, ctrl );
         InvertMap( map, invMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
@@ -106,7 +106,7 @@ int main( int argc, char* argv[] )
             cout << "Building DistSymmFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
-        DistSymmFront<C> front( A, map, sep, info, false );
+        ldl::DistFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )

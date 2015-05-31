@@ -545,8 +545,8 @@ void IPF
     const Real hNrm2 = Nrm2( h );
 
     vector<Int> map, invMap;
-    SymmNodeInfo info;
-    Separator rootSep;
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
     // TODO: Expose this as a parameter of IPFCtrl
     const bool standardShift = true;
     Initialize
@@ -554,7 +554,7 @@ void IPF
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
-    SymmFront<Real> JFront;
+    ldl::Front<Real> JFront;
     Matrix<Real> d,
                  rc, rb, rh, rmu,
                  dx, dy, dz, ds;
@@ -789,8 +789,8 @@ void IPF
     const Real hNrm2 = Nrm2( h );
 
     DistMap map, invMap;
-    DistSymmNodeInfo info;
-    DistSeparator rootSep;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
     // TODO: Expose this as a parameter of IPFCtrl
     const bool standardShift = true;
     Initialize
@@ -799,7 +799,7 @@ void IPF
 
     DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
-    DistSymmFront<Real> JFront;
+    ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
                        rc(comm), rb(comm), rh(comm), rmu(comm),
                        dx(comm), dy(comm), dz(comm), ds(comm);

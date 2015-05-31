@@ -105,9 +105,9 @@ void Display( const DistSparseMatrix<T>& A, string title="DistSparseMatrix" );
 
 // Sparse-direct data structures
 // -----------------------------
-struct DistSymmNodeInfo; // forward declaration
+namespace ldl { struct DistNodeInfo; }
 void DisplayLocal
-( const DistSymmNodeInfo& info, bool beforeFact, string title="" );
+( const ldl::DistNodeInfo& info, bool beforeFact, string title="" );
 
 // Print
 // =====
@@ -144,8 +144,8 @@ void Print
 // Sparse-direct
 // -------------
 void PrintLocal
-( const DistSymmNodeInfo& info,
-  string title="Local DistSymmNodeInfo", ostream& os=cout );
+( const ldl::DistNodeInfo& info,
+  string title="Local ldl::DistNodeInfo", ostream& os=cout );
 
 // Utilities
 // ---------

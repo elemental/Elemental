@@ -92,13 +92,13 @@ void SymmetricSolve
 
     if( tryLDL )
     {
-        SymmNodeInfo info;
-        Separator rootSep;
+        ldl::NodeInfo info;
+        ldl::Separator rootSep;
         vector<Int> map, invMap;
-        NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
+        ldl::NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
         InvertMap( map, invMap );
 
-        SymmFront<F> front( A, map, info, conjugate );
+        ldl::Front<F> front( A, map, info, conjugate );
         LDL( info, front );
 
         // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
@@ -124,13 +124,13 @@ void SymmetricSolve
     DEBUG_ONLY(CSE cse("SymmetricSolve"))
     if( tryLDL )
     {
-        DistSymmNodeInfo info;
-        DistSeparator rootSep;
+        ldl::DistNodeInfo info;
+        ldl::DistSeparator rootSep;
         DistMap map, invMap;
-        NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
+        ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
         InvertMap( map, invMap );
 
-        DistSymmFront<F> front( A, map, rootSep, info, conjugate );
+        ldl::DistFront<F> front( A, map, rootSep, info, conjugate );
         LDL( info, front, LDL_INTRAPIV_1D );
 
         // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple

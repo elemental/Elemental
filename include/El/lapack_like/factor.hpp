@@ -10,8 +10,8 @@
 #ifndef EL_FACTOR_HPP
 #define EL_FACTOR_HPP
 
-#include "El/lapack_like/factor/symbolic.hpp"
-#include "El/lapack_like/factor/numeric.hpp"
+#include "El/lapack_like/factor/ldl/sparse/symbolic.hpp"
+#include "El/lapack_like/factor/ldl/sparse/numeric.hpp"
 
 namespace El {
 
@@ -146,12 +146,12 @@ void LDL
 // original sparse matrix before calling LDL.
 template<typename F>
 void LDL
-( const SymmNodeInfo& info, SymmFront<F>& L, 
-  SymmFrontType newType=LDL_2D );
+( const ldl::NodeInfo& info, ldl::Front<F>& L, 
+  LDLFrontType newType=LDL_2D );
 template<typename F>
 void LDL
-( const DistSymmNodeInfo& info, DistSymmFront<F>& L, 
-  SymmFrontType newType=LDL_2D );
+( const ldl::DistNodeInfo& info, ldl::DistFront<F>& L, 
+  LDLFrontType newType=LDL_2D );
 
 namespace ldl {
 
@@ -193,37 +193,37 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const vector<Int>& invMap, const SymmNodeInfo& info,
-  const SymmFront<F>& front, Matrix<F>& X ); 
+( const vector<Int>& invMap, const NodeInfo& info,
+  const Front<F>& front, Matrix<F>& X ); 
 template<typename F>
 void SolveAfter
-( const DistMap& invMap, const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front, DistMultiVec<F>& X ); 
+( const DistMap& invMap, const DistNodeInfo& info,
+  const DistFront<F>& front, DistMultiVec<F>& X ); 
 
 template<typename F>
 void SolveAfter
-( const SymmNodeInfo& info,
-  const SymmFront<F>& front, MatrixNode<F>& X );
+( const NodeInfo& info,
+  const Front<F>& front, MatrixNode<F>& X );
 template<typename F>
 void SolveAfter
-( const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front, DistMultiVecNode<F>& X );
+( const DistNodeInfo& info,
+  const DistFront<F>& front, DistMultiVecNode<F>& X );
 template<typename F>
 void SolveAfter
-( const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front, DistMatrixNode<F>& X );
+( const DistNodeInfo& info,
+  const DistFront<F>& front, DistMatrixNode<F>& X );
 
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const SparseMatrix<F>& A,
-  const vector<Int>& invMap, const SymmNodeInfo& info,
-  const SymmFront<F>& front, Matrix<F>& y,
+  const vector<Int>& invMap, const NodeInfo& info,
+  const Front<F>& front, Matrix<F>& y,
   Base<F> relTolRefine,      Int maxRefineIts );
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
-  const DistMap& invMap, const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front, DistMultiVec<F>& y,
+  const DistMap& invMap, const DistNodeInfo& info,
+  const DistFront<F>& front, DistMultiVec<F>& y,
   Base<F> relTolRefine, Int maxRefineIts );
 
 // Solve linear system with the implicit representations of L, D, and P
@@ -276,61 +276,61 @@ namespace reg_qsd_ldl {
 template<typename F>
 Int RegularizedSolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const SymmNodeInfo& info,
-  const SymmFront<F>& front,        Matrix<F>& y,
+  const vector<Int>& invMap,  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,        Matrix<F>& y,
   Base<F> relTolRefine,       Int maxRefineIts,
   bool progress );
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,         const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,       DistMultiVec<F>& y,
-  Base<F> relTolRefine,          Int maxRefineIts,
+( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,          const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,       DistMultiVec<F>& y,
+  Base<F> relTolRefine,           Int maxRefineIts,
   bool progress );
 
 template<typename F>
 Int RegularizedSolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const SymmNodeInfo& info,
-  const SymmFront<F>& front,        Matrix<F>& y,
+  const vector<Int>& invMap,  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,        Matrix<F>& y,
   Base<F> relTolRefine,       Int maxRefineIts,
   bool progress );
 template<typename F>
 Int RegularizedSolveAfter
 ( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,           const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,         DistMultiVec<F>& y,
+  const DistMap& invMap,           const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,        DistMultiVec<F>& y,
   Base<F> relTolRefine,            Int maxRefineIts,
   bool progress );
 
 template<typename F>
 Int SolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const SymmNodeInfo& info,
-  const SymmFront<F>& front,        Matrix<F>& y,
+  const vector<Int>& invMap,  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,        Matrix<F>& y,
   const RegQSDCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& y,
+  const DistMap& invMap,             const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,          DistMultiVec<F>& y,
   const RegQSDCtrl<Base<F>>& ctrl );
 
 template<typename F>
 Int SolveAfter
 ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const SymmNodeInfo& info,
-  const SymmFront<F>& front,        Matrix<F>& y,
+  const vector<Int>& invMap,  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,       Matrix<F>& y,
   const RegQSDCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
 ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,             const DistSymmNodeInfo& info,
-  const DistSymmFront<F>& front,           DistMultiVec<F>& y,
+  const DistMap& invMap,             const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,          DistMultiVec<F>& y,
   const RegQSDCtrl<Base<F>>& ctrl );
 
 } // namespace reg_qsd_ldl

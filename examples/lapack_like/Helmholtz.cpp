@@ -68,8 +68,8 @@ main( int argc, char* argv[] )
             cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
-        DistSymmNodeInfo info;
-        DistSeparator sep;
+        ldl::DistNodeInfo info;
+        ldl::DistSeparator sep;
         DistMap map, invMap;
         if( natural )
         {
@@ -96,10 +96,10 @@ main( int argc, char* argv[] )
             cout << rootSepSize << " vertices in root separator\n" << endl;
 
         if( commRank == 0 )
-            cout << "Building DistSymmFront tree..." << endl;
+            cout << "Building ldl::DistFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
-        DistSymmFront<C> front( A, map, sep, info, false );
+        ldl::DistFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         if( commRank == 0 )
             cout << mpi::Time()-buildStart << " seconds" << endl;
@@ -108,7 +108,7 @@ main( int argc, char* argv[] )
             cout << "Running LDL factorization..." << endl;
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
-        SymmFrontType type;
+        LDLFrontType type;
         if( intraPiv )
             type = ( selInv ? LDL_INTRAPIV_SELINV_2D : LDL_INTRAPIV_2D );
         else

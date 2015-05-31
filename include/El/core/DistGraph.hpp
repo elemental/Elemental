@@ -14,6 +14,9 @@
 
 namespace El {
 
+// Forward declare ldl::DistFront
+namespace ldl { template<typename F> class DistFront; }
+
 // Use a simple 1d distribution where each process owns a fixed number of 
 // sources:
 //     if last process,  numSources - (commSize-1)*floor(numSources/commSize)
@@ -131,7 +134,7 @@ private:
     friend void Copy( const DistGraph& A, DistGraph& B );
 
     template<typename F> friend class DistSparseMatrix;
-    template<typename F> friend struct DistSymmFront;
+    template<typename F> friend struct ldl::DistFront;
 
     template<typename U> friend void Syrk
     ( Orientation orientation,

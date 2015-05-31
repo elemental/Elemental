@@ -152,9 +152,9 @@ void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 // ============
 
 void PrintLocal
-( const DistSymmNodeInfo& info, string msg, ostream& os )
+( const ldl::DistNodeInfo& info, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("PrintLocal [DistSymmNodeInfo]"))
+    DEBUG_ONLY(CSE cse("PrintLocal [ldl::DistNodeInfo]"))
     LogicError("This routine needs to be rewritten");
 }
 

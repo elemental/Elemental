@@ -12,18 +12,18 @@
 using namespace El;
 
 template<typename F>
-void MakeFrontsUniform( SymmFront<F>& front )
+void MakeFrontsUniform( ldl::Front<F>& front )
 {
-    ChangeFrontType( front, SYMM_2D );
+    ldl::ChangeFrontType( front, SYMM_2D );
     MakeUniform( front.L );
-    for( SymmFront<F>* child : front.children )
+    for( ldl::Front<F>* child : front.children )
         MakeFrontsUniform( *child );
 }
 
 template<typename F>
-void MakeFrontsUniform( DistSymmFront<F>& front )
+void MakeFrontsUniform( ldl::DistFront<F>& front )
 {
-    ChangeFrontType( front, SYMM_2D );
+    ldl::ChangeFrontType( front, SYMM_2D );
     MakeUniform( front.L2D );
     if( front.child != nullptr )
         MakeFrontsUniform( *front.child );
@@ -83,10 +83,10 @@ int main( int argc, char* argv[] )
             cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const DistGraph& graph = A.DistGraph();
-        DistSymmNodeInfo info;
-        DistSeparator sep;
+        ldl::DistNodeInfo info;
+        ldl::DistSeparator sep;
         DistMap map, invMap;
-        NestedDissection( graph, map, sep, info, ctrl );
+        ldl::NestedDissection( graph, map, sep, info, ctrl );
         InvertMap( map, invMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
@@ -98,10 +98,10 @@ int main( int argc, char* argv[] )
             cout << rootSepSize << " vertices in root separator\n" << endl;
 
         if( commRank == 0 )
-            cout << "Building DistSymmFront tree..." << endl;
+            cout << "Building ldl::DistFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
-        DistSymmFront<double> front( A, map, sep, info, false );
+        ldl::DistFront<double> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )

@@ -509,8 +509,8 @@ void IPF
     const Real cNrm2 = Nrm2( c );
 
     vector<Int> map, invMap;
-    SymmNodeInfo info;
-    Separator rootSep;
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
@@ -525,15 +525,15 @@ void IPF
     else
     {
         vector<Int> augMap, augInvMap;
-        SymmNodeInfo augInfo;
-        Separator augRootSep;
+        ldl::NodeInfo augInfo;
+        ldl::Separator augRootSep;
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo, 
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }
 
     SparseMatrix<Real> J, JOrig;
-    SymmFront<Real> JFront;
+    ldl::Front<Real> JFront;
     Matrix<Real> d,
                  rc, rb, rmu, 
                  dx, dy, dz;
@@ -800,8 +800,8 @@ void IPF
     const Real cNrm2 = Nrm2( c );
 
     DistMap map, invMap;
-    DistSymmNodeInfo info;
-    DistSeparator rootSep;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
@@ -816,8 +816,8 @@ void IPF
     else
     {
         DistMap augMap, augInvMap;
-        DistSymmNodeInfo augInfo;
-        DistSeparator augRootSep;
+        ldl::DistNodeInfo augInfo;
+        ldl::DistSeparator augRootSep;
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo, 
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
@@ -825,7 +825,7 @@ void IPF
 
     DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
-    DistSymmFront<Real> JFront;
+    ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
                        rc(comm), rb(comm), rmu(comm), 
                        dx(comm), dy(comm), dz(comm);

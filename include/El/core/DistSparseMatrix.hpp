@@ -165,7 +165,7 @@ private:
     void AssertLocallyConsistent() const;
 
     template<typename U> friend class SparseMatrix;
-    template<typename U> friend struct DistSymmFront;
+    template<typename U> friend struct ldl::DistFront;
 
     template<typename U> friend void Syrk
     ( Orientation orientation, 

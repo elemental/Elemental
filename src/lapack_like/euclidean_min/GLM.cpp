@@ -285,11 +285,11 @@ void GLM
     // Factor the regularized system
     // =============================
     vector<Int> map, invMap;
-    SymmNodeInfo info;
-    Separator rootSep;
-    NestedDissection( J.LockedGraph(), map, rootSep, info );
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
+    ldl::NestedDissection( J.LockedGraph(), map, rootSep, info );
     InvertMap( map, invMap );
-    SymmFront<F> JFront( J, map, info );
+    ldl::Front<F> JFront( J, map, info );
     LDL( info, JFront );
 
     // Successively solve each of the numRHS linear systems
@@ -472,11 +472,11 @@ void GLM
     // Factor the regularized system
     // =============================
     DistMap map, invMap;
-    DistSymmNodeInfo info;
-    DistSeparator rootSep;
-    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
+    ldl::NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     InvertMap( map, invMap );
-    DistSymmFront<F> JFront( J, map, rootSep, info );
+    ldl::DistFront<F> JFront( J, map, rootSep, info );
     LDL( info, JFront );
 
     // Successively solve each of the numRHS linear systems

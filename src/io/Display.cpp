@@ -271,9 +271,9 @@ void Display( const DistSparseMatrix<T>& A, string title )
 }
 
 void DisplayLocal
-( const DistSymmNodeInfo& info, bool beforeFact, string title )
+( const ldl::DistNodeInfo& info, bool beforeFact, string title )
 {
-    DEBUG_ONLY(CSE cse("DisplayLocal [DistSymmNodeInfo]"))
+    DEBUG_ONLY(CSE cse("DisplayLocal [ldl::DistNodeInfo]"))
 #ifdef HAVE_QT5
     const int n = info.distNodes.back().size + info.distNodes.back().off;
     auto graphMat = new Matrix<int>;
@@ -282,7 +282,7 @@ void DisplayLocal
     const int numLocal = info.localNodes.size();
     for( int s=0; s<numLocal; ++s )
     {
-        const SymmNodeInfo& node = info.localNodes[s];
+        const ldl::NodeInfo& node = info.localNodes[s];
         for( int j=0; j<node.size; ++j )
             for( int i=0; i<node.size; ++i )
                 graphMat->Set( i+node.off, j+node.off, 1 );
@@ -305,7 +305,7 @@ void DisplayLocal
     const int numDist = info.distNodes.size();
     for( int s=0; s<numDist; ++s )
     {
-        const DistSymmNodeInfo& node = info.distNodes[s];
+        const ldl::DistNodeInfo& node = info.distNodes[s];
         for( int j=0; j<node.size; ++j )
             for( int i=0; i<node.size; ++i )
                 graphMat->Set( i+node.off, j+node.off, 1 );

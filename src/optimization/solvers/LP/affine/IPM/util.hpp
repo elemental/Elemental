@@ -39,7 +39,7 @@ void Initialize
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,             Matrix<Real>& s,
         vector<Int>& map,            vector<Int>& invMap,
-        Separator& rootSep,          SymmNodeInfo& info,
+        ldl::Separator& rootSep,          ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl );
 template<typename Real>
@@ -50,7 +50,7 @@ void Initialize
         DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
         DistMap& map,                     DistMap& invMap,
-        DistSeparator& rootSep,           DistSymmNodeInfo& info,
+        ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl );
 

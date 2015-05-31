@@ -307,7 +307,7 @@ void Initialize
         Matrix<Real>& x,             Matrix<Real>& y,
         Matrix<Real>& z,             Matrix<Real>& s,
         vector<Int>& map,            vector<Int>& invMap, 
-        Separator& rootSep,          SymmNodeInfo& info,
+        ldl::Separator& rootSep,          ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
@@ -358,7 +358,7 @@ void Initialize
     NestedDissection( J.LockedGraph(), map, rootSep, info );
     InvertMap( map, invMap );
 
-    SymmFront<Real> JFront;
+    ldl::Front<Real> JFront;
     JFront.Pull( J, map, info );
     LDL( info, JFront, LDL_2D );
 
@@ -446,7 +446,7 @@ void Initialize
         DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
         DistMap& map,                     DistMap& invMap, 
-        DistSeparator& rootSep,           DistSymmNodeInfo& info,
+        ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
@@ -500,7 +500,7 @@ void Initialize
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     InvertMap( map, invMap );
 
-    DistSymmFront<Real> JFront;
+    ldl::DistFront<Real> JFront;
     JFront.Pull( J, map, rootSep, info );
     LDL( info, JFront, LDL_2D );
 
@@ -605,7 +605,7 @@ void Initialize
           Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z,             Matrix<Real>& s, \
           vector<Int>& map,            vector<Int>& invMap, \
-          Separator& rootSep,          SymmNodeInfo& info, \
+          ldl::Separator& rootSep,          ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
@@ -616,7 +616,7 @@ void Initialize
           DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z,            DistMultiVec<Real>& s, \
           DistMap& map,                     DistMap& invMap, \
-          DistSeparator& rootSep,           DistSymmNodeInfo& info, \
+          ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl );
 

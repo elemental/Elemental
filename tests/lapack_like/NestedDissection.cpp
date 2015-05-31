@@ -88,10 +88,10 @@ int main( int argc, char* argv[] )
             cout << "Running nested dissection...";
             cout.flush();
         }
-        DistSymmNodeInfo info;
-        DistSeparator sep;
+        ldl::DistNodeInfo info;
+        ldl::DistSeparator sep;
         DistMap map;
-        NestedDissection( graph, map, sep, info, ctrl );
+        ldl::NestedDissection( graph, map, sep, info, ctrl );
         mpi::Barrier( comm );
         if( commRank == 0 )
             cout << "done" << endl;

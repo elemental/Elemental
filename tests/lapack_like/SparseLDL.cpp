@@ -100,14 +100,14 @@ int main( int argc, char* argv[] )
             cout << "Running nested dissection..." << endl;
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
-        DistSymmNodeInfo info;
-        DistSeparator sep;
+        ldl::DistNodeInfo info;
+        ldl::DistSeparator sep;
         DistMap map, invMap;
         if( natural )
-            NaturalNestedDissection
+            ldl::NaturalNestedDissection
             ( n1, n2, n3, graph, map, sep, info, cutoff );
         else
-            NestedDissection( graph, map, sep, info, ctrl );
+            ldl::NestedDissection( graph, map, sep, info, ctrl );
         InvertMap( map, invMap );
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
@@ -129,16 +129,16 @@ int main( int argc, char* argv[] )
         */
 
         if( commRank == 0 )
-            cout << "Building DistSymmFront tree..." << endl;
+            cout << "Building ldl::DistFront tree..." << endl;
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
-        DistSymmFront<double> front( A, map, sep, info );
+        ldl::DistFront<double> front( A, map, sep, info );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
             cout << buildStop-buildStart << " seconds" << endl;
 
-        // Unpack the DistSymmFront into a sparse matrix
+        // Unpack the ldl::DistFront into a sparse matrix
         DistSparseMatrix<double> APerm;
         front.Unpack( APerm, sep, info );
         MakeSymmetric( LOWER, APerm );
@@ -166,7 +166,7 @@ int main( int argc, char* argv[] )
         SetBlocksize( nbFact );
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
-        SymmFrontType type;
+        LDLFrontType type;
         if( solve2d )
         {
             if( intraPiv )

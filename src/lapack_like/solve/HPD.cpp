@@ -65,13 +65,13 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("HPDSolve"))
-    SymmNodeInfo info;
-    Separator rootSep;
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
     vector<Int> map, invMap;
-    NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
+    ldl::NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
     InvertMap( map, invMap );
 
-    SymmFront<F> front( A, map, info, true );
+    ldl::Front<F> front( A, map, info, true );
     LDL( info, front );
 
     // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
@@ -90,13 +90,13 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("HPDSolve"))
-    DistSymmNodeInfo info;
-    DistSeparator rootSep;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
     DistMap map, invMap;
-    NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
+    ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
     InvertMap( map, invMap );
 
-    DistSymmFront<F> front( A, map, rootSep, info, true );
+    ldl::DistFront<F> front( A, map, rootSep, info, true );
     LDL( info, front );
 
     // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
