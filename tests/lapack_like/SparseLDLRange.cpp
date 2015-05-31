@@ -134,7 +134,7 @@ int main( int argc, char* argv[] )
         SetBlocksize( nbFact );
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
-        SymmFrontType type;
+        LDLFrontType type;
         if( solve2d )
         {
             if( intraPiv )
