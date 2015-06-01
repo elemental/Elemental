@@ -95,13 +95,13 @@ public:
     const Int* LockedTargetBuffer() const;
     const T* LockedValueBuffer() const;
 
+    void AssertConsistent() const;
+
 private:
     El::Graph graph_;
     vector<T> vals_;
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
-
-    void AssertConsistent() const;
 
     template<typename U> friend class DistSparseMatrix;
     template<typename U> 

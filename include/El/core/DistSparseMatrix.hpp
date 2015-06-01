@@ -153,6 +153,9 @@ public:
     mutable DistSparseMultMeta multMeta;
     DistSparseMultMeta InitializeMultMeta() const;
 
+    void AssertConsistent() const;
+    void AssertLocallyConsistent() const;
+
 private:
     El::DistGraph distGraph_;
     vector<T> vals_;
@@ -161,8 +164,6 @@ private:
     void InitializeLocalData();
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
-
-    void AssertLocallyConsistent() const;
 
     template<typename U> friend class SparseMatrix;
     template<typename U> friend struct ldl::DistFront;

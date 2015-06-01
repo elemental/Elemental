@@ -87,6 +87,7 @@ void Print( const DistMultiVec<T>& X, string title, ostream& os )
 void Print( const Graph& graph, string msg, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print [Graph]"))
+    graph.AssertConsistent();
     if( msg != "" )
         os << msg << endl;
     const Int numEdges = graph.NumEdges();
@@ -100,6 +101,7 @@ void Print( const Graph& graph, string msg, ostream& os )
 void Print( const DistGraph& graph, string msg, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print [DistGraph]"))
+    graph.AssertLocallyConsistent();
     const mpi::Comm comm = graph.Comm();
     const int commRank = mpi::Rank( comm );
     if( commRank == 0 )
@@ -118,6 +120,7 @@ template<typename T>
 void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
+    A.AssertConsistent();
     if( msg != "" )
         os << msg << endl;
     const Int numEntries = A.NumEntries();
@@ -133,6 +136,7 @@ template<typename T>
 void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print [DistSparseMatrix]"))
+    A.AssertLocallyConsistent();
     const mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
 

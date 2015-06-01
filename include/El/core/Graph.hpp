@@ -86,6 +86,8 @@ public:
     const Int* LockedSourceBuffer() const;
     const Int* LockedTargetBuffer() const;
 
+    void AssertConsistent() const;
+
 private:
     Int numSources_, numTargets_;
     vector<Int> sources_, targets_;
@@ -95,8 +97,6 @@ private:
     bool consistent_;
     vector<Int> edgeOffsets_;
     void ComputeEdgeOffsets();
-
-    void AssertConsistent() const;
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;

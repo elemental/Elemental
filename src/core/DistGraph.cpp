@@ -534,6 +534,20 @@ const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
 
 // Auxiliary routines
 // ==================
+void DistGraph::AssertConsistent() const
+{
+    Int locallyConsistent = ( locallyConsistent_ ? 1 : 0 );
+    Int consistent = 
+      mpi::AllReduce( locallyConsistent, mpi::BINARY_OR, Comm() );
+    if( !consistent )
+        LogicError("DistGraph was not consistent");
+}
+
+void DistGraph::AssertLocallyConsistent() const
+{
+    if( !locallyConsistent_ )
+        LogicError("DistGraph was not consistent");
+}
 
 void DistGraph::ComputeEdgeOffsets()
 {
@@ -555,12 +569,6 @@ void DistGraph::ComputeEdgeOffsets()
     }
     for( ; sourceOffset<=numLocalSources_; ++sourceOffset )
         localEdgeOffsets_[sourceOffset] = numLocalEdges;
-}
-
-void DistGraph::AssertLocallyConsistent() const
-{
-    if( !locallyConsistent_ )
-        LogicError("DistGraph was not consistent");
 }
 
 } // namespace El

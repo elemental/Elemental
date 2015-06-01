@@ -148,6 +148,7 @@ void Display( const Graph& graph, string title )
 {
     DEBUG_ONLY(CSE cse("Display [Graph]"))
 #ifdef HAVE_QT5
+    graph.AssertConsistent();
     auto graphMat = new Matrix<int>;
     const int m = graph.NumTargets();
     const int n = graph.NumSources();
@@ -194,6 +195,7 @@ void Display( const SparseMatrix<Real>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
 #ifdef HAVE_QT5
+    A.AssertConsistent();
     auto AFull = new Matrix<double>;
     const int m = A.Height();
     const int n = A.Width();
@@ -223,6 +225,7 @@ void Display( const SparseMatrix<Complex<Real>>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
 #ifdef HAVE_QT5
+    A.AssertConsistent();
     auto AFull = new Matrix<Complex<double>>;
     const int m = A.Height();
     const int n = A.Width();
@@ -255,6 +258,7 @@ template<typename T>
 void Display( const DistSparseMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
+    A.AssertLocallyConsistent();
     const mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
     

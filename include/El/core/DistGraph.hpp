@@ -106,6 +106,9 @@ public:
     const Int* LockedSourceBuffer() const;
     const Int* LockedTargetBuffer() const;
 
+    void AssertConsistent() const;
+    void AssertLocallyConsistent() const;
+
 private:
     Int numSources_, numTargets_;
     mpi::Comm comm_;
@@ -125,8 +128,6 @@ private:
     bool locallyConsistent_;
     vector<Int> localEdgeOffsets_;
     void ComputeEdgeOffsets();
-
-    void AssertLocallyConsistent() const;
 
     friend class Graph;
     friend void Copy( const Graph& A, DistGraph& B );

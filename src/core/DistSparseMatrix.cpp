@@ -470,6 +470,23 @@ const T* DistSparseMatrix<T>::LockedValueBuffer() const
 // Auxiliary routines
 // ==================
 template<typename T>
+void DistSparseMatrix<T>::AssertConsistent() const
+{ 
+    Int locallyConsistent = ( LocallyConsistent() ? 1 : 0 );
+    Int consistent = 
+      mpi::AllReduce( locallyConsistent, mpi::BINARY_OR, Comm() );
+    if( !consistent )
+        LogicError("Distributed sparse matrix must be consistent");
+}
+
+template<typename T>
+void DistSparseMatrix<T>::AssertLocallyConsistent() const
+{ 
+    if( !LocallyConsistent() )
+        LogicError("Distributed sparse matrix must be consistent");
+}
+
+template<typename T>
 DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::InitializeMultMeta"))
@@ -546,13 +563,6 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
 template<typename T>
 bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 { return a.i < b.i || (a.i == b.i && a.j < b.j); }
-
-template<typename T>
-void DistSparseMatrix<T>::AssertLocallyConsistent() const
-{ 
-    if( !LocallyConsistent() )
-        LogicError("Distributed sparse matrix must be consistent");
-}
 
 #define PROTO(T) template class DistSparseMatrix<T>;
 #define EL_ENABLE_QUAD
