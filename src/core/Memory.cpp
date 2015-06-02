@@ -7,7 +7,13 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "El/config-internal.h"
+
+#if defined(EL_HAVE_VALGRIND)
+# include "valgrind.h"
+# define EL_RUNNING_ON_VALGRIND RUNNING_ON_VALGRIND
+#else
+# define EL_RUNNING_ON_VALGRIND 0
+#endif
 
 namespace El {
 
