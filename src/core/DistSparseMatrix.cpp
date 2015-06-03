@@ -510,8 +510,7 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     const Int vecBlocksize = Width() / commSize;
     {
         Int off=0, lastOff=0, qPrev=0;
-        set<Int>::const_iterator setIt;
-        for( setIt=indexSet.begin(); setIt!=indexSet.end(); ++setIt )
+        for( auto setIt=indexSet.cbegin(); setIt!=indexSet.cend(); ++setIt )
         {
             const Int j = *setIt;
             const Int q = RowToProcess( j, vecBlocksize, commSize );
