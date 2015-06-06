@@ -32,6 +32,7 @@ else()
 endif()
 
 if(NOT EL_BUILD_BLIS_LAPACK)
+  message(STATUS "Searching for previously installed BLIS+LAPACK")
   # NOTE: The following tests will assume that liblapack is NOT sufficient
   #       by itself and must be supported with a valid BLAS library 
   find_library(BLIS NAMES blis PATHS ${MATH_PATHS})

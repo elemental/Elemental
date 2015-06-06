@@ -14,7 +14,13 @@ namespace El {
 
 const double Pi = 3.141592653589793;
 
+template<typename Real>
+Real Choose( Int n, Int k );
+template<typename Real>
+Real LogChoose( Int n, Int k );
+
 // Compute log( choose(n,k) ) for k=0,...,n in quadratic time
+// TODO: Switch to linear time algorithm using partial summations
 template<typename Real>
 vector<Real> LogBinomial( Int n );
 

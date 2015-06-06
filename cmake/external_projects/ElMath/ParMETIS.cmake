@@ -11,6 +11,7 @@ include(ElLibraryName)
 
 set(USE_FOUND_PARMETIS FALSE)
 if(NOT EL_BUILD_PARMETIS)
+  message(STATUS "Searching for previously installed ParMETIS")
   find_package(ParMETIS)
   if(PARMETIS_FOUND)
     include(CheckFunctionExists)

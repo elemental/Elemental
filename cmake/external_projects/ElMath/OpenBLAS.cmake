@@ -53,6 +53,7 @@ else()
 endif()
 
 if(NOT EL_BUILD_OPENBLAS)
+  message(STATUS "Searching for previously installed OpenBLAS+LAPACK")
   find_library(OpenBLAS NAMES openblas PATHS ${MATH_PATHS})
   if(OpenBLAS)
     set(CMAKE_REQUIRED_LIBRARIES ${OpenBLAS} ${GNU_ADDONS})

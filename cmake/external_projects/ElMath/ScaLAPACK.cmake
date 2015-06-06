@@ -72,6 +72,7 @@ if(MATH_LIBS_AT_CONFIG)
 endif()
 
 if(NOT MATH_LIBS_HAS_SCALAPACK AND NOT EL_BUILD_SCALAPACK)
+  message(STATUS "Searching for previously installed ScaLAPACK")
   find_library(ScaLAPACK NAMES scalapack PATHS ${MATH_PATHS})
   if(ScaLAPACK)
     get_filename_component(ScaLAPACK_DIR ScaLAPACK DIRECTORY)
