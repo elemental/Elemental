@@ -23,8 +23,8 @@ void PartialColAllGather
             B.RowDist() != Partial(A.ColDist()) )
             LogicError("Incompatible distributions");
     )
-   unique_ptr<AbstractDistMatrix<T>>
-        ATrans( A.ConstructTranspose(B.Grid(),B.Root()) );
+    unique_ptr<AbstractDistMatrix<T>>
+      ATrans( A.ConstructTranspose(B.Grid(),B.Root()) );
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
     Transpose( A.LockedMatrix(), ATrans->Matrix(), conjugate );
@@ -43,7 +43,7 @@ void PartialColAllGather
             LogicError("Incompatible distributions");
     )
     unique_ptr<AbstractBlockDistMatrix<T>>
-        ATrans( A.ConstructTranspose(B.Grid(),B.Root()) );
+      ATrans( A.ConstructTranspose(B.Grid(),B.Root()) );
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
     Transpose( A.LockedMatrix(), ATrans->Matrix(), conjugate );
