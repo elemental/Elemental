@@ -134,6 +134,10 @@ def LogDetDiv(uplo,A,B):
   else: TypeExcept()
   return div
 
+# SOC Identity
+# ============
+# TODO
+
 # SOC dots
 # ========
 lib.ElSOCDots_s.argtypes = \
@@ -200,10 +204,304 @@ def SOCBroadcast(x,orders,firstInds,cutoff=1000):
     else: DataExcept()
   else: TypeExcept()
 
-# TODO: SOCReflect
-# TODO: SOCDets
-# TODO: NumNonSOC
-# TODO: SOCApplyQuadratic
-# TODO: SOCInverse
-# TODO: SOCSquareRoot
-# TODO: SOCNesterovTodd
+# SOC Identity
+# ============
+lib.ElSOCIdentity_s.argtypes = \
+lib.ElSOCIdentity_d.argtypes = \
+lib.ElSOCIdentityDist_s.argtypes = \
+lib.ElSOCIdentityDist_d.argtypes = \
+lib.ElSOCIdentityDistMultiVec_s.argtypes = \
+lib.ElSOCIdentityDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+def SOCIdentity(x,orders,firstInds):
+  # TODO: Sanity checking
+  args = [x.obj,orders.obj,firstInds.obj]
+  if type(x) is Matrix:
+    if   x.tag == sTag: lib.ElSOCIdentity_s(*args)
+    elif x.tag == dTag: lib.ElSOCIdentity_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMatrix:
+    if   x.tag == sTag: lib.ElSOCIdentityDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCIdentityDist_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMultiVec:
+    if   x.tag == sTag: lib.ElSOCIdentityDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCIdentityDistMultiVec_d(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# SOC Reflect
+# ===========
+lib.ElSOCReflect_s.argtypes = \
+lib.ElSOCReflect_d.argtypes = \
+lib.ElSOCReflectDist_s.argtypes = \
+lib.ElSOCReflectDist_d.argtypes = \
+lib.ElSOCReflectDistMultiVec_s.argtypes = \
+lib.ElSOCReflectDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+def SOCReflect(x,orders,firstInds):
+  # TODO: Sanity checking
+  args = [x.obj,orders.obj,firstInds.obj]
+  if type(x) is Matrix:
+    if   x.tag == sTag: lib.ElSOCReflect_s(*args)
+    elif x.tag == dTag: lib.ElSOCReflect_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMatrix:
+    if   x.tag == sTag: lib.ElSOCReflectDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCReflectDist_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMultiVec:
+    if   x.tag == sTag: lib.ElSOCReflectDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCReflectDistMultiVec_d(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# SOC Determinants
+# ================
+lib.ElSOCDets_s.argtypes = \
+lib.ElSOCDets_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElSOCDetsDist_s.argtypes = \
+lib.ElSOCDetsDist_d.argtypes = \
+lib.ElSOCDetsDistMultiVec_s.argtypes = \
+lib.ElSOCDetsDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCDets(x,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(x) is Matrix:
+    d = Matrix(x.tag)
+    args = [x.obj,d.obj,orders.obj,firstInds.obj]
+    if   x.tag == sTag: lib.ElSOCDets_s(*args)
+    elif x.tag == dTag: lib.ElSOCDets_d(*args)
+    else: DataExcept()
+    return d
+  elif type(x) is DistMatrix:
+    d = DistMatrix(x.tag,VC,STAR,x.Grid())
+    args = [x.obj,d.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCDetsDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCDetsDist_d(*args)
+    else: DataExcept()
+    return d
+  elif type(x) is DistMultiVec:
+    d = DistMultiVec(x.tag,x.Comm())
+    args = [x.obj,d.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCDetsDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCDetsDistMultiVec_d(*args)
+    else: DataExcept()
+    return d
+  else: TypeExcept()
+
+# Num non-SOC
+# ===========
+lib.ElNumNonSOC_s.argtypes = \
+lib.ElNumNonSOC_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,POINTER(c_int)]
+lib.ElNumNonSOCDist_s.argtypes = \
+lib.ElNumNonSOCDist_d.argtypes = \
+lib.ElNumNonSOCDistMultiVec_s.argtypes = \
+lib.ElNumNonSOCDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_int,POINTER(c_int)]
+
+def NumNonSOC(x,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  numNonSOC = iType()
+  if type(x) is Matrix:
+    args = [x.obj,orders.obj,firstInds.obj,pointer(numNonSOC)]
+    if   x.tag == sTag: lib.ElNumNonSOC_s(*args)
+    elif x.tag == dTag: lib.ElNumNonSOC_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMatrix: 
+    args = [x.obj,orders.obj,firstInds.obj,cutoff,pointer(numNonSOC)]
+    if   x.tag == sTag: lib.ElNumNonSOCDist_s(*args)
+    elif x.tag == dTag: lib.ElNumNonSOCDist_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMultiVec:
+    args = [x.obj,orders.obj,firstInds.obj,cutoff,pointer(numNonSOC)]
+    if   x.tag == sTag: lib.ElNumNonSOCDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElNumNonSOCDistMultiVec_d(*args)
+    else: DataExcept()
+  else: TypeExcept()
+  return numNonSOC.value
+
+# SOC Apply
+# =========
+lib.ElSOCApply_s.argtypes = \
+lib.ElSOCApply_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElSOCApplyDist_s.argtypes = \
+lib.ElSOCApplyDist_d.argtypes = \
+lib.ElSOCApplyDistMultiVec_s.argtypes = \
+lib.ElSOCApplyDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCApply(x,y,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(x) is Matrix:
+    z = Matrix(x.tag)
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj]
+    if   x.tag == sTag: lib.ElSOCApply_s(*args)
+    elif x.tag == dTag: lib.ElSOCApply_d(*args)
+    else: DataExcept()
+    return z
+  elif type(x) is DistMatrix:
+    z = DistMatrix(x.tag,VC,STAR,x.Grid())
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCApplyDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCApplyDist_d(*args)
+    else: DataExcept()
+    return z
+  elif type(x) is DistMultiVec:
+    z = DistMultiVec(x.tag,x.Comm())
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCApplyDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCApplyDistMultiVec_d(*args)
+    else: DataExcept()
+    return z
+  else: TypeExcept()
+
+# SOC Apply quadratic
+# ===================
+lib.ElSOCApplyQuadratic_s.argtypes = \
+lib.ElSOCApplyQuadratic_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElSOCApplyQuadraticDist_s.argtypes = \
+lib.ElSOCApplyQuadraticDist_d.argtypes = \
+lib.ElSOCApplyQuadraticDistMultiVec_s.argtypes = \
+lib.ElSOCApplyQuadraticDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCApplyQuadratic(x,y,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(x) is Matrix:
+    z = Matrix(x.tag)
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj]
+    if   x.tag == sTag: lib.ElSOCApplyQuadratic_s(*args)
+    elif x.tag == dTag: lib.ElSOCApplyQuadratic_d(*args)
+    else: DataExcept()
+    return z
+  elif type(x) is DistMatrix:
+    z = DistMatrix(x.tag,VC,STAR,x.Grid())
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCApplyQuadraticDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCApplyQuadraticDist_d(*args)
+    else: DataExcept()
+    return z
+  elif type(x) is DistMultiVec:
+    z = DistMultiVec(x.tag,x.Comm())
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCApplyQuadraticDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCApplyQuadraticDistMultiVec_d(*args)
+    else: DataExcept()
+    return z
+  else: TypeExcept()
+
+# SOC Inverse
+# ===========
+lib.ElSOCInverse_s.argtypes = \
+lib.ElSOCInverse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElSOCInverseDist_s.argtypes = \
+lib.ElSOCInverseDist_d.argtypes = \
+lib.ElSOCInverseDistMultiVec_s.argtypes = \
+lib.ElSOCInverseDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCInverse(x,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(x) is Matrix:
+    xInv = Matrix(x.tag)
+    args = [x.obj,xInv.obj,orders.obj,firstInds.obj]
+    if   x.tag == sTag: lib.ElSOCInverse_s(*args)
+    elif x.tag == dTag: lib.ElSOCInverse_d(*args)
+    else: DataExcept()
+    return xInv
+  elif type(x) is DistMatrix:
+    xInv = DistMatrix(x.tag,VC,STAR,x.Grid())
+    args = [x.obj,xInv.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCInverseDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCInverseDist_d(*args)
+    else: DataExcept()
+    return xInv
+  elif type(x) is DistMultiVec:
+    xInv = DistMultiVec(x.tag,x.Comm())
+    args = [x.obj,xInv.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCInverseDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCInverseDistMultiVec_d(*args)
+    else: DataExcept()
+    return xInv
+  else: TypeExcept()
+
+# SOC Square-root
+# ===============
+lib.ElSOCSquareRoot_s.argtypes = \
+lib.ElSOCSquareRoot_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElSOCSquareRootDist_s.argtypes = \
+lib.ElSOCSquareRootDist_d.argtypes = \
+lib.ElSOCSquareRootDistMultiVec_s.argtypes = \
+lib.ElSOCSquareRootDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCSquareRoot(x,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(x) is Matrix:
+    xRoot = Matrix(x.tag)
+    args = [x.obj,xRoot.obj,orders.obj,firstInds.obj]
+    if   x.tag == sTag: lib.ElSOCSquareRoot_s(*args)
+    elif x.tag == dTag: lib.ElSOCSquareRoot_d(*args)
+    else: DataExcept()
+    return xRoot
+  elif type(x) is DistMatrix:
+    xRoot = DistMatrix(x.tag,VC,STAR,x.Grid())
+    args = [x.obj,xRoot.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCSquareRootDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCSquareRootDist_d(*args)
+    else: DataExcept()
+    return xRoot
+  elif type(x) is DistMultiVec:
+    xRoot = DistMultiVec(x.tag,x.Comm())
+    args = [x.obj,xRoot.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCSquareRootDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCSquareRootDistMultiVec_d(*args)
+    else: DataExcept()
+    return xRoot
+  else: TypeExcept()
+
+# SOC Nesterov-Todd
+# =================
+lib.ElSOCNesterovTodd_s.argtypes = \
+lib.ElSOCNesterovTodd_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElSOCNesterovToddDist_s.argtypes = \
+lib.ElSOCNesterovToddDist_d.argtypes = \
+lib.ElSOCNesterovToddDistMultiVec_s.argtypes = \
+lib.ElSOCNesterovToddDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCNesterovTodd(s,z,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(s) is Matrix:
+    w = Matrix(s.tag)
+    args = [s.obj,z.obj,w.obj,orders.obj,firstInds.obj]
+    if   s.tag == sTag: lib.ElSOCNesterovTodd_s(*args)
+    elif s.tag == dTag: lib.ElSOCNesterovTodd_d(*args)
+    else: DataExcept()
+    return w
+  elif type(s) is DistMatrix:
+    w = DistMatrix(s.tag,VC,STAR,s.Grid())
+    args = [s.obj,z.obj,w.obj,orders.obj,firstInds.obj,cutoff]
+    if   s.tag == sTag: lib.ElSOCNesterovToddDist_s(*args)
+    elif s.tag == dTag: lib.ElSOCNesterovToddDist_d(*args)
+    else: DataExcept()
+    return w
+  elif type(s) is DistMultiVec:
+    w = DistMultiVec(s.tag,s.Comm())
+    args = [s.obj,z.obj,w.obj,orders.obj,firstInds.obj,cutoff]
+    if   s.tag == sTag: lib.ElSOCNesterovToddDistMultiVec_s(*args)
+    elif s.tag == dTag: lib.ElSOCNesterovToddDistMultiVec_d(*args)
+    else: DataExcept()
+    return w
+  else: TypeExcept()

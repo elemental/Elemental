@@ -78,10 +78,26 @@ Int NumNonPositive( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
 
+// SOC Identity
+// ============
+template<typename Real>
+void SOCIdentity
+(       Matrix<Real>& e, 
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCIdentity
+(       AbstractDistMatrix<Real>& e, 
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds );
+template<typename Real>
+void SOCIdentity
+(       DistMultiVec<Real>& e, 
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds );
+
 // Dot products of sequences of second-order cones
 // ===============================================
-// The results of each x_i^T y_i are broadcast over the corresponding 
-// z_i so that the relevant processes have the result.
 template<typename Real>
 void SOCDots
 ( const Matrix<Real>& x, 
@@ -181,6 +197,30 @@ Int NumNonSOC
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
+// Apply an SOC vector as a linear operator
+// ========================================
+template<typename Real>
+void SOCApply
+( const Matrix<Real>& x, 
+  const Matrix<Real>& y, 
+        Matrix<Real>& z,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCApply
+( const AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Real>& y, 
+        AbstractDistMatrix<Real>& z,
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void SOCApply
+( const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
 // Apply the quadratic representation of a product of SOCs to a vector
 // ===================================================================
 template<typename Real>
@@ -245,6 +285,32 @@ void SOCSquareRoot
 ( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& xRoot,
   const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// Compute an SOC Nesterov-Todd point
+// ==================================
+// The Nesterov-Todd point, w, is a member of the SOC whose quadratic 
+// representation maps s to z, where s and z are both members of the SOC.
+template<typename Real>
+void SOCNesterovTodd
+( const Matrix<Real>& s, 
+  const Matrix<Real>& z, 
+        Matrix<Real>& w,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCNesterovTodd
+( const AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Real>& z, 
+        AbstractDistMatrix<Real>& w,
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void SOCNesterovTodd
+( const DistMultiVec<Real>& s, 
+  const DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& w,
+  const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 } // namespace El

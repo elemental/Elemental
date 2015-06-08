@@ -100,6 +100,23 @@ extern "C" {
   { EL_TRY( \
       SOCBroadcast \
       ( *CReflect(x), *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
+  /* SOC Identity
+     ------------ */ \
+  ElError ElSOCIdentity_ ## SIG \
+  ( ElMatrix_ ## SIG x, \
+    ElConstMatrix_i orders, ElConstMatrix_i firstInds ) \
+  { EL_TRY( SOCIdentity( \
+      *CReflect(x), *CReflect(orders), *CReflect(firstInds) ) ) } \
+  ElError ElSOCIdentityDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG x, \
+    ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds ) \
+  { EL_TRY( SOCIdentity( \
+      *CReflect(x), *CReflect(orders), *CReflect(firstInds) ) ) } \
+  ElError ElSOCIdentityDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG x, \
+    ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds ) \
+  { EL_TRY( SOCIdentity( \
+      *CReflect(x), *CReflect(orders), *CReflect(firstInds) ) ) } \
   /* SOC Reflection
      -------------- */ \
   ElError ElSOCReflect_ ## SIG \
@@ -156,6 +173,28 @@ extern "C" {
     ElInt cutoff, ElInt* numNonSOC ) \
   { EL_TRY( *numNonSOC = NumNonSOC( *CReflect(x), *CReflect(orders), \
       *CReflect(firstInds), cutoff ) ) } \
+  /* SOC Apply
+     --------- */ \
+  ElError ElSOCApply_ ## SIG \
+  ( ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElConstMatrix_i orders, ElConstMatrix_i firstInds ) \
+  { EL_TRY( SOCApply( *CReflect(x), *CReflect(y), *CReflect(z), \
+      *CReflect(orders), *CReflect(firstInds) ) ) } \
+  ElError ElSOCApplyDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z, \
+    ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds, \
+    ElInt cutoff ) \
+  { EL_TRY( SOCApply( *CReflect(x), *CReflect(y), *CReflect(z), \
+      *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
+  ElError ElSOCApplyDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z, \
+    ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds, \
+    ElInt cutoff ) \
+  { EL_TRY( SOCApply( *CReflect(x), *CReflect(y), *CReflect(z), \
+      *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
   /* SOC Apply quadratic
      ------------------- */ \
   ElError ElSOCApplyQuadratic_ ## SIG \
@@ -215,7 +254,35 @@ extern "C" {
     ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds, \
     ElInt cutoff ) \
   { EL_TRY( SOCSquareRoot( *CReflect(x), *CReflect(xRoot), *CReflect(orders), \
-      *CReflect(firstInds), cutoff ) ) }
+      *CReflect(firstInds), cutoff ) ) } \
+  /* SOC Nesterov-Todd
+     ----------------- */ \
+  ElError ElSOCNesterovTodd_ ## SIG \
+  ( ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElConstMatrix_i orders, ElConstMatrix_i firstInds ) \
+  { EL_TRY( \
+      SOCNesterovTodd \
+      ( *CReflect(x), *CReflect(y), *CReflect(z), \
+        *CReflect(orders), *CReflect(firstInds) ) ) } \
+  ElError ElSOCNesterovToddDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z, \
+    ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds, \
+    ElInt cutoff ) \
+  { EL_TRY( \
+      SOCNesterovTodd \
+      ( *CReflect(x), *CReflect(y), *CReflect(z), \
+        *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
+  ElError ElSOCNesterovToddDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z, \
+    ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds, \
+    ElInt cutoff ) \
+  { EL_TRY( \
+      SOCNesterovTodd \
+      ( *CReflect(x), *CReflect(y), *CReflect(z), \
+        *CReflect(orders), *CReflect(firstInds), cutoff ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

@@ -265,6 +265,36 @@ class DistMultiVec(object):
 
   # Entrywise manipulation
   # ======================
+  lib.ElDistMultiVecGet_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
+  lib.ElDistMultiVecGet_s.argtypes = [c_void_p,iType,iType,POINTER(sType)]
+  lib.ElDistMultiVecGet_d.argtypes = [c_void_p,iType,iType,POINTER(dType)]
+  lib.ElDistMultiVecGet_c.argtypes = [c_void_p,iType,iType,POINTER(cType)]
+  lib.ElDistMultiVecGet_z.argtypes = [c_void_p,iType,iType,POINTER(zType)]
+  def Get(self,i,j):
+    value = TagToType(self.tag)()
+    args = [self.obj,i,j,pointer(value)]
+    if   self.tag == iTag: lib.ElDistMultiVecGet_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecGet_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecGet_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecGet_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecGet_z(*args)
+    else: DataExcept()
+    return value.value
+
+  lib.ElDistMultiVecSet_i.argtypes = [c_void_p,iType,iType,iType]
+  lib.ElDistMultiVecSet_s.argtypes = [c_void_p,iType,iType,sType]
+  lib.ElDistMultiVecSet_d.argtypes = [c_void_p,iType,iType,dType]
+  lib.ElDistMultiVecSet_c.argtypes = [c_void_p,iType,iType,cType]
+  lib.ElDistMultiVecSet_z.argtypes = [c_void_p,iType,iType,zType]
+  def Set(self,i,j,value):
+    args = [self.obj,i,j,value]
+    if   self.tag == iTag: lib.ElDistMultiVecSet_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecSet_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecSet_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecSet_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecSet_z(*args)
+    else: DataExcept()
+
   lib.ElDistMultiVecGetLocal_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
   lib.ElDistMultiVecGetLocal_s.argtypes = [c_void_p,iType,iType,POINTER(sType)]
   lib.ElDistMultiVecGetLocal_d.argtypes = [c_void_p,iType,iType,POINTER(dType)]

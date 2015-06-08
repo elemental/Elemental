@@ -214,6 +214,31 @@ EL_EXPORT ElError ElDistMultiVecGlobalRow_z
 
 /* Entrywise manipulation
    ====================== */
+/* T DistMultiVec<T>::Get( Int i, Int j ) const
+   -------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecGet_i
+( ElConstDistMultiVec_i A, ElInt i, ElInt j, ElInt* value );
+EL_EXPORT ElError ElDistMultiVecGet_s
+( ElConstDistMultiVec_s A, ElInt i, ElInt j, float* value );
+EL_EXPORT ElError ElDistMultiVecGet_d
+( ElConstDistMultiVec_d A, ElInt i, ElInt j, double* value );
+EL_EXPORT ElError ElDistMultiVecGet_c
+( ElConstDistMultiVec_c A, ElInt i, ElInt j, complex_float* value );
+EL_EXPORT ElError ElDistMultiVecGet_z
+( ElConstDistMultiVec_z A, ElInt i, ElInt j, complex_double* value );
+
+/* void DistMultiVec<T>::Set( Int i, Int j, T value )
+   -------------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecSet_i
+( ElDistMultiVec_i A, ElInt i, ElInt j, ElInt value );
+EL_EXPORT ElError ElDistMultiVecSet_s
+( ElDistMultiVec_s A, ElInt i, ElInt j, float value );
+EL_EXPORT ElError ElDistMultiVecSet_d
+( ElDistMultiVec_d A, ElInt i, ElInt j, double value );
+EL_EXPORT ElError ElDistMultiVecSet_c
+( ElDistMultiVec_c A, ElInt i, ElInt j, complex_float value );
+EL_EXPORT ElError ElDistMultiVecSet_z
+( ElDistMultiVec_z A, ElInt i, ElInt j, complex_double value );
 
 /* T DistMultiVec<T>::GetLocal( Int iLocal, Int j ) const
    ------------------------------------------------------ */

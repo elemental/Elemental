@@ -60,6 +60,12 @@ extern "C" {
   ( ElConstDistMultiVec_ ## SIG A, ElInt iLoc, ElInt* i ) \
   { EL_TRY( *i = CReflect(A)->GlobalRow(iLoc) ) } \
   /* Entrywise manipulation */ \
+  ElError ElDistMultiVecGet_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElInt i, ElInt j, CREFLECT(T)* value ) \
+  { EL_TRY( *value = CReflect(CReflect(A)->Get(i,j)) ) } \
+  ElError ElDistMultiVecSet_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElInt i, ElInt j, CREFLECT(T) value ) \
+  { EL_TRY( CReflect(A)->Set(i,j,CReflect(value)) ) } \
   ElError ElDistMultiVecGetLocal_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElInt iLocal, ElInt j, CREFLECT(T)* value ) \
   { EL_TRY( *value = CReflect(CReflect(A)->GetLocal(iLocal,j)) ) } \

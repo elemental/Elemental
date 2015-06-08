@@ -11,38 +11,38 @@
 namespace El {
 
 template<typename Real>
-void SOCReflect
+void SOCIdentity
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
-    const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(CSE cse("SOCIdentity"))
+    const Int height = orders.Height();
+    if( firstInds.Height() != height || 
+        firstInds.Width() != 1 || orders.Width() != 1 )
+        LogicError("orders and firstInds should vectors of the same height");
 
+    Zeros( x, height, 1 );
     for( Int i=0; i<height; ++i )
     {
-        if( i != firstInds.Get(i,0) )
-            x.Set( i, 0, -x.Get(i,0) );
+        if( i == firstInds.Get(i,0) )
+            x.Set( i, 0, Real(1) );
     }
 }
 
 template<typename Real>
-void SOCReflect
+void SOCIdentity
 (       AbstractDistMatrix<Real>& xPre, 
   const AbstractDistMatrix<Int>& ordersPre, 
   const AbstractDistMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("SOCIdentity"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = ReadWriteProxy<Real,VC,STAR>(&xPre,ctrl); 
+    auto xPtr = WriteProxy<Real,VC,STAR>(&xPre,ctrl); 
     auto& x = *xPtr;
 
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
@@ -51,54 +51,55 @@ void SOCReflect
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& firstInds = *firstIndsPtr;
 
-    const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    const Int height = orders.Height();
+    if( firstInds.Height() != height || 
+        firstInds.Width() != 1 || orders.Width() != 1 )
+        LogicError("orders and firstInds should vectors of the same height");
 
+    Zeros( x, height, 1 );
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i != firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, -x.GetLocal(iLoc,0) );
+        if( i == firstInds.GetLocal(iLoc,0) )
+            x.SetLocal( iLoc, 0, Real(1) );
     }
 }
 
 template<typename Real>
-void SOCReflect
+void SOCIdentity
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("SOCIdentity"))
 
-    const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    const Int height = orders.Height();
+    if( firstInds.Height() != height ||
+        firstInds.Width() != 1 || orders.Width() != 1 )
+        LogicError("orders and firstInds should vectors of the same height");
 
+    x.SetComm( orders.Comm() );
+    Zeros( x, height, 1 );
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i != firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, -x.GetLocal(iLoc,0) );
+        if( i == firstInds.GetLocal(iLoc,0) )
+            x.SetLocal( iLoc, 0, Real(1) );
     }
 }
 
 #define PROTO(Real) \
-  template void SOCReflect \
+  template void SOCIdentity \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCReflect \
+  template void SOCIdentity \
   (       AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds ); \
-  template void SOCReflect \
+  template void SOCIdentity \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds );

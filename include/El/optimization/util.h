@@ -84,6 +84,27 @@ EL_EXPORT ElError ElLogDetDivDist_z
 ( ElUpperOrLower uplo, ElConstDistMatrix_z A, ElConstDistMatrix_z B, 
   double* div );
 
+/* SOC Identity
+   ------------ */
+EL_EXPORT ElError ElSOCIdentity_s
+( ElMatrix_s x, ElConstMatrix_i orders, ElConstMatrix_i firstInds );
+EL_EXPORT ElError ElSOCIdentity_d
+( ElMatrix_d x, ElConstMatrix_i orders, ElConstMatrix_i firstInds );
+
+EL_EXPORT ElError ElSOCIdentityDist_s
+( ElDistMatrix_s x, 
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds );
+EL_EXPORT ElError ElSOCIdentityDist_d
+( ElDistMatrix_d x, 
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds );
+
+EL_EXPORT ElError ElSOCIdentityDistMultiVec_s
+( ElDistMultiVec_s x, 
+  ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds );
+EL_EXPORT ElError ElSOCIdentityDistMultiVec_d
+( ElDistMultiVec_d x, 
+  ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds );
+
 /* SOC Dots
    -------- */
 EL_EXPORT ElError ElSOCDots_s
@@ -217,6 +238,33 @@ EL_EXPORT ElError ElNumNonSOCDistMultiVec_d
   ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds, 
   ElInt cutoff, ElInt* numNonSOC );
 
+/* SOC Apply
+   --------- */
+EL_EXPORT ElError ElSOCApply_s
+( ElConstMatrix_s x, ElConstMatrix_s y, ElMatrix_s z,
+  ElConstMatrix_i orders, ElConstMatrix_i firstInds );
+EL_EXPORT ElError ElSOCApply_d
+( ElConstMatrix_d x, ElConstMatrix_d y, ElMatrix_d z,
+  ElConstMatrix_i orders, ElConstMatrix_i firstInds );
+
+EL_EXPORT ElError ElSOCApplyDist_s
+( ElConstDistMatrix_s x, ElConstDistMatrix_s y, ElDistMatrix_s z,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
+  ElInt cutoff );
+EL_EXPORT ElError ElSOCApplyDist_d
+( ElConstDistMatrix_d x, ElConstDistMatrix_d y, ElDistMatrix_d z,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
+  ElInt cutoff );
+
+EL_EXPORT ElError ElSOCApplyDist_s
+( ElConstDistMatrix_s x, ElConstDistMatrix_s y, ElDistMatrix_s z,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
+  ElInt cutoff );
+EL_EXPORT ElError ElSOCApplyDist_d
+( ElConstDistMatrix_d x, ElConstDistMatrix_d y, ElDistMatrix_d z,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
+  ElInt cutoff );
+
 /* SOC Apply quadratic
    ------------------- */
 EL_EXPORT ElError ElSOCApplyQuadratic_s
@@ -295,6 +343,33 @@ EL_EXPORT ElError ElSOCSquareRootDistMultiVec_s
   ElInt cutoff );
 EL_EXPORT ElError ElSOCSquareRootDistMultiVec_d
 ( ElConstDistMultiVec_d x, ElDistMultiVec_d xRoot, 
+  ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds,
+  ElInt cutoff );
+
+/* SOC Nesterov-Todd
+   ----------------- */
+EL_EXPORT ElError ElSOCNesterovTodd_s
+( ElConstMatrix_s x, ElConstMatrix_s y, ElMatrix_s z,
+  ElConstMatrix_i orders, ElConstMatrix_i firstInds );
+EL_EXPORT ElError ElSOCNesterovTodd_d
+( ElConstMatrix_d x, ElConstMatrix_d y, ElMatrix_d z,
+  ElConstMatrix_i orders, ElConstMatrix_i firstInds );
+
+EL_EXPORT ElError ElSOCNesterovToddDist_s
+( ElConstDistMatrix_s x, ElConstDistMatrix_s y, ElDistMatrix_s z,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
+  ElInt cutoff );
+EL_EXPORT ElError ElSOCNesterovToddDist_d
+( ElConstDistMatrix_d x, ElConstDistMatrix_d y, ElDistMatrix_d z,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
+  ElInt cutoff );
+
+EL_EXPORT ElError ElSOCNesterovToddDistMultiVec_s
+( ElConstDistMultiVec_s x, ElConstDistMultiVec_s y, ElDistMultiVec_s z,
+  ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds,
+  ElInt cutoff );
+EL_EXPORT ElError ElSOCNesterovToddDistMultiVec_d
+( ElConstDistMultiVec_d x, ElConstDistMultiVec_d y, ElDistMultiVec_d z,
   ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds,
   ElInt cutoff );
 

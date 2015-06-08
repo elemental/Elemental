@@ -10,40 +10,31 @@
 
 namespace El {
 
-// Q_x y = (2 x x^T - det(x) R) y = 2 (x^T y) x - det(x) (R y)
+// x o y = [ x^T y; x0 y1 + y0 x1 ]
 
 template<typename Real>
-void SOCApplyQuadratic
+void SOCApply
 ( const Matrix<Real>& x, 
   const Matrix<Real>& y,
         Matrix<Real>& z,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
-
-    // detRy := det(x) R y
-    Matrix<Real> d;
-    SOCDets( x, d, orders, firstInds );
-    SOCBroadcast( d, orders, firstInds );
-    auto Ry = y;
-    SOCReflect( Ry, orders, firstInds );
-    Matrix<Real> detRy;
-    Hadamard( d, Ry, detRy );
-
-    // z := 2 (x^T y) x
-    Matrix<Real> xTy;
-    SOCDots( x, y, xTy, orders, firstInds );
-    SOCBroadcast( xTy, orders, firstInds );
-    Hadamard( xTy, x, z );
-    Scale( Real(2), z );
-
-    // z := z - detRy
-    Axpy( Real(-1), detRy, z );
+    DEBUG_ONLY(CSE cse("SOCApply"))
+    SOCDots( x, y, z, orders, firstInds );
+    auto xRoots = x;
+    auto yRoots = y;
+    SOCBroadcast( xRoots, orders, firstInds );
+    SOCBroadcast( yRoots, orders, firstInds );
+    const Int height = x.Height();
+    for( Int i=0; i<height; ++i )
+        if( i != firstInds.Get(i,0) )
+            z.Update( i, 0, xRoots.Get(i,0)*y.Get(i,0) +
+                            yRoots.Get(i,0)*x.Get(i,0) );
 }
 
 template<typename Real>
-void SOCApplyQuadratic
+void SOCApply
 ( const AbstractDistMatrix<Real>& xPre, 
   const AbstractDistMatrix<Real>& yPre,
         AbstractDistMatrix<Real>& zPre,
@@ -51,7 +42,7 @@ void SOCApplyQuadratic
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    DEBUG_ONLY(CSE cse("SOCApply"))
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -71,70 +62,61 @@ void SOCApplyQuadratic
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& firstInds = *firstIndsPtr;
 
-    // detRy := det(x) R y
-    DistMatrix<Real,VC,STAR> d(x.Grid());
-    SOCDets( x, d, orders, firstInds, cutoff );
-    SOCBroadcast( d, orders, firstInds, cutoff );
-    auto Ry = y;
-    SOCReflect( Ry, orders, firstInds );
-    DistMatrix<Real,VC,STAR> detRy(x.Grid());
-    Hadamard( d, Ry, detRy );
-
-    // z := 2 (x^T y) x
-    DistMatrix<Real,VC,STAR> xTy(x.Grid());
-    SOCDots( x, y, xTy, orders, firstInds, cutoff );
-    SOCBroadcast( xTy, orders, firstInds, cutoff );
-    Hadamard( xTy, x, z );
-    Scale( Real(2), z );
-
-    // z := z - detRy
-    Axpy( Real(-1), detRy, z );
+    SOCDots( x, y, z, orders, firstInds );
+    auto xRoots = x;
+    auto yRoots = y;
+    SOCBroadcast( xRoots, orders, firstInds );
+    SOCBroadcast( yRoots, orders, firstInds );
+    const Int localHeight = x.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = x.GlobalRow(iLoc);
+        if( i != firstInds.GetLocal(iLoc,0) )
+            z.UpdateLocal
+            ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
+                       yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );
+    }
 }
 
 template<typename Real>
-void SOCApplyQuadratic
+void SOCApply
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
-
-    // detRy := det(x) R y
-    DistMultiVec<Real> d(x.Comm()); 
-    SOCDets( x, d, orders, firstInds, cutoff );
-    SOCBroadcast( d, orders, firstInds, cutoff );
-    auto Ry = y;
-    SOCReflect( Ry, orders, firstInds );
-    DistMultiVec<Real> detRy(x.Comm());
-    Hadamard( d, Ry, detRy );
-
-    // z := 2 (x^T y) x
-    DistMultiVec<Real> xTy(x.Comm());
-    SOCDots( x, y, xTy, orders, firstInds, cutoff );
-    SOCBroadcast( xTy, orders, firstInds, cutoff );
-    Hadamard( xTy, x, z );
-    Scale( Real(2), z );
-
-    // z := z - detRy
-    Axpy( Real(-1), detRy, z );
+    DEBUG_ONLY(CSE cse("SOCApply"))
+    SOCDots( x, y, z, orders, firstInds );
+    auto xRoots = x;
+    auto yRoots = y;
+    SOCBroadcast( xRoots, orders, firstInds );
+    SOCBroadcast( yRoots, orders, firstInds );
+    const Int localHeight = x.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = x.GlobalRow(iLoc);
+        if( i != firstInds.GetLocal(iLoc,0) )
+            z.UpdateLocal
+            ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
+                       yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );
+    }
 }
 
 #define PROTO(Real) \
-  template void SOCApplyQuadratic \
+  template void SOCApply \
   ( const Matrix<Real>& x, \
     const Matrix<Real>& y, \
           Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCApplyQuadratic \
+  template void SOCApply \
   ( const AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCApplyQuadratic \
+  template void SOCApply \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \

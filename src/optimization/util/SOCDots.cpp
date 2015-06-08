@@ -43,8 +43,7 @@ void SOCDots
         // Compute the inner-product between two SOC members and broadcast
         // the result over an equivalently-sized z_i
         const Real dot = Dot( x(IR(i,i+order),ALL), y(IR(i,i+order),ALL) );
-        for( Int j=i; j<i+order; ++j )
-            z.Set( j, 0, dot );
+        z.Set( i, 0, dot );
 
         i += order;
     }
@@ -164,8 +163,6 @@ void SOCDots
         auto yCone = y( IR(i,i+order), ALL );
         z.Set( i, 0, Dot(xCone,yCone) );
     }
-
-    SOCBroadcast( z, orders, firstInds, cutoff );
 }
 
 // TODO: An alternate, trivial implementation to benchmark against
@@ -279,8 +276,6 @@ void SOCDots
         else
             mpi::Reduce( localDot, owner, x.Comm() );
     }
-
-    SOCBroadcast( z, orders, firstInds, cutoff );
 }
 
 #define PROTO(Real) \

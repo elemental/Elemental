@@ -23,6 +23,7 @@ void SOCInverse
 
     Matrix<Real> dInv;
     SOCDets( x, dInv, orders, firstInds );
+    SOCBroadcast( dInv, orders, firstInds );
     auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
     EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
 
@@ -60,6 +61,7 @@ void SOCInverse
 
     DistMatrix<Real,VC,STAR> dInv(x.Grid()); 
     SOCDets( x, dInv, orders, firstInds, cutoff );
+    SOCBroadcast( dInv, orders, firstInds );
     auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
     EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
 
@@ -80,6 +82,7 @@ void SOCInverse
 
     DistMultiVec<Real> dInv(x.Comm());
     SOCDets( x, dInv, orders, firstInds, cutoff );
+    SOCBroadcast( dInv, orders, firstInds );
     auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
     EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
 
