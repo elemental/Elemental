@@ -959,7 +959,10 @@ template<typename T>
 void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueueUpdate"))
-    remoteUpdates_.push_back( entry );
+    if( IsLocal(entry.i,entry.j) )
+        Update( entry );
+    else
+        remoteUpdates_.push_back( entry );
 }
 
 template<typename T>

@@ -812,6 +812,11 @@ void Hadamard
 ( const AbstractDistMatrix<T>& A,
   const AbstractDistMatrix<T>& B,
         AbstractDistMatrix<T>& C );
+template<typename T>
+void Hadamard
+( const DistMultiVec<T>& A,
+  const DistMultiVec<T>& B,
+        DistMultiVec<T>& C );
 
 // HilbertSchmidt
 // ==============

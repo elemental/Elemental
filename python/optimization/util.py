@@ -133,3 +133,77 @@ def LogDetDiv(uplo,A,B):
     else: DataExcept()
   else: TypeExcept()
   return div
+
+# SOC dots
+# ========
+lib.ElSOCDots_s.argtypes = \
+lib.ElSOCDots_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p]
+lib.ElSOCDotsDist_s.argtypes = \
+lib.ElSOCDotsDist_d.argtypes = \
+lib.ElSOCDotsDistMultiVec_s.argtypes = \
+lib.ElSOCDotsDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCDots(x,y,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(x) is Matrix:
+    z = Matrix(x.tag)
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj]
+    if   x.tag == sTag: lib.ElSOCDots_s(*args)
+    elif x.tag == dTag: lib.ElSOCDots_d(*args)
+    else: DataExcept()
+    return z
+  elif type(x) is DistMatrix:
+    z = DistMatrix(x.tag,VC,STAR,x.Grid())
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCDotsDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCDotsDist_d(*args)
+    else: DataExcept()
+    return z
+  elif type(x) is DistMultiVec:
+    z = DistMultiVec(x.tag,x.Comm())
+    args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCDotsDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCDotsDistMultiVec_d(*args)
+    else: DataExcept()
+    return z
+  else: TypeExcept()
+
+# SOC Broadcast
+# =============
+lib.ElSOCBroadcast_s.argtypes = \
+lib.ElSOCBroadcast_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+lib.ElSOCBroadcastDist_s.argtypes = \
+lib.ElSOCBroadcastDist_d.argtypes = \
+lib.ElSOCBroadcastDistMultiVec_s.argtypes = \
+lib.ElSOCBroadcastDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_int]
+
+def SOCBroadcast(x,orders,firstInds,cutoff=1000):
+  # TODO: Sanity checking
+  if type(x) is Matrix:
+    args = [x.obj,orders.obj,firstInds.obj]
+    if   x.tag == sTag: lib.ElSOCBroadcast_s(*args)
+    elif x.tag == dTag: lib.ElSOCBroadcast_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMatrix: 
+    args = [x.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCBroadcastDist_s(*args)
+    elif x.tag == dTag: lib.ElSOCBroadcastDist_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMultiVec:
+    args = [x.obj,orders.obj,firstInds.obj,cutoff]
+    if   x.tag == sTag: lib.ElSOCBroadcastDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElSOCBroadcastDistMultiVec_d(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# TODO: SOCReflect
+# TODO: SOCDets
+# TODO: NumNonSOC
+# TODO: SOCApplyQuadratic
+# TODO: SOCInverse
+# TODO: SOCSquareRoot
+# TODO: SOCNesterovTodd

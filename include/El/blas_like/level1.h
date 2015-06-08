@@ -955,6 +955,17 @@ EL_EXPORT ElError ElHadamardDist_c
 EL_EXPORT ElError ElHadamardDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, ElDistMatrix_z C );
 
+EL_EXPORT ElError ElHadamardDistMultiVec_i
+( ElConstDistMultiVec_i A, ElConstDistMultiVec_i B, ElDistMultiVec_i C );
+EL_EXPORT ElError ElHadamardDistMultiVec_s
+( ElConstDistMultiVec_s A, ElConstDistMultiVec_s B, ElDistMultiVec_s C );
+EL_EXPORT ElError ElHadamardDistMultiVec_d
+( ElConstDistMultiVec_d A, ElConstDistMultiVec_d B, ElDistMultiVec_d C );
+EL_EXPORT ElError ElHadamardDistMultiVec_c
+( ElConstDistMultiVec_c A, ElConstDistMultiVec_c B, ElDistMultiVec_c C );
+EL_EXPORT ElError ElHadamardDistMultiVec_z
+( ElConstDistMultiVec_z A, ElConstDistMultiVec_z B, ElDistMultiVec_z C );
+
 /* HilbertSchmidt
    ============== */
 /* NOTE: This is the same as Dot */

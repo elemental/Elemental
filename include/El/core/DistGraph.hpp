@@ -125,7 +125,7 @@ private:
     void InitializeLocalData();
 
     // Helpers for local indexing
-    bool locallyConsistent_;
+    bool locallyConsistent_ = true;
     vector<Int> localEdgeOffsets_;
     void ComputeEdgeOffsets();
 

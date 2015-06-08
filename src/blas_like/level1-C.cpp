@@ -281,6 +281,10 @@ ElError ElGetSubgraphDist
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
     ElDistMatrix_ ## SIG C ) \
   { EL_TRY( Hadamard(*CReflect(A),*CReflect(B),*CReflect(C)) ) } \
+  ElError ElHadamardDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    ElDistMultiVec_ ## SIG C ) \
+  { EL_TRY( Hadamard(*CReflect(A),*CReflect(B),*CReflect(C)) ) } \
   /* Hilbert-Schmidt inner product (same as Dot) */ \
   ElError ElHilbertSchmidt_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \

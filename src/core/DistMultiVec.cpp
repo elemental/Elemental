@@ -163,6 +163,18 @@ int DistMultiVec<T>::RowOwner( Int i ) const
 }
 
 template<typename T>
+int DistMultiVec<T>::Owner( Int i, Int j ) const
+{ return RowOwner(i); }
+
+template<typename T>
+bool DistMultiVec<T>::IsLocalRow( Int i ) const
+{ return RowOwner(i) == mpi::Rank(comm_); }
+
+template<typename T>
+bool DistMultiVec<T>::IsLocal( Int i, Int j ) const
+{ return IsLocalRow(i); }
+
+template<typename T>
 Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::GlobalRow"))
@@ -243,6 +255,53 @@ void DistMultiVec<T>::UpdateLocal( Int iLoc, Int j, T value )
 template<typename T>
 void DistMultiVec<T>::UpdateLocal( const Entry<T>& localEntry )
 { UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
+
+// Batch remote updates
+// --------------------
+template<typename T>
+void DistMultiVec<T>::Reserve( Int numRemoteEntries )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::Reserve"))
+    remoteUpdates_.reserve( numRemoteEntries );
+}
+
+template<typename T>
+void DistMultiVec<T>::QueueUpdate( const Entry<T>& entry )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::QueueUpdate"))
+    remoteUpdates_.push_back( entry );
+}
+
+template<typename T>
+void DistMultiVec<T>::QueueUpdate( Int i, Int j, T value )
+{ QueueUpdate( Entry<T>{i,j,value} ); }
+
+template<typename T>
+void DistMultiVec<T>::ProcessQueues()
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::ProcessQueues"))
+    int commSize = mpi::Size( comm_ );
+    // Compute the send counts
+    // -----------------------
+    vector<int> sendCounts(commSize);
+    for( auto entry : remoteUpdates_ )
+        ++sendCounts[Owner(entry.i,entry.j)];
+    // Pack the send data
+    // ------------------
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+    auto offs = sendOffs;
+    vector<Entry<T>> sendEntries(totalSend);
+    for( auto entry : remoteUpdates_ )
+        sendEntries[offs[Owner(entry.i,entry.j)]++] = entry;
+    SwapClear( remoteUpdates_ );
+    // Exchange and unpack
+    // -------------------
+    auto recvEntries = 
+      mpi::AllToAll( sendEntries, sendCounts, sendOffs, comm_ );
+    for( auto entry : recvEntries )
+        Update( entry );
+}
 
 #define PROTO(T) template class DistMultiVec<T>;
 

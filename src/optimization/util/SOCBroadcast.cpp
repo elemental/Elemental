@@ -10,16 +10,12 @@
 
 namespace El {
 
-// Members of second-order cones are stored contiguously within the column
-// vector x, with the corresponding order of the cone each member belongs to
-// stored in the same index of 'order', and the first index of the cone 
-// being listed in the same index of 'firstInd'.
 template<typename Real>
-Int NumNonSecondOrder
-( const Matrix<Real>& x, 
+void SOCBroadcast
+(       Matrix<Real>& x, 
   const Matrix<Int>& orders, const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("NumNonSecondOrder"))
+    DEBUG_ONLY(CSE cse("SOCBroadcast"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -33,24 +29,24 @@ Int NumNonSecondOrder
         // This should be the root of a second-order cone
         if( i != firstInds.Get(i,0) )
             LogicError("Inconsistency in orders and firstInds");
+
         const Int order = orders.Get(i,0);
-        const Real root = x.Get(i,0);
-        const Real vecNrm = Nrm2( x(IR(i+1,i+order),ALL) );
-        if( root < vecNrm )
-            ++numNonSO;
+        const Real x0 = x.Get(i,0);
+        for( Int j=i+1; j<i+order; ++j )
+            x.Set( j, 0, x0 );
+
         i += order;
     }
-    return numNonSO;
 }
 
 template<typename Real>
-Int NumNonSecondOrder
-( const AbstractDistMatrix<Real>& xPre, 
+void SOCBroadcast
+(       AbstractDistMatrix<Real>& xPre, 
   const AbstractDistMatrix<Int>& ordersPre, 
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NumNonSecondOrder"))
+    DEBUG_ONLY(CSE cse("SOCBroadcast"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -76,17 +72,15 @@ Int NumNonSecondOrder
     mpi::Comm comm = x.DistComm();
     int commSize = mpi::Size(comm);
 
-    // Perform an mpi::AllToAll to collect all of the second-order cones of
-    // order less than or equal to the cutoff at the root locations and 
-    // individually handle the remainder 
+    // Perform an mpi::AllToAll to scatter all of the second-order cone roots of
+    // order less than or equal to the cutoff 
     // TODO: Find a better strategy
 
     // Handle all second-order cones with order <= cutoff
     // ==================================================
-    Int numLocalNonSO = 0;
-    // Compute the send and recv counts and offsets
-    // --------------------------------------------
-    vector<int> sendCounts(commSize,0), recvCounts(commSize,0);
+    // Count the number of remote updates (and set non-root entries to zero)
+    // ---------------------------------------------------------------------
+    Int numRemoteUpdates = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -98,41 +92,14 @@ Int NumNonSecondOrder
         if( i == firstInd )
         {
             for( Int k=1; k<order; ++k )
-                ++recvCounts[x.RowOwner(i+k)];
+                if( !x.IsLocal(i+k,0) )
+                    ++numRemoteUpdates;
         }
         else
-        {
-            ++sendCounts[x.RowOwner(firstInd)];
-        }
+            x.SetLocal( iLoc, 0, 0 );
     }
-    vector<int> sendOffs, recvOffs;
-    int totalSend = Scan( sendCounts, sendOffs );
-    int totalRecv = Scan( recvCounts, recvOffs );
-    // Pack the entries below the first entry of each cone
-    // ---------------------------------------------------
-    vector<Real> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-    {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        if( order > cutoff )
-            continue;
-
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
-        if( i != firstInd )
-            sendBuf[offs[x.RowOwner(firstInd)]++] = x.GetLocal(iLoc,0);
-    }
-    // Exchange entries
-    // ----------------
-    vector<Real> recvBuf(totalRecv); 
-    mpi::AllToAll 
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    // Check the cone constraints
-    // --------------------------
-    offs = recvOffs;
-    vector<Real> socBuf(cutoff-1);
+    // Queue and process the remote updates
+    // ------------------------------------
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -142,16 +109,10 @@ Int NumNonSecondOrder
 
         const Int firstInd = firstInds.GetLocal(iLoc,0);
         if( i == firstInd )
-        {
-            const Real t = x.GetLocal(iLoc,0);
             for( Int k=1; k<order; ++k )
-                socBuf[k-1] = recvBuf[offs[x.RowOwner(i+k)]++];
-            const Real botNrm = blas::Nrm2( order-1, socBuf.data(), 1 );
-            if( t < botNrm )
-                ++numLocalNonSO;
-        }
+                x.QueueUpdate( i+k, 0, x.GetLocal(iLoc,0) );
     }
-    Int numNonSO = mpi::AllReduce( numLocalNonSO, comm );
+    x.ProcessQueues();
 
     // Handle all of the second-order cones with order > cutoff
     // ========================================================
@@ -169,7 +130,8 @@ Int NumNonSecondOrder
     int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
-    totalRecv = Scan( numRecvCones, recvOffs );
+    vector<int> recvOffs;
+    int totalRecv = Scan( numRecvCones, recvOffs );
     vector<Entry<Real>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
@@ -178,23 +140,19 @@ Int NumNonSecondOrder
     {
         const Int i = recvData[largeCone].i;
         const Int order = recvData[largeCone].j;
-        const Real t = recvData[largeCone].value;
+        const Real x0 = recvData[largeCone].value;
         auto xBot = x( IR(i+1,i+order), ALL );
-        const Real xBotNrm = Nrm2( xBot );
-        if( t < xBotNrm )
-            ++numNonSO;
+        Fill( xBot, x0 );
     }
-
-    return numNonSO;
 }
 
 template<typename Real>
-Int NumNonSecondOrder
-( const DistMultiVec<Real>& x, 
+void SOCBroadcast
+(       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NumNonSecondOrder"))
+    DEBUG_ONLY(CSE cse("SOCBroadcast"))
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
@@ -207,17 +165,13 @@ Int NumNonSecondOrder
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    // Perform an mpi::AllToAll to collect all of the second-order cones of
-    // order less than or equal to the cutoff at the root locations and 
-    // individually handle the remainder 
     // TODO: Find a better strategy
 
     // Handle all second-order cones with order <= cutoff
     // ==================================================
-    Int numLocalNonSO = 0;
-    // Compute the send and recv counts and offsets
-    // --------------------------------------------
-    vector<int> sendCounts(commSize,0), recvCounts(commSize,0);
+    // Count the number of remote updates (and set non-root entries to zero)
+    // ---------------------------------------------------------------------
+    Int numRemoteUpdates = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -229,41 +183,14 @@ Int NumNonSecondOrder
         if( i == firstInd )
         {
             for( Int k=1; k<order; ++k )
-                ++recvCounts[x.RowOwner(i+k)];
+                if( !x.IsLocal(i+k,0) )
+                    ++numRemoteUpdates;
         }
         else
-        {
-            ++sendCounts[x.RowOwner(firstInd)];
-        }
+            x.SetLocal( iLoc, 0, 0 );
     }
-    vector<int> sendOffs, recvOffs;
-    int totalSend = Scan( sendCounts, sendOffs );
-    int totalRecv = Scan( recvCounts, recvOffs );
-    // Pack the entries 
-    // ----------------
-    vector<Real> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-    {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        if( order > cutoff )
-            continue;
-
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
-        if( i != firstInd )
-            sendBuf[offs[x.RowOwner(firstInd)]++] = x.GetLocal(iLoc,0);
-    }
-    // Exchange entries
-    // ----------------
-    vector<Real> recvBuf(totalRecv); 
-    mpi::AllToAll 
-    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    // Check the cone constraints
-    // --------------------------
-    offs = recvOffs;
-    vector<Real> socBuf(cutoff-1);
+    // Queue and process the remote updates
+    // ------------------------------------
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
@@ -273,16 +200,10 @@ Int NumNonSecondOrder
 
         const Int firstInd = firstInds.GetLocal(iLoc,0);
         if( i == firstInd )
-        {
-            const Real t = x.GetLocal(iLoc,0);
             for( Int k=1; k<order; ++k )
-                socBuf[k-1] = recvBuf[offs[x.RowOwner(i+k)]++];
-            const Real botNrm = blas::Nrm2( order-1, socBuf.data(), 1 );
-            if( t < botNrm )
-                ++numLocalNonSO;
-        }
+                x.QueueUpdate( i+k, 0, x.GetLocal(iLoc,0) );
     }
-    Int numNonSO = mpi::AllReduce( numLocalNonSO, comm );
+    x.ProcessQueues();
 
     // Handle all of the second-order cones with order > cutoff
     // ========================================================
@@ -300,7 +221,8 @@ Int NumNonSecondOrder
     int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
-    totalRecv = Scan( numRecvCones, recvOffs ); 
+    vector<int> recvOffs;
+    int totalRecv = Scan( numRecvCones, recvOffs ); 
     vector<Entry<Real>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
@@ -309,33 +231,27 @@ Int NumNonSecondOrder
     {
         const Int i = recvData[largeCone].i;
         const Int order = recvData[largeCone].j;
-        const Real t = recvData[largeCone].value;
+        const Real x0 = recvData[largeCone].value;
 
-        // Compute the two-norm of x( i+1:i+order, 0 )
-        Real xBotSqLoc = 0;
+        // Unpack the root entry
         const Int iFirst = x.FirstLocalRow();
         const Int iLast = iFirst + x.LocalHeight();
         for( Int j=Max(iFirst,i+1); j<Min(iLast,i+order); ++j )
-            xBotSqLoc += Pow(x.GetLocal(j-iFirst,0),Real(2));
-        const Real xBotNrm = mpi::AllReduce( xBotSqLoc, x.Comm() );
-        if( t < xBotNrm )
-            ++numNonSO;
+            x.SetLocal( j-iFirst, 0, x0 );
     }
-
-    return numNonSO;
 }
 
 #define PROTO(Real) \
-  template Int NumNonSecondOrder \
-  ( const Matrix<Real>& x, \
+  template void SOCBroadcast \
+  (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template Int NumNonSecondOrder \
-  ( const AbstractDistMatrix<Real>& x, \
+  template void SOCBroadcast \
+  (       AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
-  template Int NumNonSecondOrder \
-  ( const DistMultiVec<Real>& x, \
+  template void SOCBroadcast \
+  (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );
 

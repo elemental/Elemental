@@ -65,6 +65,9 @@ public:
     mpi::Comm Comm() const;
     Int Blocksize() const;
     int RowOwner( Int i ) const;
+    int Owner( Int i, Int j ) const;
+    bool IsLocal( Int i, Int j ) const;
+    bool IsLocalRow( Int i ) const;
     Int GlobalRow( Int iLoc ) const;
 
     // Entrywise manipulation
@@ -80,6 +83,13 @@ public:
     void UpdateLocal( Int iLoc, Int j, T value );
     void UpdateLocal( const Entry<T>& entry );
 
+    // Batch updating of remote entries
+    // --------------------------------
+    void Reserve( Int numRemoteEntries );
+    void QueueUpdate( const Entry<T>& entry );
+    void QueueUpdate( Int i, Int j, T value );
+    void ProcessQueues();
+
 private:
     Int height_, width_;
 
@@ -89,6 +99,10 @@ private:
     Int firstLocalRow_;
 
     El::Matrix<T> multiVec_;
+
+    // Remote updates
+    // --------------
+    vector<Entry<T>> remoteUpdates_;
 
     void InitializeLocalData();
 };

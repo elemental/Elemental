@@ -46,6 +46,10 @@ public:
     void SetGrid( const El::Grid& grid );
     void Resize( Int height, Int width );
     void Resize( Int height, Int width, Int ldim );
+    // NOTE: The 'consistent' in this name should not be confused with the
+    //       'AssertLocallyConsistent()' function, which has to do with whether
+    //       the local queues have been processed. Perhaps these routine names
+    //       should be changed.
     void MakeConsistent( bool includingViewers=false );
     void MakeSizeConsistent( bool includingViewers=false );
 

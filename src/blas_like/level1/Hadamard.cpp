@@ -48,18 +48,19 @@ void Hadamard
         LogicError("A and B must be aligned");
     C.AlignWith( A.DistData() );
     C.Resize( A.Height(), A.Width() );
+    Hadamard( A.LockedMatrix(), B.LockedMatrix(), C.Matrix() );
+}
 
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const T alpha = A.GetLocal(iLoc,jLoc); 
-            const T beta = B.GetLocal(iLoc,jLoc);
-            C.SetLocal( iLoc, jLoc, alpha*beta );
-        }
-    }
+template<typename T> 
+void Hadamard
+( const DistMultiVec<T>& A, const DistMultiVec<T>& B, DistMultiVec<T>& C )
+{
+    DEBUG_ONLY(CSE cse("Hadamard"))
+    if( A.Height() != B.Height() || A.Width() != B.Width() )
+        LogicError("Hadamard product requires equal dimensions");
+    C.SetComm( A.Comm() );
+    C.Resize( A.Height(), A.Width() );
+    Hadamard( A.LockedMatrix(), B.LockedMatrix(), C.Matrix() );
 }
 
 #define PROTO(T) \
@@ -68,7 +69,11 @@ void Hadamard
   template void Hadamard \
   ( const AbstractDistMatrix<T>& A, \
     const AbstractDistMatrix<T>& B, \
-          AbstractDistMatrix<T>& C );
+          AbstractDistMatrix<T>& C ); \
+  template void Hadamard \
+  ( const DistMultiVec<T>& A, \
+    const DistMultiVec<T>& B, \
+          DistMultiVec<T>& C );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
