@@ -32,6 +32,7 @@ including:
     - Non-negative Least Squares
     - Support Vector Machines
     - (1D) Total Variation
+* Distributed Jordan algebras over products of Second-Order Cones
 * Various prototype dense Alternating Direction Method of Multipliers routines
     - Sparse inverse covariance selection
     - Robust Principal Component Analysis
