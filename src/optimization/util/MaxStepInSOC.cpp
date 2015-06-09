@@ -10,10 +10,101 @@
 
 namespace El {
 
-// NOTE: It is assumed that x is in the SOC, but some minimal branching is 
-//       needed based upon whether or not y is also in the cone 
-//       (which is determined from the combination of its determinant and the 
-//       sign of its first entry).
+// Given x within a Second-Order Cone and an arbitrary search direction y in 
+// R^n, find the maximum value of alpha* in [0,upperBound] such that 
+// x + t y lies within the cone for all values of t in [0,alpha*].
+//
+// Thus, we seek the minimum positive solution to the quadratic equation
+//   
+//   det(x + alpha y) = det(y) alpha^2 + 2 (x^T R y) alpha + det(x) = 0,
+//
+// which is degenerate in the case where y lies on the boundary of either the
+// second-order cone or its negative reflection, in which case we may simply
+// set
+//
+//   alpha = -det(x) / (2 x^T R y).
+//
+// It also happens that, when y lies within the reflection of the orthogonal
+// complement of x, that x^T R y = 0, and the only positive solution to the 
+// original formula simplifies to
+//
+//   alpha = sqrt(-det(x)/det(y)).
+//
+// In the simple case where y lies within the second-order cone, we are free
+// to make alpha as large as possible.
+//
+// In all cases, after finding the maximum unconstrained step-length, alpha,
+// we set 
+//
+//   alpha* = min(alpha,upperBound).
+//
+// Our algorithm for each subcone, given a predefined tolerance for inversion,
+// delta, can be summarized via the steps:
+//
+//   Compute det(x), det(y), and x^T R y.
+//
+//   If y_0 >= 0 and det(y) >= 0, 
+//
+//     Set alpha* = upperBound.
+//
+//   Else if |det(y)| <= delta,
+//
+//     Set alpha* = min(-det(x)/(2 x^T R y),upperBound).
+//
+//   Else
+//
+//     plusRoot := (-(x^T R y) + sqrt((x^T R y)^2 - det(x) det(y)))/det(y),
+//     minusRoot := (-(x^T R y) - sqrt((x^T R y)^2 - det(x) det(y)))/det(y),
+//     minRoot := min(plusRoot,minusRoot)
+//     maxRoot := max(plusRoot,minusRoot)
+//     
+//     If minRoot >= 0:
+//
+//       alpha* = min(minRoot,upperBound)
+//     
+//     Else:
+//
+//       alpha* = min(maxRoot,upperBound)
+//
+//     End
+//
+//   End
+//
+// In order to compute the step-length for a product cone, the minimum over 
+// the set of subcone step-lengths should be taken.
+// 
+
+namespace {
+
+template<typename Real>
+Real ChooseStepLength
+( Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
+  Real delta=lapack::MachineSafeMin<Real>() )
+{
+    DEBUG_ONLY(CSE cse("ChooseStepLength"))
+    if( y0 >= Real(0) && yDet >= Real(0) ) 
+    {
+        return upperBound;
+    }
+    else if( Abs(yDet) <= delta )
+    {
+        return Min(-xDet/(2*xTRy),upperBound);
+    }
+    else
+    {
+        Real sqrtDiscrim = Sqrt((xTRy)*(xTRy)-xDet*yDet);
+        Real plusRoot = (-xTRy+sqrtDiscrim)/yDet;
+        Real minusRoot = (-xTRy-sqrtDiscrim)/yDet;
+        Real minRoot = Min(plusRoot,minusRoot);
+        Real maxRoot = Max(plusRoot,minusRoot);
+        if( minRoot >= Real(0) )
+            return Min(minRoot,upperBound);
+        else
+            return Min(maxRoot,upperBound);
+    }
+}
+
+} // anonymous namespace
 
 template<typename Real>
 Real MaxStepInSOC
@@ -22,7 +113,6 @@ Real MaxStepInSOC
   Real upperBound )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
-    LogicError("This routine is not yet finished");
 
     Matrix<Real> xDets, yDets, xTRys, maxSteps;
     SOCDets( x, xDets, orders, firstInds );
@@ -40,32 +130,12 @@ Real MaxStepInSOC
         if( i != firstInds.Get(i,0) )
             LogicError("Inconsistency in orders and firstInds");
 
+        const Real y0 = y.Get(i,0);
         const Real xDet = xDets.Get(i,0);
         const Real yDet = yDets.Get(i,0);
         const Real xTRy = xTRys.Get(i,0);
- 
-        Real maxStep;
-        if( y.Get(i,0) >= Real(0) && yDet >= Real(0) )
-        {
-            // y is in the positive cone, so we could step arbitrarily far
-            maxStep = upperBound;
-        }
-        else if( yDet != Real(0) )
-        {
-            // TODO: Use a tolerance rather than checking strictly for zero.
-            //       Perhaps lapack::SafeMin<Real>() would be appropriate.
-            // TODO: Compute the square-root more carefully
-            Real root = (xTRy - Sqrt(xTRy*xTRy-xDet*yDet))/yDet;
-            if( root >= Real(0) )
-                maxStep = root;
-            else
-                maxStep = upperBound;
-        }
-        else
-        {
-        
-        }
-        alpha = Min(alpha,maxStep);
+
+        alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
 
         i += orders.Get(i,0);
     }
@@ -81,7 +151,6 @@ Real MaxStepInSOC
   Real upperBound, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
-    LogicError("This routine is not yet finished");
 
     ProxyCtrl control;
     control.colConstrain = true;
@@ -112,11 +181,12 @@ Real MaxStepInSOC
         if( i != firstInds.GetLocal(iLoc,0) )
             continue;
 
+        const Real y0 = y.GetLocal(iLoc,0);
         const Real xDet = xDets.GetLocal(iLoc,0);
         const Real yDet = yDets.GetLocal(iLoc,0);
         const Real xTRy = xTRys.GetLocal(iLoc,0);
-        const Real maxStep = (xTRy - Sqrt(xTRy*xTRy-xDet*yDet))/yDet;
-        alpha = Min(alpha,maxStep);
+        
+        alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
     }
 
     return mpi::AllReduce( alpha, mpi::MIN, x.DistComm() );
@@ -131,7 +201,6 @@ Real MaxStepInSOC
   Real upperBound, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
-    LogicError("This routine is not yet finished");
 
     DistMultiVec<Real> xDets, yDets, xTRys, maxSteps;
     SOCDets( x, xDets, orders, firstInds, cutoff );
@@ -149,11 +218,12 @@ Real MaxStepInSOC
         if( i != firstInds.GetLocal(iLoc,0) )
             continue;
         
+        const Real y0 = y.GetLocal(iLoc,0);
         const Real xDet = xDets.GetLocal(iLoc,0);
         const Real yDet = yDets.GetLocal(iLoc,0);
         const Real xTRy = xTRys.GetLocal(iLoc,0);
-        const Real maxStep = (xTRy - Sqrt(xTRy*xTRy-xDet*yDet))/yDet;
-        alpha = Min(alpha,maxStep);
+
+        alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
     }
     return mpi::AllReduce( alpha, mpi::MIN, x.Comm() );
 }

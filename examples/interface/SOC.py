@@ -8,7 +8,7 @@
 #
 import El, math, time
 
-n = 5
+m = 10
 cutoff = 1000
 output = True
 
@@ -17,28 +17,33 @@ worldSize = El.mpi.WorldSize()
 
 # Construct s and z in the (product) cone
 # =======================================
-s = El.DistMultiVec()
-z = El.DistMultiVec()
-orders = El.DistMultiVec(El.iTag)
-firstInds = El.DistMultiVec(El.iTag)
-sampleRad = 1./math.sqrt(1.*n)
-El.Uniform( s, 3*n, 1, 0, sampleRad )
-El.Uniform( z, 3*n, 1, 0, sampleRad )
-s.Set( 0, 0, 2. )
-s.Set( n, 0, 3. )
-s.Set( 2*n, 0, 4. )
-z.Set( 0, 0, 5. )
-z.Set( n, 0, 6. )
-z.Set( 2*n, 0, 7. )
-El.Zeros( orders, 3*n, 1 )
-El.Zeros( firstInds, 3*n, 1 )
-for i in xrange(n):
-  orders.Set( i, 0, n )
-  orders.Set( i+n, 0, n )
-  orders.Set( i+2*n, 0, n )
-  firstInds.Set( i, 0, 0 )
-  firstInds.Set( i+n, 0, n )
-  firstInds.Set( i+2*n, 0, 2*n )
+def ConstructPrimalDual(m):
+  s = El.DistMultiVec()
+  z = El.DistMultiVec()
+  orders = El.DistMultiVec(El.iTag)
+  firstInds = El.DistMultiVec(El.iTag)
+  sampleRad = 1./math.sqrt(1.*m)
+  El.Uniform( s, 3*m, 1, 0, sampleRad )
+  El.Uniform( z, 3*m, 1, 0, sampleRad )
+  s.Set( 0, 0, 2. )
+  s.Set( m, 0, 3. )
+  s.Set( 2*m, 0, 4. )
+  z.Set( 0, 0, 5. )
+  z.Set( m, 0, 6. )
+  z.Set( 2*m, 0, 7. )
+  El.Zeros( orders, 3*m, 1 )
+  El.Zeros( firstInds, 3*m, 1 )
+  for i in xrange(m):
+    orders.Set( i, 0, m )
+    orders.Set( i+m, 0, m )
+    orders.Set( i+2*m, 0, m )
+    firstInds.Set( i, 0, 0 )
+    firstInds.Set( i+m, 0, m )
+    firstInds.Set( i+2*m, 0, 2*m )
+  return s, z, orders, firstInds
+
+s, z, orders, firstInds = ConstructPrimalDual(m)
+n = s.Height()
 if output:
   El.Print( s, "s" )
   El.Print( z, "z" )
@@ -106,19 +111,22 @@ if output:
   El.Print( sNT, "s_NT" )
   El.Print( zNT, "z_NT" )
 
-# Compute the minimum non-negative step length, alpha, such that s + alpha z
+# Compute the minimum non-negative step length, alpha, such that s + alpha y
 # touches the boundary of the product cone
+y = El.DistMultiVec()
+El.Uniform( y, n, 1 ) 
 upperBound = 100.
-alpha = El.MaxStepInSOC( s, z, orders, firstInds, upperBound, cutoff )
+alpha = El.MaxStepInSOC( s, y, orders, firstInds, upperBound, cutoff )
 p = El.DistMultiVec()
 El.Copy( s, p )
-El.Axpy( alpha, z, p )
+El.Axpy( alpha, y, p )
 pDets = El.SOCDets( p, orders, firstInds, cutoff )
 if output:
+  El.Print( y, "y" )
   if worldRank == 0: 
     print "maximum step in cone is:", alpha
-  El.Print( p, "s + alpha z" )
-  El.Print( pDets, "det(s + alpha z)" )
+  El.Print( p, "s + alpha y" )
+  El.Print( pDets, "det(s + alpha y)" )
 
 # Require the user to press a button before the figures are closed
 El.Finalize()
