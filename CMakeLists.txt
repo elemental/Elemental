@@ -186,7 +186,11 @@ mark_as_advanced(EL_VECTOR_WARNINGS)
 
 # Add the header file include directories first (so they have priority)
 # ---------------------------------------------------------------------
+message(STATUS 
+  "Appending ${PROJECT_SOURCE_DIR}/include for Elemental's source includes")
 include_directories("${PROJECT_SOURCE_DIR}/include")
+message(STATUS 
+  "Appending ${PROJECT_BINARY_DIR}/include for Elemental's binary includes")
 include_directories("${PROJECT_BINARY_DIR}/include")
 
 if(BUILD_SHARED_LIBS)
@@ -296,6 +300,7 @@ set(CXX_FLAGS "${CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 # Detect MPI
 # ----------
 include(detect/MPI)
+message(STATUS "Appending ${MPI_C_INCLUDE_PATH} for MPI headers")
 include_directories(${MPI_C_INCLUDE_PATH})
 set(CXX_FLAGS "${CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 
@@ -317,6 +322,7 @@ endif()
 # ------------------------------------------------------------------------------
 include(FindValgrind)
 if(VALGRIND_FOUND)
+  message(STATUS "Appending ${VALGRIND_INCLUDE_DIR} for Valgrind headers")
   include_directories(${VALGRIND_INCLUDE_DIR})
   set(EL_HAVE_VALGRIND TRUE)
 endif()
@@ -369,6 +375,7 @@ if(EL_HAVE_QT5)
   set(EL_HEADERS_PREMOC
     "include/El/io/DisplayWindow-premoc.hpp;include/El/io/ComplexDisplayWindow-premoc.hpp")
   qt_wrap_cpp(El EL_MOC_SRC ${EL_HEADERS_PREMOC})
+  message(STATUS "Appending ${Qt5Widgets_INCLUDE_DIRS} for Qt5 headers")
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
 

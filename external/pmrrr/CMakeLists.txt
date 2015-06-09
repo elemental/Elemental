@@ -18,7 +18,9 @@ endif()
 
 # Include the header directory
 # ----------------------------
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+message(STATUS 
+  "Appending ${CMAKE_CURRENT_SOURCE_DIR}/include for PMRRR's headers")
+include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # Define the header files installation rules
 # ------------------------------------------
@@ -41,7 +43,6 @@ endif()
 if(NOT MPI_C_FOUND)
   message(FATAL_ERROR "No MPI C compiler was found, so PMRRR cannot be built")
 endif()
-include_directories(${MPI_C_INCLUDE_PATH})
 
 if(NOT DISABLE_PTHREADS)
   include(ElCheckFunctionExists)

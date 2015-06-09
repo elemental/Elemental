@@ -31,7 +31,6 @@ if(USE_FOUND_PARMETIS)
   # find_package returns 'PARMETIS_LIBRARIES' but ParMETIS's CMakeLists.txt
   # returns 'PARMETIS_LIBS'
   set(PARMETIS_LIBS ${PARMETIS_LIBRARIES})
-  include_directories(${PARMETIS_INCLUDE_DIR})
 else()
   if(NOT DEFINED PARMETIS_URL)
     set(PARMETIS_URL https://github.com/poulson/parmetis.git)
@@ -76,7 +75,7 @@ else()
 
   # Extract the source and install directories
   ExternalProject_Get_Property(project_parmetis source_dir install_dir)
-  include_directories("${install_dir}/include")
+  set(PARMETIS_INCLUDE_DIR "${install_dir}/include")
 
   # Add targets for libmetis and libparmetis (either shared or static)
   add_library(libmetis ${LIBRARY_TYPE} IMPORTED)
@@ -94,5 +93,7 @@ endif()
 
 set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PARMETIS_LIBS})
 
+message(STATUS "Including ${PARMETIS_INCLUDE_DIR} for external ParMETIS")
+include_directories(${PARMETIS_INCLUDE_DIR})
 set(EL_HAVE_METIS TRUE)
 set(EL_HAVE_PARMETIS TRUE)
