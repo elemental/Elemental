@@ -55,15 +55,18 @@ Base<F> LogDetDiv
 template<typename Real>
 Real MaxStepInPositiveCone
 ( const Matrix<Real>& s, 
-  const Matrix<Real>& ds, Real upperBound );
+  const Matrix<Real>& ds, 
+  Real upperBound=std::numeric_limits<Real>::max() );
 template<typename Real>
 Real MaxStepInPositiveCone
 ( const AbstractDistMatrix<Real>& s, 
-  const AbstractDistMatrix<Real>& ds, Real upperBound );
+  const AbstractDistMatrix<Real>& ds, 
+  Real upperBound=std::numeric_limits<Real>::max() );
 template<typename Real>
 Real MaxStepInPositiveCone
 ( const DistMultiVec<Real>& s, 
-  const DistMultiVec<Real>& ds, Real upperBound );
+  const DistMultiVec<Real>& ds, 
+  Real upperBound=std::numeric_limits<Real>::max() );
 
 // Number of non-positive entries
 // ==============================
@@ -312,6 +315,32 @@ void SOCNesterovTodd
         DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// Maximum step in a product of second-order cones
+// ===============================================
+template<typename Real>
+Real MaxStepInSOC
+( const Matrix<Real>& x, 
+  const Matrix<Real>& y,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds,
+  Real upperBound=std::numeric_limits<Real>::max() );
+template<typename Real>
+Real MaxStepInSOC
+( const AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Real>& y,
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds,
+  Real upperBound=std::numeric_limits<Real>::max(),
+  Int cutoff=1000 );
+template<typename Real>
+Real MaxStepInSOC
+( const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& y,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Real upperBound=std::numeric_limits<Real>::max(),
+  Int cutoff=1000 );
 
 } // namespace El
 

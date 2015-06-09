@@ -40,13 +40,11 @@ void SOCDets
 
     auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
     auto dPtr = WriteProxy<Real,VC,STAR>(&dPre,ctrl);
+    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
+    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& x = *xPtr;
     auto& d = *dPtr;
-
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto& orders = *ordersPtr;
-
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& firstInds = *firstIndsPtr;
 
     auto Rx = x;

@@ -9,6 +9,22 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
+
+option(HAVE_SPINLOCKS "Enable if pthread lib supports spinlocks" OFF)
+MARK_AS_ADVANCED(HAVE_SPINLOCKS)
+if(NOT HAVE_SPINLOCKS)
+  add_definitions(-DNOSPINLOCKS)
+endif()
+
+# Include the header directory
+# ----------------------------
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+# Define the header files installation rules
+# ------------------------------------------
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+  FILES_MATCHING PATTERN "*.h")
 if(WIN32 OR APPLE OR NOT EL_HYBRID)
   # Disable for Windows because of lack of POSIX support;
   # disable for Mac OS X because of deprecation of unnamed semaphores
@@ -19,12 +35,6 @@ else()
 endif()
 if(DISABLE_PTHREADS)
   add_definitions(-DDISABLE_PTHREADS)
-endif()
-
-option(HAVE_SPINLOCKS "Enable if pthread lib supports spinlocks" OFF)
-MARK_AS_ADVANCED(HAVE_SPINLOCKS)
-if(NOT HAVE_SPINLOCKS)
-  add_definitions(-DNOSPINLOCKS)
 endif()
 
 # Ensure that an MPI C compiler was found
@@ -74,10 +84,3 @@ if(EL_LINK_FLAGS)
   set_target_properties(pmrrr PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
 install(TARGETS pmrrr DESTINATION lib)
-
-# Install and include the header files
-# ------------------------------------
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
-  FILES_MATCHING PATTERN "*.h")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")

@@ -106,6 +106,20 @@ if output:
   El.Print( sNT, "s_NT" )
   El.Print( zNT, "z_NT" )
 
+# Compute the minimum non-negative step length, alpha, such that s + alpha z
+# touches the boundary of the product cone
+upperBound = 100.
+alpha = El.MaxStepInSOC( s, z, orders, firstInds, upperBound, cutoff )
+p = El.DistMultiVec()
+El.Copy( s, p )
+El.Axpy( alpha, z, p )
+pDets = El.SOCDets( p, orders, firstInds, cutoff )
+if output:
+  if worldRank == 0: 
+    print "maximum step in cone is:", alpha
+  El.Print( p, "s + alpha z" )
+  El.Print( pDets, "det(s + alpha z)" )
+
 # Require the user to press a button before the figures are closed
 El.Finalize()
 if worldSize == 1:

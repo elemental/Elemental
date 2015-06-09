@@ -183,6 +183,12 @@ mark_as_advanced(EL_VECTOR_WARNINGS)
 
 # Build logic
 # ===========
+
+# Add the header file include directories first (so they have priority)
+# ---------------------------------------------------------------------
+include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories("${PROJECT_BINARY_DIR}/include")
+
 if(BUILD_SHARED_LIBS)
   set(LIBRARY_TYPE SHARED)
 else()
@@ -278,15 +284,30 @@ if(APPLE)
   endif()
 endif()
 
+# Detect Fortran
+# --------------
 include(detect/Fortran)
+
+# Detect C++11
+# ------------
 include(detect/CXX)
 set(CXX_FLAGS "${CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
+
+# Detect MPI
+# ----------
 include(detect/MPI)
+include_directories(${MPI_C_INCLUDE_PATH})
 set(CXX_FLAGS "${CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+
+# Detect OpenMP
+# -------------
 include(detect/OpenMP)
 if(EL_HYBRID)
   set(CXX_FLAGS "${CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
+
+# Detect Qt5
+# ----------
 include(detect/Qt5)
 if(EL_HAVE_QT5)
   set(CXX_FLAGS "${CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
@@ -370,8 +391,6 @@ add_custom_target(El_config DEPENDS ${PROJECT_BINARY_DIR}/include/El/config.h)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
-include_directories("${PROJECT_SOURCE_DIR}/include")
-include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Define the main library for Elemental
 # -------------------------------------

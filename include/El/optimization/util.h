@@ -373,6 +373,35 @@ EL_EXPORT ElError ElSOCNesterovToddDistMultiVec_d
   ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds,
   ElInt cutoff );
 
+/* Max step in SOC
+   --------------- */
+EL_EXPORT ElError ElMaxStepInSOC_s
+( ElConstMatrix_s x, ElConstMatrix_s y,
+  ElConstMatrix_i orders, ElConstMatrix_i firstInds, 
+  float upperBound, float* alpha );
+EL_EXPORT ElError ElMaxStepInSOC_d
+( ElConstMatrix_d x, ElConstMatrix_d y,
+  ElConstMatrix_i orders, ElConstMatrix_i firstInds, 
+  double upperBound, double* alpha );
+
+EL_EXPORT ElError ElMaxStepInSOCDist_s
+( ElConstDistMatrix_s x, ElConstDistMatrix_s y,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds, 
+  float upperBound, ElInt cutoff, float* alpha );
+EL_EXPORT ElError ElMaxStepInSOCDist_d
+( ElConstDistMatrix_d x, ElConstDistMatrix_d y,
+  ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds, 
+  double upperBound, ElInt cutoff, double* alpha );
+
+EL_EXPORT ElError ElMaxStepInSOCDistMultiVec_s
+( ElConstDistMultiVec_s x, ElConstDistMultiVec_s y,
+  ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds, 
+  float upperBound, ElInt cutoff, float* alpha );
+EL_EXPORT ElError ElMaxStepInSOCDistMultiVec_d
+( ElConstDistMultiVec_d x, ElConstDistMultiVec_d y,
+  ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds, 
+  double upperBound, ElInt cutoff, double* alpha );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

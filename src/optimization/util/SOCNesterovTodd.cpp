@@ -60,14 +60,12 @@ void SOCNesterovTodd
     auto sPtr = ReadProxy<Real,VC,STAR>(&sPre,ctrl); 
     auto zPtr = ReadProxy<Real,VC,STAR>(&zPre,ctrl);
     auto wPtr = WriteProxy<Real,VC,STAR>(&wPre,ctrl);
+    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
+    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& s = *sPtr;
     auto& z = *zPtr;
     auto& w = *wPtr;
-
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto& orders = *ordersPtr;
-
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> zRoot(z.Grid());

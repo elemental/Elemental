@@ -505,3 +505,39 @@ def SOCNesterovTodd(s,z,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return w
   else: TypeExcept()
+
+# Max step in SOC
+# ===============
+lib.ElMaxStepInSOC_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,sType,POINTER(sType)]
+lib.ElMaxStepInSOC_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,dType,POINTER(dType)]
+lib.ElMaxStepInSOCDist_s.argtypes = \
+lib.ElMaxStepInSOCDistMultiVec_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,sType,iType,POINTER(sType)]
+lib.ElMaxStepInSOCDist_d.argtypes = \
+lib.ElMaxStepInSOCDistMultiVec_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,dType,iType,POINTER(dType)]
+
+def MaxStepInSOC(x,y,orders,firstInds,upperBound,cutoff=1000):
+  # TODO: Sanity checking
+  alpha = TagToType(x.tag)()
+  if type(x) is Matrix:
+    args = [x.obj,y.obj,orders.obj,firstInds.obj,upperBound,pointer(alpha)]
+    if   x.tag == sTag: lib.ElMaxStepInSOC_s(*args)
+    elif x.tag == dTag: lib.ElMaxStepInSOC_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMatrix:
+    args = [x.obj,y.obj,orders.obj,firstInds.obj,
+            upperBound,cutoff,pointer(alpha)]
+    if   x.tag == sTag: lib.ElMaxStepInSOCDist_s(*args)
+    elif x.tag == dTag: lib.ElMaxStepInSOCDist_d(*args)
+    else: DataExcept()
+  elif type(x) is DistMultiVec:
+    args = [x.obj,y.obj,orders.obj,firstInds.obj,
+            upperBound,cutoff,pointer(alpha)]
+    if   x.tag == sTag: lib.ElMaxStepInSOCDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElMaxStepInSOCDistMultiVec_d(*args)
+    else: DataExcept()
+  else: TypeExcept()
+  return alpha.value

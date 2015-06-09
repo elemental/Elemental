@@ -43,12 +43,10 @@ void SOCReflect
     ctrl.colAlign = 0;
 
     auto xPtr = ReadWriteProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto& x = *xPtr;
-
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto& orders = *ordersPtr;
-
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
+    auto& x = *xPtr;
+    auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
     const Int height = x.Height();

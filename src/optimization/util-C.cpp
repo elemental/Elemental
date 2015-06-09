@@ -282,7 +282,30 @@ extern "C" {
   { EL_TRY( \
       SOCNesterovTodd \
       ( *CReflect(x), *CReflect(y), *CReflect(z), \
-        *CReflect(orders), *CReflect(firstInds), cutoff ) ) }
+        *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
+  /* Max step in SOC
+     --------------- */ \
+  ElError ElMaxStepInSOC_ ## SIG \
+  ( ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
+    ElConstMatrix_i orders, ElConstMatrix_i firstInds, \
+    REAL upperBound, REAL* alpha ) \
+  { EL_TRY( *alpha = MaxStepInSOC \
+      (*CReflect(x),*CReflect(y),*CReflect(orders),*CReflect(firstInds), \
+       upperBound) ) } \
+  ElError ElMaxStepInSOCDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG x, ElConstDistMatrix_ ## SIG y, \
+    ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds, \
+    REAL upperBound, ElInt cutoff, REAL* alpha ) \
+  { EL_TRY( *alpha = MaxStepInSOC \
+      (*CReflect(x),*CReflect(y),*CReflect(orders),*CReflect(firstInds), \
+       upperBound,cutoff) ) } \
+  ElError ElMaxStepInSOCDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG x, ElConstDistMultiVec_ ## SIG y, \
+    ElConstDistMultiVec_i orders,  ElConstDistMultiVec_i firstInds, \
+    REAL upperBound, ElInt cutoff, REAL* alpha ) \
+  { EL_TRY( *alpha = MaxStepInSOC \
+      (*CReflect(x),*CReflect(y),*CReflect(orders),*CReflect(firstInds), \
+       upperBound,cutoff) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

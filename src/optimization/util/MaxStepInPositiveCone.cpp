@@ -34,6 +34,8 @@ Real MaxStepInPositiveCone
 {
     DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
 
+    // TODO: Decide if more general intermediate distributions should be
+    //       supported.
     auto sPtr = ReadProxy<Real,MC,MR>(&sPre);
     auto& s = *sPtr;
 
@@ -42,7 +44,7 @@ Real MaxStepInPositiveCone
     control.rowConstrain = true;
     control.colAlign = s.ColAlign();
     control.rowAlign = s.RowAlign();
-    auto dsPtr = ReadProxy<Real,MC,MR>(&dsPre);
+    auto dsPtr = ReadProxy<Real,MC,MR>(&dsPre,control);
     auto& ds = *dsPtr;
 
     Real alpha = upperBound;
@@ -57,8 +59,7 @@ Real MaxStepInPositiveCone
                 alpha = Min(alpha,-si/dsi);
         }
     }
-    alpha = mpi::AllReduce( alpha, mpi::MIN, s.DistComm() );
-    return alpha;
+    return mpi::AllReduce( alpha, mpi::MIN, s.DistComm() );
 }
 
 template<typename Real>
@@ -75,8 +76,7 @@ Real MaxStepInPositiveCone
         if( dsi < Real(0) )
             alpha = Min(alpha,-si/dsi);
     }
-    alpha = mpi::AllReduce( alpha, mpi::MIN, s.Comm() );
-    return alpha;
+    return mpi::AllReduce( alpha, mpi::MIN, s.Comm() );
 }
 
 #define PROTO(Real) \

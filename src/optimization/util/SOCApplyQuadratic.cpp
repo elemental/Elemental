@@ -61,14 +61,12 @@ void SOCApplyQuadratic
     auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
     auto yPtr = ReadProxy<Real,VC,STAR>(&yPre,ctrl);
     auto zPtr = WriteProxy<Real,VC,STAR>(&zPre,ctrl);
+    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
+    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& x = *xPtr;
     auto& y = *yPtr;
     auto& z = *zPtr;
-
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto& orders = *ordersPtr;
-
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& firstInds = *firstIndsPtr;
 
     // detRy := det(x) R y
