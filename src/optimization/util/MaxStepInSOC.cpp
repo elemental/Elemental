@@ -72,6 +72,39 @@ namespace El {
 //
 // In order to compute the step-length for a product cone, the minimum over 
 // the set of subcone step-lengths should be taken.
+//
+// Alternatively [1, pg. 23], since x is assumed to be a member of the SOC, one 
+// can compute an automorphism of the cone which maps x to e, as
+// 
+//   Q_{x^{-1/2}) x = e,
+//
+// where Q_z is the quadratic representation of the Jordan algebra member z,
+//
+//   Q_z = 2 z z^T - det(z) R.
+//
+// Then
+//
+//   x + alpha y >= 0 iff G (x + alpha y) = e + alpha (G y) >= 0.
+//
+// We can then recognize that [2]
+//
+//   max { t >= 0 | e + t (G y) >= 0 } = max { t >= 0 | e / t + G y >= 0 },
+//                                     = min { t >= 0 | e * t + G y >= 0 },
+//
+// where the result is simply equal to max(|| z_1 ||_2 - z_0,0) if we define 
+// z = G y. Then we need only consider two cases:
+//
+//   If max(|| z_1 ||_2 - z_0,0) == 0, return upperBound
+//
+//   Otherwise, return min(1 / max(|| z_1 ||_2 - z_0,0),upperBound).
+//
+// [1] L. Vandenberghe, "The CVXOPT linear and quadratic cone program solvers",
+//     2010. Last accessed from 
+//     http://www.seas.ucla.edu/~vandenbe/publications/coneprog.pdf
+//
+// [2] M. Andersen, J. Dahl, and L. Vandenberghe, CVXOPT function misc.max_step,
+//     2014. Last accessed from 
+//     https://github.com/cvxopt/cvxopt/blob/f3ca94fb997979a54b913f95b816132f7fd44820/src/python/misc.py#L1018
 // 
 
 namespace {
