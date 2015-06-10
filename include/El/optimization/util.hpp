@@ -224,6 +224,27 @@ void SOCApply
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
+// Overwrite y with x o y
+// ----------------------
+template<typename Real>
+void SOCApply
+( const Matrix<Real>& x, 
+        Matrix<Real>& y,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCApply
+( const AbstractDistMatrix<Real>& x, 
+        AbstractDistMatrix<Real>& y,
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void SOCApply
+( const DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y,
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
 // Apply the quadratic representation of a product of SOCs to a vector
 // ===================================================================
 template<typename Real>
@@ -245,6 +266,27 @@ void SOCApplyQuadratic
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// Overwrite y with Q_x y
+// ----------------------
+template<typename Real>
+void SOCApplyQuadratic
+( const Matrix<Real>& x, 
+        Matrix<Real>& y,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCApplyQuadratic
+( const AbstractDistMatrix<Real>& x, 
+        AbstractDistMatrix<Real>& y,
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void SOCApplyQuadratic
+( const DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 

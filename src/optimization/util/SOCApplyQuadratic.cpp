@@ -119,6 +119,49 @@ void SOCApplyQuadratic
     Axpy( Real(-1), detRy, z );
 }
 
+template<typename Real>
+void SOCApplyQuadratic
+( const Matrix<Real>& x,
+        Matrix<Real>& y,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds )
+{
+    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    // TODO?: Optimize
+    Matrix<Real> z; 
+    SOCApplyQuadratic( x, y, z, orders, firstInds );
+    y = z;
+}
+
+template<typename Real>
+void SOCApplyQuadratic
+( const AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  Int cutoff )
+{
+    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    // TODO?: Optimize
+    DistMatrix<Real,VC,STAR> z(x.Grid()); 
+    SOCApplyQuadratic( x, y, z, orders, firstInds, cutoff );
+    Copy( z, y );
+}
+
+template<typename Real>
+void SOCApplyQuadratic
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff )
+{
+    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    // TODO?: Optimize 
+    DistMultiVec<Real> z(x.Comm());
+    SOCApplyQuadratic( x, y, z, orders, firstInds, cutoff );
+    y = z;
+}
+
 #define PROTO(Real) \
   template void SOCApplyQuadratic \
   ( const Matrix<Real>& x, \
@@ -136,6 +179,21 @@ void SOCApplyQuadratic
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, Int cutoff ); \
+  template void SOCApplyQuadratic \
+  ( const Matrix<Real>& x, \
+          Matrix<Real>& y, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds ); \
+  template void SOCApplyQuadratic \
+  ( const AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  template void SOCApplyQuadratic \
+  ( const DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );
 
