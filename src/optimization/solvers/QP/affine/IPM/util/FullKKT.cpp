@@ -8,8 +8,6 @@
 */
 #include "El.hpp"
 
-#include "../../../direct/IPM/util.hpp"
-
 namespace El {
 namespace qp {
 namespace affine {

@@ -10,6 +10,8 @@
 #ifndef EL_OPTIMIZATION_SOLVERS_HPP
 #define EL_OPTIMIZATION_SOLVERS_HPP
 
+// TODO: Refactor many of the control structures to reduce redundancy
+
 namespace El {
 
 template<typename Real>
@@ -512,6 +514,129 @@ void QP
         DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
+
+// Second-order Cone Program
+// =========================
+namespace SOCPApproachNS {
+enum SOCPApproach {
+  SOCP_ADMM,             // NOTE: Not yet supported
+  SOCP_IPF,              // NOTE: Not yet supported
+  SOCP_IPF_SELFDUAL,     // NOTE: Not yet supported
+  SOCP_MEHROTRA,
+  SOCP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
+};
+} // namespace SOCPApproachNS
+using namespace SOCPApproachNS;
+
+namespace socp {
+namespace affine {
+
+// Attempt to solve a pair of Second-Order Cone Programs in "affine" conic form:
+//
+//   min c^T x, 
+//   s.t. A x = b, G x + s = h, s in K,
+//
+//   max -b^T y - h^T z
+//   s.t. A^T y + G^T z + c = 0, z in K,
+//
+// where the cone K is a product of second-order cones.
+//
+
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
+// TODO
+
+// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
+// ---------------------------------------------------------------
+template<typename Real>
+struct MehrotraCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real maxStepRatio=0.99;
+    RegQSDCtrl<Real> qsdCtrl;
+    bool outerEquil=true, innerEquil=true;
+    bool scaleTwoNorm=true;
+    Int basisSize = 15;
+    bool print=false;
+    bool time=false;
+
+    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
+    //       the default, (muAff/mu)^3 
+};
+
+// Control structure for the high-level "affine" conic-form LP solver
+// ------------------------------------------------------------------
+template<typename Real>
+struct Ctrl
+{
+    SOCPApproach approach=SOCP_MEHROTRA;
+    //IPFCtrl<Real> ipfCtrl;
+    MehrotraCtrl<Real> mehrotraCtrl;
+};
+
+} // namespace affine
+} // namespace socp
+
+// Affine conic form
+// -----------------
+template<typename Real>
+void SOCP
+( const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+  const Matrix<Real>& h,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,  
+        Matrix<Real>& s,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void SOCP
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& b, 
+  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
+        AbstractDistMatrix<Real>& x,       
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,       
+        AbstractDistMatrix<Real>& s,
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void SOCP
+( const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+  const Matrix<Real>& h,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void SOCP
+( const DistSparseMatrix<Real>& A, 
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& h,
+        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& s,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 
 } // namespace El
 

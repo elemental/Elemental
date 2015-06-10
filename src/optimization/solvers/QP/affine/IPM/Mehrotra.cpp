@@ -1280,6 +1280,6 @@ void Mehrotra
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
-} // namespace dual
+} // namespace affine
 } // namespace qp
 } // namespace El

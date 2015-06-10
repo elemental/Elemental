@@ -10,7 +10,7 @@
 #include "../util.hpp"
 
 namespace El {
-namespace lp {
+namespace socp {
 namespace affine {
 
 // The full KKT system is of the form
@@ -30,15 +30,27 @@ namespace affine {
 //   rc  = A^T y + G^T z + c,
 //   rb  = A x - b,
 //   rh  = G x + s - h,
-//   rmu = s o z - tau e
+//   rmu = s o z - tau e.
+//
+// However, a large amount of fill-in is incurred if member cones are large,
+// as the the linear operator implied by -(z <> s) is block-diagonal, with
+// each diagonal block corresponding to a member cone. Thankfully, this matrix
+// is known [citations!] to be a symmetric rank-two correction to a 
+// definite diagonal matrix, and so a sparse embedding can be applied.
 
 template<typename Real>
 void KKT
-( const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& s, const Matrix<Real>& z,
+( const Matrix<Real>& A, 
+  const Matrix<Real>& G,
+  const Matrix<Real>& s, 
+  const Matrix<Real>& z,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    LogicError("This routine is not yet finished");
+    /*
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -75,15 +87,22 @@ void KKT
         // ==========
         Transpose( G, Jxz );
     }
+    */
 }
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A,    const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& zPre,
+( const AbstractDistMatrix<Real>& A,    
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& sPre, 
+  const AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    LogicError("This routine is not yet finished");
+    /*
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -124,51 +143,82 @@ void KKT
         // ========
         Transpose( G, Jxz );
     }
+    */
 }
 
 template<typename Real>
 void KKT
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& s,       const Matrix<Real>& z,
+( const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& s, 
+  const Matrix<Real>& z,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    LogicError("This routine is not yet finished");
+    /*
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
     qp::affine::KKT( Q, A, G, s, z, J, onlyLower );
+    */
 }
 
 template<typename Real>
 void KKT
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& s,     const DistMultiVec<Real>& z,
+( const DistSparseMatrix<Real>& A, 
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& s,     
+  const DistMultiVec<Real>& z,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::KKT"))
+    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    LogicError("This routine is not yet finished");
+    /*
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);
     Q.Resize( n, n );
     qp::affine::KKT( Q, A, G, s, z, J, onlyLower );
+    */
 }
 
 #define PROTO(Real) \
   template void KKT \
-  ( const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& s, const Matrix<Real>& z, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& s, \
+    const Matrix<Real>& z, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& z, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& G, \
+    const AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
           AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& s,       const Matrix<Real>& z, \
+  ( const SparseMatrix<Real>& A, \
+    const SparseMatrix<Real>& G, \
+    const Matrix<Real>& s, \
+    const Matrix<Real>& z, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
           SparseMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& s,     const DistMultiVec<Real>& z, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& s, \
+    const DistMultiVec<Real>& z, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
           DistSparseMatrix<Real>& J, bool onlyLower );
 
 #define EL_NO_INT_PROTO
@@ -176,5 +226,5 @@ void KKT
 #include "El/macros/Instantiate.h"
 
 } // namespace affine
-} // namespace lp
+} // namespace socp
 } // namespace El

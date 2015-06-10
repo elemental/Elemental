@@ -10,24 +10,24 @@
 #include "./util.hpp"
 
 namespace El {
-namespace lp {
+namespace socp {
 namespace affine {
 
-// The following solves a pair of linear programs in "affine" conic form:
+// The following solves a pair of SOC programs in "affine" conic form:
 //
 //   min c^T x
-//   s.t. A x = b, G x + s = h, s >= 0,
+//   s.t. A x = b, G x + s = h, s in K,
 //
 //   max -b^T y - h^T z
-//   s.t. A^T y + G^T z + c = 0, z >= 0,
+//   s.t. A^T y + G^T z + c = 0, z in K,
 //
 // as opposed to the more specific "direct" conic form:
 //
 //   min c^T x
-//   s.t. A x = b, x >= 0,
+//   s.t. A x = b, x in K,
 //
 //   max -b^T y
-//   s.t. A^T y - z + c = 0, z >= 0,
+//   s.t. A^T y - z + c = 0, z in K,
 //
 // which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector 
 // scheme.
@@ -35,14 +35,20 @@ namespace affine {
 
 template<typename Real>
 void Mehrotra
-( const Matrix<Real>& APre, const Matrix<Real>& GPre,
-  const Matrix<Real>& bPre, const Matrix<Real>& cPre,
+( const Matrix<Real>& APre, 
+  const Matrix<Real>& GPre,
+  const Matrix<Real>& bPre, 
+  const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
-        Matrix<Real>& x,       Matrix<Real>& y, 
-        Matrix<Real>& z,       Matrix<Real>& s,
+        Matrix<Real>& x, 
+        Matrix<Real>& y, 
+        Matrix<Real>& z, 
+        Matrix<Real>& s,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -83,10 +89,12 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
+    LogicError("This routine is not yet finished"); 
+    /*
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, 
+    ( A, G, b, c, h, x, y, z, s, orders, firstInds,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Matrix<Real> J, d,
@@ -102,15 +110,16 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = NumNonPositive( s );
-        const Int zNumNonPos = NumNonPositive( z );
-        if( sNumNonPos > 0 || zNumNonPos > 0 )
+        const Int sNumNonSOC = NumNonSOC( s, orders, firstInds );
+        const Int zNumNonSOC = NumNonSOC( z, orders, firstInds );
+        if( sNumNonSOC > 0 || zNumNonSOC > 0 )
             LogicError
-            (sNumNonPos," entries of s were nonpositive and ",
-             zNumNonPos," entries of z were nonpositive");
+            (sNumNonSOC," members of s were non-positive and ",
+             zNumNonSOC," members of z were non-positive");
 
         // Check for convergence
         // =====================
+        // TODO: Adjust convergence criteria
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
         const Real primObj = Dot(c,x);
@@ -274,10 +283,11 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
+    */
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
+        // Unequilibrate the SOCP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -287,14 +297,20 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& GPre,
-  const AbstractDistMatrix<Real>& bPre, const AbstractDistMatrix<Real>& cPre,
+( const AbstractDistMatrix<Real>& APre, 
+  const AbstractDistMatrix<Real>& GPre,
+  const AbstractDistMatrix<Real>& bPre, 
+  const AbstractDistMatrix<Real>& cPre,
   const AbstractDistMatrix<Real>& hPre,
-        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre, 
-        AbstractDistMatrix<Real>& zPre,       AbstractDistMatrix<Real>& sPre,
+        AbstractDistMatrix<Real>& xPre, 
+        AbstractDistMatrix<Real>& yPre, 
+        AbstractDistMatrix<Real>& zPre, 
+        AbstractDistMatrix<Real>& sPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
 
@@ -321,7 +337,12 @@ void Mehrotra
     auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
-    // Equilibrate the LP by diagonally scaling [A;G]
+    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre);
+    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
+    auto& orders = *ordersPtr;
+    auto& firstInds = *firstIndsPtr;
+
+    // Equilibrate the SOCP by diagonally scaling [A;G]
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
@@ -357,6 +378,8 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
+    LogicError("This routine is not yet finished"); 
+    /*
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
@@ -554,6 +577,7 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
+    */
 
     if( ctrl.outerEquil )
     {
@@ -567,16 +591,22 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const SparseMatrix<Real>& APre, const SparseMatrix<Real>& GPre,
-  const Matrix<Real>& bPre,       const Matrix<Real>& cPre,
+( const SparseMatrix<Real>& APre, 
+  const SparseMatrix<Real>& GPre,
+  const Matrix<Real>& bPre, 
+  const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
-        Matrix<Real>& x,                Matrix<Real>& y, 
-        Matrix<Real>& z,                Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
 
-    // Equilibrate the LP by diagonally scaling [A;G]
+    // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -615,6 +645,8 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
+    LogicError("This routine is not yet finished"); 
+    /*
     vector<Int> map, invMap;
     ldl::NodeInfo info;
     ldl::Separator rootSep;
@@ -838,10 +870,11 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
+    */
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
+        // Unequilibrate the SOCP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -851,19 +884,25 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const DistSparseMatrix<Real>& APre, const DistSparseMatrix<Real>& GPre,
-  const DistMultiVec<Real>& bPre,     const DistMultiVec<Real>& cPre,
+( const DistSparseMatrix<Real>& APre,
+  const DistSparseMatrix<Real>& GPre,
+  const DistMultiVec<Real>& bPre,
+  const DistMultiVec<Real>& cPre,
   const DistMultiVec<Real>& hPre,
-        DistMultiVec<Real>& x,              DistMultiVec<Real>& y, 
-        DistMultiVec<Real>& z,              DistMultiVec<Real>& s,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;
 
-    // Equilibrate the LP by diagonally scaling [A;G]
+    // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -906,6 +945,8 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
+    LogicError("This routine is not yet finished"); 
+    /*
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
@@ -1167,10 +1208,11 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
+    */
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
+        // Unequilibrate the SOCP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -1180,32 +1222,56 @@ void Mehrotra
 
 #define PROTO(Real) \
   template void Mehrotra \
-  ( const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
-          Matrix<Real>& z,       Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& G, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
+  ( const SparseMatrix<Real>& A, \
+    const SparseMatrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
-          Matrix<Real>& z,             Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z,           DistMultiVec<Real>& s, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& s, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
     const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
@@ -1213,5 +1279,5 @@ void Mehrotra
 #include "El/macros/Instantiate.h"
 
 } // namespace affine
-} // namespace lp
+} // namespace socp
 } // namespace El
