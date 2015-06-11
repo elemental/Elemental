@@ -1021,7 +1021,7 @@ void Mehrotra
         else
             JOrig.multMeta = metaOrig;
         J = JOrig;
-        if( commRank == 0 )
+        if( commRank == 0 && ctrl.time )
             timer.Start();
         SymmetricEquil
         ( J, dInner, 

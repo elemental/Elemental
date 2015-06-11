@@ -209,7 +209,6 @@ void CP
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size(comm);
     DistSparseMatrix<Real> AHat(comm), G(comm);
     DistMultiVec<Real> c(comm), bHat(comm), h(comm);
 
@@ -230,82 +229,28 @@ void CP
     //      | -A -ones(m,1) |
     // ===========================
     Zeros( G, 2*m, n+1 );
+    G.Reserve( 2*A.NumLocalEntries()+G.LocalHeight(), 2*A.NumLocalEntries() );
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<A.NumLocalEntries(); ++e )
-        {
-            const Int i = A.Row(e);
-            ++sendCounts[ G.RowOwner(i)   ];
-            ++sendCounts[ G.RowOwner(i+m) ];
-        }
-        // Pack 
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int e=0; e<A.NumLocalEntries(); ++e )
-        {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            const Real value = A.Value(e);
-
-            int owner = G.RowOwner(i);    
-            sendBuf[offs[owner]++] = Entry<Real>{ i, j, value };
-
-            owner = G.RowOwner(i+m);
-            sendBuf[offs[owner]++] = Entry<Real>{ i+m, j, -value };
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        G.Reserve( recvBuf.size()+G.LocalHeight() );
-        for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
-            G.QueueLocalUpdate( iLoc, n, Real(-1) );
-        for( auto& entry : recvBuf )
-            G.QueueUpdate( entry );
-        G.ProcessQueues();
+        G.QueueUpdate( A.Row(e),   A.Col(e),  A.Value(e), false );
+        G.QueueUpdate( A.Row(e)+m, A.Col(e), -A.Value(e), false );
     }
+    for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
+        G.QueueLocalUpdate( iLoc, n, Real(-1) );
+    G.ProcessQueues();
 
     // h := |  b |
     //      | -b |
     // ===========
     Zeros( h, 2*m, 1 );
+    h.Reserve( 2*b.LocalHeight() );
+    for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
     {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-        {
-            const Int i = b.GlobalRow(iLoc);
-            ++sendCounts[ h.RowOwner(i)   ];
-            ++sendCounts[ h.RowOwner(i+m) ];
-        }
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<ValueInt<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-        {
-            const Int i = b.GlobalRow(iLoc);
-            const Real value = b.GetLocal(iLoc,0);
-
-            int owner = h.RowOwner(i);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i };
-
-            owner = h.RowOwner(i+m);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ -value, i+m };
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            h.Set( entry.index, 0, entry.value );
+        const Int i = b.GlobalRow(iLoc);
+        h.QueueUpdate( i,   0,  b.GetLocal(iLoc,0) );
+        h.QueueUpdate( i+m, 0, -b.GetLocal(iLoc,0) );
     }
+    h.ProcessQueues();
 
     // Solve the affine LP
     // ===================
