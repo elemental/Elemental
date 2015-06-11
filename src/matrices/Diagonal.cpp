@@ -67,23 +67,24 @@ void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 }
 
 template<typename S,typename T>
-void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& dPre )
+void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 {
     DEBUG_ONLY(CSE cse("Diagonal"))
-    auto dPtr = ReadProxy<T,STAR,STAR>(&dPre);
-    auto& d = *dPtr;
-
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
     Zeros( D, n, n );
-
-    const Int localWidth = D.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    if( d.RedundantRank() == 0 && d.IsLocalCol(0) )
     {
-        const Int j = D.GlobalCol(jLoc);
-        D.Set( j, j, d.Get(j,0) );
+        D.Reserve( d.LocalHeight() );
+        const Int localHeight = d.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = d.GlobalRow(iLoc);
+            D.QueueUpdate( i, i, d.GetLocal(iLoc,0) );
+        }
     }
+    D.ProcessQueues();
 }
 
 template<typename S,typename T>

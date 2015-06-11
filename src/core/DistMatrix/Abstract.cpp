@@ -949,10 +949,10 @@ AbstractDistMatrix<T>::Conjugate( Int i, Int j )
 // Batch remote updates
 // --------------------
 template<typename T>
-void AbstractDistMatrix<T>::Reserve( Int numRemoteEntries )
+void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
 { 
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::Reserve"))
-    remoteUpdates_.reserve( numRemoteEntries ); 
+    remoteUpdates_.reserve( numRemoteUpdates ); 
 }
 
 template<typename T>

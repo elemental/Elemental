@@ -1255,7 +1255,7 @@ std::vector<T> AllToAll
     std::vector<int> recvCounts(commSize);
     mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm ); 
     std::vector<int> recvOffs;
-    const int totalRecv = Scan( recvCounts, recvOffs );
+    const int totalRecv = El::Scan( recvCounts, recvOffs );
     std::vector<T> recvBuf(totalRecv);
     mpi::AllToAll
     ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
@@ -1896,6 +1896,183 @@ void VerifySendsAndRecvs
              " but recv'd ",actualRecvCounts[q]," from process ",q);
 }
 
+template<typename Real>
+void Scan( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan"))
+    if( count != 0 )
+    {
+        MPI_Op opC;
+        if( op == SUM )
+            opC = SumOp<Real>().op; 
+        else if( op == MAX )
+            opC = MaxOp<Real>().op;
+        else if( op == MIN )
+            opC = MinOp<Real>().op;
+        else
+            opC = op.op;
+
+        SafeMpi
+        ( MPI_Scan
+          ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(),
+            opC, comm.comm ) );
+    }
+}
+
+template<typename Real>
+void Scan
+( const Complex<Real>* sbuf, 
+        Complex<Real>* rbuf, int count, Op op, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan"))
+    if( count != 0 )
+    {
+        MPI_Op opC;
+        if( op == SUM )
+            opC = SumOp<Complex<Real>>().op; 
+        else
+            opC = op.op;
+
+#ifdef EL_AVOID_COMPLEX_MPI
+        if( op == SUM )
+        {
+            SafeMpi
+            ( MPI_Scan
+              ( const_cast<Complex<Real>*>(sbuf),
+                rbuf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
+        }
+        else
+        {
+            SafeMpi
+            ( MPI_Scan
+              ( const_cast<Complex<Real>*>(sbuf),
+                rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
+        }
+#else
+        SafeMpi
+        ( MPI_Scan
+          ( const_cast<Complex<Real>*>(sbuf), 
+            rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
+#endif
+    }
+}
+
+template<typename T>
+void Scan( const T* sbuf, T* rbuf, int count, Comm comm )
+{ Scan( sbuf, rbuf, count, mpi::SUM, comm ); }
+
+template<typename T>
+T Scan( T sb, Op op, Comm comm )
+{ 
+    T rb;
+    Scan( &sb, &rb, 1, op, comm );
+    return rb;
+}
+
+template<typename T>
+T Scan( T sb, Comm comm )
+{ 
+    T rb;
+    Scan( &sb, &rb, 1, mpi::SUM, comm );
+    return rb;
+}
+
+template<typename Real>
+void Scan( Real* buf, int count, Op op, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan"))
+    if( count != 0 )
+    {
+        MPI_Op opC;
+        if( op == SUM )
+            opC = SumOp<Real>().op; 
+        else if( op == MAX )
+            opC = MaxOp<Real>().op;
+        else if( op == MIN )
+            opC = MinOp<Real>().op;
+        else
+            opC = op.op;
+
+#ifdef EL_HAVE_MPI_IN_PLACE
+        SafeMpi
+        ( MPI_Scan
+          ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
+#else
+        vector<Real> sendBuf( count );
+        MemCopy( sendBuf.data(), buf, count );
+        SafeMpi
+        ( MPI_Scan
+          ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, comm.comm ) );
+#endif
+    }
+}
+
+template<typename Real>
+void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan"))
+    if( count != 0 )
+    {
+        MPI_Op opC;
+        if( op == SUM )
+            opC = SumOp<Complex<Real>>().op; 
+        else
+            opC = op.op;
+
+#ifdef EL_AVOID_COMPLEX_MPI
+        if( op == SUM )
+        {
+# ifdef EL_HAVE_MPI_IN_PLACE
+            SafeMpi
+            ( MPI_Scan
+              ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
+# else
+            vector<Complex<Real>> sendBuf( count );
+            MemCopy( sendBuf.data(), buf, count );
+            SafeMpi
+            ( MPI_Scan
+              ( sendBuf.data(), buf, 2*count, TypeMap<Real>(), opC, 
+                comm.comm ) );
+# endif
+        }
+        else
+        {
+# ifdef EL_HAVE_MPI_IN_PLACE
+            SafeMpi
+            ( MPI_Scan
+              ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+                comm.comm ) );
+# else
+            vector<Complex<Real>> sendBuf( count );
+            MemCopy( sendBuf.data(), buf, count );
+            SafeMpi
+            ( MPI_Scan
+              ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
+                comm.comm ) );
+# endif
+        }
+#else
+# ifdef EL_HAVE_MPI_IN_PLACE
+        SafeMpi
+        ( MPI_Scan
+          ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+            comm.comm ) );
+# else
+        vector<Complex<Real>> sendBuf( count );
+        MemCopy( sendBuf.data(), buf, count );
+        SafeMpi
+        ( MPI_Scan
+          ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
+            comm.comm ) );
+# endif
+#endif
+    }
+}
+
+template<typename T>
+void Scan( T* buf, int count, Comm comm )
+{ Scan( buf, count, mpi::SUM, comm ); }
+
 template<typename T>
 void SparseAllToAll
 ( const vector<T>& sendBuffer,
@@ -2028,7 +2205,13 @@ void SparseAllToAll
   template void ReduceScatter( T* buf, int rc, Op op, Comm comm ); \
   template void ReduceScatter( T* buf, int rc, Comm comm ); \
   template void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm ); \
-  template void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm );
+  template void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm ); \
+  template void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm ); \
+  template void Scan( const T* sbuf, T* rbuf, int count, Comm comm ); \
+  template T Scan( T sb, Op op, Comm comm ); \
+  template T Scan( T sb, Comm comm ); \
+  template void Scan( T* buf, int count, Op op, Comm comm ); \
+  template void Scan( T* buf, int count, Comm comm );
 
 MPI_PROTO(byte)
 MPI_PROTO(int)

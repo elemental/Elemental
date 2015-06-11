@@ -98,7 +98,8 @@ Cannon_NN
 template<typename T>
 inline void
 SUMMA_NNA
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
+( T alpha, const AbstractDistMatrix<T>& APre, 
+           const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(

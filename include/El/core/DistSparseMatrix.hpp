@@ -135,6 +135,7 @@ public:
     Int Blocksize() const;
     int RowOwner( Int i ) const;
     Int GlobalRow( Int iLoc ) const;
+    Int LocalRow( Int i ) const;
 
     // Detailed local information
     // --------------------------

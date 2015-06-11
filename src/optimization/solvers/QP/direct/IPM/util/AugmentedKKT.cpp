@@ -68,9 +68,9 @@ void AugmentedKKT
     const IR xInd(0,n), yInd(n,n+m);
     auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd);
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd);
-    DistMatrix<Real,STAR,STAR> d( z );
+    DistMatrix<Real,MC,STAR> d( z );
     DiagonalSolve( LEFT, NORMAL, x, d );
-    Diagonal( Jxx, d.Matrix() );
+    Diagonal( Jxx, d );
     Axpy( Real(1), Q, Jxx );
     Jyx = A;
     if( !onlyLower )

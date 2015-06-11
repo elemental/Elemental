@@ -12,6 +12,16 @@ namespace El {
 
 // NOTE: Many of the determinant calculations happening below are redundant.
 
+// Find the Nesterov-Todd scaling point w such that 
+//
+//   Q_w z = s,
+//
+// or, equivalently, for each subcone,
+//
+//   Hess(-(1/2) ln det(w)) s = z,
+//
+// where -(1/2) ln det(w) is the barrier function for the Second-Order Cone.
+
 template<typename Real>
 void SOCNesterovTodd
 ( const Matrix<Real>& s, 
@@ -22,23 +32,23 @@ void SOCNesterovTodd
 {
     DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
 
-    Matrix<Real> zRoot;
-    SOCSquareRoot( z, zRoot, orders, firstInds );
+    Matrix<Real> sRoot;
+    SOCSquareRoot( s, sRoot, orders, firstInds );
 
-    // a := Q_{sqrt(z)}(s)
+    // a := Q_{sqrt(s)}(z)
     // -------------------
     Matrix<Real> a;
-    SOCApplyQuadratic( zRoot, s, a, orders, firstInds );
+    SOCApplyQuadratic( sRoot, z, a, orders, firstInds );
 
-    // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(z)}(s))))
+    // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
     Matrix<Real> b; 
     SOCInverse( a, b, orders, firstInds );
     SOCSquareRoot( b, a, orders, firstInds );
 
-    // w := Q_{sqrt(z)}(a)
+    // w := Q_{sqrt(s)}(a)
     // -------------------
-    SOCApplyQuadratic( zRoot, a, w, orders, firstInds );
+    SOCApplyQuadratic( sRoot, a, w, orders, firstInds );
 }
 
 template<typename Real>
@@ -68,23 +78,23 @@ void SOCNesterovTodd
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
-    DistMatrix<Real,VC,STAR> zRoot(z.Grid());
-    SOCSquareRoot( z, zRoot, orders, firstInds, cutoff );
+    DistMatrix<Real,VC,STAR> sRoot(s.Grid());
+    SOCSquareRoot( s, sRoot, orders, firstInds, cutoff );
 
-    // a := Q_{sqrt(z)}(s)
+    // a := Q_{sqrt(s)}(z)
     // -------------------
-    DistMatrix<Real,VC,STAR> a(s.Grid());
-    SOCApplyQuadratic( zRoot, s, a, orders, firstInds, cutoff );
+    DistMatrix<Real,VC,STAR> a(z.Grid());
+    SOCApplyQuadratic( sRoot, z, a, orders, firstInds, cutoff );
 
-    // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(z)}(s))))
+    // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    DistMatrix<Real,VC,STAR> b(s.Grid()); 
+    DistMatrix<Real,VC,STAR> b(z.Grid()); 
     SOCInverse( a, b, orders, firstInds, cutoff );
     SOCSquareRoot( b, a, orders, firstInds, cutoff );
 
-    // w := Q_{sqrt(z)}(a)
+    // w := Q_{sqrt(s)}(a)
     // -------------------
-    SOCApplyQuadratic( zRoot, a, w, orders, firstInds, cutoff );
+    SOCApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
 }
 
 template<typename Real>
@@ -97,23 +107,23 @@ void SOCNesterovTodd
 {
     DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
 
-    DistMultiVec<Real> zRoot(z.Comm());
-    SOCSquareRoot( z, zRoot, orders, firstInds, cutoff );
+    DistMultiVec<Real> sRoot(s.Comm());
+    SOCSquareRoot( s, sRoot, orders, firstInds, cutoff );
 
-    // a := Q_{sqrt(z)}(s)
+    // a := Q_{sqrt(s)}(z)
     // -------------------
-    DistMultiVec<Real> a(s.Comm());
-    SOCApplyQuadratic( zRoot, s, a, orders, firstInds, cutoff );
+    DistMultiVec<Real> a(z.Comm());
+    SOCApplyQuadratic( sRoot, z, a, orders, firstInds, cutoff );
 
-    // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(z)}(s))))
+    // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    DistMultiVec<Real> b(s.Comm()); 
+    DistMultiVec<Real> b(z.Comm()); 
     SOCInverse( a, b, orders, firstInds, cutoff );
     SOCSquareRoot( b, a, orders, firstInds, cutoff );
 
-    // w := Q_{sqrt(z)}(a)
+    // w := Q_{sqrt(s)}(a)
     // -------------------
-    SOCApplyQuadratic( zRoot, a, w, orders, firstInds, cutoff );
+    SOCApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
 }
 
 #define PROTO(Real) \

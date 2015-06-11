@@ -214,7 +214,7 @@ void DistSparseMatrix<T>::ProcessQueues()
     )
     // Send the remote updates
     // =======================
-    int commSize = mpi::Size( distGraph_.comm_ );
+    const int commSize = mpi::Size( distGraph_.comm_ );
     {
         // Compute the send counts
         // -----------------------
@@ -242,6 +242,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         // -------------------
         auto recvBuf=
           mpi::AllToAll( sendBuf, sendCounts, sendOffs, distGraph_.comm_ );
+        Reserve( NumLocalEntries()+recvBuf.size() );
         for( auto& entry : recvBuf )
             QueueUpdate( entry );
     }
@@ -402,6 +403,14 @@ Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
     DEBUG_ONLY(CSE cse("DistSparseMatrix::GlobalRow"))
     if( iLoc == END ) iLoc = LocalHeight() - 1;
     return distGraph_.GlobalSource(iLoc); 
+}
+
+template<typename T>
+Int DistSparseMatrix<T>::LocalRow( Int i ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::LocalRow"))
+    if( i == END ) i = Height() - 1;
+    return distGraph_.LocalSource(i);
 }
 
 // Detailed local information

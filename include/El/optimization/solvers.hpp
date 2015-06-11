@@ -594,6 +594,7 @@ void SOCP
         Matrix<Real>& s,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP
@@ -608,6 +609,7 @@ void SOCP
         AbstractDistMatrix<Real>& s,
   const AbstractDistMatrix<Int>& orders, 
   const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP
@@ -622,6 +624,7 @@ void SOCP
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP
@@ -636,6 +639,7 @@ void SOCP
         DistMultiVec<Real>& s,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 
 } // namespace El

@@ -104,8 +104,8 @@ if output:
 w = El.SOCNesterovTodd( s, z, orders, firstInds, cutoff )
 wRoot = El.SOCSquareRoot( w, orders, firstInds, cutoff )
 wRootInv = El.SOCInverse( wRoot, orders, firstInds, cutoff )
-sNT = El.SOCApplyQuadratic( wRoot, s, orders, firstInds, cutoff )
-zNT = El.SOCApplyQuadratic( wRootInv, z, orders, firstInds, cutoff )
+sNT = El.SOCApplyQuadratic( wRootInv, s, orders, firstInds, cutoff )
+zNT = El.SOCApplyQuadratic( wRoot, z, orders, firstInds, cutoff )
 if output:
   El.Print( w, "w" )
   El.Print( sNT, "s_NT" )

@@ -28,6 +28,7 @@ void Initialize
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
@@ -42,6 +43,7 @@ void Initialize
         AbstractDistMatrix<Real>& s,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
@@ -56,6 +58,7 @@ void Initialize
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         vector<Int>& map, 
         vector<Int>& invMap,
         ldl::Separator& rootSep, 
@@ -75,6 +78,7 @@ void Initialize
         DistMultiVec<Real>& s,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
         DistMap& map,
         DistMap& invMap,
         ldl::DistSeparator& rootSep, 
@@ -92,6 +96,7 @@ void KKT
   const Matrix<Real>& z,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& J, bool onlyLower=true );
 template<typename Real>
 void KKT
@@ -101,6 +106,7 @@ void KKT
   const AbstractDistMatrix<Real>& z,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& J, bool onlyLower=true );
 template<typename Real>
 void KKT
@@ -110,6 +116,7 @@ void KKT
   const Matrix<Real>& z,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         SparseMatrix<Real>& J, bool onlyLower=true );
 template<typename Real>
 void KKT
@@ -119,6 +126,7 @@ void KKT
   const DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
         DistSparseMatrix<Real>& J, bool onlyLower=true );
 
 using qp::affine::KKTRHS;

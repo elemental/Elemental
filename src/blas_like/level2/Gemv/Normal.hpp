@@ -13,26 +13,25 @@ namespace gemv {
 template<typename T>
 inline void Normal
 ( T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& xPre,
+           const AbstractDistMatrix<T>& x,
   T beta,        AbstractDistMatrix<T>& yPre )
 {
     DEBUG_ONLY(
-        CSE cse("gemv::Normal");
-        AssertSameGrids( APre, xPre, yPre );
-        if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
-            ( yPre.Width() != 1 && yPre.Height() != 1 )   )
-            LogicError("x and y are assumed to be vectors");
-        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
-        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
-        if( APre.Height() != yLength || APre.Width() != xLength )
-            LogicError
-            ("Nonconformal: \n",DimsString(APre,"A"),"\n",
-             DimsString(xPre,"x"),"\n",DimsString(yPre,"y"));
+      CSE cse("gemv::Normal");
+      AssertSameGrids( APre, x, yPre );
+      if( ( x.Width() != 1 && x.Height() != 1 ) ||
+          ( yPre.Width() != 1 && yPre.Height() != 1 )   )
+          LogicError("x and y are assumed to be vectors");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
+      if( APre.Height() != yLength || APre.Width() != xLength )
+          LogicError
+          ("Nonconformal: \n",DimsString(APre,"A"),"\n",
+           DimsString(x,"x"),"\n",DimsString(yPre,"y"));
     )
     const Grid& g = APre.Grid();
 
     auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
     auto yPtr = ReadWriteProxy<T,MC,MR>( &yPre ); auto& y = *yPtr;
 
     Scale( beta, y );
@@ -100,18 +99,18 @@ inline void Normal
 template<typename T>
 inline void Normal
 ( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T,VC,STAR>& x,
+           const AbstractDistMatrix<T>& x,
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
     DEBUG_ONLY(
-        CSE cse("gemv::Normal");
-        AssertSameGrids( A, x, y );
-        if( x.Width() != 1 || y.Width() != 1 )
-            LogicError("x and y are assumed to be column vectors");
-        if( A.Height() != y.Height() || A.Width() != x.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(A,"A"),"\n",
-             DimsString(x,"x"),"\n",DimsString(y,"y"));
+      CSE cse("gemv::Normal");
+      AssertSameGrids( A, x, y );
+      if( x.Width() != 1 || y.Width() != 1 )
+          LogicError("x and y are assumed to be column vectors");
+      if( A.Height() != y.Height() || A.Width() != x.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(A,"A"),"\n",
+           DimsString(x,"x"),"\n",DimsString(y,"y"));
     )
     const Grid& g = A.Grid();
     Scale( beta, y );

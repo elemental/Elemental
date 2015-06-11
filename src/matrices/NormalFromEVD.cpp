@@ -55,7 +55,6 @@ void NormalFromEVD
     DistMatrix<C,MC,  STAR> Z1_MC_STAR(g);
     DistMatrix<C,VR,  STAR> Z1_VR_STAR(g);
     DistMatrix<C,STAR,MR  > Z1Adj_STAR_MR(g);
-    DistMatrix<C,STAR,STAR> w1_STAR_STAR(g);
 
     const Int m = Z.Height();
     const Int n = Z.Width();
@@ -71,9 +70,8 @@ void NormalFromEVD
         Z1_MC_STAR = Z1;
         Z1_VR_STAR.AlignWith( A );
         Z1_VR_STAR = Z1_MC_STAR;
-        w1_STAR_STAR = w1;
 
-        DiagonalScale( RIGHT, ADJOINT, w1_STAR_STAR, Z1_VR_STAR );
+        DiagonalScale( RIGHT, ADJOINT, w1, Z1_VR_STAR );
 
         Z1Adj_STAR_MR.AlignWith( A );
         Adjoint( Z1_VR_STAR, Z1Adj_STAR_MR );

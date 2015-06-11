@@ -56,7 +56,6 @@ void HermitianFromEVD
     DistMatrix<F,MC,  STAR> Z1_MC_STAR(g);
     DistMatrix<F,VR,  STAR> Z1_VR_STAR(g);
     DistMatrix<F,STAR,MR  > Z1Adj_STAR_MR(g);
-    DistMatrix<Real,STAR,STAR> w1_STAR_STAR(g);
 
     const Int m = Z.Height();
     const Int n = Z.Width();
@@ -76,9 +75,8 @@ void HermitianFromEVD
         Z1_MC_STAR = Z1;
         Z1_VR_STAR.AlignWith( A );
         Z1_VR_STAR = Z1_MC_STAR;
-        w1_STAR_STAR = w1;
 
-        DiagonalScale( RIGHT, NORMAL, w1_STAR_STAR, Z1_VR_STAR );
+        DiagonalScale( RIGHT, NORMAL, w1, Z1_VR_STAR );
 
         Z1Adj_STAR_MR.AlignWith( A );
         Adjoint( Z1_VR_STAR, Z1Adj_STAR_MR );

@@ -17,16 +17,16 @@ LTUnb
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CSE cse("quasitrsv::LTUnb");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
-            LogicError("Nonconformal");
-        if( orientation == NORMAL )
-            LogicError("Invalid orientation");
+      CSE cse("quasitrsv::LTUnb");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
+      if( x.Width() != 1 && x.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+      if( L.Width() != xLength )
+          LogicError("Nonconformal");
+      if( orientation == NORMAL )
+          LogicError("Invalid orientation");
     )
     typedef Base<F> Real;
     const bool conjugate = ( orientation == ADJOINT );
@@ -106,16 +106,16 @@ LT
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CSE cse("quasitrsv::LT");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
-            LogicError("Nonconformal");
-        if( orientation == NORMAL )
-            LogicError("Invalid orientation");
+      CSE cse("quasitrsv::LT");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
+      if( x.Width() != 1 && x.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+      if( L.Width() != xLength )
+          LogicError("Nonconformal");
+      if( orientation == NORMAL )
+          LogicError("Invalid orientation");
     )
     const bool vert = ( x.Width()==1 );
     const bool conjugate = ( orientation==ADJOINT );
@@ -168,18 +168,18 @@ LT
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CSE cse("quasitrsv::LT");
-        AssertSameGrids( LPre, xPre );
-        if( LPre.Height() != LPre.Width() )
-            LogicError("L must be square");
-        if( xPre.Width() != 1 && xPre.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = 
-            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
-        if( LPre.Width() != xLength )
-            LogicError("Nonconformal");
-        if( orientation == NORMAL )
-            LogicError("Invalid orientation");
+      CSE cse("quasitrsv::LT");
+      AssertSameGrids( LPre, xPre );
+      if( LPre.Height() != LPre.Width() )
+          LogicError("L must be square");
+      if( xPre.Width() != 1 && xPre.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = 
+          ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+      if( LPre.Width() != xLength )
+          LogicError("Nonconformal");
+      if( orientation == NORMAL )
+          LogicError("Invalid orientation");
     )
     const Int m = LPre.Height();
     const Int bsize = Blocksize();

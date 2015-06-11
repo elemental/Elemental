@@ -15,14 +15,14 @@ inline void
 LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CSE cse("quasitrsv::LNUnb");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
-            LogicError("Nonconformal");
+      CSE cse("quasitrsv::LNUnb");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
+      if( x.Width() != 1 && x.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+      if( L.Width() != xLength )
+          LogicError("Nonconformal");
     )
     typedef Base<F> Real;
 
@@ -102,14 +102,14 @@ inline void
 LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CSE cse("quasitrsv::LN");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
-            LogicError("Nonconformal");
+      CSE cse("quasitrsv::LN");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
+      if( x.Width() != 1 && x.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+      if( L.Width() != xLength )
+          LogicError("Nonconformal");
     )
     const bool vert = ( x.Width()==1 );
 
@@ -152,16 +152,16 @@ LN
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CSE cse("quasitrsv::LN");
-        AssertSameGrids( LPre, xPre );
-        if( LPre.Height() != LPre.Width() )
-            LogicError("L must be square");
-        if( xPre.Width() != 1 && xPre.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = 
-            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
-        if( LPre.Width() != xLength )
-            LogicError("Nonconformal");
+      CSE cse("quasitrsv::LN");
+      AssertSameGrids( LPre, xPre );
+      if( LPre.Height() != LPre.Width() )
+          LogicError("L must be square");
+      if( xPre.Width() != 1 && xPre.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = 
+          ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+      if( LPre.Width() != xLength )
+          LogicError("Nonconformal");
     )
     const Int m = LPre.Height();
     const Int bsize = Blocksize();

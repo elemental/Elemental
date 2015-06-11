@@ -562,6 +562,37 @@ void ReduceScatter
 template<typename T>
 void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm );
 
+// Scan
+// ----
+template<typename T>
+void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm );
+template<typename Real>
+void Scan
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm );
+
+// Default to SUM
+template<typename T>
+void Scan( const T* sbuf, T* rbuf, int count, Comm comm );
+
+// With a message-size of one
+template<typename T>
+T Scan( T sb, Op op, Comm comm );
+
+// With a message-size of one and default to SUM
+template<typename T>
+T Scan( T sb, Comm comm );
+
+// Single-buffer scan
+// ------------------
+template<typename T>
+void Scan( T* buf, int count, Op op, Comm comm );
+template<typename Real>
+void Scan( Complex<Real>* buf, int count, Op op, Comm comm );
+
+// Default to SUM
+template<typename T>
+void Scan( T* buf, int count, Comm comm );
+
 template<typename T>
 void SparseAllToAll
 ( const std::vector<T>& sendBuffer,

@@ -69,6 +69,7 @@ public:
     bool IsLocal( Int i, Int j ) const;
     bool IsLocalRow( Int i ) const;
     Int GlobalRow( Int iLoc ) const;
+    Int LocalRow( Int i ) const;
 
     // Entrywise manipulation
     // ======================

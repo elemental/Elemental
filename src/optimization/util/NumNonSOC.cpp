@@ -24,14 +24,13 @@ Int NumNonSOC
     SOCDets( x, d, orders, firstInds );
 
     Int numNonSO = 0;
-    Int i = 0;
     const Int height = x.Height();
-    while( i < height )
+    for( Int i=0; i<height; )
     {
-        // This should be the root of a second-order cone
-        if( i != firstInds.Get(i,0) )
-            LogicError("Inconsistency in orders and firstInds");
         const Int order = orders.Get(i,0);
+        const Int firstInd = firstInds.Get(i,0);
+        if( i != firstInd )
+            LogicError("Inconsistency in orders and firstInds");
         const Int det = d.Get(i,0);
         if( det < Real(0) )
             ++numNonSO;

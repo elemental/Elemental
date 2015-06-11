@@ -28,12 +28,12 @@ void SOCSquareRoot
 
     const Int height = x.Height();
     Zeros( xRoot, height, 1 );
-    Int i=0;
-    while( i < height )
+    for( Int i=0; i<height; )
     {
-        if( i != firstInds.Get(i,0) )       
-            LogicError("Inconsistency in orders and firstInds");
         const Int order = orders.Get(i,0);
+        const Int firstInd = firstInds.Get(i,0);
+        if( i != firstInd )       
+            LogicError("Inconsistency in orders and firstInds");
 
         const Real eta0 = Sqrt(x.Get(i,0)+Sqrt(d.Get(i,0)))/Sqrt(Real(2));
         xRoot.Set( i, 0, eta0 );
@@ -81,8 +81,6 @@ void SOCSquareRoot
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-
         const Real x0 = roots.GetLocal(iLoc,0);
         const Real det = d.GetLocal(iLoc,0);
         const Real eta0 = Sqrt(x0+Sqrt(det))/Sqrt(Real(2));
@@ -115,8 +113,6 @@ void SOCSquareRoot
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-
         const Real x0 = roots.GetLocal(iLoc,0);
         const Real det = d.GetLocal(iLoc,0);
         const Real eta0 = Sqrt(x0+Sqrt(det))/Sqrt(Real(2));

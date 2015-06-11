@@ -18,9 +18,9 @@ void Trr
   bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Trr");
-        if( x.Width() != 1 || y.Width() != 1 )
-            LogicError("x and y must be of width 1");
+      CSE cse("Trr");
+      if( x.Width() != 1 || y.Width() != 1 )
+          LogicError("x and y must be of width 1");
     )
     const Int m = A.Height();
     const Int n = A.Width();
@@ -59,25 +59,25 @@ void Trr
 template<typename T>
 void Trr
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& xPre, const AbstractDistMatrix<T>& yPre,
+  T alpha, const AbstractDistMatrix<T>& x, 
+           const AbstractDistMatrix<T>& y,
                  AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Trr");
-        if( xPre.Width() != 1 || yPre.Width() != 1 )
-            LogicError("x and y must be of width 1");
+      CSE cse("Trr");
+      if( x.Width() != 1 || y.Width() != 1 )
+          LogicError("x and y must be of width 1");
     )
 
-    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
-    auto yPtr = ReadProxy<T,MC,MR>( &yPre );      auto& y = *yPtr;
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); auto& A = *APtr;
+    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
+    auto& A = *APtr;
 
     const Grid& g = A.Grid();
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     DEBUG_ONLY(
-        if( x.Height() != A.Height() || y.Height() != A.Width() )
-            LogicError("x and y must conform with A");
+      if( x.Height() != A.Height() || y.Height() != A.Width() )
+          LogicError("x and y must conform with A");
     )
 
     DistMatrix<T,MC,STAR> x_MC_STAR(g);

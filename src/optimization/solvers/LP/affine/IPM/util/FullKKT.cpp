@@ -21,16 +21,16 @@ namespace affine {
 //
 // and the particular system solved is of the form
 //
-//   | 0 A^T      G     | | dx |   |     -rc        |
-//   | A 0        0     | | dy |   |     -rb        |,
-//   | G 0    -(z <> s) | | dz | = | -rh + z <> rmu |
+//   | 0 A^T      G     | | dx |   |     -r_c        |
+//   | A 0        0     | | dy |   |     -r_b        |,
+//   | G 0    -(z <> s) | | dz | = | -rh + z <> r_mu |
 //
 // where 
 //
-//   rc  = A^T y + G^T z + c,
-//   rb  = A x - b,
-//   rh  = G x + s - h,
-//   rmu = s o z - tau e
+//   r_c  = A^T y + G^T z + c,
+//   r_b  = A x - b,
+//   r_h  = G x + s - h,
+//   r_mu = s o z - tau e
 
 template<typename Real>
 void KKT
@@ -80,7 +80,7 @@ void KKT
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A,    const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Real>& s,    const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::affine::KKT"))
@@ -88,8 +88,6 @@ void KKT
     const Int n = A.Width();
     const Int k = G.Height();
 
-    auto sPtr = ReadProxy<Real,STAR,STAR>(&sPre); auto& s = *sPtr;
-    auto zPtr = ReadProxy<Real,STAR,STAR>(&zPre); auto& z = *zPtr;
     auto JPtr = WriteProxy<Real,MC,MR>(&JPre);    auto& J = *JPtr;
 
     Zeros( J, n+m+k, n+m+k );
@@ -108,8 +106,7 @@ void KKT
 
     // Jzz := - z <> s
     // ===============
-    DistMatrix<Real,MC,STAR> t(s.Grid());
-    t = s;
+    DistMatrix<Real,MC,STAR> t(s);
     DiagonalSolve( LEFT, NORMAL, z, t );
     Scale( Real(-1), t );
     Diagonal( Jzz, t );

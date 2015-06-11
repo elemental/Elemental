@@ -16,14 +16,14 @@ void Syr
   bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Syr");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        if( xLength != A.Height() )
-            LogicError("x must conform with A");
+      CSE cse("Syr");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( x.Width() != 1 && x.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      if( xLength != A.Height() )
+          LogicError("x must conform with A");
     )
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int m = A.Height();
@@ -44,23 +44,23 @@ void Syr
 template<typename T>
 void Syr
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& xPre,
+  T alpha, const AbstractDistMatrix<T>& x,
                  AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Syr");
-        AssertSameGrids( APre, xPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
-        if( APre.Height() != xLength )
-            LogicError
-            ("A must conform with x: \n",DimsString(APre,"A"),"\n",
-             DimsString(xPre,"x"));
+      CSE cse("Syr");
+      AssertSameGrids( APre, x );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      if( APre.Height() != xLength )
+          LogicError
+          ("A must conform with x: \n",DimsString(APre,"A"),"\n",
+           DimsString(x,"x"));
     )
 
-    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); auto& A = *APtr;
+    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
+    auto& A = *APtr;
 
     const Grid& g = A.Grid();
     const Int localHeight = A.LocalHeight();

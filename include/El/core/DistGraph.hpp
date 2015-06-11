@@ -94,6 +94,7 @@ public:
     Int Blocksize() const;
     int SourceOwner( Int s ) const;
     Int GlobalSource( Int sLoc ) const;
+    Int LocalSource( Int s ) const;
 
     // Detailed local information
     // --------------------------

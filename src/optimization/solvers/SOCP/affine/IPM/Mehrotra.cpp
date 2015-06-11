@@ -46,11 +46,12 @@ void Mehrotra
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
 
-    // Equilibrate the LP by diagonally scaling [A;G]
+    // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -308,6 +309,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& sPre,
   const AbstractDistMatrix<Int>& ordersPre,
   const AbstractDistMatrix<Int>& firstIndsPre,
+  const AbstractDistMatrix<Int>& labelsPre,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -339,8 +341,10 @@ void Mehrotra
 
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre);
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
+    auto labelsPtr = ReadProxy<Int,VC,STAR>(&labelsPre);
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
+    auto& labels = *labelsPtr;
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     const Int m = A.Height();
@@ -581,7 +585,7 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
+        // Unequilibrate the SOCP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -602,6 +606,7 @@ void Mehrotra
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -895,6 +900,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -1233,6 +1239,7 @@ void Mehrotra
           Matrix<Real>& s, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, \
@@ -1246,6 +1253,7 @@ void Mehrotra
           AbstractDistMatrix<Real>& s, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
+    const AbstractDistMatrix<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \
@@ -1259,6 +1267,7 @@ void Mehrotra
           Matrix<Real>& s, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, \
@@ -1272,6 +1281,7 @@ void Mehrotra
           DistMultiVec<Real>& s, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

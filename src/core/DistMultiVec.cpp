@@ -179,9 +179,19 @@ Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::GlobalRow"))
     if( iLoc == END ) iLoc = LocalHeight() - 1;
-    if( iLoc < 0 || iLoc > LocalHeight() )
+    if( iLoc < 0 || iLoc >= LocalHeight() )
         LogicError("Invalid local row index");
     return iLoc + FirstLocalRow();
+}
+
+template<typename T>
+Int DistMultiVec<T>::LocalRow( Int i ) const
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::LocalRow")) 
+    if( i == END ) i = Height() - 1;
+    if( i < 0 || i >= Height() )
+        LogicError("Invalid global row index");
+    return i - FirstLocalRow();
 }
 
 // Detailed local information

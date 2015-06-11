@@ -26,6 +26,7 @@ void IPF
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
@@ -40,6 +41,7 @@ void IPF
         AbstractDistMatrix<Real>& s,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
@@ -54,6 +56,7 @@ void IPF
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
@@ -68,6 +71,7 @@ void IPF
         DistMultiVec<Real>& s,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 */
 
@@ -84,6 +88,7 @@ void Mehrotra
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
@@ -98,6 +103,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& s,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
@@ -112,6 +118,7 @@ void Mehrotra
         Matrix<Real>& s,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
@@ -126,6 +133,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 } // namespace affine

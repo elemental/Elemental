@@ -20,16 +20,16 @@ void Symv
   bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Symv");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( ( x.Height() != 1 && x.Width() != 1 ) ||
-            ( y.Height() != 1 && y.Width() != 1 ) )
-            LogicError("x and y must be vectors");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-        if( A.Height() != xLength || A.Height() != yLength )
-            LogicError("A must conform with x and y");
+      CSE cse("Symv");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( ( x.Height() != 1 && x.Width() != 1 ) ||
+          ( y.Height() != 1 && y.Width() != 1 ) )
+          LogicError("x and y must be vectors");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+      if( A.Height() != xLength || A.Height() != yLength )
+          LogicError("A must conform with x and y");
     )
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int m = A.Height();
@@ -55,29 +55,28 @@ template<typename T>
 void Symv
 ( UpperOrLower uplo,
   T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& xPre,
+           const AbstractDistMatrix<T>& x,
   T beta,        AbstractDistMatrix<T>& yPre, bool conjugate,
   const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
         CSE cse("Symv");
-        AssertSameGrids( APre, xPre, yPre );
+        AssertSameGrids( APre, x, yPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
+        if( ( x.Width() != 1 && x.Height() != 1 ) ||
             ( yPre.Width() != 1 && yPre.Height() != 1 ) )
             LogicError("x and y are assumed to be vectors");
-        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
         const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
         if( APre.Height() != xLength || APre.Height() != yLength )
             LogicError
             ("Nonconformal Symv: \n",DimsString(APre,"A"),"\n",
-             DimsString(xPre,"x"),"\n",DimsString(yPre,"y"));
+             DimsString(x,"x"),"\n",DimsString(yPre,"y"));
     )
     const Grid& g = APre.Grid();
 
     auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
     auto yPtr = ReadWriteProxy<T,MC,MR>( &yPre ); auto& y = *yPtr;
 
     Scale( beta, y );

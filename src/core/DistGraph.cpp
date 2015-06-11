@@ -346,6 +346,7 @@ void DistGraph::ProcessQueues()
           mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
         auto recvTargets = 
           mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
+        Reserve( NumLocalEdges()+recvSources.size() );
         for( Int i=0; i<recvSources.size(); ++i )
             QueueConnection( recvSources[i], recvTargets[i] );
     }
@@ -475,9 +476,18 @@ Int DistGraph::GlobalSource( Int sLoc ) const
 {
     DEBUG_ONLY(CSE cse("DistGraph::GlobalSource"))
     if( sLoc == END ) sLoc = numLocalSources_ - 1;
-    if( sLoc < 0 || sLoc > NumLocalSources() )
+    if( sLoc < 0 || sLoc >= NumLocalSources() )
         LogicError("Invalid local source index");
     return sLoc + FirstLocalSource();
+}
+
+Int DistGraph::LocalSource( Int s ) const
+{
+    DEBUG_ONLY(CSE cse("DistGraph::LocalSource"))
+    if( s == END ) s = numSources_ - 1;
+    if( s < 0 || s >= NumSources() )
+        LogicError("Invalid global source index");
+    return s - FirstLocalSource();
 }
 
 // Detailed local information

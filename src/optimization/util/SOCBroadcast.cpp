@@ -23,14 +23,13 @@ void SOCBroadcast
         LogicError("orders and firstInds should be of the same height as x");
 
     Int numNonSO = 0;
-    Int i = 0;
-    while( i < height )
+    for( Int i=0; i<height; )
     {
-        // This should be the root of a second-order cone
-        if( i != firstInds.Get(i,0) )
+        const Int order = orders.Get(i,0);
+        const Int firstInd = firstInds.Get(i,0);
+        if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
-        const Int order = orders.Get(i,0);
         const Real x0 = x.Get(i,0);
         for( Int j=i+1; j<i+order; ++j )
             x.Set( j, 0, x0 );

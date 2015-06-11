@@ -156,11 +156,12 @@ Real MaxStepInSOC
     SOCDots( x, Ry, xTRys, orders, firstInds );
 
     Real alpha = upperBound;
-    Int i = 0;
     const Int height = x.Height();
-    while( i < height )
+    for( Int i=0; i<height; )
     {
-        if( i != firstInds.Get(i,0) )
+        const Int order = orders.Get(i,0);
+        const Int firstInd = firstInds.Get(i,0);
+        if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
         const Real y0 = y.Get(i,0);
@@ -170,7 +171,7 @@ Real MaxStepInSOC
 
         alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
 
-        i += orders.Get(i,0);
+        i += order;
     }
     return alpha;
 }
@@ -234,8 +235,9 @@ Real MaxStepInSOC
   Real upperBound, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
+    mpi::Comm comm = x.Comm();
 
-    DistMultiVec<Real> xDets, yDets, xTRys, maxSteps;
+    DistMultiVec<Real> xDets(comm), yDets(comm), xTRys(comm), maxSteps(comm);
     SOCDets( x, xDets, orders, firstInds, cutoff );
     SOCDets( y, yDets, orders, firstInds, cutoff );
 
@@ -258,7 +260,7 @@ Real MaxStepInSOC
 
         alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
     }
-    return mpi::AllReduce( alpha, mpi::MIN, x.Comm() );
+    return mpi::AllReduce( alpha, mpi::MIN, comm );
 }
 
 #define PROTO(Real) \

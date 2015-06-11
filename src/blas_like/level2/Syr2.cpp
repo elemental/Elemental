@@ -17,16 +17,16 @@ void Syr2
   bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Syr2");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( (x.Width() != 1 && x.Height() != 1) ||
-            (y.Width() != 1 && y.Height() != 1) )
-            LogicError("x and y must be vectors");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-        if( xLength != A.Height() || yLength != A.Height() )
-            LogicError("x and y must conform with A");
+      CSE cse("Syr2");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( (x.Width() != 1 && x.Height() != 1) ||
+          (y.Width() != 1 && y.Height() != 1) )
+          LogicError("x and y must be vectors");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+      if( xLength != A.Height() || yLength != A.Height() )
+          LogicError("x and y must conform with A");
     )
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int m = A.Height();
@@ -51,26 +51,25 @@ void Syr2
 template<typename T>
 void Syr2
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& xPre,
-           const AbstractDistMatrix<T>& yPre,
+  T alpha, const AbstractDistMatrix<T>& x,
+           const AbstractDistMatrix<T>& y,
                  AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Syr2");
-        AssertSameGrids( APre, xPre, yPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
-        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
-        if( APre.Height() != xLength || APre.Height() != yLength )
-            LogicError
-            ("A must conform with x: \n",DimsString(APre,"A"),"\n",
-             DimsString(xPre,"x"),"\n",DimsString(yPre,"y"));
+      CSE cse("Syr2");
+      AssertSameGrids( APre, x, y );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+      if( APre.Height() != xLength || APre.Height() != yLength )
+          LogicError
+          ("A must conform with x: \n",DimsString(APre,"A"),"\n",
+           DimsString(x,"x"),"\n",DimsString(y,"y"));
     )
 
-    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
-    auto yPtr = ReadProxy<T,MC,MR>( &yPre );      auto& y = *yPtr;
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); auto& A = *APtr;
+    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
+    auto& A = *APtr;
 
     const Grid& g = A.Grid();
     const Int localHeight = A.LocalHeight();

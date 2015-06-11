@@ -32,13 +32,12 @@ void SOCDots
         LogicError("x and y must be the same size");
     Zeros( z, x.Height(), x.Width() );
 
-    Int i = 0;
-    while( i < height )
+    for( Int i=0; i<height; )
     {
-        // This should be the root of a second-order cone
-        if( i != firstInds.Get(i,0) )
-            LogicError("Inconsistency in orders and firstInds");
         const Int order = orders.Get(i,0);
+        const Int firstInd = firstInds.Get(i,0);
+        if( i != firstInd )
+            LogicError("Inconsistency in orders and firstInds");
 
         // Compute the inner-product between two SOC members and broadcast
         // the result over an equivalently-sized z_i

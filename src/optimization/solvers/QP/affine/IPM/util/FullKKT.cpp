@@ -85,7 +85,7 @@ template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& Q,
   const AbstractDistMatrix<Real>& A,    const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Real>& s,    const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKT"))
@@ -93,8 +93,6 @@ void KKT
     const Int n = A.Width();
     const Int k = G.Height();
 
-    auto sPtr = ReadProxy<Real,STAR,STAR>(&sPre); auto& s = *sPtr;
-    auto zPtr = ReadProxy<Real,STAR,STAR>(&zPre); auto& z = *zPtr;
     auto JPtr = WriteProxy<Real,MC,MR>(&JPre);    auto& J = *JPtr;
 
     Zeros( J, n+m+k, n+m+k );
@@ -117,8 +115,7 @@ void KKT
 
     // Jzz := - z <> s
     // ===============
-    DistMatrix<Real,MC,STAR> t(s.Grid());
-    t = s;
+    DistMatrix<Real,MC,STAR> t(s);
     DiagonalSolve( LEFT, NORMAL, z, t );
     Scale( Real(-1), t );
     Diagonal( Jzz, t );

@@ -14,14 +14,14 @@ template<typename T>
 void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
     DEBUG_ONLY(
-        CSE cse("Geru");
-        if( ( x.Height() != 1 && x.Width() != 1 ) ||
-            ( y.Height() != 1 && y.Width() != 1 ) )
-            LogicError("x and y must be vectors");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-        if( xLength != A.Height() || yLength != A.Width() )
-            LogicError("Nonconformal Geru");
+      CSE cse("Geru");
+      if( ( x.Height() != 1 && x.Width() != 1 ) ||
+          ( y.Height() != 1 && y.Width() != 1 ) )
+          LogicError("x and y must be vectors");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+      if( xLength != A.Height() || yLength != A.Width() )
+          LogicError("Nonconformal Geru");
     )
     const Int m = A.Height();
     const Int n = A.Width();
@@ -34,28 +34,28 @@ void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 
 template<typename T>
 void Geru
-( T alpha, const AbstractDistMatrix<T>& xPre, const AbstractDistMatrix<T>& yPre,
+( T alpha, const AbstractDistMatrix<T>& x, 
+           const AbstractDistMatrix<T>& y,
                  AbstractDistMatrix<T>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("Geru");
-        AssertSameGrids( APre, xPre, yPre );
-        if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
-            ( yPre.Width() != 1 && yPre.Height() != 1 )   )
-            LogicError("x and y are assumed to be vectors");
-        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
-        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
-        if( APre.Height() != xLength || APre.Width() != yLength )
-            LogicError
-            ("Nonconformal Geru:\n",
-             DimsString(APre,"A"),"\n",DimsString(xPre,"x"),"\n",
-             DimsString(yPre,"y"));
+      CSE cse("Geru");
+      AssertSameGrids( APre, x, y );
+      if( ( x.Width() != 1 && x.Height() != 1 ) ||
+          ( y.Width() != 1 && y.Height() != 1 )   )
+          LogicError("x and y are assumed to be vectors");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+      if( APre.Height() != xLength || APre.Width() != yLength )
+          LogicError
+          ("Nonconformal Geru:\n",
+           DimsString(APre,"A"),"\n",DimsString(x,"x"),"\n",
+           DimsString(y,"y"));
     )
     const Grid& g = APre.Grid();
 
-    auto xPtr = ReadProxy<T,MC,MR>( &xPre );      auto& x = *xPtr;
-    auto yPtr = ReadProxy<T,MC,MR>( &yPre );      auto& y = *yPtr;
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); auto& A = *APtr;
+    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
+    auto& A = *APtr;
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
