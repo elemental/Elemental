@@ -264,7 +264,7 @@ void EN
         else
             Q.QueueLocalUpdate( iLoc, i, Real(2) );
     }
-    Q.ProcessQueues();
+    Q.ProcessLocalQueues();
 
     // c := lambda_1*[1;1;0]
     // =====================
@@ -290,7 +290,7 @@ void EN
         const Int i = AHat.GlobalRow(iLoc);
         AHat.QueueLocalUpdate( iLoc, i+2*n, Real(1) );
     }
-    AHat.ProcessQueues();
+    AHat.ProcessLocalQueues();
 
     // G := | -I  0 0 |
     //      |  0 -I 0 |
@@ -302,7 +302,7 @@ void EN
         const Int i = G.GlobalRow(iLoc);
         G.QueueLocalUpdate( iLoc, i, Real(-1) );
     }
-    G.ProcessQueues();
+    G.ProcessLocalQueues();
 
     // h := 0
     // ======
@@ -316,48 +316,24 @@ void EN
     // x := u - v
     // ==========
     Zeros( x, n, 1 );
-    // Determine the send and recv counts/offsets
-    // ------------------------------------------
-    const Int commSize = mpi::Size(comm);
-    vector<int> sendCounts(commSize,0);
+    Int numRemoteUpdates = 0;
+    for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
+        if( xHat.GlobalRow(iLoc) < 2*n )
+            ++numRemoteUpdates;
+        else
+            break;
+    x.Reserve( numRemoteUpdates );
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
-            ++sendCounts[ x.RowOwner(i) ];
+            x.QueueUpdate( i, 0, xHat.GetLocal(iLoc,0) );
         else if( i < 2*n )
-            ++sendCounts[ x.RowOwner(i-n) ];
+            x.QueueUpdate( i-n, 0, -xHat.GetLocal(iLoc,0) );
         else
             break;
     }
-    // Pack the data 
-    // -------------
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueInt<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
-    {
-        const Int i = xHat.GlobalRow(iLoc);
-        if( i < n )
-        {
-            int owner = x.RowOwner(i);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ xHat.GetLocal(iLoc,0), i };
-        }
-        else if( i < 2*n )
-        {
-            int owner = x.RowOwner(i-n);
-            Real value = -xHat.GetLocal(iLoc,0);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i-n };
-        }
-        else
-            break;
-    }
-    // Exchange and unpack the data
-    // ----------------------------
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        x.Update( entry.index, 0, entry.value );
+    x.ProcessQueues();
 }
 
 #define PROTO(Real) \

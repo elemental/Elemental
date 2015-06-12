@@ -9,8 +9,10 @@
 import El
 import time
 
-n0 = 200
-n1 = 200
+#n0 = 200
+#n1 = 200
+n0 = 50
+n1 = 50
 lambda1 = 3
 lambda2 = 4
 display = False

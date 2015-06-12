@@ -259,7 +259,7 @@ void CP
 
     // Extract x from [x;t]
     // ====================
-    GetSubmatrix( xHat, IR(0,n), ALL, x );
+    x = xHat( IR(0,n), ALL );
 }
 
 #define PROTO(Real) \

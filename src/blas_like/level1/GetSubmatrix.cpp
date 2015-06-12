@@ -59,10 +59,8 @@ void GetSubmatrix
         SparseMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    if( I.end == END )
-        I.end = A.Height();
-    if( J.end == END )
-        J.end = A.Width();
+    if( I.end == END ) I.end = A.Height();
+    if( J.end == END ) J.end = A.Width();
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     Zeros( ASub, mSub, nSub );
@@ -112,60 +110,37 @@ void GetSubmatrix
         DistSparseMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    if( I.end == END )
-        I.end = A.Height();
-    if( J.end == END )
-        J.end = A.Width();
-    const Int mSub = I.end-I.beg;
-    const Int nSub = J.end-J.beg;
-    const Int numEntries = A.NumLocalEntries();
+    if( I.end == END ) I.end = A.Height();
+    if( J.end == END ) J.end = A.Width();
 
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    ASub.SetComm( comm );
-    Zeros( ASub, mSub, nSub );
+    ASub.SetComm( A.Comm() );
+    Zeros( ASub, I.end-I.beg, J.end-J.beg );
 
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);
-    for( Int e=0; e<numEntries; ++e )
+    // Count the number of updates
+    // ===========================
+    Int numUpdates = 0;
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
         const Int i = A.Row(e);
         const Int j = A.Col(e);
         if( i >= I.end )
             break;
         else if( i >= I.beg && j >= J.beg && j < J.end )
-            ++sendCounts[ ASub.RowOwner(i-I.beg) ];
+            ++numUpdates;
     }
 
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    auto offs = sendOffs;
-    vector<Entry<T>> sendBuf(totalSend);
-    for( Int e=0; e<numEntries; ++e )
+    // Queue and process the updates
+    // =============================
+    ASub.Reserve( numUpdates, numUpdates );
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
         const Int i = A.Row(e);
         const Int j = A.Col(e);
-        const T value = A.Value(e);
         if( i >= I.end )
             break;
         else if( i >= I.beg && j >= J.beg && j < J.end )
-        {
-            const Int iSub = i - I.beg;
-            const Int jSub = j - J.beg;
-            const int owner = ASub.RowOwner( iSub );
-            sendBuf[offs[owner]++] = Entry<T>{ iSub, jSub, value };
-        }
+            ASub.QueueUpdate( i-I.beg, j-J.beg, A.Value(e), false );
     }
-    
-    // Exchange and unpack the data
-    // ============================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    ASub.Reserve( recvBuf.size() );
-    for( auto& entry : recvBuf )
-        ASub.QueueUpdate( entry );
     ASub.ProcessQueues();
 }
 
@@ -184,17 +159,13 @@ void GetSubmatrix
         DistMultiVec<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    if( I.end == END )
-        I.end = A.Height();
-    if( J.end == END )
-        J.end = A.Width();
+    if( I.end == END ) I.end = A.Height();
+    if( J.end == END ) J.end = A.Width();
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
     const Int localHeight = A.LocalHeight();
 
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    ASub.SetComm( comm );
+    ASub.SetComm( A.Comm() );
     Zeros( ASub, mSub, nSub );
     
     // If no communication is necessary, take the easy and fast approach
@@ -206,24 +177,21 @@ void GetSubmatrix
         return;
     }
 
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);
+    // Compute the number of updates
+    // =============================
+    Int numUpdates = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
         if( i >= I.end )
             break;
         else if( i >= I.beg )
-            sendCounts[ ASub.RowOwner(i-I.beg) ] += J.end-J.beg;
+            numUpdates += nSub;
     }
 
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    auto offs = sendOffs;
-    vector<Entry<T>> sendBuf(totalSend);
+    // Queue and process the updates
+    // =============================
+    ASub.Reserve( numUpdates );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
@@ -232,21 +200,10 @@ void GetSubmatrix
         else if( i >= I.beg )
         {
             for( Int j=J.beg; j<J.end; ++j )
-            {
-                const T value = A.GetLocal(iLoc,j);
-                const Int iSub = i - I.beg;
-                const Int jSub = j - J.beg;
-                const int owner = ASub.RowOwner( iSub );
-                sendBuf[offs[owner]++] = Entry<T>{ iSub, jSub, value };
-            }
+                ASub.QueueUpdate( i-I.beg, j-J.beg, A.GetLocal(iLoc,j) );
         }
     }
-    
-    // Exchange and unpack the data
-    // ============================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        ASub.Set( entry );
+    ASub.ProcessQueues();
 }
 
 template<typename T>
@@ -299,51 +256,27 @@ void GetSubmatrix
         AbstractDistMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
     const Grid& g = A.Grid();
-
     ASub.SetGrid( g ); 
-    Zeros( ASub, m, n );
-    mpi::Comm comm = g.ViewingComm();
-    const int commSize = mpi::Size( comm );  
+    Zeros( ASub, I.size(), J.size() );
 
     // TODO: Intelligently pick the redundant rank to pack from?
 
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);    
+    // Count the number of updates
+    // ===========================
+    Int numUpdates = 0;
     if( A.RedundantRank() == 0 )
-    {
         for( auto& i : I )
-        {
             if( A.IsLocalRow(i) )
-            {
                 for( auto& j : J )
-                {
                     if( A.IsLocalCol(j) )
-                    {
-                        const int owner = 
-                          g.VCToViewing(
-                            g.CoordsToVC
-                            ( ASub.ColDist(), ASub.RowDist(), 
-                              ASub.Owner(i,j), ASub.Root() ) 
-                          );
-                        ++sendCounts[owner];
-                    }
-                }
-            }
-        }
-    }
+                        ++numUpdates;
 
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
+    // Queue and process the updates
+    // =============================
+    ASub.Reserve( numUpdates );
     if( A.RedundantRank() == 0 )
     {
-        auto offs = sendOffs;
         for( size_t iSub=0; iSub<I.size(); ++iSub )
         {
             const Int i = I[iSub];
@@ -356,30 +289,14 @@ void GetSubmatrix
                     if( A.IsLocalCol(j) )
                     {
                         const Int jLoc = A.LocalCol(j);
-                        const int owner = 
-                          g.VCToViewing(
-                            g.CoordsToVC
-                            ( ASub.ColDist(), ASub.RowDist(), 
-                              ASub.Owner(i,j), ASub.Root() ) 
-                          );
                         const T value = A.GetLocal(iLoc,jLoc);
-                        sendBuf[offs[owner]++] = 
-                          Entry<T>{ Int(iSub), Int(jSub), value };
+                        ASub.QueueUpdate( iSub, jSub, value );
                     }
                 }
             }
         }
     }
-
-    // Exchange and unpack the data
-    // ============================
-    auto recvBuf = mpi::AllToAll(sendBuf,sendCounts,sendOffs,comm);
-    for( auto& entry : recvBuf )
-        ASub.Set( entry );
-
-    // Broadcast from the assigned member of the redundant rank team
-    // =============================================================
-    Broadcast( ASub, ASub.RedundantComm(), 0 );
+    ASub.ProcessQueues();
 }
 
 template<typename T>

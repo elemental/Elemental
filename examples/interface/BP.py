@@ -11,7 +11,8 @@ import time
 
 n0=25
 n1=25
-display = True
+display = False
+worldSize = El.mpi.WorldSize()
 worldRank = El.mpi.WorldRank()
 
 # Place two 2D finite-difference matrices next to each other

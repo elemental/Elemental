@@ -246,7 +246,7 @@ void IPM
         for( Int iLoc=0; iLoc<Q.LocalHeight(); ++iLoc )
             if( Q.GlobalRow(iLoc) < n )
                 Q.QueueLocalUpdate( iLoc, Q.GlobalRow(iLoc), Real(1) );
-        Q.ProcessQueues();
+        Q.ProcessLocalQueues();
     }
 
     // c := [0;0;lambda]
@@ -268,49 +268,31 @@ void IPM
     //      |      0,     0, -I|
     // =========================
     Zeros( G, 2*m, n+m+1 );
+    G.Reserve
+    ( A.NumLocalEntries()+d.LocalHeight()+G.LocalHeight(),
+      A.NumLocalEntries()+d.LocalHeight() );
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<A.NumLocalEntries(); ++e )
-            ++sendCounts[ G.RowOwner(A.Row(e)) ];
-        for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
-            ++sendCounts[ G.RowOwner(d.GlobalRow(iLoc)) ]; 
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int e=0; e<A.NumLocalEntries(); ++e )
-        {
-            Int i = A.Row(e);
-            int owner = G.RowOwner(i);
-            Real value = -d.GetLocal(i-d.FirstLocalRow(),0)*A.Value(e);
-            sendBuf[offs[owner]++] = Entry<Real>{ i, A.Col(e), value };
-        }
-        for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
-        {
-            Int i = d.GlobalRow(iLoc);
-            int owner = G.RowOwner(i);
-            sendBuf[offs[owner]++] = Entry<Real>{ i, n, -d.GetLocal(iLoc,0) };
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        G.Reserve( recvBuf.size()+G.LocalHeight() );
-        for( auto& entry : recvBuf )
-            G.QueueUpdate( entry );
-        for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
-        {
-            const Int i = G.GlobalRow(iLoc);
-            if( i < m )
-                G.QueueLocalUpdate( iLoc, i+n+1, Real(-1) );
-            else
-                G.QueueLocalUpdate( iLoc, i-m+n+1, Real(-1) );
-        }
-        G.ProcessQueues();
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const Int iLoc = A.LocalRow(i);
+        const Real value = -d.GetLocal(iLoc,0)*A.Value(e);
+        G.QueueUpdate( i, j, value, false );
     }
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    {
+        const Int i = d.GlobalRow(iLoc);
+        G.QueueUpdate( i, n, -d.GetLocal(iLoc,0), false );
+    }
+    for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
+    {
+        const Int i = G.GlobalRow(iLoc);
+        if( i < m )
+            G.QueueLocalUpdate( iLoc, i+n+1, Real(-1) );
+        else
+            G.QueueLocalUpdate( iLoc, (i-m)+n+1, Real(-1) );
+    }
+    G.ProcessQueues();
 
     // h := [-ones(m,1); zeros(m,1)]
     // =============================

@@ -13,7 +13,7 @@ n1 = 25
 numLambdas = 3
 startLambda = 0
 endLambda = 1
-display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
@@ -63,7 +63,9 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.BPDNCtrl_d()
+ctrl.ipmCtrl.mehrotraCtrl.time = True
 ctrl.ipmCtrl.mehrotraCtrl.progress = True
+ctrl.ipmCtrl.mehrotraCtrl.qsdCtrl.progress = True
 
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)

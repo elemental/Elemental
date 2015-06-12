@@ -145,41 +145,18 @@ void TV
         else
             break;
     }
-    Q.ProcessQueues();
+    Q.ProcessLocalQueues();
 
     // c := [-b;lambda]
     // =================
     Zeros( c, 2*n-1, 1 );
-    {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-            ++sendCounts[ c.RowOwner(b.GlobalRow(iLoc)) ];
-        // Pack -b
-        // -------
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<ValueInt<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-        {
-            Int i = b.GlobalRow(iLoc);
-            int owner = c.RowOwner(i);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ -b.GetLocal(iLoc,0), i };
-        }
-        // Redistribute and unpack
-        // -----------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            c.Set( entry.index, 0, entry.value );
-    }
+    c.Reserve( b.LocalHeight() );
+    for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
+        c.QueueUpdate( b.GlobalRow(iLoc), 0, -b.GetLocal(iLoc,0) );
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
-    {
-        const Int i = c.GlobalRow(iLoc);
-        if( i > n )
+        if( c.GlobalRow(iLoc) > n )
             c.SetLocal( iLoc, 0, lambda );
-    }
+    c.ProcessQueues();
 
     // A := []
     // =======
@@ -199,18 +176,18 @@ void TV
         const Int i = G.GlobalRow(iLoc);
         if( i < n-1 )
         {
-            G.QueueLocalUpdate( iLoc, i,   Real(1) );
+            G.QueueLocalUpdate( iLoc, i,   Real( 1) );
             G.QueueLocalUpdate( iLoc, i+1, Real(-1) );
             G.QueueLocalUpdate( iLoc, i+n, Real(-1) );
         }
         else
         {
             G.QueueLocalUpdate( iLoc, i-(n-1),   Real(-1) );
-            G.QueueLocalUpdate( iLoc, i+1-(n-1), Real(1) );
+            G.QueueLocalUpdate( iLoc, i+1-(n-1), Real( 1) );
             G.QueueLocalUpdate( iLoc, i+n-(n-1), Real(-1) );
         }
     }
-    G.ProcessQueues();
+    G.ProcessLocalQueues();
 
     // h := 0
     // ======
@@ -223,7 +200,7 @@ void TV
 
     // Extract x from [x;t]
     // ====================
-    GetSubmatrix( xHat, IR(0,n), ALL, x );
+    x = xHat( IR(0,n), ALL );
 }
 
 #define PROTO(Real) \

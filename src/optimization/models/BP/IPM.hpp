@@ -174,7 +174,7 @@ void IPM
         AHat.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
         AHat.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
     }
-    AHat.ProcessQueues();
+    AHat.ProcessLocalQueues();
 
     // Solve the direct LP
     // ===================
@@ -184,45 +184,16 @@ void IPM
     // x := u - v
     // ==========
     Zeros( x, n, 1 );
-    // Determine the send and recv counts/offs
-    // ------------------------------------------
-    const Int commSize = mpi::Size(comm);
-    vector<int> sendSizes(commSize,0);
+    x.Reserve( 2*xHat.LocalHeight() );
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
-            ++sendSizes[ x.RowOwner(i) ];
+            x.QueueUpdate( i,   0,  xHat.GetLocal(iLoc,0) );
         else
-            ++sendSizes[ x.RowOwner(i-n) ];
+            x.QueueUpdate( i-n, 0, -xHat.GetLocal(iLoc,0) );
     }
-    // Pack the data 
-    // -------------
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    vector<ValueInt<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
-    {
-        const Int i = xHat.GlobalRow(iLoc);
-        if( i < n )
-        {
-            int owner = x.RowOwner(i);
-            Real value = xHat.GetLocal(iLoc,0);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i };
-        }
-        else
-        {
-            int owner = x.RowOwner(i-n);
-            Real value = -xHat.GetLocal(iLoc,0);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ value, i-n };
-        }
-    }
-    // Exchange and unpack the data
-    // ----------------------------
-    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        x.Update( entry.index, 0, entry.value );
+    x.ProcessQueues();
 }
 
 } // namespace bp

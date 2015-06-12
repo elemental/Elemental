@@ -474,7 +474,7 @@ void Var2
         else
             G.QueueLocalUpdate( iLoc, i+(m-n), Real(-1) );
     }
-    G.ProcessQueues();
+    G.ProcessLocalQueues();
 
     // h := [0;0;lambda e;lambda e]
     // ============================
@@ -487,82 +487,34 @@ void Var2
     //           | 0,  0, A^T, I |
     // ===========================
     Zeros( AHat, m+n, 3*n+m );
+    AHat.Reserve( 3*numLocalEntriesA+AHat.LocalHeight(), 3*numLocalEntriesA );
+    for( Int e=0; e<numLocalEntriesA; ++e )
     {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<numLocalEntriesA; ++e )
-        {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            // Sending A
-            ++sendCounts[ AHat.RowOwner(i) ];
-            // Sending -A (yes, I know this is technically redundant)
-            ++sendCounts[ AHat.RowOwner(i) ];
-            // Sending A^T
-            ++sendCounts[ AHat.RowOwner(j+m) ];
-        }
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int e=0; e<numLocalEntriesA; ++e )
-        {
-            const Int i = A.Row(e); 
-            const Int j = A.Col(e);
-            const Real value = A.Value(e);
-            // Sending A
-            int owner = AHat.RowOwner(i);
-            sendBuf[offs[owner]++] = Entry<Real>{ i, j, value };
-            // Sending -A
-            sendBuf[offs[owner]++] = Entry<Real>{ i, j+n, -value }; 
-            // Sending A^T
-            owner = AHat.RowOwner(j+m);
-            sendBuf[offs[owner]++] = Entry<Real>{ j+m, i+2*n, value }; 
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        AHat.Reserve( recvBuf.size() + AHat.LocalHeight() );
-        for( auto& entry : recvBuf )
-            AHat.QueueUpdate( entry );
-        for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
-        {
-            const Int i = AHat.GlobalRow(iLoc);
-            AHat.QueueLocalUpdate( iLoc, i+2*n, Real(1) );
-        }
-        AHat.ProcessQueues();
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const Real value = A.Value(e);
+        AHat.QueueUpdate( i,   j,     value, false );
+        AHat.QueueUpdate( i,   j+n,  -value, false );
+        AHat.QueueUpdate( j+m, i+2*n, value, false );
     }
+    for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
+    {
+        const Int i = AHat.GlobalRow(iLoc);
+        AHat.QueueUpdate( i, i+2*n, Real(1) );
+    }
+    AHat.ProcessQueues();
+
     // \hat b := | b |
     //           | 0 |
     // ===============
     Zeros( bHat, m+n, 1 );
+    bHat.Reserve( b.LocalHeight() );
+    for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
     {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-            ++sendCounts[ bHat.RowOwner(b.GlobalRow(iLoc)) ];
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<ValueInt<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-        {
-            const Int i = b.GlobalRow(iLoc);
-            const int owner = bHat.RowOwner(i);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ b.GetLocal(iLoc,0), i };
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            bHat.Set( entry.index, 0, entry.value );
+        const Int i = b.GlobalRow(iLoc);
+        bHat.QueueUpdate( i, 0, b.GetLocal(iLoc,0) );
     }
+    bHat.ProcessQueues();
 
     // Solve the affine LP
     // ===================
@@ -572,50 +524,24 @@ void Var2
     // x := u - v
     // ==========
     Zeros( x, n, 1 );
+    Int numRemoteUpdates = 0;
+    for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
+        if( xHat.GlobalRow(iLoc) < 2*n )
+            ++numRemoteUpdates;
+        else
+            break;
+    x.Reserve( numRemoteUpdates );
+    for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
-        {
-            const Int i = xHat.GlobalRow(iLoc);
-            if( i < n )
-                ++sendCounts[ x.RowOwner(i) ];
-            else if( i < 2*n )
-                ++sendCounts[ x.RowOwner(i-n) ];
-            else
-                break;
-        }
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<ValueInt<Real>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
-        {
-            const Int i = xHat.GlobalRow(iLoc);
-            if( i < n )
-            {
-                int owner = x.RowOwner(i);
-                Real value = xHat.GetLocal(iLoc,0); 
-                sendBuf[offs[owner]++] = ValueInt<Real>{ value, i };
-            }
-            else if( i < 2*n )
-            {
-                int owner = x.RowOwner(i-n);
-                Real value = -xHat.GetLocal(iLoc,0);
-                sendBuf[offs[owner]++] = ValueInt<Real>{ value, i-n };
-            }
-            else
-                break;
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            x.Update( entry.index, 0, entry.value );
+        const Int i = xHat.GlobalRow(iLoc);
+        if( i < n )
+            x.QueueUpdate( i, 0, xHat.GetLocal(iLoc,0) );
+        else if( i < 2*n )
+            x.QueueUpdate( i-n, 0, -xHat.GetLocal(iLoc,0) );
+        else
+            break;
     }
+    x.ProcessQueues();
 }
 
 } // namespace ds

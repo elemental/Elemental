@@ -10,7 +10,7 @@ import El, time
 
 n0 = 50
 n1 = 50
-display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
