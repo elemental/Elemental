@@ -40,10 +40,17 @@ template<typename T>
 void TestGemm
 ( Orientation orientA, Orientation orientB,
   Int m, Int n, Int k, T alpha, T beta, const Grid& g, 
-  bool print, bool correctness )
+  bool print, bool correctness,
+  Int colAlignA=0, Int rowAlignA=0,
+  Int colAlignB=0, Int rowAlignB=0,
+  Int colAlignC=0, Int rowAlignC=0 )
 {
     double startTime, runTime, realGFlops, gFlops;
     DistMatrix<T> A(g), B(g), COrig(g), C(g);
+
+    A.Align( colAlignA, rowAlignA );
+    B.Align( colAlignB, rowAlignB );
+    C.Align( colAlignC, rowAlignC );
 
     if( orientA == NORMAL )
         Uniform( A, m, k );
@@ -189,6 +196,12 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         const bool correctness = 
             Input("--correctness","test correctness?",false);
+        const Int colAlignA = Input("--colAlignA","column align of A",0);
+        const Int colAlignB = Input("--colAlignB","column align of B",0);
+        const Int colAlignC = Input("--colAlignC","column align of C",0);
+        const Int rowAlignA = Input("--rowAlignA","row align of A",0);
+        const Int rowAlignB = Input("--rowAlignB","row align of B",0); 
+        const Int rowAlignC = Input("--rowAlignC","row align of C",0);
         ProcessInput();
         PrintInputReport();
 
@@ -207,13 +220,15 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
         TestGemm<double>
-        ( orientA, orientB, m, n, k, 3., 4., g, print, correctness );
+        ( orientA, orientB, m, n, k, 3., 4., g, print, correctness,
+          colAlignA, rowAlignA, colAlignB, rowAlignB, colAlignC, rowAlignC );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
         TestGemm<Complex<double>>
         ( orientA, orientB, m, n, k, 
-          Complex<double>(3), Complex<double>(4), g, print, correctness );
+          Complex<double>(3), Complex<double>(4), g, print, correctness,
+          colAlignA, rowAlignA, colAlignB, rowAlignB, colAlignC, rowAlignC );
     }
     catch( exception& e ) { ReportException(e); }
 

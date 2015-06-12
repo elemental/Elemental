@@ -18,22 +18,23 @@ void RowFilter
         AbstractDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::RowFilter");
-        if( A.ColDist() != Collect(B.RowDist()) ||
-            A.RowDist() != B.ColDist() )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::RowFilter");
+      if( A.ColDist() != Collect(B.RowDist()) ||
+          A.RowDist() != B.ColDist() )
+          LogicError("Incompatible distributions");
     )
     unique_ptr<AbstractDistMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );    
     if( B.ColConstrained() )
-        AFilt->AlignRowsWith( B, false );
+        AFilt->AlignRowsWith( B, true );
     if( B.RowConstrained() )
-        AFilt->AlignColsWith( B, false );
+        AFilt->AlignColsWith( B, true );
     Copy( A, *AFilt );
     if( !B.ColConstrained() )
         B.AlignColsWith( *AFilt, false );
     if( !B.RowConstrained() )
         B.AlignRowsWith( *AFilt, false );
+    // We should have ensured that the alignments match
     B.Resize( A.Width(), A.Height() );
     Transpose( AFilt->LockedMatrix(), B.Matrix(), conjugate );
 }
@@ -44,22 +45,23 @@ void RowFilter
         AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::RowFilter");
-        if( A.ColDist() != Collect(B.RowDist()) ||
-            A.RowDist() != B.ColDist() )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::RowFilter");
+      if( A.ColDist() != Collect(B.RowDist()) ||
+          A.RowDist() != B.ColDist() )
+          LogicError("Incompatible distributions");
     )
     unique_ptr<AbstractBlockDistMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );    
     if( B.ColConstrained() )
-        AFilt->AlignRowsWith( B, false );
+        AFilt->AlignRowsWith( B, true );
     if( B.RowConstrained() )
-        AFilt->AlignColsWith( B, false );
+        AFilt->AlignColsWith( B, true );
     Copy( A, *AFilt );
     if( !B.ColConstrained() )
         B.AlignColsWith( *AFilt, false );
     if( !B.RowConstrained() )
         B.AlignRowsWith( *AFilt, false );
+    // We should have ensured that the alignments match
     B.Resize( A.Width(), A.Height() );
     Transpose( AFilt->LockedMatrix(), B.Matrix(), conjugate );
 }

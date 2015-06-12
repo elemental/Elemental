@@ -22,34 +22,24 @@ void TransposeAxpyContract
     {
         TransposeAxpy( alpha, A, B, conjugate );
     }
-    else if( A.ColDist() == V && A.RowDist() == Partial(U) )
+    else if( (A.ColDist() == V && A.RowDist() == Partial(U)) ||
+             (A.ColDist() == V && A.RowDist() == Collect(U)) ||
+             (A.RowDist() == U && A.ColDist() == Partial(V)) ||
+             (A.RowDist() == U && A.ColDist() == Collect(V)) )
     {
         unique_ptr<AbstractDistMatrix<T>>
           ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
-            ASumFilt->AlignRowsWith( B, false );
+            ASumFilt->AlignRowsWith( B, true );
         if( B.RowConstrained() )
-            ASumFilt->AlignColsWith( B, false );
+            ASumFilt->AlignColsWith( B, true );
         Contract( A, *ASumFilt );
         if( !B.ColConstrained() )
             B.AlignColsWith( *ASumFilt, false );
         if( !B.RowConstrained() )
             B.AlignRowsWith( *ASumFilt, false );
-        TransposeAxpy( alpha, ASumFilt->LockedMatrix(), B.Matrix(), conjugate );
-    }
-    else if( A.ColDist() == V && A.RowDist() == Collect(U) )
-    {
-        unique_ptr<AbstractDistMatrix<T>>
-          ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
-        if( B.ColConstrained() )
-            ASumFilt->AlignRowsWith( B, false );
-        if( B.RowConstrained() )
-            ASumFilt->AlignColsWith( B, false );
-        Contract( A, *ASumFilt );
-        if( !B.ColConstrained() )
-            B.AlignColsWith( *ASumFilt, false );
-        if( !B.RowConstrained() )
-            B.AlignRowsWith( *ASumFilt, false );
+
+        // We should have ensured that the alignments are compatible
         TransposeAxpy( alpha, ASumFilt->LockedMatrix(), B.Matrix(), conjugate );
     }
     else

@@ -18,39 +18,38 @@ namespace El {
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, 
+  T beta,        Matrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("Gemm");
-      if( orientA == NORMAL && orientB == NORMAL )
-      {
-          if( A.Height() != C.Height() ||
-              B.Width()  != C.Width()  ||
-              A.Width()  != B.Height() )
-              LogicError("Nonconformal GemmNN");
-      }
-      else if( orientA == NORMAL )
-      {
-          if( A.Height() != C.Height() ||
-              B.Height() != C.Width()  ||
-              A.Width()  != B.Width() )
-              LogicError("Nonconformal GemmN(T/C)");
-      }
-      else if( orientB == NORMAL )
-      {
-          if( A.Width()  != C.Height() ||
-              B.Width()  != C.Width()  ||
-              A.Height() != B.Height() )
-              LogicError("Nonconformal Gemm(T/C)N");
-      }
-      else
-      {
-          if( A.Width()  != C.Height() ||
-              B.Height() != C.Width()  ||
-              A.Height() != B.Width() )
-              LogicError("Nonconformal Gemm(T/C)(T/C)");
-      }
-    )
+    DEBUG_ONLY(CSE cse("Gemm"))
+    if( orientA == NORMAL && orientB == NORMAL )
+    {
+        if( A.Height() != C.Height() ||
+            B.Width()  != C.Width()  ||
+            A.Width()  != B.Height() )
+            LogicError("Nonconformal GemmNN");
+    }
+    else if( orientA == NORMAL )
+    {
+        if( A.Height() != C.Height() ||
+            B.Height() != C.Width()  ||
+            A.Width()  != B.Width() )
+            LogicError("Nonconformal GemmN(T/C)");
+    }
+    else if( orientB == NORMAL )
+    {
+        if( A.Width()  != C.Height() ||
+            B.Width()  != C.Width()  ||
+            A.Height() != B.Height() )
+            LogicError("Nonconformal Gemm(T/C)N");
+    }
+    else
+    {
+        if( A.Width()  != C.Height() ||
+            B.Height() != C.Width()  ||
+            A.Height() != B.Width() )
+            LogicError("Nonconformal Gemm(T/C)(T/C)");
+    }
     const char transA = OrientationToChar( orientA );
     const char transB = OrientationToChar( orientB );
     const Int m = C.Height();
@@ -72,7 +71,8 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, 
+                 Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
@@ -85,7 +85,8 @@ template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg )
+  T beta,        AbstractDistMatrix<T>& C, 
+  GemmAlgorithm alg )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
     if( orientA == NORMAL && orientB == NORMAL )

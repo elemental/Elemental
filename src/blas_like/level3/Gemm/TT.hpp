@@ -40,8 +40,8 @@ SUMMA_TTA
 
     // Temporary distributions
     DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
-    DistMatrix<T,MR,  STAR> D1_MR_STAR(g);
     DistMatrix<T,MR,  MC  > D1_MR_MC(g);
+    DistMatrix<T,MR,  STAR> D1_MR_STAR(g);
 
     B1_STAR_MC.AlignWith( A ); 
     D1_MR_STAR.AlignWith( A );  
@@ -59,8 +59,8 @@ SUMMA_TTA
         //           = alpha (A^T)[MR,MC] (B1^T)[MC,*]
         LocalGemm( orientA, orientB, alpha, A, B1_STAR_MC, D1_MR_STAR );
 
-        // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
-        Conjugate( D1_MR_STAR, D1_MR_MC );
+        // C1[MC,MR] += scattered D1[MR,*] summed over grid cols
+        Contract( D1_MR_STAR, D1_MR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
 }

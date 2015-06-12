@@ -27,14 +27,15 @@ void TransposeContract
         unique_ptr<AbstractDistMatrix<T>> 
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
-            ASumFilt->AlignRowsWith( B, false );
+            ASumFilt->AlignRowsWith( B, true );
         if( B.RowConstrained() )
-            ASumFilt->AlignColsWith( B, false );
+            ASumFilt->AlignColsWith( B, true );
         Contract( A, *ASumFilt );
         if( !B.ColConstrained() )
             B.AlignColsWith( *ASumFilt, false );
         if( !B.RowConstrained() )
             B.AlignRowsWith( *ASumFilt, false );
+        // We should have ensured that the alignments match
         B.Resize( A.Width(), A.Height() );
         Transpose( ASumFilt->LockedMatrix(), B.Matrix(), conjugate );
     }
@@ -57,14 +58,15 @@ void TransposeContract
         unique_ptr<AbstractBlockDistMatrix<T>> 
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
-            ASumFilt->AlignRowsWith( B, false );
+            ASumFilt->AlignRowsWith( B, true );
         if( B.RowConstrained() )
-            ASumFilt->AlignColsWith( B, false );
+            ASumFilt->AlignColsWith( B, true );
         Contract( A, *ASumFilt );
         if( !B.ColConstrained() )
             B.AlignColsWith( *ASumFilt, false );
         if( !B.RowConstrained() )
             B.AlignRowsWith( *ASumFilt, false );
+        // We should have ensured that the alignments match
         B.Resize( A.Width(), A.Height() );
         Transpose( ASumFilt->LockedMatrix(), B.Matrix(), conjugate );
     }
