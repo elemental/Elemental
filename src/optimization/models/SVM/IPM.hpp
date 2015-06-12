@@ -223,7 +223,6 @@ void IPM
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size(comm);
 
     DistSparseMatrix<Real> Q(comm), AHat(comm), G(comm);
     DistMultiVec<Real> c(comm), b(comm), h(comm);

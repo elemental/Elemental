@@ -22,7 +22,6 @@ void SOCBroadcast
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    Int numNonSO = 0;
     for( Int i=0; i<height; )
     {
         const Int order = orders.Get(i,0);

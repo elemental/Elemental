@@ -138,76 +138,44 @@ void AugmentedKKT
     DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
-
-    mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size( comm );
-
-    J.SetComm( comm );
+    J.SetComm( A.Comm() );
     Zeros( J, m+n, m+n );
 
-    // Compute the number of entries to send to each process
-    // =====================================================
-    vector<int> sendCounts(commSize,0);
-    // For placing A into the bottom-left corner
-    // -----------------------------------------
-    for( Int e=0; e<A.NumLocalEntries(); ++e )
-        ++sendCounts[ J.RowOwner(A.Row(e)+n) ];
-    // For placing A^T into the top-right corner
-    // -----------------------------------------
-    DistSparseMatrix<Real> ATrans(comm);
-    if( !onlyLower )
-    {
-        Transpose( A, ATrans );
-        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
-            ++sendCounts[ J.RowOwner(ATrans.Row(e)) ];
-    }
-    // For placing x <> z into the top-left corner
-    // -------------------------------------------
-    for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
-        ++sendCounts[ J.RowOwner( x.GlobalRow(iLoc) ) ];
-    // For placing Q into the top-left corner
+    // Compute the number of entries to send
+    // =====================================
+    Int numEntries = 0;
+    numEntries += A.NumLocalEntries();
+    if( !onlyLower ) 
+        numEntries += A.NumLocalEntries();
+    numEntries += x.LocalHeight(); 
     for( Int e=0; e<Q.NumLocalEntries(); ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            ++sendCounts[ J.RowOwner(i) ]; 
+            ++numEntries;
     }
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
 
-    // Pack the triplets
+    // Queue the entries
     // =================
-    vector<Entry<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    J.Reserve( numEntries, numEntries );
     // Pack A
     // ------
     for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, A.Value(e) };
-    }
-    // Pack A^T
-    // --------
-    if( !onlyLower )
-    {
-        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
-        {
-            const Int i = ATrans.Row(e);
-            const Int j = ATrans.Col(e) + n;
-            const Real value = ATrans.Value(e);
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
-        }
+        J.QueueUpdate( i, j, A.Value(e), false );
+        if( !onlyLower )
+            J.QueueUpdate( j, i, A.Value(e), false );
     }
     // Pack x <> z
     // -----------
     for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int j = i;
         const Real value = z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
+        J.QueueUpdate( i, i, value, false );
     }
     // Pack Q
     // ------
@@ -216,15 +184,8 @@ void AugmentedKKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, Q.Value(e) };
+            J.QueueUpdate( i, j, Q.Value(e), false );
     }
-
-    // Exchange and unpack the triplets
-    // ================================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    J.Reserve( recvBuf.size() );
-    for( auto& entry : recvBuf )
-        J.QueueUpdate( entry );
     J.ProcessQueues();
 }
 
@@ -258,7 +219,7 @@ void AugmentedKKTRHS
 
 template<typename Real>
 void AugmentedKKTRHS
-( const AbstractDistMatrix<Real>& xPre, 
+( const AbstractDistMatrix<Real>& x, 
   const AbstractDistMatrix<Real>& rc,   const AbstractDistMatrix<Real>& rb, 
   const AbstractDistMatrix<Real>& rmu,
         AbstractDistMatrix<Real>& dPre )
@@ -270,9 +231,8 @@ void AugmentedKKTRHS
     ctrl.rowConstrain = true;
     ctrl.colAlign = 0;
     ctrl.rowAlign = 0;
-    
-    auto xPtr = ReadProxy<Real,MC,MR>(&xPre,ctrl);  auto& x = *xPtr;
-    auto dPtr = WriteProxy<Real,MC,MR>(&dPre,ctrl); auto& d = *dPtr;
+    auto dPtr = WriteProxy<Real,MC,MR>(&dPre,ctrl); 
+    auto& d = *dPtr;
 
     const Int m = rb.Height();
     const Int n = rmu.Height();
@@ -304,43 +264,24 @@ void AugmentedKKTRHS
     DEBUG_ONLY(CSE cse("qp::direct::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
+    d.SetComm( x.Comm() );
     Zeros( d, m+n, 1 );
-    mpi::Comm comm = x.Comm();
-    const Int commSize = mpi::Size( comm );
 
-    // Compute the number of entries to send/recv from each process
-    // ============================================================
-    vector<int> sendCounts(commSize,0);
-    for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
-        ++sendCounts[ d.RowOwner( rc.GlobalRow(iLoc) ) ];
-    for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
-        ++sendCounts[ d.RowOwner( rb.GlobalRow(iLoc)+n ) ];
-
-    // Pack the doublets
-    // =================
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueInt<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    d.Reserve( rc.LocalHeight()+rb.LocalHeight() );
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
         const Int i = rc.GlobalRow(iLoc);
         const Real value = -rc.GetLocal(iLoc,0) -
                             rmu.GetLocal(iLoc,0)/x.GetLocal(iLoc,0);
-        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
+        d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
         const Int i = rb.GlobalRow(iLoc) + n;
         const Real value = -rb.GetLocal(iLoc,0);
-        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
+        d.QueueUpdate( i, 0, value );
     }
-
-    // Exchange and unpack the doublets
-    // ================================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        d.Update( entry.index, 0, entry.value );
+    d.ProcessQueues();
 }
 
 template<typename Real>
@@ -356,13 +297,8 @@ void ExpandAugmentedSolution
 
     // Extract dx and dy from [dx; dy]
     // ===============================
-    dx.Resize( n, 1 );
-    dy.Resize( m, 1 );
-    const IR xInd(0,n), yInd(n,n+m);
-    auto d_x = d(xInd,ALL);
-    auto d_y = d(yInd,ALL);
-    dx = d_x;
-    dy = d_y;
+    dx = d(IR(0,n  ),ALL);
+    dy = d(IR(n,n+m),ALL);
 
     // dz := - x <> (r_mu + z o dx)
     // ============================
@@ -375,44 +311,27 @@ void ExpandAugmentedSolution
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const AbstractDistMatrix<Real>& xPre,   const AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Real>& rmuPre, const AbstractDistMatrix<Real>& dPre,
-        AbstractDistMatrix<Real>& dxPre,        AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dzPre )
+( const AbstractDistMatrix<Real>& x,   const AbstractDistMatrix<Real>& z,
+  const AbstractDistMatrix<Real>& rmu, const AbstractDistMatrix<Real>& dPre,
+        AbstractDistMatrix<Real>& dx,        AbstractDistMatrix<Real>& dy, 
+        AbstractDistMatrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
 
-    ProxyCtrl ctrl;
-    ctrl.colConstrain = true;
-    ctrl.rowConstrain = true;
-    ctrl.colAlign = 0;
-    ctrl.rowAlign = 0;
-
-    auto xPtr = ReadProxy<Real,MC,MR>(&xPre,ctrl); auto& x = *xPtr;
-    auto zPtr = ReadProxy<Real,MC,MR>(&zPre,ctrl); auto& z = *zPtr;
-
-    auto rmuPtr = ReadProxy<Real,MC,MR>(&rmuPre); auto& rmu = *rmuPtr;
-    auto dPtr   = ReadProxy<Real,MC,MR>(&dPre);   auto& d   = *dPtr;
-
-    auto dxPtr = WriteProxy<Real,MC,MR>(&dxPre,ctrl); auto& dx = *dxPtr;
-    auto dzPtr = WriteProxy<Real,MC,MR>(&dzPre,ctrl); auto& dz = *dzPtr;
+    auto dPtr = ReadProxy<Real,MC,MR>(&dPre);
+    auto& d = *dPtr;
 
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
 
     // Extract dx and dy from [dx; dy]
     // ===============================
-    dx.Resize( n, 1 );
-    dy.Resize( m, 1 );
-    const IR xInd(0,n), yInd(n,n+m);
-    auto d_x = d(xInd,ALL);
-    auto d_y = d(yInd,ALL);
-    dx = d_x;
-    Copy( d_y, dy );
+    Copy( d(IR(0,n  ),ALL), dx );
+    Copy( d(IR(n,n+m),ALL), dy );
 
     // dz := - x <> (r_mu + z o dx)
     // ============================
-    dz = dx;
+    Copy( dx, dz );
     DiagonalScale( LEFT, NORMAL, z, dz );
     Axpy( Real(1), rmu, dz );
     DiagonalSolve( LEFT, NORMAL, x, dz );
@@ -430,54 +349,36 @@ void ExpandAugmentedSolution
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
     mpi::Comm comm = z.Comm();
-    const Int commSize = mpi::Size(comm);
+    dx.SetComm( comm );
+    dy.SetComm( comm );
+    dz.SetComm( comm );
 
     // Extract dx and dy from [dx; dy]
     // ===============================
-    dx.Resize( n, 1 );
-    dy.Resize( m, 1 );
-    // Compute the number of entries to send to each process
-    // -----------------------------------------------------
-    vector<int> sendCounts(commSize,0);
+    Zeros( dx, n, 1 );
+    Zeros( dy, m, 1 );
+    Int dxNumEntries=0, dyNumEntries=0;
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
         if( i < n )
-            ++sendCounts[ dx.RowOwner(i) ];
+            ++dxNumEntries;
         else
-            ++sendCounts[ dy.RowOwner(i-n) ];
+            ++dyNumEntries;
     }
-    // Pack the entries and row indices of dx and dy
-    // ---------------------------------------------
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueInt<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    dx.Reserve( dxNumEntries );
+    dy.Reserve( dyNumEntries );
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
+        const Real value = d.GetLocal(iLoc,0);
         if( i < n )
-        {
-            const int owner = dx.RowOwner(i); 
-            sendBuf[offs[owner]++] = ValueInt<Real>{ d.GetLocal(iLoc,0), i };
-        }
+            dx.QueueUpdate( i, 0, value );
         else
-        {
-            const int owner = dy.RowOwner(i-n);
-            sendBuf[offs[owner]++] = ValueInt<Real>{ d.GetLocal(iLoc,0), i };
-        }
+            dy.QueueUpdate( i, 0, value );
     }
-    // Exchange and unpack the entries and indices
-    // -------------------------------------------
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-    {
-        const Int i = entry.index;
-        if( i < n )
-            dx.Set( i, 0, entry.value );
-        else
-            dy.Set( i-n, 0, entry.value );
-    }
+    dx.ProcessQueues();
+    dy.ProcessQueues();
 
     // dz := - x <> (r_mu + z o dx)
     // ============================

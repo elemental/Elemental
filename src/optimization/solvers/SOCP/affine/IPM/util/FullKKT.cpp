@@ -152,8 +152,8 @@ template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A,    
   const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& sPre, 
-  const AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Real>& s, 
+  const AbstractDistMatrix<Real>& z,
   const AbstractDistMatrix<Int>& ordersPre,
   const AbstractDistMatrix<Int>& firstIndsPre,
   const AbstractDistMatrix<Int>& labels,
@@ -171,12 +171,8 @@ void KKT
     proxCtrl.colConstrain = true;
     proxCtrl.colAlign = 0;
 
-    auto sPtr         = ReadProxy<Real,VC,STAR>(&sPre,proxCtrl);
-    auto zPtr         = ReadProxy<Real,VC,STAR>(&zPre,proxCtrl);
     auto ordersPtr    = ReadProxy<Int,VC,STAR>(&ordersPre,proxCtrl);
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,proxCtrl);
-    auto& s         = *sPtr;
-    auto& z         = *zPtr;
     auto& orders    = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 

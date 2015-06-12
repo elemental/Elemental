@@ -446,7 +446,6 @@ void Var2
     const Int n = A.Width();
     const Int numLocalEntriesA = A.NumLocalEntries();
     mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size(comm);
     DistSparseMatrix<Real> AHat(comm), G(comm);
     DistMultiVec<Real> c(comm), bHat(comm), h(comm);
 

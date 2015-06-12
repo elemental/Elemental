@@ -86,12 +86,13 @@ void Mehrotra
         Ones( dCol,  n, 1 );
     }
 
+    LogicError("This routine is not yet finished"); 
+
+    /*
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    LogicError("This routine is not yet finished"); 
-    /*
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
@@ -314,7 +315,7 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
     const Grid& grid = APre.Grid();
-    const int commRank = grid.Rank();
+    //const int commRank = grid.Rank();
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), G(grid), b(grid), c(grid), h(grid);
@@ -339,12 +340,14 @@ void Mehrotra
     auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
     auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
+    /*
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre);
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
     auto labelsPtr = ReadProxy<Int,VC,STAR>(&labelsPre);
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
     auto& labels = *labelsPtr;
+    */
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     const Int m = A.Height();
@@ -378,12 +381,12 @@ void Mehrotra
         Ones( dCol,  n, 1 );
     }
 
+    LogicError("This routine is not yet finished"); 
+    /*
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    LogicError("This routine is not yet finished"); 
-    /*
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
@@ -646,12 +649,12 @@ void Mehrotra
         Ones( dCol,  n, 1 );
     }
 
+    LogicError("This routine is not yet finished"); 
+    /*
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    LogicError("This routine is not yet finished"); 
-    /*
     vector<Int> map, invMap;
     ldl::NodeInfo info;
     ldl::Separator rootSep;
@@ -947,12 +950,12 @@ void Mehrotra
         Ones( dCol,  n, 1 );
     }
 
+    LogicError("This routine is not yet finished"); 
+    /*
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    LogicError("This routine is not yet finished"); 
-    /*
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;

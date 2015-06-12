@@ -93,7 +93,8 @@ void KKT
     const Int n = A.Width();
     const Int k = G.Height();
 
-    auto JPtr = WriteProxy<Real,MC,MR>(&JPre);    auto& J = *JPtr;
+    auto JPtr = WriteProxy<Real,MC,MR>(&JPre); 
+    auto& J = *JPtr;
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
@@ -175,33 +176,29 @@ void KKT
             J.QueueUpdate( i, j, Q.Value(e) );
     }
 
-    // Jyx = A
-    // =======
+    // Jyx = A (and Jxy = A^T)
+    // =======================
     for( Int e=0; e<numEntriesA; ++e )
+    {
         J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
+        if( !onlyLower )
+            J.QueueUpdate( A.Col(e), n+A.Row(e), A.Value(e) );
+    }
 
-    // Jzx = G
-    // =======
+    // Jzx = G (and Jxz = G^T)
+    // =======================
     for( Int e=0; e<numEntriesG; ++e )
+    {
         J.QueueUpdate( n+m+G.Row(e), G.Col(e), G.Value(e) );
+        if( !onlyLower )
+            J.QueueUpdate( G.Col(e), n+m+G.Row(e), G.Value(e) );
+    }
 
     // Jzz = -z <> s
     // =============
     for( Int e=0; e<k; ++e )
         J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
 
-    if( !onlyLower )
-    {
-        // Jxy := A^T
-        // ==========
-        for( Int e=0; e<numEntriesA; ++e )
-            J.QueueUpdate( A.Col(e), n+A.Row(e), A.Value(e) );
-
-        // Jxz := G^T
-        // ==========
-        for( Int e=0; e<numEntriesG; ++e )
-            J.QueueUpdate( G.Col(e), n+m+G.Row(e), G.Value(e) );
-    }
     J.ProcessQueues();
 }
 
@@ -217,61 +214,26 @@ void KKT
     const Int n = A.Width();
     const Int k = G.Height();
 
-    mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size( comm );
-
-    J.SetComm( comm );
+    J.SetComm( A.Comm() );
     Zeros( J, n+m+k, n+m+k );
 
-    // Compute the number of entries to send to each process
-    // =====================================================
-    vector<int> sendCounts(commSize,0);
-    // Jxx := Q
-    // --------
+    // Compute the number of entries to send
+    // =====================================
+    Int numEntries = A.NumLocalEntries() + G.NumLocalEntries() + 
+                     s.LocalHeight();
+    if( !onlyLower )
+        numEntries += A.NumLocalEntries() + G.NumLocalEntries();
     for( Int e=0; e<Q.NumLocalEntries(); ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            ++sendCounts[ J.RowOwner(i) ];
+            ++numEntries;
     }
-    // Jyx := A
-    // --------
-    for( Int e=0; e<A.NumLocalEntries(); ++e )
-        ++sendCounts[ J.RowOwner(A.Row(e)+n) ];
-    // Jzx := G
-    // --------
-    for( Int e=0; e<G.NumLocalEntries(); ++e )
-        ++sendCounts[ J.RowOwner(G.Row(e)+n+m) ];
-    // Jxy := A^T
-    // ----------
-    DistSparseMatrix<Real> ATrans(comm);
-    if( !onlyLower )
-    {
-        Transpose( A, ATrans );
-        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
-            ++sendCounts[ J.RowOwner(ATrans.Row(e)) ];
-    }
-    // Jxz := G^T
-    // ----------
-    DistSparseMatrix<Real> GTrans(comm);
-    if( !onlyLower )
-    {
-        Transpose( G, GTrans );
-        for( Int e=0; e<GTrans.NumLocalEntries(); ++e )
-            ++sendCounts[ J.RowOwner(GTrans.Row(e)) ];
-    }
-    // Jzz := -z <> s
-    // --------------
-    for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
-        ++sendCounts[ J.RowOwner( m+n + s.GlobalRow(iLoc) ) ];
 
-    // Pack the triplets
-    // =================
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    // Queue and process the entries
+    // =============================
+    J.Reserve( numEntries, numEntries );
     // Pack Q
     // ------
     for( Int e=0; e<Q.NumLocalEntries(); ++e )
@@ -279,7 +241,7 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, Q.Value(e) };
+            J.QueueUpdate( i, j, Q.Value(e), false );
     }
     // Pack A
     // ------
@@ -287,7 +249,9 @@ void KKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, A.Value(e) };
+        J.QueueUpdate( i, j, A.Value(e), false );
+        if( !onlyLower )
+            J.QueueUpdate( j, i, A.Value(e), false );
     }
     // Pack G
     // ------
@@ -295,48 +259,18 @@ void KKT
     {
         const Int i = G.Row(e) + n + m;
         const Int j = G.Col(e);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, G.Value(e) };
-    }
-    // Pack A^T
-    // --------
-    if( !onlyLower )
-    {
-        for( Int e=0; e<ATrans.NumLocalEntries(); ++e )
-        {
-            const Int i = ATrans.Row(e);
-            const Int j = ATrans.Col(e) + n;
-            const Real value = ATrans.Value(e);
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
-        }
-    }
-    // Pack G^T
-    // --------
-    if( !onlyLower )
-    {
-        for( Int e=0; e<GTrans.NumLocalEntries(); ++e )
-        {
-            const Int i = GTrans.Row(e);
-            const Int j = GTrans.Col(e) + n + m;
-            const Real value = GTrans.Value(e);
-            sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
-        }
+        J.QueueUpdate( i, j, G.Value(e), false );
+        if( !onlyLower )
+            J.QueueUpdate( j, i, G.Value(e), false );
     }
     // Pack -z <> s
     // ------------
     for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
     {
         const Int i = m+n + s.GlobalRow(iLoc);
-        const Int j = i;
         const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
-        sendBuf[offs[J.RowOwner(i)]++] = Entry<Real>{ i, j, value };
+        J.QueueUpdate( i, i, value, false );
     }
-
-    // Exchange and unpack the triplets
-    // ================================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    J.Reserve( recvBuf.size() );
-    for( auto& entry : recvBuf )
-        J.QueueUpdate( entry );
     J.ProcessQueues();
 }
 
@@ -351,18 +285,17 @@ void KKTRHS
     const Int n = rc.Height();
     const Int m = rb.Height();
     const Int k = rh.Height();
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
     Zeros( d, n+m+k, 1 );
 
-    auto dx = d(xInd,ALL);
+    auto dx = d(IR(0,n),ALL);
     dx = rc;
     Scale( Real(-1), dx );
 
-    auto dy = d(yInd,ALL);
+    auto dy = d(IR(n,n+m),ALL);
     dy = rb;
     Scale( Real(-1), dy );
 
-    auto dz = d(zInd,ALL);
+    auto dz = d(IR(n+m,n+m+k),ALL);
     dz = rmu;
     DiagonalSolve( LEFT, NORMAL, z, dz );
     Axpy( Real(-1), rh, dz );
@@ -411,51 +344,31 @@ void KKTRHS
     const Int n = rc.Height();
     const Int m = rb.Height();
     const int k = rh.Height();
+    d.SetComm( rc.Comm() );
     Zeros( d, n+m+k, 1 );
-    mpi::Comm comm = rmu.Comm();
-    const Int commSize = mpi::Size( comm );
 
-    // Compute the number of entries to send/recv from each process
-    // ============================================================
-    vector<int> sendCounts(commSize,0);
-    for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
-        ++sendCounts[ d.RowOwner( rc.GlobalRow(iLoc) ) ];
-    for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
-        ++sendCounts[ d.RowOwner( n + rb.GlobalRow(iLoc) ) ];
-    for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
-        ++sendCounts[ d.RowOwner( n+m + rmu.GlobalRow(iLoc) ) ];
-
-    // Pack the doublets
-    // =================
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueInt<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
+    d.Reserve( numEntries );
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
-        const Int i = rc.GlobalRow(iLoc);
-        const Real value = -rc.GetLocal(iLoc,0);
-        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
+        Int i = rc.GlobalRow(iLoc);
+        Real value = -rc.GetLocal(iLoc,0);
+        d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
-        const Int i = n + rb.GlobalRow(iLoc);
-        const Real value = -rb.GetLocal(iLoc,0);
-        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
+        Int i = n + rb.GlobalRow(iLoc);
+        Real value = -rb.GetLocal(iLoc,0);
+        d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
-        const Int i = n+m + rmu.GlobalRow(iLoc);
-        const Real value = rmu.GetLocal(iLoc,0)/z.GetLocal(iLoc,0) - 
-                           rh.GetLocal(iLoc,0);
-        sendBuf[offs[d.RowOwner(i)]++] = ValueInt<Real>{ value, i };
+        Int i = n+m + rmu.GlobalRow(iLoc);
+        Real value = rmu.GetLocal(iLoc,0)/z.GetLocal(iLoc,0) - 
+                     rh.GetLocal(iLoc,0);
+        d.QueueUpdate( i, 0, value );
     }
-
-    // Exchange and unpack the doublets
-    // ================================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        d.Update( entry.index, 0, entry.value );
+    d.ProcessQueues();
 }
 
 template<typename Real>
@@ -468,11 +381,9 @@ void ExpandCoreSolution
     DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
-
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    dx = d(xInd,ALL);
-    dy = d(yInd,ALL);
-    dz = d(zInd,ALL);
+    dx = d(IR(0,  n    ),ALL);
+    dy = d(IR(n,  n+m  ),ALL);
+    dz = d(IR(n+m,n+m+k),ALL);
 }
 
 template<typename Real>
@@ -490,10 +401,9 @@ void ExpandCoreSolution
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
-    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    Copy( d(xInd,ALL), dx );
-    Copy( d(yInd,ALL), dy );
-    Copy( d(zInd,ALL), dz );
+    Copy( d(IR(0,  n    ),ALL), dx );
+    Copy( d(IR(n,  n+m  ),ALL), dy );
+    Copy( d(IR(n+m,n+m+k),ALL), dz );
 }
 
 template<typename Real>
@@ -506,62 +416,48 @@ void ExpandCoreSolution
     DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
-    mpi::Comm comm = d.Comm();
-    const Int commSize = mpi::Size(comm);
 
+    mpi::Comm comm = d.Comm();
     dx.SetComm( comm );
     dy.SetComm( comm );
     dz.SetComm( comm );
-    dx.Resize( n, 1 );
-    dy.Resize( m, 1 );
-    dz.Resize( k, 1 );
+    Zeros( dx, n, 1 );
+    Zeros( dy, m, 1 );
+    Zeros( dz, k, 1 );
 
-    // Compute the metadata for the AllToAll
-    // =====================================
-    vector<int> sendCounts(commSize,0);
+    // Count the number of entries to send to each piece
+    // =================================================
+    Int dxNumEntries=0, dyNumEntries=0, dzNumEntries=0;
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
         if( i < n )
-            ++sendCounts[ dx.RowOwner(i) ];
+            ++dxNumEntries;
         else if( i < n+m )
-            ++sendCounts[ dy.RowOwner(i-n) ];
+            ++dyNumEntries;
         else
-            ++sendCounts[ dz.RowOwner(i-(n+m)) ];
+            ++dzNumEntries;
     }
 
-    // Pack the doublets
-    // =================
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<ValueInt<Real>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    // Pack and process the entries
+    // ============================
+    dx.Reserve( dxNumEntries );
+    dy.Reserve( dyNumEntries );
+    dz.Reserve( dzNumEntries );
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
-        int owner;
+        const Real value = d.GetLocal(iLoc,0);
         if( i < n )
-            owner = dx.RowOwner(i);
+            dx.QueueUpdate( i, 0, value );
         else if( i < n+m )
-            owner = dy.RowOwner(i-n);
+            dy.QueueUpdate( i-n, 0, value );
         else
-            owner = dz.RowOwner(i-(n+m));
-        sendBuf[offs[owner]++] = ValueInt<Real>{ d.GetLocal(iLoc,0), i };
+            dz.QueueUpdate( i-(n+m), 0, value );
     }
-
-    // Exchange and unpack the doublets
-    // ================================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-    {
-        const Int i = entry.index;
-        if( i < n )
-            dx.Set( i, 0, entry.value );
-        else if( i < n+m )
-            dy.Set( i-n, 0, entry.value );
-        else
-            dz.Set( i-(n+m), 0, entry.value );
-    }
+    dx.ProcessQueues();
+    dy.ProcessQueues();
+    dz.ProcessQueues();
 }
 
 template<typename Real>

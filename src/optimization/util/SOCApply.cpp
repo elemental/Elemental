@@ -69,7 +69,8 @@ void SOCApply
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i != firstInds.GetLocal(iLoc,0) )
+        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        if( i != firstInd )
             z.UpdateLocal
             ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
                        yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );
@@ -94,7 +95,8 @@ void SOCApply
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i != firstInds.GetLocal(iLoc,0) )
+        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        if( i != firstInd )
             z.UpdateLocal
             ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
                        yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );

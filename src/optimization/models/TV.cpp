@@ -121,7 +121,6 @@ void TV
     DEBUG_ONLY(CSE cse("TV"))
     const Int n = b.Height();
     mpi::Comm comm = b.Comm();
-    const int commSize = mpi::Size(comm);
 
     DistSparseMatrix<Real> Q(comm), A(comm), G(comm);
     DistMultiVec<Real> c(comm), bHat(comm), h(comm);
