@@ -10,12 +10,39 @@
 using namespace std;
 using namespace El;
 
-template<typename T> 
+template<typename T>
+void TestCorrectness
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A,
+  T beta,  const DistMatrix<T>& COrig,
+           const DistMatrix<T>& C,
+  bool print )
+{
+    DEBUG_ONLY(CSE cse("TestCorrectness"))
+    DistMatrix<T,CIRC,CIRC> ARoot( A ),
+                            COrigRoot( COrig ), CRoot( C );
+    if( ARoot.Root() == ARoot.CrossRank() )
+    {
+        Matrix<T> CSeq( COrigRoot.Matrix() );
+        Syrk
+        ( uplo, orientation, alpha, ARoot.Matrix(), beta,  CSeq );
+        const Base<T> CNrm = FrobeniusNorm( CRoot.Matrix() );
+        Axpy( T(-1), CSeq, CRoot.Matrix() );
+        const Base<T> ENrm = FrobeniusNorm( CRoot.Matrix() );
+        cout << " || E ||_F = " << ENrm << "\n"
+             << " || C ||_F = " << CNrm << endl;
+    }
+}
+
+template<typename T>
 void TestSyrk
-( bool print, UpperOrLower uplo, Orientation orientation,
-  Int m, Int k, T alpha, T beta, const Grid& g )
+( UpperOrLower uplo, Orientation orientation,
+  Int m, Int k, T alpha, T beta, const Grid& g, bool print, bool correctness,
+  Int colAlignA=0, Int rowAlignA=0, Int colAlignC=0, Int rowAlignC=0 )
 {
     DistMatrix<T> A(g), C(g);
+    A.Align( colAlignA, rowAlignA );
+    C.Align( colAlignC, rowAlignC );
 
     if( orientation == NORMAL )
         Uniform( A, m, k );
@@ -23,6 +50,7 @@ void TestSyrk
         Uniform( A, k, m );
     Uniform( C, m, m );
     MakeTrapezoidal( uplo, C );
+    auto COrig = C;
     if( print )
     {
         Print( A, "A" );
@@ -56,6 +84,10 @@ void TestSyrk
             msg << "C := " << alpha << " A' A + " << beta << " C";
         Print( C, msg.str() );
     }
+
+    if( correctness )
+        TestCorrectness
+        ( uplo, orientation, alpha, A, beta, COrig, C, print );
 }
 
 int 
@@ -70,14 +102,18 @@ main( int argc, char* argv[] )
     {
         Int r = Input("--r","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const char transChar = Input
-            ("--trans","orientation of update: N/T",'N');
-        const Int m = Input("--m","size of result",100);
+        const char uploChar = Input("--uplo","upper/lower storage: L/U",'L');
+        const char transChar = Input("--trans","orientation: N/C",'N');
+        const Int m = Input("--m","height of result",100);
         const Int k = Input("--k","inner dimension",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool print = Input("--print","print matrices?",false);
+        const bool correctness = Input("--correctness","test correct?",true);
+        const Int colAlignA = Input("--colAlignA","col align of A",0);
+        const Int colAlignC = Input("--colAlignC","col align of C",0);
+        const Int rowAlignA = Input("--rowAlignA","row align of A",0);
+        const Int rowAlignC = Input("--rowAlignC","row align of C",0);
         ProcessInput();
         PrintInputReport();
 
@@ -97,13 +133,15 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestSyrk<double>( print, uplo, orientation, m, k, 3., 4., g );
+        TestSyrk<double>
+        ( uplo, orientation, m, k, 3., 4., g, print, correctness, 
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
         TestSyrk<Complex<double>>
-        ( print, uplo, orientation, m, k,
-          Complex<double>(3), Complex<double>(4), g );
+        ( uplo, orientation, m, k, Complex<double>(3), Complex<double>(4), g,
+          print, correctness, colAlignA, rowAlignA, colAlignC, rowAlignC );
     }
     catch( exception& e ) { ReportException(e); }
 

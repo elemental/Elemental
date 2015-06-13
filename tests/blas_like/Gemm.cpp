@@ -194,8 +194,7 @@ main( int argc, char* argv[] )
         const Int k = Input("--k","inner dimension",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool print = Input("--print","print matrices?",false);
-        const bool correctness = 
-            Input("--correctness","test correctness?",false);
+        const bool correctness = Input("--correctness","correctness?",true);
         const Int colAlignA = Input("--colAlignA","column align of A",0);
         const Int colAlignB = Input("--colAlignB","column align of B",0);
         const Int colAlignC = Input("--colAlignC","column align of C",0);

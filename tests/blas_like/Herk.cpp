@@ -10,18 +10,47 @@
 using namespace std;
 using namespace El;
 
+template<typename T>
+void TestCorrectness
+( UpperOrLower uplo, Orientation orientation,
+  Base<T> alpha, const DistMatrix<T>& A,
+  Base<T> beta,  const DistMatrix<T>& COrig,
+                 const DistMatrix<T>& C,
+  bool print )
+{
+    DEBUG_ONLY(CSE cse("TestCorrectness"))
+    DistMatrix<T,CIRC,CIRC> ARoot( A ), 
+                            COrigRoot( COrig ), CRoot( C );
+    if( ARoot.Root() == ARoot.CrossRank() )
+    {
+        Matrix<T> CSeq( COrigRoot.Matrix() );
+        Herk
+        ( uplo, orientation, alpha, ARoot.Matrix(), beta,  CSeq );
+        const Base<T> CNrm = FrobeniusNorm( CRoot.Matrix() );
+        Axpy( T(-1), CSeq, CRoot.Matrix() );
+        const Base<T> ENrm = FrobeniusNorm( CRoot.Matrix() );
+        cout << " || E ||_F = " << ENrm << "\n"
+             << " || C ||_F = " << CNrm << endl;
+    }
+}
+
 template<typename T> 
 void TestHerk
-( bool print, UpperOrLower uplo, Orientation orientation,
-  Int m, Int k, Base<T> alpha, Base<T> beta, const Grid& g )
+( UpperOrLower uplo, Orientation orientation,
+  Int m, Int k, Base<T> alpha, Base<T> beta, const Grid& g,
+  bool print, bool correctness,
+  Int colAlignA=0, Int rowAlignA=0, Int colAlignC=0, Int rowAlignC=0 )
 {
     DistMatrix<T> A(g), C(g);
+    A.Align( colAlignA, rowAlignA );
+    C.Align( colAlignC, rowAlignC );
 
     if( orientation == NORMAL )
         Uniform( A, m, k );
     else
         Uniform( A, k, m );
     HermitianUniformSpectrum( C, m, 1, 10 );
+    auto COrig = C;
     if( print )
     {
         Print( A, "A" );
@@ -55,6 +84,10 @@ void TestHerk
             msg << "C := " << alpha << " A' A + " << beta << " C";
         Print( C, msg.str() );
     }
+
+    if( correctness )
+        TestCorrectness
+        ( uplo, orientation, alpha, A, beta, COrig, C, print );
 }
 
 int 
@@ -76,6 +109,11 @@ main( int argc, char* argv[] )
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool print = Input("--print","print matrices?",false);
+        const bool correctness = Input("--correctness","test correct?",true);
+        const Int colAlignA = Input("--colAlignA","col align of A",0);
+        const Int colAlignC = Input("--colAlignC","col align of C",0);
+        const Int rowAlignA = Input("--rowAlignA","row align of A",0);
+        const Int rowAlignC = Input("--rowAlignC","row align of C",0);
         ProcessInput();
         PrintInputReport();
 
@@ -95,11 +133,15 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestHerk<double>( print, uplo, orientation, m, k, 3., 4., g );
+        TestHerk<double>
+        ( uplo, orientation, m, k, 3., 4., g, print, correctness,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestHerk<Complex<double>>( print, uplo, orientation, m, k, 3., 4., g );
+        TestHerk<Complex<double>>
+        ( uplo, orientation, m, k, 3., 4., g, print, correctness,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
     }
     catch( exception& e ) { ReportException(e); }
 
