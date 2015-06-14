@@ -89,20 +89,19 @@ template<typename Real>
 void KKT
 ( const Matrix<Real>& A, 
   const Matrix<Real>& G,
-  const Matrix<Real>& s, 
-  const Matrix<Real>& z,
+  const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
-        Matrix<Real>& J, bool onlyLower )
+        Matrix<Real>& J, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("socp::affine::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
 
-    Matrix<Real> w, wDets;
-    SOCNesterovTodd( s, z, w, orders, firstInds );
+    Matrix<Real> wDets;
     SOCDets( w, wDets, orders, firstInds );
 
     Zeros( J, n+m+k, n+m+k );
@@ -152,12 +151,12 @@ template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A,    
   const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& s, 
-  const AbstractDistMatrix<Real>& z,
+  const AbstractDistMatrix<Real>& w,
   const AbstractDistMatrix<Int>& ordersPre,
   const AbstractDistMatrix<Int>& firstIndsPre,
   const AbstractDistMatrix<Int>& labels,
-        AbstractDistMatrix<Real>& JPre, bool onlyLower )
+        AbstractDistMatrix<Real>& JPre, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("socp::affine::KKT"))
     const Int m = A.Height();
@@ -179,8 +178,7 @@ void KKT
     auto JPtr = WriteProxy<Real,MC,MR>(&JPre); 
     auto& J = *JPtr;
 
-    DistMatrix<Real,VC,STAR> w(g), wDets(g);
-    SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+    DistMatrix<Real,VC,STAR> wDets(g);
     SOCDets( w, wDets, orders, firstInds, cutoffPar );
     SOCBroadcast( wDets, orders, firstInds, cutoffPar );
 
@@ -257,17 +255,16 @@ template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& s, 
-  const Matrix<Real>& z,
+  const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
-        SparseMatrix<Real>& J, bool onlyLower )
+        SparseMatrix<Real>& J, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("socp::affine::KKT"))
 
-    Matrix<Real> w, wDets;
-    SOCNesterovTodd( s, z, w, orders, firstInds );
+    Matrix<Real> wDets;
     SOCDets( w, wDets, orders, firstInds );
 
     const Int m = A.Height();
@@ -370,23 +367,22 @@ template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& s,     
-  const DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   const DistMultiVec<Int>& labels,
-        DistSparseMatrix<Real>& J, bool onlyLower )
+        DistSparseMatrix<Real>& J, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("socp::affine::KKT"))
-    mpi::Comm comm = s.Comm();
+    mpi::Comm comm = w.Comm();
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
 
     // TODO: Make this a tunable parameter
     const Int cutoffPar = 1000;
 
-    DistMultiVec<Real> w(comm), wDets(comm);
-    SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+    DistMultiVec<Real> wDets(comm);
     SOCDets( w, wDets, orders, firstInds, cutoffPar );
     SOCBroadcast( wDets, orders, firstInds, cutoffPar );
 
@@ -586,12 +582,207 @@ void KKT
     J.ProcessQueues();
 }
 
+template<typename Real>
+void KKTRHS
+( const Matrix<Real>& rc,
+  const Matrix<Real>& rb,
+  const Matrix<Real>& rh,
+  const Matrix<Real>& rmu,
+  const Matrix<Real>& wRoot,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
+        Matrix<Real>& d )
+{
+    DEBUG_ONLY(CallStackEntry cse("socp::affine::KKTRHS"))
+    const Int n = rc.Height();
+    const Int m = rb.Height();
+    const Int k = rh.Height();
+    Zeros( d, n+m+k, 1 );
+
+    auto dx = d(IR(0,n),ALL);
+    dx = rc;
+    Scale( Real(-1), dx );
+
+    auto dy = d(IR(n,n+m),ALL);
+    dy = rb;
+    Scale( Real(-1), dy );
+
+    auto dz = d(IR(n+m,n+m+k),ALL);
+    dz = rmu;
+    SOCApplyQuadratic( wRoot, dz, orders, firstInds );
+    Axpy( Real(-1), rh, dz );
+}
+
+template<typename Real>
+void KKTRHS
+( const AbstractDistMatrix<Real>& rc,  
+  const AbstractDistMatrix<Real>& rb,
+  const AbstractDistMatrix<Real>& rh,  
+  const AbstractDistMatrix<Real>& rmu,
+  const AbstractDistMatrix<Real>& wRoot,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
+        AbstractDistMatrix<Real>& dPre,
+  Int cutoff )
+{
+    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+
+    auto dPtr = WriteProxy<Real,MC,MR>(&dPre);
+    auto& d = *dPtr;
+
+    const Int n = rc.Height();
+    const Int m = rb.Height();
+    const Int k = rh.Height();
+    const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
+    Zeros( d, n+m+k, 1 );
+
+    auto dx = d(xInd,ALL);
+    Copy( rc, dx );
+    Scale( Real(-1), dx );
+
+    auto dy = d(yInd,ALL);
+    Copy( rb, dy );
+    Scale( Real(-1), dy );
+
+    auto dz = d(zInd,ALL);
+    Copy( rmu, dz );
+    SOCApplyQuadratic( wRoot, dz, orders, firstInds, cutoff );
+    Axpy( Real(-1), rh, dz );
+}
+
+template<typename Real>
+void KKTRHS
+( const DistMultiVec<Real>& rc, 
+  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rh, 
+  const DistMultiVec<Real>& rmu,
+  const DistMultiVec<Real>& wRoot, 
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
+        DistMultiVec<Real>& d,
+  Int cutoff )
+{
+    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    const Int n = rc.Height();
+    const Int m = rb.Height();
+    const int k = rh.Height();
+    d.SetComm( rc.Comm() );
+    Zeros( d, n+m+k, 1 );
+
+    DistMultiVec<Real> W_rmu( rc.Comm() );
+    SOCApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds, cutoff );
+
+    Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
+    d.Reserve( numEntries );
+    for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
+    {
+        Int i = rc.GlobalRow(iLoc);
+        Real value = -rc.GetLocal(iLoc,0);
+        d.QueueUpdate( i, 0, value );
+    }
+    for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
+    {
+        Int i = n + rb.GlobalRow(iLoc);
+        Real value = -rb.GetLocal(iLoc,0);
+        d.QueueUpdate( i, 0, value );
+    }
+    for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
+    {
+        Int i = n+m + rmu.GlobalRow(iLoc);
+        Real value = W_rmu.GetLocal(iLoc,0) - rh.GetLocal(iLoc,0);
+        d.QueueUpdate( i, 0, value );
+    }
+    d.ProcessQueues();
+}
+
+template<typename Real>
+void ExpandSolution
+( Int m, Int n,
+  const Matrix<Real>& d, 
+  const Matrix<Real>& rmu,
+  const Matrix<Real>& wRoot,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
+        Matrix<Real>& dx, 
+        Matrix<Real>& dy,
+        Matrix<Real>& dz, 
+        Matrix<Real>& ds )
+{
+    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    const Int k = wRoot.Height();
+    qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
+    // ds := - W^T ( rmu + W dz )
+    // ==========================
+    ds = dz;
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds );
+    Axpy( Real(1), rmu, ds );
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds );
+    Scale( Real(-1), ds );
+}
+
+template<typename Real>
+void ExpandSolution
+( Int m, Int n,
+  const AbstractDistMatrix<Real>& d, 
+  const AbstractDistMatrix<Real>& rmu,
+  const AbstractDistMatrix<Real>& wRoot, 
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
+        AbstractDistMatrix<Real>& dx, 
+        AbstractDistMatrix<Real>& dy,
+        AbstractDistMatrix<Real>& dz, 
+        AbstractDistMatrix<Real>& ds,
+  Int cutoff )
+{
+    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    const int k = wRoot.Height();
+    qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
+    // ds := - W^T ( rmu + W dz )
+    // ==========================
+    Copy( dz, ds );
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    Axpy( Real(1), rmu, ds );
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    Scale( Real(-1), ds );
+}
+
+template<typename Real>
+void ExpandSolution
+( Int m, Int n,
+  const DistMultiVec<Real>& d, 
+  const DistMultiVec<Real>& rmu,
+  const DistMultiVec<Real>& wRoot,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
+        DistMultiVec<Real>& dx, 
+        DistMultiVec<Real>& dy,
+        DistMultiVec<Real>& dz, 
+        DistMultiVec<Real>& ds,
+  Int cutoff )
+{
+    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    const Int k = wRoot.Height();
+    qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
+    // ds := - W^T ( rmu + W dz )
+    // ==========================
+    ds = dz;
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    Axpy( Real(1), rmu, ds );
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    Scale( Real(-1), ds );
+}
+
 #define PROTO(Real) \
   template void KKT \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& G, \
-    const Matrix<Real>& s, \
-    const Matrix<Real>& z, \
+    const Matrix<Real>& w, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
@@ -599,8 +790,7 @@ void KKT
   template void KKT \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& w, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
     const AbstractDistMatrix<Int>& labels, \
@@ -608,8 +798,7 @@ void KKT
   template void KKT \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
-    const Matrix<Real>& s, \
-    const Matrix<Real>& z, \
+    const Matrix<Real>& w, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
@@ -617,12 +806,81 @@ void KKT
   template void KKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& s, \
-    const DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& w, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
     const DistMultiVec<Int>& labels, \
-          DistSparseMatrix<Real>& J, bool onlyLower );
+          DistSparseMatrix<Real>& J, bool onlyLower ); \
+  template void KKTRHS \
+  ( const Matrix<Real>& rc, \
+    const Matrix<Real>& rb, \
+    const Matrix<Real>& rh, \
+    const Matrix<Real>& rmu, \
+    const Matrix<Real>& wRoot, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
+          Matrix<Real>& d ); \
+  template void KKTRHS \
+  ( const AbstractDistMatrix<Real>& rc, \
+    const AbstractDistMatrix<Real>& rb, \
+    const AbstractDistMatrix<Real>& rh, \
+    const AbstractDistMatrix<Real>& rmu, \
+    const AbstractDistMatrix<Real>& wRoot, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+    const AbstractDistMatrix<Int>& labels, \
+          AbstractDistMatrix<Real>& d, \
+    Int cutoff ); \
+  template void KKTRHS \
+  ( const DistMultiVec<Real>& rc, \
+    const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& rh, \
+    const DistMultiVec<Real>& rmu, \
+    const DistMultiVec<Real>& wRoot, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& labels, \
+          DistMultiVec<Real>& d, \
+    Int cutoff ); \
+  template void ExpandSolution \
+  ( Int m, Int n, \
+    const Matrix<Real>& d, \
+    const Matrix<Real>& rmu, \
+    const Matrix<Real>& wRoot, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
+          Matrix<Real>& dx, \
+          Matrix<Real>& dy, \
+          Matrix<Real>& dz, \
+          Matrix<Real>& ds ); \
+  template void ExpandSolution \
+  ( Int m, Int n, \
+    const AbstractDistMatrix<Real>& d, \
+    const AbstractDistMatrix<Real>& rmu, \
+    const AbstractDistMatrix<Real>& wRoot, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+    const AbstractDistMatrix<Int>& labels, \
+          AbstractDistMatrix<Real>& dx, \
+          AbstractDistMatrix<Real>& dy, \
+          AbstractDistMatrix<Real>& dz, \
+          AbstractDistMatrix<Real>& ds, \
+          Int cutoff ); \
+  template void ExpandSolution \
+  ( Int m, Int n, \
+    const DistMultiVec<Real>& d, \
+    const DistMultiVec<Real>& rmu, \
+    const DistMultiVec<Real>& wRoot, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& labels, \
+          DistMultiVec<Real>& dx, \
+          DistMultiVec<Real>& dy, \
+          DistMultiVec<Real>& dz, \
+          DistMultiVec<Real>& ds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

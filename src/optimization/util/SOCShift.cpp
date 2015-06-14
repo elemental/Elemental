@@ -11,11 +11,11 @@
 namespace El {
 
 template<typename Real>
-void SOCReflect
-(       Matrix<Real>& x, 
+void SOCShift
+(       Matrix<Real>& x, Real shift,
   const Matrix<Int>& orders, const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("SOCShift"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -23,17 +23,17 @@ void SOCReflect
         LogicError("orders and firstInds should be of the same height as x");
 
     for( Int i=0; i<height; ++i )
-        if( i != firstInds.Get(i,0) )
-            x.Set( i, 0, -x.Get(i,0) );
+        if( i == firstInds.Get(i,0) )
+            x.Update( i, 0, shift );
 }
 
 template<typename Real>
-void SOCReflect
-(       AbstractDistMatrix<Real>& xPre, 
+void SOCShift
+(       AbstractDistMatrix<Real>& xPre, Real shift,
   const AbstractDistMatrix<Int>& ordersPre, 
   const AbstractDistMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("SOCShift"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -55,17 +55,17 @@ void SOCReflect
 
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( x.GlobalRow(iLoc) != firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, -x.GetLocal(iLoc,0) );
+        if( x.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
+            x.UpdateLocal( iLoc, 0, shift );
 }
 
 template<typename Real>
-void SOCReflect
-(       DistMultiVec<Real>& x, 
+void SOCShift
+(       DistMultiVec<Real>& x, Real shift,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("SOCShift"))
 
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
@@ -75,21 +75,21 @@ void SOCReflect
 
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( x.GlobalRow(iLoc) != firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, -x.GetLocal(iLoc,0) );
+        if( x.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
+            x.UpdateLocal( iLoc, 0, shift );
 }
 
 #define PROTO(Real) \
-  template void SOCReflect \
-  (       Matrix<Real>& x, \
+  template void SOCShift \
+  (       Matrix<Real>& x, Real shift, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCReflect \
-  (       AbstractDistMatrix<Real>& x, \
+  template void SOCShift \
+  (       AbstractDistMatrix<Real>& x, Real shift, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds ); \
-  template void SOCReflect \
-  (       DistMultiVec<Real>& x, \
+  template void SOCShift \
+  (       DistMultiVec<Real>& x, Real shift, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds );
 

@@ -147,20 +147,6 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    // alpha_p := min { alpha : s + alpha*e >= 0 }
-    // ===========================================
-    const auto sMinPair = VectorMin( s );
-    const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInit )
-        RuntimeError("initialized s was non-positive");
-
-    // alpha_d := min { alpha : z + alpha*e >= 0 }
-    // ===========================================
-    const auto zMinPair = VectorMin( z );
-    const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInit )
-        RuntimeError("initialized z was non-positive");
-
     const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
@@ -168,6 +154,20 @@ void Initialize
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
+        // alpha_p := min { alpha : s + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto sMinPair = VectorMin( s );
+        const Real alphaPrimal = -sMinPair.value;
+        if( alphaPrimal >= Real(0) && primalInit )
+            RuntimeError("initialized s was non-positive");
+
+        // alpha_d := min { alpha : z + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto zMinPair = VectorMin( z );
+        const Real alphaDual = -zMinPair.value;
+        if( alphaDual >= Real(0) && dualInit )
+            RuntimeError("initialized z was non-positive");
+
         if( alphaPrimal >= -gammaPrimal )
             Shift( s, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
@@ -265,20 +265,6 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    // alpha_p := min { alpha : s + alpha*e >= 0 }
-    // ===========================================
-    const auto sMinPair = VectorMin( s );
-    const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInit )
-        RuntimeError("initialized s was non-positive");
-
-    // alpha_d := min { alpha : z + alpha*e >= 0 }
-    // ===========================================
-    const auto zMinPair = VectorMin( z );
-    const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInit )
-        RuntimeError("initialized z was non-positive");
-
     const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
@@ -286,6 +272,20 @@ void Initialize
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
+        // alpha_p := min { alpha : s + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto sMinPair = VectorMin( s );
+        const Real alphaPrimal = -sMinPair.value;
+        if( alphaPrimal >= Real(0) && primalInit )
+            RuntimeError("initialized s was non-positive");
+
+        // alpha_d := min { alpha : z + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto zMinPair = VectorMin( z );
+        const Real alphaDual = -zMinPair.value;
+        if( alphaDual >= Real(0) && dualInit )
+            RuntimeError("initialized z was non-positive");
+
         if( alphaPrimal >= -gammaPrimal )
             Shift( s, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
@@ -404,20 +404,6 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    // alpha_p := min { alpha : s + alpha*e >= 0 }
-    // ===========================================
-    const auto sMinPair = VectorMin( s );
-    const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInit )
-        RuntimeError("initialized s was non-positive");
-
-    // alpha_d := min { alpha : z + alpha*e >= 0 }
-    // ===========================================
-    const auto zMinPair = VectorMin( z );
-    const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInit )
-        RuntimeError("initialized z was non-positive");
-
     const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
@@ -425,6 +411,20 @@ void Initialize
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
+        // alpha_p := min { alpha : s + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto sMinPair = VectorMin( s );
+        const Real alphaPrimal = -sMinPair.value;
+        if( alphaPrimal >= Real(0) && primalInit )
+            RuntimeError("initialized s was non-positive");
+
+        // alpha_d := min { alpha : z + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto zMinPair = VectorMin( z );
+        const Real alphaDual = -zMinPair.value;
+        if( alphaDual >= Real(0) && dualInit )
+            RuntimeError("initialized z was non-positive");
+
         if( alphaPrimal >= -gammaPrimal )
             Shift( s, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
@@ -477,11 +477,11 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    DistSparseMatrix<Real> JOrig(comm);
     DistMultiVec<Real> ones(comm);
     Ones( ones, k, 1 );
     KKT( Q, A, G, ones, ones, JOrig, false );
-    J = JOrig;
+    auto J = JOrig;
 
     // (Approximately) factor the KKT matrix
     // =====================================
@@ -504,8 +504,6 @@ void Initialize
     JFront.Pull( J, map, rootSep, info );
     LDL( info, JFront, LDL_2D );
 
-    // Compute the proposed step from the KKT system
-    // ---------------------------------------------
     DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
                        d(comm);
     Zeros( rmu, k, 1 );
@@ -547,20 +545,6 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    // alpha_p := min { alpha : s + alpha*e >= 0 }
-    // ===========================================
-    const auto sMinPair = VectorMin( s );
-    const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInit )
-        RuntimeError("initialized s was non-positive");
-
-    // alpha_d := min { alpha : z + alpha*e >= 0 }
-    // ===========================================
-    const auto zMinPair = VectorMin( z );
-    const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInit )
-        RuntimeError("initialized z was non-positive");
-
     const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
@@ -568,6 +552,20 @@ void Initialize
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
+        // alpha_p := min { alpha : s + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto sMinPair = VectorMin( s );
+        const Real alphaPrimal = -sMinPair.value;
+        if( alphaPrimal >= Real(0) && primalInit )
+            RuntimeError("initialized s was non-positive");
+
+        // alpha_d := min { alpha : z + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto zMinPair = VectorMin( z );
+        const Real alphaDual = -zMinPair.value;
+        if( alphaDual >= Real(0) && dualInit )
+            RuntimeError("initialized z was non-positive");
+
         if( alphaPrimal >= -gammaPrimal )
             Shift( s, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
@@ -605,7 +603,7 @@ void Initialize
           Matrix<Real>& x,             Matrix<Real>& y, \
           Matrix<Real>& z,             Matrix<Real>& s, \
           vector<Int>& map,            vector<Int>& invMap, \
-          ldl::Separator& rootSep,          ldl::NodeInfo& info, \
+          ldl::Separator& rootSep,     ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
@@ -616,7 +614,7 @@ void Initialize
           DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z,            DistMultiVec<Real>& s, \
           DistMap& map,                     DistMap& invMap, \
-          ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info, \
+          ldl::DistSeparator& rootSep,      ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl );
 

@@ -88,7 +88,6 @@ void Mehrotra
 
     LogicError("This routine is not yet finished"); 
 
-    /*
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
@@ -96,10 +95,10 @@ void Mehrotra
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, orders, firstInds,
+    ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
-    Matrix<Real> J, d,
+    Matrix<Real> J, d, w, wRoot, l, lInv,
                  rmu,   rc,    rb,    rh,
                  dxAff, dyAff, dzAff, dsAff,
                  dx,    dy,    dz,    ds;
@@ -171,22 +170,30 @@ void Mehrotra
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // r_mu := s o z
-        // =============
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        // Compute the scaled variable, l, and its inverse
+        // ===============================================
+        SOCNesterovTodd( s, z, w, orders, firstInds ); 
+        SOCSquareRoot( w, wRoot, orders, firstInds );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
+        SOCInverse( l, lInv, orders, firstInds );
+
+        // r_mu := l
+        // =========
+        rmu = l;
 
         // Compute the affine search direction
         // ===================================
         // Construct the full KKT system
         // -----------------------------
-        KKT( A, G, s, z, J );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKT( A, G, w, orders, firstInds, labels, J );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         LDL( J, dSub, p, false );
         ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        ExpandSolution
+        ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
+          dxAff, dyAff, dzAff, dsAff );
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -217,8 +224,10 @@ void Mehrotra
 
         // Compute the max affine [0,1]-step which keeps s and z in the cone
         // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        const Real alphaAffPri = 
+          MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
+        const Real alphaAffDual = 
+          MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
@@ -247,18 +256,19 @@ void Mehrotra
         Zeros( rc, n, 1 ); 
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, rmu );
-        Shift( rmu, -sigma*mu );
+        // r_mu := inv(l) o (dsAff o dzAff - sigma*mu)
+        // -------------------------------------------
+        SOCApply( dsAff, dzAff, rmu, orders, firstInds );
+        SOCShift( rmu, -sigma*mu, orders, firstInds );
+        SOCApply( lInv, rmu, orders, firstInds );
         // Construct the new full KKT RHS
         // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        ExpandSolution
+        ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds );
         // TODO: Residual checks for center-corrector
 
         // Add in the affine search direction
@@ -270,8 +280,10 @@ void Mehrotra
 
         // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
         // ===================================================================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = 
+          MaxStepInSOC( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
+        Real alphaDual = 
+          MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.print )
@@ -285,7 +297,6 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
-    */
 
     if( ctrl.outerEquil )
     {

@@ -160,6 +160,25 @@ void SOCReflect
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds );
 
+// SOC shift
+// =========
+// Add a multiple of the identity of the product cone
+template<typename Real>
+void SOCShift
+(       Matrix<Real>& x, Real shift,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCShift
+(       AbstractDistMatrix<Real>& x, Real shift,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds );
+template<typename Real>
+void SOCShift
+(       DistMultiVec<Real>& x, Real shift,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds );
+
 // SOC Determinants
 // ================
 template<typename Real>
@@ -180,6 +199,103 @@ void SOCDets
         DistMultiVec<Real>& d,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// SOC lower norms
+// ===============
+template<typename Real>
+void SOCLowerNorms
+( const Matrix<Real>& x,
+        Matrix<Real>& lowerNorms,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCLowerNorms
+( const AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& lowerNorms,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void SOCLowerNorms
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& lowerNorms,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// SOC min eigenvalues
+// ===================
+template<typename Real>
+void SOCMinEig
+( const Matrix<Real>& x,
+        Matrix<Real>& minEigs,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCMinEig
+( const AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& minEigs,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void SOCMinEig
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& minEigs,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+template<typename Real>
+Real SOCMinEig
+( const Matrix<Real>& x,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+Real SOCMinEig
+( const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+Real SOCMinEig
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// SOC max eigenvalues
+// ===================
+template<typename Real>
+void SOCMaxEig
+( const Matrix<Real>& x,
+        Matrix<Real>& maxEigs,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SOCMaxEig
+( const AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& maxEigs,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void SOCMaxEig
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& maxEigs,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+template<typename Real>
+Real SOCMaxEig
+( const Matrix<Real>& x,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+Real SOCMaxEig
+( const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+Real SOCMaxEig
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// TODO: SOC eigenvectors?
 
 // Number of non-SOC members
 // =========================

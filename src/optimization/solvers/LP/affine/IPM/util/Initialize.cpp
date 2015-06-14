@@ -146,20 +146,6 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    // alpha_p := min { alpha : s + alpha*e >= 0 }
-    // ===========================================
-    const auto sMinPair = VectorMin( s );
-    const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInit )
-        RuntimeError("initialized s was non-positive");
-
-    // alpha_d := min { alpha : z + alpha*e >= 0 }
-    // ===========================================
-    const auto zMinPair = VectorMin( z );
-    const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInit )
-        RuntimeError("initialized z was non-positive");
-
     const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
@@ -167,6 +153,20 @@ void Initialize
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
+        // alpha_p := min { alpha : s + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto sMinPair = VectorMin( s );
+        const Real alphaPrimal = -sMinPair.value;
+        if( alphaPrimal >= Real(0) && primalInit )
+            RuntimeError("initialized s was non-positive");
+
+        // alpha_d := min { alpha : z + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto zMinPair = VectorMin( z );
+        const Real alphaDual = -zMinPair.value;
+        if( alphaDual >= Real(0) && dualInit )
+            RuntimeError("initialized z was non-positive");
+
         if( alphaPrimal >= -gammaPrimal )
             Shift( s, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
@@ -263,20 +263,6 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    // alpha_p := min { alpha : s + alpha*e >= 0 }
-    // ===========================================
-    const auto sMinPair = VectorMin( s );
-    const Real alphaPrimal = -sMinPair.value;
-    if( alphaPrimal >= Real(0) && primalInit )
-        RuntimeError("initialized s was non-positive");
-
-    // alpha_d := min { alpha : z + alpha*e >= 0 }
-    // ===========================================
-    const auto zMinPair = VectorMin( z );
-    const Real alphaDual = -zMinPair.value;
-    if( alphaDual >= Real(0) && dualInit )
-        RuntimeError("initialized z was non-positive");
-
     const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
@@ -284,6 +270,20 @@ void Initialize
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
+        // alpha_p := min { alpha : s + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto sMinPair = VectorMin( s );
+        const Real alphaPrimal = -sMinPair.value;
+        if( alphaPrimal >= Real(0) && primalInit )
+            RuntimeError("initialized s was non-positive");
+
+        // alpha_d := min { alpha : z + alpha*e >= 0 }
+        // -------------------------------------------
+        const auto zMinPair = VectorMin( z );
+        const Real alphaDual = -zMinPair.value;
+        if( alphaDual >= Real(0) && dualInit )
+            RuntimeError("initialized z was non-positive");
+
         if( alphaPrimal >= -gammaPrimal )
             Shift( s, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
