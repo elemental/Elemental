@@ -44,7 +44,7 @@ void Initialize
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
   const AbstractDistMatrix<Int>& labels,
-  bool primalInit, bool dualInit, bool standardShift );
+  bool primalInit, bool dualInit, bool standardShift, Int cutoff );
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& A, 
@@ -83,7 +83,7 @@ void Initialize
         DistMap& invMap,
         ldl::DistSeparator& rootSep, 
         ldl::DistNodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift,
+  bool primalInit, bool dualInit, bool standardShift, Int cutoff,
   const RegQSDCtrl<Real>& qsdCtrl );
 
 // Full system
@@ -96,7 +96,8 @@ void KKT
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
-        Matrix<Real>& J, bool onlyLower=true );
+        Matrix<Real>& J, 
+  bool onlyLower=true );
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A, 
@@ -105,7 +106,8 @@ void KKT
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
   const AbstractDistMatrix<Int>& labels,
-        AbstractDistMatrix<Real>& J, bool onlyLower=true );
+        AbstractDistMatrix<Real>& J, 
+  bool onlyLower=true, Int cutoff=1000 );
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
@@ -114,7 +116,8 @@ void KKT
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
-        SparseMatrix<Real>& J, bool onlyLower=true );
+        SparseMatrix<Real>& J, 
+  bool onlyLower=true );
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
@@ -123,7 +126,8 @@ void KKT
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   const DistMultiVec<Int>& labels,
-        DistSparseMatrix<Real>& J, bool onlyLower=true );
+        DistSparseMatrix<Real>& J, 
+  bool onlyLower=true, Int cutoff=1000 );
 
 template<typename Real>
 void KKTRHS

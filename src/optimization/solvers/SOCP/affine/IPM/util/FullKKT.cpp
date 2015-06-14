@@ -156,15 +156,13 @@ void KKT
   const AbstractDistMatrix<Int>& firstIndsPre,
   const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& JPre, 
-  bool onlyLower )
+  bool onlyLower, Int cutoffPar )
 {
     DEBUG_ONLY(CSE cse("socp::affine::KKT"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
     const Grid& g = A.Grid();
-
-    const Int cutoffPar = 1000;
 
     ProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
@@ -372,15 +370,12 @@ void KKT
   const DistMultiVec<Int>& firstInds,
   const DistMultiVec<Int>& labels,
         DistSparseMatrix<Real>& J, 
-  bool onlyLower )
+  bool onlyLower, Int cutoffPar )
 {
     DEBUG_ONLY(CSE cse("socp::affine::KKT"))
     mpi::Comm comm = w.Comm();
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
-
-    // TODO: Make this a tunable parameter
-    const Int cutoffPar = 1000;
 
     DistMultiVec<Real> wDets(comm);
     SOCDets( w, wDets, orders, firstInds, cutoffPar );
@@ -786,7 +781,8 @@ void ExpandSolution
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
-          Matrix<Real>& J, bool onlyLower ); \
+          Matrix<Real>& J, \
+    bool onlyLower ); \
   template void KKT \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
@@ -794,7 +790,8 @@ void ExpandSolution
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
     const AbstractDistMatrix<Int>& labels, \
-          AbstractDistMatrix<Real>& J, bool onlyLower ); \
+          AbstractDistMatrix<Real>& J, \
+    bool onlyLower, Int cutoff ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
@@ -802,7 +799,8 @@ void ExpandSolution
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
-          SparseMatrix<Real>& J, bool onlyLower ); \
+          SparseMatrix<Real>& J, \
+    bool onlyLower ); \
   template void KKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
@@ -810,7 +808,8 @@ void ExpandSolution
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
     const DistMultiVec<Int>& labels, \
-          DistSparseMatrix<Real>& J, bool onlyLower ); \
+          DistSparseMatrix<Real>& J, \
+    bool onlyLower, Int cutoff ); \
   template void KKTRHS \
   ( const Matrix<Real>& rc, \
     const Matrix<Real>& rb, \

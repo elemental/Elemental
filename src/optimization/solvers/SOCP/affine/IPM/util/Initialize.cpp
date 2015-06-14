@@ -200,7 +200,8 @@ void Initialize
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
   const AbstractDistMatrix<Int>& labels,
-  bool primalInit, bool dualInit, bool standardShift )
+  bool primalInit, bool dualInit, bool standardShift,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
     const Int m = A.Height();
@@ -227,11 +228,13 @@ void Initialize
         return;
     }
 
+    const bool onlyLower = true;
+
     // Form the KKT matrix
     // ===================
     DistMatrix<Real> J(g), e(g);
     SOCIdentity( e, orders, firstInds );
-    KKT( A, G, e, orders, firstInds, labels, J );
+    KKT( A, G, e, orders, firstInds, labels, J, onlyLower, cutoff );
 
     // Factor the KKT matrix
     // =====================
@@ -255,7 +258,7 @@ void Initialize
         Scale( Real(-1), rb );
         rh = h;
         Scale( Real(-1), rh );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
         ldl::SolveAfter( J, dSub, p, d, false );
         qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
@@ -272,7 +275,7 @@ void Initialize
         rc = c;
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
         ldl::SolveAfter( J, dSub, p, d, false );
         qp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -286,13 +289,13 @@ void Initialize
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds );
+        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds, cutoff );
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized s was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaDual = -SOCMinEig( z, orders, firstInds );
+        const Real alphaDual = -SOCMinEig( z, orders, firstInds, cutoff );
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
@@ -468,7 +471,7 @@ void Initialize
         DistMap& invMap, 
         ldl::DistSeparator& rootSep, 
         ldl::DistNodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift, Int cutoff,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
@@ -496,12 +499,14 @@ void Initialize
         return;
     }
 
+    const bool onlyLower = false;
+
     // Form the KKT matrix
     // ===================
     DistSparseMatrix<Real> JOrig(comm);
     DistMultiVec<Real> e(comm);
     SOCIdentity( e, orders, firstInds );
-    KKT( A, G, e, orders, firstInds, labels, JOrig, false );
+    KKT( A, G, e, orders, firstInds, labels, JOrig, onlyLower, cutoff );
     auto J = JOrig;
 
     // (Approximately) factor the KKT matrix
@@ -542,7 +547,7 @@ void Initialize
         Scale( Real(-1), rb );
         rh = h;
         Scale( Real(-1), rh );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
@@ -560,7 +565,7 @@ void Initialize
         rc = c;
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         qp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
@@ -575,13 +580,13 @@ void Initialize
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds );
+        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds, cutoff );
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized s was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaDual = -SOCMinEig( z, orders, firstInds );
+        const Real alphaDual = -SOCMinEig( z, orders, firstInds, cutoff );
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
@@ -624,7 +629,7 @@ void Initialize
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
     const AbstractDistMatrix<Int>& labels, \
-    bool primalInit, bool dualInit, bool standardShift ); \
+    bool primalInit, bool dualInit, bool standardShift, Int cutoff ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
@@ -661,7 +666,7 @@ void Initialize
           DistMap& invMap, \
           ldl::DistSeparator& rootSep, \
           ldl::DistNodeInfo& info, \
-    bool primalInit, bool dualInit, bool standardShift, \
+    bool primalInit, bool dualInit, bool standardShift, Int cutoff,\
     const RegQSDCtrl<Real>& qsdCtrl );
 
 #define EL_NO_INT_PROTO
