@@ -43,16 +43,20 @@ ElError ElBPADMMCtrlDefault_d( ElBPADMMCtrl_d* ctrl )
 ElError ElBPCtrlDefault_s( ElBPCtrl_s* ctrl, bool isSparse )
 {
     ctrl->useIPM = true;
+    ctrl->useSOCP = false;
     ElBPADMMCtrlDefault_s( &ctrl->admmCtrl );
-    ElLPDirectCtrlDefault_s( &ctrl->ipmCtrl, isSparse );
+    ElLPDirectCtrlDefault_s( &ctrl->lpIPMCtrl, isSparse );
+    ElSOCPDirectCtrlDefault_s( &ctrl->socpIPMCtrl, isSparse );
     return EL_SUCCESS;
 }
 
 ElError ElBPCtrlDefault_d( ElBPCtrl_d* ctrl, bool isSparse )
 {
     ctrl->useIPM = true;
+    ctrl->useSOCP = false;
     ElBPADMMCtrlDefault_d( &ctrl->admmCtrl );
-    ElLPDirectCtrlDefault_d( &ctrl->ipmCtrl, isSparse );
+    ElLPDirectCtrlDefault_d( &ctrl->lpIPMCtrl, isSparse );
+    ElSOCPDirectCtrlDefault_d( &ctrl->socpIPMCtrl, isSparse );
     return EL_SUCCESS;
 }
 

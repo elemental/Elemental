@@ -65,14 +65,18 @@ EL_EXPORT ElError ElBPADMMCtrlDefault_d( ElBPADMMCtrl_d* ctrl );
 
 typedef struct {
   bool useIPM;
+  bool useSOCP;
   ElBPADMMCtrl_s admmCtrl;
-  ElLPDirectCtrl_s ipmCtrl;
+  ElLPDirectCtrl_s lpIPMCtrl;
+  ElSOCPDirectCtrl_s socpIPMCtrl;
 } ElBPCtrl_s;
 
 typedef struct {
   bool useIPM;
+  bool useSOCP;
   ElBPADMMCtrl_d admmCtrl;
-  ElLPDirectCtrl_d ipmCtrl;
+  ElLPDirectCtrl_d lpIPMCtrl;
+  ElSOCPDirectCtrl_d socpIPMCtrl;
 } ElBPCtrl_d;
 
 EL_EXPORT ElError ElBPCtrlDefault_s( ElBPCtrl_s* ctrl, bool isSparse );

@@ -33,13 +33,17 @@ lib.ElBPCtrlDefault_s.argtypes = \
 lib.ElBPCtrlDefault_d.argtypes = \
   [c_void_p,bType]
 class BPCtrl_s(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("admmCtrl",BPADMMCtrl_s),("ipmCtrl",LPDirectCtrl_s)]
+  _fields_ = [("useIPM",bType),("useSOCP",bType),
+              ("admmCtrl",BPADMMCtrl_s),
+              ("lpIPMCtrl",LPDirectCtrl_s),
+              ("socpIPMCtrl",SOCPDirectCtrl_s)]
   def __init__(self,isSparse):
     lib.ElBPCtrlDefault_s(pointer(self),isSparse)
 class BPCtrl_d(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("admmCtrl",BPADMMCtrl_d),("ipmCtrl",LPDirectCtrl_d)]
+  _fields_ = [("useIPM",bType),("useSOCP",bType),
+              ("admmCtrl",BPADMMCtrl_d),
+              ("lpIPMCtrl",LPDirectCtrl_d),
+              ("socpIPMCtrl",SOCPDirectCtrl_d)]
   def __init__(self,isSparse):
     lib.ElBPCtrlDefault_d(pointer(self),isSparse)
 

@@ -2519,6 +2519,221 @@ inline qp::box::ADMMCtrl<double> CReflect( ElQPBoxADMMCtrl_d ctrlC )
     return ctrl;
 }
 
+/* Second-order cone programs
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+inline ElSOCPApproach CReflect( SOCPApproach approach )
+{ return static_cast<ElSOCPApproach>(approach); }
+inline SOCPApproach CReflect( ElSOCPApproach approach )
+{ return static_cast<SOCPApproach>(approach); }
+
+/* Direct conic form
+   """"""""""""""""" */
+inline ElSOCPDirectMehrotraCtrl_s CReflect
+( const socp::direct::MehrotraCtrl<float>& ctrl )
+{
+    ElSOCPDirectMehrotraCtrl_s ctrlC;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
+    return ctrlC;
+}
+inline ElSOCPDirectMehrotraCtrl_d CReflect
+( const socp::direct::MehrotraCtrl<double>& ctrl )
+{
+    ElSOCPDirectMehrotraCtrl_d ctrlC;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
+    return ctrlC;
+}
+inline socp::direct::MehrotraCtrl<float> CReflect
+( ElSOCPDirectMehrotraCtrl_s ctrlC )
+{
+    socp::direct::MehrotraCtrl<float> ctrl;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
+    return ctrl;
+}
+inline socp::direct::MehrotraCtrl<double> CReflect
+( ElSOCPDirectMehrotraCtrl_d ctrlC )
+{
+    socp::direct::MehrotraCtrl<double> ctrl;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
+    return ctrl;
+}
+
+inline ElSOCPDirectCtrl_s CReflect( const socp::direct::Ctrl<float>& ctrl )
+{
+    ElSOCPDirectCtrl_s ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    return ctrlC;
+}
+inline ElSOCPDirectCtrl_d CReflect( const socp::direct::Ctrl<double>& ctrl )
+{
+    ElSOCPDirectCtrl_d ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    return ctrlC;
+}
+inline socp::direct::Ctrl<float> CReflect( ElSOCPDirectCtrl_s ctrlC )
+{
+    socp::direct::Ctrl<float> ctrl;
+    ctrl.approach     = CReflect(ctrlC.approach);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    return ctrl;
+}
+inline socp::direct::Ctrl<double> CReflect( ElSOCPDirectCtrl_d ctrlC )
+{
+    socp::direct::Ctrl<double> ctrl;
+    ctrl.approach     = CReflect(ctrlC.approach);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    return ctrl;
+}
+
+/* Affine conic form
+   """"""""""""""""" */
+inline ElSOCPAffineMehrotraCtrl_s CReflect
+( const socp::affine::MehrotraCtrl<float>& ctrl )
+{
+    ElSOCPAffineMehrotraCtrl_s ctrlC;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
+    return ctrlC;
+}
+inline ElSOCPAffineMehrotraCtrl_d CReflect
+( const socp::affine::MehrotraCtrl<double>& ctrl )
+{
+    ElSOCPAffineMehrotraCtrl_d ctrlC;
+    ctrlC.primalInit   = ctrl.primalInit;
+    ctrlC.dualInit     = ctrl.dualInit;
+    ctrlC.tol          = ctrl.tol;
+    ctrlC.maxIts       = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.outerEquil   = ctrl.outerEquil;
+    ctrlC.innerEquil   = ctrl.innerEquil;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.print        = ctrl.print;
+    ctrlC.time         = ctrl.time;
+    return ctrlC;
+}
+inline socp::affine::MehrotraCtrl<float> CReflect
+( ElSOCPAffineMehrotraCtrl_s ctrlC )
+{
+    socp::affine::MehrotraCtrl<float> ctrl;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
+    return ctrl;
+}
+inline socp::affine::MehrotraCtrl<double> CReflect
+( ElSOCPAffineMehrotraCtrl_d ctrlC )
+{
+    socp::affine::MehrotraCtrl<double> ctrl;
+    ctrl.primalInit   = ctrlC.primalInit;
+    ctrl.dualInit     = ctrlC.dualInit;
+    ctrl.tol          = ctrlC.tol;
+    ctrl.maxIts       = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.outerEquil   = ctrlC.outerEquil;
+    ctrl.innerEquil   = ctrlC.innerEquil;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.print        = ctrlC.print;
+    ctrl.time         = ctrlC.time;
+    return ctrl;
+}
+
+inline ElSOCPAffineCtrl_s CReflect( const socp::affine::Ctrl<float>& ctrl )
+{
+    ElSOCPAffineCtrl_s ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    return ctrlC;
+}
+inline ElSOCPAffineCtrl_d CReflect( const socp::affine::Ctrl<double>& ctrl )
+{
+    ElSOCPAffineCtrl_d ctrlC;
+    ctrlC.approach     = CReflect(ctrl.approach);
+    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    return ctrlC;
+}
+inline socp::affine::Ctrl<float> CReflect( ElSOCPAffineCtrl_s ctrlC )
+{
+    socp::affine::Ctrl<float> ctrl;
+    ctrl.approach     = CReflect(ctrlC.approach);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    return ctrl;
+}
+inline socp::affine::Ctrl<double> CReflect( ElSOCPAffineCtrl_d ctrlC )
+{
+    socp::affine::Ctrl<double> ctrl;
+    ctrl.approach     = CReflect(ctrlC.approach);
+    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    return ctrl;
+}
+
 // Models
 // ^^^^^^
 
@@ -2583,36 +2798,44 @@ inline bp::ADMMCtrl<double> CReflect( ElBPADMMCtrl_d ctrlC )
 inline ElBPCtrl_s CReflect( const BPCtrl<float>& ctrl )
 {
     ElBPCtrl_s ctrlC;
-    ctrlC.useIPM   = ctrl.useIPM;
-    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
-    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    ctrlC.useIPM      = ctrl.useIPM;
+    ctrlC.useSOCP     = ctrl.useSOCP;
+    ctrlC.admmCtrl    = CReflect(ctrl.admmCtrl);
+    ctrlC.lpIPMCtrl   = CReflect(ctrl.lpIPMCtrl);
+    ctrlC.socpIPMCtrl = CReflect(ctrl.socpIPMCtrl);
     return ctrlC;
 }
 
 inline ElBPCtrl_d CReflect( const BPCtrl<double>& ctrl )
 {
     ElBPCtrl_d ctrlC;
-    ctrlC.useIPM   = ctrl.useIPM;
-    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
-    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    ctrlC.useIPM      = ctrl.useIPM;
+    ctrlC.useSOCP     = ctrl.useSOCP;
+    ctrlC.admmCtrl    = CReflect(ctrl.admmCtrl);
+    ctrlC.lpIPMCtrl   = CReflect(ctrl.lpIPMCtrl);
+    ctrlC.socpIPMCtrl = CReflect(ctrl.socpIPMCtrl);
     return ctrlC;
 }
 
 inline BPCtrl<float> CReflect( ElBPCtrl_s ctrlC )
 {
     BPCtrl<float> ctrl(false);
-    ctrl.useIPM   = ctrlC.useIPM;
-    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
-    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    ctrl.useIPM      = ctrlC.useIPM;
+    ctrl.useSOCP     = ctrlC.useSOCP;
+    ctrl.admmCtrl    = CReflect(ctrlC.admmCtrl);
+    ctrl.lpIPMCtrl   = CReflect(ctrlC.lpIPMCtrl);
+    ctrl.socpIPMCtrl = CReflect(ctrlC.socpIPMCtrl);
     return ctrl;
 }
 
 inline BPCtrl<double> CReflect( ElBPCtrl_d ctrlC )
 {
     BPCtrl<double> ctrl(false);
-    ctrl.useIPM   = ctrlC.useIPM;
-    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
-    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    ctrl.useIPM      = ctrlC.useIPM;
+    ctrl.useSOCP     = ctrlC.useSOCP;
+    ctrl.admmCtrl    = CReflect(ctrlC.admmCtrl);
+    ctrl.lpIPMCtrl   = CReflect(ctrlC.lpIPMCtrl);
+    ctrl.socpIPMCtrl = CReflect(ctrlC.socpIPMCtrl);
     return ctrl;
 }
 

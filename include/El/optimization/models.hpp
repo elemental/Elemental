@@ -44,11 +44,13 @@ struct ADMMCtrl {
 template<typename Real>
 struct BPCtrl {
   bool useIPM=true;
+  bool useSOCP=false;
   // NOTE: The ADMM implementation is still a prototype
   bp::ADMMCtrl<Real> admmCtrl;
-  lp::direct::Ctrl<Real> ipmCtrl;
+  lp::direct::Ctrl<Real> lpIPMCtrl;
+  socp::direct::Ctrl<Real> socpIPMCtrl;
 
-  BPCtrl( bool sparse ) : useIPM(true), ipmCtrl(sparse) { }
+  BPCtrl( bool sparse ) : lpIPMCtrl(sparse) { }
 };
 
 template<typename Real>

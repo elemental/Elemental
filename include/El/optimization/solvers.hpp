@@ -529,6 +529,55 @@ enum SOCPApproach {
 using namespace SOCPApproachNS;
 
 namespace socp {
+namespace direct {
+
+// Attempt to solve a pair of Second-Order Cone Programs in "direct" conic form:
+//
+//   min c^T x, 
+//   s.t. A x = b, x in K,
+//
+//   max -b^T y
+//   s.t. A^T y - z + c = 0, z in K,
+//
+// where the cone K is a product of second-order cones.
+//
+
+// Infeasible Path-Following Interior Point Method (IPF)
+// -----------------------------------------------------
+// TODO
+
+// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
+// ---------------------------------------------------------------
+template<typename Real>
+struct MehrotraCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real tol=Sqrt(Epsilon<Real>());
+    Int maxIts=1000;
+    Real maxStepRatio=0.99;
+    RegQSDCtrl<Real> qsdCtrl;
+    bool outerEquil=true, innerEquil=true;
+    bool scaleTwoNorm=true;
+    Int basisSize = 15;
+    bool print=false;
+    bool time=false;
+
+    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
+    //       the default, (muAff/mu)^3 
+};
+
+// Control structure for the high-level "affine" conic-form LP solver
+// ------------------------------------------------------------------
+template<typename Real>
+struct Ctrl
+{
+    SOCPApproach approach=SOCP_MEHROTRA;
+    //IPFCtrl<Real> ipfCtrl;
+    MehrotraCtrl<Real> mehrotraCtrl;
+};
+
+} // namespace direct
+
 namespace affine {
 
 // Attempt to solve a pair of Second-Order Cone Programs in "affine" conic form:
@@ -578,6 +627,57 @@ struct Ctrl
 
 } // namespace affine
 } // namespace socp
+
+// Direct conic form
+// -----------------
+template<typename Real>
+void SOCP
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,  
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
+template<typename Real>
+void SOCP
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, 
+  const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& x,       
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,       
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
+template<typename Real>
+void SOCP
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
+template<typename Real>
+void SOCP
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z, 
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
 
 // Affine conic form
 // -----------------

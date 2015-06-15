@@ -7,10 +7,94 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-//#include "./SOCP/direct/IPM.hpp"
+#include "./SOCP/direct/IPM.hpp"
 #include "./SOCP/affine/IPM.hpp"
 
 namespace El {
+
+template<typename Real>
+void SOCP
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("SOCP"))
+    if( ctrl.approach == SOCP_MEHROTRA )
+        socp::direct::Mehrotra
+        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+    else
+        LogicError("Unsupported solver");
+}
+
+template<typename Real>
+void SOCP
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, 
+  const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& x, 
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z, 
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("SOCP"))
+    if( ctrl.approach == SOCP_MEHROTRA )
+        socp::direct::Mehrotra
+        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+    else
+        LogicError("Unsupported solver");
+}
+
+template<typename Real>
+void SOCP
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
+        Matrix<Real>& x, 
+        Matrix<Real>& y,
+        Matrix<Real>& z, 
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("SOCP"))
+    if( ctrl.approach == SOCP_MEHROTRA )
+        socp::direct::Mehrotra
+        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+    else
+        LogicError("Unsupported solver");
+}
+
+template<typename Real>
+void SOCP
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& c, 
+        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z, 
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("SOCP"))
+    if( ctrl.approach == SOCP_MEHROTRA )
+        socp::direct::Mehrotra
+        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+    else
+        LogicError("Unsupported solver");
+}
 
 template<typename Real>
 void SOCP
@@ -113,6 +197,50 @@ void SOCP
 }
 
 #define PROTO(Real) \
+  template void SOCP \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
+    const socp::direct::Ctrl<Real>& ctrl ); \
+  template void SOCP \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+    const AbstractDistMatrix<Int>& labels, \
+    const socp::direct::Ctrl<Real>& ctrl ); \
+  template void SOCP \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
+    const socp::direct::Ctrl<Real>& ctrl ); \
+  template void SOCP \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& labels, \
+    const socp::direct::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& G, \
