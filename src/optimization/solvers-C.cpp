@@ -434,15 +434,13 @@ ElError ElQPBoxADMMCtrlDefault_d( ElQPBoxADMMCtrl_d* ctrl )
 
 /* Direct conic form
    ----------------- */
-ElError ElSOCPDirectMehrotraCtrlDefault_s
-( ElSOCPDirectMehrotraCtrl_s* ctrl, bool isSparse )
+ElError ElSOCPDirectMehrotraCtrlDefault_s( ElSOCPDirectMehrotraCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
-    ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
@@ -453,15 +451,13 @@ ElError ElSOCPDirectMehrotraCtrlDefault_s
     return EL_SUCCESS;
 }
 
-ElError ElSOCPDirectMehrotraCtrlDefault_d
-( ElSOCPDirectMehrotraCtrl_d* ctrl, bool isSparse )
+ElError ElSOCPDirectMehrotraCtrlDefault_d( ElSOCPDirectMehrotraCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
     ctrl->tol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
-    ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
@@ -472,18 +468,17 @@ ElError ElSOCPDirectMehrotraCtrlDefault_d
     return EL_SUCCESS;
 }
 
-ElError ElSOCPDirectCtrlDefault_s( ElSOCPDirectCtrl_s* ctrl, bool isSparse )
+ElError ElSOCPDirectCtrlDefault_s( ElSOCPDirectCtrl_s* ctrl )
 {
     ctrl->approach = EL_SOCP_MEHROTRA;
-    ElSOCPDirectMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl, isSparse );
+    ElSOCPDirectMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
 
-ElError ElSOCPDirectCtrlDefault_d
-( ElSOCPDirectCtrl_d* ctrl, bool isSparse )
+ElError ElSOCPDirectCtrlDefault_d( ElSOCPDirectCtrl_d* ctrl )
 {
     ctrl->approach = EL_SOCP_MEHROTRA;
-    ElSOCPDirectMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl, isSparse );
+    ElSOCPDirectMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
 

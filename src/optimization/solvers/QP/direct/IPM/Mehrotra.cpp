@@ -210,7 +210,7 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
@@ -513,7 +513,7 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
@@ -841,7 +841,7 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
@@ -1199,7 +1199,7 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 

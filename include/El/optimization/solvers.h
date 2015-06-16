@@ -1012,7 +1012,6 @@ typedef struct {
   float tol;
   ElInt maxIts;
   float maxStepRatio;
-  ElKKTSystem system;
   ElRegQSDCtrl_s qsdCtrl;
   bool outerEquil, innerEquil;
   bool scaleTwoNorm;
@@ -1026,7 +1025,6 @@ typedef struct {
   double tol;
   ElInt maxIts;
   double maxStepRatio;
-  ElKKTSystem system;
   ElRegQSDCtrl_d qsdCtrl;
   bool outerEquil, innerEquil;
   bool scaleTwoNorm;
@@ -1036,9 +1034,9 @@ typedef struct {
 } ElSOCPDirectMehrotraCtrl_d;
 
 EL_EXPORT ElError ElSOCPDirectMehrotraCtrlDefault_s
-( ElSOCPDirectMehrotraCtrl_s* ctrl, bool isSparse );
+( ElSOCPDirectMehrotraCtrl_s* ctrl );
 EL_EXPORT ElError ElSOCPDirectMehrotraCtrlDefault_d
-( ElSOCPDirectMehrotraCtrl_d* ctrl, bool isSparse );
+( ElSOCPDirectMehrotraCtrl_d* ctrl );
 
 typedef struct {
   ElSOCPApproach approach;  
@@ -1049,10 +1047,8 @@ typedef struct {
   ElSOCPDirectMehrotraCtrl_d mehrotraCtrl;
 } ElSOCPDirectCtrl_d;
 
-EL_EXPORT ElError ElSOCPDirectCtrlDefault_s
-( ElSOCPDirectCtrl_s* ctrl, bool isSparse );
-EL_EXPORT ElError ElSOCPDirectCtrlDefault_d
-( ElSOCPDirectCtrl_d* ctrl, bool isSparse );
+EL_EXPORT ElError ElSOCPDirectCtrlDefault_s( ElSOCPDirectCtrl_s* ctrl );
+EL_EXPORT ElError ElSOCPDirectCtrlDefault_d( ElSOCPDirectCtrl_d* ctrl );
 
 EL_EXPORT ElError ElSOCPDirectX_s
 ( ElConstMatrix_s A,

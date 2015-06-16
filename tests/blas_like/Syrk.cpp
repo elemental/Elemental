@@ -38,16 +38,36 @@ template<typename T>
 void TestSyrk
 ( UpperOrLower uplo, Orientation orientation,
   Int m, Int k, T alpha, T beta, const Grid& g, bool print, bool correctness,
-  Int colAlignA=0, Int rowAlignA=0, Int colAlignC=0, Int rowAlignC=0 )
+  Int colAlignA=0, Int rowAlignA=0, Int colAlignC=0, Int rowAlignC=0,
+  bool contigA=true, bool contigC=true )
 {
     DistMatrix<T> A(g), C(g);
     A.Align( colAlignA, rowAlignA );
     C.Align( colAlignC, rowAlignC );
 
     if( orientation == NORMAL )
+    {
+        if( !contigA )
+        {
+            A.Resize( m, k );
+            A.Resize( m, k, 2*A.LDim() );
+        }
         Uniform( A, m, k );
+    }
     else
+    {
+        if( !contigA )
+        {
+            A.Resize( k, m );
+            A.Resize( k, m, 2*A.LDim() );
+        }
         Uniform( A, k, m );
+    }
+    if( !contigC )
+    {
+        C.Resize( m, m );
+        C.Resize( m, m, 2*C.LDim() );
+    }
     Uniform( C, m, m );
     MakeTrapezoidal( uplo, C );
     auto COrig = C;
@@ -114,6 +134,8 @@ main( int argc, char* argv[] )
         const Int colAlignC = Input("--colAlignC","col align of C",0);
         const Int rowAlignA = Input("--rowAlignA","row align of A",0);
         const Int rowAlignC = Input("--rowAlignC","row align of C",0);
+        const bool contigA = Input("--contigA","contiguous A?",true);
+        const bool contigC = Input("--contigC","contiguous C?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -135,13 +157,14 @@ main( int argc, char* argv[] )
             cout << "Testing with doubles:" << endl;
         TestSyrk<double>
         ( uplo, orientation, m, k, 3., 4., g, print, correctness, 
-          colAlignA, rowAlignA, colAlignC, rowAlignC );
+          colAlignA, rowAlignA, colAlignC, rowAlignC, contigA, contigC );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
         TestSyrk<Complex<double>>
         ( uplo, orientation, m, k, Complex<double>(3), Complex<double>(4), g,
-          print, correctness, colAlignA, rowAlignA, colAlignC, rowAlignC );
+          print, correctness, colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
     }
     catch( exception& e ) { ReportException(e); }
 

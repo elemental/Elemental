@@ -9,8 +9,8 @@
 import El
 import time
 
-n0=25
-n1=25
+n0=10
+n1=10
 display = False
 worldSize = El.mpi.WorldSize()
 worldRank = El.mpi.WorldRank()
@@ -48,12 +48,13 @@ def ConcatFD2D(N0,N1):
     # The dense last column
     A.QueueUpdate( s, width-1, -10/height );
 
-  A.ProcessQueues()
+  A.ProcessLocalQueues()
   return A
 
 A = ConcatFD2D(n0,n1)
 b = El.DistMultiVec()
-El.Gaussian( b, n0*n1, 1 )
+#El.Gaussian( b, n0*n1, 1 )
+El.Ones( b, n0*n1, 1 )
 if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
@@ -61,7 +62,10 @@ if display:
 ctrl = El.BPCtrl_d(isSparse=True)
 ctrl.useSOCP = False
 ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
+ctrl.socpIPMCtrl.mehrotraCtrl.time = True
 ctrl.socpIPMCtrl.mehrotraCtrl.progress = True
+ctrl.socpIPMCtrl.mehrotraCtrl.outerEquil = False
+ctrl.socpIPMCtrl.mehrotraCtrl.innerEquil = False
 startBP = time.clock()
 x = El.BP( A, b, ctrl )
 endBP = time.clock()

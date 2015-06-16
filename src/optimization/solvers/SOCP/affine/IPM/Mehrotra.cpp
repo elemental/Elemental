@@ -61,30 +61,10 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.outerEquil )
-    {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
+    // TODO: Outer equilibration support
+    Ones( dRowA, m, 1 );
+    Ones( dRowG, k, 1 );
+    Ones( dCol,  n, 1 );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -116,6 +96,14 @@ void Mehrotra
             (sNumNonSOC," members of s were non-positive and ",
              zNumNonSOC," members of z were non-positive");
 
+        // Compute the scaled variable, l, its inverse, and the duality measure
+        // ====================================================================
+        SOCNesterovTodd( s, z, w, orders, firstInds ); 
+        SOCSquareRoot( w, wRoot, orders, firstInds );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
+        SOCInverse( l, lInv, orders, firstInds );
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // TODO: Adjust convergence criteria
@@ -146,6 +134,7 @@ void Mehrotra
         Axpy( Real(1), s, rh ); 
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+
         // Now check the pieces
         // --------------------
         if( ctrl.print )
@@ -167,13 +156,6 @@ void Mehrotra
         if( numIts == ctrl.maxIts )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // Compute the scaled variable, l, and its inverse
-        // ===============================================
-        SOCNesterovTodd( s, z, w, orders, firstInds ); 
-        SOCSquareRoot( w, wRoot, orders, firstInds );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
-        SOCInverse( l, lInv, orders, firstInds );
 
         // r_mu := l
         // =========
@@ -216,7 +198,7 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = "
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = "
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = "
                  << dzErrorNrm2/(1+rhNrm2) << endl;
 #endif
 
@@ -232,7 +214,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
@@ -294,15 +275,6 @@ void Mehrotra
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
-    }
-
-    if( ctrl.outerEquil )
-    {
-        // Unequilibrate the SOCP
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
     }
 }
 
@@ -368,30 +340,10 @@ void Mehrotra
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
-    if( ctrl.outerEquil )
-    {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
+    // TODO: Outer equilibration support
+    Ones( dRowA, m, 1 );
+    Ones( dRowG, k, 1 );
+    Ones( dCol,  n, 1 );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -434,6 +386,14 @@ void Mehrotra
             (sNumNonSOC," members of s were nonpositive and ",
              zNumNonSOC," members of z were nonpositive");
 
+        // Compute the scaled variable, l, its inverse, and the duality measure
+        // ====================================================================
+        SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -463,6 +423,7 @@ void Mehrotra
         Axpy( Real(1), s, rh ); 
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+
         // Now check the pieces
         // --------------------
         if( ctrl.print && commRank == 0 )
@@ -475,7 +436,7 @@ void Mehrotra
                  << rcConv << "\n"
                  << "  || r_h ||_2 / (1 + || h ||_2)   = "
                  << rhConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && 
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol &&
             rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
             break;
 
@@ -484,13 +445,6 @@ void Mehrotra
         if( numIts == ctrl.maxIts )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // Compute the scaled variable, l, and its inverse
-        // ===============================================
-        SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
-        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
-        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
 
         // r_mu := l
         // =========
@@ -534,7 +488,7 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = "
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = "
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = "
                  << dzErrorNrm2/(1+rhNrm2) << endl;
 #endif
  
@@ -550,7 +504,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
@@ -617,15 +570,6 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
-
-    if( ctrl.outerEquil )
-    {
-        // Unequilibrate the SOCP
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
-    } 
 }
 
 template<typename Real>
@@ -656,30 +600,10 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.outerEquil )
-    {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
+    // TODO: Add outer equilibration support
+    Ones( dRowA, m, 1 );
+    Ones( dRowG, k, 1 );
+    Ones( dCol,  n, 1 );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -728,6 +652,14 @@ void Mehrotra
             (sNumNonSOC," members of s were nonpositive and ",
              zNumNonSOC," members of z were nonpositive");
 
+        // Compute the scaled variable, l, and its inverse
+        // ===============================================
+        SOCNesterovTodd( s, z, w, orders, firstInds );
+        SOCSquareRoot( w, wRoot, orders, firstInds );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
+        SOCInverse( l, lInv, orders, firstInds );
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -757,6 +689,7 @@ void Mehrotra
         Axpy( Real(1), s, rh );
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+
         // Now check the pieces
         // --------------------
         if( ctrl.print )
@@ -769,7 +702,7 @@ void Mehrotra
                  << rcConv << "\n"
                  << "  || r_h ||_2 / (1 + || h ||_2)   = "
                  << rhConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && 
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol &&
             rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
             break;
 
@@ -778,13 +711,6 @@ void Mehrotra
         if( numIts == ctrl.maxIts )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // Compute the scaled variable, l, and its inverse
-        // ===============================================
-        SOCNesterovTodd( s, z, w, orders, firstInds );
-        SOCSquareRoot( w, wRoot, orders, firstInds );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
-        SOCInverse( l, lInv, orders, firstInds );
 
         // r_mu := l
         // =========
@@ -843,7 +769,7 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = "
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = "
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = "
                  << dzErrorNrm2/(1+rhNrm2) << endl;
 #endif
 
@@ -859,7 +785,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
@@ -922,15 +847,6 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
     }
-
-    if( ctrl.outerEquil )
-    {
-        // Unequilibrate the SOCP
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
-    }
 }
 
 template<typename Real>
@@ -964,38 +880,15 @@ void Mehrotra
     auto b = bPre;
     auto h = hPre;
     auto c = cPre;
+
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    if( ctrl.outerEquil )
-    {
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-        if( commRank == 0 && ctrl.time )
-            cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
+    // TODO: Outer equilibration support
+    Ones( dRowA, m, 1 );
+    Ones( dRowG, k, 1 );
+    Ones( dCol,  n, 1 );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -1038,7 +931,10 @@ void Mehrotra
 
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
+    DistMultiVec<Real> dxError(comm), dyError(comm), 
+                       dzError(comm), dmuError(comm),
+                       dzScaled(comm), dsScaled(comm),
+                       wRootInv(comm);
 #endif
     for( Int numIts=0; ; ++numIts )
     {
@@ -1050,6 +946,14 @@ void Mehrotra
             LogicError
             (sNumNonSOC," members of s were nonpositive and ",
              zNumNonSOC," members of z were nonpositive");
+
+        // Compute the scaled variable, l, its inverse, and the duality measure
+        // ====================================================================
+        SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
+        const Real mu = Dot(s,z) / k;
 
         // Check for convergence
         // =====================
@@ -1080,6 +984,7 @@ void Mehrotra
         Axpy( Real(1), s, rh );
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+
         // Now check the pieces
         // --------------------
         if( ctrl.print && commRank == 0 )
@@ -1092,7 +997,7 @@ void Mehrotra
                  << rcConv << "\n"
                  << "  || r_h ||_2 / (1 + || h ||_2)   = "
                  << rhConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && 
+        if( objConv <= ctrl.tol && rbConv <= ctrl.tol &&
             rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
             break;
 
@@ -1101,13 +1006,6 @@ void Mehrotra
         if( numIts == ctrl.maxIts )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // Compute the scaled variable, l, and its inverse
-        // ===============================================
-        SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
-        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
-        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
 
         // r_mu := l
         // =========
@@ -1125,7 +1023,7 @@ void Mehrotra
         else
             JOrig.multMeta = metaOrig;
         J = JOrig;
-        if( commRank == 0 )
+        if( commRank == 0 && ctrl.time )
             timer.Start();
         SymmetricEquil
         ( J, dInner, 
@@ -1187,7 +1085,16 @@ void Mehrotra
         Axpy( Real(1), dsAff, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
-        // TODO: dmuError
+        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic
+        ( wRoot, dzAff, dzScaled, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic
+        ( wRootInv, dsAff, dsScaled, orders, firstInds, cutoffPar );
+        dmuError = dzScaled;
+        Axpy( Real(1), dsScaled, dmuError );
+        Axpy( Real(1), l, dmuError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        const Real dmuErrorNrm2 = Nrm2( dmuError );
         // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print && commRank == 0 )
@@ -1195,8 +1102,10 @@ void Mehrotra
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = "
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = "
-                 << dzErrorNrm2/(1+rhNrm2) << endl;
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = "
+                 << dzErrorNrm2/(1+rhNrm2) << "\n"
+                 << "  || dmuError ||_2 / (1 + || r_mu ||_2) = " 
+                 << dmuErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
         // Compute the max affine [0,1]-step which keeps s and z in the cone
@@ -1211,7 +1120,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
@@ -1281,15 +1189,6 @@ void Mehrotra
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
-    }
-
-    if( ctrl.outerEquil )
-    {
-        // Unequilibrate the SOCP
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
     }
 }
 

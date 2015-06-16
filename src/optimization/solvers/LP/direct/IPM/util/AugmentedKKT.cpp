@@ -85,7 +85,7 @@ void AugmentedKKT
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int n = A.Width();
     SparseMatrix<Real> Q;
-    Q.Resize( n, n );
+    Zeros( Q, n, n );
     qp::direct::AugmentedKKT( Q, A, x, z, J, onlyLower );
 }
 
@@ -98,7 +98,7 @@ void AugmentedKKT
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int n = A.Width();
     DistSparseMatrix<Real> Q(A.Comm());
-    Q.Resize( n, n );
+    Zeros( Q, n, n );
     qp::direct::AugmentedKKT( Q, A, x, z, J, onlyLower );
 }
 

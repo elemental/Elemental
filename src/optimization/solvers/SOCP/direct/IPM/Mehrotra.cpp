@@ -44,7 +44,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
-    const Int n = x.Height();
+    const Int n = c.Height();
 
     Matrix<Real> G;
     Identity( G, n, n );
@@ -86,8 +86,8 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
-    const Int n = x.Height();
-    const Grid& grid = A.Grid();
+    const Int n = c.Height();
+    const Grid& grid = c.Grid();
 
     DistMatrix<Real> G(grid); 
     Identity( G, n, n );
@@ -129,7 +129,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
-    const Int n = x.Height();
+    const Int n = c.Height();
 
     SparseMatrix<Real> G;
     Identity( G, n, n );
@@ -171,8 +171,8 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
-    const Int n = x.Height();
-    mpi::Comm comm = x.Comm();
+    const Int n = c.Height();
+    mpi::Comm comm = c.Comm();
 
     DistSparseMatrix<Real> G(comm);
     Identity( G, n, n );

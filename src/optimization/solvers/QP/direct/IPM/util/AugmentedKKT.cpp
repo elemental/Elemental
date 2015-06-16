@@ -375,7 +375,7 @@ void ExpandAugmentedSolution
         if( i < n )
             dx.QueueUpdate( i, 0, value );
         else
-            dy.QueueUpdate( i, 0, value );
+            dy.QueueUpdate( i-n, 0, value );
     }
     dx.ProcessQueues();
     dy.ProcessQueues();

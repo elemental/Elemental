@@ -673,4 +673,256 @@ def QPBoxADMM(Q,C,lb,ub,ctrl=None):
 
 # Second-order cone programs
 # ==========================
+(SOCP_ADMM,SOCP_IPF,SOCP_IPF_SELFDUAL,SOCP_MEHROTRA,SOCP_MEHROTRA_SELFDUAL)=\
+  (0,1,2,3,4)
+
+# Direct conic form
+# -----------------
+lib.ElSOCPDirectMehrotraCtrlDefault_s.argtypes = \
+lib.ElSOCPDirectMehrotraCtrlDefault_d.argtypes = \
+  [c_void_p,bType]
+class SOCPDirectMehrotraCtrl_s(ctypes.Structure):
+  _fields_ = [("primalInit",bType),("dualInit",bType),
+              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("qsdCtrl",RegQSDCtrl_s),
+              ("outerEquil",bType),("innerEquil",bType),
+              ("scaleTwoNorm",bType),("basisSize",iType),
+              ("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElSOCPDirectMehrotraCtrlDefault_s(pointer(self))
+class SOCPDirectMehrotraCtrl_d(ctypes.Structure):
+  _fields_ = [("primalInit",bType),("dualInit",bType),
+              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("qsdCtrl",RegQSDCtrl_d),
+              ("outerEquil",bType),("innerEquil",bType),
+              ("scaleTwoNorm",bType),("basisSize",iType),
+              ("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElSOCPDirectMehrotraCtrlDefault_d(pointer(self))
+
+lib.ElSOCPDirectCtrlDefault_s.argtypes = \
+lib.ElSOCPDirectCtrlDefault_d.argtypes = \
+  [c_void_p,bType]
+class SOCPDirectCtrl_s(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("mehrotraCtrl",SOCPDirectMehrotraCtrl_s)]
+  def __init__(self):
+    lib.ElSOCPDirectCtrlDefault_s(pointer(self))
+class SOCPDirectCtrl_d(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("mehrotraCtrl",SOCPDirectMehrotraCtrl_d)]
+  def __init__(self):
+    lib.ElSOCPDirectCtrlDefault_d(pointer(self))
+
+lib.ElSOCPDirect_s.argtypes = \
+lib.ElSOCPDirect_d.argtypes = \
+lib.ElSOCPDirectDist_s.argtypes = \
+lib.ElSOCPDirectDist_d.argtypes = \
+lib.ElSOCPDirectSparse_s.argtypes = \
+lib.ElSOCPDirectSparse_d.argtypes = \
+lib.ElSOCPDirectDistSparse_s.argtypes = \
+lib.ElSOCPDirectDistSparse_d.argtypes = \
+  [c_void_p,
+   c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p]
+
+lib.ElSOCPDirectX_s.argtypes = \
+lib.ElSOCPDirectXSparse_s.argtypes = \
+lib.ElSOCPDirectXDist_s.argtypes = \
+lib.ElSOCPDirectXDistSparse_s.argtypes = \
+  [c_void_p,
+   c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   SOCPDirectCtrl_s]
+lib.ElSOCPDirectX_d.argtypes = \
+lib.ElSOCPDirectXSparse_d.argtypes = \
+lib.ElSOCPDirectXDist_d.argtypes = \
+lib.ElSOCPDirectXDistSparse_d.argtypes = \
+  [c_void_p,
+   c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   SOCPDirectCtrl_d]
+
+def SOCPDirect(A,b,c,x,y,z,orders,firstInds,labels,ctrl=None):
+  if A.tag != b.tag or b.tag != c.tag or c.tag != x.tag or \
+     x.tag != y.tag or y.tag != z.tag:
+    raise Exception('Datatypes of {A,b,c,x,y,z} must match')
+  if orders.tag != iTag or firstInds.tag != iTag or labels.tag != iTag:
+    raise Exception('Datatypes of conic descriptions should be integers')
+  if type(b) is not type(c) or type(b) is not type(x) or \
+     type(b) is not type(y) or type(b) is not type(z) or \
+     type(b) is not type(orders) or type(b) is not type(firstInds) or \
+     type(b) is not type(labels):
+    raise Exception('{b,c,x,y,z,orders,firstInds,labels} must have same type')
+  args = [A.obj,b.obj,c.obj,x.obj,y.obj,z.obj,\
+          orders.obj,firstInds.obj,labels.obj]
+  argsCtrl = [A.obj,b.obj,c.obj,x.obj,y.obj,z.obj,
+              orders.obj,firstInds.obj,labels.obj,ctrl]
+  if type(A) is Matrix:
+    if type(b) is not Matrix: raise Exception('b must be a Matrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPDirect_s(*args)
+      else:            lib.ElSOCPDirectX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPDirect_d(*args)
+      else:            lib.ElSOCPDirectX_d(*argsCtrl)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix: raise Exception('b must be a DistMatrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPDirectDist_s(*args)
+      else:            lib.ElSOCPDirectXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPDirectDist_d(*args)
+      else:            lib.ElSOCPDirectXDist_d(*argsCtrl)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix: raise Exception('b must be a Matrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPDirectSparse_s(*args)
+      else:            lib.ElSOCPDirectXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPDirectSparse_d(*args)
+      else:            lib.ElSOCPDirectXSparse_d(*argsCtrl)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec: raise Exception('b must be a DistMultiVec')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPDirectDistSparse_s(*args)
+      else:            lib.ElSOCPDirectXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPDirectDistSparse_d(*args)
+      else:            lib.ElSOCPDirectXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+  else: TypeExcept()
+
+# Affine conic form
+# -----------------
+lib.ElSOCPAffineMehrotraCtrlDefault_s.argtypes = \
+lib.ElSOCPAffineMehrotraCtrlDefault_d.argtypes = \
+  [c_void_p]
+class SOCPAffineMehrotraCtrl_s(ctypes.Structure):
+  _fields_ = [("primalInit",bType),("dualInit",bType),
+              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("qsdCtrl",RegQSDCtrl_s),
+              ("outerEquil",bType),("innerEquil",bType),
+              ("scaleTwoNorm",bType),("basisSize",iType),
+              ("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElSOCPAffineMehrotraCtrlDefault_s(pointer(self))
+class SOCPAffineMehrotraCtrl_d(ctypes.Structure):
+  _fields_ = [("primalInit",bType),("dualInit",bType),
+              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("qsdCtrl",RegQSDCtrl_d),
+              ("outerEquil",bType),("innerEquil",bType),
+              ("scaleTwoNorm",bType),("basisSize",iType),
+              ("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElSOCPAffineMehrotraCtrlDefault_d(pointer(self))
+
+lib.ElSOCPAffineCtrlDefault_s.argtypes = \
+lib.ElSOCPAffineCtrlDefault_d.argtypes = \
+  [c_void_p]
+class SOCPAffineCtrl_s(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("mehrotraCtrl",SOCPAffineMehrotraCtrl_s)]
+  def __init__(self):
+    lib.ElSOCPAffineCtrlDefault_s(pointer(self))
+class SOCPAffineCtrl_d(ctypes.Structure):
+  _fields_ = [("approach",c_uint),
+              ("mehrotraCtrl",SOCPAffineMehrotraCtrl_d)]
+  def __init__(self):
+    lib.ElSOCPAffineCtrlDefault_d(pointer(self))
+
+lib.ElSOCPAffine_s.argtypes = \
+lib.ElSOCPAffine_d.argtypes = \
+lib.ElSOCPAffineDist_s.argtypes = \
+lib.ElSOCPAffineDist_d.argtypes = \
+lib.ElSOCPAffineSparse_s.argtypes = \
+lib.ElSOCPAffineSparse_d.argtypes = \
+lib.ElSOCPAffineDistSparse_s.argtypes = \
+lib.ElSOCPAffineDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p]
+
+lib.ElSOCPAffineX_s.argtypes = \
+lib.ElSOCPAffineXDist_s.argtypes = \
+lib.ElSOCPAffineXSparse_s.argtypes = \
+lib.ElSOCPAffineXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   SOCPAffineCtrl_s]
+lib.ElSOCPAffineX_d.argtypes = \
+lib.ElSOCPAffineXDist_d.argtypes = \
+lib.ElSOCPAffineXSparse_d.argtypes = \
+lib.ElSOCPAffineXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,
+   SOCPAffineCtrl_d]
+
 # TODO
+def SOCPAffine(A,G,b,c,h,x,y,z,s,orders,firstInds,labels,ctrl=None):
+  if type(A) is not type(G):
+    raise Exception('A and G must be of the same type')
+  if orders.tag != iTag or firstInds.tag != iTag or labels.tag != iTag:
+    raise Exception('cone descriptions must have integer datatypes')
+  if type(b) is not type(c) or type(b) is not type(c) or \
+     type(b) is not type(h) or type(b) is not type(x) or \
+     type(b) is not type(y) or type(b) is not type(z) or \
+     type(b) is not type(s) or type(b) is not type(orders) or \
+     type(b) is not type(firstInds) or type(b) is not type(labels):
+    raise Exception('vectors must be of the same type')
+  args = [A.obj,G.obj,b.obj,c.obj,h.obj,x.obj,y.obj,z.obj,s.obj,
+          orders.obj,firstInds.obj,labels.obj]
+  argsCtrl = [A.obj,G.obj,b.obj,c.obj,h.obj,x.obj,y.obj,z.obj,s.obj,
+              orders.obj,firstInds.obj,labels.obj,ctrl]
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPAffine_s(*args)
+      else:            lib.ElSOCPAffineX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPAffine_d(*args)
+      else:            lib.ElSOCPAffineX_d(*argsCtrl)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPAffineDist_s(*args)
+      else:            lib.ElSOCPAffineXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPAffineDist_d(*args)
+      else:            lib.ElSOCPAffineXDist_d(*argsCtrl)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPAffineSparse_s(*args)
+      else:            lib.ElSOCPAffineXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPAffineSparse_d(*args)
+      else:            lib.ElSOCPAffineXSparse_d(*argsCtrl)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    if   A.tag == sTag: 
+      if ctrl == None: lib.ElSOCPAffineDistSparse_s(*args)
+      else:            lib.ElSOCPAffineXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl == None: lib.ElSOCPAffineDistSparse_d(*args)
+      else:            lib.ElSOCPAffineXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+  else: TypeExcept()

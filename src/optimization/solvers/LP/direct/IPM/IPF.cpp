@@ -207,7 +207,7 @@ void IPF
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
@@ -436,7 +436,7 @@ void IPF
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
@@ -725,7 +725,7 @@ void IPF
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
@@ -1044,7 +1044,7 @@ void IPF
                  << dxErrorNrm2/(1+rbNrm2) << "\n"
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_mu ||_2) = " 
+                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 

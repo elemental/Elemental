@@ -22,9 +22,9 @@ void BP
     if( ctrl.useIPM )
     {
         if( ctrl.useSOCP )
-            LogicError("SOCP BP implementation not yet supported");
+            bp::SOCPIPM( A, b, x, ctrl.socpIPMCtrl );
         else
-            bp::IPM( A, b, x, ctrl.lpIPMCtrl );
+            bp::LPIPM( A, b, x, ctrl.lpIPMCtrl );
     }
     else
         bp::ADMM( A, b, x, ctrl.admmCtrl );
@@ -40,9 +40,9 @@ void BP
     if( ctrl.useIPM )
     {
         if( ctrl.useSOCP )
-            LogicError("SOCP BP implementation not yet supported");
+            bp::SOCPIPM( A, b, x, ctrl.socpIPMCtrl );
         else
-            bp::IPM( A, b, x, ctrl.lpIPMCtrl );
+            bp::LPIPM( A, b, x, ctrl.lpIPMCtrl );
     }
     else
         bp::ADMM( A, b, x, ctrl.admmCtrl );
@@ -58,9 +58,9 @@ void BP
     if( !ctrl.useIPM )
         LogicError("ADMM-based BP not yet supported for sparse matrices");
     if( ctrl.useSOCP )
-        LogicError("SOCP BP implementation not yet supported");
+        bp::SOCPIPM( A, b, x, ctrl.socpIPMCtrl );
     else
-        bp::IPM( A, b, x, ctrl.lpIPMCtrl );
+        bp::LPIPM( A, b, x, ctrl.lpIPMCtrl );
 }
 
 template<typename Real>
@@ -73,9 +73,9 @@ void BP
     if( !ctrl.useIPM )
         LogicError("ADMM-based BP not yet supported for sparse matrices");
     if( ctrl.useSOCP )
-        LogicError("SOCP BP implementation not yet supported");
+        bp::SOCPIPM( A, b, x, ctrl.socpIPMCtrl );
     else
-        bp::IPM( A, b, x, ctrl.lpIPMCtrl );
+        bp::LPIPM( A, b, x, ctrl.lpIPMCtrl );
 }
 
 #define PROTO(Real) \
