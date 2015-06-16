@@ -924,85 +924,85 @@ EL_EXPORT ElError ElSOCPDirect_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b, 
   ElConstMatrix_s c,
-  ElMatrix_s x, 
-  ElMatrix_s y,
-  ElMatrix_s z,
   ElConstMatrix_i orders, 
   ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElConstMatrix_i labels,
+  ElMatrix_s x, 
+  ElMatrix_s y,
+  ElMatrix_s z );
 EL_EXPORT ElError ElSOCPDirect_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b, 
   ElConstMatrix_d c,
-  ElMatrix_d x, 
-  ElMatrix_d y,
-  ElMatrix_d z,
   ElConstMatrix_i orders,
   ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElConstMatrix_i labels,
+  ElMatrix_d x, 
+  ElMatrix_d y,
+  ElMatrix_d z );
 
 EL_EXPORT ElError ElSOCPDirectDist_s
 ( ElConstDistMatrix_s A,
   ElConstDistMatrix_s b,
   ElConstDistMatrix_s c,
-  ElDistMatrix_s x, 
-  ElDistMatrix_s y,
-  ElDistMatrix_s z,
   ElConstDistMatrix_i orders,
   ElConstDistMatrix_i firstInds,
-  ElConstDistMatrix_i labels );
+  ElConstDistMatrix_i labels,
+  ElDistMatrix_s x, 
+  ElDistMatrix_s y,
+  ElDistMatrix_s z );
 EL_EXPORT ElError ElSOCPDirectDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b,
   ElConstDistMatrix_d c,
-  ElDistMatrix_d x, 
-  ElDistMatrix_d y,
-  ElDistMatrix_d z,
   ElConstDistMatrix_i orders,
   ElConstDistMatrix_i firstInds,
-  ElConstDistMatrix_i labels );
+  ElConstDistMatrix_i labels,
+  ElDistMatrix_d x, 
+  ElDistMatrix_d y,
+  ElDistMatrix_d z );
 
 EL_EXPORT ElError ElSOCPDirectSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b, 
   ElConstMatrix_s c,
-  ElMatrix_s x, 
-  ElMatrix_s y,
-  ElMatrix_s z,
   ElConstMatrix_i orders,
   ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElConstMatrix_i labels,
+  ElMatrix_s x, 
+  ElMatrix_s y,
+  ElMatrix_s z );
 EL_EXPORT ElError ElSOCPDirectSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b, 
   ElConstMatrix_d c,
-  ElMatrix_d x, 
-  ElMatrix_d y,
-  ElMatrix_d z,
   ElConstMatrix_i orders,
   ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElConstMatrix_i labels,
+  ElMatrix_d x, 
+  ElMatrix_d y,
+  ElMatrix_d z );
 
 EL_EXPORT ElError ElSOCPDirectDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b, 
   ElConstDistMultiVec_s c,
-  ElDistMultiVec_s x, 
-  ElDistMultiVec_s y,
-  ElDistMultiVec_s z,
   ElConstDistMultiVec_i orders,
   ElConstDistMultiVec_i firstInds,
-  ElConstDistMultiVec_i labels );
+  ElConstDistMultiVec_i labels,
+  ElDistMultiVec_s x, 
+  ElDistMultiVec_s y,
+  ElDistMultiVec_s z );
 EL_EXPORT ElError ElSOCPDirectDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b, 
   ElConstDistMultiVec_d c,
-  ElDistMultiVec_d x,
-  ElDistMultiVec_d y,
-  ElDistMultiVec_d z,
   ElConstDistMultiVec_i orders,
   ElConstDistMultiVec_i firstInds,
-  ElConstDistMultiVec_i labels );
+  ElConstDistMultiVec_i labels,
+  ElDistMultiVec_d x,
+  ElDistMultiVec_d y,
+  ElDistMultiVec_d z );
 
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
@@ -1054,92 +1054,92 @@ EL_EXPORT ElError ElSOCPDirectX_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b, 
   ElConstMatrix_s c,
-  ElMatrix_s x, 
-  ElMatrix_s y,
-  ElMatrix_s z,
   ElConstMatrix_i orders,
   ElConstMatrix_i firstInds,
   ElConstMatrix_i labels,
+  ElMatrix_s x, 
+  ElMatrix_s y,
+  ElMatrix_s z,
   ElSOCPDirectCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPDirectX_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b,
   ElConstMatrix_d c,
-  ElMatrix_d x,
-  ElMatrix_d y,
-  ElMatrix_d z,
   ElConstMatrix_i orders,
   ElConstMatrix_i firstInds,
   ElConstMatrix_i labels,
+  ElMatrix_d x,
+  ElMatrix_d y,
+  ElMatrix_d z,
   ElSOCPDirectCtrl_d ctrl );
 
 EL_EXPORT ElError ElSOCPDirectXDist_s
 ( ElConstDistMatrix_s A,
   ElConstDistMatrix_s b, 
   ElConstDistMatrix_s c,
-  ElDistMatrix_s x, 
-  ElDistMatrix_s y,
-  ElDistMatrix_s z,
   ElConstDistMatrix_i orders,
   ElConstDistMatrix_i firstInds,
   ElConstDistMatrix_i labels,
+  ElDistMatrix_s x, 
+  ElDistMatrix_s y,
+  ElDistMatrix_s z,
   ElSOCPDirectCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPDirectXDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b, 
   ElConstDistMatrix_d c,
-  ElDistMatrix_d x, 
-  ElDistMatrix_d y,
-  ElDistMatrix_d z,
   ElConstDistMatrix_i orders,
   ElConstDistMatrix_i firstInds,
   ElConstDistMatrix_i labels,
+  ElDistMatrix_d x, 
+  ElDistMatrix_d y,
+  ElDistMatrix_d z,
   ElSOCPDirectCtrl_d ctrl );
 
 EL_EXPORT ElError ElSOCPDirectXSparse_s
 ( ElConstSparseMatrix_s A,
   ElConstMatrix_s b,
   ElConstMatrix_s c,
-  ElMatrix_s x,
-  ElMatrix_s y,
-  ElMatrix_s z,
   ElConstMatrix_i orders,
   ElConstMatrix_i firstInds,
   ElConstMatrix_i labels,
+  ElMatrix_s x,
+  ElMatrix_s y,
+  ElMatrix_s z,
   ElSOCPDirectCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPDirectXSparse_d
 ( ElConstSparseMatrix_d A,
   ElConstMatrix_d b,
   ElConstMatrix_d c,
-  ElMatrix_d x,
-  ElMatrix_d y,
-  ElMatrix_d z,
   ElConstMatrix_i orders,
   ElConstMatrix_i firstInds,
   ElConstMatrix_i labels,
+  ElMatrix_d x,
+  ElMatrix_d y,
+  ElMatrix_d z,
   ElSOCPDirectCtrl_d ctrl );
 
 EL_EXPORT ElError ElSOCPDirectXDistSparse_s
 ( ElConstDistSparseMatrix_s A,
   ElConstDistMultiVec_s b,
   ElConstDistMultiVec_s c,
-  ElDistMultiVec_s x,
-  ElDistMultiVec_s y,
-  ElDistMultiVec_s z,
   ElConstDistMultiVec_i orders,
   ElConstDistMultiVec_i firstInds,
   ElConstDistMultiVec_i labels,
+  ElDistMultiVec_s x,
+  ElDistMultiVec_s y,
+  ElDistMultiVec_s z,
   ElSOCPDirectCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPDirectXDistSparse_d
 ( ElConstDistSparseMatrix_d A,
   ElConstDistMultiVec_d b,
   ElConstDistMultiVec_d c,
-  ElDistMultiVec_d x,
-  ElDistMultiVec_d y,
-  ElDistMultiVec_d z,
   ElConstDistMultiVec_i orders,
   ElConstDistMultiVec_i firstInds,
   ElConstDistMultiVec_i labels,
+  ElDistMultiVec_d x,
+  ElDistMultiVec_d y,
+  ElDistMultiVec_d z,
   ElSOCPDirectCtrl_d ctrl );
 
 /* Affine conic form
@@ -1150,26 +1150,26 @@ EL_EXPORT ElError ElSOCPAffine_s
   ElConstMatrix_s b, 
   ElConstMatrix_s c,
   ElConstMatrix_s h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_s x,
   ElMatrix_s y,
   ElMatrix_s z,
-  ElMatrix_s s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElMatrix_s s );
 EL_EXPORT ElError ElSOCPAffine_d
 ( ElConstMatrix_d A, 
   ElConstMatrix_d G,
   ElConstMatrix_d b, 
   ElConstMatrix_d c,
   ElConstMatrix_d h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_d x,
   ElMatrix_d y,
   ElMatrix_d z, 
-  ElMatrix_d s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElMatrix_d s );
 
 EL_EXPORT ElError ElSOCPAffineDist_s
 ( ElConstDistMatrix_s A, 
@@ -1177,26 +1177,26 @@ EL_EXPORT ElError ElSOCPAffineDist_s
   ElConstDistMatrix_s b, 
   ElConstDistMatrix_s c,
   ElConstDistMatrix_s h,
+  ElConstDistMatrix_i orders,
+  ElConstDistMatrix_i firstInds,
+  ElConstDistMatrix_i labels,
   ElDistMatrix_s x,
   ElDistMatrix_s y,
   ElDistMatrix_s z,
-  ElDistMatrix_s s,
-  ElConstDistMatrix_i orders,
-  ElConstDistMatrix_i firstInds,
-  ElConstDistMatrix_i labels );
+  ElDistMatrix_s s );
 EL_EXPORT ElError ElSOCPAffineDist_d
 ( ElConstDistMatrix_d A, 
   ElConstDistMatrix_d G,
   ElConstDistMatrix_d b, 
   ElConstDistMatrix_d c,
   ElConstDistMatrix_d h,
+  ElConstDistMatrix_i orders,
+  ElConstDistMatrix_i firstInds,
+  ElConstDistMatrix_i labels,
   ElDistMatrix_d x,
   ElDistMatrix_d y,
   ElDistMatrix_d z,
-  ElDistMatrix_d s,
-  ElConstDistMatrix_i orders,
-  ElConstDistMatrix_i firstInds,
-  ElConstDistMatrix_i labels );
+  ElDistMatrix_d s );
 
 EL_EXPORT ElError ElSOCPAffineSparse_s
 ( ElConstSparseMatrix_s A, 
@@ -1204,26 +1204,26 @@ EL_EXPORT ElError ElSOCPAffineSparse_s
   ElConstMatrix_s b,
   ElConstMatrix_s c,
   ElConstMatrix_s h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_s x,
   ElMatrix_s y,
   ElMatrix_s z,
-  ElMatrix_s s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElMatrix_s s );
 EL_EXPORT ElError ElSOCPAffineSparse_d
 ( ElConstSparseMatrix_d A, 
   ElConstSparseMatrix_d G,
   ElConstMatrix_d b,
   ElConstMatrix_d c,
   ElConstMatrix_d h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_d x, 
   ElMatrix_d y,
   ElMatrix_d z, 
-  ElMatrix_d s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels );
+  ElMatrix_d s );
 
 EL_EXPORT ElError ElSOCPAffineDistSparse_s
 ( ElConstDistSparseMatrix_s A, 
@@ -1231,26 +1231,26 @@ EL_EXPORT ElError ElSOCPAffineDistSparse_s
   ElConstDistMultiVec_s b, 
   ElConstDistMultiVec_s c,
   ElConstDistMultiVec_s h,
+  ElConstDistMultiVec_i orders,
+  ElConstDistMultiVec_i firstInds,
+  ElConstDistMultiVec_i labels,
   ElDistMultiVec_s x, 
   ElDistMultiVec_s y,
   ElDistMultiVec_s z, 
-  ElDistMultiVec_s s,
-  ElConstDistMultiVec_i orders,
-  ElConstDistMultiVec_i firstInds,
-  ElConstDistMultiVec_i labels );
+  ElDistMultiVec_s s );
 EL_EXPORT ElError ElSOCPAffineDistSparse_d
 ( ElConstDistSparseMatrix_d A, 
   ElConstDistSparseMatrix_d G,
   ElConstDistMultiVec_d b,
   ElConstDistMultiVec_d c,
   ElConstDistMultiVec_d h,
+  ElConstDistMultiVec_i orders,
+  ElConstDistMultiVec_i firstInds,
+  ElConstDistMultiVec_i labels,
   ElDistMultiVec_d x,
   ElDistMultiVec_d y,
   ElDistMultiVec_d z,
-  ElDistMultiVec_d s,
-  ElConstDistMultiVec_i orders,
-  ElConstDistMultiVec_i firstInds,
-  ElConstDistMultiVec_i labels );
+  ElDistMultiVec_d s );
 
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
@@ -1303,13 +1303,13 @@ EL_EXPORT ElError ElSOCPAffineX_s
   ElConstMatrix_s b, 
   ElConstMatrix_s c,
   ElConstMatrix_s h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_s x, 
   ElMatrix_s y,
   ElMatrix_s z, 
   ElMatrix_s s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPAffineX_d
 ( ElConstMatrix_d A, 
@@ -1317,13 +1317,13 @@ EL_EXPORT ElError ElSOCPAffineX_d
   ElConstMatrix_d b, 
   ElConstMatrix_d c,
   ElConstMatrix_d h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_d x,
   ElMatrix_d y,
   ElMatrix_d z, 
   ElMatrix_d s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels,
   ElSOCPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElSOCPAffineXDist_s
@@ -1332,13 +1332,13 @@ EL_EXPORT ElError ElSOCPAffineXDist_s
   ElConstDistMatrix_s b, 
   ElConstDistMatrix_s c,
   ElConstDistMatrix_s h,
+  ElConstDistMatrix_i orders,
+  ElConstDistMatrix_i firstInds,
+  ElConstDistMatrix_i labels,
   ElDistMatrix_s x,
   ElDistMatrix_s y,
   ElDistMatrix_s z, 
   ElDistMatrix_s s,
-  ElConstDistMatrix_i orders,
-  ElConstDistMatrix_i firstInds,
-  ElConstDistMatrix_i labels,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPAffineXDist_d
 ( ElConstDistMatrix_d A, 
@@ -1346,13 +1346,13 @@ EL_EXPORT ElError ElSOCPAffineXDist_d
   ElConstDistMatrix_d b, 
   ElConstDistMatrix_d c,
   ElConstDistMatrix_d h,
+  ElConstDistMatrix_i orders,
+  ElConstDistMatrix_i firstInds,
+  ElConstDistMatrix_i labels,
   ElDistMatrix_d x,
   ElDistMatrix_d y,
   ElDistMatrix_d z,
   ElDistMatrix_d s,
-  ElConstDistMatrix_i orders,
-  ElConstDistMatrix_i firstInds,
-  ElConstDistMatrix_i labels,
   ElSOCPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElSOCPAffineXSparse_s
@@ -1361,13 +1361,13 @@ EL_EXPORT ElError ElSOCPAffineXSparse_s
   ElConstMatrix_s b,
   ElConstMatrix_s c,
   ElConstMatrix_s h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_s x,
   ElMatrix_s y,
   ElMatrix_s z,
   ElMatrix_s s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPAffineXSparse_d
 ( ElConstSparseMatrix_d A, 
@@ -1375,13 +1375,13 @@ EL_EXPORT ElError ElSOCPAffineXSparse_d
   ElConstMatrix_d b, 
   ElConstMatrix_d c,
   ElConstMatrix_d h,
+  ElConstMatrix_i orders,
+  ElConstMatrix_i firstInds,
+  ElConstMatrix_i labels,
   ElMatrix_d x, 
   ElMatrix_d y,
   ElMatrix_d z,
   ElMatrix_d s,
-  ElConstMatrix_i orders,
-  ElConstMatrix_i firstInds,
-  ElConstMatrix_i labels,
   ElSOCPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElSOCPAffineXDistSparse_s
@@ -1390,13 +1390,13 @@ EL_EXPORT ElError ElSOCPAffineXDistSparse_s
   ElConstDistMultiVec_s b,
   ElConstDistMultiVec_s c,
   ElConstDistMultiVec_s h,
+  ElConstDistMultiVec_i orders,
+  ElConstDistMultiVec_i firstInds,
+  ElConstDistMultiVec_i labels,
   ElDistMultiVec_s x, 
   ElDistMultiVec_s y,
   ElDistMultiVec_s z, 
   ElDistMultiVec_s s,
-  ElConstDistMultiVec_i orders,
-  ElConstDistMultiVec_i firstInds,
-  ElConstDistMultiVec_i labels,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElSOCPAffineXDistSparse_d
 ( ElConstDistSparseMatrix_d A, 
@@ -1404,13 +1404,13 @@ EL_EXPORT ElError ElSOCPAffineXDistSparse_d
   ElConstDistMultiVec_d b, 
   ElConstDistMultiVec_d c,
   ElConstDistMultiVec_d h,
+  ElConstDistMultiVec_i orders,
+  ElConstDistMultiVec_i firstInds,
+  ElConstDistMultiVec_i labels,
   ElDistMultiVec_d x, 
   ElDistMultiVec_d y,
   ElDistMultiVec_d z,
   ElDistMultiVec_d s,
-  ElConstDistMultiVec_i orders,
-  ElConstDistMultiVec_i firstInds,
-  ElConstDistMultiVec_i labels,
   ElSOCPAffineCtrl_d ctrl );
 
 #ifdef __cplusplus

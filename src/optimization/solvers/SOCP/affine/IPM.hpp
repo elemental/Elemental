@@ -20,13 +20,13 @@ void IPF
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
@@ -35,13 +35,13 @@ void IPF
   const AbstractDistMatrix<Real>& b, 
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z, 
         AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
@@ -50,13 +50,13 @@ void IPF
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 template<typename Real>
 void IPF
@@ -65,13 +65,13 @@ void IPF
   const DistMultiVec<Real>& b, 
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
         DistMultiVec<Real>& s,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
   const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
 */
 
@@ -82,13 +82,13 @@ void Mehrotra
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
@@ -97,13 +97,13 @@ void Mehrotra
   const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x,
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
@@ -112,13 +112,13 @@ void Mehrotra
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
@@ -127,13 +127,13 @@ void Mehrotra
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 } // namespace affine

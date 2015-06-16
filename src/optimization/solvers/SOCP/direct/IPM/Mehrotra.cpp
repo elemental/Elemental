@@ -35,12 +35,12 @@ void Mehrotra
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
-        Matrix<Real>& x, 
-        Matrix<Real>& y, 
-        Matrix<Real>& z, 
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
+        Matrix<Real>& x, 
+        Matrix<Real>& y, 
+        Matrix<Real>& z, 
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
@@ -69,7 +69,7 @@ void Mehrotra
 
     Matrix<Real> s;
     socp::affine::Mehrotra
-    (A,G,b,c,h,x,y,z,s,orders,firstInds,labels,affineCtrl); 
+    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl); 
 }
 
 template<typename Real>
@@ -77,12 +77,12 @@ void Mehrotra
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& b, 
   const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z, 
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
   const AbstractDistMatrix<Int>& labels,
+        AbstractDistMatrix<Real>& x, 
+        AbstractDistMatrix<Real>& y, 
+        AbstractDistMatrix<Real>& z, 
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
@@ -112,7 +112,7 @@ void Mehrotra
 
     DistMatrix<Real> s(grid);
     socp::affine::Mehrotra
-    (A,G,b,c,h,x,y,z,s,orders,firstInds,labels,affineCtrl);
+    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl);
 }
 
 template<typename Real>
@@ -120,12 +120,12 @@ void Mehrotra
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
@@ -154,7 +154,7 @@ void Mehrotra
 
     Matrix<Real> s;
     socp::affine::Mehrotra
-    (A,G,b,c,h,x,y,z,s,orders,firstInds,labels,affineCtrl);
+    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl);
 }
 
 template<typename Real>
@@ -162,12 +162,12 @@ void Mehrotra
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   const DistMultiVec<Int>& labels,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
@@ -197,7 +197,7 @@ void Mehrotra
 
     DistMultiVec<Real> s(comm);
     socp::affine::Mehrotra
-    (A,G,b,c,h,x,y,z,s,orders,firstInds,labels,affineCtrl);
+    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl);
 }
 
 #define PROTO(Real) \
@@ -205,45 +205,45 @@ void Mehrotra
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
     const AbstractDistMatrix<Int>& labels, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x, \
-          DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
     const DistMultiVec<Int>& labels, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
     const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

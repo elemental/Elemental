@@ -40,13 +40,13 @@ void Mehrotra
   const Matrix<Real>& bPre, 
   const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y, 
         Matrix<Real>& z, 
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -73,7 +73,7 @@ void Mehrotra
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels,
+    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Matrix<Real> J, d, w, wRoot, l, lInv,
@@ -285,13 +285,13 @@ void Mehrotra
   const AbstractDistMatrix<Real>& bPre, 
   const AbstractDistMatrix<Real>& cPre,
   const AbstractDistMatrix<Real>& hPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
+  const AbstractDistMatrix<Int>& labelsPre,
         AbstractDistMatrix<Real>& xPre, 
         AbstractDistMatrix<Real>& yPre, 
         AbstractDistMatrix<Real>& zPre, 
         AbstractDistMatrix<Real>& sPre,
-  const AbstractDistMatrix<Int>& ordersPre,
-  const AbstractDistMatrix<Int>& firstIndsPre,
-  const AbstractDistMatrix<Int>& labelsPre,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -352,7 +352,7 @@ void Mehrotra
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels,
+    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar );
 
     DistMatrix<Real> J(grid),     d(grid),     
@@ -579,13 +579,13 @@ void Mehrotra
   const Matrix<Real>& bPre, 
   const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -615,7 +615,7 @@ void Mehrotra
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels,
+    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
       map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
@@ -856,13 +856,13 @@ void Mehrotra
   const DistMultiVec<Real>& bPre,
   const DistMultiVec<Real>& cPre,
   const DistMultiVec<Real>& hPre,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -902,7 +902,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
-    ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels, 
+    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
       map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar, 
       ctrl.qsdCtrl );
@@ -1199,13 +1199,13 @@ void Mehrotra
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const Matrix<Int>& orders, \
-    const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, \
@@ -1213,13 +1213,13 @@ void Mehrotra
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \
@@ -1227,13 +1227,13 @@ void Mehrotra
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const Matrix<Int>& orders, \
-    const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, \
@@ -1241,13 +1241,13 @@ void Mehrotra
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
     const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

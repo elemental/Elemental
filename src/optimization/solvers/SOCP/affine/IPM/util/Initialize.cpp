@@ -72,13 +72,13 @@ void Initialize
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
@@ -193,13 +193,13 @@ void Initialize
   const AbstractDistMatrix<Real>& b, 
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z, 
         AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
 {
@@ -317,13 +317,13 @@ void Initialize
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         vector<Int>& map, 
         vector<Int>& invMap, 
         ldl::Separator& rootSep, 
@@ -460,13 +460,13 @@ void Initialize
   const DistMultiVec<Real>& b, 
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
         DistMultiVec<Real>& s,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
         DistMap& map,
         DistMap& invMap, 
         ldl::DistSeparator& rootSep, 
@@ -608,13 +608,13 @@ void Initialize
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const Matrix<Int>& orders, \
-    const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const AbstractDistMatrix<Real>& A, \
@@ -622,13 +622,13 @@ void Initialize
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoff ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \
@@ -636,13 +636,13 @@ void Initialize
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const Matrix<Int>& orders, \
-    const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           vector<Int>& map, \
           vector<Int>& invMap, \
           ldl::Separator& rootSep, \
@@ -655,13 +655,13 @@ void Initialize
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
           DistMap& map, \
           DistMap& invMap, \
           ldl::DistSeparator& rootSep, \

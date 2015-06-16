@@ -109,6 +109,10 @@ void Mehrotra
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -214,7 +218,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
@@ -389,6 +392,10 @@ void Mehrotra
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -494,7 +501,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
@@ -656,6 +662,10 @@ void Mehrotra
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -778,7 +788,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
@@ -953,6 +962,10 @@ void Mehrotra
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -1103,7 +1116,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(s,z) / k;
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;

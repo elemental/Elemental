@@ -95,6 +95,10 @@ void IPF
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -135,9 +139,8 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = x o z - tau e
-        // ====================================================
-        const Real mu = Dot(x,z) / n;
+        // r_mu := x o z - tau e
+        // =====================
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
@@ -324,6 +327,10 @@ void IPF
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -364,9 +371,8 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = x o z - tau e
-        // ====================================================
-        const Real mu = Dot(x,z) / n;
+        // r_mu := x o z - tau e
+        // =====================
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
@@ -577,6 +583,10 @@ void IPF
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -617,9 +627,8 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = x o z - tau e
-        // ====================================================
-        const Real mu = Dot(x,z) / n;
+        // r_mu := x o z - tau e
+        // =====================
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
@@ -871,6 +880,10 @@ void IPF
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -911,9 +924,8 @@ void IPF
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
 
-        // Compute the duality measure and r_mu = x o z - tau e
-        // ====================================================
-        const Real mu = Dot(x,z) / n;
+        // r_mu := x o z - tau e
+        // =====================
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );

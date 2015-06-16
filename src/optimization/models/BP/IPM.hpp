@@ -246,7 +246,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     Matrix<Real> xHat, y, z;
-    SOCP( AHat, b, c, xHat, y, z, orders, firstInds, labels, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========
@@ -295,7 +295,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     Matrix<Real> xHat, y, z;
-    SOCP( AHat, b, c, xHat, y, z, orders, firstInds, labels, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========
@@ -349,7 +349,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     DistMatrix<Real> xHat(grid), y(grid), z(grid);
-    SOCP( AHat, b, c, xHat, y, z, orders, firstInds, labels, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========
@@ -408,7 +408,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     DistMultiVec<Real> xHat(comm), y(comm), z(comm);
-    SOCP( AHat, b, c, xHat, y, z, orders, firstInds, labels, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========

@@ -109,6 +109,10 @@ void IPF
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -162,7 +166,6 @@ void IPF
 
         // Form the residual for the scaled equation, s o z - sigma mu e
         // =============================================================
-        const Real mu = Dot(s,z) / k;
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
@@ -335,6 +338,10 @@ void IPF
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -388,7 +395,6 @@ void IPF
 
         // Form the residual for the scaled equation, s o z - sigma mu e
         // =============================================================
-        const Real mu = Dot(s,z) / k;
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
@@ -552,6 +558,10 @@ void IPF
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -605,7 +615,6 @@ void IPF
 
         // Form the residual for the scaled equation, s o z - sigma mu e
         // =============================================================
-        const Real mu = Dot(s,z) / k;
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );
@@ -785,6 +794,10 @@ void IPF
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(s,z) / k;
+
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
@@ -838,7 +851,6 @@ void IPF
 
         // Form the residual for the scaled equation, s o z - sigma mu e
         // =============================================================
-        const Real mu = Dot(s,z) / k;
         rmu = z;
         DiagonalScale( LEFT, NORMAL, s, rmu );
         Shift( rmu, -ctrl.centering*mu );

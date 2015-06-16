@@ -746,7 +746,7 @@ lib.ElSOCPDirectXDistSparse_d.argtypes = \
    c_void_p,c_void_p,c_void_p,
    SOCPDirectCtrl_d]
 
-def SOCPDirect(A,b,c,x,y,z,orders,firstInds,labels,ctrl=None):
+def SOCPDirect(A,b,c,orders,firstInds,labels,x,y,z,ctrl=None):
   if A.tag != b.tag or b.tag != c.tag or c.tag != x.tag or \
      x.tag != y.tag or y.tag != z.tag:
     raise Exception('Datatypes of {A,b,c,x,y,z} must match')
@@ -757,10 +757,10 @@ def SOCPDirect(A,b,c,x,y,z,orders,firstInds,labels,ctrl=None):
      type(b) is not type(orders) or type(b) is not type(firstInds) or \
      type(b) is not type(labels):
     raise Exception('{b,c,x,y,z,orders,firstInds,labels} must have same type')
-  args = [A.obj,b.obj,c.obj,x.obj,y.obj,z.obj,\
-          orders.obj,firstInds.obj,labels.obj]
-  argsCtrl = [A.obj,b.obj,c.obj,x.obj,y.obj,z.obj,
-              orders.obj,firstInds.obj,labels.obj,ctrl]
+  args = [A.obj,b.obj,c.obj,orders.obj,firstInds.obj,labels.obj, 
+          x.obj,y.obj,z.obj]
+  argsCtrl = [A.obj,b.obj,c.obj,orders.obj,firstInds.obj,labels.obj,
+              x.obj,y.obj,z.obj,ctrl]
   if type(A) is Matrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
     if   A.tag == sTag: 
@@ -847,8 +847,8 @@ lib.ElSOCPAffineDistSparse_s.argtypes = \
 lib.ElSOCPAffineDistSparse_d.argtypes = \
   [c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
-   c_void_p,c_void_p,c_void_p,c_void_p,
-   c_void_p,c_void_p,c_void_p]
+   c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p]
 
 lib.ElSOCPAffineX_s.argtypes = \
 lib.ElSOCPAffineXDist_s.argtypes = \
@@ -856,8 +856,8 @@ lib.ElSOCPAffineXSparse_s.argtypes = \
 lib.ElSOCPAffineXDistSparse_s.argtypes = \
   [c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
-   c_void_p,c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p,
    SOCPAffineCtrl_s]
 lib.ElSOCPAffineX_d.argtypes = \
 lib.ElSOCPAffineXDist_d.argtypes = \
@@ -865,12 +865,12 @@ lib.ElSOCPAffineXSparse_d.argtypes = \
 lib.ElSOCPAffineXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
-   c_void_p,c_void_p,c_void_p,c_void_p,
    c_void_p,c_void_p,c_void_p,
+   c_void_p,c_void_p,c_void_p,c_void_p,
    SOCPAffineCtrl_d]
 
 # TODO
-def SOCPAffine(A,G,b,c,h,x,y,z,s,orders,firstInds,labels,ctrl=None):
+def SOCPAffine(A,G,b,c,h,orders,firstInds,labels,x,y,z,s,ctrl=None):
   if type(A) is not type(G):
     raise Exception('A and G must be of the same type')
   if orders.tag != iTag or firstInds.tag != iTag or labels.tag != iTag:
@@ -881,10 +881,10 @@ def SOCPAffine(A,G,b,c,h,x,y,z,s,orders,firstInds,labels,ctrl=None):
      type(b) is not type(s) or type(b) is not type(orders) or \
      type(b) is not type(firstInds) or type(b) is not type(labels):
     raise Exception('vectors must be of the same type')
-  args = [A.obj,G.obj,b.obj,c.obj,h.obj,x.obj,y.obj,z.obj,s.obj,
-          orders.obj,firstInds.obj,labels.obj]
-  argsCtrl = [A.obj,G.obj,b.obj,c.obj,h.obj,x.obj,y.obj,z.obj,s.obj,
-              orders.obj,firstInds.obj,labels.obj,ctrl]
+  args = [A.obj,G.obj,b.obj,c.obj,h.obj,orders.obj,firstInds.obj,labels.obj,
+          x.obj,y.obj,z.obj,s.obj]
+  argsCtrl = [A.obj,G.obj,b.obj,c.obj,h.obj,orders.obj,firstInds.obj,labels.obj,
+              x.obj,y.obj,z.obj,s.obj,ctrl]
   if type(A) is Matrix:
     if type(b) is not Matrix:
       raise Exception('b must be a Matrix')

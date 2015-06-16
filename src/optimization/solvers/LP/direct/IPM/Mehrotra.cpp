@@ -97,6 +97,10 @@ void Mehrotra
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -224,7 +228,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(x,z) / n;
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
@@ -408,6 +411,10 @@ void Mehrotra
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -535,7 +542,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(x,z) / n;
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
@@ -738,6 +744,10 @@ void Mehrotra
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -880,7 +890,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(x,z) / n;
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
@@ -1086,6 +1095,10 @@ void Mehrotra
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
+        // Compute the duality measure
+        // ===========================
+        const Real mu = Dot(x,z) / n;
+
         // Check for convergence
         // =====================
         // |primal - dual| / (1 + |primal|) <= tol ?
@@ -1269,7 +1282,6 @@ void Mehrotra
 
         // Compute what the new duality measure would become
         // =================================================
-        const Real mu = Dot(x,z) / n;
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
