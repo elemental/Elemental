@@ -17,12 +17,12 @@ void SOCP
 ( const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
   const socp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -38,12 +38,12 @@ void SOCP
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& b, 
   const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z, 
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
   const AbstractDistMatrix<Int>& labels,
+        AbstractDistMatrix<Real>& x, 
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -59,12 +59,12 @@ void SOCP
 ( const SparseMatrix<Real>& A, 
   const Matrix<Real>& b,
   const Matrix<Real>& c, 
-        Matrix<Real>& x, 
-        Matrix<Real>& y,
-        Matrix<Real>& z, 
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& labels,
+        Matrix<Real>& x, 
+        Matrix<Real>& y,
+        Matrix<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -80,12 +80,12 @@ void SOCP
 ( const DistSparseMatrix<Real>& A, 
   const DistMultiVec<Real>& b, 
   const DistMultiVec<Real>& c, 
-        DistMultiVec<Real>& x, 
-        DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z, 
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   const DistMultiVec<Int>& labels,
+        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -103,13 +103,13 @@ void SOCP
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -128,13 +128,13 @@ void SOCP
   const AbstractDistMatrix<Real>& b, 
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z, 
         AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -153,13 +153,13 @@ void SOCP
   const Matrix<Real>& b,
   const Matrix<Real>& c, 
   const Matrix<Real>& h,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
         Matrix<Real>& s,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -178,13 +178,13 @@ void SOCP
   const DistMultiVec<Real>& b, 
   const DistMultiVec<Real>& c, 
   const DistMultiVec<Real>& h,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
         DistMultiVec<Real>& s,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SOCP"))
@@ -201,45 +201,45 @@ void SOCP
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const socp::direct::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
     const AbstractDistMatrix<Int>& labels, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
     const socp::direct::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     const Matrix<Int>& labels, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
     const socp::direct::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x, \
-          DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
     const DistMultiVec<Int>& labels, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
     const socp::direct::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const Matrix<Real>& A, \
@@ -247,13 +247,13 @@ void SOCP
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const Matrix<Int>& orders, \
-    const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const AbstractDistMatrix<Real>& A, \
@@ -261,13 +261,13 @@ void SOCP
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const SparseMatrix<Real>& A, \
@@ -275,13 +275,13 @@ void SOCP
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
+    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const Matrix<Int>& orders, \
-    const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void SOCP \
   ( const DistSparseMatrix<Real>& A, \
@@ -289,13 +289,13 @@ void SOCP
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
     const socp::affine::Ctrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
