@@ -17,7 +17,7 @@ worldRank = El.mpi.WorldRank()
 # Place two 2D finite-difference matrices next to each other
 # and make the last column dense
 def ConcatFD2D(N0,N1):
-  A = El.DistSparseMatrix()
+  A = El.DistSparseMatrix(El.zTag)
   height = N0*N1
   width = 2*N0*N1
   A.Resize(height,width)
@@ -29,20 +29,20 @@ def ConcatFD2D(N0,N1):
     x1 = s / N0
     sRel = s + N0*N1
 
-    A.QueueUpdate( s, s,     11 )
-    A.QueueUpdate( s, sRel, -20 )
+    A.QueueUpdate( s, s,     11+1j )
+    A.QueueUpdate( s, sRel, -20+2j )
     if x0 > 0:
-      A.QueueUpdate( s, s-1,    -1  )
-      A.QueueUpdate( s, sRel-1, -17 )
+      A.QueueUpdate( s, s-1,    -1+3j  )
+      A.QueueUpdate( s, sRel-1, -17+4j )
     if x0+1 < N0:
-      A.QueueUpdate( s, s+1,     2  )
-      A.QueueUpdate( s, sRel+1, -20 )
+      A.QueueUpdate( s, s+1,     2+5j  )
+      A.QueueUpdate( s, sRel+1, -20+6j )
     if x1 > 0:
-      A.QueueUpdate( s, s-N0,    -30 )
-      A.QueueUpdate( s, sRel-N0, -3  )
+      A.QueueUpdate( s, s-N0,    -30+7j )
+      A.QueueUpdate( s, sRel-N0, -3+8j  )
     if x1+1 < N1:
-      A.QueueUpdate( s, s+N0,    4 )
-      A.QueueUpdate( s, sRel+N0, 3 )
+      A.QueueUpdate( s, s+N0,    4+9j )
+      A.QueueUpdate( s, sRel+N0, 3+10j )
 
     # The dense last column
     A.QueueUpdate( s, width-1, -10/height );
@@ -51,20 +51,18 @@ def ConcatFD2D(N0,N1):
   return A
 
 A = ConcatFD2D(n0,n1)
-b = El.DistMultiVec()
+b = El.DistMultiVec(El.zTag)
 #El.Gaussian( b, n0*n1, 1 )
 El.Ones( b, n0*n1, 1 )
 if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
-ctrl = El.BPCtrl_d(isSparse=True)
-ctrl.useSOCP = True
-ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
-ctrl.socpIPMCtrl.mehrotraCtrl.time = True
-ctrl.socpIPMCtrl.mehrotraCtrl.progress = True
-ctrl.socpIPMCtrl.mehrotraCtrl.outerEquil = False
-ctrl.socpIPMCtrl.mehrotraCtrl.innerEquil = True
+ctrl = El.BPCtrl_z()
+ctrl.ipmCtrl.mehrotraCtrl.time = True
+ctrl.ipmCtrl.mehrotraCtrl.progress = True
+ctrl.ipmCtrl.mehrotraCtrl.outerEquil = False
+ctrl.ipmCtrl.mehrotraCtrl.innerEquil = True
 startBP = time.clock()
 x = El.BP( A, b, ctrl )
 endBP = time.clock()
@@ -74,7 +72,7 @@ if display:
   El.Display( x, "x" )
 
 xOneNorm = El.EntrywiseNorm( x, 1 )
-e = El.DistMultiVec()
+e = El.DistMultiVec(El.zTag)
 El.Copy( b, e )
 El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
 if display:

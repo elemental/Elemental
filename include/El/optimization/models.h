@@ -79,8 +79,18 @@ typedef struct {
   ElSOCPDirectCtrl_d socpIPMCtrl;
 } ElBPCtrl_d;
 
+typedef struct {
+  ElSOCPDirectCtrl_s ipmCtrl;
+} ElBPCtrl_c;
+
+typedef struct {
+  ElSOCPDirectCtrl_d ipmCtrl;
+} ElBPCtrl_z;
+
 EL_EXPORT ElError ElBPCtrlDefault_s( ElBPCtrl_s* ctrl, bool isSparse );
 EL_EXPORT ElError ElBPCtrlDefault_d( ElBPCtrl_d* ctrl, bool isSparse );
+EL_EXPORT ElError ElBPCtrlDefault_c( ElBPCtrl_c* ctrl );
+EL_EXPORT ElError ElBPCtrlDefault_z( ElBPCtrl_z* ctrl );
 
 EL_EXPORT ElError ElBPX_s
 ( ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
@@ -88,6 +98,12 @@ EL_EXPORT ElError ElBPX_s
 EL_EXPORT ElError ElBPX_d
 ( ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
   ElBPCtrl_d ctrl );
+EL_EXPORT ElError ElBPX_c
+( ElConstMatrix_c A, ElConstMatrix_c b, ElMatrix_c x,
+  ElBPCtrl_c ctrl );
+EL_EXPORT ElError ElBPX_z
+( ElConstMatrix_z A, ElConstMatrix_z b, ElMatrix_z x,
+  ElBPCtrl_z ctrl );
 
 EL_EXPORT ElError ElBPXDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s x,
@@ -95,6 +111,12 @@ EL_EXPORT ElError ElBPXDist_s
 EL_EXPORT ElError ElBPXDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d x,
   ElBPCtrl_d ctrl );
+EL_EXPORT ElError ElBPXDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c b, ElDistMatrix_c x,
+  ElBPCtrl_c ctrl );
+EL_EXPORT ElError ElBPXDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z b, ElDistMatrix_z x,
+  ElBPCtrl_z ctrl );
 
 EL_EXPORT ElError ElBPXSparse_s
 ( ElConstSparseMatrix_s A, ElConstMatrix_s b, ElMatrix_s x,
@@ -102,6 +124,12 @@ EL_EXPORT ElError ElBPXSparse_s
 EL_EXPORT ElError ElBPXSparse_d
 ( ElConstSparseMatrix_d A, ElConstMatrix_d b, ElMatrix_d x,
   ElBPCtrl_d ctrl );
+EL_EXPORT ElError ElBPXSparse_c
+( ElConstSparseMatrix_c A, ElConstMatrix_c b, ElMatrix_c x,
+  ElBPCtrl_c ctrl );
+EL_EXPORT ElError ElBPXSparse_z
+( ElConstSparseMatrix_z A, ElConstMatrix_z b, ElMatrix_z x,
+  ElBPCtrl_z ctrl );
 
 EL_EXPORT ElError ElBPXDistSparse_s
 ( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, ElDistMultiVec_s x,
@@ -109,6 +137,12 @@ EL_EXPORT ElError ElBPXDistSparse_s
 EL_EXPORT ElError ElBPXDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x,
   ElBPCtrl_d ctrl );
+EL_EXPORT ElError ElBPXDistSparse_c
+( ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c b, ElDistMultiVec_c x,
+  ElBPCtrl_c ctrl );
+EL_EXPORT ElError ElBPXDistSparse_z
+( ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z b, ElDistMultiVec_z x,
+  ElBPCtrl_z ctrl );
 
 /* Chebyshev point
    =============== */

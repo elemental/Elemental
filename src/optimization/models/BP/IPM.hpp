@@ -36,7 +36,8 @@ namespace bp {
 
 template<typename Real>
 void LPIPM
-( const Matrix<Real>& A, const Matrix<Real>& b, 
+( const Matrix<Real>& A, 
+  const Matrix<Real>& b, 
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
@@ -71,7 +72,8 @@ void LPIPM
 
 template<typename Real>
 void LPIPM
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, 
         AbstractDistMatrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
@@ -107,7 +109,8 @@ void LPIPM
 
 template<typename Real>
 void LPIPM
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b, 
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
@@ -147,7 +150,8 @@ void LPIPM
 
 template<typename Real>
 void LPIPM
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, 
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
@@ -197,7 +201,7 @@ void LPIPM
 }
 
 //
-// The Basis Pursuit (BP) problem
+// The real Basis Pursuit (BP) problem
 //
 //   min_x || x ||_1 s.t. A x = b
 //
@@ -235,8 +239,7 @@ void SOCPIPM
     SOCIdentity( c, orders, firstInds );
 
     // \hat A := A E
-    // NOTE: Since A and \hat A are the same height and each distributed within
-    //       columns, it is possible to form \hat A from A without communication
+    // =============
     Matrix<Real> AHat;
     Zeros( AHat, m, 2*n ); 
     for( Int j=0; j<n; ++j )
@@ -282,8 +285,7 @@ void SOCPIPM
     SOCIdentity( c, orders, firstInds );
 
     // \hat A := A E
-    // NOTE: Since A and \hat A are the same height and each distributed within
-    //       columns, it is possible to form \hat A from A without communication
+    // =============
     SparseMatrix<Real> AHat;
     Zeros( AHat, m, 2*n ); 
     const Int numEntriesA = A.NumEntries();
@@ -395,6 +397,7 @@ void SOCPIPM
     SOCIdentity( c, orders, firstInds );
     
     // \hat A := A E
+    // =============
     // NOTE: Since A and \hat A are the same height and each distributed within
     //       columns, it is possible to form \hat A from A without communication
     DistSparseMatrix<Real> AHat(comm);
@@ -419,6 +422,334 @@ void SOCPIPM
         const Int i = xHat.GlobalRow(iLoc);
         if( i % 2 == 1 )
             x.QueueUpdate( (i-1)/2, 0, xHat.GetLocal(iLoc,0) );
+    }
+    x.ProcessQueues();
+}
+
+//
+// The complex Basis Pursuit (BP) problem
+//
+//   min_x || x ||_1 s.t. A x = b
+//
+// can be reformulated as the Second-Order 
+//
+//   min_x e^T xHat 
+//   s.t. | Real(A) E_R, -Imag(A) E_I | xHat = | Real(b) |, xHat in K,
+//        | Imag(A) E_R,  Real(A) E_I |        | Imag(b) |
+//
+// where K is a product of n second-order cones of dimension 3. The operator
+// E_R extracts the real components by selecting every integer which is 
+// equal to 1 modulo 3, while E_I extracts the imaginary components by 
+// selecting indices which are equal to 2 modulo 3.
+//
+
+template<typename Real>
+void SOCPIPM
+( const Matrix<Complex<Real>>& A, 
+  const Matrix<Complex<Real>>& b, 
+        Matrix<Complex<Real>>& x,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    Matrix<Int> orders, firstInds, labels;
+    Zeros( orders,    3*n, 1 );
+    Zeros( firstInds, 3*n, 1 );
+    Zeros( labels,    3*n, 1 );
+    for( Int i=0; i<orders.Height(); ++i )
+    {
+        orders.Set( i, 0, 3 );
+        firstInds.Set( i, 0, i-(i%3) ); 
+        labels.Set( i, 0, i/3 );
+    }
+
+    Matrix<Real> c;
+    SOCIdentity( c, orders, firstInds );
+
+    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
+    //           |  Imag(A) E_R,  Real(A) E_I |
+    // ========================================
+    Matrix<Real> AHat;
+    Zeros( AHat, 2*m, 6*n ); 
+    for( Int j=0; j<n; ++j )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            const Real alphaReal = A.GetRealPart(i,j);
+            const Real alphaImag = A.GetImagPart(i,j);
+            AHat.Set( i,   3*j+1,  alphaReal );
+            AHat.Set( i+m, 3*j+1,  alphaImag );
+            AHat.Set( i,   3*j+2, -alphaImag );
+            AHat.Set( i+m, 3*j+2,  alphaReal );
+        }
+    }
+
+    // \hat b := | Real(b) |
+    //           | Imag(b) |
+    // =====================
+    Matrix<Real> bHat;
+    Zeros( bHat, 2*m, 1 );
+    for( Int i=0; i<m; ++i )
+    {
+        bHat.Set( i,   0, b.GetRealPart(i,0) );
+        bHat.Set( i+m, 0, b.GetImagPart(i,0) );
+    }
+
+    // Solve the direct SOCP
+    // =====================
+    Matrix<Real> xHat, y, z;
+    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+
+    // x := E_R xHat + i E_I xHat
+    // ==========================
+    Zeros( x, n, 1 );
+    for( Int i=0; i<xHat.Height(); ++i )
+    {
+        if( i % 3 == 1 )
+            x.UpdateRealPart( (i-1)/3, 0, xHat.Get(i,0) );
+        else if( i % 3 == 2 )
+            x.UpdateImagPart( (i-2)/3, 0, xHat.Get(i,0) );
+    }
+}
+
+template<typename Real>
+void SOCPIPM
+( const SparseMatrix<Complex<Real>>& A, 
+  const Matrix<Complex<Real>>& b, 
+        Matrix<Complex<Real>>& x,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    Matrix<Int> orders, firstInds, labels;
+    Zeros( orders,    3*n, 1 );
+    Zeros( firstInds, 3*n, 1 );
+    Zeros( labels,    3*n, 1 );
+    for( Int i=0; i<orders.Height(); ++i )
+    {
+        orders.Set( i, 0, 3 );
+        firstInds.Set( i, 0, i-(i%3) ); 
+        labels.Set( i, 0, i/3 );
+    }
+
+    Matrix<Real> c;
+    SOCIdentity( c, orders, firstInds );
+
+    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
+    //           |  Imag(A) E_R,  Real(A) E_I |
+    // ========================================
+    SparseMatrix<Real> AHat;
+    Zeros( AHat, 2*m, 6*n ); 
+    const Int numEntriesA = A.NumEntries();
+    AHat.Reserve( 4*numEntriesA );
+    for( Int e=0; e<numEntriesA; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const Real alphaReal = RealPart(A.Value(e));
+        const Real alphaImag = ImagPart(A.Value(e));
+        AHat.QueueUpdate( i,   3*j+1,  alphaReal );
+        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
+        AHat.QueueUpdate( i,   3*j+2, -alphaImag );
+        AHat.QueueUpdate( i+m, 3*j+2,  alphaReal );
+    }
+    AHat.ProcessQueues();
+
+    // \hat b := | Real(b) |
+    //           | Imag(b) |
+    // =====================
+    Matrix<Real> bHat;
+    Zeros( bHat, 2*m, 1 );
+    for( Int i=0; i<m; ++i )
+    {
+        bHat.Set( i,   0, b.GetRealPart(i,0) );
+        bHat.Set( i+m, 0, b.GetImagPart(i,0) );
+    }
+
+    // Solve the direct SOCP
+    // =====================
+    Matrix<Real> xHat, y, z;
+    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+
+    // x := E_R xHat + i E_I xHat
+    // ==========================
+    Zeros( x, n, 1 );
+    for( Int i=0; i<xHat.Height(); ++i )
+    {
+        if( i % 3 == 1 )
+            x.UpdateRealPart( (i-1)/3, 0, xHat.Get(i,0) );
+        else if( i % 3 == 2 )
+            x.UpdateImagPart( (i-2)/3, 0, xHat.Get(i,0) );
+    }
+}
+
+template<typename Real>
+void SOCPIPM
+( const AbstractDistMatrix<Complex<Real>>& A, 
+  const AbstractDistMatrix<Complex<Real>>& b, 
+        AbstractDistMatrix<Complex<Real>>& x,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Grid& grid = A.Grid();
+
+    DistMatrix<Int,VC,STAR> orders(grid), firstInds(grid), labels(grid);
+    Zeros( orders,    3*n, 1 );
+    Zeros( firstInds, 3*n, 1 );
+    Zeros( labels,    3*n, 1 );
+    for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
+    {
+        const Int i = orders.GlobalRow(iLoc);
+        orders.SetLocal( iLoc, 0, 3 );
+        firstInds.SetLocal( iLoc, 0, i-(i%3) ); 
+        labels.SetLocal( iLoc, 0, i/3 );
+    }
+
+    DistMatrix<Real> c(grid);
+    SOCIdentity( c, orders, firstInds );
+
+    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
+    //           |  Imag(A) E_R,  Real(A) E_I |
+    // ========================================
+    DistMatrix<Real> AHat(grid);
+    Zeros( AHat, 2*m, 6*n ); 
+    AHat.Reserve( 4*A.LocalHeight()*A.LocalWidth() );
+    for( Int j=0; j<n; ++j )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            const Real alphaReal = A.GetRealPart(i,j);
+            const Real alphaImag = A.GetImagPart(i,j);
+            AHat.QueueUpdate( i,   3*j+1,  alphaReal );
+            AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
+            AHat.QueueUpdate( i,   3*j+2, -alphaImag );
+            AHat.QueueUpdate( i+m, 3*j+2,  alphaReal );
+        }
+    }
+    AHat.ProcessQueues();
+
+    // \hat b := | Real(b) |
+    //           | Imag(b) |
+    // =====================
+    DistMatrix<Real> bHat(grid);
+    Zeros( bHat, 2*m, 1 );
+    bHat.Reserve( 2*b.LocalHeight() );
+    for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
+    {
+        const Int i = b.GlobalRow(iLoc);
+        bHat.QueueUpdate( i,   0, b.GetRealPart(i,0) );
+        bHat.QueueUpdate( i+m, 0, b.GetImagPart(i,0) );
+    }
+    bHat.ProcessQueues();
+
+    // Solve the direct SOCP
+    // =====================
+    DistMatrix<Real> xHat(grid), y(grid), z(grid);
+    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+
+    // x := E_R xHat + i E_I xHat
+    // ==========================
+    Zeros( x, n, 1 );
+    x.Reserve( xHat.LocalHeight() );
+    if( xHat.IsLocalCol(0) )
+    {
+        for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
+        {
+            const Int i = xHat.GlobalRow(iLoc);
+            const Real val = xHat.GetLocal(iLoc,0);
+            if( i % 3 == 1 )
+                x.QueueUpdate( (i-1)/3, 0, Complex<Real>(val,0) );
+            else if( i % 3 == 2 )
+                x.QueueUpdate( (i-2)/3, 0, Complex<Real>(0,val) );
+        }
+    }
+    x.ProcessQueues();
+}
+
+template<typename Real>
+void SOCPIPM
+( const DistSparseMatrix<Complex<Real>>& A, 
+  const DistMultiVec<Complex<Real>>& b, 
+        DistMultiVec<Complex<Real>>& x,
+  const socp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    mpi::Comm comm = A.Comm();
+
+    DistMultiVec<Int> orders(comm), firstInds(comm), labels(comm);
+    Zeros( orders,    3*n, 1 );
+    Zeros( firstInds, 3*n, 1 );
+    Zeros( labels,    3*n, 1 );
+    for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
+    {
+        const Int i = orders.GlobalRow(iLoc);
+        orders.SetLocal( iLoc, 0, 3 );
+        firstInds.SetLocal( iLoc, 0, i-(i%3) ); 
+        labels.SetLocal( iLoc, 0, i/3 );
+    }
+
+    DistMultiVec<Real> c(comm);
+    SOCIdentity( c, orders, firstInds );
+    
+    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
+    //           |  Imag(A) E_R,  Real(A) E_I |
+    // ========================================
+    DistSparseMatrix<Real> AHat(comm);
+    const Int numLocalEntriesA = A.NumLocalEntries();
+    Zeros( AHat, 2*m, 6*n ); 
+    AHat.Reserve( 4*numLocalEntriesA, 4*numLocalEntriesA );
+    for( Int e=0; e<numLocalEntriesA; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const Real alphaReal = RealPart(A.Value(e));
+        const Real alphaImag = ImagPart(A.Value(e));
+        AHat.QueueUpdate( i,   3*j+1,  alphaReal, false );
+        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag, false );
+        AHat.QueueUpdate( i,   3*j+2, -alphaImag, false );
+        AHat.QueueUpdate( i+m, 3*j+2,  alphaReal, false );
+    }
+    AHat.ProcessQueues();
+
+    // \hat b := | Real(b) |
+    //           | Imag(b) |
+    // =====================
+    DistMultiVec<Real> bHat(comm);
+    Zeros( bHat, 2*m, 1 );
+    bHat.Reserve( 2*b.LocalHeight() );
+    for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
+    {
+        const Int i = b.GlobalRow(iLoc);
+        // TODO: Make DistMultiVec's real/imag API consistent with DistMatrix
+        bHat.QueueUpdate( i,   0, b.LockedMatrix().GetRealPart(iLoc,0) );
+        bHat.QueueUpdate( i+m, 0, b.LockedMatrix().GetImagPart(iLoc,0) );
+    }
+
+    // Solve the direct SOCP
+    // =====================
+    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
+    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+
+    // x := E_R xHat + i E_I xHat
+    // ==========================
+    Zeros( x, n, 1 );
+    x.Reserve( xHat.LocalHeight() );
+    for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
+    {
+        const Int i = xHat.GlobalRow(iLoc);
+        const Real val = xHat.GetLocal(iLoc,0);
+        if( i % 3 == 1 )
+            x.QueueUpdate( (i-1)/3, 0, Complex<Real>(val,0) );
+        else if( i % 3 == 2 )
+            x.QueueUpdate( (i-2)/3, 0, Complex<Real>(0,val) );
     }
     x.ProcessQueues();
 }

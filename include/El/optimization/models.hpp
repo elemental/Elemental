@@ -54,25 +54,35 @@ struct BPCtrl {
 };
 
 template<typename Real>
+struct BPCtrl<Complex<Real>> {
+  socp::direct::Ctrl<Real> ipmCtrl;
+  BPCtrl( bool sparse=true ) { }
+};
+
+template<typename F>
 void BP
-( const Matrix<Real>& A, const Matrix<Real>& b,
-        Matrix<Real>& x,
-  const BPCtrl<Real>& ctrl=BPCtrl<Real>(false) );
-template<typename Real>
+( const Matrix<F>& A, 
+  const Matrix<F>& b,
+        Matrix<F>& x,
+  const BPCtrl<F>& ctrl=BPCtrl<F>(false) );
+template<typename F>
 void BP
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
-        AbstractDistMatrix<Real>& x,
-  const BPCtrl<Real>& ctrl=BPCtrl<Real>(false) );
-template<typename Real>
+( const AbstractDistMatrix<F>& A, 
+  const AbstractDistMatrix<F>& b,
+        AbstractDistMatrix<F>& x,
+  const BPCtrl<F>& ctrl=BPCtrl<F>(false) );
+template<typename F>
 void BP
-( const SparseMatrix<Real>& A, const Matrix<Real>& b,
-        Matrix<Real>& x,
-  const BPCtrl<Real>& ctrl=BPCtrl<Real>(true) );
-template<typename Real>
+( const SparseMatrix<F>& A, 
+  const Matrix<F>& b,
+        Matrix<F>& x,
+  const BPCtrl<F>& ctrl=BPCtrl<F>(true) );
+template<typename F>
 void BP
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
-        DistMultiVec<Real>& x,
-  const BPCtrl<Real>& ctrl=BPCtrl<Real>(true) );
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<F>& b,
+        DistMultiVec<F>& x,
+  const BPCtrl<F>& ctrl=BPCtrl<F>(true) );
 
 // Chebyshev point: min || A x - b||_oo
 // ====================================

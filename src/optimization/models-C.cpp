@@ -60,6 +60,18 @@ ElError ElBPCtrlDefault_d( ElBPCtrl_d* ctrl, bool isSparse )
     return EL_SUCCESS;
 }
 
+ElError ElBPCtrlDefault_c( ElBPCtrl_c* ctrl )
+{
+    ElSOCPDirectCtrlDefault_s( &ctrl->ipmCtrl );
+    return EL_SUCCESS;
+}
+
+ElError ElBPCtrlDefault_z( ElBPCtrl_z* ctrl )
+{
+    ElSOCPDirectCtrlDefault_d( &ctrl->ipmCtrl );
+    return EL_SUCCESS;
+}
+
 /* Basis Pursuit Denoising / LASSO
    =============================== */
 ElError ElBPDNADMMCtrlDefault_s( ElBPDNADMMCtrl_s* ctrl )
@@ -213,6 +225,46 @@ ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
 }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
+  /* Basis Pursuit
+     ============= */ \
+  ElError ElBP_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBPDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBPSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  ElError ElBPDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElBPX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    ElDistMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    ElMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElBPXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    ElDistMultiVec_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
+  { EL_TRY( BP \
+      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   /* Robust Principal Component Analysis
      =================================== */ \
   ElError ElRPCA_ ## SIG \
@@ -260,46 +312,6 @@ ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
 
 #define C_PROTO_REAL(SIG,Real) \
   C_PROTO_FIELD(SIG,SIG,Real) \
-  /* Basis Pursuit
-     ============= */ \
-  ElError ElBP_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x ) \
-  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
-  ElError ElBPDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElDistMatrix_ ## SIG x ) \
-  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
-  ElError ElBPSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x ) \
-  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
-  ElError ElBPDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
-    ElDistMultiVec_ ## SIG x ) \
-  { EL_TRY( BP( *CReflect(A), *CReflect(b), *CReflect(x) ) ) } \
-  /* Expert versions
-     --------------- */ \
-  ElError ElBPX_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
-  { EL_TRY( BP \
-      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
-  ElError ElBPXDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
-    ElDistMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
-  { EL_TRY( BP \
-      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
-  ElError ElBPXSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
-    ElMatrix_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
-  { EL_TRY( BP \
-      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
-  ElError ElBPXDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
-    ElDistMultiVec_ ## SIG x, ElBPCtrl_ ## SIG ctrl ) \
-  { EL_TRY( BP \
-      ( *CReflect(A), *CReflect(b), *CReflect(x), CReflect(ctrl) ) ) } \
   /* Chebyshev point
      =============== */ \
   ElError ElCP_ ## SIG \

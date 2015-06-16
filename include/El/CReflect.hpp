@@ -2817,6 +2817,20 @@ inline ElBPCtrl_d CReflect( const BPCtrl<double>& ctrl )
     return ctrlC;
 }
 
+inline ElBPCtrl_c CReflect( const BPCtrl<Complex<float>>& ctrl )
+{
+    ElBPCtrl_c ctrlC;
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
+inline ElBPCtrl_z CReflect( const BPCtrl<Complex<double>>& ctrl )
+{
+    ElBPCtrl_z ctrlC;
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
+    return ctrlC;
+}
+
 inline BPCtrl<float> CReflect( ElBPCtrl_s ctrlC )
 {
     BPCtrl<float> ctrl(false);
@@ -2838,6 +2852,21 @@ inline BPCtrl<double> CReflect( ElBPCtrl_d ctrlC )
     ctrl.socpIPMCtrl = CReflect(ctrlC.socpIPMCtrl);
     return ctrl;
 }
+
+inline BPCtrl<Complex<float>> CReflect( ElBPCtrl_c ctrlC )
+{
+    BPCtrl<Complex<float>> ctrl;
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
+inline BPCtrl<Complex<double>> CReflect( ElBPCtrl_z ctrlC )
+{
+    BPCtrl<Complex<double>> ctrl;
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
+    return ctrl;
+}
+
 
 // BPDN / LASSO
 // """"""""""""

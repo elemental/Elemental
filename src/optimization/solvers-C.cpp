@@ -919,7 +919,7 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElMatrix_ ## SIG z ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels),
+      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElSOCPDirectDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \

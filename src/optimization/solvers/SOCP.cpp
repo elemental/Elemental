@@ -28,7 +28,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -49,7 +49,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -70,7 +70,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -91,7 +91,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, x, y, z, orders, firstInds, labels, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -115,7 +115,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels,
+        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -140,7 +140,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels, 
+        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -165,7 +165,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels,
+        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -190,7 +190,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, x, y, z, s, orders, firstInds, labels, 
+        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");

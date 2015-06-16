@@ -47,14 +47,34 @@ class BPCtrl_d(ctypes.Structure):
   def __init__(self,isSparse):
     lib.ElBPCtrlDefault_d(pointer(self),isSparse)
 
+lib.ElBPCtrlDefault_c.argtypes = \
+lib.ElBPCtrlDefault_z.argtypes = \
+  [c_void_p]
+class BPCtrl_c(ctypes.Structure):
+  _fields_ = [("ipmCtrl",SOCPDirectCtrl_s)]
+  def __init__(self):
+    lib.ElBPCtrlDefault_c(pointer(self))
+class BPCtrl_z(ctypes.Structure):
+  _fields_ = [("ipmCtrl",SOCPDirectCtrl_d)]
+  def __init__(self,isSparse):
+    lib.ElBPCtrlDefault_z(pointer(self))
+
 lib.ElBP_s.argtypes = \
 lib.ElBP_d.argtypes = \
+lib.ElBP_c.argtypes = \
+lib.ElBP_z.argtypes = \
 lib.ElBPDist_s.argtypes = \
 lib.ElBPDist_d.argtypes = \
+lib.ElBPDist_c.argtypes = \
+lib.ElBPDist_z.argtypes = \
 lib.ElBPSparse_s.argtypes = \
 lib.ElBPSparse_d.argtypes = \
+lib.ElBPSparse_c.argtypes = \
+lib.ElBPSparse_z.argtypes = \
 lib.ElBPDistSparse_s.argtypes = \
 lib.ElBPDistSparse_d.argtypes = \
+lib.ElBPDistSparse_c.argtypes = \
+lib.ElBPDistSparse_z.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 
 lib.ElBPX_s.argtypes = \
@@ -69,6 +89,18 @@ lib.ElBPXSparse_d.argtypes = \
 lib.ElBPXDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,
    BPCtrl_d]
+lib.ElBPX_c.argtypes = \
+lib.ElBPXDist_c.argtypes = \
+lib.ElBPXSparse_c.argtypes = \
+lib.ElBPXDistSparse_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   BPCtrl_c]
+lib.ElBPX_z.argtypes = \
+lib.ElBPXDist_z.argtypes = \
+lib.ElBPXSparse_z.argtypes = \
+lib.ElBPXDistSparse_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,
+   BPCtrl_z]
 
 def BP(A,b,ctrl=None):
   if A.tag != b.tag:
@@ -85,6 +117,12 @@ def BP(A,b,ctrl=None):
     elif A.tag == dTag: 
       if ctrl == None: lib.ElBP_d(*args)
       else:            lib.ElBPX_d(*argsCtrl)
+    elif A.tag == cTag:
+      if ctrl == None: lib.ElBP_c(*args)
+      else:            lib.ElBPX_c(*argsCtrl)
+    elif A.tag == zTag:
+      if ctrl == None: lib.ElBP_z(*args)
+      else:            lib.ElBPX_z(*argsCtrl)
     else: DataExcept()
     return x
   elif type(A) is DistMatrix:
@@ -99,6 +137,12 @@ def BP(A,b,ctrl=None):
     elif A.tag == dTag: 
       if ctrl == None: lib.ElBPDist_d(*args)
       else:            lib.ElBPXDist_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl == None: lib.ElBPDist_c(*args)
+      else:            lib.ElBPXDist_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl == None: lib.ElBPDist_z(*args)
+      else:            lib.ElBPXDist_z(*argsCtrl)
     else: DataExcept()
     return x
   elif type(A) is SparseMatrix:
@@ -113,6 +157,12 @@ def BP(A,b,ctrl=None):
     elif A.tag == dTag: 
       if ctrl == None: lib.ElBPSparse_d(*args)
       else:            lib.ElBPXSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl == None: lib.ElBPSparse_c(*args)
+      else:            lib.ElBPXSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl == None: lib.ElBPSparse_z(*args)
+      else:            lib.ElBPXSparse_z(*argsCtrl)
     else: DataExcept()
     return x
   elif type(A) is DistSparseMatrix:
@@ -127,6 +177,12 @@ def BP(A,b,ctrl=None):
     elif A.tag == dTag: 
       if ctrl == None: lib.ElBPDistSparse_d(*args)
       else:            lib.ElBPXDistSparse_d(*argsCtrl)
+    elif A.tag == cTag: 
+      if ctrl == None: lib.ElBPDistSparse_c(*args)
+      else:            lib.ElBPXDistSparse_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl == None: lib.ElBPDistSparse_z(*args)
+      else:            lib.ElBPXDistSparse_z(*argsCtrl)
     else: DataExcept()
     return x
   else: TypeExcept()
