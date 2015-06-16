@@ -60,12 +60,12 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.BPCtrl_d(isSparse=True)
-ctrl.useSOCP = False
+ctrl.useSOCP = True
 ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.time = True
 ctrl.socpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.outerEquil = False
-ctrl.socpIPMCtrl.mehrotraCtrl.innerEquil = False
+ctrl.socpIPMCtrl.mehrotraCtrl.innerEquil = True
 startBP = time.clock()
 x = El.BP( A, b, ctrl )
 endBP = time.clock()
