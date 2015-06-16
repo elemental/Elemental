@@ -8,9 +8,10 @@
 #
 import El, time
 
-n0=10
-n1=10
-display = False
+n0=2
+n1=2
+output = True
+display = True
 worldSize = El.mpi.WorldSize()
 worldRank = El.mpi.WorldRank()
 
@@ -29,23 +30,23 @@ def ConcatFD2D(N0,N1):
     x1 = s / N0
     sRel = s + N0*N1
 
-    A.QueueUpdate( s, s,     11+1j )
-    A.QueueUpdate( s, sRel, -20+2j )
+    A.QueueUpdate( s, s,    El.ComplexDouble(1,1) )
+    A.QueueUpdate( s, sRel, El.ComplexDouble(20,2) )
     if x0 > 0:
-      A.QueueUpdate( s, s-1,    -1+3j  )
-      A.QueueUpdate( s, sRel-1, -17+4j )
+      A.QueueUpdate( s, s-1,    El.ComplexDouble(-1,3) )
+      A.QueueUpdate( s, sRel-1, El.ComplexDouble(-17,4) )
     if x0+1 < N0:
-      A.QueueUpdate( s, s+1,     2+5j  )
-      A.QueueUpdate( s, sRel+1, -20+6j )
+      A.QueueUpdate( s, s+1,    El.ComplexDouble(2,5) )
+      A.QueueUpdate( s, sRel+1, El.ComplexDouble(-20,6) )
     if x1 > 0:
-      A.QueueUpdate( s, s-N0,    -30+7j )
-      A.QueueUpdate( s, sRel-N0, -3+8j  )
+      A.QueueUpdate( s, s-N0,    El.ComplexDouble(-30,7) )
+      A.QueueUpdate( s, sRel-N0, El.ComplexDouble(-3,8) )
     if x1+1 < N1:
-      A.QueueUpdate( s, s+N0,    4+9j )
-      A.QueueUpdate( s, sRel+N0, 3+10j )
+      A.QueueUpdate( s, s+N0,    El.ComplexDouble(4,9) )
+      A.QueueUpdate( s, sRel+N0, El.ComplexDouble(3,10) )
 
     # The dense last column
-    A.QueueUpdate( s, width-1, -10/height );
+    A.QueueUpdate( s, width-1, El.ComplexDouble(-10/height) );
 
   A.ProcessLocalQueues()
   return A
@@ -57,6 +58,9 @@ El.Ones( b, n0*n1, 1 )
 if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
+if output:
+  El.Print( A, "A" )
+  El.Print( b, "b" )
 
 ctrl = El.BPCtrl_z()
 ctrl.ipmCtrl.mehrotraCtrl.time = True
@@ -70,13 +74,18 @@ if worldRank == 0:
   print "BP time:", endBP-startBP, "seconds"
 if display:
   El.Display( x, "x" )
+if output:
+  El.Print( x, "x" )
 
 xOneNorm = El.EntrywiseNorm( x, 1 )
 e = El.DistMultiVec(El.zTag)
 El.Copy( b, e )
-El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
+El.SparseMultiply \
+( El.NORMAL, El.ComplexDouble(-1), A, x, El.ComplexDouble(1), e )
 if display:
   El.Display( e, "e" )
+if output:
+  El.Print( e, "e" )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
   print "|| x ||_1       =", xOneNorm

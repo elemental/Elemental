@@ -50,6 +50,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    const bool samePrimalDualStepLength = true;
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
@@ -263,8 +264,16 @@ void Mehrotra
           MaxStepInSOC( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
         Real alphaDual = 
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
-        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( samePrimalDualStepLength )
+        {
+            alphaPri = alphaDual =
+              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
+        }
+        else
+        {
+            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        }
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
@@ -302,6 +311,7 @@ void Mehrotra
     const Int cutoffPar = 1000;
 
     const bool onlyLower = true;
+    const bool samePrimalDualStepLength = true;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), G(grid), b(grid), c(grid), h(grid);
@@ -557,8 +567,16 @@ void Mehrotra
         Real alphaDual = 
           MaxStepInSOC
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
-        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( samePrimalDualStepLength )
+        {
+            alphaPri = alphaDual =
+              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
+        }
+        else
+        {
+            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        }
         if( ctrl.print && commRank == 0 )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
@@ -589,6 +607,8 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+
+    const bool samePrimalDualStepLength = true;
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
@@ -834,8 +854,16 @@ void Mehrotra
           MaxStepInSOC( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
         Real alphaDual = 
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
-        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( samePrimalDualStepLength )
+        {
+            alphaPri = alphaDual = 
+              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
+        }
+        else
+        {
+            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        }
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
@@ -873,6 +901,8 @@ void Mehrotra
     // TODO: Expose as a tuning parameter
     const Int cutoffPar = 1000;
     const bool onlyLower = false;
+
+    const bool samePrimalDualStepLength = true;
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
@@ -1177,11 +1207,19 @@ void Mehrotra
         Real alphaDual = 
           MaxStepInSOC
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
-        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( samePrimalDualStepLength )
+        {
+            alphaPri = alphaDual = 
+              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
+        }
+        else
+        {
+            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        }
         if( ctrl.print && commRank == 0 )
-            cout << "  alphaPri = " << alphaPri
-                 << ", alphaDual = " << alphaDual << endl;
+            cout << "  alphaPri = " << alphaPri << "\n"
+                 << "  alphaDual = " << alphaDual << endl;
 
         // Update the current estimates
         // ============================

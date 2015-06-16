@@ -32,23 +32,29 @@ void SOCNesterovTodd
 {
     DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
 
-    Matrix<Real> sRoot;
-    SOCSquareRoot( s, sRoot, orders, firstInds );
+    Matrix<Promote<Real>> sProm, zProm;
+    Copy( s, sProm );
+    Copy( z, zProm );
+
+    Matrix<Promote<Real>> sRoot;
+    SOCSquareRoot( sProm, sRoot, orders, firstInds );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
-    Matrix<Real> a;
-    SOCApplyQuadratic( sRoot, z, a, orders, firstInds );
+    Matrix<Promote<Real>> a;
+    SOCApplyQuadratic( sRoot, zProm, a, orders, firstInds );
 
     // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    Matrix<Real> b; 
+    Matrix<Promote<Real>> b; 
     SOCInverse( a, b, orders, firstInds );
     SOCSquareRoot( b, a, orders, firstInds );
 
     // w := Q_{sqrt(s)}(a)
     // -------------------
-    SOCApplyQuadratic( sRoot, a, w, orders, firstInds );
+    Matrix<Promote<Real>> wProm;
+    SOCApplyQuadratic( sRoot, a, wProm, orders, firstInds );
+    Copy( wProm, w );
 }
 
 template<typename Real>
@@ -67,9 +73,9 @@ void SOCNesterovTodd
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto sPtr = ReadProxy<Real,VC,STAR>(&sPre,ctrl); 
-    auto zPtr = ReadProxy<Real,VC,STAR>(&zPre,ctrl);
-    auto wPtr = WriteProxy<Real,VC,STAR>(&wPre,ctrl);
+    auto sPtr = ReadProxy<Promote<Real>,VC,STAR>(&sPre,ctrl); 
+    auto zPtr = ReadProxy<Promote<Real>,VC,STAR>(&zPre,ctrl);
+    auto wPtr = WriteProxy<Promote<Real>,VC,STAR>(&wPre,ctrl);
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& s = *sPtr;
@@ -78,17 +84,17 @@ void SOCNesterovTodd
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
-    DistMatrix<Real,VC,STAR> sRoot(s.Grid());
+    DistMatrix<Promote<Real>,VC,STAR> sRoot(s.Grid());
     SOCSquareRoot( s, sRoot, orders, firstInds, cutoff );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
-    DistMatrix<Real,VC,STAR> a(z.Grid());
+    DistMatrix<Promote<Real>,VC,STAR> a(z.Grid());
     SOCApplyQuadratic( sRoot, z, a, orders, firstInds, cutoff );
 
     // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    DistMatrix<Real,VC,STAR> b(z.Grid()); 
+    DistMatrix<Promote<Real>,VC,STAR> b(z.Grid()); 
     SOCInverse( a, b, orders, firstInds, cutoff );
     SOCSquareRoot( b, a, orders, firstInds, cutoff );
 
@@ -97,6 +103,7 @@ void SOCNesterovTodd
     SOCApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
 }
 
+// TODO: Extend promotions to other cases
 template<typename Real>
 void SOCNesterovTodd
 ( const DistMultiVec<Real>& s, 
@@ -106,24 +113,31 @@ void SOCNesterovTodd
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
+    mpi::Comm comm = s.Comm();
 
-    DistMultiVec<Real> sRoot(s.Comm());
-    SOCSquareRoot( s, sRoot, orders, firstInds, cutoff );
+    DistMultiVec<Promote<Real>> sProm(comm), zProm(comm);
+    Copy( s, sProm );
+    Copy( z, zProm );
+
+    DistMultiVec<Promote<Real>> sRoot(comm);
+    SOCSquareRoot( sProm, sRoot, orders, firstInds, cutoff );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
-    DistMultiVec<Real> a(z.Comm());
-    SOCApplyQuadratic( sRoot, z, a, orders, firstInds, cutoff );
+    DistMultiVec<Promote<Real>> a(comm);
+    SOCApplyQuadratic( sRoot, zProm, a, orders, firstInds, cutoff );
 
     // a := sqrt(inv(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    DistMultiVec<Real> b(z.Comm()); 
+    DistMultiVec<Promote<Real>> b(comm); 
     SOCInverse( a, b, orders, firstInds, cutoff );
     SOCSquareRoot( b, a, orders, firstInds, cutoff );
 
     // w := Q_{sqrt(s)}(a)
     // -------------------
-    SOCApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
+    DistMultiVec<Promote<Real>> wProm(comm);
+    SOCApplyQuadratic( sRoot, a, wProm, orders, firstInds, cutoff );
+    Copy( wProm, w );
 }
 
 #define PROTO(Real) \

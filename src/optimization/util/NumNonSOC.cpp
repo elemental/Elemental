@@ -89,6 +89,8 @@ Int NumNonSOC
     DistMultiVec<Real> d(x.Comm());
     SOCDets( x, d, orders, firstInds, cutoff );
 
+    SOCBroadcast( d, orders, firstInds, cutoff );
+
     Int numLocalNonSOC = 0;
     const int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )

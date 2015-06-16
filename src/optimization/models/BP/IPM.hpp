@@ -468,11 +468,11 @@ void SOCPIPM
     Matrix<Real> c;
     SOCIdentity( c, orders, firstInds );
 
-    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
-    //           |  Imag(A) E_R,  Real(A) E_I |
+    // \hat A := |  Real(A) E_R - Imag(A) E_I |
+    //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
     Matrix<Real> AHat;
-    Zeros( AHat, 2*m, 6*n ); 
+    Zeros( AHat, 2*m, 3*n ); 
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
@@ -480,8 +480,8 @@ void SOCPIPM
             const Real alphaReal = A.GetRealPart(i,j);
             const Real alphaImag = A.GetImagPart(i,j);
             AHat.Set( i,   3*j+1,  alphaReal );
-            AHat.Set( i+m, 3*j+1,  alphaImag );
             AHat.Set( i,   3*j+2, -alphaImag );
+            AHat.Set( i+m, 3*j+1,  alphaImag );
             AHat.Set( i+m, 3*j+2,  alphaReal );
         }
     }
@@ -539,11 +539,11 @@ void SOCPIPM
     Matrix<Real> c;
     SOCIdentity( c, orders, firstInds );
 
-    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
-    //           |  Imag(A) E_R,  Real(A) E_I |
+    // \hat A := |  Real(A) E_R - Imag(A) E_I |
+    //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
     SparseMatrix<Real> AHat;
-    Zeros( AHat, 2*m, 6*n ); 
+    Zeros( AHat, 2*m, 3*n ); 
     const Int numEntriesA = A.NumEntries();
     AHat.Reserve( 4*numEntriesA );
     for( Int e=0; e<numEntriesA; ++e )
@@ -553,8 +553,8 @@ void SOCPIPM
         const Real alphaReal = RealPart(A.Value(e));
         const Real alphaImag = ImagPart(A.Value(e));
         AHat.QueueUpdate( i,   3*j+1,  alphaReal );
-        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
         AHat.QueueUpdate( i,   3*j+2, -alphaImag );
+        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
         AHat.QueueUpdate( i+m, 3*j+2,  alphaReal );
     }
     AHat.ProcessQueues();
@@ -614,11 +614,11 @@ void SOCPIPM
     DistMatrix<Real> c(grid);
     SOCIdentity( c, orders, firstInds );
 
-    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
-    //           |  Imag(A) E_R,  Real(A) E_I |
+    // \hat A := |  Real(A) E_R - Imag(A) E_I |
+    //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
     DistMatrix<Real> AHat(grid);
-    Zeros( AHat, 2*m, 6*n ); 
+    Zeros( AHat, 2*m, 3*n ); 
     AHat.Reserve( 4*A.LocalHeight()*A.LocalWidth() );
     for( Int j=0; j<n; ++j )
     {
@@ -627,8 +627,8 @@ void SOCPIPM
             const Real alphaReal = A.GetRealPart(i,j);
             const Real alphaImag = A.GetImagPart(i,j);
             AHat.QueueUpdate( i,   3*j+1,  alphaReal );
-            AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
             AHat.QueueUpdate( i,   3*j+2, -alphaImag );
+            AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
             AHat.QueueUpdate( i+m, 3*j+2,  alphaReal );
         }
     }
@@ -699,12 +699,12 @@ void SOCPIPM
     DistMultiVec<Real> c(comm);
     SOCIdentity( c, orders, firstInds );
     
-    // \hat A := |  Real(A) E_R, -Imag(A) E_I |
-    //           |  Imag(A) E_R,  Real(A) E_I |
+    // \hat A := |  Real(A) E_R - Imag(A) E_I |
+    //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
     DistSparseMatrix<Real> AHat(comm);
     const Int numLocalEntriesA = A.NumLocalEntries();
-    Zeros( AHat, 2*m, 6*n ); 
+    Zeros( AHat, 2*m, 3*n ); 
     AHat.Reserve( 4*numLocalEntriesA, 4*numLocalEntriesA );
     for( Int e=0; e<numLocalEntriesA; ++e )
     {
@@ -713,8 +713,8 @@ void SOCPIPM
         const Real alphaReal = RealPart(A.Value(e));
         const Real alphaImag = ImagPart(A.Value(e));
         AHat.QueueUpdate( i,   3*j+1,  alphaReal, false );
-        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag, false );
         AHat.QueueUpdate( i,   3*j+2, -alphaImag, false );
+        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag, false );
         AHat.QueueUpdate( i+m, 3*j+2,  alphaReal, false );
     }
     AHat.ProcessQueues();
@@ -732,6 +732,7 @@ void SOCPIPM
         bHat.QueueUpdate( i,   0, b.LockedMatrix().GetRealPart(iLoc,0) );
         bHat.QueueUpdate( i+m, 0, b.LockedMatrix().GetImagPart(iLoc,0) );
     }
+    bHat.ProcessQueues();
 
     // Solve the direct SOCP
     // =====================

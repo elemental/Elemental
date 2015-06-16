@@ -56,7 +56,7 @@ class BPCtrl_c(ctypes.Structure):
     lib.ElBPCtrlDefault_c(pointer(self))
 class BPCtrl_z(ctypes.Structure):
   _fields_ = [("ipmCtrl",SOCPDirectCtrl_d)]
-  def __init__(self,isSparse):
+  def __init__(self):
     lib.ElBPCtrlDefault_z(pointer(self))
 
 lib.ElBP_s.argtypes = \
