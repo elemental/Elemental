@@ -663,7 +663,7 @@ void KKTRHS
     DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
     const Int n = rc.Height();
     const Int m = rb.Height();
-    const int k = rh.Height();
+    const Int k = rh.Height();
     d.SetComm( rc.Comm() );
     Zeros( d, n+m+k, 1 );
 
@@ -735,7 +735,7 @@ void ExpandSolution
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
-    const int k = wRoot.Height();
+    const Int k = wRoot.Height();
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
     // ==========================

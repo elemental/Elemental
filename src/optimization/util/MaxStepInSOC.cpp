@@ -82,7 +82,7 @@ namespace El {
 //
 //   Q_z = 2 z z^T - det(z) R.
 //
-// Then
+// Then, defining G = Q_{x^{-1/2}},
 //
 //   x + alpha y >= 0 iff G (x + alpha y) = e + alpha (G y) >= 0.
 //
@@ -146,16 +146,21 @@ Real MaxStepInSOC
   Real upperBound )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
+    typedef Promote<Real> PReal;
 
-    Matrix<Real> xDets, yDets, xTRys, maxSteps;
-    SOCDets( x, xDets, orders, firstInds );
-    SOCDets( y, yDets, orders, firstInds );
+    Matrix<PReal> xProm, yProm;
+    Copy( x, xProm );
+    Copy( y, yProm );
 
-    auto Ry = y;
+    Matrix<PReal> xDets, yDets, xTRys, maxSteps;
+    SOCDets( xProm, xDets, orders, firstInds );
+    SOCDets( yProm, yDets, orders, firstInds );
+
+    auto Ry = yProm;
     SOCReflect( Ry, orders, firstInds );
-    SOCDots( x, Ry, xTRys, orders, firstInds );
+    SOCDots( xProm, Ry, xTRys, orders, firstInds );
 
-    Real alpha = upperBound;
+    PReal alpha = upperBound;
     const Int height = x.Height();
     for( Int i=0; i<height; )
     {
@@ -164,10 +169,10 @@ Real MaxStepInSOC
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
-        const Real y0 = y.Get(i,0);
-        const Real xDet = xDets.Get(i,0);
-        const Real yDet = yDets.Get(i,0);
-        const Real xTRy = xTRys.Get(i,0);
+        const PReal y0 = yProm.Get(i,0);
+        const PReal xDet = xDets.Get(i,0);
+        const PReal yDet = yDets.Get(i,0);
+        const PReal xTRy = xTRys.Get(i,0);
 
         alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
 
@@ -185,12 +190,13 @@ Real MaxStepInSOC
   Real upperBound, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
+    typedef Promote<Real> PReal;
 
     ProxyCtrl control;
     control.colConstrain = true;
     control.colAlign = 0;
-    auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,control);
-    auto yPtr = ReadProxy<Real,VC,STAR>(&yPre,control);
+    auto xPtr = ReadProxy<PReal,VC,STAR>(&xPre,control);
+    auto yPtr = ReadProxy<PReal,VC,STAR>(&yPre,control);
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,control);
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,control);
     auto& x = *xPtr;
@@ -199,7 +205,7 @@ Real MaxStepInSOC
     auto& firstInds = *firstIndsPtr;
 
     const Grid& g = x.Grid();
-    DistMatrix<Real,VC,STAR> xDets(g), yDets(g), xTRys(g);
+    DistMatrix<PReal,VC,STAR> xDets(g), yDets(g), xTRys(g);
     SOCDets( x, xDets, orders, firstInds, cutoff );
     SOCDets( y, yDets, orders, firstInds, cutoff );
 
@@ -207,7 +213,7 @@ Real MaxStepInSOC
     SOCReflect( Ry, orders, firstInds );
     SOCDots( x, Ry, xTRys, orders, firstInds, cutoff );
 
-    Real alpha = upperBound;
+    PReal alpha = upperBound;
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -215,10 +221,10 @@ Real MaxStepInSOC
         if( i != firstInds.GetLocal(iLoc,0) )
             continue;
 
-        const Real y0 = y.GetLocal(iLoc,0);
-        const Real xDet = xDets.GetLocal(iLoc,0);
-        const Real yDet = yDets.GetLocal(iLoc,0);
-        const Real xTRy = xTRys.GetLocal(iLoc,0);
+        const PReal y0 = y.GetLocal(iLoc,0);
+        const PReal xDet = xDets.GetLocal(iLoc,0);
+        const PReal yDet = yDets.GetLocal(iLoc,0);
+        const PReal xTRy = xTRys.GetLocal(iLoc,0);
         
         alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
     }
@@ -235,28 +241,32 @@ Real MaxStepInSOC
   Real upperBound, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
+    typedef Promote<Real> PReal;
     mpi::Comm comm = x.Comm();
 
-    DistMultiVec<Real> xDets(comm), yDets(comm), xTRys(comm), maxSteps(comm);
-    SOCDets( x, xDets, orders, firstInds, cutoff );
-    SOCDets( y, yDets, orders, firstInds, cutoff );
+    DistMultiVec<PReal> xProm(comm), yProm(comm),
+                        xDets(comm), yDets(comm), xTRys(comm), maxSteps(comm);
+    Copy( x, xProm );
+    Copy( y, yProm );
+    SOCDets( xProm, xDets, orders, firstInds, cutoff );
+    SOCDets( yProm, yDets, orders, firstInds, cutoff );
 
-    auto Ry = y;
+    auto Ry = yProm;
     SOCReflect( Ry, orders, firstInds );
-    SOCDots( x, Ry, xTRys, orders, firstInds, cutoff );
+    SOCDots( xProm, Ry, xTRys, orders, firstInds, cutoff );
 
-    Real alpha = upperBound;
-    const Int localHeight = x.LocalHeight();
+    PReal alpha = upperBound;
+    const Int localHeight = xProm.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
+        const Int i = xProm.GlobalRow(iLoc);
         if( i != firstInds.GetLocal(iLoc,0) )
             continue;
         
-        const Real y0 = y.GetLocal(iLoc,0);
-        const Real xDet = xDets.GetLocal(iLoc,0);
-        const Real yDet = yDets.GetLocal(iLoc,0);
-        const Real xTRy = xTRys.GetLocal(iLoc,0);
+        const PReal y0 = yProm.GetLocal(iLoc,0);
+        const PReal xDet = xDets.GetLocal(iLoc,0);
+        const PReal yDet = yDets.GetLocal(iLoc,0);
+        const PReal xTRy = xTRys.GetLocal(iLoc,0);
 
         alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
     }

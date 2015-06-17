@@ -182,7 +182,8 @@ void Initialize
     }
     else
     {
-        LogicError("This shift option is not yet supported");
+        ForceIntoSOC( s, orders, firstInds, gammaPrimal );
+        ForceIntoSOC( z, orders, firstInds, gammaDual );
     }
 }
 
@@ -306,7 +307,8 @@ void Initialize
     }
     else
     {
-        LogicError("This shift option is not yet supported");
+        ForceIntoSOC( s, orders, firstInds, gammaPrimal, cutoff );
+        ForceIntoSOC( z, orders, firstInds, gammaDual, cutoff );
     }
 }
 
@@ -449,7 +451,8 @@ void Initialize
     }
     else
     {
-        LogicError("This shift option is not yet supported");
+        ForceIntoSOC( s, orders, firstInds, gammaPrimal );
+        ForceIntoSOC( z, orders, firstInds, gammaDual );
     }
 }
 
@@ -597,7 +600,8 @@ void Initialize
     }
     else
     {
-        LogicError("This shift option is not yet supported");
+        ForceIntoSOC( s, orders, firstInds, gammaPrimal, cutoff );
+        ForceIntoSOC( z, orders, firstInds, gammaDual, cutoff );
     }
 }
 

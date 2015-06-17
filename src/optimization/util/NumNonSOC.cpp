@@ -68,11 +68,8 @@ Int NumNonSOC
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) )
-        {
-            if( d.GetLocal(iLoc,0) < Real(0) )
-                ++numLocalNonSOC;
-        }
+        if( i == firstInds.GetLocal(iLoc,0) && d.GetLocal(iLoc,0) < Real(0) )
+            ++numLocalNonSOC;
     }
     return mpi::AllReduce( numLocalNonSOC, x.DistComm() );
 }
@@ -85,22 +82,16 @@ Int NumNonSOC
 {
     DEBUG_ONLY(CSE cse("NumNonSOC"))
 
-
     DistMultiVec<Real> d(x.Comm());
     SOCDets( x, d, orders, firstInds, cutoff );
-
-    SOCBroadcast( d, orders, firstInds, cutoff );
 
     Int numLocalNonSOC = 0;
     const int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) )
-        {
-            if( d.GetLocal(iLoc,0) < Real(0) )
-                ++numLocalNonSOC;
-        }
+        if( i == firstInds.GetLocal(iLoc,0) && d.GetLocal(iLoc,0) < Real(0) )
+            ++numLocalNonSOC;
     }
     return mpi::AllReduce( numLocalNonSOC, x.Comm() );
 }

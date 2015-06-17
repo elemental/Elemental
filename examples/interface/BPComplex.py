@@ -8,9 +8,9 @@
 #
 import El, time
 
-n0=2
-n1=2
-output = True
+n0=10
+n1=10
+output = False
 display = True
 worldSize = El.mpi.WorldSize()
 worldRank = El.mpi.WorldRank()

@@ -297,6 +297,27 @@ Real SOCMaxEig
 
 // TODO: SOC eigenvectors?
 
+// Force into SOC
+// ==============
+template<typename Real>
+void ForceIntoSOC
+(       Matrix<Real>& x,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  Real minDet=0 );
+template<typename Real>
+void ForceIntoSOC
+(       AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  Real minDet=0, Int cutoff=1000 );
+template<typename Real>
+void ForceIntoSOC
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Real minDet=0, Int cutoff=1000 );
+
 // Number of non-SOC members
 // =========================
 // Return the number of negative determinants

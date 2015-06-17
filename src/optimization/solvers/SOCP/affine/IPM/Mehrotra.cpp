@@ -50,7 +50,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
-    const bool samePrimalDualStepLength = true;
+    const bool forceSameStep = true;
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
@@ -77,30 +77,31 @@ void Mehrotra
     ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
-    Matrix<Real> J, d, w, wRoot, l, lInv,
+    Matrix<Real> J, d, 
+                 w, wRoot, wRootInv,
+                 l, lInv,
                  rmu,   rc,    rb,    rh,
                  dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
+                 dx,    dy,    dz,    ds,
+                 dzAffScaled, dsAffScaled;
     Matrix<Real> dSub;
     Matrix<Int> p;
 #ifndef EL_RELEASE
-    Matrix<Real> dxError, dyError, dzError;
+    Matrix<Real> dxError, dyError, dzError, dmuError;
 #endif
     for( Int numIts=0; ; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonSOC = NumNonSOC( s, orders, firstInds );
-        const Int zNumNonSOC = NumNonSOC( z, orders, firstInds );
-        if( sNumNonSOC > 0 || zNumNonSOC > 0 )
-            LogicError
-            (sNumNonSOC," members of s were non-positive and ",
-             zNumNonSOC," members of z were non-positive");
+        const Real minDet = lapack::MachineEpsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDet );
+        ForceIntoSOC( z, orders, firstInds, minDet );
 
         // Compute the scaled variable, l, its inverse, and the duality measure
         // ====================================================================
         SOCNesterovTodd( s, z, w, orders, firstInds ); 
         SOCSquareRoot( w, wRoot, orders, firstInds );
+        SOCInverse( wRoot, wRootInv, orders, firstInds );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
         SOCInverse( l, lInv, orders, firstInds );
         const Real mu = Dot(s,z) / k;
@@ -175,6 +176,8 @@ void Mehrotra
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff );
+        SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
+        SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -192,7 +195,12 @@ void Mehrotra
         Axpy( Real(1), dsAff, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
-        // TODO: dmuError
+        dmuError = dzAffScaled;
+        Axpy( Real(1), dsAffScaled, dmuError );
+        Axpy( Real(1), l, dmuError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        const Real dmuErrorNrm2 = Nrm2( dmuError );
+        // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print )
             cout << "  || dxError ||_2 / (1 + || r_b ||_2) = "
@@ -200,30 +208,28 @@ void Mehrotra
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = "
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
                  << "  || dzError ||_2 / (1 + || r_h ||_2) = "
-                 << dzErrorNrm2/(1+rhNrm2) << endl;
+                 << dzErrorNrm2/(1+rhNrm2) << "\n"
+                 << "  || dmuError ||_2 / (1 + || r_mu ||_2) = "
+                 << dmuErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = 
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = 
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
-        const Real alphaAffDual = 
+        Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print )
@@ -231,55 +237,38 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 ); 
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := inv(l) o (dsAff o dzAff - sigma*mu)
-        // -------------------------------------------
-        SOCApply( dsAff, dzAff, rmu, orders, firstInds );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+        // --------------------------------------------------------------
+        SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
         SOCShift( rmu, -sigma*mu, orders, firstInds );
         SOCApply( lInv, rmu, orders, firstInds );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+        Axpy( Real(1), l, rmu );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds );
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = 
           MaxStepInSOC( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
         Real alphaDual = 
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
-        if( samePrimalDualStepLength )
-        {
-            alphaPri = alphaDual =
-              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
-        }
-        else
-        {
-            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        }
+        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
@@ -306,12 +295,11 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
-
-    // TODO: Expose this as a tuning parameter
-    const Int cutoffPar = 1000;
-
     const bool onlyLower = true;
-    const bool samePrimalDualStepLength = true;
+
+    // TODO: Expose thesa as tuning parameters
+    const Int cutoffPar = 1000;
+    const bool forceSameStep = true;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), G(grid), b(grid), c(grid), h(grid);
@@ -366,12 +354,15 @@ void Mehrotra
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar );
 
     DistMatrix<Real> J(grid),     d(grid),     
-                     w(grid),     wRoot(grid), l(grid),     lInv(grid),
+                     w(grid),     wRoot(grid), wRootInv(grid),
+                     l(grid),     lInv(grid),
                      rc(grid),    rb(grid),    rh(grid),    rmu(grid),
                      dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
-                     dx(grid),    dy(grid),    dz(grid),    ds(grid);
+                     dx(grid),    dy(grid),    dz(grid),    ds(grid),
+                     dsAffScaled(grid), dzAffScaled(grid);
     w.AlignWith( s );
     wRoot.AlignWith( s );
+    wRootInv.AlignWith( s );
     l.AlignWith( s );
     lInv.AlignWith( s );
     dsAff.AlignWith( s );
@@ -382,24 +373,23 @@ void Mehrotra
     DistMatrix<Real> dSub(grid);
     DistMatrix<Int> p(grid);
 #ifndef EL_RELEASE
-    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
+    DistMatrix<Real> 
+      dxError(grid), dyError(grid), dzError(grid), dmuError(grid);
     dzError.AlignWith( s );
 #endif
     for( Int numIts=0; ; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonSOC = NumNonSOC( s, orders, firstInds, cutoffPar );
-        const Int zNumNonSOC = NumNonSOC( z, orders, firstInds, cutoffPar );
-        if( sNumNonSOC > 0 || zNumNonSOC > 0 )
-            LogicError
-            (sNumNonSOC," members of s were nonpositive and ",
-             zNumNonSOC," members of z were nonpositive");
+        const Real minDet = lapack::MachineEpsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
+        ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
 
         // Compute the scaled variable, l, its inverse, and the duality measure
         // ====================================================================
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
         SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
         SOCInverse( l, lInv, orders, firstInds, cutoffPar );
         const Real mu = Dot(s,z) / k;
@@ -474,6 +464,10 @@ void Mehrotra
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
+        SOCApplyQuadratic
+        ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic
+        ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -491,7 +485,12 @@ void Mehrotra
         Axpy( Real(1), dsAff, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
-        // TODO: dmuError
+        dmuError = dzAffScaled;
+        Axpy( Real(1), dsAffScaled, dmuError );
+        Axpy( Real(1), l, dmuError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        const Real dmuErrorNrm2 = Nrm2( dmuError );
+        // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print && commRank == 0 )
             cout << "  || dxError ||_2 / (1 + || r_b ||_2) = "
@@ -499,30 +498,28 @@ void Mehrotra
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = "
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
                  << "  || dzError ||_2 / (1 + || r_h ||_2) = "
-                 << dzErrorNrm2/(1+rhNrm2) << endl;
+                 << dzErrorNrm2/(1+rhNrm2) << "\n"
+                 << "  || dmuError ||_2 / (1 + || r_mu ||_2) = "
+                 << dmuErrorNrm2/(1+rmuNrm2) << endl;
 #endif
- 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = 
+
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = 
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1), cutoffPar );
-        const Real alphaAffDual = 
+        Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print && commRank == 0 )
@@ -530,59 +527,42 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := inv(l) o (dsAff o dzAff - sigma*mu)
-        // -------------------------------------------
-        SOCApply( dsAff, dzAff, rmu, orders, firstInds, cutoffPar );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+        // --------------------------------------------------------------
+        SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds, cutoffPar );
         SOCShift( rmu, -sigma*mu, orders, firstInds );
         SOCApply( lInv, rmu, orders, firstInds, cutoffPar );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS
-        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
+        Axpy( Real(1), l, rmu );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds,
           cutoffPar );
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = 
           MaxStepInSOC
           ( s, ds, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         Real alphaDual = 
           MaxStepInSOC
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
-        if( samePrimalDualStepLength )
-        {
-            alphaPri = alphaDual =
-              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
-        }
-        else
-        {
-            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        }
+        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
@@ -608,7 +588,7 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
 
-    const bool samePrimalDualStepLength = true;
+    const bool forceSameStep = true;
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
@@ -642,10 +622,12 @@ void Mehrotra
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
     Matrix<Real> d, 
-                 w,     wRoot, l,     lInv,
+                 w,     wRoot, wRootInv,
+                 l,     lInv,
                  rc,    rb,    rh,    rmu,
                  dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
+                 dx,    dy,    dz,    ds,
+                 dzAffScaled, dsAffScaled;
 
     Matrix<Real> reg;
     reg.Resize( n+m+k, 1 );
@@ -659,23 +641,21 @@ void Mehrotra
 
     Matrix<Real> dInner;
 #ifndef EL_RELEASE
-    Matrix<Real> dxError, dyError, dzError;
+    Matrix<Real> dxError, dyError, dzError, dmuError;
 #endif
     for( Int numIts=0; ; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonSOC = NumNonSOC( s, orders, firstInds );
-        const Int zNumNonSOC = NumNonSOC( z, orders, firstInds );
-        if( sNumNonSOC > 0 || zNumNonSOC > 0 )
-            LogicError
-            (sNumNonSOC," members of s were nonpositive and ",
-             zNumNonSOC," members of z were nonpositive");
+        const Real minDet = lapack::MachineEpsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDet );
+        ForceIntoSOC( z, orders, firstInds, minDet );
 
         // Compute the scaled variable, l, and its inverse
         // ===============================================
         SOCNesterovTodd( s, z, w, orders, firstInds );
         SOCSquareRoot( w, wRoot, orders, firstInds );
+        SOCInverse( wRoot, wRootInv, orders, firstInds );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
         SOCInverse( l, lInv, orders, firstInds );
         const Real mu = Dot(s,z) / k;
@@ -764,6 +744,8 @@ void Mehrotra
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff );
+        SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
+        SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -781,7 +763,11 @@ void Mehrotra
         Axpy( Real(1), dsAff, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
-        // TODO: dmuError
+        dmuError = dzAffScaled;
+        Axpy( Real(1), dsAffScaled, dmuError );
+        Axpy( Real(1), l, dmuError );
+        const Real rmuNrm2 = Nrm2( rmu );
+        const Real dmuErrorNrm2 = Nrm2( dmuError );
         // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print )
@@ -790,30 +776,28 @@ void Mehrotra
                  << "  || dyError ||_2 / (1 + || r_c ||_2) = "
                  << dyErrorNrm2/(1+rcNrm2) << "\n"
                  << "  || dzError ||_2 / (1 + || r_h ||_2) = "
-                 << dzErrorNrm2/(1+rhNrm2) << endl;
+                 << dzErrorNrm2/(1+rhNrm2) << "\n"
+                 << "  || dmuError ||_2 / (1 + || r_mu ||_2) = "
+                 << dmuErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = 
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = 
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
-        const Real alphaAffDual = 
+        Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print )
@@ -821,55 +805,40 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := inv(l) o (dsAff o dzAff - sigma*mu)
-        // -------------------------------------------
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+        // --------------------------------------------------------------
+        SOCApplyQuadratic( wRootInv, dsAff, orders, firstInds );
+        SOCApplyQuadratic( wRoot,    dzAff, orders, firstInds );
         SOCApply( dsAff, dzAff, rmu, orders, firstInds );
         SOCShift( rmu, -sigma*mu, orders, firstInds );
         SOCApply( lInv, rmu, orders, firstInds );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+        Axpy( Real(1), l, rmu );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
         reg_qsd_ldl::SolveAfter
         ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds );
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = 
           MaxStepInSOC( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
         Real alphaDual = 
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
-        if( samePrimalDualStepLength )
-        {
-            alphaPri = alphaDual = 
-              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
-        }
-        else
-        {
-            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        }
+        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
@@ -896,13 +865,12 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
+    const bool onlyLower = false;
     Timer timer;
 
-    // TODO: Expose as a tuning parameter
+    // TODO: Expose as tuning parameters
     const Int cutoffPar = 1000;
-    const bool onlyLower = false;
-
-    const bool samePrimalDualStepLength = true;
+    const bool forceSameStep = true;
 
     // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
@@ -943,10 +911,12 @@ void Mehrotra
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
-                       w(comm),     wRoot(comm), l(comm),     lInv(comm),
+                       w(comm),     wRoot(comm), wRootInv(comm),
+                       l(comm),     lInv(comm),
                        rc(comm),    rb(comm),    rh(comm),    rmu(comm),
                        dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
+                       dx(comm),    dy(comm),    dz(comm),    ds(comm),
+                       dzAffScaled(comm), dsAffScaled(comm);
 
     DistMultiVec<Real> reg(comm);
     reg.Resize( n+m+k, 1 );
@@ -962,25 +932,21 @@ void Mehrotra
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), 
-                       dzError(comm), dmuError(comm),
-                       dzScaled(comm), dsScaled(comm),
-                       wRootInv(comm);
+                       dzError(comm), dmuError(comm);
 #endif
     for( Int numIts=0; ; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonSOC = NumNonSOC( s, orders, firstInds, cutoffPar );
-        const Int zNumNonSOC = NumNonSOC( z, orders, firstInds, cutoffPar );
-        if( sNumNonSOC > 0 || zNumNonSOC > 0 )
-            LogicError
-            (sNumNonSOC," members of s were nonpositive and ",
-             zNumNonSOC," members of z were nonpositive");
+        const Real minDet = lapack::MachineEpsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
+        ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
 
         // Compute the scaled variable, l, its inverse, and the duality measure
         // ====================================================================
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
         SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
         SOCInverse( l, lInv, orders, firstInds, cutoffPar );
         const Real mu = Dot(s,z) / k;
@@ -1098,6 +1064,10 @@ void Mehrotra
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
+        SOCApplyQuadratic
+        ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic
+        ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 #ifndef EL_RELEASE
         // Sanity checks
         // =============
@@ -1115,13 +1085,8 @@ void Mehrotra
         Axpy( Real(1), dsAff, dzError );
         const Real dzErrorNrm2 = Nrm2( dzError );
 
-        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic
-        ( wRoot, dzAff, dzScaled, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic
-        ( wRootInv, dsAff, dsScaled, orders, firstInds, cutoffPar );
-        dmuError = dzScaled;
-        Axpy( Real(1), dsScaled, dmuError );
+        dmuError = dzAffScaled;
+        Axpy( Real(1), dsAffScaled, dmuError );
         Axpy( Real(1), l, dmuError );
         const Real rmuNrm2 = Nrm2( rmu );
         const Real dmuErrorNrm2 = Nrm2( dmuError );
@@ -1138,27 +1103,23 @@ void Mehrotra
                  << dmuErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = 
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = 
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1), cutoffPar );
-        const Real alphaAffDual = 
+        Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print && commRank == 0 )
@@ -1166,22 +1127,23 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := inv(l) o (dsAff o dzAff - sigma*mu)
-        // -------------------------------------------
-        SOCApply( dsAff, dzAff, rmu, orders, firstInds, cutoffPar );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+        // --------------------------------------------------------------
+        SOCApplyQuadratic( wRootInv, dsAff, orders, firstInds );
+        SOCApplyQuadratic( wRoot,    dzAff, orders, firstInds );
+        SOCApply( dsAff, dzAff, rmu, orders, firstInds );
         SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds, cutoffPar );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS
-        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
+        SOCApply( lInv, rmu, orders, firstInds );
+        Axpy( Real(1), l, rmu );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
         if( commRank == 0 && ctrl.time )
             timer.Start();
         reg_qsd_ldl::SolveAfter
@@ -1192,37 +1154,21 @@ void Mehrotra
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds, 
           cutoffPar );
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = 
           MaxStepInSOC
           ( s, ds, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         Real alphaDual = 
           MaxStepInSOC
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
-        if( samePrimalDualStepLength )
-        {
-            alphaPri = alphaDual = 
-              Min(ctrl.maxStepRatio*Min(alphaPri,alphaDual),Real(1));
-        }
-        else
-        {
-            alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
-            alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        }
+        alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
+        alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaPri = " << alphaPri << "\n"
                  << "  alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );

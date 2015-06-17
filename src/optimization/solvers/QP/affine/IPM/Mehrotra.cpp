@@ -45,6 +45,8 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
 
+    const bool forceSameStep = true;
+
     // Equilibrate the QP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
@@ -217,25 +219,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rhNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print )
@@ -243,44 +241,34 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 ); 
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, rmu );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu = s o z + dsAff o dzAff - sigma*mu
+        // ---------------------------------------
+        DiagonalScale( LEFT, NORMAL, dsAff, dzAff );
+        Axpy( Real(1), dzAff, rmu );
         Shift( rmu, -sigma*mu );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, z, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
@@ -514,34 +502,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rhNrm2) << endl;
 #endif
  
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
-        if( forceSameStep )
-        {
-            const Real alphaAff = Min(alphaAffPri,alphaAffDual);
-            Axpy( alphaAff, dsAff, ds );
-            Axpy( alphaAff, dzAff, dz );
-        }
-        else
-        {
-            Axpy( alphaAffPri,  dsAff, ds );
-            Axpy( alphaAffDual, dzAff, dz );
-        }
+        Axpy( alphaAffPri,  dsAff, ds );
+        Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print && commRank == 0 )
@@ -549,59 +524,38 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, rmu ); 
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu = s o z + dsAff o dzAff - sigma*mu
+        // ---------------------------------------
+        DiagonalScale( LEFT, NORMAL, dsAff, dzAff );
+        Axpy( Real(1), dzAff, rmu );
         Shift( rmu, -sigma*mu );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, z, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
-        if( forceSameStep )
-        {
-            Real alpha = Min(alphaPri,alphaDual);
-            Axpy( alpha, dx, x );
-            Axpy( alpha, ds, s );
-            Axpy( alpha, dy, y );
-            Axpy( alpha, dz, z );
-        }
-        else
-        {
-            Axpy( alphaPri,  dx, x );
-            Axpy( alphaPri,  ds, s );
-            Axpy( alphaDual, dy, y );
-            Axpy( alphaDual, dz, z );
-        }
+        Axpy( alphaPri,  dx, x );
+        Axpy( alphaPri,  ds, s );
+        Axpy( alphaDual, dy, y );
+        Axpy( alphaDual, dz, z );
     }
 
     if( ctrl.outerEquil )
@@ -625,6 +579,8 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
+
+    const bool forceSameStep = true;
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto Q = QPre;
@@ -831,25 +787,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rhNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print )
@@ -857,44 +809,34 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, rmu );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu = s o z + dsAff o dzAff - sigma*mu
+        // ---------------------------------------
+        DiagonalScale( LEFT, NORMAL, dsAff, dzAff );
+        Axpy( Real(1), dzAff, rmu );
         Shift( rmu, -sigma*mu );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, z, d );
         reg_qsd_ldl::SolveAfter
         ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
@@ -925,6 +867,8 @@ void Mehrotra
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;
+
+    const bool forceSameStep = true;
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto Q = QPre;
@@ -1170,25 +1114,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rhNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps s and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and ds are used as temporaries
         ds = s;
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(ds,dz) / k;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print && commRank == 0 )
@@ -1196,21 +1136,19 @@ void Mehrotra
                  << ", mu = " << mu
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        Zeros( rh, k, 1 );
-        // r_mu := dsAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, rmu );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        Scale( Real(1)-sigma, rh );
+        // r_mu = s o z + dsAff o dzAff - sigma*mu
+        // ---------------------------------------
+        DiagonalScale( LEFT, NORMAL, dsAff, dzAff );
+        Axpy( Real(1), dzAff, rmu );
         Shift( rmu, -sigma*mu );
-        // Construct the new full KKT RHS
-        // ------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
+        KKTRHS( rc, rb, rh, rmu, z, d );
         if( commRank == 0 && ctrl.time )
             timer.Start();
         reg_qsd_ldl::SolveAfter
@@ -1219,25 +1157,17 @@ void Mehrotra
             cout << "  Corrector solver: " << timer.Stop() << " secs" << endl;
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-        Axpy( Real(1), dsAff, ds );
-
-        // Compute max [0,1/maxStepRatio] step which keeps s and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaPri = " << alphaPri
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
