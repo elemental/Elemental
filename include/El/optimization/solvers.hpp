@@ -552,7 +552,7 @@ template<typename Real>
 struct MehrotraCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real tol=Pow(Epsilon<Real>(),Real(0.3));
     Int maxIts=1000;
     Real maxStepRatio=0.99;
     RegQSDCtrl<Real> qsdCtrl;
@@ -601,7 +601,7 @@ template<typename Real>
 struct MehrotraCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real tol=Pow(Epsilon<Real>(),Real(0.3));
     Int maxIts=1000;
     Real maxStepRatio=0.99;
     RegQSDCtrl<Real> qsdCtrl;
