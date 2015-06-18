@@ -112,7 +112,7 @@ namespace {
 template<typename Real>
 Real ChooseStepLength
 ( Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
-  Real delta=lapack::MachineSafeMin<Real>() )
+  Real delta=lapack::MachineEpsilon<Real>() )
 {
     DEBUG_ONLY(CSE cse("ChooseStepLength"))
     if( y0 >= Real(0) && yDet >= Real(0) ) 
@@ -125,7 +125,8 @@ Real ChooseStepLength
     }
     else
     {
-        Real sqrtDiscrim = Sqrt((xTRy)*(xTRy)-xDet*yDet);
+        Real discrim = Max(xTRy*xTRy-xDet*yDet,Real(0));
+        Real sqrtDiscrim = Sqrt(discrim);
         Real plusRoot = (-xTRy+sqrtDiscrim)/yDet;
         Real minusRoot = (-xTRy-sqrtDiscrim)/yDet;
         Real minRoot = Min(plusRoot,minusRoot);

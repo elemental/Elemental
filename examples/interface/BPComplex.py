@@ -8,8 +8,8 @@
 #
 import El, time
 
-n0=10
-n1=10
+n0=20
+n1=20
 output = False
 display = True
 worldSize = El.mpi.WorldSize()
@@ -63,10 +63,12 @@ if output:
   El.Print( b, "b" )
 
 ctrl = El.BPCtrl_z()
+ctrl.ipmCtrl.mehrotraCtrl.tol = 1e-8
 ctrl.ipmCtrl.mehrotraCtrl.time = True
 ctrl.ipmCtrl.mehrotraCtrl.progress = True
 ctrl.ipmCtrl.mehrotraCtrl.outerEquil = False
 ctrl.ipmCtrl.mehrotraCtrl.innerEquil = True
+ctrl.ipmCtrl.mehrotraCtrl.qsdCtrl.progress = True
 startBP = time.clock()
 x = El.BP( A, b, ctrl )
 endBP = time.clock()

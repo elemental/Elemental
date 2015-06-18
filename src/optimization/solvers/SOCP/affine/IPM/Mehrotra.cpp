@@ -938,6 +938,7 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
+        // TODO: Let this be tunable
         const Real minDet = lapack::MachineEpsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
         ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );

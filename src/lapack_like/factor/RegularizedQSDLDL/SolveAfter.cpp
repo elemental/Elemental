@@ -15,11 +15,13 @@ namespace reg_qsd_ldl {
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
-( const SparseMatrix<F>& A,    const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,        Matrix<F>& b,
-  Base<F> relTol,                    Int maxRefineIts,
-  bool progress )
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
@@ -89,12 +91,14 @@ inline Int RegularizedSolveAfterNoPromote
 // and the sparse-direct factorization is of inv(diag(dR)) A inv(diag(dC)).
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int maxRefineIts,
-  bool progress )
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
@@ -169,23 +173,25 @@ inline Int RegularizedSolveAfterNoPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int maxRefineIts,
-  bool progress )
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
-    typedef Promote<Real> RealProm;
-    typedef Promote<F> FProm;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
 
-    Matrix<FProm> bProm, bOrigProm;
+    Matrix<PF> bProm, bOrigProm;
     Copy( b, bProm );
     Copy( b, bOrigProm );
-    const RealProm bNorm = Nrm2( bOrigProm );
+    const PReal bNorm = Nrm2( bOrigProm );
 
-    Matrix<RealProm> regProm;
+    Matrix<PReal> regProm;
     Copy( reg, regProm );
 
     // Compute the initial guess
@@ -193,20 +199,20 @@ inline Int RegularizedSolveAfterPromote
     ldl::MatrixNode<F> xNodal( invMap, info, b );
     ldl::SolveAfter( info, front, xNodal );
     xNodal.Push( invMap, info, b );
-    Matrix<FProm> xProm;
+    Matrix<PF> xProm;
     Copy( b, xProm );
 
-    SparseMatrix<FProm> AProm;
+    SparseMatrix<PF> AProm;
     Copy( A, AProm );
 
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<FProm> dxProm, yProm;
+        Matrix<PF> dxProm, yProm;
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-        Axpy( FProm(-1), yProm, bProm );
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        Axpy( PF(-1), yProm, bProm );
         auto errorNorm = Nrm2( bProm );
         if( progress )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -228,15 +234,15 @@ inline Int RegularizedSolveAfterPromote
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
-            Axpy( FProm(1), dxProm, xProm );
+            Axpy( PF(1), dxProm, xProm );
 
             // Check the new residual
             // ----------------------
             bProm = bOrigProm;
             yProm = xProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-            Axpy( FProm(-1), yProm, bProm );
+            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Axpy( PF(-1), yProm, bProm );
             auto newErrorNorm = Nrm2( bProm );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -255,27 +261,29 @@ inline Int RegularizedSolveAfterPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,        Matrix<F>& b,
-  Base<F> relTol,                   Int maxRefineIts,
-  bool progress )
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
-    typedef Promote<Real> RealProm;
-    typedef Promote<F> FProm;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
 
-    Matrix<FProm> bProm, bOrigProm;
+    Matrix<PF> bProm, bOrigProm;
     Copy( b, bProm );
     Copy( b, bOrigProm );
-    const RealProm bNorm = Nrm2( bOrigProm );
+    const PReal bNorm = Nrm2( bOrigProm );
 
-    Matrix<RealProm> dProm;
+    Matrix<PReal> dProm;
     Copy( d, dProm );
 
-    Matrix<RealProm> regProm;
+    Matrix<PReal> regProm;
     Copy( reg, regProm );
 
     // Compute the initial guess
@@ -286,22 +294,22 @@ inline Int RegularizedSolveAfterPromote
     xNodal.Push( invMap, info, b );
     DiagonalSolve( LEFT, NORMAL, d, b );
 
-    Matrix<FProm> xProm;
+    Matrix<PF> xProm;
     Copy( b, xProm );
 
-    SparseMatrix<FProm> AProm;
+    SparseMatrix<PF> AProm;
     Copy( A, AProm );
 
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<FProm> dxProm, yProm;
+        Matrix<PF> dxProm, yProm;
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, dProm, yProm );
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         DiagonalScale( LEFT, NORMAL, dProm, yProm );
-        Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-        Axpy( FProm(-1), yProm, bProm );
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        Axpy( PF(-1), yProm, bProm );
         auto errorNorm = Nrm2( bProm );
         if( progress )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -325,7 +333,7 @@ inline Int RegularizedSolveAfterPromote
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
-            Axpy( FProm(1), dxProm, xProm );
+            Axpy( PF(1), dxProm, xProm );
 
             // Check the new residual
             // ----------------------
@@ -334,8 +342,8 @@ inline Int RegularizedSolveAfterPromote
             DiagonalScale( LEFT, NORMAL, dProm, yProm );
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             DiagonalScale( LEFT, NORMAL, dProm, yProm );
-            Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-            Axpy( FProm(-1), yProm, bProm );
+            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Axpy( PF(-1), yProm, bProm );
             auto newErrorNorm = Nrm2( bProm );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -354,11 +362,13 @@ inline Int RegularizedSolveAfterPromote
 
 template<typename F>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,        Matrix<F>& b,
-  Base<F> relTol,                    Int maxRefineIts,
-  bool progress )
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
@@ -367,12 +377,14 @@ Int RegularizedSolveAfter
 
 template<typename F>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int maxRefineIts,
-  bool progress )
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
@@ -382,11 +394,13 @@ Int RegularizedSolveAfter
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int maxRefineIts,
-  bool progress )
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = A.Comm();
@@ -456,12 +470,14 @@ inline Int RegularizedSolveAfterNoPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap,           const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,         DistMultiVec<F>& b,
-  Base<F> relTol,                        Int maxRefineIts,
-  bool progress )
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = A.Comm();
@@ -539,26 +555,28 @@ inline Int RegularizedSolveAfterNoPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int maxRefineIts,
-  bool progress )
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
-    typedef Promote<Real> RealProm;
-    typedef Promote<F> FProm;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
 
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
-    DistMultiVec<FProm> bProm(comm), bOrigProm(comm);
+    DistMultiVec<PF> bProm(comm), bOrigProm(comm);
     Copy( b, bProm ); 
     Copy( b, bOrigProm );
     const auto bNorm = Nrm2( bProm );
 
-    DistMultiVec<RealProm> regProm(comm);
+    DistMultiVec<PReal> regProm(comm);
     Copy( reg, regProm );
 
     // Compute the initial guess
@@ -566,20 +584,20 @@ inline Int RegularizedSolveAfterPromote
     ldl::DistMultiVecNode<F> xNodal( invMap, info, b );
     ldl::SolveAfter( info, front, xNodal );
     xNodal.Push( invMap, info, b );
-    DistMultiVec<FProm> xProm(comm);
+    DistMultiVec<PF> xProm(comm);
     Copy( b, xProm );
 
-    DistSparseMatrix<FProm> AProm(comm);
+    DistSparseMatrix<PF> AProm(comm);
     Copy( A, AProm );
 
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<FProm> dxProm(comm), yProm(comm);
+        DistMultiVec<PF> dxProm(comm), yProm(comm);
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-        Axpy( FProm(-1), yProm, bProm );
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        Axpy( PF(-1), yProm, bProm );
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -600,15 +618,15 @@ inline Int RegularizedSolveAfterPromote
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
-            Axpy( FProm(1), dxProm, xProm );
+            Axpy( PF(1), dxProm, xProm );
 
             // Check the new residual
             // ----------------------
             bProm = bOrigProm;
             yProm = xProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-            Axpy( FProm(-1), yProm, bProm );
+            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Axpy( PF(-1), yProm, bProm );
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -627,30 +645,32 @@ inline Int RegularizedSolveAfterPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int maxRefineIts,
-  bool progress )
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
-    typedef Promote<Real> RealProm;
-    typedef Promote<F> FProm;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
 
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
 
-    DistMultiVec<FProm> bProm(comm), bOrigProm(comm);
+    DistMultiVec<PF> bProm(comm), bOrigProm(comm);
     Copy( b, bProm ); 
     Copy( b, bOrigProm );
     const auto bNorm = Nrm2( bProm );
 
-    DistMultiVec<RealProm> dProm(comm);
+    DistMultiVec<PReal> dProm(comm);
     Copy( d, dProm );
 
-    DistMultiVec<RealProm> regProm(comm);
+    DistMultiVec<PReal> regProm(comm);
     Copy( reg, regProm );
 
     // Compute the initial guess
@@ -661,22 +681,22 @@ inline Int RegularizedSolveAfterPromote
     xNodal.Push( invMap, info, b );
     DiagonalSolve( LEFT, NORMAL, d, b );
 
-    DistMultiVec<FProm> xProm(comm);
+    DistMultiVec<PF> xProm(comm);
     Copy( b, xProm );
 
-    DistSparseMatrix<FProm> AProm(comm);
+    DistSparseMatrix<PF> AProm(comm);
     Copy( A, AProm );
 
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<FProm> dxProm(comm), yProm(comm);
+        DistMultiVec<PF> dxProm(comm), yProm(comm);
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, dProm, yProm );
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         DiagonalScale( LEFT, NORMAL, dProm, yProm );
-        Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-        Axpy( FProm(-1), yProm, bProm );
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        Axpy( PF(-1), yProm, bProm );
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -699,7 +719,7 @@ inline Int RegularizedSolveAfterPromote
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
-            Axpy( FProm(1), dxProm, xProm );
+            Axpy( PF(1), dxProm, xProm );
 
             // Check the new residual
             // ----------------------
@@ -708,8 +728,8 @@ inline Int RegularizedSolveAfterPromote
             DiagonalScale( LEFT, NORMAL, dProm, yProm );
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             DiagonalScale( LEFT, NORMAL, dProm, yProm );
-            Multiply( NORMAL, FProm(1), AProm, xProm, FProm(1), yProm );
-            Axpy( FProm(-1), yProm, bProm );
+            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Axpy( PF(-1), yProm, bProm );
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -728,11 +748,13 @@ inline Int RegularizedSolveAfterPromote
 
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int maxRefineIts,
-  bool progress )
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
@@ -741,12 +763,14 @@ Int RegularizedSolveAfter
 
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int maxRefineIts,
-  bool progress )
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
@@ -755,11 +779,13 @@ Int RegularizedSolveAfter
 
 template<typename F>
 Int IRSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int maxRefineIts,
-  bool progress )
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     auto bOrig = b;
@@ -818,12 +844,14 @@ Int IRSolveAfter
 
 template<typename F>
 Int IRSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int maxRefineIts,
-  bool progress )
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     auto bOrig = b;
@@ -883,11 +911,13 @@ Int IRSolveAfter
 
 template<typename F>
 Int IRSolveAfter
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int maxRefineIts,
-  bool progress )
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     mpi::Comm comm = A.Comm();
@@ -951,12 +981,14 @@ Int IRSolveAfter
 
 template<typename F>
 Int IRSolveAfter
-( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,           const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,        DistMultiVec<F>& b,
-  Base<F> relTol,                        Int maxRefineIts,
-  bool progress )
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::IRSolveAfter"))
     mpi::Comm comm = A.Comm();
@@ -1021,12 +1053,14 @@ Int IRSolveAfter
 
 template<typename F>
 Int LGMRESSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int k,
-  Base<F> relTolRefine,             Int maxRefineIts,
-  bool progress )
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -1118,7 +1152,7 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1;
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -1218,13 +1252,15 @@ Int LGMRESSolveAfter
 
 template<typename F>
 Int LGMRESSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int k,
-  Base<F> relTolRefine,             Int maxRefineIts,
-  bool progress )
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -1316,7 +1352,7 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1;
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -1416,12 +1452,14 @@ Int LGMRESSolveAfter
 
 template<typename F>
 Int LGMRESSolveAfter
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int k,
-  Base<F> relTolRefine,                 Int maxRefineIts,
-  bool progress )
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -1521,7 +1559,7 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1;
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -1621,13 +1659,15 @@ Int LGMRESSolveAfter
 
 template<typename F>
 Int LGMRESSolveAfter
-( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,           const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,        DistMultiVec<F>& b,
-  Base<F> relTol,                        Int k,
-  Base<F> relTolRefine,                  Int maxRefineIts,
-  bool progress )
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -1727,7 +1767,7 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1;
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -1832,12 +1872,14 @@ Int LGMRESSolveAfter
 
 template<typename F>
 Int FGMRESSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int k,
-  Base<F> relTolRefine,             Int maxRefineIts,
-  bool progress )
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -1929,7 +1971,7 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1;
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -2029,13 +2071,15 @@ Int FGMRESSolveAfter
 
 template<typename F>
 Int FGMRESSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
-  Base<F> relTol,                   Int k,
-  Base<F> relTolRefine,             Int maxRefineIts,
-  bool progress )
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2127,7 +2171,7 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1; 
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -2227,12 +2271,14 @@ Int FGMRESSolveAfter
 
 template<typename F>
 Int FGMRESSolveAfter
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
-  Base<F> relTol,                       Int k,
-  Base<F> relTolRefine,                 Int maxRefineIts,
-  bool progress )
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2335,7 +2381,7 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1;
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -2435,13 +2481,15 @@ Int FGMRESSolveAfter
 
 template<typename F>
 Int FGMRESSolveAfter
-( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,           const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,         DistMultiVec<F>& b,
-  Base<F> relTol,                         Int k,
-  Base<F> relTolRefine,                   Int maxRefineIts,
-  bool progress )
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
+  Base<F> relTol,       Int k,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2544,7 +2592,7 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                RuntimeError("Lucky breakdowns not yet handled");
+                k = j+1;
             if( j+1 != k )
             {
                 // v_{j+1} := w / delta
@@ -2646,9 +2694,12 @@ Int FGMRESSolveAfter
 
 template<typename F>
 Int SolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
@@ -2680,10 +2731,13 @@ Int SolveAfter
 
 template<typename F>
 Int SolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& b,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
@@ -2715,9 +2769,12 @@ Int SolveAfter
 
 template<typename F>
 Int SolveAfter
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& b,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
@@ -2749,10 +2806,13 @@ Int SolveAfter
 
 template<typename F>
 Int SolveAfter
-( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,           const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,        DistMultiVec<F>& b,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& b,
   const RegQSDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::SolveAfter"))
@@ -2784,52 +2844,72 @@ Int SolveAfter
 
 #define PROTO(F) \
   template Int RegularizedSolveAfter \
-  ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg, \
-    const vector<Int>& invMap,  const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front,       Matrix<F>& b, \
-    Base<F> relTol,             Int maxRefineIts, \
-    bool progress ); \
+  ( const SparseMatrix<F>& A, \
+    const Matrix<Base<F>>& reg, \
+    const vector<Int>& invMap, \
+    const ldl::NodeInfo& info, \
+    const ldl::Front<F>& front, \
+          Matrix<F>& b, \
+    Base<F> relTol, Int maxRefineIts, bool progress ); \
   template Int RegularizedSolveAfter \
-  ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg, \
+  ( const SparseMatrix<F>& A, \
+    const Matrix<Base<F>>& reg, \
     const Matrix<Base<F>>& d, \
-    const vector<Int>& invMap,  const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front,       Matrix<F>& b, \
-    Base<F> relTol,             Int maxRefineIts, \
-    bool progress ); \
+    const vector<Int>& invMap, \
+    const ldl::NodeInfo& info, \
+    const ldl::Front<F>& front, \
+          Matrix<F>& b, \
+    Base<F> relTol, Int maxRefineIts, bool progress ); \
   template Int RegularizedSolveAfter \
-  ( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg, \
-    const DistMap& invMap,          const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front,       DistMultiVec<F>& b, \
-    Base<F> relTol,                Int maxRefineIts, \
-    bool progress ); \
+  ( const DistSparseMatrix<F>& A, \
+    const DistMultiVec<Base<F>>& reg, \
+    const DistMap& invMap, \
+    const ldl::DistNodeInfo& info, \
+    const ldl::DistFront<F>& front, \
+          DistMultiVec<F>& b, \
+    Base<F> relTol, Int maxRefineIts, bool progress ); \
   template Int RegularizedSolveAfter \
-  ( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg, \
+  ( const DistSparseMatrix<F>& A, \
+    const DistMultiVec<Base<F>>& reg, \
     const DistMultiVec<Base<F>>& d, \
-    const DistMap& invMap,           const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front,        DistMultiVec<F>& b, \
-    Base<F> relTol,                  Int maxRefineIts, \
-    bool progress ); \
+    const DistMap& invMap, \
+    const ldl::DistNodeInfo& info, \
+    const ldl::DistFront<F>& front, \
+          DistMultiVec<F>& b, \
+    Base<F> relTol, Int maxRefineIts, bool progress ); \
   template Int SolveAfter \
-  ( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg, \
-    const vector<Int>& invMap,  const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front,       Matrix<F>& b, \
+  ( const SparseMatrix<F>& A, \
+    const Matrix<Base<F>>& reg, \
+    const vector<Int>& invMap, \
+    const ldl::NodeInfo& info, \
+    const ldl::Front<F>& front, \
+          Matrix<F>& b, \
     const RegQSDCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
-  ( const SparseMatrix<F>& A,  const Matrix<Base<F>>& reg, \
+  ( const SparseMatrix<F>& A, \
+    const Matrix<Base<F>>& reg, \
     const Matrix<Base<F>>& d, \
-    const vector<Int>& invMap,  const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front,       Matrix<F>& b, \
+    const vector<Int>& invMap, \
+    const ldl::NodeInfo& info, \
+    const ldl::Front<F>& front, \
+          Matrix<F>& b, \
     const RegQSDCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
-  ( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg, \
-    const DistMap& invMap,          const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front,       DistMultiVec<F>& b, \
+  ( const DistSparseMatrix<F>& A, \
+    const DistMultiVec<Base<F>>& reg, \
+    const DistMap& invMap, \
+    const ldl::DistNodeInfo& info, \
+    const ldl::DistFront<F>& front, \
+          DistMultiVec<F>& b, \
     const RegQSDCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
-  ( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg, \
+  ( const DistSparseMatrix<F>& A, \
+    const DistMultiVec<Base<F>>& reg, \
     const DistMultiVec<Base<F>>& d, \
-    const DistMap& invMap,          const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front,       DistMultiVec<F>& b, \
+    const DistMap& invMap, \
+    const ldl::DistNodeInfo& info, \
+    const ldl::DistFront<F>& front, \
+          DistMultiVec<F>& b, \
     const RegQSDCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
