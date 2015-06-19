@@ -723,9 +723,11 @@ void Mehrotra
         // ---------------------------------------
         KKT( A, G, w, orders, firstInds, labels, JOrig, false );
         J = JOrig;
+        // This feature is currently experimental
+        const bool innerGeomEquil = ( innerEquil && MaxNorm(J) >= 10000 );
         SymmetricEquil
         ( J, dInner,
-          false, ctrl.innerEquil, 
+          innerGeomEquil, ctrl.innerEquil, 
           ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
         UpdateRealPartOfDiagonal( J, Real(1), reg );
         if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
@@ -1022,9 +1024,11 @@ void Mehrotra
         J = JOrig;
         if( commRank == 0 && ctrl.time )
             timer.Start();
+        // This feature is currently experimental
+        const bool innerGeomEquil = ( innerEquil && MaxNorm(J) >= 10000 );
         SymmetricEquil
         ( J, dInner, 
-          false, ctrl.innerEquil, 
+          innerGeomEquil, ctrl.innerEquil, 
           ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
         if( commRank == 0 && ctrl.time )
             cout << "  Equilibration: " << timer.Stop() << " secs" << endl;
