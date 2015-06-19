@@ -273,6 +273,8 @@ void Mehrotra
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+            LogicError("Zero step size computed before convergence");
     }
 }
 
@@ -567,6 +569,8 @@ void Mehrotra
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+            LogicError("Zero step size computed before convergence");
     }
 }
 
@@ -724,7 +728,7 @@ void Mehrotra
         KKT( A, G, w, orders, firstInds, labels, JOrig, false );
         J = JOrig;
         // This feature is currently experimental
-        const bool innerGeomEquil = ( innerEquil && MaxNorm(J) >= 10000 );
+        const bool innerGeomEquil = ( ctrl.innerEquil && MaxNorm(J) >= 10000 );
         SymmetricEquil
         ( J, dInner,
           innerGeomEquil, ctrl.innerEquil, 
@@ -845,6 +849,8 @@ void Mehrotra
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+            LogicError("Zero step size computed before convergence");
     }
 }
 
@@ -1025,7 +1031,7 @@ void Mehrotra
         if( commRank == 0 && ctrl.time )
             timer.Start();
         // This feature is currently experimental
-        const bool innerGeomEquil = ( innerEquil && MaxNorm(J) >= 10000 );
+        const bool innerGeomEquil = ( ctrl.innerEquil && MaxNorm(J) >= 10000 );
         SymmetricEquil
         ( J, dInner, 
           innerGeomEquil, ctrl.innerEquil, 
@@ -1178,6 +1184,8 @@ void Mehrotra
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+            LogicError("Zero step size computed before convergence");
     }
 }
 

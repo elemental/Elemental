@@ -109,19 +109,21 @@ namespace El {
 
 namespace {
 
+// Consider a lower bound?
 template<typename Real>
 Real ChooseStepLength
 ( Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
   Real delta=lapack::MachineEpsilon<Real>() )
 {
     DEBUG_ONLY(CSE cse("ChooseStepLength"))
+    Real step;
     if( y0 >= Real(0) && yDet >= Real(0) ) 
     {
-        return upperBound;
+        step = upperBound;
     }
     else if( Abs(yDet) <= delta )
     {
-        return Min(-xDet/(2*xTRy),upperBound);
+        step = -xDet/(2*xTRy);
     }
     else
     {
@@ -132,10 +134,13 @@ Real ChooseStepLength
         Real minRoot = Min(plusRoot,minusRoot);
         Real maxRoot = Max(plusRoot,minusRoot);
         if( minRoot >= Real(0) )
-            return Min(minRoot,upperBound);
+            step = minRoot;
         else
-            return Min(maxRoot,upperBound);
+            step = maxRoot;
     }
+    step = Max(step,Real(0));
+    step = Min(step,upperBound);
+    return step;
 }
 
 } // anonymous namespace
