@@ -77,6 +77,7 @@ void Mehrotra
     ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
+    Real relError = 1;
     Matrix<Real> J, d, 
                  w, wRoot, wRootInv,
                  l, lInv,
@@ -89,7 +90,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, dmuError;
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -139,6 +140,7 @@ void Mehrotra
 
         // Now check the pieces
         // --------------------
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -149,15 +151,13 @@ void Mehrotra
                  << rcConv << "\n"
                  << "  || r_h ||_2 / (1 + || h ||_2)   = "
                  << rhConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && 
-            rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
 
         // r_mu := l
         // =========
@@ -172,7 +172,16 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         LDL( J, dSub, p, false );
-        ldl::SolveAfter( J, dSub, p, d, false );
+        try { ldl::SolveAfter( J, dSub, p, d, false ); }
+        catch( const exception& e )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff );
@@ -251,7 +260,16 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
-        ldl::SolveAfter( J, dSub, p, d, false );
+        try { ldl::SolveAfter( J, dSub, p, d, false ); }
+        catch( const exception& e )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds );
         // TODO: Residual checks
@@ -274,7 +292,14 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
-            LogicError("Zero step size computed before convergence");
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
+        }
     }
 }
 
@@ -355,6 +380,7 @@ void Mehrotra
     ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar );
 
+    Real relError = 1;
     DistMatrix<Real> J(grid),     d(grid),     
                      w(grid),     wRoot(grid), wRootInv(grid),
                      l(grid),     lInv(grid),
@@ -379,7 +405,7 @@ void Mehrotra
       dxError(grid), dyError(grid), dzError(grid), dmuError(grid);
     dzError.AlignWith( s );
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -428,6 +454,7 @@ void Mehrotra
 
         // Now check the pieces
         // --------------------
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print && commRank == 0 )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -438,15 +465,13 @@ void Mehrotra
                  << rcConv << "\n"
                  << "  || r_h ||_2 / (1 + || h ||_2)   = "
                  << rhConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol &&
-            rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
 
         // r_mu := l
         // =========
@@ -462,7 +487,16 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         LDL( J, dSub, p, false );
-        ldl::SolveAfter( J, dSub, p, d, false );
+        try { ldl::SolveAfter( J, dSub, p, d, false ); }
+        catch( const exception& e )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
@@ -544,7 +578,16 @@ void Mehrotra
         // ---------------------------------------------
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
-        ldl::SolveAfter( J, dSub, p, d, false );
+        try { ldl::SolveAfter( J, dSub, p, d, false ); }
+        catch( const exception& e )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds,
           cutoffPar );
@@ -570,7 +613,14 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
-            LogicError("Zero step size computed before convergence");
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
+        }
     }
 }
 
@@ -643,11 +693,12 @@ void Mehrotra
             reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
     }
 
+    Real relError = 1;
     Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, dmuError;
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -696,6 +747,7 @@ void Mehrotra
 
         // Now check the pieces
         // --------------------
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -706,15 +758,13 @@ void Mehrotra
                  << rcConv << "\n"
                  << "  || r_h ||_2 / (1 + || h ||_2)   = "
                  << rhConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol &&
-            rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
 
         // r_mu := l
         // =========
@@ -745,8 +795,20 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        try 
+        {
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        } 
+        catch( const exception& e )
+        {
+            if( relError < ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff );
@@ -827,8 +889,20 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        try 
+        {
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        } 
+        catch( const exception& e )
+        {
+            if( relError < ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds );
 
@@ -850,7 +924,14 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
-            LogicError("Zero step size computed before convergence");
+        {
+            if( relError < ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
+        }
     }
 }
 
@@ -937,6 +1018,7 @@ void Mehrotra
             reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
     }
 
+    Real relError = 1;
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), 
@@ -992,6 +1074,7 @@ void Mehrotra
 
         // Now check the pieces
         // --------------------
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print && commRank == 0 )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -1002,15 +1085,13 @@ void Mehrotra
                  << rcConv << "\n"
                  << "  || r_h ||_2 / (1 + || h ||_2)   = "
                  << rhConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol &&
-            rcConv  <= ctrl.tol && rhConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
 
         // r_mu := l
         // =========
@@ -1068,8 +1149,20 @@ void Mehrotra
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        try
+        {
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        }
+        catch( const std::exception& e )
+        {
+            if( relError < ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         if( commRank == 0 && ctrl.time )
             cout << "  Affine: " << timer.Stop() << " secs" << endl;
         ExpandSolution
@@ -1157,8 +1250,20 @@ void Mehrotra
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        try
+        {
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+        }
+        catch( const exception& e )
+        {
+            if( relError < ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
         if( commRank == 0 && ctrl.time )
             cout << "  Corrector: " << timer.Stop() << " secs" << endl;
         ExpandSolution
@@ -1185,7 +1290,14 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
-            LogicError("Zero step size computed before convergence");
+        {
+            if( relError < ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
+        }
     }
 }
 

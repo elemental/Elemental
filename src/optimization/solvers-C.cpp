@@ -438,7 +438,8 @@ ElError ElSOCPDirectMehrotraCtrlDefault_s( ElSOCPDirectMehrotraCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 3e-3;
+    ctrl->minTol = 1e-2;
+    ctrl->targetTol = 1e-3;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
@@ -455,7 +456,8 @@ ElError ElSOCPDirectMehrotraCtrlDefault_d( ElSOCPDirectMehrotraCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-5;
+    ctrl->minTol = 1e-5;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
@@ -488,7 +490,8 @@ ElError ElSOCPAffineMehrotraCtrlDefault_s( ElSOCPAffineMehrotraCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 3e-3;
+    ctrl->minTol = 1e-2;
+    ctrl->targetTol = 1e-3;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
@@ -505,7 +508,8 @@ ElError ElSOCPAffineMehrotraCtrlDefault_d( ElSOCPAffineMehrotraCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-5;
+    ctrl->minTol = 1e-5;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );

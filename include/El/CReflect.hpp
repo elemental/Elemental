@@ -2534,7 +2534,8 @@ inline ElSOCPDirectMehrotraCtrl_s CReflect
     ElSOCPDirectMehrotraCtrl_s ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2552,7 +2553,8 @@ inline ElSOCPDirectMehrotraCtrl_d CReflect
     ElSOCPDirectMehrotraCtrl_d ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2570,7 +2572,8 @@ inline socp::direct::MehrotraCtrl<float> CReflect
     socp::direct::MehrotraCtrl<float> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
@@ -2588,7 +2591,8 @@ inline socp::direct::MehrotraCtrl<double> CReflect
     socp::direct::MehrotraCtrl<double> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
@@ -2638,7 +2642,8 @@ inline ElSOCPAffineMehrotraCtrl_s CReflect
     ElSOCPAffineMehrotraCtrl_s ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2656,7 +2661,8 @@ inline ElSOCPAffineMehrotraCtrl_d CReflect
     ElSOCPAffineMehrotraCtrl_d ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2674,7 +2680,8 @@ inline socp::affine::MehrotraCtrl<float> CReflect
     socp::affine::MehrotraCtrl<float> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
@@ -2692,7 +2699,8 @@ inline socp::affine::MehrotraCtrl<double> CReflect
     socp::affine::MehrotraCtrl<double> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);

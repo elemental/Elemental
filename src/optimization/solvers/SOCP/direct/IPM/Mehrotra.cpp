@@ -56,7 +56,8 @@ void Mehrotra
     socp::affine::MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.tol = ctrl.tol;
+    affineCtrl.minTol = ctrl.minTol;
+    affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;
@@ -99,7 +100,8 @@ void Mehrotra
     socp::affine::MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.tol = ctrl.tol;
+    affineCtrl.minTol = ctrl.minTol;
+    affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;
@@ -141,7 +143,8 @@ void Mehrotra
     socp::affine::MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.tol = ctrl.tol;
+    affineCtrl.minTol = ctrl.minTol;
+    affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;
@@ -184,7 +187,8 @@ void Mehrotra
     socp::affine::MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.tol = ctrl.tol;
+    affineCtrl.minTol = ctrl.minTol;
+    affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;

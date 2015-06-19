@@ -683,7 +683,8 @@ lib.ElSOCPDirectMehrotraCtrlDefault_d.argtypes = \
   [c_void_p,bType]
 class SOCPDirectMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("maxStepRatio",sType),
               ("qsdCtrl",RegQSDCtrl_s),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -692,7 +693,8 @@ class SOCPDirectMehrotraCtrl_s(ctypes.Structure):
     lib.ElSOCPDirectMehrotraCtrlDefault_s(pointer(self))
 class SOCPDirectMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("maxStepRatio",dType),
               ("qsdCtrl",RegQSDCtrl_d),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -806,7 +808,8 @@ lib.ElSOCPAffineMehrotraCtrlDefault_d.argtypes = \
   [c_void_p]
 class SOCPAffineMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("maxStepRatio",sType),
               ("qsdCtrl",RegQSDCtrl_s),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -815,7 +818,8 @@ class SOCPAffineMehrotraCtrl_s(ctypes.Structure):
     lib.ElSOCPAffineMehrotraCtrlDefault_s(pointer(self))
 class SOCPAffineMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("maxStepRatio",dType),
               ("qsdCtrl",RegQSDCtrl_d),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),

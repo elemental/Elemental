@@ -1899,6 +1899,8 @@ Int FGMRESSolveAfter
     if( origResidNorm == Real(0) )
         return 0;
 
+    // TODO: Constrain the maximum number of iterations
+
     Int iter=0;
     Int maxLargeRefines=0;
     bool converged = false;
@@ -2099,6 +2101,7 @@ Int FGMRESSolveAfter
     if( origResidNorm == Real(0) )
         return 0;
 
+    // TODO: Constrain the maximum number of iterations
     Int iter=0;
     Int maxLargeRefines=0;
     bool converged = false;
@@ -2301,6 +2304,7 @@ Int FGMRESSolveAfter
     if( origResidNorm == Real(0) )
         return 0;
 
+    // TODO: Constrain the maximum number of iterations
     Int iter=0;
     Int maxLargeRefines=0;
     bool converged = false;
@@ -2512,6 +2516,7 @@ Int FGMRESSolveAfter
     if( origResidNorm == Real(0) )
         return 0;
 
+    // TODO: Constrain the maximum number of iterations
     Int iter=0;
     Int maxLargeRefines=0;
     bool converged = false;

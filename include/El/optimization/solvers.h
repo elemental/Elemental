@@ -1009,7 +1009,8 @@ EL_EXPORT ElError ElSOCPDirectDistSparse_d
 
 typedef struct {
   bool primalInit, dualInit;
-  float tol;
+  float minTol;
+  float targetTol;
   ElInt maxIts;
   float maxStepRatio;
   ElRegQSDCtrl_s qsdCtrl;
@@ -1022,7 +1023,8 @@ typedef struct {
 
 typedef struct {
   bool primalInit, dualInit;
-  double tol;
+  double minTol;
+  double targetTol;
   ElInt maxIts;
   double maxStepRatio;
   ElRegQSDCtrl_d qsdCtrl;
@@ -1256,7 +1258,8 @@ EL_EXPORT ElError ElSOCPAffineDistSparse_d
    ^^^^^^^^^^^^^^^ */
 typedef struct {
   bool primalInit, dualInit;
-  float tol;
+  float minTol;
+  float targetTol;
   ElInt maxIts;
   float maxStepRatio;
   ElRegQSDCtrl_s qsdCtrl;
@@ -1269,7 +1272,8 @@ typedef struct {
 
 typedef struct {
   bool primalInit, dualInit;
-  double tol;
+  double minTol;
+  double targetTol;
   ElInt maxIts;
   double maxStepRatio;
   ElRegQSDCtrl_d qsdCtrl;

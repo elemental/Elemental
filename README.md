@@ -23,7 +23,7 @@ Elemental supports a wide collection of distributed-memory functionality,
 including:
 
 **Convex optimization**:
-* Dense and sparse Interior Point Methods for Linear and Quadratic Programs
+* Dense and sparse Interior Point Methods for Linear, Quadratic, and Second-Order Cone Programs
     - Basis Pursuit
     - Chebyshev Points
     - Dantzig selectors
@@ -122,11 +122,13 @@ attempts to automatically download and install the library.
 ### Third-party interfaces
 
 In addition to the C++11, C, and Python interfaces included within the project,
-two external interfaces are currently being externally developed:
+three external interfaces are currently being externally developed:
 
 * [R-El](https://github.com/rocanale/R-Elemental) is an [R](http://www.r-project.org) interface to Elemental developed by [Rodrigo Canales](https://github.com/rocanale) and [Paolo Bientinesi](http://hpac.rwth-aachen.de/~pauldj/)
 
 * [Elemental.jl](https://github.com/JuliaParallel/Elemental.jl) is an (in-progress) [Julia](http://julialang.org) interface to Elemental being developed by [Jake Bolewski](https://github.com/jakebolewski), [Jiahao Chen](https://jiahao.github.io), and [Andreas Noack](http://andreasnoack.github.io/academiccv.html).
+
+* [CVXPY](https://github.com/cvxgrp/cvxpy) is a Python-embedded modeling language for convex optimization problems with an (in-progress) interface to Elemental's distributed Interior Point Methods. This effort is being led by [Steven Diamond](http://web.stanford.edu/~stevend2/).
 
 ### Related open-source projects
 

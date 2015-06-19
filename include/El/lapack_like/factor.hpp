@@ -258,7 +258,7 @@ struct RegQSDCtrl
     RegQSDRefineAlg alg=REG_REFINE_FGMRES;
     Real relTol;
     Real relTolRefine;
-    Int maxRefineIts=50;
+    Int maxRefineIts=15;
     Int restart=10;
     bool progress=false;
 
