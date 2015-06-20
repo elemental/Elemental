@@ -20,7 +20,8 @@ ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl )
     ctrl->alg = EL_REG_REFINE_FGMRES;
     ctrl->relTol = Pow(eps,float(0.5));
     ctrl->relTolRefine = Pow(eps,float(0.5));
-    ctrl->maxRefineIts = 50;
+    ctrl->maxIts = 15;
+    ctrl->maxRefineIts = 15;
     ctrl->restart = 10;
     ctrl->progress = false;
     return EL_SUCCESS;
@@ -34,7 +35,8 @@ ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl )
     ctrl->alg = EL_REG_REFINE_FGMRES;
     ctrl->relTol = Pow(eps,0.5);
     ctrl->relTolRefine = Pow(eps,0.5);
-    ctrl->maxRefineIts = 50;
+    ctrl->maxIts = 15;
+    ctrl->maxRefineIts = 15;
     ctrl->restart = 10;
     ctrl->progress = false;
     return EL_SUCCESS;

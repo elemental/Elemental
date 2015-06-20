@@ -1059,7 +1059,7 @@ Int LGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
@@ -1089,10 +1089,10 @@ Int LGMRESSolveAfter
     {
         if( progress )
             cout << "  Starting GMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
         
         // x0 := x
         // =======
@@ -1117,12 +1117,12 @@ Int LGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
+        // Run one round of GMRES(restart)
         // =========================
-        for( Int j=0; j<k; ++j )
+        for( Int j=0; j<restart; ++j )
         {
             // w := A v_j
             // ----------
@@ -1152,8 +1152,8 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1;
-            if( j+1 != k )
+                restart = j+1;
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1244,6 +1244,8 @@ Int LGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("LGMRES did not converge");
         }
     }
     b = x;
@@ -1259,7 +1261,7 @@ Int LGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
@@ -1289,10 +1291,10 @@ Int LGMRESSolveAfter
     {
         if( progress )
             cout << "  Starting GMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
         
         // x0 := x
         // =======
@@ -1317,12 +1319,12 @@ Int LGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
+        // Run one round of GMRES(restart)
         // =========================
-        for( Int j=0; j<k; ++j )
+        for( Int j=0; j<restart; ++j )
         {
             // w := A v_j
             // ----------
@@ -1352,8 +1354,8 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1;
-            if( j+1 != k )
+                restart = j+1;
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1444,6 +1446,8 @@ Int LGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("LGMRES did not converge");
         }
     }
     b = x;
@@ -1458,7 +1462,7 @@ Int LGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
@@ -1490,10 +1494,10 @@ Int LGMRESSolveAfter
     {
         if( progress && commRank == 0 )
             cout << "  Starting GMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
         // TODO: Extend DistMultiVec so that it can be directly manipulated
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
@@ -1523,12 +1527,12 @@ Int LGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
-        // =========================
-        for( Int j=0; j<k; ++j )
+        // Run one round of GMRES(restart)
+        // ===============================
+        for( Int j=0; j<restart; ++j )
         {
             // w := A v_j
             // ----------
@@ -1559,8 +1563,8 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1;
-            if( j+1 != k )
+                restart = j+1;
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1651,6 +1655,8 @@ Int LGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("LGMRES did not converge");
         }
     }
     b = x;
@@ -1666,7 +1672,7 @@ Int LGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::LGMRESSolveAfter"))
@@ -1698,10 +1704,10 @@ Int LGMRESSolveAfter
     {
         if( progress && commRank == 0 )
             cout << "  Starting GMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
         // TODO: Extend DistMultiVec so that it can be directly manipulated
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
@@ -1731,12 +1737,12 @@ Int LGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
-        // =========================
-        for( Int j=0; j<k; ++j )
+        // Run one round of GMRES(restart)
+        // ===============================
+        for( Int j=0; j<restart; ++j )
         {
             // w := A v_j
             // ----------
@@ -1767,8 +1773,8 @@ Int LGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1;
-            if( j+1 != k )
+                restart = j+1;
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1859,6 +1865,8 @@ Int LGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("LGMRES did not converge");
         }
     }
     b = x;
@@ -1878,7 +1886,7 @@ Int FGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
@@ -1911,11 +1919,11 @@ Int FGMRESSolveAfter
     {
         if( progress )
             cout << "  Starting FGMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
-        Zeros( Z, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
+        Zeros( Z, n, restart );
         
         // x0 := x
         // =======
@@ -1935,12 +1943,12 @@ Int FGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
-        // =========================
-        for( Int j=0; j<k; ++j )
+        // Run one round of GMRES(restart)
+        // ===============================
+        for( Int j=0; j<restart; ++j )
         {
             // z_j := inv(M) v_j
             // =================
@@ -1973,8 +1981,8 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1;
-            if( j+1 != k )
+                restart = j+1;
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2065,6 +2073,8 @@ Int FGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("FGMRES did not converge");
         }
     }
     b = x;
@@ -2080,7 +2090,7 @@ Int FGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
@@ -2112,11 +2122,11 @@ Int FGMRESSolveAfter
     {
         if( progress )
             cout << "  Starting FGMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
-        Zeros( Z, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
+        Zeros( Z, n, restart );
         
         // x0 := x
         // =======
@@ -2136,12 +2146,12 @@ Int FGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
-        // =========================
-        for( Int j=0; j<k; ++j )
+        // Run one round of GMRES(restart)
+        // ===============================
+        for( Int j=0; j<restart; ++j )
         {
             // z_j := inv(M) v_j
             // =================
@@ -2174,8 +2184,8 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1; 
-            if( j+1 != k )
+                restart = j+1; 
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2266,6 +2276,8 @@ Int FGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("FGMRES did not converge");
         }
     }
     b = x;
@@ -2280,7 +2292,7 @@ Int FGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
@@ -2315,11 +2327,11 @@ Int FGMRESSolveAfter
     {
         if( progress && commRank == 0 )
             cout << "  Starting FGMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
-        Zeros( Z, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
+        Zeros( Z, n, restart );
         // TODO: Extend DistMultiVec so that it can be directly manipulated
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
@@ -2345,12 +2357,12 @@ Int FGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
-        // =========================
-        for( Int j=0; j<k; ++j )
+        // Run one round of GMRES(restart)
+        // ===============================
+        for( Int j=0; j<restart; ++j )
         {
             // z_j := inv(M) v_j
             // =================
@@ -2385,8 +2397,8 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1;
-            if( j+1 != k )
+                restart = j+1;
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2477,6 +2489,8 @@ Int FGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("FGMRES did not converge");
         }
     }
     b = x;
@@ -2492,7 +2506,7 @@ Int FGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol,       Int k,
+  Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
@@ -2527,11 +2541,11 @@ Int FGMRESSolveAfter
     {
         if( progress && commRank == 0 )
             cout << "  Starting FGMRES iteration " << iter << endl;
-        Zeros( cs, k, 1 );
-        Zeros( sn, k, 1 );
-        Zeros( H,  k, k );
-        Zeros( V, n, k );
-        Zeros( Z, n, k );
+        Zeros( cs, restart, 1 );
+        Zeros( sn, restart, 1 );
+        Zeros( H,  restart, restart );
+        Zeros( V, n, restart );
+        Zeros( Z, n, restart );
         // TODO: Extend DistMultiVec so that it can be directly manipulated
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
@@ -2557,12 +2571,12 @@ Int FGMRESSolveAfter
 
         // t := beta e_0
         // =============
-        Zeros( t, k+1, 1 );
+        Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES(k)
-        // =========================
-        for( Int j=0; j<k; ++j )
+        // Run one round of GMRES(restart)
+        // ===============================
+        for( Int j=0; j<restart; ++j )
         {
             // z_j := inv(M) v_j
             // =================
@@ -2597,8 +2611,8 @@ Int FGMRESSolveAfter
             if( std::isnan(delta) )
                 RuntimeError("Arnoldi step produced a NaN");
             if( delta == Real(0) )
-                k = j+1;
-            if( j+1 != k )
+                restart = j+1;
+            if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2689,6 +2703,8 @@ Int FGMRESSolveAfter
                          << "relResidNorm=" << relResidNorm << endl;
             }
             ++iter;
+            if( iter == maxIts )
+                RuntimeError("FGMRES did not converge");
         }
     }
     b = x;
@@ -2713,12 +2729,14 @@ Int SolveAfter
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_IR:
         return IRSolveAfter
@@ -2751,12 +2769,14 @@ Int SolveAfter
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_IR:
         return IRSolveAfter
@@ -2788,12 +2808,14 @@ Int SolveAfter
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_IR:
         return IRSolveAfter
@@ -2826,12 +2848,14 @@ Int SolveAfter
     case REG_REFINE_FGMRES:
         return FGMRESSolveAfter
         ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTol, ctrl.restart, ctrl.relTolRefine, ctrl.maxRefineIts, 
+          ctrl.relTol, ctrl.restart, ctrl.maxIts,
+          ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
     case REG_REFINE_IR:
         return IRSolveAfter

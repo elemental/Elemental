@@ -377,6 +377,7 @@ typedef struct
   ElRegQSDRefineAlg alg;
   float relTol;
   float relTolRefine;
+  ElInt maxIts;
   ElInt maxRefineIts;
   ElInt restart;
   bool progress;
@@ -390,6 +391,7 @@ typedef struct
   ElRegQSDRefineAlg alg;
   double relTol;
   double relTolRefine;
+  ElInt maxIts;
   ElInt maxRefineIts;
   ElInt restart;
   bool progress;
