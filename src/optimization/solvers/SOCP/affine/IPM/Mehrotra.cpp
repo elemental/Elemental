@@ -163,16 +163,16 @@ void Mehrotra
         // ===================================
 
         // r_mu := l
-        // =========
+        // ---------
         rmu = l;
 
-        // Construct the full KKT system
-        // -----------------------------
+        // Construct the KKT system
+        // ------------------------
         KKT( A, G, w, orders, firstInds, labels, J );
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
 
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
+        // Solve for the direction
+        // -----------------------
         try 
         { 
             LDL( J, dSub, p, false );
