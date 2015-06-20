@@ -35,12 +35,16 @@ namespace direct {
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& APre, 
-  const Matrix<Real>& bPre, const Matrix<Real>& cPre,
-        Matrix<Real>& x,          Matrix<Real>& y, 
+  const Matrix<Real>& bPre, 
+  const Matrix<Real>& cPre,
+        Matrix<Real>& x, 
+        Matrix<Real>& y, 
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
+
+    const bool forceSameStep = false;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -77,6 +81,7 @@ void Mehrotra
     Initialize
     ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
+    Real relError = 1;
     Matrix<Real> J, d, 
                  rb,    rc,    rmu,
                  dxAff, dyAff, dzAff,
@@ -86,7 +91,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -124,6 +129,7 @@ void Mehrotra
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -132,64 +138,97 @@ void Mehrotra
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // r_mu := x o z
-        // =============
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, x, rmu );
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving minTol=",ctrl.minTol);
 
         // Compute the affine search direction
         // ===================================
+
+        // r_mu := x o z
+        // -------------
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
+
         if( ctrl.system == FULL_KKT )
         {
-            // Construct the full KKT system
-            // -----------------------------
+            // Construct the KKT system
+            // ------------------------
             KKT( A, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( J, dSub, p, false );
+                ldl::SolveAfter( J, dSub, p, d, false );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the "augmented" KKT system
-            // ------------------------------------
+            // Construct the KKT system
+            // ------------------------
             AugmentedKKT( A, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the step
+            // ------------------
+            try
+            {
+                LDL( J, dSub, p, false );
+                ldl::SolveAfter( J, dSub, p, d, false );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
-            // Construct the "normal" KKT system
-            // ---------------------------------
+            // Construct the KKT system
+            // ------------------------
             NormalKKT( A, x, z, J );
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, dyAff, false );
+            // Solve for the step
+            // ------------------
+            try
+            {
+                LDL( J, dSub, p, false );
+                ldl::SolveAfter( J, dSub, p, dyAff, false );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         Real dxErrorNrm2 = Nrm2( dxError );
@@ -218,25 +257,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps x and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
         Axpy( alphaAffPri,  dxAff, dx );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(dx,dz) / n;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print )
@@ -244,71 +279,98 @@ void Mehrotra
                  << ", mu = " << mu 
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector 
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        // r_mu := dxAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        // r_mu := x o z + dxAff o dzAff - sigma*mu
+        // ----------------------------------------
+        // NOTE: We are using dz as a temporary
+        dz = dzAff;
+        DiagonalScale( LEFT, NORMAL, dxAff, dz );
+        Axpy( Real(1), dz, rmu );
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
-            // Construct the new full KKT RHS
-            // ------------------------------
+            // Construct the new KKT RHS
+            // -------------------------
             KKTRHS( rc, rb, rmu, z, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the direction
+            // -----------------------
+            try { ldl::SolveAfter( J, dSub, p, d, false ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol ) 
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the new "augmented" KKT RHS
-            // -------------------------------------
+            // Construct the new KKT RHS
+            // -------------------------
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the direction
+            // -----------------------
+            try { ldl::SolveAfter( J, dSub, p, d, false ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol ) 
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
-            // Construct the new "normal" KKT RHS
-            // ----------------------------------
+            // Construct the new KKT RHS
+            // -------------------------
             NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, dy, false );
+            // Solve for the direction
+            // -----------------------
+            try { ldl::SolveAfter( J, dSub, p, dy, false ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol ) 
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-
-        // Compute max [0,1/maxStepRatio] step which keeps x and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri 
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.outerEquil )
@@ -323,14 +385,18 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& bPre, const AbstractDistMatrix<Real>& cPre,
-        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre,
+  const AbstractDistMatrix<Real>& bPre, 
+  const AbstractDistMatrix<Real>& cPre,
+        AbstractDistMatrix<Real>& xPre, 
+        AbstractDistMatrix<Real>& yPre,
         AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
+
+    const bool forceSameStep = false;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), b(grid), c(grid);
@@ -384,6 +450,7 @@ void Mehrotra
     Initialize
     ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
+    Real relError = 1;
     DistMatrix<Real> 
         J(grid), d(grid), 
         rc(grid),    rb(grid),    rmu(grid), 
@@ -400,7 +467,7 @@ void Mehrotra
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -438,6 +505,7 @@ void Mehrotra
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -446,64 +514,97 @@ void Mehrotra
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // r_mu := x o z
-        // =============
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, x, rmu );
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving minTol=",ctrl.minTol);
 
         // Compute the affine search direction
         // ===================================
+
+        // r_mu := x o z
+        // -------------
+        rmu = z;
+        DiagonalScale( LEFT, NORMAL, x, rmu );
+
         if( ctrl.system == FULL_KKT )
         {
-            // Construct the full KKT system
-            // -----------------------------
+            // Construct the KKT system
+            // ------------------------
             KKT( A, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( J, dSub, p, false );
+                ldl::SolveAfter( J, dSub, p, d, false );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError 
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the "augmented" KKT system
-            // ------------------------------------
+            // Construct the KKT system
+            // ------------------------
             AugmentedKKT( A, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( J, dSub, p, false );
+                ldl::SolveAfter( J, dSub, p, d, false );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError 
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dxAff, dyAff, dzAff );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
-            // Construct the "normal" KKT system
-            // ---------------------------------
+            // Construct the KKT system
+            // ------------------------
             NormalKKT( A, x, z, J );
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, dyAff, false );
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( J, dSub, p, false );
+                ldl::SolveAfter( J, dSub, p, dyAff, false );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError 
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         Real dxErrorNrm2 = Nrm2( dxError );
@@ -532,25 +633,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps x and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
         Axpy( alphaAffPri,  dxAff, dx );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(dx,dz) / n;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print && commRank == 0 )
@@ -558,71 +655,98 @@ void Mehrotra
                  << ", mu = " << mu 
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector 
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        // r_mu := dxAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        // r_mu := x o z + dxAff o dzAff - sigma*mu
+        // ----------------------------------------
+        // NOTE: dz is used as a temporary
+        dz = dzAff;
+        DiagonalScale( LEFT, NORMAL, dxAff, dz );
+        Axpy( Real(1), dz, rmu );
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
-            // Construct the new full KKT RHS
-            // ------------------------------
+            // Construct the new KKT RHS
+            // -------------------------
             KKTRHS( rc, rb, rmu, z, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the direction
+            // -----------------------
+            try { ldl::SolveAfter( J, dSub, p, d, false ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError 
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the new "augmented" KKT RHS
-            // -------------------------------------
+            // Construct the new KKT RHS
+            // -------------------------
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, d, false );
+            // Solve for the direction
+            // -----------------------
+            try { ldl::SolveAfter( J, dSub, p, d, false ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError 
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else if( ctrl.system == NORMAL_KKT )
         {
-            // Construct the new "normal" KKT RHS
-            // ----------------------------------
+            // Construct the new KKT RHS
+            // -------------------------
             NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
 
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
-            ldl::SolveAfter( J, dSub, p, dy, false );
+            // Solve for the direction
+            // -----------------------
+            try { ldl::SolveAfter( J, dSub, p, dy, false ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError 
+                    ("Could not achieve minimum tolerance ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-
-        // Compute max [0,1/maxStepRatio] step which keeps x and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaPri = " << alphaPri 
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.outerEquil )
@@ -637,12 +761,16 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& APre, 
-  const Matrix<Real>& bPre,       const Matrix<Real>& cPre,
-        Matrix<Real>& x,                Matrix<Real>& y, 
+  const Matrix<Real>& bPre,
+  const Matrix<Real>& cPre,
+        Matrix<Real>& x,
+        Matrix<Real>& y, 
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
+
+    const bool forceSameStep = false;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -729,11 +857,12 @@ void Mehrotra
         }
     }
 
+    Real relError = 1;
     Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -771,6 +900,7 @@ void Mehrotra
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -779,24 +909,25 @@ void Mehrotra
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // r_mu := x o z
-        // =============
-        rmu = z; 
-        DiagonalScale( LEFT, NORMAL, x, rmu );
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving minTol=",ctrl.minTol);
 
         // Compute the affine search direction
         // ===================================
+
+        // r_mu := x o z
+        // -------------
+        rmu = z; 
+        DiagonalScale( LEFT, NORMAL, x, rmu );
+
         if( ctrl.system == FULL_KKT || ctrl.system == AUGMENTED_KKT )
         {
+            // Construct the KKT system
+            // ------------------------
             if( ctrl.system == FULL_KKT )
                 KKT( A, x, z, JOrig, false );
             else
@@ -814,16 +945,27 @@ void Mehrotra
                 InvertMap( map, invMap );
             }
             JFront.Pull( J, map, info );
-            LDL( info, JFront, LDL_2D );
-
-            // Compute the proposed step from the regularized KKT system
-            // ---------------------------------------------------------
             if( ctrl.system == FULL_KKT )
                 KKTRHS( rc, rb, rmu, z, d );
             else
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( info, JFront, LDL_2D );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             if( ctrl.system == FULL_KKT )
                 ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
             else
@@ -831,8 +973,8 @@ void Mehrotra
         }
         else // ctrl.system == NORMAL_KKT
         {
-            // Factor the "normal" KKT system
-            // ------------------------------
+            // Construct the KKT system
+            // ------------------------
             NormalKKT( A, x, z, J, false );
             // TODO: Add equilibration
             if( numIts == 0 )
@@ -841,17 +983,31 @@ void Mehrotra
                 InvertMap( map, invMap );
             }
             JFront.Pull( J, map, info );
-            LDL( info, JFront );
-
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
-            ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dyAff, 
-              ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( info, JFront );
+                ldl::SolveWithIterativeRefinement
+                ( J, invMap, info, JFront, dyAff, 
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         Real dxErrorNrm2 = Nrm2( dxError );
@@ -880,25 +1036,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps x and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
         Axpy( alphaAffPri,  dxAff, dx );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(dx,dz) / n;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print )
@@ -906,60 +1058,96 @@ void Mehrotra
                  << ", mu = " << mu 
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector 
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        // r_mu := dxAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        // r_mu := x o z + dxAff o dzAff - sigma*mu
+        // ----------------------------------------
+        // NOTE: dz is used as a temporary
+        dz = dzAff;
+        DiagonalScale( LEFT, NORMAL, dxAff, dz );
+        Axpy( Real(1), dz, rmu );
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             KKTRHS( rc, rb, rmu, z, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            try
+            {
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             AugmentedKKTRHS( x, rc, rb, rmu, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            try
+            {
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
         {
             NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
-            ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, 
-              ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+            try
+            {
+                ldl::SolveWithIterativeRefinement
+                ( J, invMap, info, JFront, dy, 
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks 
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-
-        // Compute max [0,1/maxStepRatio] step which keeps x and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             cout << "  alphaPri = " << alphaPri 
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.outerEquil )
@@ -974,8 +1162,10 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& APre, 
-  const DistMultiVec<Real>& bPre,     const DistMultiVec<Real>& cPre,
-        DistMultiVec<Real>& x,              DistMultiVec<Real>& y, 
+  const DistMultiVec<Real>& bPre, 
+  const DistMultiVec<Real>& cPre,
+        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
@@ -983,6 +1173,8 @@ void Mehrotra
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;
+
+    const bool forceSameStep = false;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -1080,11 +1272,12 @@ void Mehrotra
         }
     }
 
+    Real relError = 1;
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -1122,6 +1315,7 @@ void Mehrotra
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -1130,24 +1324,25 @@ void Mehrotra
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
-
-        // r_mu := x o z
-        // =============
-        rmu = z; 
-        DiagonalScale( LEFT, NORMAL, x, rmu );
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving minTol=",ctrl.minTol);
 
         // Compute the affine search direction
         // ===================================
+
+        // r_mu := x o z
+        // -------------
+        rmu = z; 
+        DiagonalScale( LEFT, NORMAL, x, rmu );
+
         if( ctrl.system == FULL_KKT || ctrl.system == AUGMENTED_KKT )
         {
+            // Assemble the KKT system
+            // -----------------------
             if( ctrl.system == FULL_KKT )
                 KKT( A, x, z, JOrig, false );
             else
@@ -1181,23 +1376,36 @@ void Mehrotra
             else
                 J.multMeta = meta;
             JFront.Pull( J, map, rootSep, info );
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            LDL( info, JFront, LDL_2D );
-            if( commRank == 0 && ctrl.time )
-                cout << "  LDL: " << timer.Stop() << " secs" << endl;
 
             if( ctrl.system == FULL_KKT )
                 KKTRHS( rc, rb, rmu, z, d );
             else
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
-            if( commRank == 0 && ctrl.time )
-                cout << "  Affine: " << timer.Stop() << " secs" << endl;
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                LDL( info, JFront, LDL_2D );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  LDL: " << timer.Stop() << " secs" << endl;
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  Affine: " << timer.Stop() << " secs" << endl;
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
 
             if( ctrl.system == FULL_KKT )
                 ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
@@ -1206,8 +1414,8 @@ void Mehrotra
         }
         else // ctrl.system == NORMAL_KKT
         {
-            // Factor the "normal" KKT system
-            // ------------------------------
+            // Assemble the KKT system
+            // -----------------------
             NormalKKT( A, x, z, J, false );
             // Cache the metadata for the finalized J
             if( numIts == 0 )
@@ -1223,27 +1431,39 @@ void Mehrotra
             else
                 J.multMeta = meta;
             JFront.Pull( J, map, rootSep, info );
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            LDL( info, JFront, LDL_1D );
-            if( commRank == 0 && ctrl.time )
-                cout << "  LDL: " << timer.Stop() << " secs" << endl;
-            if( commRank == 0 && ctrl.time )
-                timer.Start(); 
-
-            // Compute the proposed step from the KKT system
-            // ---------------------------------------------
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
-            ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dyAff, 
-              ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
-            if( commRank == 0 && ctrl.time )
-                cout << "  Affine: " << timer.Stop() << " secs" << endl;
+
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                LDL( info, JFront, LDL_1D );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  LDL: " << timer.Stop() << " secs" << endl;
+                if( commRank == 0 && ctrl.time )
+                    timer.Start(); 
+                ldl::SolveWithIterativeRefinement
+                ( J, invMap, info, JFront, dyAff, 
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  Affine: " << timer.Stop() << " secs" << endl;
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         Real dxErrorNrm2 = Nrm2( dxError );
@@ -1272,25 +1492,21 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute the max affine [0,1]-step which keeps x and z in the cone
-        // =================================================================
-        const Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        const Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        // Compute a centrality parameter using Mehrotra's formula
+        // =======================================================
+        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
+        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        if( forceSameStep )
+            alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-
-        // Compute what the new duality measure would become
-        // =================================================
         // NOTE: dz and dx are used as temporaries
         dx = x;
         dz = z;
         Axpy( alphaAffPri,  dxAff, dx );
         Axpy( alphaAffDual, dzAff, dz );
         const Real muAff = Dot(dx,dz) / n;
-
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3)); 
         if( ctrl.print && commRank == 0 )
@@ -1298,72 +1514,108 @@ void Mehrotra
                  << ", mu = " << mu 
                  << ", sigma = " << sigma << endl;
 
-        // Solve for the centering-corrector 
-        // =================================
-        Zeros( rc, n, 1 );
-        Zeros( rb, m, 1 );
-        // r_mu := dxAff o dzAff - sigma*mu
-        // --------------------------------
-        rmu = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, rmu );
+        // Solve for the combined direction
+        // ================================
+        Scale( Real(1)-sigma, rc );
+        Scale( Real(1)-sigma, rb );
+        // r_mu := x o z + dxAff o dzAff - sigma*mu
+        // ----------------------------------------
+        // NOTE: dz is used as a temporary
+        dz = dzAff;
+        DiagonalScale( LEFT, NORMAL, dxAff, dz );
+        Axpy( Real(1), dz, rmu );
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
             KKTRHS( rc, rb, rmu, z, d );
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
-            if( commRank == 0 && ctrl.time )
-                cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+            try
+            {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
             AugmentedKKTRHS( x, rc, rb, rmu, d );
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
-            if( commRank == 0 && ctrl.time )
-                cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+            try
+            {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
         {
             NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            ldl::SolveWithIterativeRefinement
-            ( J, invMap, info, JFront, dy, 
-              ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
-            if( commRank == 0 && ctrl.time )
-                cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+            try
+            {
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                ldl::SolveWithIterativeRefinement
+                ( J, invMap, info, JFront, dy, 
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandNormalSolution( A, c, x, z, rc, rmu, dx, dy, dz );
         }
-        // TODO: Residual checks for center-corrector
+        // TODO: Residual checks 
 
-        // Add in the affine search direction
-        // ==================================
-        Axpy( Real(1), dxAff, dx );
-        Axpy( Real(1), dyAff, dy );
-        Axpy( Real(1), dzAff, dz );
-
-        // Compute max [0,1/maxStepRatio] step which keeps x and z in the cone
-        // ===================================================================
+        // Update the current estimates
+        // ============================
         Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
+        if( forceSameStep )
+            alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             cout << "  alphaPri = " << alphaPri 
                  << ", alphaDual = " << alphaDual << endl;
-
-        // Update the current estimates
-        // ============================
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
+        if( alphaPri == Real(0) && alphaDual == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.outerEquil )

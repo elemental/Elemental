@@ -1769,7 +1769,8 @@ inline ElLPDirectIPFCtrl_s CReflect( const lp::direct::IPFCtrl<float>& ctrl )
     ElLPDirectIPFCtrl_s ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.system         = CReflect(ctrl.system);
@@ -1785,7 +1786,8 @@ inline ElLPDirectIPFCtrl_d CReflect( const lp::direct::IPFCtrl<double>& ctrl )
     ElLPDirectIPFCtrl_d ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.system         = CReflect(ctrl.system);
@@ -1801,7 +1803,8 @@ inline lp::direct::IPFCtrl<float> CReflect( ElLPDirectIPFCtrl_s ctrlC )
     lp::direct::IPFCtrl<float> ctrl(false);
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.system         = CReflect(ctrlC.system);
@@ -1817,7 +1820,8 @@ inline lp::direct::IPFCtrl<double> CReflect( ElLPDirectIPFCtrl_d ctrlC )
     lp::direct::IPFCtrl<double> ctrl(false);
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.system         = CReflect(ctrlC.system);
@@ -1835,7 +1839,8 @@ inline ElLPDirectMehrotraCtrl_s CReflect
     ElLPDirectMehrotraCtrl_s ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
@@ -1854,7 +1859,8 @@ inline ElLPDirectMehrotraCtrl_d CReflect
     ElLPDirectMehrotraCtrl_d ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
@@ -1873,7 +1879,8 @@ inline lp::direct::MehrotraCtrl<float> CReflect
     lp::direct::MehrotraCtrl<float> ctrl(false);
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
@@ -1892,7 +1899,8 @@ inline lp::direct::MehrotraCtrl<double> CReflect
     lp::direct::MehrotraCtrl<double> ctrl(false);
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
@@ -1950,7 +1958,8 @@ inline ElLPAffineIPFCtrl_s CReflect( const lp::affine::IPFCtrl<float>& ctrl )
     ElLPAffineIPFCtrl_s ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
@@ -1965,7 +1974,8 @@ inline ElLPAffineIPFCtrl_d CReflect( const lp::affine::IPFCtrl<double>& ctrl )
     ElLPAffineIPFCtrl_d ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
@@ -1980,7 +1990,8 @@ inline lp::affine::IPFCtrl<float> CReflect( ElLPAffineIPFCtrl_s ctrlC )
     lp::affine::IPFCtrl<float> ctrl;
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
@@ -1995,7 +2006,8 @@ inline lp::affine::IPFCtrl<double> CReflect( ElLPAffineIPFCtrl_d ctrlC )
     lp::affine::IPFCtrl<double> ctrl;
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
@@ -2012,7 +2024,8 @@ inline ElLPAffineMehrotraCtrl_s CReflect
     ElLPAffineMehrotraCtrl_s ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2030,7 +2043,8 @@ inline ElLPAffineMehrotraCtrl_d CReflect
     ElLPAffineMehrotraCtrl_d ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2048,7 +2062,8 @@ inline lp::affine::MehrotraCtrl<float> CReflect
     lp::affine::MehrotraCtrl<float> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
@@ -2066,7 +2081,8 @@ inline lp::affine::MehrotraCtrl<double> CReflect
     lp::affine::MehrotraCtrl<double> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
@@ -2126,7 +2142,8 @@ inline ElQPDirectIPFCtrl_s CReflect( const qp::direct::IPFCtrl<float>& ctrl )
     ElQPDirectIPFCtrl_s ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.system         = CReflect(ctrl.system);
@@ -2142,7 +2159,8 @@ inline ElQPDirectIPFCtrl_d CReflect( const qp::direct::IPFCtrl<double>& ctrl )
     ElQPDirectIPFCtrl_d ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.system         = CReflect(ctrl.system);
@@ -2158,7 +2176,8 @@ inline qp::direct::IPFCtrl<float> CReflect( ElQPDirectIPFCtrl_s ctrlC )
     qp::direct::IPFCtrl<float> ctrl;
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.system         = CReflect(ctrlC.system);
@@ -2174,7 +2193,8 @@ inline qp::direct::IPFCtrl<double> CReflect( ElQPDirectIPFCtrl_d ctrlC )
     qp::direct::IPFCtrl<double> ctrl;
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.system         = CReflect(ctrlC.system);
@@ -2192,7 +2212,8 @@ inline ElQPDirectMehrotraCtrl_s CReflect
     ElQPDirectMehrotraCtrl_s ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
@@ -2211,7 +2232,8 @@ inline ElQPDirectMehrotraCtrl_d CReflect
     ElQPDirectMehrotraCtrl_d ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
@@ -2230,7 +2252,8 @@ inline qp::direct::MehrotraCtrl<float> CReflect
     qp::direct::MehrotraCtrl<float> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
@@ -2249,7 +2272,8 @@ inline qp::direct::MehrotraCtrl<double> CReflect
     qp::direct::MehrotraCtrl<double> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
@@ -2303,7 +2327,8 @@ inline ElQPAffineIPFCtrl_s CReflect( const qp::affine::IPFCtrl<float>& ctrl )
     ElQPAffineIPFCtrl_s ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
@@ -2318,7 +2343,8 @@ inline ElQPAffineIPFCtrl_d CReflect( const qp::affine::IPFCtrl<double>& ctrl )
     ElQPAffineIPFCtrl_d ctrlC;
     ctrlC.primalInit     = ctrl.primalInit;
     ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.tol            = ctrl.tol;
+    ctrlC.minTol         = ctrl.minTol;
+    ctrlC.targetTol      = ctrl.targetTol;
     ctrlC.maxIts         = ctrl.maxIts;
     ctrlC.centering      = ctrl.centering;
     ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
@@ -2333,7 +2359,8 @@ inline qp::affine::IPFCtrl<float> CReflect( ElQPAffineIPFCtrl_s ctrlC )
     qp::affine::IPFCtrl<float> ctrl;
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
@@ -2348,7 +2375,8 @@ inline qp::affine::IPFCtrl<double> CReflect( ElQPAffineIPFCtrl_d ctrlC )
     qp::affine::IPFCtrl<double> ctrl;
     ctrl.primalInit     = ctrlC.primalInit;
     ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.tol            = ctrlC.tol;
+    ctrl.minTol         = ctrlC.minTol;
+    ctrl.targetTol      = ctrlC.targetTol;
     ctrl.maxIts         = ctrlC.maxIts;
     ctrl.centering      = ctrlC.centering;
     ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
@@ -2365,7 +2393,8 @@ inline ElQPAffineMehrotraCtrl_s CReflect
     ElQPAffineMehrotraCtrl_s ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2383,7 +2412,8 @@ inline ElQPAffineMehrotraCtrl_d CReflect
     ElQPAffineMehrotraCtrl_d ctrlC;
     ctrlC.primalInit   = ctrl.primalInit;
     ctrlC.dualInit     = ctrl.dualInit;
-    ctrlC.tol          = ctrl.tol;
+    ctrlC.minTol       = ctrl.minTol;
+    ctrlC.targetTol    = ctrl.targetTol;
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
@@ -2401,7 +2431,8 @@ inline qp::affine::MehrotraCtrl<float> CReflect
     qp::affine::MehrotraCtrl<float> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
@@ -2419,7 +2450,8 @@ inline qp::affine::MehrotraCtrl<double> CReflect
     qp::affine::MehrotraCtrl<double> ctrl;
     ctrl.primalInit   = ctrlC.primalInit;
     ctrl.dualInit     = ctrlC.dualInit;
-    ctrl.tol          = ctrlC.tol;
+    ctrl.minTol       = ctrlC.minTol;
+    ctrl.targetTol    = ctrlC.targetTol;
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);

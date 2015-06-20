@@ -55,7 +55,8 @@ lib.ElLPDirectIPFCtrlDefault_d.argtypes = \
   [c_void_p,bType]
 class LPDirectIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("centering",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("centering",sType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_s),
               ("lineSearchCtrl",IPFLineSearchCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
@@ -63,7 +64,8 @@ class LPDirectIPFCtrl_s(ctypes.Structure):
     lib.ElLPDirectIPFCtrlDefault_s(pointer(self),isSparse)
 class LPDirectIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("centering",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("centering",dType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_d),
               ("lineSearchCtrl",IPFLineSearchCtrl_d),
               ("equilibrate",bType),("progress",bType),("time",bType)]
@@ -75,7 +77,8 @@ lib.ElLPDirectMehrotraCtrlDefault_d.argtypes = \
   [c_void_p,bType]
 class LPDirectMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("maxStepRatio",sType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_s),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -84,7 +87,8 @@ class LPDirectMehrotraCtrl_s(ctypes.Structure):
     lib.ElLPDirectMehrotraCtrlDefault_s(pointer(self),isSparse)
 class LPDirectMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("maxStepRatio",dType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_d),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -191,7 +195,8 @@ lib.ElLPAffineIPFCtrlDefault_d.argtypes = \
   [c_void_p]
 class LPAffineIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("centering",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("centering",sType),
               ("qsdCtrl",RegQSDCtrl_s),
               ("lineSearchCtrl",IPFLineSearchCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
@@ -199,7 +204,8 @@ class LPAffineIPFCtrl_s(ctypes.Structure):
     lib.ElLPAffineIPFCtrlDefault_s(pointer(self))
 class LPAffineIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("centering",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("centering",dType),
               ("qsdCtrl",RegQSDCtrl_d),
               ("lineSearchCtrl",IPFLineSearchCtrl_d),
               ("equilibrate",bType),("progress",bType),("time",bType)]
@@ -211,7 +217,8 @@ lib.ElLPAffineMehrotraCtrlDefault_d.argtypes = \
   [c_void_p]
 class LPAffineMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("maxStepRatio",sType),
               ("qsdCtrl",RegQSDCtrl_s),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -220,7 +227,8 @@ class LPAffineMehrotraCtrl_s(ctypes.Structure):
     lib.ElLPAffineMehrotraCtrlDefault_s(pointer(self))
 class LPAffineMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("maxStepRatio",dType),
               ("qsdCtrl",RegQSDCtrl_d),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -336,7 +344,8 @@ lib.ElQPDirectIPFCtrlDefault_d.argtypes = \
   [c_void_p]
 class QPDirectIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("centering",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("centering",sType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_s),
               ("lineSearchCtrl",IPFLineSearchCtrl_s),("equilibrate",bType),
               ("progress",bType),("time",bType)]
@@ -344,7 +353,8 @@ class QPDirectIPFCtrl_s(ctypes.Structure):
     lib.ElQPDirectIPFCtrlDefault_s(pointer(self))
 class QPDirectIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("centering",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("centering",dType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_d),
               ("lineSearchCtrl",IPFLineSearchCtrl_d),("equilibrate",bType),
               ("progress",bType),("time",bType)]
@@ -356,7 +366,8 @@ lib.ElQPDirectMehrotraCtrlDefault_d.argtypes = \
   [c_void_p]
 class QPDirectMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("maxStepRatio",sType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_s),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -365,7 +376,8 @@ class QPDirectMehrotraCtrl_s(ctypes.Structure):
     lib.ElQPDirectMehrotraCtrlDefault_s(pointer(self))
 class QPDirectMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("maxStepRatio",dType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_d),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -471,7 +483,8 @@ lib.ElQPAffineIPFCtrlDefault_d.argtypes = \
   [c_void_p]
 class QPAffineIPFCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("centering",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("centering",sType),
               ("qsdCtrl",RegQSDCtrl_s),
               ("lineSearchCtrl",IPFLineSearchCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
@@ -479,7 +492,8 @@ class QPAffineIPFCtrl_s(ctypes.Structure):
     lib.ElQPAffineIPFCtrlDefault_s(pointer(self))
 class QPAffineIPFCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("centering",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("centering",dType),
               ("qsdCtrl",RegQSDCtrl_d),
               ("lineSearchCtrl",IPFLineSearchCtrl_d),
               ("equilibrate",bType),("progress",bType),("time",bType)]
@@ -491,7 +505,8 @@ lib.ElQPAffineMehrotraCtrlDefault_d.argtypes = \
   [c_void_p]
 class QPAffineMehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",sType),("maxIts",iType),("maxStepRatio",sType),
+              ("minTol",sType),("targetTol",sType),
+              ("maxIts",iType),("maxStepRatio",sType),
               ("qsdCtrl",RegQSDCtrl_s),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),
@@ -500,7 +515,8 @@ class QPAffineMehrotraCtrl_s(ctypes.Structure):
     lib.ElQPAffineMehrotraCtrlDefault_s(pointer(self))
 class QPAffineMehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("tol",dType),("maxIts",iType),("maxStepRatio",dType),
+              ("minTol",dType),("targetTol",dType),
+              ("maxIts",iType),("maxStepRatio",dType),
               ("qsdCtrl",RegQSDCtrl_d),
               ("outerEquil",bType),("innerEquil",bType),
               ("scaleTwoNorm",bType),("basisSize",iType),

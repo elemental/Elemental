@@ -65,7 +65,8 @@ ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );
@@ -81,7 +82,8 @@ ElError ElLPDirectIPFCtrlDefault_d( ElLPDirectIPFCtrl_d* ctrl, bool isSparse )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );
@@ -98,7 +100,8 @@ ElError ElLPDirectMehrotraCtrlDefault_s
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
@@ -117,7 +120,8 @@ ElError ElLPDirectMehrotraCtrlDefault_d
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
@@ -156,7 +160,8 @@ ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
@@ -171,7 +176,8 @@ ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
@@ -186,7 +192,8 @@ ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
@@ -203,7 +210,8 @@ ElError ElLPAffineMehrotraCtrlDefault_d( ElLPAffineMehrotraCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
@@ -241,7 +249,8 @@ ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ctrl->system = EL_AUGMENTED_KKT;
@@ -257,7 +266,8 @@ ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ctrl->system = EL_AUGMENTED_KKT;
@@ -273,7 +283,8 @@ ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
@@ -291,7 +302,8 @@ ElError ElQPDirectMehrotraCtrlDefault_d( ElQPDirectMehrotraCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
@@ -327,7 +339,8 @@ ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
@@ -342,7 +355,8 @@ ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
@@ -357,7 +371,8 @@ ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-4;
+    ctrl->minTol = 1e-3;
+    ctrl->targetTol = 1e-4;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
@@ -374,7 +389,8 @@ ElError ElQPAffineMehrotraCtrlDefault_d( ElQPAffineMehrotraCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->tol = 1e-8;
+    ctrl->minTol = 1e-6;
+    ctrl->targetTol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );

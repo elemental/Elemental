@@ -66,7 +66,8 @@ template<typename Real>
 struct IPFCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real centering=0.9; 
     KKTSystem system;
@@ -89,7 +90,8 @@ template<typename Real>
 struct MehrotraCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real maxStepRatio=0.99;
     KKTSystem system;
@@ -155,7 +157,8 @@ template<typename Real>
 struct IPFCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real centering=0.9; 
 
@@ -174,7 +177,8 @@ template<typename Real>
 struct MehrotraCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real maxStepRatio=0.99;
     RegQSDCtrl<Real> qsdCtrl;
@@ -301,7 +305,8 @@ template<typename Real>
 struct IPFCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real centering=0.9; 
     KKTSystem system=AUGMENTED_KKT;
@@ -321,7 +326,8 @@ template<typename Real>
 struct MehrotraCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real maxStepRatio=0.99;
     KKTSystem system=AUGMENTED_KKT;
@@ -365,7 +371,8 @@ template<typename Real>
 struct IPFCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real centering=0.9; 
 
@@ -384,7 +391,8 @@ template<typename Real>
 struct MehrotraCtrl 
 {
     bool primalInit=false, dualInit=false;
-    Real tol=Sqrt(Epsilon<Real>());
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
     Int maxIts=1000;
     Real maxStepRatio=0.99;
     RegQSDCtrl<Real> qsdCtrl;

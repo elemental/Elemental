@@ -94,7 +94,7 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDet = lapack::MachineEpsilon<Real>();
+        const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet );
         ForceIntoSOC( z, orders, firstInds, minDet );
 
@@ -159,21 +159,26 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
 
+        // Compute the affine search direction
+        // ===================================
+
         // r_mu := l
         // =========
         rmu = l;
 
-        // Compute the affine search direction
-        // ===================================
         // Construct the full KKT system
         // -----------------------------
         KKT( A, G, w, orders, firstInds, labels, J );
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        LDL( J, dSub, p, false );
-        try { ldl::SolveAfter( J, dSub, p, d, false ); }
-        catch( const exception& e )
+        try 
+        { 
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, d, false ); 
+        }
+        catch(...)
         {
             if( relError <= ctrl.minTol )
                 break;
@@ -187,9 +192,10 @@ void Mehrotra
           dxAff, dyAff, dzAff, dsAff );
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -261,7 +267,7 @@ void Mehrotra
         // ---------------------------------------------
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
         try { ldl::SolveAfter( J, dSub, p, d, false ); }
-        catch( const exception& e )
+        catch(...)
         {
             if( relError <= ctrl.minTol )
                 break;
@@ -409,7 +415,7 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDet = lapack::MachineEpsilon<Real>();
+        const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
         ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
 
@@ -473,22 +479,27 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
 
-        // r_mu := l
-        // =========
-        rmu = l;
-
         // Compute the affine search direction
         // ===================================
-        // Construct the full KKT system
-        // -----------------------------
+
+        // r_mu := l
+        // ---------
+        rmu = l;
+
+        // Construct the KKT system
+        // ------------------------
         KKT( A, G, w, orders, firstInds, labels, J, onlyLower, cutoffPar );
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
-        LDL( J, dSub, p, false );
-        try { ldl::SolveAfter( J, dSub, p, d, false ); }
-        catch( const exception& e )
+
+        // Solve for the direction
+        // -----------------------
+        try 
+        { 
+            LDL( J, dSub, p, false );
+            ldl::SolveAfter( J, dSub, p, d, false ); 
+        }
+        catch(...)
         {
             if( relError <= ctrl.minTol )
                 break;
@@ -504,9 +515,10 @@ void Mehrotra
         ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
         SOCApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -579,7 +591,7 @@ void Mehrotra
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
         try { ldl::SolveAfter( J, dSub, p, d, false ); }
-        catch( const exception& e )
+        catch(...)
         {
             if( relError <= ctrl.minTol )
                 break;
@@ -702,7 +714,7 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDet = lapack::MachineEpsilon<Real>();
+        const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet );
         ForceIntoSOC( z, orders, firstInds, minDet );
 
@@ -766,15 +778,15 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
 
-        // r_mu := l
-        // =========
-        rmu = l;
-
         // Compute the affine search direction
         // ===================================
 
-        // Factor the regularized, full KKT system
-        // ---------------------------------------
+        // r_mu := l
+        // ---------
+        rmu = l;
+
+        // Form the KKT system
+        // -------------------
         KKT( A, G, w, orders, firstInds, labels, JOrig, false );
         J = JOrig;
         // This feature is currently experimental
@@ -790,17 +802,17 @@ void Mehrotra
             InvertMap( map, invMap );
         }
         JFront.Pull( J, map, info );
-        LDL( info, JFront, LDL_2D );
-
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+
+        // Solve for the direction
+        // -----------------------
         try 
         {
+            LDL( info, JFront, LDL_2D );
             reg_qsd_ldl::SolveAfter
             ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         } 
-        catch( const exception& e )
+        catch(...)
         {
             if( relError < ctrl.minTol )
                 break;
@@ -814,9 +826,10 @@ void Mehrotra
           dxAff, dyAff, dzAff, dsAff );
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -894,7 +907,7 @@ void Mehrotra
             reg_qsd_ldl::SolveAfter
             ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         } 
-        catch( const exception& e )
+        catch(...)
         {
             if( relError < ctrl.minTol )
                 break;
@@ -1029,7 +1042,7 @@ void Mehrotra
         // Ensure that s and z are in the cone
         // ===================================
         // TODO: Let this be tunable
-        const Real minDet = lapack::MachineEpsilon<Real>();
+        const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
         ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
 
@@ -1093,15 +1106,15 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
 
-        // r_mu := l
-        // =========
-        rmu = l;
-
         // Compute the affine search direction
         // ===================================
 
-        // Construct the full KKT system
-        // -----------------------------
+        // r_mu := l
+        // ---------
+        rmu = l;
+
+        // Construct the KKT system
+        // ------------------------
         KKT( A, G, w, orders, firstInds, labels, JOrig, onlyLower, cutoffPar );
         // Cache the metadata for the finalized JOrig
         if( numIts == 0 )
@@ -1137,24 +1150,24 @@ void Mehrotra
         else
             J.multMeta = meta;
         JFront.Pull( J, map, rootSep, info );
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
-        LDL( info, JFront, LDL_2D );
-        if( commRank == 0 && ctrl.time )
-            cout << "  LDL: " << timer.Stop() << " secs" << endl;
-
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
+
+        // Solve for the direction
+        // -----------------------
         try
         {
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            LDL( info, JFront, LDL_2D );
+            if( commRank == 0 && ctrl.time )
+                cout << "  LDL: " << timer.Stop() << " secs" << endl;
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             reg_qsd_ldl::SolveAfter
             ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         }
-        catch( const std::exception& e )
+        catch(...)
         {
             if( relError < ctrl.minTol )
                 break;
@@ -1172,9 +1185,10 @@ void Mehrotra
         ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
         SOCApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -1248,14 +1262,16 @@ void Mehrotra
         // ---------------------------------------------
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
         try
         {
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
             reg_qsd_ldl::SolveAfter
             ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Corrector: " << timer.Stop() << " secs" << endl;
         }
-        catch( const exception& e )
+        catch(...)
         {
             if( relError < ctrl.minTol )
                 break;
@@ -1264,8 +1280,6 @@ void Mehrotra
                 ("Solve failed with rel. error ",relError,
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
-        if( commRank == 0 && ctrl.time )
-            cout << "  Corrector: " << timer.Stop() << " secs" << endl;
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds, 
           cutoffPar );

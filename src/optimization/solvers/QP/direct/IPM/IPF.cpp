@@ -38,9 +38,12 @@ namespace direct {
 
 template<typename Real>
 void IPF
-( const Matrix<Real>& QPre, const Matrix<Real>& APre, 
-  const Matrix<Real>& bPre, const Matrix<Real>& cPre,
-        Matrix<Real>& x,          Matrix<Real>& y, 
+( const Matrix<Real>& QPre,
+  const Matrix<Real>& APre, 
+  const Matrix<Real>& bPre,
+  const Matrix<Real>& cPre,
+        Matrix<Real>& x,
+        Matrix<Real>& y, 
         Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
@@ -87,13 +90,14 @@ void IPF
     Initialize
     ( Q, A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift );
 
+    Real relError = 1;
     Matrix<Real> J, d, 
                  rc, rb, rmu, 
                  dx, dy, dz;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -135,6 +139,7 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -143,50 +148,68 @@ void IPF
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without "
+             "achieving minTol=",ctrl.minTol);
+
+        // Compute the search direction
+        // ============================
 
         // r_mu := x o z - tau e
-        // =====================
+        // ---------------------
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
-            // Construct the full KKT system
-            // =============================
+            // Form the KKT system
+            // -------------------
             KKT( Q, A, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
-            // Compute the proposed step from the KKT system
-            // =============================================
-            symm_solve::Overwrite( LOWER, NORMAL, J, d );
+            // Solve for the direction
+            // -----------------------
+            try { symm_solve::Overwrite( LOWER, NORMAL, J, d ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the reduced KKT system
-            // ================================
+            // Form the KKT system
+            // -------------------
             AugmentedKKT( Q, A, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            // Compute the proposed step from the KKT system
-            // =============================================
-            symm_solve::Overwrite( LOWER, NORMAL, J, d );
+            // Solve for the direction
+            // -----------------------
+            try { symm_solve::Overwrite( LOWER, NORMAL, J, d ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
             LogicError("Invalid KKT system choice");
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -227,12 +250,21 @@ void IPF
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             Real(0.99)*alphaMax,
-            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
+            ctrl.targetTol*(1+bNrm2), 
+            ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
             cout << "  alpha = " << alpha << endl;
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
+        if( alpha == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.equilibrate )
@@ -246,9 +278,12 @@ void IPF
 
 template<typename Real>
 void IPF
-( const AbstractDistMatrix<Real>& QPre, const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& bPre, const AbstractDistMatrix<Real>& cPre,
-        AbstractDistMatrix<Real>& xPre,       AbstractDistMatrix<Real>& yPre, 
+( const AbstractDistMatrix<Real>& QPre,
+  const AbstractDistMatrix<Real>& APre, 
+  const AbstractDistMatrix<Real>& bPre,
+  const AbstractDistMatrix<Real>& cPre,
+        AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& yPre, 
         AbstractDistMatrix<Real>& zPre, 
   const IPFCtrl<Real>& ctrl )
 {
@@ -315,6 +350,7 @@ void IPF
     Initialize
     ( Q, A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift );
 
+    Real relError = 1;
     DistMatrix<Real> J(grid), d(grid), 
                      rc(grid), rb(grid), rmu(grid),
                      dx(grid), dy(grid), dz(grid);
@@ -367,6 +403,7 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -375,50 +412,68 @@ void IPF
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving minTol=",ctrl.minTol);
+
+        // Compute the search direction
+        // ============================
 
         // r_mu := x o z - tau e
-        // =====================
+        // ---------------------
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
         if( ctrl.system == FULL_KKT )
         {
-            // Construct the full KKT system
-            // =============================
+            // Form the KKT system
+            // -------------------
             KKT( Q, A, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
-            // Compute the proposed step from the KKT system
-            // =============================================
-            symm_solve::Overwrite( LOWER, NORMAL, J, d );
+            // Solve for the direction
+            // -----------------------
+            try { symm_solve::Overwrite( LOWER, NORMAL, J, d ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Construct the reduced KKT system
-            // ================================
+            // Form the KKT system
+            // -------------------
             AugmentedKKT( Q, A, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
-            // Compute the proposed step from the KKT system
-            // =============================================
-            symm_solve::Overwrite( LOWER, NORMAL, J, d );
+            // Solve for the direction
+            // -----------------------
+            try { symm_solve::Overwrite( LOWER, NORMAL, J, d ); }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
             LogicError("Invalid KKT system choice");
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -459,12 +514,21 @@ void IPF
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             Real(0.99)*alphaMax,
-            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
+            ctrl.targetTol*(1+bNrm2), 
+            ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             cout << "  alpha = " << alpha << endl;
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
+        if( alpha == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.equilibrate )
@@ -478,9 +542,12 @@ void IPF
 
 template<typename Real>
 void IPF
-( const SparseMatrix<Real>& QPre, const SparseMatrix<Real>& APre, 
-  const Matrix<Real>& bPre,       const Matrix<Real>& cPre,
-        Matrix<Real>& x,                Matrix<Real>& y, 
+( const SparseMatrix<Real>& QPre,
+  const SparseMatrix<Real>& APre, 
+  const Matrix<Real>& bPre, 
+  const Matrix<Real>& cPre,
+        Matrix<Real>& x,
+        Matrix<Real>& y, 
         Matrix<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
@@ -576,6 +643,7 @@ void IPF
         }
     }
 
+    Real relError = 1;
     Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
@@ -623,6 +691,7 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -631,27 +700,26 @@ void IPF
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving minTol=",ctrl.minTol);
+
+        // Compute the search direction
+        // ============================
 
         // r_mu := x o z - tau e
-        // =====================
+        // ---------------------
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        // Compute the search direction
-        // ============================
         if( ctrl.system == FULL_KKT )
         {
-            // Factor the regularized, full KKT system
-            // ---------------------------------------
+            // Form the KKT system
+            // -------------------
             KKT( Q, A, x, z, JOrig, false );
             J = JOrig;
             SymmetricGeomEquil( J, dInner, ctrl.print );
@@ -662,19 +730,30 @@ void IPF
                 InvertMap( map, invMap );
             }
             JFront.Pull( J, map, info );
-            LDL( info, JFront, LDL_2D );
-
-            // Compute the proposed step from the regularized KKT system
-            // ---------------------------------------------------------
             KKTRHS( rc, rb, rmu, z, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( info, JFront, LDL_2D );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Factor the regularized, "augmented" KKT system
-            // ----------------------------------------------
+            // Form the KKT system
+            // -------------------
             AugmentedKKT( Q, A, x, z, JOrig, false );
             J = JOrig;
             SymmetricGeomEquil( J, dInner, ctrl.print );
@@ -685,20 +764,32 @@ void IPF
                 InvertMap( map, invMap );
             }
             JFront.Pull( J, map, info );
-            LDL( info, JFront, LDL_2D );
-
-            // Compute the proposed step from the regularized KKT system
-            // ---------------------------------------------------------
             AugmentedKKTRHS( x, rc, rb, rmu, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( info, JFront, LDL_2D );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
             LogicError("Invalid KKT system choice");
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -741,12 +832,21 @@ void IPF
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             Real(0.99)*alphaMax,
-            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
+            ctrl.targetTol*(1+bNrm2), 
+            ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
             cout << "  alpha = " << alpha << endl; 
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
+        if( alpha == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.equilibrate )
@@ -760,9 +860,12 @@ void IPF
 
 template<typename Real>
 void IPF
-( const DistSparseMatrix<Real>& QPre, const DistSparseMatrix<Real>& APre, 
-  const DistMultiVec<Real>& bPre,     const DistMultiVec<Real>& cPre,
-        DistMultiVec<Real>& x,              DistMultiVec<Real>& y, 
+( const DistSparseMatrix<Real>& QPre,
+  const DistSparseMatrix<Real>& APre, 
+  const DistMultiVec<Real>& bPre,
+  const DistMultiVec<Real>& cPre,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
   const IPFCtrl<Real>& ctrl )
 {
@@ -863,6 +966,7 @@ void IPF
         }
     }
 
+    Real relError = 1;
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
@@ -910,6 +1014,7 @@ void IPF
         const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
         // Now check the pieces
         // --------------------
+        relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
             cout << " iter " << numIts << ":\n"
                  << "  |primal - dual| / (1 + |primal|) = "
@@ -918,27 +1023,26 @@ void IPF
                  << rbConv << "\n"
                  << "  || r_c ||_2 / (1 + || c ||_2)   = "
                  << rcConv << endl;
-        if( objConv <= ctrl.tol && rbConv <= ctrl.tol && rcConv <= ctrl.tol )
+        if( relError <= ctrl.targetTol )
             break;
-
-        // Raise an exception after an unacceptable number of iterations
-        // =============================================================
-        if( numIts == ctrl.maxIts )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded");
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving minTol=",ctrl.minTol);
+
+        // Compute the search direction
+        // ============================
 
         // r_mu := x o z - tau e
-        // ====================================================
+        // ---------------------
         rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
         Shift( rmu, -ctrl.centering*mu );
 
-        // Compute the search direction
-        // ============================
         if( ctrl.system == FULL_KKT )
         {
-            // Factor the regularized, full KKT system
-            // ---------------------------------------
+            // Form the KKT system
+            // -------------------
             KKT( Q, A, x, z, JOrig, false );
             // Cache the metadata for the finalized JOrig
             if( numIts == 0 )
@@ -959,19 +1063,30 @@ void IPF
             else
                 J.multMeta = meta;
             JFront.Pull( J, map, rootSep, info );
-            LDL( info, JFront, LDL_2D );
-
-            // Compute the proposed step from the regularized KKT system
-            // ---------------------------------------------------------
             KKTRHS( rc, rb, rmu, z, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( info, JFront, LDL_2D );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
         {
-            // Factor the regularized, "augmented" KKT system
-            // ----------------------------------------------
+            // Form the KKT system
+            // -------------------
             AugmentedKKT( Q, A, x, z, JOrig, false );
             // Cache the metadata for the finalized JOrig
             if( numIts == 0 )
@@ -994,20 +1109,32 @@ void IPF
             else
                 J.multMeta = meta; 
             JFront.Pull( J, map, rootSep, info );
-            LDL( info, JFront, LDL_2D );
-
-            // Compute the proposed step from the regularized KKT system
-            // ---------------------------------------------------------
             AugmentedKKTRHS( x, rc, rb, rmu, d );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+
+            // Solve for the direction
+            // -----------------------
+            try
+            {
+                LDL( info, JFront, LDL_2D );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            }
+            catch(...)
+            {
+                if( relError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else
             LogicError("Invalid KKT system choice");
+
 #ifndef EL_RELEASE
         // Sanity checks
-        // =============
+        // -------------
         dxError = rb;
         Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
         const Real dxErrorNrm2 = Nrm2( dxError );
@@ -1050,12 +1177,21 @@ void IPF
           IPFLineSearch
           ( Q, A, b, c, x, y, z, dx, dy, dz, 
             Real(0.99)*alphaMax,
-            ctrl.tol*(1+bNrm2), ctrl.tol*(1+cNrm2), ctrl.lineSearchCtrl );
+            ctrl.targetTol*(1+bNrm2), 
+            ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
             cout << "  alpha = " << alpha << endl; 
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
+        if( alpha == Real(0) )
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+        }
     }
 
     if( ctrl.equilibrate )
