@@ -435,10 +435,10 @@ void Eig
 } // namespace lapack
 
 template<typename Real>
-Real Epsilon() { return lapack::MachineEpsilon<Real>(); }
+inline Real Epsilon() { return lapack::MachineEpsilon<Real>(); }
 #ifdef EL_HAVE_QUAD
 template<>
-Quad Epsilon() { return Quad(9.63)/Quad(1e35); }
+inline Quad Epsilon<Quad>() { return Quad(9.63)/Quad(1e35); }
 #endif
 
 } // namespace El
