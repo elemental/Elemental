@@ -146,9 +146,11 @@ public:
     Int NumConnections( Int localRow ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
+    Int* OffsetBuffer();
     T* ValueBuffer();
     const Int* LockedSourceBuffer() const;
     const Int* LockedTargetBuffer() const;
+    const Int* LockedOffsetBuffer() const;
     const T* LockedValueBuffer() const;
 
     mutable DistSparseMultMeta multMeta;

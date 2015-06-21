@@ -538,9 +538,12 @@ Int DistGraph::NumConnections( Int localSource ) const
 
 Int* DistGraph::SourceBuffer() { return sources_.data(); }
 Int* DistGraph::TargetBuffer() { return targets_.data(); }
+Int* DistGraph::OffsetBuffer() { return localEdgeOffsets_.data(); }
 
 const Int* DistGraph::LockedSourceBuffer() const { return sources_.data(); }
 const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
+const Int* DistGraph::LockedOffsetBuffer() const 
+{ return localEdgeOffsets_.data(); }
 
 // Auxiliary routines
 // ==================

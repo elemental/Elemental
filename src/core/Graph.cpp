@@ -293,9 +293,11 @@ Int Graph::NumConnections( Int source ) const
 
 Int* Graph::SourceBuffer() { return sources_.data(); }
 Int* Graph::TargetBuffer() { return targets_.data(); }
+Int* Graph::OffsetBuffer() { return edgeOffsets_.data(); }
 
 const Int* Graph::LockedSourceBuffer() const { return sources_.data(); }
 const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }
+const Int* Graph::LockedOffsetBuffer() const { return edgeOffsets_.data(); }
 
 // Auxiliary functions
 // ===================

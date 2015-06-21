@@ -462,6 +462,8 @@ Int* DistSparseMatrix<T>::SourceBuffer() { return distGraph_.SourceBuffer(); }
 template<typename T>
 Int* DistSparseMatrix<T>::TargetBuffer() { return distGraph_.TargetBuffer(); }
 template<typename T>
+Int* DistSparseMatrix<T>::OffsetBuffer() { return distGraph_.OffsetBuffer(); }
+template<typename T>
 T* DistSparseMatrix<T>::ValueBuffer() { return vals_.data(); }
 
 template<typename T>
@@ -471,6 +473,10 @@ const Int* DistSparseMatrix<T>::LockedSourceBuffer() const
 template<typename T>
 const Int* DistSparseMatrix<T>::LockedTargetBuffer() const
 { return distGraph_.LockedTargetBuffer(); }
+
+template<typename T>
+const Int* DistSparseMatrix<T>::LockedOffsetBuffer() const
+{ return distGraph_.LockedOffsetBuffer(); }
 
 template<typename T>
 const T* DistSparseMatrix<T>::LockedValueBuffer() const

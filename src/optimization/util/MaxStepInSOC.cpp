@@ -113,7 +113,7 @@ namespace {
 template<typename Real>
 Real ChooseStepLength
 ( Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
-  Real delta=lapack::MachineEpsilon<Real>() )
+  Real delta=Epsilon<Real>() )
 {
     DEBUG_ONLY(CSE cse("ChooseStepLength"))
     Real step;

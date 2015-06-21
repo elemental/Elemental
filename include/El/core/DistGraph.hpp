@@ -104,8 +104,10 @@ public:
     Int NumConnections( Int localSource ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
+    Int* OffsetBuffer();
     const Int* LockedSourceBuffer() const;
     const Int* LockedTargetBuffer() const;
+    const Int* LockedOffsetBuffer() const;
 
     void AssertConsistent() const;
     void AssertLocallyConsistent() const;

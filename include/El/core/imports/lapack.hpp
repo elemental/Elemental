@@ -434,10 +434,12 @@ void Eig
 
 } // namespace lapack
 
-// NOTE: Since lapack::MachineEpsilon<Real>() is used so often, we will import
-//       it as Epsilon<Real>()
 template<typename Real>
 Real Epsilon() { return lapack::MachineEpsilon<Real>(); }
+#ifdef EL_HAVE_QUAD
+template<>
+Quad Epsilon() { return Quad(9.63)/Quad(1e35); }
+#endif
 
 } // namespace El
 

@@ -229,6 +229,8 @@ Int* SparseMatrix<T>::SourceBuffer() { return graph_.SourceBuffer(); }
 template<typename T>
 Int* SparseMatrix<T>::TargetBuffer() { return graph_.TargetBuffer(); }
 template<typename T>
+Int* SparseMatrix<T>::OffsetBuffer() { return graph_.OffsetBuffer(); }
+template<typename T>
 T* SparseMatrix<T>::ValueBuffer() { return vals_.data(); }
 
 template<typename T>
@@ -237,6 +239,9 @@ const Int* SparseMatrix<T>::LockedSourceBuffer() const
 template<typename T>
 const Int* SparseMatrix<T>::LockedTargetBuffer() const
 { return graph_.LockedTargetBuffer(); }
+template<typename T>
+const Int* SparseMatrix<T>::LockedOffsetBuffer() const 
+{ return graph_.LockedOffsetBuffer(); }
 template<typename T>
 const T* SparseMatrix<T>::LockedValueBuffer() const
 { return vals_.data(); }
