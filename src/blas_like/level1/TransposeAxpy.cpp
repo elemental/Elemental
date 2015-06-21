@@ -81,12 +81,11 @@ void TransposeAxpy
     const T alpha = T(alphaS);
     const Int numEntries = X.NumEntries();
     Y.Reserve( Y.NumEntries()+numEntries );
-    if( conjugate )
-        for( Int k=0; k<numEntries; ++k ) 
-            Y.QueueUpdate( X.Col(k), X.Row(k), alpha*Conj(X.Value(k)) );
-    else
-        for( Int k=0; k<numEntries; ++k ) 
-            Y.QueueUpdate( X.Col(k), X.Row(k), alpha*X.Value(k) );
+    for( Int k=0; k<numEntries; ++k ) 
+    {
+        const T value = alpha*( conjugate ? Conj(X.Value(k)) : X.Value(k) );
+        Y.QueueUpdate( X.Col(k), X.Row(k), value );
+    }
     Y.ProcessQueues();
 }
 
@@ -134,36 +133,12 @@ void TransposeAxpy
     if( A.Comm() != B.Comm() )
         LogicError("A and B must have the same communicator");
 
-    // Compute the number of entries of A to send to each process
-    // ==========================================================
-    mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size( comm );
-    vector<int> sendCounts(commSize,0);
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
-        ++sendCounts[ B.RowOwner(A.Col(k)) ];
-
-    // Pack the triplets
-    // =================
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int k=0; k<A.NumLocalEntries(); ++k )
-    {
-        const Int j = A.Col(k);
-        const int owner = B.RowOwner(j);
-        const Int s = offs[owner]++;
-        sendBuf[s].i = j;
-        sendBuf[s].j = A.Row(k);
-        sendBuf[s].value = ( conjugate ? Conj(A.Value(k)) : A.Value(k) );
-    }
-
-    // Exchange and unpack the triplets
-    // ================================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    B.Reserve( B.NumLocalEntries()+recvBuf.size() );
-    for( auto& entry : recvBuf )
-        B.QueueUpdate( entry );
+    T alpha(alphaS);
+    B.Reserve( B.NumLocalEntries()+A.NumLocalEntries(), A.NumLocalEntries() );
+    for( Int e=0; e<A.NumLocalEntries(); ++e )
+        B.QueueUpdate
+        ( A.Col(e), A.Row(e), alpha*(conjugate ? Conj(A.Value(e)) : A.Value(e)),
+          false );
     B.ProcessQueues();
 }
 

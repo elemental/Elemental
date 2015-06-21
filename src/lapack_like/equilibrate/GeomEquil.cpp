@@ -34,7 +34,7 @@ void GeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -127,7 +127,7 @@ void StackedGeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -261,7 +261,7 @@ void GeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real relTol = Real(9)/Real(10);
 
     // TODO: Incorporate damping
@@ -371,7 +371,7 @@ void StackedGeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real relTol = Real(9)/Real(10);
 
     // TODO: Incorporate damping
@@ -474,7 +474,7 @@ void GeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -621,7 +621,7 @@ void StackedGeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -840,7 +840,7 @@ void GeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -988,7 +988,7 @@ void StackedGeomEquil
 
     // TODO: Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 6; 
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 

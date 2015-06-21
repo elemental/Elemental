@@ -101,7 +101,7 @@ void SymmetricEquil
 ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
   bool geomEquil=true, bool diagEquil=false,
   bool scaleTwoNorm=true, Int basisSize=15,
-  bool progress=false );
+  bool progress=false, bool time=false );
 
 } // namespace El
 

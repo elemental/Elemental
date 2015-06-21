@@ -117,44 +117,60 @@ template<typename F>
 void SymmetricEquil
 ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
   bool geomEquil, bool diagEquil,
-  bool scaleTwoNorm, Int basisSize, bool progress )
+  bool scaleTwoNorm, Int basisSize, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("SymmetricEquil"))
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);
     const Int n = A.Height();
+    Timer timer;
 
     d.SetComm( comm );
     if( geomEquil )
     {
+        if( commRank == 0 && time )
+            timer.Start();
         SymmetricGeomEquil( A, d, progress );
+        if( commRank == 0 && time )
+            cout << "  SymmetricGeomEquil time: " << timer.Stop() << " secs" 
+                 << endl;
     }
     else if( diagEquil )
     {
+        if( commRank == 0 && time )
+            timer.Start();
         auto maxSqrtLambda = []( F delta )
                              { return Sqrt(Max(Abs(delta),Real(1))); };
         function<Real(F)> maxSqrt( maxSqrtLambda );
         GetMappedDiagonal( A, d, maxSqrt );
+        DiagonalSolve( LEFT, NORMAL, d, A );
+        DiagonalSolve( RIGHT, NORMAL, d, A );
         if( progress )
         {
             const Real maxNorm = MaxNorm( d );
             if( commRank == 0 ) 
-                cout << "    || d ||_max = " << maxNorm << endl;
+                cout << "    Diagonally equilibrated with || d ||_max = " 
+                     << maxNorm << endl;
         }
-        DiagonalSolve( LEFT, NORMAL, d, A );
-        DiagonalSolve( RIGHT, NORMAL, d, A );
+        if( commRank == 0 && time )
+            cout << "  Diagonal equil time: " << timer.Stop() << endl;
     }
     else
         Ones( d, n, 1 );
 
     if( scaleTwoNorm )
     {
+        if( commRank == 0 && time )
+            timer.Start();
         Real twoNormEst = TwoNormEstimate( A, basisSize );
         if( progress && commRank == 0 )
             cout << "    Estimated two-norm as " << twoNormEst << endl;
         Scale( Real(1)/twoNormEst, A );
         Scale( Sqrt(twoNormEst), d );
+        if( commRank == 0 && time )
+            cout << "    Two-norm estimation time: " << timer.Stop() 
+                 << " secs" << endl;
     } 
 }
 
@@ -174,7 +190,7 @@ void SymmetricEquil
   template void SymmetricEquil \
   ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, \
     bool geomEquil, bool diagEquil, \
-    bool scaleTwoNorm, Int basisSize, bool progress );
+    bool scaleTwoNorm, Int basisSize, bool progress, bool time );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

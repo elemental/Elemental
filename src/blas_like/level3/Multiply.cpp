@@ -304,7 +304,6 @@ void Multiply
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
     )
-#if 0
     MultiplyCSR
     ( orientation, A.Height(), A.Width(), X.Width(),
       alpha, A.LockedOffsetBuffer(), 
@@ -312,65 +311,6 @@ void Multiply
              A.LockedValueBuffer(),
              X.LockedBuffer(), X.LDim(),
       beta,  Y.Buffer(),       Y.LDim() );
-#else
-    const Int m = A.Height();
-    const Int b = X.Width();
-
-    // Y := beta Y
-    Scale( beta, Y );
-
-    // Accumulate
-    if( orientation == NORMAL )
-    {
-        // Y := alpha A X + Y
-        if( A.Height() != Y.Height() )
-            LogicError("A and Y must have the same height");
-        if( A.Width() != X.Height() )
-            LogicError("The width of A must match the height of X");
-        for( Int i=0; i<m; ++i )
-        {
-            const Int off = A.EntryOffset( i );
-            const Int rowSize = A.NumConnections( i );
-            for( Int k=0; k<rowSize; ++k )
-            {
-                const Int j = A.Col(k+off);
-                const T AVal = A.Value(k+off);
-                for( Int t=0; t<b; ++t )
-                {
-                    const T XVal = X.Get(j,t);
-                    Y.Update( i, t, alpha*AVal*XVal );
-                }
-            }
-        }
-    }
-    else
-    {
-        // Y := alpha A' X + Y
-        if( A.Width() != Y.Height() )
-            LogicError("The width of A must match the height of Y");
-        if( A.Height() != X.Height() )
-            LogicError("The height of A must match the height of X");
-        const bool conjugate = ( orientation == ADJOINT );
-        for( Int i=0; i<m; ++i ) 
-        {
-            const Int off = A.EntryOffset( i );
-            const Int rowSize = A.NumConnections( i );
-            for( Int k=0; k<rowSize; ++k )
-            {
-                const Int j = A.Col(k+off); 
-                const T AVal = A.Value(k+off);
-                for( Int t=0; t<b; ++t )
-                {
-                    const T XVal = X.Get(i,t);
-                    if( conjugate )
-                        Y.Update( j, t, alpha*Conj(AVal)*XVal );
-                    else
-                        Y.Update( j, t, alpha*AVal*XVal );
-                }
-            }
-        }
-    }
-#endif
 }
 
 template<typename T>
@@ -422,7 +362,6 @@ void Multiply
         const Int numSendInds = meta.sendInds.size();
         const Int firstLocalRow = X.FirstLocalRow();
         vector<T> sendVals( numSendInds*b );
-#if 0
         const T* XBuffer = X.LockedMatrix().LockedBuffer();
         const Int ldX = X.LockedMatrix().LDim();
         for( Int s=0; s<numSendInds; ++s )
@@ -432,15 +371,6 @@ void Multiply
             for( Int t=0; t<b; ++t )
                 sendVals[s*b+t] = XBuffer[iLoc+t*ldX];
         }
-#else
-        for( Int s=0; s<numSendInds; ++s )
-        {
-            const Int i = meta.sendInds[s];
-            const Int iLoc = i - firstLocalRow;
-            for( Int t=0; t<b; ++t )
-                sendVals[s*b+t] = X.GetLocal( iLoc, t );
-        }
-#endif
 
         // Now send them
         vector<T> recvVals( meta.numRecvInds*b );
@@ -449,7 +379,6 @@ void Multiply
           recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
      
         // Perform the local multiply-accumulate, y := alpha A x + y
-#if 0
         MultiplyCSRInterX
         ( NORMAL, A.LocalHeight(), A.Width(), X.Width(),
           alpha, A.LockedOffsetBuffer(), 
@@ -457,24 +386,6 @@ void Multiply
                  A.LockedValueBuffer(),
                  recvVals.data(), 
           T(1),  Y.Matrix().Buffer(), Y.Matrix().LDim() );
-#else
-        const Int ALocalHeight = A.LocalHeight();
-        for( Int iLoc=0; iLoc<ALocalHeight; ++iLoc )
-        {
-            const Int off = A.EntryOffset( iLoc );
-            const Int rowSize = A.NumConnections( iLoc );
-            for( Int k=0; k<rowSize; ++k )
-            {
-                const Int colOff = meta.colOffs[k+off];
-                const T AVal = A.Value(k+off);
-                for( Int t=0; t<b; ++t )
-                {
-                    const T XVal = recvVals[colOff*b+t];
-                    Y.UpdateLocal( iLoc, t, alpha*AVal*XVal );
-                }
-            }
-        }
-#endif
     }
     else
     {
@@ -485,7 +396,6 @@ void Multiply
 
         // Form and pack the updates to Y
         vector<T> sendVals( meta.numRecvInds*b, 0 );
-#if 0
         MultiplyCSRInterY
         ( orientation, A.LocalHeight(), A.Width(), X.Width(),
           alpha, A.LockedOffsetBuffer(),
@@ -493,28 +403,6 @@ void Multiply
                  A.LockedValueBuffer(),
                  X.LockedMatrix().LockedBuffer(), X.LockedMatrix().LDim(),
           T(1),  sendVals.data() );
-#else
-        const bool conjugate = ( orientation == ADJOINT );
-        const Int ALocalHeight = A.LocalHeight();
-        for( Int iLoc=0; iLoc<ALocalHeight; ++iLoc )
-        {
-            const Int off = A.EntryOffset( iLoc );
-            const Int rowSize = A.NumConnections( iLoc );
-            for( Int k=0; k<rowSize; ++k )
-            {
-                const Int colOff = meta.colOffs[k+off];
-                const T AVal = A.Value(k+off);
-                for( Int t=0; t<b; ++t )
-                {
-                    const T XVal = X.GetLocal(iLoc,t);
-                    if( conjugate )
-                        sendVals[colOff*b+t] += alpha*Conj(AVal)*XVal;
-                    else
-                        sendVals[colOff*b+t] += alpha*AVal*XVal;
-                }
-            }
-        }
-#endif
 
         // Inject the updates to Y into the network
         const Int numRecvInds = meta.sendInds.size();
@@ -525,7 +413,6 @@ void Multiply
      
         // Accumulate the received indices onto Y
         const Int firstLocalRow = Y.FirstLocalRow();
-#if 0
         T* YBuffer = Y.Matrix().Buffer(); 
         const Int ldY = Y.Matrix().LDim();
         for( Int s=0; s<numRecvInds; ++s )
@@ -535,15 +422,6 @@ void Multiply
             for( Int t=0; t<b; ++t )
                 YBuffer[iLoc+t*ldY] += recvVals[s*b+t];
         }
-#else
-        for( Int s=0; s<numRecvInds; ++s )
-        {
-            const Int i = meta.sendInds[s];
-            const Int iLoc = i - firstLocalRow;
-            for( Int t=0; t<b; ++t )
-                Y.UpdateLocal( iLoc, t, recvVals[s*b+t] );
-        }
-#endif
     }
 }
 

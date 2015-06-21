@@ -98,7 +98,7 @@ struct MehrotraCtrl
     RegQSDCtrl<Real> qsdCtrl;
     bool outerEquil=true, innerEquil=true;
     bool scaleTwoNorm=true;
-    Int basisSize = 15;
+    Int basisSize = 10;
     bool print=false;
     bool time=false;
 
@@ -184,7 +184,7 @@ struct MehrotraCtrl
     RegQSDCtrl<Real> qsdCtrl;
     bool outerEquil=true, innerEquil=true;
     bool scaleTwoNorm=true;
-    Int basisSize = 15;
+    Int basisSize = 10;
     bool print=false;
     bool time=false;
 
@@ -334,7 +334,7 @@ struct MehrotraCtrl
     RegQSDCtrl<Real> qsdCtrl;
     bool outerEquil=true, innerEquil=true;
     bool scaleTwoNorm=true;
-    Int basisSize = 15;
+    Int basisSize = 10;
     bool print=false;
     bool time=false;
 
@@ -398,7 +398,7 @@ struct MehrotraCtrl
     RegQSDCtrl<Real> qsdCtrl;
     bool outerEquil=true, innerEquil=true;
     bool scaleTwoNorm=true;
-    Int basisSize = 15;
+    Int basisSize = 10;
     bool print=false;
     bool time=false;
 
@@ -567,7 +567,7 @@ struct MehrotraCtrl
     RegQSDCtrl<Real> qsdCtrl;
     bool outerEquil=true, innerEquil=true;
     bool scaleTwoNorm=true;
-    Int basisSize = 15;
+    Int basisSize = 10;
     bool print=false;
     bool time=false;
 
@@ -617,7 +617,7 @@ struct MehrotraCtrl
     RegQSDCtrl<Real> qsdCtrl;
     bool outerEquil=true, innerEquil=true;
     bool scaleTwoNorm=true;
-    Int basisSize = 15;
+    Int basisSize = 10;
     bool print=false;
     bool time=false;
 

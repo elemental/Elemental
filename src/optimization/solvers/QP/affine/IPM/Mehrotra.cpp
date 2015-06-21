@@ -1150,7 +1150,7 @@ void Mehrotra
         SymmetricEquil
         ( J, dInner,
           false, ctrl.innerEquil, 
-          ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
+          ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print, ctrl.time );
         if( commRank == 0 && ctrl.time )
             cout << "  Equilibration: " << timer.Stop() << " secs" << endl;
         UpdateRealPartOfDiagonal( J, Real(1), reg );
