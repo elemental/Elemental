@@ -550,8 +550,8 @@ void Initialize
         Scale( Real(-1), rb );
         rh = h;
         Scale( Real(-1), rh );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
 
+        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         Scale( Real(-1), s );
@@ -568,8 +568,8 @@ void Initialize
         rc = c;
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
 
+        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         qp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }

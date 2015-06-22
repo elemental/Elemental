@@ -25,6 +25,7 @@ public:
     // ============================
     DistMultiVec( mpi::Comm comm=mpi::COMM_WORLD );
     DistMultiVec( Int height, Int width, mpi::Comm comm=mpi::COMM_WORLD );
+    DistMultiVec( const DistMultiVec<T>& A );
     ~DistMultiVec();
 
     // Assignment  and reconfiguration

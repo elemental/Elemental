@@ -26,10 +26,10 @@ El.Initialize()
 orders = El.DistMultiVec(El.iTag)
 firstInds = El.DistMultiVec(El.iTag)
 labels = El.DistMultiVec(El.iTag)
-orders.Resize(9,1)
-firstInds.Resize(9,1)
-labels.Resize(9,1)
-for c in xrange(0,3):
+orders.Resize(12,1)
+firstInds.Resize(12,1)
+labels.Resize(12,1)
+for c in xrange(0,4):
   for i in xrange(0,3):
     orders.Set(3*c+i,0,3)
     firstInds.Set(3*c+i,0,3*c)
@@ -84,14 +84,14 @@ c.Set(6,0, 0)
 c.Set(7,0, 0)
 
 h = El.DistMultiVec(El.dTag)
-El.Zeros( h, 9, 1 )
+El.Zeros( h, 12, 1 )
 h.Set(2,0,2.)
 h.Set(5,0,2.)
 h.Set(8,0,2.)
 h.Set(11,0,2.)
 
 output = True
-display = True
+display = False
 if output:
   El.Print( A, "A" ) 
   El.Print( G, "G" )

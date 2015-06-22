@@ -62,7 +62,7 @@ public:
     // ============================
     DistSparseMatrix( mpi::Comm comm=mpi::COMM_WORLD );
     DistSparseMatrix( Int height, Int width, mpi::Comm comm=mpi::COMM_WORLD );
-    // TODO: Constructor for building from another DistSparseMatrix
+    DistSparseMatrix( const DistSparseMatrix<T>& A );
     // TODO: Move constructor
     ~DistSparseMatrix();
 

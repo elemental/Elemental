@@ -38,6 +38,19 @@ DistMultiVec<T>::DistMultiVec( Int height, Int width, mpi::Comm comm )
 }
 
 template<typename T>
+DistMultiVec<T>::DistMultiVec( const DistMultiVec<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::DistMultiVec"))
+    height_ = -1;
+    width_ = -1;
+    comm_ = mpi::COMM_WORLD;
+    if( &A != this )
+        *this = A;
+    else
+        LogicError("Tried to construct DistMultiVec via itself");
+}
+
+template<typename T>
 DistMultiVec<T>::~DistMultiVec()
 { 
     if( !mpi::Finalized() )
