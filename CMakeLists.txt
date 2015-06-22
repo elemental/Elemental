@@ -46,7 +46,16 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # TODO: Add discussion of "MATH_LIBS" and "REFERENCE_ROOT"
 
-option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+get_property(SUPPORTS_SHARED GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
+if(SUPPORTS_SHARED)
+  option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+else()
+  option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
+endif()
+if(BUILD_SHARED_LIBS AND NOT SUPPORTS_SHARED)
+  message("Elemental was configured to build shared libraries, but they are not supported on the target platform: BUILD_SHARED_LIBS will be manually set to OFF")
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries?")
+endif()
 
 # Whether or not to attempt to use OpenMP within hot-spots in Elemental
 # (NOTE: This option is not actively maintained)

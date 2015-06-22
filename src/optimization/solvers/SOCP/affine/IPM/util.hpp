@@ -44,7 +44,6 @@ void Initialize
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& s,
-
   bool primalInit, bool dualInit, bool standardShift, Int cutoff );
 template<typename Real>
 void Initialize
