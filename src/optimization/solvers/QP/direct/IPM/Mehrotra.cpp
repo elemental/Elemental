@@ -888,30 +888,33 @@ void Mehrotra
             // Form the KKT system
             // -------------------
             if( ctrl.system == FULL_KKT )
-                KKT( Q, A, x, z, JOrig, false );
-            else
-                AugmentedKKT( Q, A, x, z, JOrig, false );
-            J = JOrig;
-            SymmetricEquil
-            ( J, dInner,
-              false, ctrl.innerEquil, 
-              ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
-            UpdateRealPartOfDiagonal( J, Real(1), reg );
-            if( numIts == 0 )
             {
-                NestedDissection( J.LockedGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
-            }
-            JFront.Pull( J, map, info );
-            if( ctrl.system == FULL_KKT )
+                KKT( Q, A, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
+            }
             else
+            {
+                AugmentedKKT( Q, A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
+            }
 
             // Solve for the direction
             // -----------------------
             try
             {
+                J = JOrig;
+                SymmetricEquil
+                ( J, dInner,
+                  false, ctrl.innerEquil, 
+                  ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
+                UpdateRealPartOfDiagonal( J, Real(1), reg );
+                if( numIts == 0 )
+                {
+                    NestedDissection( J.LockedGraph(), map, rootSep, info );
+                    InvertMap( map, invMap );
+                }
+                JFront.Pull( J, map, info );
+
                 LDL( info, JFront, LDL_2D );
                 reg_qsd_ldl::SolveAfter
                 ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
@@ -1275,47 +1278,51 @@ void Mehrotra
             // Form the KKT system
             // -------------------
             if( ctrl.system == FULL_KKT )
-                KKT( Q, A, x, z, JOrig, false );
-            else
-                AugmentedKKT( Q, A, x, z, JOrig, false );
-            // Cache the metadata for the finalized JOrig
-            if( numIts == 0 )
-                metaOrig = JOrig.InitializeMultMeta();
-            else
-                JOrig.multMeta = metaOrig;
-            J = JOrig;
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            SymmetricEquil
-            ( J, dInner,
-              false, ctrl.innerEquil, 
-              ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
-            if( commRank == 0 && ctrl.time )
-                cout << "  Equilibration: " << timer.Stop() << " secs" << endl;
-            UpdateRealPartOfDiagonal( J, Real(1), reg );
-            // Cache the metadata for the finalized J
-            if( numIts == 0 )
             {
-                meta = J.InitializeMultMeta();
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                if( commRank == 0 && ctrl.time )
-                    cout << "  ND: " << timer.Stop() << " secs" << endl;
-                InvertMap( map, invMap );
+                KKT( Q, A, x, z, JOrig, false );
+                KKTRHS( rc, rb, rmu, z, d );
             }
             else
-                J.multMeta = meta;
-            JFront.Pull( J, map, rootSep, info );
-            if( ctrl.system == FULL_KKT )
-                KKTRHS( rc, rb, rmu, z, d );
-            else
+            {
+                AugmentedKKT( Q, A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
+            }
 
             // Solve for the direction
             // -----------------------
             try
             {
+                // Cache the metadata for the finalized JOrig
+                if( numIts == 0 )
+                    metaOrig = JOrig.InitializeMultMeta();
+                else
+                    JOrig.multMeta = metaOrig;
+                J = JOrig;
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                SymmetricEquil
+                ( J, dInner,
+                  false, ctrl.innerEquil, 
+                  ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  Equilibration: " << timer.Stop() << " secs" 
+                         << endl;
+                UpdateRealPartOfDiagonal( J, Real(1), reg );
+                // Cache the metadata for the finalized J
+                if( numIts == 0 )
+                {
+                    meta = J.InitializeMultMeta();
+                    if( commRank == 0 && ctrl.time )
+                        timer.Start();
+                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                    if( commRank == 0 && ctrl.time )
+                        cout << "  ND: " << timer.Stop() << " secs" << endl;
+                    InvertMap( map, invMap );
+                }
+                else
+                    J.multMeta = meta;
+                JFront.Pull( J, map, rootSep, info );
+
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 LDL( info, JFront, LDL_2D );
