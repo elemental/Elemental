@@ -361,7 +361,7 @@ void IPF
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -648,7 +648,7 @@ void IPF
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -971,7 +971,7 @@ void IPF
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================

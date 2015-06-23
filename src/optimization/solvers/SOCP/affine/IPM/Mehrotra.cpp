@@ -983,6 +983,12 @@ void Mehrotra
     auto h = hPre;
     auto c = cPre;
 
+    Print( A, "A" );
+    Print( G, "G" );
+    Print( b, "b" );
+    Print( c, "c" );
+    Print( h, "h" );
+
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
@@ -1039,7 +1045,7 @@ void Mehrotra
     DistMultiVec<Real> dxError(comm), dyError(comm), 
                        dzError(comm), dmuError(comm);
 #endif
-    for( Int numIts=0; ; ++numIts )
+    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
