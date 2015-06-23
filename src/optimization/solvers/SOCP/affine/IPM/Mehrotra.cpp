@@ -983,12 +983,6 @@ void Mehrotra
     auto h = hPre;
     auto c = cPre;
 
-    Print( A, "A" );
-    Print( G, "G" );
-    Print( b, "b" );
-    Print( c, "c" );
-    Print( h, "h" );
-
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
