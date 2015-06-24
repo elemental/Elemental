@@ -109,7 +109,7 @@ ElError ElLPDirectMehrotraCtrlDefault_s
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -129,7 +129,7 @@ ElError ElLPDirectMehrotraCtrlDefault_d
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -200,7 +200,7 @@ ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -218,7 +218,7 @@ ElError ElLPAffineMehrotraCtrlDefault_d( ElLPAffineMehrotraCtrl_d* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -292,7 +292,7 @@ ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -311,7 +311,7 @@ ElError ElQPDirectMehrotraCtrlDefault_d( ElQPDirectMehrotraCtrl_d* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -379,7 +379,7 @@ ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -397,7 +397,7 @@ ElError ElQPAffineMehrotraCtrlDefault_d( ElQPAffineMehrotraCtrl_d* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -462,7 +462,7 @@ ElError ElSOCPDirectMehrotraCtrlDefault_s( ElSOCPDirectMehrotraCtrl_s* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -480,7 +480,7 @@ ElError ElSOCPDirectMehrotraCtrlDefault_d( ElSOCPDirectMehrotraCtrl_d* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -514,7 +514,7 @@ ElError ElSOCPAffineMehrotraCtrlDefault_s( ElSOCPAffineMehrotraCtrl_s* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -532,7 +532,7 @@ ElError ElSOCPAffineMehrotraCtrlDefault_d( ElSOCPAffineMehrotraCtrl_d* ctrl )
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 10;
+    ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
     return EL_SUCCESS;

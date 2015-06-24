@@ -97,15 +97,7 @@ void Mehrotra
         const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet );
         ForceIntoSOC( z, orders, firstInds, minDet );
-
-        // Compute the scaled variable, l, its inverse, and the duality measure
-        // ====================================================================
         SOCNesterovTodd( s, z, w, orders, firstInds ); 
-        SOCSquareRoot( w, wRoot, orders, firstInds );
-        SOCInverse( wRoot, wRootInv, orders, firstInds );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
-        SOCInverse( l, lInv, orders, firstInds );
-        const Real mu = Dot(s,z) / k;
 
         // Check for convergence
         // =====================
@@ -161,6 +153,22 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
+        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
+        //       large too quickly and could likely be significantly improved
+        //       (e.g., by carefully choosing which pieces of s and z to push
+        //       into the cone).
+        const Real wMaxNorm = MaxNorm(w);
+        if( wMaxNorm > Real(100)/relError )
+        {
+            ForceIntoSOC( s, orders, firstInds, relError/100 );
+            ForceIntoSOC( z, orders, firstInds, relError/100 );
+            SOCNesterovTodd( s, z, w, orders, firstInds );
+        }
+        SOCSquareRoot( w, wRoot, orders, firstInds );
+        SOCInverse( wRoot, wRootInv, orders, firstInds );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
+        SOCInverse( l, lInv, orders, firstInds );
+        const Real mu = Dot(s,z) / k;
 
         // r_mu := l
         // ---------
@@ -418,15 +426,7 @@ void Mehrotra
         const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
         ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
-
-        // Compute the scaled variable, l, its inverse, and the duality measure
-        // ====================================================================
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
-        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
-        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
-        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
-        const Real mu = Dot(s,z) / k;
 
         // Check for convergence
         // =====================
@@ -481,6 +481,22 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
+        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
+        //       large too quickly and could likely be significantly improved
+        //       (e.g., by carefully choosing which pieces of s and z to push
+        //       into the cone).
+        const Real wMaxNorm = MaxNorm(w);
+        if( wMaxNorm > Real(100)/relError )
+        {
+            ForceIntoSOC( s, orders, firstInds, relError/100, cutoffPar );
+            ForceIntoSOC( z, orders, firstInds, relError/100, cutoffPar );
+            SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        }
+        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
+        const Real mu = Dot(s,z) / k;
 
         // r_mu := l
         // ---------
@@ -725,15 +741,7 @@ void Mehrotra
         const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet );
         ForceIntoSOC( z, orders, firstInds, minDet );
-
-        // Compute the scaled variable, l, and its inverse
-        // ===============================================
         SOCNesterovTodd( s, z, w, orders, firstInds );
-        SOCSquareRoot( w, wRoot, orders, firstInds );
-        SOCInverse( wRoot, wRootInv, orders, firstInds );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
-        SOCInverse( l, lInv, orders, firstInds );
-        const Real mu = Dot(s,z) / k;
 
         // Check for convergence
         // =====================
@@ -786,11 +794,27 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
         const Real wMaxLimit = Pow(Epsilon<Real>(),Real(0.4));
-        if( MaxNorm(w) >= wMaxLimit && relError <= ctrl.minTol )
+        const Real wMaxNorm = MaxNorm(w);
+        if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
+        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
+        //       large too quickly and could likely be significantly improved
+        //       (e.g., by carefully choosing which pieces of s and z to push
+        //       into the cone).
+        if( wMaxNorm > Real(100)/relError )
+        {
+            ForceIntoSOC( s, orders, firstInds, relError/100 );
+            ForceIntoSOC( z, orders, firstInds, relError/100 );
+            SOCNesterovTodd( s, z, w, orders, firstInds );
+        }
+        SOCSquareRoot( w, wRoot, orders, firstInds );
+        SOCInverse( wRoot, wRootInv, orders, firstInds );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
+        SOCInverse( l, lInv, orders, firstInds );
+        const Real mu = Dot(s,z) / k;
 
         // r_mu := l
         // ---------
@@ -821,8 +845,19 @@ void Mehrotra
             JFront.Pull( J, map, info );
 
             LDL( info, JFront, LDL_2D );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            // It would be good to rigorously verify that solving the 
+            // regularized system is okay if our accuracy is still below the
+            // minimum tolerance.
+            //if( relError <= ctrl.minTol )
+            if( true )
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
+            else
+                reg_qsd_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
+                  ctrl.qsdCtrl.progress );
         } 
         catch(...)
         {
@@ -916,8 +951,19 @@ void Mehrotra
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
         try 
         {
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            // It would be good to rigorously verify that solving the 
+            // regularized system is okay if our accuracy is still below the
+            // minimum tolerance.
+            //if( relError <= ctrl.minTol )
+            if( true )
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
+            else
+                reg_qsd_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
+                  ctrl.qsdCtrl.progress );
         } 
         catch(...)
         {
@@ -1064,15 +1110,7 @@ void Mehrotra
         const Real minDet = Epsilon<Real>();
         ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
         ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
-
-        // Compute the scaled variable, l, its inverse, and the duality measure
-        // ====================================================================
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
-        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
-        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
-        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
-        const Real mu = Dot(s,z) / k;
 
         // Check for convergence
         // =====================
@@ -1125,11 +1163,27 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
         const Real wMaxLimit = Pow(Epsilon<Real>(),Real(0.4));
-        if( MaxNorm(w) >= wMaxLimit && relError <= ctrl.minTol )
+        const Real wMaxNorm = MaxNorm(w);
+        if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
+        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
+        //       large too quickly and could likely be significantly improved
+        //       (e.g., by carefully choosing which pieces of s and z to push
+        //       into the cone).
+        if( wMaxNorm > Real(100)/relError )
+        {
+            ForceIntoSOC( s, orders, firstInds, relError/100, cutoffPar );
+            ForceIntoSOC( z, orders, firstInds, relError/100, cutoffPar );
+            SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        }
+        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
+        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
+        const Real mu = Dot(s,z) / k;
 
         // r_mu := l
         // ---------
@@ -1187,8 +1241,20 @@ void Mehrotra
                 cout << "  LDL: " << timer.Stop() << " secs" << endl;
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+
+            // It would be good to rigorously verify that solving the 
+            // regularized system is okay if our accuracy is still below the
+            // minimum tolerance.
+            //if( relError <= ctrl.minTol )
+            if( true )
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
+            else
+                reg_qsd_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
+                  ctrl.qsdCtrl.progress );
         }
         catch(...)
         {
@@ -1289,8 +1355,19 @@ void Mehrotra
         {
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            // It would be good to rigorously verify that solving the 
+            // regularized system is okay if our accuracy is still below the
+            // minimum tolerance.
+            //if( relError <= ctrl.minTol )
+            if( true ) 
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
+            else
+                reg_qsd_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
+                  ctrl.qsdCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 cout << "  Corrector: " << timer.Stop() << " secs" << endl;
         }
