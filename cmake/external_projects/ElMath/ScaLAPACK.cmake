@@ -187,8 +187,8 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN)
   # Fortran libraries.
   string(REPLACE ";" "^^" MPI_C_INCSTRING "${MPI_C_INCLUDE_PATH}")
   string(REPLACE ";" "^^" MPI_Fortran_INCSTRING "${MPI_Fortran_INCLUDE_PATH}")
-  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBS}")
-  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBS}")
+  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBRARIES}")
+  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBRARIES}")
   ExternalProject_Add(project_scalapack
     PREFIX ${CMAKE_INSTALL_PREFIX}
     GIT_REPOSITORY ${SCALAPACK_URL}

@@ -47,6 +47,8 @@ else()
     option(METIS_GKREGEX "Use GKlib's internal regex?" OFF)
   endif()
 
+  string(REPLACE ";" "^^" MPI_C_INCSTRING "${MPI_C_INCLUDE_PATH}")
+  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBRARIES}")
   ExternalProject_Add(project_parmetis 
     PREFIX ${CMAKE_INSTALL_PREFIX}
     GIT_REPOSITORY ${PARMETIS_URL}
@@ -55,6 +57,7 @@ else()
     BINARY_DIR ${PARMETIS_BINARY_DIR}
     TMP_DIR    ${PARMETIS_BINARY_DIR}/tmp
     UPDATE_COMMAND ""
+    LIST_SEPARATOR ^^
     CMAKE_ARGS
       -D PCRE=${METIS_PCRE}
       -D GKREGEX=${METIS_GKREGEX}

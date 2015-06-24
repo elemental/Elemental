@@ -36,6 +36,15 @@ set(MATH_PATHS /usr/lib
 
 # Check for BLAS and LAPACK support
 # =================================
+# The default priorities of BLAS/LAPACK libraries are:
+#   1. MKL
+#   2. Accelerate/vecLib
+#   3. OpenBLAS
+#   4. BLIS
+# Since MKL and Accelerate/vecLib cannot be built, their support is detected
+# immediately before calling out to the nested CMake ScaLAPACK build.
+# There is currently a bug when ScaLAPACK is built on Macs.
+
 if(MATH_LIBS)
   set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
   message(STATUS "Will attempt to extend user-defined MATH_LIBS=${MATH_LIBS}")
