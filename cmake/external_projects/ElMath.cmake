@@ -110,7 +110,7 @@ if(APPLE)
     set(CMAKE_REQUIRED_LIBRARIES "-framework Accelerate")
     El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_ACCELERATE)
     El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_ACCELERATE)
-    set(CMAKE_REQUIRED_LIBRARIES)
+    unset(CMAKE_REQUIRED_LIBRARIES)
     if(EL_HAVE_DPOTRF_VECLIB OR EL_HAVE_DPOTRF_POST_VECLIB)
       set(MATH_LIBS "-framework vecLib")
       set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
@@ -252,10 +252,10 @@ if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
 
   # Clean up the requirements since they cause problems in other Find packages,
   # such as FindThreads
-  set(CMAKE_REQUIRED_FLAGS)
-  set(CMAKE_REQUIRED_LINKER_FLAGS)
-  set(CMAKE_REQUIRED_INCLUDES)
-  set(CMAKE_REQUIRED_LIBRARIES)
+  unset(CMAKE_REQUIRED_FLAGS)
+  unset(CMAKE_REQUIRED_LINKER_FLAGS)
+  unset(CMAKE_REQUIRED_INCLUDES)
+  unset(CMAKE_REQUIRED_LIBRARIES)
 endif()
 
 # Check for quad-precision support
@@ -290,7 +290,7 @@ if(NOT EL_DISABLE_QUAD)
     else()
       message(WARNING "Found libquadmath but could not use it in C++")
     endif()
-    set(CMAKE_REQUIRED_LIBRARIES)
+    unset(CMAKE_REQUIRED_LIBRARIES)
   endif()
 endif()
 

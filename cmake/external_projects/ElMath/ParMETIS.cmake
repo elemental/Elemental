@@ -23,7 +23,7 @@ if(NOT EL_BUILD_PARMETIS)
     else()
       message(WARNING "ParMETIS was found, but the custom add-on ParMETIS_ComputeVertexSeparator was not, so a custom version of the library must be built")
     endif()
-    set(CMAKE_REQUIRED_LIBRARIES)
+    unset(CMAKE_REQUIRED_LIBRARIES)
   endif()
 endif()
 
