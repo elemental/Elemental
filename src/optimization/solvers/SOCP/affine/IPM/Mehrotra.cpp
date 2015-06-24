@@ -695,14 +695,22 @@ void Mehrotra
                  dx,    dy,    dz,    ds,
                  dzAffScaled, dsAffScaled;
 
-    Matrix<Real> reg;
-    reg.Resize( n+m+k, 1 );
+    Matrix<Real> regPerm, regTmp;
+    regPerm.Resize( n+m+k, 1 );
+    regTmp.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
         if( i < n )
-            reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+        {
+            // TODO: Generalize regularization control structure
+            regPerm.Set( i, 0, ctrl.targetTol/10 );
+            regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+        }
         else
-            reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+        {
+            regPerm.Set( i, 0, -ctrl.targetTol/10 );
+            regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
+        }
     }
 
     Real relError = 1;
@@ -777,6 +785,9 @@ void Mehrotra
             ("Reached maximum number of iterations, ",ctrl.maxIts,
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
+        const Real wMaxLimit = Pow(Epsilon<Real>(),Real(0.4));
+        if( MaxNorm(w) >= wMaxLimit && relError <= ctrl.minTol )
+            break;
 
         // Compute the affine search direction
         // ===================================
@@ -788,6 +799,7 @@ void Mehrotra
         // Form the KKT system
         // -------------------
         KKT( A, G, w, orders, firstInds, labels, JOrig, false );
+        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
 
         // Solve for the direction
@@ -795,14 +807,12 @@ void Mehrotra
         try 
         {
             J = JOrig;
-            // This feature is currently experimental
-            const bool innerGeomEquil = 
-              ( ctrl.innerEquil && MaxNorm(J) >= 10000 );
+            const bool innerGeomEquil = false;
             SymmetricEquil
             ( J, dInner,
               innerGeomEquil, ctrl.innerEquil, 
               ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
-            UpdateRealPartOfDiagonal( J, Real(1), reg );
+            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
             if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
             {
                 NestedDissection( J.LockedGraph(), map, rootSep, info );
@@ -812,7 +822,7 @@ void Mehrotra
 
             LDL( info, JFront, LDL_2D );
             reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         } 
         catch(...)
         {
@@ -907,7 +917,7 @@ void Mehrotra
         try 
         {
             reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         } 
         catch(...)
         {
@@ -1022,15 +1032,22 @@ void Mehrotra
                        dx(comm),    dy(comm),    dz(comm),    ds(comm),
                        dzAffScaled(comm), dsAffScaled(comm);
 
-    DistMultiVec<Real> reg(comm);
-    reg.Resize( n+m+k, 1 );
-    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> regPerm(comm), regTmp(comm);
+    regTmp.Resize( n+m+k, 1 );
+    regPerm.Resize( n+m+k, 1 );
+    for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
-        const Int i = reg.GlobalRow(iLoc);
+        const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-            reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+        {
+            regPerm.SetLocal( iLoc, 0, ctrl.targetTol/10 );
+            regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+        }
         else
-            reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+        {
+            regPerm.SetLocal( iLoc, 0, -ctrl.targetTol/10 );
+            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+        }
     }
 
     Real relError = 1;
@@ -1107,6 +1124,9 @@ void Mehrotra
             ("Reached maximum number of iterations, ",ctrl.maxIts,
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
+        const Real wMaxLimit = Pow(Epsilon<Real>(),Real(0.4));
+        if( MaxNorm(w) >= wMaxLimit && relError <= ctrl.minTol )
+            break;
 
         // Compute the affine search direction
         // ===================================
@@ -1118,6 +1138,7 @@ void Mehrotra
         // Construct the KKT system
         // ------------------------
         KKT( A, G, w, orders, firstInds, labels, JOrig, onlyLower, cutoffPar );
+        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
 
@@ -1133,16 +1154,14 @@ void Mehrotra
             J = JOrig;
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            // This feature is currently experimental
-            const bool innerGeomEquil = 
-              ( ctrl.innerEquil && MaxNorm(J) >= 10000 );
+            const bool innerGeomEquil = false;
             SymmetricEquil
             ( J, dInner, 
               innerGeomEquil, ctrl.innerEquil, 
               ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print, ctrl.time );
             if( commRank == 0 && ctrl.time )
                 cout << "  Equilibration: " << timer.Stop() << " secs" << endl;
-            UpdateRealPartOfDiagonal( J, Real(1), reg );
+            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
             // Cache the metadata for the finalized J
             if( numIts == 0 )
             {
@@ -1169,7 +1188,7 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         }
         catch(...)
         {
@@ -1271,7 +1290,7 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Corrector: " << timer.Stop() << " secs" << endl;
         }
