@@ -45,11 +45,59 @@ set(MATH_PATHS /usr/lib
 # immediately before calling out to the nested CMake ScaLAPACK build.
 # There is currently a bug when ScaLAPACK is built on Macs.
 
+# Test for pre-built libraries
+# ----------------------------
+
+# Check for MKL
+# ^^^^^^^^^^^^^
+if(EL_HYBRID)
+  set(MKL_LIBS "-mkl")
+else()
+  set(MKL_LIBS "-mkl=sequential")
+endif()
+message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
+set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
+El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL)
+El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL)
+if(EL_HAVE_DPOTRF_MKL OR EL_HAVE_DPOTRF_POST_MKL)
+  set(EL_HAVE_MKL TRUE)
+endif()
+unset(CMAKE_REQUIRED_FLAGS)
+
+if(APPLE)
+  # Check for Accelerate
+  # ^^^^^^^^^^^^^^^^^^^^
+  message(STATUS "Testing for LAPACK support via Accelerate")
+  set(ACCELERATE_LIBS "-framework Accelerate")
+  set(CMAKE_REQUIRED_LIBRARIES ${ACCELERATE_LIBS})
+  El_check_function_exists(dpotrf  EL_HAVE_ACCELERATE_NO_UNDER)
+  El_check_function_exists(dpotrf_ EL_HAVE_ACCELERATE_UNDER)
+  unset(CMAKE_REQUIRED_LIBRARIES)
+  if(EL_HAVE_ACCELERATE_NO_UNDER OR EL_HAVE_ACCELERATE_UNDER)
+    set(EL_HAVE_ACCELERATE TRUE)
+  endif()
+
+  # Check for vecLib
+  # ^^^^^^^^^^^^^^^^
+  message(STATUS "Testing for LAPACK support via vecLib")
+  set(VECLIB_LIBS "-framework vecLib")
+  set(CMAKE_REQUIRED_LIBRARIES ${VECLIB_LIBS})
+  El_check_function_exists(dpotrf  EL_HAVE_VECLIB_NO_UNDER)
+  El_check_function_exists(dpotrf_ EL_HAVE_VECLIB_UNDER)
+  unset(CMAKE_REQUIRED_LIBRARIES)
+  if(EL_HAVE_VECLIB_NO_UNDER OR EL_HAVE_VECLIB_UNDER)
+    set(EL_HAVE_VECLIB TRUE)
+  endif()
+endif()
+
 if(MATH_LIBS)
   set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
   message(STATUS "Will attempt to extend user-defined MATH_LIBS=${MATH_LIBS}")
 endif()
+
 if(NOT EL_DISABLE_SCALAPACK)
+  # Attempt to build ScaLAPACK
+  # --------------------------
   include(external_projects/ElMath/ScaLAPACK)
   if(EL_HAVE_SCALAPACK)
     set(MATH_LIBS ${SCALAPACK_LIBS})
@@ -57,10 +105,12 @@ if(NOT EL_DISABLE_SCALAPACK)
   endif()
 endif()
 
+# Decide on the BLAS/LAPACK libraries
+# -----------------------------------
 if(APPLE)
-  # Attempt to find/build BLIS+LAPACK if prompted
-  # ---------------------------------------------
   if(NOT MATH_LIBS AND EL_PREFER_BLIS_LAPACK)
+    # Attempt to find/build BLIS+LAPACK
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     include(external_projects/ElMath/BLIS_LAPACK)
     if(EL_HAVE_BLIS_LAPACK)
       set(MATH_LIBS ${BLIS_LAPACK_LIBS})
@@ -69,9 +119,9 @@ if(APPLE)
     endif()
   endif()
 
-  # Attempt to find/build OpenBLAS if prompted
-  # ------------------------------------------
   if(NOT MATH_LIBS AND EL_PREFER_OPENBLAS)
+    # Attempt to find/build OpenBLAS
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     include(external_projects/ElMath/OpenBLAS)
     if(EL_HAVE_OPENBLAS)
       set(MATH_LIBS ${OPENBLAS_LIBS})
@@ -80,72 +130,41 @@ if(APPLE)
     endif()
   endif()
 
-  # Attempt to find MKL unless requested not to
-  # -------------------------------------------
-  if(NOT MATH_LIBS AND NOT EL_DISABLE_MKL)
-    if(EL_HYBRID)
-      set(MKL_LIBS "-mkl")
-    else()
-      set(MKL_LIBS "-mkl=sequential")
-    endif()
-    message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
-    set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
-    El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL)
-    El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL)
-    if(EL_HAVE_DPOTRF_MKL OR EL_HAVE_DPOTRF_POST_MKL)
-      set(MATH_LIBS ${MKL_LIBS})
-      set(MATH_LIBS_AT_CONFIG ${MKL_LIBS})
-    endif()
-    set(CMAKE_REQUIRED_FLAGS)
-  endif()
-
-  # Default to vecLib (older) or Accelerate (newer)
-  # -----------------------------------------------
-  if(NOT MATH_LIBS)
-    message(STATUS "Testing for LAPACK support via vecLib")
-    set(CMAKE_REQUIRED_LIBRARIES "-framework vecLib")
-    El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_VECLIB)
-    El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_VECLIB)
-    message(STATUS "Testing for LAPACK support via Accelerate")
-    set(CMAKE_REQUIRED_LIBRARIES "-framework Accelerate")
-    El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_ACCELERATE)
-    El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_ACCELERATE)
-    unset(CMAKE_REQUIRED_LIBRARIES)
-    if(EL_HAVE_DPOTRF_VECLIB OR EL_HAVE_DPOTRF_POST_VECLIB)
-      set(MATH_LIBS "-framework vecLib")
-      set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
-      message(STATUS "Using Apple vecLib framework.")
-    elseif(EL_HAVE_DPOTRF_ACCELERATE OR EL_HAVE_DPOTRF_POST_ACCELERATE)
-      set(MATH_LIBS "-framework Accelerate")
-      set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
-      message(STATUS "Using Apple Accelerate framework.")
-    endif()
-  endif()
-endif()
-
-# Attempt to find MKL unless requested not to
-# -------------------------------------------
-if(NOT MATH_LIBS AND NOT EL_PREFER_BLIS_LAPACK AND NOT EL_PREFER_OPENBLAS 
-   AND NOT EL_DISABLE_MKL)
-  if(EL_HYBRID)
-    set(MKL_LIBS "-mkl")
-  else()
-    set(MKL_LIBS "-mkl=sequential")
-  endif()
-  message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
-  set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
-  El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL)
-  El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL)
-  if(EL_HAVE_DPOTRF_MKL OR EL_HAVE_DPOTRF_POST_MKL)
+  if(NOT MATH_LIBS AND EL_HAVE_MKL AND NOT EL_DISABLE_MKL)
+    # Use MKL
+    # ^^^^^^^
     set(MATH_LIBS ${MKL_LIBS})
     set(MATH_LIBS_AT_CONFIG ${MKL_LIBS})
   endif()
-  set(CMAKE_REQUIRED_FLAGS)
+
+  if(NOT MATH_LIBS)
+    if(EL_HAVE_ACCELERATE)
+      # Use Accelerate
+      # ^^^^^^^^^^^^^^
+      set(MATH_LIBS ${ACCELERATE_LIBS}) 
+      set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
+      message(STATUS "Using Apple Accelerate framework")
+    elseif(EL_HAVE_VECLIB)
+      # Use MKL
+      # ^^^^^^^
+      set(MATH_LIBS ${VECLIB_LIBS})
+      set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
+      message(STATUS "Using Apple vecLib framework")
+    endif()
+  endif()
 endif()
 
-# Attempt to find/build OpenBLAS unless requested not to
-# ------------------------------------------------------
+if(NOT MATH_LIBS AND EL_HAVE_MKL AND NOT EL_DISABLE_MKL AND
+   NOT EL_PREFER_BLIS_LAPACK AND NOT EL_PREFER_OPENBLAS)
+    # Use MKL
+    # ^^^^^^^
+    set(MATH_LIBS ${MKL_LIBS})
+    set(MATH_LIBS_AT_CONFIG ${MKL_LIBS})
+endif()
+
 if(NOT MATH_LIBS AND NOT EL_PREFER_BLIS_LAPACK AND NOT EL_DISABLE_OPENBLAS)
+  # Attempt to find/build OpenBLAS
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   include(external_projects/ElMath/OpenBLAS)
   if(EL_HAVE_OPENBLAS)
     set(MATH_LIBS ${OPENBLAS_LIBS})
@@ -154,9 +173,9 @@ if(NOT MATH_LIBS AND NOT EL_PREFER_BLIS_LAPACK AND NOT EL_DISABLE_OPENBLAS)
   endif()
 endif()
 
-# Attempt to find/build BLIS+LAPACK unless requested not to
-# ---------------------------------------------------------
 if(NOT MATH_LIBS AND NOT EL_DISABLE_BLIS_LAPACK)
+  # Attempt to find/build BLIS+LAPACK
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   include(external_projects/ElMath/BLIS_LAPACK)
   if(EL_HAVE_BLIS_LAPACK)
     set(MATH_LIBS_AT_CONFIG ${BLIS_LAPACK_LIBS_AT_CONFIG})
@@ -164,9 +183,9 @@ if(NOT MATH_LIBS AND NOT EL_DISABLE_BLIS_LAPACK)
   endif()
 endif()
 
-# Look for reference implementations of BLAS+LAPACK
-# -------------------------------------------------
 if(NOT MATH_LIBS)
+  # Look for reference implementations of BLAS+LAPACK
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   message(STATUS "Searching for reference BLAS and LAPACK")
   set(REFERENCE_REQUIRED LAPACK BLAS)
   find_library(BLAS_LIB NAMES blas PATHS ${MATH_PATHS})
