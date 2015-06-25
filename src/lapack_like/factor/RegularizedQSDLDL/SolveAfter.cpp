@@ -550,6 +550,7 @@ inline Int RegularizedSolveAfterNoPromote
     // Store the final result
     // ======================
     b = x;
+
     return refineIt;
 }
 
@@ -743,6 +744,7 @@ inline Int RegularizedSolveAfterPromote
     // Store the final result
     // ======================
     Copy( xProm, b );
+
     return refineIt;
 }
 

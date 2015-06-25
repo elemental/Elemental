@@ -41,8 +41,8 @@ template<typename T>
 DistMultiVec<T>::DistMultiVec( const DistMultiVec<T>& A )
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::DistMultiVec"))
-    height_ = -1;
-    width_ = -1;
+    height_ = 0;
+    width_ = 0;
     comm_ = mpi::COMM_WORLD;
     if( &A != this )
         *this = A;
