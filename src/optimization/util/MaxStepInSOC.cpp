@@ -109,10 +109,9 @@ namespace El {
 
 namespace {
 
-// Consider a lower bound?
 template<typename Real>
 Real ChooseStepLength
-( Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
+( Real x0, Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
   Real delta=Epsilon<Real>() )
 {
     DEBUG_ONLY(CSE cse("ChooseStepLength"))
@@ -123,7 +122,14 @@ Real ChooseStepLength
     }
     else if( Abs(yDet) <= delta )
     {
-        step = -xDet/(2*xTRy);
+        // Fall back to a backstepping line search rather than using the 
+        // alpha^2 = 0 approximation alpha = - 2 det(x) / (x^T R y),
+        // which has been observed to, in some cases, return 0 instead of the
+        // upper bound.
+        Real stepRatio = 0.99;
+        step = upperBound;
+        while( step*step*yDet + 2*step*xTRy + xDet <= 0 || x0+step*y0 <= 0 )
+            step *= stepRatio;
     }
     else
     {
@@ -175,12 +181,13 @@ Real MaxStepInSOC
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
+        const PReal x0 = xProm.Get(i,0);
         const PReal y0 = yProm.Get(i,0);
         const PReal xDet = xDets.Get(i,0);
         const PReal yDet = yDets.Get(i,0);
         const PReal xTRy = xTRys.Get(i,0);
 
-        alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
+        alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
 
         i += order;
     }
@@ -227,12 +234,13 @@ Real MaxStepInSOC
         if( i != firstInds.GetLocal(iLoc,0) )
             continue;
 
+        const PReal x0 = x.GetLocal(iLoc,0);
         const PReal y0 = y.GetLocal(iLoc,0);
         const PReal xDet = xDets.GetLocal(iLoc,0);
         const PReal yDet = yDets.GetLocal(iLoc,0);
         const PReal xTRy = xTRys.GetLocal(iLoc,0);
         
-        alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
+        alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
 
     return mpi::AllReduce( alpha, mpi::MIN, x.DistComm() );
@@ -269,12 +277,13 @@ Real MaxStepInSOC
         if( i != firstInds.GetLocal(iLoc,0) )
             continue;
         
+        const PReal x0 = xProm.GetLocal(iLoc,0);
         const PReal y0 = yProm.GetLocal(iLoc,0);
         const PReal xDet = xDets.GetLocal(iLoc,0);
         const PReal yDet = yDets.GetLocal(iLoc,0);
         const PReal xTRy = xTRys.GetLocal(iLoc,0);
 
-        alpha = ChooseStepLength(y0,xDet,yDet,xTRy,alpha);
+        alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
     return mpi::AllReduce( alpha, mpi::MIN, comm );
 }
