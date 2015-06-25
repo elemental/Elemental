@@ -240,6 +240,40 @@ EL_EXPORT ElError ElDistMultiVecSet_c
 EL_EXPORT ElError ElDistMultiVecSet_z
 ( ElDistMultiVec_z A, ElInt i, ElInt j, complex_double value );
 
+/* void DistMultiVec<T>::Reserve( Int numRemoteEntries )
+   ----------------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecReserve_i
+( ElDistMultiVec_i A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMultiVecReserve_s
+( ElDistMultiVec_s A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMultiVecReserve_d
+( ElDistMultiVec_d A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMultiVecReserve_c
+( ElDistMultiVec_c A, ElInt numRemoteEntries );
+EL_EXPORT ElError ElDistMultiVecReserve_z
+( ElDistMultiVec_z A, ElInt numRemoteEntries );
+
+/* void DistMultiVec<T>::QueueUpdate( Int i, Int j, T value )
+   ---------------------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecQueueUpdate_i
+( ElDistMultiVec_i A, ElInt i, ElInt j, ElInt value );
+EL_EXPORT ElError ElDistMultiVecQueueUpdate_s
+( ElDistMultiVec_s A, ElInt i, ElInt j, float value );
+EL_EXPORT ElError ElDistMultiVecQueueUpdate_d
+( ElDistMultiVec_d A, ElInt i, ElInt j, double value );
+EL_EXPORT ElError ElDistMultiVecQueueUpdate_c
+( ElDistMultiVec_c A, ElInt i, ElInt j, complex_float value );
+EL_EXPORT ElError ElDistMultiVecQueueUpdate_z
+( ElDistMultiVec_z A, ElInt i, ElInt j, complex_double value );
+
+/* void DistMultiVec<T>::ProcessQueues()
+   ------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecProcessQueues_i( ElDistMultiVec_i A );
+EL_EXPORT ElError ElDistMultiVecProcessQueues_s( ElDistMultiVec_s A );
+EL_EXPORT ElError ElDistMultiVecProcessQueues_d( ElDistMultiVec_d A );
+EL_EXPORT ElError ElDistMultiVecProcessQueues_c( ElDistMultiVec_c A );
+EL_EXPORT ElError ElDistMultiVecProcessQueues_z( ElDistMultiVec_z A );
+
 /* T DistMultiVec<T>::GetLocal( Int iLocal, Int j ) const
    ------------------------------------------------------ */
 EL_EXPORT ElError ElDistMultiVecGetLocal_i

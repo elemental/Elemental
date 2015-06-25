@@ -74,7 +74,18 @@ extern "C" {
   { EL_TRY( CReflect(A)->SetLocal(iLocal,j,CReflect(value)) ) } \
   ElError ElDistMultiVecUpdateLocal_ ## SIG \
   ( ElDistMultiVec_ ## SIG A, ElInt iLocal, ElInt j, CREFLECT(T) value ) \
-  { EL_TRY( CReflect(A)->UpdateLocal(iLocal,j,CReflect(value)) ) }
+  { EL_TRY( CReflect(A)->UpdateLocal(iLocal,j,CReflect(value)) ) } \
+  /* void Reserve( Int numRemoteEntries ) */ \
+  ElError ElDistMultiVecReserve_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElInt numRemoteEntries ) \
+  { EL_TRY( CReflect(A)->Reserve(numRemoteEntries) ) } \
+  /* void QueueUpdate( Int i, Int j, T value ) */ \
+  ElError ElDistMultiVecQueueUpdate_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElInt i, ElInt j, CREFLECT(T) value ) \
+  { EL_TRY( CReflect(A)->QueueUpdate(i,j,CReflect(value)) ) } \
+  /* void ProcessQueues() */ \
+  ElError ElDistMultiVecProcessQueues_ ## SIG( ElDistMultiVec_ ## SIG A ) \
+  { EL_TRY( CReflect(A)->ProcessQueues() ) }
 
 #include "El/macros/CInstantiate.h"
 

@@ -295,6 +295,50 @@ class DistMultiVec(object):
     elif self.tag == zTag: lib.ElDistMultiVecSet_z(*args)
     else: DataExcept()
 
+  lib.ElDistMultiVecReserve_i.argtypes = \
+  lib.ElDistMultiVecReserve_s.argtypes = \
+  lib.ElDistMultiVecReserve_d.argtypes = \
+  lib.ElDistMultiVecReserve_c.argtypes = \
+  lib.ElDistMultiVecReserve_z.argtypes = \
+    [c_void_p,iType]
+  def Reserve(self,numRemoteEntries):
+    args = [self.obj,numRemoteEntries]
+    if   self.tag == iTag: lib.ElDistMultiVecReserve_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecReserve_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecReserve_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecReserve_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecReserve_z(*args)
+    else: DataExcept()
+
+  lib.ElDistMultiVecQueueUpdate_i.argtypes = [c_void_p,iType,iType,iType]
+  lib.ElDistMultiVecQueueUpdate_s.argtypes = [c_void_p,iType,iType,sType]
+  lib.ElDistMultiVecQueueUpdate_d.argtypes = [c_void_p,iType,iType,dType]
+  lib.ElDistMultiVecQueueUpdate_c.argtypes = [c_void_p,iType,iType,cType]
+  lib.ElDistMultiVecQueueUpdate_z.argtypes = [c_void_p,iType,iType,zType]
+  def QueueUpdate(self,i,j,value):
+    args = [self.obj,i,j,value]
+    if   self.tag == iTag: lib.ElDistMultiVecQueueUpdate_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecQueueUpdate_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecQueueUpdate_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecQueueUpdate_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecQueueUpdate_z(*args)
+    else: DataExcept()
+
+  lib.ElDistMultiVecProcessQueues_i.argtypes = \
+  lib.ElDistMultiVecProcessQueues_s.argtypes = \
+  lib.ElDistMultiVecProcessQueues_d.argtypes = \
+  lib.ElDistMultiVecProcessQueues_c.argtypes = \
+  lib.ElDistMultiVecProcessQueues_z.argtypes = \
+    [c_void_p]
+  def ProcessQueues(self):
+    args = [self.obj]
+    if   self.tag == iTag: lib.ElDistMultiVecProcessQueues_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecProcessQueues_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecProcessQueues_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecProcessQueues_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecProcessQueues_z(*args)
+    else: DataExcept()
+
   lib.ElDistMultiVecGetLocal_i.argtypes = [c_void_p,iType,iType,POINTER(iType)]
   lib.ElDistMultiVecGetLocal_s.argtypes = [c_void_p,iType,iType,POINTER(sType)]
   lib.ElDistMultiVecGetLocal_d.argtypes = [c_void_p,iType,iType,POINTER(dType)]
