@@ -145,8 +145,8 @@ if(APPLE)
       set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
       message(STATUS "Using Apple Accelerate framework")
     elseif(EL_HAVE_VECLIB)
-      # Use MKL
-      # ^^^^^^^
+      # Use vecLib
+      # ^^^^^^^^^^
       set(MATH_LIBS ${VECLIB_LIBS})
       set(MATH_LIBS_AT_CONFIG ${MATH_LIBS})
       message(STATUS "Using Apple vecLib framework")
