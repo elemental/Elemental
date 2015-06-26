@@ -9,4 +9,4 @@
 #include "El.h"
 
 ElError ElSizeOfCBool( unsigned* boolSize )
-{ *boolSize = sizeof(bool); }
+{ *boolSize = sizeof(bool); return EL_SUCCESS; }
