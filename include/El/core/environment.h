@@ -23,6 +23,7 @@ EL_EXPORT ElError ElPrintCxxCompilerInfo( FILE* stream );
 EL_EXPORT ElError ElUsing64BitInt( bool* using64 );
 EL_EXPORT ElError ElUsing64BitBlasInt( bool* using64 );
 EL_EXPORT ElError ElSizeOfBool( unsigned* boolSize );
+EL_EXPORT ElError ElSizeOfCBool( unsigned* boolSize );
 
 EL_EXPORT ElError ElInitialize( int* argc, char*** argv );
 EL_EXPORT ElError ElFinalize();

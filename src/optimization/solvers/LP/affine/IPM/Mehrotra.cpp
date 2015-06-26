@@ -943,7 +943,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;
