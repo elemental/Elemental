@@ -1184,12 +1184,13 @@ void Mehrotra
             LDL( info, JFront, LDL_2D );
             if( commRank == 0 && ctrl.time )
                 cout << "  RegQSDLDL: " << timer.Stop() << " secs" << endl;
+
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             reg_qsd_ldl::SolveAfter
             ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
             if( commRank == 0 && ctrl.time )
-                cout << "  Aff solve: " << timer.Stop() << " secs" << endl;
+                cout << "  Affine solve: " << timer.Stop() << " secs" << endl;
         }
         catch(...)
         {

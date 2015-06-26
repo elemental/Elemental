@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 
+EL_EXPORT ElError ElMPICommF2C( int fortComm, MPI_Comm* cComm );
 EL_EXPORT ElError ElMPICommSameSizeAsInteger( bool* sameSize );
 EL_EXPORT ElError ElMPIGroupSameSizeAsInteger( bool* sameSize );
 /* These may seem trivial but is useful when calling C from another language */

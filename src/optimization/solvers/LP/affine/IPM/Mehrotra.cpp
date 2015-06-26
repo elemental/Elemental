@@ -1149,6 +1149,7 @@ void Mehrotra
             LDL( info, JFront, LDL_2D );
             if( commRank == 0 && ctrl.time )
                 cout << "  LDL: " << timer.Stop() << " secs" << endl;
+
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             reg_qsd_ldl::SolveAfter

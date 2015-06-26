@@ -845,19 +845,9 @@ void Mehrotra
             JFront.Pull( J, map, info );
 
             LDL( info, JFront, LDL_2D );
-            // It would be good to rigorously verify that solving the 
-            // regularized system is okay if our accuracy is still below the
-            // minimum tolerance.
-            //if( relError <= ctrl.minTol )
-            if( true )
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
-            else
-                reg_qsd_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
-                  ctrl.qsdCtrl.progress );
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+              ctrl.qsdCtrl );
         } 
         catch(...)
         {
@@ -951,19 +941,9 @@ void Mehrotra
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
         try 
         {
-            // It would be good to rigorously verify that solving the 
-            // regularized system is okay if our accuracy is still below the
-            // minimum tolerance.
-            //if( relError <= ctrl.minTol )
-            if( true )
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
-            else
-                reg_qsd_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
-                  ctrl.qsdCtrl.progress );
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+              ctrl.qsdCtrl );
         } 
         catch(...)
         {
@@ -1239,22 +1219,14 @@ void Mehrotra
             LDL( info, JFront, LDL_2D );
             if( commRank == 0 && ctrl.time )
                 cout << "  LDL: " << timer.Stop() << " secs" << endl;
+
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-
-            // It would be good to rigorously verify that solving the 
-            // regularized system is okay if our accuracy is still below the
-            // minimum tolerance.
-            //if( relError <= ctrl.minTol )
-            if( true )
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
-            else
-                reg_qsd_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
-                  ctrl.qsdCtrl.progress );
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+              ctrl.qsdCtrl );
+            if( commRank == 0 && ctrl.time )
+                cout << "  Affine: " << timer.Stop() << " secs" << endl;
         }
         catch(...)
         {
@@ -1265,8 +1237,6 @@ void Mehrotra
                 ("Solve failed with rel. error ",relError,
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
-        if( commRank == 0 && ctrl.time )
-            cout << "  Affine: " << timer.Stop() << " secs" << endl;
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
@@ -1355,19 +1325,9 @@ void Mehrotra
         {
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            // It would be good to rigorously verify that solving the 
-            // regularized system is okay if our accuracy is still below the
-            // minimum tolerance.
-            //if( relError <= ctrl.minTol )
-            if( true ) 
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
-            else
-                reg_qsd_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts, 
-                  ctrl.qsdCtrl.progress );
+            reg_qsd_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+              ctrl.qsdCtrl );
             if( commRank == 0 && ctrl.time )
                 cout << "  Corrector: " << timer.Stop() << " secs" << endl;
         }

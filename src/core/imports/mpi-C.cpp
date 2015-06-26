@@ -11,6 +11,10 @@
 
 extern "C" {
 
+// TODO: C++ implementation as well?
+ElError ElMPICommF2C( int fortComm, MPI_Comm* cComm )
+{ *cComm = MPI_Comm_f2c(fortComm); return EL_SUCCESS; }
+
 ElError ElMPICommSameSizeAsInteger( bool* sameSize )
 { *sameSize = El::mpi::CommSameSizeAsInteger(); return EL_SUCCESS; }
 
