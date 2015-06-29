@@ -304,19 +304,46 @@ void ForceIntoSOC
 (       Matrix<Real>& x,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  Real minDet=0 );
+  Real minDist=0 );
 template<typename Real>
 void ForceIntoSOC
 (       AbstractDistMatrix<Real>& x,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  Real minDet=0, Int cutoff=1000 );
+  Real minDist=0, Int cutoff=1000 );
 template<typename Real>
 void ForceIntoSOC
 (       DistMultiVec<Real>& x,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  Real minDet=0, Int cutoff=1000 );
+  Real minDist=0, Int cutoff=1000 );
+
+// Force pair into SOC
+// ===================
+template<typename Real>
+void ForcePairIntoSOC
+(       Matrix<Real>& s,
+        Matrix<Real>& z,
+  const Matrix<Real>& w,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  Real wMaxNormLimit );
+template<typename Real>
+void ForcePairIntoSOC
+(       AbstractDistMatrix<Real>& s,
+        AbstractDistMatrix<Real>& z,
+  const AbstractDistMatrix<Real>& w,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  Real wMaxNormLimit, Int cutoff=1000 );
+template<typename Real>
+void ForcePairIntoSOC
+(       DistMultiVec<Real>& s,
+        DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& w,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Real wMaxNormLimit, Int cutoff=1000 );
 
 // Number of non-SOC members
 // =========================

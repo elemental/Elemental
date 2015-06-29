@@ -95,9 +95,9 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDet = Epsilon<Real>();
-        ForceIntoSOC( s, orders, firstInds, minDet );
-        ForceIntoSOC( z, orders, firstInds, minDet );
+        const Real minDist = Epsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDist );
+        ForceIntoSOC( z, orders, firstInds, minDist );
         SOCNesterovTodd( s, z, w, orders, firstInds ); 
 
         // Check for convergence
@@ -154,15 +154,11 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
-        //       large too quickly and could likely be significantly improved
-        //       (e.g., by carefully choosing which pieces of s and z to push
-        //       into the cone).
         const Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm > Real(100)/relError )
+        const Real wMaxNormLimit = Real(100)/relError;
+        if( wMaxNorm > wMaxNormLimit )
         {
-            ForceIntoSOC( s, orders, firstInds, relError/100 );
-            ForceIntoSOC( z, orders, firstInds, relError/100 );
+            ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
             SOCNesterovTodd( s, z, w, orders, firstInds );
         }
         SOCSquareRoot( w, wRoot, orders, firstInds );
@@ -425,9 +421,9 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDet = Epsilon<Real>();
-        ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
-        ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
+        const Real minDist = Epsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDist, cutoffPar );
+        ForceIntoSOC( z, orders, firstInds, minDist, cutoffPar );
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
 
         // Check for convergence
@@ -483,15 +479,12 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
-        //       large too quickly and could likely be significantly improved
-        //       (e.g., by carefully choosing which pieces of s and z to push
-        //       into the cone).
         const Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm > Real(100)/relError )
+        const Real wMaxNormLimit = Real(100)/relError;
+        if( wMaxNorm > wMaxNormLimit )
         {
-            ForceIntoSOC( s, orders, firstInds, relError/100, cutoffPar );
-            ForceIntoSOC( z, orders, firstInds, relError/100, cutoffPar );
+            ForcePairIntoSOC
+            ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
             SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
         }
         SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
@@ -741,9 +734,9 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDet = Epsilon<Real>();
-        ForceIntoSOC( s, orders, firstInds, minDet );
-        ForceIntoSOC( z, orders, firstInds, minDet );
+        const Real minDist = Epsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDist );
+        ForceIntoSOC( z, orders, firstInds, minDist );
         SOCNesterovTodd( s, z, w, orders, firstInds );
 
         // Check for convergence
@@ -803,14 +796,10 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
-        //       large too quickly and could likely be significantly improved
-        //       (e.g., by carefully choosing which pieces of s and z to push
-        //       into the cone).
-        if( wMaxNorm > Real(100)/relError )
+        const Real wMaxNormLimit = Real(100)/relError;
+        if( wMaxNorm > wMaxNormLimit )
         {
-            ForceIntoSOC( s, orders, firstInds, relError/100 );
-            ForceIntoSOC( z, orders, firstInds, relError/100 );
+            ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
             SOCNesterovTodd( s, z, w, orders, firstInds );
         }
         SOCSquareRoot( w, wRoot, orders, firstInds );
@@ -1091,9 +1080,9 @@ void Mehrotra
         // Ensure that s and z are in the cone
         // ===================================
         // TODO: Let this be tunable
-        const Real minDet = Epsilon<Real>();
-        ForceIntoSOC( s, orders, firstInds, minDet, cutoffPar );
-        ForceIntoSOC( z, orders, firstInds, minDet, cutoffPar );
+        const Real minDist = Epsilon<Real>();
+        ForceIntoSOC( s, orders, firstInds, minDist, cutoffPar );
+        ForceIntoSOC( z, orders, firstInds, minDist, cutoffPar );
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
 
         // Check for convergence
@@ -1153,14 +1142,11 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        // NOTE: This is an ad-hoc means of preventing -W^T W from getting too
-        //       large too quickly and could likely be significantly improved
-        //       (e.g., by carefully choosing which pieces of s and z to push
-        //       into the cone).
-        if( wMaxNorm > Real(100)/relError )
+        const Real wMaxNormLimit = Real(100)/relError;
+        if( wMaxNorm > wMaxNormLimit )
         {
-            ForceIntoSOC( s, orders, firstInds, relError/100, cutoffPar );
-            ForceIntoSOC( z, orders, firstInds, relError/100, cutoffPar );
+            ForcePairIntoSOC
+            ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
             SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
         }
         SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );

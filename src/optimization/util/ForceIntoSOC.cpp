@@ -15,7 +15,7 @@ void ForceIntoSOC
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds,
-  Real minDet )
+  Real minDist )
 {
     DEBUG_ONLY(CSE cse("ForceIntoSOC"))
 
@@ -28,8 +28,8 @@ void ForceIntoSOC
         const Real x0 = x.Get(i,0);
         const Real lowerNorm = d.Get(i,0);
         const Int firstInd = firstInds.Get(i,0);
-        if( i == firstInd && x0-lowerNorm < minDet )
-            x.Update( i, 0, minDet - (x0-lowerNorm) );
+        if( i == firstInd && x0-lowerNorm < minDist )
+            x.Update( i, 0, minDist - (x0-lowerNorm) );
     }
 }
 
@@ -38,7 +38,7 @@ void ForceIntoSOC
 (       AbstractDistMatrix<Real>& xPre, 
   const AbstractDistMatrix<Int>& ordersPre, 
   const AbstractDistMatrix<Int>& firstIndsPre,
-  Real minDet, Int cutoff )
+  Real minDist, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ForceIntoSOC"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
@@ -63,8 +63,8 @@ void ForceIntoSOC
         const Int i = x.GlobalRow(iLoc);
         const Real x0 = x.GetLocal(iLoc,0);
         const Real lowerNorm = d.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && x0-lowerNorm < minDet )
-            x.UpdateLocal( iLoc, 0, minDet - (x0-lowerNorm) );
+        if( i == firstInds.GetLocal(iLoc,0) && x0-lowerNorm < minDist )
+            x.UpdateLocal( iLoc, 0, minDist - (x0-lowerNorm) );
     }
 }
 
@@ -73,7 +73,7 @@ void ForceIntoSOC
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, 
-  Real minDet, Int cutoff )
+  Real minDist, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ForceIntoSOC"))
 
@@ -86,8 +86,8 @@ void ForceIntoSOC
         const Int i = x.GlobalRow(iLoc);
         const Real x0 = x.GetLocal(iLoc,0);
         const Real lowerNorm = d.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && x0-lowerNorm < minDet )
-            x.UpdateLocal( iLoc, 0, minDet - (x0-lowerNorm) );
+        if( i == firstInds.GetLocal(iLoc,0) && x0-lowerNorm < minDist )
+            x.UpdateLocal( iLoc, 0, minDist - (x0-lowerNorm) );
     }
 }
 
@@ -96,17 +96,17 @@ void ForceIntoSOC
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    Real minDet ); \
+    Real minDist ); \
   template void ForceIntoSOC \
   (       AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    Real minDet, Int cutoff ); \
+    Real minDist, Int cutoff ); \
   template void ForceIntoSOC \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    Real minDet, Int cutoff );
+    Real minDist, Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

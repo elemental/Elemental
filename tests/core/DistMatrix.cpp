@@ -162,12 +162,22 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
 
         if( commRank == 0 )
+            std::cout << "Testing with integers:" << std::endl;
+        DistMatrixTest<Int>( m, n, g, print );
+
+        if( commRank == 0 )
             std::cout << "Testing with floats:" << std::endl;
         DistMatrixTest<float>( m, n, g, print );
 
         if( commRank == 0 )
             std::cout << "Testing with doubles:" << std::endl;
         DistMatrixTest<double>( m, n, g, print );
+
+#ifdef EL_HAVE_QUAD
+        if( commRank == 0 )
+            std::cout << "Testing with quads:" << std::endl;
+        DistMatrixTest<Quad>( m, n, g, print );
+#endif
 
         if( commRank == 0 )
             std::cout << "Testing with single-precision complex:" << std::endl;
@@ -176,6 +186,12 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             std::cout << "Testing with double-precision complex:" << std::endl;
         DistMatrixTest<Complex<double>>( m, n, g, print );
+
+#ifdef EL_HAVE_QUAD
+        if( commRank == 0 )
+            std::cout << "Testing with quad-precision complex:" << std::endl;
+        DistMatrixTest<Complex<Quad>>( m, n, g, print );
+#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 
