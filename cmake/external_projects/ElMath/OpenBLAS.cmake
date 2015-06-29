@@ -106,10 +106,12 @@ elseif(FORTRAN_WORKS AND NOT MSVC AND NOT EL_CONFIG_TIME_OPENBLAS)
     endif()
   endif()
 
-  if(EL_HYBRID)
-    set(OPENBLAS_THREAD_COMMAND)
-  else()
-    set(OPENBLAS_THREAD_COMMAND USE_THREAD=0)
+  if(NOT OPENBLAS_THREAD_COMMAND)
+    if(EL_HYBRID)
+      set(OPENBLAS_THREAD_COMMAND)
+    else()
+      set(OPENBLAS_THREAD_COMMAND USE_THREAD=0)
+    endif()
   endif()
 
   ExternalProject_Add(project_openblas
