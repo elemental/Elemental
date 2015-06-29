@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 m = 4000
 n = 2000
@@ -45,9 +45,9 @@ if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
-startNNLS = time.clock()
+startNNLS = El.mpi.Time()
 x = El.NNLS( A, b )
-endNNLS = time.clock()
+endNNLS = El.mpi.Time()
 if worldRank == 0:
   print "NNLS time:", endNNLS-startNNLS, "seconds"
 
@@ -63,9 +63,9 @@ eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
   print "|| A x - b ||_2 =", eTwoNorm
 
-startLS = time.clock()
+startLS = El.mpi.Time()
 xLS = El.LeastSquares( A, b )
-endLS = time.clock()
+endLS = El.mpi.Time()
 if worldRank == 0:
   print "LS time:", endLS-startLS, "seconds"
 El.Copy( b, e )

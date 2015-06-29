@@ -45,7 +45,8 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
-    const bool forceSameStep = false;
+    const bool forceSameStep = true;
+    const bool vandenbergheSigma = true;
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -247,8 +248,8 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
+        // Compute a centrality parameter
+        // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( forceSameStep )
@@ -256,18 +257,27 @@ void Mehrotra
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-        // NOTE: dz and dx are used as temporaries
-        dx = x;
-        dz = z;
-        Axpy( alphaAffPri,  dxAff, dx );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(dx,dz) / n;
-        // TODO: Allow the user to override this function
-        const Real sigma = Pow(muAff/mu,Real(3)); 
+        Real sigma;
+        if( vandenbergheSigma )
+        {
+            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+        }
+        else
+        {
+            // NOTE: dz and dx are used as temporaries
+            dx = x;
+            dz = z;
+            Axpy( alphaAffPri,  dxAff, dx );
+            Axpy( alphaAffDual, dzAff, dz );
+            const Real muAff = Dot(dx,dz) / n;
+            // TODO: Allow the user to override this function
+            sigma = Pow(muAff/mu,Real(3)); 
+            sigma = Min(sigma,Real(1));
+            if( ctrl.print )
+                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+        }
         if( ctrl.print )
-            cout << "  muAff = " << muAff 
-                 << ", mu = " << mu 
-                 << ", sigma = " << sigma << endl;
+            cout << "  sigma = " << sigma << endl;
 
         // Solve for the combined direction
         // ================================
@@ -370,7 +380,8 @@ void Mehrotra
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
 
-    const bool forceSameStep = false;
+    const bool forceSameStep = true;
+    const bool vandenbergheSigma = true;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> Q(grid), A(grid), b(grid), c(grid);
@@ -597,8 +608,8 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
+        // Compute a centrality parameter
+        // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( forceSameStep )
@@ -606,18 +617,27 @@ void Mehrotra
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-        // NOTE: dz and dx are used as temporaries
-        dx = x;
-        dz = z;
-        Axpy( alphaAffPri,  dxAff, dx );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(dx,dz) / n;
-        // TODO: Allow the user to override this function
-        const Real sigma = Pow(muAff/mu,Real(3)); 
+        Real sigma;
+        if( vandenbergheSigma )
+        {
+            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+        }
+        else
+        {
+            // NOTE: dz and dx are used as temporaries
+            dx = x;
+            dz = z;
+            Axpy( alphaAffPri,  dxAff, dx );
+            Axpy( alphaAffDual, dzAff, dz );
+            const Real muAff = Dot(dx,dz) / n;
+            // TODO: Allow the user to override this function
+            sigma = Pow(muAff/mu,Real(3)); 
+            sigma = Min(sigma,Real(1));
+            if( ctrl.print && commRank == 0 )
+                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+        }
         if( ctrl.print && commRank == 0 )
-            cout << "  muAff = " << muAff 
-                 << ", mu = " << mu 
-                 << ", sigma = " << sigma << endl;
+            cout << "  sigma = " << sigma << endl;
 
         // Compute the combined direction
         // ==============================
@@ -718,7 +738,8 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
-    const bool forceSameStep = false;
+    const bool forceSameStep = true;
+    const bool vandenbergheSigma = true;
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -967,8 +988,8 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
+        // Compute a centrality parameter
+        // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( forceSameStep )
@@ -976,18 +997,27 @@ void Mehrotra
         if( ctrl.print )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-        // NOTE: dz and dx are used as temporaries
-        dx = x;
-        dz = z;
-        Axpy( alphaAffPri,  dxAff, dx );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(dx,dz) / n;
-        // TODO: Allow the user to override this function
-        const Real sigma = Pow(muAff/mu,Real(3)); 
+        Real sigma;
+        if( vandenbergheSigma )
+        {
+            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+        }
+        else
+        {
+            // NOTE: dz and dx are used as temporaries
+            dx = x;
+            dz = z;
+            Axpy( alphaAffPri,  dxAff, dx );
+            Axpy( alphaAffDual, dzAff, dz );
+            const Real muAff = Dot(dx,dz) / n;
+            // TODO: Allow the user to override this function
+            sigma = Pow(muAff/mu,Real(3)); 
+            sigma = Min(sigma,Real(1));
+            if( ctrl.print )
+                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+        }
         if( ctrl.print )
-            cout << "  muAff = " << muAff 
-                 << ", mu = " << mu 
-                 << ", sigma = " << sigma << endl;
+            cout << "  sigma = " << sigma << endl;
 
         // Compute the combined direction
         // ==============================
@@ -1097,7 +1127,8 @@ void Mehrotra
     const int commRank = mpi::Rank(comm);
     Timer timer;
 
-    const bool forceSameStep = false;
+    const bool forceSameStep = true;
+    const bool vandenbergheSigma = true;
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -1384,8 +1415,8 @@ void Mehrotra
                  << dzErrorNrm2/(1+rmuNrm2) << endl;
 #endif
 
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
+        // Compute a centrality parameter
+        // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
         if( forceSameStep )
@@ -1393,18 +1424,27 @@ void Mehrotra
         if( ctrl.print && commRank == 0 )
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
-        // NOTE: dz and dx are used as temporaries
-        dx = x;
-        dz = z;
-        Axpy( alphaAffPri,  dxAff, dx );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(dx,dz) / n;
-        // TODO: Allow the user to override this function
-        const Real sigma = Pow(muAff/mu,Real(3)); 
+        Real sigma;
+        if( vandenbergheSigma )
+        {
+            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+        }
+        else
+        {
+            // NOTE: dz and dx are used as temporaries
+            dx = x;
+            dz = z;
+            Axpy( alphaAffPri,  dxAff, dx );
+            Axpy( alphaAffDual, dzAff, dz );
+            const Real muAff = Dot(dx,dz) / n;
+            // TODO: Allow the user to override this function
+            sigma = Pow(muAff/mu,Real(3)); 
+            sigma = Min(sigma,Real(1));
+            if( ctrl.print && commRank == 0 )
+                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+        }
         if( ctrl.print && commRank == 0 )
-            cout << "  muAff = " << muAff 
-                 << ", mu = " << mu 
-                 << ", sigma = " << sigma << endl;
+            cout << "  sigma = " << sigma << endl;
 
         // Solve for the combined direction
         // ================================

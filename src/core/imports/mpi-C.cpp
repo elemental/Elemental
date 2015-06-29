@@ -48,4 +48,7 @@ ElError ElMPIWorldRank( int* rank )
 ElError ElMPIWorldSize( int* size )
 { EL_TRY( *size = El::mpi::WorldSize() ) }
 
+ElError ElMPITime( double* time )
+{ EL_TRY( *time = El::mpi::Time() ) }
+
 } // extern "C"

@@ -33,6 +33,8 @@ EL_EXPORT ElError ElMPIGroupFree( MPI_Group* group );
 EL_EXPORT ElError ElMPIWorldRank( int* rank );
 EL_EXPORT ElError ElMPIWorldSize( int* size );
 
+EL_EXPORT ElError ElMPITime( double* time );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

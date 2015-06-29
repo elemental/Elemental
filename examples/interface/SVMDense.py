@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 # TODO: Add noise so that the soft margin is actually put to use.
 #       Perhaps a weighted coin should be flipped based upon the distance to the
@@ -76,9 +76,9 @@ for j in xrange(0,numLambdas):
   if worldRank == 0:
     print "lambda =", lambd
 
-  startSVM = time.clock()
+  startSVM = El.mpi.Time()
   x = El.SVM( A, d, lambd, ctrl )
-  endSVM = time.clock()
+  endSVM = El.mpi.Time()
   if worldRank == 0:
     print "SVM time: ", endSVM-startSVM
 

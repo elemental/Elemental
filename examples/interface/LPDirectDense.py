@@ -7,7 +7,6 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import El
-import time
 
 m = 1000
 n = 2000
@@ -71,9 +70,9 @@ if testMehrotra:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
-  startMehrotra = time.clock()
+  startMehrotra = El.mpi.Time()
   El.LPDirect(A,b,c,x,y,z,ctrl)
-  endMehrotra = time.clock()
+  endMehrotra = El.mpi.Time()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
 
@@ -95,9 +94,9 @@ if testIPF:
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
-  startIPF = time.clock()
+  startIPF = El.mpi.Time()
   El.LPDirect(A,b,c,x,y,z,ctrl)
-  endIPF = time.clock()
+  endIPF = El.mpi.Time()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
 
@@ -113,9 +112,9 @@ if testIPF:
 if testADMM:
   ctrl.approach = El.LP_ADMM
   ctrl.admmCtrl.progress = progress
-  startADMM = time.clock()
+  startADMM = El.mpi.Time()
   x = El.LPDirect(A,b,c,x,y,z,ctrl)
-  endADMM = time.clock()
+  endADMM = El.mpi.Time()
   if worldRank == 0:
     print "ADMM time:", endADMM-startADMM
 

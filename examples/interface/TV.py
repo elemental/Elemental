@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 n = 4000
 numLambdas = 5
@@ -44,9 +44,9 @@ for j in xrange(0,numLambdas):
   if worldRank == 0:
     print "lambda =", lambd
 
-  startTV = time.clock()
+  startTV = El.mpi.Time()
   x = El.TV( b, lambd, ctrl )
-  endTV = time.clock()
+  endTV = El.mpi.Time()
   if worldRank == 0:
     print "TV time: ", endTV-startTV
 

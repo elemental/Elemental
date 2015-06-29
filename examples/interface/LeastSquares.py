@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 n0 = n1 = 20
 display = False
@@ -78,9 +78,9 @@ if worldRank == 0:
 
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.progress = True
-startLS = time.clock()
+startLS = El.mpi.Time()
 x = El.LeastSquares(A,y,ctrl)
-endLS = time.clock()
+endLS = El.mpi.Time()
 if worldRank == 0:
   print "LS time:", endLS-startLS, "seconds"
 xNrm = El.Nrm2(x)

@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 n0 = 50
 n1 = 50
@@ -69,9 +69,9 @@ ctrl.mehrotraCtrl.qsdCtrl.progress = True
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.time = True
-startLAV = time.clock()
+startLAV = El.mpi.Time()
 x = El.LAV( A, b, ctrl )
-endLAV = time.clock()
+endLAV = El.mpi.Time()
 if worldRank == 0:
   print "LAV time:", endLAV-startLAV, "seconds"
 if display:
@@ -92,9 +92,9 @@ if worldRank == 0:
   print "|| A x - b ||_2 =", rTwoNorm
   print "|| A x - b ||_1 =", rOneNorm
 
-startLS = time.clock()
+startLS = El.mpi.Time()
 xLS = El.LeastSquares(A,b)
-endLS = time.clock()
+endLS = El.mpi.Time()
 if worldRank == 0:
   print "LS time:", endLS-startLS, "seconds"
 if display:

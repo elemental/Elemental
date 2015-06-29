@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 n0 = n1 = 200
 
@@ -72,9 +72,9 @@ ctrl.qsdCtrl.relTol = 1e-12
 ctrl.qsdCtrl.relTolRefine = 1e-18
 ctrl.qsdCtrl.progress = True
 
-solveStart = time.clock()
+solveStart = El.mpi.Time()
 El.LinearSolve(A,x,ctrl)
-solveStop = time.clock()
+solveStop = El.mpi.Time()
 if worldRank == 0:
   print "LinearSolve time:", solveStop-solveStart, "seconds"
 if display:
