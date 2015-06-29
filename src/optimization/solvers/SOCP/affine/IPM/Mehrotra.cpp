@@ -61,6 +61,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const Int degree = MaxNorm(labels)+1;
     Matrix<Real> dRowA, dRowG, dCol;
     // TODO: Outer equilibration support
     Ones( dRowA, m, 1 );
@@ -168,7 +169,7 @@ void Mehrotra
         SOCInverse( wRoot, wRootInv, orders, firstInds );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
         SOCInverse( l, lInv, orders, firstInds );
-        const Real mu = Dot(s,z) / k;
+        const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
         // ---------
@@ -252,7 +253,7 @@ void Mehrotra
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / k;
+        const Real muAff = Dot(ds,dz) / degree;
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print )
@@ -376,6 +377,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const Int degree = MaxNorm(labels)+1;
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
@@ -496,7 +498,7 @@ void Mehrotra
         SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
         SOCInverse( l, lInv, orders, firstInds, cutoffPar );
-        const Real mu = Dot(s,z) / k;
+        const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
         // ---------
@@ -583,7 +585,7 @@ void Mehrotra
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / k;
+        const Real muAff = Dot(ds,dz) / degree;
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print && commRank == 0 )
@@ -681,6 +683,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const Int degree = MaxNorm(labels)+1;
     Matrix<Real> dRowA, dRowG, dCol;
     // TODO: Add outer equilibration support
     Ones( dRowA, m, 1 );
@@ -814,7 +817,7 @@ void Mehrotra
         SOCInverse( wRoot, wRootInv, orders, firstInds );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
         SOCInverse( l, lInv, orders, firstInds );
-        const Real mu = Dot(s,z) / k;
+        const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
         // ---------
@@ -915,7 +918,7 @@ void Mehrotra
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / k;
+        const Real muAff = Dot(ds,dz) / degree;
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print )
@@ -1022,6 +1025,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
+    const Int degree = MaxNorm(labels)+1;
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
     // TODO: Outer equilibration support
     Ones( dRowA, m, 1 );
@@ -1163,7 +1167,7 @@ void Mehrotra
         SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
         SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
         SOCInverse( l, lInv, orders, firstInds, cutoffPar );
-        const Real mu = Dot(s,z) / k;
+        const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
         // ---------
@@ -1296,7 +1300,7 @@ void Mehrotra
         dz = z;
         Axpy( alphaAffPri,  dsAff, ds );
         Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / k;
+        const Real muAff = Dot(ds,dz) / degree;
         // TODO: Allow the user to override this function
         const Real sigma = Pow(muAff/mu,Real(3));
         if( ctrl.print && commRank == 0 )
