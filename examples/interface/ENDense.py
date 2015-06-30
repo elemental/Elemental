@@ -7,7 +7,6 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import El
-import time
 
 m = 250
 n = 500
@@ -31,13 +30,14 @@ if display:
 
 ctrl = El.QPAffineCtrl_d()
 ctrl.mehrotraCtrl.progress = True
+ctrl.mehrotraCtrl.time = True
 
 if worldRank == 0:
   print "lambda1 =", lambda1, "lambda2 =", lambda2
 
-startEN = time.clock()
+startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
-endEN = time.clock()
+endEN = El.mpi.Time()
 if worldRank == 0:
   print "EN time:", endEN-startEN, "seconds"
 if display:

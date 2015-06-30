@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 n0=10
 n1=10
@@ -65,9 +65,9 @@ ctrl.socpIPMCtrl.mehrotraCtrl.time = True
 ctrl.socpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.outerEquil = False
 ctrl.socpIPMCtrl.mehrotraCtrl.innerEquil = True
-startBP = time.clock()
+startBP = El.mpi.Time()
 x = El.BP( A, b, ctrl )
-endBP = time.clock()
+endBP = El.mpi.Time()
 if worldRank == 0:
   print "BP time:", endBP-startBP, "seconds"
 if display:

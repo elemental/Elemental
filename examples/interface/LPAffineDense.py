@@ -7,7 +7,6 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import El
-import time
 
 m = 500
 n = 1000
@@ -90,9 +89,9 @@ if testMehrotra:
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   El.Copy( sOrig, s )
-  startMehrotra = time.clock()
+  startMehrotra = El.mpi.Time()
   El.LPAffine(A,G,b,c,h,x,y,z,s,ctrl)
-  endMehrotra = time.clock()
+  endMehrotra = El.mpi.Time()
   if worldRank == 0:
     print "Mehrotra time:", endMehrotra-startMehrotra
 
@@ -116,9 +115,9 @@ if testIPF:
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   El.Copy( sOrig, s )
-  startIPF = time.clock()
+  startIPF = El.mpi.Time()
   El.LPAffine(A,G,b,c,h,x,y,z,s,ctrl)
-  endIPF = time.clock()
+  endIPF = El.mpi.Time()
   if worldRank == 0:
     print "IPF time:", endIPF-startIPF
 

@@ -7,7 +7,6 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import El
-import time
 
 m = 200
 n = 400
@@ -38,9 +37,9 @@ for j in xrange(0,numLambdas):
   if worldRank == 0:
     print "lambda =", lambd
 
-  startDS = time.clock()
+  startDS = El.mpi.Time()
   x = El.DS( A, b, lambd, ctrl )
-  endDS = time.clock()
+  endDS = El.mpi.Time()
   if worldRank == 0:
     print "DS time:", endDS-startDS, "seconds"
   if display:

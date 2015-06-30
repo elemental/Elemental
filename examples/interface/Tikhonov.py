@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 n0 = n1 = 100
 display = False
@@ -79,9 +79,9 @@ yNrm = El.Nrm2(y)
 if worldRank == 0:
   print "|| y ||_2 =", yNrm
 
-startLS = time.clock()
+startLS = El.mpi.Time()
 x = El.Tikhonov(A,y,G)
-endLS = time.clock()
+endLS = El.mpi.Time()
 if worldRank == 0:
   print "Tikhonov time:", endLS-startLS, "seconds"
 xNrm = El.Nrm2(x)

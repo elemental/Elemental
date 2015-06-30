@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time
+import El
 
 m = 250
 n = 500
@@ -37,9 +37,9 @@ for j in xrange(0,numLambdas):
   if worldRank == 0:
     print "lambda =", lambd
 
-  startBPDN = time.clock()
+  startBPDN = El.mpi.Time()
   x = El.BPDN( A, b, lambd, ctrl )
-  endBPDN = time.clock()
+  endBPDN = El.mpi.Time()
   if worldRank == 0:
     print "BPDN time:", endBPDN-startBPDN, "seconds"
   if display:

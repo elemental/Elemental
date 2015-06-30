@@ -63,6 +63,11 @@ if(NOT EL_BUILD_OPENBLAS)
     El_check_function_exists(dsytrd_ EL_HAVE_DSYTRD_POST_OPENBLAS)
     if(EL_HAVE_DGEMM_OPENBLAS OR EL_HAVE_DGEMM_POST_OPENBLAS)
       set(EL_HAVE_OPENBLAS_BLAS TRUE)
+      if(EL_HYBRID)
+        message("Found OpenBLAS as ${OpenBLAS}; you may want to experiment with the environment variable OPENBLAS_NUM_THREADS")
+      else()
+        message("Found OpenBLAS as ${OpenBLAS}; you may want to set the environment variable OPENBLAS_NUM_THREADS=1")
+      endif()
     else()
       message(WARNING "OpenBLAS was found as ${OpenBLAS}, but BLAS support was not detected")
     endif()
@@ -101,6 +106,14 @@ elseif(FORTRAN_WORKS AND NOT MSVC AND NOT EL_CONFIG_TIME_OPENBLAS)
     endif()
   endif()
 
+  if(NOT OPENBLAS_THREAD_COMMAND)
+    if(EL_HYBRID)
+      set(OPENBLAS_THREAD_COMMAND)
+    else()
+      set(OPENBLAS_THREAD_COMMAND USE_THREAD=0)
+    endif()
+  endif()
+
   ExternalProject_Add(project_openblas
     PREFIX ${CMAKE_INSTALL_PREFIX}
     GIT_REPOSITORY ${OPENBLAS_URL}
@@ -112,7 +125,7 @@ elseif(FORTRAN_WORKS AND NOT MSVC AND NOT EL_CONFIG_TIME_OPENBLAS)
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
     CONFIGURE_COMMAND ""
     UPDATE_COMMAND "" 
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${OPENBLAS_ARCH_COMMAND} libs netlib shared
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${OPENBLAS_THREAD_COMMAND} ${OPENBLAS_ARCH_COMMAND} libs netlib shared
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install PREFIX=<INSTALL_DIR>
   )
 

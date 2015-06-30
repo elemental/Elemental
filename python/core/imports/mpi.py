@@ -73,12 +73,23 @@ def Free(mpiObj):
     lib.ElMPIGroupFree(pointer(mpiObj))
   else: DataExcept()
 
+lib.ElMPIWorldRank.argtypes = [POINTER(c_int)]
+lib.ElMPIWorldRank.restype = c_uint
 def WorldRank():
   rank = c_int()
   lib.ElMPIWorldRank(pointer(rank))
   return rank.value
 
+lib.ElMPIWorldSize.argtypes = [POINTER(c_int)]
+lib.ElMPIWorldSize.restype = c_uint
 def WorldSize():
   size = c_int()
   lib.ElMPIWorldSize(pointer(size))
   return size.value
+
+lib.ElMPITime.argtypes = [POINTER(c_double)]
+lib.ElMPITime.restype = c_uint
+def Time():
+  walltime = c_double()
+  lib.ElMPITime(pointer(walltime))
+  return walltime.value

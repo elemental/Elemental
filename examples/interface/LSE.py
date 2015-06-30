@@ -6,7 +6,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-import El, time, random
+import El, random
 
 n0 = n1 = 50
 numRowsB = 5
@@ -88,9 +88,9 @@ ctrl.equilibrate = True
 ctrl.qsdCtrl.relTol = 1e-10
 ctrl.qsdCtrl.relTolRefine = 1e-12
 ctrl.qsdCtrl.progress = True
-startLSE = time.clock()
+startLSE = El.mpi.Time()
 X = El.LSE(A,B,C,D,ctrl)
-endLSE = time.clock()
+endLSE = El.mpi.Time()
 if worldRank == 0:
   print "LSE time:", endLSE-startLSE, "seconds"
 if display:
