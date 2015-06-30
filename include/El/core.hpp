@@ -130,6 +130,7 @@
 #include "El/core/imports/blas.hpp"
 #include "El/core/imports/lapack.hpp"
 #include "El/core/imports/flame.hpp"
+#include "El/core/imports/mkl.hpp"
 #include "El/core/imports/pmrrr.hpp"
 #include "El/core/imports/scalapack.hpp"
 

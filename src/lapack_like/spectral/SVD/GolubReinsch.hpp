@@ -141,7 +141,7 @@ GolubReinschFlame
     // lower-bidiagonal case.
     if( m >= n )
     {
-        FlaBidiagSVD
+        flame::BidiagSVD
         ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(),
           d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           U_VC_STAR.Buffer(), U_VC_STAR.LDim(),
@@ -149,7 +149,7 @@ GolubReinschFlame
     }
     else
     {
-        FlaBidiagSVD
+        flame::BidiagSVD
         ( k, V_VC_STAR.LocalHeight(), U_VC_STAR.LocalHeight(),
           d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           V_VC_STAR.Buffer(), V_VC_STAR.LDim(),

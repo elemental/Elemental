@@ -105,7 +105,7 @@ void SymmetricEquil
 
     if( scaleTwoNorm )
     {
-        Real twoNormEst = TwoNormEstimate( A, basisSize );
+        Real twoNormEst = HermitianTwoNormEstimate( A, basisSize );
         if( progress )
             cout << "    Estimated two-norm as " << twoNormEst << endl;
         Scale( Real(1)/twoNormEst, A );
@@ -138,14 +138,25 @@ void SymmetricEquil
     }
     else if( diagEquil )
     {
-        if( commRank == 0 && time )
-            timer.Start();
+
         auto maxSqrtLambda = []( F delta )
                              { return Sqrt(Max(Abs(delta),Real(1))); };
         function<Real(F)> maxSqrt( maxSqrtLambda );
+        if( commRank == 0 && time )
+            timer.Start();
         GetMappedDiagonal( A, d, maxSqrt );
+        if( commRank == 0 && time )
+            cout << "    Get mapped diag time: " << timer.Stop() << endl;
+        if( commRank == 0 && time )
+            timer.Start();
         DiagonalSolve( LEFT, NORMAL, d, A );
+        if( commRank == 0 && time )
+            cout << "    Left diag solve time: " << timer.Stop() << endl;
+        if( commRank == 0 && time )
+            timer.Start();
         DiagonalSolve( RIGHT, NORMAL, d, A );
+        if( commRank == 0 && time )
+            cout << "    Right diag solve time: " << timer.Stop() << endl;
         if( progress )
         {
             const Real maxNorm = MaxNorm( d );
@@ -153,8 +164,6 @@ void SymmetricEquil
                 cout << "    Diagonally equilibrated with || d ||_max = " 
                      << maxNorm << endl;
         }
-        if( commRank == 0 && time )
-            cout << "  Diagonal equil time: " << timer.Stop() << endl;
     }
     else
         Ones( d, n, 1 );
@@ -163,7 +172,7 @@ void SymmetricEquil
     {
         if( commRank == 0 && time )
             timer.Start();
-        Real twoNormEst = TwoNormEstimate( A, basisSize );
+        Real twoNormEst = HermitianTwoNormEstimate( A, basisSize );
         if( progress && commRank == 0 )
             cout << "    Estimated two-norm as " << twoNormEst << endl;
         Scale( Real(1)/twoNormEst, A );

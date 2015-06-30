@@ -12,9 +12,6 @@
 
 namespace El {
 
-// TODO: 
-// Eventually move these into a separate location and/or use an optimized 
-// alternative.
 namespace {
 
 template<typename T>
@@ -29,6 +26,14 @@ void MultiplyCSR
         T*   y )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSR"))
+#if defined(EL_HAVE_MKL) && !defined(EL_DISABLE_MKL_CSRMV)
+    char matDescrA[6];
+    matDescrA[0] = 'G';
+    matDescrA[3] = 'C';
+    mkl::csrmv
+    ( orientation, m, n, alpha, matDescrA, 
+      values, colIndices, rowOffsets, rowOffsets+1, x, beta, y );
+#else
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -57,7 +62,136 @@ void MultiplyCSR
                     y[colIndices[e]] += alpha*values[e]*x[i];         
         }
     }
+#endif
 }
+
+template<>
+void MultiplyCSR<Int>
+( Orientation orientation, Int m, Int n,
+  Int alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const Int*   values,
+  const Int*   x,
+  Int beta,
+        Int*   y )
+{
+    DEBUG_ONLY(CSE cse("MultiplyCSR"))
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            Int sum = 0;
+            for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                sum += values[e]*x[colIndices[e]];         
+            y[i] = alpha*sum + beta*y[i];
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int j=0; j<n; ++j )
+            y[j] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                    y[colIndices[e]] += alpha*values[e]*x[i];         
+        }
+    }
+}
+
+#ifdef EL_HAVE_QUAD
+template<>
+void MultiplyCSR<Quad>
+( Orientation orientation, Int m, Int n,
+  Quad alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const Quad*   values,
+  const Quad*   x,
+  Quad beta,
+        Quad*   y )
+{
+    DEBUG_ONLY(CSE cse("MultiplyCSR"))
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            Quad sum = 0;
+            for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                sum += values[e]*x[colIndices[e]];         
+            y[i] = alpha*sum + beta*y[i];
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int j=0; j<n; ++j )
+            y[j] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                    y[colIndices[e]] += alpha*values[e]*x[i];         
+        }
+    }
+}
+
+template<>
+void MultiplyCSR<Complex<Quad>>
+( Orientation orientation, Int m, Int n,
+  Complex<Quad> alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const Complex<Quad>*   values,
+  const Complex<Quad>*   x,
+  Complex<Quad> beta,
+        Complex<Quad>*   y )
+{
+    DEBUG_ONLY(CSE cse("MultiplyCSR"))
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            Complex<Quad> sum = 0;
+            for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                sum += values[e]*x[colIndices[e]];         
+            y[i] = alpha*sum + beta*y[i];
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int j=0; j<n; ++j )
+            y[j] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                    y[colIndices[e]] += alpha*values[e]*x[i];         
+        }
+    }
+}
+#endif // ifdef EL_HAVE_QUAD
 
 template<typename T>
 void MultiplyCSR
@@ -71,6 +205,14 @@ void MultiplyCSR
         T*   Y, Int ldY )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSR"))
+    if( numRHS == 1 )
+    {
+        MultiplyCSR
+        ( orientation, m, n, alpha, 
+          rowOffsets, colIndices, values, X, beta, Y );
+        return;
+    }
+
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -129,6 +271,14 @@ void MultiplyCSRInterX
         T*   Y, Int ldY )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSRInterX"))
+    if( numRHS == 1 )
+    {
+        MultiplyCSR
+        ( orientation, m, n, alpha, 
+          rowOffsets, colIndices, values, X, beta, Y );
+        return;
+    }
+
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -187,6 +337,14 @@ void MultiplyCSRInterY
         T*   Y )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSRInterY"))
+    if( numRHS == 1 )
+    {
+        MultiplyCSR
+        ( orientation, m, n, alpha, 
+          rowOffsets, colIndices, values, X, beta, Y );
+        return;
+    }
+
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -245,6 +403,14 @@ void MultiplyCSRInter
         T*   Y )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSRInter"))
+    if( numRHS == 1 )
+    {
+        MultiplyCSR
+        ( orientation, m, n, alpha, 
+          rowOffsets, colIndices, values, X, beta, Y );
+        return;
+    }
+
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )

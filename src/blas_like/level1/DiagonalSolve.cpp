@@ -174,11 +174,35 @@ void DiagonalSolve
     }
     else
     {
-        // NOTE: This is likely grossly suboptimal
-        DistSparseMatrix<F> ATrans;
-        Transpose( A, ATrans, conjugate );
-        DiagonalSolve( LEFT, NORMAL, d, ATrans );
-        Transpose( ATrans, A, conjugate );
+        A.InitializeMultMeta();
+        const auto& meta = A.multMeta;
+
+        // Pack the send values
+        const Int numSendInds = meta.sendInds.size();
+        const Int firstLocalRow = d.FirstLocalRow();
+        vector<FDiag> sendVals( numSendInds );
+        const FDiag* dBuffer = d.LockedMatrix().LockedBuffer();
+        for( Int s=0; s<numSendInds; ++s )
+        {
+            const Int i = meta.sendInds[s];
+            const Int iLoc = i - firstLocalRow;
+            sendVals[s] = dBuffer[iLoc];
+        }
+
+        // Now send them
+        vector<FDiag> recvVals( meta.numRecvInds );
+        mpi::AllToAll
+        ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
+          A.Comm() );
+
+        // Loop over the entries of A and rescale
+        F* vBuf = A.ValueBuffer();
+        for( Int k=0; k<A.NumLocalEntries(); ++k )
+        {
+            const FDiag delta = recvVals[meta.colOffs[k]];
+            vBuf[k] /= F(delta);
+        }
     }
 }
 

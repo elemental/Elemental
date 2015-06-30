@@ -158,11 +158,35 @@ void DiagonalScale
     {
         if( d.Height() != A.Width() )
             LogicError("The size of d must match the width of A");
-        // NOTE: This is likely grossly suboptimal
-        DistSparseMatrix<T> ATrans;
-        Transpose( A, ATrans, conjugate );
-        DiagonalScale( LEFT, NORMAL, d, ATrans );
-        Transpose( ATrans, A, conjugate );
+        A.InitializeMultMeta();
+        const auto& meta = A.multMeta;
+
+        // Pack the send values 
+        const Int numSendInds = meta.sendInds.size();
+        const Int firstLocalRow = d.FirstLocalRow();
+        vector<TDiag> sendVals( numSendInds );
+        const TDiag* dBuffer = d.LockedMatrix().LockedBuffer();
+        for( Int s=0; s<numSendInds; ++s )
+        {
+            const Int i = meta.sendInds[s];
+            const Int iLoc = i - firstLocalRow;
+            sendVals[s] = dBuffer[iLoc];
+        }
+
+        // Now send them
+        vector<TDiag> recvVals( meta.numRecvInds );
+        mpi::AllToAll
+        ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
+          A.Comm() );
+
+        // Loop over the entries of A and rescale
+        T* vBuf = A.ValueBuffer();
+        for( Int k=0; k<A.NumLocalEntries(); ++k )
+        {
+            const TDiag delta = recvVals[meta.colOffs[k]];
+            vBuf[k] *= T(delta);
+        }
     }
 }
 

@@ -96,6 +96,9 @@ if(EL_USE_64BIT_BLAS_INTS)
     set(EL_USE_64BIT_INTS ON)
 endif()
 
+option(EL_DISABLE_MKL "Do not use MKL even if installed?" OFF)
+option(EL_DISABLE_MKL_CSRMV "Avoid MKL's CSR mat-vec?" ON)
+
 option(EL_DISABLE_BLIS_LAPACK "Avoid BLIS+LAPACK" OFF)
 option(EL_PREFER_BLIS_LAPACK "Prefer BLIS+LAPACK over alternatives?" OFF)
 option(EL_BUILD_BLIS_LAPACK "Avoid search for BLIS and instead buiild?" OFF)

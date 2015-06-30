@@ -43,8 +43,9 @@ FLA_Error FLA_Bsvd_v_opz_var1
 } // extern "C"
 
 namespace El {
+namespace flame {
 
-void FlaBidiagSVD
+void BidiagSVD
 ( int k, int mU, int mV, double* d, double* e, 
   double* U, int ldu, double* V, int ldv, 
   int numAccum, int maxNumIts, int bAlg )
@@ -55,7 +56,7 @@ void FlaBidiagSVD
       G.data(), 1, k-1, H.data(), 1, k-1, U, 1, ldu, V, 1, ldv, bAlg );
 }
 
-void FlaBidiagSVD
+void BidiagSVD
 ( int k, int mU, int mV, double* d, double* e, 
   Complex<double>* U, int ldu, Complex<double>* V, int ldv, 
   int numAccum, int maxNumIts, int bAlg )
@@ -66,6 +67,7 @@ void FlaBidiagSVD
       G.data(), 1, k-1, H.data(), 1, k-1, U, 1, ldu, V, 1, ldv, bAlg );
 }
 
+} // namespace flame
 } // namespace El
 
 #endif // ifdef EL_HAVE_FLA_BSVD

@@ -437,6 +437,32 @@ void HermitianSVD
   AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, 
   AbstractDistMatrix<F>& V );
 
+// Lanczos
+// =======
+// Form the Lanczos decomposition
+//
+//    A V = V T + v (beta e_{k-1})^H,
+//
+// where A is an (explicitly) Hermitian matrix.
+
+template<typename F>
+void Lanczos
+( const SparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
+template<typename F>
+void Lanczos
+( const DistSparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
+
+template<typename F>
+Base<F> LanczosDecomp
+( const SparseMatrix<F>& A, Matrix<F>& V,
+        Matrix<Base<F>>& T, Matrix<F>& v,
+  Int basisSize=15 );
+template<typename F>
+Base<F> LanczosDecomp
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& V,
+        Matrix<Base<F>>& T,     DistMultiVec<F>& v,
+  Int basisSize=15 );
+
 // Product Lanczos
 // ===============
 // Form the product Lanczos decomposition
@@ -478,6 +504,13 @@ ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize=20 );
 template<typename F>
 pair<Base<F>,Base<F>> 
 ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize=20 );
+
+template<typename F>
+pair<Base<F>,Base<F>> 
+HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize=20 );
+template<typename F>
+pair<Base<F>,Base<F>> 
+HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize=20 );
 
 // Pseudospectra
 // =============

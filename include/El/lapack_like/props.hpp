@@ -424,6 +424,12 @@ template<typename F>
 Base<F> HermitianTwoNormEstimate
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
   Base<F> tol=1e-6, Int maxIts=1000 );
+template<typename F>
+Base<F> HermitianTwoNormEstimate
+( const SparseMatrix<F>& A, Int basisSize=15 );
+template<typename F>
+Base<F> HermitianTwoNormEstimate
+( const DistSparseMatrix<F>& A, Int basisSize=15 );
 
 template<typename F>
 Base<F> SymmetricTwoNormEstimate

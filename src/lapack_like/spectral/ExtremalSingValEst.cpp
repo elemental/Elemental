@@ -60,10 +60,70 @@ ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
     return extremal;
 }
 
+template<typename F>
+pair<Base<F>,Base<F>>
+HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
+{
+    DEBUG_ONLY(CSE cse("HermitianExtremalSingValEst"))
+    typedef Base<F> Real;
+    Matrix<Real> T;
+    Lanczos( A, T, basisSize );
+    const Int k = T.Height();
+    if( k == 0 )
+        return pair<Real,Real>(0,0);
+
+    Matrix<Real> d, dSub;
+    d = GetDiagonal( T );
+    dSub = GetDiagonal( T, -1 );
+    
+    Matrix<Real> w;
+    HermitianTridiagEig( d, dSub, w, ASCENDING );
+    
+    pair<Real,Real> extremal;
+    extremal.first = MaxNorm(w);
+    extremal.second = extremal.first;
+    for( Int i=0; i<k; ++i )
+        extremal.second = Min(extremal.second,Abs(w.Get(i,0)));
+    return extremal;
+}
+
+template<typename F>
+pair<Base<F>,Base<F>>
+HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
+{
+    DEBUG_ONLY(CSE cse("HermitianExtremalSingValEst"))
+    typedef Base<F> Real;
+
+    Matrix<Real> T;
+    Lanczos( A, T, basisSize );
+    const Int k = T.Height();
+    if( k == 0 )
+        return pair<Real,Real>(0,0);
+
+    Matrix<Real> d, dSub;
+    d = GetDiagonal( T );
+    dSub = GetDiagonal( T, -1 );
+    
+    Matrix<Real> w;
+    HermitianTridiagEig( d, dSub, w, ASCENDING );
+    
+    pair<Real,Real> extremal;
+    extremal.first = MaxNorm(w);
+    extremal.second = extremal.first;
+    for( Int i=0; i<k; ++i )
+        extremal.second = Min(extremal.second,Abs(w.Get(i,0)));
+
+    return extremal;
+}
+
 #define PROTO(F) \
   template pair<Base<F>,Base<F>> ExtremalSingValEst \
   ( const SparseMatrix<F>& A, Int basisSize ); \
   template pair<Base<F>,Base<F>> ExtremalSingValEst \
+  ( const DistSparseMatrix<F>& A, Int basisSize ); \
+  template pair<Base<F>,Base<F>> HermitianExtremalSingValEst \
+  ( const SparseMatrix<F>& A, Int basisSize ); \
+  template pair<Base<F>,Base<F>> HermitianExtremalSingValEst \
   ( const DistSparseMatrix<F>& A, Int basisSize );
 
 #define EL_NO_INT_PROTO

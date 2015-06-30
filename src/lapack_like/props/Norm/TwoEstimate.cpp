@@ -98,6 +98,20 @@ Base<F> TwoNormEstimate( const DistSparseMatrix<F>& A, Int basisSize )
 }
 
 template<typename F>
+Base<F> HermitianTwoNormEstimate( const SparseMatrix<F>& A, Int basisSize )
+{
+    auto extremal = HermitianExtremalSingValEst( A, basisSize );
+    return extremal.second;
+}
+
+template<typename F>
+Base<F> HermitianTwoNormEstimate( const DistSparseMatrix<F>& A, Int basisSize )
+{
+    auto extremal = HermitianExtremalSingValEst( A, basisSize );
+    return extremal.second;
+}
+
+template<typename F>
 Base<F> HermitianTwoNormEstimate
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
@@ -259,6 +273,10 @@ Base<F> SymmetricTwoNormEstimate
   template Base<F> TwoNormEstimate \
   ( const SparseMatrix<F>& A, Int basisSize ); \
   template Base<F> TwoNormEstimate \
+  ( const DistSparseMatrix<F>& A, Int basisSize ); \
+  template Base<F> HermitianTwoNormEstimate \
+  ( const SparseMatrix<F>& A, Int basisSize ); \
+  template Base<F> HermitianTwoNormEstimate \
   ( const DistSparseMatrix<F>& A, Int basisSize ); \
   template Base<F> HermitianTwoNormEstimate \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
