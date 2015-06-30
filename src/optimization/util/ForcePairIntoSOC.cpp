@@ -37,14 +37,9 @@ void ForcePairIntoSOC
         const Int firstInd = firstInds.Get(i,0);
         if( i == firstInd && w0 > wMaxNormLimit )
         {
-            const Real s0 = s.Get(i,0);
-            const Real z0 = z.Get(i,0);
-            const Real sLowerNorm = sLower.Get(i,0);
-            const Real zLowerNorm = zLower.Get(i,0);
-
             // TODO: Switch to a non-adhoc modification     
-            s.Update( i, 0, Real(1)/wMaxNormLimit - (s0-sLowerNorm) );
-            z.Update( i, 0, Real(1)/wMaxNormLimit - (z0-zLowerNorm) );
+            s.Update( i, 0, Real(1)/wMaxNormLimit );
+            z.Update( i, 0, Real(1)/wMaxNormLimit );
         }
     }
 }
@@ -87,14 +82,9 @@ void ForcePairIntoSOC
         const Real w0 = w.GetLocal(iLoc,0);
         if( i == firstInds.GetLocal(iLoc,0) && w0 > wMaxNormLimit )
         {
-            const Real s0 = s.GetLocal(iLoc,0);
-            const Real z0 = z.GetLocal(iLoc,0);
-            const Real sLowerNorm = sLower.GetLocal(iLoc,0);
-            const Real zLowerNorm = zLower.GetLocal(iLoc,0);
-
             // TODO: Switch to a non-adhoc modification     
-            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit - (s0-sLowerNorm) );
-            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit - (z0-zLowerNorm) );
+            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
+            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
         }
     }
 }
@@ -121,14 +111,9 @@ void ForcePairIntoSOC
         const Real w0 = w.GetLocal(iLoc,0);
         if( i == firstInds.GetLocal(iLoc,0) && w0 > wMaxNormLimit )
         {
-            const Real s0 = s.GetLocal(iLoc,0);
-            const Real z0 = z.GetLocal(iLoc,0);
-            const Real sLowerNorm = sLower.GetLocal(iLoc,0);
-            const Real zLowerNorm = zLower.GetLocal(iLoc,0);
-
             // TODO: Switch to a non-adhoc modification     
-            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit - (s0-sLowerNorm) );
-            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit - (z0-zLowerNorm) );
+            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
+            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
         }
     }
 }
