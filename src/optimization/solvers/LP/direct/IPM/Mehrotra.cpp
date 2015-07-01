@@ -113,21 +113,21 @@ void Mehrotra
         // -----------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y); 
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(-1), z, rc );
+        rc -= z;
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -236,17 +236,17 @@ void Mehrotra
 
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Axpy( Real(-1), dzAff, dyError );
+        dyError -= dzAff;
         Real dyErrorNrm2 = Nrm2( dyError );
 
         Real rmuNrm2 = Nrm2( rmu );
         dzError = rmu;
         prod = dzAff;
         DiagonalScale( LEFT, NORMAL, x, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         prod = dxAff;
         DiagonalScale( LEFT, NORMAL, z, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
@@ -291,14 +291,14 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Scale( Real(1)-sigma, rc );
-        Scale( Real(1)-sigma, rb );
+        rc *= 1-sigma;
+        rb *= 1-sigma;
         // r_mu := x o z + dxAff o dzAff - sigma*mu
         // ----------------------------------------
         // NOTE: We are using dz as a temporary
         dz = dzAff;
         DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        Axpy( Real(1), dz, rmu );
+        rmu += dz;
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
@@ -499,21 +499,21 @@ void Mehrotra
         // -----------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y); 
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(-1), z, rc );
+        rc -= z;
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -622,17 +622,17 @@ void Mehrotra
 
         dyError = rc;
         Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Axpy( Real(-1), dzAff, dyError );
+        dyError -= dzAff;
         Real dyErrorNrm2 = Nrm2( dyError );
 
         Real rmuNrm2 = Nrm2( rmu );
         dzError = rmu;
         prod = dzAff;
         DiagonalScale( LEFT, NORMAL, x, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         prod = dxAff;
         DiagonalScale( LEFT, NORMAL, z, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
@@ -677,14 +677,14 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Scale( Real(1)-sigma, rc );
-        Scale( Real(1)-sigma, rb );
+        rc *= 1-sigma;
+        rb *= 1-sigma;
         // r_mu := x o z + dxAff o dzAff - sigma*mu
         // ----------------------------------------
         // NOTE: dz is used as a temporary
         dz = dzAff;
         DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        Axpy( Real(1), dz, rmu );
+        rmu += dz;
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
@@ -904,21 +904,21 @@ void Mehrotra
         // -----------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y); 
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(-1), z, rc );
+        rc -= z;
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -1039,17 +1039,17 @@ void Mehrotra
 
         dyError = rc;
         Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Axpy( Real(-1), dzAff, dyError );
+        dyError -= dzAff;
         Real dyErrorNrm2 = Nrm2( dyError );
 
         Real rmuNrm2 = Nrm2( rmu );
         dzError = rmu;
         prod = dzAff;
         DiagonalScale( LEFT, NORMAL, x, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         prod = dxAff;
         DiagonalScale( LEFT, NORMAL, z, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
@@ -1094,14 +1094,14 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Scale( Real(1)-sigma, rc );
-        Scale( Real(1)-sigma, rb );
+        rc *= 1-sigma;
+        rb *= 1-sigma;
         // r_mu := x o z + dxAff o dzAff - sigma*mu
         // ----------------------------------------
         // NOTE: dz is used as a temporary
         dz = dzAff;
         DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        Axpy( Real(1), dz, rmu );
+        rmu += dz;
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {
@@ -1333,21 +1333,21 @@ void Mehrotra
         // -----------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y); 
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Axpy( Real(-1), z, rc );
+        rc -= z;
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -1511,17 +1511,17 @@ void Mehrotra
 
         dyError = rc;
         Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        Axpy( Real(-1), dzAff, dyError );
+        dyError -= dzAff;
         Real dyErrorNrm2 = Nrm2( dyError );
 
         Real rmuNrm2 = Nrm2( rmu );
         dzError = rmu;
         prod = dzAff;
         DiagonalScale( LEFT, NORMAL, x, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         prod = dxAff;
         DiagonalScale( LEFT, NORMAL, z, prod );
-        Axpy( Real(1), prod, dzError );
+        dzError += prod;
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
@@ -1566,14 +1566,14 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Scale( Real(1)-sigma, rc );
-        Scale( Real(1)-sigma, rb );
+        rc *= 1-sigma;
+        rb *= 1-sigma;
         // r_mu := x o z + dxAff o dzAff - sigma*mu
         // ----------------------------------------
         // NOTE: dz is used as a temporary
         dz = dzAff;
         DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        Axpy( Real(1), dz, rmu );
+        rmu += dz;
         Shift( rmu, -sigma*mu );
         if( ctrl.system == FULL_KKT )
         {

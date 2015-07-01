@@ -69,15 +69,6 @@ public:
     // Assignment and reconfiguration
     // ==============================
 
-    // Make a copy
-    // -----------
-    const DistSparseMatrix<T>& operator=( const DistSparseMatrix<T>& A );
-    // TODO: Move assignment
-
-    // Make a copy of a submatrix
-    // --------------------------
-    DistSparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
-
     // Change the size of the matrix
     // -----------------------------
     void Empty( bool clearMemory=true );
@@ -113,6 +104,27 @@ public:
 
     void ProcessQueues();
     void ProcessLocalQueues();
+
+    // Operator overloading
+    // ====================
+
+    // Make a copy
+    // -----------
+    const DistSparseMatrix<T>& operator=( const DistSparseMatrix<T>& A );
+    // TODO: Move assignment
+
+    // Make a copy of a submatrix
+    // --------------------------
+    DistSparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
+
+    // Rescaling
+    // ---------
+    const DistSparseMatrix<T>& operator*=( T alpha );
+
+    // Addition/subtraction
+    // --------------------
+    const DistSparseMatrix<T>& operator+=( const DistSparseMatrix<T>& A );
+    const DistSparseMatrix<T>& operator-=( const DistSparseMatrix<T>& A );
 
     // Queries
     // =======

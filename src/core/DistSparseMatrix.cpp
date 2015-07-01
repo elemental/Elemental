@@ -56,30 +56,6 @@ DistSparseMatrix<T>::~DistSparseMatrix()
 // Assignment and reconfiguration
 // ==============================
 
-// Make a copy
-// -----------
-template<typename T>
-const DistSparseMatrix<T>& 
-DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
-{
-    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator="))
-    distGraph_ = A.distGraph_;
-    vals_ = A.vals_;
-    remoteVals_ = A.remoteVals_;
-    multMeta = A.multMeta;
-    return *this;
-}
-
-// Make a copy of a submatrix
-// --------------------------
-template<typename T>
-DistSparseMatrix<T>
-DistSparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
-{
-    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator()"))
-    return GetSubmatrix( *this, I, J );
-}   
-
 // Change the matrix size
 // ----------------------
 template<typename T>
@@ -352,6 +328,64 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
     }
     distGraph_.ComputeEdgeOffsets();
     distGraph_.locallyConsistent_ = true;
+}
+
+// Operator overloading
+// ====================
+
+// Make a copy
+// -----------
+template<typename T>
+const DistSparseMatrix<T>& 
+DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator="))
+    distGraph_ = A.distGraph_;
+    vals_ = A.vals_;
+    remoteVals_ = A.remoteVals_;
+    multMeta = A.multMeta;
+    return *this;
+}
+
+// Make a copy of a submatrix
+// --------------------------
+template<typename T>
+DistSparseMatrix<T>
+DistSparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator()"))
+    return GetSubmatrix( *this, I, J );
+}   
+
+
+// Rescaling
+// ---------
+template<typename T>
+const DistSparseMatrix<T>& DistSparseMatrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator*=( T )"))
+    Scale( alpha, *this );
+    return *this;
+}
+
+// Addition/subtraction
+// --------------------
+template<typename T>
+const DistSparseMatrix<T>&
+DistSparseMatrix<T>::operator+=( const DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator+=( const DSM& )"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const DistSparseMatrix<T>&
+DistSparseMatrix<T>::operator-=( const DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator-=( const DSM& )"))
+    Axpy( T(-1), A, *this );
+    return *this;
 }
 
 // Queries

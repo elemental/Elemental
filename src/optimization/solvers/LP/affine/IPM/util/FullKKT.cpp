@@ -62,7 +62,7 @@ void KKT
     Matrix<Real> t;
     t = s;
     DiagonalSolve( LEFT, NORMAL, z, t );
-    Scale( Real(-1), t );
+    t *= -1;
     Diagonal( Jzz, t );
 
     if( !onlyLower )
@@ -108,7 +108,7 @@ void KKT
     // ===============
     DistMatrix<Real,MC,STAR> t(s);
     DiagonalSolve( LEFT, NORMAL, z, t );
-    Scale( Real(-1), t );
+    t *= -1;
     Diagonal( Jzz, t );
 
     if( !onlyLower )

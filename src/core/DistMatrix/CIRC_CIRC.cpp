@@ -18,8 +18,8 @@ namespace El {
 // Public section
 // ##############
 
-// Assignment and reconfiguration
-// ==============================
+// Operator overloading
+// ====================
 
 // Make a copy
 // -----------
@@ -30,8 +30,6 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
     copy::Gather( A, *this );
     return *this;
 }
-
-// TODO: operator= for BlockDistMatrix
 
 // Basic queries
 // =============

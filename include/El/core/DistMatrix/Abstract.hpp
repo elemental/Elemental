@@ -37,10 +37,6 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
-    const type& operator=( const DistMultiVec<T>& A );
-    // Move assignment
-    type& operator=( type&& A );
-
     void Empty();
     void EmptyData();
     void SetGrid( const El::Grid& grid );
@@ -94,6 +90,26 @@ public:
     // (Immutable) view of a local matrix's buffer
     void Attach( const El::Grid& grid, El::Matrix<T>& A );
     void LockedAttach( const El::Grid& grid, const El::Matrix<T>& A );
+
+    // Operator overloading
+    // ====================
+
+    // Copy
+    // ----
+    const type& operator=( const DistMultiVec<T>& A );
+
+    // Move assignment
+    // ---------------
+    type& operator=( type&& A );
+
+    // Rescaling
+    // ---------
+    const type& operator*=( T alpha );
+
+    // Addition/subtraction
+    // --------------------
+    const type& operator+=( const type& A );
+    const type& operator-=( const type& A );
 
     // Basic queries
     // =============

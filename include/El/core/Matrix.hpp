@@ -39,6 +39,18 @@ public:
     // Assignment and reconfiguration
     // ==============================
 
+    void Empty();
+    void Resize( Int height, Int width );
+    void Resize( Int height, Int width, Int ldim );
+    // Reconfigure around the given buffer, but do not assume ownership
+    void Attach( Int height, Int width, T* buffer, Int ldim );
+    void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
+    // Reconfigure around the given buffer and assume ownership
+    void Control( Int height, Int width, T* buffer, Int ldim );
+
+    // Operator overloading
+    // ====================
+
     // Return a view
     // -------------
           Matrix<T> operator()( Range<Int> I, Range<Int> J );
@@ -52,14 +64,14 @@ public:
     // ---------------
     Matrix<T>& operator=( Matrix<T>&& A );
 
-    void Empty();
-    void Resize( Int height, Int width );
-    void Resize( Int height, Int width, Int ldim );
-    // Reconfigure around the given buffer, but do not assume ownership
-    void Attach( Int height, Int width, T* buffer, Int ldim );
-    void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
-    // Reconfigure around the given buffer and assume ownership
-    void Control( Int height, Int width, T* buffer, Int ldim );
+    // Rescaling
+    // ---------
+    const Matrix<T>& operator*=( T alpha );
+
+    // Addition/substraction
+    // ---------------------
+    const Matrix<T>& operator+=( const Matrix<T>& A );
+    const Matrix<T>& operator-=( const Matrix<T>& A );
 
     // Basic queries
     // =============

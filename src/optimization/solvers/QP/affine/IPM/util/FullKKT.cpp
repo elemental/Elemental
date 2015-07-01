@@ -66,7 +66,7 @@ void KKT
     Matrix<Real> t;
     t = s;
     DiagonalSolve( LEFT, NORMAL, z, t );
-    Scale( Real(-1), t );
+    t *= -1;
     Diagonal( Jzz, t );
 
     if( !onlyLower )
@@ -118,7 +118,7 @@ void KKT
     // ===============
     DistMatrix<Real,MC,STAR> t(s);
     DiagonalSolve( LEFT, NORMAL, z, t );
-    Scale( Real(-1), t );
+    t *= -1;
     Diagonal( Jzz, t );
 
     if( !onlyLower )
@@ -289,16 +289,16 @@ void KKTRHS
 
     auto dx = d(IR(0,n),ALL);
     dx = rc;
-    Scale( Real(-1), dx );
+    dx *= -1;
 
     auto dy = d(IR(n,n+m),ALL);
     dy = rb;
-    Scale( Real(-1), dy );
+    dy *= -1;
 
     auto dz = d(IR(n+m,n+m+k),ALL);
     dz = rmu;
     DiagonalSolve( LEFT, NORMAL, z, dz );
-    Axpy( Real(-1), rh, dz );
+    dz -= rh;
 }
 
 template<typename Real>
@@ -321,16 +321,16 @@ void KKTRHS
 
     auto dx = d(xInd,ALL);
     Copy( rc, dx );
-    Scale( Real(-1), dx );
+    dx *= -1;
 
     auto dy = d(yInd,ALL);
     Copy( rb, dy );
-    Scale( Real(-1), dy );
+    dy *= -1;
 
     auto dz = d(zInd,ALL);
     Copy( rmu, dz );
     DiagonalSolve( LEFT, NORMAL, z, dz );
-    Axpy( Real(-1), rh, dz );
+    dz -= rh;
 }
 
 template<typename Real>
@@ -475,9 +475,9 @@ void ExpandSolution
     // =============================
     ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
-    Axpy( Real(1), rmu, ds );
+    ds += rmu;
     DiagonalSolve( LEFT, NORMAL, z, ds );
-    Scale( Real(-1), ds );
+    ds *= -1;
 }
 
 template<typename Real>
@@ -495,9 +495,9 @@ void ExpandSolution
     // =============================
     Copy( dz, ds );
     DiagonalScale( LEFT, NORMAL, s, ds );
-    Axpy( Real(1), rmu, ds );
+    ds += rmu;
     DiagonalSolve( LEFT, NORMAL, z, ds );
-    Scale( Real(-1), ds );
+    ds *= -1;
 }
 
 template<typename Real>
@@ -515,9 +515,9 @@ void ExpandSolution
     // =============================
     ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
-    Axpy( Real(1), rmu, ds );
+    ds += rmu;
     DiagonalSolve( LEFT, NORMAL, z, ds );
-    Scale( Real(-1), ds );
+    ds *= -1;
 }
 
 #define PROTO(Real) \

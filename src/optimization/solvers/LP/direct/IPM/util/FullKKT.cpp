@@ -54,14 +54,14 @@ void KKT
     // Jzx := -I
     // =========
     Identity( Jzx, n, n );
-    Scale( Real(-1), Jzx );
+    Jzx *= -1;
 
     // Jzz := - z <> x
     // ===============
     Matrix<Real> t;
     t = x;
     DiagonalSolve( LEFT, NORMAL, z, t );
-    Scale( Real(-1), t );
+    t *= -1;
     Diagonal( Jzz, t );
 
     if( !onlyLower )
@@ -73,7 +73,7 @@ void KKT
         // Jxz := -I
         // =========
         Identity( Jxz, n, n );
-        Scale( Real(-1), Jxz );
+        Jxz *= -1;
     }
 }
 
@@ -102,13 +102,13 @@ void KKT
     // Jzx := -I
     // =========
     Identity( Jzx, n, n );
-    Scale( Real(-1), Jzx );
+    Jzx *= -1;
 
     // Jzz := - z <> x
     // ===============
     DistMatrix<Real,MC,STAR> t(x);
     DiagonalSolve( LEFT, NORMAL, z, t );
-    Scale( Real(-1), t );
+    t *= -1;
     Diagonal( Jzz, t );
 
     if( !onlyLower )
@@ -120,7 +120,7 @@ void KKT
         // Jxz := -I
         // =========
         Identity( Jxz, n, n );
-        Scale( Real(-1), Jxz );
+        Jxz *= -1;
     }
 }
 

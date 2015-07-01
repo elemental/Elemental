@@ -122,13 +122,13 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {
@@ -240,13 +240,13 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {
@@ -377,14 +377,14 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {
@@ -518,14 +518,14 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {

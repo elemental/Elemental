@@ -61,35 +61,6 @@ DistMultiVec<T>::~DistMultiVec()
 // Assignment and reconfiguration
 // ==============================
 
-// Make a copy
-// -----------
-template<typename T>
-const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& A )
-{
-    DEBUG_ONLY(CSE cse("DistMultiVec::operator="))
-    Copy( A, *this );
-    return *this;
-}
-
-template<typename T>
-const DistMultiVec<T>& 
-DistMultiVec<T>::operator=( const AbstractDistMatrix<T>& A )
-{
-    DEBUG_ONLY(CSE cse("DistMultiVec::operator="))
-    Copy( A, *this );
-    return *this;
-}
-
-// Make a copy of a submatrix
-// --------------------------
-template<typename T>
-DistMultiVec<T>
-DistMultiVec<T>::operator()( Range<Int> I, Range<Int> J ) const
-{
-    DEBUG_ONLY(CSE cse("DistMultiVec::operator()"))
-    return GetSubmatrix( *this, I, J );
-}   
-
 // Change the size of the matrix
 // -----------------------------
 template<typename T>
@@ -140,6 +111,66 @@ void DistMultiVec<T>::SetComm( mpi::Comm comm )
         mpi::Dup( comm, comm_ );
 
     InitializeLocalData();
+}
+
+// Operator overloading
+// ====================
+
+// Make a copy
+// -----------
+template<typename T>
+const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator="))
+    Copy( A, *this );
+    return *this;
+}
+
+template<typename T>
+const DistMultiVec<T>& 
+DistMultiVec<T>::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator="))
+    Copy( A, *this );
+    return *this;
+}
+
+// Make a copy of a submatrix
+// --------------------------
+template<typename T>
+DistMultiVec<T>
+DistMultiVec<T>::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator()"))
+    return GetSubmatrix( *this, I, J );
+}   
+
+// Rescaling
+// ---------
+template<typename T>
+const DistMultiVec<T>& DistMultiVec<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator*=( T )"))
+    Scale( alpha, *this );
+    return *this;
+}
+
+// Addition/subtraction
+// --------------------
+template<typename T>
+const DistMultiVec<T>& DistMultiVec<T>::operator+=( const DistMultiVec<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator+=( const DMV& )"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const DistMultiVec<T>& DistMultiVec<T>::operator-=( const DistMultiVec<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator-=( const DMV& )"))
+    Axpy( T(-1), A, *this );
+    return *this;
 }
 
 // Queries

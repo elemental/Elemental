@@ -52,8 +52,8 @@ public:
     DistMatrix<T,MD,STAR>* ConstructDiagonal
     ( const El::Grid& g, int root ) const override;
 
-    // Assignment and reconfiguration
-    // ==============================
+    // Operator overloading
+    // ====================
 
     // Return a view
     // -------------
@@ -82,6 +82,15 @@ public:
     // Move assignment
     // ---------------
     type& operator=( type&& A );
+
+    // Rescaling
+    // ---------
+    const type& operator*=( T alpha );
+
+    // Addition/subtraction
+    // --------------------
+    const type& operator+=( const absType& A );
+    const type& operator-=( const absType& A );
 
     // Basic queries
     // =============

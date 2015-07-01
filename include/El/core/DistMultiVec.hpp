@@ -31,6 +31,18 @@ public:
     // Assignment  and reconfiguration
     // ===============================
 
+    // Change the matrix size
+    // ----------------------
+    void Empty();
+    void Resize( Int height, Int width );
+
+    // Change the distribution
+    // -----------------------
+    void SetComm( mpi::Comm comm );
+
+    // Operator overloading
+    // ====================
+
     // Make a copy of a submatrix
     // --------------------------
     DistMultiVec<T> operator()( Range<Int> I, Range<Int> J ) const;
@@ -40,14 +52,14 @@ public:
     const DistMultiVec<T>& operator=( const DistMultiVec<T>& X );
     const DistMultiVec<T>& operator=( const AbstractDistMatrix<T>& X );
 
-    // Change the matrix size
-    // ----------------------
-    void Empty();
-    void Resize( Int height, Int width );
+    // Rescaling
+    // ---------
+    const DistMultiVec<T>& operator*=( T alpha );
 
-    // Change the distribution
-    // -----------------------
-    void SetComm( mpi::Comm comm );
+    // Addition/subtraction
+    // --------------------
+    const DistMultiVec<T>& operator+=( const DistMultiVec<T>& A );
+    const DistMultiVec<T>& operator-=( const DistMultiVec<T>& A );
 
     // Queries
     // =======

@@ -124,29 +124,29 @@ void IPF
         // ---------------------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
-        Axpy( Real(1), s, rh ); 
+        rh += s;
         const Real rhNrm2 = Nrm2( rh );
-        const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+        const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
@@ -204,7 +204,7 @@ void IPF
 
         dzError = rh;
         Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
-        Axpy( Real(1), ds, dzError );
+        dzError += ds;
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError
@@ -373,29 +373,29 @@ void IPF
         // ---------------------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
-        Axpy( Real(1), s, rh ); 
+        rh += s;
         const Real rhNrm2 = Nrm2( rh );
-        const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+        const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
@@ -457,7 +457,7 @@ void IPF
 
         dzError = rh;
         Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
-        Axpy( Real(1), ds, dzError );
+        dzError += ds;
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError
@@ -617,29 +617,29 @@ void IPF
         // ---------------------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
-        Axpy( Real(1), s, rh ); 
+        rh += s;
         const Real rhNrm2 = Nrm2( rh );
-        const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+        const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
@@ -715,7 +715,7 @@ void IPF
 
         dzError = rh;
         Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );
-        Axpy( Real(1), ds, dzError );
+        dzError += ds;
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError
@@ -880,29 +880,29 @@ void IPF
         // ---------------------------------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (Real(1)+Abs(primObj));
+        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
-        const Real rbConv = rbNrm2 / (Real(1)+bNrm2);
+        const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
-        const Real rcConv = rcNrm2 / (Real(1)+cNrm2);
+        const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
-        Axpy( Real(1), s, rh ); 
+        rh += s;
         const Real rhNrm2 = Nrm2( rh );
-        const Real rhConv = rhNrm2 / (Real(1)+hNrm2);
+        const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
@@ -990,7 +990,7 @@ void IPF
 
         dzError = rh;
         Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );
-        Axpy( Real(1), ds, dzError );
+        dzError += ds;
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         // TODO: dmuError

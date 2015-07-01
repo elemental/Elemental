@@ -45,7 +45,7 @@ void AugmentedKKT
     Matrix<Real> d( z );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d );
-    Axpy( Real(1), Q, Jxx );
+    Jxx += Q;
     Jyx = A;
     if( !onlyLower )
         Transpose( A, Jxy );
@@ -71,7 +71,7 @@ void AugmentedKKT
     DistMatrix<Real,MC,STAR> d( z );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d );
-    Axpy( Real(1), Q, Jxx );
+    Jxx += Q;
     Jyx = A;
     if( !onlyLower )
         Transpose( A, Jxy );
@@ -207,14 +207,14 @@ void AugmentedKKTRHS
     auto dx = d(xInd,ALL);
     dx = rmu;
     DiagonalSolve( LEFT, NORMAL, x, dx );
-    Axpy( Real(1), rc, dx );
-    Scale( Real(-1), dx );
+    dx += rc;
+    dx *= -1;
 
     // dy := -r_b
     // ==========
     auto dy = d(yInd,ALL);
     dy = rb;
-    Scale( Real(-1), dy );
+    dy *= -1;
 }
 
 template<typename Real>
@@ -244,14 +244,14 @@ void AugmentedKKTRHS
     auto dx = d(xInd,ALL);
     dx = rmu;
     DiagonalSolve( LEFT, NORMAL, x, dx );
-    Axpy( Real(1), rc, dx );
-    Scale( Real(-1), dx );
+    dx += rc;
+    dx *= -1;
 
     // dy := -r_b
     // ==========
     auto dy = d(yInd,ALL);
     dy = rb;
-    Scale( Real(-1), dy );
+    dy *= -1;
 }
 
 template<typename Real>
@@ -304,9 +304,9 @@ void ExpandAugmentedSolution
     // ============================
     dz = dx;
     DiagonalScale( LEFT, NORMAL, z, dz );
-    Axpy( Real(1), rmu, dz );
+    dz += rmu;
     DiagonalSolve( LEFT, NORMAL, x, dz );
-    Scale( Real(-1), dz );
+    dz *= -1;
 }
 
 template<typename Real>
@@ -333,9 +333,9 @@ void ExpandAugmentedSolution
     // ============================
     Copy( dx, dz );
     DiagonalScale( LEFT, NORMAL, z, dz );
-    Axpy( Real(1), rmu, dz );
+    dz += rmu;
     DiagonalSolve( LEFT, NORMAL, x, dz );
-    Scale( Real(-1), dz );
+    dz *= -1;
 }
 
 template<typename Real>
@@ -384,9 +384,9 @@ void ExpandAugmentedSolution
     // ============================
     dz = dx;
     DiagonalScale( LEFT, NORMAL, z, dz );
-    Axpy( Real(1), rmu, dz );
+    dz += rmu;
     DiagonalSolve( LEFT, NORMAL, x, dz );
-    Scale( Real(-1), dz );
+    dz *= -1;
 }
 
 #define PROTO(Real) \

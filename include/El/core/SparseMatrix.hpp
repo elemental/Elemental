@@ -34,18 +34,6 @@ public:
     // Assignment and reconfiguration
     // ==============================
 
-    // Make a copy
-    // -----------
-    // For copying one matrix to another
-    const SparseMatrix<T>& operator=( const SparseMatrix<T>& A );
-    // NOTE: This requires A to be distributed over a single process
-    const SparseMatrix<T>& operator=( const DistSparseMatrix<T>& A );
-    // TODO: Move assignment
-
-    // Make a copy of a submatrix
-    // --------------------------
-    SparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
-
     // Change the size of the matrix
     // -----------------------------
     void Empty( bool clearMemory=true );
@@ -67,6 +55,30 @@ public:
     void QueueUpdate( Int row, Int col, T value );
     void QueueZero( Int row, Int col );
     void ProcessQueues();
+
+    // Operator overloading
+    // ====================
+
+    // Make a copy
+    // -----------
+    // For copying one matrix to another
+    const SparseMatrix<T>& operator=( const SparseMatrix<T>& A );
+    // NOTE: This requires A to be distributed over a single process
+    const SparseMatrix<T>& operator=( const DistSparseMatrix<T>& A );
+    // TODO: Move assignment
+
+    // Make a copy of a submatrix
+    // --------------------------
+    SparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
+
+    // Rescaling
+    // ---------
+    const SparseMatrix<T>& operator*=( T alpha );
+
+    // Addition/subtraction
+    // --------------------
+    const SparseMatrix<T>& operator+=( const SparseMatrix<T>& A );
+    const SparseMatrix<T>& operator-=( const SparseMatrix<T>& A );
 
     // Queries
     // =======

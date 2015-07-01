@@ -48,7 +48,7 @@ void Mehrotra
 
     Matrix<Real> G;
     Identity( G, n, n );
-    Scale( Real(-1), G );
+    G *= -1;
 
     Matrix<Real> h;
     Zeros( h, n, 1 );
@@ -92,7 +92,7 @@ void Mehrotra
 
     DistMatrix<Real> G(grid); 
     Identity( G, n, n );
-    Scale( Real(-1), G );
+    G *= -1;
 
     DistMatrix<Real> h(grid);
     Zeros( h, n, 1 );
@@ -135,7 +135,7 @@ void Mehrotra
 
     SparseMatrix<Real> G;
     Identity( G, n, n );
-    Scale( Real(-1), G );
+    G *= -1;
 
     Matrix<Real> h;
     Zeros( h, n, 1 );
@@ -179,7 +179,7 @@ void Mehrotra
 
     DistSparseMatrix<Real> G(comm);
     Identity( G, n, n );
-    Scale( Real(-1), G );
+    G *= -1;
 
     DistMultiVec<Real> h(comm);
     Zeros( h, n, 1 );

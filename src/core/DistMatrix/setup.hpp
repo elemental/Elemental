@@ -128,8 +128,8 @@ DM::ConstructDiagonal
 { return new DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
                           DiagRow<COLDIST,ROWDIST>()>(g,root); }
 
-// Assignment and reconfiguration
-// ==============================
+// Operator overloading
+// ====================
 
 // Return a view
 // -------------
@@ -176,10 +176,39 @@ DM& DM::operator=( const BlockDistMatrix<T,U,V>& A )
 template<typename T>
 DM& DM::operator=( DM&& A )
 {
+    DEBUG_ONLY(CSE cse("DM = DM&&"))
     if( this->Viewing() || A.Viewing() )
         this->operator=( (const DM&)A );
     else
         ADM::operator=( std::move(A) );
+    return *this;
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const DM& DM::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("DM *= T"))
+    Scale( alpha, *this );
+    return *this;
+}
+
+// Addition/subtraction
+// --------------------
+template<typename T>
+const DM& DM::operator+=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("DM += DM&"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const DM& DM::operator-=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("DM -= DM&"))
+    Axpy( T(-1), A, *this );
     return *this;
 }
 

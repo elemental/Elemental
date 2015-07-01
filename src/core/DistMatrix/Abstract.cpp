@@ -47,43 +47,6 @@ AbstractDistMatrix<T>::~AbstractDistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
-
-template<typename T>
-AbstractDistMatrix<T>& 
-AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
-{
-    if( Viewing() || A.Viewing() )
-    {
-        Copy( A, *this );
-    }
-    else
-    {
-        matrix_.ShallowSwap( A.matrix_ );
-        viewType_ = A.viewType_;
-        height_ = A.height_;
-        width_ = A.width_;
-        colConstrained_ = A.colConstrained_;
-        rowConstrained_ = A.rowConstrained_;
-        rootConstrained_ = A.rootConstrained_;
-        colAlign_ = A.colAlign_;
-        rowAlign_ = A.rowAlign_;
-        colShift_ = A.colShift_;
-        rowShift_ = A.rowShift_;
-        root_ = A.root_;
-        grid_ = A.grid_;
-    }
-    return *this;
-}
-
-template<typename T>
-const AbstractDistMatrix<T>&
-AbstractDistMatrix<T>::operator=( const DistMultiVec<T>& A )
-{
-    DEBUG_ONLY(CSE cse("ADM::operator="))
-    Copy( A, *this );
-    return *this;
-}
-
 template<typename T>
 void
 AbstractDistMatrix<T>::Empty()
@@ -549,6 +512,81 @@ AbstractDistMatrix<T>::LockedAttach( const El::Grid& g, const El::Matrix<T>& A )
     if( g.Size() != 1 )
         LogicError("Assumed a grid size of one");
     LockedAttach( A.Height(), A.Width(), g, 0, 0, A.LockedBuffer(), A.LDim() );
+}
+
+// Operator overloading
+// ====================
+
+// Copy
+// ----
+template<typename T>
+const AbstractDistMatrix<T>&
+AbstractDistMatrix<T>::operator=( const DistMultiVec<T>& A )
+{
+    DEBUG_ONLY(CSE cse("ADM::operator=(DMV)"))
+    Copy( A, *this );
+    return *this;
+}
+
+// Move assignment
+// ---------------
+template<typename T>
+AbstractDistMatrix<T>& 
+AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
+{
+    DEBUG_ONLY(CSE cse("ADM::operator=(ADM&&)"))
+    if( Viewing() || A.Viewing() )
+    {
+        Copy( A, *this );
+    }
+    else
+    {
+        matrix_.ShallowSwap( A.matrix_ );
+        viewType_ = A.viewType_;
+        height_ = A.height_;
+        width_ = A.width_;
+        colConstrained_ = A.colConstrained_;
+        rowConstrained_ = A.rowConstrained_;
+        rootConstrained_ = A.rootConstrained_;
+        colAlign_ = A.colAlign_;
+        rowAlign_ = A.rowAlign_;
+        colShift_ = A.colShift_;
+        rowShift_ = A.rowShift_;
+        root_ = A.root_;
+        grid_ = A.grid_;
+    }
+    return *this;
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const AbstractDistMatrix<T>&
+AbstractDistMatrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("ADM::operator*=(T)"))    
+    Scale( alpha, *this );
+    return *this;
+}
+
+// Addition/subtraction
+// --------------------
+template<typename T>
+const AbstractDistMatrix<T>&
+AbstractDistMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("ADM::operator+="))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const AbstractDistMatrix<T>&
+AbstractDistMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("ADM::operator-="))
+    Axpy( T(-1), A, *this );
+    return *this;
 }
 
 // Basic queries

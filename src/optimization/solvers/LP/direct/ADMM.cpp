@@ -53,7 +53,8 @@ Int ADMM
     // where [L22,U22] are stored within B22.
     Matrix<Real> U12, L21, B22, bPiv;
     Adjoint( A, U12 );
-    L21 = A; Scale( 1/ctrl.rho, L21 );
+    L21 = A; 
+    L21 *= 1/ctrl.rho;
     Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
     // TODO: Replace with sparse-direct Cholesky version?
@@ -100,9 +101,9 @@ Int ADMM
         //     = "                        " |rho*(z-u)-c|
         //                                  | P22' b    |
         xTmp = z;
-        Axpy( Real(-1), u, xTmp );
-        Scale( ctrl.rho, xTmp );
-        Axpy( Real(-1), c, xTmp );
+        xTmp -= u;
+        xTmp *= ctrl.rho;
+        xTmp -= c;
         y = bPiv;
         Gemv( NORMAL, Real(-1), L21, xTmp, Real(1), y );
         if( ctrl.inv )
@@ -116,31 +117,31 @@ Int ADMM
             Trsv( UPPER, NORMAL, NON_UNIT, B22, y );
         }
         Gemv( NORMAL, Real(-1), U12, y, Real(1), xTmp );
-        Scale( 1/ctrl.rho, xTmp );
+        xTmp *= 1/ctrl.rho;
 
         // xHat := alpha*x + (1-alpha)*zOld
         xHat = xTmp;
-        Scale( ctrl.alpha, xHat );
+        xHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := pos(xHat+u)
         z = xHat;
-        Axpy( Real(1), u, z );
+        z += u;
         LowerClip( z, Real(0) );
 
         // u := u + (xHat-z)
-        Axpy( Real(1),  xHat, u );
-        Axpy( Real(-1), z,    u );
+        u += xHat;
+        u -= z;
 
         const Real objective = Dot( c, xTmp );
 
         // rNorm := || x - z ||_2
         t = xTmp;
-        Axpy( Real(-1), z, t );
+        t -= z;
         const Real rNorm = FrobeniusNorm( t );
         // sNorm := |rho| || z - zOld ||_2
         t = z;
-        Axpy( Real(-1), zOld, t );
+        t -= zOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( t );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
@@ -152,7 +153,7 @@ Int ADMM
         {
             t = xTmp;
             LowerClip( t, Real(0) );
-            Axpy( Real(-1), xTmp, t );
+            t -= xTmp;
             const Real clipDist = FrobeniusNorm( t );
             cout << numIter << ": "
               << "||x-z||_2=" << rNorm << ", "
@@ -215,7 +216,8 @@ Int ADMM
     L21.Align( n%L21.ColStride(), 0                 );
     B22.Align( n%B22.ColStride(), n%B22.RowStride() );
     Adjoint( A, U12 );
-    L21 = A; Scale( 1/ctrl.rho, L21 );
+    L21 = A; 
+    L21 *= 1/ctrl.rho;
     Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
     DistMatrix<Int,VC,STAR> perm2(grid);
@@ -259,9 +261,9 @@ Int ADMM
         //     = "                        " |rho*(z-u)-c|
         //                                  | P22' b    |
         xTmp = z;
-        Axpy( Real(-1), u, xTmp );
-        Scale( ctrl.rho, xTmp );
-        Axpy( Real(-1), c, xTmp );
+        xTmp -= u;
+        xTmp *= ctrl.rho;
+        xTmp -= c;
         y = bPiv;
         Gemv( NORMAL, Real(-1), L21, xTmp, Real(1), y );
         if( ctrl.inv )
@@ -275,31 +277,31 @@ Int ADMM
             Trsv( UPPER, NORMAL, NON_UNIT, B22, y );
         }
         Gemv( NORMAL, Real(-1), U12, y, Real(1), xTmp );
-        Scale( 1/ctrl.rho, xTmp );
+        xTmp *= 1/ctrl.rho;
 
         // xHat := alpha*x + (1-alpha)*zOld
         xHat = xTmp;
-        Scale( ctrl.alpha, xHat );
+        xHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := pos(xHat+u)
         z = xHat;
-        Axpy( Real(1), u, z );
+        z += u;
         LowerClip( z, Real(0) );
 
         // u := u + (xHat-z)
-        Axpy( Real(1),  xHat, u );
-        Axpy( Real(-1), z,    u );
+        u += xHat;
+        u -= z;
 
         const Real objective = Dot( c, xTmp );
 
         // rNorm := || x - z ||_2
         t = xTmp;
-        Axpy( Real(-1), z, t );
+        t -= z;
         const Real rNorm = FrobeniusNorm( t );
         // sNorm := |rho| || z - zOld ||_2
         t = z;
-        Axpy( Real(-1), zOld, t );
+        t -= zOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( t );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
@@ -311,7 +313,7 @@ Int ADMM
         {
             t = xTmp;
             LowerClip( t, Real(0) );
-            Axpy( Real(-1), xTmp, t );
+            t -= xTmp;
             const Real clipDist = FrobeniusNorm( t );
             if( grid.Rank() == 0 )
                 cout << numIter << ": "

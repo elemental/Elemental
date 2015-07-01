@@ -45,42 +45,6 @@ SparseMatrix<T>::~SparseMatrix() { }
 // Assignment and reconfiguration
 // ==============================
 
-// Make a copy
-// -----------
-template<typename T>
-const SparseMatrix<T>& SparseMatrix<T>::operator=( const SparseMatrix<T>& A )
-{
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
-    graph_ = A.graph_;
-    vals_ = A.vals_;
-    return *this;
-}
-
-template<typename T>
-const SparseMatrix<T>&
-SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
-{
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    if( commSize != 1 )
-        LogicError("Can not yet construct from distributed sparse matrix");
-
-    graph_ = A.distGraph_;
-    vals_ = A.vals_;
-    return *this;
-}
-
-// Make a copy of a submatrix
-// --------------------------
-template<typename T>
-SparseMatrix<T>
-SparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
-{
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
-    return GetSubmatrix( *this, I, J );
-}
-
 // Change the size of the matrix
 // -----------------------------
 template<typename T>
@@ -149,6 +113,73 @@ void SparseMatrix<T>::QueueZero( Int row, Int col )
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
     graph_.QueueDisconnection( row, col );
+}
+
+// Operator overloading
+// ====================
+
+// Make a copy
+// -----------
+template<typename T>
+const SparseMatrix<T>& SparseMatrix<T>::operator=( const SparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
+    graph_ = A.graph_;
+    vals_ = A.vals_;
+    return *this;
+}
+
+template<typename T>
+const SparseMatrix<T>&
+SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    if( commSize != 1 )
+        LogicError("Can not yet construct from distributed sparse matrix");
+
+    graph_ = A.distGraph_;
+    vals_ = A.vals_;
+    return *this;
+}
+
+// Make a copy of a submatrix
+// --------------------------
+template<typename T>
+SparseMatrix<T>
+SparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    return GetSubmatrix( *this, I, J );
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const SparseMatrix<T>& SparseMatrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator*=( T )"))
+    Scale( alpha, *this );
+    return *this;
+}
+
+// Addition/subtraction
+// --------------------
+template<typename T>
+const SparseMatrix<T>& SparseMatrix<T>::operator+=( const SparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator+=( const SM& )"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const SparseMatrix<T>& SparseMatrix<T>::operator-=( const SparseMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator-=( const SM& )"))
+    Axpy( T(-1), A, *this );
+    return *this;
 }
 
 // Queries

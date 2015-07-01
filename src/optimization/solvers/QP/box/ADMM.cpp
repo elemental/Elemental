@@ -62,9 +62,9 @@ Int ADMM
 
         // x := (Q+rho*I)^{-1} (rho(z-u)-q)
         X = Z;
-        Axpy( Real(-1), U, X );
-        Scale( ctrl.rho, X );
-        Axpy( Real(-1), C, X );
+        X -= U;
+        X *= ctrl.rho;
+        X -= C;
         if( ctrl.inv )
         {
             auto Y( X );
@@ -78,26 +78,26 @@ Int ADMM
 
         // xHat := alpha*x + (1-alpha)*zOld
         XHat = X;
-        Scale( ctrl.alpha, XHat );
+        XHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, ZOld, XHat );
 
         // z := Clip(xHat+u,lb,ub)
         Z = XHat;
-        Axpy( Real(1), U, Z );
+        Z += U;
         Clip( Z, lb, ub );
 
         // u := u + (xHat-z)
-        Axpy( Real(1),  XHat, U );
-        Axpy( Real(-1), Z,    U );
+        U += XHat;
+        U -= Z;
 
         // rNorm := || x - z ||_2
         T = X;
-        Axpy( Real(-1), Z, T );
+        T -= Z;
         const Real rNorm = FrobeniusNorm( T );
 
         // sNorm := |rho| || z - zOld ||_2
         T = Z;
-        Axpy( Real(-1), ZOld, T );
+        T -= ZOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( T );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
@@ -114,7 +114,7 @@ Int ADMM
 
             T = X;
             Clip( T, lb, ub );
-            Axpy( Real(-1), X, T );
+            T -= X;
             const Real clipDist = FrobeniusNorm( T );
             cout << numIter << ": "
               << "||X-Z||_F=" << rNorm << ", "
@@ -176,9 +176,9 @@ Int ADMM
 
         // x := (Q+rho*I)^{-1} (rho(z-u)-q)
         X = Z;
-        Axpy( Real(-1), U, X );
-        Scale( ctrl.rho, X );
-        Axpy( Real(-1), C, X );
+        X -= U;
+        X *= ctrl.rho;
+        X -= C;
         if( ctrl.inv )
         {
             auto Y( X );
@@ -192,26 +192,26 @@ Int ADMM
 
         // xHat := alpha*x + (1-alpha)*zOld
         XHat = X;
-        Scale( ctrl.alpha, XHat );
+        XHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, ZOld, XHat );
 
         // z := Clip(xHat+u,lb,ub)
         Z = XHat;
-        Axpy( Real(1), U, Z );
+        Z += U;
         Clip( Z, lb, ub );
 
         // u := u + (xHat-z)
-        Axpy( Real(1),  XHat, U );
-        Axpy( Real(-1), Z,    U );
+        U += XHat;
+        U -= Z;
 
         // rNorm := || x - z ||_2
         T = X;
-        Axpy( Real(-1), Z, T );
+        T -= Z;
         const Real rNorm = FrobeniusNorm( T );
 
         // sNorm := |rho| || z - zOld ||_2
         T = Z;
-        Axpy( Real(-1), ZOld, T );
+        T -= ZOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( T );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
@@ -228,7 +228,7 @@ Int ADMM
 
             T = X;
             Clip( T, lb, ub );
-            Axpy( Real(-1), X, T );
+            T -= X;
             const Real clipDist = FrobeniusNorm( T );
             if( grid.Rank() == 0 )
                 cout << numIter << ": "

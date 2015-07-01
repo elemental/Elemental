@@ -122,7 +122,7 @@ void Initialize
         // where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
         ldl::SolveAfter( J, dSub, p, d, false );
@@ -139,7 +139,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
-        Scale( Real(-1), z );
+        z *= -1;
     }
 
     const Real epsilon = Epsilon<Real>();
@@ -227,7 +227,7 @@ void Initialize
         // where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
         ldl::SolveAfter( J, dSub, p, d, false );
@@ -244,7 +244,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
-        Scale( Real(-1), z );
+        z *= -1;
     }
 
     const Real epsilon = Epsilon<Real>();
@@ -352,7 +352,7 @@ void Initialize
         // where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
@@ -371,7 +371,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
-        Scale( Real(-1), z );
+        z *= -1;
     }
 
     const Real epsilon = Epsilon<Real>();
@@ -481,7 +481,7 @@ void Initialize
         // where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
@@ -500,7 +500,7 @@ void Initialize
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
-        Scale( Real(-1), z );
+        z *= -1;
     }
 
     const Real epsilon = Epsilon<Real>();

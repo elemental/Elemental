@@ -153,7 +153,7 @@ void NormalKKTRHS
     // =============================================================
     Matrix<Real> g( rc );
     DiagonalScale( LEFT, NORMAL, x, g );
-    Axpy( Real(1), rmu, g );
+    g += rmu;
     DiagonalSolve( LEFT, NORMAL, z, g );
 
     // Form the right-hand side, d
@@ -176,7 +176,7 @@ void NormalKKTRHS
     // =============================================================
     DistMatrix<Real,MC,MR> g( rc );
     DiagonalScale( LEFT, NORMAL, x, g );
-    Axpy( Real(1), rmu, g );
+    g += rmu;
     DiagonalSolve( LEFT, NORMAL, z, g );
 
     // Form the right-hand side, d 
@@ -199,7 +199,7 @@ void NormalKKTRHS
     // =============================================================
     Matrix<Real> g( rc );
     DiagonalScale( LEFT, NORMAL, x, g );
-    Axpy( Real(1), rmu, g );
+    g += rmu;
     DiagonalSolve( LEFT, NORMAL, z, g );
 
     // Form the right-hand side, d 
@@ -268,9 +268,9 @@ void ExpandNormalSolution
     // ===========================
     dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
-    Axpy( Real(1), rmu, dx );
+    dx += rmu;
     DiagonalSolve( LEFT, NORMAL, z, dx );
-    Scale( Real(-1), dx );
+    dx *= -1;
 }
 
 template<typename Real>
@@ -292,9 +292,9 @@ void ExpandNormalSolution
     // ===========================
     Copy( dz, dx );
     DiagonalScale( LEFT, NORMAL, x, dx );
-    Axpy( Real(1), rmu, dx );
+    dx += rmu;
     DiagonalSolve( LEFT, NORMAL, z, dx );
-    Scale( Real(-1), dx );
+    dx *= -1;
 }
 
 template<typename Real>
@@ -316,9 +316,9 @@ void ExpandNormalSolution
     // ===========================
     dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
-    Axpy( Real(1), rmu, dx );
+    dx += rmu;
     DiagonalSolve( LEFT, NORMAL, z, dx );
-    Scale( Real(-1), dx );
+    dx *= -1;
 }
 
 template<typename Real>
@@ -340,9 +340,9 @@ void ExpandNormalSolution
     // ===========================
     dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
-    Axpy( Real(1), rmu, dx );
+    dx += rmu;
     DiagonalSolve( LEFT, NORMAL, z, dx );
-    Scale( Real(-1), dx );
+    dx *= -1;
 }
 
 #define PROTO(Real) \

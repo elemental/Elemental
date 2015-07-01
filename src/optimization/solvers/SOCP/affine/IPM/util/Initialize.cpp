@@ -131,13 +131,13 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
         ldl::SolveAfter( J, dSub, p, d, false );
         qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {
@@ -256,13 +256,13 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
         ldl::SolveAfter( J, dSub, p, d, false );
         qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {
@@ -398,14 +398,14 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
         KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {
@@ -547,14 +547,14 @@ void Initialize
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
         rb = b;
-        Scale( Real(-1), rb );
+        rb *= -1;
         rh = h;
-        Scale( Real(-1), rh );
+        rh *= -1;
 
         KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
         qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
-        Scale( Real(-1), s );
+        s *= -1;
     }
     if( !dualInit )
     {

@@ -597,16 +597,16 @@ void KKTRHS
 
     auto dx = d(IR(0,n),ALL);
     dx = rc;
-    Scale( Real(-1), dx );
+    dx *= -1;
 
     auto dy = d(IR(n,n+m),ALL);
     dy = rb;
-    Scale( Real(-1), dy );
+    dy *= -1;
 
     auto dz = d(IR(n+m,n+m+k),ALL);
     dz = rmu;
     SOCApplyQuadratic( wRoot, dz, orders, firstInds );
-    Axpy( Real(-1), rh, dz );
+    dz -= rh;
 }
 
 template<typename Real>
@@ -635,16 +635,16 @@ void KKTRHS
 
     auto dx = d(xInd,ALL);
     Copy( rc, dx );
-    Scale( Real(-1), dx );
+    dx *= -1;
 
     auto dy = d(yInd,ALL);
     Copy( rb, dy );
-    Scale( Real(-1), dy );
+    dy *= -1;
 
     auto dz = d(zInd,ALL);
     Copy( rmu, dz );
     SOCApplyQuadratic( wRoot, dz, orders, firstInds, cutoff );
-    Axpy( Real(-1), rh, dz );
+    dz -= rh;
 }
 
 template<typename Real>
@@ -714,9 +714,9 @@ void ExpandSolution
     // ==========================
     ds = dz;
     SOCApplyQuadratic( wRoot, ds, orders, firstInds );
-    Axpy( Real(1), rmu, ds );
+    ds += rmu;
     SOCApplyQuadratic( wRoot, ds, orders, firstInds );
-    Scale( Real(-1), ds );
+    ds *= -1;
 }
 
 template<typename Real>
@@ -741,9 +741,9 @@ void ExpandSolution
     // ==========================
     Copy( dz, ds );
     SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
-    Axpy( Real(1), rmu, ds );
+    ds += rmu;
     SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
-    Scale( Real(-1), ds );
+    ds *= -1;
 }
 
 template<typename Real>
@@ -768,9 +768,9 @@ void ExpandSolution
     // ==========================
     ds = dz;
     SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
-    Axpy( Real(1), rmu, ds );
+    ds += rmu;
     SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
-    Scale( Real(-1), ds );
+    ds *= -1;
 }
 
 #define PROTO(Real) \

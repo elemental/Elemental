@@ -103,56 +103,6 @@ Matrix<T>::~Matrix() { }
 // Assignment and reconfiguration
 // ==============================
 
-// Return a view
-// -------------
-template<typename T>
-Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J )
-{
-    DEBUG_ONLY(CSE cse("Matrix::operator()"))
-    if( this->Locked() )
-        return LockedView( *this, I, J );
-    else
-        return View( *this, I, J );
-}
-
-template<typename T>
-const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
-{
-    DEBUG_ONLY(CSE cse("Matrix::operator()"))
-    return LockedView( *this, I, J );
-}
-
-// Make a copy
-// -----------
-
-template<typename T>
-const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
-{
-    DEBUG_ONLY(CSE cse("Matrix::operator="))
-    Copy( A, *this );
-    return *this;
-}
-
-template<typename T>
-Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
-{
-    DEBUG_ONLY(CSE cse("Matrix::operator=( Matrix&& )"))
-    if( Viewing() || A.Viewing() )
-    {
-        operator=( (const Matrix<T>&)A );
-    }
-    else
-    {
-        memory_.ShallowSwap( A.memory_ );
-        std::swap( data_, A.data_ );
-        viewType_ = A.viewType_;
-        height_ = A.height_;
-        width_ = A.width_;
-        ldim_ = A.ldim_;
-    }
-    return *this;
-}
-
 template<typename T>
 void Matrix<T>::Empty()
 {
@@ -224,6 +174,88 @@ void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
           LogicError("Cannot attach a new buffer to a view with fixed size");
     )
     Control_( height, width, buffer, ldim );
+}
+
+// Operator overloading
+// ====================
+
+// Return a view
+// -------------
+template<typename T>
+Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J )
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    if( this->Locked() )
+        return LockedView( *this, I, J );
+    else
+        return View( *this, I, J );
+}
+
+template<typename T>
+const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    return LockedView( *this, I, J );
+}
+
+// Make a copy
+// -----------
+template<typename T>
+const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator="))
+    Copy( A, *this );
+    return *this;
+}
+
+// Move assignment
+// ---------------
+template<typename T>
+Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator=( Matrix&& )"))
+    if( Viewing() || A.Viewing() )
+    {
+        operator=( (const Matrix<T>&)A );
+    }
+    else
+    {
+        memory_.ShallowSwap( A.memory_ );
+        std::swap( data_, A.data_ );
+        viewType_ = A.viewType_;
+        height_ = A.height_;
+        width_ = A.width_;
+        ldim_ = A.ldim_;
+    }
+    return *this;
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const Matrix<T>& Matrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator*=( T )"))
+    Scale( alpha, *this );
+    return *this;
+}
+
+// Addition/subtraction
+// --------------------
+template<typename T>
+const Matrix<T>& Matrix<T>::operator+=( const Matrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<T>& )"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const Matrix<T>& Matrix<T>::operator-=( const Matrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<T>& )"))
+    Axpy( T(-1), A, *this );
+    return *this;
 }
 
 // Basic queries
