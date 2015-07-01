@@ -580,7 +580,7 @@ void DestroyCustom()
 
 #ifdef EL_HAVE_QUAD
 template<> Op MaxOp<Quad>() { return ::maxQuadOp; }
-template<> Op MinOp<Quad>() { return ::maxQuadOp; }
+template<> Op MinOp<Quad>() { return ::minQuadOp; }
 
 template<> Op SumOp<Quad>()          { return ::sumQuadOp; }
 template<> Op SumOp<Complex<Quad>>() { return ::sumQuadComplexOp; }
