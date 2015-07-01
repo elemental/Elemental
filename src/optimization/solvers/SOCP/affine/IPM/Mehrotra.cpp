@@ -156,7 +156,8 @@ void Mehrotra
         // Compute the affine search direction
         // ===================================
         const Real wMaxNorm = MaxNorm(w);
-        const Real wMaxNormLimit = Real(100)/relError;
+        const Real wMaxNormLimit = 
+            Pow(Epsilon<Real>(),Real(-0.15))/Min(Real(1),relError);
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -491,7 +492,8 @@ void Mehrotra
         // Compute the affine search direction
         // ===================================
         const Real wMaxNorm = MaxNorm(w);
-        const Real wMaxNormLimit = Real(100)/relError;
+        const Real wMaxNormLimit = 
+            Pow(Epsilon<Real>(),Real(-0.15))/Min(Real(1),relError);
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC
@@ -817,7 +819,8 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNormLimit = Real(100)/relError;
+        const Real wMaxNormLimit = 
+            Pow(Epsilon<Real>(),Real(-0.15))/Min(Real(1),relError);
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -1173,7 +1176,8 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNormLimit = Real(100)/relError;
+        const Real wMaxNormLimit = 
+            Pow(Epsilon<Real>(),Real(-0.15))/Min(Real(1),relError);
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC
