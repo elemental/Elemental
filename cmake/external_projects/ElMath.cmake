@@ -177,9 +177,12 @@ if(NOT EL_DISABLE_SCALAPACK)
   if(EL_HAVE_SCALAPACK)
     set(MATH_LIBS ${SCALAPACK_LIBS})
     set(MATH_LIBS_AT_CONFIG ${SCALAPACK_LIBS_AT_CONFIG})
-  elseif(MATH_LIBS_AT_CONFIG)
-    set(MATH_LIBS ${MATH_LIBS_AT_CONFIG})
   endif()
+endif()
+if(MATH_LIBS_AT_CONFIG AND NOT MATH_LIBS)
+  # We could not extend MATH_LIBS_AT_CONFIG with ScaLAPACK, so use the
+  # specified BLAS/LAPACK libraries
+  set(MATH_LIBS ${MATH_LIBS_AT_CONFIG})
 endif()
 
 # Decide on the BLAS/LAPACK libraries
