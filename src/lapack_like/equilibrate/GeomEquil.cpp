@@ -63,7 +63,7 @@ void GeomEquil
                 const Real minColAbsVal = MinAbsNonzero( aCol, maxColAbsVal );
                 const Real propScale = Sqrt(minColAbsVal*maxColAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
-                Scale( Real(1)/scale, aCol );         
+                aCol *= 1/scale;
                 dCol.Set( j, 0, scale*dCol.Get(j,0) );
             }
         }
@@ -79,7 +79,7 @@ void GeomEquil
                 const Real minRowAbsVal = MinAbsNonzero( aRow, maxRowAbsVal );
                 const Real propScale = Sqrt(minRowAbsVal*maxRowAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxRowAbsVal);
-                Scale( Real(1)/scale, aRow );         
+                aRow *= 1/scale;
                 dRow.Set( i, 0, scale*dRow.Get(i,0) );
             }
         }
@@ -104,7 +104,7 @@ void GeomEquil
         const Real maxColAbsVal = maxColAbs.value;
         if( maxColAbsVal > Real(0) )
         {
-            Scale( Real(1)/maxColAbsVal, aCol );         
+            aCol *= 1/maxColAbsVal;
             dCol.Set( j, 0, maxColAbsVal*dCol.Get(j,0) );
         }
     }
@@ -163,8 +163,8 @@ void StackedGeomEquil
                 const Real minColAbsVal = Min(minColAbsAVal,minColAbsBVal);
                 const Real propScale = Sqrt(minColAbsVal*maxColAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
-                Scale( Real(1)/scale, aCol );         
-                Scale( Real(1)/scale, bCol );
+                aCol *= 1/scale;
+                bCol *= 1/scale;
                 dCol.Set( j, 0, scale*dCol.Get(j,0) );
             }
         }
@@ -180,7 +180,7 @@ void StackedGeomEquil
                 const Real minRowAbsVal = MinAbsNonzero( aRow, maxRowAbsVal );
                 const Real propScale = Sqrt(minRowAbsVal*maxRowAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxRowAbsVal);
-                Scale( Real(1)/scale, aRow );         
+                aRow *= 1/scale;
                 dRowA.Set( i, 0, scale*dRowA.Get(i,0) );
             }
         }
@@ -194,7 +194,7 @@ void StackedGeomEquil
                 const Real minRowAbsVal = MinAbsNonzero( bRow, maxRowAbsVal );
                 const Real propScale = Sqrt(minRowAbsVal*maxRowAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxRowAbsVal);
-                Scale( Real(1)/scale, bRow );         
+                bRow *= 1/scale;
                 dRowB.Set( i, 0, scale*dRowB.Get(i,0) );
             }
         }
@@ -224,8 +224,8 @@ void StackedGeomEquil
         const Real maxColAbsVal = Max(maxColAbsA.value,maxColAbsB.value);
         if( maxColAbsVal > Real(0) )
         {
-            Scale( Real(1)/maxColAbsVal, aCol );         
-            Scale( Real(1)/maxColAbsVal, bCol );
+            aCol *= 1/maxColAbsVal;
+            bCol *= 1/maxColAbsVal;
             dCol.Set( j, 0, maxColAbsVal*dCol.Get(j,0) );
         }
     }

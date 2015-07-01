@@ -81,7 +81,7 @@ void EN
     auto AHatv = AHat( ALL, vInd );
     auto AHatr = AHat( ALL, rInd );
     AHatu = A;
-    Axpy( Real(-1), A, AHatv );
+    AHatv -= A;
     FillDiagonal( AHatr, Real(1) );
 
     // G := | -I  0 0 |
@@ -102,7 +102,7 @@ void EN
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -142,7 +142,7 @@ void EN
     auto AHatv = AHat( ALL, vInd );
     auto AHatr = AHat( ALL, rInd );
     AHatu = A;
-    Axpy( Real(-1), A, AHatv );
+    AHatv -= A;
     FillDiagonal( AHatr, Real(1) );
 
     // G := | -I  0 0 |
@@ -162,8 +162,8 @@ void EN
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, ALL ), x );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x = xHat( uInd, ALL );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -233,7 +233,7 @@ void EN
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>

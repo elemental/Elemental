@@ -14,7 +14,7 @@ template<typename T>
 inline void
 UT
 ( T alpha, const AbstractDistMatrix<T>& APre, 
-  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
+                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syrk::UT");
@@ -39,7 +39,6 @@ UT
     A1Trans_MR_STAR.AlignWith( C );
     A1_STAR_MC.AlignWith( C );
 
-    ScaleTrapezoid( beta, UPPER, C );
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);

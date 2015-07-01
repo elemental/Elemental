@@ -314,8 +314,8 @@ void LeastSquares
         normScale = TwoNormEstimate( ABar, ctrl.basisSize ); 
         if( ctrl.progress )
             cout << "Estimated || A ||_2 ~= " << normScale << endl;
-        Scale( F(1)/normScale, ABar );
-        Scale( normScale, dR );
+        ABar *= F(1)/normScale;
+        dR *= normScale;
     }
 
     // Equilibrate the RHS
@@ -603,8 +603,8 @@ void LeastSquares
         normScale = TwoNormEstimate( ABar, ctrl.basisSize );
         if( ctrl.progress && commRank == 0 )
             cout << "Estimated || A ||_2 ~= " << normScale << endl;
-        Scale( F(1)/normScale, ABar );
-        Scale( normScale, dR );
+        ABar *= F(1)/normScale;
+        dR *= normScale;
     }
 
     // Equilibrate the RHS

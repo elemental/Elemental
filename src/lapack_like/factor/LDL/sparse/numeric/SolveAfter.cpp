@@ -182,7 +182,7 @@ Int SolveWithIterativeRefinement
             SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
             xCand = x;
-            Axpy( F(1), dx, xCand );
+            xCand += dx;
 
             // If the proposed update lowers the residual, accept it
             // -----------------------------------------------------
@@ -244,7 +244,7 @@ Int SolveWithIterativeRefinement
             SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
             xCand = x;
-            Axpy( F(1), dx, xCand );
+            xCand += dx;
 
             // If the proposed update lowers the residual, accept it
             // -----------------------------------------------------

@@ -65,10 +65,10 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
         upsilon11 = -upsilon11;
         Conjugate( u12, z12 );
         Gemv( NORMAL, F(1), V2, v1, F(1), z12 );
-        Scale( F(-1), V2 );
+        V2 *= -1;
         Ger( Conj(tau), z12, v1, V2 );
         Conjugate( z12 );
-        Scale( F(-1), u12 );
+        u12 *= -1;
         Axpy( tau, z12, u12 );
     }
 }
@@ -134,11 +134,11 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         Zeros( b12_STAR_MC, 1, V2.Height() );
         LocalGemv( NORMAL, F(1), V2, v1_STAR_MR, F(0), b12_STAR_MC );
         El::AllReduce( b12_STAR_MC, V2.RowComm() );
-        Axpy( F(1), b12_STAR_MC, z12_STAR_MC );
-        Scale( F(-1), V2 );
+        z12_STAR_MC += b12_STAR_MC;
+        V2 *= -1;
         LocalGer( Conj(tau), z12_STAR_MC, v1_STAR_MR, V2 );
         Conjugate( z12_STAR_MC );
-        Scale( F(-1), u12 );
+        u12 *= -1;
         Axpy( tau, z12_STAR_MC, u12 );
     }
 }
@@ -191,8 +191,8 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
         upsilon11 = -upsilon11;
         Conjugate( u12, z12 );
         Gemv( NORMAL, F(-1), V2, v1, F(1), z12 );
-        Scale( F(-1), u12 );
-        Scale( F(-1), V2 );
+        u12 *= -1;
+        V2 *= -1;
         Ger( F(1)/tau, z12, v1, V2 );
         Conjugate( z12 );
         Axpy( F(1)/tau, z12, u12 );
@@ -260,9 +260,9 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         Zeros( b12_STAR_MC, 1, V2.Height() );
         LocalGemv( NORMAL, F(-1), V2, v1_STAR_MR, F(0), b12_STAR_MC );
         El::AllReduce( b12_STAR_MC, V2.RowComm() );
-        Axpy( F(1), b12_STAR_MC, z12_STAR_MC );
-        Scale( F(-1), u12 );
-        Scale( F(-1), V2 );
+        z12_STAR_MC += b12_STAR_MC;
+        u12 *= -1;
+        V2 *= -1;
         LocalGer( F(1)/tau, z12_STAR_MC, v1_STAR_MR, V2 );
         Conjugate( z12_STAR_MC );
         Axpy( F(1)/tau, z12_STAR_MC, u12 );
@@ -281,12 +281,12 @@ UMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
         return;
     else if( alpha > Real(0) )
     {
-        Scale( Sqrt(alpha), V );
+        V *= Sqrt(alpha);
         mod::UUpdate( U, V );
     }
     else
     {
-        Scale( Sqrt(-alpha), V );
+        V *= Sqrt(-alpha);
         mod::UDowndate( U, V );
     }
 }
@@ -301,12 +301,12 @@ UMod( AbstractDistMatrix<F>& U, Base<F> alpha, AbstractDistMatrix<F>& V )
         return;
     else if( alpha > Real(0) )
     {
-        Scale( Sqrt(alpha), V );
+        V *= Sqrt(alpha);
         mod::UUpdate( U, V );
     }
     else
     {
-        Scale( Sqrt(-alpha), V );
+        V *= Sqrt(-alpha);
         mod::UDowndate( U, V );
     }
 }

@@ -321,7 +321,7 @@ inline void FrontFastLowerBackwardSolve
         ZT_VC_STAR = ZT_VR_STAR;
 
         // XT[VC,* ] += ZT[VC,* ]
-        Axpy( F(1), ZT_VC_STAR, XT );
+        XT += ZT_VC_STAR;
     }
 
     {
@@ -537,7 +537,7 @@ inline void FrontBlockLowerBackwardSolve
         ZT_VC_STAR = ZT_VR_STAR;
 
         // XT[VC,* ] -= ZT[VC,* ]
-        Axpy( F(-1), ZT_VC_STAR, XT );
+        XT -= ZT_VC_STAR;
     }
 }
 

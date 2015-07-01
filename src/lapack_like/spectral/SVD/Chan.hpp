@@ -108,7 +108,7 @@ Chan
     Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
-        Scale( scale, A );
+        A *= scale;
 
     // TODO: Switch between different algorithms. For instance, starting 
     //       with a QR decomposition of tall-skinny matrices.
@@ -126,7 +126,7 @@ Chan
 
     // Rescale the singular values if necessary
     if( needRescaling )
-        Scale( 1/scale, s );
+        s *= 1/scale;
 }
 
 //----------------------------------------------------------------------------//
@@ -148,7 +148,7 @@ Chan
     Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
-        Scale( scale, A );
+        A *= scale;
 
     // TODO: Switch between different algorithms. For instance, starting 
     //       with a QR decomposition of tall-skinny matrices.
@@ -167,7 +167,7 @@ Chan
 
     // Rescale the singular values if necessary
     if( needRescaling )
-        Scale( 1/scale, s );
+        s *= 1/scale;
 }
 
 } // namespace svd

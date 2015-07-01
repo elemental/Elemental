@@ -49,14 +49,15 @@ void Symm
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symm"))
+    Scale( beta, C );
     if( side == LEFT && uplo == LOWER )
-        symm::LL( alpha, A, B, beta, C, conjugate );
+        symm::LL( alpha, A, B, C, conjugate );
     else if( side == LEFT )
-        symm::LU( alpha, A, B, beta, C, conjugate );
+        symm::LU( alpha, A, B, C, conjugate );
     else if( uplo == LOWER )
-        symm::RL( alpha, A, B, beta, C, conjugate );
+        symm::RL( alpha, A, B, C, conjugate );
     else
-        symm::RU( alpha, A, B, beta, C, conjugate );
+        symm::RU( alpha, A, B, C, conjugate );
 }
 
 #define PROTO(T) \

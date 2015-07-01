@@ -108,8 +108,8 @@ void SymmetricEquil
         Real twoNormEst = HermitianTwoNormEstimate( A, basisSize );
         if( progress )
             cout << "    Estimated two-norm as " << twoNormEst << endl;
-        Scale( Real(1)/twoNormEst, A );
-        Scale( Sqrt(twoNormEst), d );
+        A *= 1/twoNormEst;
+        d *= Sqrt(twoNormEst);
     } 
 }
 
@@ -175,8 +175,8 @@ void SymmetricEquil
         Real twoNormEst = HermitianTwoNormEstimate( A, basisSize );
         if( progress && commRank == 0 )
             cout << "    Estimated two-norm as " << twoNormEst << endl;
-        Scale( Real(1)/twoNormEst, A );
-        Scale( Sqrt(twoNormEst), d );
+        A *= 1/twoNormEst;
+        d *= Sqrt(twoNormEst);
         if( commRank == 0 && time )
             cout << "    Two-norm estimation time: " << timer.Stop() 
                  << " secs" << endl;

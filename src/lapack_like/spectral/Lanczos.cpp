@@ -53,7 +53,7 @@ void Lanczos
         Uniform( v, n, 1 );
         Shift( v, SampleUniform<F>() );
         const Real beta = FrobeniusNorm( v ); 
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
     }
         
     for( Int k=0; k<basisSize; ++k )
@@ -80,7 +80,7 @@ void Lanczos
         // v := w / || w ||_2
         // -----------------
         const Real beta = FrobeniusNorm( v );
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
 
         // Expand the Rayleigh quotient as appropriate
         // -------------------------------------------
@@ -114,7 +114,7 @@ Base<F> LanczosDecomp
         Uniform( v, n, 1 );
         Shift( v, SampleUniform<F>() );
         const Real beta = FrobeniusNorm( v ); 
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
     }
     if( basisSize > 0 )
     {
@@ -147,7 +147,7 @@ Base<F> LanczosDecomp
         // v := w / || w ||_2
         // -----------------
         beta = FrobeniusNorm( v );
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
 
         // Expand the Lanczos decomposition as appropriate
         // -----------------------------------------------
@@ -190,7 +190,7 @@ void Lanczos
         Uniform( v, n, 1 );
         Shift( v, shift );
         const Real beta = FrobeniusNorm( v );
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
     }
         
     for( Int k=0; k<basisSize; ++k )
@@ -217,7 +217,7 @@ void Lanczos
         // v := w / || w ||_2
         // -----------------
         const Real beta = FrobeniusNorm( v );
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
 
         // Expand the Rayleigh quotient as appropriate
         // -------------------------------------------
@@ -259,7 +259,7 @@ Base<F> LanczosDecomp
         Uniform( v, n, 1 );
         Shift( v, shift );
         const Real beta = FrobeniusNorm( v );
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
     }
     if( basisSize > 0 )
     {
@@ -292,7 +292,7 @@ Base<F> LanczosDecomp
         // v := w / || w ||_2
         // -----------------
         beta = FrobeniusNorm( v );
-        Scale( F(1)/beta, v );
+        v *= 1/beta;
 
         // Expand the Lanczos decomposition as appropriate
         // -----------------------------------------------

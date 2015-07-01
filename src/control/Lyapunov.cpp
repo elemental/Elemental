@@ -36,8 +36,8 @@ void Lyapunov
     ( W, WTL, WTR,
          WBL, WBR, m );
     WTL = A;
-    Adjoint( A, WBR ); Scale( F(-1), WBR );
-    WTR = C; Scale( F(-1), WTR );
+    Adjoint( A, WBR ); WBR *= -1;
+    WTR = C;           WTR *= -1;
     Sylvester( m, W, X, ctrl );
 }
 
@@ -63,8 +63,8 @@ void Lyapunov
     ( W, WTL, WTR,
          WBL, WBR, m );
     WTL = A;
-    Adjoint( A, WBR ); Scale( F(-1), WBR );
-    WTR = C; Scale( F(-1), WTR );
+    Adjoint( A, WBR ); WBR *= -1;
+    WTR = C;           WTR *= -1;
     Sylvester( m, W, X, ctrl );
 }
 

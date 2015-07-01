@@ -39,7 +39,7 @@ void MultiShiftQuasiTrsm
               LogicError("Nonconformal");
       }
     )
-    Scale( alpha, B );
+    B *= alpha;
     // TODO: Call the single right-hand side algorithm if appropriate
 
     if( side == LEFT && uplo == LOWER )
@@ -160,7 +160,7 @@ void MultiShiftQuasiTrsm
               LogicError("Nonconformal");
       }
     )
-    Scale( alpha, B );
+    B *= alpha;
     // TODO: Call the single right-hand side algorithm if appropriate
 
     //const Int p = B.Grid().Size();

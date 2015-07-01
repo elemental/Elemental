@@ -136,7 +136,7 @@ Panel
                 Conjugate( a21, y21 );
             else
                 y21 = a21;
-            Scale( delta11Inv, a21 );
+            a21 *= delta11Inv;
             x21 = a21;
         }
         else
@@ -268,7 +268,7 @@ Panel
                 Conjugate( a21, y21 );
             else
                 y21 = a21;
-            Scale( delta11Inv, a21 );
+            a21 *= delta11Inv;
             x21 = a21;
         }
         else

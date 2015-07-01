@@ -51,7 +51,7 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
         if( alpha == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha;
-        Scale( alpha11Inv, a21 );
+        a21 *= alpha11Inv;
         Geru( F(-1), a21, a12, A22 );
     }
 }
@@ -152,8 +152,8 @@ void Panel
         if( alpha == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha;
-        Scale( alpha11Inv, a21 );
-        Scale( alpha11Inv, b1  );
+        a21 *= alpha11Inv;
+        b1 *= alpha11Inv;
         Geru( F(-1), a21.Matrix(), a12.Matrix(), A22.Matrix() );
         Geru( F(-1), b1.Matrix(), a12.Matrix(), B2.Matrix() );
     }

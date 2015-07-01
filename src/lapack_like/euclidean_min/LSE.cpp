@@ -135,7 +135,7 @@ void Overwrite
             PartitionUp( D, DT, DB, n-m );
             Gemm( NORMAL, NORMAL, F(-1), R22R, DB, F(1), G2 );
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22L, DT );
-            Axpy( F(-1), DT, G2 );
+            G2 -= DT;
         }
         else
         {
@@ -144,7 +144,7 @@ void Overwrite
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22T, D );
             Matrix<F> G2T, G2B;
             PartitionUp( G2, G2T, G2B, m-n );
-            Axpy( F(-1), D, G2T );
+            G2T -= D;
         }
         Zero( G1 );
     }
@@ -233,7 +233,7 @@ void Overwrite
             PartitionUp( D, DT, DB, n-m );
             Gemm( NORMAL, NORMAL, F(-1), R22R, DB, F(1), G2 );
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22L, DT );
-            Axpy( F(-1), DT, G2 );
+            G2 -= DT;
         }
         else
         {
@@ -242,7 +242,7 @@ void Overwrite
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22T, D );
             DistMatrix<F> G2T(g), G2B(g);
             PartitionUp( G2, G2T, G2B, m-n );
-            Axpy( F(-1), D, G2T );
+            G2T -= D;
         }
         Zero( G1 );
     }
@@ -309,8 +309,8 @@ void LSE
         normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress )
             cout << "Estimated || [ A; B ] ||_2 ~= " << normScale << endl;
-        Scale( F(1)/normScale, W );
-        Scale( normScale, dC );
+        W *= F(1)/normScale;
+        dC *= normScale;
     }
 
     // Form the augmented RHS
@@ -423,8 +423,8 @@ void LSE
         normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress && commRank == 0 )
             cout << "Estimated || [ A; B ] ||_2 ~= " << normScale << endl;
-        Scale( F(1)/normScale, W );
-        Scale( normScale, dC );
+        W *= F(1)/normScale;
+        dC *= normScale;
     }
 
     // Form the augmented RHS
@@ -575,10 +575,10 @@ void LSE
     for( Int j=0; j<numRHS; ++j )
     {
         auto gLoc = GLoc( ALL, IR(j) );
-        Copy( gLoc, uLoc );
+        uLoc = gLoc;
         reg_qsd_ldl::SolveAfter
         ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
-        Copy( uLoc, gLoc );
+        gLoc = uLoc;
     }
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]

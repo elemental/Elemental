@@ -57,7 +57,7 @@ void CheckInput
     EnsureConformal( B, C, "B" );
 }
 
-// Local C := alpha A B + beta C
+// Local C := A B + C
 template<typename T>
 void CheckInputNN( const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
 {
@@ -68,7 +68,7 @@ void CheckInputNN( const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
          DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 
-// Local C := alpha A B^{T/H} + beta C
+// Local C := A B^{T/H} + C
 template<typename T>
 void CheckInputNT
 ( Orientation orientationOfB,
@@ -83,7 +83,7 @@ void CheckInputNT
          DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 
-// Local C := alpha A^{T/H} B + beta C
+// Local C := A^{T/H} B + C
 template<typename T>
 void CheckInputTN
 ( Orientation orientationOfA,
@@ -98,7 +98,7 @@ void CheckInputTN
          DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 
-// Local C := alpha A^{T/H} B^{T/H} + beta C
+// Local C := A^{T/H} B^{T/H} + C
 template<typename T>
 void CheckInputTT
 ( Orientation orientationOfA,
@@ -118,17 +118,17 @@ void CheckInputTT
 
 #endif // ifndef EL_RELEASE
 
-// Local C := alpha A B + beta C
+// Local C := alpha A B + C
 template<typename T>
 inline void
 TrrkNNKernel
 ( UpperOrLower uplo, 
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("TrrkNNKernel");
-        CheckInputNN( A, B, C );
+      CSE cse("TrrkNNKernel");
+      CheckInputNN( A, B, C );
     )
     Matrix<T> AT, AB;
     Matrix<T> BL, BR;
@@ -137,7 +137,6 @@ TrrkNNKernel
     Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -156,18 +155,18 @@ TrrkNNKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Distributed C := alpha A B + beta C
+// Distributed C := alpha A B + C
 template<typename T>
 inline void
 LocalTrrkKernel
 ( UpperOrLower uplo, 
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T>& C )
+                 DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("LocalTrrkKernel");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrkKernel");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
 
@@ -178,7 +177,6 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -199,18 +197,18 @@ LocalTrrkKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Local C := alpha A B^{T/H} + beta C
+// Local C := alpha A B^{T/H} + C
 template<typename T>
 inline void
 TrrkNTKernel
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("TrrkNTKernel");
-        CheckInputNT( orientationOfB, A, B, C );
+      CSE cse("TrrkNTKernel");
+      CheckInputNT( orientationOfB, A, B, C );
     )
     Matrix<T> AT, AB;
     Matrix<T> BT, BB;
@@ -219,7 +217,6 @@ TrrkNTKernel
     Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown( A, AT, AB, half );
     LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
@@ -238,7 +235,7 @@ TrrkNTKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Distributed C := alpha A B^{T/H} + beta C
+// Distributed C := alpha A B^{T/H} + C
 template<typename T>
 inline void
 LocalTrrkKernel
@@ -246,11 +243,11 @@ LocalTrrkKernel
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
            const DistMatrix<T,MR,STAR>& B,
-  T beta,        DistMatrix<T>& C )
+                 DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("LocalTrrkKernel");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrkKernel");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
 
@@ -261,7 +258,6 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown( A, AT, AB, half );
     LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
@@ -282,18 +278,18 @@ LocalTrrkKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Local C := alpha A^{T/H} B + beta C
+// Local C := alpha A^{T/H} B + C
 template<typename T>
 inline void
 TrrkTNKernel
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("TrrkTNKernel");
-        CheckInputTN( orientationOfA, A, B, C );
+      CSE cse("TrrkTNKernel");
+      CheckInputTN( orientationOfA, A, B, C );
     )
     Matrix<T> AL, AR;
     Matrix<T> BL, BR;
@@ -302,7 +298,6 @@ TrrkTNKernel
     Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -321,7 +316,7 @@ TrrkTNKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Distributed C := alpha A^{T/H} B + beta C
+// Distributed C := alpha A^{T/H} B + C
 template<typename T>
 inline void
 LocalTrrkKernel
@@ -329,11 +324,11 @@ LocalTrrkKernel
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
            const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T>& C )
+                 DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("LocalTrrkKernel");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrkKernel");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
 
@@ -344,7 +339,6 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -365,7 +359,7 @@ LocalTrrkKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Local C := alpha A^{T/H} B^{T/H} + beta C
+// Local C := alpha A^{T/H} B^{T/H} + C
 template<typename T>
 inline void
 TrrkTTKernel
@@ -373,11 +367,11 @@ TrrkTTKernel
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("TrrkTTKernel");
-        CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+      CSE cse("TrrkTTKernel");
+      CheckInputTT( orientationOfA, orientationOfB, A, B, C );
     )
     Matrix<T> AL, AR;
     Matrix<T> BT, BB;
@@ -386,7 +380,6 @@ TrrkTTKernel
     Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
@@ -405,7 +398,7 @@ TrrkTTKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Distributed C := alpha A^{T/H} B^{T/H} + beta C
+// Distributed C := alpha A^{T/H} B^{T/H} + C
 template<typename T>
 inline void
 LocalTrrkKernel
@@ -414,11 +407,11 @@ LocalTrrkKernel
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
            const DistMatrix<T,MR,  STAR>& B,
-  T beta,        DistMatrix<T>& C )
+                 DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CSE cse("LocalTrrkKernel");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrkKernel");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
 
@@ -429,7 +422,6 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
-    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
@@ -450,21 +442,21 @@ LocalTrrkKernel
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
-// Local C := alpha A B + beta C
+// Local C := alpha A B + C
 template<typename T>
 void TrrkNN
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("trrk::TrrkNN");
-        CheckInputNN( A, B, C );
+      CSE cse("trrk::TrrkNN");
+      CheckInputNN( A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        TrrkNNKernel( uplo, alpha, A, B, beta, C );
+        TrrkNNKernel( uplo, alpha, A, B, C );
     }
     else
     {
@@ -483,32 +475,32 @@ void TrrkNN
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
+            Gemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
         else
-            Gemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
+            Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
         // Recurse
-        TrrkNN( uplo, alpha, AT, BL, beta, CTL );
-        TrrkNN( uplo, alpha, AB, BR, beta, CBR );
+        TrrkNN( uplo, alpha, AT, BL, CTL );
+        TrrkNN( uplo, alpha, AB, BR, CBR );
     }
 }
 
-// Local C := alpha A B^{T/H} + beta C
+// Local C := alpha A B^{T/H} + C
 template<typename T>
 void TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("trrk::TrrkNT");
-        CheckInputNT( orientationOfB, A, B, C );
+      CSE cse("trrk::TrrkNT");
+      CheckInputNT( orientationOfB, A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        TrrkNTKernel( uplo, orientationOfB, alpha, A, B, beta, C );
+        TrrkNTKernel( uplo, orientationOfB, alpha, A, B, C );
     }
     else
     {
@@ -527,32 +519,32 @@ void TrrkNT
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
+            Gemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
         else
-            Gemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
+            Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
         // Recurse
-        TrrkNT( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
-        TrrkNT( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
+        TrrkNT( uplo, orientationOfB, alpha, AT, BT, CTL );
+        TrrkNT( uplo, orientationOfB, alpha, AB, BB, CBR );
     }
 }
 
-// Local C := alpha A^{T/H} B + beta C
+// Local C := alpha A^{T/H} B + C
 template<typename T>
 void TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("trrk::TrrkTN");
-        CheckInputTN( orientationOfA, A, B, C );
+      CSE cse("trrk::TrrkTN");
+      CheckInputTN( orientationOfA, A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        TrrkTNKernel( uplo, orientationOfA, alpha, A, B, beta, C );
+        TrrkTNKernel( uplo, orientationOfA, alpha, A, B, C );
     }
     else
     {
@@ -571,33 +563,32 @@ void TrrkTN
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
+            Gemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
         else
-            Gemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
+            Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
         // Recurse
-        TrrkTN( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
-        TrrkTN( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
+        TrrkTN( uplo, orientationOfA, alpha, AL, BL, CTL );
+        TrrkTN( uplo, orientationOfA, alpha, AR, BR, CBR );
     }
 }
 
-// Local C := alpha A^{T/H} B^{T/H} + beta C
+// Local C := alpha A^{T/H} B^{T/H} + C
 template<typename T>
 void TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+                 Matrix<T>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("trrk::TrrkTT");
-        CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+      CSE cse("trrk::TrrkTT");
+      CheckInputTT( orientationOfA, orientationOfB, A, B, C );
     )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        TrrkTTKernel
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        TrrkTTKernel( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
     }
     else
     {
@@ -616,15 +607,13 @@ void TrrkTT
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( orientationOfA, orientationOfB, alpha, AR, BT, beta, CBL );
+            Gemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
         else
-            Gemm( orientationOfA, orientationOfB, alpha, AL, BB, beta, CTR );
+            Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
         // Recurse
-        TrrkTT
-        ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
-        TrrkTT
-        ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
+        TrrkTT( uplo, orientationOfA, orientationOfB, alpha, AL, BT, CTL );
+        TrrkTT( uplo, orientationOfA, orientationOfB, alpha, AR, BB, CBR );
     }
 }
 
@@ -644,10 +633,11 @@ void LocalTrrk
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
+    ScaleTrapezoid( beta, uplo, C );
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernel( uplo, alpha, A, B, beta, C );
+        LocalTrrkKernel( uplo, alpha, A, B, C );
     }
     else
     {
@@ -666,13 +656,13 @@ void LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
         else
-            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
         // Recurse
-        LocalTrrk( uplo, alpha, AT, BL, beta, CTL );
-        LocalTrrk( uplo, alpha, AB, BR, beta, CBR );
+        LocalTrrk( uplo, alpha, AT, BL, T(1), CTL );
+        LocalTrrk( uplo, alpha, AB, BR, T(1), CBR );
     }
 }
 
@@ -691,10 +681,11 @@ void LocalTrrk
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
+    ScaleTrapezoid( beta, uplo, C );
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernel( uplo, orientationOfB, alpha, A, B, beta, C );
+        LocalTrrkKernel( uplo, orientationOfB, alpha, A, B, C );
     }
     else
     {
@@ -713,13 +704,13 @@ void LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
         else
-            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
         // Recurse
-        LocalTrrk( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
-        LocalTrrk( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
+        LocalTrrk( uplo, orientationOfB, alpha, AT, BT, T(1), CTL );
+        LocalTrrk( uplo, orientationOfB, alpha, AB, BB, T(1), CBR );
     }
 }
 
@@ -738,10 +729,11 @@ void LocalTrrk
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
+    ScaleTrapezoid( beta, uplo, C );
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernel( uplo, orientationOfA, alpha, A, B, beta, C );
+        LocalTrrkKernel( uplo, orientationOfA, alpha, A, B, C );
     }
     else
     {
@@ -760,13 +752,13 @@ void LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
+            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
         else
-            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
+            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
         // Recurse
-        LocalTrrk( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
-        LocalTrrk( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
+        LocalTrrk( uplo, orientationOfA, alpha, AL, BL, T(1), CTL );
+        LocalTrrk( uplo, orientationOfA, alpha, AR, BR, T(1), CBR );
     }
 }
 
@@ -785,11 +777,11 @@ void LocalTrrk
         CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
+    ScaleTrapezoid( beta, uplo, C );
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
     {
-        LocalTrrkKernel
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        LocalTrrkKernel( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
     }
     else
     {
@@ -809,16 +801,16 @@ void LocalTrrk
 
         if( uplo == LOWER )
             LocalGemm
-            ( orientationOfA, orientationOfB, alpha, AR, BT, beta, CBL );
+            ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
         else
             LocalGemm
-            ( orientationOfA, orientationOfB, alpha, AL, BB, beta, CTR );
+            ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
         // Recurse
         LocalTrrk
-        ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
+        ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, T(1), CTL );
         LocalTrrk
-        ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
+        ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, T(1), CBR );
     }
 }
 

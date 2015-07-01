@@ -66,7 +66,7 @@ void TV
     // =================
     Zeros( c, 2*n-1, 1 );
     auto cx = c( xInd, ALL ); 
-    cx = b; Scale( Real(-1), cx );
+    cx = b; cx *= -1;
     auto ct = c( tInd, ALL );
     Fill( ct, lambda );
 

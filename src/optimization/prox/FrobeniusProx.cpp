@@ -20,7 +20,7 @@ void FrobeniusProx( Matrix<F>& A, Base<F> tau )
     DEBUG_ONLY(CSE cse("FrobeniusProx"))
     const Base<F> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
-        Scale( 1-1/(tau*frobNorm), A );
+        A *= 1-1/(tau*frobNorm);
     else
         Zero( A );
 }
@@ -31,7 +31,7 @@ void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau )
     DEBUG_ONLY(CSE cse("FrobeniusProx"))
     const Base<F> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
-        Scale( 1-1/(tau*frobNorm), A );
+        A *= 1-1/(tau*frobNorm);
     else
         Zero( A );
 }

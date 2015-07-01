@@ -42,7 +42,7 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
     PartitionDown( XAlt, BAlt, AAlt, n );
 
     // Flip the sign of A
-    Scale( F(-1), A );
+    A *= -1;
 
     // Set up the space for explicitly computing the left half of Q
     Matrix<F> t;
@@ -86,7 +86,7 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
     }
 
     // Revert the sign of A and return
-    Scale( F(-1), A );
+    A *= -1;
     return numIts;
 }
 
@@ -115,7 +115,7 @@ InverseFreeSign( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
     PartitionDown( XAlt, BAlt, AAlt, n );
 
     // Flip the sign of A
-    Scale( F(-1), A );
+    A *= -1;
 
     // Set up the space for explicitly computing the left half of Q
     DistMatrix<F,MD,STAR> t(g);
@@ -159,7 +159,7 @@ InverseFreeSign( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
     }
 
     // Revert the sign of A and return
-    Scale( F(-1), A );
+    A *= -1;
     return numIts;
 }
 
@@ -186,7 +186,7 @@ InverseFreeSignDivide( Matrix<F>& X )
     // 2) [Q,R,Pi] := QRP(A)
     // 3) B := Q^H B
     // 4) [R,Q] := RQ(B)
-    Axpy( F(1), A, B );
+    B += A;
     Matrix<F> t;
     Matrix<Base<F>> d;
     Matrix<Int> p;
@@ -233,7 +233,7 @@ InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
     // 2) [Q,R,Pi] := QRP(A)
     // 3) B := Q^H B
     // 4) [R,Q] := RQ(B)
-    Axpy( F(1), A, B );
+    B += A;
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> p(g);

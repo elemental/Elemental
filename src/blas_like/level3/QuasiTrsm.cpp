@@ -41,7 +41,7 @@ void QuasiTrsm
                 LogicError("Nonconformal Trsm");
         }
     )
-    Scale( alpha, B );
+    B *= alpha;
     // Call the single right-hand side algorithm if appropriate
     if( side == LEFT && B.Width() == 1 )
     {
@@ -152,7 +152,7 @@ void QuasiTrsm
                 LogicError("Nonconformal Trsm");
         }
     )
-    Scale( alpha, B );
+    B *= alpha;
     // Call the single right-hand side algorithm if appropriate
     if( side == LEFT && B.Width() == 1 )
     {

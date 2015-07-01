@@ -25,7 +25,7 @@ inline void
 LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mshs::LN"))
-    Scale( alpha, X );
+    X *= alpha;
 
     const Int m = X.Height();
     const Int n = X.Width();
@@ -117,7 +117,7 @@ inline void
 UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mshs::UN"))
-    Scale( alpha, X );
+    X *= alpha;
 
     const Int m = X.Height();
     const Int n = X.Width();
@@ -224,7 +224,7 @@ LN
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );
     auto& shifts = *shiftsPtr;
 
-    Scale( alpha, X );
+    X *= alpha;
 
     const Int m = X.Height();
     const Int nLoc = X.LocalWidth();
@@ -341,7 +341,7 @@ UN
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );
     auto& shifts = *shiftsPtr;
 
-    Scale( alpha, X );
+    X *= alpha;
 
     const Int m = X.Height();
     const Int nLoc = X.LocalWidth();

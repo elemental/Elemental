@@ -144,7 +144,7 @@ void EhrenfestDecay( Matrix<F>& A, Int n )
     Ehrenfest( A, n );
     Matrix<F> PInf;
     EhrenfestStationary( PInf, n );
-    Axpy( F(-1), PInf, A );
+    A -= PInf;
 }
 
 template<typename F>
@@ -156,7 +156,7 @@ void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
       PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     EhrenfestStationary( *PInf, n );
-    Axpy( F(-1), *PInf, A );
+    A -= *PInf;
 }
 
 #define PROTO(F) \

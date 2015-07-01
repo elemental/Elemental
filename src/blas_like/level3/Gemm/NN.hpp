@@ -15,7 +15,7 @@ template<typename T>
 inline void
 Cannon_NN
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::Cannon_NN");
@@ -46,9 +46,6 @@ Cannon_NN
     mpi::Comm colComm = g.ColComm(); 
     if( A.Width() % pSqrt != 0 )
         LogicError("For now, width(A) must be integer multiple of sqrt(p)");
-
-    // Begin by scaling our local portion of C
-    Scale( beta, C );
 
     // Load the initial A and B packages (may want to transpose B...)
     const Int localHeightA = A.LocalHeight();
@@ -100,7 +97,7 @@ inline void
 SUMMA_NNA
 ( T alpha, const AbstractDistMatrix<T>& APre, 
            const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNA");
@@ -129,7 +126,6 @@ SUMMA_NNA
     B1Trans_STAR_MR.AlignWith( A );
     D1_MC_STAR.AlignWith( A );
 
-    Scale( beta, C );
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -151,7 +147,7 @@ template<typename T>
 inline void 
 SUMMA_NNB
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNB");
@@ -178,7 +174,6 @@ SUMMA_NNB
     A1_STAR_MC.AlignWith( B );
     D1Trans_MR_STAR.AlignWith( B );
 
-    Scale( beta, C );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
@@ -199,7 +194,7 @@ template<typename T>
 inline void 
 SUMMA_NNC
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNC");
@@ -226,7 +221,6 @@ SUMMA_NNC
     A1_MC_STAR.AlignWith( C );
     B1Trans_MR_STAR.AlignWith( C );
 
-    Scale( beta, C );
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
@@ -247,7 +241,7 @@ template<typename T>
 inline void 
 SUMMA_NNDot
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNDot");
@@ -268,7 +262,6 @@ SUMMA_NNDot
     auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
     auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
 
-    Scale( beta, C );
     if( A.Height() > B.Width() )
     {
         // Temporary distributions
@@ -342,7 +335,7 @@ template<typename T>
 inline void
 SUMMA_NN
 ( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CSE cse("gemm::SUMMA_NN"))
     const Int m = C.Height();
@@ -355,18 +348,18 @@ SUMMA_NN
     {
     case GEMM_DEFAULT:
         if( weightAwayFromDot*m <= sumDim && weightAwayFromDot*n <= sumDim )
-            SUMMA_NNDot( alpha, A, B, beta, C );
+            SUMMA_NNDot( alpha, A, B, C );
         else if( m <= n && weightTowardsC*m <= sumDim )
-            SUMMA_NNB( alpha, A, B, beta, C );    
+            SUMMA_NNB( alpha, A, B, C );    
         else if( n <= m && weightTowardsC*n <= sumDim )
-            SUMMA_NNA( alpha, A, B, beta, C );
+            SUMMA_NNA( alpha, A, B, C );
         else
-            SUMMA_NNC( alpha, A, B, beta, C );
+            SUMMA_NNC( alpha, A, B, C );
         break;
-    case GEMM_SUMMA_A:   SUMMA_NNA( alpha, A, B, beta, C ); break;
-    case GEMM_SUMMA_B:   SUMMA_NNB( alpha, A, B, beta, C ); break;
-    case GEMM_SUMMA_C:   SUMMA_NNC( alpha, A, B, beta, C ); break;
-    case GEMM_SUMMA_DOT: SUMMA_NNDot( alpha, A, B, beta, C ); break;
+    case GEMM_SUMMA_A:   SUMMA_NNA( alpha, A, B, C ); break;
+    case GEMM_SUMMA_B:   SUMMA_NNB( alpha, A, B, C ); break;
+    case GEMM_SUMMA_C:   SUMMA_NNC( alpha, A, B, C ); break;
+    case GEMM_SUMMA_DOT: SUMMA_NNDot( alpha, A, B, C ); break;
     default: LogicError("Unsupported Gemm option");
     }
 }

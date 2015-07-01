@@ -190,7 +190,7 @@ void RiffleDecay( Matrix<F>& A, Int n )
     Riffle( A, n );
     Matrix<F> PInf;
     RiffleStationary( PInf, n );
-    Axpy( F(-1), PInf, A );
+    A -= PInf;
 }
 
 template<typename F>
@@ -202,7 +202,7 @@ void RiffleDecay( AbstractDistMatrix<F>& A, Int n )
       PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     RiffleStationary( *PInf, n );
-    Axpy( F(-1), *PInf, A );
+    A -= *PInf;
 }
 
 // TODO: AbstractBlockDistMatrix version

@@ -14,6 +14,8 @@ template<typename T,typename S>
 void ScaleTrapezoid( S alphaS, UpperOrLower uplo, Matrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    if( alphaS == S(1) )
+        return; 
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -48,6 +50,8 @@ ScaleTrapezoid
 ( S alphaS, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    if( alphaS == S(1) )
+        return; 
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -92,6 +96,8 @@ ScaleTrapezoid
 ( S alpha, UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    if( alpha == S(1) )
+        return; 
     const Int numEntries = A.NumEntries();
     const Int* sBuf = A.LockedSourceBuffer();
     const Int *tBuf = A.LockedTargetBuffer();
@@ -111,6 +117,8 @@ ScaleTrapezoid
 ( S alpha, UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    if( alpha == S(1) )
+        return; 
     const Int numLocalEntries = A.NumLocalEntries();
     const Int* sBuf = A.LockedSourceBuffer();
     const Int *tBuf = A.LockedTargetBuffer();

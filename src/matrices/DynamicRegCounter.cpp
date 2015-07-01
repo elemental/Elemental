@@ -23,7 +23,7 @@ void DynamicRegCounter( Matrix<T>& A, Int n )
     JordanCholesky( ATL, n );
     Identity( ATR, n, n );
     Identity( ABL, n, n );
-    Identity( ABR, n, n ); Scale( T(-1), ABR );
+    Identity( ABR, n, n ); ABR *= -1;
 }
 
 template<typename T>
@@ -42,7 +42,7 @@ void DynamicRegCounter( AbstractDistMatrix<T>& APre, Int n )
     JordanCholesky( ATL, n );
     Identity( ATR, n, n );
     Identity( ABL, n, n );
-    Identity( ABR, n, n ); Scale( T(-1), ABR );
+    Identity( ABR, n, n ); ABR *= -1;
 }
 
 template<typename T>

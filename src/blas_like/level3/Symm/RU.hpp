@@ -95,7 +95,7 @@ template<typename T>
 inline void
 RUA
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
+                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RUA");
@@ -127,7 +127,6 @@ RUA
 
     Matrix<T> Z1Local;
 
-    Scale( beta, C );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
@@ -156,7 +155,7 @@ template<typename T>
 inline void
 RUC
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
+                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CSE cse("symm::RUC");
@@ -179,7 +178,6 @@ RUC
 
     B1_MC_STAR.AlignWith( C );
 
-    Scale( beta, C );
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -218,15 +216,15 @@ template<typename T>
 inline void
 RU
 ( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C,
+                 AbstractDistMatrix<T>& C,
   bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::RU"))
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )
-        symm::RUA( alpha, A, B, beta, C, conjugate );
+        symm::RUA( alpha, A, B, C, conjugate );
     else
-        symm::RUC( alpha, A, B, beta, C, conjugate );
+        symm::RUC( alpha, A, B, C, conjugate );
 }
 
 } // namespace symm

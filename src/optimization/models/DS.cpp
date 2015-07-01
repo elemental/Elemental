@@ -91,7 +91,7 @@ void Var1
     auto AHatt = AHat( ALL, tInd );
     Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHatu );
     MakeSymmetric( LOWER, AHatu );
-    Axpy( Real(-1), AHatu, AHatv );
+    AHatv -= AHatu;
     FillDiagonal( AHatt, Real(1) );
 
     // \hat b := A^T b
@@ -126,7 +126,7 @@ void Var1
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -160,7 +160,7 @@ void Var1
     auto AHatt = AHat( ALL, tInd );
     Herk( LOWER, TRANSPOSE, Real(1), A, Real(0), AHatu );
     MakeSymmetric( LOWER, AHatu );
-    Axpy( Real(-1), AHatu, AHatv );
+    AHatv -= AHatu;
     FillDiagonal( AHatt, Real(1) );
 
     // \hat b := A^T b
@@ -194,8 +194,8 @@ void Var1
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, ALL ), x );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x = xHat( uInd, ALL );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -229,7 +229,7 @@ void Var2
     auto AHat_1r = AHat( IR(m,m+n), rInd );
     auto AHat_1t = AHat( IR(m,m+n), tInd );
     AHat_0u = A;
-    AHat_0v = A; Scale( Real(-1), AHat_0v );
+    AHat_0v = A; AHat_0v *= -1;
     Identity( AHat_0r, m, m );
     Transpose( A, AHat_1r );
     Identity( AHat_1t, n, n );
@@ -251,10 +251,10 @@ void Var2
     auto G1v = G( IR(n,  2*n), vInd );
     auto G2t = G( IR(2*n,3*n), tInd );
     auto G3t = G( IR(3*n,4*n), tInd );
-    Identity( G0u, n, n ); Scale( Real(-1), G0u );
-    Identity( G1v, n, n ); Scale( Real(-1), G1v );
+    Identity( G0u, n, n ); G0u *= -1;
+    Identity( G1v, n, n ); G1v *= -1;
     Identity( G2t, n, n );
-    Identity( G3t, n, n ); Scale( Real(-1), G3t );
+    Identity( G3t, n, n ); G3t *= -1;
 
     // h := [0;0;lambda e;lambda e]
     // ============================
@@ -272,7 +272,7 @@ void Var2
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -307,7 +307,7 @@ void Var2
     auto AHat_1r = AHat( IR(m,m+n), rInd );
     auto AHat_1t = AHat( IR(m,m+n), tInd );
     AHat_0u = A;
-    AHat_0v = A; Scale( Real(-1), AHat_0v );
+    AHat_0v = A; AHat_0v *= -1;
     Identity( AHat_0r, m, m );
     Transpose( A, AHat_1r );
     Identity( AHat_1t, n, n );
@@ -329,10 +329,10 @@ void Var2
     auto G1v = G( IR(n,  2*n), vInd );
     auto G2t = G( IR(2*n,3*n), tInd );
     auto G3t = G( IR(3*n,4*n), tInd );
-    Identity( G0u, n, n ); Scale( Real(-1), G0u );
-    Identity( G1v, n, n ); Scale( Real(-1), G1v );
+    Identity( G0u, n, n ); G0u *= -1;
+    Identity( G1v, n, n ); G1v *= -1;
     Identity( G2t, n, n );
-    Identity( G3t, n, n ); Scale( Real(-1), G3t );
+    Identity( G3t, n, n ); G3t *= -1;
 
     // h := [0;0;lambda e;lambda e]
     // ============================
@@ -349,8 +349,8 @@ void Var2
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, ALL ), x );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x = xHat( uInd, ALL );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -431,7 +431,7 @@ void Var2
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>

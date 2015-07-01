@@ -19,12 +19,13 @@ void MultiShiftTrsm
   F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
+    X *= alpha;
     if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            mstrsm::LUN( alpha, U, shifts, X );
+            mstrsm::LUN( U, shifts, X );
         else
-            mstrsm::LUT( orientation, alpha, U, shifts, X );
+            mstrsm::LUT( orientation, U, shifts, X );
     }
     else
         LogicError("This option is not yet supported");
@@ -37,12 +38,13 @@ void MultiShiftTrsm
   AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
+    X *= alpha;
     if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            mstrsm::LUN( alpha, U, shifts, X );
+            mstrsm::LUN( U, shifts, X );
         else
-            mstrsm::LUT( orientation, alpha, U, shifts, X );
+            mstrsm::LUT( orientation, U, shifts, X );
     }
     else
         LogicError("This option is not yet supported");

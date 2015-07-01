@@ -68,8 +68,8 @@ void IPM
     auto G0beta = G( IR(0,m),   betaInd );
     auto G0z    = G( IR(0,m),   zInd    );
     auto G1z    = G( IR(m,2*m), zInd    );
-    G0w = A; Scale( Real(-1), G0w ); DiagonalScale( LEFT, NORMAL, d, G0w );
-    G0beta = d; Scale( Real(-1), G0beta );
+    G0w = A; G0w *= -1; DiagonalScale( LEFT, NORMAL, d, G0w );
+    G0beta = d; G0beta *= -1;
     FillDiagonal( G0z, Real(-1) );
     FillDiagonal( G1z, Real(-1) );
 
@@ -129,8 +129,8 @@ void IPM
     auto G0beta = G( IR(0,m),   betaInd );
     auto G0z    = G( IR(0,m),   zInd    );
     auto G1z    = G( IR(m,2*m), zInd    );
-    G0w = A; Scale( Real(-1), G0w ); DiagonalScale( LEFT, NORMAL, d, G0w );
-    G0beta = d; Scale( Real(-1), G0beta );
+    G0w = A; G0w *= -1; DiagonalScale( LEFT, NORMAL, d, G0w );
+    G0beta = d; G0beta *= -1;
     FillDiagonal( G0z, Real(-1) );
     FillDiagonal( G1z, Real(-1) );
 

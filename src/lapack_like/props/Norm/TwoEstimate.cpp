@@ -33,7 +33,7 @@ Base<F> TwoNormEstimate( const Matrix<F>& A, Base<F> tol, Int maxIts )
             Gaussian( x, m, 1 );    
             xNorm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/xNorm, x );
+        x *= Real(1)/xNorm;
         Gemv( ADJOINT, F(1), A, x, y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*Max(m,n) );
@@ -72,7 +72,7 @@ Base<F> TwoNormEstimate
             Gaussian( x, m, 1 );    
             xNorm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/xNorm, x );
+        x *= Real(1)/xNorm;
         Gemv( ADJOINT, F(1), A, x, y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*Max(m,n) );
@@ -135,7 +135,7 @@ Base<F> HermitianTwoNormEstimate
             Gaussian( x, n, 1 );    
             xNorm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/xNorm, x );
+        x *= Real(1)/xNorm;
         Hemv( uplo, F(1), A, x, F(0), y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
@@ -175,7 +175,7 @@ Base<F> HermitianTwoNormEstimate
             Gaussian( x, n, 1 );    
             xNorm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/xNorm, x );
+        x *= Real(1)/xNorm;
         Hemv( uplo, F(1), A, x, F(0), y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
@@ -210,7 +210,7 @@ Base<F> SymmetricTwoNormEstimate
             Gaussian( x, n, 1 );    
             xNorm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/xNorm, x );
+        x *= Real(1)/xNorm;
         Conjugate( x );
         Symv( uplo, F(1), A, x, F(0), y );
         Conjugate( y );
@@ -252,7 +252,7 @@ Base<F> SymmetricTwoNormEstimate
             Gaussian( x, n, 1 );    
             xNorm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/xNorm, x );
+        x *= Real(1)/xNorm;
         Conjugate( x );
         Symv( uplo, F(1), A, x, F(0), y );
         Conjugate( y );

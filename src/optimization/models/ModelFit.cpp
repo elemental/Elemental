@@ -59,11 +59,11 @@ Int ModelFit
         // Project onto A x1 + b = y1
         x0 = x2; 
         y0 = y2;
-        Axpy( Real(-1), ux, x0 );
-        Axpy( Real(-1), uy, y0 );
+        x0 -= ux;
+        y0 -= uy;
         x1 = x0;
         // Overwrite y0 to perform a single Gemv
-        Axpy( Real(-1), b, y0 ); 
+        y0 -= b;
         Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
         if( ctrl.inv )
         {
@@ -79,20 +79,20 @@ Int ModelFit
         Gemv( NORMAL, Real(1), A, x1, Real(1), y1 );
 
         y0 = y1;
-        Axpy( Real(1), uy, y0 );
+        y0 += uy;
         y2 = y0;
         lossProx( y2, ctrl.rho );
 
         x0 = x1;
-        Axpy( Real(1), ux, x0 );       
+        x0 += ux;
         x2 = x0;
         regProx( x2, ctrl.rho );
 
         // Update dual variables
-        Axpy( Real(1), x1, ux );
-        Axpy( Real(1), y1, uy );
-        Axpy( Real(-1), x2, ux );
-        Axpy( Real(-1), y2, uy );
+        ux += x1;
+        uy += y1;
+        ux -= x2;
+        uy -= y2;
     }
     if( ctrl.maxIter == numIter )
         cout << "Model fit failed to converge" << endl;
@@ -151,11 +151,11 @@ Int ModelFit
         // Project onto A x1 + b = y1
         x0 = x2; 
         y0 = y2;
-        Axpy( Real(-1), ux, x0 );
-        Axpy( Real(-1), uy, y0 );
+        x0 -= ux;
+        y0 -= uy;
         x1 = x0;
         // Overwrite y0 to perform a single Gemv
-        Axpy( Real(-1), b, y0 ); 
+        y0 -= b;
         Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
         if( ctrl.inv )
         {
@@ -171,20 +171,20 @@ Int ModelFit
         Gemv( NORMAL, Real(1), A, x1, Real(1), y1 );
 
         y0 = y1;
-        Axpy( Real(1), uy, y0 );
+        y0 += uy;
         y2 = y0;
         lossProx( y2, ctrl.rho );
 
         x0 = x1;
-        Axpy( Real(1), ux, x0 );       
+        x0 += ux;
         x2 = x0;
         regProx( x2, ctrl.rho );
 
         // Update dual variables
-        Axpy( Real(1), x1, ux );
-        Axpy( Real(1), y1, uy );
-        Axpy( Real(-1), x2, ux );
-        Axpy( Real(-1), y2, uy );
+        ux += x1;
+        uy += y1;
+        ux -= x2;
+        uy -= y2;
     }
     if( ctrl.maxIter == numIter )
         cout << "Model fit failed to converge" << endl;

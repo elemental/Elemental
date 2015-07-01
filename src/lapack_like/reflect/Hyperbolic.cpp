@@ -74,7 +74,7 @@ F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
     }
     else
     {
-        Scale( Real(1)/kappa, x );
+        x *= 1/kappa;
         return (delta+alpha*lambda)/(kappa*kappa);
     }
 }

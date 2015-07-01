@@ -54,7 +54,7 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;
-        Scale( alpha11Inv, a21 );
+        a21 *= alpha11Inv;
         Geru( F(-1), a21, a12, A22 );
     }
 }
@@ -110,7 +110,7 @@ Full
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;
-        Scale( alpha11Inv, a21 );
+        a21 *= alpha11Inv;
         Geru( F(-1), a21, a12, A22 );
     }
 }

@@ -43,9 +43,9 @@ Int SparseInvCov
 
         // X := rho*(Z-U) - S
         X = Z;
-        Axpy( F(-1), U, X );
-        Scale( ctrl.rho, X );
-        Axpy( F(-1), S, X );
+        X -= U;
+        X *= ctrl.rho;
+        X -= S;
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap = 
@@ -59,25 +59,25 @@ Int SparseInvCov
 
         // XHat := alpha*X + (1-alpha)*ZOld
         XHat = X;
-        Scale( ctrl.alpha, XHat );
+        XHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, ZOld, XHat );
 
         // Z := SoftThreshold(XHat+U,lambda/rho)
         Z = XHat;
-        Axpy( Real(1), U, Z );
+        Z += U;
         SoftThreshold( Z, lambda/ctrl.rho );
 
         // U := U + (XHat-Z)
-        Axpy( Real(1),  XHat, U );
-        Axpy( Real(-1), Z,    U );
+        U += XHat;
+        U -= Z;
 
         // rNorm := || X - Z ||_F
         T = X;
-        Axpy( Real(-1), Z, T );
+        T -= Z;
         const Real rNorm = FrobeniusNorm(T);
         // sNorm := |rho| || Z - ZOld ||_F
         T = Z;
-        Axpy( Real(-1), ZOld, T );
+        T -= ZOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm(T);
 
         const Real epsPri = n*ctrl.absTol + 
@@ -136,9 +136,9 @@ Int SparseInvCov
 
         // X := rho*(Z-U) - S
         X = Z;
-        Axpy( F(-1), U, X );
-        Scale( ctrl.rho, X );
-        Axpy( F(-1), S, X );
+        X -= U;
+        X *= ctrl.rho;
+        X -= S;
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap = 
@@ -152,25 +152,25 @@ Int SparseInvCov
 
         // XHat := alpha*X + (1-alpha)*ZOld
         XHat = X;
-        Scale( ctrl.alpha, XHat );
+        XHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, ZOld, XHat );
 
         // Z := SoftThreshold(XHat+U,lambda/rho)
         Z = XHat;
-        Axpy( Real(1), U, Z );
+        Z += U;
         SoftThreshold( Z, lambda/ctrl.rho );
 
         // U := U + (XHat-Z)
-        Axpy( Real(1),  XHat, U );
-        Axpy( Real(-1), Z,    U );
+        U += XHat;
+        U -= Z;
 
         // rNorm := || X - Z ||_F
         T = X;
-        Axpy( Real(-1), Z, T );
+        T -= Z;
         const Real rNorm = FrobeniusNorm(T);
         // sNorm := |rho| || Z - ZOld ||_F
         T = Z;
-        Axpy( Real(-1), ZOld, T );
+        T -= ZOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm(T);
 
         const Real epsPri = n*ctrl.absTol + 

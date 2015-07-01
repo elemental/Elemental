@@ -103,31 +103,31 @@ Int ADMM
                 Trsv( LOWER, ADJOINT, NON_UNIT, P, s );
             }
             Gemv( ADJOINT, F(-1), A, s, F(1), x );
-            Scale( 1/ctrl.rho, x );
+            x *= 1/ctrl.rho;
         }
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( ctrl.alpha, xHat );
+        xHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,lambda/rho)
         z = xHat;
-        Axpy( F(1), u, z );
+        z += u;
         SoftThreshold( z, lambda/ctrl.rho );
 
         // u := u + (xHat - z)
-        Axpy( F(1),  xHat, u );
-        Axpy( F(-1), z,    u );
+        u += xHat;
+        u -= z;
 
         // rNorm := || x - z ||_2
         s = x;
-        Axpy( F(-1), z, s );
+        s -= z;
         const Real rNorm = FrobeniusNorm( s );
 
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
-        Axpy( F(-1), zOld, s );
+        s -= zOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
@@ -235,31 +235,31 @@ Int ADMM
                 Trsv( LOWER, ADJOINT, NON_UNIT, P, s );
             }
             Gemv( ADJOINT, F(-1), A, s, F(1), x );
-            Scale( 1/ctrl.rho, x );
+            x *= 1/ctrl.rho;
         }
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( ctrl.alpha, xHat );
+        xHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,lambda/rho)
         z = xHat;
-        Axpy( F(1), u, z );
+        z += u;
         SoftThreshold( z, lambda/ctrl.rho );
 
         // u := u + (xHat - z)
-        Axpy( F(1),  xHat, u );
-        Axpy( F(-1), z,    u );
+        u += xHat;
+        u -= z;
 
         // rNorm := || x - z ||_2
         s = x;
-        Axpy( F(-1), z, s );
+        s -= z;
         const Real rNorm = FrobeniusNorm( s );
 
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
-        Axpy( F(-1), zOld, s );
+        s -= zOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +

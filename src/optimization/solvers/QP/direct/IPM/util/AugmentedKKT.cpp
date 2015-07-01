@@ -326,12 +326,12 @@ void ExpandAugmentedSolution
 
     // Extract dx and dy from [dx; dy]
     // ===============================
-    Copy( d(IR(0,n  ),ALL), dx );
-    Copy( d(IR(n,n+m),ALL), dy );
+    dx = d(IR(0,n  ),ALL);
+    dy = d(IR(n,n+m),ALL);
 
     // dz := - x <> (r_mu + z o dx)
     // ============================
-    Copy( dx, dz );
+    dz = dx;
     DiagonalScale( LEFT, NORMAL, z, dz );
     dz += rmu;
     DiagonalSolve( LEFT, NORMAL, x, dz );

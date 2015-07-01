@@ -130,13 +130,13 @@ void LUMod
 
             Axpy( -eta, lBi, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( F(1)/delta_i,   lBi   );
-            Scale( F(1)/delta_ip1, lBip1 );
+            lBi   *= F(1)/delta_i;
+            lBip1 *= F(1)/delta_ip1;
 
             A.Set( i, i, eta*ups_ii*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i,   uiR   );
-            Scale( delta_ip1, uip1R );
+            uiR   *= delta_i;
+            uip1R *= delta_ip1;
             uSub.Set( i, 0, ups_ii*delta_ip1 );
 
             // Finally set w(i)
@@ -243,13 +243,13 @@ void LUMod
 
             Axpy( -eta, lBi, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( F(1)/delta_i,   lBi   );
-            Scale( F(1)/delta_ip1, lBip1 );
+            lBi   *= F(1)/delta_i;
+            lBip1 *= F(1)/delta_ip1;
 
             A.Set( i, i, ups_ip1i*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i,   uiR   );
-            Scale( delta_ip1, uip1R );
+            uiR   *= delta_i;
+            uip1R *= delta_ip1;
         }
         else
         {
@@ -385,13 +385,13 @@ void LUMod
 
             Axpy( -eta, lBi, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( F(1)/delta_i,   lBi   );
-            Scale( F(1)/delta_ip1, lBip1 );
+            lBi   *= F(1)/delta_i;
+            lBip1 *= F(1)/delta_ip1;
 
             A.Set( i, i, eta*ups_ii*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i,   uiR   );
-            Scale( delta_ip1, uip1R );
+            uiR   *= delta_i;
+            uip1R *= delta_ip1;
             uSub.Set( i, 0, ups_ii*delta_ip1 );
 
             // Finally set w(i)
@@ -498,13 +498,13 @@ void LUMod
             const F delta_ip1 = F(1) - eta*gamma;
             Axpy( -eta, lBi, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( F(1)/delta_i,   lBi   );
-            Scale( F(1)/delta_ip1, lBip1 );
+            lBi   *= F(1)/delta_i;
+            lBip1 *= F(1)/delta_ip1;
 
             A.Set( i, i, ups_ip1i*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i,   uiR   );
-            Scale( delta_ip1, uip1R );
+            uiR   *= delta_i;
+            uip1R *= delta_ip1;
         }
         else
         {

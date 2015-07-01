@@ -36,10 +36,10 @@ void SOCApplyQuadratic
     SOCDots( x, y, xTy, orders, firstInds );
     SOCBroadcast( xTy, orders, firstInds );
     Hadamard( xTy, x, z );
-    Scale( Real(2), z );
+    z *= 2;
 
     // z := z - detRy
-    Axpy( Real(-1), detRy, z );
+    z -= detRy;
 }
 
 template<typename Real>
@@ -83,10 +83,10 @@ void SOCApplyQuadratic
     SOCDots( x, y, xTy, orders, firstInds, cutoff );
     SOCBroadcast( xTy, orders, firstInds, cutoff );
     Hadamard( xTy, x, z );
-    Scale( Real(2), z );
+    z *= 2;
 
     // z := z - detRy
-    Axpy( Real(-1), detRy, z );
+    z -= detRy;
 }
 
 template<typename Real>
@@ -113,10 +113,10 @@ void SOCApplyQuadratic
     SOCDots( x, y, xTy, orders, firstInds, cutoff );
     SOCBroadcast( xTy, orders, firstInds, cutoff );
     Hadamard( xTy, x, z );
-    Scale( Real(2), z );
+    z *= 2;
 
     // z := z - detRy
-    Axpy( Real(-1), detRy, z );
+    z -= detRy;
 }
 
 template<typename Real>
@@ -145,7 +145,7 @@ void SOCApplyQuadratic
     // TODO?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid()); 
     SOCApplyQuadratic( x, y, z, orders, firstInds, cutoff );
-    Copy( z, y );
+    y = z;
 }
 
 template<typename Real>

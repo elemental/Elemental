@@ -12,14 +12,14 @@
 namespace El {
 namespace trrk {
 
-// Distributed C := alpha A^{T/H} B^{T/H} + beta C
+// Distributed C := alpha A^{T/H} B^{T/H} + C
 template<typename T>
 void TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const AbstractDistMatrix<T>& APre,
            const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("trrk::TrrkTN");
@@ -59,7 +59,7 @@ void TrrkTT
         Transpose( B1_VR_STAR, B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
         LocalTrrk
         ( uplo, orientationOfA,
-          alpha, A1_STAR_MC, B1Trans_STAR_MR, beta, C );
+          alpha, A1_STAR_MC, B1Trans_STAR_MR, T(1), C );
     }
 }
 

@@ -142,7 +142,7 @@ SignDivide
     // G := 1/2 ( G + I )
     Sign( G, ctrl.signCtrl );
     ShiftDiagonal( G, F(1) );
-    Scale( F(1)/F(2), G );
+    G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
     Matrix<F> t;
@@ -185,7 +185,7 @@ SignDivide
     // G := 1/2 ( G + I )
     Sign( G, ctrl.signCtrl );
     ShiftDiagonal( G, F(1) );
-    Scale( F(1)/F(2), G );
+    G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
     DistMatrix<F,MD,STAR> t(g);
@@ -233,7 +233,7 @@ RandomizedSignDivide
     auto S( G );
     Sign( S, ctrl.signCtrl );
     ShiftDiagonal( S, F(1) );
-    Scale( F(1)/F(2), S );
+    S *= F(1)/F(2);
 
     ValueInt<Real> part;
     Matrix<F> V, B, t;
@@ -296,7 +296,7 @@ RandomizedSignDivide
     auto S( G );
     Sign( S, ctrl.signCtrl );
     ShiftDiagonal( S, F(1) );
-    Scale( F(1)/F(2), S );
+    S *= F(1)/F(2);
 
     ValueInt<Real> part;
     DistMatrix<F> V(g), B(g);
@@ -432,7 +432,7 @@ SpectralDivide
         const Real angle = SampleUniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
         G = A;
-        Scale( gamma, G );
+        G *= gamma;
 
         const auto median = Median(GetRealPartOfDiagonal(G));
         const F shift = SampleBall<F>(-median.value,spread);
@@ -570,7 +570,7 @@ SpectralDivide
         const Real angle = SampleUniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
         Q = A;
-        Scale( gamma, Q );
+        Q *= gamma;
 
         const auto median = Median(GetRealPartOfDiagonal(Q));
         const F shift = SampleBall<F>(-median.value,spread);
@@ -710,7 +710,7 @@ SpectralDivide
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
         G = A;
-        Scale( gamma, G );
+        G *= gamma;
 
         const auto median = Median(GetRealPartOfDiagonal(G));
         F shift = SampleBall<F>(-median.value,spread);
@@ -853,7 +853,7 @@ SpectralDivide
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, g.VCComm() );
         Q = A;
-        Scale( gamma, Q );
+        Q *= gamma;
 
         const auto median = Median(GetRealPartOfDiagonal(Q));
         F shift = SampleBall<F>(-median.value,spread);

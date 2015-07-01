@@ -16,7 +16,7 @@ inline void
 SUMMA_TNA
 ( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_TNA");    
@@ -46,7 +46,6 @@ SUMMA_TNA
     B1_MC_STAR.AlignWith( A );
     D1_MR_STAR.AlignWith( A );
 
-    Scale( beta, C );
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -70,7 +69,7 @@ inline void
 SUMMA_TNB
 ( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_TNB");
@@ -100,7 +99,6 @@ SUMMA_TNB
     A1_MC_STAR.AlignWith( B );
     D1Trans_MR_STAR.AlignWith( B );
 
-    Scale( beta, C );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
@@ -121,7 +119,7 @@ inline void
 SUMMA_TNC
 ( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre )
+                 AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_TNC");
@@ -150,7 +148,6 @@ SUMMA_TNC
     A1_STAR_MC.AlignWith( C );
     B1Trans_MR_STAR.AlignWith( C );
 
-    Scale( beta, C );
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
@@ -171,7 +168,7 @@ inline void
 SUMMA_TN
 ( Orientation orientA,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CSE cse("gemm::SUMMA_TN"))
     const Int m = C.Height();
@@ -183,15 +180,15 @@ SUMMA_TN
     {
     case GEMM_DEFAULT:
         if( m <= n && weightTowardsC*m <= k )
-            SUMMA_TNB( orientA, alpha, A, B, beta, C );
+            SUMMA_TNB( orientA, alpha, A, B, C );
         else if( n <= m && weightTowardsC*n <= k )
-            SUMMA_TNA( orientA, alpha, A, B, beta, C );
+            SUMMA_TNA( orientA, alpha, A, B, C );
         else
-            SUMMA_TNC( orientA, alpha, A, B, beta, C );
+            SUMMA_TNC( orientA, alpha, A, B, C );
         break;
-    case GEMM_SUMMA_A: SUMMA_TNA( orientA, alpha, A, B, beta, C ); break;
-    case GEMM_SUMMA_B: SUMMA_TNB( orientA, alpha, A, B, beta, C ); break;
-    case GEMM_SUMMA_C: SUMMA_TNC( orientA, alpha, A, B, beta, C ); break;
+    case GEMM_SUMMA_A: SUMMA_TNA( orientA, alpha, A, B, C ); break;
+    case GEMM_SUMMA_B: SUMMA_TNB( orientA, alpha, A, B, C ); break;
+    case GEMM_SUMMA_C: SUMMA_TNC( orientA, alpha, A, B, C ); break;
     default: LogicError("Unsupported Gemm option");
     }
 }

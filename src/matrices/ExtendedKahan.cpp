@@ -49,13 +49,13 @@ inline void MakeExtendedKahan
     // l x l blocks of its 3 x 3 partitioning.
     MakeIdentity( A );
     auto ABlock = A( IR(2*l,3*l), IR(2*l,3*l) );
-    Scale( mu, ABlock );
+    ABlock *= mu;
     ABlock = A( IR(0,l), IR(l,2*l) );
     Walsh( ABlock, k );
-    Scale( -phi, ABlock );
+    ABlock *= -phi;
     ABlock = A( IR(l,2*l), IR(2*l,3*l) );
     Walsh( ABlock, k );
-    Scale( phi, ABlock );
+    ABlock *= phi;
 
     // Now scale A by S
     const Real zeta = Sqrt(Real(1)-phi*phi);
@@ -97,13 +97,13 @@ inline void MakeExtendedKahan
     unique_ptr<AbstractDistMatrix<F>> 
         ABlock( A.Construct(A.Grid(),A.Root()) );
     View( *ABlock, A, IR(2*l,3*l), IR(2*l,3*l) );
-    Scale( mu, *ABlock );
+    *ABlock *= mu;
     View( *ABlock, A, IR(0,l), IR(l,2*l) );
     Walsh( *ABlock, k );
-    Scale( -phi, *ABlock );
+    *ABlock *= -phi;
     View( *ABlock, A, IR(l,2*l), IR(2*l,3*l) );
     Walsh( *ABlock, k );
-    Scale( phi, *ABlock );
+    *ABlock *= phi;
 
     // Now scale A by S
     const Real zeta = Sqrt(Real(1)-phi*phi);

@@ -41,7 +41,7 @@ inline Int RegularizedSolveAfterNoPromote
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
         Multiply( NORMAL, F(1), A, x, F(1), y );
-        Axpy( F(-1), y, b );
+        b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -61,7 +61,7 @@ inline Int RegularizedSolveAfterNoPromote
             xNodal.Pull( invMap, info, b );
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // Check the new residual
             // ----------------------
@@ -69,7 +69,7 @@ inline Int RegularizedSolveAfterNoPromote
             y = x;
             DiagonalScale( LEFT, NORMAL, reg, y );
             Multiply( NORMAL, F(1), A, x, F(1), y );
-            Axpy( F(-1), y, b );
+            b -= y;
             auto newErrorNorm = Nrm2( b );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -122,7 +122,7 @@ inline Int RegularizedSolveAfterNoPromote
         DiagonalScale( LEFT, NORMAL, reg, y );
         DiagonalScale( LEFT, NORMAL, d, y );
         Multiply( NORMAL, F(1), A, x, F(1), y );
-        Axpy( F(-1), y, b );
+        b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -144,7 +144,7 @@ inline Int RegularizedSolveAfterNoPromote
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
             DiagonalSolve( LEFT, NORMAL, d, dx );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // Check the new residual
             // ----------------------
@@ -154,7 +154,7 @@ inline Int RegularizedSolveAfterNoPromote
             DiagonalScale( LEFT, NORMAL, reg, y );
             DiagonalScale( LEFT, NORMAL, d, y );
             Multiply( NORMAL, F(1), A, x, F(1), y );
-            Axpy( F(-1), y, b );
+            b -= y;
             auto newErrorNorm = Nrm2( b );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -212,7 +212,7 @@ inline Int RegularizedSolveAfterPromote
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        Axpy( PF(-1), yProm, bProm );
+        bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -234,7 +234,7 @@ inline Int RegularizedSolveAfterPromote
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
-            Axpy( PF(1), dxProm, xProm );
+            xProm += dxProm;
 
             // Check the new residual
             // ----------------------
@@ -242,7 +242,7 @@ inline Int RegularizedSolveAfterPromote
             yProm = xProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-            Axpy( PF(-1), yProm, bProm );
+            bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -309,7 +309,7 @@ inline Int RegularizedSolveAfterPromote
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         DiagonalScale( LEFT, NORMAL, dProm, yProm );
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        Axpy( PF(-1), yProm, bProm );
+        bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -333,7 +333,7 @@ inline Int RegularizedSolveAfterPromote
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
-            Axpy( PF(1), dxProm, xProm );
+            xProm += dxProm;
 
             // Check the new residual
             // ----------------------
@@ -343,7 +343,7 @@ inline Int RegularizedSolveAfterPromote
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             DiagonalScale( LEFT, NORMAL, dProm, yProm );
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-            Axpy( PF(-1), yProm, bProm );
+            bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -424,7 +424,7 @@ inline Int RegularizedSolveAfterNoPromote
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
         Multiply( NORMAL, F(1), A, x, F(1), y );
-        Axpy( F(-1), y, b );
+        b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -443,7 +443,7 @@ inline Int RegularizedSolveAfterNoPromote
             xNodal.Pull( invMap, info, b );
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // Compute the new residual
             // ------------------------
@@ -451,7 +451,7 @@ inline Int RegularizedSolveAfterNoPromote
             y = x;
             DiagonalScale( LEFT, NORMAL, reg, y );
             Multiply( NORMAL, F(1), A, x, F(1), y );
-            Axpy( F(-1), y, b );
+            b -= y;
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -505,7 +505,7 @@ inline Int RegularizedSolveAfterNoPromote
         DiagonalScale( LEFT, NORMAL, reg, y );
         DiagonalScale( LEFT, NORMAL, d, y );
         Multiply( NORMAL, F(1), A, x, F(1), y );
-        Axpy( F(-1), y, b );
+        b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -526,7 +526,7 @@ inline Int RegularizedSolveAfterNoPromote
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, dx );
             DiagonalSolve( LEFT, NORMAL, d, dx );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // Compute the new residual
             // ------------------------
@@ -536,7 +536,7 @@ inline Int RegularizedSolveAfterNoPromote
             DiagonalScale( LEFT, NORMAL, reg, y );
             DiagonalScale( LEFT, NORMAL, d, y );
             Multiply( NORMAL, F(1), A, x, F(1), y );
-            Axpy( F(-1), y, b );
+            b -= y;
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -598,7 +598,7 @@ inline Int RegularizedSolveAfterPromote
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        Axpy( PF(-1), yProm, bProm );
+        bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -619,7 +619,7 @@ inline Int RegularizedSolveAfterPromote
             ldl::SolveAfter( info, front, xNodal );
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
-            Axpy( PF(1), dxProm, xProm );
+            xProm += dxProm;
 
             // Check the new residual
             // ----------------------
@@ -627,7 +627,7 @@ inline Int RegularizedSolveAfterPromote
             yProm = xProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-            Axpy( PF(-1), yProm, bProm );
+            bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -697,7 +697,7 @@ inline Int RegularizedSolveAfterPromote
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         DiagonalScale( LEFT, NORMAL, dProm, yProm );
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        Axpy( PF(-1), yProm, bProm );
+        bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
             cout << "    original rel error: " << errorNorm/bNorm << endl;
@@ -720,7 +720,7 @@ inline Int RegularizedSolveAfterPromote
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
-            Axpy( PF(1), dxProm, xProm );
+            xProm += dxProm;
 
             // Check the new residual
             // ----------------------
@@ -730,7 +730,7 @@ inline Int RegularizedSolveAfterPromote
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             DiagonalScale( LEFT, NORMAL, dProm, yProm );
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-            Axpy( PF(-1), yProm, bProm );
+            bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
                 cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
@@ -822,7 +822,7 @@ Int IRSolveAfter
             dx = b;
             RegularizedSolveAfter
             ( A, reg, invMap, info, front, dx, relTol, maxRefineIts, progress );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // Compute the new residual
             // ------------------------
@@ -889,7 +889,7 @@ Int IRSolveAfter
             RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, 
               dx, relTol, maxRefineIts, progress );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // Compute the new residual
             // ------------------------
@@ -959,7 +959,7 @@ Int IRSolveAfter
             dx = b;
             RegularizedSolveAfter
             ( A, reg, invMap, info, front, dx, relTol, maxRefineIts, progress );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // If the proposed update lowers the residual, accept it
             // -----------------------------------------------------
@@ -1031,7 +1031,7 @@ Int IRSolveAfter
             RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, 
               dx, relTol, maxRefineIts, progress );
-            Axpy( F(1), dx, x );
+            x += dx;
 
             // If the proposed update lowers the residual, accept it
             // -----------------------------------------------------
@@ -1115,7 +1115,7 @@ Int LGMRESSolveAfter
         // ==============
         auto v0 = V( ALL, IR(0) );
         v0 = w;
-        Scale( Real(1)/beta, v0 ); 
+        v0 *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -1161,7 +1161,7 @@ Int LGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
-                Scale( Real(1)/delta, vjp1 );
+                vjp1 *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H
@@ -1317,7 +1317,7 @@ Int LGMRESSolveAfter
         // ==============
         auto v0 = V( ALL, IR(0) );
         v0 = w;
-        Scale( Real(1)/beta, v0 ); 
+        v0 *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -1363,7 +1363,7 @@ Int LGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
-                Scale( Real(1)/delta, vjp1 );
+                vjp1 *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H
@@ -1525,7 +1525,7 @@ Int LGMRESSolveAfter
         // ==============
         auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
-        Scale( Real(1)/beta, v0Loc ); 
+        v0Loc *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -1572,7 +1572,7 @@ Int LGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
-                Scale( Real(1)/delta, v_jp1Loc );
+                v_jp1Loc *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H
@@ -1735,7 +1735,7 @@ Int LGMRESSolveAfter
         // ==============
         auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
-        Scale( Real(1)/beta, v0Loc ); 
+        v0Loc *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -1782,7 +1782,7 @@ Int LGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
-                Scale( Real(1)/delta, v_jp1Loc );
+                v_jp1Loc *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H
@@ -1941,7 +1941,7 @@ Int FGMRESSolveAfter
         // ==============
         auto v0 = V( ALL, IR(0) );
         v0 = w;
-        Scale( Real(1)/beta, v0 ); 
+        v0 *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -1990,7 +1990,7 @@ Int FGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
-                Scale( Real(1)/delta, vjp1 );
+                vjp1 *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H
@@ -2144,7 +2144,7 @@ Int FGMRESSolveAfter
         // ==============
         auto v0 = V( ALL, IR(0) );
         v0 = w;
-        Scale( Real(1)/beta, v0 ); 
+        v0 *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -2193,7 +2193,7 @@ Int FGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
-                Scale( Real(1)/delta, vjp1 );
+                vjp1 *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H
@@ -2355,7 +2355,7 @@ Int FGMRESSolveAfter
         // ==============
         auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
-        Scale( Real(1)/beta, v0Loc ); 
+        v0Loc *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -2406,7 +2406,7 @@ Int FGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
-                Scale( Real(1)/delta, v_jp1Loc );
+                v_jp1Loc *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H
@@ -2569,7 +2569,7 @@ Int FGMRESSolveAfter
         // ==============
         auto v0Loc = VLoc( ALL, IR(0) );
         v0Loc = w.Matrix();
-        Scale( Real(1)/beta, v0Loc ); 
+        v0Loc *= 1/beta;
 
         // t := beta e_0
         // =============
@@ -2620,7 +2620,7 @@ Int FGMRESSolveAfter
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto v_jp1Loc = VLoc( ALL, IR(j+1) );
                 v_jp1Loc = w.Matrix();
-                Scale( Real(1)/delta, v_jp1Loc );
+                v_jp1Loc *= 1/delta;
             }
 
             // Apply existing rotations to the new column of H

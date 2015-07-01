@@ -324,15 +324,15 @@ void KKTRHS
     Zeros( d, 2*n+m, 1 );
 
     auto dx = d(xInd,ALL);
-    Copy( rc, dx );
+    dx = rc;
     dx *= -1;
 
     auto dy = d(yInd,ALL);
-    Copy( rb, dy );
+    dy = rb;
     dy *= -1;
 
     auto dz = d(zInd,ALL);
-    Copy( rmu, dz );
+    dz = rmu;
     DiagonalSolve( LEFT, NORMAL, z, dz );
 }
 

@@ -109,7 +109,7 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         Conjugate( z01 );
         Gemv( NORMAL, F(-1), X20, z01, F(1), x21 );
         // x21 := tauP x21
-        Scale( tauP, x21 );
+        x21 *= tauP;
 
         // Apply all previous reflectors to a21:
         //   a21 := a21 - A20 y01 - X2L conj(aT1)
@@ -118,7 +118,7 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         Conjugate( a01 );
         Gemv( NORMAL, F(-1), X20, a01, F(1), a21 );
         Conjugate( a01 );
-        Axpy( F(-1), x21, a21 );
+        a12 -= x21;
 
         // Find tauQ and u such that
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilon |
@@ -146,7 +146,7 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         Gemv( TRANSPOSE, F(-1), AT2, zT1, F(1), z21 );
         // y12 := tauQ z21^H
         Adjoint( z21, y12 );
-        Scale( tauQ, y12 );
+        y12 *= tauQ;
     }
 
     // Put back d and e
@@ -323,7 +323,7 @@ LPan
 
         // Finally perform the row summation and then scale by tauP
         Contract( z21_MC_STAR, x21 );
-        Scale( tauP, x21 );
+        x21 *= tauP;
 
         // Apply all previous reflectors to a21:
         //   a21 := a21 - A20 y01 - X2L conj(aT1)
@@ -351,7 +351,7 @@ LPan
 
         // a21 := a21 - x21
         // ^^^^^^^^^^^^^^^^
-        Axpy( F(-1), x21, a21 );
+        a21 -= x21;
 
         // Find tauQ and u such that
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilon |
@@ -401,7 +401,7 @@ LPan
 
         // Finally perform the column summation and then scale by tauQ
         AdjointContract( z21_MR_STAR, y12 );
-        Scale( tauQ, y12 );
+        y12 *= tauQ;
     }
 
     // Put back d and e

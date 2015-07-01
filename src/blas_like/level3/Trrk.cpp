@@ -24,15 +24,15 @@ void Trrk
   T beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Trrk"))
+    ScaleTrapezoid( beta, uplo, C );
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        trrk::TrrkNN( uplo, alpha, A, B, beta, C );
+        trrk::TrrkNN( uplo, alpha, A, B, C );
     else if( orientationOfA==NORMAL )
-        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
+        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, C );
     else if( orientationOfB==NORMAL )
-        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, C );
     else
-        trrk::TrrkTT
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        trrk::TrrkTT( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
 }
 
 template<typename T>
@@ -42,15 +42,15 @@ void Trrk
   T beta,        AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Trrk"))
+    ScaleTrapezoid( beta, uplo, C );
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        trrk::TrrkNN( uplo, alpha, A, B, beta, C );
+        trrk::TrrkNN( uplo, alpha, A, B, C );
     else if( orientationOfA==NORMAL )
-        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
+        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, C );
     else if( orientationOfB==NORMAL )
-        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, C );
     else
-        trrk::TrrkTT
-        ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        trrk::TrrkTT( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
 }
 
 #define PROTO(T) \
@@ -84,24 +84,7 @@ void Trrk
     Orientation orientationOfA, Orientation orientationOfB, \
     T alpha, const DistMatrix<T,STAR,MC  >& A, \
              const DistMatrix<T,MR,  STAR>& B, \
-    T beta,        DistMatrix<T>& C ); \
-  template void trrk::TrrkNN \
-  ( UpperOrLower uplo, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C ); \
-  template void trrk::TrrkNT \
-  ( UpperOrLower uplo, Orientation orientationOfB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C ); \
-  template void trrk::TrrkTN \
-  ( UpperOrLower uplo, Orientation orientationOfA, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C ); \
-  template void trrk::TrrkTT \
-  ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C );
+    T beta,        DistMatrix<T>& C );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

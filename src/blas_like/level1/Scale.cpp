@@ -88,7 +88,7 @@ void Scale( S alpha, SparseMatrix<T>& A )
         A.Empty();
         A.Resize( m, n );
     }
-    else
+    else if( alpha != S(1) )
     {
         T* valueBuf = A.ValueBuffer();
         const Int numEntries = A.NumEntries();
@@ -107,7 +107,7 @@ void Scale( S alpha, DistSparseMatrix<T>& A )
         A.Empty();
         A.Resize( m, n );
     }
-    else
+    else if( alpha != S(1) )
     {
         T* valueBuf = A.ValueBuffer();
         const Int numLocalEntries = A.NumLocalEntries();

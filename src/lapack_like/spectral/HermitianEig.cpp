@@ -298,7 +298,7 @@ void HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling ) 
-        Scale( 1/scale, w );
+        w *= 1/scale;
 }
 
 // Compute eigenpairs
@@ -608,7 +608,7 @@ void HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scale( 1/scale, w );
+        w *= 1/scale;
 
     herm_eig::Sort( w, Z, sort );
 

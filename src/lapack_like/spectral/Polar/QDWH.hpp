@@ -85,7 +85,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             // The standard QR-based algorithm
             //
             QT = A;
-            Scale( Sqrt(c), QT );
+            QT *= Sqrt(c);
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
@@ -101,7 +101,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
-            Scale( beta, A );
+            A *= beta;
             Axpy( alpha, ATemp, A );
         }
 
@@ -121,7 +121,7 @@ QDWH( Matrix<F>& A, const PolarCtrl& ctrl )
     DEBUG_ONLY(CSE cse("polar::QDWH"))
     typedef Base<F> Real;
     const Real twoEst = TwoNormEstimate( A );
-    Scale( F(1)/twoEst, A );
+    A *= 1/twoEst;
 
     // The one-norm of the inverse can be replaced with an estimate which is
     // a few times cheaper, e.g., via Higham and Tisseur's block algorithm
@@ -230,7 +230,7 @@ QDWHInner
             // The standard QR-based algorithm
             //
             QT = A;
-            Scale( Sqrt(c), QT );
+            QT *= Sqrt(c);
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
@@ -246,7 +246,7 @@ QDWHInner
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
-            Scale( beta, A );
+            A *= beta;
             Axpy( alpha, ATemp, A );
         }
 
@@ -270,7 +270,7 @@ QDWH( AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
 
     typedef Base<F> Real;
     const Real twoEst = TwoNormEstimate( A );
-    Scale( F(1)/twoEst, A );
+    A *= 1/twoEst;
 
     // The one-norm of the inverse can be replaced with an estimate which is
     // a few times cheaper, e.g., via Higham and Tisseur's block algorithm
@@ -384,7 +384,7 @@ QDWHInner
             //
             MakeHermitian( uplo, A );
             QT = A;
-            Scale( Sqrt(c), QT );
+            QT *= Sqrt(c);
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
@@ -404,7 +404,7 @@ QDWHInner
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
-            Scale( beta, A );
+            A *= beta;
             Axpy( alpha, ATemp, A );
         }
 
@@ -428,7 +428,7 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl )
     typedef Base<F> Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
-    Scale( F(1)/twoEst, A );
+    A *= 1/twoEst;
 
     // The one-norm of the inverse can be replaced with an estimate which is
     // a few times cheaper, e.g., via Higham and Tisseur's block algorithm
@@ -527,7 +527,7 @@ QDWHInner
             //
             MakeHermitian( uplo, A );
             QT = A;
-            Scale( Sqrt(c), QT );
+            QT *= Sqrt(c);
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
@@ -547,7 +547,7 @@ QDWHInner
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
-            Scale( beta, A );
+            A *= beta;
             Axpy( alpha, ATemp, A );
         }
 
@@ -573,7 +573,7 @@ QDWH( UpperOrLower uplo, AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
     typedef Base<F> Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
-    Scale( F(1)/twoEst, A );
+    A *= 1/twoEst;
 
     // The one-norm of the inverse can be replaced with an estimate which is
     // a few times cheaper, e.g., via Higham and Tisseur's block algorithm

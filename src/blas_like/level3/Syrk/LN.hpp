@@ -14,7 +14,7 @@ template<typename T>
 inline void
 LN
 ( T alpha, const AbstractDistMatrix<T>& APre, 
-  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
+                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syrk::LN");
@@ -39,7 +39,6 @@ LN
     A1_VR_STAR.AlignWith( C );
     A1Trans_STAR_MR.AlignWith( C );
 
-    ScaleTrapezoid( beta, LOWER, C );
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);

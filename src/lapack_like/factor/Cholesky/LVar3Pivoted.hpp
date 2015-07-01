@@ -138,7 +138,7 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.Set(0,0,delta11);
-        Scale( delta11Inv, a21 );
+        a21 *= delta11Inv;
 
         // A22 -= a21 a21'
         Her( LOWER, F(-1), a21, A22 );
@@ -190,7 +190,7 @@ LUnblockedPivoted
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.Set(0,0,delta11);
-        Scale( delta11Inv, a21 );
+        a21 *= delta11Inv;
 
         // A22 -= a21 a21'
         Her( LOWER, F(-1), a21, A22 );
@@ -254,7 +254,7 @@ LPanelPivoted
         const Base<F> delta11 = Sqrt(A.GetRealPart(k,k));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         A.SetRealPart(k,k,delta11);
-        Scale( delta11Inv, a21 );
+        a21 *= delta11Inv;
 
         // Store x21 := a21 and y21 := conj(a21)
         Conjugate( a21, y21 );
@@ -320,7 +320,7 @@ LPanelPivoted
         const Base<F> delta11 = Sqrt(A.GetRealPart(k,k));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         A.SetRealPart(k,k,delta11);
-        Scale( delta11Inv, a21 );
+        a21 *= delta11Inv;
 
         // Store x21 := a21 and y21 := conj(a21)
         Conjugate( a21, y21 );

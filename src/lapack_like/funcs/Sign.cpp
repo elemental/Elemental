@@ -41,7 +41,7 @@ NewtonStep
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
     const Real halfMuInv = Real(1)/(2*mu); 
-    Scale( halfMuInv, XNew );
+    XNew *= halfMuInv;
     Axpy( halfMu, X, XNew );
 }
 
@@ -71,7 +71,7 @@ NewtonStep
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
     const Real halfMuInv = Real(1)/(2*mu); 
-    Scale( halfMuInv, XNew );
+    XNew *= halfMuInv;
     Axpy( halfMu, X, XNew );
 }
 

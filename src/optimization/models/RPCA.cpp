@@ -75,14 +75,14 @@ inline void ADMM
 
         // ST_{tau/beta}(M - L + Y/beta)
         S = M;
-        Axpy( F(-1), L, S );
+        S -= L;
         Axpy( F(1)/beta, Y, S );
         SoftThreshold( S, tau/beta );
         const Int numNonzeros = ZeroNorm( S );
 
         // SVT_{1/beta}(M - S + Y/beta)
         L = M;
-        Axpy( F(-1), S, L );
+        L -= S;
         Axpy( F(1)/beta, Y, L );
         Int rank;
         if( ctrl.usePivQR )
@@ -92,8 +92,8 @@ inline void ADMM
       
         // E := M - (L + S)
         E = M;    
-        Axpy( F(-1), L, E );
-        Axpy( F(-1), S, E );
+        E -= L;
+        E -= S;
         const Real frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
@@ -174,14 +174,14 @@ inline void ADMM
 
         // ST_{tau/beta}(M - L + Y/beta)
         S = M;
-        Axpy( F(-1), L, S );
+        S -= L;
         Axpy( F(1)/beta, Y, S );
         SoftThreshold( S, tau/beta );
         const Int numNonzeros = ZeroNorm( S );
 
         // SVT_{1/beta}(M - S + Y/beta)
         L = M;
-        Axpy( F(-1), S, L );
+        L -= S;
         Axpy( F(1)/beta, Y, L );
         Int rank;
         if( ctrl.usePivQR )
@@ -191,8 +191,8 @@ inline void ADMM
       
         // E := M - (L + S)
         E = M;    
-        Axpy( F(-1), L, E );
-        Axpy( F(-1), S, E );
+        E -= L;
+        E -= S;
         const Real frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
@@ -256,7 +256,7 @@ inline void ALM
     const Real maxNorm = MaxNorm( Y );
     const Real infNorm = maxNorm / tau; 
     const Real dualNorm = Max( twoNorm, infNorm );
-    Scale( F(1)/dualNorm, Y );
+    Y *= F(1)/dualNorm;
 
     // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
     Base<F> beta = 
@@ -287,22 +287,22 @@ inline void ALM
 
             // ST_{tau/beta}(M - L + Y/beta)
             S = M;
-            Axpy( F(-1), L, S );
+            S -= L;
             Axpy( F(1)/beta, Y, S );
             SoftThreshold( S, tau/beta );
             numNonzeros = ZeroNorm( S );
 
             // SVT_{1/beta}(M - S + Y/beta)
             L = M;
-            Axpy( F(-1), S, L );
+            L -= S;
             Axpy( F(1)/beta, Y, L );
             if( ctrl.usePivQR )
                 rank = SVT( L, Real(1)/beta, ctrl.numPivSteps );
             else
                 rank = SVT( L, Real(1)/beta );
 
-            Axpy( F(-1), L, LLast );
-            Axpy( F(-1), S, SLast );
+            LLast -= L;
+            SLast -= S;
             const Real frobLDiff = FrobeniusNorm( LLast );
             const Real frobSDiff = FrobeniusNorm( SLast );
 
@@ -332,8 +332,8 @@ inline void ALM
 
         // E := M - (L + S)
         E = M;    
-        Axpy( F(-1), L, E );
-        Axpy( F(-1), S, E );
+        E -= L;
+        E -= S;
         const Real frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
@@ -401,7 +401,7 @@ inline void ALM
     const Real maxNorm = MaxNorm( Y );
     const Real infNorm = maxNorm / tau; 
     const Real dualNorm = Max( twoNorm, infNorm );
-    Scale( F(1)/dualNorm, Y );
+    Y *= F(1)/dualNorm;
 
     // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
     Base<F> beta = 
@@ -432,22 +432,22 @@ inline void ALM
 
             // ST_{tau/beta}(M - L + Y/beta)
             S = M;
-            Axpy( F(-1), L, S );
+            S -= L;
             Axpy( F(1)/beta, Y, S );
             SoftThreshold( S, tau/beta );
             numNonzeros = ZeroNorm( S );
 
             // SVT_{1/beta}(M - S + Y/beta)
             L = M;
-            Axpy( F(-1), S, L );
+            L -= S;
             Axpy( F(1)/beta, Y, L );
             if( ctrl.usePivQR )
                 rank = SVT( L, Real(1)/beta, ctrl.numPivSteps );
             else
                 rank = SVT( L, Real(1)/beta );
 
-            Axpy( F(-1), L, LLast );
-            Axpy( F(-1), S, SLast );
+            LLast -= L;
+            SLast -= S;
             const Real frobLDiff = FrobeniusNorm( LLast );
             const Real frobSDiff = FrobeniusNorm( SLast );
 
@@ -476,8 +476,8 @@ inline void ALM
 
         // E := M - (L + S)
         E = M;    
-        Axpy( F(-1), L, E );
-        Axpy( F(-1), S, E );
+        E -= L;
+        E -= S;
         const Real frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            

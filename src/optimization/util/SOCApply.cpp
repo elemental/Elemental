@@ -129,7 +129,7 @@ void SOCApply
     // TODO?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid());
     SOCApply( x, y, z, orders, firstInds, cutoff );
-    Copy( z, y );
+    y = z;
 }
 
 template<typename Real>

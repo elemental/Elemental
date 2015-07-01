@@ -92,7 +92,7 @@ template<typename T>
 inline void
 LLA
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre,
+                 AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -124,7 +124,6 @@ LLA
     Z1_MC_STAR.AlignWith( A );
     Z1_MR_STAR.AlignWith( A );
 
-    Scale( beta, C );
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -152,7 +151,7 @@ template<typename T>
 inline void
 LLC
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre, 
+                 AbstractDistMatrix<T>& CPre, 
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -175,7 +174,6 @@ LLC
 
     B1Trans_MR_STAR.AlignWith( C );
 
-    Scale( beta, C );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
@@ -214,15 +212,15 @@ LLC
 template<typename T>
 inline void LL
 ( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C,
+                 AbstractDistMatrix<T>& C,
   bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::LL"))
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Width() )
-        symm::LLA( alpha, A, B, beta, C, conjugate );
+        symm::LLA( alpha, A, B, C, conjugate );
     else
-        symm::LLC( alpha, A, B, beta, C, conjugate );
+        symm::LLC( alpha, A, B, C, conjugate );
 }
 
 } // namespace symm

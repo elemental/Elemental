@@ -70,14 +70,15 @@ void Syrk
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
+    ScaleTrapezoid( beta, uplo, C );
     if( uplo == LOWER && orientation == NORMAL )
-        syrk::LN( alpha, A, beta, C, conjugate );
+        syrk::LN( alpha, A, C, conjugate );
     else if( uplo == LOWER )
-        syrk::LT( alpha, A, beta, C, conjugate );
+        syrk::LT( alpha, A, C, conjugate );
     else if( orientation == NORMAL )
-        syrk::UN( alpha, A, beta, C, conjugate );
+        syrk::UN( alpha, A, C, conjugate );
     else
-        syrk::UT( alpha, A, beta, C, conjugate );
+        syrk::UT( alpha, A, C, conjugate );
 }
 
 template<typename T>

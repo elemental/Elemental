@@ -74,7 +74,7 @@ F LeftReflector( F& chi, Matrix<F>& x )
         do
         {
             ++count;
-            Scale( invOfSafeInv, x );
+            x *= invOfSafeInv;
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
@@ -87,7 +87,7 @@ F LeftReflector( F& chi, Matrix<F>& x )
     }
 
     F tau = (beta-Conj(alpha)) / beta;
-    Scale( Real(1)/(alpha-beta), x );
+    x *= Real(1)/(alpha-beta);
 
     // Undo the scaling
     for( Int j=0; j<count; ++j )

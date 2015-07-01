@@ -634,15 +634,15 @@ void KKTRHS
     Zeros( d, n+m+k, 1 );
 
     auto dx = d(xInd,ALL);
-    Copy( rc, dx );
+    dx = rc;
     dx *= -1;
 
     auto dy = d(yInd,ALL);
-    Copy( rb, dy );
+    dy = rb;
     dy *= -1;
 
     auto dz = d(zInd,ALL);
-    Copy( rmu, dz );
+    dz = rmu;
     SOCApplyQuadratic( wRoot, dz, orders, firstInds, cutoff );
     dz -= rh;
 }
@@ -739,7 +739,7 @@ void ExpandSolution
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
     // ==========================
-    Copy( dz, ds );
+    ds = dz;
     SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
     ds += rmu;
     SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );

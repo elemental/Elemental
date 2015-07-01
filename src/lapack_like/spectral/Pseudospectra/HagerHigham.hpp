@@ -233,7 +233,7 @@ HagerHigham
     Timer timer;
     Matrix<C> X;
     Ones( X, n, numShifts );
-    Scale( C(1)/C(n), X );
+    X *= C(1)/C(n);
     Int numIts=0, numDone=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
@@ -388,7 +388,7 @@ HagerHigham
     Timer timer;
     Matrix<C> X;
     Ones( X, n, numShifts );
-    Scale( C(1)/C(n), X );
+    X *= C(1)/C(n);
     Int numIts=0, numDone=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
@@ -579,7 +579,7 @@ HagerHigham
     Timer timer;
     DistMatrix<C> X(g);
     Ones( X, n, numShifts );
-    Scale( C(1)/C(n), X );
+    X *= C(1)/C(n);
     Int numIts=0, numDone=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
@@ -782,7 +782,7 @@ HagerHigham
     Timer timer;
     DistMatrix<C> X(g);
     Ones( X, n, numShifts );
-    Scale( C(1)/C(n), X );
+    X *= C(1)/C(n);
     Int numIts=0, numDone=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );

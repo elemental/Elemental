@@ -108,7 +108,7 @@ Unblocked
             auto a21 = A( ind2, ind1 );
             auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
-            Scale( delta11Inv, a21 );
+            a21 *= delta11Inv;
         }
         else
         {
@@ -191,7 +191,7 @@ Unblocked
             auto a21 = A( ind2, ind1 );
             auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
-            Scale( delta11Inv, a21 );
+            a21 *= delta11Inv;
         }
         else
         {

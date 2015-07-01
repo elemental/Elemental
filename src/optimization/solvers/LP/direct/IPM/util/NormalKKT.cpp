@@ -181,7 +181,7 @@ void NormalKKTRHS
 
     // Form the right-hand side, d 
     // ===========================
-    Copy( rb, d );
+    d = rb;
     Gemv( NORMAL, Real(-1), A, g, Real(1), d );
 }
 
@@ -285,12 +285,12 @@ void ExpandNormalSolution
 
     // dz := r_c + A^T dy
     // ==================
-    Copy( rc, dz );
+    dz = rc;
     Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dz );
 
     // dx := -z <> (r_mu + x o dz)
     // ===========================
-    Copy( dz, dx );
+    dx = dz;
     DiagonalScale( LEFT, NORMAL, x, dx );
     dx += rmu;
     DiagonalSolve( LEFT, NORMAL, z, dx );

@@ -54,7 +54,7 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.Set(0,0,delta11);
-        Scale( delta11Inv, a12 );
+        a12 *= delta11Inv;
 
         // A22 := A22 - a12' a12
         // NOTE: This is silly, but currently necessary
@@ -108,7 +108,7 @@ UUnblockedPivoted( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p )
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.Set(0,0,delta11);
-        Scale( delta11Inv, a12 );
+        a12 *= delta11Inv;
 
         // A22 := A22 - a12' a12
         // NOTE: This is silly, but currently necessary
@@ -175,7 +175,7 @@ UPanelPivoted
         const Base<F> delta11 = Sqrt(A.GetRealPart(k,k));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         A.Set(k,k,delta11);
-        Scale( delta11Inv, a12 );
+        a12 *= delta11Inv;
 
         // Store x21 := a12' and y21 := a12^T
         Adjoint( a12, x21 );
@@ -241,7 +241,7 @@ UPanelPivoted
         const Base<F> delta11 = Sqrt(A.GetRealPart(k,k));
         const Base<F> delta11Inv = Base<F>(1)/delta11;
         A.Set(k,k,delta11);
-        Scale( delta11Inv, a12 );
+        a12 *= delta11Inv;
 
         // Store x21 := a12' and y21 := a12^T
         Adjoint( a12, x21 );

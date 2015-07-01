@@ -14,7 +14,7 @@ template<typename T>
 inline void
 LT
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
+                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syr2k::LT");
@@ -47,7 +47,6 @@ LT
     A1_STAR_MC.AlignWith( C );
     B1_STAR_MC.AlignWith( C );
 
-    ScaleTrapezoid( beta, LOWER, C );
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);

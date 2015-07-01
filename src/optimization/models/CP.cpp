@@ -60,7 +60,7 @@ void CP
     auto GBL = G( IR(m,2*m), IR(0,n)   );
     auto gR =  G( IR(0,2*m), IR(n,n+1) );
     GTL = A;
-    Axpy( Real(-1), GTL, GBL );
+    GBL -= GTL;
     Fill( gR, Real(-1) );
 
     // h := |  b |
@@ -70,7 +70,7 @@ void CP
     auto hT = h( IR(0,m),   ALL );
     auto hB = h( IR(m,2*m), ALL );
     hT = b;
-    Axpy( Real(-1), hT, hB );
+    hB -= hT;
 
     // Solve the affine LP
     // ===================
@@ -115,7 +115,7 @@ void CP
     auto GBL = G( IR(m,2*m), IR(0,n)   );
     auto gR =  G( IR(0,2*m), IR(n,n+1) );
     GTL = A;
-    Axpy( Real(-1), GTL, GBL );
+    GBL -= GTL;
     Fill( gR, Real(-1) );
 
     // h := |  b |
@@ -125,7 +125,7 @@ void CP
     auto hT = h( IR(0,m),   ALL );
     auto hB = h( IR(m,2*m), ALL );
     hT = b;
-    Axpy( Real(-1), hT, hB );
+    hB -= hT;
 
     // Solve the affine LP
     // ===================
@@ -134,7 +134,7 @@ void CP
 
     // Extract x from [x;t]
     // ====================
-    Copy( xHat( IR(0,n), ALL ), x );
+    x = xHat( IR(0,n), ALL );
 }
 
 template<typename Real>
@@ -187,7 +187,7 @@ void CP
     auto hT = h( IR(0,m),   ALL );
     auto hB = h( IR(m,2*m), ALL );
     hT = b;
-    Axpy( Real(-1), hT, hB );
+    hB -= hT;
 
     // Solve the affine LP
     // ===================

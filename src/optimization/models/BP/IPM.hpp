@@ -57,7 +57,7 @@ void LPIPM
     auto AHatu = AHat( IR(0,m), uInd );
     auto AHatv = AHat( IR(0,m), vInd );
     AHatu = A;
-    Axpy( Real(-1), A, AHatv );
+    AHatv -= A;
 
     // Solve the direct LP
     // ===================
@@ -67,7 +67,7 @@ void LPIPM
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -94,7 +94,7 @@ void LPIPM
     auto AHatu = AHat( IR(0,m), uInd );
     auto AHatv = AHat( IR(0,m), vInd );
     AHatu = A;
-    Axpy( Real(-1), A, AHatv );
+    AHatv -= A;
 
     // Solve the direct LP
     // ===================
@@ -103,8 +103,8 @@ void LPIPM
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, ALL ), x );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x = xHat( uInd, ALL );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -145,7 +145,7 @@ void LPIPM
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>

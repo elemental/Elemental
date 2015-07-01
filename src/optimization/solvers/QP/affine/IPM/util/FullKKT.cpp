@@ -320,15 +320,15 @@ void KKTRHS
     Zeros( d, n+m+k, 1 );
 
     auto dx = d(xInd,ALL);
-    Copy( rc, dx );
+    dx = rc;
     dx *= -1;
 
     auto dy = d(yInd,ALL);
-    Copy( rb, dy );
+    dy = rb;
     dy *= -1;
 
     auto dz = d(zInd,ALL);
-    Copy( rmu, dz );
+    dz = rmu;
     DiagonalSolve( LEFT, NORMAL, z, dz );
     dz -= rh;
 }
@@ -401,9 +401,9 @@ void ExpandCoreSolution
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
-    Copy( d(IR(0,  n    ),ALL), dx );
-    Copy( d(IR(n,  n+m  ),ALL), dy );
-    Copy( d(IR(n+m,n+m+k),ALL), dz );
+    dx = d(IR(0,  n    ),ALL);
+    dy = d(IR(n,  n+m  ),ALL);
+    dz = d(IR(n+m,n+m+k),ALL);
 }
 
 template<typename Real>
@@ -493,7 +493,7 @@ void ExpandSolution
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
     // =============================
-    Copy( dz, ds );
+    ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
     ds += rmu;
     DiagonalSolve( LEFT, NORMAL, z, ds );

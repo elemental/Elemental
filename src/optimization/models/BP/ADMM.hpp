@@ -81,7 +81,7 @@ Int ADMM
         //    = (I-pinv(A)*A)(z-u) + q
         //    = (z-u) - pinv(A)*A*(z-u) + q
         s = z;
-        Axpy( F(-1), u, s );
+        s -= u;
         x = s;
         Gemv( NORMAL, F(1), A, s, t );
         if( ctrl.usePinv )
@@ -98,31 +98,31 @@ Int ADMM
             Trsv( LOWER, NORMAL, NON_UNIT, L, t );
             Gemv( ADJOINT, F(1), Q, t, s );
         }
-        Axpy( F(-1), s, x );
-        Axpy( F(1),  q, x );
+        x -= s;
+        x += q;
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( ctrl.alpha, xHat );
+        xHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,1/rho)
         z = xHat;
-        Axpy( F(1), u, z );
+        z += u;
         SoftThreshold( z, 1/ctrl.rho );
 
         // u := u + (xHat - z)
-        Axpy( F(1),  xHat, u );
-        Axpy( F(-1), z,    u );
+        u += xHat;
+        u -= z;
 
         // rNorm := || x - z ||_2
         s = x;
-        Axpy( F(-1), z, s );
+        s -= z;
         const Real rNorm = FrobeniusNorm( s );
 
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
-        Axpy( F(-1), zOld, s );
+        s -= zOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +
@@ -220,7 +220,7 @@ Int ADMM
         //    = (I-pinv(A)*A)(z-u) + q
         //    = (z-u) - pinv(A)*A*(z-u) + q
         s = z;
-        Axpy( F(-1), u, s );
+        s -= u;
         x = s;
         Gemv( NORMAL, F(1), A, s, t );
         if( ctrl.usePinv )
@@ -237,31 +237,31 @@ Int ADMM
             Trsv( LOWER, NORMAL, NON_UNIT, L, t );
             Gemv( ADJOINT, F(1), Q, t, s );
         }
-        Axpy( F(-1), s, x );
-        Axpy( F(1),  q, x );
+        x -= s;
+        x += q;
 
         // xHat := alpha x + (1-alpha) zOld
         xHat = x;
-        Scale( ctrl.alpha, xHat );
+        xHat *= ctrl.alpha;
         Axpy( 1-ctrl.alpha, zOld, xHat );
 
         // z := SoftThresh(xHat+u,1/rho)
         z = xHat;
-        Axpy( F(1), u, z );
+        z += u;
         SoftThreshold( z, 1/ctrl.rho );
 
         // u := u + (xHat - z)
-        Axpy( F(1),  xHat, u );
-        Axpy( F(-1), z,    u );
+        u += xHat;
+        u -= z;
 
         // rNorm := || x - z ||_2
         s = x;
-        Axpy( F(-1), z, s );
+        s -= z;
         const Real rNorm = FrobeniusNorm( s );
 
         // sNorm := || rho*(z-zOld) ||_2
         s = z;
-        Axpy( F(-1), zOld, s );
+        s -= zOld;
         const Real sNorm = Abs(ctrl.rho)*FrobeniusNorm( s );
 
         const Real epsPri = Sqrt(Real(n))*ctrl.absTol +

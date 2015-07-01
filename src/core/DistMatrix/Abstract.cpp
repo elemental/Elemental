@@ -521,9 +521,18 @@ AbstractDistMatrix<T>::LockedAttach( const El::Grid& g, const El::Matrix<T>& A )
 // ----
 template<typename T>
 const AbstractDistMatrix<T>&
+AbstractDistMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("ADM::operator=(ADM&)"))
+    Copy( A, *this );
+    return *this;
+}
+
+template<typename T>
+const AbstractDistMatrix<T>&
 AbstractDistMatrix<T>::operator=( const DistMultiVec<T>& A )
 {
-    DEBUG_ONLY(CSE cse("ADM::operator=(DMV)"))
+    DEBUG_ONLY(CSE cse("ADM::operator=(DMV&)"))
     Copy( A, *this );
     return *this;
 }

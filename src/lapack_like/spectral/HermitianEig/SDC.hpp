@@ -39,7 +39,7 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
     ctrl.qdwh = true;
     HermitianPolar( uplo, G, ctrl );
     ShiftDiagonal( G, F(1) );
-    Scale( F(1)/F(2), G );
+    G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
     Matrix<F> t;
@@ -83,7 +83,7 @@ QDWHDivide
     ctrl.qdwh = true;
     HermitianPolar( uplo, G, ctrl );
     ShiftDiagonal( G, F(1) );
-    Scale( F(1)/F(2), G );
+    G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
     const Grid& g = A.Grid();
@@ -138,7 +138,7 @@ RandomizedSignDivide
     polarCtrl.qdwh = true;
     HermitianPolar( uplo, S, polarCtrl );
     ShiftDiagonal( S, F(1) );
-    Scale( F(1)/F(2), S );
+    S *= F(1)/F(2);
 
     ValueInt<Real> part;
     Matrix<F> V, B, t;
@@ -205,7 +205,7 @@ RandomizedSignDivide
     polarCtrl.qdwh = true;
     HermitianPolar( uplo, G, polarCtrl );
     ShiftDiagonal( S, F(1) );
-    Scale( F(1)/F(2), S );
+    S *= F(1)/F(2);
 
     ValueInt<Real> part;
     DistMatrix<F> V(g), B(g);

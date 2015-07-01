@@ -96,6 +96,7 @@ public:
 
     // Copy
     // ----
+    const type& operator=( const type& A );
     const type& operator=( const DistMultiVec<T>& A );
 
     // Move assignment

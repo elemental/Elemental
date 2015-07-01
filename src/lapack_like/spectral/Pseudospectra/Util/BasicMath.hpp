@@ -338,7 +338,7 @@ FixColumns( Matrix<F>& X )
             MakeGaussian( x );
             norm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/norm, x );
+        x *= 1/norm;
     }
 }
 
@@ -361,7 +361,7 @@ FixColumns( DistMatrix<F,U,V>& X )
             MakeGaussian( x );
             norm = FrobeniusNorm( x );
         }
-        Scale( Real(1)/norm, x );
+        x *= 1/norm;
     }
 }
 

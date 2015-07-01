@@ -35,7 +35,7 @@ UnbObj( Matrix<F>& A )
         F alpha = alpha11.Get(0,0);
         if( alpha == F(0) )
             throw SingularMatrixException();
-        Scale( 1/alpha, a21 );
+        a21 *= 1/alpha;
         Geru( F(-1), a21, a12, A22 );
     }
 }

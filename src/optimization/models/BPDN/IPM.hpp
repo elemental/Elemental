@@ -84,7 +84,7 @@ void IPM
     auto AHatv = AHat( IR(0,m), vInd );
     auto AHatr = AHat( IR(0,m), rInd );
     AHatu = A;
-    Axpy( Real(-1), A, AHatv );
+    AHatv -= A;
     FillDiagonal( AHatr, Real(1) );
 
     // G := | -I  0 0 |
@@ -105,7 +105,7 @@ void IPM
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -142,7 +142,7 @@ void IPM
     auto AHatv = AHat( IR(0,m), vInd );
     auto AHatr = AHat( IR(0,m), rInd );
     AHatu = A;
-    Axpy( Real(-1), A, AHatv );
+    AHatv -= A;
     FillDiagonal( AHatr, Real(1) );
 
     // G := | -I  0 0 |
@@ -162,8 +162,8 @@ void IPM
 
     // x := u - v
     // ==========
-    Copy( xHat( uInd, ALL ), x );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x = xHat( uInd, ALL );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>
@@ -230,7 +230,7 @@ void IPM
     // x := u - v
     // ==========
     x = xHat( uInd, ALL );
-    Axpy( Real(-1), xHat(vInd,ALL), x );
+    x -= xHat( vInd, ALL );
 }
 
 template<typename Real>

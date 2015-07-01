@@ -107,13 +107,13 @@ UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         Gemv( TRANSPOSE, F(-1), A02, z01, F(1), z21 );
         // y12 := tauQ z21^H
         Adjoint( z21, y12 );
-        Scale( tauQ, y12 ); 
+        y12 *= tauQ;
 
         // Apply all previous reflectors to a12:
         // a12 := a12 - a1L yT2           - x10 conj(A02)
         //      = a12 - (a10 Y02 + 1*y12) - x10 conj(A02)
         Gemv( TRANSPOSE, F(-1), Y02, a10, F(1), a12 );
-        Axpy( F(-1), y12, a12 );
+        a12 -= y12;
         Gemv( ADJOINT, F(-1), A02, x10, F(1), a12 ); 
 
         // Find tauP and v such that
@@ -144,7 +144,7 @@ UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         Conjugate( z01 );
         Gemv( NORMAL, F(-1), X20, z01, F(1), x21 );
         // x21 := tauP x21
-        Scale( tauP, x21 );
+        x21 *= tauP;
     }
 
     // Put back d and e
@@ -316,7 +316,7 @@ UPan
 
         // Finally perform the column summation and then scale by tauQ
         AdjointContract( z21_MR_STAR, y12 );
-        Scale( tauQ, y12 );
+        y12 *= tauQ;
 
         // Apply all previous reflectors to a12:
         // a12 := a12 - a1L yT2           - x10 conj(A02)
@@ -342,7 +342,7 @@ UPan
 
         // a12 := a12 - y12
         // ^^^^^^^^^^^^^^^^
-        Axpy( F(-1), y12, a12 );
+        a12 -= y12;
 
         // Find tauP and v such that
         //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilon 0|
@@ -397,7 +397,7 @@ UPan
         LocalGemv( NORMAL, F(-1), X20, z01_MR_STAR, F(1), z21_MC_STAR );
         // Sum the various contributions within process rows
         Contract( z21_MC_STAR, x21 );
-        Scale( tauP, x21 );
+        x21 *= tauP;
     }
 
     // Put back d and e

@@ -94,7 +94,7 @@ template<typename T>
 inline void
 RLA
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
+                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RLA");
@@ -126,7 +126,6 @@ RLA
 
     Matrix<T> Z1Local;
 
-    Scale( beta, C );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
@@ -155,7 +154,7 @@ template<typename T>
 inline void
 RLC
 ( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
+                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RLC");
@@ -177,7 +176,6 @@ RLC
 
     B1_MC_STAR.AlignWith( C );
 
-    Scale( beta, C );
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -216,14 +214,14 @@ template<typename T>
 inline void
 RL
 ( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false )
+                 AbstractDistMatrix<T>& C, bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::RL"))
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )
-        symm::RLA( alpha, A, B, beta, C, conjugate );
+        symm::RLA( alpha, A, B, C, conjugate );
     else
-        symm::RLC( alpha, A, B, beta, C, conjugate );
+        symm::RLC( alpha, A, B, C, conjugate );
 }
 
 } // namespace symm

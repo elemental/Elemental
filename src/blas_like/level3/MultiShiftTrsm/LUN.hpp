@@ -13,7 +13,7 @@ namespace mstrsm {
 template<typename F>
 inline void
 LeftUnb
-( UpperOrLower uplo, Orientation orientation, F alpha, 
+( UpperOrLower uplo, Orientation orientation,
   Matrix<F>& T, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(
@@ -33,7 +33,6 @@ LeftUnb
     const Int n = T.Height();
     const Int ldim = T.LDim();
     const Int numShifts = shifts.Height();
-    Scale( alpha, X );
     for( Int j=0; j<numShifts; ++j )
     {
         ShiftDiagonal( T, -shifts.Get(j,0) );
@@ -46,10 +45,9 @@ LeftUnb
 
 template<typename F>
 inline void
-LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
+LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUN"))
-    Scale( alpha, X );
     const Int m = X.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
@@ -67,7 +65,7 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
         auto X0 = X( ind0, ALL );
         auto X1 = X( ind1, ALL );
 
-        LeftUnb( UPPER, NORMAL, F(1), U11, shifts, X1 );
+        LeftUnb( UPPER, NORMAL, U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
     }
 }
@@ -75,7 +73,7 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename F>
 inline void
 LUN
-( F alpha, const AbstractDistMatrix<F>& UPre, 
+( const AbstractDistMatrix<F>& UPre, 
   const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUN"))
@@ -85,8 +83,6 @@ LUN
 
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre ); 
     auto& shifts = *shiftsPtr;
-
-    Scale( alpha, X );
 
     const Grid& g = U.Grid();
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
@@ -116,7 +112,7 @@ LUN
         X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR = X1; // X1[* ,VR] <- X1[MC,MR]
         LUN
-        ( F(1), U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), 
+        ( U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), 
           X1_STAR_VR.Matrix() );
 
         X1_STAR_MR.AlignWith( X0 );

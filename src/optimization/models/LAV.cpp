@@ -131,7 +131,7 @@ void LAV
 
     // Extract x
     // =========
-    Copy( xHat( xInd, ALL ), x );
+    x = xHat( xInd, ALL );
 }
 
 template<typename Real>

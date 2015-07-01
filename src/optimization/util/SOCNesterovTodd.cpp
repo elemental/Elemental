@@ -188,9 +188,9 @@ void VandenbergheNT
     // ====================================
     auto wProm = zProm;
     SOCReflect( wProm, orders, firstInds );
-    Axpy( PReal(1), sProm, wProm );
+    wProm += sProm;
     DiagonalSolve( LEFT, NORMAL, gammas, wProm );
-    Scale( PReal(1)/PReal(2), wProm );
+    wProm *= PReal(1)/PReal(2);
 
     // Rescale the scaling point
     // =========================
@@ -262,9 +262,9 @@ void VandenbergheNT
     // ====================================
     w = z;
     SOCReflect( w, orders, firstInds );
-    Axpy( PReal(1), s, w );
+    w += s;
     DiagonalSolve( LEFT, NORMAL, gammas, w );
-    Scale( PReal(1)/PReal(2), w );
+    w *= PReal(1)/PReal(2);
 
     // Rescale the scaling point
     // =========================
@@ -322,9 +322,9 @@ void VandenbergheNT
     // ====================================
     auto wProm = zProm;
     SOCReflect( wProm, orders, firstInds );
-    Axpy( PReal(1), sProm, wProm );
+    wProm += sProm;
     DiagonalSolve( LEFT, NORMAL, gammas, wProm );
-    Scale( PReal(1)/PReal(2), wProm );
+    wProm *= PReal(1)/PReal(2);
 
     // Rescale the scaling point
     // =========================

@@ -13,11 +13,10 @@ namespace mstrsm {
 template<typename F>
 inline void
 LUT
-( Orientation orientation, F alpha, 
+( Orientation orientation,
   Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUT"))
-    Scale( alpha, X );
 
     const Int m = X.Height();
     const Int bsize = Blocksize();
@@ -35,7 +34,7 @@ LUT
         auto X1 = X( ind1, ALL );
         auto X2 = X( ind2, ALL );
 
-        LeftUnb( UPPER, orientation, F(1), U11, shifts, X1 );
+        LeftUnb( UPPER, orientation, U11, shifts, X1 );
         Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
     }
 }
@@ -43,7 +42,7 @@ LUT
 template<typename F>
 inline void
 LUT
-( Orientation orientation, F alpha, 
+( Orientation orientation,
   const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre ) 
 {
@@ -54,8 +53,6 @@ LUT
 
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
-
-    Scale( alpha, X );
 
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -84,7 +81,7 @@ LUT
         X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR = X1;  // X1[* ,VR] <- X1[MC,MR]
         LUT
-        ( orientation, F(1), 
+        ( orientation, 
           U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), X1_STAR_VR.Matrix() );
 
         X1_STAR_MR.AlignWith( X2 );

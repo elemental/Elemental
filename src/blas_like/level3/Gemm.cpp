@@ -64,7 +64,7 @@ void Gemm
     }
     else
     {
-        Scale( beta, C );
+        C *= beta;
     }
 }
 
@@ -89,24 +89,25 @@ void Gemm
   GemmAlgorithm alg )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
+    C *= beta;
     if( orientA == NORMAL && orientB == NORMAL )
     {
         if( alg == GEMM_CANNON )
-            gemm::Cannon_NN( alpha, A, B, beta, C );
+            gemm::Cannon_NN( alpha, A, B, C );
         else 
-            gemm::SUMMA_NN( alpha, A, B, beta, C, alg );
+            gemm::SUMMA_NN( alpha, A, B, C, alg );
     }
     else if( orientA == NORMAL )
     {
-        gemm::SUMMA_NT( orientB, alpha, A, B, beta, C, alg );
+        gemm::SUMMA_NT( orientB, alpha, A, B, C, alg );
     }
     else if( orientB == NORMAL )
     {
-        gemm::SUMMA_TN( orientA, alpha, A, B, beta, C, alg );
+        gemm::SUMMA_TN( orientA, alpha, A, B, C, alg );
     }
     else
     {
-        gemm::SUMMA_TT( orientA, orientB, alpha, A, B, beta, C, alg );
+        gemm::SUMMA_TT( orientA, orientB, alpha, A, B, C, alg );
     }
 }
 

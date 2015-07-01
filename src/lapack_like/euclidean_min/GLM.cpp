@@ -231,8 +231,8 @@ void GLM
         normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress )
             cout << "Estimated || [ A, B ] ||_2 ~= " << normScale << endl;
-        Scale( F(1)/normScale, W );
-        Scale( normScale, dR );
+        W *= F(1)/normScale;
+        dR *= normScale;
     }
 
     // Form the augmented RHS (and rescale it)
@@ -244,7 +244,7 @@ void GLM
         auto Gz = G( IR(0,m), ALL );
         // Use X as a temporary
         X = D;
-        Scale( F(1)/ctrl.alpha, X );
+        X *= F(1)/ctrl.alpha;
         DiagonalSolve( LEFT, NORMAL, dR, X );
         Gz = X;
         X.Empty();
@@ -311,8 +311,8 @@ void GLM
     // by alpha commutes.
     X = G( IR(m,m+n),     ALL );
     Y = G( IR(m+n,m+n+k), ALL );
-    Scale( ctrl.alpha, X );
-    Scale( ctrl.alpha, Y );
+    X *= ctrl.alpha;
+    Y *= ctrl.alpha;
 }
 
 template<typename F>
@@ -352,8 +352,8 @@ void GLM
         normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress && commRank == 0 )
             cout << "Estimated || [ A, B ] ||_2 ~= " << normScale << endl;
-        Scale( F(1)/normScale, W );
-        Scale( normScale, dR );
+        W *= F(1)/normScale;
+        dR *= normScale;
     }
 
     // Form the augmented RHS
@@ -362,7 +362,7 @@ void GLM
     DistMultiVec<F> G(comm);
     Zeros( G, m+n+k, numRHS );
     X = D;
-    Scale( F(1)/ctrl.alpha, X );
+    X *= F(1)/ctrl.alpha;
     DiagonalSolve( LEFT, NORMAL, dR, X );
     {
         // Compute the metadata
@@ -500,8 +500,8 @@ void GLM
     // by alpha commutes.
     X = G( IR(m,m+n),     ALL );
     Y = G( IR(m+n,m+n+k), ALL );
-    Scale( ctrl.alpha, X );
-    Scale( ctrl.alpha, Y );
+    X *= ctrl.alpha;
+    Y *= ctrl.alpha;
 }
 
 #define PROTO(F) \

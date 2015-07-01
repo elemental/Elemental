@@ -56,7 +56,7 @@ void Trmm
   T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("Trmm"))
-    Scale( alpha, X );
+    X *= alpha;
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )

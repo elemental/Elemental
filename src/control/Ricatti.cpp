@@ -37,7 +37,7 @@ void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
     // Solve for X in ML X = -MR
     Matrix<F> ML, MR;
     PartitionRight( W, ML, MR, n );
-    Scale( F(-1), MR );
+    MR *= -1;
     ls::Overwrite( NORMAL, ML, MR, X );
 }
 
@@ -66,7 +66,7 @@ void Ricatti
     // Solve for X in ML X = -MR
     DistMatrix<F> ML(g), MR(g);
     PartitionRight( W, ML, MR, n );
-    Scale( F(-1), MR );
+    MR *= -1;
     ls::Overwrite( NORMAL, ML, MR, X );
 }
 
@@ -96,7 +96,7 @@ void Ricatti
          WBL, WBR, n );
 
     Adjoint( A, WTL );
-    WBR = A; Scale( F(-1), WBR );
+    WBR = A; WBR *= -1;
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
@@ -132,7 +132,7 @@ void Ricatti
          WBL, WBR, n );
 
     Adjoint( A, WTL );
-    WBR = A; Scale( F(-1), WBR );
+    WBR = A; WBR *= -1;
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 

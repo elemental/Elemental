@@ -18,7 +18,7 @@ void Laplacian( Matrix<F>& L, Int n )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, n, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F>
@@ -26,7 +26,7 @@ void Laplacian( AbstractDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, n, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F> 
@@ -34,7 +34,7 @@ void Laplacian( SparseMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, n, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F> 
@@ -42,7 +42,7 @@ void Laplacian( DistSparseMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, n, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 // 2D Laplacian
@@ -53,7 +53,7 @@ void Laplacian( Matrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F>
@@ -61,7 +61,7 @@ void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F> 
@@ -69,7 +69,7 @@ void Laplacian( SparseMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F> 
@@ -77,7 +77,7 @@ void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 // 3D Laplacian
@@ -88,7 +88,7 @@ void Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F>
@@ -96,7 +96,7 @@ void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F> 
@@ -104,7 +104,7 @@ void Laplacian( SparseMatrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 template<typename F> 
@@ -112,7 +112,7 @@ void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CSE cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
-    Scale( F(-1), L );
+    L *= -1;
 }
 
 #define PROTO(F) \
