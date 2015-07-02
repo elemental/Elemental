@@ -15,7 +15,7 @@ namespace trr2k {
 
 // TODO: Fuse pairs of Gemms
 
-// E := alpha op(A) op(B) + beta op(C) op(D) + beta E
+// E := alpha op(A) op(B) + beta op(C) op(D) + E
 template<typename T>
 inline void
 LocalTrr2kKernel
@@ -24,7 +24,7 @@ LocalTrr2kKernel
   Orientation orientC, Orientation orientD,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E )
+                 AbstractDistMatrix<T>& E )
 {
     DEBUG_ONLY(CSE cse("LocalTrr2kKernel"))
 
@@ -69,7 +69,6 @@ LocalTrr2kKernel
         LockedPartitionRight( D, *D0, *D1, half );
     PartitionDownDiagonal( E, *ETL, *ETR, *EBL, *EBR, half );
 
-    ScaleTrapezoid( gamma, uplo, E );
     if( uplo == LOWER )
     {
         Gemm
@@ -120,7 +119,7 @@ LocalTrr2kKernel
 
 } // namespace trr2k
 
-// E := alpha op(A) op(B) + beta op(C) op(D) + beta E
+// E := alpha op(A) op(B) + beta op(C) op(D) + gamma E
 template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo, 
@@ -139,15 +138,17 @@ void LocalTrr2k
     const bool transD = orientD != NORMAL;
     // TODO: Stringent distribution and alignment checks
 
+    ScaleTrapezoid( gamma, uplo, E );
     if( E.Height() < E.Grid().Width()*LocalTrr2kBlocksize<T>() )
     {
         LocalTrr2kKernel
         ( uplo, orientA, orientB, orientC, orientD, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
     }
     else
     {
         typedef AbstractDistMatrix<T> ADM;
+        // Ugh. This is likely too much overhead. It should be measured.
         auto A0 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
         auto A1 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
         auto B0 = unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
@@ -185,7 +186,7 @@ void LocalTrr2k
             Gemm
             ( orientA, orientB, 
               alpha, A1->LockedMatrix(), B0->LockedMatrix(), 
-              gamma, EBL->Matrix() );
+              T(1), EBL->Matrix() );
             Gemm
             ( orientC, orientD, 
               beta,  C1->LockedMatrix(), D0->LockedMatrix(), 
@@ -196,7 +197,7 @@ void LocalTrr2k
             Gemm
             ( orientA, orientB,
               alpha, A0->LockedMatrix(), B1->LockedMatrix(), 
-              gamma, ETR->Matrix() );
+              T(1), ETR->Matrix() );
             Gemm
             ( orientC, orientD,
               beta,  C0->LockedMatrix(), D1->LockedMatrix(), 
@@ -206,10 +207,10 @@ void LocalTrr2k
         // Recurse
         LocalTrr2k
         ( uplo, orientA, orientB, orientC, orientD, 
-          alpha, *A0, *B0, beta, *C0, *D0, gamma, *ETL );
+          alpha, *A0, *B0, beta, *C0, *D0, T(1), *ETL );
         LocalTrr2k
         ( uplo, orientA, orientB, orientC, orientD, 
-          alpha, *A1, *B1, beta, *C1, *D1, gamma, *EBR );
+          alpha, *A1, *B1, beta, *C1, *D1, T(1), *EBR );
     }
 }
 

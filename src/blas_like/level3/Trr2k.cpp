@@ -43,81 +43,82 @@ void Trr2k
     const bool normalC = orientC == NORMAL;
     const bool normalD = orientD == NORMAL;
     Int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
+    ScaleTrapezoid( gamma, uplo, E );
     switch( subcase )
     {
     case 0: 
-        trr2k::Trr2kNNNN( uplo, alpha, A, B, beta, C, D, gamma, E );
+        trr2k::Trr2kNNNN( uplo, alpha, A, B, beta, C, D, E );
         break;
     case 1:
         trr2k::Trr2kNNNT
-        ( uplo, orientD, alpha, A, B, beta, C, D, gamma, E );
+        ( uplo, orientD, alpha, A, B, beta, C, D, E );
         break;
     case 2:
         trr2k::Trr2kNNTN
-        ( uplo, orientC, alpha, A, B, beta, C, D, gamma, E );
+        ( uplo, orientC, alpha, A, B, beta, C, D, E );
         break;
     case 3:
         trr2k::Trr2kNNTT
         ( uplo, orientC, orientD, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 4:
         trr2k::Trr2kNTNN
-        ( uplo, orientB, alpha, A, B, beta, C, D, gamma, E );
+        ( uplo, orientB, alpha, A, B, beta, C, D, E );
         break;
     case 5:
         trr2k::Trr2kNTNT
         ( uplo, orientB, orientD, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 6:
         trr2k::Trr2kNTTN
         ( uplo, orientB, orientC, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 7:
         trr2k::Trr2kNTTT
         ( uplo, orientB, orientC, orientD, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 8:
         trr2k::Trr2kTNNN
-        ( uplo, orientA, alpha, A, B, beta, C, D, gamma, E );
+        ( uplo, orientA, alpha, A, B, beta, C, D, E );
         break;
     case 9:
         trr2k::Trr2kTNNT
         ( uplo, orientA, orientD, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 10:
         trr2k::Trr2kTNTN
         ( uplo, orientA, orientC, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 11:
         trr2k::Trr2kTNTT
         ( uplo, orientA, orientC, orientD,
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 12:
         trr2k::Trr2kTTNN
         ( uplo, orientA, orientB, 
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 13:
         trr2k::Trr2kTTNT
         ( uplo, orientA, orientB, orientD,
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 14:
         trr2k::Trr2kTTTN
         ( uplo, orientA, orientB, orientC,
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     case 15:
         trr2k::Trr2kTTTT
         ( uplo, orientA, orientB, orientC, orientD,
-          alpha, A, B, beta, C, D, gamma, E );
+          alpha, A, B, beta, C, D, E );
         break;
     default:
         LogicError("Impossible subcase");

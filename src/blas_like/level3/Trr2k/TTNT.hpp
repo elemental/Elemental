@@ -14,7 +14,7 @@
 namespace El {
 namespace trr2k {
 
-// E := alpha A' B' + beta C D' + gamma E
+// E := alpha A' B' + beta C D' + E
 template<typename T>
 void Trr2kTTNT
 ( UpperOrLower uplo,
@@ -22,12 +22,10 @@ void Trr2kTTNT
   Orientation orientD, 
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E )
+                 AbstractDistMatrix<T>& E )
 {
     DEBUG_ONLY(CSE cse("trr2k::Trr2kTTNT"))
-    Trr2kNTTT
-    ( uplo, orientD, orientA, orientB,
-      beta, C, D, alpha, A, B, gamma, E );
+    Trr2kNTTT( uplo, orientD, orientA, orientB, beta, C, D, alpha, A, B, E );
 }
 
 } // namespace trr2k
