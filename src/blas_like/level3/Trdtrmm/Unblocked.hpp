@@ -34,7 +34,7 @@ LUnblocked( Matrix<F>& L, bool conjugate=false )
 
         // L10 := L10 / delta11
         const F deltaInv = F(1)/L.Get(k,k);
-        Scale( deltaInv, l10 );
+        l10 *= deltaInv;
 
         // L00 := L00 + l10' s10
         const F* l10Buf = l10.LockedBuffer();
@@ -94,7 +94,7 @@ LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 
             // L10 := L10 / delta11
             const F deltaInv = F(1)/L.Get(k,k);
-            Scale( deltaInv, l10 );
+            l10 *= deltaInv;
 
             // L00 := L00 + l10' s10
             // TODO: Extend Trr for this case and then switch
@@ -174,7 +174,7 @@ UUnblocked( Matrix<F>& U, bool conjugate=false )
 
         // u01 := u01 / delta11
         const F deltaInv = F(1)/U.Get(k,k);
-        Scale( deltaInv, u01 );
+        u01 *= deltaInv;
 
         // U00 := U00 + s01 u01'
         Trr( UPPER, F(1), s01, u01, U00, conjugate );

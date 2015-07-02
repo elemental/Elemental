@@ -36,7 +36,7 @@ void TestCorrectness
     // Form X := I - Q^H Q
     DistMatrix<F> X(g);
     Identity( X, minDim, minDim );
-    Axpy( F(-1), ZUpper, X );
+    X -= ZUpper;
 
     Real oneNormOfError = OneNorm( X );
     Real infNormOfError = InfinityNorm( X );
@@ -57,7 +57,7 @@ void TestCorrectness
     qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
 
     // Form Q R - A
-    Axpy( F(-1), AOrig, U );
+    U -= AOrig;
     
     const Real oneNormOfA = OneNorm( AOrig );
     const Real infNormOfA = InfinityNorm( AOrig );

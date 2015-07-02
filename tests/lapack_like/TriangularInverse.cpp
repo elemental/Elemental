@@ -28,7 +28,7 @@ void TestCorrectness
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
     Trmm( LEFT, uplo, NORMAL, diag, F(1), A,     Y );
     Trmm( LEFT, uplo, NORMAL, diag, F(1), AOrig, Y );
-    Axpy( F(-1), X, Y );
+    Y -= X;
 
     const Real oneNormOrig = OneNorm( AOrig );
     const Real infNormOrig = InfinityNorm( AOrig );

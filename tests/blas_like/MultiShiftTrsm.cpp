@@ -89,7 +89,7 @@ void TestMultiShiftTrsm
     }
     if( print )
         Print( Y, "Y after solve" );
-    Axpy( F(-1), X, Y );
+    Y -= X;
     const auto UFrob = FrobeniusNorm( U );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );

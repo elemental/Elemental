@@ -81,7 +81,7 @@ void Trsm
               LogicError("Nonconformal Trsm");
       }
     )
-    Scale( alpha, B );
+    B *= alpha;
 
     // Call the single right-hand side algorithm if appropriate
     if( side == LEFT && B.Width() == 1 )
@@ -94,7 +94,7 @@ void Trsm
     /*
     else if( side == RIGHT && B.Height() == 1 )
     {
-        Trsv( uplo, orientation, diag, alpha, A, B );
+        Trsv( uplo, orientation, diag, A, B );
         return;
     }
     */

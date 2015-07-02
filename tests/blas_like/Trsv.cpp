@@ -52,7 +52,7 @@ void TestTrsv
     if( print )
         Print( y, "y after solve" );
 
-    Axpy( F(-1), x, y );
+    y -= x;
     const Real xNorm = FrobeniusNorm( x );
     const Real yNorm = FrobeniusNorm( y );
     if( g.Rank() == 0 )

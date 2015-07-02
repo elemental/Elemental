@@ -106,7 +106,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
         }
 
         ++numIts;
-        Axpy( F(-1), A, ALast );
+        ALast -= A;
         frobNormADiff = FrobeniusNorm( ALast );
         if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
@@ -251,7 +251,7 @@ QDWHInner
         }
 
         ++numIts;
-        Axpy( F(-1), A, ALast );
+        ALast -= A;
         frobNormADiff = FrobeniusNorm( ALast );
         if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
@@ -408,7 +408,7 @@ QDWHInner
             Axpy( alpha, ATemp, A );
         }
 
-        Axpy( F(-1), A, ALast );
+        ALast -= A;
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
 
         ++numIts;
@@ -552,7 +552,7 @@ QDWHInner
         }
 
         ++numIts;
-        Axpy( F(-1), A, ALast );
+        ALast -= A;
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
         if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;

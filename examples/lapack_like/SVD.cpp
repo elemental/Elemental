@@ -56,7 +56,7 @@ main( int argc, char* argv[] )
         }
 
         // Compare the singular values from both methods
-        Axpy( Real(-1), s, sOnly );
+        sOnly -= s;
         const Real singValDiff = FrobeniusNorm( sOnly );
         const Real twoNormOfA = MaxNorm( s );
         const Real maxNormOfA = MaxNorm( A );

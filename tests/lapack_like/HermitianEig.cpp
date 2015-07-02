@@ -34,7 +34,7 @@ void TestCorrectness
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
     DistMatrix<F> ZW( Z );
     DiagonalScale( RIGHT, NORMAL, w, ZW );
-    Axpy( F(-1), ZW, X );
+    X -= ZW;
     // Find the infinity norms of A, Z, and AZ-ZW
     Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
     frobNormE = FrobeniusNorm( X );

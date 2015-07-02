@@ -81,7 +81,7 @@ main( int argc, char* argv[] )
         MakeTrapezoidal( UPPER, E );
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
         PermuteCols( E, perm );
-        Axpy( C(-1), A, E );
+        E -= A;
         const Real frobQRPiv = FrobeniusNorm( E );
         if( display )
             Display( E, "A P - Q R" );
@@ -93,7 +93,7 @@ main( int argc, char* argv[] )
         E = QRNoPiv;
         MakeTrapezoidal( UPPER, E );
         qr::ApplyQ( LEFT, NORMAL, QRNoPiv, tNoPiv, dNoPiv, E );
-        Axpy( C(-1), A, E );
+        E -= A;
         const Real frobQRNoPiv = FrobeniusNorm( E );
         if( display )
             Display( E, "A - Q R" );

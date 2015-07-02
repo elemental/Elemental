@@ -60,7 +60,7 @@ int main( int argc, char* argv[] )
         const int N = n1*n2*n3;
         DistSparseMatrix<double> A(comm);
         Laplacian( A, n1, n2, n3 );
-        Scale( -1., A );
+        A *= -1;
         if( display )
         {
             Display( A );
@@ -227,7 +227,7 @@ int main( int argc, char* argv[] )
         Matrix<double> XNorms, YNorms;
         ColumnNorms( X, XNorms );
         ColumnNorms( Y, YNorms );
-        Axpy( -1., X, Y );
+        Y -= X;
         Matrix<double> errorNorms;
         ColumnNorms( Y, errorNorms );
         if( commRank == 0 )

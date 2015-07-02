@@ -61,7 +61,7 @@ void TestCorrectness
         MakeTrapezoidal( LOWER, AOrig, 1 );
     else
         MakeTrapezoidal( UPPER, AOrig, -1 );
-    Axpy( F(-1), AOrig, H );
+    H -= AOrig;
     if( print )
         Print( H, "Error in rotated Hessenberg" );
     if( display )

@@ -108,7 +108,7 @@ LUTUnb
     const Int n = XReal.Width();
   
     if( conjugate )
-        Scale( Real(-1), XImag );
+        XImag *= -1;
 
     const Real* UBuf = U.LockedBuffer();
           Real* XRealBuf = XReal.Buffer();
@@ -199,7 +199,7 @@ LUTUnb
         }
     }
     if( conjugate )
-        Scale( Real(-1), XImag );
+        XImag *= -1;
 }
 
 template<typename F>
@@ -261,7 +261,7 @@ LUT
 
     const bool conjugate = ( orientation==ADJOINT );
     if( conjugate )
-        Scale( Real(-1), XImag );
+        XImag *= -1;
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -286,7 +286,7 @@ LUT
         Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Imag, Real(1), X2Imag );
     }
     if( conjugate )
-        Scale( Real(-1), XImag );
+        XImag *= -1;
 }
 
 // width(X) >> p

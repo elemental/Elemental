@@ -498,7 +498,7 @@ void Multiply
     // TODO: Use sequential implementation if commSize = 1?
 
     // Y := beta Y
-    Scale( beta, Y );
+    Y *= beta;
 
     A.InitializeMultMeta();
     const auto& meta = A.multMeta;

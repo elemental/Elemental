@@ -70,7 +70,7 @@ UT
             if( k != 0 )
             {
                 Contract( z1_MR_STAR, z1_MR_MC );
-                Axpy( F(1), z1_MR_MC, x1 );
+                x1 += z1_MR_MC;
             }
 
             x1_STAR_STAR = x1;

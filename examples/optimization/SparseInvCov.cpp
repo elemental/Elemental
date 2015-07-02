@@ -104,7 +104,7 @@ int main( int argc, char* argv[] )
         Cholesky( LOWER, G );
         Trmm( RIGHT, LOWER, TRANSPOSE, NON_UNIT, F(1), G, D );
         Covariance( D, G );
-        Axpy( F(-1), SNoisy, G );
+        G -= SNoisy;
         const Real SNorm = FrobeniusNorm( S );
         const Real SNoisyNorm = FrobeniusNorm( SNoisy );
         const Real covErrNorm = FrobeniusNorm( G );
@@ -144,7 +144,7 @@ int main( int argc, char* argv[] )
 
         const Real SInvNorm = FrobeniusNorm( SInv );
         G = Z;
-        Axpy( F(-1), SInv, G );
+        G -= SInv;
         const Real ZErrNorm = FrobeniusNorm( G );
         if( print )
             Print( Z, "Z" );

@@ -80,7 +80,7 @@ void TestCorrectness
         MakeTrapezoidal( LOWER, AOrig ); 
         MakeTrapezoidal( UPPER, AOrig, -1 );
     }
-    Axpy( F(-1), AOrig, B );
+    B -= AOrig;
     if( print )
         Print( B, "Error in rotated bidiagonal" );
     if( display )

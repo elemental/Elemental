@@ -27,7 +27,7 @@ void TestCorrectness
         Herk
         ( uplo, orientation, alpha, ARoot.Matrix(), beta,  CSeq );
         const Base<T> CNrm = FrobeniusNorm( CRoot.Matrix() );
-        Axpy( T(-1), CSeq, CRoot.Matrix() );
+        CRoot.Matrix() -= CSeq;
         const Base<T> ENrm = FrobeniusNorm( CRoot.Matrix() );
         cout << " || E ||_F = " << ENrm << "\n"
              << " || C ||_F = " << CNrm << endl;

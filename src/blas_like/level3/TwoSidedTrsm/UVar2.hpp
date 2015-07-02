@@ -154,7 +154,7 @@ UVar2
         LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A01, X11_STAR_MR );
 
         // A01 := A01 - Y01
-        Axpy( F(-1), Y01, A01 );
+        A01 -= Y01;
         A01_MC_STAR.AlignWith( U01 );
         A01_MC_STAR = A01;
         
@@ -163,7 +163,7 @@ UVar2
         X11.AlignWith( A11 );
         Contract( X11_STAR_MR, X11 );
         MakeTrapezoidal( UPPER, X11 );
-        Axpy( F(-1), X11, A11 );
+        A11 -= X11;
 
         // A01 := A01 inv(U11)
         U11_STAR_STAR = U11;
@@ -183,7 +183,7 @@ UVar2
         X12Adj_MR_MC.AlignWith( A12 );
         Contract( X12Adj_MR_STAR, X12Adj_MR_MC );
         Adjoint( X12Adj_MR_MC.LockedMatrix(), X12Local );
-        Axpy( F(-1), X12Local, A12.Matrix() );
+        A12.Matrix() -= X12Local;
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;

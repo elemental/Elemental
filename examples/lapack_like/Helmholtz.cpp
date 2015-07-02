@@ -209,7 +209,7 @@ main( int argc, char* argv[] )
             cout << "Checking error in computed solution..." << endl;
         const double xNorm = Nrm2( x );
         const double yNorm = Nrm2( y );
-        Axpy( C(-1), x, y );
+        y -= x;
         const double errorNorm = Nrm2( y );
         if( commRank == 0 )
             cout << "|| x     ||_2 = " << xNorm << "\n"

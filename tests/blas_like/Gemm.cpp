@@ -29,7 +29,7 @@ void TestCorrectness
           alpha, ARoot.Matrix(), BRoot.Matrix(),
           beta,  CSeq );
         const Base<T> CNrm = FrobeniusNorm( CFinalRoot.Matrix() );
-        Axpy( T(-1), CSeq, CFinalRoot.Matrix() );
+        CFinalRoot.Matrix() -= CSeq;
         const Base<T> ENrm = FrobeniusNorm( CFinalRoot.Matrix() );
         cout << " || E ||_F = " << ENrm << "\n"
              << " || C ||_F = " << CNrm << endl;

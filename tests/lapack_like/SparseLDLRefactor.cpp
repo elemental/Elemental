@@ -67,7 +67,7 @@ int main( int argc, char* argv[] )
         const int N = n1*n2*n3;
         DistSparseMatrix<double> A(comm);
         Laplacian( A, n1, n2, n3 );
-        Scale( -1., A );
+        A *= -1;
         if( display )
         {
             Display( A );

@@ -237,8 +237,8 @@ inline void LocalColAccumulateLSquareTwoTrmv
               z_MR_STAR.Buffer(),  1 );
         }
     }
-    Scale( alpha, z_MC_STAR );
-    Scale( alpha, z_MR_STAR );
+    z_MC_STAR *= alpha;
+    z_MR_STAR *= alpha;
 }
 
 template<typename T>

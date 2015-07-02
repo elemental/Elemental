@@ -122,7 +122,7 @@ main( int argc, char* argv[] )
 
         // M = LTrue + STrue
         DistMatrix<C> M( LTrue );
-        Axpy( C(1), STrue, M );
+        M += STrue;
         if( display )
             Display( M, "Sum of low-rank and sparse");
         if( print )
@@ -157,8 +157,8 @@ main( int argc, char* argv[] )
             Print( S, "Estimated sparse matrix" );
         }
 
-        Axpy( C(-1), LTrue, L );
-        Axpy( C(-1), STrue, S );
+        L -= LTrue;
+        S -= STrue;
         const double frobLDiff = FrobeniusNorm( L );
         const double frobSDiff = FrobeniusNorm( S );
         if( commRank == 0 )

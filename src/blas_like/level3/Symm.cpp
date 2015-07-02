@@ -49,7 +49,7 @@ void Symm
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symm"))
-    Scale( beta, C );
+    C *= beta;
     if( side == LEFT && uplo == LOWER )
         symm::LL( alpha, A, B, C, conjugate );
     else if( side == LEFT )

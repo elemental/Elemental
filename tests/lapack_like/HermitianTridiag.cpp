@@ -61,7 +61,7 @@ void TestCorrectness
     // Compare the appropriate triangle of AOrig and B
     MakeTrapezoidal( uplo, AOrig );
     MakeTrapezoidal( uplo, B );
-    Axpy( F(-1), AOrig, B );
+    B -= AOrig;
     if( print )
         Print( B, "Error in rotated tridiagonal" );
     if( display )
@@ -76,7 +76,7 @@ void TestCorrectness
     Adjoint( B, QHAdj );
     MakeIdentity( B );
     herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
-    Axpy( F(-1), B, QHAdj );
+    QHAdj -= B;
     herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
     ShiftDiagonal( B, F(-1) );
     const Real infNormQError = InfinityNorm( B );

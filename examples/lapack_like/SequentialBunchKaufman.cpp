@@ -79,7 +79,7 @@ main( int argc, char* argv[] )
         ldl::SolveAfter( factA, dSub, perm, B, conjugate );
         const Real AFrob = HermitianFrobeniusNorm( LOWER, A );
         const Real XFrob = FrobeniusNorm( X );
-        Axpy( C(-1), B, X );
+        X -= B;
         const Real errFrob = FrobeniusNorm( X );
         if( print && mpi::WorldRank() == 0 )
         {

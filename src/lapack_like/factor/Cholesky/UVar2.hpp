@@ -94,7 +94,7 @@ UVar2( AbstractDistMatrix<F>& APre )
         Contract( X11Adj_MR_STAR, X11Adj_MR_MC );
         X11.AlignWith( A11 );
         Adjoint( X11Adj_MR_MC, X11 );
-        Axpy( F(-1), X11, A11 );
+        A11 -= X11;
 
         A11_STAR_STAR = A11;
         Cholesky( UPPER, A11_STAR_STAR );
@@ -106,7 +106,7 @@ UVar2( AbstractDistMatrix<F>& APre )
         Contract( X12Adj_MR_STAR, X12Adj_MR_MC );
         X12.AlignWith( A12 );
         Adjoint( X12Adj_MR_MC, X12 );
-        Axpy( F(-1), X12, A12 );
+        A12 -= X12;
 
         A12_STAR_VR = A12;
         LocalTrsm

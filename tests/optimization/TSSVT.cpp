@@ -22,7 +22,7 @@ void TestCorrectness
     SVT( BNormal, tau );
     if( print )
         Print( BNormal, "BNormal" );
-    Axpy( F(-1), B, BNormal );
+    BNormal -= B;
     if( print )
         Print( BNormal, "E" );
     const Real AFrob = FrobeniusNorm( A );

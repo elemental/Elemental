@@ -70,7 +70,7 @@ main( int argc, char* argv[] )
         // Check the residual, || S X - Omega X ||_F
         const Real frobS = HermitianFrobeniusNorm( LOWER, SCopy );
         auto E( X );
-        Scale( C(0,1), E );
+        E *= C(0,1);
         DiagonalScale( RIGHT, NORMAL, wImag, E );
         Gemm( NORMAL, NORMAL, C(-1), SCopy, X, C(1), E );
         const Real frobResid = FrobeniusNorm( E );

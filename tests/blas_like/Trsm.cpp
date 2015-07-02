@@ -59,7 +59,7 @@ void TestTrsm
     }
     if( print )
         Print( Y, "Y after solve" );
-    Axpy( F(-1), X, Y );
+    Y -= X;
     const auto SFrob = FrobeniusNorm( S );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );

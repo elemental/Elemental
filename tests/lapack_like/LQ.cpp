@@ -37,7 +37,7 @@ void TestCorrectness
     // Form X := I - Q Q^H
     DistMatrix<F> X(g);
     Identity( X, minDim, minDim );
-    Axpy( F(-1), ZUpper, X );
+    X -= ZUpper;
 
     Real oneNormOfError = OneNorm( X );
     Real infNormOfError = InfinityNorm( X );
@@ -58,7 +58,7 @@ void TestCorrectness
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, L );
 
     // Form L Q - A
-    Axpy( F(-1), AOrig, L );
+    L -= AOrig;
     
     const Real oneNormOfA = OneNorm( AOrig );
     const Real infNormOfA = InfinityNorm( AOrig );

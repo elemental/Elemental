@@ -134,7 +134,7 @@ void TimedGemm
     Timer timerMC, timerMR, timerGemm;
 
     // Start the algorithm
-    Scale( beta, C );
+    C *= beta;
     LockedPartitionRight( A, AL, AR, 0 );
     LockedPartitionDown
     ( B, BT,

@@ -148,7 +148,7 @@ LVar2
         Contract( Y10Adj_MC_STAR, Y10Adj );
         Y10Adj_MR_MC.AlignWith( A10 );
         Y10Adj_MR_MC = Y10Adj;
-        AxpyContract( F(1), F10Adj_MR_STAR, Y10Adj_MR_MC );
+        Y10Adj_MR_MC += F10Adj_MR_STAR;
         Adjoint( Y10Adj_MR_MC.LockedMatrix(), Y10Local );
 
         // X11 := A10 L10'
@@ -156,7 +156,7 @@ LVar2
         LocalGemm( NORMAL, NORMAL, F(1), A10, L10Adj_MR_STAR, X11_MC_STAR );
 
         // A10 := A10 - Y10
-        Axpy( F(-1), Y10Local, A10.Matrix() );
+        A10.Matrix() -= Y10Local;
         A10Adj_MR_STAR.AlignWith( L10 );
         A10.AdjointColAllGather( A10Adj_MR_STAR );
         

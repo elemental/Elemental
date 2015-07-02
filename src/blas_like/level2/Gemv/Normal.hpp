@@ -34,7 +34,7 @@ inline void Normal
     auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
     auto yPtr = ReadWriteProxy<T,MC,MR>( &yPre ); auto& y = *yPtr;
 
-    Scale( beta, y );
+    y *= beta;
     if( x.Width() == 1 && y.Width() == 1 )
     {
         DistMatrix<T,MR,STAR> x_MR_STAR(g);
@@ -113,7 +113,7 @@ inline void Normal
            DimsString(x,"x"),"\n",DimsString(y,"y"));
     )
     const Grid& g = A.Grid();
-    Scale( beta, y );
+    y *= beta;
 
     DistMatrix<T,MR,STAR> x_MR_STAR(g);
     x_MR_STAR.AlignWith( A );

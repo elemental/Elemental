@@ -37,7 +37,7 @@ void TestCorrectness
     const Real frobNormY = FrobeniusNorm( Y );
 
     cholesky::SolveAfter( uplo, NORMAL, T, Y );
-    Axpy( F(-1), Y, X );
+    X -= Y;
     const Real oneNormE = OneNorm( X );
     const Real infNormE = InfinityNorm( X );
     const Real frobNormE = FrobeniusNorm( X );
@@ -105,7 +105,7 @@ void TestCholeskyMod
     }
     DistMatrix<F> V(g), VMod(g);
     Uniform( V, m, n );
-    Scale( F(1)/Sqrt(F(m)*F(n)), V );
+    V *= F(1)/Sqrt(F(m)*F(n));
     VMod = V;
     if( g.Rank() == 0 )
         cout << "DONE" << endl;

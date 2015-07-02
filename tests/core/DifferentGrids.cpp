@@ -55,7 +55,7 @@ main( int argc, char* argv[] )
         {
             if( print )
                 Print( ASqrt, "ASqrt := A" );
-            Scale( 2., ASqrt );
+            ASqrt *= 2;
             if( print )
                 Print( ASqrt, "ASqrt := 2 ASqrt" );
         }

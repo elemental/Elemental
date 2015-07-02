@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
         Gaussian( w, n, 1 );
         {
             const Real wNorm = FrobeniusNorm( w );
-            Scale( Real(1)/wNorm, w );
+            w *= 1/wNorm;
         }
         Real offset = SampleNormal();
         mpi::Broadcast( offset, 0, mpi::COMM_WORLD );
@@ -99,7 +99,7 @@ main( int argc, char* argv[] )
         EntrywiseMap( qSVM, function<Real(Real)>(sgnMap) );
         if( print )
             Print( qSVM, "qSVM" );
-        Axpy( Real(-1), q, qSVM );
+        qSVM -= q;
         const Real numWrong = OneNorm(qSVM) / Real(2);
         if( mpi::WorldRank() == 0 )
             cout << "ratio misclassified: " << numWrong << "/" << m << endl;

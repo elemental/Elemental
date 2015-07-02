@@ -79,8 +79,7 @@ void Symv
     auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
     auto yPtr = ReadWriteProxy<T,MC,MR>( &yPre ); auto& y = *yPtr;
 
-    Scale( beta, y );
-
+    y *= beta;
     if( x.Width() == 1 && y.Width() == 1 )
     {
         DistMatrix<T,MC,STAR> x_MC_STAR(g);

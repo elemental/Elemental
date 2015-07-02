@@ -39,7 +39,7 @@ void TestCorrectness
         cholesky::SolveAfter( uplo, NORMAL, A, p, Y );
     else
         cholesky::SolveAfter( uplo, NORMAL, A, Y );
-    Axpy( F(-1), Y, X );
+    X -= Y;
     const Real oneNormE = OneNorm( X );
     const Real infNormE = InfinityNorm( X );
     const Real frobNormE = FrobeniusNorm( X );
