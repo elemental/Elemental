@@ -297,6 +297,9 @@ void LSE
     if( ctrl.equilibrate )
     {
         ColumnNorms( W, dC );
+        auto normMap = []( Real beta )
+          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+        EntrywiseMap( dC, function<Real(Real)>(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
     else
@@ -411,6 +414,9 @@ void LSE
     if( ctrl.equilibrate )
     {
         ColumnNorms( W, dC );
+        auto normMap = []( Real beta )
+          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+        EntrywiseMap( dC, function<Real(Real)>(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
     else
