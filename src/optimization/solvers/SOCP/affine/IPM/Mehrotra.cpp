@@ -51,9 +51,8 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
-    // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -247,7 +246,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -349,7 +348,7 @@ void Mehrotra
     // TODO: Expose thesa as tuning parameters
     const Int cutoffPar = 1000;
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), G(grid), b(grid), c(grid), h(grid);
@@ -381,7 +380,6 @@ void Mehrotra
     auto& firstInds = *firstIndsPtr;
     auto& labels = *labelsPtr;
 
-    // Equilibrate the SOCP by diagonally scaling [A;G]
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
@@ -587,7 +585,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -688,9 +686,8 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
 
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
-    // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -927,7 +924,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -1036,9 +1033,8 @@ void Mehrotra
     // TODO: Expose as tuning parameters
     const Int cutoffPar = 1000;
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
-    // Equilibrate the SOCP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -1317,7 +1313,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }

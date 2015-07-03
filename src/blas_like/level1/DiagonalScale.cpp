@@ -170,7 +170,7 @@ void DiagonalScale
         {
             const Int i = meta.sendInds[s];
             const Int iLoc = i - firstLocalRow;
-            sendVals[s] = dBuffer[iLoc];
+            sendVals[s] = ( conjugate ? Conj(dBuffer[iLoc]) : dBuffer[iLoc] );
         }
 
         // Now send them

@@ -46,7 +46,7 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -258,7 +258,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -381,7 +381,7 @@ void Mehrotra
     const int commRank = grid.Rank();
 
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> Q(grid), A(grid), b(grid), c(grid);
@@ -618,7 +618,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -739,7 +739,7 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -998,7 +998,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -1128,7 +1128,7 @@ void Mehrotra
     Timer timer;
 
     const bool forceSameStep = true;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -1425,7 +1425,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }

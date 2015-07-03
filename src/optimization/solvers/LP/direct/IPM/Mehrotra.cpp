@@ -45,7 +45,7 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
 
     const bool forceSameStep = false;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -268,7 +268,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -407,7 +407,7 @@ void Mehrotra
     const int commRank = grid.Rank();
 
     const bool forceSameStep = false;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), b(grid), c(grid);
@@ -654,7 +654,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -791,7 +791,7 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
 
     const bool forceSameStep = false;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -1071,7 +1071,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
@@ -1209,7 +1209,7 @@ void Mehrotra
     Timer timer;
 
     const bool forceSameStep = false;
-    const bool vandenbergheSigma = true;
+    const bool stepLengthSigma = true;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -1543,7 +1543,7 @@ void Mehrotra
             cout << "  alphaAffPri = " << alphaAffPri 
                  << ", alphaAffDual = " << alphaAffDual << endl;
         Real sigma;
-        if( vandenbergheSigma )
+        if( stepLengthSigma )
         {
             sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
         }
