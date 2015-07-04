@@ -136,13 +136,13 @@
 
 namespace El {
 
-template<typename T=double> class Matrix;
+template<typename Ring=double> class Matrix;
 
-template<typename T=double> class AbstractDistMatrix;
-template<typename T=double> class AbstractBlockDistMatrix;
+template<typename Ring=double> class AbstractDistMatrix;
+template<typename Ring=double> class AbstractBlockDistMatrix;
 
-template<typename T=double,Dist U=MC,Dist V=MR> class DistMatrix;
-template<typename T=double,Dist U=MC,Dist V=MR> class BlockDistMatrix;
+template<typename Ring=double,Dist U=MC,Dist V=MR> class DistMatrix;
+template<typename Ring=double,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 
 } // namespace El
 

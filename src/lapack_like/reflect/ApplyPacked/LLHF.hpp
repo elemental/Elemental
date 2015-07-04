@@ -67,9 +67,9 @@ LLHF
         Herk( LOWER, NORMAL, Base<F>(1), HPanConj, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
-        Gemm( NORMAL, NORMAL, F(1), HPanConj, ATop, Z );
+        Gemm( F(1), HPanConj.N(), ATop.N(), Z );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
-        Gemm( ADJOINT, NORMAL, F(-1), HPanConj, Z, F(1), ATop );
+        Gemm( F(-1), HPanConj.H(), Z.N(), F(1), ATop );
     }
 }
 
@@ -133,7 +133,7 @@ LLHF
         HPan_STAR_MC.AlignWith( ATop );
         HPan_STAR_MC = HPan_STAR_VR;
         Z_STAR_MR.AlignWith( ATop );
-        LocalGemm( NORMAL, NORMAL, F(1), HPan_STAR_MC, ATop, Z_STAR_MR );
+        LocalGemm( F(1), HPan_STAR_MC.N(), ATop.N(), Z_STAR_MR );
         Z_STAR_VR.AlignWith( ATop );
         Contract( Z_STAR_MR, Z_STAR_VR );
 
@@ -141,8 +141,7 @@ LLHF
         ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
-        LocalGemm
-        ( ADJOINT, NORMAL, F(-1), HPan_STAR_MC, Z_STAR_MR, F(1), ATop );
+        LocalGemm( F(-1), HPan_STAR_MC.H(), Z_STAR_MR.N(), F(1), ATop );
     }
 }
 

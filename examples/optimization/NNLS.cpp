@@ -82,7 +82,7 @@ main( int argc, char* argv[] )
             Print( X, "X" );
 
         const double BNorm = FrobeniusNorm( B );
-        Gemm( NORMAL, NORMAL, Real(-1), A, X, Real(1), B );
+        Gemm( Real(-1), A.N(), X.N(), Real(1), B );
         const double ENorm = FrobeniusNorm( B );
         if( mpi::WorldRank() == 0 )
             cout << "|| B - A X ||_2 / || B ||_2 = " << ENorm/BNorm << endl;

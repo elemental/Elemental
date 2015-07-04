@@ -11,12 +11,13 @@ namespace El {
 namespace gemm {
 
 // Normal Transpose Gemm that avoids communicating the matrix A
-template<typename T>
+template<typename Ring>
 inline void
 SUMMA_NTA
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTA");
@@ -35,13 +36,13 @@ SUMMA_NTA
     const Grid& g = APre.Grid();
     const bool conjugate = ( orientB == ADJOINT );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);
-    DistMatrix<T,MC,STAR> D1_MC_STAR(g);
+    DistMatrix<Ring,MR,STAR> B1Trans_MR_STAR(g);
+    DistMatrix<Ring,MC,STAR> D1_MC_STAR(g);
 
     B1Trans_MR_STAR.AlignWith( A );
     D1_MC_STAR.AlignWith( A );
@@ -54,20 +55,21 @@ SUMMA_NTA
 
         // C1[MC,*] := alpha A[MC,MR] (B1^[T/H])[MR,*]
         Transpose( B1, B1Trans_MR_STAR, conjugate );
-        LocalGemm( NORMAL, NORMAL, alpha, A, B1Trans_MR_STAR, D1_MC_STAR );
+        LocalGemm( alpha, A.N(), B1Trans_MR_STAR.N(), D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        AxpyContract( T(1), D1_MC_STAR, C1 );
+        AxpyContract( Ring(1), D1_MC_STAR, C1 );
     }
 }
 
 // Normal Transpose Gemm that avoids communicating the matrix B
-template<typename T>
+template<typename Ring>
 inline void
 SUMMA_NTB
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTB");
@@ -86,14 +88,14 @@ SUMMA_NTB
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,MR,STAR> A1Trans_MR_STAR(g);
-    DistMatrix<T,STAR,MC> D1_STAR_MC(g);
-    DistMatrix<T,MR,MC> D1_MR_MC(g);
+    DistMatrix<Ring,MR,STAR> A1Trans_MR_STAR(g);
+    DistMatrix<Ring,STAR,MC> D1_STAR_MC(g);
+    DistMatrix<Ring,MR,MC> D1_MR_MC(g);
 
     A1Trans_MR_STAR.AlignWith( B );
     D1_STAR_MC.AlignWith( B );
@@ -107,21 +109,22 @@ SUMMA_NTB
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha (A1^T)[MR,*] (B^T)[MR,MC]
         Transpose( A1, A1Trans_MR_STAR );
-        LocalGemm( TRANSPOSE, orientB, alpha, A1Trans_MR_STAR, B, D1_STAR_MC );
+        LocalGemm( alpha, A1Trans_MR_STAR.T(), B.Orient(orientB), D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
         Contract( D1_STAR_MC, D1_MR_MC );
-        Axpy( T(1), D1_MR_MC, C1 );
+        C1 += D1_MR_MC;
     }
 }
 
 // Normal Transpose Gemm that avoids communicating the matrix C
-template<typename T>
+template<typename Ring>
 inline void
 SUMMA_NTC
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTC");
@@ -141,14 +144,14 @@ SUMMA_NTC
     const Grid& g = APre.Grid();
     const bool conjugate = ( orientB == ADJOINT );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,MC,STAR> A1_MC_STAR(g);
-    DistMatrix<T,VR,STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR> B1Trans_STAR_MR(g);
+    DistMatrix<Ring,MC,STAR> A1_MC_STAR(g);
+    DistMatrix<Ring,VR,STAR> B1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR> B1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( C );
     B1_VR_STAR.AlignWith( C );
@@ -165,17 +168,18 @@ SUMMA_NTC
         Transpose( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
 
         // C[MC,MR] += alpha A1[MC,*] (B1[MR,*])^T
-        LocalGemm
-        ( NORMAL, NORMAL, alpha, A1_MC_STAR, B1Trans_STAR_MR, T(1), C );
+        LocalGemm( alpha, A1_MC_STAR.N(), B1Trans_STAR_MR.N(), Ring(1), C );
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 SUMMA_NT
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CSE cse("gemm::SUMMA_NT"))
     const Int m = C.Height();

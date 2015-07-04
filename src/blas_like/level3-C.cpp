@@ -15,30 +15,30 @@ extern "C" {
 #define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Gemm */ \
   ElError ElGemm_ ## SIG \
-  ( ElOrientation orientationOfA, ElOrientation orientationOfB, \
+  ( ElOrientation orientA, ElOrientation orientB, \
     CREFLECT(T) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
     CREFLECT(T) beta, ElMatrix_ ## SIG C ) \
   { EL_TRY( \
-      Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
-            CReflect(alpha), *CReflect(A), *CReflect(B), \
+      Gemm( CReflect(alpha), CReflect(A)->Orient(CReflect(orientA)), \
+                             CReflect(B)->Orient(CReflect(orientB)), \
             CReflect(beta), *CReflect(C)) ) } \
   ElError ElGemmDist_ ## SIG \
-  ( ElOrientation orientationOfA, ElOrientation orientationOfB, \
+  ( ElOrientation orientA, ElOrientation orientB, \
     CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG A, \
                        ElConstDistMatrix_ ## SIG B, \
     CREFLECT(T) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
-      Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
-            CReflect(alpha), *CReflect(A), *CReflect(B), \
+      Gemm( CReflect(alpha), CReflect(A)->Orient(CReflect(orientA)), \
+                             CReflect(B)->Orient(CReflect(orientB)), \
             CReflect(beta), *CReflect(C) ) ) } \
   ElError ElGemmXDist_ ## SIG \
-  ( ElOrientation orientationOfA, ElOrientation orientationOfB, \
+  ( ElOrientation orientA, ElOrientation orientB, \
     CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG A, \
                        ElConstDistMatrix_ ## SIG B, \
     CREFLECT(T) beta, ElDistMatrix_ ## SIG C, ElGemmAlgorithm alg ) \
   { EL_TRY( \
-      Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
-            CReflect(alpha), *CReflect(A), *CReflect(B), \
+      Gemm( CReflect(alpha), CReflect(A)->Orient(CReflect(orientA)), \
+                             CReflect(B)->Orient(CReflect(orientB)), \
             CReflect(beta), *CReflect(C), CReflect(alg) ) ) } \
   ElError ElSparseMultiply_ ## SIG \
   ( ElOrientation orientation, \

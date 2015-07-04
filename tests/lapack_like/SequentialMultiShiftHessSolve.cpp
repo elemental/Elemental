@@ -13,7 +13,7 @@ using namespace El;
 // This is checked by testing the norm of  op(H) X - X Mu - Y.
 template<typename F> 
 void TestCorrectness
-( UpperOrLower uplo, Orientation orientation, const Matrix<F>& H, 
+( UpperOrLower uplo, Orientation orient, const Matrix<F>& H, 
   const Matrix<F>& shifts, const Matrix<F>& X, const Matrix<F>& Y,
   bool print, bool display )
 {
@@ -29,7 +29,7 @@ void TestCorrectness
         Axpy( shifts.Get(j,0), x, z );
     }
 
-    Gemm( orientation, NORMAL, F(-1), H, X, F(1), Z );
+    Gemm( F(-1), H.Orient(orient), X.N(), F(1), Z );
 
     if( print && mpi::WorldRank() == 0 )
     {
@@ -68,7 +68,7 @@ void TestCorrectness
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo, Orientation orientation, Int m, Int n, 
+( UpperOrLower uplo, Orientation orient, Int m, Int n, 
   bool testCorrectness, bool print, bool display )
 {
     Matrix<F> H, X, Y, shifts;
@@ -92,7 +92,7 @@ void TestHessenberg
     }
     mpi::Barrier( mpi::COMM_WORLD );
     const double startTime = mpi::Time();
-    MultiShiftHessSolve( uplo, orientation, F(1), H, shifts, X );
+    MultiShiftHessSolve( uplo, orient, F(1), H, shifts, X );
     mpi::Barrier( mpi::COMM_WORLD );
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
@@ -102,7 +102,7 @@ void TestHessenberg
                   << "  Time = " << runTime << " seconds." << std::endl;
     }
     if( testCorrectness )
-        TestCorrectness( uplo, orientation, H, shifts, X, Y, print, display );
+        TestCorrectness( uplo, orient, H, shifts, X, Y, print, display );
 }
 
 int 
@@ -115,7 +115,7 @@ main( int argc, char* argv[] )
     try
     {
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const char orientChar = Input("--orient","orientation: N/T/C",'N');
+        const char orientChar = Input("--orient","orient: N/T/C",'N');
         const Int m = Input("--m","height of Hessenberg matrix",100);
         const Int n = Input("--n","number of right-hand sides",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);

@@ -88,7 +88,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             QT *= Sqrt(c);
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, qrCtrl );
-            Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
+            Gemm( F(alpha/Sqrt(c)), QT.N(), QB.H(), F(beta), A );
         }
         else
         {
@@ -233,7 +233,7 @@ QDWHInner
             QT *= Sqrt(c);
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, qrCtrl );
-            Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
+            Gemm( F(alpha/Sqrt(c)), QT.N(), QB.H(), F(beta), A );
         }
         else
         {

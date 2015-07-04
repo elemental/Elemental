@@ -22,12 +22,12 @@ ChanUpper
   AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
-        CSE cse("svd::ChanUpper");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Height() < APre.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( heightRatio <= 1.0 )
-            LogicError("Nonsensical switchpoint for SVD");
+      CSE cse("svd::ChanUpper");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Height() < APre.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( heightRatio <= 1.0 )
+          LogicError("Nonsensical switchpoint for SVD");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr; 
@@ -48,7 +48,7 @@ ChanUpper
         //
         // Perhaps this should be broken into pieces.
         auto ACopy( A );
-        Gemm( NORMAL, NORMAL, F(1), ACopy, R, F(0), A );
+        Gemm( F(1), ACopy.N(), R.N(), F(0), A );
     }
     else
     {
@@ -63,10 +63,10 @@ ChanUpper
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(
-        CSE cse("svd::ChanUpper");    
-        AssertSameGrids( APre, s );
-        if( heightRatio <= 1.0 )
-            LogicError("Nonsensical switchpoint");
+      CSE cse("svd::ChanUpper");    
+      AssertSameGrids( APre, s );
+      if( heightRatio <= 1.0 )
+          LogicError("Nonsensical switchpoint");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -95,10 +95,10 @@ Chan
   AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
-        CSE cse("svd::Chan");
-        AssertSameGrids( APre, s, VPre );
-        if( heightRatio <= 1.0 )
-            LogicError("Nonsensical switchpoint for SVD");
+      CSE cse("svd::Chan");
+      AssertSameGrids( APre, s, VPre );
+      if( heightRatio <= 1.0 )
+          LogicError("Nonsensical switchpoint for SVD");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;

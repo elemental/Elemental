@@ -10,43 +10,44 @@
 using namespace std;
 using namespace El;
 
-template<typename T>
+template<typename Ring>
 void TestCorrectness
 ( Orientation orientA, Orientation orientB,
-  T alpha, const DistMatrix<T>& A,     const DistMatrix<T>& B, 
-  T beta,  const DistMatrix<T>& COrig, 
-           const DistMatrix<T>& CFinal, 
+  Ring alpha, const DistMatrix<Ring>& A, 
+              const DistMatrix<Ring>& B, 
+  Ring beta,  const DistMatrix<Ring>& COrig, 
+              const DistMatrix<Ring>& CFinal, 
   bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("TestCorrectness"))
-    DistMatrix<T,CIRC,CIRC> ARoot( A ), BRoot( B ), 
-                            COrigRoot( COrig ), CFinalRoot( CFinal );
+    DistMatrix<Ring,CIRC,CIRC> ARoot( A ), BRoot( B ), 
+                               COrigRoot( COrig ), CFinalRoot( CFinal );
     if( ARoot.Root() == ARoot.CrossRank() )
     {
-        Matrix<T> CSeq( COrigRoot.Matrix() );
+        Matrix<Ring> CSeq( COrigRoot.Matrix() );
         Gemm
-        ( orientA, orientB, 
-          alpha, ARoot.Matrix(), BRoot.Matrix(),
+        ( alpha, ARoot.Matrix().Orient(orientA), 
+                 BRoot.Matrix().Orient(orientB),
           beta,  CSeq );
-        const Base<T> CNrm = FrobeniusNorm( CFinalRoot.Matrix() );
+        const Base<Ring> CNrm = FrobeniusNorm( CFinalRoot.Matrix() );
         CFinalRoot.Matrix() -= CSeq;
-        const Base<T> ENrm = FrobeniusNorm( CFinalRoot.Matrix() );
+        const Base<Ring> ENrm = FrobeniusNorm( CFinalRoot.Matrix() );
         cout << " || E ||_F = " << ENrm << "\n"
              << " || C ||_F = " << CNrm << endl;
     }
 }
 
-template<typename T> 
+template<typename Ring> 
 void TestGemm
 ( Orientation orientA, Orientation orientB,
-  Int m, Int n, Int k, T alpha, T beta, const Grid& g, 
+  Int m, Int n, Int k, Ring alpha, Ring beta, const Grid& g, 
   bool print, bool correctness,
   Int colAlignA=0, Int rowAlignA=0,
   Int colAlignB=0, Int rowAlignB=0,
   Int colAlignC=0, Int rowAlignC=0 )
 {
     double startTime, runTime, realGFlops, gFlops;
-    DistMatrix<T> A(g), B(g), COrig(g), C(g);
+    DistMatrix<Ring> A(g), B(g), COrig(g), C(g);
 
     A.Align( colAlignA, rowAlignA );
     B.Align( colAlignB, rowAlignB );
@@ -74,11 +75,11 @@ void TestGemm
         cout << "Stationary A Algorithm:" << endl;
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    Gemm( orientA, orientB, alpha, A, B, beta, C, GEMM_SUMMA_A );
+    Gemm( alpha, A.Orient(orientA), B.Orient(orientB), beta, C, GEMM_SUMMA_A );
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    gFlops = ( IsComplex<Ring>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "  Time = " << runTime << " seconds. GFlops = " 
@@ -99,11 +100,11 @@ void TestGemm
         cout << "Stationary B Algorithm:" << endl;
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    Gemm( orientA, orientB, alpha, A, B, beta, C, GEMM_SUMMA_B );
+    Gemm( alpha, A.Orient(orientA), B.Orient(orientB), beta, C, GEMM_SUMMA_B );
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    gFlops = ( IsComplex<Ring>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "  Time = " << runTime << " seconds. GFlops = " 
@@ -124,11 +125,11 @@ void TestGemm
         cout << "Stationary C Algorithm:" << endl;
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    Gemm( orientA, orientB, alpha, A, B, beta, C, GEMM_SUMMA_C );
+    Gemm( alpha, A.Orient(orientA), B.Orient(orientB), beta, C, GEMM_SUMMA_C );
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    gFlops = ( IsComplex<Ring>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -152,11 +153,11 @@ void TestGemm
         C = COrig;
         mpi::Barrier( g.Comm() );
         startTime = mpi::Time();
-        Gemm( NORMAL, NORMAL, alpha, A, B, beta, C, GEMM_SUMMA_DOT );
+        Gemm( alpha, A.N(), B.N(), beta, C, GEMM_SUMMA_DOT );
         mpi::Barrier( g.Comm() );
         runTime = mpi::Time() - startTime;
         realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-        gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+        gFlops = ( IsComplex<Ring>::val ? 4*realGFlops : realGFlops );
         if( g.Rank() == 0 )
         {
             cout << "DONE. " << endl

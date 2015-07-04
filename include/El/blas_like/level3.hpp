@@ -26,121 +26,172 @@ enum GemmAlgorithm {
 }
 using namespace GemmAlgorithmNS;
 
-template<typename T>
+template<typename Ring>
+void Gemm
+( Ring alpha, const OrientedMatrix<Ring>& A, 
+              const OrientedMatrix<Ring>& B, 
+  Ring beta,                Matrix<Ring>& C );
+template<typename Ring>
+void Gemm
+( Ring alpha, const OrientedMatrix<Ring>& A, 
+              const OrientedMatrix<Ring>& B, 
+                            Matrix<Ring>& C );
+
+template<typename Ring>
+void Gemm
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, 
+              const OrientedAbstractDistMatrix<Ring>& B,
+  Ring beta,                AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg=GEMM_DEFAULT );
+template<typename Ring>
+void Gemm
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, 
+              const OrientedAbstractDistMatrix<Ring>& B,
+                            AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg=GEMM_DEFAULT );
+
+template<typename Ring>
+void LocalGemm
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A,
+              const OrientedAbstractDistMatrix<Ring>& B,
+  Ring beta,                AbstractDistMatrix<Ring>& C );
+template<typename Ring>
+void LocalGemm
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A,
+              const OrientedAbstractDistMatrix<Ring>& B,
+                            AbstractDistMatrix<Ring>& C );
+
+// Deprecated
+// ----------
+template<typename Ring>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
-
-template<typename T>
+  Ring alpha, const Matrix<Ring>& A, const Matrix<Ring>& B, 
+  Ring beta,        Matrix<Ring>& C );
+template<typename Ring>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
-
-template<typename T>
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+                    Matrix<Ring>& C );
+template<typename Ring>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
-
-template<typename T>
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg=GEMM_DEFAULT );
+template<typename Ring>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
-
-template<typename T>
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg=GEMM_DEFAULT );
+template<typename Ring>
 void LocalGemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C );
-template<typename T>
+  Ring alpha, const AbstractDistMatrix<Ring>& A,
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C );
+template<typename Ring>
 void LocalGemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C );
+  Ring alpha, const AbstractDistMatrix<Ring>& A,
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C );
 
 // Hemm
 // ====
-template<typename T>
+template<typename Ring>
 void Hemm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+  Ring beta,        Matrix<Ring>& C );
 
-template<typename T>
+template<typename Ring>
 void Hemm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C );
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C );
 
 // Herk
 // ====
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const Matrix<T>& A, Base<T> beta, Matrix<T>& C );
-template<typename T>
+  Base<Ring> alpha, const Matrix<Ring>& A, 
+  Base<Ring> beta,        Matrix<Ring>& C );
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const Matrix<T>& A, Matrix<T>& C );
+  Base<Ring> alpha, const Matrix<Ring>& A, 
+                          Matrix<Ring>& C );
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, 
-  Base<T> beta,        AbstractDistMatrix<T>& C );
-template<typename T>
+  Base<Ring> alpha, const AbstractDistMatrix<Ring>& A, 
+  Base<Ring> beta,        AbstractDistMatrix<Ring>& C );
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C );
+  Base<Ring> alpha, const AbstractDistMatrix<Ring>& A, 
+                          AbstractDistMatrix<Ring>& C );
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const SparseMatrix<T>& A, 
-  Base<T> beta,        SparseMatrix<T>& C );
-template<typename T>
+  Base<Ring> alpha, const SparseMatrix<Ring>& A, 
+  Base<Ring> beta,        SparseMatrix<Ring>& C );
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const SparseMatrix<T>& A, 
-                       SparseMatrix<T>& C );
+  Base<Ring> alpha, const SparseMatrix<Ring>& A, 
+                          SparseMatrix<Ring>& C );
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const DistSparseMatrix<T>& A,
-  Base<T> beta,        DistSparseMatrix<T>& C );
-template<typename T> 
+  Base<Ring> alpha, const DistSparseMatrix<Ring>& A,
+  Base<Ring> beta,        DistSparseMatrix<Ring>& C );
+template<typename Ring> 
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const DistSparseMatrix<T>& A,
-                       DistSparseMatrix<T>& C );
+  Base<Ring> alpha, const DistSparseMatrix<Ring>& A,
+                          DistSparseMatrix<Ring>& C );
 
 // Her2k
 // =====
-template<typename T>
+template<typename Ring>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha,       const Matrix<T>& A, const Matrix<T>& B, 
-  Base<T> beta,        Matrix<T>& C );
+  Ring alpha,      const Matrix<Ring>& A, 
+                   const Matrix<Ring>& B, 
+  Base<Ring> beta,       Matrix<Ring>& C );
 
-template<typename T>
+template<typename Ring>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+                    Matrix<Ring>& C );
 
-template<typename T>
+template<typename Ring>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha,      const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  Base<T> beta,       AbstractDistMatrix<T>& C );
+  Ring alpha,      const AbstractDistMatrix<Ring>& A, 
+                   const AbstractDistMatrix<Ring>& B,
+  Base<Ring> beta,       AbstractDistMatrix<Ring>& C );
 
-template<typename T>
+template<typename Ring>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C );
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C );
 
 // Multiply
 // ========
@@ -148,17 +199,19 @@ void Her2k
 //       and is obviously not a BLAS routine. However, it is a basic linear
 //       algebra routine making use of Elemental's core data structures, and
 //       so this is the natural placement
-template<typename T>
+template<typename Ring>
 void Multiply
 ( Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
-  T beta,                                  Matrix<T>& Y );
+  Ring alpha, const SparseMatrix<Ring>& A, 
+              const Matrix<Ring>& X,
+  Ring beta,        Matrix<Ring>& Y );
 
-template<typename T>
+template<typename Ring>
 void Multiply
 ( Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
-  T beta,                                      DistMultiVec<T>& Y );
+  Ring alpha, const DistSparseMatrix<Ring>& A, 
+              const DistMultiVec<Ring>& X,
+  Ring beta,        DistMultiVec<Ring>& Y );
 
 // MultiShiftQuasiTrsm
 // ===================
@@ -234,129 +287,147 @@ void LocalQuasiTrsm
 
 // Symm
 // ====
-template<typename T>
+template<typename Ring>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+  Ring beta,        Matrix<Ring>& C,
   bool conjugate=false );
-template<typename T>
+template<typename Ring>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C, 
+  bool conjugate=false );
 
 namespace symm {
 
-template<typename T>
+template<typename Ring>
 void LocalAccumulateLL
-( Orientation orientation, T alpha,
-  const DistMatrix<T>& A,
-  const DistMatrix<T,MC,  STAR>& B_MC_STAR,
-  const DistMatrix<T,STAR,MR  >& BTrans_STAR_MR,
-        DistMatrix<T,MC,  STAR>& Z_MC_STAR,
-        DistMatrix<T,MR,  STAR>& Z_MR_STAR );
+( Orientation orientation, Ring alpha,
+  const DistMatrix<Ring>& A,
+  const DistMatrix<Ring,MC,  STAR>& B_MC_STAR,
+  const DistMatrix<Ring,STAR,MR  >& BTrans_STAR_MR,
+        DistMatrix<Ring,MC,  STAR>& Z_MC_STAR,
+        DistMatrix<Ring,MR,  STAR>& Z_MR_STAR );
 
-template<typename T>
+template<typename Ring>
 void LocalAccumulateLU
-( Orientation orientation, T alpha,
-  const DistMatrix<T>& A,
-  const DistMatrix<T,MC,  STAR>& B_MC_STAR,
-  const DistMatrix<T,STAR,MR  >& BTrans_STAR_MR,
-        DistMatrix<T,MC,  STAR>& Z_MC_STAR,
-        DistMatrix<T,MR,  STAR>& Z_MR_STAR );
+( Orientation orientation, Ring alpha,
+  const DistMatrix<Ring>& A,
+  const DistMatrix<Ring,MC,  STAR>& B_MC_STAR,
+  const DistMatrix<Ring,STAR,MR  >& BTrans_STAR_MR,
+        DistMatrix<Ring,MC,  STAR>& Z_MC_STAR,
+        DistMatrix<Ring,MR,  STAR>& Z_MR_STAR );
 
-template<typename T>
+template<typename Ring>
 void LocalAccumulateRL
-( Orientation orientation, T alpha,
-  const DistMatrix<T>& A,
-  const DistMatrix<T,STAR,MC  >& B_STAR_MC,
-  const DistMatrix<T,MR,  STAR>& BTrans_MR_STAR,
-        DistMatrix<T,MC,  STAR>& ZTrans_MC_STAR,
-        DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR );
+( Orientation orientation, Ring alpha,
+  const DistMatrix<Ring>& A,
+  const DistMatrix<Ring,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<Ring,MR,  STAR>& BTrans_MR_STAR,
+        DistMatrix<Ring,MC,  STAR>& ZTrans_MC_STAR,
+        DistMatrix<Ring,MR,  STAR>& ZTrans_MR_STAR );
 
-template<typename T>
+template<typename Ring>
 void LocalAccumulateRU
-( Orientation orientation, T alpha,
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,STAR,MC  >& B_STAR_MC,
-  const DistMatrix<T,MR,  STAR>& BTrans_MR_STAR,
-        DistMatrix<T,MC,  STAR>& ZTrans_MC_STAR,
-        DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR );
+( Orientation orientation, Ring alpha,
+  const DistMatrix<Ring,MC,  MR  >& A,
+  const DistMatrix<Ring,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<Ring,MR,  STAR>& BTrans_MR_STAR,
+        DistMatrix<Ring,MC,  STAR>& ZTrans_MC_STAR,
+        DistMatrix<Ring,MR,  STAR>& ZTrans_MR_STAR );
 
 } // namespace symm
 
 // Syrk
 // ====
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, 
+  Ring beta,        Matrix<Ring>& C,
   bool conjugate=false );
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, Matrix<T>& C,
-  bool conjugate=false );
-
-template<typename T>
-void Syrk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
-template<typename T>
-void Syrk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, 
+                    Matrix<Ring>& C,
   bool conjugate=false );
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
-  T beta,        SparseMatrix<T>& C, bool conjugate=false );
-template<typename T>
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+  Ring beta,        AbstractDistMatrix<Ring>& C, 
+  bool conjugate=false );
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
-                 SparseMatrix<T>& C, bool conjugate=false );
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+                    AbstractDistMatrix<Ring>& C,
+  bool conjugate=false );
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
-  T beta,        DistSparseMatrix<T>& C, bool conjugate=false );
-template<typename T>
+  Ring alpha, const SparseMatrix<Ring>& A, 
+  Ring beta,        SparseMatrix<Ring>& C, 
+  bool conjugate=false );
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
-                 DistSparseMatrix<T>& C, bool conjugate=false );
+  Ring alpha, const SparseMatrix<Ring>& A, 
+                    SparseMatrix<Ring>& C, 
+  bool conjugate=false );
+
+template<typename Ring>
+void Syrk
+( UpperOrLower uplo, Orientation orientation,
+  Ring alpha, const DistSparseMatrix<Ring>& A, 
+  Ring beta,        DistSparseMatrix<Ring>& C, 
+  bool conjugate=false );
+template<typename Ring>
+void Syrk
+( UpperOrLower uplo, Orientation orientation,
+  Ring alpha, const DistSparseMatrix<Ring>& A, 
+                    DistSparseMatrix<Ring>& C, 
+  bool conjugate=false );
 
 // Syr2k
 // =====
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+  Ring beta,        Matrix<Ring>& C,
   bool conjugate=false );
 
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+                    Matrix<Ring>& C,
   bool conjugate=false );
 
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C,
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C,
   bool conjugate=false );
 
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C,
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C,
   bool conjugate=false );
 
 // Trdtrmm
@@ -388,22 +459,25 @@ void Trdtrmm
 
 // Trmm
 // ====
-template<typename T>
+template<typename Ring>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const Matrix<T>& A, Matrix<T>& B );
-template<typename T>
+  Ring alpha, const Matrix<Ring>& A, 
+                    Matrix<Ring>& B );
+template<typename Ring>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X );
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+                    AbstractDistMatrix<Ring>& X );
 
-template<typename T>
+template<typename Ring>
 void LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B );
+  Ring alpha, const DistMatrix<Ring,STAR,STAR>& A, 
+                    AbstractDistMatrix<Ring>& B );
 
 // Trsm
 // ====
@@ -460,29 +534,29 @@ void Trstrm
 
 // Trtrmm
 // ======
-template<typename T>
-void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false );
-template<typename T>
+template<typename Ring>
+void Trtrmm( UpperOrLower uplo, Matrix<Ring>& A, bool conjugate=false );
+template<typename Ring>
 void Trtrmm
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate=false );
-template<typename T>
+( UpperOrLower uplo, AbstractDistMatrix<Ring>& A, bool conjugate=false );
+template<typename Ring>
 void Trtrmm
-( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate=false );
+( UpperOrLower uplo, DistMatrix<Ring,STAR,STAR>& A, bool conjugate=false );
 
 // TwoSidedTrmm
 // ============
-template<typename T>
+template<typename Ring>
 void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-  Matrix<T>& A, const Matrix<T>& B );
-template<typename T>
+  Matrix<Ring>& A, const Matrix<Ring>& B );
+template<typename Ring>
 void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-  AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
-template<typename T>
+  AbstractDistMatrix<Ring>& A, const AbstractDistMatrix<Ring>& B );
+template<typename Ring>
 void LocalTwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
-  DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B );
+  DistMatrix<Ring,STAR,STAR>& A, const DistMatrix<Ring,STAR,STAR>& B );
 
 // TwoSidedTrsm
 // ============
@@ -501,76 +575,83 @@ void TwoSidedTrsm
 
 // Trrk
 // ====
-template<typename T>
+template<typename Ring>
 void Trrk
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C );
-template<typename T>
+  Ring alpha, const Matrix<Ring>& A, const Matrix<Ring>& B,
+  Ring beta,        Matrix<Ring>& C );
+template<typename Ring>
 void Trrk
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C );
-template<typename T>
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C );
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,  STAR>& A,
-           const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C );
-template<typename T>
+  Ring alpha, const DistMatrix<Ring,MC,  STAR>& A,
+              const DistMatrix<Ring,STAR,MR  >& B,
+  Ring beta,        DistMatrix<Ring,MC,  MR  >& C );
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientB,
-  T alpha, const DistMatrix<T,MC,STAR>& A,
-           const DistMatrix<T,MR,STAR>& B,
-  T beta,        DistMatrix<T>& C );
-template<typename T>
+  Ring alpha, const DistMatrix<Ring,MC,STAR>& A,
+              const DistMatrix<Ring,MR,STAR>& B,
+  Ring beta,        DistMatrix<Ring>& C );
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientA,
-  T alpha, const DistMatrix<T,STAR,MC>& A,
-           const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C );
-template<typename T>
+  Ring alpha, const DistMatrix<Ring,STAR,MC>& A,
+              const DistMatrix<Ring,STAR,MR>& B,
+  Ring beta,        DistMatrix<Ring,MC,  MR>& C );
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
-  T alpha, const DistMatrix<T,STAR,MC  >& A,
-           const DistMatrix<T,MR,  STAR>& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C );
+  Ring alpha, const DistMatrix<Ring,STAR,MC  >& A,
+              const DistMatrix<Ring,MR,  STAR>& B,
+  Ring beta,        DistMatrix<Ring,MC,  MR  >& C );
 
 // Trr2k
 // =====
 /*
-template<typename T>
+template<typename Ring>
 void Trr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,  const Matrix<T>& C, const Matrix<T>& D,
-  Tgamma,        Matrix<T>& E );
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+  Ring beta,  const Matrix<Ring>& C, 
+              const Matrix<Ring>& D,
+  Ringgamma,        Matrix<Ring>& E );
 */
-template<typename T>
+template<typename Ring>
 void Trr2k
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E );
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,  const AbstractDistMatrix<Ring>& C, 
+              const AbstractDistMatrix<Ring>& D,
+  Ring gamma,       AbstractDistMatrix<Ring>& E );
 
 // The distributions of the oriented matrices must match
-template<typename T>
+template<typename Ring>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E );
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,  const AbstractDistMatrix<Ring>& C, 
+              const AbstractDistMatrix<Ring>& D,
+  Ring gamma,       AbstractDistMatrix<Ring>& E );
 
 } // namespace El
 

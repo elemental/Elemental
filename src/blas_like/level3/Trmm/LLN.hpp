@@ -16,13 +16,13 @@
 namespace El {
 namespace trmm {
 
-template<typename T>
+template<typename Ring>
 inline void
 LocalAccumulateLLN
-( Orientation orientation, UnitOrNonUnit diag, T alpha,
-  const DistMatrix<T,MC,  MR  >& L,
-  const DistMatrix<T,STAR,MR  >& XTrans,
-        DistMatrix<T,MC,  STAR>& Z )
+( Orientation orientation, UnitOrNonUnit diag, Ring alpha,
+  const DistMatrix<Ring,MC,  MR  >& L,
+  const DistMatrix<Ring,STAR,MR  >& XTrans,
+        DistMatrix<Ring,MC,  STAR>& Z )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LocalAccumulateLLN");
@@ -42,7 +42,7 @@ LocalAccumulateLLN
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
-    DistMatrix<T> D11(g);
+    DistMatrix<Ring> D11(g);
     const Int ratio = Max( g.Height(), g.Width() );
     for( Int k=0; k<m; k+=ratio*bsize )
     {
@@ -60,17 +60,17 @@ LocalAccumulateLLN
         D11 = L11;
         MakeTrapezoidal( LOWER, D11 );
         if( diag == UNIT )
-            FillDiagonal( D11, T(1) );
-        LocalGemm( NORMAL, orientation, alpha, D11, X1Trans, T(1), Z1 );
-        LocalGemm( NORMAL, orientation, alpha, L21, X1Trans, T(1), Z2 );
+            FillDiagonal( D11, Ring(1) );
+        LocalGemm( alpha, D11.N(), X1Trans.Orient(orientation), Ring(1), Z1 );
+        LocalGemm( alpha, L21.N(), X1Trans.Orient(orientation), Ring(1), Z2 );
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 LLNA
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const AbstractDistMatrix<Ring>& LPre, AbstractDistMatrix<Ring>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNA");
@@ -84,12 +84,12 @@ LLNA
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<Ring,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<Ring,MC,MR>( &XPre ); auto& X = *XPtr;
 
-    DistMatrix<T,VR,  STAR> X1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
-    DistMatrix<T,MC,  STAR> Z1_MC_STAR(g);
+    DistMatrix<Ring,VR,  STAR> X1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR  > X1Trans_STAR_MR(g);
+    DistMatrix<Ring,MC,  STAR> Z1_MC_STAR(g);
 
     X1_VR_STAR.AlignWith( L );
     X1Trans_STAR_MR.AlignWith( L );
@@ -105,16 +105,16 @@ LLNA
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
         Zeros( Z1_MC_STAR, m, nb );
         LocalAccumulateLLN
-        ( TRANSPOSE, diag, T(1), L, X1Trans_STAR_MR, Z1_MC_STAR );
+        ( TRANSPOSE, diag, Ring(1), L, X1Trans_STAR_MR, Z1_MC_STAR );
         Contract( Z1_MC_STAR, X1 );
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 LLNCOld
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const AbstractDistMatrix<Ring>& LPre, AbstractDistMatrix<Ring>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNCOld");
@@ -128,15 +128,15 @@ LLNCOld
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<Ring,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<Ring,MC,MR>( &XPre ); auto& X = *XPtr;
 
-    DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
-    DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<T,MR,  STAR> D1Trans_MR_STAR(g);
-    DistMatrix<T,MR,  MC  > D1Trans_MR_MC(g);
-    DistMatrix<T,MC,  MR  > D1(g);
+    DistMatrix<Ring,STAR,MC  > L10_STAR_MC(g);
+    DistMatrix<Ring,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<Ring,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<Ring,MR,  STAR> D1Trans_MR_STAR(g);
+    DistMatrix<Ring,MR,  MC  > D1Trans_MR_MC(g);
+    DistMatrix<Ring,MC,  MR  > D1(g);
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -151,28 +151,28 @@ LLNCOld
 
         L11_STAR_STAR = L11;
         X1_STAR_VR = X1;
-        LocalTrmm( LEFT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
+        LocalTrmm
+        ( LEFT, LOWER, NORMAL, diag, Ring(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
 
         L10_STAR_MC.AlignWith( X0 );
         L10_STAR_MC = L10;
         D1Trans_MR_STAR.AlignWith( X1 );
-        LocalGemm
-        ( TRANSPOSE, TRANSPOSE, T(1), X0, L10_STAR_MC, D1Trans_MR_STAR );
+        LocalGemm( Ring(1), X0.T(), L10_STAR_MC.T(), D1Trans_MR_STAR );
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
         Zeros( D1, nb, n );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
-        Axpy( T(1), D1, X1 );
+        X1 += D1;
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 LLNC
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const AbstractDistMatrix<Ring>& LPre, AbstractDistMatrix<Ring>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNC");
@@ -185,13 +185,13 @@ LLNC
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    auto LPtr = ReadProxy<Ring,MC,MR>( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy<Ring,MC,MR>( &XPre ); auto& X = *XPtr;
 
-    DistMatrix<T,MC,  STAR> L21_MC_STAR(g);
-    DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
+    DistMatrix<Ring,MC,  STAR> L21_MC_STAR(g);
+    DistMatrix<Ring,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<Ring,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<Ring,MR,  STAR> X1Trans_MR_STAR(g);
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -208,13 +208,13 @@ LLNC
         L21_MC_STAR = L21;
         X1Trans_MR_STAR.AlignWith( X2 );
         Transpose( X1, X1Trans_MR_STAR );
-        LocalGemm
-        ( NORMAL, TRANSPOSE, T(1), L21_MC_STAR, X1Trans_MR_STAR, T(1), X2 );
+        LocalGemm( Ring(1), L21_MC_STAR.N(), X1Trans_MR_STAR.T(), Ring(1), X2 );
 
         L11_STAR_STAR = L11;
         X1_STAR_VR.AlignWith( X1 );
         Transpose( X1Trans_MR_STAR, X1_STAR_VR );
-        LocalTrmm( LEFT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
+        LocalTrmm
+        ( LEFT, LOWER, NORMAL, diag, Ring(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
 }
@@ -222,10 +222,11 @@ LLNC
 // Left Lower Normal (Non)Unit Trmm 
 //   X := tril(L)  X, or
 //   X := trilu(L) X
-template<typename T>
+template<typename Ring>
 inline void
 LLN
-( UnitOrNonUnit diag, const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<Ring>& L, AbstractDistMatrix<Ring>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::LLN"))
     // TODO: Come up with a better routing mechanism

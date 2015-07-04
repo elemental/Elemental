@@ -15,10 +15,11 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C, bool conjugate )
+  Ring alpha, const Matrix<Ring>& A, 
+  Ring beta,        Matrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("Syrk");
@@ -52,22 +53,22 @@ void Syrk
     }
 }
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate )
+  Ring alpha, const Matrix<Ring>& A, Matrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
+    Syrk( uplo, orientation, alpha, A, Ring(0), C, conjugate );
 }
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+  Ring beta,        AbstractDistMatrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     ScaleTrapezoid( beta, uplo, C );
@@ -81,29 +82,29 @@ void Syrk
         syrk::UT( alpha, A, C, conjugate );
 }
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-                 AbstractDistMatrix<T>& C, bool conjugate )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+                    AbstractDistMatrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
+    Syrk( uplo, orientation, alpha, A, Ring(0), C, conjugate );
 }
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
-  T beta,        SparseMatrix<T>& C, bool conjugate )
+  Ring alpha, const SparseMatrix<Ring>& A, 
+  Ring beta,        SparseMatrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
 
     if( orientation == NORMAL )
     {
-        SparseMatrix<T> B;
+        SparseMatrix<Ring> B;
         Transpose( A, B, conjugate );
         const Orientation newOrient = ( conjugate ? ADJOINT : TRANSPOSE );
         Syrk( uplo, newOrient, alpha, B, beta, C, conjugate );
@@ -136,32 +137,29 @@ void Syrk
         for( Int iConn=0; iConn<numConn; ++iConn )
         {
             const Int i = A.Col(offset+iConn);
-            const T A_ki = A.Value(offset+iConn);
+            const Ring A_ki = A.Value(offset+iConn);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
                 if( (uplo == LOWER && i >= j) || (uplo == UPPER && i <= j) )
                 {
-                    const T A_kj = A.Value(offset+jConn);
+                    const Ring A_kj = A.Value(offset+jConn);
                     if( conjugate )
-                        C.QueueUpdate( i, j, T(alpha)*Conj(A_ki)*A_kj ); 
+                        C.QueueUpdate( i, j, Ring(alpha)*Conj(A_ki)*A_kj ); 
                     else
-                        C.QueueUpdate( i, j, T(alpha)*A_ki*A_kj );
+                        C.QueueUpdate( i, j, Ring(alpha)*A_ki*A_kj );
                 }
             }
         }
     }
-
-    // Force the result to be consistent
-    // =================================
     C.ProcessQueues();
 }
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
-                 SparseMatrix<T>& C, bool conjugate )
+  Ring alpha, const SparseMatrix<Ring>& A, 
+                    SparseMatrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     const Int m = A.Height();
@@ -170,20 +168,20 @@ void Syrk
         Zeros( C, m, m );
     else
         Zeros( C, n, n );
-    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
+    Syrk( uplo, orientation, alpha, A, Ring(0), C, conjugate );
 }
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
-  T beta,        DistSparseMatrix<T>& C, bool conjugate )
+  Ring alpha, const DistSparseMatrix<Ring>& A, 
+  Ring beta,        DistSparseMatrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
 
     if( orientation == NORMAL )
     {
-        DistSparseMatrix<T> B(A.Comm());
+        DistSparseMatrix<Ring> B(A.Comm());
         Transpose( A, B, conjugate );
         const Orientation newOrient = ( conjugate ? ADJOINT : TRANSPOSE );
         Syrk( uplo, newOrient, alpha, B, beta, C, conjugate );
@@ -192,7 +190,6 @@ void Syrk
 
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size( comm );
 
     if( C.Height() != n || C.Width() != n )
         LogicError("C was of the incorrect size");
@@ -201,33 +198,19 @@ void Syrk
 
     ScaleTrapezoid( beta, uplo, C );
 
-    // Count the number of entries that we will send to each process
-    // =============================================================
-    vector<int> sendSizes(commSize,0);
+    // Reserve space for the updates
+    // =============================
+    Int numUpdates = 0;
     const Int localHeightA = A.LocalHeight();
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
-        const Int offset = A.EntryOffset(kLoc);
         const Int numConn = A.NumConnections(kLoc);
-        for( Int iConn=0; iConn<numConn; ++iConn )
-        {
-            const Int i = A.Col(offset+iConn);
-            const int owner = C.RowOwner(i);
-            for( Int jConn=0; jConn<numConn; ++jConn )
-            {
-                const Int j = A.Col(offset+jConn);
-                if( (uplo==LOWER && i>=j) || (uplo==UPPER && i<=j) )
-                    ++sendSizes[owner];
-            }
-        }
+        numUpdates += numConn*numConn;
     }
+    C.Reserve( C.NumLocalEntries()+numUpdates, numUpdates );
 
-    // Pack the send buffers
-    // ===================== 
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    // Queue the updates
+    // ================= 
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
         const Int offset = A.EntryOffset(kLoc);
@@ -235,40 +218,29 @@ void Syrk
         for( Int iConn=0; iConn<numConn; ++iConn ) 
         {
             const Int i = A.Col(offset+iConn);
-            const T A_ki = A.Value(offset+iConn);
-            const int owner = C.RowOwner(i);
+            const Ring A_ki = A.Value(offset+iConn);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
                 if( (uplo==LOWER && i>=j) || (uplo==UPPER && i<=j) )
                 {
-                    const T A_kj = A.Value(offset+jConn);
-                    const Int s = offs[owner]++;
-                    sendBuf[s].i = i;
-                    sendBuf[s].j = j;
+                    const Ring A_kj = A.Value(offset+jConn);
                     if( conjugate )
-                        sendBuf[s].value = T(alpha)*Conj(A_ki)*A_kj;
+                        C.QueueUpdate( i, j, Ring(alpha)*Conj(A_ki)*A_kj );
                     else
-                        sendBuf[s].value = T(alpha)*A_ki*A_kj;
+                        C.QueueUpdate( i, j, Ring(alpha)*A_ki*A_kj );
                 }
             }
         }
     }
-
-    // Receive and apply the updates
-    // =============================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
-    C.Reserve( C.NumLocalEntries() + recvBuf.size() );
-    for( auto& entry : recvBuf )
-        C.QueueUpdate( entry );
     C.ProcessQueues();
 }
 
-template<typename T>
+template<typename Ring>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
-                 DistSparseMatrix<T>& C, bool conjugate )
+  Ring alpha, const DistSparseMatrix<Ring>& A, 
+                    DistSparseMatrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     const Int m = A.Height();
@@ -277,40 +249,41 @@ void Syrk
         Zeros( C, m, m );
     else
         Zeros( C, n, n );
-    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
+    Syrk( uplo, orientation, alpha, A, Ring(0), C, conjugate );
 }
 
-#define PROTO(T) \
+#define PROTO(Ring) \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, T beta, Matrix<T>& C, bool conjugate ); \
+    Ring alpha, const Matrix<Ring>& A, \
+    Ring beta,        Matrix<Ring>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate ); \
+    Ring alpha, const Matrix<Ring>& A, Matrix<Ring>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, \
-    T beta, AbstractDistMatrix<T>& C, bool conjugate ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+    Ring beta, AbstractDistMatrix<Ring>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, \
-                   AbstractDistMatrix<T>& C, bool conjugate ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                      AbstractDistMatrix<Ring>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const SparseMatrix<T>& A, \
-    T beta,        SparseMatrix<T>& C, bool conjugate ); \
+    Ring alpha, const SparseMatrix<Ring>& A, \
+    Ring beta,        SparseMatrix<Ring>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const SparseMatrix<T>& A, \
-                   SparseMatrix<T>& C, bool conjugate ); \
+    Ring alpha, const SparseMatrix<Ring>& A, \
+                      SparseMatrix<Ring>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistSparseMatrix<T>& A, \
-    T beta,        DistSparseMatrix<T>& C, bool conjugate ); \
+    Ring alpha, const DistSparseMatrix<Ring>& A, \
+    Ring beta,        DistSparseMatrix<Ring>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistSparseMatrix<T>& A, \
-                   DistSparseMatrix<T>& C, bool conjugate );
+    Ring alpha, const DistSparseMatrix<Ring>& A, \
+                      DistSparseMatrix<Ring>& C, bool conjugate );
 
 // blas::Syrk is not yet supported for Int
 #define EL_NO_INT_PROTO

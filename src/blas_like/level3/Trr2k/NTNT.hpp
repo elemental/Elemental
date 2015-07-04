@@ -13,13 +13,15 @@ namespace El {
 namespace trr2k {
 
 // Distributed E := alpha (A B^{T/H} + C D^{T/H}) + E
-template<typename T>
+template<typename Ring>
 void Trr2kNTNT
 ( UpperOrLower uplo,
   Orientation orientB, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-  T beta,  const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
-                 AbstractDistMatrix<T>& EPre )
+  Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+  Ring beta,  const AbstractDistMatrix<Ring>& CPre, 
+              const AbstractDistMatrix<Ring>& DPre,
+                    AbstractDistMatrix<Ring>& EPre )
 {
     DEBUG_ONLY(
       CSE cse("trr2k::Trr2kNTNT");
@@ -33,15 +35,15 @@ void Trr2kNTNT
     const Int bsize = Blocksize(); 
     const Grid& g = EPre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadProxy<T,MC,MR>( &CPre );      auto& C = *CPtr;
-    auto DPtr = ReadProxy<T,MC,MR>( &DPre );      auto& D = *DPtr;
-    auto EPtr = ReadWriteProxy<T,MC,MR>( &EPre ); auto& E = *EPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadProxy<Ring,MC,MR>( &CPre );      auto& C = *CPtr;
+    auto DPtr = ReadProxy<Ring,MC,MR>( &DPre );      auto& D = *DPtr;
+    auto EPtr = ReadWriteProxy<Ring,MC,MR>( &EPre ); auto& E = *EPtr;
 
-    DistMatrix<T,MC,  STAR> A1_MC_STAR(g), C1_MC_STAR(g);
-    DistMatrix<T,VR,  STAR> B1_VR_STAR(g), D1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g), D1Trans_STAR_MR(g);
+    DistMatrix<Ring,MC,  STAR> A1_MC_STAR(g), C1_MC_STAR(g);
+    DistMatrix<Ring,VR,  STAR> B1_VR_STAR(g), D1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR  > B1Trans_STAR_MR(g), D1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( E );
     B1_VR_STAR.AlignWith( E );
@@ -70,7 +72,7 @@ void Trr2kNTNT
         LocalTrr2k
         ( uplo, NORMAL, NORMAL, NORMAL, NORMAL,
           alpha, A1_MC_STAR, B1Trans_STAR_MR, 
-          beta,  C1_MC_STAR, D1Trans_STAR_MR, T(1), E );
+          beta,  C1_MC_STAR, D1Trans_STAR_MR, Ring(1), E );
     }
 }
 

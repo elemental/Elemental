@@ -10,11 +10,11 @@
 using namespace std;
 using namespace El;
 
-template<typename T>
+template<typename Ring>
 void TimedGemm
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C );
+( Ring alpha, const DistMatrix<Ring>& A,
+              const DistMatrix<Ring>& B,
+  Ring beta,        DistMatrix<Ring>& C );
 
 int main( int argc, char *argv[] ) 
 {
@@ -109,24 +109,24 @@ int main( int argc, char *argv[] )
     return 0;
 }
 
-template<typename T>
+template<typename Ring>
 void TimedGemm
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+( Ring alpha, const DistMatrix<Ring>& A,
+              const DistMatrix<Ring>& B,
+  Ring beta,        DistMatrix<Ring>& C )
 {
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T> AL(g), AR(g),
-                  A0(g), A1(g), A2(g);
-    DistMatrix<T> BT(g),  B0(g),
-                  BB(g),  B1(g),
-                          B2(g);
+    DistMatrix<Ring> AL(g), AR(g),
+                     A0(g), A1(g), A2(g);
+    DistMatrix<Ring> BT(g),  B0(g),
+                     BB(g),  B1(g),
+                             B2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,STAR> A1_MC_STAR(g);
-    DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);
+    DistMatrix<Ring,MC,STAR> A1_MC_STAR(g);
+    DistMatrix<Ring,MR,STAR> B1Trans_MR_STAR(g);
 
     A1_MC_STAR.AlignWith( C );
     B1Trans_MR_STAR.AlignWith( C );
@@ -158,7 +158,7 @@ void TimedGemm
         {
             const Int mLocal = A1_MC_STAR.LocalHeight();
             const Int nLocal = A1_MC_STAR.LocalWidth();
-            const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMC*1.e6);
+            const double mbps = (1.*mLocal*nLocal*sizeof(Ring))/(timeMC*1.e6);
             cout << "[MC,* ] AllGather: " << timeMC
                  << " secs, " << mbps << " MB/s" << " for "
                  << mLocal << " x " << nLocal << " local matrix" << endl;
@@ -171,7 +171,7 @@ void TimedGemm
         {
             const Int nLocal = B1Trans_MR_STAR.LocalHeight();
             const Int mLocal = B1Trans_MR_STAR.LocalWidth();
-            const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMR*1.e6);
+            const double mbps = (1.*mLocal*nLocal*sizeof(Ring))/(timeMR*1.e6);
             cout << "[* ,MR] AllGather: " << timeMR
                  << " secs, " << mbps << " MB/s" << " for "
                  << mLocal << " x " << nLocal << " local matrix" << endl;
@@ -180,8 +180,7 @@ void TimedGemm
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
         timerGemm.Start();
-        LocalGemm
-        ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
+        LocalGemm( alpha, A1_MC_STAR.N(), B1Trans_MR_STAR.T(), Ring(1), C );
         mpi::Barrier( g.Comm() );
         const double gemmTime = timerGemm.Stop();
         if( g.Rank() == 0 )

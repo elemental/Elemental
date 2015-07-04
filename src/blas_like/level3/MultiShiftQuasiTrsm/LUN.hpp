@@ -226,7 +226,7 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
         auto X1 = X( ind1, ALL );
 
         LUNUnb( U11, shifts, X1 );
-        Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+        Gemm( F(-1), U01.N(), X1.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -266,8 +266,8 @@ LUN
         auto X1Imag = XImag( ind1, ALL );
 
         LUNUnb( U11, shifts, X1Real, X1Imag );
-        Gemm( NORMAL, NORMAL, Real(-1), U01, X1Real, Real(1), X0Real );
-        Gemm( NORMAL, NORMAL, Real(-1), U01, X1Imag, Real(1), X0Imag );
+        Gemm( Real(-1), U01.N(), X1Real.N(), Real(1), X0Real );
+        Gemm( Real(-1), U01.N(), X1Imag.N(), Real(1), X0Imag );
 
         if( k == 0 )
             break;
@@ -331,7 +331,7 @@ LUNLarge
         U01_MC_STAR = U01;        // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        LocalGemm( F(-1), U01_MC_STAR.N(), X1_STAR_MR.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -412,11 +412,9 @@ LUNLarge
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         LocalGemm
-        ( NORMAL, NORMAL, 
-          Real(-1), U01_MC_STAR, X1Real_STAR_MR, Real(1), X0Real );
+        ( Real(-1), U01_MC_STAR.N(), X1Real_STAR_MR.N(), Real(1), X0Real );
         LocalGemm
-        ( NORMAL, NORMAL, 
-          Real(-1), U01_MC_STAR, X1Imag_STAR_MR, Real(1), X0Imag );
+        ( Real(-1), U01_MC_STAR.N(), X1Imag_STAR_MR.N(), Real(1), X0Imag );
 
         if( k == 0 )
             break;
@@ -484,8 +482,7 @@ LUNMedium
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        LocalGemm
-        ( NORMAL, TRANSPOSE, F(-1), U01_MC_STAR, X1Trans_MR_STAR, F(1), X0 );
+        LocalGemm( F(-1), U01_MC_STAR.N(), X1Trans_MR_STAR.T(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -569,11 +566,9 @@ LUNMedium
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         LocalGemm
-        ( NORMAL, TRANSPOSE, 
-          Real(-1), U01_MC_STAR, X1RealTrans_MR_STAR, Real(1), X0Real );
+        ( Real(-1), U01_MC_STAR.N(), X1RealTrans_MR_STAR.T(), Real(1), X0Real );
         LocalGemm
-        ( NORMAL, TRANSPOSE, 
-          Real(-1), U01_MC_STAR, X1ImagTrans_MR_STAR, Real(1), X0Imag );
+        ( Real(-1), U01_MC_STAR.N(), X1ImagTrans_MR_STAR.T(), Real(1), X0Imag );
 
         if( k == 0 )
             break;
@@ -635,7 +630,7 @@ LUNSmall
         X1 = X1_STAR_STAR;
 
         // X0[VC,* ] -= U01[VC,* ] X1[* ,* ]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01, X1_STAR_STAR, F(1), X0 );
+        LocalGemm( F(-1), U01.N(), X1_STAR_STAR.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -711,9 +706,9 @@ LUNSmall
 
         // X0[VC,* ] -= U01[VC,* ] X1[* ,* ]
         LocalGemm
-        ( NORMAL, NORMAL, Real(-1), U01, X1Real_STAR_STAR, Real(1), X0Real );
+        ( Real(-1), U01.N(), X1Real_STAR_STAR.N(), Real(1), X0Real );
         LocalGemm
-        ( NORMAL, NORMAL, Real(-1), U01, X1Imag_STAR_STAR, Real(1), X0Imag );
+        ( Real(-1), U01.N(), X1Imag_STAR_STAR.N(), Real(1), X0Imag );
 
         if( k == 0 )
             break;

@@ -16,15 +16,17 @@ namespace trr2k {
 // TODO: Fuse pairs of Gemms
 
 // E := alpha op(A) op(B) + beta op(C) op(D) + E
-template<typename T>
+template<typename Ring>
 inline void
 LocalTrr2kKernel
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-                 AbstractDistMatrix<T>& E )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,  const AbstractDistMatrix<Ring>& C, 
+              const AbstractDistMatrix<Ring>& D,
+                    AbstractDistMatrix<Ring>& E )
 {
     DEBUG_ONLY(CSE cse("LocalTrr2kKernel"))
 
@@ -34,7 +36,7 @@ LocalTrr2kKernel
     const bool transD = orientD != NORMAL;
     // TODO: Stringent distribution and alignment checks
 
-    typedef AbstractDistMatrix<T> ADM;
+    typedef AbstractDistMatrix<Ring> ADM;
     auto A0 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
     auto A1 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
     auto B0 = unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
@@ -72,62 +74,64 @@ LocalTrr2kKernel
     if( uplo == LOWER )
     {
         Gemm
-        ( orientA, orientB, 
-          alpha, A1->LockedMatrix(), B0->LockedMatrix(), 
-          T(1), EBL->Matrix() );
+        ( alpha, A1->LockedMatrix().Orient(orientA), 
+                 B0->LockedMatrix().Orient(orientB), 
+          Ring(1), EBL->Matrix() );
         Gemm
-        ( orientC, orientD, 
-          beta, C1->LockedMatrix(), D0->LockedMatrix(), 
-          T(1), EBL->Matrix() );
+        ( beta, C1->LockedMatrix().Orient(orientC), 
+                D0->LockedMatrix().Orient(orientD), 
+          Ring(1), EBL->Matrix() );
     }
     else
     {
         Gemm
-        ( orientA, orientB, 
-          alpha, A0->LockedMatrix(), B1->LockedMatrix(), 
-          T(1), ETR->Matrix() );
+        ( alpha, A0->LockedMatrix().Orient(orientA), 
+                 B1->LockedMatrix().Orient(orientB), 
+          Ring(1), ETR->Matrix() );
         Gemm
-        ( orientC, orientD, 
-          beta, C0->LockedMatrix(), D1->LockedMatrix(), 
-          T(1), ETR->Matrix() );
+        ( beta, C0->LockedMatrix().Orient(orientC), 
+                D1->LockedMatrix().Orient(orientD), 
+          Ring(1), ETR->Matrix() );
     }
 
     FTL->AlignWith( *ETL );
     FTL->Resize( ETL->Height(), ETL->Width() );
     Gemm
-    ( orientA, orientB, 
-      alpha, A0->LockedMatrix(), B0->LockedMatrix(),
-      T(0), FTL->Matrix() );
+    ( alpha, A0->LockedMatrix().Orient(orientA), 
+             B0->LockedMatrix().Orient(orientB),
+      Ring(0), FTL->Matrix() );
     Gemm
-    ( orientC, orientD,
-      beta, C0->LockedMatrix(), D0->LockedMatrix(),
-      T(1), FTL->Matrix() );
-    AxpyTrapezoid( uplo, T(1), *FTL, *ETL );
+    ( beta, C0->LockedMatrix().Orient(orientC), 
+            D0->LockedMatrix().Orient(orientD),
+      Ring(1), FTL->Matrix() );
+    AxpyTrapezoid( uplo, Ring(1), *FTL, *ETL );
 
     FBR->AlignWith( *EBR );
     FBR->Resize( EBR->Height(), EBR->Width() );
     Gemm
-    ( orientA, orientB, 
-      alpha, A1->LockedMatrix(), B1->LockedMatrix(),
-      T(0), FBR->Matrix() );
+    ( alpha, A1->LockedMatrix().Orient(orientA), 
+             B1->LockedMatrix().Orient(orientB),
+      Ring(0), FBR->Matrix() );
     Gemm
-    ( orientC, orientD,
-      beta, C1->LockedMatrix(), D1->LockedMatrix(),
-      T(1), FBR->Matrix() );
-    AxpyTrapezoid( uplo, T(1), *FBR, *EBR );
+    ( beta, C1->LockedMatrix().Orient(orientC), 
+            D1->LockedMatrix().Orient(orientD),
+      Ring(1), FBR->Matrix() );
+    AxpyTrapezoid( uplo, Ring(1), *FBR, *EBR );
 }
 
 } // namespace trr2k
 
 // E := alpha op(A) op(B) + beta op(C) op(D) + gamma E
-template<typename T>
+template<typename Ring>
 void LocalTrr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,  const AbstractDistMatrix<Ring>& C, 
+              const AbstractDistMatrix<Ring>& D,
+  Ring gamma,       AbstractDistMatrix<Ring>& E )
 {
     using namespace trr2k;
     DEBUG_ONLY(CSE cse("LocalTrr2k"))
@@ -139,7 +143,7 @@ void LocalTrr2k
     // TODO: Stringent distribution and alignment checks
 
     ScaleTrapezoid( gamma, uplo, E );
-    if( E.Height() < E.Grid().Width()*LocalTrr2kBlocksize<T>() )
+    if( E.Height() < E.Grid().Width()*LocalTrr2kBlocksize<Ring>() )
     {
         LocalTrr2kKernel
         ( uplo, orientA, orientB, orientC, orientD, 
@@ -147,7 +151,7 @@ void LocalTrr2k
     }
     else
     {
-        typedef AbstractDistMatrix<T> ADM;
+        typedef AbstractDistMatrix<Ring> ADM;
         // Ugh. This is likely too much overhead. It should be measured.
         auto A0 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
         auto A1 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
@@ -184,33 +188,33 @@ void LocalTrr2k
         if( uplo == LOWER )
         { 
             Gemm
-            ( orientA, orientB, 
-              alpha, A1->LockedMatrix(), B0->LockedMatrix(), 
-              T(1), EBL->Matrix() );
+            ( alpha, A1->LockedMatrix().Orient(orientA), 
+                     B0->LockedMatrix().Orient(orientB), 
+              Ring(1), EBL->Matrix() );
             Gemm
-            ( orientC, orientD, 
-              beta,  C1->LockedMatrix(), D0->LockedMatrix(), 
-              T(1), EBL->Matrix() );
+            ( beta,  C1->LockedMatrix().Orient(orientC), 
+                     D0->LockedMatrix().Orient(orientD), 
+              Ring(1), EBL->Matrix() );
         }
         else
         {
             Gemm
-            ( orientA, orientB,
-              alpha, A0->LockedMatrix(), B1->LockedMatrix(), 
-              T(1), ETR->Matrix() );
+            ( alpha, A0->LockedMatrix().Orient(orientA), 
+                     B1->LockedMatrix().Orient(orientB), 
+              Ring(1), ETR->Matrix() );
             Gemm
-            ( orientC, orientD,
-              beta,  C0->LockedMatrix(), D1->LockedMatrix(), 
-              T(1), ETR->Matrix() );
+            ( beta,  C0->LockedMatrix().Orient(orientC), 
+                     D1->LockedMatrix().Orient(orientD), 
+              Ring(1), ETR->Matrix() );
         }
 
         // Recurse
         LocalTrr2k
         ( uplo, orientA, orientB, orientC, orientD, 
-          alpha, *A0, *B0, beta, *C0, *D0, T(1), *ETL );
+          alpha, *A0, *B0, beta, *C0, *D0, Ring(1), *ETL );
         LocalTrr2k
         ( uplo, orientA, orientB, orientC, orientD, 
-          alpha, *A1, *B1, beta, *C1, *D1, T(1), *EBR );
+          alpha, *A1, *B1, beta, *C1, *D1, Ring(1), *EBR );
     }
 }
 

@@ -55,8 +55,8 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
         ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
         DiagonalScale( RIGHT, NORMAL, d, G );
         Matrix<F> B;
-        Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-        Gemm( NORMAL, NORMAL, F(1), B, G, A );
+        Gemm( F(1), G.H(), A.N(), B );
+        Gemm( F(1), B.N(), G.N(), A );
     }
     else
     {
@@ -100,8 +100,8 @@ QDWHDivide
         ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
         DiagonalScale( RIGHT, NORMAL, d, G );
         DistMatrix<F> B(g);
-        Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-        Gemm( NORMAL, NORMAL, F(1), B, G, A );
+        Gemm( F(1), G.H(), A.N(), B );
+        Gemm( F(1), B.N(), G.N(), A );
     }
     else
     {
@@ -159,8 +159,8 @@ RandomizedSignDivide
         {
             ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
             DiagonalScale( RIGHT, NORMAL, d, G );
-            Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-            Gemm( NORMAL, NORMAL, F(1), B, G, A );
+            Gemm( F(1), G.H(), A.N(), B );
+            Gemm( F(1), B.N(), G.N(), A );
         }
         else
         {
@@ -227,8 +227,8 @@ RandomizedSignDivide
         {
             ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
             DiagonalScale( RIGHT, NORMAL, d, G );
-            Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-            Gemm( NORMAL, NORMAL, F(1), B, G, A );
+            Gemm( F(1), G.H(), A.N(), B );
+            Gemm( F(1), B.N(), G.N(), A );
         }
         else
         {
@@ -510,12 +510,12 @@ void SDC
     Matrix<F> Z;
     SDC( uplo, ATL, wT, Z, ctrl );
     auto G( QL );
-    Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
+    Gemm( F(1), G.N(), Z.N(), QL );
 
     // Recurse on the bottom-right quadrant and update eigenvectors
     SDC( uplo, ABR, wB, Z, ctrl );
     G = QR;
-    Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
+    Gemm( F(1), G.N(), Z.N(), QR );
 }
 
 template<typename F>
@@ -633,9 +633,9 @@ void SDC
 
     // Update the eigen vectors
     auto G( QL );
-    Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
+    Gemm( F(1), G.N(), ZT.N(), QL );
     G = QR;
-    Gemm( NORMAL, NORMAL, F(1), G, ZB, QR );
+    Gemm( F(1), G.N(), ZB.N(), QR );
 }
 
 } // namespace herm_eig

@@ -49,7 +49,7 @@ main( int argc, char* argv[] )
         }
 
         const double ANorm = FrobeniusNorm( A );
-        Gemm( NORMAL, ADJOINT, Real(-1), X, Y, Real(1), A );
+        Gemm( Real(-1), X.N(), Y.H(), Real(1), A );
         const double ENorm = FrobeniusNorm( A );
         if( mpi::WorldRank() == 0 )
             cout << "|| A - X Y^H ||_F / || A ||_F = " << ENorm/ANorm << endl;

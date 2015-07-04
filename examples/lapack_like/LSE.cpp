@@ -61,8 +61,8 @@ main( int argc, char* argv[] )
         if( print ) 
             Print( X, "X" );
         
-        Gemm( NORMAL, NORMAL, F(-1), A, X, F(1), C );
-        Gemm( NORMAL, NORMAL, F(-1), B, X, F(1), D );
+        Gemm( F(-1), A.N(), X.N(), F(1), C );
+        Gemm( F(-1), B.N(), X.N(), F(1), D );
         const Real resid = FrobeniusNorm( C );
         const Real EFrob = FrobeniusNorm( D );
         if( print )

@@ -39,9 +39,9 @@ inline void FrontVanillaLowerBackwardMultiply
     LockedPartitionDown( L, LT, LB, L.Width() );
     PartitionDown( X, XT, XB, L.Width() );
 
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    Trmm( LEFT, LOWER, orientation, UNIT, F(1), LT, XT );
-    Gemm( orientation, NORMAL, F(1), LB, XB, F(1), XT );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+    Trmm( LEFT, LOWER, orient, UNIT, F(1), LT, XT );
+    Gemm( F(1), LB.Orient(orient), XB.N(), F(1), XT );
 }
 
 template<typename F>
@@ -87,14 +87,14 @@ inline void FrontVanillaLowerBackwardMultiply
     LockedPartitionDown( L, LT, LB, L.Width() );
     PartitionDown( X, XT, XB, L.Width() );
 
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    Trmm( LEFT, LOWER, orientation, UNIT, F(1), LT, XT );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+    Trmm( LEFT, LOWER, orient, UNIT, F(1), LT, XT );
 
     if( XB.Height() != 0 )
     {
         // Subtract off the parent updates
         DistMatrix<F,STAR,STAR> Z(g);
-        LocalGemm( orientation, NORMAL, F(1), LB, XB, Z );
+        LocalGemm( F(1), LB.Orient(orient), XB.N(), Z );
         AxpyContract( F(1), Z, XT );
     }
 }
@@ -124,9 +124,9 @@ inline void FrontVanillaLowerBackwardMultiply
     LockedPartitionDown( L, LT, LB, L.Width() );
     PartitionDown( X, XT, XB, L.Width() );
 
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    Trmm( LEFT, LOWER, orientation, UNIT, F(1), LT, XT );
-    Gemm( orientation, NORMAL, F(1), LB, XB, F(1), XT );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+    Trmm( LEFT, LOWER, orient, UNIT, F(1), LT, XT );
+    Gemm( F(1), LB.Orient(orient), XB.N(), F(1), XT );
 }
 
 template<typename F>

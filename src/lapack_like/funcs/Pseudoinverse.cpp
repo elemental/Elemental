@@ -44,7 +44,7 @@ void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
     DiagonalScale( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Gemm( NORMAL, ADJOINT, F(1), V, U, A );
+    Gemm( F(1), V.N(), U.H(), A );
 }
 
 template<typename F>
@@ -109,7 +109,7 @@ void Pseudoinverse( AbstractDistMatrix<F>& APre, Base<F> tolerance )
     DiagonalScale( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Gemm( NORMAL, ADJOINT, F(1), V, U, A );
+    Gemm( F(1), V.N(), U.H(), A );
 }
 
 template<typename F>

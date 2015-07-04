@@ -116,7 +116,7 @@ void Symv
         z.AlignWith( y );
         z = z_MR_MC;
         AxpyContract( T(1), z_MC_STAR, z );
-        Axpy( T(1), z, y );
+        y += z;
     }
     else if( x.Width() == 1 )
     {
@@ -158,7 +158,7 @@ void Symv
 
         DistMatrix<T> zTrans(g);
         Transpose( z_MR_MC, zTrans );
-        Axpy( T(1), zTrans, y );
+        y += zTrans;
     }
     else if( y.Width() == 1 )
     {
@@ -200,7 +200,7 @@ void Symv
 
         DistMatrix<T> zTrans(g);
         Transpose( z_MR_MC, zTrans );
-        Axpy( T(1), zTrans, y );
+        y += zTrans;
     }
     else
     {
@@ -239,7 +239,7 @@ void Symv
         z.AlignWith( y );
         z = z_MR_MC;
         AxpyContract( T(1), z_STAR_MR, z );
-        Axpy( T(1), z, y );
+        y += z;
     }
 }
 

@@ -68,7 +68,7 @@ UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         Trmm( RIGHT, UPPER, ADJOINT, diag, F(1), U11, A01 );
 
         // A02 := A02 + U01 A12
-        Gemm( NORMAL, NORMAL, F(1), U01, A12, F(1), A02 );
+        Gemm( F(1), U01.N(), A12.N(), F(1), A02 );
 
         // A11 := U11 A11 U11'
         twotrmm::UUnb( diag, A11, U11 );
@@ -172,8 +172,7 @@ UVar4
         // A02 := A02 + U01 A12
         A12Adj_MR_STAR.AlignWith( A02 );
         Adjoint( A12, A12Adj_MR_STAR );
-        LocalGemm
-        ( ADJOINT, ADJOINT, F(1), U01Adj_STAR_MC, A12Adj_MR_STAR, F(1), A02 );
+        LocalGemm( F(1), U01Adj_STAR_MC.H(), A12Adj_MR_STAR.H(), F(1), A02 );
 
         // A11 := U11 A11 U11'
         TwoSidedTrmm( UPPER, diag, A11_STAR_STAR, U11_STAR_STAR );

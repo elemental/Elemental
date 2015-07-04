@@ -63,7 +63,7 @@ UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         twotrsm::UUnb( diag, A11, U11 );
 
         // A12 := A12 - A02' U01
-        Gemm( ADJOINT, NORMAL, F(-1), A02, U01, F(1), A12 );
+        Gemm( F(-1), A02.H(), U01.N(), F(1), A12 );
 
         // A12 := inv(U11)' A12
         Trsm( LEFT, UPPER, ADJOINT, diag, F(1), U11, A12 );
@@ -151,7 +151,7 @@ UVar2
 
         // X11 := U01' A01
         X11_STAR_MR.AlignWith( U01 );
-        LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A01, X11_STAR_MR );
+        LocalGemm( F(1), U01_MC_STAR.H(), A01.N(), X11_STAR_MR );
 
         // A01 := A01 - Y01
         A01 -= Y01;
@@ -159,7 +159,7 @@ UVar2
         A01_MC_STAR = A01;
         
         // A11 := A11 - triu(X11 + A01' U01) = A11 - (U01 A01 + A01' U01)
-        LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U01, F(1), X11_STAR_MR );
+        LocalGemm( F(1), A01_MC_STAR.H(), U01.N(), F(1), X11_STAR_MR );
         X11.AlignWith( A11 );
         Contract( X11_STAR_MR, X11 );
         MakeTrapezoidal( UPPER, X11 );
@@ -179,7 +179,7 @@ UVar2
 
         // A12 := A12 - A02' U01
         X12Adj_MR_STAR.AlignWith( A02 );
-        LocalGemm( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, X12Adj_MR_STAR );
+        LocalGemm( F(1), A02.H(), U01_MC_STAR.N(), X12Adj_MR_STAR );
         X12Adj_MR_MC.AlignWith( A12 );
         Contract( X12Adj_MR_STAR, X12Adj_MR_MC );
         Adjoint( X12Adj_MR_MC.LockedMatrix(), X12Local );

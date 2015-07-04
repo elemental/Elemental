@@ -68,8 +68,8 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
         MakeTrapezoidal( UPPER, R );
         
         // Form the new iterate
-        Gemm( ADJOINT, NORMAL, F(1), Q12, A, F(0), AAlt );
-        Gemm( ADJOINT, NORMAL, F(1), Q22, B, F(0), BAlt );
+        Gemm( F(1), Q12.H(), A.N(), F(0), AAlt );
+        Gemm( F(1), Q22.H(), B.N(), F(0), BAlt );
         X = XAlt;
 
         // Use the difference in the iterates to test for convergence
@@ -141,8 +141,8 @@ InverseFreeSign( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
         MakeTrapezoidal( UPPER, R );
         
         // Form the new iterate
-        Gemm( ADJOINT, NORMAL, F(1), Q12, A, F(0), AAlt );
-        Gemm( ADJOINT, NORMAL, F(1), Q22, B, F(0), BAlt );
+        Gemm( F(1), Q12.H(), A.N(), F(0), AAlt );
+        Gemm( F(1), Q22.H(), B.N(), F(0), BAlt );
         X = XAlt;
 
         // Use the difference in the iterates to test for convergence

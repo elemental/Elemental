@@ -14,16 +14,16 @@ namespace El {
 
 namespace {
 
-template<typename T>
+template<typename Ring>
 void MultiplyCSR
 ( Orientation orientation, Int m, Int n,
-  T alpha,
+  Ring alpha,
   const Int* rowOffsets,
   const Int* colIndices,
-  const T*   values,
-  const T*   x,
-  T beta,
-        T*   y )
+  const Ring*   values,
+  const Ring*   x,
+  Ring beta,
+        Ring*   y )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSR"))
 #if defined(EL_HAVE_MKL) && !defined(EL_DISABLE_MKL_CSRMV)
@@ -38,7 +38,7 @@ void MultiplyCSR
     {
         for( Int i=0; i<m; ++i )
         {
-            T sum = 0;
+            Ring sum = 0;
             for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 sum += values[e]*x[colIndices[e]];         
             y[i] = alpha*sum + beta*y[i];
@@ -193,16 +193,16 @@ void MultiplyCSR<Complex<Quad>>
 }
 #endif // ifdef EL_HAVE_QUAD
 
-template<typename T>
+template<typename Ring>
 void MultiplyCSR
 ( Orientation orientation, Int m, Int n, Int numRHS,
-  T alpha,
+  Ring alpha,
   const Int* rowOffsets,
   const Int* colIndices,
-  const T*   values,
-  const T*   X, Int ldX,
-  T beta,
-        T*   Y, Int ldY )
+  const Ring*   values,
+  const Ring*   X, Int ldX,
+  Ring beta,
+        Ring*   Y, Int ldY )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSR"))
     if( numRHS == 1 )
@@ -219,7 +219,7 @@ void MultiplyCSR
         {
             for( Int k=0; k<numRHS; ++k )
             {
-                T sum = 0;
+                Ring sum = 0;
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                     sum += values[e]*X[colIndices[e]+k*ldX];
                 Y[i+k*ldY] = alpha*sum + beta*Y[i+k*ldY];
@@ -238,7 +238,7 @@ void MultiplyCSR
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*Conj(values[e]);
+                    Ring prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
                 }
@@ -250,7 +250,7 @@ void MultiplyCSR
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*values[e];
+                    Ring prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
                 }
@@ -259,16 +259,16 @@ void MultiplyCSR
     }
 }
 
-template<typename T>
+template<typename Ring>
 void MultiplyCSRInterX
 ( Orientation orientation, Int m, Int n, Int numRHS,
-  T alpha,
+  Ring alpha,
   const Int* rowOffsets,
   const Int* colIndices,
-  const T*   values,
-  const T*   X,
-  T beta,
-        T*   Y, Int ldY )
+  const Ring*   values,
+  const Ring*   X,
+  Ring beta,
+        Ring*   Y, Int ldY )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSRInterX"))
     if( numRHS == 1 )
@@ -285,7 +285,7 @@ void MultiplyCSRInterX
         {
             for( Int k=0; k<numRHS; ++k )
             {
-                T sum = 0;
+                Ring sum = 0;
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                     sum += values[e]*X[colIndices[e]*numRHS+k];
                 Y[i+k*ldY] = alpha*sum + beta*Y[i+k*ldY];
@@ -304,7 +304,7 @@ void MultiplyCSRInterX
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*Conj(values[e]);
+                    Ring prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];         
                 }
@@ -316,7 +316,7 @@ void MultiplyCSRInterX
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*values[e];
+                    Ring prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];         
                 }
@@ -325,16 +325,16 @@ void MultiplyCSRInterX
     }
 }
 
-template<typename T>
+template<typename Ring>
 void MultiplyCSRInterY
 ( Orientation orientation, Int m, Int n, Int numRHS,
-  T alpha,
+  Ring alpha,
   const Int* rowOffsets,
   const Int* colIndices,
-  const T*   values,
-  const T*   X, Int ldX,
-  T beta,
-        T*   Y )
+  const Ring*   values,
+  const Ring*   X, Int ldX,
+  Ring beta,
+        Ring*   Y )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSRInterY"))
     if( numRHS == 1 )
@@ -351,7 +351,7 @@ void MultiplyCSRInterY
         {
             for( Int k=0; k<numRHS; ++k )
             {
-                T sum = 0;
+                Ring sum = 0;
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                     sum += values[e]*X[colIndices[e]+k*ldX];
                 Y[i*numRHS+k] = alpha*sum + beta*Y[i*numRHS+k];
@@ -370,7 +370,7 @@ void MultiplyCSRInterY
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*Conj(values[e]);
+                    Ring prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];         
                 }
@@ -382,7 +382,7 @@ void MultiplyCSRInterY
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*values[e];
+                    Ring prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];         
                 }
@@ -391,16 +391,16 @@ void MultiplyCSRInterY
     }
 }
 
-template<typename T>
+template<typename Ring>
 void MultiplyCSRInter
 ( Orientation orientation, Int m, Int n, Int numRHS,
-  T alpha,
+  Ring alpha,
   const Int* rowOffsets,
   const Int* colIndices,
-  const T*   values,
-  const T*   X,
-  T beta,
-        T*   Y )
+  const Ring*   values,
+  const Ring*   X,
+  Ring beta,
+        Ring*   Y )
 {
     DEBUG_ONLY(CSE cse("MultiplyCSRInter"))
     if( numRHS == 1 )
@@ -417,7 +417,7 @@ void MultiplyCSRInter
         {
             for( Int k=0; k<numRHS; ++k )
             {
-                T sum = 0;
+                Ring sum = 0;
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                     sum += values[e]*X[colIndices[e]*numRHS+k];
                 Y[i*numRHS+k] = alpha*sum + beta*Y[i*numRHS+k];
@@ -436,7 +436,7 @@ void MultiplyCSRInter
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*Conj(values[e]);
+                    Ring prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k];
                 }
@@ -448,7 +448,7 @@ void MultiplyCSRInter
             {
                 for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
                 {
-                    T prod = alpha*values[e];
+                    Ring prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k]; 
                 }
@@ -459,11 +459,12 @@ void MultiplyCSRInter
 
 } // anonymous namespace
 
-template<typename T>
+template<typename Ring>
 void Multiply
 ( Orientation orientation, 
-  T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
-  T beta,                                  Matrix<T>& Y )
+  Ring alpha, const SparseMatrix<Ring>& A, 
+              const Matrix<Ring>& X,
+  Ring beta,        Matrix<Ring>& Y )
 {
     DEBUG_ONLY(
       CSE cse("Multiply");
@@ -479,11 +480,12 @@ void Multiply
       beta,  Y.Buffer(),       Y.LDim() );
 }
 
-template<typename T>
+template<typename Ring>
 void Multiply
 ( Orientation orientation, 
-  T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
-  T beta,                                      DistMultiVec<T>& Y )
+  Ring alpha, const DistSparseMatrix<Ring>& A, 
+              const DistMultiVec<Ring>& X,
+  Ring beta,        DistMultiVec<Ring>& Y )
 {
     DEBUG_ONLY(
       CSE cse("Multiply");
@@ -527,8 +529,8 @@ void Multiply
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         const Int firstLocalRow = X.FirstLocalRow();
-        vector<T> sendVals( numSendInds*b );
-        const T* XBuffer = X.LockedMatrix().LockedBuffer();
+        vector<Ring> sendVals( numSendInds*b );
+        const Ring* XBuffer = X.LockedMatrix().LockedBuffer();
         const Int ldX = X.LockedMatrix().LDim();
         for( Int s=0; s<numSendInds; ++s )
         {
@@ -539,7 +541,7 @@ void Multiply
         }
 
         // Now send them
-        vector<T> recvVals( meta.numRecvInds*b );
+        vector<Ring> recvVals( meta.numRecvInds*b );
         mpi::AllToAll
         ( sendVals.data(), sendSizes.data(), sendOffs.data(),
           recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
@@ -551,7 +553,7 @@ void Multiply
                  meta.colOffs.data(),
                  A.LockedValueBuffer(),
                  recvVals.data(), 
-          T(1),  Y.Matrix().Buffer(), Y.Matrix().LDim() );
+          Ring(1), Y.Matrix().Buffer(), Y.Matrix().LDim() );
     }
     else
     {
@@ -561,25 +563,25 @@ void Multiply
             LogicError("The height of A must match the height of X");
 
         // Form and pack the updates to Y
-        vector<T> sendVals( meta.numRecvInds*b, 0 );
+        vector<Ring> sendVals( meta.numRecvInds*b, 0 );
         MultiplyCSRInterY
         ( orientation, A.LocalHeight(), A.Width(), X.Width(),
           alpha, A.LockedOffsetBuffer(),
                  meta.colOffs.data(),
                  A.LockedValueBuffer(),
                  X.LockedMatrix().LockedBuffer(), X.LockedMatrix().LDim(),
-          T(1),  sendVals.data() );
+          Ring(1), sendVals.data() );
 
         // Inject the updates to Y into the network
         const Int numRecvInds = meta.sendInds.size();
-        vector<T> recvVals( numRecvInds*b );
+        vector<Ring> recvVals( numRecvInds*b );
         mpi::AllToAll
         ( sendVals.data(), recvSizes.data(), recvOffs.data(),
           recvVals.data(), sendSizes.data(), sendOffs.data(), comm );
      
         // Accumulate the received indices onto Y
         const Int firstLocalRow = Y.FirstLocalRow();
-        T* YBuffer = Y.Matrix().Buffer(); 
+        Ring* YBuffer = Y.Matrix().Buffer(); 
         const Int ldY = Y.Matrix().LDim();
         for( Int s=0; s<numRecvInds; ++s )
         {
@@ -591,15 +593,17 @@ void Multiply
     }
 }
 
-#define PROTO(T) \
+#define PROTO(Ring) \
     template void Multiply \
     ( Orientation orientation, \
-      T alpha, const SparseMatrix<T>& A, const Matrix<T>& X, \
-      T beta,                                  Matrix<T>& Y ); \
+      Ring alpha, const SparseMatrix<Ring>& A, \
+                  const Matrix<Ring>& X, \
+      Ring beta,        Matrix<Ring>& Y ); \
     template void Multiply \
     ( Orientation orientation, \
-      T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X, \
-      T beta,                                      DistMultiVec<T>& Y );
+      Ring alpha, const DistSparseMatrix<Ring>& A, \
+                  const DistMultiVec<Ring>& X, \
+      Ring beta,        DistMultiVec<Ring>& Y );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

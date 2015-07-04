@@ -41,7 +41,7 @@ void Skeleton
 
     // Form K := A pinv(AR)
     Matrix<F> K;
-    Gemm( NORMAL, ADJOINT, F(1), A, B, K );
+    Gemm( F(1), A.N(), B.H(), K );
 
     // Find the column permutation (force the same number of steps)
     B = A;
@@ -58,7 +58,7 @@ void Skeleton
     Pseudoinverse( B );
 
     // Form Z := pinv(AC) K = pinv(AC) (A pinv(AR))
-    Gemm( NORMAL, NORMAL, F(1), B, K, Z );
+    Gemm( F(1), B.N(), K.N(), Z );
 }
 
 template<typename F> 
@@ -90,7 +90,7 @@ void Skeleton
 
     // Form K := A pinv(AR)
     DistMatrix<F> K(g);
-    Gemm( NORMAL, ADJOINT, F(1), A, B, K );
+    Gemm( F(1), A.N(), B.H(), K );
 
     // Find the column permutation (force the same number of steps)
     B = A;
@@ -107,7 +107,7 @@ void Skeleton
     Pseudoinverse( B );
 
     // Form Z := pinv(AC) K = pinv(AC) (A pinv(AR))
-    Gemm( NORMAL, NORMAL, F(1), B, K, Z );
+    Gemm( F(1), B.N(), K.N(), Z );
 }
 
 #define PROTO(F) \

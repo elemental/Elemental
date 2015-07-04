@@ -15,26 +15,27 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, const Matrix<Ring>& B, 
+  Ring beta,        Matrix<Ring>& C,
   bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Syr2k");
-        if( orientation == NORMAL )
-        {
-            if( A.Height() != C.Height() || A.Height() != C.Width() ||
-                B.Height() != C.Height() ||B.Height() != C.Width()    )
-                LogicError("Nonconformal Syr2k");
-        }
-        else 
-        {
-            if( A.Width() != C.Height() || A.Width() != C.Width() ||
-                B.Width() != C.Height() || B.Width() != C.Width()   )
-                LogicError("Nonconformal Syr2k");
-        }
+      CSE cse("Syr2k");
+      if( orientation == NORMAL )
+      {
+          if( A.Height() != C.Height() || A.Height() != C.Width() ||
+              B.Height() != C.Height() ||B.Height() != C.Width()    )
+              LogicError("Nonconformal Syr2k");
+      }
+      else 
+      {
+          if( A.Width() != C.Height() || A.Width() != C.Width() ||
+              B.Width() != C.Height() || B.Width() != C.Width()   )
+              LogicError("Nonconformal Syr2k");
+      }
     )
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
@@ -57,23 +58,26 @@ void Syr2k
     }
 }
 
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+                    Matrix<Ring>& C,
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
+    Syr2k( uplo, orientation, alpha, A, B, Ring(0), C, conjugate );
 }
 
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syr2k"))
     ScaleTrapezoid( beta, uplo, C );
@@ -87,35 +91,44 @@ void Syr2k
         syr2k::UT( alpha, A, B, C, conjugate );
 }
 
-template<typename T>
+template<typename Ring>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, bool conjugate )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C, 
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
+    Syr2k( uplo, orientation, alpha, A, B, Ring(0), C, conjugate );
 }
 
-#define PROTO(T) \
+#define PROTO(Ring) \
   template void Syr2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C, bool conjugate ); \
+    Ring alpha, const Matrix<Ring>& A, \
+                const Matrix<Ring>& B, \
+    Ring beta,        Matrix<Ring>& C, \
+    bool conjugate ); \
   template void Syr2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-                   Matrix<T>& C, bool conjugate ); \
+    Ring alpha, const Matrix<Ring>& A, \
+                const Matrix<Ring>& B, \
+                      Matrix<Ring>& C, \
+    bool conjugate ); \
   template void Syr2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,        AbstractDistMatrix<T>& C, bool conjugate ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+    Ring beta,        AbstractDistMatrix<Ring>& C, bool conjugate ); \
   template void Syr2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-                   AbstractDistMatrix<T>& C, bool conjugate );
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+                      AbstractDistMatrix<Ring>& C, \
+    bool conjugate );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

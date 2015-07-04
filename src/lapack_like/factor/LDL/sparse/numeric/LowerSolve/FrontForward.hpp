@@ -41,7 +41,7 @@ inline void FrontVanillaLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
     PartitionDown( X, XT, XB, L.Width() );
 
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
-    Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
+    Gemm( F(-1), LB.N(), XT.N(), F(1), XB );
 }
 
 template<typename F>
@@ -71,10 +71,10 @@ inline void FrontBlockLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
 
     // XT := inv(ATL) XT
     Matrix<F> YT( XT );
-    Gemm( NORMAL, NORMAL, F(1), LT, YT, F(0), XT );
+    Gemm( F(1), LT.N(), YT.N(), F(0), XT );
 
     // XB := XB - LB XT
-    Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
+    Gemm( F(-1), LB.N(), XT.N(), F(1), XB );
 }
 
 template<typename F>
@@ -133,7 +133,7 @@ inline void ForwardMany
         X1 = X1_STAR_STAR;
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
-        LocalGemm( NORMAL, NORMAL, F(-1), L21, X1_STAR_STAR, F(1), X2 );
+        LocalGemm( F(-1), L21.N(), X1_STAR_STAR.N(), F(1), X2 );
     }
 }
 
@@ -174,7 +174,7 @@ void ForwardSingle( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
         X1 = X1_STAR_STAR;
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
-        LocalGemm( NORMAL, NORMAL, F(-1), L21, X1_STAR_STAR, F(1), X2 );
+        LocalGemm( F(-1), L21.N(), X1_STAR_STAR.N(), F(1), X2 );
     }
 }
 
@@ -249,7 +249,7 @@ inline void FrontVanillaLowerForwardSolve
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
 
     // XB := XB - LB XT
-    Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
+    Gemm( F(-1), LB.N(), XT.N(), F(1), XB );
 }
 
 template<typename F>
@@ -297,13 +297,13 @@ inline void FrontFastLowerForwardSolve
 
     // XT := LT XT
     DistMatrix<F,STAR,STAR> XT_STAR_STAR( XT );
-    LocalGemm( NORMAL, NORMAL, F(1), LT, XT_STAR_STAR, F(0), XT );
+    LocalGemm( F(1), LT.N(), XT_STAR_STAR.N(), F(0), XT );
 
     // XB := XB - LB XT
     if( LB.Height() != 0 )
     {
         XT_STAR_STAR = XT;
-        LocalGemm( NORMAL, NORMAL, F(-1), LB, XT_STAR_STAR, F(1), XB );
+        LocalGemm( F(-1), LB.N(), XT_STAR_STAR.N(), F(1), XB );
     }
 }
 
@@ -361,7 +361,7 @@ inline void FrontFastLowerForwardSolve
         DistMatrix<F,MC,STAR> ZT_MC_STAR(g);
         ZT_MC_STAR.AlignWith( LT );
         XT_MR_STAR = XT;
-        LocalGemm( NORMAL, NORMAL, F(1), LT, XT_MR_STAR, ZT_MC_STAR );
+        LocalGemm( F(1), LT.N(), XT_MR_STAR.N(), ZT_MC_STAR );
 
         Contract( ZT_MC_STAR, XT );
     }
@@ -374,7 +374,7 @@ inline void FrontFastLowerForwardSolve
         // ZB[MC,* ] := LB[MC,MR] XT[MR,* ]
         DistMatrix<F,MC,STAR> ZB_MC_STAR(g);
         ZB_MC_STAR.AlignWith( LB );
-        LocalGemm( NORMAL, NORMAL, F(-1), LB, XT_MR_STAR, ZB_MC_STAR );
+        LocalGemm( F(-1), LB.N(), XT_MR_STAR.N(), ZB_MC_STAR );
 
         // XB[VC,* ] += ZB[MC,* ]
         AxpyContract( F(1), ZB_MC_STAR, XB );
@@ -425,10 +425,10 @@ inline void FrontFastLowerForwardSolve
 
     // XT := LT XT
     DistMatrix<F> YT( XT );
-    Gemm( NORMAL, NORMAL, F(1), LT, YT, F(0), XT );
+    Gemm( F(1), LT.N(), YT.N(), F(0), XT );
 
     // XB := XB - LB XT
-    Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
+    Gemm( F(-1), LB.N(), XT.N(), F(1), XB );
 }
 
 template<typename F>
@@ -476,13 +476,13 @@ inline void FrontBlockLowerForwardSolve
 
     // XT := inv(ATL) XT
     DistMatrix<F,STAR,STAR> XT_STAR_STAR( XT );
-    LocalGemm( NORMAL, NORMAL, F(1), LT, XT_STAR_STAR, F(0), XT );
+    LocalGemm( F(1), LT.N(), XT_STAR_STAR.N(), F(0), XT );
 
     // XB := XB - LB XT
     if( LB.Height() != 0 )
     {
         XT_STAR_STAR = XT;
-        LocalGemm( NORMAL, NORMAL, F(-1), LB, XT_STAR_STAR, F(1), XB );
+        LocalGemm( F(-1), LB.N(), XT_STAR_STAR.N(), F(1), XB );
     }
 }
 
@@ -522,7 +522,7 @@ inline void FrontBlockLowerForwardSolve
         XT_MR_STAR = XT;
         DistMatrix<F,MC,STAR> ZT_MC_STAR(g);
         ZT_MC_STAR.AlignWith( LT );
-        LocalGemm( NORMAL, NORMAL, F(1), LT, XT_MR_STAR, ZT_MC_STAR );
+        LocalGemm( F(1), LT.N(), XT_MR_STAR.N(), ZT_MC_STAR );
 
         Contract( ZT_MC_STAR, XT );
     }
@@ -533,7 +533,7 @@ inline void FrontBlockLowerForwardSolve
         XT_MR_STAR = XT;
         DistMatrix<F,MC,STAR> ZB_MC_STAR(g);
         ZB_MC_STAR.AlignWith( LB );
-        LocalGemm( NORMAL, NORMAL, F(1), LB, XT_MR_STAR, ZB_MC_STAR );
+        LocalGemm( F(1), LB.N(), XT_MR_STAR.N(), ZB_MC_STAR );
 
         // XB[VC,* ] -= ZB[MC,* ] = LB[MC,MR] XT[MR,* ]
         AxpyContract( F(-1), ZB_MC_STAR, XB );
@@ -568,10 +568,10 @@ inline void FrontBlockLowerForwardSolve
 
     // XT := inv(ATL) XT
     DistMatrix<F> Z( XT );
-    Gemm( NORMAL, NORMAL, F(1), LT, Z, XT );
+    Gemm( F(1), LT.N(), Z.N(), XT );
 
     // XB := XB - LB XT
-    Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
+    Gemm( F(-1), LB.N(), XT.N(), F(1), XB );
 }
 
 template<typename F>

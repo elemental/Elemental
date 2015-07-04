@@ -68,9 +68,9 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             const F epsilon = A21.Get(0,nb-1);
             A21.Set(0,nb-1,F(1));
 
-            Gemm( NORMAL, NORMAL, F(-1), A21, Y12, F(1), A22 );
+            Gemm( F(-1), A21.N(), Y12.N(), F(1), A22 );
             Conjugate( A12 );
-            Gemm( NORMAL, NORMAL, F(-1), X21, A12, F(1), A22 );
+            Gemm( F(-1), X21.N(), A12.N(), F(1), A22 );
             Conjugate( A12 );
 
             // Put back top-right entry of A21
@@ -161,11 +161,9 @@ L
             auto A21_MC_STAR = AB1_MC_STAR( IR(nb,m-k), IR(0,nb)   );
             auto A12_STAR_MR = A1R_STAR_MR( IR(0,nb),   IR(nb,n-k) );
 
-            LocalGemm
-            ( NORMAL, ADJOINT, F(-1), A21_MC_STAR, Y12Adj_MR_STAR, F(1), A22 );
+            LocalGemm( F(-1), A21_MC_STAR.N(), Y12Adj_MR_STAR.H(), F(1), A22 );
             Conjugate( A12_STAR_MR );
-            LocalGemm
-            ( NORMAL, NORMAL, F(-1), X21_MC_STAR, A12_STAR_MR, F(1), A22 );
+            LocalGemm( F(-1), X21_MC_STAR.N(), A12_STAR_MR.N(), F(1), A22 );
         }
         else
         {

@@ -98,11 +98,11 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
         // with the newly effected portion to increase performance
         Adjoint( HPanT, ZNew );
         Zero( ZOld );
-        Gemm( ADJOINT, NORMAL, F(1), HPanB, HEffectedOldB, F(0), ZOld );
+        Gemm( F(1), HPanB.H(), HEffectedOldB.N(), F(0), ZOld );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
         HPanCopy = HPan;
         MakeIdentity( HEffectedNew );
-        Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), HEffected );
+        Gemm( F(-1), HPanCopy.N(), Z.N(), F(1), HEffected );
 
         oldEffectedHeight = effectedHeight;
     }
@@ -216,15 +216,14 @@ LV
         Adjoint( HPanT_MC_STAR, ZNew_STAR_VR );
         Zero( ZOld_STAR_MR );
         LocalGemm
-        ( ADJOINT, NORMAL, 
-          F(1), HPanB_MC_STAR, HEffectedOldB, F(0), ZOld_STAR_MR );
+        ( F(1), HPanB_MC_STAR.H(), HEffectedOldB.N(), F(0), ZOld_STAR_MR );
         Contract( ZOld_STAR_MR, ZOld_STAR_VR );
         LocalTrsm
         ( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
         Z_STAR_MR = Z_STAR_VR;
         MakeIdentity( HEffectedNew );
         LocalGemm
-        ( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), HEffected );
+        ( F(-1), HPan_MC_STAR.N(), Z_STAR_MR.N(), F(1), HEffected );
 
         oldEffectedHeight = effectedHeight;
     }

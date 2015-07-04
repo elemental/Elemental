@@ -103,7 +103,7 @@ main( int argc, char* argv[] )
             const Real twoEstOfA = TwoNormEstimate( A );
 
             DiagonalScale( RIGHT, NORMAL, s, U );
-            Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
+            Gemm( C(-1), U.N(), V.H(), C(1), A );
             const Real maxNormOfE = MaxNorm( A );
             const Real oneNormOfE = OneNorm( A );
             const Real infNormOfE = InfinityNorm( A );

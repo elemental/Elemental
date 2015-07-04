@@ -62,8 +62,8 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, B1 );
 
-        Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
-        Gemm( NORMAL, NORMAL, F(-1), A21, B1,  F(1), B2 );
+        Gemm( F(-1), A21.N(), A12.N(), F(1), A22 );
+        Gemm( F(-1), A21.N(), B1.N(),  F(1), B2 );
     }
 }
 
@@ -130,18 +130,16 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         A12_STAR_MR = A12_STAR_VR;
         B1_STAR_MR.AlignWith( B1 );
         B1_STAR_MR = B1_STAR_VR;
-        LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
+        LocalGemm( F(-1), A21_MC_STAR.N(), A12_STAR_MR.N(), F(1), A22 );
         if( BAligned )
         {
-            LocalGemm
-            ( NORMAL, NORMAL, F(-1), A21_MC_STAR, B1_STAR_MR, F(1), B2 );
+            LocalGemm( F(-1), A21_MC_STAR.N(), B1_STAR_MR.N(), F(1), B2 );
         }
         else
         {
             A21_MC_STAR_B.AlignWith( B2 );
             A21_MC_STAR_B = A21_MC_STAR;
-            LocalGemm
-            ( NORMAL, NORMAL, F(-1), A21_MC_STAR_B, B1_STAR_MR, F(1), B2 );
+            LocalGemm( F(-1), A21_MC_STAR_B.N(), B1_STAR_MR.N(), F(1), B2 );
         }
 
         A11 = A11_STAR_STAR;

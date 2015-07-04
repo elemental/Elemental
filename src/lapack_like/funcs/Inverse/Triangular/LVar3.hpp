@@ -68,7 +68,7 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
         auto L21 = L( ind2, ind1 );
 
         Trsm( LEFT, LOWER, NORMAL, diag, F(-1), L11, L10 );
-        Gemm( NORMAL, NORMAL, F(1), L21, L10, F(1), L20 );
+        Gemm( F(1), L21.N(), L10.N(), F(1), L20 );
         Trsm( RIGHT, LOWER, NORMAL, diag, F(1), L11, L21 );
         LVar3Unb( diag, L11 );
     }
@@ -118,8 +118,7 @@ LVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& LPre )
         L21_MC_STAR = L21;
         L10_STAR_MR.AlignWith( L20 );
         L10_STAR_MR = L10_STAR_VR;
-        LocalGemm
-        ( NORMAL, NORMAL, F(1), L21_MC_STAR, L10_STAR_MR, F(1), L20 );
+        LocalGemm( F(1), L21_MC_STAR.N(), L10_STAR_MR.N(), F(1), L20 );
         L10 = L10_STAR_MR;
 
         L21_VC_STAR = L21_MC_STAR;

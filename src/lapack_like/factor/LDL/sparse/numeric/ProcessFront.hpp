@@ -35,7 +35,7 @@ inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
           LogicError("AL and ABR don't have conformal dimensions");
     )
     const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
 
     Matrix<F> d1;
     Matrix<F> S21;
@@ -55,16 +55,16 @@ inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
         LDL( AL11, conjugate );
         GetDiagonal( AL11, d1 );
 
-        Trsm( RIGHT, LOWER, orientation, UNIT, F(1), AL11, AL21 );
+        Trsm( RIGHT, LOWER, orient, UNIT, F(1), AL11, AL21 );
 
         S21 = AL21;
         DiagonalSolve( RIGHT, NORMAL, d1, AL21 );
 
         PartitionDown( S21, S21T, S21B, AL22.Width() );
         PartitionDown( AL21, AL21T, AL21B, AL22.Width() );
-        Gemm( NORMAL, orientation, F(-1), S21, AL21T, F(1), AL22 );
+        Gemm( F(-1), S21.N(), AL21T.Orient(orient), F(1), AL22 );
         MakeTrapezoidal( LOWER, AL22 );
-        Trrk( LOWER, NORMAL, orientation, F(-1), S21B, AL21B, F(1), ABR );
+        Trrk( LOWER, NORMAL, orient, F(-1), S21B, AL21B, F(1), ABR );
     }
 }
 
@@ -75,7 +75,7 @@ void ProcessFrontIntraPiv
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
     const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
 
     Matrix<F> ATL, ABL;
     PartitionDown( AL, ATL, ABL, n );
@@ -84,11 +84,11 @@ void ProcessFrontIntraPiv
     auto diag = GetDiagonal(ATL);
 
     PermuteCols( ABL, piv );
-    Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );
+    Trsm( RIGHT, LOWER, orient, UNIT, F(1), ATL, ABL );
     Matrix<F> SBL( ABL );
 
     QuasiDiagonalSolve( RIGHT, LOWER, diag, subdiag, ABL, conjugate );
-    Trrk( LOWER, NORMAL, orientation, F(-1), SBL, ABL, F(1), ABR );
+    Trrk( LOWER, NORMAL, orient, F(-1), SBL, ABL, F(1), ABR );
 }
 
 template<typename F>
@@ -112,8 +112,8 @@ inline void ProcessFrontBlock
         // Solve against ABL and update ABR
         // NOTE: This does not exploit symmetry
         SolveAfter( ATL, dSub, p, ABL, conjugate );
-        const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
+        const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+        Gemm( F(-1), ABL.N(), BBL.Orient(orient), F(1), ABR );
 
         // Copy the original contents of ABL back
         ABL = BBL;
@@ -183,7 +183,7 @@ inline void ProcessFrontVanilla
     )
     const Grid& g = AL.Grid();
     const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
 
     DistMatrix<F,STAR,STAR> AL11_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
@@ -213,7 +213,7 @@ inline void ProcessFrontVanilla
         AL21_VC_STAR.AlignWith( AL22 );
         AL21_VC_STAR = AL21;
         LocalTrsm
-        ( RIGHT, LOWER, orientation, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
+        ( RIGHT, LOWER, orient, UNIT, F(1), AL11_STAR_STAR, AL21_VC_STAR );
 
         S21Trans_STAR_MC.AlignWith( AL22 );
         Transpose( AL21_VC_STAR, S21Trans_STAR_MC );
@@ -225,9 +225,9 @@ inline void ProcessFrontVanilla
         PartitionRight( S21Trans_STAR_MC, leftL, leftR, AL22.Width() );
         PartitionRight( AL21Trans_STAR_MR, rightL, rightR, AL22.Width() );
         PartitionDown( AL22, AL22T, AL22B, AL22.Width() );
-        LocalTrrk( LOWER, orientation,  F(-1), leftL, rightL, F(1), AL22T );
-        LocalGemm( orientation, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
-        LocalTrrk( LOWER, orientation,  F(-1), leftR, rightR, F(1), ABR );
+        LocalTrrk( LOWER, orient,  F(-1), leftL, rightL, F(1), AL22T );
+        LocalGemm( F(-1), leftR.Orient(orient), rightL.N(), F(1), AL22B );
+        LocalTrrk( LOWER, orient,  F(-1), leftR, rightR, F(1), ABR );
 
         DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
         Transpose( S21Trans_STAR_MC, AL21 );
@@ -242,7 +242,7 @@ void ProcessFrontIntraPiv
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
     const Grid& g = AL.Grid();
     const Int n = AL.Width();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
     
     DistMatrix<F> ATL(g), ABL(g);
     PartitionDown( AL, ATL, ABL, n );
@@ -251,7 +251,7 @@ void ProcessFrontIntraPiv
     auto diag = GetDiagonal(ATL);
 
     PermuteCols( ABL, p );
-    Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );
+    Trsm( RIGHT, LOWER, orient, UNIT, F(1), ATL, ABL );
     DistMatrix<F,MC,STAR> SBL_MC_STAR(g);
     SBL_MC_STAR.AlignWith( ABR );
     SBL_MC_STAR = ABL;
@@ -288,8 +288,8 @@ inline void ProcessFrontBlock
         // Solve against ABL and update ABR
         // NOTE: This update does not exploit symmetry
         SolveAfter( ATL, dSub, p, ABL, conjugate );
-        const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
+        const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+        Gemm( F(-1), ABL.N(), BBL.Orient(orient), F(1), ABR );
 
         // Copy the original contents of ABL back
         ABL = BBL;

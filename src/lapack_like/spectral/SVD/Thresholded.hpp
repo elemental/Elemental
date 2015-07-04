@@ -20,11 +20,11 @@ inline void TallAbsoluteThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallAbsoluteThresholded");
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallAbsoluteThresholded");
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -64,7 +64,7 @@ inline void TallAbsoluteThresholded
 
     // Y := A V
     Matrix<F> Y;
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    Gemm( F(1), A.N(), V.N(), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -84,11 +84,11 @@ inline void TallRelativeThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallRelativeThresholded");
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallRelativeThresholded");
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -119,7 +119,7 @@ inline void TallRelativeThresholded
 
     // Y := A V
     Matrix<F> Y;
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    Gemm( F(1), A.N(), V.N(), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -153,12 +153,12 @@ TallAbsoluteThresholded
   AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallAbsoluteThresholded");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Height() < APre.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallAbsoluteThresholded");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Height() < APre.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;    
@@ -205,7 +205,7 @@ TallAbsoluteThresholded
 
     // Y := A V
     DistMatrix<F> Y(g);
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    Gemm( F(1), A.N(), V.N(), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -234,12 +234,12 @@ TallRelativeThresholded
   AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallRelativeThresholded");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Height() < APre.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallRelativeThresholded");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Height() < APre.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -275,7 +275,7 @@ TallRelativeThresholded
 
     // Y := A V
     DistMatrix<F> Y(g);
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    Gemm( F(1), A.N(), V.N(), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -316,12 +316,12 @@ TallAbsoluteThresholded
   AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallAbsoluteThresholded");
-        AssertSameGrids( A, sPre, VPre );
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallAbsoluteThresholded");
+      AssertSameGrids( A, sPre, VPre );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
@@ -371,7 +371,7 @@ TallAbsoluteThresholded
     DistMatrix<F,VC,STAR> Y(g);
     Y.AlignWith( A );
     Zeros( Y, m, k );
-    LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+    LocalGemm( F(1), A.N(), V.N(), F(0), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -396,12 +396,12 @@ TallRelativeThresholded
   AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallRelativeThresholded");
-        AssertSameGrids( A, sPre, VPre );
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallRelativeThresholded");
+      AssertSameGrids( A, sPre, VPre );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
@@ -441,7 +441,7 @@ TallRelativeThresholded
     DistMatrix<F,VC,STAR> Y(g);
     Y.AlignWith( A );
     Zeros( Y, m, k );
-    LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+    LocalGemm( F(1), A.N(), V.N(), F(0), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -477,11 +477,11 @@ WideAbsoluteThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideAbsoluteThresholded");
-        if( A.Width() < A.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideAbsoluteThresholded");
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -521,7 +521,7 @@ WideAbsoluteThresholded
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
     // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    Gemm( F(1), A.H(), U.N(), V );
 
     // Divide each column of (Sigma V) by sigma
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -542,11 +542,11 @@ WideRelativeThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideThresholded");
-        if( A.Width() < A.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideThresholded");
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -577,7 +577,7 @@ WideRelativeThresholded
     const Int k = s.Height();
 
     // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    Gemm( F(1), A.H(), U.N(), V );
 
     // Divide each column of (Sigma V) by sigma
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -611,11 +611,11 @@ WideAbsoluteThresholded
   AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideAbsoluteThresholded");
-        if( APre.Width() < APre.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideAbsoluteThresholded");
+      if( APre.Width() < APre.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -663,7 +663,7 @@ WideAbsoluteThresholded
     }
 
     // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    Gemm( F(1), A.H(), U.N(), V );
 
     // Divide each column of (Sigma V) by sigma
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -692,12 +692,12 @@ WideRelativeThresholded
   AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideRelativeThresholded");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Width() < APre.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideRelativeThresholded");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Width() < APre.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -733,7 +733,7 @@ WideRelativeThresholded
     Copy( s_STAR_STAR, s );
 
     // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    Gemm( F(1), A.H(), U.N(), V );
 
     // Divide each column of (Sigma V) by sigma
     // NOTE: A (potentially better) alternative would be to compute the norm of

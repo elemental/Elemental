@@ -31,7 +31,7 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
 
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+    Gemm( F(1), U.N(), V.H(), F(0), A );
 
     return ZeroNorm( s );
 }
@@ -57,7 +57,7 @@ Int Cross( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
 
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+    Gemm( F(1), U.N(), V.H(), F(0), A );
 
     return ZeroNorm( s );
 }
@@ -79,7 +79,7 @@ Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
 
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
-    LocalGemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+    LocalGemm( F(1), U.N(), V.H(), F(0), A );
 
     return ZeroNorm( s );
 }

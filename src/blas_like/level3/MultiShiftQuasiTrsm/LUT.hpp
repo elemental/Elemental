@@ -205,18 +205,18 @@ LUTUnb
 template<typename F>
 inline void
 LUT
-( Orientation orientation, 
+( Orientation orient, 
   const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(
         CSE cse("msquasitrsm::LUT");
-        if( orientation == NORMAL )
+        if( orient == NORMAL )
             LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
-    const bool conjugate = ( orientation==ADJOINT );
+    const bool conjugate = ( orient==ADJOINT );
     if( conjugate )
         Conjugate( X );
 
@@ -236,7 +236,7 @@ LUT
         auto X2 = X( ind2, ALL );
 
         LUTUnb( false, U11, shifts, X1 );
-        Gemm( TRANSPOSE, NORMAL, F(-1), U12, X1, F(1), X2 );
+        Gemm( F(-1), U12.T(), X1.N(), F(1), X2 );
     }
 
     if( conjugate )
@@ -246,20 +246,20 @@ LUT
 template<typename Real>
 inline void
 LUT
-( Orientation orientation, 
+( Orientation orient, 
   const Matrix<Real>& U, 
   const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUT");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XReal.Height();
     const Int bsize = Blocksize();
 
-    const bool conjugate = ( orientation==ADJOINT );
+    const bool conjugate = ( orient==ADJOINT );
     if( conjugate )
         XImag *= -1;
 
@@ -282,8 +282,8 @@ LUT
         auto X2Imag = XImag( ind2, ALL );
 
         LUTUnb( false, U11, shifts, X1Real, X1Imag );
-        Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Real, Real(1), X2Real );
-        Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Imag, Real(1), X2Imag );
+        Gemm( Real(-1), U12.T(), X1Real.N(), Real(1), X2Real );
+        Gemm( Real(-1), U12.T(), X1Imag.N(), Real(1), X2Imag );
     }
     if( conjugate )
         XImag *= -1;
@@ -293,13 +293,13 @@ LUT
 template<typename F>
 inline void
 LUTLarge
-( Orientation orientation, 
+( Orientation orient, 
   const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTLarge");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
@@ -338,7 +338,7 @@ LUTLarge
         
         // X1[* ,VR] := U11^-[T/H][*,*] X1[* ,VR]
         LocalMultiShiftQuasiTrsm
-        ( LEFT, UPPER, orientation, F(1), U11_STAR_STAR, shifts, X1_STAR_VR );
+        ( LEFT, UPPER, orient, F(1), U11_STAR_STAR, shifts, X1_STAR_VR );
 
         X1_STAR_MR.AlignWith( X2 );
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
@@ -349,14 +349,14 @@ LUTLarge
         // X2[MC,MR] -= (U12[* ,MC])^(T/H) X1[* ,MR]
         //            = U12^(T/H)[MC,*] X1[* ,MR]
         LocalGemm
-        ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
+        ( F(-1), U12_STAR_MC.Orient(orient), X1_STAR_MR.N(), F(1), X2 );
     }
 }
 
 template<typename Real>
 inline void
 LUTLarge
-( Orientation orientation, 
+( Orientation orient, 
   const AbstractDistMatrix<Real>& UPre, 
   const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
         AbstractDistMatrix<Real>& XRealPre, 
@@ -364,7 +364,7 @@ LUTLarge
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTLarge");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     typedef Complex<Real> C;
@@ -413,7 +413,7 @@ LUTLarge
         
         // X1[* ,VR] := U11^-[T/H][*,*] X1[* ,VR]
         LocalMultiShiftQuasiTrsm
-        ( LEFT, UPPER, orientation, 
+        ( LEFT, UPPER, orient, 
           C(1), U11_STAR_STAR, shifts, X1Real_STAR_VR, X1Imag_STAR_VR );
 
         X1Real_STAR_MR.AlignWith( X2Real );
@@ -428,11 +428,11 @@ LUTLarge
         // X2[MC,MR] -= (U12[* ,MC])^(T/H) X1[* ,MR]
         //            = U12^(T/H)[MC,*] X1[* ,MR]
         LocalGemm
-        ( orientation, NORMAL, 
-          Real(-1), U12_STAR_MC, X1Real_STAR_MR, Real(1), X2Real );
+        ( Real(-1), U12_STAR_MC.Orient(orient), X1Real_STAR_MR.N(), 
+          Real(1), X2Real );
         LocalGemm
-        ( orientation, NORMAL, 
-          Real(-1), U12_STAR_MC, X1Imag_STAR_MR, Real(1), X2Imag );
+        ( Real(-1), U12_STAR_MC.Orient(orient), X1Imag_STAR_MR.N(), 
+          Real(1), X2Imag );
     }
 }
 
@@ -440,13 +440,13 @@ LUTLarge
 template<typename F>
 inline void
 LUTMedium
-( Orientation orientation, 
+( Orientation orient, 
   const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre, 
         AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTMedium");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
@@ -484,7 +484,7 @@ LUTMedium
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
-        Transpose( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1, X1Trans_MR_STAR, (orient==ADJOINT) );
         
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
@@ -494,22 +494,23 @@ LUTMedium
         ( RIGHT, UPPER, NORMAL, 
           F(1), U11_STAR_STAR, shifts_MR_STAR_Align, X1Trans_MR_STAR );
 
-        Transpose( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
+        Transpose( X1Trans_MR_STAR, X1, (orient==ADJOINT) );
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12; // U12[* ,MC] <- U12[MC,MR]
 
         // X2[MC,MR] -= (U12[* ,MC])^[T/H] X1[* ,MR]
         //            = U12^[T/H][MC,*] X1[* ,MR]
         LocalGemm
-        ( orientation, orientation, 
-          F(-1), U12_STAR_MC, X1Trans_MR_STAR, F(1), X2 );
+        ( F(-1), U12_STAR_MC.Orient(orient), 
+                 X1Trans_MR_STAR.Orient(orient), 
+          F(1), X2 );
     }
 }
 
 template<typename Real>
 inline void
 LUTMedium
-( Orientation orientation, 
+( Orientation orient, 
   const AbstractDistMatrix<Real>& UPre, 
   const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
         AbstractDistMatrix<Real>& XRealPre, 
@@ -517,7 +518,7 @@ LUTMedium
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTMedium");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     typedef Complex<Real> C;
@@ -563,8 +564,8 @@ LUTMedium
         U11_STAR_STAR = U11; 
         X1RealTrans_MR_STAR.AlignWith( X2Real );
         X1ImagTrans_MR_STAR.AlignWith( X2Imag );
-        Transpose( X1Real, X1RealTrans_MR_STAR, (orientation==ADJOINT) );
-        Transpose( X1Imag, X1ImagTrans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1Real, X1RealTrans_MR_STAR, (orient==ADJOINT) );
+        Transpose( X1Imag, X1ImagTrans_MR_STAR, (orient==ADJOINT) );
         
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
@@ -575,19 +576,21 @@ LUTMedium
           C(1), U11_STAR_STAR, shifts_MR_STAR_Align, 
                 X1RealTrans_MR_STAR, X1ImagTrans_MR_STAR );
 
-        Transpose( X1RealTrans_MR_STAR, X1Real, (orientation==ADJOINT) );
-        Transpose( X1ImagTrans_MR_STAR, X1Imag, (orientation==ADJOINT) );
+        Transpose( X1RealTrans_MR_STAR, X1Real, (orient==ADJOINT) );
+        Transpose( X1ImagTrans_MR_STAR, X1Imag, (orient==ADJOINT) );
         U12_STAR_MC.AlignWith( X2Real );
         U12_STAR_MC = U12;
 
         // X2[MC,MR] -= (U12[* ,MC])^[T/H] X1[* ,MR]
         //            = U12^[T/H][MC,*] X1[* ,MR]
         LocalGemm
-        ( orientation, orientation, 
-          Real(-1), U12_STAR_MC, X1RealTrans_MR_STAR, Real(1), X2Real );
+        ( Real(-1), U12_STAR_MC.Orient(orient), 
+                    X1RealTrans_MR_STAR.Orient(orient), 
+          Real(1), X2Real );
         LocalGemm
-        ( orientation, orientation, 
-          Real(-1), U12_STAR_MC, X1ImagTrans_MR_STAR, Real(1), X2Imag );
+        ( Real(-1), U12_STAR_MC.Orient(orient), 
+                    X1ImagTrans_MR_STAR.Orient(orient), 
+          Real(1), X2Imag );
     }
 }
 
@@ -595,7 +598,7 @@ LUTMedium
 template<typename F,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LUTSmall
-( Orientation orientation, 
+( Orientation orient, 
   const DistMatrix<F,STAR,             rowDist>& U, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<F,     rowDist,STAR        >& X )
@@ -603,7 +606,7 @@ LUTSmall
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTSmall");
       AssertSameGrids( U, shifts, X );
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
       if( U.Height() != U.Width() || U.Height() != X.Height() )
           LogicError
@@ -640,20 +643,20 @@ LUTSmall
         
         // X1[* ,* ] := U11^-[T/H][* ,* ] X1[* ,* ]
         LocalMultiShiftQuasiTrsm
-        ( LEFT, UPPER, orientation,
+        ( LEFT, UPPER, orient,
           F(1), U11_STAR_STAR, shifts_STAR_STAR, X1_STAR_STAR );
 
         X1 = X1_STAR_STAR;
 
         // X2[VR,* ] -= U12[* ,VR]^[T/H] X1[* ,* ]
-        LocalGemm( orientation, NORMAL, F(-1), U12, X1_STAR_STAR, F(1), X2 );
+        LocalGemm( F(-1), U12.Orient(orient), X1_STAR_STAR.N(), F(1), X2 );
     }
 }
 
 template<typename Real,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LUTSmall
-( Orientation orientation, 
+( Orientation orient, 
   const DistMatrix<Real,STAR,         rowDist>& U, 
   const DistMatrix<Complex<Real>,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<Real,              rowDist,STAR        >& XReal,
@@ -662,7 +665,7 @@ LUTSmall
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTSmall");
       AssertSameGrids( U, shifts, XReal, XImag );
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
       if( U.Height() != U.Width() || U.Height() != XReal.Height() )
           LogicError
@@ -706,7 +709,7 @@ LUTSmall
         
         // X1[* ,* ] := U11^-[T/H][* ,* ] X1[* ,* ]
         LocalMultiShiftQuasiTrsm
-        ( LEFT, UPPER, orientation,
+        ( LEFT, UPPER, orient,
           C(1), U11_STAR_STAR, shifts_STAR_STAR, 
                 X1Real_STAR_STAR, X1Imag_STAR_STAR );
 
@@ -715,11 +718,9 @@ LUTSmall
 
         // X2[VR,* ] -= U12[* ,VR]^[T/H] X1[* ,* ]
         LocalGemm
-        ( orientation, NORMAL, 
-          Real(-1), U12, X1Real_STAR_STAR, Real(1), X2Real );
+        ( Real(-1), U12.Orient(orient), X1Real_STAR_STAR.N(), Real(1), X2Real );
         LocalGemm
-        ( orientation, NORMAL, 
-          Real(-1), U12, X1Imag_STAR_STAR, Real(1), X2Imag );
+        ( Real(-1), U12.Orient(orient), X1Imag_STAR_STAR.N(), Real(1), X2Imag );
     }
 }
 

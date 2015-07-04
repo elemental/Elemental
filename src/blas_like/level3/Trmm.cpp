@@ -19,11 +19,11 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const Matrix<T>& A, Matrix<T>& B )
+  Ring alpha, const Matrix<Ring>& A, Matrix<Ring>& B )
 {
     DEBUG_ONLY(
       CSE cse("Trmm");
@@ -49,11 +49,11 @@ void Trmm
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
-template<typename T>
+template<typename Ring>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, AbstractDistMatrix<Ring>& X )
 {
     DEBUG_ONLY(CSE cse("Trmm"))
     X *= alpha;
@@ -87,11 +87,11 @@ void Trmm
     }
 }
 
-template<typename T>
+template<typename Ring>
 void LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B )
+  Ring alpha, const DistMatrix<Ring,STAR,STAR>& A, AbstractDistMatrix<Ring>& B )
 {
     DEBUG_ONLY(
       CSE cse("LocalTrmm");
@@ -104,19 +104,21 @@ void LocalTrmm
     ( side, uplo, orientation, diag, alpha, A.LockedMatrix(), B.Matrix() );
 }
 
-#define PROTO(T) \
+#define PROTO(Ring) \
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const Matrix<T>& A, Matrix<T>& B ); \
+    Ring alpha, const Matrix<Ring>& A, Matrix<Ring>& B ); \
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                      AbstractDistMatrix<Ring>& B ); \
   template void LocalTrmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B );
+    Ring alpha, const DistMatrix<Ring,STAR,STAR>& A, \
+                      AbstractDistMatrix<Ring>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -124,7 +124,7 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
         auto X1 = X( ind1, ALL );
 
         LUNUnb( U11, X1, checkIfSingular );
-        Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+        Gemm( F(-1), U01.N(), X1.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -185,7 +185,7 @@ LUNLarge
         U01_MC_STAR = U01;        // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        LocalGemm( F(-1), U01_MC_STAR.N(), X1_STAR_MR.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -245,8 +245,7 @@ LUNMedium
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        LocalGemm
-        ( NORMAL, TRANSPOSE, F(-1), U01_MC_STAR, X1Trans_MR_STAR, F(1), X0 );
+        LocalGemm( F(-1), U01_MC_STAR.N(), X1Trans_MR_STAR.T(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -304,7 +303,7 @@ LUNSmall
         X1 = X1_STAR_STAR;
 
         // X0[VC,* ] -= U01[VC,* ] X1[* ,* ]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01, X1_STAR_STAR, F(1), X0 );
+        LocalGemm( F(-1), U01.N(), X1_STAR_STAR.N(), F(1), X0 );
 
         if( k == 0 )
             break;

@@ -10,118 +10,120 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const Matrix<T>& A, Base<T> beta, Matrix<T>& C )
+  Base<Ring> alpha, const Matrix<Ring>& A, Base<Ring> beta, Matrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
-    Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
+    Syrk( uplo, orientation, Ring(alpha), A, Ring(beta), C, true );
 }
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const Matrix<T>& A, Matrix<T>& C )
-{
-    DEBUG_ONLY(CSE cse("Herk"))
-    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
-    Syrk( uplo, orientation, T(alpha), A, T(0), C, true );
-}
-
-template<typename T>
-void Herk
-( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, 
-  Base<T> beta,        AbstractDistMatrix<T>& C )
-{
-    DEBUG_ONLY(CSE cse("Herk"))
-    Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
-}
-
-template<typename T>
-void Herk
-( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C )
+  Base<Ring> alpha, const Matrix<Ring>& A, Matrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syrk( uplo, orientation, T(alpha), A, T(0), C, true );
+    Syrk( uplo, orientation, Ring(alpha), A, Ring(0), C, true );
 }
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const SparseMatrix<T>& A,
-  Base<T> beta,        SparseMatrix<T>& C )
+  Base<Ring> alpha, const AbstractDistMatrix<Ring>& A, 
+  Base<Ring> beta,        AbstractDistMatrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
-    Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
+    Syrk( uplo, orientation, Ring(alpha), A, Ring(beta), C, true );
 }
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const SparseMatrix<T>& A,
-                       SparseMatrix<T>& C )
+  Base<Ring> alpha, const AbstractDistMatrix<Ring>& A, 
+                          AbstractDistMatrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
-    Syrk( uplo, orientation, T(alpha), A, C, true );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syrk( uplo, orientation, Ring(alpha), A, Ring(0), C, true );
 }
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const DistSparseMatrix<T>& A,
-  Base<T> beta,        DistSparseMatrix<T>& C )
+  Base<Ring> alpha, const SparseMatrix<Ring>& A,
+  Base<Ring> beta,        SparseMatrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
-    Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
+    Syrk( uplo, orientation, Ring(alpha), A, Ring(beta), C, true );
 }
 
-template<typename T>
+template<typename Ring>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const DistSparseMatrix<T>& A,
-                       DistSparseMatrix<T>& C )
+  Base<Ring> alpha, const SparseMatrix<Ring>& A,
+                          SparseMatrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
-    Syrk( uplo, orientation, T(alpha), A, C, true );
+    Syrk( uplo, orientation, Ring(alpha), A, C, true );
 }
 
-#define PROTO(T) \
+template<typename Ring>
+void Herk
+( UpperOrLower uplo, Orientation orientation,
+  Base<Ring> alpha, const DistSparseMatrix<Ring>& A,
+  Base<Ring> beta,        DistSparseMatrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("Herk"))
+    Syrk( uplo, orientation, Ring(alpha), A, Ring(beta), C, true );
+}
+
+template<typename Ring>
+void Herk
+( UpperOrLower uplo, Orientation orientation,
+  Base<Ring> alpha, const DistSparseMatrix<Ring>& A,
+                          DistSparseMatrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("Herk"))
+    Syrk( uplo, orientation, Ring(alpha), A, C, true );
+}
+
+#define PROTO(Ring) \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const Matrix<T>& A, \
-    Base<T> beta,        Matrix<T>& C ); \
+    Base<Ring> alpha, const Matrix<Ring>& A, \
+    Base<Ring> beta,        Matrix<Ring>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const Matrix<T>& A, Matrix<T>& C ); \
+    Base<Ring> alpha, const Matrix<Ring>& A, Matrix<Ring>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C ); \
+    Base<Ring> alpha, const AbstractDistMatrix<Ring>& A, \
+                            AbstractDistMatrix<Ring>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const AbstractDistMatrix<T>& A, \
-    Base<T> beta,        AbstractDistMatrix<T>& C ); \
+    Base<Ring> alpha, const AbstractDistMatrix<Ring>& A, \
+    Base<Ring> beta,        AbstractDistMatrix<Ring>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const SparseMatrix<T>& A, \
-    Base<T> beta,        SparseMatrix<T>& C ); \
+    Base<Ring> alpha, const SparseMatrix<Ring>& A, \
+    Base<Ring> beta,        SparseMatrix<Ring>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const SparseMatrix<T>& A, \
-                         SparseMatrix<T>& C ); \
+    Base<Ring> alpha, const SparseMatrix<Ring>& A, \
+                            SparseMatrix<Ring>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const DistSparseMatrix<T>& A, \
-    Base<T> beta,        DistSparseMatrix<T>& C ); \
+    Base<Ring> alpha, const DistSparseMatrix<Ring>& A, \
+    Base<Ring> beta,        DistSparseMatrix<Ring>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const DistSparseMatrix<T>& A, \
-                         DistSparseMatrix<T>& C );
+    Base<Ring> alpha, const DistSparseMatrix<Ring>& A, \
+                            DistSparseMatrix<Ring>& C );
 
 // blas::Herk not yet supported for Int
 #define EL_NO_INT_PROTO

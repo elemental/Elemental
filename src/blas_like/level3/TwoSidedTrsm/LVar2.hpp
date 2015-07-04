@@ -63,7 +63,7 @@ LVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         twotrsm::LUnb( diag, A11, L11 );
 
         // A21 := A21 - A20 L10'
-        Gemm( NORMAL, ADJOINT, F(-1), A20, L10, F(1), A21 );
+        Gemm( F(-1), A20.N(), L10.H(), F(1), A21 );
 
         // A21 := A21 inv(L11)'
         Trsm( RIGHT, LOWER, ADJOINT, diag, F(1), L11, A21 );
@@ -153,7 +153,7 @@ LVar2
 
         // X11 := A10 L10'
         X11_MC_STAR.AlignWith( L10 );
-        LocalGemm( NORMAL, NORMAL, F(1), A10, L10Adj_MR_STAR, X11_MC_STAR );
+        LocalGemm( F(1), A10.N(), L10Adj_MR_STAR.N(), X11_MC_STAR );
 
         // A10 := A10 - Y10
         A10.Matrix() -= Y10Local;
@@ -161,8 +161,7 @@ LVar2
         A10.AdjointColAllGather( A10Adj_MR_STAR );
         
         // A11 := A11 - (X11 + L10 A10') = A11 - (A10 L10' + L10 A10')
-        LocalGemm
-        ( NORMAL, NORMAL, F(1), L10, A10Adj_MR_STAR, F(1), X11_MC_STAR );
+        LocalGemm( F(1), L10.N(), A10Adj_MR_STAR.N(), F(1), X11_MC_STAR );
         X11.AlignWith( A11 );
         Contract( X11_MC_STAR, X11 ); 
         AxpyTrapezoid( LOWER, F(-1), X11, A11 );
@@ -181,7 +180,7 @@ LVar2
 
         // A21 := A21 - A20 L10'
         X21_MC_STAR.AlignWith( A20 );
-        LocalGemm( NORMAL, NORMAL, F(1), A20, L10Adj_MR_STAR, X21_MC_STAR );
+        LocalGemm( F(1), A20.N(), L10Adj_MR_STAR.N(), X21_MC_STAR );
         AxpyContract( F(-1), X21_MC_STAR, A21 );
 
         // A21 := A21 inv(L11)'

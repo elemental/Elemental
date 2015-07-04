@@ -85,10 +85,10 @@ NewtonSchulzStep( const Matrix<F>& X, Matrix<F>& XTmp, Matrix<F>& XNew )
  
     // XTmp := 3I - X^2
     Identity( XTmp, n, n );
-    Gemm( NORMAL, NORMAL, Real(-1), X, X, Real(3), XTmp );
+    Gemm( Real(-1), X.N(), X.N(), Real(3), XTmp );
 
     // XNew := 1/2 X XTmp
-    Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
+    Gemm( Real(1)/Real(2), X.N(), XTmp.N(), XNew );
 }
 
 template<typename F>
@@ -102,10 +102,10 @@ NewtonSchulzStep
 
     // XTmp := 3I - X^2
     Identity( XTmp, n, n );
-    Gemm( NORMAL, NORMAL, Real(-1), X, X, Real(3), XTmp );
+    Gemm( Real(-1), X.N(), X.N(), Real(3), XTmp );
 
     // XNew := 1/2 X XTmp
-    Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
+    Gemm( Real(1)/Real(2), X.N(), XTmp.N(), XNew );
 }
 
 // Please see Chapter 5 of Higham's 
@@ -206,7 +206,7 @@ void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
     DEBUG_ONLY(CSE cse("Sign"))
     Matrix<F> ACopy( A );
     sign::Newton( A, ctrl );
-    Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
+    Gemm( F(1), A.N(), ACopy.N(), N );
 }
 
 template<typename F>
@@ -232,7 +232,7 @@ void Sign
 
     DistMatrix<F> ACopy( A );
     sign::Newton( A, ctrl );
-    Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
+    Gemm( F(1), A.N(), ACopy.N(), N );
 }
 
 // The Hermitian sign decomposition is equivalent to the Hermitian polar

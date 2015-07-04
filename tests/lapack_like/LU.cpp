@@ -40,7 +40,7 @@ void TestCorrectness
     const Real oneNormOfX = OneNorm( X );
     const Real infNormOfX = InfinityNorm( X );
     const Real frobNormOfX = FrobeniusNorm( X );
-    Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
+    Gemm( F(-1), AOrig.N(), Y.N(), F(1), X );
     const Real oneNormOfError = OneNorm( X );
     const Real infNormOfError = InfinityNorm( X );
     const Real frobNormOfError = FrobeniusNorm( X );

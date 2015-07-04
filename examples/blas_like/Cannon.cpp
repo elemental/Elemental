@@ -43,7 +43,7 @@ main( int argc, char* argv[] )
 
         Timer timer;
         timer.Start();
-        Gemm( NORMAL, NORMAL, alpha, A, B, beta, C, GEMM_CANNON );
+        Gemm( alpha, A.N(), B.N(), beta, C, GEMM_CANNON );
         const double gemmTime = timer.Stop();
         if( g.Rank() == 0 )
         {

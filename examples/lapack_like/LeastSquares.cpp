@@ -19,7 +19,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const char trans = Input("--trans","orientation",'N');
+        const char trans = Input("--trans","orient",'N');
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int numRhs = Input("--numRhs","# of right-hand sides",1);
@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Orientation orientation = CharToOrientation( trans );
+        const Orientation orient = CharToOrientation( trans );
 
         // Set the algorithmic blocksize
         SetBlocksize( blocksize );
@@ -44,14 +44,14 @@ main( int argc, char* argv[] )
         DistMatrix<F> A(grid), B(grid), X(grid), Z(grid);
         for( Int test=0; test<3; ++test )
         {
-            const Int k = ( orientation==NORMAL ? m : n );
-            const Int N = ( orientation==NORMAL ? n : m );
+            const Int k = ( orient==NORMAL ? m : n );
+            const Int N = ( orient==NORMAL ? n : m );
             Uniform( A, m, n );
             Zeros( B, k, numRhs );
 
             // Form B in the range of op(A)
             Uniform( Z, N, numRhs );
-            Gemm( orientation, NORMAL, F(1), A, Z, F(0), B );
+            Gemm( F(1), A.Orient(orient), Z.N(), F(0), B );
 
             // Perform the QR/LQ factorization and solve
             if( commRank == 0 )
@@ -61,7 +61,7 @@ main( int argc, char* argv[] )
             }
             mpi::Barrier( comm );
             double startTime = mpi::Time();
-            LeastSquares( orientation, A, B, X );
+            LeastSquares( orient, A, B, X );
             mpi::Barrier( comm );
             double stopTime = mpi::Time();
             if( commRank == 0 )
@@ -69,7 +69,7 @@ main( int argc, char* argv[] )
 
             // Form R := op(A) X - B
             DistMatrix<F> R( B );
-            Gemm( orientation, NORMAL, F(1), A, X, F(-1), R );
+            Gemm( F(1), A.Orient(orient), X.N(), F(-1), R );
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon<double>();

@@ -72,7 +72,7 @@ main( int argc, char* argv[] )
         auto E( X );
         E *= C(0,1);
         DiagonalScale( RIGHT, NORMAL, wImag, E );
-        Gemm( NORMAL, NORMAL, C(-1), SCopy, X, C(1), E );
+        Gemm( C(-1), SCopy.N(), X.N(), C(1), E );
         const Real frobResid = FrobeniusNorm( E );
 
         // Check the orthogonality of X

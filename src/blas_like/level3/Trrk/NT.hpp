@@ -13,13 +13,13 @@ namespace El {
 namespace trrk {
 
 // Distributed C := alpha A B^{T/H} + C
-template<typename T>
+template<typename Ring>
 void TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  Ring alpha, const AbstractDistMatrix<Ring>& APre,
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("trrk::TrrkNT");
@@ -33,13 +33,13 @@ void TrrkNT
     const Int bsize = Blocksize();
     const Grid& g = CPre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
-    DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
-    DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g);
+    DistMatrix<Ring,MC,  STAR> A1_MC_STAR(g);
+    DistMatrix<Ring,VR,  STAR> B1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR  > B1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( C );
     B1_VR_STAR.AlignWith( C );
@@ -57,7 +57,7 @@ void TrrkNT
         A1_MC_STAR = A1;
         B1_VR_STAR = B1;
         Transpose( B1_VR_STAR, B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
-        LocalTrrk( uplo, alpha, A1_MC_STAR, B1Trans_STAR_MR, T(1), C );
+        LocalTrrk( uplo, alpha, A1_MC_STAR, B1Trans_STAR_MR, Ring(1), C );
     }
 }
 

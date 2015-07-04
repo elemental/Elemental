@@ -28,14 +28,16 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Trr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,  const AbstractDistMatrix<Ring>& C, 
+              const AbstractDistMatrix<Ring>& D,
+  Ring gamma,       AbstractDistMatrix<Ring>& E )
 {
     DEBUG_ONLY(CSE cse("Trr2k"))
     const bool normalA = orientA == NORMAL;
@@ -125,21 +127,25 @@ void Trr2k
     }
 }
 
-#define PROTO(T) \
+#define PROTO(Ring) \
   template void Trr2k \
   ( UpperOrLower uplo, \
     Orientation orientA, Orientation orientB, \
     Orientation orientC, Orientation orientD, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
-    T gamma,       AbstractDistMatrix<T>& E ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+    Ring beta,  const AbstractDistMatrix<Ring>& C, \
+                const AbstractDistMatrix<Ring>& D, \
+    Ring gamma,       AbstractDistMatrix<Ring>& E ); \
   template void LocalTrr2k \
   ( UpperOrLower uplo, \
     Orientation orientA, Orientation orientB, \
     Orientation orientC, Orientation orientD, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
-    T gamma,       AbstractDistMatrix<T>& E );
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+    Ring beta,  const AbstractDistMatrix<Ring>& C, \
+                const AbstractDistMatrix<Ring>& D, \
+    Ring gamma,       AbstractDistMatrix<Ring>& E );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

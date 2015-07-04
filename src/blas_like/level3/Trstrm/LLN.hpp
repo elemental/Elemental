@@ -80,10 +80,10 @@ LLN
 
         Trsm( LEFT, LOWER, NORMAL, diag, F(1), L11, X10, checkIfSingular );
         trstrm::LLNUnb( diag, F(1), L11, X11 );
-        Gemm( NORMAL, NORMAL, F(-1), L21, X10, F(1), X20 );
+        Gemm( F(-1), L21.N(), X10.N(), F(1), X20 );
         Z11 = X11;
         MakeTrapezoidal( LOWER, Z11 );
-        Gemm( NORMAL, NORMAL, F(-1), L21, Z11, F(1), X21 );
+        Gemm( F(-1), L21.N(), Z11.N(), F(1), X21 );
     }
 }
 
@@ -146,10 +146,8 @@ LLN
         L21_MC_STAR.AlignWith( X20 );
         L21_MC_STAR = L21;
         
-        LocalGemm
-        ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X10_STAR_MR, F(1), X20 );
-        LocalGemm
-        ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X11_STAR_MR, F(1), X21 );
+        LocalGemm( F(-1), L21_MC_STAR.N(), X10_STAR_MR.N(), F(1), X20 );
+        LocalGemm( F(-1), L21_MC_STAR.N(), X11_STAR_MR.N(), F(1), X21 );
     }
 }
 

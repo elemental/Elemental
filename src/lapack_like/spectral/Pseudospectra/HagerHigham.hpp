@@ -410,38 +410,38 @@ HagerHigham
         if( psCtrl.schur )
         {
             // Solve against Q (U - zI) Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            Gemm( C(1), Q.H(), activeX.N(), activeV );
             MultiShiftTrsm
             ( LEFT, UPPER, NORMAL, C(1), UCopy, activeShifts, activeV );
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+            Gemm( C(1), Q.N(), activeV.N(), activeY );
 
             activeZ = activeY;
             EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (U - zI)^H Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            Gemm( C(1), Q.H(), activeZ.N(), activeV );
             MultiShiftTrsm
             ( LEFT, UPPER, ADJOINT, C(1), UCopy, activeShifts, activeV );
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeZ );
+            Gemm( C(1), Q.N(), activeV.N(), activeZ );
         }
         else
         {
             // Solve against Q (H - zI) Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            Gemm( C(1), Q.H(), activeX.N(), activeV );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U, activeShifts, activeV );
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+            Gemm( C(1), Q.N(), activeV.N(), activeY );
 
             activeZ = activeY;
             EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (H - zI)^H Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            Gemm( C(1), Q.H(), activeZ.N(), activeV );
             Matrix<C> activeShiftsConj;
             Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeV );
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeZ );
+            Gemm( C(1), Q.N(), activeV.N(), activeZ );
         }
 
         auto activeConverged = 
@@ -500,7 +500,7 @@ HagerHigham
         MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), UCopy, shifts, Y );
     else
         MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, Y );
-    Gemm( NORMAL, NORMAL, C(1), Q, Y, X );
+    Gemm( C(1), Q.N(), Y.N(), X );
     for( Int j=0; j<numShifts; ++j )
     {
         const Real oneNorm = blas::Nrm1( n, X.LockedBuffer(0,j), 1 );
@@ -808,35 +808,35 @@ HagerHigham
         if( psCtrl.schur )
         {
             // Solve against Q (U - zI) Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            Gemm( C(1), Q.H(), activeX.N(), activeV );
             MultiShiftTrsm
             ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeV );
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+            Gemm( C(1), Q.N(), activeV.N(), activeY );
 
             activeZ = activeY;
             EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (U - zI)^H Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            Gemm( C(1), Q.H(), activeZ.N(), activeV );
             MultiShiftTrsm
             ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeV );
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeZ );
+            Gemm( C(1), Q.N(), activeV.N(), activeZ );
         }
         else
         {
             // Solve against Q (H - zI) Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            Gemm( C(1), Q.H(), activeX.N(), activeV );
             DistMatrix<C,STAR,VR> activeV_STAR_VR( activeV );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts, activeV_STAR_VR );
             activeV = activeV_STAR_VR;
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+            Gemm( C(1), Q.N(), activeV.N(), activeY );
 
             activeZ = activeY;
             EntrywiseMap( activeZ, function<C(C)>(unitMap) );
 
             // Solve against Q (H - zI)^H Q^H 
-            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            Gemm( C(1), Q.H(), activeZ.N(), activeV );
             activeV_STAR_VR = activeV;
             DistMatrix<C,VR,STAR> activeShiftsConj(g);
             Conjugate( activeShifts, activeShiftsConj );
@@ -844,7 +844,7 @@ HagerHigham
             ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj, 
               activeV_STAR_VR );
             activeV = activeV_STAR_VR;
-            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+            Gemm( C(1), Q.N(), activeV.N(), activeY );
         }
 
         auto activeConverged =
@@ -920,7 +920,7 @@ HagerHigham
         MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, Y_STAR_VR );
         Y = Y_STAR_VR; 
     }
-    Gemm( NORMAL, NORMAL, C(1), Q, Y, X );
+    Gemm( C(1), Q.N(), Y.N(), X );
     vector<Real> oneNorms(numLocShifts);
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
         oneNorms[jLoc] = blas::Nrm1( nLoc, X.LockedBuffer(0,jLoc), 1 );

@@ -70,9 +70,9 @@ LLVF
         Herk( LOWER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
-        Gemm( ADJOINT, NORMAL, F(1), HPanCopy, ABot, Z );
+        Gemm( F(1), HPanCopy.H(), ABot.N(), Z );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
-        Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), ABot );
+        Gemm( F(-1), HPanCopy.N(), Z.N(), F(1), ABot );
     }
 }
 
@@ -139,7 +139,7 @@ LLVF
         HPan_MC_STAR.AlignWith( ABot );
         HPan_MC_STAR = HPanCopy;
         Z_STAR_MR.AlignWith( ABot );
-        LocalGemm( ADJOINT, NORMAL, F(1), HPan_MC_STAR, ABot, Z_STAR_MR );
+        LocalGemm( F(1), HPan_MC_STAR.H(), ABot.N(), Z_STAR_MR );
         Z_STAR_VR.AlignWith( ABot );
         Contract( Z_STAR_MR, Z_STAR_VR );
         
@@ -147,7 +147,7 @@ LLVF
         ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
-        LocalGemm( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), ABot );
+        LocalGemm( F(-1), HPan_MC_STAR.N(), Z_STAR_MR.N(), F(1), ABot );
     }
 }
 

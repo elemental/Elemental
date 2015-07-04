@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> U(g), V(g), A(g);
         Uniform( U, m, r );
         Uniform( V, n, r );
-        Gemm( NORMAL, ADJOINT, C(1), U, V, A );
+        Gemm( C(1), U.N(), V.H(), A );
         const Real frobA = FrobeniusNorm( A );
         if( print )
             Print( A, "A" );
@@ -77,8 +77,7 @@ main( int argc, char* argv[] )
             Z_STAR_MR.AlignWith( AR );
             hatA_MC_STAR = hatA;
             Z_STAR_MR = Z;
-            LocalGemm
-            ( NORMAL, NORMAL, C(-1), hatA_MC_STAR, Z_STAR_MR, C(1), AR );
+            LocalGemm( C(-1), hatA_MC_STAR.N(), Z_STAR_MR.N(), C(1), AR );
         }
         const Real frobError = FrobeniusNorm( A );
         if( print )

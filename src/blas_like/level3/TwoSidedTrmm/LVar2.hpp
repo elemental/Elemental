@@ -54,7 +54,7 @@ LVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         Trmm( LEFT, LOWER, ADJOINT, diag, F(1), L11, A10 );
 
         // A10 := A10 + L21' A20
-        Gemm( ADJOINT, NORMAL, F(1), L21, A20, F(1), A10 );
+        Gemm( F(1), L21.H(), A20.N(), F(1), A10 );
 
         // Y21 := A22 L21
         Zeros( Y21, A21.Height(), nb );
@@ -138,7 +138,7 @@ LVar2
         L21_MC_STAR.AlignWith( A20 );
         L21_MC_STAR = L21;
         X10_STAR_MR.AlignWith( A10 );
-        LocalGemm( ADJOINT, NORMAL, F(1), L21_MC_STAR, A20, X10_STAR_MR );
+        LocalGemm( F(1), L21_MC_STAR.H(), A20.N(), X10_STAR_MR );
         AxpyContract( F(1), X10_STAR_MR, A10 );
 
         // Y21 := A22 L21

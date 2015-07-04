@@ -62,8 +62,7 @@ RUN
 
         // X2[MC,MR] -= X1[MC,* ] U12[* ,MR]
         //            = X1^T[* ,MC] U12[* ,MR]
-        LocalGemm
-        ( TRANSPOSE, NORMAL, F(-1), X1Trans_STAR_MC, U12_STAR_MR, F(1), X2 );
+        LocalGemm( F(-1), X1Trans_STAR_MC.T(), U12_STAR_MR.N(), F(1), X2 );
     }
 }
 

@@ -65,7 +65,7 @@ int main( int argc, char* argv[] )
 
             // Form R := A X - B
             DistMatrix<> R( B );
-            Gemm( NORMAL, NORMAL, 1., A, X, -1., R );
+            Gemm( 1., A.N(), X.N(), -1., R );
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon();

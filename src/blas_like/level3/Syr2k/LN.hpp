@@ -10,11 +10,13 @@
 namespace El {
 namespace syr2k {
 
-template<typename T>
+template<typename Ring>
 inline void
 LN
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre, 
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syr2k::LN");
@@ -30,16 +32,16 @@ LN
     const Int r = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
-    const T alphaSec = ( conjugate ? Conj(alpha) : alpha );
+    const Ring alphaSec = ( conjugate ? Conj(alpha) : alpha );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,MC,  STAR> A1_MC_STAR(g), B1_MC_STAR(g);
-    DistMatrix<T,VR,  STAR> A1_VR_STAR(g), B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g), B1Trans_STAR_MR(g);
+    DistMatrix<Ring,MC,  STAR> A1_MC_STAR(g), B1_MC_STAR(g);
+    DistMatrix<Ring,VR,  STAR> A1_VR_STAR(g), B1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR  > A1Trans_STAR_MR(g), B1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( C );
     B1_MC_STAR.AlignWith( C );
@@ -64,7 +66,7 @@ LN
         LocalTrr2k
         ( LOWER, NORMAL, NORMAL, NORMAL, NORMAL,
           alpha,    A1_MC_STAR, B1Trans_STAR_MR,
-          alphaSec, B1_MC_STAR, A1Trans_STAR_MR, T(1), C );
+          alphaSec, B1_MC_STAR, A1Trans_STAR_MR, Ring(1), C );
     }
 }
 

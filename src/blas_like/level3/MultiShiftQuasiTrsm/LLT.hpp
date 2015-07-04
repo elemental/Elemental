@@ -93,18 +93,18 @@ LLTUnb
 template<typename F>
 inline void
 LLT
-( Orientation orientation, 
+( Orientation orient, 
   const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LLT");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
-    const bool conjugate = ( orientation==ADJOINT );
+    const bool conjugate = ( orient==ADJOINT );
     if( conjugate )
         Conjugate( X );
 
@@ -127,7 +127,7 @@ LLT
         auto X1 = X( ind1, ALL );
 
         LLTUnb( false, L11, shifts, X1 );
-        Gemm( TRANSPOSE, NORMAL, F(-1), L10, X1, F(1), X0 );
+        Gemm( F(-1), L10.T(), X1.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -143,13 +143,13 @@ LLT
 template<typename F>
 inline void
 LLTLarge
-( Orientation orientation, 
+( Orientation orient, 
   const AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LLTLarge");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
@@ -191,7 +191,7 @@ LLTLarge
 
         // X1[* ,VR] := L11^-[T/H][* ,* ] X1[* ,VR]
         LocalMultiShiftQuasiTrsm
-        ( LEFT, LOWER, orientation, F(1), L11_STAR_STAR, shifts, X1_STAR_VR );
+        ( LEFT, LOWER, orient, F(1), L11_STAR_STAR, shifts, X1_STAR_VR );
 
         X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR] <- X1[* ,VR]
@@ -202,7 +202,7 @@ LLTLarge
         // X0[MC,MR] -= (L10[* ,MC])^(T/H) X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
-        ( orientation, NORMAL, F(-1), L10_STAR_MC, X1_STAR_MR, F(1), X0 );
+        ( F(-1), L10_STAR_MC.Orient(orient), X1_STAR_MR.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -215,12 +215,12 @@ LLTLarge
 template<typename F>
 inline void
 LLTMedium
-( Orientation orientation, const AbstractDistMatrix<F>& LPre,
+( Orientation orient, const AbstractDistMatrix<F>& LPre,
   const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LLTMedium");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
@@ -261,7 +261,7 @@ LLTMedium
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
-        Transpose( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1, X1Trans_MR_STAR, (orient==ADJOINT) );
 
         // X1[* ,MR] := L11^-[T/H][* ,* ] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]
@@ -271,15 +271,15 @@ LLTMedium
         ( RIGHT, LOWER, NORMAL,
           F(1), L11_STAR_STAR, shifts_MR_STAR_Align, X1Trans_MR_STAR );
 
-        Transpose( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
+        Transpose( X1Trans_MR_STAR, X1, (orient==ADJOINT) );
         L10_STAR_MC.AlignWith( X0 );
         L10_STAR_MC = L10; // L10[* ,MC] <- L10[MC,MR]
 
         // X0[MC,MR] -= (L10[* ,MC])^[T/H] X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
-        ( orientation, orientation, 
-          F(-1), L10_STAR_MC, X1Trans_MR_STAR, F(1), X0 );
+        ( F(-1), L10_STAR_MC.Orient(orient), X1Trans_MR_STAR.Orient(orient), 
+          F(1), X0 );
 
         if( k == 0 )
             break;
@@ -292,7 +292,7 @@ LLTMedium
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LLTSmall
-( Orientation orientation, 
+( Orientation orient, 
   const DistMatrix<F,colDist,STAR>& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,colDist,STAR>& X )
@@ -300,7 +300,7 @@ LLTSmall
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
       if( L.Height() != L.Width() || L.Height() != X.Height() )
           LogicError
@@ -334,14 +334,14 @@ LLTSmall
         auto X2 = X( ind2, ALL );
 
         // X1 -= L21' X2
-        LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
+        LocalGemm( F(-1), L21.Orient(orient), X2.N(), Z1_STAR_STAR );
         axpy::util::UpdateWithLocalData( F(1), X1, Z1_STAR_STAR );
         El::AllReduce( Z1_STAR_STAR, X1.DistComm() );
 
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;
         LocalMultiShiftQuasiTrsm
-        ( LEFT, LOWER, orientation, F(1), 
+        ( LEFT, LOWER, orient, F(1), 
           L11_STAR_STAR, shifts_STAR_STAR, Z1_STAR_STAR );
         X1 = Z1_STAR_STAR;
 
@@ -355,7 +355,7 @@ LLTSmall
 template<typename F,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LLTSmall
-( Orientation orientation, 
+( Orientation orient, 
   const DistMatrix<F,STAR,rowDist>& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,rowDist,STAR>& X )
@@ -363,7 +363,7 @@ LLTSmall
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
       if( L.Height() != L.Width() || L.Height() != X.Height() )
           LogicError
@@ -401,13 +401,13 @@ LLTSmall
 
         // X1[* ,* ] := L11^-[T/H][* ,* ] X1[* ,* ]
         LocalMultiShiftQuasiTrsm
-        ( LEFT, LOWER, orientation,
+        ( LEFT, LOWER, orient,
           F(1), L11_STAR_STAR, shifts_STAR_STAR, X1_STAR_STAR );
 
         X1 = X1_STAR_STAR;
 
         // X0[VR,* ] -= L10[* ,VR]^(T/H) X1[* ,* ]
-        LocalGemm( orientation, NORMAL, F(-1), L10, X1_STAR_STAR, F(1), X0 );
+        LocalGemm( F(-1), L10.Orient(orient), X1_STAR_STAR.N(), F(1), X0 );
 
         if( k == 0 )
             break;

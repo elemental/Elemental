@@ -13,7 +13,7 @@ using namespace El;
 template<typename F> 
 void TestMultiShiftTrsm
 ( bool print,
-  LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
+  LeftOrRight side, UpperOrLower uplo, Orientation orient, 
   Int m, Int n, F alpha, const Grid& g )
 {
     typedef Base<F> Real;
@@ -33,7 +33,7 @@ void TestMultiShiftTrsm
     MakeTrapezoidal( uplo, U );
 
     auto modShifts(shifts);
-    if( orientation == ADJOINT )
+    if( orient == ADJOINT )
         Conjugate( modShifts );
 
     Uniform( X, m, n );
@@ -41,7 +41,7 @@ void TestMultiShiftTrsm
     Zeros( Y, m, n );
     if( side == LEFT )
     {
-        Gemm( orientation, NORMAL, F(1)/alpha, U, X, F(1), Y );
+        Gemm( F(1)/alpha, U.Orient(orient), X.N(), F(1), Y );
         for( Int j=0; j<n; ++j )
         {
             auto x = LockedView( X, 0, j, m, 1 );
@@ -51,7 +51,7 @@ void TestMultiShiftTrsm
     }
     else
     {
-        Gemm( NORMAL, orientation, F(1)/alpha, X, U, F(1), Y );
+        Gemm( F(1)/alpha, X.N(), U.Orient(orient), F(1), Y );
         for( Int i=0; i<m; ++i )
         {
             auto x = LockedView( X, i, 0, 1, n );
@@ -74,7 +74,7 @@ void TestMultiShiftTrsm
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    MultiShiftTrsm( side, uplo, orientation, alpha, U, shifts, Y );
+    MultiShiftTrsm( side, uplo, orient, alpha, U, shifts, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 
@@ -117,7 +117,7 @@ main( int argc, char* argv[] )
         const char uploChar = Input
             ("--uplo","lower or upper quasi-triangular: L/U",'U');
         const char transChar = Input
-            ("--trans","orientation of quasi-triangular matrix: N/T/C",'N');
+            ("--trans","orient of quasi-triangular matrix: N/T/C",'N');
         const Int m = Input("--m","height of result",100);
         const Int n = Input("--n","width of result",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -131,7 +131,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
-        const Orientation orientation = CharToOrientation( transChar );
+        const Orientation orient = CharToOrientation( transChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
@@ -141,12 +141,12 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestMultiShiftTrsm<double>( print, side, uplo, orientation, m, n, 3., g );
+        TestMultiShiftTrsm<double>( print, side, uplo, orient, m, n, 3., g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
         TestMultiShiftTrsm<Complex<double>>
-        ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
+        ( print, side, uplo, orient, m, n, Complex<double>(3), g );
     }
     catch( exception& e ) { ReportException(e); }
 

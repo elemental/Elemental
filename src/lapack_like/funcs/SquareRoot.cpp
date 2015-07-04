@@ -76,7 +76,7 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
         NewtonStep( A, *X, *XNew, XTmp );
 
         // Use the difference in the iterates to test for convergence
-        Axpy( Real(-1), *XNew, *X );
+        *X -= *XNew;
         const Real oneDiff = OneNorm( *X );
         const Real oneNew = OneNorm( *XNew );
 
@@ -121,7 +121,7 @@ Newton( AbstractDistMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
         NewtonStep( A, *X, *XNew, XTmp );
 
         // Use the difference in the iterates to test for convergence
-        Axpy( Real(-1), *XNew, *X );
+        *X -= *XNew;
         const Real oneDiff = OneNorm( *X );
         const Real oneNew = OneNorm( *XNew );
 

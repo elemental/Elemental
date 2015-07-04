@@ -16,15 +16,15 @@ namespace El {
 // Constructors and destructors
 // ============================
 
-template<typename T>
-Matrix<T>::Matrix( bool fixed )
+template<typename Ring>
+Matrix<Ring>::Matrix( bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(0), width_(0), ldim_(1), 
   data_(nullptr)
 { }
 
-template<typename T>
-Matrix<T>::Matrix( Int height, Int width, bool fixed )
+template<typename Ring>
+Matrix<Ring>::Matrix( Int height, Int width, bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(Max(height,1))
 {
@@ -37,8 +37,8 @@ Matrix<T>::Matrix( Int height, Int width, bool fixed )
     // TODO: Consider explicitly zeroing
 }
 
-template<typename T>
-Matrix<T>::Matrix
+template<typename Ring>
+Matrix<Ring>::Matrix
 ( Int height, Int width, Int ldim, bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(ldim)
@@ -51,9 +51,9 @@ Matrix<T>::Matrix
     data_ = memory_.Buffer();
 }
 
-template<typename T>
-Matrix<T>::Matrix
-( Int height, Int width, const T* buffer, Int ldim, bool fixed )
+template<typename Ring>
+Matrix<Ring>::Matrix
+( Int height, Int width, const Ring* buffer, Int ldim, bool fixed )
 : viewType_( fixed ? LOCKED_VIEW_FIXED: LOCKED_VIEW ),
   height_(height), width_(width), ldim_(ldim), 
   data_(buffer)
@@ -64,9 +64,9 @@ Matrix<T>::Matrix
     )
 }
 
-template<typename T>
-Matrix<T>::Matrix
-( Int height, Int width, T* buffer, Int ldim, bool fixed )
+template<typename Ring>
+Matrix<Ring>::Matrix
+( Int height, Int width, Ring* buffer, Int ldim, bool fixed )
 : viewType_( fixed ? VIEW_FIXED: VIEW ),
   height_(height), width_(width), ldim_(ldim), 
   data_(buffer)
@@ -77,8 +77,8 @@ Matrix<T>::Matrix
     )
 }
 
-template<typename T>
-Matrix<T>::Matrix( const Matrix<T>& A )
+template<typename Ring>
+Matrix<Ring>::Matrix( const Matrix<Ring>& A )
 : viewType_( OWNER ),
   height_(0), width_(0), ldim_(1), 
   data_(nullptr)
@@ -90,21 +90,21 @@ Matrix<T>::Matrix( const Matrix<T>& A )
         LogicError("You just tried to construct a Matrix with itself!");
 }
 
-template<typename T>
-Matrix<T>::Matrix( Matrix<T>&& A ) EL_NOEXCEPT
+template<typename Ring>
+Matrix<Ring>::Matrix( Matrix<Ring>&& A ) EL_NOEXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), ldim_(A.ldim_),
   data_(nullptr), memory_(std::move(A.memory_))
 { std::swap( data_, A.data_ ); }
 
-template<typename T>
-Matrix<T>::~Matrix() { }
+template<typename Ring>
+Matrix<Ring>::~Matrix() { }
 
 // Assignment and reconfiguration
 // ==============================
 
-template<typename T>
-void Matrix<T>::Empty()
+template<typename Ring>
+void Matrix<Ring>::Empty()
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Empty()");
@@ -114,8 +114,8 @@ void Matrix<T>::Empty()
     Empty_();
 }
 
-template<typename T>
-void Matrix<T>::Resize( Int height, Int width )
+template<typename Ring>
+void Matrix<Ring>::Resize( Int height, Int width )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Resize(height,width)");
@@ -128,8 +128,8 @@ void Matrix<T>::Resize( Int height, Int width )
     Resize_( height, width );
 }
 
-template<typename T>
-void Matrix<T>::Resize( Int height, Int width, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::Resize( Int height, Int width, Int ldim )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Resize(height,width,ldim)");
@@ -143,8 +143,8 @@ void Matrix<T>::Resize( Int height, Int width, Int ldim )
     Resize_( height, width, ldim );
 }
 
-template<typename T>
-void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::Attach( Int height, Int width, Ring* buffer, Int ldim )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Attach");
@@ -154,8 +154,9 @@ void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
     Attach_( height, width, buffer, ldim );
 }
 
-template<typename T>
-void Matrix<T>::LockedAttach( Int height, Int width, const T* buffer, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::LockedAttach
+( Int height, Int width, const Ring* buffer, Int ldim )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::LockedAttach");
@@ -165,8 +166,8 @@ void Matrix<T>::LockedAttach( Int height, Int width, const T* buffer, Int ldim )
     LockedAttach_( height, width, buffer, ldim );
 }
 
-template<typename T>
-void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::Control( Int height, Int width, Ring* buffer, Int ldim )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Control");
@@ -181,8 +182,8 @@ void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
 
 // Return a view
 // -------------
-template<typename T>
-Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J )
+template<typename Ring>
+Matrix<Ring> Matrix<Ring>::operator()( Range<Int> I, Range<Int> J )
 {
     DEBUG_ONLY(CSE cse("Matrix::operator()"))
     if( this->Locked() )
@@ -191,8 +192,8 @@ Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J )
         return View( *this, I, J );
 }
 
-template<typename T>
-const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+template<typename Ring>
+const Matrix<Ring> Matrix<Ring>::operator()( Range<Int> I, Range<Int> J ) const
 {
     DEBUG_ONLY(CSE cse("Matrix::operator()"))
     return LockedView( *this, I, J );
@@ -200,8 +201,8 @@ const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 
 // Make a copy
 // -----------
-template<typename T>
-const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
+template<typename Ring>
+const Matrix<Ring>& Matrix<Ring>::operator=( const Matrix<Ring>& A )
 {
     DEBUG_ONLY(CSE cse("Matrix::operator="))
     Copy( A, *this );
@@ -210,13 +211,13 @@ const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
 
 // Move assignment
 // ---------------
-template<typename T>
-Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
+template<typename Ring>
+Matrix<Ring>& Matrix<Ring>::operator=( Matrix<Ring>&& A )
 {
     DEBUG_ONLY(CSE cse("Matrix::operator=( Matrix&& )"))
     if( Viewing() || A.Viewing() )
     {
-        operator=( (const Matrix<T>&)A );
+        operator=( (const Matrix<Ring>&)A );
     }
     else
     {
@@ -232,53 +233,53 @@ Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
 
 // Rescaling
 // ---------
-template<typename T>
-const Matrix<T>& Matrix<T>::operator*=( T alpha )
+template<typename Ring>
+const Matrix<Ring>& Matrix<Ring>::operator*=( Ring alpha )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator*=( T )"))
+    DEBUG_ONLY(CSE cse("Matrix::operator*=(Ring)"))
     Scale( alpha, *this );
     return *this;
 }
 
 // Addition/subtraction
 // --------------------
-template<typename T>
-const Matrix<T>& Matrix<T>::operator+=( const Matrix<T>& A )
+template<typename Ring>
+const Matrix<Ring>& Matrix<Ring>::operator+=( const Matrix<Ring>& A )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<T>& )"))
-    Axpy( T(1), A, *this );
+    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<Ring>& )"))
+    Axpy( Ring(1), A, *this );
     return *this;
 }
 
-template<typename T>
-const Matrix<T>& Matrix<T>::operator-=( const Matrix<T>& A )
+template<typename Ring>
+const Matrix<Ring>& Matrix<Ring>::operator-=( const Matrix<Ring>& A )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<T>& )"))
-    Axpy( T(-1), A, *this );
+    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<Ring>& )"))
+    Axpy( Ring(-1), A, *this );
     return *this;
 }
 
 // Basic queries
 // =============
 
-template<typename T>
-Int Matrix<T>::Height() const { return height_; }
+template<typename Ring>
+Int Matrix<Ring>::Height() const { return height_; }
 
-template<typename T>
-Int Matrix<T>::Width() const { return width_; }
+template<typename Ring>
+Int Matrix<Ring>::Width() const { return width_; }
 
-template<typename T>
-Int Matrix<T>::LDim() const { return ldim_; }
+template<typename Ring>
+Int Matrix<Ring>::LDim() const { return ldim_; }
 
-template<typename T>
-Int Matrix<T>::MemorySize() const { return memory_.Size(); }
+template<typename Ring>
+Int Matrix<Ring>::MemorySize() const { return memory_.Size(); }
 
-template<typename T>
-Int Matrix<T>::DiagonalLength( Int offset ) const
+template<typename Ring>
+Int Matrix<Ring>::DiagonalLength( Int offset ) const
 { return El::DiagonalLength(height_,width_,offset); }
 
-template<typename T>
-T* Matrix<T>::Buffer()
+template<typename Ring>
+Ring* Matrix<Ring>::Buffer()
 {
     DEBUG_ONLY(
         CSE cse("Matrix::Buffer");
@@ -287,11 +288,11 @@ T* Matrix<T>::Buffer()
     )
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
-    return const_cast<T*>(data_);
+    return const_cast<Ring*>(data_);
 }
 
-template<typename T>
-T* Matrix<T>::Buffer( Int i, Int j )
+template<typename Ring>
+Ring* Matrix<Ring>::Buffer( Int i, Int j )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Buffer");
@@ -302,14 +303,14 @@ T* Matrix<T>::Buffer( Int i, Int j )
     if( j == END ) j = width_ - 1;
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
-    return &const_cast<T*>(data_)[i+j*ldim_];
+    return &const_cast<Ring*>(data_)[i+j*ldim_];
 }
 
-template<typename T>
-const T* Matrix<T>::LockedBuffer() const { return data_; }
+template<typename Ring>
+const Ring* Matrix<Ring>::LockedBuffer() const { return data_; }
 
-template<typename T>
-const T* Matrix<T>::LockedBuffer( Int i, Int j ) const
+template<typename Ring>
+const Ring* Matrix<Ring>::LockedBuffer( Int i, Int j ) const
 {
     DEBUG_ONLY(CSE cse("Matrix::LockedBuffer"))
     if( i == END ) i = height_ - 1;
@@ -317,20 +318,20 @@ const T* Matrix<T>::LockedBuffer( Int i, Int j ) const
     return &data_[i+j*ldim_];
 }
 
-template<typename T>
-bool Matrix<T>::Viewing() const { return IsViewing( viewType_ ); }
+template<typename Ring>
+bool Matrix<Ring>::Viewing() const { return IsViewing( viewType_ ); }
 
-template<typename T>
-bool Matrix<T>::FixedSize() const { return IsFixedSize( viewType_ ); }
+template<typename Ring>
+bool Matrix<Ring>::FixedSize() const { return IsFixedSize( viewType_ ); }
 
-template<typename T>
-bool Matrix<T>::Locked() const { return IsLocked( viewType_ ); }
+template<typename Ring>
+bool Matrix<Ring>::Locked() const { return IsLocked( viewType_ ); }
 
 // Single-entry manipulation
 // =========================
 
-template<typename T>
-T Matrix<T>::Get( Int i, Int j ) const
+template<typename Ring>
+Ring Matrix<Ring>::Get( Int i, Int j ) const
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Get");
@@ -339,8 +340,8 @@ T Matrix<T>::Get( Int i, Int j ) const
     return Get_( i, j );
 }
 
-template<typename T>
-Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
+template<typename Ring>
+Base<Ring> Matrix<Ring>::GetRealPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
       CSE cse("Matrix::GetRealPart");
@@ -349,8 +350,8 @@ Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
     return El::RealPart( Get_( i, j ) );
 }
 
-template<typename T>
-Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
+template<typename Ring>
+Base<Ring> Matrix<Ring>::GetImagPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
       CSE cse("Matrix::GetImagPart");
@@ -359,8 +360,8 @@ Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
     return El::ImagPart( Get_( i, j ) );
 }
 
-template<typename T>
-void Matrix<T>::Set( Int i, Int j, T alpha ) 
+template<typename Ring>
+void Matrix<Ring>::Set( Int i, Int j, Ring alpha ) 
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Set");
@@ -371,12 +372,12 @@ void Matrix<T>::Set( Int i, Int j, T alpha )
     Set_( i, j ) = alpha;
 }
 
-template<typename T>
-void Matrix<T>::Set( const Entry<T>& entry )
+template<typename Ring>
+void Matrix<Ring>::Set( const Entry<Ring>& entry )
 { Set( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
+template<typename Ring>
+void Matrix<Ring>::SetRealPart( Int i, Int j, Base<Ring> alpha )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::SetRealPart");
@@ -387,12 +388,12 @@ void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
     El::SetRealPart( Set_( i, j ), alpha );
 }
 
-template<typename T>
-void Matrix<T>::SetRealPart( const Entry<Base<T>>& entry )
+template<typename Ring>
+void Matrix<Ring>::SetRealPart( const Entry<Base<Ring>>& entry )
 { SetRealPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
+template<typename Ring>
+void Matrix<Ring>::SetImagPart( Int i, Int j, Base<Ring> alpha )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::SetImagPart");
@@ -404,12 +405,12 @@ void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
     El::SetImagPart( Set_( i, j ), alpha );
 }
 
-template<typename T>
-void Matrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+template<typename Ring>
+void Matrix<Ring>::SetImagPart( const Entry<Base<Ring>>& entry )
 { SetImagPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void Matrix<T>::Update( Int i, Int j, T alpha ) 
+template<typename Ring>
+void Matrix<Ring>::Update( Int i, Int j, Ring alpha ) 
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Update");
@@ -420,12 +421,12 @@ void Matrix<T>::Update( Int i, Int j, T alpha )
     Set_( i, j ) += alpha;
 }
 
-template<typename T>
-void Matrix<T>::Update( const Entry<T>& entry )
+template<typename Ring>
+void Matrix<Ring>::Update( const Entry<Ring>& entry )
 { Update( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
+template<typename Ring>
+void Matrix<Ring>::UpdateRealPart( Int i, Int j, Base<Ring> alpha )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::UpdateRealPart");
@@ -436,12 +437,12 @@ void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
     El::UpdateRealPart( Set_( i, j ), alpha );
 }
 
-template<typename T>
-void Matrix<T>::UpdateRealPart( const Entry<Base<T>>& entry )
+template<typename Ring>
+void Matrix<Ring>::UpdateRealPart( const Entry<Base<Ring>>& entry )
 { UpdateRealPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
+template<typename Ring>
+void Matrix<Ring>::UpdateImagPart( Int i, Int j, Base<Ring> alpha )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::UpdateImagPart");
@@ -453,12 +454,12 @@ void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
     El::UpdateImagPart( Set_( i, j ), alpha );
 }
 
-template<typename T>
-void Matrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+template<typename Ring>
+void Matrix<Ring>::UpdateImagPart( const Entry<Base<Ring>>& entry )
 { UpdateImagPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void Matrix<T>::MakeReal( Int i, Int j )
+template<typename Ring>
+void Matrix<Ring>::MakeReal( Int i, Int j )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::MakeReal");
@@ -469,8 +470,8 @@ void Matrix<T>::MakeReal( Int i, Int j )
     Set( i, j, GetRealPart(i,j) );
 }
 
-template<typename T>
-void Matrix<T>::Conjugate( Int i, Int j )
+template<typename Ring>
+void Matrix<Ring>::Conjugate( Int i, Int j )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Conjugate");
@@ -486,8 +487,8 @@ void Matrix<T>::Conjugate( Int i, Int j )
 
 // Exchange metadata with another matrix
 // =====================================
-template<typename T>
-void Matrix<T>::ShallowSwap( Matrix<T>& A )
+template<typename Ring>
+void Matrix<Ring>::ShallowSwap( Matrix<Ring>& A )
 {
     memory_.ShallowSwap( A.memory_ );
     std::swap( data_, A.data_ );
@@ -500,8 +501,8 @@ void Matrix<T>::ShallowSwap( Matrix<T>& A )
 // Reconfigure without error-checking
 // ==================================
 
-template<typename T>
-void Matrix<T>::Empty_()
+template<typename Ring>
+void Matrix<Ring>::Empty_()
 {
     memory_.Empty();
     height_ = 0;
@@ -511,8 +512,8 @@ void Matrix<T>::Empty_()
     viewType_ = (ViewType)( viewType_ & ~LOCKED_VIEW );
 }
 
-template<typename T>
-void Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::Attach_( Int height, Int width, Ring* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -522,9 +523,9 @@ void Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
     viewType_ = (ViewType)( ( viewType_ & ~LOCKED_OWNER ) | VIEW );
 }
 
-template<typename T>
-void Matrix<T>::LockedAttach_
-( Int height, Int width, const T* buffer, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::LockedAttach_
+( Int height, Int width, const Ring* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -534,8 +535,8 @@ void Matrix<T>::LockedAttach_
     viewType_ = (ViewType)( viewType_ | VIEW );
 }
 
-template<typename T>
-void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::Control_( Int height, Int width, Ring* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -547,44 +548,44 @@ void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 
 // Return a reference to a single entry without error-checking
 // ===========================================================
-template<typename T>
-const T& Matrix<T>::Get_( Int i, Int j ) const 
+template<typename Ring>
+const Ring& Matrix<Ring>::Get_( Int i, Int j ) const 
 { 
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     return data_[i+j*ldim_]; 
 }
 
-template<typename T>
-T& Matrix<T>::Set_( Int i, Int j ) 
+template<typename Ring>
+Ring& Matrix<Ring>::Set_( Int i, Int j ) 
 {
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
-    return (const_cast<T*>(data_))[i+j*ldim_];
+    return (const_cast<Ring*>(data_))[i+j*ldim_];
 }
 
 // Assertions
 // ==========
 
-template<typename T>
-void Matrix<T>::ComplainIfReal() const
+template<typename Ring>
+void Matrix<Ring>::ComplainIfReal() const
 { 
-    if( !IsComplex<T>::val )
+    if( !IsComplex<Ring>::val )
         LogicError("Called complex-only routine with real data");
 }
 
-template<typename T>
-void Matrix<T>::AssertValidDimensions( Int height, Int width ) const
+template<typename Ring>
+void Matrix<Ring>::AssertValidDimensions( Int height, Int width ) const
 {
     DEBUG_ONLY(CSE cse("Matrix::AssertValidDimensions"))
     if( height < 0 || width < 0 )
         LogicError("Height and width must be non-negative");
 }
 
-template<typename T>
-void Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
+template<typename Ring>
+void Matrix<Ring>::AssertValidDimensions( Int height, Int width, Int ldim ) const
 {
     DEBUG_ONLY(CSE cse("Matrix::AssertValidDimensions"))
     AssertValidDimensions( height, width );
@@ -594,8 +595,8 @@ void Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
         LogicError("Leading dimension cannot be zero (for BLAS compatibility)");
 }
 
-template<typename T>
-void Matrix<T>::AssertValidEntry( Int i, Int j ) const
+template<typename Ring>
+void Matrix<Ring>::AssertValidEntry( Int i, Int j ) const
 {
     DEBUG_ONLY(CSE cse("Matrix::AssertValidEntry"))
     if( i == END ) i = height_ - 1;
@@ -607,8 +608,8 @@ void Matrix<T>::AssertValidEntry( Int i, Int j ) const
         ("Out of bounds: (",i,",",j,") of ",Height()," x ",Width()," Matrix");
 }
 
-template<typename T>
-void Matrix<T>::Resize_( Int height, Int width )
+template<typename Ring>
+void Matrix<Ring>::Resize_( Int height, Int width )
 {
     bool reallocate = height > ldim_ || width > width_;
     height_ = height;
@@ -623,8 +624,8 @@ void Matrix<T>::Resize_( Int height, Int width )
     }
 }
 
-template<typename T>
-void Matrix<T>::Resize_( Int height, Int width, Int ldim )
+template<typename Ring>
+void Matrix<Ring>::Resize_( Int height, Int width, Int ldim )
 {
     bool reallocate = height > ldim_ || width > width_ || ldim != ldim_;
     height_ = height;
@@ -637,7 +638,7 @@ void Matrix<T>::Resize_( Int height, Int width, Int ldim )
     }
 }
 
-#define PROTO(T) template class Matrix<T>;
+#define PROTO(Ring) template class Matrix<Ring>;
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 

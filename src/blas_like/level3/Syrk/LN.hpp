@@ -10,11 +10,11 @@
 namespace El {
 namespace syrk {
 
-template<typename T>
+template<typename Ring>
 inline void
 LN
-( T alpha, const AbstractDistMatrix<T>& APre, 
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+                    AbstractDistMatrix<Ring>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syrk::LN");
@@ -27,13 +27,13 @@ LN
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
-    DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g);
+    DistMatrix<Ring,MC,  STAR> A1_MC_STAR(g);
+    DistMatrix<Ring,VR,  STAR> A1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR  > A1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( C );
     A1_VR_STAR.AlignWith( C );
@@ -46,7 +46,7 @@ LN
 
         A1_VR_STAR = A1_MC_STAR = A1;
         Transpose( A1_VR_STAR, A1Trans_STAR_MR, conjugate );
-        LocalTrrk( LOWER, alpha, A1_MC_STAR, A1Trans_STAR_MR, T(1), C );
+        LocalTrrk( LOWER, alpha, A1_MC_STAR, A1Trans_STAR_MR, Ring(1), C );
     }
 }
 

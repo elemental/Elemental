@@ -39,7 +39,7 @@ void LU( Matrix<F>& A )
         lu::Unb( A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A21 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
-        Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
+        Gemm( F(-1), A21.N(), A12.N(), F(1), A22 );
     }
 }
 
@@ -90,7 +90,7 @@ void LU( AbstractDistMatrix<F>& APre )
 
         A12_STAR_MR.AlignWith( A22 );
         A12_STAR_MR = A12_STAR_VR;
-        LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
+        LocalGemm( F(-1), A21_MC_STAR.N(), A12_STAR_MR.N(), F(1), A22 );
         A12 = A12_STAR_MR;
     }
 }
@@ -145,7 +145,7 @@ void LU( Matrix<F>& A, Matrix<Int>& p )
         PermuteRows( pB, p1, p1Inv );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
-        Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
+        Gemm( F(-1), A21.N(), A12.N(), F(1), A22 );
     }
 }
 
@@ -218,7 +218,7 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 
         A12_STAR_MR.AlignWith( A22 );
         A12_STAR_MR = A12_STAR_VR;
-        LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
+        LocalGemm( F(-1), A21_MC_STAR.N(), A12_STAR_MR.N(), F(1), A22 );
 
         A11 = A11_STAR_STAR;
         A12 = A12_STAR_MR;

@@ -15,10 +15,12 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+  Ring beta,        Matrix<Ring>& C,
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symm"))
@@ -42,11 +44,13 @@ void Symm
     }
 }
 
-template<typename T>
+template<typename Ring>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C, 
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symm"))
     C *= beta;
@@ -60,43 +64,45 @@ void Symm
         symm::RU( alpha, A, B, C, conjugate );
 }
 
-#define PROTO(T) \
+#define PROTO(Ring) \
   template void Symm \
   ( LeftOrRight side, UpperOrLower uplo, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C, bool conjugate ); \
+    Ring alpha, const Matrix<Ring>& A, \
+                const Matrix<Ring>& B, \
+    Ring beta,        Matrix<Ring>& C, bool conjugate ); \
   template void Symm \
   ( LeftOrRight side, UpperOrLower uplo, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,        AbstractDistMatrix<T>& C, bool conjugate ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+    Ring beta,        AbstractDistMatrix<Ring>& C, bool conjugate ); \
   template void symm::LocalAccumulateLL \
-  ( Orientation orientation, T alpha, \
-    const DistMatrix<T>& A, \
-    const DistMatrix<T,MC,  STAR>& B_MC_STAR, \
-    const DistMatrix<T,STAR,MR  >& BTrans_STAR_MR, \
-          DistMatrix<T,MC,  STAR>& Z_MC_STAR, \
-          DistMatrix<T,MR,  STAR>& Z_MR_STAR ); \
+  ( Orientation orientation, Ring alpha, \
+    const DistMatrix<Ring>& A, \
+    const DistMatrix<Ring,MC,  STAR>& B_MC_STAR, \
+    const DistMatrix<Ring,STAR,MR  >& BTrans_STAR_MR, \
+          DistMatrix<Ring,MC,  STAR>& Z_MC_STAR, \
+          DistMatrix<Ring,MR,  STAR>& Z_MR_STAR ); \
   template void symm::LocalAccumulateLU \
-  ( Orientation orientation, T alpha, \
-    const DistMatrix<T>& A, \
-    const DistMatrix<T,MC,  STAR>& B_MC_STAR, \
-    const DistMatrix<T,STAR,MR  >& BTrans_STAR_MR, \
-          DistMatrix<T,MC,  STAR>& Z_MC_STAR, \
-          DistMatrix<T,MR,  STAR>& Z_MR_STAR ); \
+  ( Orientation orientation, Ring alpha, \
+    const DistMatrix<Ring>& A, \
+    const DistMatrix<Ring,MC,  STAR>& B_MC_STAR, \
+    const DistMatrix<Ring,STAR,MR  >& BTrans_STAR_MR, \
+          DistMatrix<Ring,MC,  STAR>& Z_MC_STAR, \
+          DistMatrix<Ring,MR,  STAR>& Z_MR_STAR ); \
   template void symm::LocalAccumulateRL \
-  ( Orientation orientation, T alpha, \
-    const DistMatrix<T>& A, \
-    const DistMatrix<T,STAR,MC  >& B_STAR_MC, \
-    const DistMatrix<T,MR,  STAR>& BTrans_MR_STAR, \
-          DistMatrix<T,MC,  STAR>& ZTrans_MC_STAR, \
-          DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR ); \
+  ( Orientation orientation, Ring alpha, \
+    const DistMatrix<Ring>& A, \
+    const DistMatrix<Ring,STAR,MC  >& B_STAR_MC, \
+    const DistMatrix<Ring,MR,  STAR>& BTrans_MR_STAR, \
+          DistMatrix<Ring,MC,  STAR>& ZTrans_MC_STAR, \
+          DistMatrix<Ring,MR,  STAR>& ZTrans_MR_STAR ); \
   template void symm::LocalAccumulateRU \
-  ( Orientation orientation, T alpha, \
-    const DistMatrix<T,MC,  MR  >& A, \
-    const DistMatrix<T,STAR,MC  >& B_STAR_MC, \
-    const DistMatrix<T,MR,  STAR>& BTrans_MR_STAR, \
-          DistMatrix<T,MC,  STAR>& ZTrans_MC_STAR, \
-          DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR );
+  ( Orientation orientation, Ring alpha, \
+    const DistMatrix<Ring,MC,  MR  >& A, \
+    const DistMatrix<Ring,STAR,MC  >& B_STAR_MC, \
+    const DistMatrix<Ring,MR,  STAR>& BTrans_MR_STAR, \
+          DistMatrix<Ring,MC,  STAR>& ZTrans_MC_STAR, \
+          DistMatrix<Ring,MR,  STAR>& ZTrans_MR_STAR );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

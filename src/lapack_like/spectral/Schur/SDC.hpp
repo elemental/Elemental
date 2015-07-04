@@ -157,8 +157,8 @@ SignDivide
         ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
         DiagonalScale( RIGHT, NORMAL, d, G );
         Matrix<F> B;
-        Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-        Gemm( NORMAL, NORMAL, F(1), B, G, A );
+        Gemm( F(1), G.H(), A.N(), B );
+        Gemm( F(1), B.N(), G.N(), A );
     }
     else
     {
@@ -200,8 +200,8 @@ SignDivide
         ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
         DiagonalScale( RIGHT, NORMAL, d, G );
         DistMatrix<F> B(g);
-        Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-        Gemm( NORMAL, NORMAL, F(1), B, G, A );
+        Gemm( F(1), G.H(), A.N(), B );
+        Gemm( F(1), B.N(), G.N(), A );
     }
     else
     {
@@ -254,8 +254,8 @@ RandomizedSignDivide
         {
             ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
             DiagonalScale( RIGHT, NORMAL, d, G );
-            Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-            Gemm( NORMAL, NORMAL, F(1), B, G, A );
+            Gemm( F(1), G.H(), A.N(), B );
+            Gemm( F(1), B.N(), G.N(), A );
         }
         else
         {
@@ -318,8 +318,8 @@ RandomizedSignDivide
         {
             ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
             DiagonalScale( RIGHT, NORMAL, d, G );
-            Gemm( ADJOINT, NORMAL, F(1), G, A, B );
-            Gemm( NORMAL, NORMAL, F(1), B, G, A );
+            Gemm( F(1), G.H(), A.N(), B );
+            Gemm( F(1), B.N(), G.N(), A );
         }
         else
         {
@@ -983,9 +983,9 @@ SDC
     if( ctrl.progress )
         cout << "Left subproblem update" << endl;
     auto G( QL );
-    Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
+    Gemm( F(1), G.N(), Z.N(), QL );
     if( fullTriangle )
-        Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G );
+        Gemm( F(1), Z.H(), ATR.N(), G );
 
     // Recurse on the bottom-right quadrant and update Schur vectors and ATR
     if( ctrl.progress )
@@ -995,9 +995,9 @@ SDC
     if( ctrl.progress )
         cout << "Right subproblem update" << endl;
     if( fullTriangle )
-        Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
+        Gemm( F(1), G.N(), Z.N(), ATR ); 
     G = QR;
-    Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
+    Gemm( F(1), G.N(), Z.N(), QR );
 }
 
 // This routine no longer attempts to evenly assign work/process between two
@@ -1147,8 +1147,8 @@ SDC
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
-        CSE cse("schur::SDC");
-        AssertSameGrids( APre, wPre );
+      CSE cse("schur::SDC");
+      AssertSameGrids( APre, wPre );
     )
     typedef Base<F> Real;
     typedef Complex<Real> C;
@@ -1323,8 +1323,8 @@ SDC
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
-        CSE cse("schur::SDC");
-        AssertSameGrids( APre, wPre, QPre );
+      CSE cse("schur::SDC");
+      AssertSameGrids( APre, wPre, QPre );
     )
     typedef Base<F> Real;
     typedef Complex<Real> C;
@@ -1401,17 +1401,17 @@ SDC
     if( ctrl.progress && g.Rank() == 0 )
         cout << "Updating Schur vectors" << endl;
     auto G( QL );
-    Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
+    Gemm( F(1), G.N(), ZT.N(), QL );
     G = QR;
-    Gemm( NORMAL, NORMAL, F(1), G, ZB, QR );
+    Gemm( F(1), G.N(), ZB.N(), QR );
 
     if( fullTriangle )
     {
         if( ctrl.progress && g.Rank() == 0 )
             cout << "Updating top-right quadrant" << endl;
         // Update the top-right quadrant
-        Gemm( ADJOINT, NORMAL, F(1), ZT, ATR, G );
-        Gemm( NORMAL, NORMAL, F(1), G, ZB, ATR ); 
+        Gemm( F(1), ZT.H(), ATR.N(), G );
+        Gemm( F(1), G.N(), ZB.N(), ATR ); 
     }
 }
 

@@ -13,7 +13,7 @@ namespace mstrsm {
 template<typename F>
 inline void
 LUT
-( Orientation orientation,
+( Orientation orient,
   Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUT"))
@@ -34,15 +34,15 @@ LUT
         auto X1 = X( ind1, ALL );
         auto X2 = X( ind2, ALL );
 
-        LeftUnb( UPPER, orientation, U11, shifts, X1 );
-        Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
+        LeftUnb( UPPER, orient, U11, shifts, X1 );
+        Gemm( F(-1), U12.Orient(orient), X1.N(), F(1), X2 );
     }
 }
 
 template<typename F>
 inline void
 LUT
-( Orientation orientation,
+( Orientation orient,
   const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre ) 
 {
@@ -81,7 +81,7 @@ LUT
         X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR = X1;  // X1[* ,VR] <- X1[MC,MR]
         LUT
-        ( orientation, 
+        ( orient, 
           U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), X1_STAR_VR.Matrix() );
 
         X1_STAR_MR.AlignWith( X2 );
@@ -93,7 +93,7 @@ LUT
         U12_STAR_MC.AlignWith( X2 );
         U12_STAR_MC = U12; // U12[* ,MC] <- U12[MC,MR]
         LocalGemm
-        ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
+        ( F(-1), U12_STAR_MC.Orient(orient), X1_STAR_MR.N(), F(1), X2 );
     }
 }
 

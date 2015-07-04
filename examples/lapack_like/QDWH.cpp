@@ -39,11 +39,11 @@ main( int argc, char* argv[] )
         ctrl.colPiv = colPiv;
         Polar( Q, ctrl );
         Zeros( P, n, n );
-        Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
+        Gemm( C(1), Q.H(), A.N(), C(0), P );
 
         // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
-        Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
+        Gemm( C(-1), Q.N(), P.N(), C(1), B );
         const Real frobQDWH = FrobeniusNorm( B );
         Identity( B, n, n );
         Herk( LOWER, ADJOINT, Real(1), Q, Real(-1), B );

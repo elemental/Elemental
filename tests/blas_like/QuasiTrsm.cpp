@@ -52,7 +52,7 @@ void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
 template<typename F> 
 void TestQuasiTrsm
 ( bool print,
-  LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
+  LeftOrRight side, UpperOrLower uplo, Orientation orient, 
   Int m, Int n, F alpha, const Grid& g )
 {
     DistMatrix<F> H(g), X(g);
@@ -66,9 +66,9 @@ void TestQuasiTrsm
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
     if( side == LEFT )
-        Gemm( orientation, NORMAL, F(1)/alpha, H, X, Y );
+        Gemm( F(1)/alpha, H.Orient(orient), X.N(), Y );
     else
-        Gemm( NORMAL, orientation, F(1)/alpha, X, H, Y );
+        Gemm( F(1)/alpha, X.N(), H.Orient(orient), Y );
 
     if( print )
     {
@@ -83,7 +83,7 @@ void TestQuasiTrsm
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    QuasiTrsm( side, uplo, orientation, alpha, H, Y );
+    QuasiTrsm( side, uplo, orient, alpha, H, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 
@@ -126,7 +126,7 @@ main( int argc, char* argv[] )
         const char uploChar = Input
             ("--uplo","lower or upper quasi-triangular: L/U",'L');
         const char transChar = Input
-            ("--trans","orientation of quasi-triangular matrix: N/T/C",'N');
+            ("--trans","orient of quasi-triangular matrix: N/T/C",'N');
         const Int m = Input("--m","height of result",100);
         const Int n = Input("--n","width of result",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -140,7 +140,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
-        const Orientation orientation = CharToOrientation( transChar );
+        const Orientation orient = CharToOrientation( transChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
@@ -150,12 +150,12 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestQuasiTrsm<double>( print, side, uplo, orientation, m, n, 3., g );
+        TestQuasiTrsm<double>( print, side, uplo, orient, m, n, 3., g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
         TestQuasiTrsm<Complex<double>>
-        ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
+        ( print, side, uplo, orient, m, n, Complex<double>(3), g );
     }
     catch( exception& e ) { ReportException(e); }
 

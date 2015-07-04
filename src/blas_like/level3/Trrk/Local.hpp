@@ -15,42 +15,42 @@ namespace trrk {
 
 #ifndef EL_RELEASE
 
-template<typename T>
+template<typename Ring>
 void EnsureConformal
-( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T>& C, string name )
+( const DistMatrix<Ring,MC,STAR>& A, const DistMatrix<Ring>& C, string name )
 {
     if( A.Height() != C.Height() || A.ColAlign() != C.ColAlign() )
         LogicError(name," not conformal with C");
 }
 
-template<typename T>
+template<typename Ring>
 void EnsureConformal
-( const DistMatrix<T,STAR,MC>& A, const DistMatrix<T>& C, string name )
+( const DistMatrix<Ring,STAR,MC>& A, const DistMatrix<Ring>& C, string name )
 {
     if( A.Width() != C.Height() || A.RowAlign() != C.ColAlign() )
         LogicError(name," not conformal with C");
 }
 
-template<typename T>
+template<typename Ring>
 void EnsureConformal
-( const DistMatrix<T,MR,STAR>& A, const DistMatrix<T>& C, string name )
+( const DistMatrix<Ring,MR,STAR>& A, const DistMatrix<Ring>& C, string name )
 {
     if( A.Height() != C.Width() || A.ColAlign() != C.RowAlign() )
         LogicError(name," not conformal with C");
 }
 
-template<typename T>
+template<typename Ring>
 void EnsureConformal
-( const DistMatrix<T,STAR,MR>& A, const DistMatrix<T>& C, string name )
+( const DistMatrix<Ring,STAR,MR>& A, const DistMatrix<Ring>& C, string name )
 {
     if( A.Width() != C.Width() || A.RowAlign() != C.RowAlign() )
         LogicError(name," not conformal with C");
 }
 
-template<typename T,Dist UA,Dist VA,Dist UB,Dist VB>
+template<typename Ring,Dist UA,Dist VA,Dist UB,Dist VB>
 void CheckInput
-( const DistMatrix<T,UA,VA>& A, const DistMatrix<T,UB,VB>& B,
-  const DistMatrix<T>& C )
+( const DistMatrix<Ring,UA,VA>& A, const DistMatrix<Ring,UB,VB>& B,
+  const DistMatrix<Ring>& C )
 {
     AssertSameGrids( A, B, C );
     EnsureConformal( A, C, "A" );
@@ -58,8 +58,9 @@ void CheckInput
 }
 
 // Local C := A B + C
-template<typename T>
-void CheckInputNN( const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+template<typename Ring>
+void CheckInputNN
+( const Matrix<Ring>& A, const Matrix<Ring>& B, const Matrix<Ring>& C )
 {
     if( A.Height() != C.Height() || B.Width()  != C.Width() ||
         A.Width()  != B.Height() || A.Height() != B.Width() )
@@ -69,12 +70,12 @@ void CheckInputNN( const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
 }
 
 // Local C := A B^{T/H} + C
-template<typename T>
+template<typename Ring>
 void CheckInputNT
-( Orientation orientationOfB,
-  const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+( Orientation orientB,
+  const Matrix<Ring>& A, const Matrix<Ring>& B, const Matrix<Ring>& C )
 {
-    if( orientationOfB == NORMAL )
+    if( orientB == NORMAL )
         LogicError("B must be (Conjugate)Transpose'd");
     if( A.Height() != C.Height() || B.Height() != C.Width() ||
         A.Width()  != B.Width()  || A.Height() != B.Height() )
@@ -84,12 +85,12 @@ void CheckInputNT
 }
 
 // Local C := A^{T/H} B + C
-template<typename T>
+template<typename Ring>
 void CheckInputTN
-( Orientation orientationOfA,
-  const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+( Orientation orientA,
+  const Matrix<Ring>& A, const Matrix<Ring>& B, const Matrix<Ring>& C )
 {
-    if( orientationOfA == NORMAL )
+    if( orientA == NORMAL )
         LogicError("A must be (Conjugate)Transpose'd");
     if( A.Width() != C.Height() || B.Width() != C.Width() ||
         A.Height() != B.Height() || A.Width() != B.Width() )
@@ -99,15 +100,15 @@ void CheckInputTN
 }
 
 // Local C := A^{T/H} B^{T/H} + C
-template<typename T>
+template<typename Ring>
 void CheckInputTT
-( Orientation orientationOfA,
-  Orientation orientationOfB,
-  const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
+( Orientation orientA,
+  Orientation orientB,
+  const Matrix<Ring>& A, const Matrix<Ring>& B, const Matrix<Ring>& C )
 {
-    if( orientationOfA == NORMAL )
+    if( orientA == NORMAL )
         LogicError("A must be (Conjugate)Transpose'd");
-    if( orientationOfB == NORMAL )
+    if( orientB == NORMAL )
         LogicError("B must be (Conjugate)Transpose'd");
     if( A.Width() != C.Height() || B.Height() != C.Width() ||
         A.Height() != B.Width() || A.Width() != B.Height() )
@@ -119,22 +120,23 @@ void CheckInputTT
 #endif // ifndef EL_RELEASE
 
 // Local C := alpha A B + C
-template<typename T>
+template<typename Ring>
 inline void
 TrrkNNKernel
 ( UpperOrLower uplo, 
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("TrrkNNKernel");
       CheckInputNN( A, B, C );
     )
-    Matrix<T> AT, AB;
-    Matrix<T> BL, BR;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
+    Matrix<Ring> AT, AB;
+    Matrix<Ring> BL, BR;
+    Matrix<Ring> CTL, CTR,
+                 CBL, CBR;
+    Matrix<Ring> DTL, DBR;
 
     const Int half = C.Height()/2;
     LockedPartitionDown( A, AT, AB, half );
@@ -144,25 +146,25 @@ TrrkNNKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        Gemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+        Gemm( alpha, AB.N(), BL.N(), Ring(1), CBL );
     else
-        Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+        Gemm( alpha, AT.N(), BR.N(), Ring(1), CTR );
 
-    Gemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    Gemm( alpha, AT.N(), BL.N(), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
-    Gemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    Gemm( alpha, AB.N(), BR.N(), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Distributed C := alpha A B + C
-template<typename T>
+template<typename Ring>
 inline void
 LocalTrrkKernel
 ( UpperOrLower uplo, 
-  T alpha, const DistMatrix<T,MC,  STAR>& A,
-           const DistMatrix<T,STAR,MR  >& B,
-                 DistMatrix<T>& C )
+  Ring alpha, const DistMatrix<Ring,MC,  STAR>& A,
+              const DistMatrix<Ring,STAR,MR  >& B,
+                    DistMatrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("LocalTrrkKernel");
@@ -170,11 +172,11 @@ LocalTrrkKernel
     )
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g), AB(g);
-    DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
+    DistMatrix<Ring,MC,STAR> AT(g), AB(g);
+    DistMatrix<Ring,STAR,MR> BL(g), BR(g);
+    DistMatrix<Ring> CTL(g), CTR(g),
+                     CBL(g), CBR(g);
+    DistMatrix<Ring> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
     LockedPartitionDown( A, AT, AB, half );
@@ -184,37 +186,38 @@ LocalTrrkKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+        LocalGemm( alpha, AB.N(), BL.N(), Ring(1), CBL );
     else
-        LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+        LocalGemm( alpha, AT.N(), BR.N(), Ring(1), CTR );
 
     DTL.AlignWith( CTL );
-    LocalGemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    LocalGemm( alpha, AT.N(), BL.N(), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
-    LocalGemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    LocalGemm( alpha, AB.N(), BR.N(), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Local C := alpha A B^{T/H} + C
-template<typename T>
+template<typename Ring>
 inline void
 TrrkNTKernel
 ( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Orientation orientB,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("TrrkNTKernel");
-      CheckInputNT( orientationOfB, A, B, C );
+      CheckInputNT( orientB, A, B, C );
     )
-    Matrix<T> AT, AB;
-    Matrix<T> BT, BB;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
+    Matrix<Ring> AT, AB;
+    Matrix<Ring> BT, BB;
+    Matrix<Ring> CTL, CTR,
+                 CBL, CBR;
+    Matrix<Ring> DTL, DBR;
 
     const Int half = C.Height()/2;
     LockedPartitionDown( A, AT, AB, half );
@@ -224,26 +227,26 @@ TrrkNTKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        Gemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+        Gemm( alpha, AB.N(), BT.Orient(orientB), Ring(1), CBL );
     else
-        Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+        Gemm( alpha, AT.N(), BB.Orient(orientB), Ring(1), CTR );
 
-    Gemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    Gemm( alpha, AT.N(), BT.Orient(orientB), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
-    Gemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    Gemm( alpha, AB.N(), BB.Orient(orientB), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Distributed C := alpha A B^{T/H} + C
-template<typename T>
+template<typename Ring>
 inline void
 LocalTrrkKernel
 ( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,STAR>& A,
-           const DistMatrix<T,MR,STAR>& B,
-                 DistMatrix<T>& C )
+  Orientation orientB,
+  Ring alpha, const DistMatrix<Ring,MC,STAR>& A,
+              const DistMatrix<Ring,MR,STAR>& B,
+                    DistMatrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("LocalTrrkKernel");
@@ -251,11 +254,11 @@ LocalTrrkKernel
     )
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g), AB(g);
-    DistMatrix<T,MR,STAR> BT(g), BB(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
+    DistMatrix<Ring,MC,STAR> AT(g), AB(g);
+    DistMatrix<Ring,MR,STAR> BT(g), BB(g);
+    DistMatrix<Ring> CTL(g), CTR(g),
+                     CBL(g), CBR(g);
+    DistMatrix<Ring> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
     LockedPartitionDown( A, AT, AB, half );
@@ -265,37 +268,38 @@ LocalTrrkKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+        LocalGemm( alpha, AB.N(), BT.Orient(orientB), Ring(1), CBL );
     else
-        LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+        LocalGemm( alpha, AT.N(), BB.Orient(orientB), Ring(1), CTR );
 
     DTL.AlignWith( CTL );
-    LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    LocalGemm( alpha, AT.N(), BT.Orient(orientB), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
-    LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    LocalGemm( alpha, AB.N(), BB.Orient(orientB), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Local C := alpha A^{T/H} B + C
-template<typename T>
+template<typename Ring>
 inline void
 TrrkTNKernel
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Orientation orientA,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("TrrkTNKernel");
-      CheckInputTN( orientationOfA, A, B, C );
+      CheckInputTN( orientA, A, B, C );
     )
-    Matrix<T> AL, AR;
-    Matrix<T> BL, BR;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
+    Matrix<Ring> AL, AR;
+    Matrix<Ring> BL, BR;
+    Matrix<Ring> CTL, CTR,
+                 CBL, CBR;
+    Matrix<Ring> DTL, DBR;
 
     const Int half = C.Height()/2;
     LockedPartitionRight( A, AL, AR, half );
@@ -305,26 +309,26 @@ TrrkTNKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        Gemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+        Gemm( alpha, AR.Orient(orientA), BL.N(), Ring(1), CBL );
     else
-        Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+        Gemm( alpha, AL.Orient(orientA), BR.N(), Ring(1), CTR );
 
-    Gemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    Gemm( alpha, AL.Orient(orientA), BL.N(), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
-    Gemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    Gemm( alpha, AR.Orient(orientA), BR.N(), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Distributed C := alpha A^{T/H} B + C
-template<typename T>
+template<typename Ring>
 inline void
 LocalTrrkKernel
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,STAR,MC>& A,
-           const DistMatrix<T,STAR,MR>& B,
-                 DistMatrix<T>& C )
+  Orientation orientA,
+  Ring alpha, const DistMatrix<Ring,STAR,MC>& A,
+              const DistMatrix<Ring,STAR,MR>& B,
+                    DistMatrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("LocalTrrkKernel");
@@ -332,11 +336,11 @@ LocalTrrkKernel
     )
     const Grid& g = C.Grid();
 
-    DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
+    DistMatrix<Ring,STAR,MC> AL(g), AR(g);
+    DistMatrix<Ring,STAR,MR> BL(g), BR(g);
+    DistMatrix<Ring> CTL(g), CTR(g),
+                     CBL(g), CBR(g);
+    DistMatrix<Ring> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
     LockedPartitionRight( A, AL, AR, half );
@@ -346,38 +350,39 @@ LocalTrrkKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+        LocalGemm( alpha, AR.Orient(orientA), BL.N(), Ring(1), CBL );
     else
-        LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+        LocalGemm( alpha, AL.Orient(orientA), BR.N(), Ring(1), CTR );
 
     DTL.AlignWith( CTL );
-    LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    LocalGemm( alpha, AL.Orient(orientA), BL.N(), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
-    LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    LocalGemm( alpha, AR.Orient(orientA), BR.N(), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + C
-template<typename T>
+template<typename Ring>
 inline void
 TrrkTTKernel
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Orientation orientA,
+  Orientation orientB,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("TrrkTTKernel");
-      CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+      CheckInputTT( orientA, orientB, A, B, C );
     )
-    Matrix<T> AL, AR;
-    Matrix<T> BT, BB;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
+    Matrix<Ring> AL, AR;
+    Matrix<Ring> BT, BB;
+    Matrix<Ring> CTL, CTR,
+                 CBL, CBR;
+    Matrix<Ring> DTL, DBR;
 
     const Int half = C.Height()/2;
     LockedPartitionRight( A, AL, AR, half );
@@ -387,27 +392,27 @@ TrrkTTKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        Gemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+        Gemm( alpha, AR.Orient(orientA), BT.Orient(orientB), Ring(1), CBL );
     else
-        Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+        Gemm( alpha, AL.Orient(orientA), BB.Orient(orientB), Ring(1), CTR );
 
-    Gemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    Gemm( alpha, AL.Orient(orientA), BT.Orient(orientB), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
-    Gemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    Gemm( alpha, AR.Orient(orientA), BB.Orient(orientB), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Distributed C := alpha A^{T/H} B^{T/H} + C
-template<typename T>
+template<typename Ring>
 inline void
 LocalTrrkKernel
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,STAR,MC  >& A,
-           const DistMatrix<T,MR,  STAR>& B,
-                 DistMatrix<T>& C )
+  Orientation orientA,
+  Orientation orientB,
+  Ring alpha, const DistMatrix<Ring,STAR,MC  >& A,
+              const DistMatrix<Ring,MR,  STAR>& B,
+                    DistMatrix<Ring>& C )
 {
     DEBUG_ONLY(
       CSE cse("LocalTrrkKernel");
@@ -415,11 +420,11 @@ LocalTrrkKernel
     )
     const Grid& g = C.Grid();
 
-    DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,MR,STAR> BT(g), BB(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
+    DistMatrix<Ring,STAR,MC> AL(g), AR(g);
+    DistMatrix<Ring,MR,STAR> BT(g), BB(g);
+    DistMatrix<Ring> CTL(g), CTR(g),
+                     CBL(g), CBR(g);
+    DistMatrix<Ring> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
     LockedPartitionRight( A, AL, AR, half );
@@ -429,32 +434,35 @@ LocalTrrkKernel
          CBL, CBR, half );
 
     if( uplo == LOWER )
-        LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+        LocalGemm
+        ( alpha, AR.Orient(orientA), BT.Orient(orientB), Ring(1), CBL );
     else
-        LocalGemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+        LocalGemm
+        ( alpha, AL.Orient(orientA), BB.Orient(orientB), Ring(1), CTR );
 
     DTL.AlignWith( CTL );
-    LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    LocalGemm( alpha, AL.Orient(orientA), BT.Orient(orientB), DTL );
+    AxpyTrapezoid( uplo, Ring(1), DTL, CTL );
 
     DBR.AlignWith( CBR );
-    LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    LocalGemm( alpha, AR.Orient(orientA), BB.Orient(orientB), DBR );
+    AxpyTrapezoid( uplo, Ring(1), DBR, CBR );
 }
 
 // Local C := alpha A B + C
-template<typename T>
+template<typename Ring>
 void TrrkNN
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
       CSE cse("trrk::TrrkNN");
       CheckInputNN( A, B, C );
     )
-    if( C.Height() < LocalTrrkBlocksize<T>() )
+    if( C.Height() < LocalTrrkBlocksize<Ring>() )
     {
         TrrkNNKernel( uplo, alpha, A, B, C );
     }
@@ -462,10 +470,10 @@ void TrrkNN
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AT, AB;
-        Matrix<T> BL, BR;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        Matrix<Ring> AT, AB;
+        Matrix<Ring> BL, BR;
+        Matrix<Ring> CTL, CTR,
+                     CBL, CBR;
 
         const Int half = C.Height() / 2;
         LockedPartitionDown( A, AT, AB, half );
@@ -475,9 +483,9 @@ void TrrkNN
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+            Gemm( alpha, AB.N(), BL.N(), Ring(1), CBL );
         else
-            Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+            Gemm( alpha, AT.N(), BR.N(), Ring(1), CTR );
 
         // Recurse
         TrrkNN( uplo, alpha, AT, BL, CTL );
@@ -486,30 +494,31 @@ void TrrkNN
 }
 
 // Local C := alpha A B^{T/H} + C
-template<typename T>
+template<typename Ring>
 void TrrkNT
 ( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Orientation orientB,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
       CSE cse("trrk::TrrkNT");
-      CheckInputNT( orientationOfB, A, B, C );
+      CheckInputNT( orientB, A, B, C );
     )
-    if( C.Height() < LocalTrrkBlocksize<T>() )
+    if( C.Height() < LocalTrrkBlocksize<Ring>() )
     {
-        TrrkNTKernel( uplo, orientationOfB, alpha, A, B, C );
+        TrrkNTKernel( uplo, orientB, alpha, A, B, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AT, AB;
-        Matrix<T> BT, BB;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        Matrix<Ring> AT, AB;
+        Matrix<Ring> BT, BB;
+        Matrix<Ring> CTL, CTR,
+                     CBL, CBR;
 
         const Int half = C.Height() / 2;
         LockedPartitionDown( A, AT, AB, half );
@@ -519,41 +528,42 @@ void TrrkNT
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+            Gemm( alpha, AB.N(), BT.Orient(orientB), Ring(1), CBL );
         else
-            Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+            Gemm( alpha, AT.N(), BB.Orient(orientB), Ring(1), CTR );
 
         // Recurse
-        TrrkNT( uplo, orientationOfB, alpha, AT, BT, CTL );
-        TrrkNT( uplo, orientationOfB, alpha, AB, BB, CBR );
+        TrrkNT( uplo, orientB, alpha, AT, BT, CTL );
+        TrrkNT( uplo, orientB, alpha, AB, BB, CBR );
     }
 }
 
 // Local C := alpha A^{T/H} B + C
-template<typename T>
+template<typename Ring>
 void TrrkTN
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Orientation orientA,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
       CSE cse("trrk::TrrkTN");
-      CheckInputTN( orientationOfA, A, B, C );
+      CheckInputTN( orientA, A, B, C );
     )
-    if( C.Height() < LocalTrrkBlocksize<T>() )
+    if( C.Height() < LocalTrrkBlocksize<Ring>() )
     {
-        TrrkTNKernel( uplo, orientationOfA, alpha, A, B, C );
+        TrrkTNKernel( uplo, orientA, alpha, A, B, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AL, AR;
-        Matrix<T> BL, BR;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        Matrix<Ring> AL, AR;
+        Matrix<Ring> BL, BR;
+        Matrix<Ring> CTL, CTR,
+                     CBL, CBR;
 
         const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -563,41 +573,42 @@ void TrrkTN
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+            Gemm( alpha, AR.Orient(orientA), BL.N(), Ring(1), CBL );
         else
-            Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+            Gemm( alpha, AL.Orient(orientA), BR.N(), Ring(1), CTR );
 
         // Recurse
-        TrrkTN( uplo, orientationOfA, alpha, AL, BL, CTL );
-        TrrkTN( uplo, orientationOfA, alpha, AR, BR, CBR );
+        TrrkTN( uplo, orientA, alpha, AL, BL, CTL );
+        TrrkTN( uplo, orientA, alpha, AR, BR, CBR );
     }
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + C
-template<typename T>
+template<typename Ring>
 void TrrkTT
 ( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-                 Matrix<T>& C )
+  Orientation orientA, Orientation orientB,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B,
+                    Matrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
       CSE cse("trrk::TrrkTT");
-      CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+      CheckInputTT( orientA, orientB, A, B, C );
     )
-    if( C.Height() < LocalTrrkBlocksize<T>() )
+    if( C.Height() < LocalTrrkBlocksize<Ring>() )
     {
-        TrrkTTKernel( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
+        TrrkTTKernel( uplo, orientA, orientB, alpha, A, B, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AL, AR;
-        Matrix<T> BT, BB;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        Matrix<Ring> AL, AR;
+        Matrix<Ring> BT, BB;
+        Matrix<Ring> CTL, CTR,
+                     CBL, CBR;
 
         const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -607,35 +618,35 @@ void TrrkTT
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            Gemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+            Gemm( alpha, AR.Orient(orientA), BT.Orient(orientB), Ring(1), CBL );
         else
-            Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+            Gemm( alpha, AL.Orient(orientA), BB.Orient(orientB), Ring(1), CTR );
 
         // Recurse
-        TrrkTT( uplo, orientationOfA, orientationOfB, alpha, AL, BT, CTL );
-        TrrkTT( uplo, orientationOfA, orientationOfB, alpha, AR, BB, CBR );
+        TrrkTT( uplo, orientA, orientB, alpha, AL, BT, CTL );
+        TrrkTT( uplo, orientA, orientB, alpha, AR, BB, CBR );
     }
 }
 
 } // namespace trrk
 
 // Distributed C := alpha A B + beta C
-template<typename T>
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,  STAR>& A,
-           const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T>& C )
+  Ring alpha, const DistMatrix<Ring,MC,  STAR>& A,
+              const DistMatrix<Ring,STAR,MR  >& B,
+  Ring beta,        DistMatrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 
-    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<Ring>() )
     {
         LocalTrrkKernel( uplo, alpha, A, B, C );
     }
@@ -643,10 +654,10 @@ void LocalTrrk
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g), AB(g);
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        DistMatrix<Ring,MC,STAR> AT(g), AB(g);
+        DistMatrix<Ring,STAR,MR> BL(g), BR(g);
+        DistMatrix<Ring> CTL(g), CTR(g),
+                         CBL(g), CBR(g);
 
         const Int half = C.Height() / 2;
         LockedPartitionDown( A, AT, AB, half );
@@ -656,45 +667,45 @@ void LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+            LocalGemm( alpha, AB.N(), BL.N(), Ring(1), CBL );
         else
-            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+            LocalGemm( alpha, AT.N(), BR.N(), Ring(1), CTR );
 
         // Recurse
-        LocalTrrk( uplo, alpha, AT, BL, T(1), CTL );
-        LocalTrrk( uplo, alpha, AB, BR, T(1), CBR );
+        LocalTrrk( uplo, alpha, AT, BL, Ring(1), CTL );
+        LocalTrrk( uplo, alpha, AB, BR, Ring(1), CBR );
     }
 }
 
 // Distributed C := alpha A B^{T/H} + beta C
-template<typename T>
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,STAR>& A,
-           const DistMatrix<T,MR,STAR>& B,
-  T beta,        DistMatrix<T>& C )
+  Orientation orientB,
+  Ring alpha, const DistMatrix<Ring,MC,STAR>& A,
+              const DistMatrix<Ring,MR,STAR>& B,
+  Ring beta,        DistMatrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 
-    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<Ring>() )
     {
-        LocalTrrkKernel( uplo, orientationOfB, alpha, A, B, C );
+        LocalTrrkKernel( uplo, orientB, alpha, A, B, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g), AB(g);
-        DistMatrix<T,MR,STAR> BT(g), BB(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        DistMatrix<Ring,MC,STAR> AT(g), AB(g);
+        DistMatrix<Ring,MR,STAR> BT(g), BB(g);
+        DistMatrix<Ring> CTL(g), CTR(g),
+                         CBL(g), CBR(g);
 
         const Int half = C.Height() / 2;
         LockedPartitionDown( A, AT, AB, half );
@@ -704,45 +715,45 @@ void LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+            LocalGemm( alpha, AB.N(), BT.Orient(orientB), Ring(1), CBL );
         else
-            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+            LocalGemm( alpha, AT.N(), BB.Orient(orientB), Ring(1), CTR );
 
         // Recurse
-        LocalTrrk( uplo, orientationOfB, alpha, AT, BT, T(1), CTL );
-        LocalTrrk( uplo, orientationOfB, alpha, AB, BB, T(1), CBR );
+        LocalTrrk( uplo, orientB, alpha, AT, BT, Ring(1), CTL );
+        LocalTrrk( uplo, orientB, alpha, AB, BB, Ring(1), CBR );
     }
 }
 
 // Distributed C := alpha A^{T/H} B + beta C
-template<typename T>
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,STAR,MC>& A,
-           const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T>& C )
+  Orientation orientA,
+  Ring alpha, const DistMatrix<Ring,STAR,MC>& A,
+              const DistMatrix<Ring,STAR,MR>& B,
+  Ring beta,        DistMatrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 
-    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<Ring>() )
     {
-        LocalTrrkKernel( uplo, orientationOfA, alpha, A, B, C );
+        LocalTrrkKernel( uplo, orientA, alpha, A, B, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,STAR,MC> AL(g), AR(g);
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        DistMatrix<Ring,STAR,MC> AL(g), AR(g);
+        DistMatrix<Ring,STAR,MR> BL(g), BR(g);
+        DistMatrix<Ring> CTL(g), CTR(g),
+                         CBL(g), CBR(g);
 
         const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -752,45 +763,45 @@ void LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+            LocalGemm( alpha, AR.Orient(orientA), BL.N(), Ring(1), CBL );
         else
-            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+            LocalGemm( alpha, AL.Orient(orientA), BR.N(), Ring(1), CTR );
 
         // Recurse
-        LocalTrrk( uplo, orientationOfA, alpha, AL, BL, T(1), CTL );
-        LocalTrrk( uplo, orientationOfA, alpha, AR, BR, T(1), CBR );
+        LocalTrrk( uplo, orientA, alpha, AL, BL, Ring(1), CTL );
+        LocalTrrk( uplo, orientA, alpha, AR, BR, Ring(1), CBR );
     }
 }
 
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
-template<typename T>
+template<typename Ring>
 void LocalTrrk
 ( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,STAR,MC  >& A,
-           const DistMatrix<T,MR,  STAR>& B,
-  T beta,        DistMatrix<T>& C )
+  Orientation orientA, Orientation orientB,
+  Ring alpha, const DistMatrix<Ring,STAR,MC  >& A,
+              const DistMatrix<Ring,MR,  STAR>& B,
+  Ring beta,        DistMatrix<Ring>& C )
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 
-    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<Ring>() )
     {
-        LocalTrrkKernel( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
+        LocalTrrkKernel( uplo, orientA, orientB, alpha, A, B, C );
     }
     else
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,STAR,MC> AL(g), AR(g);
-        DistMatrix<T,MR,STAR> BT(g), BB(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        DistMatrix<Ring,STAR,MC> AL(g), AR(g);
+        DistMatrix<Ring,MR,STAR> BT(g), BB(g);
+        DistMatrix<Ring> CTL(g), CTR(g),
+                         CBL(g), CBR(g);
 
         const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -801,16 +812,16 @@ void LocalTrrk
 
         if( uplo == LOWER )
             LocalGemm
-            ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+            ( alpha, AR.Orient(orientA), BT.Orient(orientB), Ring(1), CBL );
         else
             LocalGemm
-            ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+            ( alpha, AL.Orient(orientA), BB.Orient(orientB), Ring(1), CTR );
 
         // Recurse
         LocalTrrk
-        ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, T(1), CTL );
+        ( uplo, orientA, orientB, alpha, AL, BT, Ring(1), CTL );
         LocalTrrk
-        ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, T(1), CBR );
+        ( uplo, orientA, orientB, alpha, AR, BB, Ring(1), CBR );
     }
 }
 

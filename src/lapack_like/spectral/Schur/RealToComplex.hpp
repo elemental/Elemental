@@ -41,12 +41,12 @@ void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
             // Apply Q11 from the right
             auto U01 = U( IR(0,j), IR(j,j+2) );
             U01Copy = U01;
-            Gemm( NORMAL, NORMAL, C(1), U01Copy, Q11, C(0), U01 );
+            Gemm( C(1), U01Copy.N(), Q11.N(), C(0), U01 );
 
             // Apply Q11^H from the left
             auto U12 = U( IR(j,j+2), IR(j+2,n) );
             U12Copy = U12;
-            Gemm( ADJOINT, NORMAL, C(1), Q11, U12Copy, C(0), U12 );
+            Gemm( C(1), Q11.H(), U12Copy.N(), C(0), U12 );
         }
     }
 }
@@ -96,16 +96,14 @@ void RealToComplex
             U01_VC_STAR = U01;
             U01Copy_VC_STAR = U01_VC_STAR;
 
-            LocalGemm
-            ( NORMAL, NORMAL, C(1), U01Copy_VC_STAR, Q11, C(0), U01_VC_STAR );
+            LocalGemm( C(1), U01Copy_VC_STAR.N(), Q11.N(), C(0), U01_VC_STAR );
             U01 = U01_VC_STAR;
 
             // Apply Q11^H from the left
             auto U12 = U( IR(j,j+2), IR(j+2,n) );
             U12_STAR_VR = U12;
             U12Copy_STAR_VR = U12_STAR_VR;
-            LocalGemm
-            ( ADJOINT, NORMAL, C(1), Q11, U12Copy_STAR_VR, C(0), U12_STAR_VR );
+            LocalGemm( C(1), Q11.H(), U12Copy_STAR_VR.N(), C(0), U12_STAR_VR );
             U12 = U12_STAR_VR;
         }
     }

@@ -72,8 +72,7 @@ RLT
         // X2[MC,MR] -= X1[MC,*] (L21[MR,*])^(T/H)
         //            = X1^T[* ,MC] (L21^(T/H))[*,MR]
         LocalGemm
-        ( TRANSPOSE, NORMAL, 
-          F(-1), X1Trans_STAR_MC, L21Trans_STAR_MR, F(1), X2 );
+        ( F(-1), X1Trans_STAR_MC.T(), L21Trans_STAR_MR.N(), F(1), X2 );
     }
 }
 

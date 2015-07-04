@@ -19,9 +19,9 @@ template<typename F>
 Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
-        CSE cse("svt::PivotedQR");
-        if( numSteps > Min(A.Height(),A.Width()) )
-            LogicError("number of steps is too large");
+      CSE cse("svt::PivotedQR");
+      if( numSteps > Min(A.Height(),A.Width()) )
+          LogicError("number of steps is too large");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -49,12 +49,12 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     DiagonalScale( RIGHT, NORMAL, s, U );
     InversePermuteRows( V, p );
     Matrix<F> RThresh;
-    Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
+    Gemm( F(1), U.N(), V.H(), RThresh );
 
     ACopy.Resize( m, numSteps );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, ACopy, t );
     DiagonalScale( RIGHT, NORMAL, d, ACopy );
-    Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
+    Gemm( F(1), ACopy.N(), RThresh.N(), F(0), A );
 
     return ZeroNorm( s );
 }
@@ -64,9 +64,9 @@ Int PivotedQR
 ( AbstractDistMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
-        CSE cse("svt::PivotedQR");
-        if( numSteps > Min(APre.Height(),APre.Width()) )
-            LogicError("number of steps is too large");
+      CSE cse("svt::PivotedQR");
+      if( numSteps > Min(APre.Height(),APre.Width()) )
+          LogicError("number of steps is too large");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -100,12 +100,12 @@ Int PivotedQR
     DiagonalScale( RIGHT, NORMAL, s, U );
     InversePermuteRows( V, p );
     DistMatrix<F> RThresh(g);
-    Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
+    Gemm( F(1), U.N(), V.H(), RThresh );
 
     ACopy.Resize( m, numSteps );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, ACopy, t );
     DiagonalScale( RIGHT, NORMAL, d, ACopy );
-    Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
+    Gemm( F(1), ACopy.N(), RThresh.N(), F(0), A );
 
     return ZeroNorm( s );
 }

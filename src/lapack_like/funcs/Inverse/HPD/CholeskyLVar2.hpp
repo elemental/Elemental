@@ -49,7 +49,7 @@ CholeskyLVar2( Matrix<F>& A )
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
         Herk( LOWER, ADJOINT, Base<F>(1), A10, Base<F>(1), A00 );
-        Gemm( NORMAL, NORMAL, F(-1), A21, A10, F(1), A20 );
+        Gemm( F(-1), A21.N(), A10.N(), F(1), A20 );
         Herk( LOWER, NORMAL, Base<F>(-1), A21, Base<F>(1), A22 );
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A10 );
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(-1), A11, A21 );
@@ -133,8 +133,7 @@ CholeskyLVar2( AbstractDistMatrix<F>& APre )
           F(1), A10_STAR_MC, A10_STAR_MR, F(1), A00 );
 
         Transpose( A21_VC_STAR, A21Trans_STAR_MC );
-        LocalGemm
-        ( TRANSPOSE, NORMAL, F(-1), A21Trans_STAR_MC, A10_STAR_MR, F(1), A20 );
+        LocalGemm( F(-1), A21Trans_STAR_MC.T(), A10_STAR_MR.N(), F(1), A20 );
 
         A21_VR_STAR = A21_VC_STAR;
         Adjoint( A21_VR_STAR, A21Adj_STAR_MR );

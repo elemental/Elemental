@@ -113,7 +113,7 @@ void Overwrite
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), T12, Y2, checkIfSingular );
 
     // G1 := G1 - R12 Y2
-    Gemm( NORMAL, NORMAL, F(-1), R12, Y2, F(1), G1 );
+    Gemm( F(-1), R12.N(), Y2.N(), F(1), G1 );
 
     // Solve R11 Y1 = G1
     Y1 = G1;
@@ -133,7 +133,7 @@ void Overwrite
             PartitionLeft( R22, R22L, R22R, n-m );
             Matrix<F> DT, DB;
             PartitionUp( D, DT, DB, n-m );
-            Gemm( NORMAL, NORMAL, F(-1), R22R, DB, F(1), G2 );
+            Gemm( F(-1), R22R.N(), DB.N(), F(1), G2 );
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22L, DT );
             G2 -= DT;
         }
@@ -211,7 +211,7 @@ void Overwrite
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), T12, Y2, checkIfSingular );
 
     // G1 := G1 - R12 Y2
-    Gemm( NORMAL, NORMAL, F(-1), R12, Y2, F(1), G1 );
+    Gemm( F(-1), R12.N(), Y2.N(), F(1), G1 );
 
     // Solve R11 Y1 = G1
     Y1 = G1;
@@ -231,7 +231,7 @@ void Overwrite
             PartitionLeft( R22, R22L, R22R, n-m );
             DistMatrix<F> DT(g), DB(g);
             PartitionUp( D, DT, DB, n-m );
-            Gemm( NORMAL, NORMAL, F(-1), R22R, DB, F(1), G2 );
+            Gemm( F(-1), R22R.N(), DB.N(), F(1), G2 );
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22L, DT );
             G2 -= DT;
         }

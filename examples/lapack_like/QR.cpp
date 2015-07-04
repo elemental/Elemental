@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
 
         // Check the error in the QR factorization, || A - Q R ||_F / || A ||_F
         DistMatrix<C> E( A );
-        Gemm( NORMAL, NORMAL, C(-1), Q, R, C(1), E );
+        Gemm( C(-1), Q.N(), R.N(), C(1), E );
         const Real frobQR = FrobeniusNorm( E );
 
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F

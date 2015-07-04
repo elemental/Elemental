@@ -48,10 +48,10 @@ main( int argc, char* argv[] )
         // Form B := A F
         DistMatrix<C> B;
         Zeros( B, n, n );
-        Gemm( NORMAL, NORMAL, C(1), A, F, C(0), B );
+        Gemm( C(1), A.N(), F.N(), C(0), B );
 
         // Form A := F^H B = F^H \hat A F
-        Gemm( ADJOINT, NORMAL, C(1), F, B, C(0), A );
+        Gemm( C(1), F.H(), B.N(), C(0), A );
         if( display )
             Display( A, "F^H A F" );
         if( print )

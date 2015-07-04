@@ -63,7 +63,7 @@ inline void Normal
         zTrans.AlignWith( y );
         Contract( z_MC_STAR, z );
         Transpose( z, zTrans );
-        Axpy( T(1), zTrans, y );
+        y += zTrans;
     }
     else if( y.Width() == 1 )
     {
@@ -92,7 +92,7 @@ inline void Normal
         zTrans.AlignWith( y );
         Contract( z_MC_STAR, z );
         Transpose( z, zTrans );
-        Axpy( T(1), zTrans, y );
+        y += zTrans;
     }
 }
 

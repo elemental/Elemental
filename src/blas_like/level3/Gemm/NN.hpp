@@ -11,11 +11,12 @@ namespace El {
 namespace gemm {
 
 // Cannon's algorithm
-template<typename T>
+template<typename Ring>
 inline void
 Cannon_NN
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::Cannon_NN");
@@ -32,12 +33,12 @@ Cannon_NN
         LogicError("Process grid must be square for Cannon's");
 
     // Force A, B, and C to be in [MC,MR] distributions aligned with C
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
     ProxyCtrl ctrlA, ctrlB;
     ctrlA.colConstrain = true; ctrlA.colAlign = C.ColAlign();
     ctrlB.rowConstrain = true; ctrlB.rowAlign = C.RowAlign();
-    auto APtr = ReadProxy<T,MC,MR>( &APre, ctrlA ); auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre, ctrlB ); auto& B = *BPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre, ctrlA ); auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre, ctrlB ); auto& B = *BPtr;
 
     const Int row = g.Row();
     const Int col = g.Col();
@@ -52,8 +53,8 @@ Cannon_NN
     const Int localHeightB = B.LocalHeight();
     const Int localWidthA = A.LocalWidth();
     const Int localWidthB = B.LocalWidth();
-    Matrix<T> pkgA(localHeightA,localWidthA,localHeightA), 
-              pkgB(localHeightB,localWidthB,localHeightB);
+    Matrix<Ring> pkgA(localHeightA,localWidthA,localHeightA), 
+                 pkgB(localHeightB,localWidthB,localHeightB);
     for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
         MemCopy
         ( pkgA.Buffer(0,jLoc), A.LockedBuffer(0,jLoc), localHeightA );
@@ -80,7 +81,7 @@ Cannon_NN
     const Int rightCol = Mod(col+1,pSqrt);
     for( Int q=0; q<pSqrt; ++q )
     {
-        Gemm( NORMAL, NORMAL, alpha, pkgA, pkgB, T(1), C.Matrix() );
+        Gemm( alpha, pkgA.N(), pkgB.N(), Ring(1), C.Matrix() );
         if( q != pSqrt-1 )
         {
             mpi::SendRecv
@@ -92,12 +93,12 @@ Cannon_NN
 }
 
 // Normal Normal Gemm that avoids communicating the matrix A
-template<typename T>
+template<typename Ring>
 inline void
 SUMMA_NNA
-( T alpha, const AbstractDistMatrix<T>& APre, 
-           const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNA");
@@ -113,14 +114,14 @@ SUMMA_NNA
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,VR,STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR> B1Trans_STAR_MR(g);
-    DistMatrix<T,MC,STAR> D1_MC_STAR(g);
+    DistMatrix<Ring,VR,STAR> B1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR> B1Trans_STAR_MR(g);
+    DistMatrix<Ring,MC,STAR> D1_MC_STAR(g);
 
     B1_VR_STAR.AlignWith( A );
     B1Trans_STAR_MR.AlignWith( A );
@@ -135,19 +136,20 @@ SUMMA_NNA
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         B1_VR_STAR = B1;
         Transpose( B1_VR_STAR, B1Trans_STAR_MR );
-        LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
+        LocalGemm( alpha, A.N(), B1Trans_STAR_MR.T(), D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        AxpyContract( T(1), D1_MC_STAR, C1 );
+        AxpyContract( Ring(1), D1_MC_STAR, C1 );
     }
 }
 
 // Normal Normal Gemm that avoids communicating the matrix B
-template<typename T>
+template<typename Ring>
 inline void 
 SUMMA_NNB
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNB");
@@ -163,13 +165,13 @@ SUMMA_NNB
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,STAR,MC> A1_STAR_MC(g);
-    DistMatrix<T,MR,STAR> D1Trans_MR_STAR(g);
+    DistMatrix<Ring,STAR,MC> A1_STAR_MC(g);
+    DistMatrix<Ring,MR,STAR> D1Trans_MR_STAR(g);
 
     A1_STAR_MC.AlignWith( B );
     D1Trans_MR_STAR.AlignWith( B );
@@ -182,19 +184,19 @@ SUMMA_NNB
 
         // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
         A1_STAR_MC = A1;
-        LocalGemm
-        ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, D1Trans_MR_STAR );
+        LocalGemm( alpha, B.T(), A1_STAR_MC.T(), D1Trans_MR_STAR );
 
-        TransposeAxpyContract( T(1), D1Trans_MR_STAR, C1 );
+        TransposeAxpyContract( Ring(1), D1Trans_MR_STAR, C1 );
     }
 }
 
 // Normal Normal Gemm that avoids communicating the matrix C
-template<typename T>
+template<typename Ring>
 inline void 
 SUMMA_NNC
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNC");
@@ -210,13 +212,13 @@ SUMMA_NNC
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,MC,STAR> A1_MC_STAR(g);
-    DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g); 
+    DistMatrix<Ring,MC,STAR> A1_MC_STAR(g);
+    DistMatrix<Ring,MR,STAR> B1Trans_MR_STAR(g); 
 
     A1_MC_STAR.AlignWith( C );
     B1Trans_MR_STAR.AlignWith( C );
@@ -231,17 +233,17 @@ SUMMA_NNC
         //           = alpha A1[MC,*] B1[*,MR]
         A1_MC_STAR = A1; 
         Transpose( B1, B1Trans_MR_STAR );
-        LocalGemm
-        ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
+        LocalGemm( alpha, A1_MC_STAR.N(), B1Trans_MR_STAR.T(), Ring(1), C );
     }
 }
 
 // Normal Normal Gemm for panel-panel dot products
-template<typename T>
+template<typename Ring>
 inline void 
 SUMMA_NNDot
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNDot");
@@ -258,16 +260,16 @@ SUMMA_NNDot
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     if( A.Height() > B.Width() )
     {
         // Temporary distributions
-        DistMatrix<T,STAR,VC> A1_STAR_VC(g);
-        DistMatrix<T,VC,STAR> B1_VC_STAR(g);
-        DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
+        DistMatrix<Ring,STAR,VC> A1_STAR_VC(g);
+        DistMatrix<Ring,VC,STAR> B1_VC_STAR(g);
+        DistMatrix<Ring,STAR,STAR> C11_STAR_STAR(g);
 
         for( Int kOuter=0; kOuter<m; kOuter+=bsize )
         {
@@ -289,19 +291,18 @@ SUMMA_NNDot
 
                 B1_VC_STAR = B1;
                 LocalGemm
-                ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VC, B1_VC_STAR, C11_STAR_STAR );
+                ( alpha, A1_STAR_VC.N(), B1_VC_STAR.N(), C11_STAR_STAR );
 
-                AxpyContract( T(1), C11_STAR_STAR, C11 );
+                AxpyContract( Ring(1), C11_STAR_STAR, C11 );
             }
         }
     }
     else
     {
         // Temporary distributions
-        DistMatrix<T,STAR,VR> A1_STAR_VR(g);
-        DistMatrix<T,VR,STAR> B1_VR_STAR(g);
-        DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
+        DistMatrix<Ring,STAR,VR> A1_STAR_VR(g);
+        DistMatrix<Ring,VR,STAR> B1_VR_STAR(g);
+        DistMatrix<Ring,STAR,STAR> C11_STAR_STAR(g);
 
         for( Int kOuter=0; kOuter<n; kOuter+=bsize )
         {
@@ -323,19 +324,20 @@ SUMMA_NNDot
 
                 A1_STAR_VR = A1;
                 LocalGemm
-                ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VR, B1_VR_STAR, C11_STAR_STAR );
-                AxpyContract( T(1), C11_STAR_STAR, C11 );
+                ( alpha, A1_STAR_VR.N(), B1_VR_STAR.N(), C11_STAR_STAR );
+                AxpyContract( Ring(1), C11_STAR_STAR, C11 );
             }
         }
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 SUMMA_NN
-( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+( Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CSE cse("gemm::SUMMA_NN"))
     const Int m = C.Height();

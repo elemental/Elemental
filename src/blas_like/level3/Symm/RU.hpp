@@ -10,14 +10,14 @@
 namespace El {
 namespace symm {
 
-template<typename T>
+template<typename Ring>
 void LocalAccumulateRU
-( Orientation orientation, T alpha,
-  const DistMatrix<T,MC,  MR  >& A,
-  const DistMatrix<T,STAR,MC  >& B_STAR_MC,
-  const DistMatrix<T,MR,  STAR>& BTrans_MR_STAR,
-        DistMatrix<T,MC,  STAR>& ZTrans_MC_STAR,
-        DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
+( Orientation orient, Ring alpha,
+  const DistMatrix<Ring,MC,  MR  >& A,
+  const DistMatrix<Ring,STAR,MC  >& B_STAR_MC,
+  const DistMatrix<Ring,MR,  STAR>& BTrans_MR_STAR,
+        DistMatrix<Ring,MC,  STAR>& ZTrans_MC_STAR,
+        DistMatrix<Ring,MR,  STAR>& ZTrans_MR_STAR )
 {
     DEBUG_ONLY(
       CSE cse("symm::LocalAccumulateRU");
@@ -49,7 +49,7 @@ void LocalAccumulateRU
     const Int ratio = Max( g.Height(), g.Width() );
     const Int bsize = ratio*Blocksize();
 
-    DistMatrix<T> D11(g);
+    DistMatrix<Ring> D11(g);
 
     for( Int k=0; k<n; k+=bsize )
     {
@@ -75,27 +75,29 @@ void LocalAccumulateRU
         D11 = A11;
         MakeTrapezoidal( UPPER, D11 );
         LocalGemm
-        ( orientation, orientation,
-          alpha, D11, B1_STAR_MC, T(1), Z1Trans_MR_STAR );
-        FillDiagonal( D11, T(0) );
+        ( alpha, D11.Orient(orient), B1_STAR_MC.Orient(orient), 
+          Ring(1), Z1Trans_MR_STAR );
+        FillDiagonal( D11, Ring(0) );
 
         LocalGemm
-        ( NORMAL, NORMAL, alpha, D11, B1Trans_MR_STAR, T(1), Z1Trans_MC_STAR );
+        ( alpha, D11.N(), B1Trans_MR_STAR.N(), Ring(1), Z1Trans_MC_STAR );
 
         LocalGemm
-        ( orientation, orientation, 
-          alpha, A12, B1_STAR_MC, T(1), Z2Trans_MR_STAR );
+        ( alpha, A12.Orient(orient), B1_STAR_MC.Orient(orient), 
+          Ring(1), Z2Trans_MR_STAR );
 
         LocalGemm
-        ( NORMAL, NORMAL, alpha, A12, B2Trans_MR_STAR, T(1), Z1Trans_MC_STAR );
+        ( alpha, A12.N(), B2Trans_MR_STAR.N(), Ring(1), Z1Trans_MC_STAR );
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 RUA
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre, 
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RUA");
@@ -105,19 +107,19 @@ RUA
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
-    DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
-    DistMatrix<T,VC,  STAR> B1Trans_VC_STAR(g);
-    DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
-    DistMatrix<T,MC,  STAR> Z1Trans_MC_STAR(g);
-    DistMatrix<T,MR,  STAR> Z1Trans_MR_STAR(g);
-    DistMatrix<T,MC,  MR  > Z1Trans(g);
-    DistMatrix<T,MR,  MC  > Z1Trans_MR_MC(g);
+    DistMatrix<Ring,MR,  STAR> B1Trans_MR_STAR(g);
+    DistMatrix<Ring,VC,  STAR> B1Trans_VC_STAR(g);
+    DistMatrix<Ring,STAR,MC  > B1_STAR_MC(g);
+    DistMatrix<Ring,MC,  STAR> Z1Trans_MC_STAR(g);
+    DistMatrix<Ring,MR,  STAR> Z1Trans_MR_STAR(g);
+    DistMatrix<Ring,MC,  MR  > Z1Trans(g);
+    DistMatrix<Ring,MR,  MC  > Z1Trans_MR_MC(g);
 
     B1Trans_MR_STAR.AlignWith( A );
     B1Trans_VC_STAR.AlignWith( A );
@@ -125,7 +127,7 @@ RUA
     Z1Trans_MC_STAR.AlignWith( A );
     Z1Trans_MR_STAR.AlignWith( A );
 
-    Matrix<T> Z1Local;
+    Matrix<Ring> Z1Local;
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -139,23 +141,25 @@ RUA
         Zeros( Z1Trans_MC_STAR, n, nb );
         Zeros( Z1Trans_MR_STAR, n, nb );
         LocalAccumulateRU
-        ( orientation, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
+        ( orient, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
           Z1Trans_MC_STAR, Z1Trans_MR_STAR );
 
         Contract( Z1Trans_MC_STAR, Z1Trans );
         Z1Trans_MR_MC.AlignWith( C1 );
         Z1Trans_MR_MC = Z1Trans;
-        AxpyContract( T(1), Z1Trans_MR_STAR, Z1Trans_MR_MC );
+        AxpyContract( Ring(1), Z1Trans_MR_STAR, Z1Trans_MR_MC );
         Transpose( Z1Trans_MR_MC.LockedMatrix(), Z1Local, conjugate );
-        Axpy( T(1), Z1Local, C1.Matrix() );
+        C1.Matrix() += Z1Local;
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 RUC
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( Ring alpha, const AbstractDistMatrix<Ring>& APre, 
+              const AbstractDistMatrix<Ring>& BPre,
+                    AbstractDistMatrix<Ring>& CPre, 
+  bool conjugate=false )
 {
     DEBUG_ONLY(
         CSE cse("symm::RUC");
@@ -164,17 +168,17 @@ RUC
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    auto APtr = ReadProxy<Ring,MC,MR>( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy<Ring,MC,MR>( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy<Ring,MC,MR>( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
-    DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
-    DistMatrix<T,VR,  STAR> AT1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > AT1Trans_STAR_MR(g);
-    DistMatrix<T,MR,  STAR> A1RTrans_MR_STAR(g);
+    DistMatrix<Ring,MC,  STAR> B1_MC_STAR(g);
+    DistMatrix<Ring,VR,  STAR> AT1_VR_STAR(g);
+    DistMatrix<Ring,STAR,MR  > AT1Trans_STAR_MR(g);
+    DistMatrix<Ring,MR,  STAR> A1RTrans_MR_STAR(g);
 
     B1_MC_STAR.AlignWith( C );
 
@@ -205,18 +209,18 @@ RUC
 
         B1_MC_STAR = B1;
         LocalGemm
-        ( NORMAL, orientation, alpha, B1_MC_STAR, A1RTrans_MR_STAR, T(1), CR );
+        ( alpha, B1_MC_STAR.N(), A1RTrans_MR_STAR.Orient(orient), Ring(1), CR );
 
-        LocalGemm
-        ( NORMAL, NORMAL, alpha, B1_MC_STAR, AT1Trans_STAR_MR, T(1), CL );
+        LocalGemm( alpha, B1_MC_STAR.N(), AT1Trans_STAR_MR.N(), Ring(1), CL );
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 RU
-( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C,
+( Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C,
   bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::RU"))

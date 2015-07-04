@@ -84,7 +84,7 @@ main( int argc, char* argv[] )
             Zeros( LTrue, m, n );
             // Since each entry of U and V is lies in the unit ball, every entry
             // of U V' will lie in the ball of radius 'rank', so scale this ball
-            Gemm( NORMAL, ADJOINT, C(1./rank), U, V, C(0), LTrue );
+            Gemm( C(1./rank), U.N(), V.H(), C(0), LTrue );
         }
         const double frobLTrue = FrobeniusNorm( LTrue );
         const double maxLTrue = MaxNorm( LTrue );

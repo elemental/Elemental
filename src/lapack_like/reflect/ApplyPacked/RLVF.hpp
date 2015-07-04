@@ -70,9 +70,9 @@ RLVF
         Herk( UPPER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
-        Gemm( NORMAL, NORMAL, F(1), ARight, HPanCopy, Z );
+        Gemm( F(1), ARight.N(), HPanCopy.N(), Z );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
-        Gemm( NORMAL, ADJOINT, F(-1), Z, HPanCopy, F(1), ARight );
+        Gemm( F(-1), Z.N(), HPanCopy.H(), F(1), ARight );
     }
 }
 
@@ -140,7 +140,7 @@ RLVF
         HPan_MR_STAR.AlignWith( ARight );
         HPan_MR_STAR = HPan_VC_STAR;
         ZAdj_STAR_MC.AlignWith( ARight );
-        LocalGemm( ADJOINT, ADJOINT, F(1), HPan_MR_STAR, ARight, ZAdj_STAR_MC );
+        LocalGemm( F(1), HPan_MR_STAR.H(), ARight.H(), ZAdj_STAR_MC );
         ZAdj_STAR_VC.AlignWith( ARight );
         Contract( ZAdj_STAR_MC, ZAdj_STAR_VC );
         
@@ -148,8 +148,7 @@ RLVF
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );
 
         ZAdj_STAR_MC = ZAdj_STAR_VC;
-        LocalGemm
-        ( ADJOINT, ADJOINT, F(-1), ZAdj_STAR_MC, HPan_MR_STAR, F(1), ARight );
+        LocalGemm( F(-1), ZAdj_STAR_MC.H(), HPan_MR_STAR.H(), F(1), ARight );
     }
 }
 

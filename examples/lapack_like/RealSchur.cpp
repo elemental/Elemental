@@ -77,8 +77,8 @@ main( int argc, char* argv[] )
         }
 
         DistMatrix<Real> G;
-        Gemm( NORMAL, NORMAL, Real(1), Q, T, G );
-        Gemm( NORMAL, ADJOINT, Real(-1), G, Q, Real(1), A );
+        Gemm( Real(1), Q.N(), T.N(), G );
+        Gemm( Real(-1), G.N(), Q.H(), Real(1), A );
         const Real frobE = FrobeniusNorm( A );
         MakeIdentity( A );
         Herk( LOWER, ADJOINT, Real(-1), Q, Real(1), A );

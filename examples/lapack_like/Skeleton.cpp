@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
         Uniform( U, m, r );
         Uniform( V, n, r );
         DistMatrix<C> A;
-        Gemm( NORMAL, ADJOINT, C(1), U, V, A );
+        Gemm( C(1), U.N(), V.H(), A );
         const Real frobA = FrobeniusNorm( A );
         if( print )
             Print( A, "A" );
@@ -73,8 +73,8 @@ main( int argc, char* argv[] )
 
         // Check || A - AC Z AR ||_F / || A ||_F
         DistMatrix<C> B(g);
-        Gemm( NORMAL, NORMAL, C(1), Z, AR, B );
-        Gemm( NORMAL, NORMAL, C(-1), AC, B, C(1), A );
+        Gemm( C(1), Z.N(), AR.N(), B );
+        Gemm( C(-1), AC.N(), B.N(), C(1), A );
         const Real frobError = FrobeniusNorm( A );
         if( print )
             Print( A, "A - AC Z AR" );

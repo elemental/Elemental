@@ -64,8 +64,7 @@ RLN
         L10Trans_MR_STAR.AlignWith( X0 );
         Transpose( L10, L10Trans_MR_STAR );
         LocalGemm
-        ( TRANSPOSE, TRANSPOSE, 
-          F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );
+        ( F(-1), X1Trans_STAR_MC.T(), L10Trans_MR_STAR.T(), F(1), X0 );
     }
 }
 

@@ -71,9 +71,9 @@ RUHB
         Herk( LOWER, NORMAL, Base<F>(1), HPanConj, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
-        Gemm( NORMAL, ADJOINT, F(1), ARight, HPanConj, Z );
+        Gemm( F(1), ARight.N(), HPanConj.H(), Z );
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
-        Gemm( NORMAL, NORMAL, F(-1), Z, HPanConj, F(1), ARight );
+        Gemm( F(-1), Z.N(), HPanConj.N(), F(1), ARight );
     }
 }
 
@@ -142,7 +142,7 @@ RUHB
         HPan_STAR_MR.AlignWith( ARight );
         HPan_STAR_MR = HPan_STAR_VR;
         ZAdj_STAR_MC.AlignWith( ARight );
-        LocalGemm( NORMAL, ADJOINT, F(1), HPan_STAR_MR, ARight, ZAdj_STAR_MC );
+        LocalGemm( F(1), HPan_STAR_MR.N(), ARight.H(), ZAdj_STAR_MC );
         ZAdj_STAR_VC.AlignWith( ARight );
         Contract( ZAdj_STAR_MC, ZAdj_STAR_VC );
 
@@ -150,8 +150,7 @@ RUHB
         ( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );
 
         ZAdj_STAR_MC = ZAdj_STAR_VC;
-        LocalGemm
-        ( ADJOINT, NORMAL, F(-1), ZAdj_STAR_MC, HPan_STAR_MR, F(1), ARight );
+        LocalGemm( F(-1), ZAdj_STAR_MC.H(), HPan_STAR_MR.N(), F(1), ARight );
     }
 }
 

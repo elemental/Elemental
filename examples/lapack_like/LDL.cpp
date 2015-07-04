@@ -29,7 +29,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+        const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
         C mean( realMean, imagMean );
         DistMatrix<C> A;
         if( conjugate )
@@ -54,7 +54,7 @@ main( int argc, char* argv[] )
 
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );
-        Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
+        Gemm( C(-1), LD.N(), L.Orient(orient), C(1), A );
         const Real frobNormOfError = FrobeniusNorm( A );
         if( mpi::WorldRank() == 0 )
             cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"

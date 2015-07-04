@@ -51,7 +51,7 @@ Transpose
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
         Contract( z_MR_STAR, z_MR_MC );
-        Axpy( T(1), z_MR_MC, y );
+        y += z_MR_MC;
     }
     else if( x.Width() == 1 )
     {
@@ -71,7 +71,7 @@ Transpose
         DistMatrix<T> zTrans(g);
         zTrans.AlignWith( y );
         Transpose( z_MR_MC, zTrans );
-        Axpy( T(1), zTrans, y );
+        y += zTrans;
     }
     else if( y.Width() == 1 )
     {
@@ -87,7 +87,7 @@ Transpose
         DistMatrix<T,MR,MC> z_MR_MC(g);
         z_MR_MC.AlignWith( y );
         Contract( z_MR_STAR, z_MR_MC );
-        Axpy( T(1), z_MR_MC, y );
+        y += z_MR_MC;
     }
     else
     {
@@ -107,7 +107,7 @@ Transpose
         DistMatrix<T> zTrans(g);
         zTrans.AlignWith( y );
         Transpose( z_MR_MC, zTrans );
-        Axpy( T(1), zTrans, y );
+        y += zTrans;
     }
 }
 
@@ -144,7 +144,7 @@ Transpose
     DistMatrix<T,VR,STAR> z_VR_STAR(g);
     z_VR_STAR.AlignWith( A );
     Contract( z_MR_STAR, z_VR_STAR );
-    Axpy( T(1), z_VR_STAR, y );
+    y += z_VR_STAR;
 }
 
 } // namespace gemv

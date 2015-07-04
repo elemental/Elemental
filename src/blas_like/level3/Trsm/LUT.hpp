@@ -71,7 +71,7 @@ LUTLarge
         // X2[MC,MR] -= (U12[* ,MC])^(T/H) X1[* ,MR]
         //            = U12^(T/H)[MC,*] X1[* ,MR]
         LocalGemm
-        ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
+        ( F(-1), U12_STAR_MC.Orient(orientation), X1_STAR_MR.N(), F(1), X2 );
     }
 }
 
@@ -130,8 +130,8 @@ LUTMedium
         // X2[MC,MR] -= (U12[* ,MC])^[T/H] X1[* ,MR]
         //            = U12^[T/H][MC,*] X1[* ,MR]
         LocalGemm
-        ( orientation, orientation, 
-          F(-1), U12_STAR_MC, X1Trans_MR_STAR, F(1), X2 );
+        ( F(-1), U12_STAR_MC.Orient(orientation), 
+                 X1Trans_MR_STAR.Orient(orientation), F(1), X2 );
     }
 }
 
@@ -184,7 +184,7 @@ LUTSmall
         X1 = X1_STAR_STAR;
 
         // X2[VR,* ] -= U12[* ,VR]^[T/H] X1[* ,* ]
-        LocalGemm( orientation, NORMAL, F(-1), U12, X1_STAR_STAR, F(1), X2 );
+        LocalGemm( F(-1), U12.Orient(orientation), X1_STAR_STAR.N(), F(1), X2 );
     }
 }
 

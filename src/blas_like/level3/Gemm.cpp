@@ -15,51 +15,52 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Gemm
-( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, 
-  T beta,        Matrix<T>& C )
+( Ring alpha, const OrientedMatrix<Ring>& A, 
+              const OrientedMatrix<Ring>& B, 
+  Ring beta,                Matrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
-    if( orientA == NORMAL && orientB == NORMAL )
+    if( A.orient == NORMAL && B.orient == NORMAL )
     {
-        if( A.Height() != C.Height() ||
-            B.Width()  != C.Width()  ||
-            A.Width()  != B.Height() )
+        if( A.matrix.Height() != C.Height() ||
+            B.matrix.Width()  != C.Width()  ||
+            A.matrix.Width()  != B.matrix.Height() )
             LogicError("Nonconformal GemmNN");
     }
-    else if( orientA == NORMAL )
+    else if( A.orient == NORMAL )
     {
-        if( A.Height() != C.Height() ||
-            B.Height() != C.Width()  ||
-            A.Width()  != B.Width() )
+        if( A.matrix.Height() != C.Height() ||
+            B.matrix.Height() != C.Width()  ||
+            A.matrix.Width()  != B.matrix.Width() )
             LogicError("Nonconformal GemmN(T/C)");
     }
-    else if( orientB == NORMAL )
+    else if( B.orient == NORMAL )
     {
-        if( A.Width()  != C.Height() ||
-            B.Width()  != C.Width()  ||
-            A.Height() != B.Height() )
+        if( A.matrix.Width()  != C.Height() ||
+            B.matrix.Width()  != C.Width()  ||
+            A.matrix.Height() != B.matrix.Height() )
             LogicError("Nonconformal Gemm(T/C)N");
     }
     else
     {
-        if( A.Width()  != C.Height() ||
-            B.Height() != C.Width()  ||
-            A.Height() != B.Width() )
+        if( A.matrix.Width()  != C.Height() ||
+            B.matrix.Height() != C.Width()  ||
+            A.matrix.Height() != B.matrix.Width() )
             LogicError("Nonconformal Gemm(T/C)(T/C)");
     }
-    const char transA = OrientationToChar( orientA );
-    const char transB = OrientationToChar( orientB );
+    const char transA = OrientationToChar( A.orient );
+    const char transB = OrientationToChar( B.orient );
     const Int m = C.Height();
     const Int n = C.Width();
-    const Int k = ( orientA == NORMAL ? A.Width() : A.Height() );
+    const Int k = ( A.orient == NORMAL ? A.matrix.Width() : A.matrix.Height() );
     if( k != 0 )
     {
         blas::Gemm
         ( transA, transB, m, n, k,
-          alpha, A.LockedBuffer(), A.LDim(), B.LockedBuffer(), B.LDim(),
+          alpha, A.matrix.LockedBuffer(), A.matrix.LDim(), 
+                 B.matrix.LockedBuffer(), B.matrix.LDim(),
           beta,  C.Buffer(),       C.LDim() );
     }
     else
@@ -68,71 +69,75 @@ void Gemm
     }
 }
 
-template<typename T>
+template<typename Ring>
 void Gemm
-( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, 
-                 Matrix<T>& C )
+( Ring alpha, const OrientedMatrix<Ring>& A, 
+              const OrientedMatrix<Ring>& B, 
+                            Matrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
-    const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
-    const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
+    const Int m = ( A.orient==NORMAL ? A.matrix.Height() : A.matrix.Width() );
+    const Int n = ( B.orient==NORMAL ? B.matrix.Width() : B.matrix.Height() );
     Zeros( C, m, n );
-    Gemm( orientA, orientB, alpha, A, B, T(0), C );
+    Gemm( alpha, A, B, Ring(0), C );
 }
 
-template<typename T>
+template<typename Ring>
 void Gemm
-( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, 
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, 
+              const OrientedAbstractDistMatrix<Ring>& B,
+  Ring beta,                AbstractDistMatrix<Ring>& C, 
   GemmAlgorithm alg )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
     C *= beta;
-    if( orientA == NORMAL && orientB == NORMAL )
+    if( A.orient == NORMAL && B.orient == NORMAL )
     {
         if( alg == GEMM_CANNON )
-            gemm::Cannon_NN( alpha, A, B, C );
+            gemm::Cannon_NN( alpha, A.matrix, B.matrix, C );
         else 
-            gemm::SUMMA_NN( alpha, A, B, C, alg );
+            gemm::SUMMA_NN( alpha, A.matrix, B.matrix, C, alg );
     }
-    else if( orientA == NORMAL )
+    else if( A.orient == NORMAL )
     {
-        gemm::SUMMA_NT( orientB, alpha, A, B, C, alg );
+        gemm::SUMMA_NT( B.orient, alpha, A.matrix, B.matrix, C, alg );
     }
-    else if( orientB == NORMAL )
+    else if( B.orient == NORMAL )
     {
-        gemm::SUMMA_TN( orientA, alpha, A, B, C, alg );
+        gemm::SUMMA_TN( A.orient, alpha, A.matrix, B.matrix, C, alg );
     }
     else
     {
-        gemm::SUMMA_TT( orientA, orientB, alpha, A, B, C, alg );
+        gemm::SUMMA_TT( A.orient, B.orient, alpha, A.matrix, B.matrix, C, alg );
     }
 }
 
-template<typename T>
+template<typename Ring>
 void Gemm
-( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, GemmAlgorithm alg )
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, 
+              const OrientedAbstractDistMatrix<Ring>& B,
+                            AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
-    const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
-    const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
+    const Int m = ( A.orient==NORMAL ? A.matrix.Height() : A.matrix.Width() );
+    const Int n = ( B.orient==NORMAL ? B.matrix.Width() : B.matrix.Height() );
     Zeros( C, m, n );
-    Gemm( orientA, orientB, alpha, A, B, T(0), C, alg );
+    Gemm( alpha, A, B, Ring(0), C, alg );
 }
 
-template<typename T>
+template<typename Ring>
 void LocalGemm
-( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C )
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& AOr,
+              const OrientedAbstractDistMatrix<Ring>& BOr,
+  Ring beta,                AbstractDistMatrix<Ring>& C )
 {
+    DEBUG_ONLY(CSE cse("LocalGemm"))
+    const auto orientA = AOr.orient;
+    const auto orientB = BOr.orient;
+    const auto& A = AOr.matrix;
+    const auto& B = BOr.matrix;
     DEBUG_ONLY(
-      CSE cse("LocalGemm");
       if( orientA == NORMAL && orientB == NORMAL )
       {
           if( A.ColDist() != C.ColDist() ||
@@ -231,49 +236,155 @@ void LocalGemm
       }
     )
     Gemm
-    ( orientA , orientB,
-      alpha, A.LockedMatrix(), B.LockedMatrix(), beta, C.Matrix() );
+    ( alpha, A.LockedMatrix().Orient(orientA),
+             B.LockedMatrix().Orient(orientB), 
+      beta,  C.Matrix() );
 }
 
-template<typename T>
+template<typename Ring>
 void LocalGemm
-( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C )
+( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A,
+              const OrientedAbstractDistMatrix<Ring>& B,
+                            AbstractDistMatrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("LocalGemm"))
-    const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
-    const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
+    const Int m = ( A.orient==NORMAL ? A.matrix.Height() : A.matrix.Width() );
+    const Int n = ( B.orient==NORMAL ? B.matrix.Width() : B.matrix.Height() );
     Zeros( C, m, n );
-    LocalGemm( orientA, orientB, alpha, A, B, T(0), C );
+    LocalGemm( alpha, A, B, Ring(0), C );
 }
 
-#define PROTO(T) \
+// Deprecated
+// ==========
+template<typename Ring>
+void Gemm
+( Orientation orientA, Orientation orientB,
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg )
+{
+    DEBUG_ONLY(CSE cse("Gemm"))
+    Gemm( alpha, A.Orient(orientA), B.Orient(orientB), beta, C, alg );
+}
+
+template<typename Ring>
+void Gemm
+( Orientation orientA, Orientation orientB,
+  Ring alpha, const Matrix<Ring>& A, 
+              const Matrix<Ring>& B, 
+                    Matrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("Gemm"))
+    Gemm( alpha, A.Orient(orientA), B.Orient(orientB), C );
+}
+
+template<typename Ring>
+void Gemm
+( Orientation orientA, Orientation orientB,
+  Ring alpha, const Matrix<Ring>& A, const Matrix<Ring>& B, 
+  Ring beta,        Matrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("Gemm"))
+    Gemm( alpha, A.Orient(orientA), B.Orient(orientB), beta, C );
+}
+
+
+template<typename Ring>
+void Gemm
+( Orientation orientA, Orientation orientB,
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C, 
+  GemmAlgorithm alg )
+{
+    DEBUG_ONLY(CSE cse("Gemm"))
+    Gemm( alpha, A.Orient(orientA), B.Orient(orientB), C, alg );
+}
+
+template<typename Ring>
+void LocalGemm
+( Orientation orientA, Orientation orientB,
+  Ring alpha, const AbstractDistMatrix<Ring>& A,
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("LocalGemm"))
+    LocalGemm( alpha, A.Orient(orientA), B.Orient(orientB), beta, C );
+}
+
+
+template<typename Ring>
+void LocalGemm
+( Orientation orientA, Orientation orientB,
+  Ring alpha, const AbstractDistMatrix<Ring>& A,
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("LocalGemm"))
+    LocalGemm( alpha, A.Orient(orientA), B.Orient(orientB), C );
+}
+
+#define PROTO(Ring) \
+  template void Gemm \
+  ( Ring alpha, const OrientedMatrix<Ring>& A, \
+                const OrientedMatrix<Ring>& B, \
+    Ring beta,                Matrix<Ring>& C ); \
+  template void Gemm \
+  ( Ring alpha, const OrientedMatrix<Ring>& A, \
+                const OrientedMatrix<Ring>& B, \
+                              Matrix<Ring>& C ); \
+  template void Gemm \
+  ( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, \
+                const OrientedAbstractDistMatrix<Ring>& B, \
+    Ring beta,                AbstractDistMatrix<Ring>& C, \
+    GemmAlgorithm alg ); \
+  template void Gemm \
+  ( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, \
+                const OrientedAbstractDistMatrix<Ring>& B, \
+                              AbstractDistMatrix<Ring>& C, \
+    GemmAlgorithm alg ); \
+  template void LocalGemm \
+  ( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, \
+                const OrientedAbstractDistMatrix<Ring>& B, \
+    Ring beta,                AbstractDistMatrix<Ring>& C ); \
+  template void LocalGemm \
+  ( Ring alpha, const OrientedAbstractDistMatrix<Ring>& A, \
+                const OrientedAbstractDistMatrix<Ring>& B, \
+                              AbstractDistMatrix<Ring>& C ); \
+  /* Deprecated */ \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C ); \
+    Ring alpha, const Matrix<Ring>& A, \
+                const Matrix<Ring>& B, \
+    Ring beta,        Matrix<Ring>& C ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-                   Matrix<T>& C ); \
+    Ring alpha, const Matrix<Ring>& A, \
+                const Matrix<Ring>& B, \
+                      Matrix<Ring>& C ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+    Ring beta,        AbstractDistMatrix<Ring>& C, \
+    GemmAlgorithm alg ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-                   AbstractDistMatrix<T>& C, GemmAlgorithm alg ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+                      AbstractDistMatrix<Ring>& C, \
+    GemmAlgorithm alg ); \
   template void LocalGemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,        AbstractDistMatrix<T>& C ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+    Ring beta,        AbstractDistMatrix<Ring>& C ); \
   template void LocalGemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-                   AbstractDistMatrix<T>& C );
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+                      AbstractDistMatrix<Ring>& C );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

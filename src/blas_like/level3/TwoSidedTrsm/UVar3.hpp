@@ -65,7 +65,7 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         twotrsm::UUnb( diag, A11, U11 );
 
         // A12 := A12 - U01' A02
-        Gemm( ADJOINT, NORMAL, F(-1), U01, A02, F(1), A12 );
+        Gemm( F(-1), U01.H(), A02.N(), F(1), A12 );
 
         // A12 := inv(U11)' A12
         Trsm( LEFT, UPPER, ADJOINT, diag, F(1), U11, A12 );
@@ -77,13 +77,13 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         Trsm( RIGHT, UPPER, NORMAL, diag, F(1), U11, A01 );
 
         // Y02 := Y02 + A01 U12
-        Gemm( NORMAL, NORMAL, F(1), A01, U12, F(1), Y02 );
+        Gemm( F(1), A01.N(), U12.N(), F(1), Y02 );
 
         // Y12 := Y12 + A11 U12
         Hemm( LEFT, UPPER, F(1), A11, U12, F(1), Y12 );
 
         // Y12 := Y12 + A01' U02
-        Gemm( ADJOINT, NORMAL, F(1), A01, U02, F(1), Y12 );
+        Gemm( F(1), A01.H(), U02.N(), F(1), Y12 );
     }
 }
 
@@ -171,7 +171,7 @@ UVar3
         U01_MC_STAR.AlignWith( A01 );
         U01_MC_STAR = U01;
         X12_STAR_MR.AlignWith( A02 );
-        LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A02, X12_STAR_MR );
+        LocalGemm( F(1), U01_MC_STAR.H(), A02.N(), X12_STAR_MR );
         AxpyContract( F(-1), X12_STAR_MR, A12 );
 
         // A12 := inv(U11)' A12
@@ -195,19 +195,17 @@ UVar3
         A01_MC_STAR = A01;
         U12Adj_MR_STAR.AlignWith( Y12 );
         U12.AdjointColAllGather( U12Adj_MR_STAR );
-        LocalGemm
-        ( NORMAL, ADJOINT, F(1), A01_MC_STAR, U12Adj_MR_STAR, F(1), Y02 );
+        LocalGemm( F(1), A01_MC_STAR.N(), U12Adj_MR_STAR.H(), F(1), Y02 );
 
         // Y12 := Y12 + A11 U12
         MakeHermitian( UPPER, A11_STAR_STAR );
         A11_MC_STAR.AlignWith( Y12 );
         A11_MC_STAR = A11_STAR_STAR;
-        LocalGemm
-        ( NORMAL, ADJOINT, F(1), A11_MC_STAR, U12Adj_MR_STAR, F(0), Y12 );
+        LocalGemm( F(1), A11_MC_STAR.N(), U12Adj_MR_STAR.H(), F(0), Y12 );
 
         // Y12 := Y12 + A01' U02
         Z12_STAR_MR.AlignWith( U02 );
-        LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U02, Z12_STAR_MR );
+        LocalGemm( F(1), A01_MC_STAR.H(), U02.N(), Z12_STAR_MR );
         AxpyContract( F(1), Z12_STAR_MR, Y12 );
     }
 }

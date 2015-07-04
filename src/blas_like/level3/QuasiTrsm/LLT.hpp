@@ -106,18 +106,18 @@ LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 inline void
 LLT
-( Orientation orientation, 
+( Orientation orient, 
   const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(
       CSE cse("quasitrsm::LLT");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
-    const bool conjugate = ( orientation==ADJOINT );
+    const bool conjugate = ( orient==ADJOINT );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -138,7 +138,7 @@ LLT
         auto X1 = X( ind1, ALL );
 
         LLTUnb( conjugate, L11, X1, checkIfSingular );
-        Gemm( orientation, NORMAL, F(-1), L10, X1, F(1), X0 );
+        Gemm( F(-1), L10.Orient(orient), X1.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -151,13 +151,13 @@ LLT
 template<typename F>
 inline void
 LLTLarge
-( Orientation orientation, 
+( Orientation orient, 
   const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
       CSE cse("quasitrsm::LLTLarge");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
@@ -194,7 +194,7 @@ LLTLarge
         L11_STAR_STAR = L11; 
         X1_STAR_VR    = X1;
         LocalQuasiTrsm
-        ( LEFT, LOWER, orientation, F(1), L11_STAR_STAR, X1_STAR_VR,
+        ( LEFT, LOWER, orient, F(1), L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
         X1_STAR_MR.AlignWith( X0 );
@@ -206,7 +206,7 @@ LLTLarge
         // X0[MC,MR] -= (L10[* ,MC])^(T/H) X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
-        ( orientation, NORMAL, F(-1), L10_STAR_MC, X1_STAR_MR, F(1), X0 );
+        ( F(-1), L10_STAR_MC.Orient(orient), X1_STAR_MR.N(), F(1), X0 );
 
         if( k == 0 )
             break;
@@ -219,13 +219,13 @@ LLTLarge
 template<typename F>
 inline void
 LLTMedium
-( Orientation orientation, 
+( Orientation orient, 
   const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
       CSE cse("quasitrsm::LLTMedium");
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = XPre.Height();
@@ -260,7 +260,7 @@ LLTMedium
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
-        Transpose( X1, X1Trans_MR_STAR, (orientation==ADJOINT) );
+        Transpose( X1, X1Trans_MR_STAR, (orient==ADJOINT) );
 
         // X1[* ,MR] := L11^-[T/H][* ,* ] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]
@@ -268,15 +268,15 @@ LLTMedium
         ( RIGHT, LOWER, NORMAL,
           F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        Transpose( X1Trans_MR_STAR, X1, (orientation==ADJOINT) );
+        Transpose( X1Trans_MR_STAR, X1, (orient==ADJOINT) );
         L10_STAR_MC.AlignWith( X0 );
         L10_STAR_MC = L10; // L10[* ,MC] <- L10[MC,MR]
 
         // X0[MC,MR] -= (L10[* ,MC])^[T/H] X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
-        ( orientation, orientation, 
-          F(-1), L10_STAR_MC, X1Trans_MR_STAR, F(1), X0 );
+        ( F(-1), L10_STAR_MC.Orient(orient), X1Trans_MR_STAR.Orient(orient), 
+          F(1), X0 );
 
         if( k == 0 )
             break;
@@ -289,14 +289,14 @@ LLTMedium
 template<typename F,Dist colDist>
 inline void
 LLTSmall
-( Orientation orientation, 
+( Orientation orient, 
   const DistMatrix<F,colDist,STAR>& L, DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
       CSE cse("quasitrsm::LLTSmall");
       AssertSameGrids( L, X );
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
       if( L.Height() != L.Width() || L.Height() != X.Height() )
           LogicError
@@ -330,14 +330,14 @@ LLTSmall
         auto X2 = X( ind2, ALL );
 
         // X1 -= L21' X2
-        LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
+        LocalGemm( F(-1), L21.Orient(orient), X2.N(), Z1_STAR_STAR );
         axpy::util::UpdateWithLocalData( F(1), X1, Z1_STAR_STAR );
         El::AllReduce( Z1_STAR_STAR, X1.DistComm() );
 
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;
         LocalQuasiTrsm
-        ( LEFT, LOWER, orientation, F(1), L11_STAR_STAR, Z1_STAR_STAR,
+        ( LEFT, LOWER, orient, F(1), L11_STAR_STAR, Z1_STAR_STAR,
           checkIfSingular );
         X1 = Z1_STAR_STAR;
 
@@ -351,14 +351,14 @@ LLTSmall
 template<typename F,Dist rowDist>
 inline void
 LLTSmall
-( Orientation orientation, 
+( Orientation orient, 
   const DistMatrix<F,STAR,rowDist>& L, DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
       CSE cse("quasitrsm::LLTSmall");
       AssertSameGrids( L, X );
-      if( orientation == NORMAL )
+      if( orient == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
       if( L.Height() != L.Width() || L.Height() != X.Height() )
           LogicError
@@ -395,13 +395,13 @@ LLTSmall
 
         // X1[* ,* ] := L11^-[T/H][* ,* ] X1[* ,* ]
         LocalQuasiTrsm
-        ( LEFT, LOWER, orientation,
+        ( LEFT, LOWER, orient,
           F(1), L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         X1 = X1_STAR_STAR;
 
         // X0[VR,* ] -= L10[* ,VR]^(T/H) X1[* ,* ]
-        LocalGemm( orientation, NORMAL, F(-1), L10, X1_STAR_STAR, F(1), X0 );
+        LocalGemm( F(-1), L10.Orient(orient), X1_STAR_STAR.N(), F(1), X0 );
 
         if( k == 0 )
             break;

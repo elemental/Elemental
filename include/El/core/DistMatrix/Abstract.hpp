@@ -12,13 +12,25 @@
 
 namespace El {
 
-template<typename T> 
+template<typename Ring>
+struct OrientedAbstractDistMatrix
+{
+    Orientation orient;
+    const AbstractDistMatrix<Ring>& matrix;
+    
+    OrientedAbstractDistMatrix
+    ( const AbstractDistMatrix<Ring>& A, Orientation orientation=NORMAL )
+    : orient(orientation), matrix(A)
+    { }
+};
+
+template<typename Ring> 
 class AbstractDistMatrix
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> type;
+    typedef AbstractDistMatrix<Ring> type;
 
     // Constructors and destructors
     // ============================
@@ -27,11 +39,11 @@ public:
 
     virtual ~AbstractDistMatrix();
 
-    virtual AbstractDistMatrix<T>* Construct
+    virtual AbstractDistMatrix<Ring>* Construct
     ( const El::Grid& g, int root ) const = 0;
-    virtual AbstractDistMatrix<T>* ConstructTranspose
+    virtual AbstractDistMatrix<Ring>* ConstructTranspose
     ( const El::Grid& g, int root ) const = 0;
-    virtual AbstractDistMatrix<T>* ConstructDiagonal
+    virtual AbstractDistMatrix<Ring>* ConstructDiagonal
     ( const El::Grid& g, int root ) const = 0;
     // TODO: ConstructPartialCol and friends?
 
@@ -77,19 +89,19 @@ public:
     // (Immutable) view of a distributed matrix's buffer
     void Attach
     ( Int height, Int width, const El::Grid& grid, 
-      int colAlign, int rowAlign, T* buffer, Int ldim, int root=0 );
+      int colAlign, int rowAlign, Ring* buffer, Int ldim, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& grid,
-      int colAlign, int rowAlign, const T* buffer, Int ldim, int root=0 );
+      int colAlign, int rowAlign, const Ring* buffer, Int ldim, int root=0 );
     void Attach
     ( Int height, Int width, const El::Grid& grid,
-      int colAlign, int rowAlign, El::Matrix<T>& A, int root=0 );
+      int colAlign, int rowAlign, El::Matrix<Ring>& A, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& grid,
-      int colAlign, int rowAlign, const El::Matrix<T>& A, int root=0 );
+      int colAlign, int rowAlign, const El::Matrix<Ring>& A, int root=0 );
     // (Immutable) view of a local matrix's buffer
-    void Attach( const El::Grid& grid, El::Matrix<T>& A );
-    void LockedAttach( const El::Grid& grid, const El::Matrix<T>& A );
+    void Attach( const El::Grid& grid, El::Matrix<Ring>& A );
+    void LockedAttach( const El::Grid& grid, const El::Matrix<Ring>& A );
 
     // Operator overloading
     // ====================
@@ -97,7 +109,7 @@ public:
     // Copy
     // ----
     const type& operator=( const type& A );
-    const type& operator=( const DistMultiVec<T>& A );
+    const type& operator=( const DistMultiVec<Ring>& A );
 
     // Move assignment
     // ---------------
@@ -105,7 +117,7 @@ public:
 
     // Rescaling
     // ---------
-    const type& operator*=( T alpha );
+    const type& operator*=( Ring alpha );
 
     // Addition/subtraction
     // --------------------
@@ -128,13 +140,13 @@ public:
           Int            LocalHeight()                      const;
           Int            LocalWidth()                       const;
           Int            LDim()                             const;
-          El::Matrix<T>& Matrix();
-    const El::Matrix<T>& LockedMatrix()                     const;
+          El::Matrix<Ring>& Matrix();
+    const El::Matrix<Ring>& LockedMatrix()                  const;
           size_t         AllocatedMemory()                  const;
-          T*             Buffer();
-          T*             Buffer( Int iLoc, Int jLoc );
-    const T*             LockedBuffer()                     const;
-    const T*             LockedBuffer( Int iLoc, Int jLoc ) const;
+          Ring*          Buffer();
+          Ring*          Buffer( Int iLoc, Int jLoc );
+    const Ring*          LockedBuffer()                     const;
+    const Ring*          LockedBuffer( Int iLoc, Int jLoc ) const;
 
     // Distribution information
     // ------------------------
@@ -217,29 +229,29 @@ public:
     // -------------------------
     // NOTE: Local entry manipulation is often much faster and should be
     //       preferred in most circumstances where performance matters.
-    T       Get( Int i, Int j )                            const;
-    Base<T> GetRealPart( Int i, Int j )                    const;
-    Base<T> GetImagPart( Int i, Int j )                    const;
-    void    Set( Int i, Int j, T alpha );
-    void    Set( const Entry<T>& entry );
-    void    SetRealPart( Int i, Int j, Base<T> alpha );
-    void    SetImagPart( Int i, Int j, Base<T> alpha );
-    void    SetRealPart( const Entry<Base<T>>& entry );
-    void    SetImagPart( const Entry<Base<T>>& entry );
-    void    Update( Int i, Int j, T alpha );
-    void    Update( const Entry<T>& entry );
-    void    UpdateRealPart( Int i, Int j, Base<T> alpha );
-    void    UpdateImagPart( Int i, Int j, Base<T> alpha );
-    void    UpdateRealPart( const Entry<Base<T>>& entry );
-    void    UpdateImagPart( const Entry<Base<T>>& entry );
+    Ring       Get( Int i, Int j )                            const;
+    Base<Ring> GetRealPart( Int i, Int j )                    const;
+    Base<Ring> GetImagPart( Int i, Int j )                    const;
+    void       Set( Int i, Int j, Ring alpha );
+    void       Set( const Entry<Ring>& entry );
+    void    SetRealPart( Int i, Int j, Base<Ring> alpha );
+    void    SetImagPart( Int i, Int j, Base<Ring> alpha );
+    void    SetRealPart( const Entry<Base<Ring>>& entry );
+    void    SetImagPart( const Entry<Base<Ring>>& entry );
+    void    Update( Int i, Int j, Ring alpha );
+    void    Update( const Entry<Ring>& entry );
+    void    UpdateRealPart( Int i, Int j, Base<Ring> alpha );
+    void    UpdateImagPart( Int i, Int j, Base<Ring> alpha );
+    void    UpdateRealPart( const Entry<Base<Ring>>& entry );
+    void    UpdateImagPart( const Entry<Base<Ring>>& entry );
     void    MakeReal( Int i, Int j );
     void    Conjugate( Int i, Int j );
 
     // Batch updating of remote entries
     // ---------------------------------
     void Reserve( Int numRemoteEntries );
-    void QueueUpdate( const Entry<T>& entry );
-    void QueueUpdate( Int i, Int j, T value );
+    void QueueUpdate( const Entry<Ring>& entry );
+    void QueueUpdate( Int i, Int j, Ring value );
     void ProcessQueues();
 
     // Local entry manipulation
@@ -248,21 +260,21 @@ public:
     //       via composing [Locked]Matrix() with the corresponding local
     //       routine, but a large amount of code might need to change if 
     //       these were removed.
-    T       GetLocal( Int iLoc, Int jLoc )                            const;
-    Base<T> GetLocalRealPart( Int iLoc, Int jLoc )                    const;
-    Base<T> GetLocalImagPart( Int iLoc, Int jLoc )                    const;
-    void    SetLocal( Int iLoc, Int jLoc, T alpha );
-    void    SetLocal( const Entry<T>& localEntry );
-    void    SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    SetLocalRealPart( const Entry<Base<T>>& localEntry );
-    void    SetLocalImagPart( const Entry<Base<T>>& localEntry );
-    void    UpdateLocal( Int iLoc, Int jLoc, T alpha );
-    void    UpdateLocal( const Entry<T>& localEntry );
-    void    UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    UpdateLocalRealPart( const Entry<Base<T>>& localEntry );
-    void    UpdateLocalImagPart( const Entry<Base<T>>& localEntry );
+    Ring       GetLocal( Int iLoc, Int jLoc )         const;
+    Base<Ring> GetLocalRealPart( Int iLoc, Int jLoc ) const;
+    Base<Ring> GetLocalImagPart( Int iLoc, Int jLoc ) const;
+    void    SetLocal( Int iLoc, Int jLoc, Ring alpha );
+    void    SetLocal( const Entry<Ring>& localEntry );
+    void    SetLocalRealPart( Int iLoc, Int jLoc, Base<Ring> alpha );
+    void    SetLocalImagPart( Int iLoc, Int jLoc, Base<Ring> alpha );
+    void    SetLocalRealPart( const Entry<Base<Ring>>& localEntry );
+    void    SetLocalImagPart( const Entry<Base<Ring>>& localEntry );
+    void    UpdateLocal( Int iLoc, Int jLoc, Ring alpha );
+    void    UpdateLocal( const Entry<Ring>& localEntry );
+    void    UpdateLocalRealPart( Int iLoc, Int jLoc, Base<Ring> alpha );
+    void    UpdateLocalImagPart( Int iLoc, Int jLoc, Base<Ring> alpha );
+    void    UpdateLocalRealPart( const Entry<Base<Ring>>& localEntry );
+    void    UpdateLocalImagPart( const Entry<Base<Ring>>& localEntry );
     void    MakeLocalReal( Int iLoc, Int jLoc );
     void    ConjugateLocal( Int iLoc, Int jLoc );
 
@@ -281,6 +293,20 @@ public:
     void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
     void AssertSameSize( Int height, Int width ) const;
 
+    // Orientation
+    // ===========
+    OrientedAbstractDistMatrix<Ring> N() const
+    { return OrientedAbstractDistMatrix<Ring>(*this,NORMAL); }
+
+    OrientedAbstractDistMatrix<Ring> T() const
+    { return OrientedAbstractDistMatrix<Ring>(*this,TRANSPOSE); }
+
+    OrientedAbstractDistMatrix<Ring> H() const
+    { return OrientedAbstractDistMatrix<Ring>(*this,ADJOINT); }
+
+    OrientedAbstractDistMatrix<Ring> Orient( Orientation orient ) const
+    { return OrientedAbstractDistMatrix<Ring>(*this,orient); }
+
 protected:
     // Member variables
     // ================
@@ -289,7 +315,7 @@ protected:
     // -----------------------------------
     ViewType viewType_;
     Int height_, width_;
-    El::Matrix<T> matrix_;
+    El::Matrix<Ring> matrix_;
     
     // Process grid and distribution metadata
     // --------------------------------------
@@ -301,7 +327,7 @@ protected:
 
     // Remote updates
     // --------------
-    vector<Entry<T>> remoteUpdates_;
+    vector<Entry<Ring>> remoteUpdates_;
 
     // Private constructors
     // ====================
@@ -327,18 +353,18 @@ protected:
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 };
 
-template<typename T>
+template<typename Ring>
 void AssertConforming1x2
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
+( const AbstractDistMatrix<Ring>& AL, const AbstractDistMatrix<Ring>& AR );
 
-template<typename T>
+template<typename Ring>
 void AssertConforming2x1
-( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
+( const AbstractDistMatrix<Ring>& AT, const AbstractDistMatrix<Ring>& AB );
 
-template<typename T>
+template<typename Ring>
 void AssertConforming2x2
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
+( const AbstractDistMatrix<Ring>& ATL, const AbstractDistMatrix<Ring>& ATR,
+  const AbstractDistMatrix<Ring>& ABL, const AbstractDistMatrix<Ring>& ABR );
 
 } // namespace El
 

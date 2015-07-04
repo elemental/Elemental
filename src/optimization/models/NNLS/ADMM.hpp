@@ -36,7 +36,7 @@ Int ADMM
 
     Matrix<Real> Q, C;
     Herk( LOWER, ADJOINT, Real(1), A, Q );
-    Gemm( ADJOINT, NORMAL, Real(-1), A, B, C );
+    Gemm( Real(-1), A.H(), B.N(), C );
 
     return qp::box::ADMM( Q, C, Real(0), maxReal, X, ctrl );
 }
@@ -57,7 +57,7 @@ Int ADMM
 
     DistMatrix<Real> Q(A.Grid()), C(A.Grid());
     Herk( LOWER, ADJOINT, Real(1), A, Q );
-    Gemm( ADJOINT, NORMAL, Real(-1), A, B, C );
+    Gemm( Real(-1), A.H(), B.N(), C );
     
     return qp::box::ADMM( Q, C, Real(0), maxReal, X, ctrl );
 }

@@ -72,7 +72,7 @@ LLTLarge
         // X0[MC,MR] -= (L10[* ,MC])^(T/H) X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
-        ( orientation, NORMAL, F(-1), L10_STAR_MC, X1_STAR_MR, F(1), X0 );
+        ( F(-1), L10_STAR_MC.Orient(orientation), X1_STAR_MR.N(), F(1), X0 );
     }
 }
 
@@ -132,8 +132,8 @@ LLTMedium
         // X0[MC,MR] -= (L10[* ,MC])^[T/H] X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
-        ( orientation, orientation, 
-          F(-1), L10_STAR_MC, X1Trans_MR_STAR, F(1), X0 );
+        ( F(-1), L10_STAR_MC.Orient(orientation), 
+                 X1Trans_MR_STAR.Orient(orientation), F(1), X0 );
     }
 }
 
@@ -177,7 +177,7 @@ LLTSmall
         auto X2 = X( ind2, ALL );
 
         // X1 -= L21' X2
-        LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
+        LocalGemm( F(-1), L21.Orient(orientation), X2.N(), Z1_STAR_STAR );
         axpy::util::UpdateWithLocalData( F(1), X1, Z1_STAR_STAR );
         El::AllReduce( Z1_STAR_STAR, X1.DistComm() );
 
@@ -239,7 +239,7 @@ LLTSmall
         X1 = X1_STAR_STAR;
 
         // X0[VR,* ] -= L10[* ,VR]^(T/H) X1[* ,* ]
-        LocalGemm( orientation, NORMAL, F(-1), L10, X1_STAR_STAR, F(1), X0 );
+        LocalGemm( F(-1), L10.Orient(orientation), X1_STAR_STAR.N(), F(1), X0 );
     }
 }
 

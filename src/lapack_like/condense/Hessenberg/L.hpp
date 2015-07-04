@@ -57,20 +57,20 @@ inline void L( Matrix<F>& A, Matrix<F>& t )
         // AB0 := AB0 - (UB1 inv(G11)^H UB1^H AB0)
         //      = AB0 - (UB1 ((AB0^H UB1) inv(G11))^H)
         // -------------------------------------------
-        Gemm( ADJOINT, NORMAL, F(1), AB0, UB1, V01 );
+        Gemm( F(1), AB0.H(), UB1.N(), V01 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11, V01 ); 
-        Gemm( NORMAL, ADJOINT, F(-1), UB1, V01, F(1), AB0 );
+        Gemm( F(-1), UB1.N(), V01.H(), F(1), AB0 );
 
         // A2R := (A2R - U21 inv(G11)^H VB1^H)(I - UB1 inv(G11) UB1^H)
         // -----------------------------------------------------------
         // A2R := A2R - U21 inv(G11)^H VB1^H
         // (note: VB1 is overwritten)
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11, VB1 );
-        Gemm( NORMAL, ADJOINT, F(-1), U21, VB1, F(1), A2R );
+        Gemm( F(-1), U21.N(), VB1.H(), F(1), A2R );
         // A2R := A2R - ((A2R UB1) inv(G11)) UB1^H
-        Gemm( NORMAL, NORMAL, F(1), A2R, UB1, F(0), V21 );
+        Gemm( F(1), A2R.N(), UB1.N(), F(0), V21 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11, V21 );
-        Gemm( NORMAL, ADJOINT, F(-1), V21, UB1, F(1), A2R );
+        Gemm( F(-1), V21.N(), UB1.H(), F(1), A2R );
     }
 }
 
@@ -127,12 +127,11 @@ inline void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         // -------------------------------------------
         V01_MR_STAR.AlignWith( AB0 );
         Zeros( V01_MR_STAR, k, nb );
-        LocalGemm( ADJOINT, NORMAL, F(1), AB0, UB1_MC_STAR, F(0), V01_MR_STAR );
+        LocalGemm( F(1), AB0.H(), UB1_MC_STAR.N(), F(0), V01_MR_STAR );
         El::AllReduce( V01_MR_STAR, AB0.ColComm() );
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11_STAR_STAR, V01_MR_STAR );
-        LocalGemm
-        ( NORMAL, ADJOINT, F(-1), UB1_MC_STAR, V01_MR_STAR, F(1), AB0 );
+        LocalGemm( F(-1), UB1_MC_STAR.N(), V01_MR_STAR.H(), F(1), AB0 );
 
         // A2R := (A2R - U21 inv(G11)^H VB1^H)(I - UB1 inv(G11) UB1^H)
         // -----------------------------------------------------------
@@ -140,17 +139,15 @@ inline void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
         // (note: VB1 is overwritten)
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11_STAR_STAR, VB1_MR_STAR );
-        LocalGemm
-        ( NORMAL, ADJOINT, F(-1), U21_MC_STAR, VB1_MR_STAR, F(1), A2R );
+        LocalGemm( F(-1), U21_MC_STAR.N(), VB1_MR_STAR.H(), F(1), A2R );
         // A2R := A2R - ((A2R UB1) inv(G11)) UB1^H
         V21_MC_STAR.AlignWith( A2R );
         Zeros( V21_MC_STAR, A2R.Height(), nb );
-        LocalGemm( NORMAL, NORMAL, F(1), A2R, UB1_MR_STAR, F(0), V21_MC_STAR );
+        LocalGemm( F(1), A2R.N(), UB1_MR_STAR.N(), F(0), V21_MC_STAR );
         El::AllReduce( V21_MC_STAR, A2R.RowComm() );
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11_STAR_STAR, V21_MC_STAR );
-        LocalGemm
-        ( NORMAL, ADJOINT, F(-1), V21_MC_STAR, UB1_MR_STAR, F(1), A2R );
+        LocalGemm( F(-1), V21_MC_STAR.N(), UB1_MR_STAR.H(), F(1), A2R );
     }
 }
 

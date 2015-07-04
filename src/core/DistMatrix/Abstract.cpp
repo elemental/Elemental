@@ -16,8 +16,8 @@ namespace El {
 // Constructors and destructors
 // ============================
 
-template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( const El::Grid& grid, int root )
+template<typename Ring>
+AbstractDistMatrix<Ring>::AbstractDistMatrix( const El::Grid& grid, int root )
 : viewType_(OWNER),
   height_(0), width_(0),
   matrix_(0,0,true),
@@ -26,8 +26,8 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const El::Grid& grid, int root )
   root_(root), grid_(&grid)
 { }
 
-template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A ) 
+template<typename Ring>
+AbstractDistMatrix<Ring>::AbstractDistMatrix( AbstractDistMatrix<Ring>&& A ) 
 EL_NOEXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
@@ -42,14 +42,14 @@ EL_NOEXCEPT
 // Optional to override
 // --------------------
 
-template<typename T>
-AbstractDistMatrix<T>::~AbstractDistMatrix() { }
+template<typename Ring>
+AbstractDistMatrix<Ring>::~AbstractDistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Empty()
+AbstractDistMatrix<Ring>::Empty()
 {
     matrix_.Empty_();
     viewType_ = OWNER;
@@ -63,9 +63,9 @@ AbstractDistMatrix<T>::Empty()
     SetShifts();
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::EmptyData()
+AbstractDistMatrix<Ring>::EmptyData()
 {
     matrix_.Empty_();
     viewType_ = OWNER;
@@ -73,9 +73,9 @@ AbstractDistMatrix<T>::EmptyData()
     width_ = 0;
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetGrid( const El::Grid& grid )
+AbstractDistMatrix<Ring>::SetGrid( const El::Grid& grid )
 {
     if( grid_ != &grid )
     {
@@ -84,9 +84,9 @@ AbstractDistMatrix<T>::SetGrid( const El::Grid& grid )
     }
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Resize( Int height, Int width )
+AbstractDistMatrix<Ring>::Resize( Int height, Int width )
 {
     DEBUG_ONLY(
       CSE cse("ADM::Resize");
@@ -102,9 +102,9 @@ AbstractDistMatrix<T>::Resize( Int height, Int width )
           Length(width,RowShift(),RowStride()) );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
+AbstractDistMatrix<Ring>::Resize( Int height, Int width, Int ldim )
 {
     DEBUG_ONLY(
       CSE cse("ADM::Resize");
@@ -121,9 +121,9 @@ AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
           Length(width,RowShift(),RowStride()), ldim );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::MakeConsistent( bool includingViewers )
+AbstractDistMatrix<Ring>::MakeConsistent( bool includingViewers )
 {
     DEBUG_ONLY(CSE cse("ADM::MakeConsistent"))
 
@@ -177,9 +177,9 @@ AbstractDistMatrix<T>::MakeConsistent( bool includingViewers )
     Resize( newHeight, newWidth );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
+AbstractDistMatrix<Ring>::MakeSizeConsistent( bool includingViewers )
 {
     DEBUG_ONLY(CSE cse("ADM::MakeSizeConsistent"))
 
@@ -209,9 +209,9 @@ AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
 // Realignment
 // -----------
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Align( int colAlign, int rowAlign, bool constrain )
+AbstractDistMatrix<Ring>::Align( int colAlign, int rowAlign, bool constrain )
 { 
     DEBUG_ONLY(CSE cse("ADM::Align"))
     const bool requireChange = colAlign_ != colAlign || rowAlign_ != rowAlign;
@@ -231,9 +231,9 @@ AbstractDistMatrix<T>::Align( int colAlign, int rowAlign, bool constrain )
     SetShifts();
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AlignCols( int colAlign, bool constrain )
+AbstractDistMatrix<Ring>::AlignCols( int colAlign, bool constrain )
 { 
     DEBUG_ONLY(
       CSE cse("ADM::AlignCols");
@@ -248,9 +248,9 @@ AbstractDistMatrix<T>::AlignCols( int colAlign, bool constrain )
     SetShifts();
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AlignRows( int rowAlign, bool constrain )
+AbstractDistMatrix<Ring>::AlignRows( int rowAlign, bool constrain )
 { 
     DEBUG_ONLY(
       CSE cse("ADM::AlignRows");
@@ -265,9 +265,9 @@ AbstractDistMatrix<T>::AlignRows( int rowAlign, bool constrain )
     SetShifts();
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::FreeAlignments() 
+AbstractDistMatrix<Ring>::FreeAlignments() 
 { 
     if( !Viewing() )
     {
@@ -279,9 +279,9 @@ AbstractDistMatrix<T>::FreeAlignments()
         LogicError("Cannot free alignments of views");
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
+AbstractDistMatrix<Ring>::SetRoot( int root, bool constrain )
 {
     DEBUG_ONLY(
       CSE cse("ADM::SetRoot");
@@ -295,9 +295,9 @@ AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
         rootConstrained_ = true;
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AlignWith
+AbstractDistMatrix<Ring>::AlignWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 { 
     DEBUG_ONLY(CSE cse("ADM::AlignWith"))
@@ -305,9 +305,9 @@ AbstractDistMatrix<T>::AlignWith
     AlignRowsWith( data, constrain, allowMismatch );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AlignColsWith
+AbstractDistMatrix<Ring>::AlignColsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
     DEBUG_ONLY(CSE cse("ADM::AlignColsWith"))
@@ -327,8 +327,8 @@ AbstractDistMatrix<T>::AlignColsWith
         LogicError("Nonsensical alignment");
 }
 
-template<typename T>
-void AbstractDistMatrix<T>::AlignRowsWith
+template<typename Ring>
+void AbstractDistMatrix<Ring>::AlignRowsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
     DEBUG_ONLY(CSE cse("ADM::AlignRowsWith"))
@@ -348,9 +348,9 @@ void AbstractDistMatrix<T>::AlignRowsWith
         LogicError("Nonsensical alignment");
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AlignAndResize
+AbstractDistMatrix<Ring>::AlignAndResize
 ( int colAlign, int rowAlign, Int height, Int width, 
   bool force, bool constrain )
 {
@@ -378,9 +378,9 @@ AbstractDistMatrix<T>::AlignAndResize
     Resize( height, width );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AlignColsAndResize
+AbstractDistMatrix<Ring>::AlignColsAndResize
 ( int colAlign, Int height, Int width, bool force, bool constrain )
 {
     DEBUG_ONLY(CSE cse("ADM::AlignColsAndResize"))
@@ -396,9 +396,9 @@ AbstractDistMatrix<T>::AlignColsAndResize
     Resize( height, width );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AlignRowsAndResize
+AbstractDistMatrix<Ring>::AlignRowsAndResize
 ( int rowAlign, Int height, Int width, bool force, bool constrain )
 {
     DEBUG_ONLY(CSE cse("ADM::AlignRowsAndResize"))
@@ -417,11 +417,11 @@ AbstractDistMatrix<T>::AlignRowsAndResize
 // Buffer attachment
 // -----------------
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Attach
+AbstractDistMatrix<Ring>::Attach
 ( Int height, Int width, const El::Grid& g, 
-  int colAlign, int rowAlign, T* buffer, Int ldim, int root )
+  int colAlign, int rowAlign, Ring* buffer, Int ldim, int root )
 {
     DEBUG_ONLY(CSE cse("ADM::Attach"))
     Empty();
@@ -445,19 +445,19 @@ AbstractDistMatrix<T>::Attach
     }
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Attach
+AbstractDistMatrix<Ring>::Attach
 ( Int height, Int width, const El::Grid& g,
-  int colAlign, int rowAlign, El::Matrix<T>& A, int root )
+  int colAlign, int rowAlign, El::Matrix<Ring>& A, int root )
 {
     // TODO: Assert that the local dimensions are correct
     Attach( height, width, g, colAlign, rowAlign, A.Buffer(), A.LDim(), root );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Attach( const El::Grid& g, El::Matrix<T>& A )
+AbstractDistMatrix<Ring>::Attach( const El::Grid& g, El::Matrix<Ring>& A )
 {
     DEBUG_ONLY(CSE cse("ADM::Attach"))
     if( g.Size() != 1 )
@@ -465,11 +465,11 @@ AbstractDistMatrix<T>::Attach( const El::Grid& g, El::Matrix<T>& A )
     Attach( A.Height(), A.Width(), g, 0, 0, A.Buffer(), A.LDim() );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::LockedAttach
+AbstractDistMatrix<Ring>::LockedAttach
 ( Int height, Int width, const El::Grid& g, 
-  int colAlign, int rowAlign, const T* buffer, Int ldim, int root )
+  int colAlign, int rowAlign, const Ring* buffer, Int ldim, int root )
 {
     DEBUG_ONLY(CSE cse("ADM::LockedAttach"))
     Empty();
@@ -493,20 +493,20 @@ AbstractDistMatrix<T>::LockedAttach
     }
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::LockedAttach
+AbstractDistMatrix<Ring>::LockedAttach
 ( Int height, Int width, const El::Grid& g, 
-  int colAlign, int rowAlign, const El::Matrix<T>& A, int root )
+  int colAlign, int rowAlign, const El::Matrix<Ring>& A, int root )
 {
     // TODO: Assert that the local dimensions are correct
     LockedAttach
     ( height, width, g, colAlign, rowAlign, A.LockedBuffer(), A.LDim(), root );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::LockedAttach( const El::Grid& g, const El::Matrix<T>& A )
+AbstractDistMatrix<Ring>::LockedAttach( const El::Grid& g, const El::Matrix<Ring>& A )
 {
     DEBUG_ONLY(CSE cse("ADM::LockedAttach"))
     if( g.Size() != 1 )
@@ -519,18 +519,18 @@ AbstractDistMatrix<T>::LockedAttach( const El::Grid& g, const El::Matrix<T>& A )
 
 // Copy
 // ----
-template<typename T>
-const AbstractDistMatrix<T>&
-AbstractDistMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
+template<typename Ring>
+const AbstractDistMatrix<Ring>&
+AbstractDistMatrix<Ring>::operator=( const AbstractDistMatrix<Ring>& A )
 {
     DEBUG_ONLY(CSE cse("ADM::operator=(ADM&)"))
     Copy( A, *this );
     return *this;
 }
 
-template<typename T>
-const AbstractDistMatrix<T>&
-AbstractDistMatrix<T>::operator=( const DistMultiVec<T>& A )
+template<typename Ring>
+const AbstractDistMatrix<Ring>&
+AbstractDistMatrix<Ring>::operator=( const DistMultiVec<Ring>& A )
 {
     DEBUG_ONLY(CSE cse("ADM::operator=(DMV&)"))
     Copy( A, *this );
@@ -539,9 +539,9 @@ AbstractDistMatrix<T>::operator=( const DistMultiVec<T>& A )
 
 // Move assignment
 // ---------------
-template<typename T>
-AbstractDistMatrix<T>& 
-AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
+template<typename Ring>
+AbstractDistMatrix<Ring>& 
+AbstractDistMatrix<Ring>::operator=( AbstractDistMatrix<Ring>&& A )
 {
     DEBUG_ONLY(CSE cse("ADM::operator=(ADM&&)"))
     if( Viewing() || A.Viewing() )
@@ -569,9 +569,9 @@ AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
 
 // Rescaling
 // ---------
-template<typename T>
-const AbstractDistMatrix<T>&
-AbstractDistMatrix<T>::operator*=( T alpha )
+template<typename Ring>
+const AbstractDistMatrix<Ring>&
+AbstractDistMatrix<Ring>::operator*=( Ring alpha )
 {
     DEBUG_ONLY(CSE cse("ADM::operator*=(T)"))    
     Scale( alpha, *this );
@@ -580,21 +580,21 @@ AbstractDistMatrix<T>::operator*=( T alpha )
 
 // Addition/subtraction
 // --------------------
-template<typename T>
-const AbstractDistMatrix<T>&
-AbstractDistMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
+template<typename Ring>
+const AbstractDistMatrix<Ring>&
+AbstractDistMatrix<Ring>::operator+=( const AbstractDistMatrix<Ring>& A )
 {
     DEBUG_ONLY(CSE cse("ADM::operator+="))
-    Axpy( T(1), A, *this );
+    Axpy( Ring(1), A, *this );
     return *this;
 }
 
-template<typename T>
-const AbstractDistMatrix<T>&
-AbstractDistMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
+template<typename Ring>
+const AbstractDistMatrix<Ring>&
+AbstractDistMatrix<Ring>::operator-=( const AbstractDistMatrix<Ring>& A )
 {
     DEBUG_ONLY(CSE cse("ADM::operator-="))
-    Axpy( T(-1), A, *this );
+    Axpy( Ring(-1), A, *this );
     return *this;
 }
 
@@ -604,107 +604,107 @@ AbstractDistMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 // Global matrix information
 // -------------------------
 
-template<typename T>
-Int AbstractDistMatrix<T>::Height() const { return height_; }
-template<typename T>
-Int AbstractDistMatrix<T>::Width() const { return width_; }
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::Height() const { return height_; }
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::Width() const { return width_; }
 
-template<typename T>
-Int AbstractDistMatrix<T>::DiagonalLength( Int offset ) const
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::DiagonalLength( Int offset ) const
 { return El::DiagonalLength(height_,width_,offset); }
 
-template<typename T>
-bool AbstractDistMatrix<T>::Viewing() const { return IsViewing( viewType_ ); }
-template<typename T>
-bool AbstractDistMatrix<T>::Locked() const { return IsLocked( viewType_ ); }
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::Viewing() const { return IsViewing( viewType_ ); }
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::Locked() const { return IsLocked( viewType_ ); }
 
 // Local matrix information
 // ------------------------
 
-template<typename T>
-Int AbstractDistMatrix<T>::LocalHeight() const { return matrix_.Height(); }
-template<typename T>
-Int AbstractDistMatrix<T>::LocalWidth() const { return matrix_.Width(); }
-template<typename T>
-Int AbstractDistMatrix<T>::LDim() const { return matrix_.LDim(); }
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::LocalHeight() const { return matrix_.Height(); }
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::LocalWidth() const { return matrix_.Width(); }
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::LDim() const { return matrix_.LDim(); }
 
-template<typename T>
-El::Matrix<T>& 
-AbstractDistMatrix<T>::Matrix() { return matrix_; }
-template<typename T>
-const El::Matrix<T>& 
-AbstractDistMatrix<T>::LockedMatrix() const { return matrix_; }
+template<typename Ring>
+El::Matrix<Ring>& 
+AbstractDistMatrix<Ring>::Matrix() { return matrix_; }
+template<typename Ring>
+const El::Matrix<Ring>& 
+AbstractDistMatrix<Ring>::LockedMatrix() const { return matrix_; }
 
-template<typename T>
+template<typename Ring>
 size_t
-AbstractDistMatrix<T>::AllocatedMemory() const { return matrix_.MemorySize(); }
+AbstractDistMatrix<Ring>::AllocatedMemory() const { return matrix_.MemorySize(); }
 
-template<typename T>
-T*
-AbstractDistMatrix<T>::Buffer() { return matrix_.Buffer(); }
+template<typename Ring>
+Ring*
+AbstractDistMatrix<Ring>::Buffer() { return matrix_.Buffer(); }
 
-template<typename T>
-T*
-AbstractDistMatrix<T>::Buffer( Int iLoc, Int jLoc )
+template<typename Ring>
+Ring*
+AbstractDistMatrix<Ring>::Buffer( Int iLoc, Int jLoc )
 { return matrix_.Buffer(iLoc,jLoc); }
 
-template<typename T>
-const T*
-AbstractDistMatrix<T>::LockedBuffer() const
+template<typename Ring>
+const Ring*
+AbstractDistMatrix<Ring>::LockedBuffer() const
 { return matrix_.LockedBuffer(); }
 
-template<typename T>
-const T*
-AbstractDistMatrix<T>::LockedBuffer( Int iLoc, Int jLoc ) const
+template<typename Ring>
+const Ring*
+AbstractDistMatrix<Ring>::LockedBuffer( Int iLoc, Int jLoc ) const
 { return matrix_.LockedBuffer(iLoc,jLoc); }
 
 // Distribution information
 // ------------------------
 
-template<typename T>
-const El::Grid& AbstractDistMatrix<T>::Grid() const { return *grid_; }
+template<typename Ring>
+const El::Grid& AbstractDistMatrix<Ring>::Grid() const { return *grid_; }
 
-template<typename T>
-int AbstractDistMatrix<T>::ColAlign() const { return colAlign_; }
-template<typename T>
-int AbstractDistMatrix<T>::RowAlign() const { return rowAlign_; }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::ColAlign() const { return colAlign_; }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::RowAlign() const { return rowAlign_; }
 
-template<typename T>
-int AbstractDistMatrix<T>::ColShift() const { return colShift_; }
-template<typename T>
-int AbstractDistMatrix<T>::RowShift() const { return rowShift_; }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::ColShift() const { return colShift_; }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::RowShift() const { return rowShift_; }
 
-template<typename T>
-bool AbstractDistMatrix<T>::ColConstrained() const { return colConstrained_; }
-template<typename T>
-bool AbstractDistMatrix<T>::RowConstrained() const { return rowConstrained_; }
-template<typename T>
-bool AbstractDistMatrix<T>::RootConstrained() const { return rootConstrained_; }
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::ColConstrained() const { return colConstrained_; }
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::RowConstrained() const { return rowConstrained_; }
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::RootConstrained() const { return rootConstrained_; }
 
-template<typename T>
-bool AbstractDistMatrix<T>::Participating() const
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::Participating() const
 { return grid_->InGrid() && (CrossRank()==root_); }
 
-template<typename T>
-int AbstractDistMatrix<T>::RowOwner( Int i ) const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::RowOwner( Int i ) const
 {
     if( i == END ) i = height_ - 1;
     return int((i+ColAlign()) % ColStride());
 }
 
-template<typename T>
-int AbstractDistMatrix<T>::ColOwner( Int j ) const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::ColOwner( Int j ) const
 { 
     if( j == END ) j = width_ - 1;
     return int((j+RowAlign()) % RowStride()); 
 }
 
-template<typename T>
-int AbstractDistMatrix<T>::Owner( Int i, Int j ) const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::Owner( Int i, Int j ) const
 { return RowOwner(i)+ColOwner(j)*ColStride(); }
 
-template<typename T>
-Int AbstractDistMatrix<T>::LocalRow( Int i ) const
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::LocalRow( Int i ) const
 { 
     DEBUG_ONLY(
       CSE cse("ADM::LocalRow");
@@ -714,8 +714,8 @@ Int AbstractDistMatrix<T>::LocalRow( Int i ) const
     return LocalRowOffset(i);
 }
 
-template<typename T>
-Int AbstractDistMatrix<T>::LocalCol( Int j ) const
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::LocalCol( Int j ) const
 {
     DEBUG_ONLY(
       CSE cse("ADM::LocalCol");
@@ -725,97 +725,97 @@ Int AbstractDistMatrix<T>::LocalCol( Int j ) const
     return LocalColOffset(j);
 }
 
-template<typename T>
-Int AbstractDistMatrix<T>::LocalRowOffset( Int i ) const
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::LocalRowOffset( Int i ) const
 { 
     if( i == END ) i = height_ - 1;
     return Length_(i,ColShift(),ColStride()); 
 }
 
-template<typename T>
-Int AbstractDistMatrix<T>::LocalColOffset( Int j ) const
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::LocalColOffset( Int j ) const
 { 
     if( j == END ) j = width_ - 1;
     return Length_(j,RowShift(),RowStride()); 
 }
 
-template<typename T>
-Int AbstractDistMatrix<T>::GlobalRow( Int iLoc ) const
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::GlobalRow( Int iLoc ) const
 { 
     if( iLoc == END ) iLoc = LocalHeight() - 1;
     return ColShift() + iLoc*ColStride(); 
 }
 
-template<typename T>
-Int AbstractDistMatrix<T>::GlobalCol( Int jLoc ) const
+template<typename Ring>
+Int AbstractDistMatrix<Ring>::GlobalCol( Int jLoc ) const
 { 
     if( jLoc == END ) jLoc = LocalWidth() - 1;
     return RowShift() + jLoc*RowStride(); 
 }
 
-template<typename T>
-bool AbstractDistMatrix<T>::IsLocalRow( Int i ) const
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::IsLocalRow( Int i ) const
 { return Participating() && RowOwner(i) == ColRank(); }
-template<typename T>
-bool AbstractDistMatrix<T>::IsLocalCol( Int j ) const
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::IsLocalCol( Int j ) const
 { return Participating() && ColOwner(j) == RowRank(); }
-template<typename T>
-bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::IsLocal( Int i, Int j ) const
 { return IsLocalRow(i) && IsLocalCol(j); }
 
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialColComm() const { return ColComm(); }
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialRowComm() const { return RowComm(); }
+template<typename Ring>
+mpi::Comm AbstractDistMatrix<Ring>::PartialColComm() const { return ColComm(); }
+template<typename Ring>
+mpi::Comm AbstractDistMatrix<Ring>::PartialRowComm() const { return RowComm(); }
 
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionColComm() const
+template<typename Ring>
+mpi::Comm AbstractDistMatrix<Ring>::PartialUnionColComm() const
 { return mpi::COMM_SELF; }
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionRowComm() const
+template<typename Ring>
+mpi::Comm AbstractDistMatrix<Ring>::PartialUnionRowComm() const
 { return mpi::COMM_SELF; }
 
-template<typename T>
-int AbstractDistMatrix<T>::PartialColStride() const { return ColStride(); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialRowStride() const { return RowStride(); }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialColStride() const { return ColStride(); }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialRowStride() const { return RowStride(); }
 
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColStride() const { return 1; }
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowStride() const { return 1; }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialUnionColStride() const { return 1; }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialUnionRowStride() const { return 1; }
 
-template<typename T>
-int AbstractDistMatrix<T>::ColRank() const { return mpi::Rank(ColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::RowRank() const { return mpi::Rank(RowComm()); }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::ColRank() const { return mpi::Rank(ColComm()); }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::RowRank() const { return mpi::Rank(RowComm()); }
 
-template<typename T>
-int AbstractDistMatrix<T>::PartialColRank() const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialColRank() const
 { return mpi::Rank(PartialColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialRowRank() const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialRowRank() const
 { return mpi::Rank(PartialRowComm()); }
 
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColRank() const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialUnionColRank() const
 { return mpi::Rank(PartialUnionColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowRank() const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::PartialUnionRowRank() const
 { return mpi::Rank(PartialUnionRowComm()); }
 
-template<typename T>
-int AbstractDistMatrix<T>::DistRank() const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::DistRank() const
 { return mpi::Rank(DistComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::CrossRank() const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::CrossRank() const
 { return mpi::Rank(CrossComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::RedundantRank() const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::RedundantRank() const
 { return mpi::Rank(RedundantComm()); }
 
-template<typename T>
-int AbstractDistMatrix<T>::Root() const { return root_; }
+template<typename Ring>
+int AbstractDistMatrix<Ring>::Root() const { return root_; }
 
 // Single-entry manipulation
 // =========================
@@ -823,16 +823,16 @@ int AbstractDistMatrix<T>::Root() const { return root_; }
 // Global entry manipulation
 // -------------------------
 
-template<typename T>
-T
-AbstractDistMatrix<T>::Get( Int i, Int j ) const
+template<typename Ring>
+Ring
+AbstractDistMatrix<Ring>::Get( Int i, Int j ) const
 {
     DEBUG_ONLY(
       CSE cse("ADM::Get");
       if( !grid_->InGrid() )
           LogicError("Get should only be called in-grid");
     )
-    T value;
+    Ring value;
     if( CrossRank() == Root() )
     {
         const int owner = Owner( i, j );
@@ -844,16 +844,16 @@ AbstractDistMatrix<T>::Get( Int i, Int j ) const
     return value;
 }
 
-template<typename T>
-Base<T>
-AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
+template<typename Ring>
+Base<Ring>
+AbstractDistMatrix<Ring>::GetRealPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
       CSE cse("ADM::GetRealPart");
       if( !grid_->InGrid() )
           LogicError("Get should only be called in-grid");
     )
-    Base<T> value;
+    Base<Ring> value;
     if( CrossRank() == Root() )
     {
         const int owner = Owner( i, j );
@@ -865,17 +865,17 @@ AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
     return value;
 }
 
-template<typename T>
-Base<T>
-AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
+template<typename Ring>
+Base<Ring>
+AbstractDistMatrix<Ring>::GetImagPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
       CSE cse("ADM::GetImagPart");
       if( !grid_->InGrid() )
           LogicError("Get should only be called in-grid");
     )
-    Base<T> value;
-    if( IsComplex<T>::val )
+    Base<Ring> value;
+    if( IsComplex<Ring>::val )
     {
         if( CrossRank() == Root() )
         {
@@ -891,102 +891,102 @@ AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
     return value;
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Set( Int i, Int j, T value )
+AbstractDistMatrix<Ring>::Set( Int i, Int j, Ring value )
 {
     DEBUG_ONLY(CSE cse("ADM::Set"))
     if( IsLocal(i,j) )
         SetLocal( LocalRow(i), LocalCol(j), value );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Set( const Entry<T>& entry )
+AbstractDistMatrix<Ring>::Set( const Entry<Ring>& entry )
 { Set( entry.i, entry.j, entry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<Ring>::SetRealPart( Int i, Int j, Base<Ring> value )
 {
     DEBUG_ONLY(CSE cse("ADM::SetRealPart"))
     if( IsLocal(i,j) )
         SetLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetRealPart( const Entry<Base<T>>& entry )
+AbstractDistMatrix<Ring>::SetRealPart( const Entry<Base<Ring>>& entry )
 { SetRealPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<Ring>::SetImagPart( Int i, Int j, Base<Ring> value )
 {
     DEBUG_ONLY(CSE cse("ADM::SetImagPart"))
     if( IsLocal(i,j) )
         SetLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+AbstractDistMatrix<Ring>::SetImagPart( const Entry<Base<Ring>>& entry )
 { SetImagPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Update( Int i, Int j, T value )
+AbstractDistMatrix<Ring>::Update( Int i, Int j, Ring value )
 {
     DEBUG_ONLY(CSE cse("ADM::Update"))
     if( IsLocal(i,j) )
         UpdateLocal( LocalRow(i), LocalCol(j), value );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Update( const Entry<T>& entry )
+AbstractDistMatrix<Ring>::Update( const Entry<Ring>& entry )
 { Update( entry.i, entry.j, entry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<Ring>::UpdateRealPart( Int i, Int j, Base<Ring> value )
 {
     DEBUG_ONLY(CSE cse("ADM::UpdateRealPart"))
     if( IsLocal(i,j) )
         UpdateLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateRealPart( const Entry<Base<T>>& entry )
+AbstractDistMatrix<Ring>::UpdateRealPart( const Entry<Base<Ring>>& entry )
 { UpdateRealPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<Ring>::UpdateImagPart( Int i, Int j, Base<Ring> value )
 {
     DEBUG_ONLY(CSE cse("ADM::UpdateImagPart"))
     if( IsLocal(i,j) )
         UpdateLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+AbstractDistMatrix<Ring>::UpdateImagPart( const Entry<Base<Ring>>& entry )
 { UpdateImagPart( entry.i, entry.j, entry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::MakeReal( Int i, Int j )
+AbstractDistMatrix<Ring>::MakeReal( Int i, Int j )
 {
     DEBUG_ONLY(CSE cse("ADM::MakeReal"))
     if( IsLocal(i,j) )
         MakeLocalReal( LocalRow(i), LocalCol(j) );
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::Conjugate( Int i, Int j )
+AbstractDistMatrix<Ring>::Conjugate( Int i, Int j )
 {
     DEBUG_ONLY(CSE cse("ADM::Conjugate"))
     if( IsLocal(i,j) )
@@ -995,15 +995,15 @@ AbstractDistMatrix<T>::Conjugate( Int i, Int j )
 
 // Batch remote updates
 // --------------------
-template<typename T>
-void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
+template<typename Ring>
+void AbstractDistMatrix<Ring>::Reserve( Int numRemoteUpdates )
 { 
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::Reserve"))
     remoteUpdates_.reserve( numRemoteUpdates ); 
 }
 
-template<typename T>
-void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
+template<typename Ring>
+void AbstractDistMatrix<Ring>::QueueUpdate( const Entry<Ring>& entry )
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueueUpdate"))
     if( IsLocal(entry.i,entry.j) )
@@ -1012,12 +1012,12 @@ void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
         remoteUpdates_.push_back( entry );
 }
 
-template<typename T>
-void AbstractDistMatrix<T>::QueueUpdate( Int i, Int j, T value )
-{ QueueUpdate( Entry<T>{i,j,value} ); }
+template<typename Ring>
+void AbstractDistMatrix<Ring>::QueueUpdate( Int i, Int j, Ring value )
+{ QueueUpdate( Entry<Ring>{i,j,value} ); }
 
-template<typename T>
-void AbstractDistMatrix<T>::ProcessQueues()
+template<typename Ring>
+void AbstractDistMatrix<Ring>::ProcessQueues()
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessQueues"))
     const auto& g = Grid();
@@ -1040,7 +1040,7 @@ void AbstractDistMatrix<T>::ProcessQueues()
     // =============
     vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
+    vector<Entry<Ring>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( const auto& entry : remoteUpdates_ )
     {
@@ -1065,92 +1065,92 @@ void AbstractDistMatrix<T>::ProcessQueues()
 // Local entry manipulation
 // ------------------------
 
-template<typename T>
-T AbstractDistMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
+template<typename Ring>
+Ring AbstractDistMatrix<Ring>::GetLocal( Int iLoc, Int jLoc ) const
 { return matrix_.Get(iLoc,jLoc); }
 
-template<typename T>
-Base<T> AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
+template<typename Ring>
+Base<Ring> AbstractDistMatrix<Ring>::GetLocalRealPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetRealPart(iLoc,jLoc); }
 
-template<typename T>
-Base<T> AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
+template<typename Ring>
+Base<Ring> AbstractDistMatrix<Ring>::GetLocalImagPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetImagPart(iLoc,jLoc); }
 
-template<typename T>
-void AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
+template<typename Ring>
+void AbstractDistMatrix<Ring>::SetLocal( Int iLoc, Int jLoc, Ring alpha )
 { matrix_.Set(iLoc,jLoc,alpha); }
 
-template<typename T>
-void AbstractDistMatrix<T>::SetLocal( const Entry<T>& localEntry )
+template<typename Ring>
+void AbstractDistMatrix<Ring>::SetLocal( const Entry<Ring>& localEntry )
 { SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<Ring>::SetLocalRealPart( Int iLoc, Int jLoc, Base<Ring> alpha )
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetLocalRealPart( const Entry<Base<T>>& localEntry )
+AbstractDistMatrix<Ring>::SetLocalRealPart( const Entry<Base<Ring>>& localEntry )
 { SetLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<Ring>::SetLocalImagPart( Int iLoc, Int jLoc, Base<Ring> alpha )
 { matrix_.SetImagPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetLocalImagPart( const Entry<Base<T>>& localEntry )
+AbstractDistMatrix<Ring>::SetLocalImagPart( const Entry<Base<Ring>>& localEntry )
 { SetLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
+AbstractDistMatrix<Ring>::UpdateLocal( Int iLoc, Int jLoc, Ring alpha )
 { matrix_.Update(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
+AbstractDistMatrix<Ring>::UpdateLocal( const Entry<Ring>& localEntry )
 { UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateLocalRealPart
-( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<Ring>::UpdateLocalRealPart
+( Int iLoc, Int jLoc, Base<Ring> alpha )
 { matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateLocalRealPart( const Entry<Base<T>>& localEntry )
+AbstractDistMatrix<Ring>::UpdateLocalRealPart( const Entry<Base<Ring>>& localEntry )
 { UpdateLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateLocalImagPart
-( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<Ring>::UpdateLocalImagPart
+( Int iLoc, Int jLoc, Base<Ring> alpha )
 { matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::UpdateLocalImagPart( const Entry<Base<T>>& localEntry )
+AbstractDistMatrix<Ring>::UpdateLocalImagPart( const Entry<Base<Ring>>& localEntry )
 { UpdateLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::MakeLocalReal( Int iLoc, Int jLoc )
+AbstractDistMatrix<Ring>::MakeLocalReal( Int iLoc, Int jLoc )
 { matrix_.MakeReal( iLoc, jLoc ); }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
+AbstractDistMatrix<Ring>::ConjugateLocal( Int iLoc, Int jLoc )
 { matrix_.Conjugate( iLoc, jLoc ); }
 
 // Diagonal manipulation
 // =====================
-template<typename T>
-bool AbstractDistMatrix<T>::DiagonalAlignedWith
+template<typename Ring>
+bool AbstractDistMatrix<Ring>::DiagonalAlignedWith
 ( const El::DistData& d, Int offset ) const
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalAlignedWith"))
@@ -1172,8 +1172,8 @@ bool AbstractDistMatrix<T>::DiagonalAlignedWith
         return false;
 }
 
-template<typename T>
-int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::DiagonalRoot( Int offset ) const
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalRoot"))
     const auto& grid = Grid();
@@ -1218,8 +1218,8 @@ int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
         return Root();
 }
 
-template<typename T>
-int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
+template<typename Ring>
+int AbstractDistMatrix<Ring>::DiagonalAlign( Int offset ) const
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalAlign"))
     const auto& grid = Grid();
@@ -1281,33 +1281,33 @@ int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
 // Assertions
 // ==========
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::ComplainIfReal() const
+AbstractDistMatrix<Ring>::ComplainIfReal() const
 { 
-    if( !IsComplex<T>::val )
+    if( !IsComplex<Ring>::val )
         LogicError("Called complex-only routine with real data");
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AssertNotLocked() const
+AbstractDistMatrix<Ring>::AssertNotLocked() const
 {
     if( Locked() )
         LogicError("Assertion that matrix not be a locked view failed");
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AssertNotStoringData() const
+AbstractDistMatrix<Ring>::AssertNotStoringData() const
 {
     if( matrix_.MemorySize() > 0 )
         LogicError("Assertion that matrix not be storing data failed");
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AssertValidEntry( Int i, Int j ) const
+AbstractDistMatrix<Ring>::AssertValidEntry( Int i, Int j ) const
 {
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
@@ -1317,9 +1317,9 @@ AbstractDistMatrix<T>::AssertValidEntry( Int i, Int j ) const
          " x ",Width()," matrix");
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::AssertValidSubmatrix
+AbstractDistMatrix<Ring>::AssertValidSubmatrix
 ( Int i, Int j, Int height, Int width ) const
 {
     if( i == END ) i = height_ - 1;
@@ -1334,9 +1334,9 @@ AbstractDistMatrix<T>::AssertValidSubmatrix
          ",",j+width-1,") of ",Height()," x ",Width()," matrix");
 }
 
-template<typename T> 
+template<typename Ring> 
 void
-AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
+AbstractDistMatrix<Ring>::AssertSameSize( Int height, Int width ) const
 {
     if( Height() != height || Width() != width )
         LogicError("Assertion that matrices be the same size failed");
@@ -1348,9 +1348,9 @@ AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
 // Exchange metadata with another matrix
 // =====================================
 
-template<typename T>
+template<typename Ring>
 void 
-AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
+AbstractDistMatrix<Ring>::ShallowSwap( AbstractDistMatrix<Ring>& A )
 {
     matrix_.ShallowSwap( A.matrix_ );
     std::swap( viewType_, A.viewType_ );
@@ -1370,9 +1370,9 @@ AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
 // Modify the distribution metadata
 // ================================
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetShifts()
+AbstractDistMatrix<Ring>::SetShifts()
 {
     if( Participating() )
     {
@@ -1386,9 +1386,9 @@ AbstractDistMatrix<T>::SetShifts()
     }
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetColShift()
+AbstractDistMatrix<Ring>::SetColShift()
 {
     if( Participating() )
         colShift_ = Shift(ColRank(),colAlign_,ColStride());
@@ -1396,9 +1396,9 @@ AbstractDistMatrix<T>::SetColShift()
         colShift_ = 0;
 }
 
-template<typename T>
+template<typename Ring>
 void
-AbstractDistMatrix<T>::SetRowShift()
+AbstractDistMatrix<Ring>::SetRowShift()
 {
     if( Participating() )
         rowShift_ = Shift(RowRank(),rowAlign_,RowStride());
@@ -1409,10 +1409,10 @@ AbstractDistMatrix<T>::SetRowShift()
 // Outside of class
 // ----------------
 
-template<typename T> 
+template<typename Ring> 
 void
 AssertConforming1x2
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR )
+( const AbstractDistMatrix<Ring>& AL, const AbstractDistMatrix<Ring>& AR )
 {
     if( AL.Height() != AR.Height() )    
         LogicError
@@ -1422,10 +1422,10 @@ AssertConforming1x2
         LogicError("1x2 is misaligned");
 }
 
-template<typename T> 
+template<typename Ring> 
 void
 AssertConforming2x1
-( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB )
+( const AbstractDistMatrix<Ring>& AT, const AbstractDistMatrix<Ring>& AB )
 {
     if( AT.Width() != AB.Width() )
         LogicError
@@ -1435,11 +1435,11 @@ AssertConforming2x1
         LogicError("2x1 is not aligned");
 }
 
-template<typename T> 
+template<typename Ring> 
 void
 AssertConforming2x2
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR, 
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR ) 
+( const AbstractDistMatrix<Ring>& ATL, const AbstractDistMatrix<Ring>& ATR, 
+  const AbstractDistMatrix<Ring>& ABL, const AbstractDistMatrix<Ring>& ABR ) 
 {
     if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
         ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
@@ -1458,17 +1458,17 @@ AssertConforming2x2
 // ###########################################################################
 
 #ifndef EL_RELEASE
- #define PROTO(T) \
-  template class AbstractDistMatrix<T>;\
+ #define PROTO(Ring) \
+  template class AbstractDistMatrix<Ring>;\
   template void AssertConforming1x2\
-  ( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );\
+  ( const AbstractDistMatrix<Ring>& AL, const AbstractDistMatrix<Ring>& AR );\
   template void AssertConforming2x1\
-  ( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );\
+  ( const AbstractDistMatrix<Ring>& AT, const AbstractDistMatrix<Ring>& AB );\
   template void AssertConforming2x2\
-  ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,\
-    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
+  ( const AbstractDistMatrix<Ring>& ATL, const AbstractDistMatrix<Ring>& ATR,\
+    const AbstractDistMatrix<Ring>& ABL, const AbstractDistMatrix<Ring>& ABR );
 #else
- #define PROTO(T) template class AbstractDistMatrix<T>;
+ #define PROTO(Ring) template class AbstractDistMatrix<Ring>;
 #endif
 
 #define EL_ENABLE_QUAD

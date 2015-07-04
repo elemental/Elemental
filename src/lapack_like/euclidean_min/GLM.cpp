@@ -96,7 +96,7 @@ void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), T22, C2, checkIfSingular );
 
     // G1 := G1 - T12 C2
-    Gemm( NORMAL, NORMAL, F(-1), T12, C2, F(1), G1 );
+    Gemm( F(-1), T12.N(), C2.N(), F(1), G1 );
     
     // Solve R11 X = G1 
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R11, G1, checkIfSingular );
@@ -161,7 +161,7 @@ void Overwrite
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), T22, C2, checkIfSingular );
 
     // G1 := G1 - T12 C2
-    Gemm( NORMAL, NORMAL, F(-1), T12, C2, F(1), G1 );
+    Gemm( F(-1), T12.N(), C2.N(), F(1), G1 );
     
     // Solve R11 X = G1
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R11, G1, checkIfSingular );

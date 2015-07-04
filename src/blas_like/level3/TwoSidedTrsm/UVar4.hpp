@@ -56,7 +56,7 @@ UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         twotrsm::UUnb( diag, A11, U11 );
 
         // A02 := A02 - A01 U12
-        Gemm( NORMAL, NORMAL, F(-1), A01, U12, F(1), A02 );
+        Gemm( F(-1), A01.N(), U12.N(), F(1), A02 );
 
         // Y12 := A11 U12
         Zeros( Y12, A12.Height(), A12.Width() );
@@ -144,8 +144,7 @@ UVar4
         U12Trans_MR_STAR.AlignWith( A02 );
         Transpose( U12, U12Trans_MR_STAR );
         LocalGemm
-        ( TRANSPOSE, TRANSPOSE, 
-          F(-1), A01Trans_STAR_MC, U12Trans_MR_STAR, F(1), A02 );
+        ( F(-1), A01Trans_STAR_MC.T(), U12Trans_MR_STAR.T(), F(1), A02 );
 
         // Y12 := A11 U12
         U12Trans_VR_STAR.AlignWith( A02 );

@@ -37,9 +37,9 @@ void Ridge
             ShiftDiagonal( Z, F(gamma*gamma) );
             Cholesky( LOWER, Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.H(), B.N(), X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.N(), B.N(), X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else if( alg == RIDGE_QR )
@@ -56,9 +56,9 @@ void Ridge
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.H(), B.N(), X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.N(), B.N(), X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else
@@ -74,10 +74,10 @@ void Ridge
               [=]( Base<F> sigma ) 
               { return sigma / (sigma*sigma + gamma*gamma); };
             EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
-            Gemm( ADJOINT, NORMAL, F(1), U, B, X );
+            Gemm( F(1), U.H(), B.N(), X );
             DiagonalScale( LEFT, NORMAL, s, X );
             U = X;
-            Gemm( NORMAL, NORMAL, F(1), V, U, X );
+            Gemm( F(1), V.N(), U.N(), X );
         }
     }
     else
@@ -117,9 +117,9 @@ void Ridge
             ShiftDiagonal( Z, F(gamma*gamma) );
             Cholesky( LOWER, Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.H(), B.N(), X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.N(), B.N(), X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else if( alg == RIDGE_QR )
@@ -136,9 +136,9 @@ void Ridge
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.H(), B.N(), X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( F(1), A.N(), B.N(), X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else
@@ -154,10 +154,10 @@ void Ridge
               [=]( Base<F> sigma ) 
               { return sigma / (sigma*sigma + gamma*gamma); };
             EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
-            Gemm( ADJOINT, NORMAL, F(1), U, B, X );
+            Gemm( F(1), U.H(), B.N(), X );
             DiagonalScale( LEFT, NORMAL, s, X );
             U = X;
-            Gemm( NORMAL, NORMAL, F(1), V, U, X );
+            Gemm( F(1), V.N(), U.N(), X );
         }
     }
     else

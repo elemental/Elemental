@@ -29,7 +29,7 @@ SVD( Matrix<F>& A )
     El::SVD( U, s, V );
 
     // Form Q := U V^H in A
-    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
+    Gemm( F(1), U.N(), V.H(), A );
 }
 
 template<typename F>
@@ -45,7 +45,7 @@ SVD( Matrix<F>& A, Matrix<F>& P )
     El::SVD( U, s, V );
 
     // Form Q := U V^H in A
-    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
+    Gemm( F(1), U.N(), V.H(), A );
 
     // Form P := V Sigma V^H in P
     HermitianFromEVD( LOWER, P, s, V );
@@ -69,7 +69,7 @@ SVD( AbstractDistMatrix<F>& APre )
     El::SVD( U, s, V );
 
     // Form Q := U V^H in A
-    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
+    Gemm( F(1), U.N(), V.H(), A );
 }
 
 template<typename F>
@@ -90,7 +90,7 @@ SVD( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre )
     El::SVD( U, s, V );
 
     // Form Q := U V^H in A
-    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
+    Gemm( F(1), U.N(), V.H(), A );
 
     // Form P := V Sigma V^H in P
     HermitianFromEVD( LOWER, P, s, V );

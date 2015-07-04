@@ -51,9 +51,9 @@ void Tikhonov
             qr::ExplicitTriang( Z ); 
         }
         if( orientation == NORMAL )
-            Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            Gemm( F(1), A.H(), B.N(), X );
         else
-            Gemm( NORMAL, NORMAL, F(1), A, B, X );
+            Gemm( F(1), A.N(), B.N(), X );
         cholesky::SolveAfter( LOWER, NORMAL, Z, X );
     }
     else
@@ -109,9 +109,9 @@ void Tikhonov
             qr::ExplicitTriang( Z ); 
         }
         if( orientation == NORMAL )
-            Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+            Gemm( F(1), A.H(), B.N(), X );
         else
-            Gemm( NORMAL, NORMAL, F(1), A, B, X );
+            Gemm( F(1), A.N(), B.N(), X );
         cholesky::SolveAfter( LOWER, NORMAL, Z, X );
     }
     else

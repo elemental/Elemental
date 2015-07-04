@@ -10,68 +10,70 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha,      const Matrix<T>& A, const Matrix<T>& B, 
-  Base<T> beta,       Matrix<T>& C )
+  Ring alpha,      const Matrix<Ring>& A, const Matrix<Ring>& B, 
+  Base<Ring> beta,       Matrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Her2k"))
-    Syr2k( uplo, orientation, alpha, A, B, T(beta), C, true );
+    Syr2k( uplo, orientation, alpha, A, B, Ring(beta), C, true );
 }
 
-template<typename T>
+template<typename Ring>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
-{
-    DEBUG_ONLY(CSE cse("Her2k"))
-    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
-    Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
-}
-
-template<typename T>
-void Her2k
-( UpperOrLower uplo, Orientation orientation,
-  T alpha,      const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  Base<T> beta,       AbstractDistMatrix<T>& C )
-{
-    DEBUG_ONLY(CSE cse("Her2k"))
-    Syr2k( uplo, orientation, alpha, A, B, T(beta), C, true );
-}
-
-template<typename T>
-void Her2k
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C )
+  Ring alpha, const Matrix<Ring>& A, const Matrix<Ring>& B, Matrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Her2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
-    Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
+    Syr2k( uplo, orientation, alpha, A, B, Ring(0), C, true );
 }
 
-#define PROTO(T) \
+template<typename Ring>
+void Her2k
+( UpperOrLower uplo, Orientation orientation,
+  Ring alpha,      const AbstractDistMatrix<Ring>& A, 
+                   const AbstractDistMatrix<Ring>& B,
+  Base<Ring> beta,       AbstractDistMatrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("Her2k"))
+    Syr2k( uplo, orientation, alpha, A, B, Ring(beta), C, true );
+}
+
+template<typename Ring>
+void Her2k
+( UpperOrLower uplo, Orientation orientation,
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+                    AbstractDistMatrix<Ring>& C )
+{
+    DEBUG_ONLY(CSE cse("Her2k"))
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syr2k( uplo, orientation, alpha, A, B, Ring(0), C, true );
+}
+
+#define PROTO(Ring) \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha,      const Matrix<T>& A, const Matrix<T>& B, \
-    Base<T> beta,       Matrix<T>& C ); \
+    Ring alpha,      const Matrix<Ring>& A, const Matrix<Ring>& B, \
+    Base<Ring> beta,       Matrix<Ring>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-                   Matrix<T>& C ); \
+    Ring alpha, const Matrix<Ring>& A, const Matrix<Ring>& B, \
+                      Matrix<Ring>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, \
-             const AbstractDistMatrix<T>& B, \
-                   AbstractDistMatrix<T>& C ); \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+                      AbstractDistMatrix<Ring>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha,      const AbstractDistMatrix<T>& A, \
-                  const AbstractDistMatrix<T>& B, \
-    Base<T> beta,       AbstractDistMatrix<T>& C );
+    Ring alpha,      const AbstractDistMatrix<Ring>& A, \
+                     const AbstractDistMatrix<Ring>& B, \
+    Base<Ring> beta,       AbstractDistMatrix<Ring>& C );
 
 // blas::Her2k not yet supported for Int
 #define EL_NO_INT_PROTO

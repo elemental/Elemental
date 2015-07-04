@@ -71,7 +71,7 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         Trmm( LEFT, LOWER, ADJOINT, diag, F(1), L11, A10 );
 
         // A20 := A20 + A21 L10
-        Gemm( NORMAL, NORMAL, F(1), A21, L10, F(1), A20 );
+        Gemm( F(1), A21.N(), L10.N(), F(1), A20 );
 
         // A11 := L11' A11 L11
         twotrmm::LUnb( diag, A11, L11 );
@@ -172,8 +172,7 @@ LVar4
         // A20 := A20 + A21 L10
         A21_MC_STAR.AlignWith( A20 );
         A21_MC_STAR = A21;
-        LocalGemm
-        ( NORMAL, ADJOINT, F(1), A21_MC_STAR, L10Adj_MR_STAR, F(1), A20 );
+        LocalGemm( F(1), A21_MC_STAR.N(), L10Adj_MR_STAR.H(), F(1), A20 );
 
         // A11 := L11' A11 L11
         TwoSidedTrmm( LOWER, diag, A11_STAR_STAR, L11_STAR_STAR );

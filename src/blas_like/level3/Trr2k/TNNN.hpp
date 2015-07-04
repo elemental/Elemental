@@ -15,12 +15,14 @@ namespace El {
 namespace trr2k {
 
 // E := alpha A' B + beta C D + E
-template<typename T>
+template<typename Ring>
 void Trr2kTNNN
 ( UpperOrLower uplo, Orientation orientA,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-                 AbstractDistMatrix<T>& E )
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,  const AbstractDistMatrix<Ring>& C, 
+              const AbstractDistMatrix<Ring>& D,
+                    AbstractDistMatrix<Ring>& E )
 {
     DEBUG_ONLY(CSE cse("trr2k::Trr2kTNNN"))
     Trr2kNNTN( uplo, orientA, beta, C, D, alpha, A, B, E );

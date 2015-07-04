@@ -66,7 +66,7 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
         auto X1 = X( ind1, ALL );
 
         LeftUnb( UPPER, NORMAL, U11, shifts, X1 );
-        Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+        Gemm( F(-1), U01.N(), X1.N(), F(1), X0 );
     }
 }
 
@@ -122,7 +122,7 @@ LUN
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        LocalGemm( F(-1), U01_MC_STAR.N(), X1_STAR_MR.N(), F(1), X0 );
     }
 }
 

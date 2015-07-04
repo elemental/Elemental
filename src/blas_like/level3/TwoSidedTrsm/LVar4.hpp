@@ -56,7 +56,7 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         twotrsm::LUnb( diag, A11, L11 );
 
         // A20 := A20 - L21 A10
-        Gemm( NORMAL, NORMAL, F(-1), L21, A10, F(1), A20 );
+        Gemm( F(-1), L21.N(), A10.N(), F(1), A20 );
 
         // Y21 := L21 A11
         Zeros( Y21, A21.Height(), A21.Width() );
@@ -142,7 +142,7 @@ LVar4
         L21_MC_STAR = L21;
         A10_STAR_MR.AlignWith( A20 );
         A10_STAR_MR = A10_STAR_VR;
-        LocalGemm( NORMAL, NORMAL, F(-1), L21_MC_STAR, A10_STAR_MR, F(1), A20 );
+        LocalGemm( F(-1), L21_MC_STAR.N(), A10_STAR_MR.N(), F(1), A20 );
         A10 = A10_STAR_MR; // delayed write from  A10 := inv(L11) A10
 
         // Y21 := L21 A11

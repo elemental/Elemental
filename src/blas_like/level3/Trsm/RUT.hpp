@@ -72,9 +72,7 @@ RUT
 
         // X0[MC,MR] -= X1[MC,* ] (U01[MR,* ])^(T/H)
         //            = X1^T[* ,MC] (U01^(T/H))[* ,MR]
-        LocalGemm
-        ( TRANSPOSE, NORMAL, 
-          F(-1), X1Trans_STAR_MC, U01Trans_STAR_MR, F(1), X0 );
+        LocalGemm( F(-1), X1Trans_STAR_MC.T(), U01Trans_STAR_MR.N(), F(1), X0 );
     }
 }
 

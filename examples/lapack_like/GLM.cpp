@@ -60,8 +60,8 @@ main( int argc, char* argv[] )
         }
         
         const Real DFrob = FrobeniusNorm( D ); 
-        Gemm( NORMAL, NORMAL, F(-1), A, D, F(1), D );
-        Gemm( NORMAL, NORMAL, F(-1), B, Y, F(1), D );
+        Gemm( F(-1), A.N(), D.N(), F(1), D );
+        Gemm( F(-1), B.N(), Y.N(), F(1), D );
         const Real EFrob = FrobeniusNorm( D );
         if( print )
             Print( D, "D - A X - B Y" );

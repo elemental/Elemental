@@ -16,75 +16,78 @@
 
 namespace El {
 
-template<typename T>
+template<typename Ring>
 void Trrk
 ( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C )
+  Orientation orientA, Orientation orientB,
+  Ring alpha, const Matrix<Ring>& A, const Matrix<Ring>& B,
+  Ring beta,        Matrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Trrk"))
     ScaleTrapezoid( beta, uplo, C );
-    if( orientationOfA==NORMAL && orientationOfB==NORMAL )
+    if( orientA==NORMAL && orientB==NORMAL )
         trrk::TrrkNN( uplo, alpha, A, B, C );
-    else if( orientationOfA==NORMAL )
-        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, C );
-    else if( orientationOfB==NORMAL )
-        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, C );
+    else if( orientA==NORMAL )
+        trrk::TrrkNT( uplo, orientB, alpha, A, B, C );
+    else if( orientB==NORMAL )
+        trrk::TrrkTN( uplo, orientA, alpha, A, B, C );
     else
-        trrk::TrrkTT( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
+        trrk::TrrkTT( uplo, orientA, orientB, alpha, A, B, C );
 }
 
-template<typename T>
+template<typename Ring>
 void Trrk
-( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C )
+( UpperOrLower uplo, Orientation orientA, Orientation orientB,
+  Ring alpha, const AbstractDistMatrix<Ring>& A, 
+              const AbstractDistMatrix<Ring>& B,
+  Ring beta,        AbstractDistMatrix<Ring>& C )
 {
     DEBUG_ONLY(CSE cse("Trrk"))
     ScaleTrapezoid( beta, uplo, C );
-    if( orientationOfA==NORMAL && orientationOfB==NORMAL )
+    if( orientA==NORMAL && orientB==NORMAL )
         trrk::TrrkNN( uplo, alpha, A, B, C );
-    else if( orientationOfA==NORMAL )
-        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, C );
-    else if( orientationOfB==NORMAL )
-        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, C );
+    else if( orientA==NORMAL )
+        trrk::TrrkNT( uplo, orientB, alpha, A, B, C );
+    else if( orientB==NORMAL )
+        trrk::TrrkTN( uplo, orientA, alpha, A, B, C );
     else
-        trrk::TrrkTT( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
+        trrk::TrrkTT( uplo, orientA, orientB, alpha, A, B, C );
 }
 
-#define PROTO(T) \
+#define PROTO(Ring) \
   template void Trrk \
   ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C ); \
+    Orientation orientA, Orientation orientB, \
+    Ring alpha, const Matrix<Ring>& A, \
+                const Matrix<Ring>& B, \
+    Ring beta,        Matrix<Ring>& C ); \
   template void Trrk \
   ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,        AbstractDistMatrix<T>& C ); \
+    Orientation orientA, Orientation orientB, \
+    Ring alpha, const AbstractDistMatrix<Ring>& A, \
+                const AbstractDistMatrix<Ring>& B, \
+    Ring beta,        AbstractDistMatrix<Ring>& C ); \
   template void LocalTrrk \
    ( UpperOrLower uplo, \
-     T alpha, const DistMatrix<T,MC,  STAR>& A, \
-              const DistMatrix<T,STAR,MR  >& B, \
-     T beta,        DistMatrix<T>& C ); \
+     Ring alpha, const DistMatrix<Ring,MC,  STAR>& A, \
+                 const DistMatrix<Ring,STAR,MR  >& B, \
+     Ring beta,        DistMatrix<Ring>& C ); \
   template void LocalTrrk \
-  ( UpperOrLower uplo, Orientation orientationOfB, \
-    T alpha, const DistMatrix<T,MC,STAR>& A, \
-             const DistMatrix<T,MR,STAR>& B, \
-    T beta,        DistMatrix<T>& C ); \
+  ( UpperOrLower uplo, Orientation orientB, \
+    Ring alpha, const DistMatrix<Ring,MC,STAR>& A, \
+                const DistMatrix<Ring,MR,STAR>& B, \
+    Ring beta,        DistMatrix<Ring>& C ); \
   template void LocalTrrk \
-  ( UpperOrLower uplo, Orientation orientationOfA, \
-    T alpha, const DistMatrix<T,STAR,MC>& A, \
-             const DistMatrix<T,STAR,MR>& B, \
-    T beta,        DistMatrix<T>& C ); \
+  ( UpperOrLower uplo, Orientation orientA, \
+    Ring alpha, const DistMatrix<Ring,STAR,MC>& A, \
+                const DistMatrix<Ring,STAR,MR>& B, \
+    Ring beta,        DistMatrix<Ring>& C ); \
   template void LocalTrrk \
   ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const DistMatrix<T,STAR,MC  >& A, \
-             const DistMatrix<T,MR,  STAR>& B, \
-    T beta,        DistMatrix<T>& C );
+    Orientation orientA, Orientation orientB, \
+    Ring alpha, const DistMatrix<Ring,STAR,MC  >& A, \
+                const DistMatrix<Ring,MR,  STAR>& B, \
+    Ring beta,        DistMatrix<Ring>& C );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

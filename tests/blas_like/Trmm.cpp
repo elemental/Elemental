@@ -10,13 +10,13 @@
 using namespace std;
 using namespace El;
 
-template<typename T>
+template<typename Ring>
 void TestTrmm
 ( bool print, LeftOrRight side, UpperOrLower uplo, 
-  Orientation orientation, UnitOrNonUnit diag,
-  Int m, Int n, T alpha, const Grid& g )
+  Orientation orient, UnitOrNonUnit diag,
+  Int m, Int n, Ring alpha, const Grid& g )
 {
-    DistMatrix<T> A(g), X(g);
+    DistMatrix<Ring> A(g), X(g);
 
     if( side == LEFT )
         Uniform( A, m, m );
@@ -42,13 +42,13 @@ void TestTrmm
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    Trmm( side, uplo, orientation, diag, alpha, A, X );
+    Trmm( side, uplo, orient, diag, alpha, A, X );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 
         ( side==LEFT ? double(m)*double(m)*double(n)
                      : double(m)*double(n)*double(n) ) /(1.e9*runTime);
-    const double gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    const double gFlops = ( IsComplex<Ring>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE.\n"
@@ -58,9 +58,9 @@ void TestTrmm
     if( print )
         Print( X, "X after multiply" );
     if( side == LEFT )
-        Gemm( orientation, NORMAL, -alpha, S, XCopy, T(1), X );
+        Gemm( -alpha, S.Orient(orient), XCopy.N(), Ring(1), X );
     else
-        Gemm( NORMAL, orientation, -alpha, XCopy, S, T(1), X );
+        Gemm( -alpha, XCopy.N(), S.Orient(orient), Ring(1), X );
     const auto XFrob = FrobeniusNorm( XCopy );
     const auto SFrob = FrobeniusNorm( S );
     const auto EFrob = FrobeniusNorm( X );
@@ -89,7 +89,7 @@ main( int argc, char* argv[] )
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","lower or upper storage: L/U",'L');
         const char transChar = Input
-            ("--trans","orientation of matrix: N/T/C",'N');
+            ("--trans","orient of matrix: N/T/C",'N');
         const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
         const Int m = Input("--m","height of result",100);
         const Int n = Input("--n","width of result",100);
@@ -104,7 +104,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
-        const Orientation orientation = CharToOrientation( transChar );
+        const Orientation orient = CharToOrientation( transChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
         SetBlocksize( nb );
 
@@ -115,12 +115,12 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestTrmm<double>( print, side, uplo, orientation, diag, m, n, 3., g );
+        TestTrmm<double>( print, side, uplo, orient, diag, m, n, 3., g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
         TestTrmm<Complex<double>>
-        ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
+        ( print, side, uplo, orient, diag, m, n, Complex<double>(3), g );
     }
     catch( exception& e ) { ReportException(e); }
 

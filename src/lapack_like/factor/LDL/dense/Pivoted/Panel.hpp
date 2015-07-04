@@ -147,7 +147,7 @@ Panel
             auto Y10 = Y( ind1, ind0 );
             auto AB1 = A( indB, ind1 );
             const F psi = AB1.Get(0,1);
-            Gemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
+            Gemm( F(-1), XB0.N(), Y10.T(), F(1), AB1 );
             AB1.Set(0,1,psi);
             if( conjugate )
             {
@@ -280,7 +280,7 @@ Panel
             auto AB1 = A( indB, ind1 );
             // TODO: Make Get and Set local
             const F psi = AB1.Get(0,1);
-            LocalGemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
+            LocalGemm( F(-1), XB0.N(), Y10.T(), F(1), AB1 );
             AB1.Set(0,1,psi);
             if( conjugate )
             {

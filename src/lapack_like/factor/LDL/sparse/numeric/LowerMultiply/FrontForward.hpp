@@ -38,7 +38,7 @@ inline void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
     LockedPartitionDown( L, LT, LB, L.Width() );
     PartitionDown( X, XT, XB, L.Width() );
 
-    Gemm( NORMAL, NORMAL, F(1), LB, XT, F(1), XB );
+    Gemm( F(1), LB.N(), XT.N(), F(1), XB );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
 }
 
@@ -83,7 +83,7 @@ inline void FrontVanillaLowerForwardMultiply
     PartitionDown( X, XT, XB, snSize );
 
     // XB := XB + LB XT
-    Gemm( NORMAL, NORMAL, F(1), LB, XT, F(1), XB );
+    Gemm( F(1), LB.N(), XT.N(), F(1), XB );
 
     // XT := LT XT
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
@@ -116,7 +116,7 @@ inline void FrontVanillaLowerForwardMultiply
     PartitionDown( X, XT, XB, snSize );
 
     // XB := XB + LB XT
-    Gemm( NORMAL, NORMAL, F(1), LB, XT, F(1), XB );
+    Gemm( F(1), LB.N(), XT.N(), F(1), XB );
 
     // XT := LT XT
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );

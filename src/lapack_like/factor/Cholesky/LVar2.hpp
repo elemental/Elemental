@@ -43,7 +43,7 @@ LVar2( Matrix<F>& A )
 
         Herk( LOWER, NORMAL, F(-1), A10, F(1), A11 );
         cholesky::LVar3Unb( A11 );
-        Gemm( NORMAL, ADJOINT, F(-1), A20, A10, F(1), A21 );
+        Gemm( F(-1), A20.N(), A10.H(), F(1), A21 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
     }
 }
@@ -86,7 +86,7 @@ LVar2( AbstractDistMatrix<F>& APre )
         A10Adj_MR_STAR.AlignWith( A10 );
         A10.AdjointColAllGather( A10Adj_MR_STAR );
         X11_MC_STAR.AlignWith( A10 );
-        LocalGemm( NORMAL, NORMAL, F(1), A10, A10Adj_MR_STAR, X11_MC_STAR );
+        LocalGemm( F(1), A10.N(), A10Adj_MR_STAR.N(), X11_MC_STAR );
         AxpyContract( F(-1), X11_MC_STAR, A11 );
 
         A11_STAR_STAR = A11;
@@ -94,7 +94,7 @@ LVar2( AbstractDistMatrix<F>& APre )
         A11 = A11_STAR_STAR;
 
         X21_MC_STAR.AlignWith( A20 );
-        LocalGemm( NORMAL, NORMAL, F(1), A20, A10Adj_MR_STAR, X21_MC_STAR );
+        LocalGemm( F(1), A20.N(), A10Adj_MR_STAR.N(), X21_MC_STAR );
         AxpyContract( F(-1), X21_MC_STAR, A21 );
 
         A21_VC_STAR = A21;

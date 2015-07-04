@@ -26,7 +26,7 @@ Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
     SVD( U, s, V );
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+    Gemm( F(1), U.N(), V.H(), F(0), A );
 
     return ZeroNorm( s );
 }
@@ -47,7 +47,7 @@ Int Normal( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
     SVD( U, s, V );
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+    Gemm( F(1), U.N(), V.H(), F(0), A );
 
     return ZeroNorm( s );
 }

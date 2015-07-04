@@ -12,8 +12,18 @@
 
 namespace El {
 
-// Matrix base for arbitrary rings
-template<typename T>
+template<typename Ring>
+struct OrientedMatrix
+{
+    Orientation orient;
+    const Matrix<Ring>& matrix;
+
+    OrientedMatrix( const Matrix<Ring>& A, Orientation orientation=NORMAL )
+    : orient(orientation), matrix(A)
+    { }
+};
+
+template<typename Ring>
 class Matrix
 {
 public:    
@@ -27,12 +37,12 @@ public:
     Matrix( Int height, Int width, Int ldim, bool fixed=false );
     // Construct a matrix around an existing (possibly immutable) buffer
     Matrix
-    ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
-    Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
+    ( Int height, Int width, const Ring* buffer, Int ldim, bool fixed=false );
+    Matrix( Int height, Int width, Ring* buffer, Int ldim, bool fixed=false );
     // Create a copy of a matrix
-    Matrix( const Matrix<T>& A );
+    Matrix( const Matrix<Ring>& A );
     // Move the metadata from a given matrix
-    Matrix( Matrix<T>&& A ) EL_NOEXCEPT;
+    Matrix( Matrix<Ring>&& A ) EL_NOEXCEPT;
     // Destructor
     ~Matrix();
 
@@ -43,35 +53,35 @@ public:
     void Resize( Int height, Int width );
     void Resize( Int height, Int width, Int ldim );
     // Reconfigure around the given buffer, but do not assume ownership
-    void Attach( Int height, Int width, T* buffer, Int ldim );
-    void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
+    void Attach( Int height, Int width, Ring* buffer, Int ldim );
+    void LockedAttach( Int height, Int width, const Ring* buffer, Int ldim );
     // Reconfigure around the given buffer and assume ownership
-    void Control( Int height, Int width, T* buffer, Int ldim );
+    void Control( Int height, Int width, Ring* buffer, Int ldim );
 
     // Operator overloading
     // ====================
 
     // Return a view
     // -------------
-          Matrix<T> operator()( Range<Int> I, Range<Int> J );
-    const Matrix<T> operator()( Range<Int> I, Range<Int> J ) const;
+          Matrix<Ring> operator()( Range<Int> I, Range<Int> J );
+    const Matrix<Ring> operator()( Range<Int> I, Range<Int> J ) const;
 
     // Make a copy
     // -----------
-    const Matrix<T>& operator=( const Matrix<T>& A );
+    const Matrix<Ring>& operator=( const Matrix<Ring>& A );
 
     // Move assignment
     // ---------------
-    Matrix<T>& operator=( Matrix<T>&& A );
+    Matrix<Ring>& operator=( Matrix<Ring>&& A );
 
     // Rescaling
     // ---------
-    const Matrix<T>& operator*=( T alpha );
+    const Matrix<Ring>& operator*=( Ring alpha );
 
     // Addition/substraction
     // ---------------------
-    const Matrix<T>& operator+=( const Matrix<T>& A );
-    const Matrix<T>& operator-=( const Matrix<T>& A );
+    const Matrix<Ring>& operator+=( const Matrix<Ring>& A );
+    const Matrix<Ring>& operator-=( const Matrix<Ring>& A );
 
     // Basic queries
     // =============
@@ -80,59 +90,73 @@ public:
     Int LDim() const;
     Int MemorySize() const;
     Int DiagonalLength( Int offset=0 ) const;
-    T* Buffer();
-    const T* LockedBuffer() const;
-    T* Buffer( Int i, Int j );
-    const T* LockedBuffer( Int i, Int j ) const;
+    Ring* Buffer();
+    const Ring* LockedBuffer() const;
+    Ring* Buffer( Int i, Int j );
+    const Ring* LockedBuffer( Int i, Int j ) const;
     bool Viewing()   const;
     bool FixedSize() const;
     bool Locked()    const;
 
     // Single-entry manipulation
     // =========================
-    T Get( Int i, Int j ) const;
-    Base<T> GetRealPart( Int i, Int j ) const;
-    Base<T> GetImagPart( Int i, Int j ) const;
-    void Set( Int i, Int j, T alpha );
-    void Set( const Entry<T>& entry );
-    void SetRealPart( Int i, Int j, Base<T> alpha );
-    void SetImagPart( Int i, Int j, Base<T> alpha );
-    void SetRealPart( const Entry<Base<T>>& entry );
-    void SetImagPart( const Entry<Base<T>>& entry );
-    void Update( Int i, Int j, T alpha );
-    void Update( const Entry<T>& entry );
-    void UpdateRealPart( Int i, Int j, Base<T> alpha );
-    void UpdateImagPart( Int i, Int j, Base<T> alpha );
-    void UpdateRealPart( const Entry<Base<T>>& entry );
-    void UpdateImagPart( const Entry<Base<T>>& entry );
+    Ring Get( Int i, Int j ) const;
+    Base<Ring> GetRealPart( Int i, Int j ) const;
+    Base<Ring> GetImagPart( Int i, Int j ) const;
+    void Set( Int i, Int j, Ring alpha );
+    void Set( const Entry<Ring>& entry );
+    void SetRealPart( Int i, Int j, Base<Ring> alpha );
+    void SetImagPart( Int i, Int j, Base<Ring> alpha );
+    void SetRealPart( const Entry<Base<Ring>>& entry );
+    void SetImagPart( const Entry<Base<Ring>>& entry );
+    void Update( Int i, Int j, Ring alpha );
+    void Update( const Entry<Ring>& entry );
+    void UpdateRealPart( Int i, Int j, Base<Ring> alpha );
+    void UpdateImagPart( Int i, Int j, Base<Ring> alpha );
+    void UpdateRealPart( const Entry<Base<Ring>>& entry );
+    void UpdateImagPart( const Entry<Base<Ring>>& entry );
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
+
+    // Orientation
+    // ===========
+    OrientedMatrix<Ring> N() const
+    { return OrientedMatrix<Ring>(*this,NORMAL); }
+
+    OrientedMatrix<Ring> T() const
+    { return OrientedMatrix<Ring>(*this,TRANSPOSE); }
+
+    OrientedMatrix<Ring> H() const
+    { return OrientedMatrix<Ring>(*this,ADJOINT); }
+
+    OrientedMatrix<Ring> Orient( Orientation orient ) const
+    { return OrientedMatrix<Ring>(*this,orient); }
 
 private:
     // Member variables
     // ================
     ViewType viewType_;
     Int height_, width_, ldim_;
-    const T* data_;
-    Memory<T> memory_;
+    const Ring* data_;
+    Memory<Ring> memory_;
 
     // Exchange metadata with another matrix
     // =====================================
-    void ShallowSwap( Matrix<T>& A );
+    void ShallowSwap( Matrix<Ring>& A );
 
     // Reconfigure without error-checking
     // ==================================
     void Empty_();
     void Resize_( Int height, Int width );
     void Resize_( Int height, Int width, Int ldim );
-    void Control_( Int height, Int width, T* buffer, Int ldim );
-    void Attach_( Int height, Int width, T* buffer, Int ldim );
-    void LockedAttach_( Int height, Int width, const T* buffer, Int ldim );
+    void Control_( Int height, Int width, Ring* buffer, Int ldim );
+    void Attach_( Int height, Int width, Ring* buffer, Int ldim );
+    void LockedAttach_( Int height, Int width, const Ring* buffer, Int ldim );
 
     // Return a reference to a single entry without error-checking
     // ===========================================================
-    const T& Get_( Int i, Int j ) const;
-    T& Set_( Int i, Int j );
+    const Ring& Get_( Int i, Int j ) const;
+    Ring& Set_( Int i, Int j );
 
     // Assertions
     // ==========
@@ -143,13 +167,13 @@ private:
    
     // Friend declarations
     // ===================
-    template <typename F>               friend class Matrix;
-    template <typename F>               friend class AbstractDistMatrix;
-    template <typename F>               friend class AbstractBlockDistMatrix;
-    template <typename F,Dist U,Dist V> friend class GeneralDistMatrix;
-    template <typename F,Dist U,Dist V> friend class GeneralBlockDistMatrix;
-    template <typename F,Dist U,Dist V> friend class DistMatrix;
-    template <typename F,Dist U,Dist V> friend class BlockDistMatrix;
+    template <typename Ring2> friend class Matrix;
+    template <typename Ring2> friend class AbstractDistMatrix;
+    template <typename Ring2> friend class AbstractBlockDistMatrix;
+    template <typename Ring2,Dist U,Dist V> friend class GeneralDistMatrix;
+    template <typename Ring2,Dist U,Dist V> friend class GeneralBlockDistMatrix;
+    template <typename Ring2,Dist U,Dist V> friend class DistMatrix;
+    template <typename Ring2,Dist U,Dist V> friend class BlockDistMatrix;
 };
 
 } // namespace El

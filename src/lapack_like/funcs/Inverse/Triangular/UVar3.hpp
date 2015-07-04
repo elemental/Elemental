@@ -70,7 +70,7 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& U )
         auto U22 = U( ind2, ind2 );
 
         Trsm( RIGHT, UPPER, NORMAL, diag, F(-1), U11, U01 );
-        Gemm( NORMAL, NORMAL, F(1), U01, U12, F(1), U02 );
+        Gemm( F(1), U01.N(), U12.N(), F(1), U02 );
         Trsm( LEFT, UPPER, NORMAL, diag, F(1), U11, U12 );
         UVar3Unb( diag, U11 );
     }
@@ -126,8 +126,7 @@ UVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& UPre )
         Transpose( U01_VC_STAR, U01Trans_STAR_MC );
 
         LocalGemm
-        ( TRANSPOSE, TRANSPOSE, 
-          F(1), U01Trans_STAR_MC, U12Trans_MR_STAR, F(1), U02 );
+        ( F(1), U01Trans_STAR_MC.T(), U12Trans_MR_STAR.T(), F(1), U02 );
         Transpose( U01Trans_STAR_MC, U01 );
 
         Transpose( U12Trans_MR_STAR, U12_STAR_VR );

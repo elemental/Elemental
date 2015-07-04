@@ -56,7 +56,7 @@ void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
         Zero( A21 );
 
         // Perform the lazy update of A1
-        Gemm( NORMAL, NORMAL, F(-1), A2, L21, F(1), A1 );
+        Gemm( F(-1), A2.N(), L21.N(), F(1), A1 );
 
         // Solve against this diagonal block of L11
         Trsm( RIGHT, LOWER, NORMAL, UNIT, F(1), L11, A1 );
@@ -132,7 +132,7 @@ void AfterLUPartialPiv
         // Perform the lazy update of A1
         Z1.AlignWith( A1 );
         Zeros( Z1, n, nb );
-        LocalGemm( NORMAL, TRANSPOSE, F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );
+        LocalGemm( F(-1), A2.N(), L21Trans_STAR_MR.T(), F(0), Z1 );
         AxpyContract( F(1), Z1, A1 );
 
         // Solve against this diagonal block of L11

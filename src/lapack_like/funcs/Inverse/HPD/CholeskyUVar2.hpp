@@ -22,9 +22,9 @@ inline void
 CholeskyUVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("hpd_inv::CholeskyUVar2");
-        if( A.Height() != A.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("hpd_inv::CholeskyUVar2");
+      if( A.Height() != A.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
 
     const Int n = A.Height();
@@ -45,7 +45,7 @@ CholeskyUVar2( Matrix<F>& A )
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A01 );
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A12 );
         Herk( UPPER, NORMAL, Base<F>(1), A01, Base<F>(1), A00 );
-        Gemm( NORMAL, NORMAL, F(-1), A01, A12, F(1), A02 );
+        Gemm( F(-1), A01.N(), A12.N(), F(1), A02 );
         Herk( UPPER, ADJOINT, Base<F>(-1), A12, Base<F>(1), A22 );
         Trsm( RIGHT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A01 );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(-1), A11, A12 );
@@ -117,8 +117,7 @@ CholeskyUVar2( AbstractDistMatrix<F>& APre )
 
         A12_STAR_MR.AlignWith( A02 );
         A12_STAR_MR = A12_STAR_VR;
-        LocalGemm
-        ( TRANSPOSE, NORMAL, F(-1), A01Trans_STAR_MC, A12_STAR_MR, F(1), A02 );
+        LocalGemm( F(-1), A01Trans_STAR_MC.T(), A12_STAR_MR.N(), F(1), A02 );
 
         A12_STAR_MC.AlignWith( A22 );
         A12_STAR_MC = A12_STAR_VR;

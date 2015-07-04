@@ -127,7 +127,7 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
         auto X2 = X( ind2, ALL );
 
         LLNUnb( L11, X1, checkIfSingular );
-        Gemm( NORMAL, NORMAL, F(-1), L21, X1, F(1), X2 );
+        Gemm( F(-1), L21.N(), X1.N(), F(1), X2 );
     }
 }
 
@@ -180,7 +180,7 @@ LLNLarge
         L21_MC_STAR = L21;        // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
-        LocalGemm( NORMAL, NORMAL, F(-1), L21_MC_STAR, X1_STAR_MR, F(1), X2 );
+        LocalGemm( F(-1), L21_MC_STAR.N(), X1_STAR_MR.N(), F(1), X2 );
     }
 }
 
@@ -233,8 +233,7 @@ LLNMedium
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
-        LocalGemm
-        ( NORMAL, TRANSPOSE, F(-1), L21_MC_STAR, X1Trans_MR_STAR, F(1), X2 );
+        LocalGemm( F(-1), L21_MC_STAR.N(), X1Trans_MR_STAR.T(), F(1), X2 );
     }
 }
 
@@ -279,7 +278,7 @@ LLNSmall
           F(1), L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
-        LocalGemm( NORMAL, NORMAL, F(-1), L21, X1_STAR_STAR, F(1), X2 );
+        LocalGemm( F(-1), L21.N(), X1_STAR_STAR.N(), F(1), X2 );
     }
 }
 

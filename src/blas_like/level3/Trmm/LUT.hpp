@@ -16,13 +16,13 @@
 namespace El {
 namespace trmm {
 
-template<typename T>
+template<typename Ring>
 inline void
 LocalAccumulateLUT
-( Orientation orientation, UnitOrNonUnit diag, T alpha,
-  const DistMatrix<T>& U,
-  const DistMatrix<T,MC,STAR>& X,
-        DistMatrix<T,MR,STAR>& Z )
+( Orientation orientation, UnitOrNonUnit diag, Ring alpha,
+  const DistMatrix<Ring>& U,
+  const DistMatrix<Ring,MC,STAR>& X,
+        DistMatrix<Ring,MR,STAR>& Z )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LocalAccumulateLUT");
@@ -40,7 +40,7 @@ LocalAccumulateLUT
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
-    DistMatrix<T> D11(g);
+    DistMatrix<Ring> D11(g);
 
     const Int ratio = Max( g.Height(), g.Width() );
     for( Int k=0; k<m; k+=ratio*bsize )
@@ -59,17 +59,17 @@ LocalAccumulateLUT
         D11 = U11;
         MakeTrapezoidal( UPPER, D11 );
         if( diag == UNIT )
-            FillDiagonal( D11, T(1) );
-        LocalGemm( orientation, NORMAL, alpha, D11, X1, T(1), Z1 );
-        LocalGemm( orientation, NORMAL, alpha, U01, X0, T(1), Z1 );
+            FillDiagonal( D11, Ring(1) );
+        LocalGemm( alpha, D11.Orient(orientation), X1.N(), Ring(1), Z1 );
+        LocalGemm( alpha, U01.Orient(orientation), X0.N(), Ring(1), Z1 );
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 LUTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const AbstractDistMatrix<Ring>& UPre, AbstractDistMatrix<Ring>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUTA");
@@ -85,12 +85,12 @@ LUTA
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<Ring,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<Ring,MC,MR>( &XPre ); auto& X = *XPtr;
 
-    DistMatrix<T,MC,STAR> X1_MC_STAR(g);
-    DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
-    DistMatrix<T,MR,MC  > Z1_MR_MC(g);
+    DistMatrix<Ring,MC,STAR> X1_MC_STAR(g);
+    DistMatrix<Ring,MR,STAR> Z1_MR_STAR(g);
+    DistMatrix<Ring,MR,MC  > Z1_MR_MC(g);
 
     X1_MC_STAR.AlignWith( U );
     Z1_MR_STAR.AlignWith( U );
@@ -104,18 +104,18 @@ LUTA
         X1_MC_STAR = X1;
         Zeros( Z1_MR_STAR, m, nb );
         LocalAccumulateLUT
-        ( orientation, diag, T(1), U, X1_MC_STAR, Z1_MR_STAR );
+        ( orientation, diag, Ring(1), U, X1_MC_STAR, Z1_MR_STAR );
 
         Contract( Z1_MR_STAR, Z1_MR_MC );
         X1 = Z1_MR_MC;
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 LUTCOld
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const AbstractDistMatrix<Ring>& UPre, AbstractDistMatrix<Ring>& XPre )
 {
     DEBUG_ONLY(
         CSE cse("trmm::LUTCOld");
@@ -132,15 +132,15 @@ LUTCOld
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<Ring,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<Ring,MC,MR>( &XPre ); auto& X = *XPtr;
 
-    DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
-    DistMatrix<T,STAR,STAR> U11_STAR_STAR(g); 
-    DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<T,MR,  STAR> D1Trans_MR_STAR(g);
-    DistMatrix<T,MR,  MC  > D1Trans_MR_MC(g);
-    DistMatrix<T,MC,  MR  > D1(g);
+    DistMatrix<Ring,MC,  STAR> U01_MC_STAR(g);
+    DistMatrix<Ring,STAR,STAR> U11_STAR_STAR(g); 
+    DistMatrix<Ring,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<Ring,MR,  STAR> D1Trans_MR_STAR(g);
+    DistMatrix<Ring,MR,  MC  > D1Trans_MR_MC(g);
+    DistMatrix<Ring,MC,  MR  > D1(g);
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -156,28 +156,28 @@ LUTCOld
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
+        ( LEFT, UPPER, orientation, diag, Ring(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;
         D1Trans_MR_STAR.AlignWith( X1 );
         LocalGemm
-        ( orientation, NORMAL, T(1), X0, U01_MC_STAR, D1Trans_MR_STAR );
+        ( Ring(1), X0.Orient(orientation), U01_MC_STAR.N(), D1Trans_MR_STAR );
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
         Zeros( D1, nb, n );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
-        Axpy( T(1), D1, X1 );
+        X1 += D1;
     }
 }
 
-template<typename T>
+template<typename Ring>
 inline void
 LUTC
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const AbstractDistMatrix<Ring>& UPre, AbstractDistMatrix<Ring>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUTC");
@@ -192,13 +192,13 @@ LUTC
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    auto UPtr = ReadProxy<Ring,MC,MR>( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy<Ring,MC,MR>( &XPre ); auto& X = *XPtr;
 
-    DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
-    DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
+    DistMatrix<Ring,STAR,MC  > U12_STAR_MC(g);
+    DistMatrix<Ring,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<Ring,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<Ring,MR,  STAR> X1Trans_MR_STAR(g);
 
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -216,14 +216,14 @@ LUTC
         X1Trans_MR_STAR.AlignWith( X2 ); 
         Transpose( X1, X1Trans_MR_STAR );
         LocalGemm
-        ( orientation, TRANSPOSE, 
-          T(1), U12_STAR_MC, X1Trans_MR_STAR, T(1), X2 );
+        ( Ring(1), U12_STAR_MC.Orient(orientation), X1Trans_MR_STAR.T(), 
+          Ring(1), X2 );
 
         U11_STAR_STAR = U11;
         X1_STAR_VR.AlignWith( X1 );
         Transpose( X1Trans_MR_STAR, X1_STAR_VR );
         LocalTrmm
-        ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
+        ( LEFT, UPPER, orientation, diag, Ring(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
 }
@@ -233,11 +233,11 @@ LUTC
 //   X := triu(U)^H  X,
 //   X := triuu(U)^T X, or
 //   X := triuu(U)^H X
-template<typename T>
+template<typename Ring>
 inline void
 LUT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
+  const AbstractDistMatrix<Ring>& U, AbstractDistMatrix<Ring>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::LUT"))
     // TODO: Come up with a better routing mechanism
