@@ -148,7 +148,7 @@ LVar2
         Contract( Y10Adj_MC_STAR, Y10Adj );
         Y10Adj_MR_MC.AlignWith( A10 );
         Y10Adj_MR_MC = Y10Adj;
-        Y10Adj_MR_MC += F10Adj_MR_STAR;
+        AxpyContract( F(1), F10Adj_MR_STAR, Y10Adj_MR_MC );
         Adjoint( Y10Adj_MR_MC.LockedMatrix(), Y10Local );
 
         // X11 := A10 L10'
