@@ -626,6 +626,10 @@ template<typename T>
 void Fill( AbstractBlockDistMatrix<T>& A, T alpha );
 template<typename T>
 void Fill( DistMultiVec<T>& A, T alpha );
+template<typename T>
+void Fill( SparseMatrix<T>& A, T alpha );
+template<typename T>
+void Fill( DistSparseMatrix<T>& A, T alpha );
 
 // FillDiagonal
 // ============

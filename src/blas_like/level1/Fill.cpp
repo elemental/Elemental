@@ -42,11 +42,48 @@ void Fill( DistMultiVec<T>& A, T alpha )
     Fill( A.Matrix(), alpha );
 }
 
+template<typename T>
+void Fill( SparseMatrix<T>& A, T alpha )
+{
+    DEBUG_ONLY(CSE cse("Fill"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    Zeros( A, m, n );
+    if( alpha != T(0) )
+    {
+        A.Reserve( m*n ); 
+        for( Int i=0; i<m; ++i )
+            for( Int j=0; j<n; ++j )
+                A.QueueUpdate( i, j, alpha );
+        A.ProcessQueues();
+    }
+}
+
+template<typename T>
+void Fill( DistSparseMatrix<T>& A, T alpha )
+{
+    DEBUG_ONLY(CSE cse("Fill"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    Zeros( A, m, n );
+    if( alpha != T(0) ) 
+    {
+        const Int localHeight = A.LocalHeight();
+        A.Reserve( localHeight*n );
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            for( Int j=0; j<n; ++j ) 
+                A.QueueLocalUpdate( iLoc, j, alpha );
+        A.ProcessLocalQueues();
+    }
+}
+
 #define PROTO(T) \
   template void Fill( Matrix<T>& A, T alpha ); \
   template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
   template void Fill( AbstractBlockDistMatrix<T>& A, T alpha ); \
   template void Fill( DistMultiVec<T>& A, T alpha ); \
+  template void Fill( SparseMatrix<T>& A, T alpha ); \
+  template void Fill( DistSparseMatrix<T>& A, T alpha );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

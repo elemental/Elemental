@@ -233,6 +233,15 @@ ElError ElGetSubgraphDist
   ElError ElFillDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) alpha ) \
   { EL_TRY( Fill( *CReflect(A), CReflect(alpha) ) ) } \
+  ElError ElFillDistMultiVec_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, CREFLECT(T) alpha ) \
+  { EL_TRY( Fill( *CReflect(A), CReflect(alpha) ) ) } \
+  ElError ElFillSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, CREFLECT(T) alpha ) \
+  { EL_TRY( Fill( *CReflect(A), CReflect(alpha) ) ) } \
+  ElError ElFillDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, CREFLECT(T) alpha ) \
+  { EL_TRY( Fill( *CReflect(A), CReflect(alpha) ) ) } \
   /* FillDiagonal */ \
   ElError ElFillDiagonal_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \

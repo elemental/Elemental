@@ -187,29 +187,29 @@ def Demmel(A,n):
 # Diagonal
 # --------
 lib.ElDiagonal_i.argtypes = \
-lib.ElDiagonalDist_i.argtypes = \
-  [c_void_p,iType,POINTER(iType)]
-
 lib.ElDiagonal_s.argtypes = \
-lib.ElDiagonalDist_s.argtypes = \
-  [c_void_p,iType,POINTER(sType)]
-
 lib.ElDiagonal_d.argtypes = \
-lib.ElDiagonalDist_d.argtypes = \
-  [c_void_p,iType,POINTER(dType)]
-
 lib.ElDiagonal_c.argtypes = \
-lib.ElDiagonalDist_c.argtypes = \
-  [c_void_p,iType,POINTER(cType)]
-
 lib.ElDiagonal_z.argtypes = \
+lib.ElDiagonalDist_i.argtypes = \
+lib.ElDiagonalDist_s.argtypes = \
+lib.ElDiagonalDist_d.argtypes = \
+lib.ElDiagonalDist_c.argtypes = \
 lib.ElDiagonalDist_z.argtypes = \
-  [c_void_p,iType,POINTER(zType)]
+lib.ElDiagonalSparse_i.argtypes = \
+lib.ElDiagonalSparse_s.argtypes = \
+lib.ElDiagonalSparse_d.argtypes = \
+lib.ElDiagonalSparse_c.argtypes = \
+lib.ElDiagonalSparse_z.argtypes = \
+lib.ElDiagonalDistSparse_i.argtypes = \
+lib.ElDiagonalDistSparse_s.argtypes = \
+lib.ElDiagonalDistSparse_d.argtypes = \
+lib.ElDiagonalDistSparse_c.argtypes = \
+lib.ElDiagonalDistSparse_z.argtypes = \
+  [c_void_p,c_void_p]
 
 def Diagonal(A,d):
-  dLen = len(d)
-  dBuf = (TagToType(A.tag)*dLen)(*d)
-  args = [A.obj,dLen,dBuf]
+  args = [A.obj,d.obj]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElDiagonal_i(*args)
     elif A.tag == sTag: lib.ElDiagonal_s(*args)
@@ -223,6 +223,20 @@ def Diagonal(A,d):
     elif A.tag == dTag: lib.ElDiagonalDist_d(*args)
     elif A.tag == cTag: lib.ElDiagonalDist_c(*args)
     elif A.tag == zTag: lib.ElDiagonalDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElDiagonalSparse_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalSparse_c(*args)
+    elif A.tag == zTag: lib.ElDiagonalSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElDiagonalDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElDiagonalDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -1759,6 +1773,16 @@ lib.ElOnesDistMultiVec_s.argtypes = \
 lib.ElOnesDistMultiVec_d.argtypes = \
 lib.ElOnesDistMultiVec_c.argtypes = \
 lib.ElOnesDistMultiVec_z.argtypes = \
+lib.ElOnesSparse_i.argtypes = \
+lib.ElOnesSparse_s.argtypes = \
+lib.ElOnesSparse_d.argtypes = \
+lib.ElOnesSparse_c.argtypes = \
+lib.ElOnesSparse_z.argtypes = \
+lib.ElOnesDistSparse_i.argtypes = \
+lib.ElOnesDistSparse_s.argtypes = \
+lib.ElOnesDistSparse_d.argtypes = \
+lib.ElOnesDistSparse_c.argtypes = \
+lib.ElOnesDistSparse_z.argtypes = \
   [c_void_p,iType,iType]
 
 def Ones(A,m,n):
@@ -1783,6 +1807,20 @@ def Ones(A,m,n):
     elif A.tag == dTag: lib.ElOnesDistMultiVec_d(*args)
     elif A.tag == cTag: lib.ElOnesDistMultiVec_c(*args)
     elif A.tag == zTag: lib.ElOnesDistMultiVec_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElOnesSparse_i(*args)
+    elif A.tag == sTag: lib.ElOnesSparse_s(*args)
+    elif A.tag == dTag: lib.ElOnesSparse_d(*args)
+    elif A.tag == cTag: lib.ElOnesSparse_c(*args)
+    elif A.tag == zTag: lib.ElOnesSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElOnesDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElOnesDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElOnesDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElOnesDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElOnesDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

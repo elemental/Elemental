@@ -981,22 +981,37 @@ def EntrywiseMap(A,mapFunc):
 # ----
 lib.ElFill_i.argtypes = \
 lib.ElFillDist_i.argtypes = \
+lib.ElFillDistMultiVec_i.argtypes = \
+lib.ElFillSparse_i.argtypes = \
+lib.ElFillDistSparse_i.argtypes = \
   [c_void_p,iType]
 
 lib.ElFill_s.argtypes = \
 lib.ElFillDist_s.argtypes = \
+lib.ElFillDistMultiVec_s.argtypes = \
+lib.ElFillSparse_s.argtypes = \
+lib.ElFillDistSparse_s.argtypes = \
   [c_void_p,sType]
 
 lib.ElFill_d.argtypes = \
 lib.ElFillDist_d.argtypes = \
+lib.ElFillDistMultiVec_d.argtypes = \
+lib.ElFillSparse_d.argtypes = \
+lib.ElFillDistSparse_d.argtypes = \
   [c_void_p,dType]
 
 lib.ElFill_c.argtypes = \
 lib.ElFillDist_c.argtypes = \
+lib.ElFillDistMultiVec_c.argtypes = \
+lib.ElFillSparse_c.argtypes = \
+lib.ElFillDistSparse_c.argtypes = \
   [c_void_p,cType]
 
 lib.ElFill_z.argtypes = \
 lib.ElFillDist_z.argtypes = \
+lib.ElFillDistMultiVec_z.argtypes = \
+lib.ElFillSparse_z.argtypes = \
+lib.ElFillDistSparse_z.argtypes = \
   [c_void_p,zType]
 
 def Fill(A,alphaPre):
@@ -1015,6 +1030,27 @@ def Fill(A,alphaPre):
     elif A.tag == dTag: lib.ElFillDist_d(*args)
     elif A.tag == cTag: lib.ElFillDist_c(*args)
     elif A.tag == zTag: lib.ElFillDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElFillDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElFillDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElFillDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElFillDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElFillDistMultiVec_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == iTag: lib.ElFillSparse_i(*args)
+    elif A.tag == sTag: lib.ElFillSparse_s(*args)
+    elif A.tag == dTag: lib.ElFillSparse_d(*args)
+    elif A.tag == cTag: lib.ElFillSparse_c(*args)
+    elif A.tag == zTag: lib.ElFillSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == iTag: lib.ElFillDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElFillDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElFillDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElFillDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElFillDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

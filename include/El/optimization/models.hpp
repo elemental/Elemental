@@ -478,6 +478,37 @@ void TV
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 
+// Long-only portfolio optimization
+// ================================
+// The long-only version of classical (Markowitz) portfolio optimization 
+// solves the problem
+// 
+//   min lambda x^T Sigma x - c^T x,
+//   s.t. 1^T x = 1, x >= 0,
+//
+// where 'c' is the vector of expected returns of various assets and,
+// the covariance matrix, Sigma, can optionally be provided in the 
+// factored form
+//
+//   Sigma = D + F F^T,
+//
+// where D is diagonal and F has a (hopefully) small number of columns.
+
+// TODO: Extend support to several other input types
+// TODO: Add control structures
+template<typename Real>
+void LongOnlyPortfolio
+( const DistMultiVec<Real>& c,
+  const DistSparseMatrix<Real>& Sigma,
+        DistMultiVec<Real>& x );
+
+template<typename Real>
+void LongOnlyPortfolio
+( const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& d,
+  const DistSparseMatrix<Real>& F,
+        DistMultiVec<Real>& x );
+
 } // namespace El
 
 #endif // ifndef EL_OPTIMIZATION_MODELS_HPP

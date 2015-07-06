@@ -91,6 +91,10 @@ void Diagonal( AbstractBlockDistMatrix<S>& D, const vector<T>& d );
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d );
 
+template<typename S,typename T>
+void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d );
+template<typename S,typename T>
+void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d );
 
 // Druinsky-Toledo matrices
 // ========================
@@ -561,6 +565,10 @@ template<typename T>
 void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 template<typename T>
 void Ones( DistMultiVec<T>& A, Int m, Int n );
+template<typename T>
+void Ones( SparseMatrix<T>& A, Int m, Int n );
+template<typename T>
+void Ones( DistSparseMatrix<T>& A, Int m, Int n );
 
 // 1-2-1 matrix
 // ============

@@ -135,27 +135,34 @@ EL_EXPORT ElError ElDemmelDist_z( ElDistMatrix_z A, ElInt n );
 
 /* Diagonal
    ======== */
-EL_EXPORT ElError ElDiagonal_i
-( ElMatrix_i A, ElInt dSize, ElInt* dBuf );
-EL_EXPORT ElError ElDiagonal_s
-( ElMatrix_s A, ElInt dSize, float* dBuf );
-EL_EXPORT ElError ElDiagonal_d
-( ElMatrix_d A, ElInt dSize, double* dBuf );
-EL_EXPORT ElError ElDiagonal_c
-( ElMatrix_c A, ElInt dSize, complex_float* dBuf );
-EL_EXPORT ElError ElDiagonal_z
-( ElMatrix_z A, ElInt dSize, complex_double* dBuf );
+EL_EXPORT ElError ElDiagonal_i( ElMatrix_i A, ElMatrix_i d);
+EL_EXPORT ElError ElDiagonal_s( ElMatrix_s A, ElMatrix_s d );
+EL_EXPORT ElError ElDiagonal_d( ElMatrix_d A, ElMatrix_d d );
+EL_EXPORT ElError ElDiagonal_c( ElMatrix_c A, ElMatrix_c d );
+EL_EXPORT ElError ElDiagonal_z( ElMatrix_z A, ElMatrix_z d );
 
-EL_EXPORT ElError ElDiagonalDist_i
-( ElDistMatrix_i A, ElInt dSize, ElInt* dBuf );
-EL_EXPORT ElError ElDiagonalDist_s
-( ElDistMatrix_s A, ElInt dSize, float* dBuf );
-EL_EXPORT ElError ElDiagonalDist_d
-( ElDistMatrix_d A, ElInt dSize, double* dBuf );
-EL_EXPORT ElError ElDiagonalDist_c
-( ElDistMatrix_c A, ElInt dSize, complex_float* dBuf );
-EL_EXPORT ElError ElDiagonalDist_z
-( ElDistMatrix_z A, ElInt dSize, complex_double* dBuf );
+EL_EXPORT ElError ElDiagonalDist_i( ElDistMatrix_i A, ElDistMatrix_i d );
+EL_EXPORT ElError ElDiagonalDist_s( ElDistMatrix_s A, ElDistMatrix_s d );
+EL_EXPORT ElError ElDiagonalDist_d( ElDistMatrix_d A, ElDistMatrix_d d );
+EL_EXPORT ElError ElDiagonalDist_c( ElDistMatrix_c A, ElDistMatrix_c d );
+EL_EXPORT ElError ElDiagonalDist_z( ElDistMatrix_z A, ElDistMatrix_z d );
+
+EL_EXPORT ElError ElDiagonalSparse_i( ElSparseMatrix_i A, ElMatrix_i d);
+EL_EXPORT ElError ElDiagonalSparse_s( ElSparseMatrix_s A, ElMatrix_s d );
+EL_EXPORT ElError ElDiagonalSparse_d( ElSparseMatrix_d A, ElMatrix_d d );
+EL_EXPORT ElError ElDiagonalSparse_c( ElSparseMatrix_c A, ElMatrix_c d );
+EL_EXPORT ElError ElDiagonalSparse_z( ElSparseMatrix_z A, ElMatrix_z d );
+
+EL_EXPORT ElError ElDiagonalDistSparse_i
+( ElDistSparseMatrix_i A, ElDistMultiVec_i d);
+EL_EXPORT ElError ElDiagonalDistSparse_s
+( ElDistSparseMatrix_s A, ElDistMultiVec_s d );
+EL_EXPORT ElError ElDiagonalDistSparse_d
+( ElDistSparseMatrix_d A, ElDistMultiVec_d d );
+EL_EXPORT ElError ElDiagonalDistSparse_c
+( ElDistSparseMatrix_c A, ElDistMultiVec_c d );
+EL_EXPORT ElError ElDiagonalDistSparse_z
+( ElDistSparseMatrix_z A, ElDistMultiVec_z d );
 
 /* Druinsky-Toledo
    =============== */
@@ -954,6 +961,23 @@ EL_EXPORT ElError ElOnesDistMultiVec_s( ElDistMultiVec_s A, ElInt m, ElInt n );
 EL_EXPORT ElError ElOnesDistMultiVec_d( ElDistMultiVec_d A, ElInt m, ElInt n );
 EL_EXPORT ElError ElOnesDistMultiVec_c( ElDistMultiVec_c A, ElInt m, ElInt n );
 EL_EXPORT ElError ElOnesDistMultiVec_z( ElDistMultiVec_z A, ElInt m, ElInt n );
+
+EL_EXPORT ElError ElOnesSparse_i( ElSparseMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesSparse_s( ElSparseMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesSparse_d( ElSparseMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesSparse_c( ElSparseMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesSparse_z( ElSparseMatrix_z A, ElInt m, ElInt n );
+
+EL_EXPORT ElError ElOnesDistSparse_i
+( ElDistSparseMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistSparse_s
+( ElDistSparseMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistSparse_d
+( ElDistSparseMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistSparse_c
+( ElDistSparseMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElOnesDistSparse_z
+( ElDistSparseMatrix_z A, ElInt m, ElInt n );
 
 /* 1-2-1
    ===== */

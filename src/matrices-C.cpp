@@ -33,17 +33,17 @@ extern "C" {
     } EL_CATCH; return EL_SUCCESS; } \
   /* Diagonal */ \
   ElError ElDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElInt dSize, CREFLECT(T)* dBuf ) \
-  { try { \
-      vector<T> d( CReflect(dBuf), CReflect(dBuf)+dSize ); \
-      Diagonal( *CReflect(A), d ); \
-    } EL_CATCH; return EL_SUCCESS; } \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG d ) \
+  { EL_TRY( Diagonal( *CReflect(A), *CReflect(d) ) ) } \
   ElError ElDiagonalDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt dSize, CREFLECT(T)* dBuf ) \
-  { try { \
-      vector<T> d( CReflect(dBuf), CReflect(dBuf)+dSize ); \
-      Diagonal( *CReflect(A), d ); \
-    } EL_CATCH; return EL_SUCCESS; } \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG d ) \
+  { EL_TRY( Diagonal( *CReflect(A), *CReflect(d) ) ) } \
+  ElError ElDiagonalSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElMatrix_ ## SIG d ) \
+  { EL_TRY( Diagonal( *CReflect(A), *CReflect(d) ) ) } \
+  ElError ElDiagonalDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG d ) \
+  { EL_TRY( Diagonal( *CReflect(A), *CReflect(d) ) ) } \
   /* Dynamic regularization counter-example */ \
   ElError ElDynamicRegCounter_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( DynamicRegCounter( *CReflect(A), n ) ) } \
@@ -163,6 +163,12 @@ extern "C" {
   { EL_TRY( Ones( *CReflect(A), m, n ) ) } \
   ElError ElOnesDistMultiVec_ ## SIG \
   ( ElDistMultiVec_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Ones( *CReflect(A), m, n ) ) } \
+  ElError ElOnesSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Ones( *CReflect(A), m, n ) ) } \
+  ElError ElOnesDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *CReflect(A), m, n ) ) } \
   /* 1-2-1 */ \
   ElError ElOneTwoOne_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \

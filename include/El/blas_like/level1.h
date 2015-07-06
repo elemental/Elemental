@@ -787,6 +787,34 @@ EL_EXPORT ElError ElFillDist_d( ElDistMatrix_d A, double alpha );
 EL_EXPORT ElError ElFillDist_c( ElDistMatrix_c A, complex_float alpha );
 EL_EXPORT ElError ElFillDist_z( ElDistMatrix_z A, complex_double alpha );
 
+EL_EXPORT ElError ElFillDistMultiVec_i
+( ElDistMultiVec_i A, ElInt alpha );
+EL_EXPORT ElError ElFillDistMultiVec_s
+( ElDistMultiVec_s A, float alpha );
+EL_EXPORT ElError ElFillDistMultiVec_d
+( ElDistMultiVec_d A, double alpha );
+EL_EXPORT ElError ElFillDistMultiVec_c
+( ElDistMultiVec_c A, complex_float alpha );
+EL_EXPORT ElError ElFillDist_z
+( ElDistMatrix_z A, complex_double alpha );
+
+EL_EXPORT ElError ElFillSparse_i( ElSparseMatrix_i, ElInt alpha );
+EL_EXPORT ElError ElFillSparse_s( ElSparseMatrix_s, float alpha );
+EL_EXPORT ElError ElFillSparse_d( ElSparseMatrix_d, double alpha );
+EL_EXPORT ElError ElFillSparse_c( ElSparseMatrix_c, complex_float alpha );
+EL_EXPORT ElError ElFillSparse_z( ElSparseMatrix_z, complex_double alpha );
+
+EL_EXPORT ElError ElFillDistSparse_i
+( ElDistSparseMatrix_i, ElInt alpha );
+EL_EXPORT ElError ElFillDistSparse_s
+( ElDistSparseMatrix_s, float alpha );
+EL_EXPORT ElError ElFillDistSparse_d
+( ElDistSparseMatrix_d, double alpha );
+EL_EXPORT ElError ElFillDistSparse_c
+( ElDistSparseMatrix_c, complex_float alpha );
+EL_EXPORT ElError ElFillDistSparse_z
+( ElDistSparseMatrix_z, complex_double alpha );
+
 /* FillDiagonal
    =========== */
 EL_EXPORT ElError ElFillDiagonal_i

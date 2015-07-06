@@ -42,11 +42,29 @@ void Ones( DistMultiVec<T>& A, Int m, Int n )
     Fill( A, T(1) );
 }
 
+template<typename T>
+void Ones( SparseMatrix<T>& A, Int m, Int n )
+{
+    DEBUG_ONLY(CSE cse("Ones"))
+    Zeros( A, m, n );
+    Fill( A, T(1) );  
+}
+
+template<typename T>
+void Ones( DistSparseMatrix<T>& A, Int m, Int n )
+{
+    DEBUG_ONLY(CSE cse("Ones"))
+    Zeros( A, m, n );
+    Fill( A, T(1) );  
+}
+
 #define PROTO(T) \
   template void Ones( Matrix<T>& A, Int m, Int n ); \
   template void Ones( AbstractDistMatrix<T>& A, Int m, Int n ); \
   template void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n ); \
-  template void Ones( DistMultiVec<T>& A, Int m, Int n );
+  template void Ones( DistMultiVec<T>& A, Int m, Int n ); \
+  template void Ones( SparseMatrix<T>& A, Int m, Int n ); \
+  template void Ones( DistSparseMatrix<T>& A, Int m, Int n );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
