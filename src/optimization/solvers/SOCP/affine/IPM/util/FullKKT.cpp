@@ -668,24 +668,24 @@ void KKT
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
                     J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0 );
+                    ( coneOff,         coneOff,         -wDet*delta0, false );
                     J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet );
+                    ( coneOff+order,   coneOff+order,   -wDet,        false );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         -uPsi*psiMap );
+                    ( coneOff+order+1, coneOff,         -wDet*u0,     false );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet );
+                    ( coneOff+order+1, coneOff+order+1,  wDet,        false );
                 }
                 else
                 {
                     // Queue up an entry of D, u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse, -wDet );
+                    ( n+m+iSparse,     n+m+iSparse, -wDet,        false );
                     J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,  vPsi*psiMap );
+                    ( coneOff+order,   n+m+iSparse,  vPsi*psiMap, false );
                     J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse, -uPsi*psiMap );
+                    ( coneOff+order+1, n+m+iSparse, -uPsi*psiMap, false );
                 }
             }
         }
@@ -811,15 +811,15 @@ void KKT
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
                     J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0 );
+                    ( coneOff,         coneOff,         -wDet*delta0, false );
                     J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet );
+                    ( coneOff+order,   coneOff+order,   -wDet,        false );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         -uPsi*psiMap );
+                    ( coneOff+order+1, coneOff,         -wDet*u0,     false );
                     J.QueueUpdate
-                    ( coneOff,         coneOff+order+1, -uPsi*psiMap );
+                    ( coneOff,         coneOff+order+1, -wDet*u0,     false );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet );
+                    ( coneOff+order+1, coneOff+order+1,  wDet,        false );
                 }
                 else
                 {
@@ -827,15 +827,15 @@ void KKT
                     // u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet ); 
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet,        false ); 
                     J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
+                    ( coneOff+order,   n+m+iSparse,      vPsi*psiMap, false );
                     J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order,    vPsi*psiMap );
+                    ( n+m+iSparse,     coneOff+order,    vPsi*psiMap, false );
                     J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse,     -uPsi*psiMap );
+                    ( coneOff+order+1, n+m+iSparse,     -uPsi*psiMap, false );
                     J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order+1, -uPsi*psiMap );
+                    ( n+m+iSparse,     coneOff+order+1, -uPsi*psiMap, false );
                 }
             }
         }
@@ -950,9 +950,9 @@ void KKTRHS
     }
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
-        const Int i = rmu.GlobalRow(iLoc);
         const Int firstInd = firstInds.GetLocal(iLoc,0);
         const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
+        const Int i = rmu.GlobalRow(iLoc);
         const Int iSparse = i + (firstIndSparse-firstInd);
         Real value = W_rmu.GetLocal(iLoc,0) - rh.GetLocal(iLoc,0);
         d.QueueUpdate( n+m+iSparse, 0, value );

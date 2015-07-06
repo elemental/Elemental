@@ -1033,7 +1033,7 @@ void Mehrotra
     const Int degree = SOCDegree( firstInds );
 
     // TODO: Expose as tuning parameters
-    const Int cutoffSparse = k+1; // Disable until debugged
+    const Int cutoffSparse = 64;
     const Int cutoffPar = 1000;
     const bool forceSameStep = true;
     const bool stepLengthSigma = true;
