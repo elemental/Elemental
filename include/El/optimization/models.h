@@ -930,6 +930,17 @@ EL_EXPORT ElError ElTVXDistSparse_d
 ( ElConstDistMultiVec_d b, double lambda, ElDistMultiVec_d x, 
   ElQPAffineCtrl_d ctrl );
 
+/* Long-only Portfolio
+   =================== */
+EL_EXPORT ElError ElLongOnlyPortfolioDistSparse_s
+( ElConstDistMultiVec_s d, ElConstDistSparseMatrix_s F, 
+  ElConstDistMultiVec_s c, float gamma,
+  ElDistMultiVec_s x );
+EL_EXPORT ElError ElLongOnlyPortfolioDistSparse_d
+( ElConstDistMultiVec_d d, ElConstDistSparseMatrix_d F, 
+  ElConstDistMultiVec_d c, double gamma,
+  ElDistMultiVec_d x );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

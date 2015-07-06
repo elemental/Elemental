@@ -732,7 +732,17 @@ ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
   ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
     ElDistMultiVec_ ## SIG X, ElNNLSCtrl_ ## SIG ctrl ) \
   { EL_TRY( NNLS( *CReflect(A), *CReflect(B), *CReflect(X), \
-      CReflect(ctrl) ) ) }
+      CReflect(ctrl) ) ) } \
+  /* Long-only portfolio
+     =================== */ \
+  ElError ElLongOnlyPortfolioDistSparse_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG d, ElConstDistSparseMatrix_ ## SIG F, \
+    ElConstDistMultiVec_ ## SIG c, Real gamma, \
+    ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( LongOnlyPortfolio( \
+      *CReflect(d), *CReflect(F), \
+      *CReflect(c), CReflect(gamma), \
+      *CReflect(x) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \

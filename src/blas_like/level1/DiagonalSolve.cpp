@@ -119,7 +119,8 @@ void DiagonalSolve
     {
         if( d.Height() != A.Height() )
             LogicError("The size of d must match the height of A");
-        for( Int k=0; k<A.NumEntries(); ++k )
+        const Int numEntries = A.NumEntries();
+        for( Int k=0; k<numEntries; ++k )
         {
             const Int i = A.Row(k);
             const FDiag delta = ( conjugate ? Conj(d.Get(i,0)) : d.Get(i,0) );
@@ -132,7 +133,8 @@ void DiagonalSolve
     {
         if( d.Height() != A.Width() )
             LogicError("The size of d must match the width of A");
-        for( Int k=0; k<A.NumEntries(); ++k )
+        const Int numEntries = A.NumEntries();
+        for( Int k=0; k<numEntries; ++k )
         {
             const Int j = A.Col(k);
             const FDiag delta = ( conjugate ? Conj(d.Get(j,0)) : d.Get(j,0) );
@@ -161,7 +163,8 @@ void DiagonalSolve
         // TODO: Ensure that the DistMultiVec conforms
         F* vBuf = A.ValueBuffer();
         const Int firstLocalRow = d.FirstLocalRow();
-        for( Int k=0; k<A.NumLocalEntries(); ++k )
+        const Int numEntries = A.NumLocalEntries();
+        for( Int k=0; k<numEntries; ++k )
         {
             const Int i = A.Row(k);
             const Int iLoc = i - firstLocalRow;
@@ -198,7 +201,8 @@ void DiagonalSolve
 
         // Loop over the entries of A and rescale
         F* vBuf = A.ValueBuffer();
-        for( Int k=0; k<A.NumLocalEntries(); ++k )
+        const Int numEntries = A.NumLocalEntries();
+        for( Int k=0; k<numEntries; ++k )
         {
             const FDiag delta = recvVals[meta.colOffs[k]];
             vBuf[k] /= F(delta);
@@ -223,7 +227,8 @@ void DiagonalSolve
         LogicError("d and X must be the same size");
     const bool conjugate = ( orientation == ADJOINT );
     const Int width = X.Width();
-    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    const Int localHeight = d.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const F delta = 
             ( conjugate ? Conj(d.GetLocal(iLoc,0)) : d.GetLocal(iLoc,0) );

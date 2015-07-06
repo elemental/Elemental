@@ -1209,3 +1209,24 @@ def TV(b,lambdPre,ctrl=None):
     return x
   else: TypeExcept()
 
+# Long-only portfolio
+# ===================
+lib.ElLongOnlyPortfolioDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,sType,c_void_p]
+lib.ElLongOnlyPortfolioDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,dType,c_void_p]
+
+lib.ElLongOnlyPortfolioDistSparse_s.restype = \
+lib.ElLongOnlyPortfolioDistSparse_d.restype = \
+  c_uint
+
+def LongOnlyPortfolio(d,F,c,gammaPre):
+  gamma = TagToType(d.tag)(gammaPre)
+  if type(F) is DistSparseMatrix:
+    x = DistMultiVec(d.tag,d.Comm())
+    args = [d.obj,F.obj,c.obj,gamma,x.obj]
+    if   d.tag == sTag: lib.ElLongOnlyPortfolioDistSparse_s(*args)
+    elif d.tag == dTag: lib.ElLongOnlyPortfolioDistSparse_d(*args)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
