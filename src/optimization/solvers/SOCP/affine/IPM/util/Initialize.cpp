@@ -74,7 +74,6 @@ void Initialize
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
@@ -107,9 +106,10 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    Matrix<Real> J, e;
-    SOCIdentity( e, orders, firstInds );
-    KKT( A, G, e, orders, firstInds, labels, J );
+    Matrix<Real> J, ones;
+    Ones( ones, k, 1 );
+    const bool onlyLower = true;
+    lp::affine::KKT( A, G, ones, ones, J, onlyLower );
 
     // Factor the KKT matrix
     // =====================
@@ -134,9 +134,9 @@ void Initialize
         rb *= -1;
         rh = h;
         rh *= -1;
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
+        lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
     if( !dualInit )
@@ -151,9 +151,9 @@ void Initialize
         rc = c;
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        qp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
+        lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
     const Real epsilon = Epsilon<Real>();
@@ -196,7 +196,6 @@ void Initialize
   const AbstractDistMatrix<Real>& h,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z, 
@@ -229,13 +228,12 @@ void Initialize
         return;
     }
 
-    const bool onlyLower = true;
-
     // Form the KKT matrix
     // ===================
-    DistMatrix<Real> J(g), e(g);
-    SOCIdentity( e, orders, firstInds );
-    KKT( A, G, e, orders, firstInds, labels, J, onlyLower, cutoff );
+    DistMatrix<Real> J(g), ones(g);
+    Ones( ones, k, 1 );
+    const bool onlyLower = true;
+    lp::affine::KKT( A, G, ones, ones, J, onlyLower );
 
     // Factor the KKT matrix
     // =====================
@@ -259,9 +257,9 @@ void Initialize
         rb *= -1;
         rh = h;
         rh *= -1;
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
+        lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
     if( !dualInit )
@@ -276,9 +274,9 @@ void Initialize
         rc = c;
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        qp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
+        lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
     const Real epsilon = Epsilon<Real>();
@@ -321,15 +319,10 @@ void Initialize
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
         Matrix<Real>& s,
-        vector<Int>& map, 
-        vector<Int>& invMap, 
-        ldl::Separator& rootSep, 
-        ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
@@ -360,9 +353,10 @@ void Initialize
     // Form the KKT matrix
     // ===================
     SparseMatrix<Real> JOrig;
-    Matrix<Real> e;
-    SOCIdentity( e, orders, firstInds );
-    KKT( A, G, e, orders, firstInds, labels, JOrig, false );
+    Matrix<Real> ones;
+    Ones( ones, k, 1 );
+    const bool onlyLower = false;
+    lp::affine::KKT( A, G, ones, ones, JOrig, onlyLower );
     auto J = JOrig;
 
     // (Approximately) factor the KKT matrix
@@ -378,6 +372,9 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
+    vector<Int> map, invMap;
+    ldl::Separator rootSep;
+    ldl::NodeInfo info;
     NestedDissection( J.LockedGraph(), map, rootSep, info );
     InvertMap( map, invMap );
 
@@ -401,10 +398,10 @@ void Initialize
         rb *= -1;
         rh = h;
         rh *= -1;
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
-        qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
+        lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
     if( !dualInit )
@@ -419,10 +416,10 @@ void Initialize
         rc = c;
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
-        qp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
+        lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
     const Real epsilon = Epsilon<Real>();
@@ -465,16 +462,12 @@ void Initialize
   const DistMultiVec<Real>& h,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
         DistMultiVec<Real>& s,
-        DistMap& map,
-        DistMap& invMap, 
-        ldl::DistSeparator& rootSep, 
-        ldl::DistNodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift, Int cutoff,
+  bool primalInit, bool dualInit, bool standardShift, 
+  Int cutoffPar,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
@@ -502,14 +495,13 @@ void Initialize
         return;
     }
 
-    const bool onlyLower = false;
-
     // Form the KKT matrix
     // ===================
     DistSparseMatrix<Real> JOrig(comm);
-    DistMultiVec<Real> e(comm);
-    SOCIdentity( e, orders, firstInds );
-    KKT( A, G, e, orders, firstInds, labels, JOrig, onlyLower, cutoff );
+    DistMultiVec<Real> ones(comm);
+    Ones( ones, k, 1 );
+    const bool onlyLower = false;
+    lp::affine::KKT( A, G, ones, ones, JOrig, onlyLower );
     auto J = JOrig;
 
     // (Approximately) factor the KKT matrix
@@ -526,6 +518,9 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
+    DistMap map(comm), invMap(comm);
+    ldl::DistSeparator rootSep;
+    ldl::DistNodeInfo info;
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     InvertMap( map, invMap );
 
@@ -551,9 +546,9 @@ void Initialize
         rh = h;
         rh *= -1;
 
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
-        qp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
+        lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
     if( !dualInit )
@@ -569,9 +564,9 @@ void Initialize
         Zeros( rb, m, 1 );
         Zeros( rh, k, 1 );
 
-        KKTRHS( rc, rb, rh, rmu, e, orders, firstInds, labels, d, cutoff );
+        lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
-        qp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
+        lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
     const Real epsilon = Epsilon<Real>();
@@ -583,13 +578,13 @@ void Initialize
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds, cutoff );
+        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds, cutoffPar );
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized s was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaDual = -SOCMinEig( z, orders, firstInds, cutoff );
+        const Real alphaDual = -SOCMinEig( z, orders, firstInds, cutoffPar );
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
@@ -600,8 +595,8 @@ void Initialize
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, gammaPrimal, cutoff );
-        ForceIntoSOC( z, orders, firstInds, gammaDual, cutoff );
+        ForceIntoSOC( s, orders, firstInds, gammaPrimal, cutoffPar );
+        ForceIntoSOC( z, orders, firstInds, gammaDual, cutoffPar );
     }
 }
 
@@ -614,7 +609,6 @@ void Initialize
     const Matrix<Real>& h, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -628,7 +622,6 @@ void Initialize
     const AbstractDistMatrix<Real>& h, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
@@ -642,15 +635,10 @@ void Initialize
     const Matrix<Real>& h, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-          vector<Int>& map, \
-          vector<Int>& invMap, \
-          ldl::Separator& rootSep, \
-          ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
@@ -661,16 +649,11 @@ void Initialize
     const DistMultiVec<Real>& h, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-          DistMap& map, \
-          DistMap& invMap, \
-          ldl::DistSeparator& rootSep, \
-          ldl::DistNodeInfo& info, \
-    bool primalInit, bool dualInit, bool standardShift, Int cutoff,\
+    bool primalInit, bool dualInit, bool standardShift, Int cutoffPar,\
     const RegQSDCtrl<Real>& qsdCtrl );
 
 #define EL_NO_INT_PROTO

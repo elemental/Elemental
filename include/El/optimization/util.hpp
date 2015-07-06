@@ -81,6 +81,12 @@ Int NumNonPositive( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
 
+// SOC Degree
+// ==========
+Int SOCDegree( const Matrix<Int>& firstInds );
+Int SOCDegree( const AbstractDistMatrix<Int>& firstInds );
+Int SOCDegree( const DistMultiVec<Int>& firstInds );
+
 // SOC Identity
 // ============
 template<typename Real>

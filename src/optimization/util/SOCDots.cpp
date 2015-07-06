@@ -89,7 +89,7 @@ void SOCDots
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    int commSize = mpi::Size(comm);
+    const int commSize = mpi::Size(comm);
 
     // TODO: Find a better strategy
 
@@ -143,11 +143,11 @@ void SOCDots
             sendPairs.push_back( order );
         }
     }
-    int numSendInts = sendPairs.size();
+    const int numSendInts = sendPairs.size();
     vector<int> numRecvInts(commSize);
     mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, comm );
     vector<int> recvOffs;
-    int totalRecv = Scan( numRecvInts, recvOffs );
+    const int totalRecv = Scan( numRecvInts, recvOffs );
     vector<Int> recvPairs(totalRecv);
     mpi::AllGather
     ( sendPairs.data(), numSendInts,
@@ -244,11 +244,11 @@ void SOCDots
             sendPairs.push_back( order );
         }
     }
-    int numSendInts = sendPairs.size();
+    const int numSendInts = sendPairs.size();
     vector<int> numRecvInts(commSize);
     mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, comm );
     vector<int> recvOffs;
-    int totalRecv = Scan( numRecvInts, recvOffs ); 
+    const int totalRecv = Scan( numRecvInts, recvOffs ); 
     vector<Int> recvPairs(totalRecv);
     mpi::AllGather
     ( sendPairs.data(), numSendInts,

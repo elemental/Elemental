@@ -66,7 +66,7 @@ void SOCBroadcast
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    int commSize = mpi::Size(comm);
+    const int commSize = mpi::Size(comm);
 
     // Perform an mpi::AllToAll to scatter all of the second-order cone roots of
     // order less than or equal to the cutoff 
@@ -123,11 +123,11 @@ void SOCBroadcast
         if( order > cutoff && i == firstInd )
             sendData.push_back( Entry<Real>{i,order,x.GetLocal(iLoc,0)} );
     }
-    int numSendCones = sendData.size();
+    const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     vector<int> recvOffs;
-    int totalRecv = Scan( numRecvCones, recvOffs );
+    const int totalRecv = Scan( numRecvCones, recvOffs );
     vector<Entry<Real>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
@@ -214,11 +214,11 @@ void SOCBroadcast
         if( order > cutoff && i == firstInd )
             sendData.push_back( Entry<Real>{i,order,x.GetLocal(iLoc,0)} );
     }
-    int numSendCones = sendData.size();
+    const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     vector<int> recvOffs;
-    int totalRecv = Scan( numRecvCones, recvOffs ); 
+    const int totalRecv = Scan( numRecvCones, recvOffs ); 
     vector<Entry<Real>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,

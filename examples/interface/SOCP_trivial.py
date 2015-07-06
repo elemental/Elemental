@@ -5,9 +5,6 @@ El.Initialize()
 orders = El.DistMultiVec(El.iTag)
 orders.Resize(1, 1)
 orders.Set(0, 0, 1)
-labels = El.DistMultiVec(El.iTag)
-labels.Resize(1, 1)
-labels.Set(0, 0, 0)
 firstInd = El.DistMultiVec(El.iTag)
 firstInd.Resize(1, 1)
 firstInd.Set(0, 0, 0)
@@ -42,5 +39,5 @@ ctrl.mehrotraCtrl.qsdCtrl.progress = True
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.time = True
-El.SOCPAffine(A,G,b,c,h,orders,firstInd,labels,x,y,z,s,ctrl)
+El.SOCPAffine(A,G,b,c,h,orders,firstInd,x,y,z,s,ctrl)
 El.Finalize()

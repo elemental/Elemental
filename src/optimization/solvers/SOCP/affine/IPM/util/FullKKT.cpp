@@ -62,7 +62,103 @@ namespace affine {
 //
 //   Phi(w) = -(1/2) sum_i ln det(w_i).
 //
-// Furthermore, the residuals are defined by:
+// Since (Q_a)^2 = Q_(a^2), we have that 
+//
+//   -W_i^T W_i = -W_i^2 = -(Q_{sqrt(w_i})^2 = -Q_{w_i}.
+//              = -2 w_i w_i^T + det(w_i) R,
+//
+// which can be rewritten as
+//
+//   -W_i^2 = det(w_i) (-diag(delta_0,I) - u_i u_i^T + v_i v_i^T),
+//
+// for some delta_0 > 0, and u_i and v_i satisfying
+//
+//    diag(delta_0,I) - v_i v_i^T > 0.
+//
+// Let us temporarily drop the "i" subscript and suppose that det(w) = 1.
+// Then, if we expose the first entries of u, v, and w as 
+//
+//    u = [u_0; u_1], v = [v_0; v_1], w = [w_0, w_1],
+//
+// and require that u_1, v_1, and w_1 are all proportional to some vector
+// f_1, with ||f_1||_2 equal to either 0 or 1, so that
+//
+//    u_1 = ||u_1||_2 f_1, v_1 = ||v_1||_2 f_1, w_1 = ||w_1||_2 f_1.
+//
+// Furthermore, we require that v_0 = 0 so that
+//
+//    Q_w = 2 w w^T - det(w) R 
+//
+//        = 2 w w^T - R
+//
+//        = | 2 w_0^2 - 1,  2 w_0 w_1^T     |
+//          |   2 w_0 w_1,  I + 2 w_1 w_1^T |
+//
+//        = | 2 ||w_1||_2^2 + 1,         2 w_0 w_1^T          |
+//          |      2 w_0 w_1,     I + 2 ||w_1||_2^2 f_1 f_1^T |
+//
+//        = | delta_0  0 | + | u_0 | | u_0 u_1^T | - | 0   | | 0 v_1^T |
+//          |    0     I |   | u_1 |                 | v_1 |
+//
+//        = | delta_0 + u_0^2,         u_0 u_1^T          |
+//          |      u_0 u_1,     I + u_1 u_1^T - v_1 v_1^T |
+//
+//        = | delta_0 + u_0^2,                   u_0 u_1^T                 |.
+//          |      u_0 u_1,     I + (||u_1||_2^2 - 2||v_1||_2^2) f_1 f_1^T |
+//
+// Then the expansion of a subcone's portion of the  third block row of the 
+// KKT system, say
+//
+//   G dx - W^T W dz = -r_h + W^T r_mu,
+//
+// can be expanded into the form
+//
+//  | G | dx + |  -D    v  -u | |  dz | = | -r_h + W^T r_mu |,
+//  | 0 |      |  v^T  -1   0 | | eta |   |        0        |
+//  | 0 |      | -u^T   0   1 | |  xi |   |        0        |
+//
+// using the definition D = diag(delta_0,I), xi = u^T dz, and eta = v^T dz.
+// It is straight-forward to verify that the requirements that 
+//
+//     delta_0 > 0 and D - v v^T > 0
+//
+// imply the defining parameter ||u_1||_2^2 lies within the interval
+//
+//     (1/(2 psi_w^2 + 1)) (4 psi_w^4 + 4 psi_w^2, 4 psi_w^4 + 4 psi_w^2 + 1)
+//
+// with psi_w defined to be ||w_1||_2. We therefore choose psi_u^2 = ||u_1||_2^2
+// to lie at the central point,
+//
+//     psi_u^2 = (4 psi_w^4 + 4 psi_w^2 + 1/2) / (2 psi_w^2 + 1),
+//
+// and set 
+//
+//     u_0 = 2 w_0 psi_w / psi_u,
+//
+//     psi_v = sqrt(psi_u^2 - 2 psi_w^2), and
+//
+//     delta_0 = 2 psi_w^2 + 1 - u_0^2.
+//
+// In cases where det(w) != 1, we can use the more general formulation
+//
+//  | G | dx + det(w) |  -D    v  -u | |  dz | = | -r_h + W^T r_mu |,
+//  | 0 |             |  v^T  -1   0 | | eta |   |        0        |
+//  | 0 |             | -u^T   0   1 | |  xi |   |        0        |
+//
+// with {D,u,v} being computed from the normalized Nesterov-Todd scaling point
+// w / sqrt(det(w)), i.e.,
+//
+//     psi_u = sqrt((4 psi_w^4 + 4 psi_w^2 + 1/2) / (2 psi_w^2 + 1)),
+//
+//     u_0 = 2 w_0 psi_w / psi_u,
+//
+//     psi_v = sqrt(psi_u^2 - 2 psi_w^2), and
+//
+//     delta_0 = 2 psi_w^2 + 1 - u_0^2,
+//
+// with psi_w = || w_1 ||_2 / sqrt(det(w)).
+//
+// For the sake of completeness, the residuals are defined by:
 //
 //   r_c  = A^T y + G^T z + c,
 //   r_b  = A x - b,
@@ -75,15 +171,6 @@ namespace affine {
 //
 // is the Nesterov-Todd scaling of the pair (s,z).
 //
-// However, a large amount of fill-in is incurred if member cones are large,
-// as the the linear operator implied by -W^2 is block-diagonal, with
-// each diagonal block corresponding to a member cone. Thankfully, this matrix
-// is known [citations!] to be a symmetric rank-two correction to a 
-// definite diagonal matrix, and so a sparse embedding can be applied.
-// Such a technique will be applied for sufficiently-large subcones in future
-// versions of this solver (in the manner described in the ECOS paper of 
-// Domahidi et al.).
-//
 
 template<typename Real>
 void KKT
@@ -92,7 +179,6 @@ void KKT
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& J, 
   bool onlyLower )
 {
@@ -154,7 +240,6 @@ void KKT
   const AbstractDistMatrix<Real>& w,
   const AbstractDistMatrix<Int>& ordersPre,
   const AbstractDistMatrix<Int>& firstIndsPre,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& JPre, 
   bool onlyLower, Int cutoffPar )
 {
@@ -256,7 +341,6 @@ void KKT
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
@@ -342,6 +426,7 @@ void KKT
         {
             const Int order = orders.Get(i,0);
             const Int firstInd = firstInds.Get(i,0);
+
             const Real omega_i = w.Get(i,0);
             const Real wDet = wDets.Get(firstInd,0);
 
@@ -368,7 +453,9 @@ void KKT
   const DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
+  const DistMultiVec<Int>& origToSparseOrders,
+  const DistMultiVec<Int>& origToSparseFirstInds,
+        Int kSparse,
         DistSparseMatrix<Real>& J, 
   bool onlyLower, Int cutoffPar )
 {
@@ -377,19 +464,22 @@ void KKT
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
 
-    DistMultiVec<Real> wDets(comm);
+    // NOTE: The following computation is a bit redundant, and the lower norms
+    //       are only needed for sufficiently large cones.
+    DistMultiVec<Real> wDets(comm), wLowers(comm);
     SOCDets( w, wDets, orders, firstInds, cutoffPar );
+    SOCLowerNorms( w, wLowers, orders, firstInds, cutoffPar );
     SOCBroadcast( wDets, orders, firstInds, cutoffPar );
+    SOCBroadcast( wLowers, orders, firstInds, cutoffPar );
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
 
-    // Gather all of each member cone that we own a piece of
-    // -----------------------------------------------------
+    // Gather all of each non-sparsified member cone that we own a piece of
+    // --------------------------------------------------------------------
     // NOTE: We exploit the fact that each process owns a contiguous chunk
-    //       of rows so that at most two member cones need to be sent
-    //       (and at most two need to be received).
+    //       of rows 
     vector<int> recvOffs;
     vector<Real> recvBuf;
     const Int wLocalHeight = w.LocalHeight();
@@ -399,19 +489,23 @@ void KKT
         vector<int> sendCounts(commSize,0);
         for( Int iLoc=0; iLoc<wLocalHeight; )
         {
-            const Int i = w.GlobalRow(iLoc);
             const Int order = orders.GetLocal(iLoc,0);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+
+            const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
             const Int numLocalIndsCone = 
               Min(numLocalIndsLeft,order-(i-firstInd));
 
-            const int firstOwner = w.RowOwner(firstInd);
-            const int lastOwner = w.RowOwner(firstInd+order-1);
-            if( firstOwner != commRank )
-                sendCounts[firstOwner] += numLocalIndsCone;
-            if( lastOwner != commRank )
-                sendCounts[lastOwner] += numLocalIndsCone;
+            if( order == sparseOrder )
+            {
+                const int firstOwner = w.RowOwner(firstInd);
+                const int lastOwner = w.RowOwner(firstInd+order-1);
+                for( Int owner=firstOwner; owner<=lastOwner; ++owner )
+                    if( owner != commRank )
+                        sendCounts[owner] += numLocalIndsCone;
+            }
             
             iLoc += numLocalIndsCone; 
         }
@@ -424,21 +518,24 @@ void KKT
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ) 
         {
-            const Int i = w.GlobalRow(iLoc);
             const Int order = orders.GetLocal(iLoc,0);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+
+            const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
             const Int numLocalIndsCone = 
               Min(numLocalIndsLeft,order-(i-firstInd));
 
-            const int firstOwner = w.RowOwner(firstInd);
-            const int lastOwner = w.RowOwner(firstInd+order-1);
-            if( firstOwner != commRank )
-                for( Int e=0; e<numLocalIndsCone; ++e )
-                    sendBuf[offs[firstOwner]++] = w.GetLocal(iLoc+e,0);
-            if( lastOwner != commRank )
-                for( Int e=0; e<numLocalIndsCone; ++e )
-                    sendBuf[offs[lastOwner]++] = w.GetLocal(iLoc+e,0);
+            if( order == sparseOrder )
+            {
+                const int firstOwner = w.RowOwner(firstInd);
+                const int lastOwner = w.RowOwner(firstInd+order-1);
+                for( Int owner=firstOwner; owner<=lastOwner; ++owner )
+                    if( owner != commRank )
+                        for( Int e=0; e<numLocalIndsCone; ++e )
+                            sendBuf[offs[owner]++] = w.GetLocal(iLoc+e,0);
+            }
             
             iLoc += numLocalIndsCone; 
         }
@@ -455,7 +552,7 @@ void KKT
     }
 
     J.SetComm( comm );
-    Zeros( J, n+m+k, n+m+k );
+    Zeros( J, n+m+kSparse, n+m+kSparse );
     if( onlyLower )
     {
         // Count the number of entries to queue in the lower triangle
@@ -463,53 +560,134 @@ void KKT
         Int numRemoteEntries = A.NumLocalEntries() + G.NumLocalEntries();
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int i = w.GlobalRow(iLoc);
+            const Int order = orders.GetLocal(iLoc,0);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
-            numRemoteEntries += (i-firstInd) + 1;
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+
+            const Int i = w.GlobalRow(iLoc);
+            if( order == sparseOrder )
+            {
+                numRemoteEntries += (i-firstInd) + 1;
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // An entry of D and u (the first entry of v is 0), as well
+                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // v and u auxiliary variables
+                    numRemoteEntries += 4;
+                }
+                else
+                {
+                    // An entry of D, u, and v
+                    numRemoteEntries += 3;
+                }
+            }
         }
 
         // Queue the nonzeros
         // ------------------
         J.Reserve( numRemoteEntries, numRemoteEntries );
         for( Int e=0; e<A.NumLocalEntries(); ++e )
-            J.QueueUpdate( A.Row(e)+n, A.Col(e), A.Value(e), false );
+            J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e), false );
         for( Int e=0; e<G.NumLocalEntries(); ++e )
-            J.QueueUpdate( G.Row(e)+n+m, G.Col(e), G.Value(e), false );
+        {
+            const Int i = G.Row(e);
+            const Int iLoc = G.LocalRow(i);
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int iSparse = i + (firstIndSparse-firstInd);
+            J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e), false );
+        }
         Int lastFirstInd = -1;
         vector<Real> wBuf;
         auto offs = recvOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int i = w.GlobalRow(iLoc);
             const Int order = orders.GetLocal(iLoc,0);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+
+            const Int i = w.GlobalRow(iLoc);
+            const Int sparseOff = sparseFirstInd-firstInd;
+            const Int iSparse = i+sparseOff;
+
             const Real omega_i = w.GetLocal(iLoc,0);
             const Real wDet = wDets.GetLocal(iLoc,0);
-
-            if( firstInd != lastFirstInd )
+            if( order == sparseOrder )
             {
-                lastFirstInd = firstInd;
-                wBuf.resize( order );
-                for( Int j=firstInd; j<firstInd+order; ++j )
+                if( firstInd != lastFirstInd )
                 {
-                    const int owner = w.RowOwner(j);
-                    if( owner == commRank )
-                        wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
-                    else
-                        wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                    lastFirstInd = firstInd;
+                    wBuf.resize( order );
+                    for( Int j=firstInd; j<firstInd+order; ++j )
+                    {
+                        const int owner = w.RowOwner(j);
+                        if( owner == commRank )
+                            wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
+                        else
+                            wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                    }
+                }
+
+                // diag(det(w) R - 2 w w^T)
+                if( i == firstInd )
+                    J.QueueUpdate
+                    ( n+m+iSparse, n+m+iSparse, 
+                      +wDet-2*omega_i*omega_i, false );
+                else
+                    J.QueueUpdate
+                    ( n+m+iSparse, n+m+iSparse, 
+                      -wDet-2*omega_i*omega_i, false );
+
+                // offdiag(-2 w w^T)
+                for( Int j=firstInd; j<i; ++j )
+                    J.QueueUpdate
+                    ( n+m+iSparse, n+m+(j+sparseOff), 
+                      -2*omega_i*wBuf[j-firstInd], false );
+            }
+            else
+            {
+                const Int coneOff = n+m+sparseFirstInd;
+                const Real wLower = wLowers.GetLocal(iLoc,0);
+                const Real wPsi = wLower / Sqrt(wDet);
+                const Real wPsiSq = wPsi*wPsi;
+                const Real uPsi = 
+                  Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
+                // Apply a pseudoinverse of sorts instead of 1/wPsi
+                const Real wPsiPinv = 
+                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                // NOTE: This includes the outer wDet factor
+                const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
+                if( i == firstInd )
+                {
+                    // Queue up an entry of D and u, and then the (scaled) 
+                    // -1 and +1
+                    const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
+                    const Real delta0 = 2*wPsiSq + 1 - u0*u0;
+                    J.QueueUpdate
+                    ( coneOff,         coneOff,         -wDet*delta0 );
+                    J.QueueUpdate
+                    ( coneOff+order,   coneOff+order,   -wDet );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff,         -uPsi*psiMap );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff+order+1,  wDet );
+                }
+                else
+                {
+                    // Queue up an entry of D, u, and v
+                    const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
+                    J.QueueUpdate
+                    ( n+m+iSparse,     n+m+iSparse, -wDet );
+                    J.QueueUpdate
+                    ( coneOff+order,   n+m+iSparse,  vPsi*psiMap );
+                    J.QueueUpdate
+                    ( coneOff+order+1, n+m+iSparse, -uPsi*psiMap );
                 }
             }
-
-            // diag(det(w) R - 2 w w^T)
-            if( i == firstInd )
-                J.QueueUpdate( i+n+m, i+n+m, wDet-2*omega_i*omega_i, false );
-            else
-                J.QueueUpdate( i+n+m, i+n+m, -wDet-2*omega_i*omega_i, false );
-
-            // offdiag(-2 w w^T)
-            for( Int j=firstInd; j<i; ++j )
-                J.QueueUpdate
-                ( i+n+m, j+n+m, -2*omega_i*wBuf[j-firstInd], false );
         }
     }
     else
@@ -520,7 +698,30 @@ void KKT
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
             const Int order = orders.GetLocal(iLoc,0);
-            numRemoteEntries += order;
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+
+            const Int i = w.GlobalRow(iLoc);
+            if( order == sparseOrder )
+            {
+                numRemoteEntries += order;
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // An entry of D and a symmetric update with an entry of u,
+                    // as well as the (scaled) -1 and +1 diagonal entries for 
+                    // the v and u auxiliary variables
+                    numRemoteEntries += 5;
+                }
+                else
+                {
+                    // An entry of D and symmetric updates with an entry of
+                    // u and v
+                    numRemoteEntries += 5;
+                }
+            }
         }
 
         // Queue the nonzeros
@@ -533,45 +734,110 @@ void KKT
         }
         for( Int e=0; e<G.NumLocalEntries(); ++e )
         {
-            J.QueueUpdate( G.Row(e)+n+m, G.Col(e),     G.Value(e), false );
-            J.QueueUpdate( G.Col(e),     G.Row(e)+n+m, G.Value(e), false );
+            const Int i = G.Row(e);
+            const Int iLoc = G.LocalRow(i);
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int iSparse = i + (firstIndSparse-firstInd);
+            J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e), false );
+            J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e), false );
         }
         Int lastFirstInd = -1;
         vector<Real> wBuf;
         auto offs = recvOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int i = w.GlobalRow(iLoc);
             const Int order = orders.GetLocal(iLoc,0);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+
+            const Int i = w.GlobalRow(iLoc);
+            const Int sparseOff = sparseFirstInd-firstInd;
+            const Int iSparse = i+sparseOff;
+
             const Real omega_i = w.GetLocal(iLoc,0);
             const Real wDet = wDets.GetLocal(iLoc,0);
-
-            if( firstInd != lastFirstInd )
+            if( order == sparseOrder )
             {
-                lastFirstInd = firstInd;
-                wBuf.resize( order );
-                for( Int j=firstInd; j<firstInd+order; ++j )
+                if( firstInd != lastFirstInd )
                 {
-                    const int owner = w.RowOwner(j);
-                    if( owner == commRank )
-                        wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
-                    else
-                        wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                    lastFirstInd = firstInd;
+                    wBuf.resize( order );
+                    for( Int j=firstInd; j<firstInd+order; ++j )
+                    {
+                        const int owner = w.RowOwner(j);
+                        if( owner == commRank )
+                            wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
+                        else
+                            wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                    }
+                }
+
+                // diag(det(w) R - 2 w w^T)
+                if( i == firstInd )
+                    J.QueueUpdate
+                    ( n+m+iSparse, n+m+iSparse, 
+                      +wDet-2*omega_i*omega_i, false );
+                else
+                    J.QueueUpdate
+                    ( n+m+iSparse, n+m+iSparse, 
+                      -wDet-2*omega_i*omega_i, false );
+
+                // offdiag(-2 w w^T)
+                for( Int j=firstInd; j<firstInd+order; ++j )
+                    if( j != i )
+                        J.QueueUpdate
+                        ( n+m+iSparse, n+m+(j+sparseOff), 
+                          -2*omega_i*wBuf[j-firstInd], false );
+            }
+            else
+            {
+                const Int coneOff = n+m+sparseFirstInd;
+                const Real wLower = wLowers.GetLocal(iLoc,0);
+                const Real wPsi = wLower / Sqrt(wDet);
+                const Real wPsiSq = wPsi*wPsi;
+                const Real uPsi = 
+                  Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
+                // Apply a pseudoinverse of sorts instead of 1/wPsi
+                const Real wPsiPinv =
+                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                // NOTE: This includes the outer wDet factor
+                const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
+                if( i == firstInd )
+                {
+                    // Queue up an entry of D, a symmetric update with u, and 
+                    // then the (scaled) -1 and +1
+                    const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
+                    const Real delta0 = 2*wPsiSq + 1 - u0*u0;
+                    J.QueueUpdate
+                    ( coneOff,         coneOff,         -wDet*delta0 );
+                    J.QueueUpdate
+                    ( coneOff+order,   coneOff+order,   -wDet );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff,         -uPsi*psiMap );
+                    J.QueueUpdate
+                    ( coneOff,         coneOff+order+1, -uPsi*psiMap );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff+order+1,  wDet );
+                }
+                else
+                {
+                    // Queue up an entry of D and symmetric updates with 
+                    // u, and v
+                    const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
+                    J.QueueUpdate
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet ); 
+                    J.QueueUpdate
+                    ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
+                    J.QueueUpdate
+                    ( n+m+iSparse,     coneOff+order,    vPsi*psiMap );
+                    J.QueueUpdate
+                    ( coneOff+order+1, n+m+iSparse,     -uPsi*psiMap );
+                    J.QueueUpdate
+                    ( n+m+iSparse,     coneOff+order+1, -uPsi*psiMap );
                 }
             }
-
-            // diag(det(w) R - 2 w w^T)
-            if( i == firstInd )
-                J.QueueUpdate( i+n+m, i+n+m, wDet-2*omega_i*omega_i, false );
-            else
-                J.QueueUpdate( i+n+m, i+n+m, -wDet-2*omega_i*omega_i, false );
-
-            // offdiag(-2 w w^T)
-            for( Int j=firstInd; j<firstInd+order; ++j )
-                if( j != i )
-                    J.QueueUpdate
-                    ( i+n+m, j+n+m, -2*omega_i*wBuf[j-firstInd], false );
         }
     }
     J.ProcessQueues();
@@ -586,7 +852,6 @@ void KKTRHS
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("socp::affine::KKTRHS"))
@@ -618,7 +883,6 @@ void KKTRHS
   const AbstractDistMatrix<Real>& wRoot,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& dPre,
   Int cutoff )
 {
@@ -656,19 +920,19 @@ void KKTRHS
   const DistMultiVec<Real>& wRoot, 
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
+  const DistMultiVec<Int>& origToSparseFirstInds,
+        Int kSparse,
         DistMultiVec<Real>& d,
-  Int cutoff )
+  Int cutoffPar )
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
     const Int n = rc.Height();
     const Int m = rb.Height();
-    const Int k = rh.Height();
     d.SetComm( rc.Comm() );
-    Zeros( d, n+m+k, 1 );
+    Zeros( d, n+m+kSparse, 1 );
 
     DistMultiVec<Real> W_rmu( rc.Comm() );
-    SOCApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds, cutoff );
+    SOCApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds, cutoffPar );
 
     Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
     d.Reserve( numEntries );
@@ -686,9 +950,12 @@ void KKTRHS
     }
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
-        Int i = n+m + rmu.GlobalRow(iLoc);
+        const Int i = rmu.GlobalRow(iLoc);
+        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
+        const Int iSparse = i + (firstIndSparse-firstInd);
         Real value = W_rmu.GetLocal(iLoc,0) - rh.GetLocal(iLoc,0);
-        d.QueueUpdate( i, 0, value );
+        d.QueueUpdate( n+m+iSparse, 0, value );
     }
     d.ProcessQueues();
 }
@@ -701,7 +968,6 @@ void ExpandSolution
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& dx, 
         Matrix<Real>& dy,
         Matrix<Real>& dz, 
@@ -727,7 +993,6 @@ void ExpandSolution
   const AbstractDistMatrix<Real>& wRoot, 
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& dx, 
         AbstractDistMatrix<Real>& dy,
         AbstractDistMatrix<Real>& dz, 
@@ -754,22 +1019,64 @@ void ExpandSolution
   const DistMultiVec<Real>& wRoot,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
+  const DistMultiVec<Int>& sparseOrders,
+  const DistMultiVec<Int>& sparseFirstInds,
+  const DistMultiVec<Int>& sparseToOrigOrders,
+  const DistMultiVec<Int>& sparseToOrigFirstInds,
         DistMultiVec<Real>& dx, 
         DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz, 
         DistMultiVec<Real>& ds,
-  Int cutoff )
+  Int cutoffPar )
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
     const Int k = wRoot.Height();
-    qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
+
+    // Extract dx
+    // ==========
+    dx = d( IR(0,n), ALL );
+
+    // Extract dy
+    // ==========
+    dy = d( IR(n,n+m), ALL );
+
+    // Extract dz
+    // ==========
+    auto dzSparse = d( IR(n+m,END), ALL );
+    Zeros( dz, k, 1 );
+    Int numQueues = 0;
+    const Int localHeight = dzSparse.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int iSparse = dzSparse.GlobalRow(iLoc);
+        const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
+        const Int firstInd = sparseToOrigFirstInds.GetLocal(iLoc,0);
+        const Int sparseOrder = sparseOrders.GetLocal(iLoc,0);
+        const Int sparseFirstInd = sparseFirstInds.GetLocal(iLoc,0);
+        const Int i = iSparse - (sparseFirstInd-firstInd);
+        if( i < firstInd+order )
+            ++numQueues;
+    }
+    dz.Reserve( numQueues );
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int iSparse = dzSparse.GlobalRow(iLoc);
+        const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
+        const Int firstInd = sparseToOrigFirstInds.GetLocal(iLoc,0);
+        const Int sparseOrder = sparseOrders.GetLocal(iLoc,0);
+        const Int sparseFirstInd = sparseFirstInds.GetLocal(iLoc,0);
+        const Int i = iSparse - (sparseFirstInd-firstInd);
+        if( i < firstInd+order )
+            dz.QueueUpdate( i, 0, dzSparse.GetLocal(iLoc,0) );
+    }
+    dz.ProcessQueues();
+
     // ds := - W^T ( rmu + W dz )
     // ==========================
     ds = dz;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoffPar );
     ds += rmu;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoffPar );
     ds *= -1;
 }
 
@@ -780,7 +1087,6 @@ void ExpandSolution
     const Matrix<Real>& w, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
@@ -789,7 +1095,6 @@ void ExpandSolution
     const AbstractDistMatrix<Real>& w, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& J, \
     bool onlyLower, Int cutoff ); \
   template void KKT \
@@ -798,7 +1103,6 @@ void ExpandSolution
     const Matrix<Real>& w, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
@@ -807,9 +1111,11 @@ void ExpandSolution
     const DistMultiVec<Real>& w, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
+    const DistMultiVec<Int>& origToSparseOrders, \
+    const DistMultiVec<Int>& origToSparseFirstInds, \
+          Int kSparse, \
           DistSparseMatrix<Real>& J, \
-    bool onlyLower, Int cutoff ); \
+    bool onlyLower, Int cutoffPar ); \
   template void KKTRHS \
   ( const Matrix<Real>& rc, \
     const Matrix<Real>& rb, \
@@ -818,7 +1124,6 @@ void ExpandSolution
     const Matrix<Real>& wRoot, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& d ); \
   template void KKTRHS \
   ( const AbstractDistMatrix<Real>& rc, \
@@ -828,7 +1133,6 @@ void ExpandSolution
     const AbstractDistMatrix<Real>& wRoot, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& d, \
     Int cutoff ); \
   template void KKTRHS \
@@ -839,9 +1143,10 @@ void ExpandSolution
     const DistMultiVec<Real>& wRoot, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
+    const DistMultiVec<Int>& origToSparseFirstInds, \
+          Int kSparse, \
           DistMultiVec<Real>& d, \
-    Int cutoff ); \
+    Int cutoffPar ); \
   template void ExpandSolution \
   ( Int m, Int n, \
     const Matrix<Real>& d, \
@@ -849,7 +1154,6 @@ void ExpandSolution
     const Matrix<Real>& wRoot, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& dx, \
           Matrix<Real>& dy, \
           Matrix<Real>& dz, \
@@ -861,7 +1165,6 @@ void ExpandSolution
     const AbstractDistMatrix<Real>& wRoot, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& dx, \
           AbstractDistMatrix<Real>& dy, \
           AbstractDistMatrix<Real>& dz, \
@@ -874,12 +1177,15 @@ void ExpandSolution
     const DistMultiVec<Real>& wRoot, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
+    const DistMultiVec<Int>& sparseOrders, \
+    const DistMultiVec<Int>& sparseFirstInds, \
+    const DistMultiVec<Int>& sparseToOrigOrders, \
+    const DistMultiVec<Int>& sparseToOrigFirstInds, \
           DistMultiVec<Real>& dx, \
           DistMultiVec<Real>& dy, \
           DistMultiVec<Real>& dz, \
           DistMultiVec<Real>& ds, \
-    Int cutoff );
+    Int cutoffPar );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -546,7 +546,7 @@ void Multiply
      
         // Perform the local multiply-accumulate, y := alpha A x + y
         MultiplyCSRInterX
-        ( NORMAL, A.LocalHeight(), A.Width(), X.Width(),
+        ( NORMAL, A.LocalHeight(), meta.numRecvInds, b,
           alpha, A.LockedOffsetBuffer(), 
                  meta.colOffs.data(),
                  A.LockedValueBuffer(),
@@ -563,7 +563,7 @@ void Multiply
         // Form and pack the updates to Y
         vector<T> sendVals( meta.numRecvInds*b, 0 );
         MultiplyCSRInterY
-        ( orientation, A.LocalHeight(), A.Width(), X.Width(),
+        ( orientation, A.LocalHeight(), meta.numRecvInds, b,
           alpha, A.LockedOffsetBuffer(),
                  meta.colOffs.data(),
                  A.LockedValueBuffer(),

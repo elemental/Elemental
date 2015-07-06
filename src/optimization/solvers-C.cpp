@@ -933,13 +933,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG c, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElSOCPDirectDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
@@ -947,13 +946,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG c, \
     ElConstDistMatrix_i orders, \
     ElConstDistMatrix_i firstInds, \
-    ElConstDistMatrix_i labels, \
     ElDistMatrix_ ## SIG x, \
     ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElSOCPDirectSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
@@ -961,13 +959,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG c, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElSOCPDirectDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
@@ -975,13 +972,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_i orders, \
     ElConstDistMultiVec_i firstInds, \
-    ElConstDistMultiVec_i labels, \
     ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   /* Expert version
      ^^^^^^^^^^^^^^ */ \
@@ -991,14 +987,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG c, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElSOCPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), \
        CReflect(ctrl) ) ) } \
   ElError ElSOCPDirectXDist_ ## SIG \
@@ -1007,14 +1002,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG c, \
     ElConstDistMatrix_i orders, \
     ElConstDistMatrix_i firstInds, \
-    ElConstDistMatrix_i labels, \
     ElDistMatrix_ ## SIG x, \
     ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z, \
     ElSOCPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), \
        CReflect(ctrl) ) ) } \
   ElError ElSOCPDirectXSparse_ ## SIG \
@@ -1023,14 +1017,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG c, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElSOCPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), \
        CReflect(ctrl) ) ) } \
   ElError ElSOCPDirectXDistSparse_ ## SIG \
@@ -1039,14 +1032,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_i orders, \
     ElConstDistMultiVec_i firstInds, \
-    ElConstDistMultiVec_i labels, \
     ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z, \
     ElSOCPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), \
        CReflect(ctrl) ) ) } \
   /* Affine conic form
@@ -1059,14 +1051,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG h, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElMatrix_ ## SIG s ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElSOCPAffineDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
@@ -1076,14 +1067,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG h, \
     ElConstDistMatrix_i orders, \
     ElConstDistMatrix_i firstInds, \
-    ElConstDistMatrix_i labels, \
     ElDistMatrix_ ## SIG x, \
     ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z, \
     ElDistMatrix_ ## SIG s ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElSOCPAffineSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
@@ -1093,14 +1083,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG h, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElMatrix_ ## SIG s ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElSOCPAffineDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
@@ -1110,14 +1099,13 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMultiVec_ ## SIG h, \
     ElConstDistMultiVec_i orders, \
     ElConstDistMultiVec_i firstInds, \
-    ElConstDistMultiVec_i labels, \
     ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z, \
     ElDistMultiVec_ ## SIG s ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   /* Expert version
      ^^^^^^^^^^^^^^ */ \
@@ -1129,7 +1117,6 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG h, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
@@ -1137,7 +1124,7 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElSOCPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
        CReflect(ctrl) ) ) } \
   ElError ElSOCPAffineXDist_ ## SIG \
@@ -1148,7 +1135,6 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG h, \
     ElConstDistMatrix_i orders, \
     ElConstDistMatrix_i firstInds, \
-    ElConstDistMatrix_i labels, \
     ElDistMatrix_ ## SIG x, \
     ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z, \
@@ -1156,7 +1142,7 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElSOCPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
        CReflect(ctrl) ) ) } \
   ElError ElSOCPAffineXSparse_ ## SIG \
@@ -1167,7 +1153,6 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstMatrix_ ## SIG h, \
     ElConstMatrix_i orders, \
     ElConstMatrix_i firstInds, \
-    ElConstMatrix_i labels, \
     ElMatrix_ ## SIG x, \
     ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
@@ -1175,7 +1160,7 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElSOCPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
        CReflect(ctrl) ) ) } \
   ElError ElSOCPAffineXDistSparse_ ## SIG \
@@ -1186,7 +1171,6 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElConstDistMultiVec_ ## SIG h, \
     ElConstDistMultiVec_i orders, \
     ElConstDistMultiVec_i firstInds, \
-    ElConstDistMultiVec_i labels, \
     ElDistMultiVec_ ## SIG x, \
     ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z, \
@@ -1194,7 +1178,7 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
     ElSOCPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( SOCP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
-      *CReflect(orders), *CReflect(firstInds), *CReflect(labels), \
+      *CReflect(orders), *CReflect(firstInds), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
        CReflect(ctrl) ) ) } \
   /* Self-dual conic form

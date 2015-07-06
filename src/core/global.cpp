@@ -648,8 +648,9 @@ void Union
 ( vector<Int>& both, const vector<Int>& first, const vector<Int>& second )
 {
     both.resize( first.size()+second.size() );
-    vector<Int>::iterator it = std::set_union
-      ( first.begin(), first.end(), second.begin(), second.end(),
+    auto it = std::set_union
+      ( first.cbegin(),  first.cend(), 
+        second.cbegin(), second.cend(),
         both.begin() );
     both.resize( Int(it-both.begin()) );
 }
@@ -667,16 +668,16 @@ void RelativeIndices
 {
     const Int numSub = sub.size();
     relInds.resize( numSub );
-    vector<Int>::const_iterator it = full.begin();
+    auto it = full.cbegin();
     for( Int i=0; i<numSub; ++i )
     {
         const Int index = sub[i];
-        it = std::lower_bound( it, full.end(), index );
+        it = std::lower_bound( it, full.cend(), index );
         DEBUG_ONLY(
-            if( it == full.end() )
-                LogicError("Index was not found");
+          if( it == full.cend() )
+              LogicError("Index was not found");
         )
-        relInds[i] = Int(it-full.begin());
+        relInds[i] = Int(it-full.cbegin());
     }
 }
 
@@ -690,13 +691,12 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full )
 Int Find( const vector<Int>& sortedInds, Int index, string msg )
 {
     DEBUG_ONLY(CSE cse("Find"))
-    vector<Int>::const_iterator vecIt;
-    vecIt = std::lower_bound( sortedInds.begin(), sortedInds.end(), index );
+    auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
     DEBUG_ONLY(
-        if( vecIt == sortedInds.end() )
-            LogicError( msg );
+      if( it == sortedInds.cend() )
+          LogicError( msg );
     )
-    return vecIt - sortedInds.begin();
+    return it - sortedInds.cbegin();
 }
 
 #define EL_NO_COMPLEX_PROTO

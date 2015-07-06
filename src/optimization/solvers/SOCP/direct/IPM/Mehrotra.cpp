@@ -37,7 +37,6 @@ void Mehrotra
   const Matrix<Real>& c,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y, 
         Matrix<Real>& z, 
@@ -69,8 +68,7 @@ void Mehrotra
     affineCtrl.time = ctrl.time;
 
     Matrix<Real> s;
-    socp::affine::Mehrotra
-    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl); 
+    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl); 
 }
 
 template<typename Real>
@@ -80,7 +78,6 @@ void Mehrotra
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y, 
         AbstractDistMatrix<Real>& z, 
@@ -113,8 +110,7 @@ void Mehrotra
     affineCtrl.time = ctrl.time;
 
     DistMatrix<Real> s(grid);
-    socp::affine::Mehrotra
-    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl);
+    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 
 template<typename Real>
@@ -124,7 +120,6 @@ void Mehrotra
   const Matrix<Real>& c,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
@@ -156,8 +151,7 @@ void Mehrotra
     affineCtrl.time = ctrl.time;
 
     Matrix<Real> s;
-    socp::affine::Mehrotra
-    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl);
+    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 
 template<typename Real>
@@ -167,7 +161,6 @@ void Mehrotra
   const DistMultiVec<Real>& c,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
@@ -200,8 +193,7 @@ void Mehrotra
     affineCtrl.time = ctrl.time;
 
     DistMultiVec<Real> s(comm);
-    socp::affine::Mehrotra
-    (A,G,b,c,h,orders,firstInds,labels,x,y,z,s,affineCtrl);
+    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 
 #define PROTO(Real) \
@@ -211,7 +203,6 @@ void Mehrotra
     const Matrix<Real>& c, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -222,7 +213,6 @@ void Mehrotra
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
@@ -233,7 +223,6 @@ void Mehrotra
     const Matrix<Real>& c, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -244,7 +233,6 @@ void Mehrotra
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \

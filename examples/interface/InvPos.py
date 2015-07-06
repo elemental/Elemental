@@ -25,15 +25,12 @@ El.Initialize()
 
 orders = El.DistMultiVec(El.iTag)
 firstInds = El.DistMultiVec(El.iTag)
-labels = El.DistMultiVec(El.iTag)
 orders.Resize(12,1)
 firstInds.Resize(12,1)
-labels.Resize(12,1)
 for c in xrange(0,4):
   for i in xrange(0,3):
     orders.Set(3*c+i,0,3)
     firstInds.Set(3*c+i,0,3*c)
-    labels.Set(3*c+i,0,c)
 
 A = El.DistSparseMatrix(El.dTag)
 A.Resize(4,8)
@@ -115,6 +112,6 @@ ctrl.mehrotraCtrl.qsdCtrl.progress = True
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.time = True
-El.SOCPAffine(A,G,b,c,h,orders,firstInds,labels,x,y,z,s,ctrl)
+El.SOCPAffine(A,G,b,c,h,orders,firstInds,x,y,z,s,ctrl)
 
 El.Finalize()

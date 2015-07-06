@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "../../../QP/affine/IPM/util.hpp"
+#include "../../../LP/affine/IPM/util.hpp"
 
 namespace El {
 namespace socp {
@@ -24,7 +24,6 @@ void Initialize
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
@@ -39,7 +38,6 @@ void Initialize
   const AbstractDistMatrix<Real>& h,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
@@ -54,15 +52,10 @@ void Initialize
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
         Matrix<Real>& s,
-        vector<Int>& map, 
-        vector<Int>& invMap,
-        ldl::Separator& rootSep, 
-        ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl );
 template<typename Real>
@@ -74,16 +67,11 @@ void Initialize
   const DistMultiVec<Real>& h,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
         DistMultiVec<Real>& s,
-        DistMap& map,
-        DistMap& invMap,
-        ldl::DistSeparator& rootSep, 
-        ldl::DistNodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift, Int cutoff,
+  bool primalInit, bool dualInit, bool standardShift, Int cutoffPar, 
   const RegQSDCtrl<Real>& qsdCtrl );
 
 // Full system
@@ -95,7 +83,6 @@ void KKT
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& J, 
   bool onlyLower=true );
 template<typename Real>
@@ -105,7 +92,6 @@ void KKT
   const AbstractDistMatrix<Real>& w,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& J, 
   bool onlyLower=true, Int cutoff=1000 );
 template<typename Real>
@@ -115,7 +101,6 @@ void KKT
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         SparseMatrix<Real>& J, 
   bool onlyLower=true );
 template<typename Real>
@@ -125,9 +110,11 @@ void KKT
   const DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
+  const DistMultiVec<Int>& origToSparseOrders,
+  const DistMultiVec<Int>& origToSparseFirstInds,
+        Int kSparse,
         DistSparseMatrix<Real>& J, 
-  bool onlyLower=true, Int cutoff=1000 );
+  bool onlyLower=true, Int cutoffPar=1000 );
 
 template<typename Real>
 void KKTRHS
@@ -138,7 +125,6 @@ void KKTRHS
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& d );
 template<typename Real>
 void KKTRHS
@@ -149,7 +135,6 @@ void KKTRHS
   const AbstractDistMatrix<Real>& wRoot,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& d,
   Int cutoff=1000 );
 template<typename Real>
@@ -161,9 +146,10 @@ void KKTRHS
   const DistMultiVec<Real>& wRoot,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
+  const DistMultiVec<Int>& origToSparseFirstInds,
+        Int kSparse,
         DistMultiVec<Real>& d,
-  Int cutoff=1000 );
+  Int cutoffPar=1000 );
 
 template<typename Real>
 void ExpandSolution
@@ -173,7 +159,6 @@ void ExpandSolution
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& dx,
         Matrix<Real>& dy,
         Matrix<Real>& dz,
@@ -186,7 +171,6 @@ void ExpandSolution
   const AbstractDistMatrix<Real>& wRoot,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& dx,
         AbstractDistMatrix<Real>& dy,
         AbstractDistMatrix<Real>& dz,
@@ -200,12 +184,15 @@ void ExpandSolution
   const DistMultiVec<Real>& wRoot,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
+  const DistMultiVec<Int>& sparseOrders,
+  const DistMultiVec<Int>& sparseFirstInds,
+  const DistMultiVec<Int>& sparseToOrigOrders,
+  const DistMultiVec<Int>& sparseToOrigFirstInds,
         DistMultiVec<Real>& dx,
         DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz,
         DistMultiVec<Real>& ds,
-  Int cutoff=1000 );
+  Int cutoffPar=1000 );
 
 } // namespace affine
 } // namespace socp

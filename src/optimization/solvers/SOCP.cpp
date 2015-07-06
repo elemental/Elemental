@@ -19,7 +19,6 @@ void SOCP
   const Matrix<Real>& c,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
@@ -28,7 +27,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -40,7 +39,6 @@ void SOCP
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z, 
@@ -49,7 +47,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -61,7 +59,6 @@ void SOCP
   const Matrix<Real>& c, 
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
@@ -70,7 +67,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -82,7 +79,6 @@ void SOCP
   const DistMultiVec<Real>& c, 
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
@@ -91,7 +87,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, labels, x, y, z, ctrl.mehrotraCtrl );
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -105,7 +101,6 @@ void SOCP
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
@@ -115,7 +110,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -130,7 +125,6 @@ void SOCP
   const AbstractDistMatrix<Real>& h,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
-  const AbstractDistMatrix<Int>& labels,
         AbstractDistMatrix<Real>& x, 
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z, 
@@ -140,7 +134,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -155,7 +149,6 @@ void SOCP
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y,
         Matrix<Real>& z, 
@@ -165,7 +158,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -180,7 +173,6 @@ void SOCP
   const DistMultiVec<Real>& h,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
@@ -190,7 +182,7 @@ void SOCP
     DEBUG_ONLY(CSE cse("SOCP"))
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
           ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -203,7 +195,6 @@ void SOCP
     const Matrix<Real>& c, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -214,7 +205,6 @@ void SOCP
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
@@ -225,7 +215,6 @@ void SOCP
     const Matrix<Real>& c, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -236,7 +225,6 @@ void SOCP
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
@@ -249,7 +237,6 @@ void SOCP
     const Matrix<Real>& h, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -263,7 +250,6 @@ void SOCP
     const AbstractDistMatrix<Real>& h, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
@@ -277,7 +263,6 @@ void SOCP
     const Matrix<Real>& h, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -291,7 +276,6 @@ void SOCP
     const DistMultiVec<Real>& h, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \

@@ -224,15 +224,13 @@ void SOCPIPM
     const Int m = A.Height();
     const Int n = A.Width();
 
-    Matrix<Int> orders, firstInds, labels;
+    Matrix<Int> orders, firstInds;
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
-    Zeros( labels,    2*n, 1 );
     for( Int i=0; i<orders.Height(); ++i )
     {
         orders.Set( i, 0, 2 );
         firstInds.Set( i, 0, i-(i%2) ); 
-        labels.Set( i, 0, i/2 );
     }
 
     Matrix<Real> c;
@@ -249,7 +247,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     Matrix<Real> xHat, y, z;
-    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========
@@ -270,15 +268,13 @@ void SOCPIPM
     const Int m = A.Height();
     const Int n = A.Width();
 
-    Matrix<Int> orders, firstInds, labels;
+    Matrix<Int> orders, firstInds;
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
-    Zeros( labels,    2*n, 1 );
     for( Int i=0; i<orders.Height(); ++i )
     {
         orders.Set( i, 0, 2 );
         firstInds.Set( i, 0, i-(i%2) ); 
-        labels.Set( i, 0, i/2 );
     }
 
     Matrix<Real> c;
@@ -297,7 +293,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     Matrix<Real> xHat, y, z;
-    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========
@@ -319,16 +315,14 @@ void SOCPIPM
     const Int n = A.Width();
     const Grid& grid = A.Grid();
 
-    DistMatrix<Int,VC,STAR> orders(grid), firstInds(grid), labels(grid);
+    DistMatrix<Int,VC,STAR> orders(grid), firstInds(grid);
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
-    Zeros( labels,    2*n, 1 );
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
         orders.SetLocal( iLoc, 0, 2 );
         firstInds.SetLocal( iLoc, 0, i-(i%2) ); 
-        labels.SetLocal( iLoc, 0, i/2 );
     }
 
     DistMatrix<Real> c(grid);
@@ -351,7 +345,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     DistMatrix<Real> xHat(grid), y(grid), z(grid);
-    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========
@@ -381,16 +375,14 @@ void SOCPIPM
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm), labels(comm);
+    DistMultiVec<Int> orders(comm), firstInds(comm);
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
-    Zeros( labels,    2*n, 1 );
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
         orders.SetLocal( iLoc, 0, 2 );
         firstInds.SetLocal( iLoc, 0, i-(i%2) ); 
-        labels.SetLocal( iLoc, 0, i/2 );
     }
 
     DistMultiVec<Real> c(comm);
@@ -411,7 +403,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     DistMultiVec<Real> xHat(comm), y(comm), z(comm);
-    SOCP( AHat, b, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, b, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E xHat
     // ===========
@@ -454,15 +446,13 @@ void SOCPIPM
     const Int m = A.Height();
     const Int n = A.Width();
 
-    Matrix<Int> orders, firstInds, labels;
+    Matrix<Int> orders, firstInds;
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
-    Zeros( labels,    3*n, 1 );
     for( Int i=0; i<orders.Height(); ++i )
     {
         orders.Set( i, 0, 3 );
         firstInds.Set( i, 0, i-(i%3) ); 
-        labels.Set( i, 0, i/3 );
     }
 
     Matrix<Real> c;
@@ -500,7 +490,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     Matrix<Real> xHat, y, z;
-    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, bHat, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E_R xHat + i E_I xHat
     // ==========================
@@ -525,15 +515,13 @@ void SOCPIPM
     const Int m = A.Height();
     const Int n = A.Width();
 
-    Matrix<Int> orders, firstInds, labels;
+    Matrix<Int> orders, firstInds;
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
-    Zeros( labels,    3*n, 1 );
     for( Int i=0; i<orders.Height(); ++i )
     {
         orders.Set( i, 0, 3 );
         firstInds.Set( i, 0, i-(i%3) ); 
-        labels.Set( i, 0, i/3 );
     }
 
     Matrix<Real> c;
@@ -573,7 +561,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     Matrix<Real> xHat, y, z;
-    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, bHat, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E_R xHat + i E_I xHat
     // ==========================
@@ -599,16 +587,14 @@ void SOCPIPM
     const Int n = A.Width();
     const Grid& grid = A.Grid();
 
-    DistMatrix<Int,VC,STAR> orders(grid), firstInds(grid), labels(grid);
+    DistMatrix<Int,VC,STAR> orders(grid), firstInds(grid);
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
-    Zeros( labels,    3*n, 1 );
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
         orders.SetLocal( iLoc, 0, 3 );
         firstInds.SetLocal( iLoc, 0, i-(i%3) ); 
-        labels.SetLocal( iLoc, 0, i/3 );
     }
 
     DistMatrix<Real> c(grid);
@@ -651,7 +637,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     DistMatrix<Real> xHat(grid), y(grid), z(grid);
-    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, bHat, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E_R xHat + i E_I xHat
     // ==========================
@@ -684,16 +670,14 @@ void SOCPIPM
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm), labels(comm);
+    DistMultiVec<Int> orders(comm), firstInds(comm);
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
-    Zeros( labels,    3*n, 1 );
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
         orders.SetLocal( iLoc, 0, 3 );
         firstInds.SetLocal( iLoc, 0, i-(i%3) ); 
-        labels.SetLocal( iLoc, 0, i/3 );
     }
 
     DistMultiVec<Real> c(comm);
@@ -737,7 +721,7 @@ void SOCPIPM
     // Solve the direct SOCP
     // =====================
     DistMultiVec<Real> xHat(comm), y(comm), z(comm);
-    SOCP( AHat, bHat, c, orders, firstInds, labels, xHat, y, z, ctrl );
+    SOCP( AHat, bHat, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E_R xHat + i E_I xHat
     // ==========================

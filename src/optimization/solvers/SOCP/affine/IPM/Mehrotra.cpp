@@ -42,7 +42,6 @@ void Mehrotra
   const Matrix<Real>& hPre,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x, 
         Matrix<Real>& y, 
         Matrix<Real>& z, 
@@ -61,7 +60,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = MaxNorm(labels)+1;
+    const Int degree = SOCDegree( firstInds );
     Matrix<Real> dRowA, dRowG, dCol;
     // TODO: Outer equilibration support
     Ones( dRowA, m, 1 );
@@ -75,7 +74,7 @@ void Mehrotra
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
@@ -174,8 +173,8 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, w, orders, firstInds, labels, J );
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+        KKT( A, G, w, orders, firstInds, J );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
 
         // Solve for the direction
         // -----------------------
@@ -194,7 +193,7 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
+        ( m, n, d, rmu, wRoot, orders, firstInds,
           dxAff, dyAff, dzAff, dsAff );
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
@@ -280,7 +279,7 @@ void Mehrotra
         rmu += l;
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
         try { ldl::SolveAfter( J, dSub, p, d, false ); }
         catch(...)
         {
@@ -292,7 +291,7 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds );
+        ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds );
         // TODO: Residual checks
 
         // Update the current estimates
@@ -333,7 +332,6 @@ void Mehrotra
   const AbstractDistMatrix<Real>& hPre,
   const AbstractDistMatrix<Int>& ordersPre,
   const AbstractDistMatrix<Int>& firstIndsPre,
-  const AbstractDistMatrix<Int>& labelsPre,
         AbstractDistMatrix<Real>& xPre, 
         AbstractDistMatrix<Real>& yPre, 
         AbstractDistMatrix<Real>& zPre, 
@@ -375,15 +373,13 @@ void Mehrotra
 
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre);
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
-    auto labelsPtr = ReadProxy<Int,VC,STAR>(&labelsPre);
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
-    auto& labels = *labelsPtr;
 
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = MaxNorm(labels)+1;
+    const Int degree = SOCDegree( firstInds );
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
@@ -399,7 +395,7 @@ void Mehrotra
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar );
 
     Real relError = 1;
@@ -510,9 +506,9 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, w, orders, firstInds, labels, J, onlyLower, cutoffPar );
+        KKT( A, G, w, orders, firstInds, J, onlyLower, cutoffPar );
         KKTRHS
-        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
+        ( rc, rb, rh, rmu, wRoot, orders, firstInds, d, cutoffPar );
 
         // Solve for the direction
         // -----------------------
@@ -531,7 +527,7 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
+        ( m, n, d, rmu, wRoot, orders, firstInds,
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
         SOCApplyQuadratic
         ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
@@ -620,7 +616,7 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
-        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
+        ( rc, rb, rh, rmu, wRoot, orders, firstInds, d, cutoffPar );
         try { ldl::SolveAfter( J, dSub, p, d, false ); }
         catch(...)
         {
@@ -632,7 +628,7 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds,
+        ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds,
           cutoffPar );
         // TODO: Residual checks
 
@@ -676,7 +672,6 @@ void Mehrotra
   const Matrix<Real>& hPre,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-  const Matrix<Int>& labels,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
@@ -696,7 +691,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = MaxNorm(labels)+1;
+    const Int degree = SOCDegree( firstInds );
     Matrix<Real> dRowA, dRowG, dCol;
     // TODO: Add outer equilibration support
     Ones( dRowA, m, 1 );
@@ -707,14 +702,10 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     Initialize
-    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
-      map, invMap, rootSep, info, 
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
@@ -746,6 +737,9 @@ void Mehrotra
     }
 
     Real relError = 1;
+    vector<Int> map, invMap;
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
     Matrix<Real> dInner;
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, dmuError;
@@ -835,9 +829,9 @@ void Mehrotra
 
         // Form the KKT system
         // -------------------
-        KKT( A, G, w, orders, firstInds, labels, JOrig, false );
+        KKT( A, G, w, orders, firstInds, JOrig, false );
         UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
 
         // Solve for the direction
         // -----------------------
@@ -850,11 +844,8 @@ void Mehrotra
               innerGeomEquil, ctrl.innerEquil, 
               ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-            if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
-            {
-                NestedDissection( J.LockedGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
-            }
+            NestedDissection( J.LockedGraph(), map, rootSep, info );
+            InvertMap( map, invMap );
             JFront.Pull( J, map, info );
 
             LDL( info, JFront, LDL_2D );
@@ -872,7 +863,7 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
+        ( m, n, d, rmu, wRoot, orders, firstInds, 
           dxAff, dyAff, dzAff, dsAff );
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
@@ -960,7 +951,7 @@ void Mehrotra
         rmu += l;
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
         try 
         {
             reg_qsd_ldl::SolveAfter
@@ -977,7 +968,7 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds );
+        ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds );
 
         // Update the current estimates
         // ============================
@@ -1017,7 +1008,6 @@ void Mehrotra
   const DistMultiVec<Real>& hPre,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  const DistMultiVec<Int>& labels,
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
@@ -1026,14 +1016,10 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
     mpi::Comm comm = APre.Comm();
+    const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
     const bool onlyLower = false;
     Timer timer;
-
-    // TODO: Expose as tuning parameters
-    const Int cutoffPar = 1000;
-    const bool forceSameStep = true;
-    const bool stepLengthSigma = true;
 
     auto A = APre;
     auto G = GPre;
@@ -1044,7 +1030,14 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = MaxNorm(labels)+1;
+    const Int degree = SOCDegree( firstInds );
+
+    // TODO: Expose as tuning parameters
+    const Int cutoffSparse = k+1; // Disable until debugged
+    const Int cutoffPar = 1000;
+    const bool forceSameStep = true;
+    const bool stepLengthSigma = true;
+
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
     // TODO: Outer equilibration support
     Ones( dRowA, m, 1 );
@@ -1055,16 +1048,204 @@ void Mehrotra
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
+    // Form the offsets for the sparse embedding of the barrier's Hessian
+    // ================================================================== 
+    DistMultiVec<Int> 
+      origToSparseOrders(comm),    sparseToOrigOrders(comm),
+      origToSparseFirstInds(comm), sparseToOrigFirstInds(comm), 
+      sparseOrders(comm), sparseFirstInds(comm);
+    // TODO: Move this code block to a subroutine
+    {
+        // Allgather the list of cones with sufficiently large order
+        // ---------------------------------------------------------
+        // TODO: Send triplets instead?
+        vector<Int> sendOrders, sendRoots;
+        const Int localHeight = h.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = h.GlobalRow(iLoc);
+            const Int order = orders.GetLocal(iLoc,0);
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            if( order > cutoffSparse && i == firstInd )
+            {
+                sendRoots.push_back( i );
+                sendOrders.push_back( order );
+            }
+        }
+        const int numSendRoots = sendRoots.size();
+        vector<int> numRecvRoots(commSize);
+        mpi::AllGather( &numSendRoots, 1, numRecvRoots.data(), 1, comm );
+        vector<int> recvOffs;
+        const int numRoots = Scan( numRecvRoots, recvOffs );
+        // Receive the roots
+        // ^^^^^^^^^^^^^^^^^
+        vector<Int> recvRoots(numRoots);
+        mpi::AllGather
+        ( sendRoots.data(), numSendRoots,
+          recvRoots.data(), numRecvRoots.data(), recvOffs.data(), comm );
+        SwapClear( sendRoots );
+        // Receive the orders
+        // ^^^^^^^^^^^^^^^^^^
+        vector<Int> recvOrders(numRoots);
+        mpi::AllGather
+        ( sendOrders.data(), numSendRoots,
+          recvOrders.data(), numRecvRoots.data(), recvOffs.data(), comm );
+        SwapClear( sendOrders );
+
+        // TODO: Sort based upon the roots. The current distribution
+        //       guarantees that they are already sorted.
+
+        // Form the metadata for the original domain
+        // -----------------------------------------
+
+        origToSparseOrders.Resize( k, 1 );    
+        auto it = recvRoots.cbegin();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int order = orders.GetLocal(iLoc,0);
+            const Int root = firstInds.GetLocal(iLoc,0);
+            it = std::lower_bound( it, recvRoots.cend(), root );
+            const bool embedded = ( it != recvRoots.cend() && *it == root );
+            const Int sparseOrder = ( embedded ? order+2 : order );
+            origToSparseOrders.SetLocal( iLoc, 0, sparseOrder );
+        }
+
+        origToSparseFirstInds.Resize( k, 1 );    
+        it = recvRoots.cbegin();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int root = firstInds.GetLocal(iLoc,0);
+            it = std::lower_bound( it, recvRoots.cend(), root );
+            const Int numSparseBefore = Int(it-recvRoots.cbegin());
+            const Int sparseOffset = 2*numSparseBefore;
+            origToSparseFirstInds.SetLocal( iLoc, 0, root+sparseOffset );
+        }
+
+        // Form the metadata for the sparsified index domain
+        // -------------------------------------------------
+        Zeros( sparseOrders, k+2*numRoots, 1 );
+        Zeros( sparseFirstInds, k+2*numRoots, 1 );
+        Zeros( sparseToOrigOrders, k+2*numRoots, 1 );
+        Zeros( sparseToOrigFirstInds, k+2*numRoots, 1 );
+
+        // Count the number of updates for each
+        // """"""""""""""""""""""""""""""""""""
+        Int numQueues = 0;
+        it = recvRoots.cbegin();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = firstInds.GlobalRow(iLoc);
+            const Int root = firstInds.GetLocal(iLoc,0);
+            const Int order = orders.GetLocal(iLoc,0);
+            it = std::lower_bound( it, recvRoots.cend(), root );
+            const bool embedded = ( it != recvRoots.cend() && root == *it );
+            numQueues += 1;
+            if( embedded && i - root == order-1 )
+                numQueues += 2;
+        }
+
+        // Form sparseOrders
+        // """""""""""""""""
+        sparseOrders.Reserve( numQueues );
+        it = recvRoots.cbegin();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = firstInds.GlobalRow(iLoc);
+            const Int root = firstInds.GetLocal(iLoc,0);
+            const Int order = orders.GetLocal(iLoc,0);
+            it = std::lower_bound( it, recvRoots.cend(), root );
+            const bool embedded = ( it != recvRoots.cend() && root == *it );
+            const Int sparseOrder = ( embedded ? order+2 : order );
+            const Int numSparseBefore = Int(it-recvRoots.cbegin());
+            const Int sparseOffset = 2*numSparseBefore;
+            const Int iSparse = i + sparseOffset;
+            sparseOrders.QueueUpdate( iSparse, 0, sparseOrder );
+            if( embedded && i - root == order-1 )
+            {
+                sparseOrders.QueueUpdate( iSparse+1, 0, sparseOrder );
+                sparseOrders.QueueUpdate( iSparse+2, 0, sparseOrder );
+            }
+        }
+        sparseOrders.ProcessQueues();
+
+        // Form sparseFirstInds
+        // """"""""""""""""""""
+        sparseFirstInds.Reserve( numQueues );
+        it = recvRoots.cbegin();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = firstInds.GlobalRow(iLoc);
+            const Int root = firstInds.GetLocal(iLoc,0);
+            const Int order = orders.GetLocal(iLoc,0);
+            it = std::lower_bound( it, recvRoots.cend(), root );
+            const bool embedded = ( it != recvRoots.cend() && root == *it );
+            const Int numSparseBefore = Int(it-recvRoots.cbegin());
+            const Int sparseOffset = 2*numSparseBefore;
+            const Int iSparse = i + sparseOffset;
+            const Int sparseRoot = root + sparseOffset;
+            sparseFirstInds.QueueUpdate( iSparse, 0, sparseRoot );
+            if( embedded && i - root == order-1 )
+            {
+                sparseFirstInds.QueueUpdate( iSparse+1, 0, sparseRoot );
+                sparseFirstInds.QueueUpdate( iSparse+2, 0, sparseRoot );
+            }
+        }
+        sparseFirstInds.ProcessQueues();
+
+        // Form sparseToOrigOrders
+        // """""""""""""""""""""""
+        sparseToOrigOrders.Reserve( numQueues );
+        it = recvRoots.cbegin();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = firstInds.GlobalRow(iLoc);
+            const Int root = firstInds.GetLocal(iLoc,0);
+            const Int order = orders.GetLocal(iLoc,0);
+            it = std::lower_bound( it, recvRoots.cend(), root );
+            const bool embedded = ( it != recvRoots.cend() && root == *it );
+            const Int numSparseBefore = Int(it-recvRoots.cbegin());
+            const Int sparseOffset = 2*numSparseBefore;
+            const Int iSparse = i + sparseOffset;
+            sparseToOrigOrders.QueueUpdate( iSparse, 0, order );
+            if( embedded && i - root == order-1 )
+            {
+                sparseToOrigOrders.QueueUpdate( iSparse+1, 0, order );
+                sparseToOrigOrders.QueueUpdate( iSparse+2, 0, order );
+            }
+        }
+        sparseToOrigOrders.ProcessQueues();
+
+        // Form sparseToOrigFirstInds
+        // """"""""""""""""""""""""""
+        sparseToOrigFirstInds.Reserve( numQueues );
+        it = recvRoots.cbegin();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = firstInds.GlobalRow(iLoc);
+            const Int root = firstInds.GetLocal(iLoc,0);
+            const Int order = orders.GetLocal(iLoc,0);
+            it = std::lower_bound( it, recvRoots.cend(), root );
+            const bool embedded = ( it != recvRoots.cend() && root == *it );
+            const Int numSparseBefore = Int(it-recvRoots.cbegin());
+            const Int sparseOffset = 2*numSparseBefore;
+            const Int iSparse = i + sparseOffset;
+            sparseToOrigFirstInds.QueueUpdate( iSparse, 0, root );
+            if( embedded && i - root == order-1 )
+            {
+                sparseToOrigFirstInds.QueueUpdate( iSparse+1, 0, root );
+                sparseToOrigFirstInds.QueueUpdate( iSparse+2, 0, root );
+            }
+        }
+        sparseToOrigFirstInds.ProcessQueues();
+    }
+    const Int kSparse = sparseFirstInds.Height();
+
     // TODO: Expose this as a parameter to MehrotraCtrl
     const bool standardShift = true;
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
-    ( A, G, b, c, h, orders, firstInds, labels, x, y, z, s,
-      map, invMap, rootSep, info, 
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar, 
       ctrl.qsdCtrl );
     if( commRank == 0 && ctrl.time )
@@ -1081,25 +1262,61 @@ void Mehrotra
                        dx(comm),    dy(comm),    dz(comm),    ds(comm),
                        dzAffScaled(comm), dsAffScaled(comm);
 
+    // Form the regularization vectors
+    // ===============================
     DistMultiVec<Real> regPerm(comm), regTmp(comm);
-    regTmp.Resize( n+m+k, 1 );
-    regPerm.Resize( n+m+k, 1 );
+    Zeros( regTmp, n+m+kSparse, 1 );
+    Zeros( regPerm, n+m+kSparse, 1 );
+    // Set the analytical part
+    // -----------------------
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
         {
-            regPerm.SetLocal( iLoc, 0, ctrl.targetTol/10 );
             regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+            regPerm.SetLocal( iLoc, 0, ctrl.targetTol/10 );
+        }
+        else if( i < n+m )
+        {
+            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+            regPerm.SetLocal( iLoc, 0, -ctrl.targetTol/10 );
         }
         else
+            break;
+    }
+    // Perform the portion that requires remote updates
+    // ------------------------------------------------
+    {
+        const Int sparseLocalHeight = sparseFirstInds.LocalHeight();
+        regTmp.Reserve( sparseLocalHeight );
+        regPerm.Reserve( sparseLocalHeight );
+        for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
         {
-            regPerm.SetLocal( iLoc, 0, -ctrl.targetTol/10 );
-            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+            const Int iCone = sparseFirstInds.GlobalRow(iLoc);
+            const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
+            const Int sparseOrder = sparseOrders.GetLocal(iLoc,0);
+            const bool embedded = ( order != sparseOrder ); 
+            const Int firstInd = sparseFirstInds.GetLocal(iLoc,0);
+            if( embedded && iCone == firstInd+sparseOrder-1 )
+            {
+                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.qsdCtrl.regDual );
+                regPerm.QueueUpdate( n+m+iCone, 0, ctrl.targetTol/10 );
+            }
+            else
+            {
+                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.qsdCtrl.regDual );
+                regPerm.QueueUpdate( n+m+iCone, 0, -ctrl.targetTol/10 );
+            }
         }
+        regTmp.ProcessQueues();
+        regPerm.ProcessQueues();
     }
 
     Real relError = 1;
+    DistMap map, invMap;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
     DistMultiVec<Real> dInner(comm);
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), 
@@ -1192,10 +1409,17 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, w, orders, firstInds, labels, JOrig, onlyLower, cutoffPar );
+        KKT
+        ( A, G, w, 
+          orders, firstInds, 
+          origToSparseOrders, origToSparseFirstInds,
+          kSparse,
+          JOrig, onlyLower, cutoffPar );
         UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
         KKTRHS
-        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
+        ( rc, rb, rh, rmu, wRoot,
+          orders, firstInds, origToSparseFirstInds, kSparse,
+          d, cutoffPar );
 
         // Solve for the direction
         // -----------------------
@@ -1221,15 +1445,12 @@ void Mehrotra
             if( numIts == 0 )
             {
                 meta = J.InitializeMultMeta();
-                if( ctrl.primalInit && ctrl.dualInit )
-                {
-                    if( commRank == 0 && ctrl.time )
-                        timer.Start();
-                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                    if( commRank == 0 && ctrl.time )
-                        cout << "  ND: " << timer.Stop() << " secs" << endl;
-                    InvertMap( map, invMap );
-                }
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                if( commRank == 0 && ctrl.time )
+                    cout << "  ND: " << timer.Stop() << " secs" << endl;
+                InvertMap( map, invMap );
             }
             else
                 J.multMeta = meta;
@@ -1259,7 +1480,10 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, 
+        ( m, n, d, rmu, wRoot, 
+          orders, firstInds, 
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
         SOCApplyQuadratic
         ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
@@ -1350,7 +1574,9 @@ void Mehrotra
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
-        ( rc, rb, rh, rmu, wRoot, orders, firstInds, labels, d, cutoffPar );
+        ( rc, rb, rh, rmu, wRoot, 
+          orders, firstInds, origToSparseFirstInds, kSparse,
+          d, cutoffPar );
         try
         {
             if( commRank == 0 && ctrl.time )
@@ -1371,8 +1597,11 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, labels, dx, dy, dz, ds, 
-          cutoffPar );
+        ( m, n, d, rmu, wRoot, 
+          orders, firstInds, 
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
+          dx, dy, dz, ds, cutoffPar );
 
         // Update the current estimates
         // ============================
@@ -1414,7 +1643,6 @@ void Mehrotra
     const Matrix<Real>& h, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -1428,7 +1656,6 @@ void Mehrotra
     const AbstractDistMatrix<Real>& h, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, \
-    const AbstractDistMatrix<Int>& labels, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
@@ -1442,7 +1669,6 @@ void Mehrotra
     const Matrix<Real>& h, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
-    const Matrix<Int>& labels, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
@@ -1456,7 +1682,6 @@ void Mehrotra
     const DistMultiVec<Real>& h, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
-    const DistMultiVec<Int>& labels, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
