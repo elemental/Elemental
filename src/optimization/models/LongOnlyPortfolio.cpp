@@ -12,8 +12,9 @@ namespace El {
 
 template<typename Real>
 void LongOnlyPortfolio
-( const DistMultiVec<Real>& c,
-  const DistSparseMatrix<Real>& Sigma,
+( const DistSparseMatrix<Real>& Sigma,
+  const DistMultiVec<Real>& c,
+        Real gamma,
         DistMultiVec<Real>& x )
 {
     DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
@@ -24,6 +25,11 @@ void LongOnlyPortfolio
     ctrl.mehrotraCtrl.print = true;
     ctrl.mehrotraCtrl.qsdCtrl.progress = true;
 
+    // Rather than making a copy of Sigma to form gamma*Sigma, scale c
+    // ===============================================================
+    auto cScaled = c;
+    cScaled *= 1/gamma;
+
     // Enforce 1^T x = 1
     // ================= 
     DistSparseMatrix<Real> A(comm);
@@ -32,14 +38,15 @@ void LongOnlyPortfolio
     Ones( b, 1, 1 );
 
     DistMultiVec<Real> y(comm), z(comm);
-    QP( Sigma, A, b, c, x, y, z, ctrl );
+    QP( Sigma, A, b, cScaled, x, y, z, ctrl );
 }
 
 template<typename Real>
 void LongOnlyPortfolio
-( const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& d,
+( const DistMultiVec<Real>& d,
   const DistSparseMatrix<Real>& F,
+  const DistMultiVec<Real>& c,
+        Real gamma,
         DistMultiVec<Real>& x )
 {
     DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
@@ -59,19 +66,21 @@ void LongOnlyPortfolio
         Diagonal( Sigma, d );
         Syrk( LOWER, NORMAL, Real(1), F, Real(1), Sigma );
         MakeSymmetric( LOWER, Sigma );
-        LongOnlyPortfolio( c, Sigma, x );
+        LongOnlyPortfolio( Sigma, c, gamma, x );
     }
 }
 
 #define PROTO(Real) \
   template void LongOnlyPortfolio \
-  ( const DistMultiVec<Real>& c, \
-    const DistSparseMatrix<Real>& Sigma, \
+  ( const DistSparseMatrix<Real>& Sigma, \
+    const DistMultiVec<Real>& c, \
+          Real gamma, \
           DistMultiVec<Real>& x ); \
   template void LongOnlyPortfolio \
-  ( const DistMultiVec<Real>& c, \
-    const DistMultiVec<Real>& d, \
+  ( const DistMultiVec<Real>& d, \
     const DistSparseMatrix<Real>& F, \
+    const DistMultiVec<Real>& c, \
+          Real gamma, \
           DistMultiVec<Real>& x );
 
 #define EL_NO_INT_PROTO

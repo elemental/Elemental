@@ -483,12 +483,12 @@ void TV
 // The long-only version of classical (Markowitz) portfolio optimization 
 // solves the problem
 // 
-//   min lambda x^T Sigma x - c^T x,
+//   min gamma x^T Sigma x - c^T x,
 //   s.t. 1^T x = 1, x >= 0,
 //
-// where 'c' is the vector of expected returns of various assets and,
-// the covariance matrix, Sigma, can optionally be provided in the 
-// factored form
+// where 'c' is the vector of expected returns of various assets, 'gamma' is
+// the risk-aversion parameter, and the covariance matrix, Sigma, can 
+// optionally be provided in the factored form
 //
 //   Sigma = D + F F^T,
 //
@@ -498,15 +498,17 @@ void TV
 // TODO: Add control structures
 template<typename Real>
 void LongOnlyPortfolio
-( const DistMultiVec<Real>& c,
-  const DistSparseMatrix<Real>& Sigma,
+( const DistSparseMatrix<Real>& Sigma,
+  const DistMultiVec<Real>& c,
+        Real gamma,
         DistMultiVec<Real>& x );
 
 template<typename Real>
 void LongOnlyPortfolio
-( const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& d,
+( const DistMultiVec<Real>& d,
   const DistSparseMatrix<Real>& F,
+  const DistMultiVec<Real>& c,
+        Real gamma,
         DistMultiVec<Real>& x );
 
 } // namespace El
