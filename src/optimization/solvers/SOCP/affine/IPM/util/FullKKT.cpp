@@ -474,7 +474,6 @@ void KKT
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = G.Height();
 
     // Gather all of each non-sparsified member cone that we own a piece of
     // --------------------------------------------------------------------
@@ -1051,7 +1050,6 @@ void ExpandSolution
         const Int iSparse = dzSparse.GlobalRow(iLoc);
         const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
         const Int firstInd = sparseToOrigFirstInds.GetLocal(iLoc,0);
-        const Int sparseOrder = sparseOrders.GetLocal(iLoc,0);
         const Int sparseFirstInd = sparseFirstInds.GetLocal(iLoc,0);
         const Int i = iSparse - (sparseFirstInd-firstInd);
         if( i < firstInd+order )
@@ -1063,7 +1061,6 @@ void ExpandSolution
         const Int iSparse = dzSparse.GlobalRow(iLoc);
         const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
         const Int firstInd = sparseToOrigFirstInds.GetLocal(iLoc,0);
-        const Int sparseOrder = sparseOrders.GetLocal(iLoc,0);
         const Int sparseFirstInd = sparseFirstInds.GetLocal(iLoc,0);
         const Int i = iSparse - (sparseFirstInd-firstInd);
         if( i < firstInd+order )
