@@ -25,9 +25,7 @@ void SymmetricEquil
         SymmetricGeomEquil( A, d, progress );
     else if( diagEquil )
     {
-        if( progress )
-            cout << "    Diagonal equilibration not yet enabled for dense "
-                    "matrices" << endl;
+        DiagonalEquil( A, d, progress );
     }
        
     if( scaleTwoNorm )
@@ -40,7 +38,7 @@ void SymmetricEquil
 
 template<typename F>
 void SymmetricEquil
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& dPre, 
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& d, 
   bool geomEquil, bool diagEquil,
   bool scaleTwoNorm, Int basisSize, bool progress )
 {
@@ -54,14 +52,12 @@ void SymmetricEquil
     auto& A = *APtr;
     const Int n = A.Height();
 
-    Ones( dPre, n, 1 );
+    Ones( d, n, 1 );
     if( geomEquil )
-        SymmetricGeomEquil( A, dPre, progress );
+        SymmetricGeomEquil( A, d, progress );
     else if( diagEquil )
     {
-        if( progress )
-            cout << "    Diagonal equilibration not yet enabled for dense "
-                    "matrices" << endl;
+        DiagonalEquil( A, d, progress );
     }
 
     if( scaleTwoNorm )
@@ -88,17 +84,7 @@ void SymmetricEquil
     }
     else if( diagEquil )
     {
-        auto maxSqrtLambda = []( F delta ) 
-                             { return Sqrt(Max(Abs(delta),Real(1))); };
-        function<Real(F)> maxSqrt( maxSqrtLambda );
-        GetMappedDiagonal( A, d, maxSqrt );
-        if( progress )
-        {
-            const Real maxNorm = MaxNorm( d ); 
-            cout << "    || d ||_max = " << maxNorm << endl;
-        }
-        DiagonalSolve( LEFT, NORMAL, d, A );
-        DiagonalSolve( RIGHT, NORMAL, d, A );
+        DiagonalEquil( A, d, progress );
     }
     else
         Ones( d, n, 1 );
@@ -138,32 +124,7 @@ void SymmetricEquil
     }
     else if( diagEquil )
     {
-
-        auto maxSqrtLambda = []( F delta )
-                             { return Sqrt(Max(Abs(delta),Real(1))); };
-        function<Real(F)> maxSqrt( maxSqrtLambda );
-        if( commRank == 0 && time )
-            timer.Start();
-        GetMappedDiagonal( A, d, maxSqrt );
-        if( commRank == 0 && time )
-            cout << "    Get mapped diag time: " << timer.Stop() << endl;
-        if( commRank == 0 && time )
-            timer.Start();
-        DiagonalSolve( LEFT, NORMAL, d, A );
-        if( commRank == 0 && time )
-            cout << "    Left diag solve time: " << timer.Stop() << endl;
-        if( commRank == 0 && time )
-            timer.Start();
-        DiagonalSolve( RIGHT, NORMAL, d, A );
-        if( commRank == 0 && time )
-            cout << "    Right diag solve time: " << timer.Stop() << endl;
-        if( progress )
-        {
-            const Real maxNorm = MaxNorm( d );
-            if( commRank == 0 ) 
-                cout << "    Diagonally equilibrated with || d ||_max = " 
-                     << maxNorm << endl;
-        }
+        DiagonalEquil( A, d, progress, time );
     }
     else
         Ones( d, n, 1 );

@@ -320,7 +320,7 @@ void GeomEquil
     }
 
     // Scale each column so that its maximum entry is 1 or 0
-    MaxEntryColumnScaling( A, colScale );
+    ColumnMaxNorms( A, colScale );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         if( colScale.GetLocal(jLoc,0) == Real(0) ) 
@@ -394,7 +394,7 @@ void StackedGeomEquil
 
     DistMatrix<Real,MC,STAR> rowScaleA(A.Grid()),
                              rowScaleB(A.Grid());
-    DistMatrix<Real,MR,STAR> colScale(A.Grid());
+    DistMatrix<Real,MR,STAR> colScale(A.Grid()), colScaleB(B.Grid());
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
@@ -447,14 +447,18 @@ void StackedGeomEquil
     }
 
     // Scale each column so that its maximum entry is 1 or 0
-    MaxEntryColumnScaling( A, colScale );
-    MaxEntryColumnScaling( B, colScale );
+    // =====================================================
+    colScaleB.AlignWith( colScale );
+    ColumnMaxNorms( A, colScale );
+    ColumnMaxNorms( B, colScaleB );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        if( colScale.GetLocal(jLoc,0) == Real(0) ) 
-            colScale.SetLocal(jLoc,0,Real(1));
-        dCol.SetLocal
-        ( jLoc, 0, colScale.GetLocal(jLoc,0)*dCol.GetLocal(jLoc,0) );
+        Real maxScale = 
+            Max(colScale.GetLocal(jLoc,0),colScaleB.GetLocal(jLoc,0));
+        if( maxScale == Real(0) )
+            maxScale = 1; 
+        colScale.SetLocal(jLoc,0,maxScale);
+        dCol.SetLocal( jLoc, 0, maxScale*dCol.GetLocal(jLoc,0) );
     }
     DiagonalSolve( RIGHT, NORMAL, colScale, A );
     DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -489,85 +493,51 @@ void GeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    SparseMatrix<F> ATrans;
-    Transpose( A, ATrans );
-
-    F* valBuf = A.ValueBuffer();
-    F* transValBuf = ATrans.ValueBuffer();
-
     const Real sqrtDamp = Sqrt(damp);
-    Matrix<Real> rowScale(m,1), colScale(n,1);
+    Matrix<Real> rowScale(m,1), colScale(n,1), maxAbsVals, minAbsVals;
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
         // ---------------------------------
+        ColumnMaxNorms( A, maxAbsVals );
+        ColumnMinAbsNonzero( A, maxAbsVals, minAbsVals );
         for( Int j=0; j<n; ++j )
         {
-            const Int offset = ATrans.EntryOffset(j);
-            const Int numConnect = ATrans.NumConnections(j);
-
-            // Compute the maximum value in this column
-            Real maxColAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxColAbs = Max(maxColAbs,Abs(ATrans.Value(e)));
-
-            if( maxColAbs > Real(0) )
+            const Real maxAbs = maxAbsVals.Get(j,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this column
-                Real minColAbs = maxColAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(ATrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minColAbs*maxColAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxColAbs);
+                const Real minAbs = minAbsVals.Get(j,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 colScale.Set(j,0,scale);
                 dCol.Set( j, 0, scale*dCol.Get(j,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    transValBuf[e] /= scale;
             }
             else
-                colScale.Set(j,0,Real(1));
+            {
+                colScale.Set(j,0,1);
+            }
         }
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
 
         // Geometrically rescale the rows
         // ------------------------------ 
+        RowMaxNorms( A, maxAbsVals );
+        RowMinAbsNonzero( A, maxAbsVals, minAbsVals );
         for( Int i=0; i<m; ++i )
         {
-            const Int offset = A.EntryOffset(i);
-            const Int numConnect = A.NumConnections(i);
-
-            // Compute the maximum value in this row
-            Real maxRowAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxRowAbs = Max(maxRowAbs,Abs(A.Value(e)));
-
-            if( maxRowAbs > Real(0) )
+            const Real maxAbs = maxAbsVals.Get(i,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this row
-                Real minRowAbs = maxRowAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(A.Value(e));
-                    if( absVal > 0 )
-                        minRowAbs = Min(minRowAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minRowAbs*maxRowAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxRowAbs);
+                const Real minAbs = minAbsVals.Get(i,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 rowScale.Set(i,0,scale);
                 dRow.Set( i, 0, scale*dRow.Get(i,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    valBuf[e] /= scale;
             } 
             else
                 rowScale.Set(i,0,Real(1));
         }
-        DiagonalSolve( RIGHT, NORMAL, rowScale, ATrans );
+        DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         // Determine whether we are done or not
         // ------------------------------------
@@ -584,6 +554,7 @@ void GeomEquil
     }
 
     // Scale each row so that its maximum entry is 1 or 0
+    F* valBuf = A.ValueBuffer();
     for( Int i=0; i<m; ++i )
     {
         const Int offset = A.EntryOffset(i);
@@ -639,60 +610,33 @@ void StackedGeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    SparseMatrix<F> ATrans, BTrans;
-    Transpose( A, ATrans );
-    Transpose( B, BTrans );
-
-    F* valBufA = A.ValueBuffer();
-    F* valBufB = B.ValueBuffer(); 
-    F* transValBufA = ATrans.ValueBuffer();
-    F* transValBufB = BTrans.ValueBuffer();
-
     const Real sqrtDamp = Sqrt(damp);
-    Matrix<Real> rowScaleA(mA,1), rowScaleB(mB,1), colScale(n,1);
+    Matrix<Real> rowScaleA(mA,1), rowScaleB(mB,1), colScale(n,1),
+                 maxAbsValsA, maxAbsValsB, minAbsValsA, minAbsValsB;
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
         // ---------------------------------
+        ColumnMaxNorms( A, maxAbsValsA );
+        ColumnMaxNorms( B, maxAbsValsB );
+        for( Int j=0; j<n; ++j )
+            maxAbsValsA.Set
+            ( j, 0, Max(maxAbsValsA.Get(j,0),maxAbsValsB.Get(j,0)) );
+        ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
+        ColumnMinAbsNonzero( B, maxAbsValsA, minAbsValsB );
+        for( Int j=0; j<n; ++j )
+            minAbsValsA.Set
+            ( j, 0, Min(minAbsValsA.Get(j,0),minAbsValsB.Get(j,0)) );
         for( Int j=0; j<n; ++j )
         {
-            const Int offsetA = ATrans.EntryOffset(j);
-            const Int offsetB = BTrans.EntryOffset(j);
-            const Int numConnectA = ATrans.NumConnections(j);
-            const Int numConnectB = BTrans.NumConnections(j);
-
-            // Compute the maximum value in this column
-            Real maxColAbs = 0;
-            for( Int e=offsetA; e<offsetA+numConnectA; ++e )
-                maxColAbs = Max(maxColAbs,Abs(ATrans.Value(e)));
-            for( Int e=offsetB; e<offsetB+numConnectB; ++e )
-                maxColAbs = Max(maxColAbs,Abs(BTrans.Value(e)));
-
-            if( maxColAbs > Real(0) )
+            const Real maxAbs = maxAbsValsA.Get(j,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this column
-                Real minColAbs = maxColAbs;
-                for( Int e=offsetA; e<offsetA+numConnectA; ++e )
-                {
-                    const Real absVal = Abs(ATrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-                for( Int e=offsetB; e<offsetB+numConnectB; ++e )
-                {
-                    const Real absVal = Abs(BTrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minColAbs*maxColAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxColAbs);
+                const Real minAbs = minAbsValsA.Get(j,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 colScale.Set(j,0,scale);
                 dCol.Set( j, 0, scale*dCol.Get(j,0) );
-                for( Int e=offsetA; e<offsetA+numConnectA; ++e )
-                    transValBufA[e] /= scale;
-                for( Int e=offsetB; e<offsetB+numConnectB; ++e )
-                    transValBufB[e] /= scale;
             }
             else
                 colScale.Set(j,0,Real(1));
@@ -702,70 +646,40 @@ void StackedGeomEquil
 
         // Geometrically rescale the rows
         // ------------------------------ 
+        RowMaxNorms( A, maxAbsValsA );
+        RowMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         for( Int i=0; i<mA; ++i )
         {
-            const Int offset = A.EntryOffset(i);
-            const Int numConnect = A.NumConnections(i);
-
-            // Compute the maximum value in this row
-            Real maxRowAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxRowAbs = Max(maxRowAbs,Abs(A.Value(e)));
-
-            if( maxRowAbs > Real(0) )
+            const Real maxAbs = maxAbsValsA.Get(i,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this row
-                Real minRowAbs = maxRowAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(A.Value(e));
-                    if( absVal > 0 )
-                        minRowAbs = Min(minRowAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minRowAbs*maxRowAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxRowAbs);
+                const Real minAbs = minAbsValsA.Get(i,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 rowScaleA.Set(i,0,scale);
                 dRowA.Set( i, 0, scale*dRowA.Get(i,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    valBufA[e] /= scale;
             } 
             else
                 rowScaleA.Set(i,0,Real(1));
         }
+        DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
+        RowMinAbsNonzero( B, maxAbsValsB, minAbsValsB );
+        RowMaxNorms( B, maxAbsValsB );
         for( Int i=0; i<mB; ++i )
         {
-            const Int offset = B.EntryOffset(i);
-            const Int numConnect = B.NumConnections(i);
-
-            // Compute the maximum value in this row
-            Real maxRowAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxRowAbs = Max(maxRowAbs,Abs(B.Value(e)));
-
-            if( maxRowAbs > Real(0) )
+            const Real maxAbs = maxAbsValsB.Get(i,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this row
-                Real minRowAbs = maxRowAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(B.Value(e));
-                    if( absVal > 0 )
-                        minRowAbs = Min(minRowAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minRowAbs*maxRowAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxRowAbs);
+                const Real minAbs = minAbsValsB.Get(i,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 rowScaleB.Set(i,0,scale);
                 dRowB.Set( i, 0, scale*dRowB.Get(i,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    valBufB[e] /= scale;
             } 
             else
                 rowScaleB.Set(i,0,Real(1));
         }
-        DiagonalSolve( RIGHT, NORMAL, rowScaleA, ATrans );
-        DiagonalSolve( RIGHT, NORMAL, rowScaleB, BTrans );
+        DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
         // Determine whether we are done or not
         // ------------------------------------
@@ -785,6 +699,7 @@ void StackedGeomEquil
     }
 
     // Scale each row so that its maximum entry is 1 or 0
+    F* valBufA = A.ValueBuffer();
     for( Int i=0; i<mA; ++i )
     {
         const Int offset = A.EntryOffset(i);
@@ -802,6 +717,7 @@ void StackedGeomEquil
                 valBufA[e] /= maxRowAbs;
         }
     }
+    F* valBufB = B.ValueBuffer(); 
     for( Int i=0; i<mB; ++i )
     {
         const Int offset = B.EntryOffset(i);
@@ -855,78 +771,53 @@ void GeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    DistSparseMatrix<F> ATrans(comm);
-
     const Real sqrtDamp = Sqrt(damp);
+    DistMultiVec<Real> maxAbsVals(comm), minAbsVals(comm), scales(comm);
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
         // ---------------------------------
-        Transpose( A, ATrans );
-        F* transValBuf = ATrans.ValueBuffer();
-        const Int localWidth = ATrans.LocalHeight();
+        ColumnMaxNorms( A, maxAbsVals );
+        ColumnMinAbsNonzero( A, maxAbsVals, minAbsVals );
+        scales.Resize( n, 1 );
+        const Int localWidth = maxAbsVals.LocalHeight(); 
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Int offset = ATrans.EntryOffset(jLoc);
-            const Int numConnect = ATrans.NumConnections(jLoc);
-
-            // Compute the maximum value in this column
-            Real maxColAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxColAbs = Max(maxColAbs,Abs(ATrans.Value(e)));
-
-            if( maxColAbs > Real(0) )
+            const Real maxAbs = maxAbsVals.GetLocal(jLoc,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this column
-                Real minColAbs = maxColAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(ATrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minColAbs*maxColAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxColAbs);
+                const Real minAbs = minAbsVals.GetLocal(jLoc,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                scales.SetLocal( jLoc, 0, scale );
                 dCol.SetLocal( jLoc, 0, scale*dCol.GetLocal(jLoc,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    transValBuf[e] /= scale;
             }
+            else
+                scales.SetLocal( jLoc, 0, 1 ); 
         }
+        DiagonalSolve( RIGHT, NORMAL, scales, A );
 
         // Geometrically rescale the rows
         // ------------------------------ 
-        Transpose( ATrans, A );
-        F* valBuf = A.ValueBuffer();
-        const Int localHeight = A.LocalHeight();
+        RowMaxNorms( A, maxAbsVals );
+        RowMinAbsNonzero( A, maxAbsVals, minAbsVals );
+        scales.Resize( m, 1 ); 
+        const Int localHeight = maxAbsVals.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int offset = A.EntryOffset(iLoc);
-            const Int numConnect = A.NumConnections(iLoc);
-
-            // Compute the maximum value in this row
-            Real maxRowAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxRowAbs = Max(maxRowAbs,Abs(A.Value(e)));
-
-            if( maxRowAbs > Real(0) )
+            const Real maxAbs = maxAbsVals.GetLocal(iLoc,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this row
-                Real minRowAbs = maxRowAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(A.Value(e));
-                    if( absVal > 0 )
-                        minRowAbs = Min(minRowAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minRowAbs*maxRowAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxRowAbs);
+                const Real minAbs = minAbsVals.GetLocal(iLoc,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                scales.SetLocal( iLoc, 0, scale );
                 dRow.SetLocal( iLoc, 0, scale*dRow.GetLocal(iLoc,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    valBuf[e] /= scale;
             }
+            else
+                scales.SetLocal( iLoc, 0, 1 );
         }
+        DiagonalSolve( LEFT, NORMAL, scales, A );
 
         // Determine whether we are done or not
         // ------------------------------------
@@ -1006,123 +897,85 @@ void StackedGeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    DistSparseMatrix<F> ATrans(comm), BTrans(comm);
-
     const Real sqrtDamp = Sqrt(damp);
+    DistMultiVec<Real> maxAbsValsA(comm), maxAbsValsB(comm),
+                       minAbsValsA(comm), minAbsValsB(comm), scales(comm);
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
         // ---------------------------------
-        Transpose( A, ATrans );
-        Transpose( B, BTrans );
-        F* transValBufA = ATrans.ValueBuffer();
-        F* transValBufB = BTrans.ValueBuffer();
-        const Int localWidth = ATrans.LocalHeight();
+        scales.Resize( n, 1 );
+        ColumnMaxNorms( A, maxAbsValsA );
+        ColumnMaxNorms( B, maxAbsValsB );
+        const Int localWidth = maxAbsValsA.LocalHeight();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            maxAbsValsA.SetLocal
+            ( jLoc, 0, Max(maxAbsValsA.GetLocal(jLoc,0),
+                           maxAbsValsB.GetLocal(jLoc,0)) );
+        ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
+        ColumnMinAbsNonzero( B, maxAbsValsA, minAbsValsB );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            minAbsValsA.SetLocal
+            ( jLoc, 0, Min(minAbsValsA.GetLocal(jLoc,0),
+                           minAbsValsB.GetLocal(jLoc,0)) );
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Int offsetA = ATrans.EntryOffset(jLoc);
-            const Int offsetB = BTrans.EntryOffset(jLoc);
-            const Int numConnectA = ATrans.NumConnections(jLoc);
-            const Int numConnectB = BTrans.NumConnections(jLoc);
-
-            // Compute the maximum value in this column
-            Real maxColAbs = 0;
-            for( Int e=offsetA; e<offsetA+numConnectA; ++e )
-                maxColAbs = Max(maxColAbs,Abs(ATrans.Value(e)));
-            for( Int e=offsetB; e<offsetB+numConnectB; ++e )
-                maxColAbs = Max(maxColAbs,Abs(BTrans.Value(e)));
-
-            if( maxColAbs > Real(0) )
+            const Real maxAbs = maxAbsValsA.GetLocal(jLoc,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this column
-                Real minColAbs = maxColAbs;
-                for( Int e=offsetA; e<offsetA+numConnectA; ++e )
-                {
-                    const Real absVal = Abs(ATrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-                for( Int e=offsetB; e<offsetB+numConnectB; ++e )
-                {
-                    const Real absVal = Abs(BTrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minColAbs*maxColAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxColAbs);
+                const Real minAbs = minAbsValsA.GetLocal(jLoc,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 dCol.SetLocal( jLoc, 0, scale*dCol.GetLocal(jLoc,0) );
-                for( Int e=offsetA; e<offsetA+numConnectA; ++e )
-                    transValBufA[e] /= scale;
-                for( Int e=offsetB; e<offsetB+numConnectB; ++e )
-                    transValBufB[e] /= scale;
+                scales.SetLocal( jLoc, 0, scale );
             }
+            else
+                scales.SetLocal( jLoc, 0, 1 );
         }
+        DiagonalSolve( RIGHT, NORMAL, scales, A );
+        DiagonalSolve( RIGHT, NORMAL, scales, B );
 
         // Geometrically rescale the rows
         // ------------------------------ 
-        Transpose( ATrans, A );
-        Transpose( BTrans, B );
-        F* valBufA = A.ValueBuffer();
-        F* valBufB = B.ValueBuffer();
-        const Int localHeightA = A.LocalHeight();
+        scales.Resize( mA, 1 );
+        RowMaxNorms( A, maxAbsValsA );
+        ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
+        const Int localHeightA = maxAbsValsA.LocalHeight();
         for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
         {
-            const Int offset = A.EntryOffset(iLoc);
-            const Int numConnect = A.NumConnections(iLoc);
-
-            // Compute the maximum value in this row
-            Real maxRowAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxRowAbs = Max(maxRowAbs,Abs(A.Value(e)));
-
-            if( maxRowAbs > Real(0) )
+            const Real maxAbs = maxAbsValsA.GetLocal(iLoc,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this row
-                Real minRowAbs = maxRowAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(A.Value(e));
-                    if( absVal > 0 )
-                        minRowAbs = Min(minRowAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minRowAbs*maxRowAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxRowAbs);
+                const Real minAbs = minAbsValsA.GetLocal(iLoc,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 dRowA.SetLocal( iLoc, 0, scale*dRowA.GetLocal(iLoc,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    valBufA[e] /= scale;
+                scales.SetLocal( iLoc, 0, scale );
             }
+            else
+                scales.SetLocal( iLoc, 0, 1 );
         }
-        const Int localHeightB = B.LocalHeight();
+        DiagonalSolve( LEFT, NORMAL, scales, A );
+
+        scales.Resize( mB, 1 );
+        RowMaxNorms( B, maxAbsValsB );
+        ColumnMinAbsNonzero( B, maxAbsValsB, minAbsValsB );
+        const Int localHeightB = maxAbsValsB.LocalHeight();
         for( Int iLoc=0; iLoc<localHeightB; ++iLoc )
         {
-            const Int offset = B.EntryOffset(iLoc);
-            const Int numConnect = B.NumConnections(iLoc);
-
-            // Compute the maximum value in this row
-            Real maxRowAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxRowAbs = Max(maxRowAbs,Abs(B.Value(e)));
-
-            if( maxRowAbs > Real(0) )
+            const Real maxAbs = maxAbsValsB.GetLocal(iLoc,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this row
-                Real minRowAbs = maxRowAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(B.Value(e));
-                    if( absVal > 0 )
-                        minRowAbs = Min(minRowAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minRowAbs*maxRowAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxRowAbs);
+                const Real minAbs = minAbsValsB.GetLocal(iLoc,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 dRowB.SetLocal( iLoc, 0, scale*dRowB.GetLocal(iLoc,0) );
-                for( Int e=offset; e<offset+numConnect; ++e )
-                    valBufB[e] /= scale;
+                scales.SetLocal( iLoc, 0, scale );
             }
+            else
+                scales.SetLocal( iLoc, 0, 1 );
         }
+        DiagonalSolve( LEFT, NORMAL, scales, B );
 
         // Determine whether we are done or not
         // ------------------------------------

@@ -78,8 +78,6 @@ void ColumnMaxNorms
     AllReduce( norms.Matrix(), A.ColComm(), mpi::MAX );
 }
 
-// TODO: ColumnMaxNorms
-
 template<typename F>
 void ColumnTwoNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 {
@@ -215,7 +213,7 @@ void ColumnTwoNorms
     /*
     DistSparseMatrix<F> ATrans(A.Comm());
     Transpose( A, ATrans );
-    RowMaxNorms( ATrans, norms );
+    RowTwoNorms( ATrans, norms );
     */
 
     // Modify the communication pattern from an adjoint Multiply
@@ -274,7 +272,7 @@ void ColumnMaxNorms
     /*
     DistSparseMatrix<F> ATrans(A.Comm());
     Transpose( A, ATrans );
-    RowTwoNorms( ATrans, norms );
+    RowMaxNorms( ATrans, norms );
     */
 
     // Modify the communication pattern from an adjoint Multiply

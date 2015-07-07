@@ -232,46 +232,30 @@ void SymmetricGeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    SparseMatrix<F> ATrans;
     const Real sqrtDamp = Sqrt(damp);
-    Matrix<Real> scales(n,1);
+    Matrix<Real> scales(n,1), rowMaxAbs, rowMinAbs;
     for( Int iter=0; iter<maxIter; ++iter )
     {
-        // Geometrically rescale the columns
-        // ---------------------------------
-        ATrans = A; // NOTE: Same as Transpose( A, ATrans ) by assumption
+        // Symmetrically geometrically rescale
+        // -----------------------------------
+        RowMaxNorms( A, rowMaxAbs );
+        RowMinAbsNonzero( A, rowMaxAbs, rowMinAbs );
         for( Int j=0; j<n; ++j )
         {
-            const Int offset = ATrans.EntryOffset(j);
-            const Int numConnect = ATrans.NumConnections(j);
-
-            // Compute the maximum value in this column
-            Real maxColAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxColAbs = Max(maxColAbs,Abs(ATrans.Value(e)));
-
-            if( maxColAbs > Real(0) )
+            const Real maxAbs = rowMaxAbs.Get(j,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this column
-                Real minColAbs = maxColAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(ATrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minColAbs*maxColAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxColAbs);
-                scales.Set(j,0,scale);
+                const Real minAbs = rowMinAbs.Get(j,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                scales.Set( j, 0, scale );
                 d.Set( j, 0, scale*d.Get(j,0) );
             }
             else
-                scales.Set(j,0,Real(1));
+                scales.Set(j,0,1);
         }
-        DiagonalSolve( LEFT, NORMAL, scales, ATrans );
-        Transpose( ATrans, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
+        DiagonalSolve( RIGHT, NORMAL, scales, A );
 
         // Determine whether we are done or not
         // ------------------------------------
@@ -342,50 +326,32 @@ void SymmetricGeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    DistSparseMatrix<F> ATrans(comm);
-
-    DistMultiVec<Real> scales(comm);
+    DistMultiVec<Real> scales(comm), rowMaxAbs(comm), rowMinAbs(comm);
     Zeros( scales, n, 1 );
-
     const Real sqrtDamp = Sqrt(damp);
     for( Int iter=0; iter<maxIter; ++iter )
     {
-        // Geometrically rescale the columns
-        // ---------------------------------
-        ATrans = A; // NOTE: Same as Transpose( A, ATrans ) by assumption
-        const Int localWidth = ATrans.LocalHeight();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        // Symmetrically geometrically rescale
+        // -----------------------------------
+        RowMaxNorms( A, rowMaxAbs );
+        RowMinAbsNonzero( A, rowMaxAbs, rowMinAbs );
+        const Int localHeight = scales.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int offset = ATrans.EntryOffset(jLoc);
-            const Int numConnect = ATrans.NumConnections(jLoc);
-
-            // Compute the maximum value in this column
-            Real maxColAbs = 0;
-            for( Int e=offset; e<offset+numConnect; ++e )
-                maxColAbs = Max(maxColAbs,Abs(ATrans.Value(e)));
-
-            if( maxColAbs > Real(0) )
+            const Real maxAbs = rowMaxAbs.GetLocal(iLoc,0);
+            if( maxAbs > Real(0) )
             {
-                // Compute the minimum nonzero value in this column
-                Real minColAbs = maxColAbs;
-                for( Int e=offset; e<offset+numConnect; ++e )
-                {
-                    const Real absVal = Abs(ATrans.Value(e));
-                    if( absVal > 0 )
-                        minColAbs = Min(minColAbs,absVal);  
-                }
-
-                const Real propScale = Sqrt(minColAbs*maxColAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxColAbs);
-                scales.SetLocal( jLoc, 0, scale );
-                d.SetLocal( jLoc, 0, scale*d.GetLocal(jLoc,0) );
+                const Real minAbs = rowMinAbs.GetLocal(iLoc,0);
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                scales.SetLocal( iLoc, 0, scale );
+                d.SetLocal( iLoc, 0, scale*d.GetLocal(iLoc,0) );
             }
             else
-                scales.SetLocal( jLoc, 0, Real(1) );
+                scales.SetLocal( iLoc, 0, Real(1) );
         }
-        DiagonalSolve( LEFT, NORMAL, scales, ATrans );
-        Transpose( ATrans, A ); 
         DiagonalSolve( LEFT, NORMAL, scales, A );
+        DiagonalSolve( RIGHT, NORMAL, scales, A );
 
         // Determine whether we are done or not
         // ------------------------------------

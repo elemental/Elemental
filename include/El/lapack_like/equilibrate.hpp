@@ -76,8 +76,26 @@ void StackedGeomEquil
   DistMultiVec<Base<F>>& dCol,
   bool progress=false );
 
+// Diagonal equilibration
+// ======================
+template<typename F>
+void DiagonalEquil
+( Matrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
+template<typename F>
+void DiagonalEquil
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, 
+  bool progress=false );
+template<typename F>
+void DiagonalEquil
+( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
+template<typename F>
+void DiagonalEquil
+( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
+  bool progress=false, bool time=false );
+
 // More general equilibration
 // ==========================
+// Deprecated
 template<typename F>
 void SymmetricEquil
 ( Matrix<F>& A, Matrix<Base<F>>& d, 

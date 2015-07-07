@@ -206,6 +206,52 @@ template<typename F>
 void ColumnMaxNorms
 ( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
 
+// Column minimum absolute values
+// ==============================
+// NOTE: While this is not a norm, it is often colloquially referred to as the
+// "-infinity" norm
+template<typename F>
+void ColumnMinAbs
+( const Matrix<F>& X, Matrix<Base<F>>& mins );
+template<typename F,Dist U,Dist V>
+void ColumnMinAbs
+( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& mins );
+template<typename F>
+void ColumnMinAbs
+( const DistMultiVec<F>& X, Matrix<Base<F>>& mins );
+template<typename F>
+void ColumnMinAbs
+( const SparseMatrix<F>& X, Matrix<Base<F>>& mins );
+template<typename F>
+void ColumnMinAbs
+( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& mins );
+
+template<typename F>
+void ColumnMinAbsNonzero
+( const Matrix<F>& X, 
+  const Matrix<Base<F>>& upperBounds,
+        Matrix<Base<F>>& mins );
+template<typename F,Dist U,Dist V>
+void ColumnMinAbsNonzero
+( const DistMatrix<F,U,V>& X, 
+  const DistMatrix<Base<F>,V,STAR>& upperBounds,
+        DistMatrix<Base<F>,V,STAR>& mins );
+template<typename F>
+void ColumnMinAbsNonzero
+( const DistMultiVec<F>& X, 
+  const Matrix<Base<F>>& upperBounds,
+        Matrix<Base<F>>& mins );
+template<typename F>
+void ColumnMinAbsNonzero
+( const SparseMatrix<F>& X, 
+  const Matrix<Base<F>>& upperBounds,
+        Matrix<Base<F>>& mins );
+template<typename F>
+void ColumnMinAbsNonzero
+( const DistSparseMatrix<F>& X, 
+  const DistMultiVec<Base<F>>& upperBounds,
+        DistMultiVec<Base<F>>& mins );
+
 // Row norms
 // =========
 
@@ -222,6 +268,8 @@ template<typename F,Dist U,Dist V>
 void RowTwoNorms
 ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& norms );
 template<typename F>
+void RowTwoNorms( const DistMultiVec<F>& X, DistMultiVec<Base<F>>& norms );
+template<typename F>
 void RowTwoNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F>
 void RowTwoNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
@@ -235,9 +283,57 @@ template<typename F,Dist U,Dist V>
 void RowMaxNorms
 ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& norms );
 template<typename F>
+void RowMaxNorms( const DistMultiVec<F>& X, DistMultiVec<Base<F>>& norms );
+template<typename F>
 void RowMaxNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F>
 void RowMaxNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+
+// Row minimum absolute values
+// ===========================
+// NOTE: While this is not a norm, it is often colloquially referred to as the
+// "-infinity" norm
+template<typename F>
+void RowMinAbs
+( const Matrix<F>& X, Matrix<Base<F>>& mins );
+template<typename F,Dist U,Dist V>
+void RowMinAbs
+( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& mins );
+template<typename F>
+void RowMinAbs
+( const DistMultiVec<F>& X, DistMultiVec<Base<F>>& mins );
+template<typename F>
+void RowMinAbs
+( const SparseMatrix<F>& X, Matrix<Base<F>>& mins );
+template<typename F>
+void RowMinAbs
+( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& mins );
+
+template<typename F>
+void RowMinAbsNonzero
+( const Matrix<F>& X, 
+  const Matrix<Base<F>>& upperBounds,
+        Matrix<Base<F>>& mins );
+template<typename F,Dist U,Dist V>
+void RowMinAbsNonzero
+( const DistMatrix<F,U,V>& X, 
+  const DistMatrix<Base<F>,U,STAR>& upperBounds,
+        DistMatrix<Base<F>,U,STAR>& mins );
+template<typename F>
+void RowMinAbsNonzero
+( const DistMultiVec<F>& X, 
+  const DistMultiVec<Base<F>>& upperBounds,
+        DistMultiVec<Base<F>>& mins );
+template<typename F>
+void RowMinAbsNonzero
+( const SparseMatrix<F>& X, 
+  const Matrix<Base<F>>& upperBounds,
+        Matrix<Base<F>>& mins );
+template<typename F>
+void RowMinAbsNonzero
+( const DistSparseMatrix<F>& X, 
+  const DistMultiVec<Base<F>>& upperBounds,
+        DistMultiVec<Base<F>>& mins );
 
 // Concatenation
 // =============

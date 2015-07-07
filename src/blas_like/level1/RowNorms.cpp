@@ -71,10 +71,27 @@ void RowMaxNorms
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     norms.AlignWith( A );
-
     norms.Resize( A.Height(), 1 );
     RowMaxNorms( A.LockedMatrix(), norms.Matrix() );
     AllReduce( norms, A.RowComm(), mpi::MAX );
+}
+
+template<typename F>
+void RowTwoNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
+{
+    DEBUG_ONLY(CSE cse("RowTwoNorms"))
+    norms.SetComm( A.Comm() );
+    norms.Resize( A.Height(), 1 );
+    RowTwoNorms( A.LockedMatrix(), norms.Matrix() );
+}
+
+template<typename F>
+void RowMaxNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
+{
+    DEBUG_ONLY(CSE cse("RowMaxNorms"))
+    norms.SetComm( A.Comm() );
+    norms.Resize( A.Height(), 1 );
+    RowMaxNorms( A.LockedMatrix(), norms.Matrix() );
 }
 
 template<typename F>
@@ -164,6 +181,10 @@ void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
   ( const Matrix<F>& X, Matrix<Base<F>>& norms ); \
   template void RowMaxNorms \
   ( const Matrix<F>& X, Matrix<Base<F>>& norms ); \
+  template void RowTwoNorms \
+  ( const DistMultiVec<F>& X, DistMultiVec<Base<F>>& norms ); \
+  template void RowMaxNorms \
+  ( const DistMultiVec<F>& X, DistMultiVec<Base<F>>& norms ); \
   template void RowTwoNorms \
   ( const SparseMatrix<F>& A, Matrix<Base<F>>& norms ); \
   template void RowMaxNorms \

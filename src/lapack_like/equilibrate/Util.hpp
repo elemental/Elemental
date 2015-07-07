@@ -10,6 +10,7 @@
 
 namespace El {
 
+// TODO: Move these into BLAS1?
 template<typename F>
 inline Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 {
@@ -23,8 +24,8 @@ inline Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
         for( Int i=0; i<m; ++i )
         {
             const Real alphaAbs = Abs(A.Get(i,j));
-            if( alphaAbs > Real(0) && alphaAbs < minAbs )
-                minAbs = alphaAbs;
+            if( alphaAbs > Real(0) )
+                minAbs = Min(minAbs,alphaAbs);
         }
     }
     return minAbs;
@@ -40,8 +41,8 @@ inline Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
     for( Int e=0; e<numEntries; ++e )
     {
         const Real absVal = Abs(A.Value(e));
-        if( absVal > Real(0) && absVal < minAbs )
-            minAbs = absVal;
+        if( absVal > Real(0) )
+            minAbs = Min(minAbs,absVal);
     }
     return minAbs;
 }
@@ -56,7 +57,7 @@ inline Base<F> MinAbsNonzero
     if( A.Participating() )
     {
         const Real minLocAbs = MinAbsNonzero( A.LockedMatrix(), upperBound );
-        minAbs = mpi::AllReduce( minLocAbs, mpi::MAX, A.DistComm() ); 
+        minAbs = mpi::AllReduce( minLocAbs, mpi::MIN, A.DistComm() ); 
     }
     mpi::Broadcast( minAbs, A.Root(), A.CrossComm() );
     return minAbs;
@@ -72,31 +73,10 @@ inline Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
     for( Int e=0; e<numEntries; ++e )
     {
         const Real absVal = Abs(A.Value(e));
-        if( absVal > Real(0) && absVal < minLocAbs )
-            minLocAbs = absVal;
+        if( absVal > Real(0) )
+            minLocAbs = Min(minLocAbs,absVal);
     }
-    return mpi::AllReduce( minLocAbs, mpi::MAX, A.Comm() );
-}
-
-template<typename F,Dist U,Dist V>
-inline void MaxEntryColumnScaling
-( const DistMatrix<F,      U,V   >& A, 
-        DistMatrix<Base<F>,V,STAR>& scaling )
-{
-    DEBUG_ONLY(CSE cse("MaxEntryColumnScaling"))
-    typedef Base<F> Real;
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    scaling.AlignWith( A );
-    scaling.Resize( A.Width(), 1 );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        Real maxAbs = 0;
-        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            maxAbs = Max(maxAbs,Abs(A.GetLocal(iLoc,jLoc)));
-        scaling.SetLocal( jLoc, 0, maxAbs );
-    }
-    mpi::AllReduce( scaling.Buffer(), nLocal, mpi::MAX, A.ColComm() );
+    return mpi::AllReduce( minLocAbs, mpi::MIN, A.Comm() );
 }
 
 template<typename F,Dist U,Dist V>
@@ -106,27 +86,10 @@ inline void GeometricColumnScaling
 {
     DEBUG_ONLY(CSE cse("GeometricColumnScaling"))
     typedef Base<F> Real;
-
     DistMatrix<Real,V,STAR> maxScaling(A.Grid());
-    MaxEntryColumnScaling( A, maxScaling );
-
-    const Int mLocal = A.LocalHeight();
+    ColumnMaxNorms( A, maxScaling );
+    ColumnMinAbsNonzero( A, maxScaling, geomScaling );
     const Int nLocal = A.LocalWidth();
-    geomScaling.AlignWith( maxScaling );
-    geomScaling.Resize( A.Width(), 1 );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        Real minAbs = maxScaling.GetLocal(jLoc,0);
-        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-        {
-            const Real absVal = Abs(A.GetLocal(iLoc,jLoc));  
-            if( absVal > 0 && absVal < minAbs )
-                minAbs = Min(minAbs,absVal);
-        }
-        geomScaling.SetLocal( jLoc, 0, minAbs );
-    }
-    mpi::AllReduce( geomScaling.Buffer(), nLocal, mpi::MIN, A.ColComm() );
-
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Real maxAbs = maxScaling.GetLocal(jLoc,0);
@@ -148,8 +111,8 @@ inline void StackedGeometricColumnScaling
 
     DistMatrix<Real,V,STAR> maxScalingA(A.Grid()),
                             maxScalingB(A.Grid());
-    MaxEntryColumnScaling( A, maxScalingA );
-    MaxEntryColumnScaling( B, maxScalingB );
+    ColumnMaxNorms( A, maxScalingA );
+    ColumnMaxNorms( B, maxScalingB );
 
     const Int mLocalA = A.LocalHeight();
     const Int mLocalB = B.LocalHeight();
@@ -187,55 +150,16 @@ inline void StackedGeometricColumnScaling
 }
 
 template<typename F,Dist U,Dist V>
-inline void MaxEntryRowScaling
-( const DistMatrix<F,      U,V   >& A, 
-        DistMatrix<Base<F>,U,STAR>& scaling )
-{
-    DEBUG_ONLY(CSE cse("MaxEntryRowScaling"))
-    typedef Base<F> Real;
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    scaling.AlignWith( A );
-
-    scaling.Resize( A.Height(), 1 );
-    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-    {
-        Real maxAbs = 0;
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            maxAbs = Max(maxAbs,Abs(A.GetLocal(iLoc,jLoc)));
-        scaling.SetLocal( iLoc, 0, maxAbs );
-    }
-    mpi::AllReduce( scaling.Buffer(), mLocal, mpi::MAX, A.RowComm() );
-}
-
-template<typename F,Dist U,Dist V>
 inline void GeometricRowScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,U,STAR>& geomScaling )
 {
     DEBUG_ONLY(CSE cse("GeometricRowScaling"))
     typedef Base<F> Real;
-
     DistMatrix<Real,U,STAR> maxScaling(A.Grid());
-    MaxEntryRowScaling( A, maxScaling );
-
+    RowMaxNorms( A, maxScaling );
+    RowMinAbsNonzero( A, maxScaling, geomScaling );
     const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    geomScaling.AlignWith( maxScaling );
-    geomScaling.Resize( A.Height(), 1 );
-    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-    {
-        Real minAbs = maxScaling.GetLocal(iLoc,0);
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        {
-            const Real absVal = Abs(A.GetLocal(iLoc,jLoc));  
-            if( absVal > 0 && absVal < minAbs )
-                minAbs = Min(minAbs,absVal);
-        }
-        geomScaling.SetLocal( iLoc, 0, minAbs );
-    }
-    mpi::AllReduce( geomScaling.Buffer(), mLocal, mpi::MIN, A.RowComm() );
-
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
         const Real maxAbs = maxScaling.GetLocal(iLoc,0);
