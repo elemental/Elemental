@@ -77,13 +77,13 @@ HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
     dSub = GetDiagonal( T, -1 );
     
     Matrix<Real> w;
-    HermitianTridiagEig( d, dSub, w, ASCENDING );
+    HermitianTridiagEig( d, dSub, w );
     
     pair<Real,Real> extremal;
-    extremal.first = MaxNorm(w);
-    extremal.second = extremal.first;
+    extremal.second = MaxNorm(w);
+    extremal.first = extremal.second;
     for( Int i=0; i<k; ++i )
-        extremal.second = Min(extremal.second,Abs(w.Get(i,0)));
+        extremal.first = Min(extremal.first,Abs(w.Get(i,0)));
     return extremal;
 }
 
@@ -103,15 +103,15 @@ HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
     Matrix<Real> d, dSub;
     d = GetDiagonal( T );
     dSub = GetDiagonal( T, -1 );
-    
+
     Matrix<Real> w;
-    HermitianTridiagEig( d, dSub, w, ASCENDING );
-    
+    HermitianTridiagEig( d, dSub, w );
+
     pair<Real,Real> extremal;
-    extremal.first = MaxNorm(w);
-    extremal.second = extremal.first;
+    extremal.second = MaxNorm(w);
+    extremal.first = extremal.second;
     for( Int i=0; i<k; ++i )
-        extremal.second = Min(extremal.second,Abs(w.Get(i,0)));
+        extremal.first = Min(extremal.first,Abs(w.Get(i,0)));
 
     return extremal;
 }
