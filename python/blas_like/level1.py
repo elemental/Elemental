@@ -161,20 +161,20 @@ def AxpyTriangle(uplo,alphaPre,X,Y,offset=0):
 
 # Column norms
 # ------------
-lib.ElColumnNormsDistMultiVec_s.argtypes = \
-lib.ElColumnNormsDistMultiVec_d.argtypes = \
-lib.ElColumnNormsDistMultiVec_c.argtypes = \
-lib.ElColumnNormsDistMultiVec_z.argtypes = \
+lib.ElColumnTwoNormsDistMultiVec_s.argtypes = \
+lib.ElColumnTwoNormsDistMultiVec_d.argtypes = \
+lib.ElColumnTwoNormsDistMultiVec_c.argtypes = \
+lib.ElColumnTwoNormsDistMultiVec_z.argtypes = \
   [c_void_p,c_void_p]
 
-def ColumnNorms(A):
+def ColumnTwoNorms(A):
   if type(A) is DistMultiVec:
     norms = Matrix(TagToType(Base(A.tag)))
     args = [A.obj,norms.obj]
-    if   A.tag == sTag: lib.ElColumnNormsDistMultiVec_s(*args)
-    elif A.tag == dTag: lib.ElColumnNormsDistMultiVec_d(*args)
-    elif A.tag == cTag: lib.ElColumnNormsDistMultiVec_c(*args)
-    elif A.tag == zTag: lib.ElColumnNormsDistMultiVec_z(*args)
+    if   A.tag == sTag: lib.ElColumnTwoNormsDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElColumnTwoNormsDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElColumnTwoNormsDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElColumnTwoNormsDistMultiVec_z(*args)
     else: DataExcept()
     return norms
   else: TypeExcept()

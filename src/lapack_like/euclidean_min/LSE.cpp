@@ -296,7 +296,7 @@ void LSE
     VCat( A, B, W );
     if( ctrl.equilibrate )
     {
-        ColumnNorms( W, dC );
+        ColumnTwoNorms( W, dC );
         auto normMap = []( Real beta )
           { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dC, function<Real(Real)>(normMap) );
@@ -413,7 +413,7 @@ void LSE
     VCat( A, B, W );
     if( ctrl.equilibrate )
     {
-        ColumnNorms( W, dC );
+        ColumnTwoNorms( W, dC );
         auto normMap = []( Real beta )
           { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dC, function<Real(Real)>(normMap) );

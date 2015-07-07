@@ -301,7 +301,7 @@ IRA
 
         if( progress )
             timer.Start();
-        ColumnNorms( activeVList[0], colNorms );
+        ColumnTwoNorms( activeVList[0], colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
@@ -385,7 +385,7 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], colNorms );
+            ColumnTwoNorms( activeVList[j+1], colNorms );
             PlaceList( HList, colNorms, j+1, j );
             // TODO: Handle lucky breakdowns
             DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );
@@ -527,7 +527,7 @@ IRA
 
         if( progress )
             timer.Start();
-        ColumnNorms( activeVRealList[0], activeVImagList[0], colNorms );
+        ColumnTwoNorms( activeVRealList[0], activeVImagList[0], colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[0] );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVImagList[0] );
         for( Int j=0; j<basisSize; ++j )
@@ -595,7 +595,8 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVRealList[j+1], activeVImagList[j+1], colNorms );
+            ColumnTwoNorms
+            ( activeVRealList[j+1], activeVImagList[j+1], colNorms );
             PlaceList( HList, colNorms, j+1, j );
             // TODO: Handle lucky breakdowns
             DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[j+1] );
@@ -762,7 +763,7 @@ IRA
             if( g.Rank() == 0 )
                 timer.Start();
         }
-        ColumnNorms( activeVList[0], colNorms );
+        ColumnTwoNorms( activeVList[0], colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
@@ -865,7 +866,7 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], colNorms );
+            ColumnTwoNorms( activeVList[j+1], colNorms );
             PlaceList( HList, colNorms.Matrix(), j+1, j );
             // TODO: Handle lucky breakdowns
             DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );
@@ -1044,7 +1045,7 @@ IRA
             if( g.Rank() == 0 )
                 timer.Start();
         }
-        ColumnNorms( activeVRealList[0], activeVImagList[0], colNorms );
+        ColumnTwoNorms( activeVRealList[0], activeVImagList[0], colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[0] );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVImagList[0] );
         for( Int j=0; j<basisSize; ++j )
@@ -1121,7 +1122,8 @@ IRA
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVRealList[j+1], activeVImagList[j+1], colNorms );
+            ColumnTwoNorms
+            ( activeVRealList[j+1], activeVImagList[j+1], colNorms );
             PlaceList( HList, colNorms.Matrix(), j+1, j );
             // TODO: Handle lucky breakdowns
             DiagonalSolve( RIGHT, NORMAL, colNorms, activeVRealList[j+1] );

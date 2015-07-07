@@ -327,7 +327,7 @@ FixColumns( Matrix<F>& X )
     DEBUG_ONLY(CSE cse("pspec::FixColumns"))
     typedef Base<F> Real;
     Matrix<Real> norms;
-    ColumnNorms( X, norms );
+    ColumnTwoNorms( X, norms );
     const Int n = X.Width();
     for( Int j=0; j<n; ++j )
     {
@@ -349,7 +349,7 @@ FixColumns( DistMatrix<F,U,V>& X )
     DEBUG_ONLY(CSE cse("pspec::FixColumns"))
     typedef Base<F> Real;
     DistMatrix<Real,V,STAR> norms( X.Grid() );
-    ColumnNorms( X, norms );
+    ColumnTwoNorms( X, norms );
     const Int nLocal = X.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {

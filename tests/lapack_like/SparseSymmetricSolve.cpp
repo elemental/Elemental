@@ -67,7 +67,7 @@ int main( int argc, char* argv[] )
         Zero( Y );
         Multiply( NORMAL, 1., A, X, 0., Y );
         Matrix<double> YOrigNorms;
-        ColumnNorms( Y, YOrigNorms );
+        ColumnTwoNorms( Y, YOrigNorms );
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
@@ -84,11 +84,11 @@ int main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "Checking error in computed solution..." << endl;
         Matrix<double> XNorms, YNorms;
-        ColumnNorms( X, XNorms );
-        ColumnNorms( Y, YNorms );
+        ColumnTwoNorms( X, XNorms );
+        ColumnTwoNorms( Y, YNorms );
         Y -= X;
         Matrix<double> errorNorms;
-        ColumnNorms( Y, errorNorms );
+        ColumnTwoNorms( Y, errorNorms );
         if( commRank == 0 )
             for( int j=0; j<numRHS; ++j )
                 cout << "Right-hand side " << j << "\n"

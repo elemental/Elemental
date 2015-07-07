@@ -285,7 +285,7 @@ Power
             ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeX );
         }
 
-        ColumnNorms( activeX, activeEsts );
+        ColumnTwoNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 
         auto activeConverged = 
@@ -434,7 +434,7 @@ Power
               activeX_STAR_VR );
             activeX = activeX_STAR_VR;
         }
-        ColumnNorms( activeX, activeEsts );
+        ColumnTwoNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 
         auto activeConverged =

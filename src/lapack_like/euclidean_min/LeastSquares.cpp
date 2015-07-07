@@ -293,14 +293,14 @@ void LeastSquares
           { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
         if( m >= n )
         {
-            ColumnNorms( ABar, dC );
+            ColumnTwoNorms( ABar, dC );
             EntrywiseMap( dC, function<Real(Real)>(normMap) );
             DiagonalSolve( RIGHT, NORMAL, dC, ABar );
             Ones( dR, m, 1 );
         }
         else
         {
-            RowNorms( ABar, dR );
+            RowTwoNorms( ABar, dR );
             EntrywiseMap( dR, function<Real(Real)>(normMap) );
             DiagonalSolve( LEFT, NORMAL, dR, ABar );
             Ones( dC, n, 1 );
@@ -586,14 +586,14 @@ void LeastSquares
           { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
         if( m >= n )
         {
-            ColumnNorms( ABar, dC );
+            ColumnTwoNorms( ABar, dC );
             EntrywiseMap( dC, function<Real(Real)>(normMap) );
             DiagonalSolve( RIGHT, NORMAL, dC, ABar );
             Ones( dR, m, 1 );
         }
         else
         {
-            RowNorms( ABar, dR );
+            RowTwoNorms( ABar, dR );
             EntrywiseMap( dR, function<Real(Real)>(normMap) );
             DiagonalSolve( LEFT, NORMAL, dR, ABar );
             Ones( dC, n, 1 );

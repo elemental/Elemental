@@ -166,14 +166,17 @@ EL_EXPORT ElError ElAxpyTrapezoidDistSparse_z
 
 /* Column norms
    ============ */
+
+/* Two-norm
+   -------- */
 /* TODO */
-EL_EXPORT ElError ElColumnNormsDistMultiVec_s
+EL_EXPORT ElError ElColumnTwoNormsDistMultiVec_s
 ( ElConstDistMultiVec_s A, ElMatrix_s norms );
-EL_EXPORT ElError ElColumnNormsDistMultiVec_d
+EL_EXPORT ElError ElColumnTwoNormsDistMultiVec_d
 ( ElConstDistMultiVec_d A, ElMatrix_d norms );
-EL_EXPORT ElError ElColumnNormsDistMultiVec_c
+EL_EXPORT ElError ElColumnTwoNormsDistMultiVec_c
 ( ElConstDistMultiVec_c A, ElMatrix_s norms );
-EL_EXPORT ElError ElColumnNormsDistMultiVec_z
+EL_EXPORT ElError ElColumnTwoNormsDistMultiVec_z
 ( ElConstDistMultiVec_z A, ElMatrix_d norms );
 
 /* Concatenate

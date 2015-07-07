@@ -211,7 +211,7 @@ IRL
         if( progress )
             timer.Start();
         Matrix<Real> colNorms;
-        ColumnNorms( activeVList[0], colNorms );
+        ColumnTwoNorms( activeVList[0], colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
@@ -287,7 +287,7 @@ IRL
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], colNorms );
+            ColumnTwoNorms( activeVList[j+1], colNorms );
             PushBackList( HSubdiagList, colNorms );
             // TODO: Handle lucky breakdowns
             DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );
@@ -463,7 +463,7 @@ IRL
                 timer.Start();
         }
         DistMatrix<Real,MR,STAR> colNorms(g);
-        ColumnNorms( activeVList[0], colNorms );
+        ColumnTwoNorms( activeVList[0], colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[0] );
         for( Int j=0; j<basisSize; ++j )
         {
@@ -558,7 +558,7 @@ IRL
             }
 
             // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], colNorms );
+            ColumnTwoNorms( activeVList[j+1], colNorms );
             PushBackList( HSubdiagList, colNorms.Matrix() );
             // TODO: Handle lucky breakdowns
             DiagonalSolve( RIGHT, NORMAL, colNorms, activeVList[j+1] );

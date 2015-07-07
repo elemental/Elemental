@@ -218,7 +218,7 @@ void GLM
     HCat( A, B, W );
     if( ctrl.equilibrate )
     {
-        RowNorms( W, dR ); 
+        RowTwoNorms( W, dR ); 
         auto normMap = []( Real beta )
           { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dR, function<Real(Real)>(normMap) );
@@ -342,7 +342,7 @@ void GLM
     HCat( A, B, W );
     if( ctrl.equilibrate )
     {
-        RowNorms( W, dR );
+        RowTwoNorms( W, dR );
         auto normMap = []( Real beta )
           { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dR, function<Real(Real)>(normMap) );

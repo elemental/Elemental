@@ -702,9 +702,9 @@ ElError ElGetSubgraphDist
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Column norms */ \
-  ElError ElColumnNormsDistMultiVec_ ## SIG \
+  ElError ElColumnTwoNormsDistMultiVec_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElMatrix_ ## SIGBASE norms ) \
-  { EL_TRY( ColumnNorms( *CReflect(A), *CReflect(norms) ) ) } \
+  { EL_TRY( ColumnTwoNorms( *CReflect(A), *CReflect(norms) ) ) } \
   /* Nrm2 (same as FrobeniusNorm) */ \
   ElError ElNrm2_ ## SIG \
   ( ElConstMatrix_ ## SIG A, Base<F>* norm ) \

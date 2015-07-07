@@ -72,7 +72,9 @@ void AdjointAxpyContract
 
 // AllReduce
 // =========
-// TODO: Matrix<T> version?
+template<typename T>
+void AllReduce
+( Matrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
 template<typename T>
 void AllReduce
 ( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
@@ -148,53 +150,94 @@ void Broadcast( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
 
 // Column norms
 // ============
-template<typename F>
-void ColumnNorms( const Matrix<F>& X, Matrix<Base<F>>& norms );
 
+// One norms
+// ---------
+// TODO
+
+// Two norms
+// ---------
+template<typename F>
+void ColumnTwoNorms
+( const Matrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F,Dist U,Dist V>
-void ColumnNorms
+void ColumnTwoNorms
 ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
-
 template<typename F>
-void ColumnNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
-
+void ColumnTwoNorms
+( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
 template<typename F>
-void ColumnNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
-
+void ColumnTwoNorms
+( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F>
-void ColumnNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+void ColumnTwoNorms
+( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
 
-// Versions which operate on explicitly-separated complex matrices
-// ---------------------------------------------------------------
+// Separated complex data
+// ^^^^^^^^^^^^^^^^^^^^^^
 template<typename Real>
-void ColumnNorms
+void ColumnTwoNorms
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag, 
   Matrix<Real>& norms );
-
 template<typename Real,Dist U,Dist V>
-void ColumnNorms
+void ColumnTwoNorms
 ( const DistMatrix<Real,U,V>& XReal, const DistMatrix<Real,U,V>& XImag, 
   DistMatrix<Real,V,STAR>& norms );
-
 template<typename Real>
-void ColumnNorms
+void ColumnTwoNorms
 ( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
   Matrix<Real>& norms );
 
+// Max norms
+// ---------
+template<typename F>
+void ColumnMaxNorms
+( const Matrix<F>& X, Matrix<Base<F>>& norms );
+template<typename F,Dist U,Dist V>
+void ColumnMaxNorms
+( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
+template<typename F>
+void ColumnMaxNorms
+( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
+template<typename F>
+void ColumnMaxNorms
+( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
+template<typename F>
+void ColumnMaxNorms
+( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+
 // Row norms
 // =========
-template<typename F>
-void RowNorms( const Matrix<F>& X, Matrix<Base<F>>& norms );
 
+// One norm
+// --------
+// TODO
+
+// Two-norm
+// --------
+template<typename F>
+void RowTwoNorms
+( const Matrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F,Dist U,Dist V>
-void RowNorms
+void RowTwoNorms
 ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& norms );
-
 template<typename F>
-void RowNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
-
+void RowTwoNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F>
-void RowNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+void RowTwoNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+
+// Max norm
+// --------
+template<typename F>
+void RowMaxNorms
+( const Matrix<F>& X, Matrix<Base<F>>& norms );
+template<typename F,Dist U,Dist V>
+void RowMaxNorms
+( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& norms );
+template<typename F>
+void RowMaxNorms( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
+template<typename F>
+void RowMaxNorms( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
 
 // Concatenation
 // =============

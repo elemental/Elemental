@@ -11,6 +11,37 @@
 namespace El {
 
 template<typename T>
+void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
+{
+    DEBUG_ONLY(CSE cse("AllReduce"))
+    const Int height = A.Height();
+    const Int width = A.Width();
+    const Int size = height*width;
+    if( height == A.LDim() )
+    {
+        mpi::AllReduce( A.Buffer(), size, op, comm );
+    }
+    else
+    {
+        vector<T> buf( size );
+
+        // Pack
+        copy::util::InterleaveMatrix
+        ( height, width,
+          A.LockedBuffer(), 1, A.LDim(),
+          buf.data(),       1, height );
+
+        mpi::AllReduce( buf.data(), size, op, comm );
+
+        // Unpack
+        copy::util::InterleaveMatrix
+        ( height,        width,
+          buf.data(), 1, height,
+          A.Buffer(), 1, A.LDim() );
+    }
+}
+
+template<typename T>
 void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
     DEBUG_ONLY(CSE cse("AllReduce"))
@@ -79,6 +110,8 @@ void AllReduce( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 }
 
 #define PROTO(T) \
+  template void AllReduce \
+  ( Matrix<T>& A, mpi::Comm comm, mpi::Op op ); \
   template void AllReduce \
   ( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op ); \
   template void AllReduce \

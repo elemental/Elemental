@@ -346,7 +346,7 @@ Lanczos
         ColumnSubtractions( components, activeX, activeXNew );
 
         // Compute the norm of what is left
-        ColumnNorms( activeXNew, colNorms );
+        ColumnTwoNorms( activeXNew, colNorms );
         PushBackList( HSubdiagList, colNorms );
 
         activeXOld = activeX;
@@ -580,7 +580,7 @@ Lanczos
         ColumnSubtractions( components, activeX, activeXNew );
 
         // Compute the norm of what is left
-        ColumnNorms( activeXNew, colNorms );
+        ColumnTwoNorms( activeXNew, colNorms );
         PushBackList( HSubdiagList, colNorms.Matrix() );
 
         activeXOld = activeX;
