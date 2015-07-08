@@ -8,8 +8,8 @@
 #
 import El
 
-n0 = 50
-n1 = 50
+n0 = 100
+n1 = 100
 lambda1 = 3
 lambda2 = 4
 display = False
@@ -70,6 +70,7 @@ ctrl.mehrotraCtrl.basisSize = 15
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.time = True
 ctrl.mehrotraCtrl.qsdCtrl.progress = True
+ctrl.mehrotraCtrl.qsdCtrl.time = True
 if worldRank == 0:
   print "lambda1 =", lambda1, "lambda2 =", lambda2
 startEN = El.mpi.Time()

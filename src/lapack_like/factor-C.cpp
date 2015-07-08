@@ -24,6 +24,7 @@ ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl )
     ctrl->maxRefineIts = 15;
     ctrl->restart = 10;
     ctrl->progress = false;
+    ctrl->time = false;
     return EL_SUCCESS;
 }
 
@@ -39,6 +40,7 @@ ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl )
     ctrl->maxRefineIts = 15;
     ctrl->restart = 10;
     ctrl->progress = false;
+    ctrl->time = false;
     return EL_SUCCESS;
 }
 

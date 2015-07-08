@@ -87,6 +87,7 @@ void IPF
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -127,13 +128,11 @@ void IPF
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -236,12 +235,13 @@ void IPF
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
-            cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ", 
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ", 
+             dzErrorNrm2/(1+rmuNrm2));
 #endif
 
         // Take a step in the computed direction
@@ -250,7 +250,7 @@ void IPF
         const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
         const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print )
-            cout << "alphaMax = " << alphaMax << endl;
+            Output("alphaMax = ",alphaMax);
         const Real alpha =
           IPFLineSearch
           ( A, b, c, x, y, z, dx, dy, dz, 
@@ -258,7 +258,7 @@ void IPF
             ctrl.targetTol*(1+bNrm2), 
             ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
-            cout << "  alpha = " << alpha << endl;
+            Output("alpha = ",alpha);
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -271,6 +271,7 @@ void IPF
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.equilibrate )
     {
@@ -358,6 +359,7 @@ void IPF
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -398,13 +400,11 @@ void IPF
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -507,12 +507,13 @@ void IPF
         const Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
-            cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ",        
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ",        
+             dzErrorNrm2/(1+rmuNrm2));
 #endif
 
         // Take a step in the computed direction
@@ -521,7 +522,7 @@ void IPF
         const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
         const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print && commRank == 0 )
-            cout << "alphaMax = " << alphaMax << endl;
+            Output("alphaMax = ",alphaMax);
         const Real alpha =
           IPFLineSearch
           ( A, b, c, x, y, z, dx, dy, dz, 
@@ -529,7 +530,7 @@ void IPF
             ctrl.targetTol*(1+bNrm2), 
             ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
-            cout << "  alpha = " << alpha << endl;
+            Output("alpha = ",alpha);
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -542,6 +543,7 @@ void IPF
                 ("Could not achieve minimum tolerance ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.equilibrate )
     {
@@ -651,6 +653,7 @@ void IPF
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -691,13 +694,11 @@ void IPF
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -843,12 +844,13 @@ void IPF
         // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print )
-            cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ",        
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ",        
+             dzErrorNrm2/(1+rmuNrm2));
 #endif
 
         // Take a step in the computed direction
@@ -857,7 +859,7 @@ void IPF
         const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
         const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print )
-            cout << "alphaMax = " << alphaMax << endl;
+            Output("alphaMax = ",alphaMax);
         const Real alpha = 
           IPFLineSearch
           ( A, b, c, x, y, z, dx, dy, dz, 
@@ -865,7 +867,7 @@ void IPF
             ctrl.targetTol*(1+bNrm2), 
             ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print )
-            cout << "  alpha = " << alpha << endl; 
+            Output("alpha = ",alpha);
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -878,6 +880,7 @@ void IPF
                 ("Could not achieve minimum tolerance ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.equilibrate )
     {
@@ -994,6 +997,7 @@ void IPF
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -1034,13 +1038,11 @@ void IPF
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -1211,12 +1213,13 @@ void IPF
         // TODO: Also compute and print the residuals with regularization
 
         if( ctrl.print && commRank == 0 )
-            cout << "  || dxError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ",        
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ",        
+             dzErrorNrm2/(1+rmuNrm2));
 #endif
 
         // Take a step in the computed direction
@@ -1225,7 +1228,7 @@ void IPF
         const Real alphaDual = MaxStepInPositiveCone( z, dz, Real(1) );
         const Real alphaMax = Min(alphaPrimal,alphaDual);
         if( ctrl.print && commRank == 0 )
-            cout << "alphaMax = " << alphaMax << endl;
+            Output("alphaMax = ",alphaMax);
         const Real alpha = 
           IPFLineSearch
           ( A, b, c, x, y, z, dx, dy, dz, 
@@ -1233,7 +1236,7 @@ void IPF
             ctrl.targetTol*(1+bNrm2), 
             ctrl.targetTol*(1+cNrm2), ctrl.lineSearchCtrl );
         if( ctrl.print && commRank == 0 )
-            cout << "  alpha = " << alpha << endl; 
+            Output("alpha = ",alpha);
         Axpy( alpha, dx, x );
         Axpy( alpha, dy, y );
         Axpy( alpha, dz, z );
@@ -1246,6 +1249,7 @@ void IPF
                 ("Could not achieve minimum tolerance ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.equilibrate )
     {

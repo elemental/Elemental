@@ -381,6 +381,7 @@ typedef struct
   ElInt maxRefineIts;
   ElInt restart;
   bool progress;
+  bool time;
 } ElRegQSDCtrl_s;
 EL_EXPORT ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl );
 
@@ -395,6 +396,7 @@ typedef struct
   ElInt maxRefineIts;
   ElInt restart;
   bool progress;
+  bool time;
 } ElRegQSDCtrl_d;
 EL_EXPORT ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl );
 

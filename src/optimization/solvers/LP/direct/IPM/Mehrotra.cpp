@@ -92,6 +92,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -132,13 +133,11 @@ void Mehrotra
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -250,12 +249,13 @@ void Mehrotra
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
-            cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ", 
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ",
+             dzErrorNrm2/(1+rmuNrm2));
 #endif
 
         // Compute a centrality parameter
@@ -265,12 +265,12 @@ void Mehrotra
         if( forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
-            cout << "  alphaAffPri = " << alphaAffPri 
-                 << ", alphaAffDual = " << alphaAffDual << endl;
+            Output
+            ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         Real sigma;
         if( stepLengthSigma )
         {
-            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
         }
         else
         {
@@ -284,10 +284,10 @@ void Mehrotra
             sigma = Pow(muAff/mu,Real(3)); 
             sigma = Min(sigma,Real(1));
             if( ctrl.print )
-                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+                Output("muAff = ",muAff,", mu = ",mu);
         }
         if( ctrl.print )
-            cout << "  sigma = " << sigma << endl;
+            Output("sigma = ",sigma);
 
         // Solve for the combined direction
         // ================================
@@ -368,8 +368,7 @@ void Mehrotra
         if( forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
-            cout << "  alphaPri = " << alphaPri 
-                 << ", alphaDual = " << alphaDual << endl;
+            Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
@@ -382,6 +381,7 @@ void Mehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.outerEquil )
     {
@@ -478,6 +478,7 @@ void Mehrotra
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -518,13 +519,11 @@ void Mehrotra
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -636,12 +635,13 @@ void Mehrotra
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
-            cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ",           
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
+             dzErrorNrm2/(1+rmuNrm2)); 
 #endif
 
         // Compute a centrality parameter
@@ -651,12 +651,12 @@ void Mehrotra
         if( forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
-            cout << "  alphaAffPri = " << alphaAffPri 
-                 << ", alphaAffDual = " << alphaAffDual << endl;
+            Output
+            ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         Real sigma;
         if( stepLengthSigma )
         {
-            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
         }
         else
         {
@@ -670,10 +670,10 @@ void Mehrotra
             sigma = Pow(muAff/mu,Real(3)); 
             sigma = Min(sigma,Real(1));
             if( ctrl.print && commRank == 0 )
-                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+                Output("muAff = ",muAff,", mu = ",mu);
         }
         if( ctrl.print && commRank == 0 )
-            cout << "  sigma = " << sigma << endl;
+            Output("sigma = ",sigma); 
 
         // Solve for the combined direction
         // ================================
@@ -754,8 +754,7 @@ void Mehrotra
         if( forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
-            cout << "  alphaPri = " << alphaPri 
-                 << ", alphaDual = " << alphaDual << endl;
+            Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
@@ -768,6 +767,7 @@ void Mehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.outerEquil )
     {
@@ -883,6 +883,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -923,13 +924,11 @@ void Mehrotra
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -1053,12 +1052,13 @@ void Mehrotra
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print )
-            cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ",           
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
+             dzErrorNrm2/(1+rmuNrm2)); 
 #endif
 
         // Compute a centrality parameter
@@ -1068,12 +1068,12 @@ void Mehrotra
         if( forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
-            cout << "  alphaAffPri = " << alphaAffPri 
-                 << ", alphaAffDual = " << alphaAffDual << endl;
+            Output
+            ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         Real sigma;
         if( stepLengthSigma )
         {
-            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
         }
         else
         {
@@ -1087,10 +1087,10 @@ void Mehrotra
             sigma = Pow(muAff/mu,Real(3)); 
             sigma = Min(sigma,Real(1));
             if( ctrl.print )
-                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+                Output("muAff = ",muAff,", mu = ",mu);
         }
         if( ctrl.print )
-            cout << "  sigma = " << sigma << endl;
+            Output("sigma = ",sigma); 
 
         // Solve for the combined direction
         // ================================
@@ -1169,8 +1169,7 @@ void Mehrotra
         if( forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
-            cout << "  alphaPri = " << alphaPri 
-                 << ", alphaDual = " << alphaDual << endl;
+            Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
@@ -1183,6 +1182,7 @@ void Mehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.outerEquil )
     {
@@ -1224,7 +1224,7 @@ void Mehrotra
             timer.Start();
         GeomEquil( A, dRow, dCol, ctrl.print );
         if( commRank == 0 && ctrl.time )
-            cout << "  GeomEquil: " << timer.Stop() << " secs" << endl;
+            Output("GeomEquil: ",timer.Stop()," secs");
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -1271,7 +1271,7 @@ void Mehrotra
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }
     if( commRank == 0 && ctrl.time )
-        cout << "  Init: " << timer.Stop() << " secs" << endl;
+        Output("Init: ",timer.Stop()," secs");
 
     DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
@@ -1312,6 +1312,7 @@ void Mehrotra
 #ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
 #endif
+    const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that x and z are in the cone
@@ -1352,13 +1353,11 @@ void Mehrotra
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print && commRank == 0 )
-            cout << " iter " << numIts << ":\n"
-                 << "  |primal - dual| / (1 + |primal|) = "
-                 << objConv << "\n"
-                 << "  || r_b ||_2 / (1 + || b ||_2)   = "
-                 << rbConv << "\n"
-                 << "  || r_c ||_2 / (1 + || c ||_2)   = "
-                 << rcConv << endl;
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -1406,8 +1405,7 @@ void Mehrotra
                   false, ctrl.innerEquil, 
                   ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  Equilibration: " << timer.Stop() << " secs" 
-                         << endl;
+                    Output("Equilibration: ",timer.Stop()," secs");
                 UpdateRealPartOfDiagonal( J, Real(1), reg );
                 // Cache the metadata for the finalized J
                 if( numIts == 0 )
@@ -1417,7 +1415,7 @@ void Mehrotra
                         timer.Start();
                     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
                     if( commRank == 0 && ctrl.time )
-                        cout << "  ND: " << timer.Stop() << " secs" << endl;
+                        Output("ND: ",timer.Stop()," secs");
                     InvertMap( map, invMap );
                 }
                 else
@@ -1428,14 +1426,14 @@ void Mehrotra
                     timer.Start();
                 LDL( info, JFront, LDL_2D );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  LDL: " << timer.Stop() << " secs" << endl;
+                    Output("LDL: ",timer.Stop()," secs");
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_qsd_ldl::SolveAfter
                 ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  Affine: " << timer.Stop() << " secs" << endl;
+                    Output("Affine: ",timer.Stop()," secs");
             }
             catch(...)
             {
@@ -1470,7 +1468,7 @@ void Mehrotra
                         timer.Start();
                     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
                     if( commRank == 0 && ctrl.time )
-                        cout << "  ND: " << timer.Stop() << " secs" << endl;
+                        Output("ND: ",timer.Stop()," secs");
                     InvertMap( map, invMap );
                 }
                 else
@@ -1481,7 +1479,7 @@ void Mehrotra
                     timer.Start();
                 LDL( info, JFront, LDL_1D );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  LDL: " << timer.Stop() << " secs" << endl;
+                    Output("LDL: ",timer.Stop()," secs");
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start(); 
@@ -1489,7 +1487,7 @@ void Mehrotra
                 ( J, invMap, info, JFront, dyAff, 
                   ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  Affine: " << timer.Stop() << " secs" << endl;
+                    Output("Affine: ",timer.Stop()," secs");
             }
             catch(...)
             {
@@ -1525,12 +1523,13 @@ void Mehrotra
         Real dzErrorNrm2 = Nrm2( dzError );
 
         if( ctrl.print && commRank == 0 )
-            cout << "  || dxAffError ||_2 / (1 + || r_b ||_2) = " 
-                 << dxErrorNrm2/(1+rbNrm2) << "\n"
-                 << "  || dyAffError ||_2 / (1 + || r_c ||_2) = " 
-                 << dyErrorNrm2/(1+rcNrm2) << "\n"
-                 << "  || dzAffError ||_2 / (1 + || r_h ||_2) = " 
-                 << dzErrorNrm2/(1+rmuNrm2) << endl;
+            Output
+            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             "|| dyError ||_2 / (1 + || r_c ||_2) = ",           
+             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
+             dzErrorNrm2/(1+rmuNrm2)); 
 #endif
 
         // Compute a centrality parameter
@@ -1540,12 +1539,12 @@ void Mehrotra
         if( forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
-            cout << "  alphaAffPri = " << alphaAffPri 
-                 << ", alphaAffDual = " << alphaAffDual << endl;
+            Output
+            ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         Real sigma;
         if( stepLengthSigma )
         {
-            sigma = Pow(Real(1)-Min(alphaAffPri,alphaAffDual),Real(3));
+            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
         }
         else
         {
@@ -1559,10 +1558,10 @@ void Mehrotra
             sigma = Pow(muAff/mu,Real(3)); 
             sigma = Min(sigma,Real(1));
             if( ctrl.print && commRank == 0 )
-                cout << "  muAff = " << muAff << ", mu = " << mu << endl;
+                Output("muAff = ",muAff,", mu = ",mu);
         }
         if( ctrl.print && commRank == 0 )
-            cout << "  sigma = " << sigma << endl;
+            Output("sigma = ",sigma); 
 
         // Solve for the combined direction
         // ================================
@@ -1585,7 +1584,7 @@ void Mehrotra
                 reg_qsd_ldl::SolveAfter
                 ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+                    Output("Corrector: ",timer.Stop()," secs");
             }
             catch(...)
             {
@@ -1607,7 +1606,7 @@ void Mehrotra
                 reg_qsd_ldl::SolveAfter
                 ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+                    Output("Corrector: ",timer.Stop()," secs");
             }
             catch(...)
             {
@@ -1630,7 +1629,7 @@ void Mehrotra
                 ( J, invMap, info, JFront, dy, 
                   ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
                 if( commRank == 0 && ctrl.time )
-                    cout << "  Corrector: " << timer.Stop() << " secs" << endl;
+                    Output("Corrector: ",timer.Stop()," secs");
             }
             catch(...)
             {
@@ -1653,8 +1652,7 @@ void Mehrotra
         if( forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
-            cout << "  alphaPri = " << alphaPri 
-                 << ", alphaDual = " << alphaDual << endl;
+            Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z ); 
@@ -1667,6 +1665,7 @@ void Mehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 
     if( ctrl.outerEquil )
     {

@@ -471,14 +471,14 @@ class RegQSDCtrl_s(ctypes.Structure):
   _fields_ = [("regPrimal",sType),("regDual",sType),
               ("alg",c_uint),("relTol",sType),("relTolRefine",sType),
               ("maxIts",iType),("maxRefineIts",iType),("restart",iType),
-              ("progress",bType)]
+              ("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElRegQSDCtrlDefault_s(pointer(self))
 class RegQSDCtrl_d(ctypes.Structure):
   _fields_ = [("regPrimal",dType),("regDual",dType),
               ("alg",c_uint),("relTol",dType),("relTolRefine",dType),
               ("maxIts",iType),("maxRefineIts",iType),("restart",iType),
-              ("progress",bType)]
+              ("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElRegQSDCtrlDefault_d(pointer(self))
 

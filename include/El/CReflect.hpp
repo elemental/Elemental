@@ -1381,6 +1381,7 @@ inline ElRegQSDCtrl_s CReflect( const RegQSDCtrl<float>& ctrl )
     ctrlC.maxRefineIts = ctrl.maxRefineIts;
     ctrlC.restart      = ctrl.restart;
     ctrlC.progress     = ctrl.progress;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 
@@ -1395,6 +1396,7 @@ inline ElRegQSDCtrl_d CReflect( const RegQSDCtrl<double>& ctrl )
     ctrlC.maxRefineIts = ctrl.maxRefineIts;
     ctrlC.restart      = ctrl.restart;
     ctrlC.progress     = ctrl.progress;
+    ctrlC.time         = ctrl.time;
     return ctrlC;
 }
 
@@ -1409,6 +1411,7 @@ inline RegQSDCtrl<float> CReflect( const ElRegQSDCtrl_s& ctrlC )
     ctrl.maxRefineIts = ctrlC.maxRefineIts;
     ctrl.restart      = ctrlC.restart;
     ctrl.progress     = ctrlC.progress;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 
@@ -1423,6 +1426,7 @@ inline RegQSDCtrl<double> CReflect( const ElRegQSDCtrl_d& ctrlC )
     ctrl.maxRefineIts = ctrlC.maxRefineIts;
     ctrl.restart      = ctrlC.restart;
     ctrl.progress     = ctrlC.progress;
+    ctrl.time         = ctrlC.time;
     return ctrl;
 }
 

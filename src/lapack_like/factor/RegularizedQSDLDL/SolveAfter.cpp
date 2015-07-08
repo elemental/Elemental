@@ -21,7 +21,8 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
@@ -44,15 +45,15 @@ inline Int RegularizedSolveAfterNoPromote
         b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
  
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -72,13 +73,14 @@ inline Int RegularizedSolveAfterNoPromote
             b -= y;
             auto newErrorNorm = Nrm2( b );
             if( progress )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -98,7 +100,8 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
@@ -125,15 +128,15 @@ inline Int RegularizedSolveAfterNoPromote
         b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
  
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -157,13 +160,14 @@ inline Int RegularizedSolveAfterNoPromote
             b -= y;
             auto newErrorNorm = Nrm2( b );
             if( progress )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -179,7 +183,8 @@ inline Int RegularizedSolveAfterPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
@@ -215,15 +220,15 @@ inline Int RegularizedSolveAfterPromote
         bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
  
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -245,13 +250,14 @@ inline Int RegularizedSolveAfterPromote
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -268,7 +274,8 @@ inline Int RegularizedSolveAfterPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
@@ -312,15 +319,15 @@ inline Int RegularizedSolveAfterPromote
         bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
  
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -346,13 +353,14 @@ inline Int RegularizedSolveAfterPromote
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -368,11 +376,13 @@ Int RegularizedSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
-           ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress );
+           ( A, reg, invMap, info, front, b, relTol, maxRefineIts, 
+             progress, time );
 }
 
 template<typename F>
@@ -384,12 +394,12 @@ Int RegularizedSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, 
-             b, relTol, maxRefineIts, progress );
+             b, relTol, maxRefineIts, progress, time );
 }
 
 template<typename F>
@@ -400,7 +410,7 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = A.Comm();
@@ -427,14 +437,15 @@ inline Int RegularizedSolveAfterNoPromote
         b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -454,13 +465,14 @@ inline Int RegularizedSolveAfterNoPromote
             b -= y;
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -477,7 +489,7 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = A.Comm();
@@ -508,14 +520,15 @@ inline Int RegularizedSolveAfterNoPromote
         b -= y;
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -539,13 +552,14 @@ inline Int RegularizedSolveAfterNoPromote
             b -= y;
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -562,7 +576,7 @@ inline Int RegularizedSolveAfterPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
@@ -601,14 +615,15 @@ inline Int RegularizedSolveAfterPromote
         bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -630,13 +645,14 @@ inline Int RegularizedSolveAfterPromote
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -653,7 +669,7 @@ inline Int RegularizedSolveAfterPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterPromote"))
     typedef Base<F> Real;
@@ -700,14 +716,15 @@ inline Int RegularizedSolveAfterPromote
         bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -733,13 +750,14 @@ inline Int RegularizedSolveAfterPromote
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -756,11 +774,11 @@ Int RegularizedSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
-    ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress );
+    ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress, time );
 }
 
 template<typename F>
@@ -772,11 +790,11 @@ Int RegularizedSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
     return RegularizedSolveAfterPromote
-    ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress );
+    ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress, time );
 }
 
 template<typename F>
@@ -806,14 +824,15 @@ Int IRSolveAfter
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -830,13 +849,14 @@ Int IRSolveAfter
             Multiply( NORMAL, F(-1), A, x, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -872,14 +892,15 @@ Int IRSolveAfter
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -897,13 +918,14 @@ Int IRSolveAfter
             Multiply( NORMAL, F(-1), A, x, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Iterative refinement did not converge in time"); 
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -943,14 +965,15 @@ Int IRSolveAfter
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -967,13 +990,14 @@ Int IRSolveAfter
             Multiply( NORMAL, F(-1), A, x, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Refinement did not converge in time");
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -1014,14 +1038,15 @@ Int IRSolveAfter
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
-            cout << "    original rel error: " << errorNorm/bNorm << endl;
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "    " << errorNorm/bNorm << " <= " << relTol
-                         << endl;
+                    Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
 
@@ -1039,13 +1064,14 @@ Int IRSolveAfter
             Multiply( NORMAL, F(-1), A, x, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
-                cout << "    refined rel error: " << newErrorNorm/bNorm << endl;
+                Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
                 RuntimeError("Refinement did not converge in time");
         }
+        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -1090,7 +1116,9 @@ Int LGMRESSolveAfter
     while( !converged )
     {
         if( progress )
-            cout << "  Starting GMRES iteration " << iter << endl;
+            Output("Starting GMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -1126,6 +1154,10 @@ Int LGMRESSolveAfter
         // =========================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress )
+                Output("Starting inner GMRES iteration ",j);
+            const Int innerIndent = PushIndent();
+
             // w := A v_j
             // ----------
             Multiply( NORMAL, F(1), A, V(ALL,IR(j)), F(0), w );
@@ -1233,8 +1265,7 @@ Int LGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -1242,13 +1273,16 @@ Int LGMRESSolveAfter
             else
             {
                 if( progress )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("LGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -1292,7 +1326,9 @@ Int LGMRESSolveAfter
     while( !converged )
     {
         if( progress )
-            cout << "  Starting GMRES iteration " << iter << endl;
+            Output("Starting GMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -1328,6 +1364,10 @@ Int LGMRESSolveAfter
         // =========================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress )
+                Output("Starting inner GMRES iteration ",j);
+            const Int innerIndent = PushIndent();
+
             // w := A v_j
             // ----------
             Multiply( NORMAL, F(1), A, V(ALL,IR(j)), F(0), w );
@@ -1435,8 +1475,7 @@ Int LGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -1444,13 +1483,16 @@ Int LGMRESSolveAfter
             else
             {
                 if( progress )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("LGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -1495,7 +1537,9 @@ Int LGMRESSolveAfter
     while( !converged )
     {
         if( progress && commRank == 0 )
-            cout << "  Starting GMRES iteration " << iter << endl;
+            Output("Starting GMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -1536,6 +1580,10 @@ Int LGMRESSolveAfter
         // ===============================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress && commRank == 0 )
+                Output("Starting inner GMRES iteration ",j);
+            const Int innerIndent = PushIndent();
+
             // w := A v_j
             // ----------
             q.Matrix() = VLoc( ALL, IR(j) );
@@ -1644,8 +1692,7 @@ Int LGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -1653,13 +1700,16 @@ Int LGMRESSolveAfter
             else
             {
                 if( progress && commRank == 0 )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("LGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -1705,7 +1755,9 @@ Int LGMRESSolveAfter
     while( !converged )
     {
         if( progress && commRank == 0 )
-            cout << "  Starting GMRES iteration " << iter << endl;
+            Output("Starting GMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -1746,6 +1798,10 @@ Int LGMRESSolveAfter
         // ===============================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress && commRank )
+                Output("Starting inner GMRES iteration ",j);
+            const Int innerIndent = PushIndent();
+
             // w := A v_j
             // ----------
             q.Matrix() = VLoc( ALL, IR(j) );
@@ -1854,8 +1910,7 @@ Int LGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -1863,13 +1918,16 @@ Int LGMRESSolveAfter
             else
             {
                 if( progress && commRank == 0 )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("LGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -1889,11 +1947,13 @@ Int FGMRESSolveAfter
   const ldl::Front<F>& front, 
         Matrix<F>& b,
   Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTolRefine, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
+    Timer iterTimer, timer;
 
     // x := 0
     // ======
@@ -1905,7 +1965,7 @@ Int FGMRESSolveAfter
     auto w = b;
     const Real origResidNorm = Nrm2( w );
     if( progress )
-        cout << "origResidNorm: " << origResidNorm << endl;
+        Output("origResidNorm: ",origResidNorm);
     if( origResidNorm == Real(0) )
         return 0;
 
@@ -1920,7 +1980,9 @@ Int FGMRESSolveAfter
     while( !converged )
     {
         if( progress )
-            cout << "  Starting FGMRES iteration " << iter << endl;
+            Output("Starting FGMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -1952,22 +2014,38 @@ Int FGMRESSolveAfter
         // ===============================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress )
+                Output("Starting inner FGMRES iteration ",j);
+            if( time )
+                iterTimer.Start();
+            const Int innerIndent = PushIndent();
+
             // z_j := inv(M) v_j
             // =================
+            if( time )
+                timer.Start();
             auto vj = V( ALL, IR(j) );
             auto zj = Z( ALL, IR(j) );
             zj = vj;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, invMap, info, front, zj, 
-              relTolRefine, maxRefineIts, progress );
+              relTolRefine, maxRefineIts, progress, time );
             maxLargeRefines = Max( refineIts, maxLargeRefines );
+            if( time )
+                Output("solve took ",timer.Stop()," secs");
 
             // w := A z_j
             // ----------
+            if( time )
+                timer.Start();
             Multiply( NORMAL, F(1), A, zj, F(0), w );
+            if( time )
+                Output("mat-vec took ",timer.Stop()," secs");
 
             // Run the j'th step of Arnoldi
             // ----------------------------
+            if( time )
+                timer.Start();
             for( Int i=0; i<=j; ++i )
             {
                 // H(i,j) := v_i' w
@@ -1992,6 +2070,8 @@ Int FGMRESSolveAfter
                 vjp1 = w;
                 vjp1 *= 1/delta;
             }
+            if( time )
+                Output("Arnoldi took ",timer.Stop()," secs");
 
             // Apply existing rotations to the new column of H
             // -----------------------------------------------
@@ -2009,6 +2089,8 @@ Int FGMRESSolveAfter
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
+            if( time )
+                timer.Start();
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
             if( std::isnan(RealPart(eta_j_j))   || 
@@ -2047,11 +2129,20 @@ Int FGMRESSolveAfter
                 const F eta_i = y.Get(i,0);
                 Axpy( eta_i, Z( ALL, IR(i) ), x );
             }
+            if( time )
+                Output("expansion took ",timer.Stop()," secs");
 
             // w := b - A x
             // ------------
+            if( time )
+                timer.Start();
             w = b;
             Multiply( NORMAL, F(-1), A, x, F(1), w );
+            if( time )
+                Output("mat-vec took ",timer.Stop()," secs");
+
+            if( time )
+                Output("iter took ",iterTimer.Stop()," secs");
 
             // Residual checks
             // ---------------
@@ -2062,8 +2153,7 @@ Int FGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -2071,13 +2161,16 @@ Int FGMRESSolveAfter
             else
             {
                 if( progress )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("FGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -2093,7 +2186,8 @@ Int FGMRESSolveAfter
   const ldl::Front<F>& front, 
         Matrix<F>& b,
   Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTolRefine, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2109,7 +2203,7 @@ Int FGMRESSolveAfter
     auto w = b;
     const Real origResidNorm = Nrm2( w );
     if( progress )
-        cout << "origResidNorm: " << origResidNorm << endl;
+        Output("origResidNorm: ",origResidNorm);
     if( origResidNorm == Real(0) )
         return 0;
 
@@ -2123,7 +2217,9 @@ Int FGMRESSolveAfter
     while( !converged )
     {
         if( progress )
-            cout << "  Starting FGMRES iteration " << iter << endl;
+            Output("Starting FGMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -2155,6 +2251,10 @@ Int FGMRESSolveAfter
         // ===============================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress )
+                Output("Starting inner FGMRES iteration ",j);
+            const Int innerIndent = PushIndent();
+
             // z_j := inv(M) v_j
             // =================
             auto vj = V( ALL, IR(j) );
@@ -2162,7 +2262,7 @@ Int FGMRESSolveAfter
             zj = vj;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, zj, 
-              relTolRefine, maxRefineIts, progress );
+              relTolRefine, maxRefineIts, progress, time );
             maxLargeRefines = Max( refineIts, maxLargeRefines );
 
             // w := A z_j
@@ -2265,8 +2365,7 @@ Int FGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -2274,13 +2373,16 @@ Int FGMRESSolveAfter
             else
             {
                 if( progress )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("FGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -2295,13 +2397,15 @@ Int FGMRESSolveAfter
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
   Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTolRefine, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
+    Timer iterTimer, timer;
 
     // x := 0
     // ======
@@ -2314,7 +2418,7 @@ Int FGMRESSolveAfter
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( progress && commRank == 0 )
-        cout << "origResidNorm: " << origResidNorm << endl;
+        Output("origResidNorm: ",origResidNorm);
     if( origResidNorm == Real(0) )
         return 0;
 
@@ -2328,7 +2432,9 @@ Int FGMRESSolveAfter
     while( !converged )
     {
         if( progress && commRank == 0 )
-            cout << "  Starting FGMRES iteration " << iter << endl;
+            Output("Starting FGMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -2366,24 +2472,40 @@ Int FGMRESSolveAfter
         // ===============================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress && commRank == 0 )
+                Output("Starting inner FGMRES iteration ",j);
+            if( time && commRank == 0 )
+                iterTimer.Start();
+            const Int innerIndent = PushIndent();
+
             // z_j := inv(M) v_j
             // =================
+            if( time && commRank == 0 )
+                timer.Start();
             auto vjLoc = VLoc( ALL, IR(j) );
             auto zjLoc = ZLoc( ALL, IR(j) );
             q.Matrix() = vjLoc;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, invMap, info, front, q, 
-              relTolRefine, maxRefineIts, progress );
+              relTolRefine, maxRefineIts, progress, time );
             maxLargeRefines = Max( refineIts, maxLargeRefines );
             zjLoc = q.Matrix();
+            if( time && commRank == 0 )
+                Output("solve took ",timer.Stop()," secs");
 
             // w := A z_j
             // ----------
+            if( time && commRank == 0 )
+                timer.Start();
             // NOTE: q currently contains z_j
             Multiply( NORMAL, F(1), A, q, F(0), w );
+            if( time && commRank == 0 )
+                Output("mat-vec took ",timer.Stop()," secs");
 
             // Run the j'th step of Arnoldi
             // ----------------------------
+            if( commRank == 0 )
+                timer.Start();
             for( Int i=0; i<=j; ++i )
             {
                 // H(i,j) := v_i' w
@@ -2408,6 +2530,8 @@ Int FGMRESSolveAfter
                 v_jp1Loc = w.Matrix();
                 v_jp1Loc *= 1/delta;
             }
+            if( time && commRank == 0 )
+                Output("Arnoldi took ",timer.Stop()," secs");
 
             // Apply existing rotations to the new column of H
             // -----------------------------------------------
@@ -2425,6 +2549,8 @@ Int FGMRESSolveAfter
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
+            if( time && commRank == 0 )
+                timer.Start();
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
             if( std::isnan(RealPart(eta_j_j))   || 
@@ -2463,11 +2589,20 @@ Int FGMRESSolveAfter
                 const F eta_i = y.Get(i,0);
                 Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
             }
+            if( time && commRank == 0 )
+                Output("expansion took ",timer.Stop()," secs");
 
             // w := b - A x
             // ------------
+            if( time && commRank == 0 )
+                timer.Start();
             w = b;
             Multiply( NORMAL, F(-1), A, x, F(1), w );
+            if( time && commRank == 0 )
+                Output("mat-vec took ",timer.Stop()," secs");
+
+            if( time && commRank == 0 )
+                Output("iter took ",iterTimer.Stop()," secs");
 
             // Residual checks
             // ---------------
@@ -2478,8 +2613,7 @@ Int FGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -2487,13 +2621,16 @@ Int FGMRESSolveAfter
             else
             {
                 if( progress && commRank == 0 )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("FGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -2509,13 +2646,15 @@ Int FGMRESSolveAfter
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
   Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTolRefine, Int maxRefineIts, 
+  bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
+    Timer iterTimer, timer;
 
     // x := 0
     // ======
@@ -2528,7 +2667,7 @@ Int FGMRESSolveAfter
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( progress && commRank == 0 )
-        cout << "origResidNorm: " << origResidNorm << endl;
+        Output("origResidNorm: ",origResidNorm);
     if( origResidNorm == Real(0) )
         return 0;
 
@@ -2542,7 +2681,9 @@ Int FGMRESSolveAfter
     while( !converged )
     {
         if( progress && commRank == 0 )
-            cout << "  Starting FGMRES iteration " << iter << endl;
+            Output("Starting FGMRES iteration ",iter);
+        const Int indent = PushIndent();
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
@@ -2580,24 +2721,40 @@ Int FGMRESSolveAfter
         // ===============================
         for( Int j=0; j<restart; ++j )
         {
+            if( progress && commRank == 0 )
+                Output("Starting inner FGMRES iteration ",j);
+            if( time && commRank == 0 )
+                iterTimer.Start();
+            const Int innerIndent = PushIndent();
+
             // z_j := inv(M) v_j
             // =================
+            if( time && commRank == 0 )
+                timer.Start();
             auto vjLoc = VLoc( ALL, IR(j) );
             auto zjLoc = ZLoc( ALL, IR(j) );
             q.Matrix() = vjLoc;
             Int refineIts = RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, q, 
-              relTolRefine, maxRefineIts, progress );
+              relTolRefine, maxRefineIts, progress, time );
             maxLargeRefines = Max( refineIts, maxLargeRefines );
             zjLoc = q.Matrix();
+            if( time && commRank == 0 )
+                Output("solve took ",timer.Stop()," secs");
 
             // w := A z_j
             // ----------
+            if( time && commRank == 0 )
+                timer.Start();
             // NOTE: q currently contains z_j
             Multiply( NORMAL, F(1), A, q, F(0), w );
+            if( time && commRank == 0 )
+                Output("mat-vec took ",timer.Stop()," secs");
 
             // Run the j'th step of Arnoldi
             // ----------------------------
+            if( time && commRank == 0 )
+                timer.Start();
             for( Int i=0; i<=j; ++i )
             {
                 // H(i,j) := v_i' w
@@ -2622,6 +2779,8 @@ Int FGMRESSolveAfter
                 v_jp1Loc = w.Matrix();
                 v_jp1Loc *= 1/delta;
             }
+            if( time && commRank == 0 )
+                Output("Arnoldi took ",timer.Stop()," secs");
 
             // Apply existing rotations to the new column of H
             // -----------------------------------------------
@@ -2639,6 +2798,8 @@ Int FGMRESSolveAfter
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
+            if( time && commRank == 0 )
+                timer.Start();
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
             if( std::isnan(RealPart(eta_j_j))   || 
@@ -2677,11 +2838,20 @@ Int FGMRESSolveAfter
                 const F eta_i = y.Get(i,0);
                 Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
             }
+            if( time && commRank == 0 )
+                Output("expansion took ",timer.Stop()," secs");
 
             // w := b - A x
             // ------------
+            if( time && commRank == 0 )
+                timer.Start();
             w = b;
             Multiply( NORMAL, F(-1), A, x, F(1), w );
+            if( time && commRank == 0 )
+                Output("mat-vec took ",timer.Stop()," secs");
+
+            if( time && commRank == 0 )
+                Output("iter took ",iterTimer.Stop()," secs");
 
             // Residual checks
             // ---------------
@@ -2692,8 +2862,7 @@ Int FGMRESSolveAfter
             if( relResidNorm < relTol )
             {
                 if( progress && commRank == 0 )
-                    cout << "  converged with relative tolerance: "
-                         << relResidNorm << endl;
+                    Output("converged with relative tolerance: ",relResidNorm);
                 converged = true;
                 ++iter;
                 break;
@@ -2701,13 +2870,16 @@ Int FGMRESSolveAfter
             else
             {
                 if( progress && commRank == 0 )
-                    cout << "  finished iteration " << iter << " with "
-                         << "relResidNorm=" << relResidNorm << endl;
+                    Output
+                    ("finished iteration ",iter," with relResidNorm=",
+                     relResidNorm);
             }
             ++iter;
             if( iter == maxIts )
                 RuntimeError("FGMRES did not converge");
+            SetIndent( innerIndent );
         }
+        SetIndent( indent );
     }
     b = x;
     return maxLargeRefines;
@@ -2733,7 +2905,7 @@ Int SolveAfter
         ( A, reg, invMap, info, front, b, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
-          ctrl.progress );
+          ctrl.progress, ctrl.time );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
@@ -2747,7 +2919,7 @@ Int SolveAfter
     case REG_REFINE_IR_MOD:    
         return RegularizedSolveAfter
         ( A, reg, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -2773,7 +2945,7 @@ Int SolveAfter
         ( A, reg, d, invMap, info, front, b, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
-          ctrl.progress );
+          ctrl.progress, ctrl.time );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, d, invMap, info, front, b, 
@@ -2787,7 +2959,7 @@ Int SolveAfter
     case REG_REFINE_IR_MOD:    
         return RegularizedSolveAfter
         ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -2812,7 +2984,7 @@ Int SolveAfter
         ( A, reg, invMap, info, front, b, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
-          ctrl.progress );
+          ctrl.progress, ctrl.time );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, invMap, info, front, b, 
@@ -2826,7 +2998,7 @@ Int SolveAfter
     case REG_REFINE_IR_MOD:    
         return RegularizedSolveAfter
         ( A, reg, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -2852,7 +3024,7 @@ Int SolveAfter
         ( A, reg, d, invMap, info, front, b, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
-          ctrl.progress );
+          ctrl.progress, ctrl.time );
     case REG_REFINE_LGMRES:
         return LGMRESSolveAfter
         ( A, reg, d, invMap, info, front, b, 
@@ -2866,7 +3038,7 @@ Int SolveAfter
     case REG_REFINE_IR_MOD:    
         return RegularizedSolveAfter
         ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
+          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -2881,7 +3053,7 @@ Int SolveAfter
     const ldl::NodeInfo& info, \
     const ldl::Front<F>& front, \
           Matrix<F>& b, \
-    Base<F> relTol, Int maxRefineIts, bool progress ); \
+    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
   ( const SparseMatrix<F>& A, \
     const Matrix<Base<F>>& reg, \
@@ -2890,7 +3062,7 @@ Int SolveAfter
     const ldl::NodeInfo& info, \
     const ldl::Front<F>& front, \
           Matrix<F>& b, \
-    Base<F> relTol, Int maxRefineIts, bool progress ); \
+    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
   ( const DistSparseMatrix<F>& A, \
     const DistMultiVec<Base<F>>& reg, \
@@ -2898,7 +3070,7 @@ Int SolveAfter
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
           DistMultiVec<F>& b, \
-    Base<F> relTol, Int maxRefineIts, bool progress ); \
+    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
   ( const DistSparseMatrix<F>& A, \
     const DistMultiVec<Base<F>>& reg, \
@@ -2907,7 +3079,7 @@ Int SolveAfter
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
           DistMultiVec<F>& b, \
-    Base<F> relTol, Int maxRefineIts, bool progress ); \
+    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int SolveAfter \
   ( const SparseMatrix<F>& A, \
     const Matrix<Base<F>>& reg, \

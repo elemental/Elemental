@@ -262,6 +262,7 @@ struct RegQSDCtrl
     Int maxRefineIts=15;
     Int restart=10;
     bool progress=false;
+    bool time=false;
 
     RegQSDCtrl()
     {
@@ -280,14 +281,14 @@ Int RegularizedSolveAfter
   const vector<Int>& invMap,  const ldl::NodeInfo& info,
   const ldl::Front<F>& front,        Matrix<F>& y,
   Base<F> relTolRefine,       Int maxRefineIts,
-  bool progress );
+  bool progress=false, bool time=false );
 template<typename F>
 Int RegularizedSolveAfter
 ( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap,          const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,       DistMultiVec<F>& y,
   Base<F> relTolRefine,           Int maxRefineIts,
-  bool progress );
+  bool progress=false, bool time=false );
 
 template<typename F>
 Int RegularizedSolveAfter
@@ -296,7 +297,7 @@ Int RegularizedSolveAfter
   const vector<Int>& invMap,  const ldl::NodeInfo& info,
   const ldl::Front<F>& front,        Matrix<F>& y,
   Base<F> relTolRefine,       Int maxRefineIts,
-  bool progress );
+  bool progress=false, bool time=false );
 template<typename F>
 Int RegularizedSolveAfter
 ( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
@@ -304,7 +305,7 @@ Int RegularizedSolveAfter
   const DistMap& invMap,           const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,        DistMultiVec<F>& y,
   Base<F> relTolRefine,            Int maxRefineIts,
-  bool progress );
+  bool progress=false, bool time=false );
 
 template<typename F>
 Int SolveAfter

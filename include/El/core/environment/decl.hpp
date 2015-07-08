@@ -235,6 +235,25 @@ void ReportException( const exception& e, ostream& os=cerr );
 
 void ComplainIfDebug();
 
+Int PushIndent();
+Int PopIndent();
+void SetIndent( Int level );
+void ClearIndent();
+Int IndentLevel();
+std::string Indent();
+
+template<typename... Args>
+inline void Output( Args... args )
+{
+    ostringstream os;
+    os << Indent();
+    BuildStream( os, args... );
+    os << endl;
+    cout << os.str();
+}
+
+// TODO: OutputRoot?
+
 template<typename T>
 void EnsureConsistent( T alpha, mpi::Comm comm, string name="" );
 

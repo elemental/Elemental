@@ -78,6 +78,7 @@ if worldRank == 0:
 
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.progress = True
+ctrl.equilibrate = True
 startLS = El.mpi.Time()
 x = El.LeastSquares(A,y,ctrl)
 endLS = El.mpi.Time()

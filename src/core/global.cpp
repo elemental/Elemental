@@ -31,6 +31,10 @@ std::mt19937 generator;
 // Debugging
 DEBUG_ONLY(std::stack<string> callStack)
 
+// Output/logging
+Int indentLevel=0;
+Int spacesPerIndent=2;
+
 // Tuning parameters for basic routines
 Int localSymvIntBlocksize = 64;
 Int localSymvFloatBlocksize = 64;
@@ -490,6 +494,20 @@ DEBUG_ONLY(
     }
 
 ) // DEBUG_ONLY
+
+Int PushIndent() { return ::indentLevel++; }
+Int PopIndent() { return ::indentLevel--; }
+void SetIndent( Int indent ) { ::indentLevel = indent; }
+void ClearIndent() { ::indentLevel = 0; }
+Int IndentLevel() { return ::indentLevel; }
+
+string Indent()
+{
+    string ind;
+    for( Int i=0; i<::spacesPerIndent*::indentLevel; ++i )
+        ind = ind + " ";
+    return ind;
+}
 
 template<>
 void SetLocalSymvBlocksize<Int>( Int blocksize )
