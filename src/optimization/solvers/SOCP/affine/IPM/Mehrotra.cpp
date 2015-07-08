@@ -62,10 +62,31 @@ void Mehrotra
     const Int n = A.Width();
     const Int degree = SOCDegree( firstInds );
     Matrix<Real> dRowA, dRowG, dCol;
-    // TODO: Outer equilibration support
-    Ones( dRowA, m, 1 );
-    Ones( dRowG, k, 1 );
-    Ones( dCol,  n, 1 );
+    //if( ctrl.outerEquil )
+    if( false )
+    {
+        ConeGeomEquil
+        ( A, G, dRowA, dRowG, dCol, orders, firstInds, ctrl.print );
+        DiagonalSolve( LEFT, NORMAL, dRowA, b );
+        DiagonalSolve( LEFT, NORMAL, dRowG, h );
+        DiagonalSolve( LEFT, NORMAL, dCol,  c );
+        if( ctrl.primalInit )
+        {
+            DiagonalScale( LEFT, NORMAL, dCol,  x );
+            DiagonalSolve( LEFT, NORMAL, dRowG, s );
+        }
+        if( ctrl.dualInit )
+        {
+            DiagonalScale( LEFT, NORMAL, dRowA, y );
+            DiagonalScale( LEFT, NORMAL, dRowG, z );
+        }
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -320,6 +341,14 @@ void Mehrotra
         }
     }
     SetIndent( indent );
+    if( ctrl.outerEquil )
+    {
+        // Unequilibrate
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 template<typename Real>
@@ -659,6 +688,14 @@ void Mehrotra
         }
     }
     SetIndent( indent );
+    if( ctrl.outerEquil )
+    {
+        // Unequilibrate
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 template<typename Real>
@@ -994,6 +1031,14 @@ void Mehrotra
         }
     }
     SetIndent( indent );
+    if( ctrl.outerEquil )
+    {
+        // Unequilibrate
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 template<typename Real>
@@ -1036,10 +1081,35 @@ void Mehrotra
     const bool stepLengthSigma = true;
 
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    // TODO: Outer equilibration support
-    Ones( dRowA, m, 1 );
-    Ones( dRowG, k, 1 );
-    Ones( dCol,  n, 1 );
+    if( ctrl.outerEquil )
+    {
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        ConeGeomEquil
+        ( A, G, dRowA, dRowG, dCol, orders, firstInds, cutoffPar, ctrl.print );
+        if( commRank == 0 && ctrl.time )
+            Output("ConeGeomEquil: ",timer.Stop()," secs");
+
+        DiagonalSolve( LEFT, NORMAL, dRowA, b );
+        DiagonalSolve( LEFT, NORMAL, dRowG, h );
+        DiagonalSolve( LEFT, NORMAL, dCol,  c );
+        if( ctrl.primalInit )
+        {
+            DiagonalScale( LEFT, NORMAL, dCol,  x );
+            DiagonalSolve( LEFT, NORMAL, dRowG, s );
+        }
+        if( ctrl.dualInit )
+        {
+            DiagonalScale( LEFT, NORMAL, dRowA, y );
+            DiagonalScale( LEFT, NORMAL, dRowG, z );
+        }
+    }
+    else
+    {
+        Ones( dRowA, m, 1 );
+        Ones( dRowG, k, 1 );
+        Ones( dCol,  n, 1 );
+    }
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
@@ -1628,6 +1698,14 @@ void Mehrotra
         }
     }
     SetIndent( indent );
+    if( ctrl.outerEquil )
+    {
+        // Unequilibrate
+        DiagonalSolve( LEFT, NORMAL, dCol,  x );
+        DiagonalSolve( LEFT, NORMAL, dRowA, y );
+        DiagonalSolve( LEFT, NORMAL, dRowG, z );
+        DiagonalScale( LEFT, NORMAL, dRowG, s );
+    }
 }
 
 #define PROTO(Real) \

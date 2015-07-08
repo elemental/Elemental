@@ -11,11 +11,12 @@
 namespace El {
 
 template<typename Real>
-void SOCBroadcast
+void ConeBroadcast
 (       Matrix<Real>& x, 
-  const Matrix<Int>& orders, const Matrix<Int>& firstInds )
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCBroadcast"))
+    DEBUG_ONLY(CSE cse("ConeBroadcast"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -38,13 +39,13 @@ void SOCBroadcast
 }
 
 template<typename Real>
-void SOCBroadcast
+void ConeBroadcast
 (       AbstractDistMatrix<Real>& xPre, 
   const AbstractDistMatrix<Int>& ordersPre, 
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCBroadcast"))
+    DEBUG_ONLY(CSE cse("ConeBroadcast"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -68,12 +69,13 @@ void SOCBroadcast
     mpi::Comm comm = x.DistComm();
     const int commSize = mpi::Size(comm);
 
-    // Perform an mpi::AllToAll to scatter all of the second-order cone roots of
+    // Perform an mpi::AllToAll to scatter all of the cone roots of
     // order less than or equal to the cutoff 
     // TODO: Find a better strategy
+    // A short-circuited ring algorithm would likely be significantly faster
 
-    // Handle all second-order cones with order <= cutoff
-    // ==================================================
+    // Handle all cones with order <= cutoff
+    // =====================================
     // Count the number of remote updates (and set non-root entries to zero)
     // ---------------------------------------------------------------------
     Int numRemoteUpdates = 0;
@@ -110,8 +112,8 @@ void SOCBroadcast
     }
     x.ProcessQueues();
 
-    // Handle all of the second-order cones with order > cutoff
-    // ========================================================
+    // Handle all of the cones with order > cutoff
+    // ===========================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
     vector<Entry<Real>> sendData;
@@ -143,12 +145,12 @@ void SOCBroadcast
 }
 
 template<typename Real>
-void SOCBroadcast
+void ConeBroadcast
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCBroadcast"))
+    DEBUG_ONLY(CSE cse("ConeBroadcast"))
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
@@ -162,9 +164,10 @@ void SOCBroadcast
         LogicError("orders and firstInds should be of the same height as x");
 
     // TODO: Find a better strategy
+    // A short-circuited ring algorithm would likely be significantly faster
 
-    // Handle all second-order cones with order <= cutoff
-    // ==================================================
+    // Handle all cones with order <= cutoff
+    // =====================================
     // Count the number of remote updates (and set non-root entries to zero)
     // ---------------------------------------------------------------------
     Int numRemoteUpdates = 0;
@@ -201,8 +204,8 @@ void SOCBroadcast
     }
     x.ProcessQueues();
 
-    // Handle all of the second-order cones with order > cutoff
-    // ========================================================
+    // Handle all of the cones with order > cutoff
+    // ===========================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
     vector<Entry<Real>> sendData;
@@ -238,15 +241,15 @@ void SOCBroadcast
 }
 
 #define PROTO(Real) \
-  template void SOCBroadcast \
+  template void ConeBroadcast \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCBroadcast \
+  template void ConeBroadcast \
   (       AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Int>& orders, \
     const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCBroadcast \
+  template void ConeBroadcast \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );

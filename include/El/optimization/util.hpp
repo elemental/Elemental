@@ -81,6 +81,90 @@ Int NumNonPositive( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
 
+// Cone Broadcast
+// ==============
+// Replicate the entry in the root position in each cone over the entire cone
+template<typename Real>
+void ConeBroadcast
+(       Matrix<Real>& x, 
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void ConeBroadcast
+(       AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void ConeBroadcast
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// Cone Max
+// ========
+// Fill each subcone with the maximum entry from each cone
+template<typename Real>
+void ConeMax
+(       Matrix<Real>& x, 
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void ConeMax
+(       AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void ConeMax
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// A specialization of GeomEquil which respects a product of cones
+// ===============================================================
+template<typename F>
+void ConeGeomEquil
+(       Matrix<F>& A,
+        Matrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeGeomEquil
+(       AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& BPre,
+        AbstractDistMatrix<Base<F>>& dRowAPre,
+        AbstractDistMatrix<Base<F>>& dRowBPre,
+        AbstractDistMatrix<Base<F>>& dColPre,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
+
+template<typename F>
+void ConeGeomEquil
+(       SparseMatrix<F>& A,
+        SparseMatrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeGeomEquil
+(       DistSparseMatrix<F>& A,
+        DistSparseMatrix<F>& B,
+        DistMultiVec<Base<F>>& dRowA,
+        DistMultiVec<Base<F>>& dRowB,
+        DistMultiVec<Base<F>>& dCol,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
+
 // SOC Degree
 // ==========
 Int SOCDegree( const Matrix<Int>& firstInds );
@@ -127,25 +211,6 @@ void SOCDots
   const DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-// SOC Broadcast
-// =============
-// Replicate the entry in the root position in each SOC over the entire cone
-template<typename Real>
-void SOCBroadcast
-(       Matrix<Real>& x, 
-  const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void SOCBroadcast
-(       AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-void SOCBroadcast
-(       DistMultiVec<Real>& x,
-  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 // SOC Reflect

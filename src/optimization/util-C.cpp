@@ -78,27 +78,27 @@ extern "C" {
       SOCDots \
       ( *CReflect(x), *CReflect(y), *CReflect(z), \
         *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
-  /* SOC Broadcast
-     ------------- */ \
-  ElError ElSOCBroadcast_ ## SIG \
+  /* Cone Broadcast
+     -------------- */ \
+  ElError ElConeBroadcast_ ## SIG \
   ( ElMatrix_ ## SIG x, \
     ElConstMatrix_i orders, ElConstMatrix_i firstInds ) \
   { EL_TRY( \
-      SOCBroadcast( *CReflect(x), *CReflect(orders), *CReflect(firstInds) ) \
+      ConeBroadcast( *CReflect(x), *CReflect(orders), *CReflect(firstInds) ) \
     ) } \
-  ElError ElSOCBroadcastDist_ ## SIG \
+  ElError ElConeBroadcastDist_ ## SIG \
   ( ElDistMatrix_ ## SIG x, \
     ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds, \
     ElInt cutoff ) \
   { EL_TRY( \
-      SOCBroadcast \
+      ConeBroadcast \
       ( *CReflect(x), *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
-  ElError ElSOCBroadcastDistMultiVec_ ## SIG \
+  ElError ElConeBroadcastDistMultiVec_ ## SIG \
   ( ElDistMultiVec_ ## SIG x, \
     ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds, \
     ElInt cutoff ) \
   { EL_TRY( \
-      SOCBroadcast \
+      ConeBroadcast \
       ( *CReflect(x), *CReflect(orders), *CReflect(firstInds), cutoff ) ) } \
   /* SOC Identity
      ------------ */ \

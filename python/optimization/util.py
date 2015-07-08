@@ -174,33 +174,33 @@ def SOCDots(x,y,orders,firstInds,cutoff=1000):
     return z
   else: TypeExcept()
 
-# SOC Broadcast
-# =============
-lib.ElSOCBroadcast_s.argtypes = \
-lib.ElSOCBroadcast_d.argtypes = \
+# Cone Broadcast
+# ==============
+lib.ElConeBroadcast_s.argtypes = \
+lib.ElConeBroadcast_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
-lib.ElSOCBroadcastDist_s.argtypes = \
-lib.ElSOCBroadcastDist_d.argtypes = \
-lib.ElSOCBroadcastDistMultiVec_s.argtypes = \
-lib.ElSOCBroadcastDistMultiVec_d.argtypes = \
+lib.ElConeBroadcastDist_s.argtypes = \
+lib.ElConeBroadcastDist_d.argtypes = \
+lib.ElConeBroadcastDistMultiVec_s.argtypes = \
+lib.ElConeBroadcastDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_int]
 
-def SOCBroadcast(x,orders,firstInds,cutoff=1000):
+def ConeBroadcast(x,orders,firstInds,cutoff=1000):
   # TODO: Sanity checking
   if type(x) is Matrix:
     args = [x.obj,orders.obj,firstInds.obj]
-    if   x.tag == sTag: lib.ElSOCBroadcast_s(*args)
-    elif x.tag == dTag: lib.ElSOCBroadcast_d(*args)
+    if   x.tag == sTag: lib.ElConeBroadcast_s(*args)
+    elif x.tag == dTag: lib.ElConeBroadcast_d(*args)
     else: DataExcept()
   elif type(x) is DistMatrix: 
     args = [x.obj,orders.obj,firstInds.obj,cutoff]
-    if   x.tag == sTag: lib.ElSOCBroadcastDist_s(*args)
-    elif x.tag == dTag: lib.ElSOCBroadcastDist_d(*args)
+    if   x.tag == sTag: lib.ElConeBroadcastDist_s(*args)
+    elif x.tag == dTag: lib.ElConeBroadcastDist_d(*args)
     else: DataExcept()
   elif type(x) is DistMultiVec:
     args = [x.obj,orders.obj,firstInds.obj,cutoff]
-    if   x.tag == sTag: lib.ElSOCBroadcastDistMultiVec_s(*args)
-    elif x.tag == dTag: lib.ElSOCBroadcastDistMultiVec_d(*args)
+    if   x.tag == sTag: lib.ElConeBroadcastDistMultiVec_s(*args)
+    elif x.tag == dTag: lib.ElConeBroadcastDistMultiVec_d(*args)
     else: DataExcept()
   else: TypeExcept()
 

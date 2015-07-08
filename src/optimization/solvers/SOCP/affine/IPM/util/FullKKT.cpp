@@ -263,7 +263,7 @@ void KKT
 
     DistMatrix<Real,VC,STAR> wDets(g);
     SOCDets( w, wDets, orders, firstInds, cutoffPar );
-    SOCBroadcast( wDets, orders, firstInds, cutoffPar );
+    ConeBroadcast( wDets, orders, firstInds, cutoffPar );
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
@@ -469,8 +469,8 @@ void KKT
     DistMultiVec<Real> wDets(comm), wLowers(comm);
     SOCDets( w, wDets, orders, firstInds, cutoffPar );
     SOCLowerNorms( w, wLowers, orders, firstInds, cutoffPar );
-    SOCBroadcast( wDets, orders, firstInds, cutoffPar );
-    SOCBroadcast( wLowers, orders, firstInds, cutoffPar );
+    ConeBroadcast( wDets, orders, firstInds, cutoffPar );
+    ConeBroadcast( wLowers, orders, firstInds, cutoffPar );
 
     const Int m = A.Height();
     const Int n = A.Width();
