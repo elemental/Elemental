@@ -226,7 +226,7 @@ def HermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
-      X = DistMatrix(A.tag,MC,MR,dSub.Grid())
+      X = DistMatrix(A.tag,MC,MR,A.Grid())
       if subset == None:
         args = [uplo,A.obj,w.obj,X.obj,sort]
         if   A.tag == sTag: lib.ElHermitianEigPairDist_s(*args)
@@ -346,7 +346,7 @@ def SkewHermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
-      X = DistMatrix(A.tag,MC,MR,dSub.Grid())
+      X = DistMatrix(A.tag,MC,MR,A.Grid())
       if subset == None:
         args = [uplo,A.obj,w.obj,X.obj,sort]
         if   A.tag == sTag: lib.ElSkewHermitianEigPairDist_s(*args)
@@ -467,7 +467,7 @@ def HermitianGenDefEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
-      X = DistMatrix(A.tag,MC,MR,dSub.Grid())
+      X = DistMatrix(A.tag,MC,MR,A.Grid())
       if subset == None:
         args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort]
         if   A.tag == sTag: lib.ElHermitianGenDefEigPairDist_s(*args)
