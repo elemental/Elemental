@@ -439,7 +439,9 @@ target_link_libraries(El ${LINK_LIBS})
 if(EL_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS El DESTINATION lib)
+install(TARGETS El
+    EXPORT ElTargets
+    DESTINATION lib)
 
 # Decide if/how to install the Python interface
 # ---------------------------------------------
@@ -606,6 +608,37 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
   "Distributed-memory linear algebra and optimization")
 set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/cmake/El.png)
 include(CPack)
+
+# ProjectConfig
+# =====
+# Create ElConfig.cmake for find_package.
+# Add all targets to the build-tree export set
+export(TARGETS El pmrrr
+    FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
+
+# Export the package for use from the build-tree
+# (this registers the build-tree with a global CMake-registry)
+export(PACKAGE El)
+
+# Create the ElConfig.cmake and ElConfigVersion files
+file(RELATIVE_PATH REL_INCLUDE_DIR "${PROJECT_BINARY_DIR}"
+    "${PROJECT_BINARY_DIR}include")
+# ... for the build tree
+configure_file(ElConfig.cmake.in
+    "${PROJECT_BINARY_DIR}/ElConfig.cmake" @ONLY)
+# ... for both
+configure_file(ElConfigVersion.cmake.in
+    "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake" @ONLY)
+
+# Install the ElConfig.cmake and ElConfigVersion.cmake
+set(INSTALL_CMAKE_DIR CMake)
+install(FILES
+    "${PROJECT_BINARY_DIR}/ElConfig.cmake"
+    "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake"
+    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+install(EXPORT ElTargets
+    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 # Subproject
 # ==========
