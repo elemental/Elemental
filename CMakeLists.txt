@@ -461,7 +461,7 @@ if(BUILD_SHARED_LIBS)
           "from distutils.sysconfig import get_python_lib; print get_python_lib()"
           OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-      endif() 
+      endif()  
       set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} 
         CACHE PATH "Destination for Python site package directory")
     endif()
