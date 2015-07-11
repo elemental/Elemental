@@ -439,9 +439,7 @@ target_link_libraries(El ${LINK_LIBS})
 if(EL_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS El
-    EXPORT ElTargets
-    DESTINATION lib)
+install(TARGETS El EXPORT ElTargets DESTINATION lib)
 
 # Decide if/how to install the Python interface
 # ---------------------------------------------
@@ -613,8 +611,7 @@ include(CPack)
 # =====
 # Create ElConfig.cmake for find_package.
 # Add all targets to the build-tree export set
-export(TARGETS El pmrrr
-    FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
+export(TARGETS El pmrrr FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
@@ -637,8 +634,7 @@ install(FILES
     "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake"
     DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
-install(EXPORT ElTargets
-    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+install(EXPORT ElTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 # Subproject
 # ==========
