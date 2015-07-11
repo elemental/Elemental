@@ -2370,39 +2370,48 @@ inline BPDNCtrl<double> CReflect( ElBPDNCtrl_d ctrlC )
 // Non-negative Least Squares
 // """"""""""""""""""""""""""
 
+inline NNLSApproach CReflect( ElNNLSApproach approach ) 
+{ return static_cast<NNLSApproach>(approach); }
+inline ElNNLSApproach CReflect( NNLSApproach approach )
+{ return static_cast<ElNNLSApproach>(approach); }
+
 inline ElNNLSCtrl_s CReflect( const NNLSCtrl<float>& ctrl )
 {
     ElNNLSCtrl_s ctrlC;
-    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.approach = CReflect(ctrl.approach);
     ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
-    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    ctrlC.qpCtrl   = CReflect(ctrl.qpCtrl);
+    ctrlC.socpCtrl = CReflect(ctrl.socpCtrl);
     return ctrlC;
 }
 
 inline ElNNLSCtrl_d CReflect( const NNLSCtrl<double>& ctrl )
 {
     ElNNLSCtrl_d ctrlC;
-    ctrlC.useIPM   = ctrl.useIPM;
+    ctrlC.approach = CReflect(ctrl.approach);
     ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
-    ctrlC.ipmCtrl  = CReflect(ctrl.ipmCtrl);
+    ctrlC.qpCtrl   = CReflect(ctrl.qpCtrl);
+    ctrlC.socpCtrl = CReflect(ctrl.socpCtrl);
     return ctrlC;
 }
 
 inline NNLSCtrl<float> CReflect( ElNNLSCtrl_s ctrlC )
 {
     NNLSCtrl<float> ctrl;
-    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.approach = CReflect(ctrlC.approach);
     ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
-    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    ctrl.qpCtrl   = CReflect(ctrlC.qpCtrl);
+    ctrl.socpCtrl = CReflect(ctrlC.socpCtrl);
     return ctrl;
 }
 
 inline NNLSCtrl<double> CReflect( ElNNLSCtrl_d ctrlC )
 {
     NNLSCtrl<double> ctrl;
-    ctrl.useIPM   = ctrlC.useIPM;
+    ctrl.approach = CReflect(ctrlC.approach);
     ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
-    ctrl.ipmCtrl  = CReflect(ctrlC.ipmCtrl);
+    ctrl.qpCtrl   = CReflect(ctrlC.qpCtrl);
+    ctrl.socpCtrl = CReflect(ctrlC.socpCtrl);
     return ctrl;
 }
 

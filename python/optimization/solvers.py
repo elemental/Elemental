@@ -36,7 +36,7 @@ class IPFCtrl_s(ctypes.Structure):
               ("maxIts",iType),("centering",sType),
               ("system",c_uint),("lineSearchCtrl",IPFLineSearchCtrl_s),
               ("qsdCtrl",RegQSDCtrl_s),
-              ("outerEquil",bType),("innerEquil",bType),
+              ("innerEquil",bType),("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):
@@ -47,7 +47,7 @@ class IPFCtrl_d(ctypes.Structure):
               ("maxIts",iType),("centering",dType),
               ("system",c_uint),("lineSearchCtrl",IPFLineSearchCtrl_d),
               ("qsdCtrl",RegQSDCtrl_d),
-              ("outerEquil",bType),("innerEquil",bType),
+              ("innerEquil",bType),("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):
@@ -63,7 +63,7 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("minTol",sType),("targetTol",sType),
               ("maxIts",iType),("maxStepRatio",sType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_s),
-              ("outerEquil",bType),("innerEquil",bType),
+              ("innerEquil",bType),("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):
@@ -73,7 +73,7 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("minTol",dType),("targetTol",dType),
               ("maxIts",iType),("maxStepRatio",dType),
               ("system",c_uint),("qsdCtrl",RegQSDCtrl_d),
-              ("outerEquil",bType),("innerEquil",bType),
+              ("innerEquil",bType),("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):

@@ -118,17 +118,19 @@ ElError ElBPDNCtrlDefault_d( ElBPDNCtrl_d* ctrl )
    ========================== */
 ElError ElNNLSCtrlDefault_s( ElNNLSCtrl_s* ctrl )
 {
-    ctrl->useIPM = true;
+    ctrl->approach = EL_NNLS_SOCP;
     ElADMMCtrlDefault_s( &ctrl->admmCtrl );
-    ElQPDirectCtrlDefault_s( &ctrl->ipmCtrl );
+    ElQPDirectCtrlDefault_s( &ctrl->qpCtrl );
+    ElSOCPAffineCtrlDefault_s( &ctrl->socpCtrl );
     return EL_SUCCESS;
 }
 
 ElError ElNNLSCtrlDefault_d( ElNNLSCtrl_d* ctrl )
 {
-    ctrl->useIPM = true;
+    ctrl->approach = EL_NNLS_SOCP;
     ElADMMCtrlDefault_d( &ctrl->admmCtrl );
-    ElQPDirectCtrlDefault_d( &ctrl->ipmCtrl );
+    ElQPDirectCtrlDefault_d( &ctrl->qpCtrl );
+    ElSOCPAffineCtrlDefault_d( &ctrl->socpCtrl );
     return EL_SUCCESS;
 }
 

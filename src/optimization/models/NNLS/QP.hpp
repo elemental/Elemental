@@ -26,14 +26,13 @@ namespace nnls {
 //
 
 template<typename Real>
-void IPM
-( const Matrix<Real>& A, const Matrix<Real>& B, 
+void QP
+( const Matrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::IPM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
+    DEBUG_ONLY(CSE cse("nnls::QP"))
 
     const Int n = A.Width();
     const Int k = B.Width();
@@ -53,19 +52,18 @@ void IPM
         Zeros( c, n, 1 );
         Gemv( ADJOINT, Real(-1), A, b, Real(0), c );
 
-        QP( Q, AHat, bHat, c, x, y, z, ctrl );
+        El::QP( Q, AHat, bHat, c, x, y, z, ctrl );
     }
 }
 
 template<typename Real>
-void IPM
-( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& BPre, 
+void QP
+( const AbstractDistMatrix<Real>& APre, 
+  const AbstractDistMatrix<Real>& BPre, 
         AbstractDistMatrix<Real>& XPre,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::IPM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
+    DEBUG_ONLY(CSE cse("nnls::QP"))
 
     auto APtr = ReadProxy<Real,MC,MR>(&APre);      auto& A = *APtr;
     auto BPtr = ReadProxy<Real,MC,MR>(&BPre);      auto& B = *BPtr;
@@ -90,19 +88,18 @@ void IPM
         Zeros( c, n, 1 );
         Gemv( ADJOINT, Real(-1), A, b, Real(0), c );
 
-        QP( Q, AHat, bHat, c, x, y, z, ctrl );
+        El::QP( Q, AHat, bHat, c, x, y, z, ctrl );
     }
 }
 
 template<typename Real>
-void IPM
-( const SparseMatrix<Real>& A, const Matrix<Real>& B, 
+void QP
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::IPM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
+    DEBUG_ONLY(CSE cse("nnls::QP"))
 
     const Int n = A.Width();
     const Int k = B.Width();
@@ -124,19 +121,18 @@ void IPM
         Zeros( c, n, 1 );
         Multiply( ADJOINT, Real(-1), A, b, Real(0), c );
 
-        QP( Q, AHat, bHat, c, x, y, z, ctrl );
+        El::QP( Q, AHat, bHat, c, x, y, z, ctrl );
     }
 }
 
 template<typename Real>
-void IPM
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, 
+void QP
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& B, 
         DistMultiVec<Real>& X, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("IPM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
+    DEBUG_ONLY(CSE cse("nnls::QP"))
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -167,7 +163,7 @@ void IPM
 
         Zeros( q, n, 1 );
         qLoc = xLoc;
-        QP( Q, AHat, bHat, c, q, y, z, ctrl );
+        El::QP( Q, AHat, bHat, c, q, y, z, ctrl );
         xLoc = qLoc;
     }
 }

@@ -528,12 +528,16 @@ template<typename T>
 void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    const Int m = XDist.Height();
+    const Int n = XDist.Width();
+    X.Resize( m, n, Max(m,1) );
+    if( Min(m,n) == 0 )
+        return;
+
     const mpi::Comm comm = XDist.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
-    const Int m = XDist.Height();
-    const Int n = XDist.Width();
     const int numLocalEntries = XDist.LocalHeight()*n;
     vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
@@ -541,7 +545,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     const int numEntries = Scan( entrySizes, entryOffs );
 
     vector<T> recvBuf( numEntries );
-    X.Resize( m, n, Max(m,1) );
+
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
     {
@@ -574,6 +578,11 @@ template<typename T>
 void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 {
     DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    const Int m = XDist.Height();
+    const Int n = XDist.Width();
+    if( Min(m,n) == 0 )
+        return;
+
     const mpi::Comm comm = XDist.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );

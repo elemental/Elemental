@@ -551,14 +551,19 @@ def ModelFit(lossProx,regProx,A,b,ctrl=None):
 lib.ElNNLSCtrlDefault_s.argtypes = \
 lib.ElNNLSCtrlDefault_d.argtypes = \
   [c_void_p]
+(NNLS_ADMM,NNLS_QP,NNLS_SOCP)=(0,1,2)
 class NNLSCtrl_s(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("admmCtrl",ADMMCtrl_s),("ipmCtrl",QPDirectCtrl_s)]
+  _fields_ = [("approach",c_uint),
+              ("admmCtrl",ADMMCtrl_s),
+              ("qpCtrl",QPDirectCtrl_s),
+              ("socpCtrl",SOCPAffineCtrl_s)]
   def __init__(self):
     lib.ElNNLSCtrlDefault_s(pointer(self))
 class NNLSCtrl_d(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("admmCtrl",ADMMCtrl_d),("ipmCtrl",QPDirectCtrl_d)]
+  _fields_ = [("approach",c_uint),
+              ("admmCtrl",ADMMCtrl_d),
+              ("qpCtrl",QPDirectCtrl_d),
+              ("socpCtrl",SOCPAffineCtrl_d)]
   def __init__(self):
     lib.ElNNLSCtrlDefault_d(pointer(self))
 

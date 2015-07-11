@@ -421,16 +421,24 @@ EL_EXPORT ElError ElNNLSDistSparse_d
 
 /* Expert versions
    --------------- */
+typedef enum {
+  EL_NNLS_ADMM,
+  EL_NNLS_QP,
+  EL_NNLS_SOCP
+} ElNNLSApproach;
+
 typedef struct {
-  bool useIPM; 
+  ElNNLSApproach approach;
   ElADMMCtrl_s admmCtrl;
-  ElQPDirectCtrl_s ipmCtrl;
+  ElQPDirectCtrl_s qpCtrl;
+  ElSOCPAffineCtrl_s socpCtrl;
 } ElNNLSCtrl_s;
 
 typedef struct {
-  bool useIPM;
+  ElNNLSApproach approach;
   ElADMMCtrl_d admmCtrl;
-  ElQPDirectCtrl_d ipmCtrl;
+  ElQPDirectCtrl_d qpCtrl;
+  ElSOCPAffineCtrl_d socpCtrl;
 } ElNNLSCtrl_d;
 
 EL_EXPORT ElError ElNNLSCtrlDefault_s( ElNNLSCtrl_s* ctrl );

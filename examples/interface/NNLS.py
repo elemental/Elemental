@@ -10,6 +10,7 @@ import El
 
 m = 4000
 n = 2000
+
 display = True
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
@@ -45,12 +46,15 @@ if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
+ctrl = El.NNLSCtrl_d()
+ctrl.socpCtrl.mehrotraCtrl.progress = True
+ctrl.socpCtrl.mehrotraCtrl.time = True
+ctrl.socpCtrl.mehrotraCtrl.qsdCtrl.progress = True
 startNNLS = El.mpi.Time()
-x = El.NNLS( A, b )
+x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()
 if worldRank == 0:
   print "NNLS time:", endNNLS-startNNLS, "seconds"
-
 if display:
   El.Display( x, "x" )
 

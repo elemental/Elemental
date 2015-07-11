@@ -217,35 +217,47 @@ Int LogisticRegression
 
 // Non-negative least squares
 // ==========================
-// TODO: Generalize to complex
 // NOTE: The following can solve a *sequence* of NNLS problems
+
+namespace NNLSApproachNS {
+enum NNLSApproach {
+    NNLS_ADMM, // The ADMM implementation is still a prototype
+    NNLS_QP,
+    NNLS_SOCP
+};
+} // namespace NNLSApproachNS
+using namespace NNLSApproachNS;
 
 template<typename Real>
 struct NNLSCtrl {
-  // NOTE: The ADMM implementation is still a prototype
-  bool useIPM=true;
+  NNLSApproach approach=NNLS_SOCP;
   ADMMCtrl<Real> admmCtrl;
-  qp::direct::Ctrl<Real> ipmCtrl;    
+  qp::direct::Ctrl<Real> qpCtrl;    
+  socp::affine::Ctrl<Real> socpCtrl;
 };
 
 template<typename Real>
 void NNLS
-( const Matrix<Real>& A, const Matrix<Real>& B, 
+( const Matrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, 
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& B, 
         AbstractDistMatrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
-( const SparseMatrix<Real>& A, const Matrix<Real>& B, 
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, 
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& B, 
         DistMultiVec<Real>& X,
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 

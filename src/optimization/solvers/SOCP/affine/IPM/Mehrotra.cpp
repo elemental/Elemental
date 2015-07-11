@@ -350,7 +350,6 @@ void Mehrotra
     SetIndent( indent );
     if( ctrl.outerEquil )
     {
-        // Unequilibrate
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -706,7 +705,6 @@ void Mehrotra
     SetIndent( indent );
     if( ctrl.outerEquil )
     {
-        // Unequilibrate
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -1095,7 +1093,6 @@ void Mehrotra
     SetIndent( indent );
     if( ctrl.outerEquil )
     {
-        // Unequilibrate
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -1838,7 +1835,6 @@ void Mehrotra
     SetIndent( indent );
     if( ctrl.outerEquil )
     {
-        // Unequilibrate
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
