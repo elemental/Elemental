@@ -231,8 +231,6 @@ void KKT
     }
 }
 
-// TODO: Add tunable cutoffs for both the sparse embedding and parallel
-//       scheduling of the Jordan operations
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A,    
@@ -441,7 +439,6 @@ void KKT
                 if( i != j )
                     J.QueueUpdate( i+n+m, j+n+m, -2*omega_i*w.Get(j,0) );
         }
-
     }
     J.ProcessQueues();
 }

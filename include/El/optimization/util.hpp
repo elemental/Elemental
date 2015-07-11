@@ -100,24 +100,73 @@ void ConeBroadcast
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
-// Cone Max
-// ========
-// Fill each subcone with the maximum entry from each cone
+// Cone AllReduce
+// ==============
+// Fill each subcone with the reduction over each cone
 template<typename Real>
-void ConeMax
+void ConeAllReduce
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds );
+  const Matrix<Int>& firstInds,
+  mpi::Op op=mpi::SUM );
 template<typename Real>
-void ConeMax
+void ConeAllReduce
 (       AbstractDistMatrix<Real>& x, 
   const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+  const AbstractDistMatrix<Int>& firstInds, 
+  mpi::Op op=mpi::SUM, Int cutoff=1000 );
 template<typename Real>
-void ConeMax
+void ConeAllReduce
 (       DistMultiVec<Real>& x,
   const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+  const DistMultiVec<Int>& firstInds, 
+  mpi::Op op=mpi::SUM, Int cutoff=1000 );
+
+// A specialization of Ruiz scaling which respects a product of cones
+// ==================================================================
+template<typename F>
+void ConeRuizEquil
+(       Matrix<F>& A,
+        Matrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeRuizEquil
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<Base<F>>& dRowA,
+        AbstractDistMatrix<Base<F>>& dRowB,
+        AbstractDistMatrix<Base<F>>& dCol,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
+
+template<typename F>
+void ConeRuizEquil
+(       SparseMatrix<F>& A,
+        SparseMatrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeRuizEquil
+(       DistSparseMatrix<F>& A,
+        DistSparseMatrix<F>& B,
+        DistMultiVec<Base<F>>& dRowA,
+        DistMultiVec<Base<F>>& dRowB,
+        DistMultiVec<Base<F>>& dCol,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
 
 // A specialization of GeomEquil which respects a product of cones
 // ===============================================================

@@ -10,19 +10,40 @@
 
 namespace El {
 
+namespace {
+
 template<typename Real>
-void ConeMax
+function<Real(Real,Real)> OpToReduce( mpi::Op op )
+{
+    function<Real(Real,Real)> reduce;
+    if( op == mpi::SUM )
+        reduce = []( Real alpha, Real beta ) { return alpha+beta; };
+    else if( op == mpi::MAX )
+        reduce = []( Real alpha, Real beta ) { return Max(alpha,beta); };
+    else if( op == mpi::MIN )
+        reduce = []( Real alpha, Real beta ) { return Min(alpha,beta); };
+    else
+        LogicError("Unsupported ConeAllReduce operation");
+    return reduce;
+}
+
+} // anonymous namespace
+
+template<typename Real>
+void ConeAllReduce
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds )
+  const Matrix<Int>& firstInds,
+        mpi::Op op )
 {
-    DEBUG_ONLY(CSE cse("ConeMax"))
+    DEBUG_ONLY(CSE cse("ConeAllReduce"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
+    auto reduce = OpToReduce<Real>( op );
     for( Int i=0; i<height; )
     {
         const Int order = orders.Get(i,0);
@@ -30,24 +51,25 @@ void ConeMax
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
-        Real coneMax = x.Get(i,0);
+        Real coneRes = x.Get(i,0);
         for( Int j=i+1; j<i+order; ++j )
-            coneMax = Max(coneMax,x.Get(j,0));
+            coneRes = reduce(coneRes,x.Get(j,0));
         for( Int j=i; j<i+order; ++j )
-            x.Set(j,0,coneMax);
+            x.Set(j,0,coneRes);
 
         i += order;
     }
 }
 
 template<typename Real>
-void ConeMax
+void ConeAllReduce
 (       AbstractDistMatrix<Real>& xPre, 
   const AbstractDistMatrix<Int>& ordersPre, 
   const AbstractDistMatrix<Int>& firstIndsPre,
+  mpi::Op op,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ConeMax"))
+    DEBUG_ONLY(CSE cse("ConeAllReduce"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -67,6 +89,8 @@ void ConeMax
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
+    auto reduce = OpToReduce<Real>( op );
+
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
     const int commSize = mpi::Size(comm);
@@ -79,8 +103,8 @@ void ConeMax
     // Handle all cones with order <= cutoff
     // =====================================
 
-    // Compute the maxima of the cones on the roots
-    // --------------------------------------------
+    // Compute the reduction of the cones on the roots
+    // -----------------------------------------------
     {
         // For now, we will simply Gather each cone to each root rather than
         // performing a local reduction beforehand (TODO: do this)
@@ -138,8 +162,8 @@ void ConeMax
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
           recvBuf.data(), recvCounts.data(), recvOffs.data(), x.DistComm() );
 
-        // Compute the maxima on the roots
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Locally reduce on the roots
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         offs = recvOffs;
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
@@ -151,20 +175,20 @@ void ConeMax
             const Int firstInd = firstInds.GetLocal(iLoc,0);
             if( i == firstInd )
             {
-                Real coneMax = x.GetLocal(iLoc,0);
+                Real coneRes = x.GetLocal(iLoc,0);
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
                     // TODO: Pull locally if locally owned
-                    coneMax = Max(coneMax,recvBuf[offs[owner]++]);
+                    coneRes = reduce(coneRes,recvBuf[offs[owner]++]);
                 }
-                x.SetLocal(iLoc,0,coneMax);
+                x.SetLocal(iLoc,0,coneRes);
             }
         }
     }
 
-    // Broadcast the maxima from the roots of the cones
-    // ------------------------------------------------
+    // Broadcast the results from the roots of the cones
+    // -------------------------------------------------
     {
         // Count the number of remote updates (and set non-root entries to zero)
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -233,18 +257,26 @@ void ConeMax
         const Int i = recvData[2*largeCone+0];
         const Int order = recvData[2*largeCone+1];
         auto xCone = x( IR(i,i+order), ALL );
-        const Real maxNorm = MaxNorm( xCone );
-        Fill( xCone, maxNorm );
+
+        // Compute our local result in this cone
+        Real localConeRes = 0;
+        const Int xConeLocalHeight = xCone.LocalHeight();
+        for( Int iLoc=0; iLoc<xCone.LocalHeight(); ++iLoc )
+            localConeRes = reduce(localConeRes,xCone.GetLocal(iLoc,0));
+
+        // Compute the maximum for this cone
+        const Real coneRes = mpi::AllReduce( localConeRes, op, x.DistComm() );
     }
 }
 
 template<typename Real>
-void ConeMax
+void ConeAllReduce
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds, 
+  mpi::Op op, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ConeMax"))
+    DEBUG_ONLY(CSE cse("ConeAllReduce"))
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
@@ -257,14 +289,16 @@ void ConeMax
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
+    auto reduce = OpToReduce<Real>( op );
+
     // TODO: Find a better strategy
     // A short-circuited ring algorithm would likely be significantly faster
 
     // Handle all cones with order <= cutoff
     // =====================================
 
-    // Compute the maxima of the cones on the roots
-    // --------------------------------------------
+    // Compute the reduction of the cones on the roots
+    // -----------------------------------------------
     {
         // For now, we will simply Gather each cone to each root rather than
         // performing a local reduction beforehand (TODO: do this)
@@ -334,14 +368,14 @@ void ConeMax
             const Int firstInd = firstInds.GetLocal(iLoc,0);
             if( i == firstInd )
             {
-                Real coneMax = x.GetLocal(iLoc,0);
+                Real coneRes = x.GetLocal(iLoc,0);
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
                     // TODO: Pull locally if locally owned
-                    coneMax = Max(coneMax,recvBuf[offs[owner]++]);
+                    coneRes = reduce(coneRes,recvBuf[offs[owner]++]);
                 }
-                x.SetLocal(iLoc,0,coneMax);
+                x.SetLocal(iLoc,0,coneRes);
             }
         }
     }
@@ -416,35 +450,38 @@ void ConeMax
         const Int i = recvData[2*largeCone+0];
         const Int order = recvData[2*largeCone+1];
 
-        // Compute our local maximum in this cone
-        Real localConeMax = 0;
+        // Compute our local result in this cone
+        Real localConeRes = 0;
         const Int iFirst = x.FirstLocalRow();
         const Int iLast = iFirst + x.LocalHeight();
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
-            localConeMax = Max(localConeMax,x.GetLocal(j-iFirst,0));
+            localConeRes = reduce(localConeRes,x.GetLocal(j-iFirst,0));
 
         // Compute the maximum for this cone
-        const Real coneMax = mpi::AllReduce( localConeMap, mpi::MAX, x.Comm() );
+        const Real coneRes = mpi::AllReduce( localConeRes, op, x.Comm() );
         
         // Overwrite the entire cone with this maximum
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
-            x.SetLocal(j-iFirst,0,coneMax);
+            x.SetLocal(j-iFirst,0,coneRes);
     }
 }
 
 #define PROTO(Real) \
-  template void ConeMax \
+  template void ConeAllReduce \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
-    const Matrix<Int>& firstInds ); \
-  template void ConeMax \
+    const Matrix<Int>& firstInds, \
+    mpi::Op op ); \
+  template void ConeAllReduce \
   (       AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
-  template void ConeMax \
+    const AbstractDistMatrix<Int>& firstInds, \
+    mpi::Op op, Int cutoff ); \
+  template void ConeAllReduce \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    mpi::Op op, Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

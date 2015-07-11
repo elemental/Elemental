@@ -21,6 +21,8 @@
 
 namespace El {
 
+// TODO: Make this consistent with ConeGeomEquil
+
 template<typename F>
 void GeomEquil
 ( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, bool progress )
@@ -285,6 +287,7 @@ void GeomEquil
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
+        // TODO: Remove GeometricColumnScaling
         GeometricColumnScaling( A, colScale ); 
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             if( colScale.GetLocal(jLoc,0) == Real(0) )
@@ -294,6 +297,7 @@ void GeomEquil
 
         // Geometrically equilibrate the rows
         // ----------------------------------
+        // TODO: Remove GeometricRowScaling
         GeometricRowScaling( A, rowScale );
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             if( rowScale.GetLocal(iLoc,0) == Real(0) )
@@ -390,6 +394,7 @@ void StackedGeomEquil
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
+        // TODO: Remove StackedGeometricColumnScaling
         StackedGeometricColumnScaling( A, B, colScale ); 
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             if( colScale.GetLocal(jLoc,0) == Real(0) )
@@ -400,6 +405,7 @@ void StackedGeomEquil
 
         // Geometrically equilibrate the rows
         // ----------------------------------
+        // TODO: Remove GeometricRowScaling
         GeometricRowScaling( A, rowScaleA );
         for( Int iLoc=0; iLoc<mLocalA; ++iLoc )
             if( rowScaleA.GetLocal(iLoc,0) == Real(0) )
@@ -407,6 +413,7 @@ void StackedGeomEquil
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
+        // TODO: Remove GeometricRowScaling
         GeometricRowScaling( B, rowScaleB );
         for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
             if( rowScaleB.GetLocal(iLoc,0) == Real(0) )

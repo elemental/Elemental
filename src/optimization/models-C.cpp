@@ -119,7 +119,7 @@ ElError ElBPDNCtrlDefault_d( ElBPDNCtrl_d* ctrl )
 ElError ElNNLSCtrlDefault_s( ElNNLSCtrl_s* ctrl )
 {
     ctrl->useIPM = true;
-    ElQPBoxADMMCtrlDefault_s( &ctrl->admmCtrl );
+    ElADMMCtrlDefault_s( &ctrl->admmCtrl );
     ElQPDirectCtrlDefault_s( &ctrl->ipmCtrl );
     return EL_SUCCESS;
 }
@@ -127,7 +127,7 @@ ElError ElNNLSCtrlDefault_s( ElNNLSCtrl_s* ctrl )
 ElError ElNNLSCtrlDefault_d( ElNNLSCtrl_d* ctrl )
 {
     ctrl->useIPM = true;
-    ElQPBoxADMMCtrlDefault_d( &ctrl->admmCtrl );
+    ElADMMCtrlDefault_d( &ctrl->admmCtrl );
     ElQPDirectCtrlDefault_d( &ctrl->ipmCtrl );
     return EL_SUCCESS;
 }

@@ -12,6 +12,96 @@
 
 namespace El {
 
+// Ruiz scaling
+// ============
+template<typename F>
+void RuizEquil
+( Matrix<F>& A,
+  Matrix<Base<F>>& dRow,
+  Matrix<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void RuizEquil
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<Base<F>>& dRow,
+  AbstractDistMatrix<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void RuizEquil
+( SparseMatrix<F>& A,
+  Matrix<Base<F>>& dRow,
+  Matrix<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void RuizEquil
+( DistSparseMatrix<F>& A,
+  DistMultiVec<Base<F>>& dRow,
+  DistMultiVec<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void StackedRuizEquil
+( Matrix<F>& A,
+  Matrix<F>& B,
+  Matrix<Base<F>>& dRowA,
+  Matrix<Base<F>>& dRowB,
+  Matrix<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void StackedRuizEquil
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<Base<F>>& dRowA,
+  AbstractDistMatrix<Base<F>>& dRowB,
+  AbstractDistMatrix<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void StackedRuizEquil
+( SparseMatrix<F>& A,
+  SparseMatrix<F>& B,
+  Matrix<Base<F>>& dRowA,
+  Matrix<Base<F>>& dRowB,
+  Matrix<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void StackedRuizEquil
+( DistSparseMatrix<F>& A,
+  DistSparseMatrix<F>& B,
+  DistMultiVec<Base<F>>& dRowA,
+  DistMultiVec<Base<F>>& dRowB,
+  DistMultiVec<Base<F>>& dCol,
+  bool progress=false );
+
+template<typename F>
+void SymmetricRuizEquil
+( Matrix<F>& A,
+  Matrix<Base<F>>& d,
+  bool progress=false );
+
+template<typename F>
+void SymmetricRuizEquil
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<Base<F>>& d,
+  bool progress=false );
+
+template<typename F>
+void SymmetricRuizEquil
+( SparseMatrix<F>& A,
+  Matrix<Base<F>>& d,
+  bool progress=false );
+
+template<typename F>
+void SymmetricRuizEquil
+( DistSparseMatrix<F>& A,
+  DistMultiVec<Base<F>>& d,
+  bool progress=false );
+
 // Geometric rescaling (ala Fourer, which led to Saunders's gmscale.m)
 // ===================================================================
 template<typename F>
@@ -79,46 +169,18 @@ void StackedGeomEquil
 // Diagonal equilibration
 // ======================
 template<typename F>
-void DiagonalEquil
+void SymmetricDiagonalEquil
 ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
 template<typename F>
-void DiagonalEquil
+void SymmetricDiagonalEquil
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, 
   bool progress=false );
 template<typename F>
-void DiagonalEquil
+void SymmetricDiagonalEquil
 ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
 template<typename F>
-void DiagonalEquil
+void SymmetricDiagonalEquil
 ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
-  bool progress=false, bool time=false );
-
-// More general equilibration
-// ==========================
-// Deprecated
-template<typename F>
-void SymmetricEquil
-( Matrix<F>& A, Matrix<Base<F>>& d, 
-  bool geomEquil=true, bool diagEquil=false, 
-  bool scaleTwoNorm=true, Int basisSize=15, 
-  bool progress=false );
-template<typename F>
-void SymmetricEquil
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, 
-  bool geomEquil=true, bool diagEquil=false,
-  bool scaleTwoNorm=true, Int basisSize=15, 
-  bool progress=false );
-template<typename F>
-void SymmetricEquil
-( SparseMatrix<F>& A, Matrix<Base<F>>& d, 
-  bool geomEquil=true, bool diagEquil=false,
-  bool scaleTwoNorm=true, Int basisSize=15,
-  bool progress=false );
-template<typename F>
-void SymmetricEquil
-( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
-  bool geomEquil=true, bool diagEquil=false,
-  bool scaleTwoNorm=true, Int basisSize=15,
   bool progress=false, bool time=false );
 
 } // namespace El
