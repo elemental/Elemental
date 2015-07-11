@@ -56,7 +56,7 @@ if display:
 
 e = El.DistMultiVec()
 El.Copy( b, e )
-El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
+El.Multiply( El.NORMAL, -1., A, x, 1., e )
 if display:
   El.Display( e, "e" )
 eTwoNorm = El.Nrm2( e )
@@ -69,7 +69,7 @@ endLS = El.mpi.Time()
 if worldRank == 0:
   print "LS time:", endLS-startLS, "seconds"
 El.Copy( b, e )
-El.SparseMultiply( El.NORMAL, -1., A, xLS, 1., e )
+El.Multiply( El.NORMAL, -1., A, xLS, 1., e )
 if display:
   El.Display( e, "e" )
 eTwoNorm = El.Nrm2( e )

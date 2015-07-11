@@ -72,7 +72,16 @@ if display:
 
 # Compute the risk-adjusted return
 # ================================
-# TODO
+e = El.DistMultiVec()
+f = El.DistMultiVec()
+El.Copy( x, e )
+El.DiagonalScale( El.LEFT, El.NORMAL, d, e )
+El.Zeros( f, r, 1 )
+El.Multiply( El.TRANSPOSE, 1., F, x, 0., f )
+El.Multiply( El.NORMAL, 1., F, f, 1., e )
+rar = El.Dot(c,x) - gamma*El.Dot(x,e)
+if worldRank == 0:
+  print "c^T x - gamma x^T (D + F F^T) x = ", rar
 
 xOneNorm = El.EntrywiseNorm( x, 1 )
 xTwoNorm = El.Nrm2( x )

@@ -52,7 +52,7 @@ for j in xrange(0,numLambdas):
 
   Dx = El.DistMultiVec() 
   El.Zeros( Dx, n-1, 1 )
-  El.SparseMultiply( El.NORMAL, 1., D, x, 0., Dx )
+  El.Multiply( El.NORMAL, 1., D, x, 0., Dx )
   if display:
     El.Display( x, "x" )
     El.Display( Dx, "Dx" )

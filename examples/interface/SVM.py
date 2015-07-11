@@ -77,7 +77,7 @@ A = StackedFD2D(n0,n1)
 # Label the points based upon their location relative to the hyperplane
 d = El.DistMultiVec()
 El.Ones( d, 2*n0*n1, 1 )
-El.SparseMultiply( El.NORMAL, 1., A, wGen, -offset, d )
+El.Multiply( El.NORMAL, 1., A, wGen, -offset, d )
 El.EntrywiseMap( d, lambda alpha : 1. if alpha > 0 else -1. )
 
 if display:

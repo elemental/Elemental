@@ -40,14 +40,14 @@ extern "C" {
       Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
             CReflect(alpha), *CReflect(A), *CReflect(B), \
             CReflect(beta), *CReflect(C), CReflect(alg) ) ) } \
-  ElError ElSparseMultiply_ ## SIG \
+  ElError ElMultiply_ ## SIG \
   ( ElOrientation orientation, \
     CREFLECT(T) alpha, ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG X, CREFLECT(T) beta, ElMatrix_ ## SIG Y ) \
   { EL_TRY( Multiply( CReflect(orientation), \
                       CReflect(alpha), *CReflect(A), *CReflect(X), \
                       CReflect(beta), *CReflect(Y) ) ) } \
-  ElError ElSparseMultiplyDist_ ## SIG \
+  ElError ElMultiplyDist_ ## SIG \
   ( ElOrientation orientation, \
     CREFLECT(T) alpha, ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG X, CREFLECT(T) beta, \

@@ -89,7 +89,7 @@ if display:
   El.Display( x, "x" )
 if worldRank == 0:
   print "|| x ||_2 =", xNrm
-El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
+El.Multiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)

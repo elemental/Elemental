@@ -168,44 +168,44 @@ EL_EXPORT ElError ElHer2kDist_z
 
 /* Multiply
    ======== */
-EL_EXPORT ElError ElSparseMultiply_i
+EL_EXPORT ElError ElMultiply_i
 ( ElOrientation orientation,
   ElInt alpha, ElConstSparseMatrix_i A, ElConstMatrix_i X, 
   ElInt beta, ElMatrix_i Y );
-EL_EXPORT ElError ElSparseMultiply_s
+EL_EXPORT ElError ElMultiply_s
 ( ElOrientation orientation,
   float alpha, ElConstSparseMatrix_s A, ElConstMatrix_s X, 
   float beta, ElMatrix_s Y );
-EL_EXPORT ElError ElSparseMultiply_d
+EL_EXPORT ElError ElMultiply_d
 ( ElOrientation orientation,
   double alpha, ElConstSparseMatrix_d A, ElConstMatrix_d X, 
   double beta, ElMatrix_d Y );
-EL_EXPORT ElError ElSparseMultiply_c
+EL_EXPORT ElError ElMultiply_c
 ( ElOrientation orientation,
   complex_float alpha, ElConstSparseMatrix_c A, ElConstMatrix_c X, 
   complex_float beta, ElMatrix_c Y );
-EL_EXPORT ElError ElSparseMultiply_z
+EL_EXPORT ElError ElMultiply_z
 ( ElOrientation orientation,
   complex_double alpha, ElConstSparseMatrix_z A, ElConstMatrix_z X, 
   complex_double beta, ElMatrix_z Y );
 
-EL_EXPORT ElError ElSparseMultiplyDist_i
+EL_EXPORT ElError ElMultiplyDist_i
 ( ElOrientation orientation,
   ElInt alpha, ElConstDistSparseMatrix_i A, ElConstDistMultiVec_i X, 
   ElInt beta, ElDistMultiVec_i Y );
-EL_EXPORT ElError ElSparseMultiplyDist_s
+EL_EXPORT ElError ElMultiplyDist_s
 ( ElOrientation orientation,
   float alpha, ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s X, 
   float beta, ElDistMultiVec_s Y );
-EL_EXPORT ElError ElSparseMultiplyDist_d
+EL_EXPORT ElError ElMultiplyDist_d
 ( ElOrientation orientation,
   double alpha, ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d X, 
   double beta, ElDistMultiVec_d Y );
-EL_EXPORT ElError ElSparseMultiplyDist_c
+EL_EXPORT ElError ElMultiplyDist_c
 ( ElOrientation orientation,
   complex_float alpha, ElConstDistSparseMatrix_c A, ElConstDistMultiVec_c X, 
   complex_float beta, ElDistMultiVec_c Y );
-EL_EXPORT ElError ElSparseMultiplyDist_z
+EL_EXPORT ElError ElMultiplyDist_z
 ( ElOrientation orientation,
   complex_double alpha, ElConstDistSparseMatrix_z A, ElConstDistMultiVec_z X, 
   complex_double beta, ElDistMultiVec_z Y );

@@ -74,7 +74,7 @@ if output:
 xOneNorm = El.EntrywiseNorm( x, 1 )
 e = El.DistMultiVec(El.zTag)
 El.Copy( b, e )
-El.SparseMultiply \
+El.Multiply \
 ( El.NORMAL, El.ComplexDouble(-1), A, x, El.ComplexDouble(1), e )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:

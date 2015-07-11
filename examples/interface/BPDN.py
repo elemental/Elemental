@@ -83,7 +83,7 @@ for j in xrange(0,numLambdas):
   xOneNorm = El.EntrywiseNorm( x, 1 )
   e = El.DistMultiVec()
   El.Copy( b, e )
-  El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
+  El.Multiply( El.NORMAL, -1., A, x, 1., e )
   if display:
     El.Display( e, "e" )
   eTwoNorm = El.Nrm2( e )

@@ -64,7 +64,7 @@ xGen = El.DistMultiVec()
 El.Uniform(xGen,n,1,0.5,0.5)
 b = El.DistMultiVec()
 El.Zeros( b, m, 1 )
-El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
+El.Multiply( El.NORMAL, 1., A, xGen, 0., b )
 
 # Generate a c which implies a dual feasible (y,z)
 # ================================================
@@ -72,8 +72,8 @@ yGen = El.DistMultiVec()
 El.Gaussian(yGen,m,1)
 c = El.DistMultiVec()
 El.Uniform(c,n,1,0.5,0.5)
-El.SparseMultiply( El.NORMAL,    -1,  Q, xGen, 1., c )
-El.SparseMultiply( El.TRANSPOSE, -1., A, yGen, 1., c )
+El.Multiply( El.NORMAL,    -1,  Q, xGen, 1., c )
+El.Multiply( El.TRANSPOSE, -1., A, yGen, 1., c )
 
 if display:
   El.Display( Q, "Q" )
@@ -118,7 +118,7 @@ if testMehrotra:
 
   d = El.DistMultiVec()
   El.Zeros( d, n, 1 )
-  El.SparseMultiply( El.NORMAL, 1., Q, x, 0., d )
+  El.Multiply( El.NORMAL, 1., Q, x, 0., d )
   obj = El.Dot(x,d)/2 + El.Dot(c,x)
   if worldRank == 0:
     print "Mehrotra (1/2) x^T Q x + c^T x =", obj
@@ -145,7 +145,7 @@ if testIPF:
 
   d = El.DistMultiVec()
   El.Zeros( d, n, 1 )
-  El.SparseMultiply( El.NORMAL, 1., Q, x, 0., d )
+  El.Multiply( El.NORMAL, 1., Q, x, 0., d )
   obj = El.Dot(x,d)/2 + El.Dot(c,x)
   if worldRank == 0:
     print "IPF (1/2) x^T Q x + c^T x =", obj
