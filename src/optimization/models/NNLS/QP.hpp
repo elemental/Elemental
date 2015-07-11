@@ -65,9 +65,9 @@ void QP
 {
     DEBUG_ONLY(CSE cse("nnls::QP"))
 
-    auto APtr = ReadProxy<Real,MC,MR>(&APre);      auto& A = *APtr;
-    auto BPtr = ReadProxy<Real,MC,MR>(&BPre);      auto& B = *BPtr;
-    auto XPtr = ReadWriteProxy<Real,MC,MR>(&XPre); auto& X = *XPtr;
+    auto APtr = ReadProxy<Real,MC,MR>(&APre);  auto& A = *APtr;
+    auto BPtr = ReadProxy<Real,MC,MR>(&BPre);  auto& B = *BPtr;
+    auto XPtr = WriteProxy<Real,MC,MR>(&XPre); auto& X = *XPtr;
 
     const Int n = A.Width();
     const Int k = B.Width();

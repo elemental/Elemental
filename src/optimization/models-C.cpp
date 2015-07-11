@@ -695,6 +695,86 @@ ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
     ElNNLSCtrl_ ## SIG ctrl ) \
   { EL_TRY( NMF( *CReflect(A), *CReflect(X), *CReflect(Y), \
       CReflect(ctrl) ) ) } \
+  /* Robust least squares
+     ==================== */ \
+  ElError ElRLS_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x ) \
+  { EL_TRY( RLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  ElError ElRLSDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real rho, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( RLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  ElError ElRLSSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x ) \
+  { EL_TRY( RLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  ElError ElRLSDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real rho, ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( RLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElRLSX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElRLSXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real rho, ElDistMatrix_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElRLSXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElRLSXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real rho, ElDistMultiVec_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
+  /* Robust non-negative least squares
+     ================================= */ \
+  ElError ElRNNLS_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x ) \
+  { EL_TRY( RNNLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  ElError ElRNNLSDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real rho, ElDistMatrix_ ## SIG x ) \
+  { EL_TRY( RNNLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  ElError ElRNNLSSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x ) \
+  { EL_TRY( RNNLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  ElError ElRNNLSDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real rho, ElDistMultiVec_ ## SIG x ) \
+  { EL_TRY( RNNLS( *CReflect(A), *CReflect(b), rho, *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElRNNLSX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RNNLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElRNNLSXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG b, \
+    Real rho, ElDistMatrix_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RNNLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElRNNLSXSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElConstMatrix_ ## SIG b, \
+    Real rho, ElMatrix_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RNNLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElRNNLSXDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistMultiVec_ ## SIG b, \
+    Real rho, ElDistMultiVec_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( RNNLS( \
+      *CReflect(A), *CReflect(b), rho, *CReflect(x), CReflect(ctrl) ) ) } \
   /* Non-negative least squares
      ========================== */ \
   ElError ElNNLS_ ## SIG \

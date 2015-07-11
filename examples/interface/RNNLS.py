@@ -10,6 +10,7 @@ import El
 
 m = 6000
 n = 4000
+rho = 10
 
 display = True
 worldRank = El.mpi.WorldRank()
@@ -46,15 +47,15 @@ if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
-ctrl = El.NNLSCtrl_d()
-ctrl.socpCtrl.mehrotraCtrl.progress = True
-ctrl.socpCtrl.mehrotraCtrl.time = True
-ctrl.socpCtrl.mehrotraCtrl.qsdCtrl.progress = True
-startNNLS = El.mpi.Time()
-x = El.NNLS( A, b, ctrl )
-endNNLS = El.mpi.Time()
+ctrl = El.SOCPAffineCtrl_d()
+ctrl.mehrotraCtrl.progress = True
+ctrl.mehrotraCtrl.time = True
+ctrl.mehrotraCtrl.qsdCtrl.progress = True
+startRNNLS = El.mpi.Time()
+x = El.RNNLS( A, b, rho, ctrl )
+endRNNLS = El.mpi.Time()
 if worldRank == 0:
-  print "NNLS time:", endNNLS-startNNLS, "seconds"
+  print "RNNLS time:", endRNNLS-startRNNLS, "seconds"
 if display:
   El.Display( x, "x" )
 
@@ -64,6 +65,19 @@ El.Multiply( El.NORMAL, -1., A, x, 1., e )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
   print "|| A x - b ||_2 =", eTwoNorm
+
+startNNLS = El.mpi.Time()
+xNNLS = El.NNLS( A, b )
+endNNLS = El.mpi.Time()
+if worldRank == 0:
+  print "NNLS time:", endNNLS-startNNLS, "seconds"
+if display:
+  El.Display( xNNLS, "xNNLS" )
+El.Copy( b, e )
+El.Multiply( El.NORMAL, -1., A, xNNLS, 1., e )
+eTwoNorm = El.Nrm2( e )
+if worldRank == 0:
+  print "|| A x_{NNLS} - b ||_2 =", eTwoNorm
 
 startLS = El.mpi.Time()
 xLS = El.LeastSquares( A, b )

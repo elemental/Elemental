@@ -115,9 +115,9 @@ void SOCP
 {
     DEBUG_ONLY(CSE cse("nnls::SOCP"))
 
-    auto APtr = ReadProxy<Real,MC,MR>(&APre);      auto& A = *APtr;
-    auto BPtr = ReadProxy<Real,MC,MR>(&BPre);      auto& B = *BPtr;
-    auto XPtr = ReadWriteProxy<Real,MC,MR>(&XPre); auto& X = *XPtr;
+    auto APtr = ReadProxy<Real,MC,MR>(&APre);  auto& A = *APtr;
+    auto BPtr = ReadProxy<Real,MC,MR>(&BPre);  auto& B = *BPtr;
+    auto XPtr = WriteProxy<Real,MC,MR>(&XPre); auto& X = *XPtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -139,8 +139,8 @@ void SOCP
             }
             else
             {
-                orders.Set( i, 0, 1 );
-                firstInds.Set( i, 0, i );
+                orders.SetLocal( iLoc, 0, 1 );
+                firstInds.SetLocal( iLoc, 0, i );
             }
         }
     }
@@ -283,8 +283,8 @@ void SOCP
             }
             else
             {
-                orders.Set( i, 0, 1 );
-                firstInds.Set( i, 0, i );
+                orders.SetLocal( iLoc, 0, 1 );
+                firstInds.SetLocal( iLoc, 0, i );
             }
         }
     }
