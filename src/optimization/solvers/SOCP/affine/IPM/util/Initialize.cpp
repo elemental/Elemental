@@ -182,8 +182,8 @@ void Initialize
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, gammaPrimal );
-        ForceIntoSOC( z, orders, firstInds, gammaDual );
+        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal );
+        ForceIntoSOC( z, orders, firstInds, 1+gammaDual );
     }
 }
 
@@ -305,8 +305,8 @@ void Initialize
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, gammaPrimal, cutoff );
-        ForceIntoSOC( z, orders, firstInds, gammaDual, cutoff );
+        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal, cutoff );
+        ForceIntoSOC( z, orders, firstInds, 1+gammaDual, cutoff );
     }
 }
 
@@ -448,8 +448,8 @@ void Initialize
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, gammaPrimal );
-        ForceIntoSOC( z, orders, firstInds, gammaDual );
+        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal );
+        ForceIntoSOC( z, orders, firstInds, 1+gammaDual );
     }
 }
 
@@ -595,8 +595,8 @@ void Initialize
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, gammaPrimal, cutoffPar );
-        ForceIntoSOC( z, orders, firstInds, gammaDual, cutoffPar );
+        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal, cutoffPar );
+        ForceIntoSOC( z, orders, firstInds, 1+gammaPrimal, cutoffPar );
     }
 }
 

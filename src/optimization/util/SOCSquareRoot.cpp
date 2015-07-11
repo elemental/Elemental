@@ -24,7 +24,7 @@ void SOCSquareRoot
 
     Matrix<Real> d;
     SOCDets( x, d, orders, firstInds );
-    SOCBroadcast( d, orders, firstInds );
+    ConeBroadcast( d, orders, firstInds );
 
     const Int height = x.Height();
     Zeros( xRoot, height, 1 );
@@ -70,10 +70,10 @@ void SOCSquareRoot
 
     DistMatrix<Real,VC,STAR> d(x.Grid());
     SOCDets( x, d, orders, firstInds );
-    SOCBroadcast( d, orders, firstInds );
+    ConeBroadcast( d, orders, firstInds );
 
     auto roots = x;
-    SOCBroadcast( roots, orders, firstInds );
+    ConeBroadcast( roots, orders, firstInds );
 
     const Int localHeight = x.LocalHeight();
     xRoot.SetGrid( x.Grid() );
@@ -102,10 +102,10 @@ void SOCSquareRoot
 
     DistMultiVec<Real> d(x.Comm());
     SOCDets( x, d, orders, firstInds );
-    SOCBroadcast( d, orders, firstInds );
+    ConeBroadcast( d, orders, firstInds );
 
     auto roots = x;
-    SOCBroadcast( roots, orders, firstInds );
+    ConeBroadcast( roots, orders, firstInds );
 
     const Int localHeight = x.LocalHeight();
     xRoot.SetComm( x.Comm() );

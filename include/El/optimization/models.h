@@ -423,13 +423,13 @@ EL_EXPORT ElError ElNNLSDistSparse_d
    --------------- */
 typedef struct {
   bool useIPM; 
-  ElQPBoxADMMCtrl_s admmCtrl;
+  ElADMMCtrl_s admmCtrl;
   ElQPDirectCtrl_s ipmCtrl;
 } ElNNLSCtrl_s;
 
 typedef struct {
   bool useIPM;
-  ElQPBoxADMMCtrl_d admmCtrl;
+  ElADMMCtrl_d admmCtrl;
   ElQPDirectCtrl_d ipmCtrl;
 } ElNNLSCtrl_d;
 

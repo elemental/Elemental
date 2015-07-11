@@ -21,6 +21,22 @@
 
 namespace El {
 
+template<typename Real>
+inline Real DampScaling( Real alpha )
+{
+    const Real tol = Pow(Epsilon<Real>(),Real(0.33));
+    if( alpha == Real(0) )
+        return 1;
+    else
+        return Max(alpha,tol);
+}
+
+template<typename Real>
+inline Real SquareRootScaling( Real alpha )
+{
+    return Sqrt(alpha);
+}
+
 template<typename F>
 void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
@@ -58,17 +74,14 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
             auto aCol = A( ALL, IR(j) );
             auto maxColAbs = VectorMaxAbs( aCol );
             const Real maxColAbsVal = maxColAbs.value;
-            if( maxColAbsVal > Real(0) )
-            {
-                const Real minColAbsVal = MinAbsNonzero( aCol, maxColAbsVal );
-                const Real propScale = Sqrt(minColAbsVal*maxColAbsVal);
-                const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
-                scales.Set( j, 0, scale );
-                d.Set( j, 0, scale*d.Get(j,0) );
-            }
-            else
-                scales.Set( j, 0, Real(1) );
+            const Real minColAbsVal = MinAbsNonzero( aCol, maxColAbsVal );
+            const Real propScale = Sqrt(minColAbsVal*maxColAbsVal);
+            const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
+            scales.Set( j, 0, scale );
         }
+        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, scales, d );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
@@ -94,8 +107,8 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
                 maxAbs = Max( Abs(A.Get(i,j)), maxAbs );
             const Real scale = Sqrt(maxAbs);
             scales.Set( j, 0, scale );
-            d.Set( j, 0, scale*d.Get(j,0) );
         }
+        DiagonalScale( LEFT, NORMAL, scales, d );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
@@ -156,14 +169,11 @@ void SymmetricGeomEquil
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
+        // TODO: Remove GeometricColumnScaling
         GeometricColumnScaling( A, scales ); 
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        {
-            if( scales.GetLocal(jLoc,0) == Real(0) )
-                scales.SetLocal(jLoc,0,Real(1));
-            d.SetLocal
-            ( jLoc, 0, scales.GetLocal(jLoc,0)*d.GetLocal(jLoc,0) );
-        }
+        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, scales, d );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
@@ -243,17 +253,14 @@ void SymmetricGeomEquil
         for( Int j=0; j<n; ++j )
         {
             const Real maxAbs = rowMaxAbs.Get(j,0);
-            if( maxAbs > Real(0) )
-            {
-                const Real minAbs = rowMinAbs.Get(j,0);
-                const Real propScale = Sqrt(minAbs*maxAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                scales.Set( j, 0, scale );
-                d.Set( j, 0, scale*d.Get(j,0) );
-            }
-            else
-                scales.Set(j,0,1);
+            const Real minAbs = rowMinAbs.Get(j,0);
+            const Real propScale = Sqrt(minAbs*maxAbs);
+            const Real scale = Max(propScale,sqrtDamp*maxAbs);
+            scales.Set( j, 0, scale );
         }
+        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, scales, d );
         DiagonalSolve( LEFT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
 
@@ -283,8 +290,8 @@ void SymmetricGeomEquil
                 maxAbs = Max( Abs(A.Value(entryOff+k)), maxAbs );
             const Real scale = Sqrt(maxAbs);
             scales.Set( i, 0, scale );
-            d.Set( i, 0, scale*d.Get(i,0) );
         }
+        DiagonalScale( LEFT, NORMAL, scales, d );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
@@ -339,17 +346,14 @@ void SymmetricGeomEquil
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Real maxAbs = rowMaxAbs.GetLocal(iLoc,0);
-            if( maxAbs > Real(0) )
-            {
-                const Real minAbs = rowMinAbs.GetLocal(iLoc,0);
-                const Real propScale = Sqrt(minAbs*maxAbs);
-                const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                scales.SetLocal( iLoc, 0, scale );
-                d.SetLocal( iLoc, 0, scale*d.GetLocal(iLoc,0) );
-            }
-            else
-                scales.SetLocal( iLoc, 0, Real(1) );
+            const Real minAbs = rowMinAbs.GetLocal(iLoc,0);
+            const Real propScale = Sqrt(minAbs*maxAbs);
+            const Real scale = Max(propScale,sqrtDamp*maxAbs);
+            scales.SetLocal( iLoc, 0, scale );
         }
+        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, scales, d );
         DiagonalSolve( LEFT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
 
@@ -380,8 +384,8 @@ void SymmetricGeomEquil
                 maxAbs = Max( Abs(A.Value(entryOff+k)), maxAbs );
             const Real scale = Sqrt(maxAbs);
             scales.SetLocal( iLoc, 0, scale );
-            d.SetLocal( iLoc, 0, scale*d.GetLocal(iLoc,0) );
         }
+        DiagonalScale( LEFT, NORMAL, scales, d );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }

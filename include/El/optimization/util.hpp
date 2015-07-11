@@ -81,6 +81,139 @@ Int NumNonPositive( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
 
+// Cone Broadcast
+// ==============
+// Replicate the entry in the root position in each cone over the entire cone
+template<typename Real>
+void ConeBroadcast
+(       Matrix<Real>& x, 
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void ConeBroadcast
+(       AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void ConeBroadcast
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// Cone AllReduce
+// ==============
+// Fill each subcone with the reduction over each cone
+template<typename Real>
+void ConeAllReduce
+(       Matrix<Real>& x, 
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds,
+  mpi::Op op=mpi::SUM );
+template<typename Real>
+void ConeAllReduce
+(       AbstractDistMatrix<Real>& x, 
+  const AbstractDistMatrix<Int>& orders, 
+  const AbstractDistMatrix<Int>& firstInds, 
+  mpi::Op op=mpi::SUM, Int cutoff=1000 );
+template<typename Real>
+void ConeAllReduce
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, 
+  mpi::Op op=mpi::SUM, Int cutoff=1000 );
+
+// A specialization of Ruiz scaling which respects a product of cones
+// ==================================================================
+template<typename F>
+void ConeRuizEquil
+(       Matrix<F>& A,
+        Matrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeRuizEquil
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<Base<F>>& dRowA,
+        AbstractDistMatrix<Base<F>>& dRowB,
+        AbstractDistMatrix<Base<F>>& dCol,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
+
+template<typename F>
+void ConeRuizEquil
+(       SparseMatrix<F>& A,
+        SparseMatrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeRuizEquil
+(       DistSparseMatrix<F>& A,
+        DistSparseMatrix<F>& B,
+        DistMultiVec<Base<F>>& dRowA,
+        DistMultiVec<Base<F>>& dRowB,
+        DistMultiVec<Base<F>>& dCol,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
+
+// A specialization of GeomEquil which respects a product of cones
+// ===============================================================
+template<typename F>
+void ConeGeomEquil
+(       Matrix<F>& A,
+        Matrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeGeomEquil
+(       AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& BPre,
+        AbstractDistMatrix<Base<F>>& dRowAPre,
+        AbstractDistMatrix<Base<F>>& dRowBPre,
+        AbstractDistMatrix<Base<F>>& dColPre,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
+
+template<typename F>
+void ConeGeomEquil
+(       SparseMatrix<F>& A,
+        SparseMatrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  bool progress=false );
+
+template<typename F>
+void ConeGeomEquil
+(       DistSparseMatrix<F>& A,
+        DistSparseMatrix<F>& B,
+        DistMultiVec<Base<F>>& dRowA,
+        DistMultiVec<Base<F>>& dRowB,
+        DistMultiVec<Base<F>>& dCol,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff=1000, bool progress=false );
+
 // SOC Degree
 // ==========
 Int SOCDegree( const Matrix<Int>& firstInds );
@@ -127,25 +260,6 @@ void SOCDots
   const DistMultiVec<Real>& y, 
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-// SOC Broadcast
-// =============
-// Replicate the entry in the root position in each SOC over the entire cone
-template<typename Real>
-void SOCBroadcast
-(       Matrix<Real>& x, 
-  const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void SOCBroadcast
-(       AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-void SOCBroadcast
-(       DistMultiVec<Real>& x,
-  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 // SOC Reflect

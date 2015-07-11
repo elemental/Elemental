@@ -52,7 +52,7 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    socp::affine::MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
     affineCtrl.minTol = ctrl.minTol;
@@ -62,7 +62,6 @@ void Mehrotra
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.scaleTwoNorm = ctrl.scaleTwoNorm;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;
@@ -94,7 +93,7 @@ void Mehrotra
     DistMatrix<Real> h(grid);
     Zeros( h, n, 1 );
 
-    socp::affine::MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
     affineCtrl.minTol = ctrl.minTol;
@@ -104,7 +103,6 @@ void Mehrotra
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.scaleTwoNorm = ctrl.scaleTwoNorm;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;
@@ -135,7 +133,7 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    socp::affine::MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
     affineCtrl.minTol = ctrl.minTol;
@@ -145,7 +143,6 @@ void Mehrotra
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.scaleTwoNorm = ctrl.scaleTwoNorm;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;
@@ -177,7 +174,7 @@ void Mehrotra
     DistMultiVec<Real> h(comm);
     Zeros( h, n, 1 );
 
-    socp::affine::MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
     affineCtrl.minTol = ctrl.minTol;
@@ -187,7 +184,6 @@ void Mehrotra
     affineCtrl.qsdCtrl = ctrl.qsdCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.scaleTwoNorm = ctrl.scaleTwoNorm;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;

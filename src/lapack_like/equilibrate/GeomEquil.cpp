@@ -21,6 +21,8 @@
 
 namespace El {
 
+// TODO: Make this consistent with ConeGeomEquil
+
 template<typename F>
 void GeomEquil
 ( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, bool progress )
@@ -46,10 +48,10 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
@@ -89,12 +91,12 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each column so that its maximum entry is 1 or 0
     for( Int j=0; j<n; ++j )
@@ -142,10 +144,10 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
@@ -207,12 +209,12 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each column so that its maximum entry is 1 or 0
     for( Int j=0; j<n; ++j )
@@ -276,35 +278,31 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && A.Grid().Rank() == 0 )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid());
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
+        // TODO: Remove GeometricColumnScaling
         GeometricColumnScaling( A, colScale ); 
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        {
             if( colScale.GetLocal(jLoc,0) == Real(0) )
                 colScale.SetLocal(jLoc,0,Real(1));
-            dCol.SetLocal
-            ( jLoc, 0, colScale.GetLocal(jLoc,0)*dCol.GetLocal(jLoc,0) );
-        }
+        DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
 
         // Geometrically equilibrate the rows
         // ----------------------------------
+        // TODO: Remove GeometricRowScaling
         GeometricRowScaling( A, rowScale );
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-        {
             if( rowScale.GetLocal(iLoc,0) == Real(0) )
                 rowScale.SetLocal(iLoc,0,Real(1));
-            dRow.SetLocal
-            ( iLoc, 0, rowScale.GetLocal(iLoc,0)*dRow.GetLocal(iLoc,0) );
-        }
+        DiagonalScale( LEFT, NORMAL, rowScale, dRow );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         auto newMaxAbs = MaxAbs( A );
@@ -312,22 +310,19 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && A.Grid().Rank() == 0 )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each column so that its maximum entry is 1 or 0
     ColumnMaxNorms( A, colScale );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
         if( colScale.GetLocal(jLoc,0) == Real(0) ) 
             colScale.SetLocal(jLoc,0,Real(1));
-        dCol.SetLocal
-        ( jLoc, 0, colScale.GetLocal(jLoc,0)*dCol.GetLocal(jLoc,0) );
-    }
+    DiagonalScale( LEFT, NORMAL, colScale, dCol );
     DiagonalSolve( RIGHT, NORMAL, colScale, A );
 }
 
@@ -340,7 +335,7 @@ void StackedGeomEquil
   AbstractDistMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
     typedef Base<F> Real;
 
     ProxyCtrl control;
@@ -389,46 +384,41 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && A.Grid().Rank() == 0 )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     DistMatrix<Real,MC,STAR> rowScaleA(A.Grid()),
                              rowScaleB(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid()), colScaleB(B.Grid());
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
+        // TODO: Remove StackedGeometricColumnScaling
         StackedGeometricColumnScaling( A, B, colScale ); 
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        {
             if( colScale.GetLocal(jLoc,0) == Real(0) )
                 colScale.SetLocal(jLoc,0,Real(1));
-            dCol.SetLocal
-            ( jLoc, 0, colScale.GetLocal(jLoc,0)*dCol.GetLocal(jLoc,0) );
-        }
+        DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
 
         // Geometrically equilibrate the rows
         // ----------------------------------
+        // TODO: Remove GeometricRowScaling
         GeometricRowScaling( A, rowScaleA );
-        GeometricRowScaling( B, rowScaleB );
         for( Int iLoc=0; iLoc<mLocalA; ++iLoc )
-        {
             if( rowScaleA.GetLocal(iLoc,0) == Real(0) )
                 rowScaleA.SetLocal(iLoc,0,Real(1));
-            dRowA.SetLocal
-            ( iLoc, 0, rowScaleA.GetLocal(iLoc,0)*dRowA.GetLocal(iLoc,0) );
-        }
+        DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
+        DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
+
+        // TODO: Remove GeometricRowScaling
+        GeometricRowScaling( B, rowScaleB );
         for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
-        {
             if( rowScaleB.GetLocal(iLoc,0) == Real(0) )
                 rowScaleB.SetLocal(iLoc,0,Real(1));
-            dRowB.SetLocal
-            ( iLoc, 0, rowScaleB.GetLocal(iLoc,0)*dRowB.GetLocal(iLoc,0) );
-        }
-        DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
+        DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
         auto newMaxAbsA = MaxAbs( A );
@@ -439,12 +429,12 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && A.Grid().Rank() == 0 )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each column so that its maximum entry is 1 or 0
     // =====================================================
@@ -458,8 +448,8 @@ void StackedGeomEquil
         if( maxScale == Real(0) )
             maxScale = 1; 
         colScale.SetLocal(jLoc,0,maxScale);
-        dCol.SetLocal( jLoc, 0, maxScale*dCol.GetLocal(jLoc,0) );
     }
+    DiagonalScale( LEFT, NORMAL, colScale, dCol );
     DiagonalSolve( RIGHT, NORMAL, colScale, A );
     DiagonalSolve( RIGHT, NORMAL, colScale, B );
 }
@@ -490,11 +480,11 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
     Matrix<Real> rowScale(m,1), colScale(n,1), maxAbsVals, minAbsVals;
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
@@ -510,13 +500,13 @@ void GeomEquil
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 colScale.Set(j,0,scale);
-                dCol.Set( j, 0, scale*dCol.Get(j,0) );
             }
             else
             {
                 colScale.Set(j,0,1);
             }
         }
+        DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
 
         // Geometrically rescale the rows
@@ -532,11 +522,11 @@ void GeomEquil
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 rowScale.Set(i,0,scale);
-                dRow.Set( i, 0, scale*dRow.Get(i,0) );
             } 
             else
                 rowScale.Set(i,0,Real(1));
         }
+        DiagonalScale( LEFT, NORMAL, rowScale, dRow );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         // Determine whether we are done or not
@@ -546,12 +536,12 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each row so that its maximum entry is 1 or 0
     F* valBuf = A.ValueBuffer();
@@ -607,12 +597,12 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
     Matrix<Real> rowScaleA(mA,1), rowScaleB(mB,1), colScale(n,1),
                  maxAbsValsA, maxAbsValsB, minAbsValsA, minAbsValsB;
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
@@ -636,11 +626,11 @@ void StackedGeomEquil
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 colScale.Set(j,0,scale);
-                dCol.Set( j, 0, scale*dCol.Get(j,0) );
             }
             else
                 colScale.Set(j,0,Real(1));
         }
+        DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
 
@@ -657,12 +647,13 @@ void StackedGeomEquil
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 rowScaleA.Set(i,0,scale);
-                dRowA.Set( i, 0, scale*dRowA.Get(i,0) );
             } 
             else
                 rowScaleA.Set(i,0,Real(1));
         }
+        DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
+
         RowMinAbsNonzero( B, maxAbsValsB, minAbsValsB );
         RowMaxNorms( B, maxAbsValsB );
         for( Int i=0; i<mB; ++i )
@@ -674,11 +665,11 @@ void StackedGeomEquil
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 rowScaleB.Set(i,0,scale);
-                dRowB.Set( i, 0, scale*dRowB.Get(i,0) );
             } 
             else
                 rowScaleB.Set(i,0,Real(1));
         }
+        DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
         // Determine whether we are done or not
@@ -691,12 +682,12 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each row so that its maximum entry is 1 or 0
     F* valBufA = A.ValueBuffer();
@@ -768,11 +759,11 @@ void GeomEquil
     const Real minAbsVal = MinAbsNonzero( A, maxAbsVal );
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && commRank == 0 )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
     DistMultiVec<Real> maxAbsVals(comm), minAbsVals(comm), scales(comm);
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
@@ -790,11 +781,11 @@ void GeomEquil
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 scales.SetLocal( jLoc, 0, scale );
-                dCol.SetLocal( jLoc, 0, scale*dCol.GetLocal(jLoc,0) );
             }
             else
                 scales.SetLocal( jLoc, 0, 1 ); 
         }
+        DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
 
         // Geometrically rescale the rows
@@ -812,11 +803,11 @@ void GeomEquil
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 scales.SetLocal( iLoc, 0, scale );
-                dRow.SetLocal( iLoc, 0, scale*dRow.GetLocal(iLoc,0) );
             }
             else
                 scales.SetLocal( iLoc, 0, 1 );
         }
+        DiagonalScale( LEFT, NORMAL, scales, dRow );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         // Determine whether we are done or not
@@ -826,12 +817,12 @@ void GeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && commRank == 0 )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each row so that its maximum entry is 1 or 0
     F* valBuf = A.ValueBuffer();
@@ -894,12 +885,12 @@ void StackedGeomEquil
     const Real minAbsVal = Min(minAbsValA,minAbsValB);
     Real ratio = maxAbsVal / minAbsVal;
     if( progress && commRank == 0 )
-        cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
-             << ratio << endl;
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
     DistMultiVec<Real> maxAbsValsA(comm), maxAbsValsB(comm),
                        minAbsValsA(comm), minAbsValsB(comm), scales(comm);
+    const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically rescale the columns
@@ -926,12 +917,12 @@ void StackedGeomEquil
                 const Real minAbs = minAbsValsA.GetLocal(jLoc,0);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                dCol.SetLocal( jLoc, 0, scale*dCol.GetLocal(jLoc,0) );
                 scales.SetLocal( jLoc, 0, scale );
             }
             else
                 scales.SetLocal( jLoc, 0, 1 );
         }
+        DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, B );
 
@@ -949,12 +940,12 @@ void StackedGeomEquil
                 const Real minAbs = minAbsValsA.GetLocal(iLoc,0);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                dRowA.SetLocal( iLoc, 0, scale*dRowA.GetLocal(iLoc,0) );
                 scales.SetLocal( iLoc, 0, scale );
             }
             else
                 scales.SetLocal( iLoc, 0, 1 );
         }
+        DiagonalScale( LEFT, NORMAL, scales, dRowA );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         scales.Resize( mB, 1 );
@@ -969,12 +960,12 @@ void StackedGeomEquil
                 const Real minAbs = minAbsValsB.GetLocal(iLoc,0);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                dRowB.SetLocal( iLoc, 0, scale*dRowB.GetLocal(iLoc,0) );
                 scales.SetLocal( iLoc, 0, scale );
             }
             else
                 scales.SetLocal( iLoc, 0, 1 );
         }
+        DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
 
         // Determine whether we are done or not
@@ -987,12 +978,12 @@ void StackedGeomEquil
         const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && commRank == 0 )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
-                 << newMinAbsVal << "=" << newRatio << endl;
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
         ratio = newRatio;
     }
+    SetIndent( indent );
 
     // Scale each row so that its maximum entry is 1 or 0
     F* valBufA = A.ValueBuffer();

@@ -168,8 +168,8 @@ void VandenbergheNT
     Matrix<PReal> sDets, zDets;
     SOCDets( sProm, sDets, orders, firstInds );
     SOCDets( zProm, zDets, orders, firstInds );
-    SOCBroadcast( sDets, orders, firstInds );
-    SOCBroadcast( zDets, orders, firstInds );
+    ConeBroadcast( sDets, orders, firstInds );
+    ConeBroadcast( zDets, orders, firstInds );
     for( Int i=0; i<n; ++i )
     {
         sProm.Set( i, 0, sProm.Get(i,0)/Sqrt(sDets.Get(i,0)) );
@@ -180,7 +180,7 @@ void VandenbergheNT
     // ================================
     Matrix<PReal> gammas;
     SOCDots( zProm, sProm, gammas, orders, firstInds );
-    SOCBroadcast( gammas, orders, firstInds );
+    ConeBroadcast( gammas, orders, firstInds );
     for( Int i=0; i<n; ++i )
         gammas.Set( i, 0, Sqrt((PReal(1)+gammas.Get(i,0))/PReal(2)) );
 
@@ -239,8 +239,8 @@ void VandenbergheNT
     DistMatrix<PReal,VC,STAR> sDets(grid), zDets(grid);
     SOCDets( s, sDets, orders, firstInds, cutoff );
     SOCDets( z, zDets, orders, firstInds, cutoff );
-    SOCBroadcast( sDets, orders, firstInds, cutoff );
-    SOCBroadcast( zDets, orders, firstInds, cutoff );
+    ConeBroadcast( sDets, orders, firstInds, cutoff );
+    ConeBroadcast( zDets, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
         s.SetLocal
@@ -253,7 +253,7 @@ void VandenbergheNT
     // ================================
     DistMatrix<PReal,VC,STAR> gammas(grid);
     SOCDots( z, s, gammas, orders, firstInds, cutoff );
-    SOCBroadcast( gammas, orders, firstInds, cutoff );
+    ConeBroadcast( gammas, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         gammas.SetLocal
         ( iLoc, 0, Sqrt((PReal(1)+gammas.GetLocal(iLoc,0))/PReal(2)) );
@@ -299,8 +299,8 @@ void VandenbergheNT
     DistMultiVec<PReal> sDets(comm), zDets(comm);
     SOCDets( sProm, sDets, orders, firstInds, cutoff );
     SOCDets( zProm, zDets, orders, firstInds, cutoff );
-    SOCBroadcast( sDets, orders, firstInds, cutoff );
-    SOCBroadcast( zDets, orders, firstInds, cutoff );
+    ConeBroadcast( sDets, orders, firstInds, cutoff );
+    ConeBroadcast( zDets, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
         sProm.SetLocal
@@ -313,7 +313,7 @@ void VandenbergheNT
     // ================================
     DistMultiVec<PReal> gammas(comm);
     SOCDots( zProm, sProm, gammas, orders, firstInds, cutoff );
-    SOCBroadcast( gammas, orders, firstInds, cutoff );
+    ConeBroadcast( gammas, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         gammas.SetLocal
         ( iLoc, 0, Sqrt((PReal(1)+gammas.GetLocal(iLoc,0))/PReal(2)) );

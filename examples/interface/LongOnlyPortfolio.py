@@ -8,17 +8,18 @@
 #
 import El, math
 
-n = 3000
+n = 5000
 r = 50
 gamma = 1.
-display = False
+display = True
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
 # Create a positive diagonal for the covariance
 def CreateDiag(height):
   d = El.DistMultiVec()
-  El.Uniform( d, height, 1, 2, 1 )
+  El.Ones( d, height, 1 ) 
+  #El.Uniform( d, height, 1, 2, 1 )
 
   return d
 
@@ -34,6 +35,11 @@ def CreateFactor(height,width):
       F.QueueLocalUpdate( iLoc, j, math.log(i+j+1.) )
 
   F.ProcessQueues()
+  # NOTE: Without this rescaling, the problem is much harder, as the variables
+  #       s becomes quite large 
+  #       (|| F^T x ||_2 <= u, u^2 <= t, would imply u and t are large).
+  FFrob = El.FrobeniusNorm( F )
+  El.Scale( 1./FFrob, F )
   return F
 
 # Create the vector of expected returns

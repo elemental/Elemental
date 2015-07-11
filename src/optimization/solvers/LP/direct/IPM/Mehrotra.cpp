@@ -44,8 +44,16 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
 
+    // TODO: Move these into the control structure
     const bool forceSameStep = false;
     const bool stepLengthSigma = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    function<Real(Real,Real,Real,Real)> centralityRule;
+    if( stepLengthSigma )
+        centralityRule = StepLengthCentrality<Real>;
+    else
+        centralityRule = MehrotraCentrality<Real>;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -53,10 +61,11 @@ void Mehrotra
     auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int degree = n;
     Matrix<Real> dRow, dCol;
     if( ctrl.outerEquil )
     {
-        GeomEquil( A, dRow, dCol, ctrl.print );
+        RuizEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -77,8 +86,6 @@ void Mehrotra
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
 
-    // TODO: Expose this as a parameter of MehrotraCtrl
-    const bool standardShift = true;
     Initialize
     ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
@@ -89,9 +96,7 @@ void Mehrotra
                  dx,    dy,    dz;
     Matrix<Real> dSub;
     Matrix<Int> p;
-#ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -133,11 +138,23 @@ void Mehrotra
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
             Output
             ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -226,29 +243,27 @@ void Mehrotra
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        Real dxErrorNrm2 = Nrm2( dxError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+            Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        dyError -= dzAff;
-        Real dyErrorNrm2 = Nrm2( dyError );
+            dyError = rc;
+            Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+            dyError -= dzAff;
+            Real dyErrorNrm2 = Nrm2( dyError );
 
-        Real rmuNrm2 = Nrm2( rmu );
-        dzError = rmu;
-        prod = dzAff;
-        DiagonalScale( LEFT, NORMAL, x, prod );
-        dzError += prod;
-        prod = dxAff;
-        DiagonalScale( LEFT, NORMAL, z, prod );
-        dzError += prod;
-        Real dzErrorNrm2 = Nrm2( dzError );
+            Real rmuNrm2 = Nrm2( rmu );
+            dzError = rmu;
+            prod = dzAff;
+            DiagonalScale( LEFT, NORMAL, x, prod );
+            dzError += prod;
+            prod = dxAff;
+            DiagonalScale( LEFT, NORMAL, z, prod );
+            dzError += prod;
+            Real dzErrorNrm2 = Nrm2( dzError );
 
-        if( ctrl.print )
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
              dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
@@ -256,7 +271,7 @@ void Mehrotra
              dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rmuNrm2));
-#endif
+        }
 
         // Compute a centrality parameter
         // ==============================
@@ -267,27 +282,17 @@ void Mehrotra
         if( ctrl.print )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
-        Real sigma;
-        if( stepLengthSigma )
-        {
-            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
-        }
-        else
-        {
-            // NOTE: dz and dx are used as temporaries
-            dx = x;
-            dz = z;
-            Axpy( alphaAffPri,  dxAff, dx );
-            Axpy( alphaAffDual, dzAff, dz );
-            const Real muAff = Dot(dx,dz) / n;
-            // TODO: Allow the user to override this function
-            sigma = Pow(muAff/mu,Real(3)); 
-            sigma = Min(sigma,Real(1));
-            if( ctrl.print )
-                Output("muAff = ",muAff,", mu = ",mu);
-        }
+        // NOTE: dz and dx are used as temporaries
+        dx = x;
+        dz = z;
+        Axpy( alphaAffPri,  dxAff, dx );
+        Axpy( alphaAffDual, dzAff, dz );
+        const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print )
-            Output("sigma = ",sigma);
+            Output("muAff = ",muAff,", mu = ",mu);
+        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        if( ctrl.print )
+            Output("sigma=",sigma);
 
         // Solve for the combined direction
         // ================================
@@ -385,7 +390,6 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
@@ -403,11 +407,20 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
-    const Grid& grid = APre.Grid();
-    const int commRank = grid.Rank();
 
+    // TODO: Move these into the control structure
     const bool forceSameStep = false;
     const bool stepLengthSigma = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    function<Real(Real,Real,Real,Real)> centralityRule;
+    if( stepLengthSigma )
+        centralityRule = StepLengthCentrality<Real>;
+    else
+        centralityRule = MehrotraCentrality<Real>;
+
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), b(grid), c(grid);
@@ -431,11 +444,12 @@ void Mehrotra
     // Equilibrate the LP by diagonally scaling A
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int degree = n;
     DistMatrix<Real,MC,STAR> dRow(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
     if( ctrl.outerEquil )
     {
-        GeomEquil( A, dRow, dCol, ctrl.print );
+        RuizEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -456,8 +470,6 @@ void Mehrotra
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
 
-    // TODO: Expose this as a parameter of MehrotraCtrl
-    const bool standardShift = true;
     Initialize
     ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
@@ -474,10 +486,8 @@ void Mehrotra
     rmu.AlignWith( x );
     DistMatrix<Real> dSub(grid);
     DistMatrix<Int> p(grid);
-#ifndef EL_RELEASE
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     dzError.AlignWith( dz );
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -518,12 +528,25 @@ void Mehrotra
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
+        if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            if( commRank == 0 )
+                Output
+                ("iter ",numIts,":\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -612,37 +635,36 @@ void Mehrotra
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        Real dxErrorNrm2 = Nrm2( dxError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+            Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        dyError -= dzAff;
-        Real dyErrorNrm2 = Nrm2( dyError );
+            dyError = rc;
+            Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+            dyError -= dzAff;
+            Real dyErrorNrm2 = Nrm2( dyError );
 
-        Real rmuNrm2 = Nrm2( rmu );
-        dzError = rmu;
-        prod = dzAff;
-        DiagonalScale( LEFT, NORMAL, x, prod );
-        dzError += prod;
-        prod = dxAff;
-        DiagonalScale( LEFT, NORMAL, z, prod );
-        dzError += prod;
-        Real dzErrorNrm2 = Nrm2( dzError );
+            Real rmuNrm2 = Nrm2( rmu );
+            dzError = rmu;
+            prod = dzAff;
+            DiagonalScale( LEFT, NORMAL, x, prod );
+            dzError += prod;
+            prod = dxAff;
+            DiagonalScale( LEFT, NORMAL, z, prod );
+            dzError += prod;
+            Real dzErrorNrm2 = Nrm2( dzError );
 
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
-             "|| dyError ||_2 / (1 + || r_c ||_2) = ",           
-             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
-             "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
-             dzErrorNrm2/(1+rmuNrm2)); 
-#endif
+            if( commRank == 0 )
+                Output
+                ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+                 dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+                 "|| dyError ||_2 / (1 + || r_c ||_2) = ",           
+                 dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+                 "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
+                 dzErrorNrm2/(1+rmuNrm2)); 
+        }
 
         // Compute a centrality parameter
         // ==============================
@@ -653,27 +675,17 @@ void Mehrotra
         if( ctrl.print && commRank == 0 )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
-        Real sigma;
-        if( stepLengthSigma )
-        {
-            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
-        }
-        else
-        {
-            // NOTE: dz and dx are used as temporaries
-            dx = x;
-            dz = z;
-            Axpy( alphaAffPri,  dxAff, dx );
-            Axpy( alphaAffDual, dzAff, dz );
-            const Real muAff = Dot(dx,dz) / n;
-            // TODO: Allow the user to override this function
-            sigma = Pow(muAff/mu,Real(3)); 
-            sigma = Min(sigma,Real(1));
-            if( ctrl.print && commRank == 0 )
-                Output("muAff = ",muAff,", mu = ",mu);
-        }
+        // NOTE: dz and dx are used as temporaries
+        dx = x;
+        dz = z;
+        Axpy( alphaAffPri,  dxAff, dx );
+        Axpy( alphaAffDual, dzAff, dz );
+        const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print && commRank == 0 )
-            Output("sigma = ",sigma); 
+            Output("muAff = ",muAff,", mu = ",mu);
+        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        if( ctrl.print && commRank == 0 )
+            Output("sigma=",sigma);
 
         // Solve for the combined direction
         // ================================
@@ -771,7 +783,6 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
@@ -790,8 +801,17 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
 
+    // TODO: Move these into the control structure
     const bool forceSameStep = false;
     const bool stepLengthSigma = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const bool innerRuizEquil = true;
+    function<Real(Real,Real,Real,Real)> centralityRule;
+    if( stepLengthSigma )
+        centralityRule = StepLengthCentrality<Real>;
+    else
+        centralityRule = MehrotraCentrality<Real>;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -799,10 +819,11 @@ void Mehrotra
     auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int degree = n;
     Matrix<Real> dRow, dCol;
     if( ctrl.outerEquil )
     {
-        GeomEquil( A, dRow, dCol, ctrl.print );
+        RuizEquil( A, dRow, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -822,6 +843,10 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
+    const Real origTwoNormEst = twoNormEstA + 1;
+    if( ctrl.print )
+        Output("|| A ||_2 estimate: ",twoNormEstA);
 
     vector<Int> map, invMap;
     ldl::NodeInfo info;
@@ -829,8 +854,6 @@ void Mehrotra
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
-    // TODO: Expose this as a parameter of MehrotraCtrl
-    const bool standardShift = true;
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
@@ -854,35 +877,49 @@ void Mehrotra
                  dxAff, dyAff, dzAff,
                  dx,    dy,    dz;
 
-    Matrix<Real> reg;
+    Matrix<Real> regTmp, regPerm;
     if( ctrl.system == FULL_KKT )
     {
-        reg.Resize( m+2*n, 1 );
+        regTmp.Resize( m+2*n, 1 );
+        regPerm.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
             if( i < n )
-                reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+            {
+                regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+                regPerm.Set( i, 0, 10*Epsilon<Real>() );
+            }
             else 
-                reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+            {
+                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
+                regPerm.Set( i, 0, -10*Epsilon<Real>() );
+            }
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        reg.Resize( n+m, 1 );
+        regTmp.Resize( n+m, 1 );
+        regPerm.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
             if( i < n )
-                reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+            {
+                regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+                regPerm.Set( i, 0, 10*Epsilon<Real>() );
+            }
             else
-                reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+            {
+                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
+                regPerm.Set( i, 0, -10*Epsilon<Real>() );
+            }
         }
     }
+    Scale( origTwoNormEst, regTmp );
+    Scale( origTwoNormEst, regPerm );
 
     Real relError = 1;
     Matrix<Real> dInner;
-#ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError, prod;
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -924,11 +961,23 @@ void Mehrotra
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
             Output
             ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -958,17 +1007,21 @@ void Mehrotra
                 AugmentedKKT( A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
+            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
             try
             {
                 J = JOrig;
-                SymmetricEquil
-                ( J, dInner, 
-                  false, ctrl.innerEquil, 
-                  ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
-                UpdateRealPartOfDiagonal( J, Real(1), reg );
+
+                UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+                if( innerRuizEquil )
+                    SymmetricRuizEquil( J, dInner, ctrl.print );
+                else if( ctrl.innerEquil )
+                    SymmetricRuizEquil( J, dInner, ctrl.print );
+                else
+                    Ones( dInner, J.Height(), 1 );
 
                 if( numIts == 0 )
                 {
@@ -979,7 +1032,8 @@ void Mehrotra
 
                 LDL( info, JFront, LDL_2D );
                 reg_qsd_ldl::SolveAfter
-                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
             }
             catch(...)
             {
@@ -1029,29 +1083,27 @@ void Mehrotra
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        Real dxErrorNrm2 = Nrm2( dxError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+            Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        dyError -= dzAff;
-        Real dyErrorNrm2 = Nrm2( dyError );
+            dyError = rc;
+            Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+            dyError -= dzAff;
+            Real dyErrorNrm2 = Nrm2( dyError );
 
-        Real rmuNrm2 = Nrm2( rmu );
-        dzError = rmu;
-        prod = dzAff;
-        DiagonalScale( LEFT, NORMAL, x, prod );
-        dzError += prod;
-        prod = dxAff;
-        DiagonalScale( LEFT, NORMAL, z, prod );
-        dzError += prod;
-        Real dzErrorNrm2 = Nrm2( dzError );
+            Real rmuNrm2 = Nrm2( rmu );
+            dzError = rmu;
+            prod = dzAff;
+            DiagonalScale( LEFT, NORMAL, x, prod );
+            dzError += prod;
+            prod = dxAff;
+            DiagonalScale( LEFT, NORMAL, z, prod );
+            dzError += prod;
+            Real dzErrorNrm2 = Nrm2( dzError );
 
-        if( ctrl.print )
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
              dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
@@ -1059,7 +1111,7 @@ void Mehrotra
              dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
              dzErrorNrm2/(1+rmuNrm2)); 
-#endif
+        }
 
         // Compute a centrality parameter
         // ==============================
@@ -1070,27 +1122,17 @@ void Mehrotra
         if( ctrl.print )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
-        Real sigma;
-        if( stepLengthSigma )
-        {
-            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
-        }
-        else
-        {
-            // NOTE: dz and dx are used as temporaries
-            dx = x;
-            dz = z;
-            Axpy( alphaAffPri,  dxAff, dx );
-            Axpy( alphaAffDual, dzAff, dz );
-            const Real muAff = Dot(dx,dz) / n;
-            // TODO: Allow the user to override this function
-            sigma = Pow(muAff/mu,Real(3)); 
-            sigma = Min(sigma,Real(1));
-            if( ctrl.print )
-                Output("muAff = ",muAff,", mu = ",mu);
-        }
+        // NOTE: dz and dx are used as temporaries
+        dx = x;
+        dz = z;
+        Axpy( alphaAffPri,  dxAff, dx );
+        Axpy( alphaAffDual, dzAff, dz );
+        const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print )
-            Output("sigma = ",sigma); 
+            Output("muAff = ",muAff,", mu = ",mu);
+        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        if( ctrl.print )
+            Output("sigma=",sigma);
 
         // Solve for the combined direction
         // ================================
@@ -1109,7 +1151,8 @@ void Mehrotra
             try
             {
                 reg_qsd_ldl::SolveAfter
-                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
             }
             catch(...)
             {
@@ -1127,7 +1170,8 @@ void Mehrotra
             try
             {
                 reg_qsd_ldl::SolveAfter
-                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
             }
             catch(...)
             {
@@ -1186,7 +1230,6 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
@@ -1204,12 +1247,22 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
+
+    // TODO: Move these to the control structure
+    const bool forceSameStep = false;
+    const bool stepLengthSigma = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const bool innerRuizEquil = true;
+    function<Real(Real,Real,Real,Real)> centralityRule;
+    if( stepLengthSigma )
+        centralityRule = StepLengthCentrality<Real>;
+    else
+        centralityRule = MehrotraCentrality<Real>;
+
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;
-
-    const bool forceSameStep = false;
-    const bool stepLengthSigma = true;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -1217,14 +1270,15 @@ void Mehrotra
     auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int degree = n;
     DistMultiVec<Real> dRow(comm), dCol(comm);
     if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        GeomEquil( A, dRow, dCol, ctrl.print );
+        RuizEquil( A, dRow, dCol, ctrl.print );
         if( commRank == 0 && ctrl.time )
-            Output("GeomEquil: ",timer.Stop()," secs");
+            Output("RuizEquil: ",timer.Stop()," secs");
 
         DiagonalSolve( LEFT, NORMAL, dRow, b ); 
         DiagonalSolve( LEFT, NORMAL, dCol, c );
@@ -1244,6 +1298,10 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
+    const Real origTwoNormEst = twoNormEstA + 1;
+    if( ctrl.print )
+        Output("|| A ||_2 estimate: ",twoNormEstA);
 
     DistMap map, invMap;
     ldl::DistNodeInfo info;
@@ -1251,8 +1309,6 @@ void Mehrotra
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
-    // TODO: Expose this as a parameter of MehrotraCtrl
-    const bool standardShift = true;
     if( commRank == 0 && ctrl.time )
         timer.Start();
     if( ctrl.system == AUGMENTED_KKT )
@@ -1281,37 +1337,51 @@ void Mehrotra
                        dxAff(comm), dyAff(comm), dzAff(comm),
                        dx(comm),    dy(comm),    dz(comm);
 
-    DistMultiVec<Real> reg(comm);
+    DistMultiVec<Real> regTmp(comm), regPerm(comm);
     if( ctrl.system == FULL_KKT )
     {
-        reg.Resize( m+2*n, 1 );
-        for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
+        regTmp.Resize( m+2*n, 1 );
+        regPerm.Resize( m+2*n, 1 );
+        for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
-            const Int i = reg.GlobalRow(iLoc);
+            const Int i = regTmp.GlobalRow(iLoc);
             if( i < n )
-                reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+            {
+                regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+                regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+            }
             else
-                reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+            {
+                regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+                regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+            }
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        reg.Resize( n+m, 1 );
-        for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
+        regTmp.Resize( n+m, 1 );
+        regPerm.Resize( n+m, 1 );
+        for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
-            const Int i = reg.GlobalRow(iLoc);
+            const Int i = regTmp.GlobalRow(iLoc);
             if( i < n )
-                reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+            {
+                regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+                regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+            }
             else
-                reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+            {
+                regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+                regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+            }
         }
     }
+    Scale( origTwoNormEst, regTmp );
+    Scale( origTwoNormEst, regPerm );
 
     Real relError = 1;
     DistMultiVec<Real> dInner(comm);
-#ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -1352,12 +1422,25 @@ void Mehrotra
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv);
+        if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            if( commRank == 0 )
+                Output
+                ("iter ",numIts,":\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -1387,6 +1470,7 @@ void Mehrotra
                 AugmentedKKT( A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
+            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
@@ -1398,15 +1482,19 @@ void Mehrotra
                 else
                     JOrig.multMeta = metaOrig;
                 J = JOrig;
+
+                UpdateRealPartOfDiagonal( J, Real(1), regTmp );
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                SymmetricEquil
-                ( J, dInner,
-                  false, ctrl.innerEquil, 
-                  ctrl.scaleTwoNorm, ctrl.basisSize, ctrl.print );
+                if( innerRuizEquil )
+                    SymmetricRuizEquil( J, dInner, ctrl.print );
+                else if( ctrl.innerEquil )
+                    SymmetricDiagonalEquil( J, dInner, ctrl.print );
+                else
+                    Ones( dInner, J.Height(), 1 );
                 if( commRank == 0 && ctrl.time )
                     Output("Equilibration: ",timer.Stop()," secs");
-                UpdateRealPartOfDiagonal( J, Real(1), reg );
+
                 // Cache the metadata for the finalized J
                 if( numIts == 0 )
                 {
@@ -1431,7 +1519,8 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_qsd_ldl::SolveAfter
-                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1500,37 +1589,36 @@ void Mehrotra
             ExpandNormalSolution( A, c, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-        Real dxErrorNrm2 = Nrm2( dxError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
+            Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-        dyError -= dzAff;
-        Real dyErrorNrm2 = Nrm2( dyError );
+            dyError = rc;
+            Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
+            dyError -= dzAff;
+            Real dyErrorNrm2 = Nrm2( dyError );
 
-        Real rmuNrm2 = Nrm2( rmu );
-        dzError = rmu;
-        prod = dzAff;
-        DiagonalScale( LEFT, NORMAL, x, prod );
-        dzError += prod;
-        prod = dxAff;
-        DiagonalScale( LEFT, NORMAL, z, prod );
-        dzError += prod;
-        Real dzErrorNrm2 = Nrm2( dzError );
+            Real rmuNrm2 = Nrm2( rmu );
+            dzError = rmu;
+            prod = dzAff;
+            DiagonalScale( LEFT, NORMAL, x, prod );
+            dzError += prod;
+            prod = dxAff;
+            DiagonalScale( LEFT, NORMAL, z, prod );
+            dzError += prod;
+            Real dzErrorNrm2 = Nrm2( dzError );
 
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
-             "|| dyError ||_2 / (1 + || r_c ||_2) = ",           
-             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
-             "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
-             dzErrorNrm2/(1+rmuNrm2)); 
-#endif
+            if( commRank == 0 )
+                Output
+                ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+                 dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+                 "|| dyError ||_2 / (1 + || r_c ||_2) = ",           
+                 dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+                 "|| dzError ||_2 / (1 + || r_h ||_2) = ",           
+                 dzErrorNrm2/(1+rmuNrm2)); 
+        }
 
         // Compute a centrality parameter
         // ==============================
@@ -1541,27 +1629,17 @@ void Mehrotra
         if( ctrl.print && commRank == 0 )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
-        Real sigma;
-        if( stepLengthSigma )
-        {
-            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
-        }
-        else
-        {
-            // NOTE: dz and dx are used as temporaries
-            dx = x;
-            dz = z;
-            Axpy( alphaAffPri,  dxAff, dx );
-            Axpy( alphaAffDual, dzAff, dz );
-            const Real muAff = Dot(dx,dz) / n;
-            // TODO: Allow the user to override this function
-            sigma = Pow(muAff/mu,Real(3)); 
-            sigma = Min(sigma,Real(1));
-            if( ctrl.print && commRank == 0 )
-                Output("muAff = ",muAff,", mu = ",mu);
-        }
+        // NOTE: dz and dx are used as temporaries
+        dx = x;
+        dz = z;
+        Axpy( alphaAffPri,  dxAff, dx );
+        Axpy( alphaAffDual, dzAff, dz );
+        const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print && commRank == 0 )
-            Output("sigma = ",sigma); 
+            Output("muAff = ",muAff,", mu = ",mu);
+        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        if( ctrl.print && commRank == 0 )
+            Output("sigma=",sigma);
 
         // Solve for the combined direction
         // ================================
@@ -1582,7 +1660,8 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_qsd_ldl::SolveAfter
-                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -1604,7 +1683,8 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_qsd_ldl::SolveAfter
-                ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -1669,7 +1749,6 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
@@ -1679,26 +1758,34 @@ void Mehrotra
 #define PROTO(Real) \
   template void Mehrotra \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const MehrotraCtrl<Real>& ctrl );
 

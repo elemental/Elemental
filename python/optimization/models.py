@@ -553,12 +553,12 @@ lib.ElNNLSCtrlDefault_d.argtypes = \
   [c_void_p]
 class NNLSCtrl_s(ctypes.Structure):
   _fields_ = [("useIPM",bType),
-              ("admmCtrl",QPBoxADMMCtrl_s),("ipmCtrl",QPDirectCtrl_s)]
+              ("admmCtrl",ADMMCtrl_s),("ipmCtrl",QPDirectCtrl_s)]
   def __init__(self):
     lib.ElNNLSCtrlDefault_s(pointer(self))
 class NNLSCtrl_d(ctypes.Structure):
   _fields_ = [("useIPM",bType),
-              ("admmCtrl",QPBoxADMMCtrl_d),("ipmCtrl",QPDirectCtrl_d)]
+              ("admmCtrl",ADMMCtrl_d),("ipmCtrl",QPDirectCtrl_d)]
   def __init__(self):
     lib.ElNNLSCtrlDefault_d(pointer(self))
 

@@ -51,6 +51,10 @@ void IPF
 {
     DEBUG_ONLY(CSE cse("lp::affine::IPF"))    
 
+    // TODO: Move these into the control structure
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
@@ -61,9 +65,9 @@ void IPF
     const Int k = G.Height();
     const Int n = A.Width();
     Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
+        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -90,8 +94,6 @@ void IPF
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    // TODO: Expose this as a parameter of IPFCtrl
-    const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, 
       ctrl.primalInit, ctrl.dualInit, standardShift );
@@ -100,9 +102,7 @@ void IPF
     Matrix<Real> J, d,
                  rmu, rc, rb, rh,
                  dx, dy, dz, ds;
-#ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -152,12 +152,27 @@ void IPF
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            const Real sNrm2 = Nrm2( s );
             Output
             ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv,"\n",Indent(),
-             "  || r_h ||_2 / (1 + || h ||_2)    = ",rhConv);
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
+             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+             "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -188,26 +203,23 @@ void IPF
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
-        Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
-        const Real dyErrorNrm2 = Nrm2( dyError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+            const Real dxErrorNrm2 = Nrm2( dxError );
 
-        dzError = rh;
-        Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
-        dzError += ds;
-        const Real dzErrorNrm2 = Nrm2( dzError );
+            dyError = rc;
+            Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+            Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
+            const Real dyErrorNrm2 = Nrm2( dyError );
 
-        // TODO: dmuError
+            dzError = rh;
+            Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
+            dzError += ds;
+            const Real dzErrorNrm2 = Nrm2( dzError );
 
-        if( ctrl.print )
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
              dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
@@ -215,7 +227,7 @@ void IPF
              dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rhNrm2));
-#endif
+        }
 
         // Take a step in the computed direction
         // =====================================
@@ -249,9 +261,8 @@ void IPF
     }
     SetIndent( indent );
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -273,6 +284,11 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::IPF"))    
+
+    // TODO: Move these into the control structure
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
 
@@ -306,9 +322,9 @@ void IPF
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
+        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -335,8 +351,6 @@ void IPF
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
 
-    // TODO: Expose this as a parameter of IPFCtrl
-    const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, 
       ctrl.primalInit, ctrl.dualInit, standardShift );
@@ -348,10 +362,8 @@ void IPF
     ds.AlignWith( s );
     dz.AlignWith( s );
     rmu.AlignWith( s );
-#ifndef EL_RELEASE
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
     dzError.AlignWith( s );
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -400,13 +412,29 @@ void IPF
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv,"\n",Indent(),
-             "  || r_h ||_2 / (1 + || h ||_2)    = ",rhConv);
+        if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            const Real sNrm2 = Nrm2( s );
+            if( commRank == 0 )
+                Output
+                ("iter ",numIts,":\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
+                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
+                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+                 "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -441,34 +469,33 @@ void IPF
         }
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Gemv( NORMAL, Real(1), A, dx, Real(1), dxError );
+            const Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
-        Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
-        const Real dyErrorNrm2 = Nrm2( dyError );
+            dyError = rc;
+            Gemv( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+            Gemv( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
+            const Real dyErrorNrm2 = Nrm2( dyError );
 
-        dzError = rh;
-        Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
-        dzError += ds;
-        const Real dzErrorNrm2 = Nrm2( dzError );
+            dzError = rh;
+            Gemv( NORMAL, Real(1), G, dx, Real(1), dzError );
+            dzError += ds;
+            const Real dzErrorNrm2 = Nrm2( dzError );
 
-        // TODO: dmuError
+            // TODO: dmuError
 
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
-             "|| dyError ||_2 / (1 + || r_c ||_2) = ",
-             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
-             "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-             dzErrorNrm2/(1+rhNrm2));
-#endif
+            if( commRank == 0 )
+                Output
+                ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+                 dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+                 "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+                 dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+                 "|| dzError ||_2 / (1 + || r_h ||_2) = ",
+                 dzErrorNrm2/(1+rhNrm2));
+        }
 
         // Take a step in the computed direction
         // =====================================
@@ -502,9 +529,8 @@ void IPF
     }
     SetIndent( indent );
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -527,6 +553,11 @@ void IPF
 {
     DEBUG_ONLY(CSE cse("lp::affine::IPF"))    
 
+    // TODO: Move these into the control structure
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const bool innerRuizEquil = true;
+
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
@@ -537,9 +568,9 @@ void IPF
     const Int k = G.Height();
     const Int n = A.Width();
     Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
+        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -565,12 +596,17 @@ void IPF
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
+    const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
+    const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
+    if( ctrl.print )
+        Output
+        ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
+         "|| G ||_2 estimate: ",twoNormEstG,"\n",Indent());
 
     vector<Int> map, invMap;
     ldl::NodeInfo info;
     ldl::Separator rootSep;
-    // TODO: Expose this as a parameter of IPFCtrl
-    const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
@@ -581,21 +617,28 @@ void IPF
                  rc, rb, rh, rmu,
                  dx, dy, dz, ds;
 
-    Matrix<Real> reg;
-    reg.Resize( m+2*n, 1 );
-    for( Int i=0; i<m+2*n; ++i )
+    Matrix<Real> regTmp, regPerm;
+    regTmp.Resize( m+n+k, 1 );
+    regPerm.Resize( m+n+k, 1 );
+    for( Int i=0; i<m+n+k; ++i )
     {
         if( i < n )
-            reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+        {
+            regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+            regPerm.Set( i, 0, 10*Epsilon<Real>() );
+        }
         else
-            reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+        {
+            regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
+            regPerm.Set( i, 0, -10*Epsilon<Real>() );
+        }
     }
+    Scale( origTwoNormEst, regTmp );
+    Scale( origTwoNormEst, regPerm );
 
     Real relError = 1;
     Matrix<Real> dInner;
-#ifndef EL_RELEASE
     Matrix<Real> dxError, dyError, dzError;
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -645,12 +688,27 @@ void IPF
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            const Real sNrm2 = Nrm2( s );
             Output
             ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv,"\n",Indent(),
-             "  || r_h ||_2 / (1 + || h ||_2)    = ",rhConv);
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
+             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
+             "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+             "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -670,9 +728,17 @@ void IPF
         // Construct the KKT system
         // ------------------------
         KKT( A, G, s, z, JOrig, false );
+        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
         J = JOrig;
-        SymmetricGeomEquil( J, dInner, ctrl.print );
-        UpdateRealPartOfDiagonal( J, Real(1), reg );
+
+        UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+        if( innerRuizEquil )
+            SymmetricRuizEquil( J, dInner, ctrl.print );
+        else if( ctrl.innerEquil )
+            SymmetricDiagonalEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, J.Height(), 1 );
+
         if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
         {
             NestedDissection( J.LockedGraph(), map, rootSep, info );
@@ -687,7 +753,7 @@ void IPF
         {
             LDL( info, JFront, LDL_2D );
             reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         }
         catch(...)
         {
@@ -699,27 +765,25 @@ void IPF
         }
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+            const Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
-        Multiply( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
-        const Real dyErrorNrm2 = Nrm2( dyError );
+            dyError = rc;
+            Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+            Multiply( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
+            const Real dyErrorNrm2 = Nrm2( dyError );
 
-        dzError = rh;
-        Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );
-        dzError += ds;
-        const Real dzErrorNrm2 = Nrm2( dzError );
+            dzError = rh;
+            Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );
+            dzError += ds;
+            const Real dzErrorNrm2 = Nrm2( dzError );
 
-        // TODO: dmuError
-        // TODO: Also compute and print the residuals with regularization
+            // TODO: dmuError
+            // TODO: Also compute and print the residuals with regularization
 
-        if( ctrl.print )
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
              dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
@@ -727,7 +791,7 @@ void IPF
              dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rhNrm2));
-#endif
+        }
 
         // Take a step in the computed direction
         // =====================================
@@ -761,9 +825,8 @@ void IPF
     }
     SetIndent( indent );
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -785,6 +848,12 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::IPF"))    
+
+    // TODO: Move these into the control structure
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const bool innerRuizEquil = true;
+
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
 
@@ -798,9 +867,9 @@ void IPF
     const Int k = G.Height();
     const Int n = A.Width();
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    if( ctrl.equilibrate ) 
+    if( ctrl.outerEquil ) 
     {
-        StackedGeomEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
+        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -826,12 +895,17 @@ void IPF
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
+    const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
+    const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
+    if( ctrl.print && commRank == 0 )
+        Output
+        ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
+         "|| G ||_2 estimate: ",twoNormEstG);
 
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
-    // TODO: Expose this as a parameter of IPFCtrl
-    const bool standardShift = true;
     Initialize
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
@@ -843,22 +917,29 @@ void IPF
                        rc(comm), rb(comm), rh(comm), rmu(comm),
                        dx(comm), dy(comm), dz(comm), ds(comm);
 
-    DistMultiVec<Real> reg(comm);
-    reg.Resize( m+2*n, 1 );
-    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    regTmp.Resize( m+n+k, 1 );
+    regPerm.Resize( m+n+k, 1 );
+    for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
-        const Int i = reg.GlobalRow(iLoc);
+        const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-            reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+        {
+            regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+            regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+        }
         else
-            reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+        {
+            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+            regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+        }
     }
+    Scale( origTwoNormEst, regTmp );
+    Scale( origTwoNormEst, regPerm );
 
     Real relError = 1;
     DistMultiVec<Real> dInner(comm);
-#ifndef EL_RELEASE
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
-#endif
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -907,13 +988,29 @@ void IPF
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("iter ",numIts,":\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2)    = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2)    = ",rcConv,"\n",Indent(),
-             "  || r_h ||_2 / (1 + || h ||_2)    = ",rhConv);
+        if( ctrl.print )
+        {
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            const Real sNrm2 = Nrm2( s );
+            if( commRank == 0 )
+                Output
+                ("iter ",numIts,":\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
+                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
+                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
+                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
+                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+                 "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
         if( relError <= ctrl.targetTol )
             break;
         if( numIts == ctrl.maxIts && relError > ctrl.minTol )
@@ -933,14 +1030,23 @@ void IPF
         // Construct the KKT system
         // ------------------------
         KKT( A, G, s, z, JOrig, false );
+        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+
         // Cache the metadata for the finalized JOrig
         if( numIts == 0 )
             metaOrig = JOrig.InitializeMultMeta();
         else
             JOrig.multMeta = metaOrig;
         J = JOrig;
-        SymmetricGeomEquil( J, dInner, ctrl.print );
-        UpdateRealPartOfDiagonal( J, Real(1), reg );
+
+        UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+        if( innerRuizEquil )
+            SymmetricRuizEquil( J, dInner, ctrl.print );
+        else if( ctrl.innerEquil )
+            SymmetricDiagonalEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, J.Height(), 1 );
+
         // Cache the metadata for the finalized J
         if( numIts == 0 ) 
         {
@@ -962,7 +1068,7 @@ void IPF
         {
             LDL( info, JFront, LDL_2D );
             reg_qsd_ldl::SolveAfter
-            ( JOrig, reg, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
         }
         catch(...)
         {
@@ -974,35 +1080,34 @@ void IPF
         }
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
-#ifndef EL_RELEASE
-        // Sanity checks
-        // -------------
-        dxError = rb;
-        Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
-        const Real dxErrorNrm2 = Nrm2( dxError );
+        if( checkResiduals && ctrl.print )
+        {
+            dxError = rb;
+            Multiply( NORMAL, Real(1), A, dx, Real(1), dxError );
+            const Real dxErrorNrm2 = Nrm2( dxError );
 
-        dyError = rc;
-        Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
-        Multiply( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
-        const Real dyErrorNrm2 = Nrm2( dyError );
+            dyError = rc;
+            Multiply( TRANSPOSE, Real(1), A, dy, Real(1), dyError );
+            Multiply( TRANSPOSE, Real(1), G, dz, Real(1), dyError );
+            const Real dyErrorNrm2 = Nrm2( dyError );
 
-        dzError = rh;
-        Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );
-        dzError += ds;
-        const Real dzErrorNrm2 = Nrm2( dzError );
+            dzError = rh;
+            Multiply( NORMAL, Real(1), G, dx, Real(1), dzError );
+            dzError += ds;
+            const Real dzErrorNrm2 = Nrm2( dzError );
 
-        // TODO: dmuError
-        // TODO: Also compute and print the residuals with regularization
+            // TODO: dmuError
+            // TODO: Also compute and print the residuals with regularization
 
-        if( ctrl.print && commRank == 0 )
-            Output
-            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
-             "|| dyError ||_2 / (1 + || r_c ||_2) = ",
-             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
-             "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-             dzErrorNrm2/(1+rhNrm2));
-#endif
+            if( commRank == 0 )
+                Output
+                ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+                 dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+                 "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+                 dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+                 "|| dzError ||_2 / (1 + || r_h ||_2) = ",
+                 dzErrorNrm2/(1+rhNrm2));
+        }
 
         // Take a step in the computed direction
         // =====================================
@@ -1036,9 +1141,8 @@ void IPF
     }
     SetIndent( indent );
 
-    if( ctrl.equilibrate )
+    if( ctrl.outerEquil )
     {
-        // Unequilibrate the LP
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
@@ -1048,32 +1152,48 @@ void IPF
 
 #define PROTO(Real) \
   template void IPF \
-  ( const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
-          Matrix<Real>& z,       Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& G, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& s, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
+  ( const SparseMatrix<Real>& A, \
+    const SparseMatrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
-          Matrix<Real>& z,             Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     const IPFCtrl<Real>& ctrl ); \
   template void IPF \
-  ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z,           DistMultiVec<Real>& s, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& s, \
     const IPFCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

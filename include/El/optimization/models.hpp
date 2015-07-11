@@ -224,7 +224,7 @@ template<typename Real>
 struct NNLSCtrl {
   // NOTE: The ADMM implementation is still a prototype
   bool useIPM=true;
-  qp::box::ADMMCtrl<Real> admmCtrl;
+  ADMMCtrl<Real> admmCtrl;
   qp::direct::Ctrl<Real> ipmCtrl;    
 };
 
