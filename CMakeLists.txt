@@ -621,10 +621,11 @@ export(PACKAGE El)
 file(RELATIVE_PATH REL_INCLUDE_DIR "${PROJECT_BINARY_DIR}"
     "${PROJECT_BINARY_DIR}include")
 # ... for the build tree
-configure_file(ElConfig.cmake.in
+configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfig.cmake.in
     "${PROJECT_BINARY_DIR}/ElConfig.cmake" @ONLY)
 # ... for both
-configure_file(ElConfigVersion.cmake.in
+configure_file(
+    ${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfigVersion.cmake.in
     "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake" @ONLY)
 
 # Install the ElConfig.cmake and ElConfigVersion.cmake
