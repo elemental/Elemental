@@ -211,11 +211,17 @@ struct Front
     void Pull
     ( const SparseMatrix<F>& A, const vector<Int>& reordering, 
       const NodeInfo& rootInfo, bool conjugate=true );
+    void PullUpdate
+    ( const SparseMatrix<F>& A, const vector<Int>& reordering, 
+      const NodeInfo& rootInfo );
+
     void Push
     ( SparseMatrix<F>& A, const vector<Int>& reordering, 
       const NodeInfo& rootInfo ) const;
 
     void Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const;
+
+    const Front<F>& operator=( const Front<F>& front );
 
     Int NumEntries() const;
     Int NumTopLeftEntries() const;
@@ -283,6 +289,12 @@ struct DistFront
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
       bool conjugate=false );
+    void PullUpdate
+    ( const DistSparseMatrix<F>& A,
+      const DistMap& reordering,
+      const DistSeparator& rootSep,
+      const DistNodeInfo& info );
+
     // NOTE: This routine is not yet functioning
     void Push
     ( DistSparseMatrix<F>& A, const DistMap& reordering, 
@@ -291,6 +303,8 @@ struct DistFront
     void Unpack
     ( DistSparseMatrix<F>& A, 
       const DistSeparator& rootSep, const DistNodeInfo& rootInfo ) const;
+
+    const DistFront<F>& operator=( const DistFront<F>& front );
 
     Int NumLocalEntries() const;
     Int NumTopLeftLocalEntries() const;

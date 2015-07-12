@@ -34,18 +34,18 @@ def StackedFD2D(N0,N1):
       if x0+1 < N0:
         A.QueueLocalUpdate( sLoc, s+1, 2 )
       if x1 > 0:
-        A.QueueLocalUpdate( sLoc, s-N0, -30 )
+        A.QueueLocalUpdate( sLoc, s-N0, -3 )
       if x1+1 < N1:
         A.QueueLocalUpdate( sLoc, s+N0, 4 )
     else:
       sRel = s-N0*N1
       x0 = sRel % N0
       x1 = sRel / N0
-      A.QueueLocalUpdate( sLoc, sRel, -20 )
+      A.QueueLocalUpdate( sLoc, sRel, -2 )
       if x0 > 0:
-        A.QueueLocalUpdate( sLoc, sRel-1, -17 )
+        A.QueueLocalUpdate( sLoc, sRel-1, -1 )
       if x0+1 < N0:
-        A.QueueLocalUpdate( sLoc, sRel+1, -20 )
+        A.QueueLocalUpdate( sLoc, sRel+1, -2 )
       if x1 > 0:
         A.QueueLocalUpdate( sLoc, sRel-N0, -3 )
       if x1+1 < N1:
@@ -69,8 +69,6 @@ ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.innerEquil = True
 ctrl.mehrotraCtrl.scaleTwoNorm = True
 ctrl.mehrotraCtrl.progress = True
-ctrl.mehrotraCtrl.qsdCtrl.relTol = 1e-10
-ctrl.mehrotraCtrl.qsdCtrl.relTolRefine = 1e-11
 ctrl.mehrotraCtrl.qsdCtrl.progress = True
 startCP = El.mpi.Time()
 x = El.CP( A, b, ctrl )

@@ -49,17 +49,19 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
 
     auto A = APre;
     auto G = GPre;
@@ -120,7 +122,7 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDist = Epsilon<Real>();
+        const Real minDist = eps;
         ForceIntoSOC( s, orders, firstInds, minDist );
         ForceIntoSOC( z, orders, firstInds, minDist );
         SOCNesterovTodd( s, z, w, orders, firstInds ); 
@@ -191,13 +193,13 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNorm = MaxNorm(w);
-        const Real wSafeMaxNorm = Pow(Epsilon<Real>(),-0.15);
+        Real wMaxNorm = MaxNorm(w);
         const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
             SOCNesterovTodd( s, z, w, orders, firstInds );
+            wMaxNorm = MaxNorm(w);
         }
         SOCSquareRoot( w, wRoot, orders, firstInds );
         SOCInverse( wRoot, wRootInv, orders, firstInds );
@@ -373,22 +375,24 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
+    const bool onlyLower = true;
 
     // TODO: Move these into the control structure
-    const Int cutoffPar = 1000;
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const Int cutoffPar = 1000;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
-    const bool onlyLower = true;
 
     // Ensure that the inputs have the appropriate read/write properties
     DistMatrix<Real> A(grid), G(grid), b(grid), c(grid), h(grid);
@@ -466,7 +470,7 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDist = Epsilon<Real>();
+        const Real minDist = eps;
         ForceIntoSOC( s, orders, firstInds, minDist, cutoffPar );
         ForceIntoSOC( z, orders, firstInds, minDist, cutoffPar );
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
@@ -537,14 +541,14 @@ void Mehrotra
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNorm = MaxNorm(w);
-        const Real wSafeMaxNorm = Pow(Epsilon<Real>(),-0.15);
+        Real wMaxNorm = MaxNorm(w);
         const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC
             ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
             SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+            wMaxNorm = MaxNorm(w);
         }
         SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
         SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
@@ -727,19 +731,26 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
+    const bool onlyLower = false;
 
     // TODO: Move these into the control structure
-    const bool cutoffSparse = 64;
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool innerRuizEquil = true;
-    const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const bool cutoffSparse = 64;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool innerRuizEquil = true;
+    const bool standardShift = true;
+    const Real wMaxLimit = Pow(eps,Real(-0.4));
+    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
+    // Sizes of || w ||_max which force levels of equilibration
+    const Real diagEquilTol = Pow(eps,Real(-0.15));
+    const Real ruizEquilTol = Pow(eps,Real(-0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -871,12 +882,12 @@ void Mehrotra
         if( i < n )
         {
             regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*Epsilon<Real>() );
+            regPerm.Set( i, 0, 10*eps );
         }
         else if( i < n+m )
         {
             regTmp.Set( i, 0, -ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, -10*Epsilon<Real>() );
+            regPerm.Set( i, 0, -10*eps );
         }
         else
         {
@@ -889,17 +900,24 @@ void Mehrotra
             if( embedded && iCone == firstInd+sparseOrder-1 )
             {
                 regTmp.Set( i, 0, ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, 10*Epsilon<Real>() );
+                regPerm.Set( i, 0, 10*eps );
             }
             else
             {
                 regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*Epsilon<Real>() );
+                regPerm.Set( i, 0, -10*eps );
             }
         }
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Form the static portion of the KKT system
+    // =========================================
+    SparseMatrix<Real> JStatic;
+    StaticKKT
+    ( A, G, firstInds, origToSparseFirstInds, kSparse, JOrig, onlyLower );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
 
     Real relError = 1;
     vector<Int> map, invMap;
@@ -912,7 +930,7 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDist = Epsilon<Real>();
+        const Real minDist = eps;
         ForceIntoSOC( s, orders, firstInds, minDist );
         ForceIntoSOC( z, orders, firstInds, minDist );
         SOCNesterovTodd( s, z, w, orders, firstInds );
@@ -979,19 +997,18 @@ void Mehrotra
             ("Reached maximum number of iterations, ",ctrl.maxIts,
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
-        const Real wMaxLimit = Pow(Epsilon<Real>(),Real(0.4));
-        const Real wMaxNorm = MaxNorm(w);
+        Real wMaxNorm = MaxNorm(w);
         if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
-        const Real wSafeMaxNorm = Pow(Epsilon<Real>(),-0.15);
         const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
             SOCNesterovTodd( s, z, w, orders, firstInds );
+            wMaxNorm = MaxNorm(w);
         }
         SOCSquareRoot( w, wRoot, orders, firstInds );
         SOCInverse( wRoot, wRootInv, orders, firstInds );
@@ -1005,13 +1022,12 @@ void Mehrotra
 
         // Form the KKT system
         // -------------------
-        const bool onlyLower = false;
-        KKT
-        ( A, G, w, 
+        JOrig = JStatic;
+        FinishKKT
+        ( m, n, w, 
           orders, firstInds, 
           origToSparseOrders, origToSparseFirstInds, 
           kSparse, JOrig, onlyLower );
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, 
           orders, firstInds, origToSparseFirstInds, kSparse, d );
@@ -1023,9 +1039,9 @@ void Mehrotra
             J = JOrig;
 
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-            if( innerRuizEquil )
+            if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
-            else if( ctrl.innerEquil )
+            else if( wMaxNorm >= diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, n+m+kSparse, 1 );
@@ -1206,20 +1222,26 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
+    const bool onlyLower = false;
 
-    // TODO: Move these into the control structure
-    const Int cutoffSparse = 64;
-    const Int cutoffPar = 1000;
-    const bool forceSameStep = true;
+    // TODO: Move these into the control structur
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool innerRuizEquil = true;
-    const bool standardShift = false;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const Int cutoffSparse = 64;
+    const Int cutoffPar = 1000;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool standardShift = false;
+    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
+    const Real wMaxLimit = Pow(eps,Real(-0.4));
+    // Sizes of || w ||_max which force levels of equilibration
+    const Real diagEquilTol = Pow(eps,Real(-0.15));
+    const Real ruizEquilTol = Pow(eps,Real(-0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -1234,7 +1256,6 @@ void Mehrotra
     mpi::Comm comm = APre.Comm();
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
-    const bool onlyLower = false;
     Timer timer, iterTimer;
 
     DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
@@ -1504,12 +1525,12 @@ void Mehrotra
         if( i < n )
         {
             regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, 10*eps );
         }
         else if( i < n+m )
         {
             regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, -10*eps );
         }
         else
             break;
@@ -1530,12 +1551,12 @@ void Mehrotra
             if( embedded && iCone == firstInd+sparseOrder-1 )
             {
                 regTmp.QueueUpdate( n+m+iCone, 0, ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, 10*Epsilon<Real>() );
+                regPerm.QueueUpdate( n+m+iCone, 0, 10*eps );
             }
             else
             {
                 regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, -10*Epsilon<Real>() );
+                regPerm.QueueUpdate( n+m+iCone, 0, -10*eps );
             }
         }
         regTmp.ProcessQueues();
@@ -1543,6 +1564,13 @@ void Mehrotra
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Form the static portion of the KKT system
+    // =========================================
+    DistSparseMatrix<Real> JStatic(comm);
+    StaticKKT
+    ( A, G, firstInds, origToSparseFirstInds, kSparse, JStatic, onlyLower );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
 
     Real relError = 1;
     DistMap map, invMap;
@@ -1559,7 +1587,7 @@ void Mehrotra
         // Ensure that s and z are in the cone
         // ===================================
         // TODO: Let this be a function of the relative error, etc.
-        const Real minDist = Epsilon<Real>();
+        const Real minDist = eps;
         ForceIntoSOC( s, orders, firstInds, minDist, cutoffPar );
         ForceIntoSOC( z, orders, firstInds, minDist, cutoffPar );
         SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
@@ -1627,14 +1655,12 @@ void Mehrotra
             ("Reached maximum number of iterations, ",ctrl.maxIts,
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
-        const Real wMaxLimit = Pow(Epsilon<Real>(),Real(0.4));
-        const Real wMaxNorm = MaxNorm(w);
+        Real wMaxNorm = MaxNorm(w);
         if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
-        const Real wSafeMaxNorm = Pow(Epsilon<Real>(),-0.15);
         const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
         if( ctrl.print && commRank == 0 )
             Output
@@ -1647,9 +1673,9 @@ void Mehrotra
             ForcePairIntoSOC
             ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
             SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
-            const Real wMaxNormNew = MaxNorm(w);
+            wMaxNorm = MaxNorm(w);
             if( ctrl.print && commRank == 0 )
-                Output("New || w ||_max = ",wMaxNormNew);
+                Output("New || w ||_max = ",wMaxNorm);
         }
         SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
         SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
@@ -1665,15 +1691,14 @@ void Mehrotra
         // ------------------------
         if( ctrl.time && commRank == 0 )
             timer.Start();
-        KKT
-        ( A, G, w, 
+        JOrig = JStatic;
+        FinishKKT
+        ( m, n, w, 
           orders, firstInds, 
           origToSparseOrders, origToSparseFirstInds,
-          kSparse,
-          JOrig, onlyLower, cutoffPar );
+          kSparse, JOrig, onlyLower, cutoffPar );
         if( ctrl.time && commRank == 0 )
             Output("KKT construction: ",timer.Stop()," secs");
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
         if( ctrl.time && commRank == 0 )
             timer.Start();
         KKTRHS
@@ -1697,9 +1722,9 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-            if( innerRuizEquil )
+            if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
-            else if( ctrl.innerEquil )
+            else if( wMaxNorm >= diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, n+m+kSparse, 1 );

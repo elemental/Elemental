@@ -8,8 +8,8 @@
 #
 import El
 
-n0=10
-n1=10
+n0=100
+n1=100
 display = False
 worldSize = El.mpi.WorldSize()
 worldRank = El.mpi.WorldRank()
@@ -65,6 +65,7 @@ ctrl.socpIPMCtrl.mehrotraCtrl.time = True
 ctrl.socpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.outerEquil = False
 ctrl.socpIPMCtrl.mehrotraCtrl.innerEquil = True
+ctrl.socpIPMCtrl.mehrotraCtrl.qsdCtrl.progress = True
 startBP = El.mpi.Time()
 x = El.BP( A, b, ctrl )
 endBP = El.mpi.Time()

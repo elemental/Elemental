@@ -38,7 +38,7 @@ ElError ElIPFCtrlDefault_s( ElIPFCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
+    ctrl->minTol = 1e-2;
     ctrl->targetTol = 1e-4;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -57,7 +57,7 @@ ElError ElIPFCtrlDefault_d( ElIPFCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
+    ctrl->minTol = 1e-5;
     ctrl->targetTol = 1e-8;
     ctrl->maxIts = 1000;
     ctrl->centering = 0.9;
@@ -78,7 +78,7 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
+    ctrl->minTol = 1e-2;
     ctrl->targetTol = 1e-4;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
@@ -96,7 +96,7 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
 {
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
+    ctrl->minTol = 1e-5;
     ctrl->targetTol = 1e-8;
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;

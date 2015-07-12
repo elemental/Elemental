@@ -105,7 +105,27 @@ void KKT
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
         SparseMatrix<Real>& J, 
-  bool onlyLower=true );
+  bool onlyLower=false );
+template<typename Real>
+void StaticKKT
+( const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& origToSparseFirstInds,
+        Int kSparse,
+        SparseMatrix<Real>& J,
+  bool onlyLower=false );
+template<typename Real>
+void FinishKKT
+( Int m, Int n,
+  const Matrix<Real>& w,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& origToSparseOrders,
+  const Matrix<Int>& origToSparseFirstInds,
+        Int kSparse,
+        SparseMatrix<Real>& J, 
+  bool onlyLower=false );
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
@@ -117,7 +137,27 @@ void KKT
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,
         DistSparseMatrix<Real>& J, 
-  bool onlyLower=true, Int cutoffPar=1000 );
+  bool onlyLower=false, Int cutoffPar=1000 );
+template<typename Real>
+void StaticKKT
+( const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& origToSparseFirstInds,
+        Int kSparse,
+        DistSparseMatrix<Real>& J,
+  bool onlyLower=false );
+template<typename Real>
+void FinishKKT
+( Int m, Int n,
+  const DistMultiVec<Real>& w,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& origToSparseOrders,
+  const DistMultiVec<Int>& origToSparseFirstInds,
+        Int kSparse,
+        DistSparseMatrix<Real>& J, 
+  bool onlyLower=false, Int cutoffPar=1000 );
 
 template<typename Real>
 void KKTRHS

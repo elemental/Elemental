@@ -50,15 +50,15 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
 
     // TODO: Move these into the control structure
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto A = APre;
@@ -345,15 +345,15 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
 
     // TODO: Move these into the control structure
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -705,18 +705,19 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool standardShift = true;
-    const bool innerRuizEquil = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const bool innerRuizEquil = true;
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto Q = QPre;
@@ -780,13 +781,6 @@ void Mehrotra
     ( Q, A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
-    SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
-    Matrix<Real> d,
-                 rc,    rb,    rh,    rmu,
-                 dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
-
     // TODO: Expose regularization rules to user
     Matrix<Real> regPerm, regTmp;
     regPerm.Resize( n+m+k, 1 );
@@ -795,17 +789,30 @@ void Mehrotra
     {
         if( i < n )
         {
-            regPerm.Set( i, 0, 10*Epsilon<Real>() );
             regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+            regPerm.Set( i, 0, 10*eps );
         }
         else
         {
-            regPerm.Set( i, 0, -10*Epsilon<Real>() );
             regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
+            regPerm.Set( i, 0, -10*eps );
         }
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Initialize the static portion of the KKT system
+    // ===============================================
+    SparseMatrix<Real> JStatic;
+    StaticKKT( Q, A, G, JStatic, false );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+
+    SparseMatrix<Real> J, JOrig;
+    ldl::Front<Real> JFront;
+    Matrix<Real> d,
+                 rc,    rb,    rh,    rmu,
+                 dxAff, dyAff, dzAff, dsAff,
+                 dx,    dy,    dz,    ds;
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -900,8 +907,8 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( Q, A, G, s, z, JOrig, false );
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+        JOrig = JStatic;
+        FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
         // Solve for the direction
@@ -1070,21 +1077,23 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
-    mpi::Comm comm = APre.Comm();
-    const int commRank = mpi::Rank(comm);
-    Timer timer;
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool innerRuizEquil = true;
-    const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const bool forceSameStep = true;
+    const bool checkResiduals = true;
+    const bool innerRuizEquil = true;
+    const bool standardShift = true;
+
+    mpi::Comm comm = APre.Comm();
+    const int commRank = mpi::Rank(comm);
+    Timer timer, iterTimer;
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto Q = QPre;
@@ -1157,14 +1166,6 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistSparseMultMeta metaOrig, meta;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
-    ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
-
     DistMultiVec<Real> regTmp(comm), regPerm(comm);
     regTmp.Resize( n+m+k, 1 );
     regPerm.Resize( n+m+k, 1 );
@@ -1174,16 +1175,30 @@ void Mehrotra
         if( i < n )
         {
             regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, 10*eps );
         }
         else
         {
             regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, -10*eps );
         }
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Compute the static portion of the KKT system
+    // ============================================
+    DistSparseMatrix<Real> JStatic(comm);
+    StaticKKT( Q, A, G, JStatic, false );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+
+    DistSparseMultMeta metaOrig, meta;
+    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    ldl::DistFront<Real> JFront;
+    DistMultiVec<Real> d(comm),
+                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
+                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
+                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
 
     Real relError = 1;
     DistMultiVec<Real> dInner(comm);
@@ -1191,6 +1206,9 @@ void Mehrotra
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
+        if( ctrl.time && commRank == 0 )
+            iterTimer.Start();
+
         // Ensure that s and z are in the cone
         // ===================================
         const Int sNumNonPos = NumNonPositive( s );
@@ -1203,6 +1221,10 @@ void Mehrotra
         // Compute the duality measure
         // ===========================
         const Real mu = Dot(s,z) / k;
+
+        // Compute the Nesterov-Todd scaling point
+        // =======================================
+        // TODO
 
         // Check for convergence
         // =====================
@@ -1279,8 +1301,8 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( Q, A, G, s, z, JOrig, false );
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+        JOrig = JStatic;
+        FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
         // Solve for the direction
@@ -1448,6 +1470,8 @@ void Mehrotra
         Axpy( alphaPri,  ds, s );
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
+        if( ctrl.time && commRank == 0 )
+            Output("iteration: ",iterTimer.Stop()," secs");
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )

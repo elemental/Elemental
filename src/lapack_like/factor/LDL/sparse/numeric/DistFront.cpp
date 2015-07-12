@@ -55,20 +55,29 @@ void DistFront<F>::Pull
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
+    const bool time = false;
    
     mpi::Comm comm = A.Comm();
     const DistGraph& graph = A.LockedDistGraph();
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm ); 
+    Timer timer;
 
     // Get the reordered indices of the targets of our portion of the 
     // distributed sparse matrix
+    if( time && commRank == 0 )
+        timer.Start();
     set<Int> targetSet( graph.targets_.begin(), graph.targets_.end() );
     vector<Int> targets;
     CopySTL( targetSet, targets );
     auto mappedTargets = targets;
     reordering.Translate( mappedTargets );
+    if( time && commRank == 0 )
+        Output("Translation: ",timer.Stop()," secs");
 
     // Set up the indices for the rows we need from each process
+    if( time && commRank == 0 )
+        timer.Start();
     vector<int> rRowSizes( commSize, 0 );
     function<void(const Separator&)> rRowLocalAccumulate = 
       [&]( const Separator& sep )
@@ -99,7 +108,11 @@ void DistFront<F>::Pull
     rRowAccumulate( rootSep, rootInfo );
     vector<int> rRowOffs;
     const Int numRecvRows = Scan( rRowSizes, rRowOffs );
+    if( time && commRank == 0 )
+        Output("Row index setup: ",timer.Stop()," secs");
 
+    if( time && commRank == 0 )
+        timer.Start();
     vector<Int> rRows( numRecvRows );
     auto offs = rRowOffs;
     function<void(const Separator&)> rRowsLocalPack = 
@@ -131,8 +144,12 @@ void DistFront<F>::Pull
           }
       };
     rRowsPack( rootSep, rootInfo );
+    if( time && commRank == 0 )
+        Output("Row index pack: ",timer.Stop()," secs");
 
     // Retreive the list of rows that we must send to each process
+    if( time && commRank == 0 )
+        timer.Start();
     vector<int> sRowSizes( commSize );
     mpi::AllToAll( rRowSizes.data(), 1, sRowSizes.data(), 1, comm );
     vector<int> sRowOffs;
@@ -141,9 +158,13 @@ void DistFront<F>::Pull
     mpi::AllToAll
     ( rRows.data(), rRowSizes.data(), rRowOffs.data(),
       sRows.data(), sRowSizes.data(), sRowOffs.data(), comm );
+    if( time && commRank == 0 )
+        Output("AllToAll: ",timer.Stop()," secs");
 
     // Pack the number of nonzeros per row (and the nonzeros themselves)
     // TODO: Avoid sending upper-triangular data
+    if( time && commRank == 0 )
+        timer.Start();
     const Int firstLocalRow = A.FirstLocalRow();
     vector<Int> sRowLengths( numSendRows );
     vector<int> sEntriesSizes(commSize,0);
@@ -189,8 +210,12 @@ void DistFront<F>::Pull
               LogicError("index was not the correct value");
         )
     }
+    if( time && commRank == 0 )
+        Output("Payload pack: ",timer.Stop()," secs");
 
     // Send back the number of nonzeros per row and the nonzeros themselves
+    if( time && commRank == 0 )
+        timer.Start();
     vector<Int> rRowLengths( numRecvRows );
     mpi::AllToAll
     ( sRowLengths.data(), sRowSizes.data(), sRowOffs.data(),
@@ -213,8 +238,12 @@ void DistFront<F>::Pull
     mpi::AllToAll
     ( sTargets.data(), sEntriesSizes.data(), sEntriesOffs.data(),
       rTargets.data(), rEntriesSizes.data(), rEntriesOffs.data(), comm );
+    if( time && commRank == 0 )
+        Output("AllToAll time: ",timer.Stop()," secs");
 
     // Unpack the received entries
+    if( time && commRank == 0 )
+        timer.Start();
     offs = rRowOffs;
     auto entryOffs = rEntriesOffs;
     function<void(const Separator&,const NodeInfo&,Front<F>&)> 
@@ -328,6 +357,314 @@ void DistFront<F>::Pull
           }
       };
     unpackEntries( rootSep, rootInfo, *this );
+    if( time && commRank == 0 )
+        Output("Unpack: ",timer.Stop()," secs");
+    DEBUG_ONLY(
+      for( Int q=0; q<commSize; ++q )
+          if( entryOffs[q] != rEntriesOffs[q]+rEntriesSizes[q] )
+              LogicError("entryOffs were incorrect");
+    )
+}
+
+template<typename F>
+void DistFront<F>::PullUpdate
+( const DistSparseMatrix<F>& A, 
+  const DistMap& reordering,
+  const DistSeparator& rootSep, 
+  const DistNodeInfo& rootInfo )
+{
+    DEBUG_ONLY(
+      CSE cse("DistFront::PullUpdate");
+      if( A.LocalHeight() != reordering.NumLocalSources() )
+          LogicError("Local mapping was not the right size");
+    )
+    const bool time = false;
+   
+    mpi::Comm comm = A.Comm();
+    const DistGraph& graph = A.LockedDistGraph();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm ); 
+    Timer timer;
+
+    // Get the reordered indices of the targets of our portion of the 
+    // distributed sparse matrix
+    if( time && commRank == 0 )
+        timer.Start();
+    set<Int> targetSet( graph.targets_.begin(), graph.targets_.end() );
+    vector<Int> targets;
+    CopySTL( targetSet, targets );
+    auto mappedTargets = targets;
+    reordering.Translate( mappedTargets );
+    if( time && commRank == 0 )
+        Output("Translation: ",timer.Stop()," secs");
+
+    // Set up the indices for the rows we need from each process
+    if( time && commRank == 0 )
+        timer.Start();
+    vector<int> rRowSizes( commSize, 0 );
+    function<void(const Separator&)> rRowLocalAccumulate = 
+      [&]( const Separator& sep )
+      {
+          for( const Separator* child : sep.children )
+             rRowLocalAccumulate( *child );
+          for( const Int& i : sep.inds )
+              ++rRowSizes[ A.RowOwner(i) ];
+      };
+    function<void(const DistSeparator&,const DistNodeInfo&)> 
+      rRowAccumulate =
+      [&]( const DistSeparator& sep, const DistNodeInfo& node )
+      {
+          if( sep.child == nullptr )
+          {
+              rRowLocalAccumulate( *sep.duplicate ); 
+              return;
+          }
+          rRowAccumulate( *sep.child, *node.child );
+          
+          const Grid& grid = *node.grid;
+          const Int rowShift = grid.Col();
+          const Int rowStride = grid.Width();
+          const Int numInds = sep.inds.size();
+          for( Int t=rowShift; t<numInds; t+=rowStride )
+              ++rRowSizes[ A.RowOwner(sep.inds[t]) ];
+      };
+    rRowAccumulate( rootSep, rootInfo );
+    vector<int> rRowOffs;
+    const Int numRecvRows = Scan( rRowSizes, rRowOffs );
+    if( time && commRank == 0 )
+        Output("Row index setup: ",timer.Stop()," secs");
+
+    if( time && commRank == 0 )
+        timer.Start();
+    vector<Int> rRows( numRecvRows );
+    auto offs = rRowOffs;
+    function<void(const Separator&)> rRowsLocalPack = 
+      [&]( const Separator& sep )
+      {
+          for( const Separator* childSep : sep.children )
+              rRowsLocalPack( *childSep );
+          for( Int i : sep.inds )
+              rRows[offs[A.RowOwner(i)]++] = i;
+      };
+    function<void(const DistSeparator&,const DistNodeInfo&)> rRowsPack = 
+      [&]( const DistSeparator& sep, const DistNodeInfo& node )
+      {
+          if( sep.child == nullptr )
+          {
+              rRowsLocalPack( *sep.duplicate );
+              return;
+          }
+          rRowsPack( *sep.child, *node.child );
+          
+          const Grid& grid = *node.grid;
+          const Int rowShift = grid.Col();
+          const Int rowStride = grid.Width();
+          const Int numInds = sep.inds.size();
+          for( Int t=rowShift; t<numInds; t+=rowStride )
+          {
+              const Int i = sep.inds[t];
+              rRows[offs[A.RowOwner(i)]++] = i;
+          }
+      };
+    rRowsPack( rootSep, rootInfo );
+    if( time && commRank == 0 )
+        Output("Row index pack: ",timer.Stop()," secs");
+
+    // Retreive the list of rows that we must send to each process
+    if( time && commRank == 0 )
+        timer.Start();
+    vector<int> sRowSizes( commSize );
+    mpi::AllToAll( rRowSizes.data(), 1, sRowSizes.data(), 1, comm );
+    vector<int> sRowOffs;
+    const Int numSendRows = Scan( sRowSizes, sRowOffs );
+    vector<Int> sRows( numSendRows );
+    mpi::AllToAll
+    ( rRows.data(), rRowSizes.data(), rRowOffs.data(),
+      sRows.data(), sRowSizes.data(), sRowOffs.data(), comm );
+    if( time && commRank == 0 )
+        Output("AllToAll: ",timer.Stop()," secs");
+
+    // Pack the number of nonzeros per row (and the nonzeros themselves)
+    // TODO: Avoid sending upper-triangular data
+    if( time && commRank == 0 )
+        timer.Start();
+    const Int firstLocalRow = A.FirstLocalRow();
+    vector<Int> sRowLengths( numSendRows );
+    vector<int> sEntriesSizes(commSize,0);
+    for( Int q=0; q<commSize; ++q )
+    {
+        const Int size = sRowSizes[q];
+        const Int off = sRowOffs[q];
+        for( Int s=0; s<size; ++s )
+        {
+            const Int i = sRows[s+off];
+            const Int numConnections = A.NumConnections( i-firstLocalRow );
+            sEntriesSizes[q] += numConnections;
+            sRowLengths[s+off] = numConnections;
+        }
+    }
+    vector<int> sEntriesOffs;
+    const int numSendEntries = Scan( sEntriesSizes, sEntriesOffs );
+    vector<F> sEntries( numSendEntries );
+    vector<Int> sTargets( numSendEntries );
+    for( Int q=0; q<commSize; ++q )
+    {
+        Int index = sEntriesOffs[q];
+        const Int size = sRowSizes[q];
+        const Int off = sRowOffs[q];
+        for( Int s=0; s<size; ++s )
+        {
+            const Int i = sRows[s+off];
+            const Int numConnections = sRowLengths[s+off];
+            const Int localEntryOff = A.EntryOffset( i-firstLocalRow );
+            for( Int t=0; t<numConnections; ++t )
+            {
+                const F value = A.Value( localEntryOff+t );
+                const Int col = A.Col( localEntryOff+t );
+                const Int targetOff = Find( targets, col );
+                const Int mappedTarget = mappedTargets[targetOff];
+                sEntries[index] = (this->isHermitian ? Conj(value) : value);
+                sTargets[index] = mappedTarget;
+                ++index;
+            }
+        }
+        DEBUG_ONLY(
+          if( index != sEntriesOffs[q]+sEntriesSizes[q] )
+              LogicError("index was not the correct value");
+        )
+    }
+    if( time && commRank == 0 )
+        Output("Payload pack: ",timer.Stop()," secs");
+
+    // Send back the number of nonzeros per row and the nonzeros themselves
+    if( time && commRank == 0 )
+        timer.Start();
+    vector<Int> rRowLengths( numRecvRows );
+    mpi::AllToAll
+    ( sRowLengths.data(), sRowSizes.data(), sRowOffs.data(),
+      rRowLengths.data(), rRowSizes.data(), rRowOffs.data(), comm );
+    vector<int> rEntriesSizes(commSize,0);
+    for( Int q=0; q<commSize; ++q )
+    {
+        const Int size = rRowSizes[q];
+        const Int off = rRowOffs[q];
+        for( Int s=0; s<size; ++s )
+            rEntriesSizes[q] += rRowLengths[off+s];
+    }
+    vector<int> rEntriesOffs;
+    const int numRecvEntries = Scan( rEntriesSizes, rEntriesOffs );
+    vector<F> rEntries( numRecvEntries );
+    vector<Int> rTargets( numRecvEntries );
+    mpi::AllToAll
+    ( sEntries.data(), sEntriesSizes.data(), sEntriesOffs.data(),
+      rEntries.data(), rEntriesSizes.data(), rEntriesOffs.data(), comm );
+    mpi::AllToAll
+    ( sTargets.data(), sEntriesSizes.data(), sEntriesOffs.data(),
+      rTargets.data(), rEntriesSizes.data(), rEntriesOffs.data(), comm );
+    if( time && commRank == 0 )
+        Output("AllToAll time: ",timer.Stop()," secs");
+
+    // Unpack the received updates
+    if( time && commRank == 0 )
+        timer.Start();
+    offs = rRowOffs;
+    auto entryOffs = rEntriesOffs;
+    function<void(const Separator&,const NodeInfo&,Front<F>&)> 
+      unpackEntriesLocal = 
+      [&]( const Separator& sep, const NodeInfo& node, Front<F>& front )
+      {
+          const Int numChildren = sep.children.size();
+          for( Int c=0; c<numChildren; ++c )
+          {
+              unpackEntriesLocal
+              ( *sep.children[c], *node.children[c], *front.children[c] );
+          }
+
+          const Int size = node.size;
+          const Int off = node.off;
+          const Int lowerSize = node.lowerStruct.size();
+          for( Int t=0; t<size; ++t )
+          {
+              const Int i = sep.inds[t];
+              const Int q = A.RowOwner(i);
+
+              int& entryOff = entryOffs[q];
+              const Int numEntries = rRowLengths[offs[q]++];
+
+              for( Int k=0; k<numEntries; ++k )
+              {
+                  const F value = rEntries[entryOff];
+                  const Int target = rTargets[entryOff];
+                  ++entryOff;
+  
+                  if( target < off+t )
+                      continue;
+                  else if( target < off+size )
+                  {
+                      front.L.Update( target-off, t, value );
+                  }
+                  else
+                  {
+                      const Int origOff = Find( node.origLowerStruct, target );
+                      const Int row = node.origLowerRelInds[origOff];
+                      front.L.Update( row, t, value );
+                  }
+              }
+          }
+      };
+    function<void(const DistSeparator&,
+                  const DistNodeInfo&,
+                        DistFront<F>&)> unpackEntries = 
+      [&]( const DistSeparator& sep, const DistNodeInfo& node, 
+                 DistFront<F>& front )
+      {
+          const Grid& grid = *node.grid;
+
+          if( sep.child == nullptr )
+          {
+              unpackEntriesLocal
+              ( *sep.duplicate, *node.duplicate, *front.duplicate );
+              return;
+          }
+          unpackEntries( *sep.child, *node.child, *front.child );
+
+          const Int size = node.size;
+          const Int off = node.off;
+          const Int lowerSize = node.lowerStruct.size();
+          const Int localWidth = front.L2D.LocalWidth();
+          for( Int tLoc=0; tLoc<localWidth; ++tLoc )
+          {
+              const Int t = front.L2D.GlobalCol(tLoc);
+              const Int i = sep.inds[t];
+              const Int q = A.RowOwner(i);
+
+              int& entryOff = entryOffs[q];
+              const Int numEntries = rRowLengths[offs[q]++];
+
+              for( Int k=0; k<numEntries; ++k )
+              {
+                  const F value = rEntries[entryOff];
+                  const Int target = rTargets[entryOff];
+                  ++entryOff;
+
+                  if( target < off+t )
+                      continue;
+                  else if( target < off+size )
+                  {
+                      front.L2D.Update( target-off, t, value );
+                  }
+                  else 
+                  {
+                      const Int origOff = Find( node.origLowerStruct, target );
+                      const Int row = node.origLowerRelInds[origOff];
+                      front.L2D.Update( row, t, value );
+                  }
+              }
+          }
+      };
+    unpackEntries( rootSep, rootInfo, *this );
+    if( time && commRank == 0 )
+        Output("Unpack: ",timer.Stop()," secs");
     DEBUG_ONLY(
       for( Int q=0; q<commSize; ++q )
           if( entryOffs[q] != rEntriesOffs[q]+rEntriesSizes[q] )
@@ -603,6 +940,39 @@ void DistFront<F>::Unpack
     for( auto& entry : recvBuf )
         A.QueueUpdate( entry );
     A.ProcessQueues();
+}
+
+template<typename F>
+const DistFront<F>& 
+DistFront<F>::operator=( const DistFront<F>& front )
+{
+    DEBUG_ONLY(CSE cse("DistFront::operator="))
+    isHermitian = front.isHermitian;
+    type = front.type;
+    if( front.child == nullptr )
+    {
+        child = nullptr;
+        duplicate = new Front<F>(this);
+        *duplicate = *front.duplicate;
+        const Grid& grid = front.L2D.Grid();
+        L2D.Attach( grid, front.duplicate->L );
+        diag.Attach( grid, front.duplicate->diag );
+        subdiag.Attach( grid, front.duplicate->subdiag );
+        piv.Attach( grid, front.duplicate->piv );
+    }
+    else
+    {
+        duplicate = nullptr;
+        child = new DistFront<F>(this);  
+        *child = *front.child;
+        L1D = front.L1D;
+        L2D = front.L2D;
+        diag = front.diag;
+        subdiag = front.subdiag;
+        piv = front.piv;
+        work = front.work;
+    }
+    return *this;
 }
 
 template<typename F>

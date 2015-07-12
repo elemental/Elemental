@@ -575,6 +575,7 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::direct::IPF"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move into control structure
     const bool checkResiduals = true;
@@ -663,12 +664,12 @@ void IPF
             if( i < n )
             {
                 regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.Set( i, 0, 10*Epsilon<Real>() );
+                regPerm.Set( i, 0, 10*eps );
             }
             else
             {
                 regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*Epsilon<Real>() );
+                regPerm.Set( i, 0, -10*eps );
             }
         }
     }
@@ -681,12 +682,12 @@ void IPF
             if( i < n )
             {
                 regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.Set( i, 0, 10*Epsilon<Real>() );
+                regPerm.Set( i, 0, 10*eps );
             }
             else
             {
                 regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*Epsilon<Real>() );
+                regPerm.Set( i, 0, -10*eps );
             }
         }
     }
@@ -946,6 +947,7 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::direct::IPF"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move into control structure
     const bool checkResiduals = true;
@@ -1039,12 +1041,12 @@ void IPF
             if( i < n )
             {
                 regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+                regPerm.SetLocal( iLoc, 0, 10*eps );
             }
             else
             {
                 regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+                regPerm.SetLocal( iLoc, 0, -10*eps );
             }
         }
     }
@@ -1058,12 +1060,12 @@ void IPF
             if( i < n )
             {
                 regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+                regPerm.SetLocal( iLoc, 0, 10*eps );
             }
             else
             {
                 regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+                regPerm.SetLocal( iLoc, 0, -10*eps );
             }
         }
     }

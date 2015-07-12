@@ -552,6 +552,7 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::IPF"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool checkResiduals = true;
@@ -611,12 +612,6 @@ void IPF
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
-    SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
-    Matrix<Real> d,
-                 rc, rb, rh, rmu,
-                 dx, dy, dz, ds;
-
     Matrix<Real> regTmp, regPerm;
     regTmp.Resize( m+n+k, 1 );
     regPerm.Resize( m+n+k, 1 );
@@ -625,16 +620,28 @@ void IPF
         if( i < n )
         {
             regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*Epsilon<Real>() );
+            regPerm.Set( i, 0, 10*eps );
         }
         else
         {
             regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.Set( i, 0, -10*Epsilon<Real>() );
+            regPerm.Set( i, 0, -10*eps );
         }
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Construct the static portion of the KKT system
+    // ==============================================
+    SparseMatrix<Real> JStatic;
+    StaticKKT( A, G, JStatic, false );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+
+    SparseMatrix<Real> J, JOrig;
+    ldl::Front<Real> JFront;
+    Matrix<Real> d,
+                 rc, rb, rh, rmu,
+                 dx, dy, dz, ds;
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -727,8 +734,8 @@ void IPF
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, JOrig, false );
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+        JOrig = JStatic;
+        FinishKKT( m, n, s, z, JOrig );
         J = JOrig;
 
         UpdateRealPartOfDiagonal( J, Real(1), regTmp );
@@ -848,6 +855,7 @@ void IPF
   const IPFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::IPF"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool checkResiduals = true;
@@ -910,13 +918,6 @@ void IPF
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
-    DistSparseMultMeta metaOrig, meta;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
-    ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       rc(comm), rb(comm), rh(comm), rmu(comm),
-                       dx(comm), dy(comm), dz(comm), ds(comm);
-
     DistMultiVec<Real> regTmp(comm), regPerm(comm);
     regTmp.Resize( m+n+k, 1 );
     regPerm.Resize( m+n+k, 1 );
@@ -926,16 +927,29 @@ void IPF
         if( i < n )
         {
             regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, 10*eps );
         }
         else
         {
             regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, -10*eps );
         }
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Construct the static portion of the KKT system
+    // ==============================================
+    DistSparseMatrix<Real> JStatic(comm);
+    StaticKKT( A, G, JStatic, false );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+
+    DistSparseMultMeta metaOrig, meta;
+    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    ldl::DistFront<Real> JFront;
+    DistMultiVec<Real> d(comm),
+                       rc(comm), rb(comm), rh(comm), rmu(comm),
+                       dx(comm), dy(comm), dz(comm), ds(comm);
 
     Real relError = 1;
     DistMultiVec<Real> dInner(comm);
@@ -1029,8 +1043,8 @@ void IPF
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, JOrig, false );
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+        JOrig = JStatic;
+        FinishKKT( m, n, s, z, JOrig );
 
         // Cache the metadata for the finalized JOrig
         if( numIts == 0 )

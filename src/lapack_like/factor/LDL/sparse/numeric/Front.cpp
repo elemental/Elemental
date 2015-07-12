@@ -125,6 +125,71 @@ void Front<F>::Pull
 }
 
 template<typename F>
+void Front<F>::PullUpdate
+( const SparseMatrix<F>& A, 
+  const vector<Int>& reordering,
+  const NodeInfo& rootInfo )
+{
+    DEBUG_ONLY(
+      CSE cse("Front::PullUpdate");
+      if( A.Height() != (Int)reordering.size() )
+          LogicError("Mapping was not the right size");
+    )
+
+    // Invert the reordering
+    const Int n = reordering.size();
+    DEBUG_ONLY(
+      if( A.Height() != n || A.Width() != n )
+          LogicError("Expected A to be square and consistent with reordering");
+    )
+    vector<Int> invReorder(n);
+    for( Int j=0; j<n; ++j )
+        invReorder[reordering[j]] = j;
+    
+    function<void(const NodeInfo&,Front<F>&)> pull = 
+      [&]( const NodeInfo& node, Front<F>& front )
+      {
+        const Int numChildren = node.children.size();
+        for( Int c=0; c<numChildren; ++c )
+            pull( *node.children[c], *front.children[c] );
+
+        const Int lowerSize = node.lowerStruct.size();
+        for( Int t=0; t<node.size; ++t )
+        {
+            const Int j = invReorder[node.off+t];
+            const Int numConn = A.NumConnections( j );
+            const Int entryOff = A.EntryOffset( j );
+            for( Int k=0; k<numConn; ++k )
+            {
+                const Int iOrig = A.Col( entryOff+k );
+                const Int i = reordering[iOrig];
+                const F transVal = A.Value( entryOff+k );
+                const F value = ( isHermitian ? Conj(transVal) : transVal );
+
+                if( i < node.off+t )
+                    continue;
+                else if( i < node.off+node.size )
+                {
+                    front.L.Update( i-node.off, t, value );
+                }
+                else
+                {
+                    const Int origOff = Find( node.origLowerStruct, i );
+                    const Int row = node.origLowerRelInds[origOff];
+                    DEBUG_ONLY(
+                        if( row < t )
+                            LogicError("Tried to touch upper triangle");
+                    )
+                    front.L.Update( row, t, value );
+                }
+            }
+        }
+      };
+    pull( rootInfo, *this );
+}
+
+
+template<typename F>
 void Front<F>::Push
 ( SparseMatrix<F>& A, 
   const vector<Int>& reordering,
@@ -237,6 +302,28 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
       };
     push( rootInfo, *this );
     A.ProcessQueues();
+}
+
+template<typename F>
+const Front<F>& Front<F>::operator=( const Front<F>& front )
+{
+    DEBUG_ONLY(CSE cse("Front::operator="))
+    isHermitian = front.isHermitian;
+    type = front.type;
+    L = front.L;
+    diag = front.diag;
+    subdiag = front.subdiag;
+    piv = front.piv;
+    work = front.work;
+    // Do not copy parent...
+    const int numChildren = front.children.size();
+    children.resize( numChildren );
+    for( int c=0; c<numChildren; ++c )
+    {
+        children[c] = new Front<F>(this);
+        *children[c] = *front.children[c];
+    }
+    return *this;
 }
 
 template<typename F>

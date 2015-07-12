@@ -667,18 +667,19 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
-    const bool forceSameStep = false;
     const bool stepLengthSigma = true;
-    const bool checkResiduals = true;
-    const bool standardShift = true;
-    const bool innerRuizEquil = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
+    const bool forceSameStep = false;
+    const bool checkResiduals = true;
+    const bool standardShift = true;
+    const bool innerRuizEquil = true;
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -734,13 +735,6 @@ void Mehrotra
     ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
-    SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
-    Matrix<Real> d,
-                 rc,    rb,    rh,    rmu,
-                 dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
-
     Matrix<Real> regTmp, regPerm;
     regTmp.Resize( n+m+k, 1 );
     regPerm.Resize( n+m+k, 1 );
@@ -749,16 +743,29 @@ void Mehrotra
         if( i < n )
         {
             regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*Epsilon<Real>() );
+            regPerm.Set( i, 0, 10*eps );
         }
         else
         {
             regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.Set( i, 0, -10*Epsilon<Real>() );
+            regPerm.Set( i, 0, -10*eps );
         }
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Initialize the static portion of the KKT system
+    // ===============================================
+    SparseMatrix<Real> JStatic;
+    StaticKKT( A, G, JStatic, false );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+
+    SparseMatrix<Real> J, JOrig;
+    ldl::Front<Real> JFront;
+    Matrix<Real> d,
+                 rc,    rb,    rh,    rmu,
+                 dxAff, dyAff, dzAff, dsAff,
+                 dx,    dy,    dz,    ds;
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -850,9 +857,9 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, JOrig, false );
+        JOrig = JStatic;
+        FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
 
         // Solve for the direction
         // -----------------------
@@ -1018,6 +1025,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool forceSameStep = false;
@@ -1097,14 +1105,6 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistSparseMultMeta metaOrig, meta;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
-    ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
-
     DistMultiVec<Real> regTmp(comm), regPerm(comm);
     regTmp.Resize( n+m+k, 1 );
     regPerm.Resize( n+m+k, 1 );
@@ -1114,16 +1114,30 @@ void Mehrotra
         if( i < n )
         {
             regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, 10*eps );
         }
         else
         {
             regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*Epsilon<Real>() );
+            regPerm.SetLocal( iLoc, 0, -10*eps );
         }
     }
     Scale( origTwoNormEst, regTmp );
     Scale( origTwoNormEst, regPerm );
+
+    // Construct the static part of the KKT system
+    // ===========================================
+    DistSparseMatrix<Real> JStatic(comm);
+    StaticKKT( A, G, JStatic, false );
+    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+
+    DistSparseMultMeta metaOrig, meta;
+    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    ldl::DistFront<Real> JFront;
+    DistMultiVec<Real> d(comm),
+                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
+                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
+                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
 
     Real relError = 1;
     DistMultiVec<Real> dInner(comm);
@@ -1216,9 +1230,9 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, JOrig, false );
+        JOrig = JStatic;
+        FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
-        UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
 
         // Solve for the direction
         // -----------------------
