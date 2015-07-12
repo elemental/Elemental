@@ -510,7 +510,6 @@ void Mehrotra
             const Real yNrm2 = Nrm2( y );
             const Real zNrm2 = Nrm2( z );
             const Real sNrm2 = Nrm2( s );
-
             if( commRank == 0 )
                 Output
                 ("iter ",numIts,":\n",Indent(),
@@ -712,7 +711,6 @@ void Mehrotra
     }
 }
 
-// TODO: Add sparse embedding
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& APre, 
@@ -731,6 +729,7 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
 
     // TODO: Move these into the control structure
+    const bool cutoffSparse = 64;
     const bool forceSameStep = true;
     const bool stepLengthSigma = true;
     const bool checkResiduals = true;
@@ -793,8 +792,65 @@ void Mehrotra
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
-    // NOTE: Sparse embedding has not yet been abled for the sequential solver
-    const Int kSparse = k;
+    // Form the offsets for the sparse embedding of the barrier's Hessian
+    // ==================================================================
+    Matrix<Int> 
+      origToSparseOrders,    sparseToOrigOrders,
+      origToSparseFirstInds, sparseToOrigFirstInds,
+      sparseOrders,          sparseFirstInds;
+    // Form the metadata for the original index domain
+    // -----------------------------------------------
+    origToSparseOrders.Resize( k, 1 );
+    origToSparseFirstInds.Resize( k, 1 );
+    Int iSparse=0;
+    for( Int i=0; i<k; )
+    {
+        const Int order = orders.Get(i,0);
+
+        for( Int e=0; e<order; ++e )
+            origToSparseFirstInds.Set( i+e, 0, iSparse );
+
+        if( order > cutoffSparse )
+        {
+            for( Int e=0; e<order; ++e )
+                origToSparseOrders.Set( i+e, 0, order+2 );
+            iSparse += order+2;
+        }
+        else
+        {
+            for( Int e=0; e<order; ++e )
+                origToSparseOrders.Set( i+e, 0, order );
+            iSparse += order;
+        }
+        i += order;
+    }
+    const Int kSparse = iSparse;
+    // Form the metadata for the sparsified index domain
+    // -------------------------------------------------
+    sparseToOrigOrders.Resize( kSparse, 1 );
+    sparseToOrigFirstInds.Resize( kSparse, 1 );
+    iSparse = 0;
+    for( Int i=0; i<k; )
+    {
+        const Int order = orders.Get(i,0);
+        if( order > cutoffSparse )
+        {
+            for( Int e=0; e<order+2; ++e )
+                sparseToOrigOrders.Set( iSparse+e, 0, order );
+            for( Int e=0; e<order+2; ++e )
+                sparseToOrigFirstInds.Set( iSparse+e, 0, i );
+            iSparse += order+2;
+        }
+        else
+        {
+            for( Int e=0; e<order; ++e )
+                sparseToOrigOrders.Set( iSparse+e, 0, order );
+            for( Int e=0; e<order; ++e )
+                sparseToOrigFirstInds.Set( iSparse+e, 0, i );
+            iSparse += order;
+        }
+        i += order;
+    }
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -810,18 +866,36 @@ void Mehrotra
     Matrix<Real> regPerm, regTmp;
     regPerm.Resize( n+m+kSparse, 1 );
     regTmp.Resize( n+m+kSparse, 1 );
-    for( Int i=0; i<n+m+k; ++i )
+    for( Int i=0; i<n+m+kSparse; ++i )
     {
         if( i < n )
         {
-            regPerm.Set( i, 0, 10*Epsilon<Real>() );
             regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+            regPerm.Set( i, 0, 10*Epsilon<Real>() );
+        }
+        else if( i < n+m )
+        {
+            regTmp.Set( i, 0, -ctrl.qsdCtrl.regPrimal );
+            regPerm.Set( i, 0, -10*Epsilon<Real>() );
         }
         else
         {
-            // TODO: Generalize this after enabling sparse embedding
-            regPerm.Set( i, 0, -10*Epsilon<Real>() );
-            regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
+            const Int iCone = i-(n+m);
+            const Int firstInd = sparseFirstInds.Get(iCone,0);
+            const Int order = sparseToOrigOrders.Get(iCone,0);
+            const Int sparseOrder = sparseOrders.Get(iCone,0);
+            const bool embedded = ( order != sparseOrder );
+          
+            if( embedded && iCone == firstInd+sparseOrder-1 )
+            {
+                regTmp.Set( i, 0, ctrl.qsdCtrl.regDual );
+                regPerm.Set( i, 0, 10*Epsilon<Real>() );
+            }
+            else
+            {
+                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
+                regPerm.Set( i, 0, -10*Epsilon<Real>() );
+            }
         }
     }
     Scale( origTwoNormEst, regTmp );
@@ -931,9 +1005,16 @@ void Mehrotra
 
         // Form the KKT system
         // -------------------
-        KKT( A, G, w, orders, firstInds, JOrig, false );
+        const bool onlyLower = false;
+        KKT
+        ( A, G, w, 
+          orders, firstInds, 
+          origToSparseOrders, origToSparseFirstInds, 
+          kSparse, JOrig, onlyLower );
         UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot, 
+          orders, firstInds, origToSparseFirstInds, kSparse, d );
 
         // Solve for the direction
         // -----------------------
@@ -968,7 +1049,10 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, 
+        ( m, n, d, rmu, wRoot, 
+          orders, firstInds, 
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
           dxAff, dyAff, dzAff, dsAff );
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
@@ -1045,7 +1129,9 @@ void Mehrotra
         rmu += l;
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot, 
+          orders, firstInds, origToSparseFirstInds, kSparse, d );
         try 
         {
             reg_qsd_ldl::SolveAfter
@@ -1062,7 +1148,11 @@ void Mehrotra
                  " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution
-        ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds );
+        ( m, n, d, rmu, wRoot, 
+          orders, firstInds, 
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
+          dx, dy, dz, ds );
 
         // Update the current estimates
         // ============================
@@ -1188,6 +1278,15 @@ void Mehrotra
         Output
         ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
          "|| G ||_2 estimate: ",twoNormEstG);
+
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
+    Initialize
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
+      ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar, 
+      ctrl.qsdCtrl );
+    if( commRank == 0 && ctrl.time )
+        Output("Init: ",timer.Stop()," secs");
 
     // Form the offsets for the sparse embedding of the barrier's Hessian
     // ================================================================== 
@@ -1381,15 +1480,6 @@ void Mehrotra
     }
     const Int kSparse = sparseFirstInds.Height();
 
-    if( commRank == 0 && ctrl.time )
-        timer.Start();
-    Initialize
-    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar, 
-      ctrl.qsdCtrl );
-    if( commRank == 0 && ctrl.time )
-        Output("Init: ",timer.Stop()," secs");
-
     DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
@@ -1503,11 +1593,6 @@ void Mehrotra
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
-
-        const Real xNrm2 = Nrm2( x );
-        const Real yNrm2 = Nrm2( y );
-        const Real zNrm2 = Nrm2( z );
-        const Real sNrm2 = Nrm2( s );
 
         // Now check the pieces
         // --------------------

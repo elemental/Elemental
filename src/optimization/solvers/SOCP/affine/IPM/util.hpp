@@ -101,6 +101,9 @@ void KKT
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& origToSparseOrders,
+  const Matrix<Int>& origToSparseFirstInds,
+        Int kSparse,
         SparseMatrix<Real>& J, 
   bool onlyLower=true );
 template<typename Real>
@@ -137,6 +140,18 @@ void KKTRHS
   const AbstractDistMatrix<Int>& firstInds,
         AbstractDistMatrix<Real>& d,
   Int cutoff=1000 );
+template<typename Real>
+void KKTRHS
+( const Matrix<Real>& rc, 
+  const Matrix<Real>& rb,
+  const Matrix<Real>& rh, 
+  const Matrix<Real>& rmu,
+  const Matrix<Real>& wRoot,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& origToSparseFirstInds,
+        Int kSparse,
+        Matrix<Real>& d );
 template<typename Real>
 void KKTRHS
 ( const DistMultiVec<Real>& rc,
@@ -176,6 +191,22 @@ void ExpandSolution
         AbstractDistMatrix<Real>& dz,
         AbstractDistMatrix<Real>& ds,
   Int cutoff=1000 );
+template<typename Real>
+void ExpandSolution
+( Int m, Int n,
+  const Matrix<Real>& d,
+  const Matrix<Real>& rmu,
+  const Matrix<Real>& wRoot,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  const Matrix<Int>& sparseOrders,
+  const Matrix<Int>& sparseFirstInds,
+  const Matrix<Int>& sparseToOrigOrders,
+  const Matrix<Int>& sparseToOrigFirstInds,
+        Matrix<Real>& dx,
+        Matrix<Real>& dy,
+        Matrix<Real>& dz,
+        Matrix<Real>& ds );
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n,
