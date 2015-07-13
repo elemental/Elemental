@@ -717,7 +717,9 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
-    const bool innerRuizEquil = true;
+    // Sizes of || w ||_max which force levels of equilibration
+    const Real diagEquilTol = Pow(eps,Real(-0.15));
+    const Real ruizEquilTol = Pow(eps,Real(-0.25));
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto Q = QPre;
@@ -810,6 +812,7 @@ void Mehrotra
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
     Matrix<Real> d,
+                 w,
                  rc,    rb,    rh,    rmu,
                  dxAff, dyAff, dzAff, dsAff,
                  dx,    dy,    dz,    ds;
@@ -829,9 +832,11 @@ void Mehrotra
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        // Compute the duality measure
-        // ===========================
+        // Compute the duality measure and scaling point
+        // =============================================
         const Real mu = Dot(s,z) / k;
+        PositiveNesterovTodd( s, z, w );
+        const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
@@ -918,9 +923,9 @@ void Mehrotra
             J = JOrig;
 
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-            if( innerRuizEquil )
+            if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
-            else if( ctrl.innerEquil )
+            else if( wMaxNorm >= diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else 
                 Ones( dInner, n+m+k, 1 );
@@ -1088,8 +1093,10 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = true;
     const bool checkResiduals = true;
-    const bool innerRuizEquil = true;
     const bool standardShift = true;
+    // Sizes of || w ||_max which force levels of equilibration
+    const Real diagEquilTol = Pow(eps,Real(-0.15));
+    const Real ruizEquilTol = Pow(eps,Real(-0.25));
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
@@ -1196,6 +1203,7 @@ void Mehrotra
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
+                       w(comm),
                        rc(comm),    rb(comm),    rh(comm),    rmu(comm),
                        dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
                        dx(comm),    dy(comm),    dz(comm),    ds(comm);
@@ -1218,13 +1226,11 @@ void Mehrotra
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        // Compute the duality measure
-        // ===========================
+        // Compute the duality measure and scaling point
+        // =============================================
         const Real mu = Dot(s,z) / k;
-
-        // Compute the Nesterov-Todd scaling point
-        // =======================================
-        // TODO
+        PositiveNesterovTodd( s, z, w );
+        const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
@@ -1319,9 +1325,9 @@ void Mehrotra
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            if( innerRuizEquil )
+            if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
-            else if( ctrl.innerEquil )
+            else if( wMaxNorm >= diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else 
                 Ones( dInner, n+m+k, 1 );

@@ -81,6 +81,26 @@ Int NumNonPositive( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
 
+// Compute a positive-orthant Nesterov-Todd point
+// ==============================================
+// The Nesterov-Todd point, w, is a member of the positive orthant whose 
+// quadratic representation maps z to s.
+template<typename Real>
+void PositiveNesterovTodd
+( const Matrix<Real>& s, 
+  const Matrix<Real>& z, 
+        Matrix<Real>& w );
+template<typename Real>
+void PositiveNesterovTodd
+( const AbstractDistMatrix<Real>& s, 
+  const AbstractDistMatrix<Real>& z, 
+        AbstractDistMatrix<Real>& w );
+template<typename Real>
+void PositiveNesterovTodd
+( const DistMultiVec<Real>& s, 
+  const DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& w );
+
 // Cone Broadcast
 // ==============
 // Replicate the entry in the root position in each cone over the entire cone
@@ -619,7 +639,7 @@ void SOCSquareRoot
 // Compute an SOC Nesterov-Todd point
 // ==================================
 // The Nesterov-Todd point, w, is a member of the SOC whose quadratic 
-// representation maps s to z, where s and z are both members of the SOC.
+// representation maps z to s, where s and z are both members of the SOC.
 template<typename Real>
 void SOCNesterovTodd
 ( const Matrix<Real>& s, 

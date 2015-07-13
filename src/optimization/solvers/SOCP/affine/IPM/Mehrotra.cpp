@@ -744,7 +744,6 @@ void Mehrotra
     const bool cutoffSparse = 64;
     const bool forceSameStep = true;
     const bool checkResiduals = true;
-    const bool innerRuizEquil = true;
     const bool standardShift = true;
     const Real wMaxLimit = Pow(eps,Real(-0.4));
     const Real wSafeMaxNorm = Pow(eps,Real(-0.15));

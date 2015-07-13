@@ -557,7 +557,9 @@ void IPF
     // TODO: Move these into the control structure
     const bool checkResiduals = true;
     const bool standardShift = true;
-    const bool innerRuizEquil = true;
+    // Sizes of || w ||_max which force levels of equilibration
+    const Real diagEquilTol = Pow(eps,Real(-0.15));
+    const Real ruizEquilTol = Pow(eps,Real(-0.25));
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -640,6 +642,7 @@ void IPF
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
     Matrix<Real> d,
+                 w,
                  rc, rb, rh, rmu,
                  dx, dy, dz, ds;
 
@@ -658,9 +661,11 @@ void IPF
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        // Compute the duality measure
-        // ===========================
+        // Compute the duality measure and scaling point
+        // =============================================
         const Real mu = Dot(s,z) / k;
+        PositiveNesterovTodd( s, z, w );
+        const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
@@ -739,9 +744,9 @@ void IPF
         J = JOrig;
 
         UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-        if( innerRuizEquil )
+        if( wMaxNorm >= ruizEquilTol )
             SymmetricRuizEquil( J, dInner, ctrl.print );
-        else if( ctrl.innerEquil )
+        else if( wMaxNorm >= diagEquilTol )
             SymmetricDiagonalEquil( J, dInner, ctrl.print );
         else
             Ones( dInner, J.Height(), 1 );
@@ -860,7 +865,9 @@ void IPF
     // TODO: Move these into the control structure
     const bool checkResiduals = true;
     const bool standardShift = true;
-    const bool innerRuizEquil = true;
+    // Sizes of || w ||_max which force levels of equilibration
+    const Real diagEquilTol = Pow(eps,Real(-0.15));
+    const Real ruizEquilTol = Pow(eps,Real(-0.25));
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
@@ -948,6 +955,7 @@ void IPF
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
+                       w(comm),
                        rc(comm), rb(comm), rh(comm), rmu(comm),
                        dx(comm), dy(comm), dz(comm), ds(comm);
 
@@ -966,9 +974,11 @@ void IPF
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        // Compute the duality measure
-        // ===========================
+        // Compute the duality measure and scaling point
+        // =============================================
         const Real mu = Dot(s,z) / k;
+        PositiveNesterovTodd( s, z, w );
+        const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
@@ -1054,9 +1064,9 @@ void IPF
         J = JOrig;
 
         UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-        if( innerRuizEquil )
+        if( wMaxNorm >= ruizEquilTol )
             SymmetricRuizEquil( J, dInner, ctrl.print );
-        else if( ctrl.innerEquil )
+        else if( wMaxNorm >= diagEquilTol )
             SymmetricDiagonalEquil( J, dInner, ctrl.print );
         else
             Ones( dInner, J.Height(), 1 );
