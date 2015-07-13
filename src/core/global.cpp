@@ -399,7 +399,7 @@ void Finalize()
             delete ::coreApp;
 
             // Delete the copies of argc and argv
-            for( int i=0; i<::argcSave; ++i )
+            for( int i=0; i< ::argcSave; ++i )
                 delete[] ::argvSave[i]; 
             delete[] ::argvSave;
         }
@@ -504,7 +504,7 @@ Int IndentLevel() { return ::indentLevel; }
 string Indent()
 {
     string ind;
-    for( Int i=0; i<::spacesPerIndent*::indentLevel; ++i )
+    for( Int i=0; i < ::spacesPerIndent * ::indentLevel; ++i )
         ind = ind + " ";
     return ind;
 }
