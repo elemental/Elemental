@@ -560,11 +560,29 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
  
     // Compute the set of row indices that we need from X in a normal
     // multiply or update of Y in the adjoint case
+    const Int* colBuffer = LockedTargetBuffer();
     const Int numLocalEntries = NumLocalEntries();
-    set<Int> indexSet;
+    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
     for( Int e=0; e<numLocalEntries; ++e )
-        indexSet.insert( Col(e) );
-    const Int numRecvInds = indexSet.size();
+        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
+    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
+    meta.colOffs.resize(numLocalEntries);
+    {
+        Int uniqueOff=-1, lastUnique=-1;
+        for( Int e=0; e<numLocalEntries; ++e )    
+        {
+            if( lastUnique != uniqueCols[e].value )
+            {
+                ++uniqueOff;
+                lastUnique = uniqueCols[e].value;
+                uniqueCols[uniqueOff] = uniqueCols[e];
+            }
+            meta.colOffs[uniqueCols[e].index] = uniqueOff;
+        }
+        uniqueCols.resize( uniqueOff+1 );
+    }
+    const Int numRecvInds = uniqueCols.size();
+    meta.numRecvInds = numRecvInds;
     vector<Int> recvInds( numRecvInds );
     meta.recvSizes.clear();
     meta.recvSizes.resize( commSize, 0 );
@@ -572,9 +590,9 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     const Int vecBlocksize = Width() / commSize;
     {
         Int off=0, lastOff=0, qPrev=0;
-        for( auto setIt=indexSet.cbegin(); setIt!=indexSet.cend(); ++setIt )
+        for( ; off<numRecvInds; ++off )
         {
-            const Int j = *setIt;
+            const Int j = uniqueCols[off].value;
             const Int q = RowToProcess( j, vecBlocksize, commSize );
             while( qPrev != q )
             {
@@ -584,7 +602,7 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
                 lastOff = off;
                 ++qPrev;
             }
-            recvInds[off++] = j;
+            recvInds[off] = j;
         }
         while( qPrev != commSize-1 )
         {
@@ -612,9 +630,6 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
       meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(),
       comm );
 
-    meta.colOffs.resize( numLocalEntries );
-    for( Int s=0; s<numLocalEntries; ++s )
-        meta.colOffs[s] = Find( recvInds, Col(s) );
     meta.numRecvInds = numRecvInds;
     meta.ready = true;
 

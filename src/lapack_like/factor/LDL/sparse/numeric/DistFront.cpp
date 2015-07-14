@@ -58,19 +58,45 @@ void DistFront<F>::Pull
     const bool time = false;
    
     mpi::Comm comm = A.Comm();
-    const DistGraph& graph = A.LockedDistGraph();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm ); 
     Timer timer;
+
+    // Compute the unique set of column indices that our process interacts with
+    if( time && commRank == 0 )
+        timer.Start();
+    const Int* colBuffer = A.LockedTargetBuffer();
+    const Int numLocalEntries = A.NumLocalEntries();
+    vector<Int> colOffs(numLocalEntries);
+    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
+    for( Int e=0; e<numLocalEntries; ++e )
+        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
+    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
+    {
+        Int uniqueOff=-1, lastUnique=-1;
+        for( Int e=0; e<numLocalEntries; ++e )
+        {
+            if( lastUnique != uniqueCols[e].value )
+            {
+                ++uniqueOff;
+                lastUnique = uniqueCols[e].value;
+                uniqueCols[uniqueOff] = uniqueCols[e];
+            }
+            colOffs[uniqueCols[e].index] = uniqueOff;
+        }
+        uniqueCols.resize( uniqueOff+1 );
+    }
+    const Int numUniqueCols = uniqueCols.size();
+    if( time && commRank == 0 )
+        Output("Unique sort: ",timer.Stop()," secs");
 
     // Get the reordered indices of the targets of our portion of the 
     // distributed sparse matrix
     if( time && commRank == 0 )
         timer.Start();
-    set<Int> targetSet( graph.targets_.begin(), graph.targets_.end() );
-    vector<Int> targets;
-    CopySTL( targetSet, targets );
-    auto mappedTargets = targets;
+    vector<Int> mappedTargets(numUniqueCols);
+    for( Int e=0; e<numUniqueCols; ++e )
+        mappedTargets[e] = uniqueCols[e].value;
     reordering.Translate( mappedTargets );
     if( time && commRank == 0 )
         Output("Translation: ",timer.Stop()," secs");
@@ -197,8 +223,7 @@ void DistFront<F>::Pull
             for( Int t=0; t<numConnections; ++t )
             {
                 const F value = A.Value( localEntryOff+t );
-                const Int col = A.Col( localEntryOff+t );
-                const Int targetOff = Find( targets, col );
+                const Int targetOff = colOffs[localEntryOff+t];
                 const Int mappedTarget = mappedTargets[targetOff];
                 sEntries[index] = (conjugate ? Conj(value) : value);
                 sTargets[index] = mappedTarget;
@@ -366,6 +391,7 @@ void DistFront<F>::Pull
     )
 }
 
+// TODO: Use faster approach used in Pull
 template<typename F>
 void DistFront<F>::PullUpdate
 ( const DistSparseMatrix<F>& A, 
