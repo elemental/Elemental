@@ -449,9 +449,15 @@ Int RegularizedSolveAfter
   bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
            ( A, reg, invMap, info, front, b, relTol, maxRefineIts, 
              progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+           ( A, reg, invMap, info, front, b, relTol, maxRefineIts, 
+             progress, time );
+#endif
 }
 
 template<typename F>
@@ -466,9 +472,15 @@ Int RegularizedSolveAfter
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, 
              b, relTol, maxRefineIts, progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+           ( A, reg, d, invMap, info, front, 
+             b, relTol, maxRefineIts, progress, time );
+#endif
 }
 
 template<typename F>
@@ -909,8 +921,13 @@ Int RegularizedSolveAfter
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
     ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+    ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#endif
 }
 
 template<typename F>
@@ -925,8 +942,13 @@ Int RegularizedSolveAfter
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
     ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+    ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#endif
 }
 
 template<typename F>
