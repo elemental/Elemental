@@ -39,6 +39,7 @@ void Lanczos
     if( A.Height() != A.Width() )
         LogicError("A was not square");
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int n = A.Height();
 
     Matrix<F> v_km1, v_k, v;
@@ -56,6 +57,8 @@ void Lanczos
         v *= 1/beta;
     }
         
+    // TODO: Incorporate Frobenius norm of A
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         if( k > 0 )
@@ -80,6 +83,11 @@ void Lanczos
         // v := w / || w ||_2
         // -----------------
         const Real beta = FrobeniusNorm( v );
+        if( beta <= minBeta )
+        {
+            T.Resize( k+1, k+1 );
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Rayleigh quotient as appropriate
@@ -102,6 +110,7 @@ Base<F> LanczosDecomp
     if( A.Height() != A.Width() )
         LogicError("A was not square");
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int n = A.Height();
 
     basisSize = Min(n,basisSize);
@@ -123,6 +132,8 @@ Base<F> LanczosDecomp
     }
         
     Real beta = 0;
+    // TODO: Incorporate Frobenius norm of A
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         // w := A v
@@ -147,6 +158,11 @@ Base<F> LanczosDecomp
         // v := w / || w ||_2
         // -----------------
         beta = FrobeniusNorm( v );
+        if( beta <= minBeta )
+        {
+            T.Resize( k+1, k+1 );
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Lanczos decomposition as appropriate
@@ -170,6 +186,7 @@ void Lanczos
     if( A.Height() != A.Width() )
         LogicError("A was not square");
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
@@ -193,6 +210,8 @@ void Lanczos
         v *= 1/beta;
     }
         
+    // TODO: Use the Frobenius norm of A
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         if( k > 0 )
@@ -217,6 +236,11 @@ void Lanczos
         // v := w / || w ||_2
         // -----------------
         const Real beta = FrobeniusNorm( v );
+        if( beta <= minBeta )
+        {
+            T.Resize( k+1, k+1 );
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Rayleigh quotient as appropriate
@@ -239,6 +263,7 @@ Base<F> LanczosDecomp
     if( A.Height() != A.Width() )
         LogicError("A was not square");
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
@@ -268,6 +293,8 @@ Base<F> LanczosDecomp
     }
 
     Real beta = 0;
+    // TODO: Use the Frobenius norm of A
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         // w := A v_k
@@ -292,6 +319,11 @@ Base<F> LanczosDecomp
         // v := w / || w ||_2
         // -----------------
         beta = FrobeniusNorm( v );
+        if( beta <= minBeta )
+        {
+            T.Resize( k+1, k+1 );
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Lanczos decomposition as appropriate
