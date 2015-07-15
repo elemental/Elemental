@@ -334,9 +334,11 @@ void DistFront<F>::Pull
                   const Int target = rTargets[entryOff];
                   ++entryOff;
   
-                  if( target < off+t )
-                      continue;
-                  else if( target < off+size )
+                  DEBUG_ONLY(
+                    if( target < off+t )
+                        LogicError("Received entry from upper triangle");
+                  )
+                  if( target < off+size )
                   {
                       front.L.Set( target-off, t, value );
                   }
@@ -395,9 +397,11 @@ void DistFront<F>::Pull
                   const Int target = rTargets[entryOff];
                   ++entryOff;
 
-                  if( target < off+t )
-                      continue;
-                  else if( target < off+size )
+                  DEBUG_ONLY(
+                    if( target < off+t )
+                        LogicError("Received entry from upper triangle");
+                  )
+                  if( target < off+size )
                   {
                       front.L2D.Set( target-off, t, value );
                   }
