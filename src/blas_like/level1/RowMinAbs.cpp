@@ -55,8 +55,6 @@ template<typename F,Dist U,Dist V>
 void RowMinAbs( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& mins )
 {
     DEBUG_ONLY(CSE cse("RowMinAbs"))
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     mins.AlignWith( A );
     mins.Resize( A.Height(), 1 );
     RowMinAbs( A.LockedMatrix(), mins.Matrix() );
@@ -72,8 +70,6 @@ void RowMinAbsNonzero
     DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
     if( upperBounds.ColAlign() != A.ColAlign() )
         LogicError("upperBounds was not aligned with A");
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     mins.AlignWith( A );
     mins.Resize( A.Height(), 1 );
     RowMinAbsNonzero

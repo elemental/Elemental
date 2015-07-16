@@ -642,7 +642,6 @@ void DistFront<F>::PullUpdate
 
           const Int size = node.size;
           const Int off = node.off;
-          const Int lowerSize = node.lowerStruct.size();
           for( Int t=0; t<size; ++t )
           {
               const Int i = sep.inds[t];
@@ -678,8 +677,6 @@ void DistFront<F>::PullUpdate
       [&]( const DistSeparator& sep, const DistNodeInfo& node, 
                  DistFront<F>& front )
       {
-          const Grid& grid = *node.grid;
-
           if( sep.child == nullptr )
           {
               unpackEntriesLocal
@@ -690,7 +687,6 @@ void DistFront<F>::PullUpdate
 
           const Int size = node.size;
           const Int off = node.off;
-          const Int lowerSize = node.lowerStruct.size();
           const Int localWidth = front.L2D.LocalWidth();
           for( Int tLoc=0; tLoc<localWidth; ++tLoc )
           {

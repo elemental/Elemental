@@ -56,8 +56,6 @@ void SymmetricRuizEquil
     auto& d = *dPtr;
 
     const Int n = A.Height();
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     Ones( d, n, 1 );
 
     // TODO: Expose these as control parameters
@@ -122,7 +120,6 @@ void SymmetricRuizEquil
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
     d.SetComm( comm );
     Ones( d, n, 1 );
 

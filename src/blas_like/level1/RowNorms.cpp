@@ -68,8 +68,6 @@ void RowMaxNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
 {
     DEBUG_ONLY(CSE cse("RowMaxNorms"))
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     norms.AlignWith( A );
     norms.Resize( A.Height(), 1 );
     RowMaxNorms( A.LockedMatrix(), norms.Matrix() );

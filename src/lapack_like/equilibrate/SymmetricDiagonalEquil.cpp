@@ -40,7 +40,6 @@ void SymmetricDiagonalEquil
 {
     DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
     typedef Base<F> Real;
-    const Int n = A.Height();
     auto maxSqrtLambda = []( F delta ) 
                          { return Sqrt(Max(Abs(delta),Real(1))); };
     function<Real(F)> maxSqrt( maxSqrtLambda );
@@ -63,7 +62,6 @@ void SymmetricDiagonalEquil
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);
-    const Int n = A.Height();
     Timer timer;
 
     d.SetComm( comm );

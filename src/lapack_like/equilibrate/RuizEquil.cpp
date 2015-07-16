@@ -55,7 +55,6 @@ void RuizEquil
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int nLocal = A.LocalWidth();
     Ones( dRow, m, 1 );
     Ones( dCol, n, 1 );
 
@@ -136,7 +135,6 @@ void RuizEquil
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
     dRow.SetComm( comm );
     dCol.SetComm( comm );
     Ones( dRow, m, 1 );
@@ -321,7 +319,6 @@ void StackedRuizEquil
     const Int mB = B.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
     dRowA.SetComm( comm );
     dRowB.SetComm( comm );
     dCol.SetComm( comm );

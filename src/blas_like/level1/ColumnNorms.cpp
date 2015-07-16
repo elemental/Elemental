@@ -70,8 +70,6 @@ void ColumnMaxNorms
 {
     DEBUG_ONLY(CSE cse("ColumnMaxNorms"))
     const Int n = A.Width();
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     norms.AlignWith( A );
     norms.Resize( n, 1 );
     ColumnMaxNorms( A.LockedMatrix(), norms.Matrix() );

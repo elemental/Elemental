@@ -783,6 +783,7 @@ inline Int RegularizedSolveAfterPromote
                 break;
             }
         }
+        SetIndent( indent );
     }
     Copy( xProm, b );
     return refineIt;

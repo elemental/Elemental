@@ -153,7 +153,6 @@ void Front<F>::PullUpdate
         for( Int c=0; c<numChildren; ++c )
             pull( *node.children[c], *front.children[c] );
 
-        const Int lowerSize = node.lowerStruct.size();
         for( Int t=0; t<node.size; ++t )
         {
             const Int j = invReorder[node.off+t];
