@@ -186,7 +186,6 @@ void ConeRuizEquil
     const Int mB = B.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
     dRowA.SetComm( comm );
     dRowB.SetComm( comm );
     dCol.SetComm( comm );

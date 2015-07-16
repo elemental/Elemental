@@ -261,11 +261,13 @@ void ConeAllReduce
         // Compute our local result in this cone
         Real localConeRes = 0;
         const Int xConeLocalHeight = xCone.LocalHeight();
-        for( Int iLoc=0; iLoc<xCone.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
             localConeRes = reduce(localConeRes,xCone.GetLocal(iLoc,0));
 
         // Compute the maximum for this cone
         const Real coneRes = mpi::AllReduce( localConeRes, op, x.DistComm() );
+        for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
+            xCone.SetLocal(iLoc,0,coneRes);
     }
 }
 
@@ -459,8 +461,6 @@ void ConeAllReduce
 
         // Compute the maximum for this cone
         const Real coneRes = mpi::AllReduce( localConeRes, op, x.Comm() );
-        
-        // Overwrite the entire cone with this maximum
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
             x.SetLocal(j-iFirst,0,coneRes);
     }
