@@ -1338,7 +1338,7 @@ void Mehrotra
 
         // Compute the duality measure and scaling point
         // =============================================
-        const Real mu = Dot(x,z) / n;
+        const Real mu = Dot(x,z) / degree;
         PositiveNesterovTodd( x, z, w );
         const Real wMaxNorm = MaxNorm( w );
 

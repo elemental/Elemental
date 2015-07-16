@@ -441,7 +441,6 @@ void FinishKKT
         DistSparseMatrix<Real>& J )
 {
     DEBUG_ONLY(CSE cse("qp::affine::FinishKKT"))
-    const Int k = s.Height();
 
     // Pack -z <> s
     // ------------
