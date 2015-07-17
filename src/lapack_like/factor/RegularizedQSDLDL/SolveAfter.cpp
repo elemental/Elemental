@@ -152,6 +152,7 @@ inline Int RegularizedSolveAfterNoPromote
         Multiply( NORMAL, F(1), A, x, F(1), y );
         if( time )
             Output("  Multiply time: ",timer.Stop()," secs");
+        b = bOrig;
         b -= y;
         Base<F> errorNorm = MaxNorm( b );
         if( progress )
@@ -377,6 +378,7 @@ inline Int RegularizedSolveAfterPromote
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
         if( time )
             Output("  Multiply time: ",timer.Stop()," secs");
+        bProm = bOrigProm;
         bProm -= yProm;
         auto errorNorm = MaxNorm( bProm );
         if( progress )
@@ -623,6 +625,7 @@ inline Int RegularizedSolveAfterNoPromote
         Multiply( NORMAL, F(1), A, x, F(1), y );
         if( time && commRank == 0 )
             Output("  Multiply time:",timer.Stop()," secs");
+        b = bOrig;
         b -= y;
         Base<F> errorNorm = MaxNorm( b );
         if( progress && commRank == 0 )
@@ -848,6 +851,7 @@ inline Int RegularizedSolveAfterPromote
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
         if( time && commRank == 0 )
             Output("  Multiply time: ",timer.Stop()," secs");
+        bProm = bOrigProm;
         bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
