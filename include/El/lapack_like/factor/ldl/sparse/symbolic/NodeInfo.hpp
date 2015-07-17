@@ -85,7 +85,8 @@ struct DistNodeInfo
 
     DistNodeInfo( DistNodeInfo* parentNode=nullptr )
     : comm(mpi::COMM_WORLD), 
-      parent(parentNode), child(nullptr), duplicate(nullptr)
+      parent(parentNode), child(nullptr), duplicate(nullptr),
+      grid(nullptr)
     { }
 
     ~DistNodeInfo()
@@ -101,7 +102,8 @@ struct DistNodeInfo
         delete duplicate;
     
         delete grid;
-        mpi::Free( comm );
+        if( comm != mpi::COMM_WORLD )
+            mpi::Free( comm );
     }   
 };
 

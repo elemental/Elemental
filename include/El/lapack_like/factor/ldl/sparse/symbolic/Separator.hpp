@@ -68,7 +68,8 @@ struct DistSeparator
     Separator* duplicate;  
 
     DistSeparator( DistSeparator* parentNode=nullptr )
-    : parent(parentNode), child(nullptr), duplicate(nullptr)
+    : comm(mpi::COMM_WORLD),
+      parent(parentNode), child(nullptr), duplicate(nullptr)
     { }
 
     ~DistSeparator()
@@ -83,7 +84,8 @@ struct DistSeparator
         delete child;
         delete duplicate;
 
-        mpi::Free( comm );
+        if( comm != mpi::COMM_WORLD )
+            mpi::Free( comm );
     }
 };
 

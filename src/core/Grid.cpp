@@ -286,7 +286,6 @@ int Grid::CoordsToVC
 ( Dist colDist, Dist rowDist, 
   int distRank, int crossRank, int redundantRank ) const
 {
-    int vcRank = 0;
     if( colDist == CIRC && rowDist == CIRC )
     {
         return crossRank;
@@ -332,7 +331,7 @@ int Grid::CoordsToVC
     }
     else
         LogicError("Invalid data distribution");
-    return vcRank;
+    return -1;
 }
 
 int Grid::VCToViewing( int vcRank ) const

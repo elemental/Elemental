@@ -2659,7 +2659,7 @@ Int FGMRESSolveAfter
 
             // Run the j'th step of Arnoldi
             // ----------------------------
-            if( commRank == 0 )
+            if( time && commRank == 0 )
                 timer.Start();
             for( Int i=0; i<=j; ++i )
             {
