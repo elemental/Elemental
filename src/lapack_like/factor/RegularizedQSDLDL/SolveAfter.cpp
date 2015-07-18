@@ -898,7 +898,6 @@ inline Int RegularizedSolveAfterPromote
             ++refineIt;
             if( time && commRank == 0 )
                 Output("Refine step time: ",iterTimer.Stop()," secs");
-                iterTimer.Start();
             if( refineIt >= maxRefineIts )
             {
                 if( progress && commRank == 0 )
