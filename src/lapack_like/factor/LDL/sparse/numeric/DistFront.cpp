@@ -201,7 +201,6 @@ void DistFront<F>::Pull
         Output("AllToAll: ",timer.Stop()," secs");
 
     // Pack the number of nonzeros per row (and the nonzeros themselves)
-    // TODO: Avoid sending upper-triangular data
     if( time && commRank == 0 )
         timer.Start();
     const Int firstLocalRow = A.FirstLocalRow();
@@ -425,7 +424,6 @@ void DistFront<F>::Pull
     )
 }
 
-// TODO: Use faster approach used in Pull
 template<typename F>
 void DistFront<F>::PullUpdate
 ( const DistSparseMatrix<F>& A, 
@@ -446,17 +444,55 @@ void DistFront<F>::PullUpdate
     const int commRank = mpi::Rank( comm ); 
     Timer timer;
 
+    // Compute the unique set of column indices that our process interacts with
+    if( time && commRank == 0 )
+        timer.Start();
+    const Int* colBuffer = A.LockedTargetBuffer();
+    const Int numLocalEntries = A.NumLocalEntries();
+    vector<Int> colOffs(numLocalEntries);
+    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
+    for( Int e=0; e<numLocalEntries; ++e )
+        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
+    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
+    {
+        Int uniqueOff=-1, lastUnique=-1;
+        for( Int e=0; e<numLocalEntries; ++e )
+        {
+            if( lastUnique != uniqueCols[e].value )
+            {
+                ++uniqueOff;
+                lastUnique = uniqueCols[e].value;
+                uniqueCols[uniqueOff] = uniqueCols[e];
+            }
+            colOffs[uniqueCols[e].index] = uniqueOff;
+        }
+        uniqueCols.resize( uniqueOff+1 );
+    }
+    const Int numUniqueCols = uniqueCols.size();
+    if( time && commRank == 0 )
+        Output("Unique sort: ",timer.Stop()," secs");
+
+    // Get the reordered indices of our local rows of the sparse matrix
+    if( time && commRank == 0 )
+        timer.Start();
+    const Int localHeightA = A.LocalHeight();
+    vector<Int> mappedSources(localHeightA);
+    for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
+        mappedSources[iLoc] = A.GlobalRow(iLoc);
+    reordering.Translate( mappedSources );
+    if( time && commRank == 0 )
+        Output("Source translation: ",timer.Stop()," secs");
+
     // Get the reordered indices of the targets of our portion of the 
     // distributed sparse matrix
     if( time && commRank == 0 )
         timer.Start();
-    set<Int> targetSet( graph.targets_.begin(), graph.targets_.end() );
-    vector<Int> targets;
-    CopySTL( targetSet, targets );
-    auto mappedTargets = targets;
+    vector<Int> mappedTargets(numUniqueCols);
+    for( Int e=0; e<numUniqueCols; ++e )
+        mappedTargets[e] = uniqueCols[e].value;
     reordering.Translate( mappedTargets );
     if( time && commRank == 0 )
-        Output("Translation: ",timer.Stop()," secs");
+        Output("Target translation: ",timer.Stop()," secs");
 
     // Set up the indices for the rows we need from each process
     if( time && commRank == 0 )
@@ -545,7 +581,6 @@ void DistFront<F>::PullUpdate
         Output("AllToAll: ",timer.Stop()," secs");
 
     // Pack the number of nonzeros per row (and the nonzeros themselves)
-    // TODO: Avoid sending upper-triangular data
     if( time && commRank == 0 )
         timer.Start();
     const Int firstLocalRow = A.FirstLocalRow();
@@ -558,9 +593,20 @@ void DistFront<F>::PullUpdate
         for( Int s=0; s<size; ++s )
         {
             const Int i = sRows[s+off];
-            const Int numConnections = A.NumConnections( i-firstLocalRow );
-            sEntriesSizes[q] += numConnections;
-            sRowLengths[s+off] = numConnections;
+            const Int iLoc = i-firstLocalRow;
+            const Int jReord = mappedSources[iLoc];
+            const Int rowOff = A.EntryOffset( iLoc );
+            const Int numConnections = A.NumConnections( iLoc );
+            sRowLengths[s+off] = 0;
+            for( Int e=0; e<numConnections; ++e )
+            {
+                const Int iReord = mappedTargets[colOffs[rowOff+e]];
+                if( iReord >= jReord )
+                {
+                    ++sEntriesSizes[q];
+                    ++sRowLengths[s+off];
+                }
+            }
         }
     }
     vector<int> sEntriesOffs;
@@ -575,17 +621,20 @@ void DistFront<F>::PullUpdate
         for( Int s=0; s<size; ++s )
         {
             const Int i = sRows[s+off];
-            const Int numConnections = sRowLengths[s+off];
-            const Int localEntryOff = A.EntryOffset( i-firstLocalRow );
-            for( Int t=0; t<numConnections; ++t )
+            const Int iLoc = i-firstLocalRow;
+            const Int jReord = mappedSources[iLoc];
+            const Int rowOff = A.EntryOffset( iLoc );
+            const Int numConnections = A.NumConnections( iLoc );
+            for( Int e=0; e<numConnections; ++e )
             {
-                const F value = A.Value( localEntryOff+t );
-                const Int col = A.Col( localEntryOff+t );
-                const Int targetOff = Find( targets, col );
-                const Int mappedTarget = mappedTargets[targetOff];
-                sEntries[index] = (this->isHermitian ? Conj(value) : value);
-                sTargets[index] = mappedTarget;
-                ++index;
+                const Int iReord = mappedTargets[colOffs[rowOff+e]];
+                if( iReord >= jReord )
+                {
+                    const F value = A.Value( rowOff+e );
+                    sEntries[index] = (isHermitian ? Conj(value) : value);
+                    sTargets[index] = iReord;
+                    ++index;
+                }
             }
         }
         DEBUG_ONLY(
@@ -635,10 +684,8 @@ void DistFront<F>::PullUpdate
       {
           const Int numChildren = sep.children.size();
           for( Int c=0; c<numChildren; ++c )
-          {
               unpackEntriesLocal
               ( *sep.children[c], *node.children[c], *front.children[c] );
-          }
 
           const Int size = node.size;
           const Int off = node.off;
@@ -656,14 +703,17 @@ void DistFront<F>::PullUpdate
                   const Int target = rTargets[entryOff];
                   ++entryOff;
   
-                  if( target < off+t )
-                      continue;
-                  else if( target < off+size )
+                  DEBUG_ONLY(
+                    if( target < off+t )
+                        LogicError("Received entry from upper triangle");
+                  )
+                  if( target < off+size )
                   {
                       front.L.Update( target-off, t, value );
                   }
                   else
                   {
+                      // TODO: Avoid this binary search?
                       const Int origOff = Find( node.origLowerStruct, target );
                       const Int row = node.origLowerRelInds[origOff];
                       front.L.Update( row, t, value );
@@ -703,14 +753,17 @@ void DistFront<F>::PullUpdate
                   const Int target = rTargets[entryOff];
                   ++entryOff;
 
-                  if( target < off+t )
-                      continue;
-                  else if( target < off+size )
+                  DEBUG_ONLY(
+                    if( target < off+t )
+                        LogicError("Received entry from upper triangle");
+                  )
+                  if( target < off+size )
                   {
                       front.L2D.Update( target-off, t, value );
                   }
                   else 
                   {
+                      // TODO: Avoid this binary search?
                       const Int origOff = Find( node.origLowerStruct, target );
                       const Int row = node.origLowerRelInds[origOff];
                       front.L2D.Update( row, t, value );
