@@ -149,6 +149,7 @@ template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
+  const Matrix<Real>& regPerm,
         SparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -156,7 +157,7 @@ void StaticKKT
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
-    qp::affine::StaticKKT( Q, A, G, J, onlyLower );
+    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
 }
 
 template<typename Real>
@@ -180,6 +181,7 @@ template<typename Real>
 void StaticKKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& regPerm,
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -188,7 +190,7 @@ void StaticKKT
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);
     Q.Resize( n, n );
-    qp::affine::StaticKKT( Q, A, G, J, onlyLower );
+    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
 }
 
 #define PROTO(Real) \
@@ -215,6 +217,7 @@ void StaticKKT
   template void StaticKKT \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
+    const Matrix<Real>& regPerm, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
@@ -227,6 +230,7 @@ void StaticKKT
   template void StaticKKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& regPerm, \
           DistSparseMatrix<Real>& J, \
     bool onlyLower );
 

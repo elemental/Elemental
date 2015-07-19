@@ -216,6 +216,7 @@ void StaticKKT
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
+  const Matrix<Real>& regPerm,
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
@@ -241,9 +242,9 @@ void StaticKKT
         numUsedEntriesQ = numEntriesQ;
 
     if( onlyLower )
-        J.Reserve( numUsedEntriesQ + numEntriesA + numEntriesG );
+        J.Reserve( numUsedEntriesQ + numEntriesA + numEntriesG + n+m+k );
     else
-        J.Reserve( numUsedEntriesQ + 2*numEntriesA + 2*numEntriesG );
+        J.Reserve( numUsedEntriesQ + 2*numEntriesA + 2*numEntriesG + n+m+k );
 
     // Jxx = Q
     // =======
@@ -273,6 +274,11 @@ void StaticKKT
             J.QueueUpdate( G.Col(e), n+m+G.Row(e), G.Value(e) );
     }
 
+    // Add the regularization
+    // ======================
+    for( Int e=0; e<n+m+k; ++e )
+        J.QueueUpdate( e, e, regPerm.Get(e,0) );
+
     J.ProcessQueues();
 }
 
@@ -288,7 +294,8 @@ void FinishKKT
 
     // Jzz = -z <> s
     // =============
-    J.Reserve( J.NumEntries()+k );
+    if( !J.FrozenSparsity() )
+        J.Reserve( J.NumEntries()+k );
     for( Int e=0; e<k; ++e )
         J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
     J.ProcessQueues();
@@ -308,17 +315,19 @@ void KKT
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
+    const Int numEntriesQ = Q.NumLocalEntries();
+    const Int numEntriesA = A.NumLocalEntries();
+    const Int numEntriesG = G.NumLocalEntries();
 
     J.SetComm( A.Comm() );
     Zeros( J, n+m+k, n+m+k );
 
     // Compute the number of entries to send
     // =====================================
-    Int numEntries = A.NumLocalEntries() + G.NumLocalEntries() + 
-                     s.LocalHeight();
+    Int numEntries = numEntriesA + numEntriesG + s.LocalHeight();
     if( !onlyLower )
-        numEntries += A.NumLocalEntries() + G.NumLocalEntries();
-    for( Int e=0; e<Q.NumLocalEntries(); ++e )
+        numEntries += numEntriesA + numEntriesG;
+    for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
@@ -331,7 +340,7 @@ void KKT
     J.Reserve( numEntries, numEntries );
     // Pack Q
     // ------
-    for( Int e=0; e<Q.NumLocalEntries(); ++e )
+    for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
@@ -340,7 +349,7 @@ void KKT
     }
     // Pack A
     // ------
-    for( Int e=0; e<A.NumLocalEntries(); ++e )
+    for( Int e=0; e<numEntriesA; ++e )
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
@@ -350,7 +359,7 @@ void KKT
     }
     // Pack G
     // ------
-    for( Int e=0; e<G.NumLocalEntries(); ++e )
+    for( Int e=0; e<numEntriesG; ++e )
     {
         const Int i = G.Row(e) + n + m;
         const Int j = G.Col(e);
@@ -374,6 +383,7 @@ void StaticKKT
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& regPerm,
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -381,16 +391,20 @@ void StaticKKT
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
+    const Int numEntriesQ = Q.NumLocalEntries();
+    const Int numEntriesA = A.NumLocalEntries();
+    const Int numEntriesG = G.NumLocalEntries();
 
     J.SetComm( A.Comm() );
     Zeros( J, n+m+k, n+m+k );
+    const Int localHeightJ = J.LocalHeight();
 
     // Compute the number of entries to send
     // =====================================
-    Int numEntries = A.NumLocalEntries() + G.NumLocalEntries();
+    Int numEntries = numEntriesA + numEntriesG;
     if( !onlyLower )
-        numEntries += A.NumLocalEntries() + G.NumLocalEntries();
-    for( Int e=0; e<Q.NumLocalEntries(); ++e )
+        numEntries += numEntriesA + numEntriesG;
+    for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
@@ -400,10 +414,10 @@ void StaticKKT
 
     // Queue and process the entries
     // =============================
-    J.Reserve( numEntries, numEntries );
+    J.Reserve( numEntries+localHeightJ, numEntries );
     // Pack Q
     // ------
-    for( Int e=0; e<Q.NumLocalEntries(); ++e )
+    for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
@@ -412,7 +426,7 @@ void StaticKKT
     }
     // Pack A
     // ------
-    for( Int e=0; e<A.NumLocalEntries(); ++e )
+    for( Int e=0; e<numEntriesA; ++e )
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
@@ -422,13 +436,20 @@ void StaticKKT
     }
     // Pack G
     // ------
-    for( Int e=0; e<G.NumLocalEntries(); ++e )
+    for( Int e=0; e<numEntriesG; ++e )
     {
         const Int i = G.Row(e) + n + m;
         const Int j = G.Col(e);
         J.QueueUpdate( i, j, G.Value(e), false );
         if( !onlyLower )
             J.QueueUpdate( j, i, G.Value(e), false );
+    }
+    // Pack regPerm
+    // ------------
+    for( Int iLoc=0; iLoc<localHeightJ; ++iLoc )
+    {
+        const Int i = J.GlobalRow(iLoc);
+        J.QueueLocalUpdate( iLoc, i, regPerm.GetLocal(iLoc,0) );
     }
     J.ProcessQueues();
 }
@@ -445,7 +466,8 @@ void FinishKKT
     // Pack -z <> s
     // ------------
     const Int numEntries = s.LocalHeight();
-    J.Reserve( numEntries, numEntries );
+    if( !J.FrozenSparsity() )
+        J.Reserve( numEntries, numEntries );
     for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
     {
         const Int i = m+n + s.GlobalRow(iLoc);
@@ -751,6 +773,7 @@ void ExpandSolution
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
+    const Matrix<Real>& regPerm, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \
@@ -770,6 +793,7 @@ void ExpandSolution
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& regPerm, \
           DistSparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \

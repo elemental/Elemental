@@ -307,6 +307,7 @@ void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
+// TODO: Switch to using the QueueUpdate routines of AbstractDistMatrix
 template<typename S,typename T>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
@@ -430,6 +431,7 @@ void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
+// TODO: Switch to using the QueueUpdate routines of AbstractDistMatrix
 template<typename T>
 void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 {
@@ -476,6 +478,7 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
         B.Set( entry );
 }
 
+// TODO: Switch to using the QueueUpdate routines of DistMultiVec
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
 {

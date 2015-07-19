@@ -104,6 +104,7 @@ template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
+  const Matrix<Real>& regPerm,
         SparseMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
@@ -118,6 +119,7 @@ template<typename Real>
 void StaticKKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& regPerm,
         DistSparseMatrix<Real>& J,
   bool onlyLower=true );
 

@@ -759,8 +759,13 @@ void Mehrotra
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
-    StaticKKT( A, G, JStatic, false );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    StaticKKT( A, G, regPerm, JStatic, false );
+    JStatic.FreezeSparsity();
+    if( ctrl.primalInit && ctrl.dualInit )
+    {
+        NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
+        InvertMap( map, invMap );
+    }
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -863,6 +868,7 @@ void Mehrotra
         // Construct the KKT system
         // ------------------------
         JOrig = JStatic;
+        JOrig.FreezeSparsity();
         FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
@@ -871,8 +877,9 @@ void Mehrotra
         try
         {
             J = JOrig;
-
+            J.FreezeSparsity();
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -880,11 +887,6 @@ void Mehrotra
             else
                 Ones( dInner, J.Height(), 1 );
 
-            if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
-            {
-                NestedDissection( J.LockedGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
-            }
             JFront.Pull( J, map, info );
 
             LDL( info, JFront, LDL_2D );
@@ -1135,10 +1137,19 @@ void Mehrotra
     // Construct the static part of the KKT system
     // ===========================================
     DistSparseMatrix<Real> JStatic(comm);
-    StaticKKT( A, G, JStatic, false );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    StaticKKT( A, G, regPerm, JStatic, false );
+    JStatic.FreezeSparsity();
+    if( ctrl.primalInit && ctrl.dualInit )
+    {
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+        if( commRank == 0 && ctrl.time )
+            Output("ND: ",timer.Stop()," secs");
+        InvertMap( map, invMap );
+    }
+    auto meta = JStatic.InitializeMultMeta();
 
-    DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -1241,6 +1252,8 @@ void Mehrotra
         // Construct the KKT system
         // ------------------------
         JOrig = JStatic;
+        JOrig.FreezeSparsity();
+        JOrig.multMeta = meta;
         FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
@@ -1248,14 +1261,11 @@ void Mehrotra
         // -----------------------
         try
         {
-            // Cache the metadata for the finalized JOrig
-            if( numIts == 0 )
-                metaOrig = JOrig.InitializeMultMeta();
-            else
-                JOrig.multMeta = metaOrig;
             J = JOrig;
-
+            J.FreezeSparsity();
+            J.multMeta = meta;
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             if( wMaxNorm >= ruizEquilTol )
@@ -1267,22 +1277,6 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 Output("Equilibration: ",timer.Stop()," secs");
 
-            // Cache the metadata for the finalized J
-            if( numIts == 0 )
-            {
-                meta = J.InitializeMultMeta();
-                if( ctrl.primalInit && ctrl.dualInit )
-                {
-                    if( commRank == 0 && ctrl.time )
-                        timer.Start();
-                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                    if( commRank == 0 && ctrl.time )
-                        Output("ND: ",timer.Stop()," secs");
-                    InvertMap( map, invMap );
-                }
-            }
-            else
-                J.multMeta = meta;
             JFront.Pull( J, map, rootSep, info );
 
             if( commRank == 0 && ctrl.time )

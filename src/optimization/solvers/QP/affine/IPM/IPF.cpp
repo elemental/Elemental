@@ -676,8 +676,13 @@ void IPF
     // Form the static portion of the KKT system
     // =========================================
     SparseMatrix<Real> JStatic;
-    StaticKKT( Q, A, G, JStatic, false );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    StaticKKT( Q, A, G, regPerm, JStatic, false );
+    JStatic.FreezeSparsity();
+    if( ctrl.primalInit && ctrl.dualInit )
+    {
+        NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
+        InvertMap( map, invMap );
+    }
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -785,10 +790,12 @@ void IPF
         // Form the KKT system
         // -------------------
         JOrig = JStatic;
+        JOrig.FreezeSparsity();
         FinishKKT( m, n, s, z, JOrig );
         J = JOrig;
-
+        J.FreezeSparsity();
         UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+
         if( wMaxNorm >= ruizEquilTol )
             SymmetricRuizEquil( J, dInner, ctrl.print );
         else if( wMaxNorm >= diagEquilTol )
@@ -796,11 +803,6 @@ void IPF
         else
             Ones( dInner, n+m+k, 1 );
 
-        if( ctrl.primalInit && ctrl.dualInit && numIts == 0 )
-        {
-            NestedDissection( J.LockedGraph(), map, rootSep, info );
-            InvertMap( map, invMap );
-        }
         JFront.Pull( J, map, info );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
@@ -1003,10 +1005,15 @@ void IPF
     // Form the static portion of the KKT system
     // =========================================
     DistSparseMatrix<Real> JStatic(comm);
-    StaticKKT( Q, A, G, JStatic, false );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    StaticKKT( Q, A, G, regPerm, JStatic, false );
+    JStatic.FreezeSparsity();
+    auto meta = JStatic.InitializeMultMeta();
+    if( ctrl.primalInit && ctrl.dualInit )
+    {
+        NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+        InvertMap( map, invMap );
+    }
 
-    DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -1113,15 +1120,15 @@ void IPF
 
         // Form the KKT system
         // -------------------
+        JOrig = JStatic;
+        JOrig.FreezeSparsity();
         FinishKKT( m, n, s, z, JOrig );
-        // Cache the metadata for the finalized JOrig
-        if( numIts == 0 )
-            metaOrig = JOrig.InitializeMultMeta();
-        else
-            JOrig.multMeta = metaOrig;
+        JOrig.multMeta = meta;
         J = JOrig;
-
+        J.FreezeSparsity();
         UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+        J.multMeta = meta;
+
         if( wMaxNorm >= ruizEquilTol )
             SymmetricRuizEquil( J, dInner, ctrl.print );
         else if( wMaxNorm >= diagEquilTol )
@@ -1129,18 +1136,6 @@ void IPF
         else
             Ones( dInner, n+m+k, 1 );
 
-        // Cache the metadata for the finalized J
-        if( numIts == 0 )
-        {
-            meta = J.InitializeMultMeta();
-            if( ctrl.primalInit && ctrl.dualInit )
-            {
-                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                InvertMap( map, invMap );
-            }
-        }
-        else
-            J.multMeta = meta;
         JFront.Pull( J, map, rootSep, info );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
