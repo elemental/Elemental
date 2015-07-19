@@ -27,7 +27,13 @@ namespace ldl {
 template<typename F>
 DistFront<F>::DistFront( DistFront<F>* parentNode )
 : parent(parentNode), child(nullptr), duplicate(nullptr)
-{ }
+{ 
+    if( parentNode != nullptr )
+    {
+        type = parentNode->type;
+        isHermitian = parentNode->isHermitian;
+    }
+}
 
 template<typename F>
 DistFront<F>::DistFront
@@ -302,9 +308,6 @@ void DistFront<F>::Pull
       unpackEntriesLocal = 
       [&]( const Separator& sep, const NodeInfo& node, Front<F>& front )
       {
-          front.type = SYMM_2D;
-          front.isHermitian = conjugate;
- 
           const Int numChildren = sep.children.size();
           front.children.resize( numChildren );
           for( Int c=0; c<numChildren; ++c )
@@ -357,8 +360,6 @@ void DistFront<F>::Pull
       [&]( const DistSeparator& sep, const DistNodeInfo& node, 
                  DistFront<F>& front )
       {
-          front.type = SYMM_2D;
-          front.isHermitian = conjugate;
           const Grid& grid = *node.grid;
 
           if( sep.child == nullptr )
@@ -414,6 +415,9 @@ void DistFront<F>::Pull
               }
           }
       };
+    // TODO: Modify constructor of [Dist]Front to default to SYMM_2D?
+    type = SYMM_2D;
+    isHermitian = conjugate;
     unpackEntries( rootSep, rootInfo, *this );
     if( time && commRank == 0 )
         Output("Unpack: ",timer.Stop()," secs");

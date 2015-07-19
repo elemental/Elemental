@@ -25,7 +25,13 @@ namespace ldl {
 template<typename F>
 Front<F>::Front( Front<F>* parentNode )
 : parent(parentNode), duplicate(nullptr)
-{ }
+{ 
+    if( parentNode != nullptr )
+    {
+        isHermitian = parentNode->isHermitian;
+        type = parentNode->type;
+    }
+}
 
 template<typename F>
 Front<F>::Front( DistFront<F>* dupNode )
