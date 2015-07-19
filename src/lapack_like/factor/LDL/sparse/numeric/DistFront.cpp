@@ -439,7 +439,6 @@ void DistFront<F>::PullUpdate
     const bool time = false;
    
     mpi::Comm comm = A.Comm();
-    const DistGraph& graph = A.LockedDistGraph();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm ); 
     Timer timer;
