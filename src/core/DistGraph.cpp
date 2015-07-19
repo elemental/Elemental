@@ -238,6 +238,10 @@ void DistGraph::DisconnectLocal( Int localSource, Int target )
     ProcessLocalQueues();
 }
 
+void DistGraph::FreezeSparsity() { frozenSparsity_ = true; }
+void DistGraph::UnfreezeSparsity() { frozenSparsity_ = false; }
+bool DistGraph::FrozenSparsity() const { return frozenSparsity_; }
+
 void DistGraph::QueueConnection( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueConnection"))
@@ -257,8 +261,8 @@ void DistGraph::QueueConnection( Int source, Int target, bool passive )
 
 void DistGraph::QueueLocalConnection( Int localSource, Int target )
 {
+    DEBUG_ONLY(CSE cse("DistGraph::QueueLocalConnection"))
     DEBUG_ONLY(
-      CSE cse("DistGraph::QueueLocalConnection");
       if( NumLocalEdges() == Capacity() )
           cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
@@ -271,14 +275,18 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
     if( target < 0 || target >= numTargets_ )
         LogicError
         ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
-    sources_.push_back( firstLocalSource_+localSource );
-    targets_.push_back( target );
-    locallyConsistent_ = false;
+    if( !FrozenSparsity() )
+    {
+        sources_.push_back( firstLocalSource_+localSource );
+        targets_.push_back( target );
+        locallyConsistent_ = false;
+    }
 }
 
 void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueDisconnection"))
+    // TODO: Use FrozenSparsity()
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
     if( source < firstLocalSource_ || 
@@ -295,6 +303,7 @@ void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueLocalDisconnection"))
+    // TODO: Use FrozenSparsity()
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
     if( localSource < 0 || localSource >= numLocalSources_ )
@@ -304,9 +313,13 @@ void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
     if( target < 0 || target >= numTargets_ )
         LogicError
         ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
-    markedForRemoval_.insert
-    ( pair<Int,Int>(firstLocalSource_+localSource,target) );
-    locallyConsistent_ = false;
+    if( !FrozenSparsity() )
+    {
+        markedForRemoval_.insert
+        ( pair<Int,Int>(firstLocalSource_+localSource,target) );
+        locallyConsistent_ = false;
+    }
+    // else throw error?
 }
 
 void DistGraph::ProcessQueues()
@@ -316,6 +329,7 @@ void DistGraph::ProcessQueues()
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
+
     // Send the remote edges
     // =====================
     int commSize = mpi::Size( comm_ );
@@ -346,7 +360,8 @@ void DistGraph::ProcessQueues()
           mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
         auto recvTargets = 
           mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
-        Reserve( NumLocalEdges()+recvSources.size() );
+        if( !FrozenSparsity() )
+            Reserve( NumLocalEdges()+recvSources.size() );
         for( Int i=0; i<recvSources.size(); ++i )
             QueueConnection( recvSources[i], recvTargets[i] );
     }
@@ -393,38 +408,39 @@ void DistGraph::ProcessLocalQueues()
     DEBUG_ONLY(CSE cse("DistGraph::ProcessLocalQueues"))
     if( locallyConsistent_ )
         return;
+
     const Int numLocalEdges = sources_.size();
     Int numRemoved = 0;
     vector<pair<Int,Int>> pairs( numLocalEdges );
-    for( Int e=0; e<numLocalEdges; ++e )
+    if( markedForRemoval_.size() != 0 )
     {
-        pair<Int,Int> candidate(sources_[e],targets_[e]);
-        if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
+        for( Int e=0; e<numLocalEdges; ++e )
         {
-            pairs[e-numRemoved].first = sources_[e];
-            pairs[e-numRemoved].second = targets_[e];
+            pair<Int,Int> candidate(sources_[e],targets_[e]);
+            if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
+                pairs[e-numRemoved] = candidate;
+            else
+                ++numRemoved;
         }
-        else
-        {   
-            ++numRemoved;
-        }
+        SwapClear( markedForRemoval_ );
+        pairs.resize( numLocalEdges-numRemoved );
     }
-    SwapClear( markedForRemoval_ );
-    pairs.resize( numLocalEdges-numRemoved );
+    else
+    {
+        for( Int e=0; e<numLocalEdges; ++e )
+            pairs[e] = pair<Int,Int>{sources_[e],targets_[e]};
+    }
     std::sort( pairs.begin(), pairs.end() );
+    const Int numSorted = pairs.size();
+
     // Compress out duplicates
     Int lastUnique=0;
-    for( Int e=1; e<numLocalEdges; ++e )
-    {
+    for( Int e=1; e<numSorted; ++e )
         if( pairs[e] != pairs[lastUnique] )
-        {
-            ++lastUnique;
-            if( e != lastUnique )
-                pairs[lastUnique] = pairs[e];
-        }
-    }
+            pairs[++lastUnique] = pairs[e];
     const Int numUnique = lastUnique+1;
     pairs.resize( numUnique );
+
     sources_.resize( numUnique );
     targets_.resize( numUnique );
     for( Int e=0; e<numUnique; ++e )
@@ -577,20 +593,20 @@ void DistGraph::AssertLocallyConsistent() const
 void DistGraph::ComputeSourceOffsets()
 {
     DEBUG_ONLY(CSE cse("DistGraph::ComputeSourceOffsets"))
-    // Compute the local edge offsets
     Int sourceOffset = 0;
     Int prevSource = firstLocalSource_-1;
     localSourceOffsets_.resize( numLocalSources_+1 );
     const Int numLocalEdges = NumLocalEdges();
-    for( Int localEdge=0; localEdge<numLocalEdges; ++localEdge )
+    const Int* sourceBuf = LockedSourceBuffer();
+    for( Int e=0; e<numLocalEdges; ++e )
     {
-        const Int source = Source( localEdge );
+        const Int source = sourceBuf[e];
         DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
         for( ; prevSource<source; ++prevSource )
-            localSourceOffsets_[sourceOffset++] = localEdge;
+            localSourceOffsets_[sourceOffset++] = e;
     }
     for( ; sourceOffset<=numLocalSources_; ++sourceOffset )
         localSourceOffsets_[sourceOffset] = numLocalEdges;

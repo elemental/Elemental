@@ -82,6 +82,10 @@ public:
     // --------
     void Reserve( Int numLocalEntries, Int numRemoteEntries=0 );
 
+    void FreezeSparsity();
+    void UnfreezeSparsity();
+    bool FrozenSparsity() const;
+
     // Expensive independent updates and explicit zeroing
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     void Update( const Entry<T>& entry );

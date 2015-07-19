@@ -98,6 +98,16 @@ void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 }
 
 template<typename T>
+void DistSparseMatrix<T>::FreezeSparsity() 
+{ distGraph_.frozenSparsity_ = true; }
+template<typename T>
+void DistSparseMatrix<T>::UnfreezeSparsity() 
+{ distGraph_.frozenSparsity_ = false; }
+template<typename T>
+bool DistSparseMatrix<T>::FrozenSparsity() const 
+{ return distGraph_.frozenSparsity_; }
+
+template<typename T>
 void DistSparseMatrix<T>::Update( Int row, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::Update"))
@@ -141,6 +151,7 @@ template<typename T>
 void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueUpdate"))
+    // TODO: Use FrozenSparsity()
     if( row == END ) row = Height() - 1;
     if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
@@ -163,9 +174,17 @@ template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueLocalUpdate"))
-    distGraph_.QueueLocalConnection( localRow, col );
-    vals_.push_back( value );
-    multMeta.ready = false;
+    if( FrozenSparsity() )
+    {
+        const Int offset = distGraph_.Offset( localRow, col );
+        vals_[offset] += value;
+    }
+    else
+    {
+        distGraph_.QueueLocalConnection( localRow, col );
+        vals_.push_back( value );
+        multMeta.ready = false;
+    }
 }
 
 template<typename T>
@@ -188,8 +207,16 @@ template<typename T>
 void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueZero"))
-    distGraph_.QueueLocalDisconnection( localRow, col );
-    multMeta.ready = false;
+    if( FrozenSparsity() )
+    {
+        const Int offset = distGraph_.Offset( localRow, col );
+        vals_[offset] = 0;
+    }
+    else
+    {
+        distGraph_.QueueLocalDisconnection( localRow, col );
+        multMeta.ready = false;
+    }
 }
 
 template<typename T>
@@ -201,6 +228,7 @@ void DistSparseMatrix<T>::ProcessQueues()
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
+
     // Send the remote updates
     // =======================
     const int commSize = mpi::Size( distGraph_.comm_ );
@@ -231,7 +259,8 @@ void DistSparseMatrix<T>::ProcessQueues()
         // -------------------
         auto recvBuf=
           mpi::AllToAll( sendBuf, sendCounts, sendOffs, distGraph_.comm_ );
-        Reserve( NumLocalEntries()+recvBuf.size() );
+        if( !FrozenSparsity() )
+            Reserve( NumLocalEntries()+recvBuf.size() );
         for( auto& entry : recvBuf )
             QueueUpdate( entry );
     }
@@ -280,42 +309,52 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
     if( distGraph_.locallyConsistent_ )
         return;
 
-    const Int numLocalEntries = vals_.size();
     Int numRemoved = 0;
+    const Int numLocalEntries = vals_.size();
     vector<Entry<T>> entries( numLocalEntries );
-    for( Int s=0; s<numLocalEntries; ++s )
+    if( distGraph_.markedForRemoval_.size() != 0 )
     {
-        pair<Int,Int> candidate(distGraph_.sources_[s],distGraph_.targets_[s]);
-        if( distGraph_.markedForRemoval_.find(candidate) ==
-            distGraph_.markedForRemoval_.end() )
+        for( Int s=0; s<numLocalEntries; ++s )
         {
-            entries[s-numRemoved].i = distGraph_.sources_[s];
-            entries[s-numRemoved].j = distGraph_.targets_[s];
-            entries[s-numRemoved].value = vals_[s];
+            pair<Int,Int> candidate(distGraph_.sources_[s],
+                                    distGraph_.targets_[s]);
+            if( distGraph_.markedForRemoval_.find(candidate) ==
+                distGraph_.markedForRemoval_.end() )
+            {
+                entries[s-numRemoved].i = distGraph_.sources_[s];
+                entries[s-numRemoved].j = distGraph_.targets_[s];
+                entries[s-numRemoved].value = vals_[s];
+            }
+            else
+            {
+                ++numRemoved;
+            }
         }
-        else
-        {
-            ++numRemoved;
-        }
+        SwapClear( distGraph_.markedForRemoval_ );
+        entries.resize( numLocalEntries-numRemoved );
     }
-    SwapClear( distGraph_.markedForRemoval_ );
-    entries.resize( numLocalEntries-numRemoved );
+    else
+    {
+        for( Int s=0; s<numLocalEntries; ++s )
+            entries[s] = Entry<T>{distGraph_.sources_[s],
+                                  distGraph_.targets_[s],vals_[s]};
+    }
     std::sort( entries.begin(), entries.end(), CompareEntries );
+    const Int numSorted = entries.size();
+
     // Combine duplicates
     // ------------------
     Int lastUnique=0;
-    for( Int s=1; s<numLocalEntries; ++s )
+    for( Int s=1; s<numSorted; ++s )
     {
         if( entries[s].i != entries[lastUnique].i ||
             entries[s].j != entries[lastUnique].j )
-        {
-            ++lastUnique;
-            entries[lastUnique] = entries[s];
-        }
+            entries[++lastUnique] = entries[s];
         else
             entries[lastUnique].value += entries[s].value;
     }
     const Int numUnique = lastUnique+1;
+
     entries.resize( numUnique );
     distGraph_.sources_.resize( numUnique );
     distGraph_.targets_.resize( numUnique );

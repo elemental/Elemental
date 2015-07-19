@@ -67,6 +67,10 @@ public:
     void Disconnect( Int source, Int target ); 
     void DisconnectLocal( Int localSource, Int target );
 
+    void FreezeSparsity();
+    void UnfreezeSparsity();
+    bool FrozenSparsity() const;
+
     // For inserting/removing a sequence of edges and then forcing consistency
     void QueueConnection( Int source, Int target, bool passive=true );
     void QueueLocalConnection( Int localSource, Int target ); 
@@ -120,6 +124,7 @@ private:
     Int blocksize_;
     Int firstLocalSource_, numLocalSources_;
 
+    bool frozenSparsity_ = false;
     vector<Int> sources_, targets_;
     set<pair<Int,Int>> markedForRemoval_;
 

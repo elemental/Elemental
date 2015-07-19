@@ -142,13 +142,15 @@ void Graph::Disconnect( Int source, Int target )
     ProcessQueues();
 }
 
+void Graph::FreezeSparsity() { frozenSparsity_ = true; }
+void Graph::UnfreezeSparsity() { frozenSparsity_ = false; }
+bool Graph::FrozenSparsity() const { return frozenSparsity_; }
+
 void Graph::QueueConnection( Int source, Int target )
 {
+    DEBUG_ONLY(CSE cse("Graph::QueueConnection"))
     DEBUG_ONLY(
-      CSE cse("Graph::QueueConnection");
-      const Int capacity = Capacity();
-      const Int numEdges = NumEdges();
-      if( numEdges == capacity )
+      if( NumEdges() == Capacity() )
           cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
     if( source == END ) source = numSources_ - 1;
@@ -159,9 +161,12 @@ void Graph::QueueConnection( Int source, Int target )
     if( target < 0 || target >= numTargets_ )
         LogicError
         ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
-    sources_.push_back( source );
-    targets_.push_back( target );
-    consistent_ = false;
+    if( !FrozenSparsity() )
+    {
+        sources_.push_back( source );
+        targets_.push_back( target );
+        consistent_ = false;
+    }
 }
 
 void Graph::QueueDisconnection( Int source, Int target )
@@ -169,8 +174,11 @@ void Graph::QueueDisconnection( Int source, Int target )
     DEBUG_ONLY(CSE cse("Graph::QueueDisconnection"))
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    markedForRemoval_.insert( pair<Int,Int>(source,target) );
-    consistent_ = false;
+    if( !FrozenSparsity() )
+    {
+        markedForRemoval_.insert( pair<Int,Int>(source,target) );
+        consistent_ = false;
+    }
 }
 
 void Graph::ProcessQueues()
@@ -183,31 +191,33 @@ void Graph::ProcessQueues()
     if( consistent_ )
         return;
 
-    const Int numEdges = sources_.size();
-    // TODO: Consider switching to using the following by default so that
-    //       no extra allocation/memcpy is required
     Int numRemoved=0;
+    const Int numEdges = sources_.size();
     vector<pair<Int,Int>> pairs( numEdges );
-    for( Int e=0; e<numEdges; ++e )
+    if( markedForRemoval_.size() != 0 )
     {
-        pair<Int,Int> candidate(sources_[e],targets_[e]);
-        if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
+        for( Int e=0; e<numEdges; ++e )
         {
-            pairs[e-numRemoved].first = sources_[e];
-            pairs[e-numRemoved].second = targets_[e];
+            pair<Int,Int> candidate(sources_[e],targets_[e]);
+            if( markedForRemoval_.find(candidate) == markedForRemoval_.end() )
+                pairs[e-numRemoved] = candidate;
+            else
+                ++numRemoved;
         }
-        else
-        {
-            ++numRemoved;
-        }
+        markedForRemoval_.clear();
+        pairs.resize( numEdges-numRemoved );
     }
-    markedForRemoval_.clear();
-    pairs.resize( numEdges-numRemoved );
+    else
+    {
+        for( Int e=0; e<numEdges; ++e )
+            pairs[e] = pair<Int,Int>{sources_[e],targets_[e]};
+    }
     std::sort( pairs.begin(), pairs.end() );
+    const Int numSorted = pairs.size();
 
     // Compress out duplicates
     Int lastUnique=0;
-    for( Int e=1; e<pairs.size(); ++e )
+    for( Int e=1; e<numSorted; ++e )
         if( pairs[e] != pairs[lastUnique] )
             pairs[++lastUnique] = pairs[e];
     const Int numUnique = lastUnique+1;
@@ -317,25 +327,23 @@ const Int* Graph::LockedOffsetBuffer() const { return sourceOffsets_.data(); }
 void Graph::ComputeSourceOffsets()
 {
     DEBUG_ONLY(CSE cse("Graph::ComputeSourceOffsets"))
-    // Compute the edge offsets
     Int sourceOffset = 0;
     Int prevSource = -1;
     sourceOffsets_.resize( numSources_+1 );
     const Int numEdges = NumEdges();
-    for( Int edge=0; edge<numEdges; ++edge )
+    const Int* sourceBuf = LockedSourceBuffer();
+    for( Int e=0; e<numEdges; ++e )
     {
-        const Int source = Source( edge );
+        const Int source = sourceBuf[e];
         DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
-        while( source != prevSource )
-        {
-            sourceOffsets_[sourceOffset++] = edge;
-            ++prevSource;
-        }
+        for( ; prevSource<source; ++prevSource )
+            sourceOffsets_[sourceOffset++] = e;
     }
-    sourceOffsets_[numSources_] = numEdges;
+    for( ; sourceOffset<=numSources_; ++sourceOffset )
+        sourceOffsets_[sourceOffset] = numEdges;
 }
 
 void Graph::AssertConsistent() const
