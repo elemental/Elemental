@@ -607,13 +607,6 @@ void IPF
         ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
          "|| G ||_2 estimate: ",twoNormEstG,"\n",Indent());
 
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    Initialize
-    ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
-
     Matrix<Real> regTmp, regPerm;
     regTmp.Resize( m+n+k, 1 );
     regPerm.Resize( m+n+k, 1 );
@@ -638,11 +631,15 @@ void IPF
     SparseMatrix<Real> JStatic;
     StaticKKT( A, G, regPerm, JStatic, false );
     JStatic.FreezeSparsity();
-    if( ctrl.primalInit && ctrl.dualInit )
-    {
-        NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
-        InvertMap( map, invMap );
-    }
+    vector<Int> map, invMap;
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
+    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+
+    Initialize
+    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -920,13 +917,6 @@ void IPF
         ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
          "|| G ||_2 estimate: ",twoNormEstG);
 
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    Initialize
-    ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
-
     DistMultiVec<Real> regTmp(comm), regPerm(comm);
     regTmp.Resize( m+n+k, 1 );
     regPerm.Resize( m+n+k, 1 );
@@ -952,12 +942,16 @@ void IPF
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT( A, G, regPerm, JStatic, false );
     JStatic.FreezeSparsity();
-    if( ctrl.primalInit && ctrl.dualInit ) 
-    {
-        NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
-        InvertMap( map, invMap );
-    }
-    auto meta = JStatic.InitializeMultMeta();
+    JStatic.InitializeMultMeta();
+    DistMap map, invMap;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
+    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+
+    Initialize
+    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
@@ -1063,10 +1057,10 @@ void IPF
         JOrig = JStatic;
         JOrig.FreezeSparsity();
         FinishKKT( m, n, s, z, JOrig );
-        JOrig.multMeta = meta;
+        JOrig.multMeta = JStatic.multMeta;
         J = JOrig;
         J.FreezeSparsity();
-        J.multMeta = meta;
+        J.multMeta = JStatic.multMeta;
         UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
         if( wMaxNorm >= ruizEquilTol )

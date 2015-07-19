@@ -775,14 +775,6 @@ void Mehrotra
          "|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
          "|| G ||_2 estimate: ",twoNormEstG);
 
-    // TODO: Add permanent regularization and cache J metadata
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    Initialize
-    ( Q, A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
-
     // TODO: Expose regularization rules to user
     Matrix<Real> regPerm, regTmp;
     regPerm.Resize( n+m+k, 1 );
@@ -808,11 +800,15 @@ void Mehrotra
     SparseMatrix<Real> JStatic;
     StaticKKT( Q, A, G, regPerm, JStatic, false );
     JStatic.FreezeSparsity();
-    if( ctrl.primalInit && ctrl.dualInit )
-    {
-        NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
-        InvertMap( map, invMap );
-    }
+    vector<Int> map, invMap;
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
+    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+
+    Initialize
+    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -1099,6 +1095,8 @@ void Mehrotra
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
+    //const Real selInvTol = Pow(eps,Real(-0.25));
+    const Real selInvTol = 0;
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
@@ -1163,18 +1161,6 @@ void Mehrotra
          "|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
          "|| G ||_2 estimate: ",twoNormEstG);
 
-    // TODO: Add permanent regularization and cache J metadata
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    if( commRank == 0 && ctrl.time )
-        timer.Start();
-    Initialize
-    ( Q, A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
-    if( commRank == 0 && ctrl.time )
-        Output("Init: ",timer.Stop()," secs");
-
     DistMultiVec<Real> regTmp(comm), regPerm(comm);
     regTmp.Resize( n+m+k, 1 );
     regPerm.Resize( n+m+k, 1 );
@@ -1200,16 +1186,25 @@ void Mehrotra
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT( Q, A, G, regPerm, JStatic, false );
     JStatic.FreezeSparsity();
-    auto meta = JStatic.InitializeMultMeta();
-    if( ctrl.primalInit && ctrl.dualInit )
-    {
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
-        NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
-        if( commRank == 0 && ctrl.time )
-            Output("ND: ",timer.Stop()," secs");
-        InvertMap( map, invMap );
-    }
+    JStatic.InitializeMultMeta();
+    DistMap map, invMap;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
+    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+    if( commRank == 0 && ctrl.time )
+        Output("ND: ",timer.Stop()," secs");
+    InvertMap( map, invMap );
+
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
+    Initialize
+    ( JStatic, regTmp, b, c, h, x, y, z, s, 
+      map, invMap, rootSep, info, 
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+    if( commRank == 0 && ctrl.time )
+        Output("Init: ",timer.Stop()," secs");
 
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
@@ -1320,7 +1315,7 @@ void Mehrotra
         // ------------------------
         JOrig = JStatic;
         JOrig.FreezeSparsity();
-        JOrig.multMeta = meta;
+        JOrig.multMeta = JStatic.multMeta;
         FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
@@ -1330,7 +1325,7 @@ void Mehrotra
         {
             J = JOrig;
             J.FreezeSparsity();
-            J.multMeta = meta;
+            J.multMeta = JStatic.multMeta;
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
             if( commRank == 0 && ctrl.time )
@@ -1348,9 +1343,12 @@ void Mehrotra
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            LDL( info, JFront, LDL_2D );
+            if( wMaxNorm >= selInvTol )
+                LDL( info, JFront, LDL_SELINV_2D );
+            else
+                LDL( info, JFront, LDL_2D );
             if( commRank == 0 && ctrl.time )
-                Output("RegQSDLDL: ",timer.Stop()," secs");
+                Output("LDL: ",timer.Stop()," secs");
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();

@@ -730,13 +730,6 @@ void Mehrotra
         ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
          "|| G ||_2 estimate: ",twoNormEstG);
 
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    Initialize
-    ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
-
     Matrix<Real> regTmp, regPerm;
     regTmp.Resize( n+m+k, 1 );
     regPerm.Resize( n+m+k, 1 );
@@ -761,11 +754,15 @@ void Mehrotra
     SparseMatrix<Real> JStatic;
     StaticKKT( A, G, regPerm, JStatic, false );
     JStatic.FreezeSparsity();
-    if( ctrl.primalInit && ctrl.dualInit )
-    {
-        NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
-        InvertMap( map, invMap );
-    }
+    vector<Int> map, invMap;
+    ldl::NodeInfo info;
+    ldl::Separator rootSep;
+    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+
+    Initialize
+    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -1103,17 +1100,6 @@ void Mehrotra
         ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
          "|| G ||_2 estimate: ",twoNormEstG);
 
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    if( commRank == 0 && ctrl.time )
-        timer.Start();
-    Initialize
-    ( A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
-    if( commRank == 0 && ctrl.time )
-        Output("Init: ",timer.Stop()," secs");
-
     DistMultiVec<Real> regTmp(comm), regPerm(comm);
     regTmp.Resize( n+m+k, 1 );
     regPerm.Resize( n+m+k, 1 );
@@ -1139,16 +1125,25 @@ void Mehrotra
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT( A, G, regPerm, JStatic, false );
     JStatic.FreezeSparsity();
-    if( ctrl.primalInit && ctrl.dualInit )
-    {
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
-        NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
-        if( commRank == 0 && ctrl.time )
-            Output("ND: ",timer.Stop()," secs");
-        InvertMap( map, invMap );
-    }
-    auto meta = JStatic.InitializeMultMeta();
+    JStatic.InitializeMultMeta();
+    DistMap map, invMap;
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator rootSep;
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
+    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+    if( commRank == 0 && ctrl.time )
+        Output("ND: ",timer.Stop()," secs");
+    InvertMap( map, invMap );
+
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
+    Initialize
+    ( JStatic, regTmp, b, c, h, x, y, z, s, 
+      map, invMap, rootSep, info, 
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+    if( commRank == 0 && ctrl.time )
+        Output("Init: ",timer.Stop()," secs");
 
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
@@ -1253,7 +1248,7 @@ void Mehrotra
         // ------------------------
         JOrig = JStatic;
         JOrig.FreezeSparsity();
-        JOrig.multMeta = meta;
+        JOrig.multMeta = JStatic.multMeta;
         FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
@@ -1263,7 +1258,7 @@ void Mehrotra
         {
             J = JOrig;
             J.FreezeSparsity();
-            J.multMeta = meta;
+            J.multMeta = JStatic.multMeta;
             UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
             if( commRank == 0 && ctrl.time )

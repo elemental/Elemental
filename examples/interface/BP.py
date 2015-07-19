@@ -59,7 +59,7 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.BPCtrl_d(isSparse=True)
-ctrl.useSOCP = True
+ctrl.useSOCP = False
 ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.time = True
 ctrl.socpIPMCtrl.mehrotraCtrl.progress = True

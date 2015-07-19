@@ -421,16 +421,34 @@ Args& GetArgs()
 }
 
 Int Blocksize()
-{ return ::blocksizeStack.top(); }
+{ 
+    DEBUG_ONLY(
+      if( ::blocksizeStack.empty() )
+          LogicError("Attempted to extract blocksize from empty stack");
+    )
+    return ::blocksizeStack.top(); 
+}
 
 void SetBlocksize( Int blocksize )
-{ ::blocksizeStack.top() = blocksize; }
+{ 
+    DEBUG_ONLY(
+      if( ::blocksizeStack.empty() )
+          LogicError("Attempted to set blocksize at top of empty stack");
+    )
+    ::blocksizeStack.top() = blocksize; 
+}
 
 void PushBlocksizeStack( Int blocksize )
 { ::blocksizeStack.push( blocksize ); }
 
 void PopBlocksizeStack()
-{ ::blocksizeStack.pop(); }
+{
+    DEBUG_ONLY(
+      if( ::blocksizeStack.empty() )
+          LogicError("Attempted to pop an empty blocksize stack");
+    )
+    ::blocksizeStack.pop();
+}
 
 const Grid& DefaultGrid()
 {
@@ -477,6 +495,8 @@ DEBUG_ONLY(
         if( omp_get_thread_num() != 0 )
             return;
 #endif
+        if( ::callStack.empty() )
+            LogicError("Attempted to pop an empty call stack");
         ::callStack.pop(); 
     }
 

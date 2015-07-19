@@ -42,9 +42,8 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A,
-  const SparseMatrix<Real>& G,
+( const SparseMatrix<Real>& JStatic,
+  const Matrix<Real>& regTmp,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -52,17 +51,16 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-        vector<Int>& map,
-        vector<Int>& invMap,
-        ldl::Separator& rootSep,
-        ldl::NodeInfo& info,
+  const vector<Int>& map,
+  const vector<Int>& invMap,
+  const ldl::Separator& rootSep,
+  const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl );
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A,
-  const DistSparseMatrix<Real>& G,
+( const DistSparseMatrix<Real>& JStatic,
+  const DistMultiVec<Real>& regTmp,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
@@ -70,10 +68,10 @@ void Initialize
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-        DistMap& map,
-        DistMap& invMap,
-        ldl::DistSeparator& rootSep,
-        ldl::DistNodeInfo& info,
+  const DistMap& map,
+  const DistMap& invMap,
+  const ldl::DistSeparator& rootSep,
+  const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,  
   const RegQSDCtrl<Real>& qsdCtrl );
 

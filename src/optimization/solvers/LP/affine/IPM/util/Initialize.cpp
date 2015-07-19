@@ -65,11 +65,15 @@ namespace affine {
 
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
+( const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
@@ -181,11 +185,15 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
@@ -298,81 +306,106 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c,
+( const SparseMatrix<Real>& JStatic,
+  const Matrix<Real>& regTmp,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
-        vector<Int>& map,            vector<Int>& invMap, 
-        ldl::Separator& rootSep,          ldl::NodeInfo& info,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
+  const vector<Int>& map,
+  const vector<Int>& invMap, 
+  const ldl::Separator& rootSep,
+  const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
-    const Int n = A.Width();
-    SparseMatrix<Real> Q;
-    Q.Resize( n, n );
     qp::affine::Initialize
-    ( Q, A, G, b, c, h, x, y, z, s, map, invMap, rootSep, info,
+    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
       primalInit, dualInit, standardShift, qsdCtrl );
 }
 
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& A,  const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c,
+( const DistSparseMatrix<Real>& JStatic,
+  const DistMultiVec<Real>& regTmp,
+  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
-        DistMap& map,                     DistMap& invMap, 
-        ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
+  const DistMap& map,
+  const DistMap& invMap, 
+  const ldl::DistSeparator& rootSep,
+  const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
-    const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm);
-    Q.Resize( n, n );
     qp::affine::Initialize
-    ( Q, A, G, b, c, h, x, y, z, s, 
+    ( JStatic, regTmp, b, c, h, x, y, z, s,
       map, invMap, rootSep, info, 
       primalInit, dualInit, standardShift, qsdCtrl );
 }
 
 #define PROTO(Real) \
   template void Initialize \
-  ( const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
-          Matrix<Real>& z,       Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& G, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
+  ( const SparseMatrix<Real>& JStatic, \
+    const Matrix<Real>& regTmp, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
-          Matrix<Real>& z,             Matrix<Real>& s, \
-          vector<Int>& map,            vector<Int>& invMap, \
-          ldl::Separator& rootSep,          ldl::NodeInfo& info, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
+    const vector<Int>& map, \
+    const vector<Int>& invMap, \
+    const ldl::Separator& rootSep, \
+    const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
-  ( const DistSparseMatrix<Real>& A,  const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
+  ( const DistSparseMatrix<Real>& JStatic, \
+    const DistMultiVec<Real>& regTmp, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z,            DistMultiVec<Real>& s, \
-          DistMap& map,                     DistMap& invMap, \
-          ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& s, \
+    const DistMap& map, \
+    const DistMap& invMap, \
+    const ldl::DistSeparator& rootSep, \
+    const ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl );
 
