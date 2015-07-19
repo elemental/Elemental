@@ -100,7 +100,8 @@ public:
     // --------------------------
     Int Source( Int localEdge ) const;
     Int Target( Int localEdge ) const;
-    Int EdgeOffset( Int localSource ) const;
+    Int SourceOffset( Int localSource ) const;
+    Int Offset( Int localSource, Int target ) const;
     Int NumConnections( Int localSource ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
@@ -129,8 +130,8 @@ private:
 
     // Helpers for local indexing
     bool locallyConsistent_ = true;
-    vector<Int> localEdgeOffsets_;
-    void ComputeEdgeOffsets();
+    vector<Int> localSourceOffsets_;
+    void ComputeSourceOffsets();
 
     friend class Graph;
     friend void Copy( const Graph& A, DistGraph& B );

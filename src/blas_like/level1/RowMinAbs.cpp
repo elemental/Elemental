@@ -109,7 +109,7 @@ void RowMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
     for( Int i=0; i<m; ++i )
     {
         Real rowMin = std::numeric_limits<Real>::max();
-        const Int offset = A.EntryOffset( i );
+        const Int offset = A.RowOffset( i );
         const Int numConn = A.NumConnections( i );
         for( Int e=offset; e<offset+numConn; ++e )
             rowMin = Min(rowMin,Abs(A.Value(e)));
@@ -130,7 +130,7 @@ void RowMinAbsNonzero
     for( Int i=0; i<m; ++i )
     {
         Real rowMin = upperBounds.Get(i,0);
-        const Int offset = A.EntryOffset( i );
+        const Int offset = A.RowOffset( i );
         const Int numConn = A.NumConnections( i );
         for( Int e=offset; e<offset+numConn; ++e )
         {
@@ -153,7 +153,7 @@ void RowMinAbs( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins )
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         Real rowMin = std::numeric_limits<Real>::max();
-        const Int offset = A.EntryOffset( iLoc );
+        const Int offset = A.RowOffset( iLoc );
         const Int numConn = A.NumConnections( iLoc );
         for( Int e=offset; e<offset+numConn; ++e )
             rowMin = Min(rowMin,Abs(A.Value(e)));
@@ -175,7 +175,7 @@ void RowMinAbsNonzero
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         Real rowMin = upperBounds.GetLocal(iLoc,0);
-        const Int offset = A.EntryOffset( iLoc );
+        const Int offset = A.RowOffset( iLoc );
         const Int numConn = A.NumConnections( iLoc );
         for( Int e=offset; e<offset+numConn; ++e )
         {

@@ -156,10 +156,15 @@ EL_EXPORT ElError ElDistGraphSource
 EL_EXPORT ElError ElDistGraphTarget
 ( ElConstDistGraph graph, ElInt localEdge, ElInt* target );
 
-/* Int DistGraph::EdgeOffset( Int localSource ) const
-   -------------------------------------------------- */
-EL_EXPORT ElError ElDistGraphEdgeOffset
-( ElConstDistGraph graph, ElInt localSource, ElInt* localEdgeOffset );
+/* Int DistGraph::SourceOffset( Int localSource ) const
+   ---------------------------------------------------- */
+EL_EXPORT ElError ElDistGraphSourceOffset
+( ElConstDistGraph graph, ElInt localSource, ElInt* localSourceOffset );
+
+/* Int DistGraph::Offset( Int localSource, Int target ) const
+   ---------------------------------------------------------- */
+EL_EXPORT ElError ElDistGraphOffset
+( ElConstDistGraph graph, ElInt localSource, ElInt target, ElInt* localOffset );
 
 /* Int DistGraph::NumConnections( Int localSource ) const
    ------------------------------------------------------ */

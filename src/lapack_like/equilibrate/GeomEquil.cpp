@@ -547,7 +547,7 @@ void GeomEquil
     F* valBuf = A.ValueBuffer();
     for( Int i=0; i<m; ++i )
     {
-        const Int offset = A.EntryOffset(i);
+        const Int offset = A.RowOffset(i);
         const Int numConnect = A.NumConnections(i);
 
         // Compute the maximum value in this row
@@ -693,7 +693,7 @@ void StackedGeomEquil
     F* valBufA = A.ValueBuffer();
     for( Int i=0; i<mA; ++i )
     {
-        const Int offset = A.EntryOffset(i);
+        const Int offset = A.RowOffset(i);
         const Int numConnect = A.NumConnections(i);
 
         // Compute the maximum value in this row
@@ -711,7 +711,7 @@ void StackedGeomEquil
     F* valBufB = B.ValueBuffer(); 
     for( Int i=0; i<mB; ++i )
     {
-        const Int offset = B.EntryOffset(i);
+        const Int offset = B.RowOffset(i);
         const Int numConnect = B.NumConnections(i);
 
         // Compute the maximum value in this row
@@ -829,7 +829,7 @@ void GeomEquil
     const Int localHeight = A.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int offset = A.EntryOffset(iLoc);
+        const Int offset = A.RowOffset(iLoc);
         const Int numConnect = A.NumConnections(iLoc);
 
         // Compute the maximum value in this row
@@ -990,7 +990,7 @@ void StackedGeomEquil
     const Int localHeightA = A.LocalHeight();
     for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
     {
-        const Int offset = A.EntryOffset(iLoc);
+        const Int offset = A.RowOffset(iLoc);
         const Int numConnect = A.NumConnections(iLoc);
 
         // Compute the maximum value in this row
@@ -1009,7 +1009,7 @@ void StackedGeomEquil
     const Int localHeightB = B.LocalHeight();
     for( Int iLoc=0; iLoc<localHeightB; ++iLoc )
     {
-        const Int offset = B.EntryOffset(iLoc);
+        const Int offset = B.RowOffset(iLoc);
         const Int numConnect = B.NumConnections(iLoc);
 
         // Compute the maximum value in this row

@@ -284,7 +284,7 @@ void ConeGeomEquil
     F* valBufA = A.ValueBuffer();
     for( Int i=0; i<mA; ++i )
     {
-        const Int offset = A.EntryOffset(i);
+        const Int offset = A.RowOffset(i);
         const Int numConnect = A.NumConnections(i);
 
         // Compute the maximum value in this row
@@ -450,7 +450,7 @@ void ConeGeomEquil
     const Int localHeightA = A.LocalHeight();
     for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
     {
-        const Int offset = A.EntryOffset(iLoc);
+        const Int offset = A.RowOffset(iLoc);
         const Int numConnect = A.NumConnections(iLoc);
 
         // Compute the maximum value in this row

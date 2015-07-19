@@ -69,7 +69,7 @@ void GetSubmatrix
     Int numNonzerosSub = 0;
     for( Int i=I.beg; i<I.end; ++i )
     {
-        const Int rowOff = A.EntryOffset(i);
+        const Int rowOff = A.RowOffset(i);
         const Int numConn = A.NumConnections(i);
         for( Int e=rowOff; e<rowOff+numConn; ++e )
         {
@@ -83,7 +83,7 @@ void GetSubmatrix
     // Insert the nonzeros
     for( Int i=I.beg; i<I.end; ++i ) 
     {
-        const Int rowOff = A.EntryOffset(i);
+        const Int rowOff = A.RowOffset(i);
         const Int numConn = A.NumConnections(i);
         for( Int e=rowOff; e<rowOff+numConn; ++e )
         {

@@ -231,10 +231,17 @@ Int SparseMatrix<T>::Col( Int index ) const
 }
 
 template<typename T>
-Int SparseMatrix<T>::EntryOffset( Int row ) const
+Int SparseMatrix<T>::RowOffset( Int row ) const
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::EntryOffset"))
-    return graph_.EdgeOffset( row );
+    DEBUG_ONLY(CSE cse("SparseMatrix::RowOffset"))
+    return graph_.SourceOffset( row );
+}
+
+template<typename T>
+Int SparseMatrix<T>::Offset( Int row, Int col ) const
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::Offset"))
+    return graph_.Offset( row, col );
 }
 
 template<typename T>
@@ -344,7 +351,7 @@ void SparseMatrix<T>::ProcessQueues()
         vals_[s] = entries[s].value;
     }
 
-    graph_.ComputeEdgeOffsets();
+    graph_.ComputeSourceOffsets();
     graph_.consistent_ = true;
 }
 

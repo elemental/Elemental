@@ -20,17 +20,17 @@ Graph::Graph() : numSources_(0), numTargets_(0), consistent_(true) { }
 Graph::Graph( Int numVertices )
 : numSources_(numVertices), numTargets_(numVertices), consistent_(true)
 { 
-    edgeOffsets_.resize( numSources_+1 );
+    sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )
-        edgeOffsets_[e] = 0;
+        sourceOffsets_[e] = 0;
 }
 
 Graph::Graph( Int numSources, Int numTargets )
 : numSources_(numSources), numTargets_(numTargets), consistent_(true)
 { 
-    edgeOffsets_.resize( numSources_+1 );
+    sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )
-        edgeOffsets_[e] = 0;
+        sourceOffsets_[e] = 0;
 }
 
 Graph::Graph( const Graph& graph )
@@ -90,15 +90,15 @@ void Graph::Empty( bool clearMemory )
     {
         SwapClear( sources_ );
         SwapClear( targets_ );
-        SwapClear( edgeOffsets_ );
+        SwapClear( sourceOffsets_ );
     }
     else
     {
         sources_.resize( 0 );
         targets_.resize( 0 );
     }
-    edgeOffsets_.resize( 1 );
-    edgeOffsets_[0] = 0;
+    sourceOffsets_.resize( 1 );
+    sourceOffsets_[0] = 0;
 }
 
 void Graph::Resize( Int numVertices )
@@ -114,9 +114,9 @@ void Graph::Resize( Int numSources, Int numTargets )
     numTargets_ = numTargets;
     sources_.resize( 0 );
     targets_.resize( 0 );
-    edgeOffsets_.resize( numSources+1 );
+    sourceOffsets_.resize( numSources+1 );
     for( Int e=0; e<=numSources; ++e )
-        edgeOffsets_[e] = 0;
+        sourceOffsets_[e] = 0;
     consistent_ = true;
 }
 
@@ -221,7 +221,7 @@ void Graph::ProcessQueues()
         targets_[e] = pairs[e].second;
     }
 
-    ComputeEdgeOffsets();
+    ComputeSourceOffsets();
     consistent_ = true;
 }
 
@@ -265,11 +265,11 @@ Int Graph::Target( Int edge ) const
     return targets_[edge];
 }
 
-Int Graph::EdgeOffset( Int source ) const
+Int Graph::SourceOffset( Int source ) const
 {
     if( source == END ) source = numSources_ - 1;
     DEBUG_ONLY(
-      CSE cse("Graph::EdgeOffset");
+      CSE cse("Graph::SourceOffset");
       if( source < 0 )
           LogicError("Negative source index");
       if( source > numSources_ )
@@ -278,7 +278,19 @@ Int Graph::EdgeOffset( Int source ) const
            numSources_,"]");
       AssertConsistent();
     )
-    return edgeOffsets_[source];
+    return sourceOffsets_[source];
+}
+
+Int Graph::Offset( Int source, Int target ) const
+{
+    DEBUG_ONLY(CSE cse("Graph::Offset"))
+    if( source == END ) source = numSources_ - 1;
+    if( target == END ) target = numTargets_ - 1; 
+    const Int* targetBuf = LockedTargetBuffer();
+    const Int thisOff = SourceOffset(source);
+    const Int nextOff = SourceOffset(source+1);
+    auto it = std::lower_bound( targetBuf+thisOff, targetBuf+nextOff, target );
+    return it-targetBuf;
 }
 
 Int Graph::NumConnections( Int source ) const
@@ -288,27 +300,27 @@ Int Graph::NumConnections( Int source ) const
       CSE cse("Graph::NumConnections");
       AssertConsistent();
     )
-    return EdgeOffset(source+1) - EdgeOffset(source);
+    return SourceOffset(source+1) - SourceOffset(source);
 }
 
 Int* Graph::SourceBuffer() { return sources_.data(); }
 Int* Graph::TargetBuffer() { return targets_.data(); }
-Int* Graph::OffsetBuffer() { return edgeOffsets_.data(); }
+Int* Graph::OffsetBuffer() { return sourceOffsets_.data(); }
 
 const Int* Graph::LockedSourceBuffer() const { return sources_.data(); }
 const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }
-const Int* Graph::LockedOffsetBuffer() const { return edgeOffsets_.data(); }
+const Int* Graph::LockedOffsetBuffer() const { return sourceOffsets_.data(); }
 
 // Auxiliary functions
 // ===================
 
-void Graph::ComputeEdgeOffsets()
+void Graph::ComputeSourceOffsets()
 {
-    DEBUG_ONLY(CSE cse("Graph::ComputeEdgeOffsets"))
+    DEBUG_ONLY(CSE cse("Graph::ComputeSourceOffsets"))
     // Compute the edge offsets
     Int sourceOffset = 0;
     Int prevSource = -1;
-    edgeOffsets_.resize( numSources_+1 );
+    sourceOffsets_.resize( numSources_+1 );
     const Int numEdges = NumEdges();
     for( Int edge=0; edge<numEdges; ++edge )
     {
@@ -319,11 +331,11 @@ void Graph::ComputeEdgeOffsets()
         )
         while( source != prevSource )
         {
-            edgeOffsets_[sourceOffset++] = edge;
+            sourceOffsets_[sourceOffset++] = edge;
             ++prevSource;
         }
     }
-    edgeOffsets_[numSources_] = numEdges;
+    sourceOffsets_[numSources_] = numEdges;
 }
 
 void Graph::AssertConsistent() const

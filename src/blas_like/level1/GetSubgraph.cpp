@@ -28,7 +28,7 @@ void GetSubgraph
     Int numEdgesSub = 0;
     for( Int i=I.beg; i<I.end; ++i )
     {
-        const Int sourceOff = graph.EdgeOffset(i);
+        const Int sourceOff = graph.SourceOffset(i);
         const Int numConn = graph.NumConnections(i);
         for( Int e=sourceOff; e<sourceOff+numConn; ++e )
         {
@@ -42,7 +42,7 @@ void GetSubgraph
     // Insert the edges
     for( Int i=I.beg; i<I.end; ++i ) 
     {
-        const Int sourceOff = graph.EdgeOffset(i);
+        const Int sourceOff = graph.SourceOffset(i);
         const Int numConn = graph.NumConnections(i);
         for( Int e=sourceOff; e<sourceOff+numConn; ++e )
         {

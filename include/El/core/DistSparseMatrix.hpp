@@ -154,7 +154,8 @@ public:
     Int Row( Int localInd ) const;
     Int Col( Int localInd ) const;
     T Value( Int localInd ) const;
-    Int EntryOffset( Int localRow ) const;
+    Int RowOffset( Int localRow ) const;
+    Int Offset( Int localRow, Int col ) const;
     Int NumConnections( Int localRow ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();

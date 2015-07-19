@@ -94,7 +94,7 @@ void Front<F>::Pull
         {
             const Int j = invReorder[node.off+t];
             const Int numConn = A.NumConnections( j );
-            const Int entryOff = A.EntryOffset( j );
+            const Int entryOff = A.RowOffset( j );
             for( Int k=0; k<numConn; ++k )
             {
                 const Int iOrig = A.Col( entryOff+k );
@@ -157,7 +157,7 @@ void Front<F>::PullUpdate
         {
             const Int j = invReorder[node.off+t];
             const Int numConn = A.NumConnections( j );
-            const Int entryOff = A.EntryOffset( j );
+            const Int entryOff = A.RowOffset( j );
             for( Int k=0; k<numConn; ++k )
             {
                 const Int iOrig = A.Col( entryOff+k );

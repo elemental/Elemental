@@ -41,7 +41,7 @@ NestedDissectionRecursion
         for( Int s=0; s<node.size; ++s )
         {
             const Int numConnections = graph.NumConnections( s );
-            const Int edgeOff = graph.EdgeOffset( s );
+            const Int edgeOff = graph.SourceOffset( s );
             for( Int t=0; t<numConnections; ++t )
             {
                 const Int target = graph.Target( edgeOff+t );
@@ -80,7 +80,7 @@ NestedDissectionRecursion
         {
             const Int source = sep.inds[s];
             const Int numConnections = graph.NumConnections( source );
-            const Int edgeOff = graph.EdgeOffset( source );
+            const Int edgeOff = graph.SourceOffset( source );
             for( Int t=0; t<numConnections; ++t )
             {
                 const Int target = graph.Target( edgeOff+t );
@@ -173,7 +173,7 @@ NestedDissectionRecursion
             {
                 const Int localSource = source - firstLocalSource;
                 const Int numConnections = graph.NumConnections( localSource );
-                const Int localOff = graph.EdgeOffset( localSource );
+                const Int localOff = graph.SourceOffset( localSource );
                 for( Int t=0; t<numConnections; ++t )
                 {
                     const Int target = graph.Target( localOff+t );

@@ -285,7 +285,7 @@ void SymmetricGeomEquil
         {
             Real maxAbs = 1;
             const Int numConnections = A.NumConnections(i);
-            const Int entryOff = A.EntryOffset(i);
+            const Int entryOff = A.RowOffset(i);
             for( Int k=0; k<numConnections; ++k )
                 maxAbs = Max( Abs(A.Value(entryOff+k)), maxAbs );
             const Real scale = Sqrt(maxAbs);
@@ -379,7 +379,7 @@ void SymmetricGeomEquil
         {
             Real maxAbs = 1;
             const Int numConnections = A.NumConnections(iLoc);
-            const Int entryOff = A.EntryOffset(iLoc);
+            const Int entryOff = A.RowOffset(iLoc);
             for( Int k=0; k<numConnections; ++k )
                 maxAbs = Max( Abs(A.Value(entryOff+k)), maxAbs );
             const Real scale = Sqrt(maxAbs);

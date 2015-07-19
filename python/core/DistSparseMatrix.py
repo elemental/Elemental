@@ -535,22 +535,39 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return value.value
 
-  lib.ElDistSparseMatrixEntryOffset_i.argtypes = \
-  lib.ElDistSparseMatrixEntryOffset_s.argtypes = \
-  lib.ElDistSparseMatrixEntryOffset_d.argtypes = \
-  lib.ElDistSparseMatrixEntryOffset_c.argtypes = \
-  lib.ElDistSparseMatrixEntryOffset_z.argtypes = \
+  lib.ElDistSparseMatrixRowOffset_i.argtypes = \
+  lib.ElDistSparseMatrixRowOffset_s.argtypes = \
+  lib.ElDistSparseMatrixRowOffset_d.argtypes = \
+  lib.ElDistSparseMatrixRowOffset_c.argtypes = \
+  lib.ElDistSparseMatrixRowOffset_z.argtypes = \
     [c_void_p,iType,POINTER(iType)]
-  def EntryOffset(self,localRow):
-    localOffset = iType()
-    args = [self.obj,localRow,pointer(localOffset)]
-    if   self.tag == iTag: lib.ElDistSparseMatrixEntryOffset_i(*args)
-    elif self.tag == sTag: lib.ElDistSparseMatrixEntryOffset_s(*args)
-    elif self.tag == dTag: lib.ElDistSparseMatrixEntryOffset_d(*args)
-    elif self.tag == cTag: lib.ElDistSparseMatrixEntryOffset_c(*args)
-    elif self.tag == zTag: lib.ElDistSparseMatrixEntryOffset_z(*args)
+  def RowOffset(self,localRow):
+    offset = iType()
+    args = [self.obj,localRow,pointer(offset)]
+    if   self.tag == iTag: lib.ElDistSparseMatrixRowOffset_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixRowOffset_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixRowOffset_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixRowOffset_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixRowOffset_z(*args)
     else: DataExcept()
-    return localOffset.value
+    return offset.value
+
+  lib.ElDistSparseMatrixOffset_i.argtypes = \
+  lib.ElDistSparseMatrixOffset_s.argtypes = \
+  lib.ElDistSparseMatrixOffset_d.argtypes = \
+  lib.ElDistSparseMatrixOffset_c.argtypes = \
+  lib.ElDistSparseMatrixOffset_z.argtypes = \
+    [c_void_p,iType,iType,POINTER(iType)]
+  def Offset(self,localRow,col):
+    offset = iType()
+    args = [self.obj,localRow,col,pointer(offset)]
+    if   self.tag == iTag: lib.ElDistSparseMatrixOffset_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixOffset_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixOffset_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixOffset_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixOffset_z(*args)
+    else: DataExcept()
+    return offset.value
 
   lib.ElDistSparseMatrixNumConnections_i.argtypes = \
   lib.ElDistSparseMatrixNumConnections_s.argtypes = \

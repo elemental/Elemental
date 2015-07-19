@@ -326,7 +326,7 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
         distGraph_.targets_[s] = entries[s].j;
         vals_[s] = entries[s].value;
     }
-    distGraph_.ComputeEdgeOffsets();
+    distGraph_.ComputeSourceOffsets();
     distGraph_.locallyConsistent_ = true;
 }
 
@@ -440,7 +440,7 @@ Int DistSparseMatrix<T>::Blocksize() const { return distGraph_.Blocksize(); }
 template<typename T>
 int DistSparseMatrix<T>::RowOwner( Int i ) const 
 { 
-    if( i == END ) i = Height() - 1;
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::RowOwner"))
     return distGraph_.SourceOwner(i); 
 }
 
@@ -448,7 +448,6 @@ template<typename T>
 Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
 { 
     DEBUG_ONLY(CSE cse("DistSparseMatrix::GlobalRow"))
-    if( iLoc == END ) iLoc = LocalHeight() - 1;
     return distGraph_.GlobalSource(iLoc); 
 }
 
@@ -456,7 +455,6 @@ template<typename T>
 Int DistSparseMatrix<T>::LocalRow( Int i ) const
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::LocalRow"))
-    if( i == END ) i = Height() - 1;
     return distGraph_.LocalSource(i);
 }
 
@@ -477,18 +475,23 @@ Int DistSparseMatrix<T>::Col( Int localInd ) const
 }
 
 template<typename T>
-Int DistSparseMatrix<T>::EntryOffset( Int localRow ) const
+Int DistSparseMatrix<T>::RowOffset( Int localRow ) const
 {
-    DEBUG_ONLY(CSE cse("DistSparseMatrix::EntryOffset"))
-    if( localRow == END ) localRow = LocalHeight() - 1;
-    return distGraph_.EdgeOffset( localRow );
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::RowOffset"))
+    return distGraph_.SourceOffset( localRow );
+}
+
+template<typename T>
+Int DistSparseMatrix<T>::Offset( Int localRow, Int col ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Offset"))
+    return distGraph_.Offset( localRow, col );
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::NumConnections"))
-    if( localRow == END ) localRow = LocalHeight() - 1;
     return distGraph_.NumConnections( localRow );
 }
 

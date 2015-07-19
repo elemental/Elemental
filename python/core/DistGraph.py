@@ -150,11 +150,17 @@ class DistGraph(object):
     lib.ElDistGraphTarget(self.obj,localEdge,pointer(target))
     return target.value
 
-  lib.ElDistGraphEdgeOffset.argtypes = [c_void_p,iType,POINTER(iType)]
-  def EdgeOffset(self,localSource):
-    localEdgeOffset = iType()
-    lib.ElDistGraphEdgeOffset(self.obj,source,pointer(localEdgeOffset))
-    return localEdgeOffset.value
+  lib.ElDistGraphSourceOffset.argtypes = [c_void_p,iType,POINTER(iType)]
+  def SourceOffset(self,localSource):
+    offset = iType()
+    lib.ElDistGraphSourceOffset(self.obj,source,pointer(offset))
+    return offset.value
+
+  lib.ElDistGraphOffset.argtypes = [c_void_p,iType,iType,POINTER(iType)]
+  def Offset(self,localSource,target):
+    offset = iType()
+    lib.ElDistGraphOffset(self.obj,source,target,pointer(offset))
+    return offset.value
 
   lib.ElDistGraphNumConnections.argtypes = [c_void_p,iType,POINTER(iType)]
   def NumConnections(self,localSource):

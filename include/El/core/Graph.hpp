@@ -79,7 +79,8 @@ public:
 
     Int Source( Int edge ) const;
     Int Target( Int edge ) const;
-    Int EdgeOffset( Int source ) const;
+    Int SourceOffset( Int source ) const;
+    Int Offset( Int source, Int target ) const;
     Int NumConnections( Int source ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
@@ -97,8 +98,8 @@ private:
 
     // Helpers for local indexing
     bool consistent_;
-    vector<Int> edgeOffsets_;
-    void ComputeEdgeOffsets();
+    vector<Int> sourceOffsets_;
+    void ComputeSourceOffsets();
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;

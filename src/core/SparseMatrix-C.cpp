@@ -69,9 +69,12 @@ extern "C" {
   ElError ElSparseMatrixValue_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElInt index, CREFLECT(T)* value ) \
   { EL_TRY( *value = CReflect(CReflect(A)->Value(index)) ) } \
-  ElError ElSparseMatrixEntryOffset_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElInt row, ElInt* entryOffset ) \
-  { EL_TRY( *entryOffset = CReflect(A)->EntryOffset(row) ) } \
+  ElError ElSparseMatrixRowOffset_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElInt row, ElInt* rowOffset ) \
+  { EL_TRY( *rowOffset = CReflect(A)->RowOffset(row) ) } \
+  ElError ElSparseMatrixOffset_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, ElInt row, ElInt col, ElInt* offset ) \
+  { EL_TRY( *offset = CReflect(A)->Offset(row,col) ) } \
   ElError ElSparseMatrixNumConnections_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElInt row, ElInt* numConnections ) \
   { EL_TRY( *numConnections = CReflect(A)->NumConnections(row) ) } \

@@ -16,7 +16,6 @@ display = True
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
-# Make a sparse matrix with the last column dense
 def Rectang(height,width):
   A = El.DistSparseMatrix()
   A.Resize(height,width)
@@ -24,18 +23,13 @@ def Rectang(height,width):
   A.Reserve(5*localHeight)
   for sLoc in xrange(localHeight):
     s = A.GlobalRow(sLoc)
-    if s < width: 
-      A.QueueLocalUpdate( sLoc, s,        11 )
-    if s >= 1 and s-1 < width:
-      A.QueueLocalUpdate( sLoc, s-1,      -1 )
-    if s+1 < width:
-      A.QueueLocalUpdate( sLoc, s+1,       2 )
-    if s >= height and s-height < width:
-      A.QueueLocalUpdate( sLoc, s-height, -3 )
-    if s+height < width: 
-      A.QueueLocalUpdate( sLoc, s+height,  4 )
+    A.QueueLocalUpdate( sLoc, s%width, 11 )
+    A.QueueLocalUpdate( sLoc, (s-1)%width, -1 )
+    A.QueueLocalUpdate( sLoc, (s+1)%width,  2 )
+    A.QueueLocalUpdate( sLoc, (s-height)%width, -3 )
+    A.QueueLocalUpdate( sLoc, (s+height)%width,  4 )
     # The dense last column
-    A.QueueLocalUpdate( sLoc, width-1, -5/height );
+    #A.QueueLocalUpdate( sLoc, width-1, -5/height );
 
   A.ProcessQueues()
   return A

@@ -123,15 +123,15 @@ void DistGraph::Empty( bool clearMemory )
     {
         SwapClear( sources_ );
         SwapClear( targets_ );
-        SwapClear( localEdgeOffsets_ );
+        SwapClear( localSourceOffsets_ );
     }
     else
     {
         sources_.resize( 0 );
         targets_.resize( 0 );
     }
-    localEdgeOffsets_.resize( 1 );
-    localEdgeOffsets_[0] = 0;
+    localSourceOffsets_.resize( 1 );
+    localSourceOffsets_[0] = 0;
 }
 
 void DistGraph::Resize( Int numVertices ) 
@@ -156,9 +156,9 @@ void DistGraph::Resize( Int numSources, Int numTargets )
     sources_.resize( 0 );
     targets_.resize( 0 );
 
-    localEdgeOffsets_.resize( numLocalSources_+1 );
+    localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )
-        localEdgeOffsets_[e] = 0;
+        localSourceOffsets_[e] = 0;
 
     locallyConsistent_ = true;
 }
@@ -176,9 +176,9 @@ void DistGraph::InitializeLocalData()
     else
         numLocalSources_ = numSources_ - (commSize-1)*blocksize_;
 
-    localEdgeOffsets_.resize( numLocalSources_+1 );
+    localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )
-        localEdgeOffsets_[e] = 0;
+        localSourceOffsets_[e] = 0;
 
     sources_.resize( 0 );
     targets_.resize( 0 );
@@ -432,7 +432,7 @@ void DistGraph::ProcessLocalQueues()
         sources_[e] = pairs[e].first;
         targets_[e] = pairs[e].second;
     }
-    ComputeEdgeOffsets();
+    ComputeSourceOffsets();
     locallyConsistent_ = true;
 }
 
@@ -512,18 +512,30 @@ Int DistGraph::Target( Int localEdge ) const
     return targets_[localEdge];
 }
 
-Int DistGraph::EdgeOffset( Int localSource ) const
+Int DistGraph::SourceOffset( Int localSource ) const
 {
     if( localSource == END ) localSource = numLocalSources_ - 1;
     DEBUG_ONLY(
-      CSE cse("DistGraph::EdgeOffset");
+      CSE cse("DistGraph::SourceOffset");
       if( localSource < 0 || localSource > numLocalSources_ )
           LogicError
           ("Out of bounds localSource: ",localSource,
            " is not in [0,",numLocalSources_,")");
       AssertLocallyConsistent();
     )
-    return localEdgeOffsets_[localSource];
+    return localSourceOffsets_[localSource];
+}
+
+Int DistGraph::Offset( Int localSource, Int target ) const
+{
+    DEBUG_ONLY(CSE cse("DistGraph::Offset"))
+    if( localSource == END ) localSource = numLocalSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
+    const Int* targetBuf = LockedTargetBuffer();
+    const Int thisOff = SourceOffset(localSource);
+    const Int nextOff = SourceOffset(localSource+1);
+    auto it = std::lower_bound( targetBuf+thisOff, targetBuf+nextOff, target );
+    return it-targetBuf;
 }
 
 Int DistGraph::NumConnections( Int localSource ) const
@@ -533,17 +545,17 @@ Int DistGraph::NumConnections( Int localSource ) const
       AssertLocallyConsistent();
     )
     if( localSource == END ) localSource = numLocalSources_ - 1;
-    return EdgeOffset(localSource+1) - EdgeOffset(localSource);
+    return SourceOffset(localSource+1) - SourceOffset(localSource);
 }
 
 Int* DistGraph::SourceBuffer() { return sources_.data(); }
 Int* DistGraph::TargetBuffer() { return targets_.data(); }
-Int* DistGraph::OffsetBuffer() { return localEdgeOffsets_.data(); }
+Int* DistGraph::OffsetBuffer() { return localSourceOffsets_.data(); }
 
 const Int* DistGraph::LockedSourceBuffer() const { return sources_.data(); }
 const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
 const Int* DistGraph::LockedOffsetBuffer() const 
-{ return localEdgeOffsets_.data(); }
+{ return localSourceOffsets_.data(); }
 
 // Auxiliary routines
 // ==================
@@ -562,13 +574,13 @@ void DistGraph::AssertLocallyConsistent() const
         LogicError("DistGraph was not consistent");
 }
 
-void DistGraph::ComputeEdgeOffsets()
+void DistGraph::ComputeSourceOffsets()
 {
-    DEBUG_ONLY(CSE cse("DistGraph::ComputeEdgeOffsets"))
+    DEBUG_ONLY(CSE cse("DistGraph::ComputeSourceOffsets"))
     // Compute the local edge offsets
     Int sourceOffset = 0;
     Int prevSource = firstLocalSource_-1;
-    localEdgeOffsets_.resize( numLocalSources_+1 );
+    localSourceOffsets_.resize( numLocalSources_+1 );
     const Int numLocalEdges = NumLocalEdges();
     for( Int localEdge=0; localEdge<numLocalEdges; ++localEdge )
     {
@@ -578,10 +590,10 @@ void DistGraph::ComputeEdgeOffsets()
               RuntimeError("sources were not properly sorted");
         )
         for( ; prevSource<source; ++prevSource )
-            localEdgeOffsets_[sourceOffset++] = localEdge;
+            localSourceOffsets_[sourceOffset++] = localEdge;
     }
     for( ; sourceOffset<=numLocalSources_; ++sourceOffset )
-        localEdgeOffsets_[sourceOffset] = numLocalEdges;
+        localSourceOffsets_[sourceOffset] = numLocalEdges;
 }
 
 } // namespace El

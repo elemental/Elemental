@@ -131,7 +131,7 @@ void Syrk
     // =================
     for( Int k=0; k<m; ++k )
     {
-        const Int offset = A.EntryOffset(k);
+        const Int offset = A.RowOffset(k);
         const Int numConn = A.NumConnections(k);
         for( Int iConn=0; iConn<numConn; ++iConn )
         {
@@ -207,7 +207,7 @@ void Syrk
     const Int localHeightA = A.LocalHeight();
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
-        const Int offset = A.EntryOffset(kLoc);
+        const Int offset = A.RowOffset(kLoc);
         const Int numConn = A.NumConnections(kLoc);
         for( Int iConn=0; iConn<numConn; ++iConn )
         {
@@ -230,7 +230,7 @@ void Syrk
     auto offs = sendOffs;
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
-        const Int offset = A.EntryOffset(kLoc);
+        const Int offset = A.RowOffset(kLoc);
         const Int numConn = A.NumConnections(kLoc);
         for( Int iConn=0; iConn<numConn; ++iConn ) 
         {

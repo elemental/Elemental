@@ -215,7 +215,7 @@ void DistFront<F>::Pull
             const Int i = sRows[s+off];
             const Int iLoc = i-firstLocalRow;
             const Int jReord = mappedSources[iLoc];
-            const Int rowOff = A.EntryOffset( iLoc );
+            const Int rowOff = A.RowOffset( iLoc );
             const Int numConnections = A.NumConnections( iLoc );
             sRowLengths[s+off] = 0;
             for( Int e=0; e<numConnections; ++e )
@@ -243,7 +243,7 @@ void DistFront<F>::Pull
             const Int i = sRows[s+off];
             const Int iLoc = i-firstLocalRow;
             const Int jReord = mappedSources[iLoc];
-            const Int rowOff = A.EntryOffset( iLoc );
+            const Int rowOff = A.RowOffset( iLoc );
             const Int numConnections = A.NumConnections( iLoc );
             for( Int e=0; e<numConnections; ++e )
             {
@@ -595,7 +595,7 @@ void DistFront<F>::PullUpdate
             const Int i = sRows[s+off];
             const Int iLoc = i-firstLocalRow;
             const Int jReord = mappedSources[iLoc];
-            const Int rowOff = A.EntryOffset( iLoc );
+            const Int rowOff = A.RowOffset( iLoc );
             const Int numConnections = A.NumConnections( iLoc );
             sRowLengths[s+off] = 0;
             for( Int e=0; e<numConnections; ++e )
@@ -623,7 +623,7 @@ void DistFront<F>::PullUpdate
             const Int i = sRows[s+off];
             const Int iLoc = i-firstLocalRow;
             const Int jReord = mappedSources[iLoc];
-            const Int rowOff = A.EntryOffset( iLoc );
+            const Int rowOff = A.RowOffset( iLoc );
             const Int numConnections = A.NumConnections( iLoc );
             for( Int e=0; e<numConnections; ++e )
             {
