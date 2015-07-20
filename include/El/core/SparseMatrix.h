@@ -272,18 +272,31 @@ EL_EXPORT ElError ElSparseMatrixValue_c
 EL_EXPORT ElError ElSparseMatrixValue_z
 ( ElConstSparseMatrix_z A, ElInt index, complex_double* value );
 
-/* Int SparseMatrix<T>::EntryOffset( Int row ) const
-   ------------------------------------------------- */
-EL_EXPORT ElError ElSparseMatrixEntryOffset_i
-( ElConstSparseMatrix_i A, ElInt row, ElInt* entryOffset );
-EL_EXPORT ElError ElSparseMatrixEntryOffset_s
-( ElConstSparseMatrix_s A, ElInt row, ElInt* entryOffset );
-EL_EXPORT ElError ElSparseMatrixEntryOffset_d
-( ElConstSparseMatrix_d A, ElInt row, ElInt* entryOffset );
-EL_EXPORT ElError ElSparseMatrixEntryOffset_c
-( ElConstSparseMatrix_c A, ElInt row, ElInt* entryOffset );
-EL_EXPORT ElError ElSparseMatrixEntryOffset_z
-( ElConstSparseMatrix_z A, ElInt row, ElInt* entryOffset );
+/* Int SparseMatrix<T>::RowOffset( Int row ) const
+   ----------------------------------------------- */
+EL_EXPORT ElError ElSparseMatrixRowOffset_i
+( ElConstSparseMatrix_i A, ElInt row, ElInt* rowOffset );
+EL_EXPORT ElError ElSparseMatrixRowOffset_s
+( ElConstSparseMatrix_s A, ElInt row, ElInt* rowOffset );
+EL_EXPORT ElError ElSparseMatrixRowOffset_d
+( ElConstSparseMatrix_d A, ElInt row, ElInt* rowOffset );
+EL_EXPORT ElError ElSparseMatrixRowOffset_c
+( ElConstSparseMatrix_c A, ElInt row, ElInt* rowOffset );
+EL_EXPORT ElError ElSparseMatrixRowOffset_z
+( ElConstSparseMatrix_z A, ElInt row, ElInt* rowOffset );
+
+/* Int SparseMatrix<T>::Offset( Int row, Int col ) const
+   ----------------------------------------------------- */
+EL_EXPORT ElError ElSparseMatrixOffset_i
+( ElConstSparseMatrix_i A, ElInt row, ElInt col, ElInt* offset );
+EL_EXPORT ElError ElSparseMatrixOffset_s
+( ElConstSparseMatrix_s A, ElInt row, ElInt col, ElInt* offset );
+EL_EXPORT ElError ElSparseMatrixOffset_d
+( ElConstSparseMatrix_d A, ElInt row, ElInt col, ElInt* offset );
+EL_EXPORT ElError ElSparseMatrixOffset_c
+( ElConstSparseMatrix_c A, ElInt row, ElInt col, ElInt* offset );
+EL_EXPORT ElError ElSparseMatrixOffset_z
+( ElConstSparseMatrix_z A, ElInt row, ElInt col, ElInt* offset );
 
 /* Int SparseMatrix<T>::NumConnections( Int row ) const
    ---------------------------------------------------- */

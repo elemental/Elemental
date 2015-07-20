@@ -72,7 +72,8 @@ struct DistNode
     Node* duplicate;
 
     DistNode( DistNode* parentNode=nullptr )
-    : parent(parentNode), child(nullptr), duplicate(nullptr)
+    : comm(mpi::COMM_WORLD), 
+      parent(parentNode), child(nullptr), duplicate(nullptr)
     { }
 
     ~DistNode()
@@ -87,7 +88,8 @@ struct DistNode
         delete child;
         delete duplicate;
 
-        mpi::Free( comm );
+        if( comm != mpi::COMM_WORLD )
+            mpi::Free( comm );
     }
 };
 

@@ -568,6 +568,10 @@ lib.ElDiagonalScaleSparse_d.argtypes = \
 lib.ElDiagonalScaleDistSparse_i.argtypes = \
 lib.ElDiagonalScaleDistSparse_s.argtypes = \
 lib.ElDiagonalScaleDistSparse_d.argtypes = \
+lib.ElDiagonalScaleDistMultiVec_i.argtypes = \
+lib.ElDiagonalScaleDistMultiVec_s.argtypes = \
+lib.ElDiagonalScaleDistMultiVec_d.argtypes = \
+lib.ElDiagonalScaleDistMultiVec_d.argtypes = \
   [c_uint,c_void_p,c_void_p]
 
 lib.ElDiagonalScale_c.argtypes = \
@@ -578,6 +582,8 @@ lib.ElDiagonalScaleSparse_c.argtypes = \
 lib.ElDiagonalScaleSparse_z.argtypes = \
 lib.ElDiagonalScaleDistSparse_c.argtypes = \
 lib.ElDiagonalScaleDistSparse_z.argtypes = \
+lib.ElDiagonalScaleDistMultiVec_c.argtypes = \
+lib.ElDiagonalScaleDistMultiVec_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p]
 
 def DiagonalScale(side,orient,d,A):
@@ -619,6 +625,15 @@ def DiagonalScale(side,orient,d,A):
     elif A.tag == dTag: lib.ElDiagonalScaleDistSparse_d(*args)
     elif A.tag == cTag: lib.ElDiagonalScaleDistSparse_c(*argsCpx)
     elif A.tag == zTag: lib.ElDiagonalScaleDistSparse_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if type(d) is not DistMultiVec:
+      raise Exception('Expected d to be a DistMultiVec')
+    if   A.tag == iTag: lib.ElDiagonalScaleDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElDiagonalScaleDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalScaleDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalScaleDistMultiVec_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalScaleDistMultiVec_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 
@@ -700,6 +715,8 @@ lib.ElDiagonalSolveSparse_s.argtypes = \
 lib.ElDiagonalSolveSparse_d.argtypes = \
 lib.ElDiagonalSolveDistSparse_s.argtypes = \
 lib.ElDiagonalSolveDistSparse_d.argtypes = \
+lib.ElDiagonalSolveDistMultiVec_s.argtypes = \
+lib.ElDiagonalSolveDistMultiVec_d.argtypes = \
   [c_uint,c_void_p,c_void_p]
 
 lib.ElDiagonalSolve_c.argtypes = \
@@ -710,6 +727,8 @@ lib.ElDiagonalSolveSparse_c.argtypes = \
 lib.ElDiagonalSolveSparse_z.argtypes = \
 lib.ElDiagonalSolveDistSparse_c.argtypes = \
 lib.ElDiagonalSolveDistSparse_z.argtypes = \
+lib.ElDiagonalSolveDistMultiVec_c.argtypes = \
+lib.ElDiagonalSolveDistMultiVec_z.argtypes = \
   [c_uint,c_uint,c_void_p,c_void_p]
 
 def DiagonalSolve(side,orient,d,A):
@@ -747,6 +766,14 @@ def DiagonalSolve(side,orient,d,A):
     elif A.tag == dTag: lib.ElDiagonalSolveDistSparse_d(*args)
     elif A.tag == cTag: lib.ElDiagonalSolveDistSparse_c(*argsCpx)
     elif A.tag == zTag: lib.ElDiagonalSolveDistSparse_z(*argsCpx)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if type(d) is not DistMultiVec:
+      raise Exception('Expected d to be a DistMultiVec')
+    if   A.tag == sTag: lib.ElDiagonalSolveDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElDiagonalSolveDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElDiagonalSolveDistMultiVec_c(*argsCpx)
+    elif A.tag == zTag: lib.ElDiagonalSolveDistMultiVec_z(*argsCpx)
     else: DataExcept()
   else: TypeExcept()
 

@@ -77,6 +77,13 @@ void SparseMatrix<T>::Reserve( Int numEntries )
 }
 
 template<typename T>
+void SparseMatrix<T>::FreezeSparsity() { graph_.frozenSparsity_ = true; }
+template<typename T>
+void SparseMatrix<T>::UnfreezeSparsity() { graph_.frozenSparsity_ = false; }
+template<typename T>
+bool SparseMatrix<T>::FrozenSparsity() const { return graph_.frozenSparsity_; }
+
+template<typename T>
 void SparseMatrix<T>::Update( Int row, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::Update"))
@@ -100,8 +107,16 @@ template<typename T>
 void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
-    graph_.QueueConnection( row, col );
-    vals_.push_back( value );
+    if( FrozenSparsity() )
+    {
+        const Int offset = Offset( row, col );
+        vals_[offset] += value;
+    }
+    else
+    {
+        graph_.QueueConnection( row, col );
+        vals_.push_back( value );
+    }
 }
 
 template<typename T>
@@ -112,7 +127,15 @@ template<typename T>
 void SparseMatrix<T>::QueueZero( Int row, Int col )
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
-    graph_.QueueDisconnection( row, col );
+    if( FrozenSparsity() )
+    {
+        const Int offset = Offset( row, col );
+        vals_[offset] = 0;
+    }
+    else
+    {
+        graph_.QueueDisconnection( row, col );
+    }
 }
 
 // Operator overloading
@@ -231,10 +254,17 @@ Int SparseMatrix<T>::Col( Int index ) const
 }
 
 template<typename T>
-Int SparseMatrix<T>::EntryOffset( Int row ) const
+Int SparseMatrix<T>::RowOffset( Int row ) const
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::EntryOffset"))
-    return graph_.EdgeOffset( row );
+    DEBUG_ONLY(CSE cse("SparseMatrix::RowOffset"))
+    return graph_.SourceOffset( row );
+}
+
+template<typename T>
+Int SparseMatrix<T>::Offset( Int row, Int col ) const
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::Offset"))
+    return graph_.Offset( row, col );
 }
 
 template<typename T>
@@ -296,38 +326,45 @@ void SparseMatrix<T>::ProcessQueues()
     if( graph_.consistent_ )
         return;
 
-    const Int numEntries = vals_.size();
     Int numRemoved = 0;
+    const Int numEntries = vals_.size();
     vector<Entry<T>> entries( numEntries );
-    for( Int s=0; s<numEntries; ++s )
+    if( graph_.markedForRemoval_.size() != 0 )
     {
-        pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
-        if( graph_.markedForRemoval_.find(candidate) == 
-            graph_.markedForRemoval_.end() )
+        for( Int s=0; s<numEntries; ++s )
         {
-            entries[s-numRemoved].i = graph_.sources_[s];
-            entries[s-numRemoved].j = graph_.targets_[s];
-            entries[s-numRemoved].value = vals_[s];
+            pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
+            if( graph_.markedForRemoval_.find(candidate) == 
+                graph_.markedForRemoval_.end() )
+            {
+                entries[s-numRemoved].i = graph_.sources_[s];
+                entries[s-numRemoved].j = graph_.targets_[s];
+                entries[s-numRemoved].value = vals_[s];
+            }
+            else
+            {
+                ++numRemoved;
+            }
         }
-        else
-        {
-            ++numRemoved;
-        }
+        graph_.markedForRemoval_.clear();
+        entries.resize( numEntries-numRemoved );
     }
-    graph_.markedForRemoval_.clear();
-    entries.resize( numEntries-numRemoved );
+    else
+    {
+        for( Int s=0; s<numEntries; ++s )
+            entries[s] = 
+              Entry<T>{graph_.sources_[s],graph_.targets_[s],vals_[s]};
+    }
     std::sort( entries.begin(), entries.end(), CompareEntries );
+    const Int numSorted = entries.size();
 
     // Compress out duplicates
     Int lastUnique=0;
-    for( Int s=1; s<numEntries; ++s )
+    for( Int s=1; s<numSorted; ++s )
     {
         if( entries[s].i != entries[lastUnique].i ||
             entries[s].j != entries[lastUnique].j )
-        {
-            ++lastUnique;
-            entries[lastUnique] = entries[s];
-        }
+            entries[++lastUnique] = entries[s];
         else
             entries[lastUnique].value += entries[s].value;
     }
@@ -344,7 +381,7 @@ void SparseMatrix<T>::ProcessQueues()
         vals_[s] = entries[s].value;
     }
 
-    graph_.ComputeEdgeOffsets();
+    graph_.ComputeSourceOffsets();
     graph_.consistent_ = true;
 }
 

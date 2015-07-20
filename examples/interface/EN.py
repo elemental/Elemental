@@ -12,6 +12,7 @@ n0 = 100
 n1 = 100
 lambda1 = 3
 lambda2 = 4
+output = False
 display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
@@ -58,6 +59,9 @@ def ConcatFD2D(N0,N1):
 A = ConcatFD2D(n0,n1)
 b = El.DistMultiVec()
 El.Gaussian( b, n0*n1, 1 )
+if output:
+  El.Print( A, "A" )
+  El.Print( b, "b" )
 if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
@@ -85,7 +89,7 @@ xOneNorm = El.EntrywiseNorm( x, 1 )
 xTwoNorm = El.Nrm2( x )
 e = El.DistMultiVec()
 El.Copy( b, e )
-El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
+El.Multiply( El.NORMAL, -1., A, x, 1., e )
 if display:
   El.Display( e, "e" )
 eTwoNorm = El.Nrm2( e )

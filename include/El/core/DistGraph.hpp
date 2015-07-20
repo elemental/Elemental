@@ -67,6 +67,10 @@ public:
     void Disconnect( Int source, Int target ); 
     void DisconnectLocal( Int localSource, Int target );
 
+    void FreezeSparsity();
+    void UnfreezeSparsity();
+    bool FrozenSparsity() const;
+
     // For inserting/removing a sequence of edges and then forcing consistency
     void QueueConnection( Int source, Int target, bool passive=true );
     void QueueLocalConnection( Int localSource, Int target ); 
@@ -100,7 +104,8 @@ public:
     // --------------------------
     Int Source( Int localEdge ) const;
     Int Target( Int localEdge ) const;
-    Int EdgeOffset( Int localSource ) const;
+    Int SourceOffset( Int localSource ) const;
+    Int Offset( Int localSource, Int target ) const;
     Int NumConnections( Int localSource ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
@@ -119,6 +124,7 @@ private:
     Int blocksize_;
     Int firstLocalSource_, numLocalSources_;
 
+    bool frozenSparsity_ = false;
     vector<Int> sources_, targets_;
     set<pair<Int,Int>> markedForRemoval_;
 
@@ -129,8 +135,8 @@ private:
 
     // Helpers for local indexing
     bool locallyConsistent_ = true;
-    vector<Int> localEdgeOffsets_;
-    void ComputeEdgeOffsets();
+    vector<Int> localSourceOffsets_;
+    void ComputeSourceOffsets();
 
     friend class Graph;
     friend void Copy( const Graph& A, DistGraph& B );

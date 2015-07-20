@@ -1050,6 +1050,7 @@ void AbstractDistMatrix<T>::ProcessQueues()
           );
         sendBuf[offs[owner]++] = entry;
     }
+    SwapClear( remoteUpdates_ );
 
     // Exchange and unpack the data
     // ============================

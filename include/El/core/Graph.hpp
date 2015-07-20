@@ -64,6 +64,10 @@ public:
     void Connect( Int source, Int target );
     void Disconnect( Int source, Int target );
 
+    void FreezeSparsity();
+    void UnfreezeSparsity();
+    bool FrozenSparsity() const;
+
     // For appending/removing many edges and then forcing consistency at the end
     void QueueConnection( Int source, Int target );
     void QueueDisconnection( Int source, Int target );
@@ -79,7 +83,8 @@ public:
 
     Int Source( Int edge ) const;
     Int Target( Int edge ) const;
-    Int EdgeOffset( Int source ) const;
+    Int SourceOffset( Int source ) const;
+    Int Offset( Int source, Int target ) const;
     Int NumConnections( Int source ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();
@@ -92,13 +97,14 @@ public:
 
 private:
     Int numSources_, numTargets_;
+    bool frozenSparsity_ = false;
     vector<Int> sources_, targets_;
     set<pair<Int,Int>> markedForRemoval_;
 
     // Helpers for local indexing
     bool consistent_;
-    vector<Int> edgeOffsets_;
-    void ComputeEdgeOffsets();
+    vector<Int> sourceOffsets_;
+    void ComputeSourceOffsets();
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;

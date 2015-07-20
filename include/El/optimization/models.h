@@ -397,6 +397,174 @@ EL_EXPORT ElError ElModelFitXDist_d
   ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d w, 
   ElModelFitCtrl_d ctrl, ElInt* numIts );
 
+/* Robust least squares
+   ==================== */
+EL_EXPORT ElError ElRLS_s
+( ElConstMatrix_s A, 
+  ElConstMatrix_s b, float rho, 
+  ElMatrix_s x );
+EL_EXPORT ElError ElRLS_d
+( ElConstMatrix_d A, 
+  ElConstMatrix_d b, double rho, 
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElRLSSparse_s
+( ElConstSparseMatrix_s A, 
+  ElConstMatrix_s b, float rho, 
+  ElMatrix_s x );
+EL_EXPORT ElError ElRLSSparse_d
+( ElConstSparseMatrix_d A, 
+  ElConstMatrix_d b, double rho, 
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElRLSDist_s
+( ElConstDistMatrix_s A, 
+  ElConstDistMatrix_s b, float rho, 
+  ElDistMatrix_s x );
+EL_EXPORT ElError ElRLSDist_d
+( ElConstDistMatrix_d A, 
+  ElConstDistMatrix_d b, double rho, 
+  ElDistMatrix_d x );
+
+EL_EXPORT ElError ElRLSDistSparse_s
+( ElConstDistSparseMatrix_s A, 
+  ElConstDistMultiVec_s b, float rho, 
+  ElDistMultiVec_s x );
+EL_EXPORT ElError ElRLSDistSparse_d
+( ElConstDistSparseMatrix_d A, 
+  ElConstDistMultiVec_d b, double rho, 
+  ElDistMultiVec_d x );
+
+/* Expert versions
+   --------------- */
+EL_EXPORT ElError ElRLSX_s
+( ElConstMatrix_s A, 
+  ElConstMatrix_s b, float rho, 
+  ElMatrix_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRLSX_d
+( ElConstMatrix_d A, 
+  ElConstMatrix_d b, double rho, 
+  ElMatrix_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElRLSXSparse_s
+( ElConstSparseMatrix_s A, 
+  ElConstMatrix_s b, float rho, 
+  ElMatrix_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRLSXSparse_d
+( ElConstSparseMatrix_d A, 
+  ElConstMatrix_d b, double rho, 
+  ElMatrix_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElRLSXDist_s
+( ElConstDistMatrix_s A, 
+  ElConstDistMatrix_s b, float rho, 
+  ElDistMatrix_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRLSXDist_d
+( ElConstDistMatrix_d A, 
+  ElConstDistMatrix_d b, double rho, 
+  ElDistMatrix_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElRLSXDistSparse_s
+( ElConstDistSparseMatrix_s A, 
+  ElConstDistMultiVec_s b, float rho, 
+  ElDistMultiVec_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRLSXDistSparse_d
+( ElConstDistSparseMatrix_d A, 
+  ElConstDistMultiVec_d b, double rho, 
+  ElDistMultiVec_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
+/* Robust non-negative least squares
+   ================================= */
+EL_EXPORT ElError ElRNNLS_s
+( ElConstMatrix_s A, 
+  ElConstMatrix_s b, float rho, 
+  ElMatrix_s x );
+EL_EXPORT ElError ElRNNLS_d
+( ElConstMatrix_d A, 
+  ElConstMatrix_d b, double rho, 
+  ElMatrix_d x );
+
+EL_EXPORT ElError ElRNNLSSparse_s
+( ElConstSparseMatrix_s A, 
+  ElConstMatrix_s b, float rho, 
+  ElMatrix_s x );
+EL_EXPORT ElError ElRNNLSSparse_d
+( ElConstSparseMatrix_d A, 
+  ElConstMatrix_d b, double rho, 
+  ElMatrix_d x ); 
+
+EL_EXPORT ElError ElRNNLSDist_s
+( ElConstDistMatrix_s A,
+  ElConstDistMatrix_s b, float rho,
+  ElDistMatrix_s x );
+EL_EXPORT ElError ElRNNLSDist_d
+( ElConstDistMatrix_d A,
+  ElConstDistMatrix_d b, double rho,
+  ElDistMatrix_d x );
+
+EL_EXPORT ElError ElRNNLSDistSparse_s
+( ElConstDistSparseMatrix_s A,
+  ElConstDistMultiVec_s b, float rho,
+  ElDistMultiVec_s x );
+EL_EXPORT ElError ElRNNLSDistSparse_d
+( ElConstDistSparseMatrix_d A,
+  ElConstDistMultiVec_d b, double rho,
+  ElDistMultiVec_d x );
+
+/* Expert versions
+   --------------- */
+EL_EXPORT ElError ElRNNLSX_s
+( ElConstMatrix_s A,
+  ElConstMatrix_s b, float rho,
+  ElMatrix_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRNNLSX_d
+( ElConstMatrix_d A,
+  ElConstMatrix_d b, double rho,
+  ElMatrix_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElRNNLSXSparse_s
+( ElConstSparseMatrix_s A,
+  ElConstMatrix_s b, float rho,
+  ElMatrix_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRNNLSXSparse_d
+( ElConstSparseMatrix_d A,
+  ElConstMatrix_d b, double rho,
+  ElMatrix_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElRNNLSXDist_s
+( ElConstDistMatrix_s A,
+  ElConstDistMatrix_s b, float rho,
+  ElDistMatrix_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRNNLSXDist_d
+( ElConstDistMatrix_d A,
+  ElConstDistMatrix_d b, double rho,
+  ElDistMatrix_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElRNNLSXDistSparse_s
+( ElConstDistSparseMatrix_s A,
+  ElConstDistMultiVec_s b, float rho,
+  ElDistMultiVec_s x,
+  ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElRNNLSXDistSparse_d
+( ElConstDistSparseMatrix_d A,
+  ElConstDistMultiVec_d b, double rho,
+  ElDistMultiVec_d x,
+  ElSOCPAffineCtrl_d ctrl );
+
 /* Non-negative least squares
    ========================== */
 EL_EXPORT ElError ElNNLS_s
@@ -421,16 +589,24 @@ EL_EXPORT ElError ElNNLSDistSparse_d
 
 /* Expert versions
    --------------- */
+typedef enum {
+  EL_NNLS_ADMM,
+  EL_NNLS_QP,
+  EL_NNLS_SOCP
+} ElNNLSApproach;
+
 typedef struct {
-  bool useIPM; 
-  ElQPBoxADMMCtrl_s admmCtrl;
-  ElQPDirectCtrl_s ipmCtrl;
+  ElNNLSApproach approach;
+  ElADMMCtrl_s admmCtrl;
+  ElQPDirectCtrl_s qpCtrl;
+  ElSOCPAffineCtrl_s socpCtrl;
 } ElNNLSCtrl_s;
 
 typedef struct {
-  bool useIPM;
-  ElQPBoxADMMCtrl_d admmCtrl;
-  ElQPDirectCtrl_d ipmCtrl;
+  ElNNLSApproach approach;
+  ElADMMCtrl_d admmCtrl;
+  ElQPDirectCtrl_d qpCtrl;
+  ElSOCPAffineCtrl_d socpCtrl;
 } ElNNLSCtrl_d;
 
 EL_EXPORT ElError ElNNLSCtrlDefault_s( ElNNLSCtrl_s* ctrl );

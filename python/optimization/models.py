@@ -546,19 +546,194 @@ def ModelFit(lossProx,regProx,A,b,ctrl=None):
     return w, numIts
   else: TypeExcept()
 
+# Robust least squares
+# ====================
+lib.ElRLS_s.argtypes = \
+lib.ElRLSDist_s.argtypes = \
+lib.ElRLSSparse_s.argtypes = \
+lib.ElRLSDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p]
+lib.ElRLS_d.argtypes = \
+lib.ElRLSDist_d.argtypes = \
+lib.ElRLSSparse_d.argtypes = \
+lib.ElRLSDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p]
+
+lib.ElRLSX_s.argtypes = \
+lib.ElRLSXDist_s.argtypes = \
+lib.ElRLSXSparse_s.argtypes = \
+lib.ElRLSXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,SOCPAffineCtrl_s]
+lib.ElRLSX_d.argtypes = \
+lib.ElRLSXDist_d.argtypes = \
+lib.ElRLSXSparse_d.argtypes = \
+lib.ElRLSXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,SOCPAffineCtrl_d]
+
+def RLS(A,b,rho,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRLS_s(*args)
+      else:          lib.ElRLSX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRLS_d(*args)
+      else:          lib.ElRLSX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRLSDist_s(*args)
+      else:          lib.ElRLSXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRLSDist_d(*args)
+      else:          lib.ElRLSXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = SparseMatrix(A.tag)
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRLSSparse_s(*args)
+      else:          lib.ElRLSXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRLSSparse_d(*args)
+      else:          lib.ElRLSXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRLSDistSparse_s(*args)
+      else:          lib.ElRLSXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRLSDistSparse_d(*args)
+      else:          lib.ElRLSXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
+# Robust non-negative least squares
+# =================================
+lib.ElRNNLS_s.argtypes = \
+lib.ElRNNLSDist_s.argtypes = \
+lib.ElRNNLSSparse_s.argtypes = \
+lib.ElRNNLSDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p]
+lib.ElRNNLS_d.argtypes = \
+lib.ElRNNLSDist_d.argtypes = \
+lib.ElRNNLSSparse_d.argtypes = \
+lib.ElRNNLSDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p]
+
+lib.ElRNNLSX_s.argtypes = \
+lib.ElRNNLSXDist_s.argtypes = \
+lib.ElRNNLSXSparse_s.argtypes = \
+lib.ElRNNLSXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,sType,c_void_p,SOCPAffineCtrl_s]
+lib.ElRNNLSX_d.argtypes = \
+lib.ElRNNLSXDist_d.argtypes = \
+lib.ElRNNLSXSparse_d.argtypes = \
+lib.ElRNNLSXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,dType,c_void_p,SOCPAffineCtrl_d]
+
+def RNNLS(A,b,rho,ctrl=None):
+  if A.tag != b.tag:
+    raise Exception('Datatypes of A and b must match')
+  if type(A) is Matrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = Matrix(A.tag)
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRNNLS_s(*args)
+      else:          lib.ElRNNLSX_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRNNLS_d(*args)
+      else:          lib.ElRNNLSX_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistMatrix:
+    if type(b) is not DistMatrix:
+      raise Exception('b must be a DistMatrix')
+    x = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRNNLSDist_s(*args)
+      else:          lib.ElRNNLSXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRNNLSDist_d(*args)
+      else:          lib.ElRNNLSXDist_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is SparseMatrix:
+    if type(b) is not Matrix:
+      raise Exception('b must be a Matrix')
+    x = SparseMatrix(A.tag)
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRNNLSSparse_s(*args)
+      else:          lib.ElRNNLSXSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRNNLSSparse_d(*args)
+      else:          lib.ElRNNLSXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(A) is DistSparseMatrix:
+    if type(b) is not DistMultiVec:
+      raise Exception('b must be a DistMultiVec')
+    x = DistMultiVec(A.tag,A.Comm())
+    args = [A.obj,b.obj,rho,x.obj]
+    argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
+    if   A.tag == sTag: 
+      if ctrl==None: lib.ElRNNLSDistSparse_s(*args)
+      else:          lib.ElRNNLSXDistSparse_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElRNNLSDistSparse_d(*args)
+      else:          lib.ElRNNLSXDistSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  else: TypeExcept()
+
 # Non-negative least squares
 # ==========================
 lib.ElNNLSCtrlDefault_s.argtypes = \
 lib.ElNNLSCtrlDefault_d.argtypes = \
   [c_void_p]
+(NNLS_ADMM,NNLS_QP,NNLS_SOCP)=(0,1,2)
 class NNLSCtrl_s(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("admmCtrl",QPBoxADMMCtrl_s),("ipmCtrl",QPDirectCtrl_s)]
+  _fields_ = [("approach",c_uint),
+              ("admmCtrl",ADMMCtrl_s),
+              ("qpCtrl",QPDirectCtrl_s),
+              ("socpCtrl",SOCPAffineCtrl_s)]
   def __init__(self):
     lib.ElNNLSCtrlDefault_s(pointer(self))
 class NNLSCtrl_d(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("admmCtrl",QPBoxADMMCtrl_d),("ipmCtrl",QPDirectCtrl_d)]
+  _fields_ = [("approach",c_uint),
+              ("admmCtrl",ADMMCtrl_d),
+              ("qpCtrl",QPDirectCtrl_d),
+              ("socpCtrl",SOCPAffineCtrl_d)]
   def __init__(self):
     lib.ElNNLSCtrlDefault_d(pointer(self))
 

@@ -367,7 +367,7 @@ void BuildChildrenFromPerm
     {
         const Int source = s;
         const Int invSource = invPerm[s];
-        const Int off = graph.EdgeOffset( invSource );
+        const Int off = graph.SourceOffset( invSource );
         const Int numConnections = graph.NumConnections( invSource );
         for( Int t=0; t<numConnections; ++t )
         {
@@ -391,7 +391,7 @@ void BuildChildrenFromPerm
     {
         const Int source = s+leftChildSize;
         const Int invSource = invPerm[source];
-        const Int off = graph.EdgeOffset( invSource );
+        const Int off = graph.SourceOffset( invSource );
         const Int numConnections = graph.NumConnections( invSource );
         for( Int t=0; t<numConnections; ++t )
         {
@@ -553,7 +553,7 @@ void BuildChildFromPerm
 
             int& off = offs[q];
             const Int numConnections = graph.NumConnections( s );
-            const Int localEdgeOff = graph.EdgeOffset( s );
+            const Int localEdgeOff = graph.SourceOffset( s );
             for( Int j=0; j<numConnections; ++j )
                 sendInds[off++] = graph.Target( localEdgeOff+j );
         }
@@ -565,7 +565,7 @@ void BuildChildFromPerm
                
             int& off = offs[q];
             const Int numConnections = graph.NumConnections( s );
-            const Int localEdgeOff = graph.EdgeOffset( s );
+            const Int localEdgeOff = graph.SourceOffset( s );
             for( Int j=0; j<numConnections; ++j )
                 sendInds[off++] = graph.Target( localEdgeOff+j );
         }

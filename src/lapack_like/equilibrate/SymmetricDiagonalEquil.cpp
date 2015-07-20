@@ -11,37 +11,35 @@
 namespace El {
 
 template<typename F>
-void DiagonalEquil
+void SymmetricDiagonalEquil
 ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("DiagonalEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
     // TODO: Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
     if( progress )
-        cout << "    Diagonal equilibration not yet enabled for dense "
-                "matrices" << endl;
+        Output("Diagonal equilibration not yet enabled for dense matrices");
 }
 
 template<typename F>
-void DiagonalEquil
+void SymmetricDiagonalEquil
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("DiagonalEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
     // TODO: Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
     if( progress )
-        cout << "    Diagonal equilibration not yet enabled for dense "
-                "matrices" << endl;
+        Output("Diagonal equilibration not yet enabled for dense matrices");
 }
 
 template<typename F>
-void DiagonalEquil( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress )
+void SymmetricDiagonalEquil
+( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("DiagonalEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
     typedef Base<F> Real;
-    const Int n = A.Height();
     auto maxSqrtLambda = []( F delta ) 
                          { return Sqrt(Max(Abs(delta),Real(1))); };
     function<Real(F)> maxSqrt( maxSqrtLambda );
@@ -56,15 +54,14 @@ void DiagonalEquil( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress )
 }
 
 template<typename F>
-void DiagonalEquil
+void SymmetricDiagonalEquil
 ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
   bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("DiagonalEquil"))
+    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);
-    const Int n = A.Height();
     Timer timer;
 
     d.SetComm( comm );
@@ -96,14 +93,14 @@ void DiagonalEquil
 }
 
 #define PROTO(F) \
-  template void DiagonalEquil \
+  template void SymmetricDiagonalEquil \
   ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
-  template void DiagonalEquil \
+  template void SymmetricDiagonalEquil \
   ( AbstractDistMatrix<F>& A,  AbstractDistMatrix<Base<F>>& d, \
     bool progress ); \
-  template void DiagonalEquil \
+  template void SymmetricDiagonalEquil \
   ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
-  template void DiagonalEquil \
+  template void SymmetricDiagonalEquil \
   ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, \
     bool progress, bool time );
 

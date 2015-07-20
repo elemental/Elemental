@@ -82,11 +82,11 @@ for j in xrange(0,numLambdas):
   xOneNorm = El.EntrywiseNorm( x, 1 )
   r = El.DistMultiVec()
   El.Copy( b, r )
-  El.SparseMultiply( El.NORMAL, -1., A, x, 1., r )
+  El.Multiply( El.NORMAL, -1., A, x, 1., r )
   rTwoNorm = El.Nrm2( r )
   t = El.DistMultiVec()
   El.Zeros( t, 2*n0*n1, 1 )
-  El.SparseMultiply( El.TRANSPOSE, 1., A, r, 0., t )
+  El.Multiply( El.TRANSPOSE, 1., A, r, 0., t )
   tTwoNorm = El.Nrm2( t )
   tInfNorm = El.MaxNorm( t )
   if display:

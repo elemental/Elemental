@@ -61,7 +61,8 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
         LogicError("X and Y must have the same dimensions");
     const T alpha = T(alphaS);
     const Int numEntries = X.NumEntries();
-    Y.Reserve( Y.NumEntries()+numEntries );
+    if( !Y.FrozenSparsity() )
+        Y.Reserve( Y.NumEntries()+numEntries );
     for( Int k=0; k<numEntries; ++k ) 
         Y.QueueUpdate( X.Row(k), X.Col(k), alpha*X.Value(k) );
     Y.ProcessQueues();
@@ -104,7 +105,8 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     const T alpha = T(alphaS);
     const Int numLocalEntries = X.NumLocalEntries();
     const Int firstLocalRow = X.FirstLocalRow();
-    Y.Reserve( Y.NumLocalEntries()+numLocalEntries );
+    if( !Y.FrozenSparsity() )
+        Y.Reserve( Y.NumLocalEntries()+numLocalEntries );
     for( Int k=0; k<numLocalEntries; ++k ) 
         Y.QueueLocalUpdate
         ( X.Row(k)-firstLocalRow, X.Col(k), alpha*X.Value(k) );

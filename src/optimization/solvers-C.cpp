@@ -12,6 +12,8 @@ using namespace El;
 
 extern "C" {
 
+/* Infeasible Path-Following IPM
+   ============================= */
 ElError ElIPFLineSearchCtrlDefault_s( ElIPFLineSearchCtrl_s* ctrl )
 {
     ctrl->gamma = 1e-3;
@@ -32,12 +34,85 @@ ElError ElIPFLineSearchCtrlDefault_d( ElIPFLineSearchCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
-/* Linear programs
-   =============== */
+ElError ElIPFCtrlDefault_s( ElIPFCtrl_s* ctrl )
+{
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
+    ctrl->minTol = 1e-2;
+    ctrl->targetTol = 1e-4;
+    ctrl->maxIts = 1000;
+    ctrl->centering = 0.9;
+    ctrl->system = EL_FULL_KKT;
+    ElIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
+    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->basisSize = 6;
+    ctrl->print = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
 
-/* Direct conic form
-   ----------------- */
-ElError ElLPDirectADMMCtrlDefault_s( ElLPDirectADMMCtrl_s* ctrl )
+ElError ElIPFCtrlDefault_d( ElIPFCtrl_d* ctrl )
+{
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
+    ctrl->minTol = 1e-5;
+    ctrl->targetTol = 1e-8;
+    ctrl->maxIts = 1000;
+    ctrl->centering = 0.9;
+    ctrl->system = EL_FULL_KKT;
+    ElIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
+    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->basisSize = 6;
+    ctrl->print = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
+
+/* Mehrotra Predictor-Corrector IPM
+   ================================ */
+ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
+{
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
+    ctrl->minTol = 1e-2;
+    ctrl->targetTol = 1e-4;
+    ctrl->maxIts = 100;
+    ctrl->maxStepRatio = 0.99;
+    ctrl->system = EL_FULL_KKT;
+    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->basisSize = 6;
+    ctrl->print = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
+
+ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
+{
+    ctrl->primalInit = false;
+    ctrl->dualInit = false;
+    ctrl->minTol = 1e-5;
+    ctrl->targetTol = 1e-8;
+    ctrl->maxIts = 100;
+    ctrl->maxStepRatio = 0.99;
+    ctrl->system = EL_FULL_KKT;
+    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
+    ctrl->outerEquil = true;
+    ctrl->innerEquil = true;
+    ctrl->basisSize = 6;
+    ctrl->print = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
+
+/* Alternating Direction Method of Multipliers
+   =========================================== */
+ElError ElADMMCtrlDefault_s( ElADMMCtrl_s* ctrl )
 {
     ctrl->rho = 1;
     ctrl->alpha = 1.2;
@@ -49,7 +124,7 @@ ElError ElLPDirectADMMCtrlDefault_s( ElLPDirectADMMCtrl_s* ctrl )
     return EL_SUCCESS;
 }
 
-ElError ElLPDirectADMMCtrlDefault_d( ElLPDirectADMMCtrl_d* ctrl )
+ElError ElADMMCtrlDefault_d( ElADMMCtrl_d* ctrl )
 {
     ctrl->rho = 1;
     ctrl->alpha = 1.2;
@@ -61,182 +136,64 @@ ElError ElLPDirectADMMCtrlDefault_d( ElLPDirectADMMCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
-ElError ElLPDirectIPFCtrlDefault_s( ElLPDirectIPFCtrl_s* ctrl, bool isSparse )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
+/* Linear programs
+   =============== */
 
-ElError ElLPDirectIPFCtrlDefault_d( ElLPDirectIPFCtrl_d* ctrl, bool isSparse )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElLPDirectMehrotraCtrlDefault_s
-( ElLPDirectMehrotraCtrl_s* ctrl, bool isSparse )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElLPDirectMehrotraCtrlDefault_d
-( ElLPDirectMehrotraCtrl_d* ctrl, bool isSparse )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ctrl->system = ( isSparse ? EL_AUGMENTED_KKT : EL_NORMAL_KKT );;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
+/* Direct conic form
+   ----------------- */
 ElError ElLPDirectCtrlDefault_s( ElLPDirectCtrl_s* ctrl, bool isSparse )
 {
     ctrl->approach = EL_LP_MEHROTRA;
-    ElLPDirectADMMCtrlDefault_s( &ctrl->admmCtrl );
-    ElLPDirectIPFCtrlDefault_s( &ctrl->ipfCtrl, isSparse );
-    ElLPDirectMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl, isSparse );
+    ElADMMCtrlDefault_s( &ctrl->admmCtrl );
+    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    if( isSparse )
+    {
+        ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
+        ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
+    }
+    else
+    {
+        ctrl->ipfCtrl.system = EL_NORMAL_KKT;
+        ctrl->mehrotraCtrl.system = EL_NORMAL_KKT;
+    }
     return EL_SUCCESS;
 }
 
-ElError ElLPDirectCtrlDefault_d
-( ElLPDirectCtrl_d* ctrl, bool isSparse )
+ElError ElLPDirectCtrlDefault_d( ElLPDirectCtrl_d* ctrl, bool isSparse )
 {
     ctrl->approach = EL_LP_MEHROTRA;
-    ElLPDirectADMMCtrlDefault_d( &ctrl->admmCtrl );
-    ElLPDirectIPFCtrlDefault_d( &ctrl->ipfCtrl, isSparse );
-    ElLPDirectMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl, isSparse );
+    ElADMMCtrlDefault_d( &ctrl->admmCtrl );
+    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    if( isSparse )
+    {
+        ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
+        ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
+    }
+    else
+    {
+        ctrl->ipfCtrl.system = EL_NORMAL_KKT;
+        ctrl->mehrotraCtrl.system = EL_NORMAL_KKT;
+    }
     return EL_SUCCESS;
 }
 
 /* Affine conic form
    ----------------- */
-ElError ElLPAffineIPFCtrlDefault_s( ElLPAffineIPFCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElLPAffineIPFCtrlDefault_d( ElLPAffineIPFCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElLPAffineMehrotraCtrlDefault_s( ElLPAffineMehrotraCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElLPAffineMehrotraCtrlDefault_d( ElLPAffineMehrotraCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
 ElError ElLPAffineCtrlDefault_s( ElLPAffineCtrl_s* ctrl )
 {
     ctrl->approach = EL_LP_MEHROTRA;
-    ElLPAffineIPFCtrlDefault_s( &ctrl->ipfCtrl );
-    ElLPAffineMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
 
 ElError ElLPAffineCtrlDefault_d( ElLPAffineCtrl_d* ctrl )
 {
     ctrl->approach = EL_LP_MEHROTRA;
-    ElLPAffineIPFCtrlDefault_d( &ctrl->ipfCtrl );
-    ElLPAffineMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
 
@@ -245,203 +202,41 @@ ElError ElLPAffineCtrlDefault_d( ElLPAffineCtrl_d* ctrl )
 
 /* Direct conic form
    ----------------- */
-ElError ElQPDirectIPFCtrlDefault_s( ElQPDirectIPFCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ctrl->system = EL_AUGMENTED_KKT;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElQPDirectIPFCtrlDefault_d( ElQPDirectIPFCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ctrl->system = EL_AUGMENTED_KKT;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElQPDirectMehrotraCtrlDefault_s( ElQPDirectMehrotraCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->system = EL_AUGMENTED_KKT;
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElQPDirectMehrotraCtrlDefault_d( ElQPDirectMehrotraCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->system = EL_AUGMENTED_KKT;
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
 ElError ElQPDirectCtrlDefault_s( ElQPDirectCtrl_s* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElQPDirectIPFCtrlDefault_s( &ctrl->ipfCtrl );
-    ElQPDirectMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
+    ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
     return EL_SUCCESS;
 }
 
 ElError ElQPDirectCtrlDefault_d( ElQPDirectCtrl_d* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElQPDirectIPFCtrlDefault_d( &ctrl->ipfCtrl );
-    ElQPDirectMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
+    ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
     return EL_SUCCESS;
 }
 
 /* Affine conic form
    ----------------- */
-ElError ElQPAffineIPFCtrlDefault_s( ElQPAffineIPFCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElQPAffineIPFCtrlDefault_d( ElQPAffineIPFCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ElIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
-    ctrl->equilibrate = false;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElQPAffineMehrotraCtrlDefault_s( ElQPAffineMehrotraCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-3;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElQPAffineMehrotraCtrlDefault_d( ElQPAffineMehrotraCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-6;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
 ElError ElQPAffineCtrlDefault_s( ElQPAffineCtrl_s* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElQPAffineIPFCtrlDefault_s( &ctrl->ipfCtrl );
-    ElQPAffineMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
 
 ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElQPAffineIPFCtrlDefault_d( &ctrl->ipfCtrl );
-    ElQPAffineMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
-    return EL_SUCCESS;
-}
-
-/* Box-constrained
-   --------------- */
-ElError ElQPBoxADMMCtrlDefault_s( ElQPBoxADMMCtrl_s* ctrl )
-{
-    ctrl->rho = 1;
-    ctrl->alpha = 1.2;
-    ctrl->maxIter = 500;
-    ctrl->absTol = 1e-3;
-    ctrl->relTol = 1e-2;
-    ctrl->inv = true;
-    ctrl->print = true;
-    return EL_SUCCESS;
-}
-
-ElError ElQPBoxADMMCtrlDefault_d( ElQPBoxADMMCtrl_d* ctrl )
-{
-    ctrl->rho = 1;
-    ctrl->alpha = 1.2;
-    ctrl->maxIter = 500;
-    ctrl->absTol = 1e-6;
-    ctrl->relTol = 1e-4;
-    ctrl->inv = true;
-    ctrl->print = true;
+    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
+    ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
 
@@ -450,105 +245,43 @@ ElError ElQPBoxADMMCtrlDefault_d( ElQPBoxADMMCtrl_d* ctrl )
 
 /* Direct conic form
    ----------------- */
-ElError ElSOCPDirectMehrotraCtrlDefault_s( ElSOCPDirectMehrotraCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-2;
-    ctrl->targetTol = 1e-3;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElSOCPDirectMehrotraCtrlDefault_d( ElSOCPDirectMehrotraCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-5;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
 ElError ElSOCPDirectCtrlDefault_s( ElSOCPDirectCtrl_s* ctrl )
 {
     ctrl->approach = EL_SOCP_MEHROTRA;
-    ElSOCPDirectMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
+    ctrl->mehrotraCtrl.minTol = 1e-2;
+    ctrl->mehrotraCtrl.targetTol = 1e-3;
     return EL_SUCCESS;
 }
 
 ElError ElSOCPDirectCtrlDefault_d( ElSOCPDirectCtrl_d* ctrl )
 {
     ctrl->approach = EL_SOCP_MEHROTRA;
-    ElSOCPDirectMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
+    ctrl->mehrotraCtrl.minTol = 1e-4;
+    ctrl->mehrotraCtrl.targetTol = 1e-8;
     return EL_SUCCESS;
 }
 
 /* Affine conic form
    ----------------- */
-ElError ElSOCPAffineMehrotraCtrlDefault_s( ElSOCPAffineMehrotraCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-2;
-    ctrl->targetTol = 1e-3;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElSOCPAffineMehrotraCtrlDefault_d( ElSOCPAffineMehrotraCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-5;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 100;
-    ctrl->maxStepRatio = 0.99;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->scaleTwoNorm = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
 ElError ElSOCPAffineCtrlDefault_s( ElSOCPAffineCtrl_s* ctrl )
 {
     ctrl->approach = EL_SOCP_MEHROTRA;
-    ElSOCPAffineMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
+    ctrl->mehrotraCtrl.minTol = 1e-2;
+    ctrl->mehrotraCtrl.targetTol = 1e-3;
     return EL_SUCCESS;
 }
 
 ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
 {
     ctrl->approach = EL_SOCP_MEHROTRA;
-    ElSOCPAffineMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
+    ctrl->mehrotraCtrl.minTol = 1e-4;
+    ctrl->mehrotraCtrl.targetTol = 1e-8;
     return EL_SUCCESS;
 }
 
@@ -559,32 +292,40 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
      ----------------- */ \
   ElError ElLPDirect_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
   { EL_TRY( LP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElLPDirectDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z ) \
   { EL_TRY( LP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElLPDirectSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
   { EL_TRY( LP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElLPDirectDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z ) \
   { EL_TRY( LP( *CReflect(A), \
       *CReflect(b), *CReflect(c), \
@@ -593,8 +334,10 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
      ^^^^^^^^^^^^^^ */ \
   ElError ElLPDirectX_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElLPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), \
@@ -603,8 +346,10 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
        CReflect(ctrl) ) ) } \
   ElError ElLPDirectXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z, \
     ElLPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), \
@@ -613,8 +358,10 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
        CReflect(ctrl) ) ) } \
   ElError ElLPDirectXSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElLPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), \
@@ -623,8 +370,10 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
        CReflect(ctrl) ) ) } \
   ElError ElLPDirectXDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z, \
     ElLPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), \
@@ -634,82 +383,114 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
   /* Affine conic form
      ----------------- */ \
   ElError ElLPAffine_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+  ( ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,      ElMatrix_ ## SIG s ) \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElLPAffineDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG G, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG G, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
     ElConstDistMatrix_ ## SIG h, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
-    ElDistMatrix_ ## SIG z,      ElDistMatrix_ ## SIG s ) \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z, \
+    ElDistMatrix_ ## SIG s ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElLPAffineSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstSparseMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,            ElMatrix_ ## SIG s ) \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElLPAffineDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG G, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistSparseMatrix_ ## SIG G, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG h, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
-    ElDistMultiVec_ ## SIG z,          ElDistMultiVec_ ## SIG s ) \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z, \
+    ElDistMultiVec_ ## SIG s ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   /* Expert version
      ^^^^^^^^^^^^^^ */ \
   ElError ElLPAffineX_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+  ( ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,      ElMatrix_ ## SIG s, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s, \
     ElLPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
        CReflect(ctrl) ) ) } \
   ElError ElLPAffineXDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG G, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG G, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
     ElConstDistMatrix_ ## SIG h, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
-    ElDistMatrix_ ## SIG z,      ElDistMatrix_ ## SIG s, \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z, \
+    ElDistMatrix_ ## SIG s, \
     ElLPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
        CReflect(ctrl) ) ) } \
   ElError ElLPAffineXSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
+  ( ElConstSparseMatrix_ ## SIG A, \
+    ElConstSparseMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,            ElMatrix_ ## SIG s, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s, \
     ElLPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s), \
        CReflect(ctrl) ) ) } \
   ElError ElLPAffineXDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG G, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
+  ( ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistSparseMatrix_ ## SIG G, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG h, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
-    ElDistMultiVec_ ## SIG z,          ElDistMultiVec_ ## SIG s, \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z, \
+    ElDistMultiVec_ ## SIG s, \
     ElLPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( LP( *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
@@ -723,33 +504,45 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
   /* Direct conic form
      ----------------- */ \
   ElError ElQPDirect_ ## SIG \
-  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
+  ( ElConstMatrix_ ## SIG Q, \
+    ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
       *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElQPDirectDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
+  ( ElConstDistMatrix_ ## SIG Q, \
+    ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
       *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElQPDirectSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG Q, ElConstSparseMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
+  ( ElConstSparseMatrix_ ## SIG Q, \
+    ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
       *CReflect(b), *CReflect(c), \
       *CReflect(x), *CReflect(y), *CReflect(z) ) ) } \
   ElError ElQPDirectDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG Q, ElConstDistSparseMatrix_ ## SIG A, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
+  ( ElConstDistSparseMatrix_ ## SIG Q, \
+    ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
       *CReflect(b), *CReflect(c), \
@@ -757,9 +550,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
   /* Expert version
      ^^^^^^^^^^^^^^ */ \
   ElError ElQPDirectX_ ## SIG \
-  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
+  ( ElConstMatrix_ ## SIG Q, \
+    ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElQPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
@@ -767,9 +563,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
       *CReflect(x), *CReflect(y), *CReflect(z), \
        CReflect(ctrl) ) ) } \
   ElError ElQPDirectXDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
+  ( ElConstDistMatrix_ ## SIG Q, \
+    ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
     ElDistMatrix_ ## SIG z, \
     ElQPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
@@ -777,9 +576,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
       *CReflect(x), *CReflect(y), *CReflect(z), \
        CReflect(ctrl) ) ) } \
   ElError ElQPDirectXSparse_ ## SIG \
-  ( ElConstSparseMatrix_ ## SIG Q, ElConstSparseMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
+  ( ElConstSparseMatrix_ ## SIG Q, \
+    ElConstSparseMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
     ElMatrix_ ## SIG z, \
     ElQPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
@@ -787,9 +589,12 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
       *CReflect(x), *CReflect(y), *CReflect(z), \
        CReflect(ctrl) ) ) } \
   ElError ElQPDirectXDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG Q, ElConstDistSparseMatrix_ ## SIG A, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
+  ( ElConstDistSparseMatrix_ ## SIG Q, \
+    ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
     ElDistMultiVec_ ## SIG z, \
     ElQPDirectCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), \
@@ -800,41 +605,57 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
      ----------------- */ \
   ElError ElQPAffine_ ## SIG \
   ( ElConstMatrix_ ## SIG Q, \
-    ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,      ElMatrix_ ## SIG s ) \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElQPAffineDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG Q, \
-    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG G, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG G, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
     ElConstDistMatrix_ ## SIG h, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
-    ElDistMatrix_ ## SIG z,      ElDistMatrix_ ## SIG s ) \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z, \
+    ElDistMatrix_ ## SIG s ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElQPAffineSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG Q, \
-    ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
+    ElConstSparseMatrix_ ## SIG A, \
+    ElConstSparseMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,            ElMatrix_ ## SIG s ) \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
   ElError ElQPAffineDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG Q, \
-    ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG G, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
+    ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistSparseMatrix_ ## SIG G, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG h, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
-    ElDistMultiVec_ ## SIG z,          ElDistMultiVec_ ## SIG s ) \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z, \
+    ElDistMultiVec_ ## SIG s ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
       *CReflect(x), *CReflect(y), *CReflect(z), *CReflect(s) ) ) } \
@@ -842,11 +663,15 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
      ^^^^^^^^^^^^^^ */ \
   ElError ElQPAffineX_ ## SIG \
   ( ElConstMatrix_ ## SIG Q, \
-    ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b, ElConstMatrix_ ## SIG c, \
+    ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,      ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,      ElMatrix_ ## SIG s, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s, \
     ElQPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
@@ -854,11 +679,15 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
        CReflect(ctrl) ) ) } \
   ElError ElQPAffineXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG Q, \
-    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG G, \
-    ElConstDistMatrix_ ## SIG b, ElConstDistMatrix_ ## SIG c, \
+    ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG G, \
+    ElConstDistMatrix_ ## SIG b, \
+    ElConstDistMatrix_ ## SIG c, \
     ElConstDistMatrix_ ## SIG h, \
-    ElDistMatrix_ ## SIG x,      ElDistMatrix_ ## SIG y, \
-    ElDistMatrix_ ## SIG z,      ElDistMatrix_ ## SIG s, \
+    ElDistMatrix_ ## SIG x, \
+    ElDistMatrix_ ## SIG y, \
+    ElDistMatrix_ ## SIG z, \
+    ElDistMatrix_ ## SIG s, \
     ElQPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
@@ -866,11 +695,15 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
        CReflect(ctrl) ) ) } \
   ElError ElQPAffineXSparse_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG Q, \
-    ElConstSparseMatrix_ ## SIG A, ElConstSparseMatrix_ ## SIG G, \
-    ElConstMatrix_ ## SIG b,       ElConstMatrix_ ## SIG c, \
+    ElConstSparseMatrix_ ## SIG A, \
+    ElConstSparseMatrix_ ## SIG G, \
+    ElConstMatrix_ ## SIG b, \
+    ElConstMatrix_ ## SIG c, \
     ElConstMatrix_ ## SIG h, \
-    ElMatrix_ ## SIG x,            ElMatrix_ ## SIG y, \
-    ElMatrix_ ## SIG z,            ElMatrix_ ## SIG s, \
+    ElMatrix_ ## SIG x, \
+    ElMatrix_ ## SIG y, \
+    ElMatrix_ ## SIG z, \
+    ElMatrix_ ## SIG s, \
     ElQPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
@@ -878,11 +711,15 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
        CReflect(ctrl) ) ) } \
   ElError ElQPAffineXDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG Q, \
-    ElConstDistSparseMatrix_ ## SIG A, ElConstDistSparseMatrix_ ## SIG G, \
-    ElConstDistMultiVec_ ## SIG b,     ElConstDistMultiVec_ ## SIG c, \
+    ElConstDistSparseMatrix_ ## SIG A, \
+    ElConstDistSparseMatrix_ ## SIG G, \
+    ElConstDistMultiVec_ ## SIG b, \
+    ElConstDistMultiVec_ ## SIG c, \
     ElConstDistMultiVec_ ## SIG h, \
-    ElDistMultiVec_ ## SIG x,          ElDistMultiVec_ ## SIG y, \
-    ElDistMultiVec_ ## SIG z,          ElDistMultiVec_ ## SIG s, \
+    ElDistMultiVec_ ## SIG x, \
+    ElDistMultiVec_ ## SIG y, \
+    ElDistMultiVec_ ## SIG z, \
+    ElDistMultiVec_ ## SIG s, \
     ElQPAffineCtrl_ ## SIG ctrl ) \
   { EL_TRY( QP( *CReflect(Q), *CReflect(A), *CReflect(G), \
       *CReflect(b), *CReflect(c), *CReflect(h), \
@@ -894,27 +731,39 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
   /* Box form (no linear equalities)
      ------------------------------- */ \
   ElError ElQPBoxADMM_ ## SIG \
-  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG C, \
-    Real lb, Real ub, ElMatrix_ ## SIG Z, ElInt* numIts ) \
+  ( ElConstMatrix_ ## SIG Q, \
+    ElConstMatrix_ ## SIG C, \
+    Real lb, Real ub, \
+    ElMatrix_ ## SIG Z, \
+    ElInt* numIts ) \
   { EL_TRY( *numIts = qp::box::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
       *CReflect(Z) ) ) } \
   ElError ElQPBoxADMMDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG C, \
-    Real lb, Real ub, ElDistMatrix_ ## SIG Z, ElInt* numIts ) \
+  ( ElConstDistMatrix_ ## SIG Q, \
+    ElConstDistMatrix_ ## SIG C, \
+    Real lb, Real ub, \
+    ElDistMatrix_ ## SIG Z, \
+    ElInt* numIts ) \
   { EL_TRY( *numIts = qp::box::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
       *CReflect(Z) ) ) } \
   /* Expert versions
      ^^^^^^^^^^^^^^^ */ \
   ElError ElQPBoxADMMX_ ## SIG \
-  ( ElConstMatrix_ ## SIG Q, ElConstMatrix_ ## SIG C, \
-    Real lb, Real ub, ElMatrix_ ## SIG Z, \
-    ElQPBoxADMMCtrl_ ## SIG ctrl, ElInt* numIts ) \
+  ( ElConstMatrix_ ## SIG Q, \
+    ElConstMatrix_ ## SIG C, \
+    Real lb, Real ub, \
+    ElMatrix_ ## SIG Z, \
+    ElADMMCtrl_ ## SIG ctrl, \
+    ElInt* numIts ) \
   { EL_TRY( *numIts = qp::box::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
       *CReflect(Z), CReflect(ctrl) ) ) } \
   ElError ElQPBoxADMMXDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG Q, ElConstDistMatrix_ ## SIG C, \
-    Real lb, Real ub, ElDistMatrix_ ## SIG Z, \
-    ElQPBoxADMMCtrl_ ## SIG ctrl, ElInt* numIts ) \
+  ( ElConstDistMatrix_ ## SIG Q, \
+    ElConstDistMatrix_ ## SIG C, \
+    Real lb, Real ub, \
+    ElDistMatrix_ ## SIG Z, \
+    ElADMMCtrl_ ## SIG ctrl, \
+    ElInt* numIts ) \
   { EL_TRY( *numIts = qp::box::ADMM( *CReflect(Q), *CReflect(C), lb, ub, \
       *CReflect(Z), CReflect(ctrl) ) ) } \
   /* Affine conic form

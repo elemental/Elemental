@@ -595,6 +595,11 @@ ElError ElGetSubgraphDist
   ( ElLeftOrRight side, \
     ElConstDistMultiVec_ ## SIG d, ElDistSparseMatrix_ ## SIG A ) \
   { EL_TRY( \
+      DiagonalSolve( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalSolveDistMultiVec_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstDistMultiVec_ ## SIG d, ElDistMultiVec_ ## SIG A ) \
+  { EL_TRY( \
       DiagonalSolve( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) }
 
 #define C_PROTO_NOCOMPLEX(SIG,T) \
@@ -617,6 +622,11 @@ ElError ElGetSubgraphDist
   ElError ElDiagonalScaleDistSparse_ ## SIG \
   ( ElLeftOrRight side, \
     ElConstDistMultiVec_ ## SIG d, ElDistSparseMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalScaleDistMultiVec_ ## SIG \
+  ( ElLeftOrRight side, \
+    ElConstDistMultiVec_ ## SIG d, ElDistMultiVec_ ## SIG A ) \
   { EL_TRY( \
       DiagonalScale( CReflect(side), NORMAL, *CReflect(d), *CReflect(A) ) ) } \
   /* DiagonalScaleTrapezoid */ \
@@ -779,6 +789,13 @@ ElError ElGetSubgraphDist
       DiagonalScale \
       ( CReflect(side), CReflect(orientation), \
         *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalScaleDistMultiVec_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstDistMultiVec_ ## SIG d, ElDistMultiVec_ ## SIG A ) \
+  { EL_TRY( \
+      DiagonalScale \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(A) ) ) } \
   /* DiagonalScaleTrapezoid */ \
   ElError ElDiagonalScaleTrapezoid_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
@@ -834,6 +851,13 @@ ElError ElGetSubgraphDist
   ElError ElDiagonalSolveDistSparse_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
     ElConstDistMultiVec_ ## SIG d, ElDistSparseMatrix_ ## SIG A ) \
+  { EL_TRY( \
+      DiagonalSolve \
+      ( CReflect(side), CReflect(orientation), \
+        *CReflect(d), *CReflect(A) ) ) } \
+  ElError ElDiagonalSolveDistMultiVec_ ## SIG \
+  ( ElLeftOrRight side, ElOrientation orientation, \
+    ElConstDistMultiVec_ ## SIG d, ElDistMultiVec_ ## SIG A ) \
   { EL_TRY( \
       DiagonalSolve \
       ( CReflect(side), CReflect(orientation), \

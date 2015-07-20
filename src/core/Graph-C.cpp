@@ -63,8 +63,13 @@ ElError ElGraphSource( ElConstGraph graph, ElInt edge, ElInt* source )
 ElError ElGraphTarget( ElConstGraph graph, ElInt edge, ElInt* target )
 { EL_TRY( *target = CReflect(graph)->Target(edge) ) }
 
-ElError ElGraphEdgeOffset( ElConstGraph graph, ElInt source, ElInt* edgeOffset )
-{ EL_TRY( *edgeOffset = CReflect(graph)->EdgeOffset(source) ) }
+ElError ElGraphSourceOffset
+( ElConstGraph graph, ElInt source, ElInt* sourceOffset )
+{ EL_TRY( *sourceOffset = CReflect(graph)->SourceOffset(source) ) }
+
+ElError ElGraphOffset
+( ElConstGraph graph, ElInt source, ElInt target, ElInt* offset )
+{ EL_TRY( *offset = CReflect(graph)->Offset(source,target) ) }
 
 ElError ElGraphNumConnections
 ( ElConstGraph graph, ElInt source, ElInt* numConnections )

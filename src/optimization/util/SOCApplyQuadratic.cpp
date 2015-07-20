@@ -25,7 +25,7 @@ void SOCApplyQuadratic
     // detRy := det(x) R y
     Matrix<Real> d;
     SOCDets( x, d, orders, firstInds );
-    SOCBroadcast( d, orders, firstInds );
+    ConeBroadcast( d, orders, firstInds );
     auto Ry = y;
     SOCReflect( Ry, orders, firstInds );
     Matrix<Real> detRy;
@@ -34,7 +34,7 @@ void SOCApplyQuadratic
     // z := 2 (x^T y) x
     Matrix<Real> xTy;
     SOCDots( x, y, xTy, orders, firstInds );
-    SOCBroadcast( xTy, orders, firstInds );
+    ConeBroadcast( xTy, orders, firstInds );
     Hadamard( xTy, x, z );
     z *= 2;
 
@@ -72,7 +72,7 @@ void SOCApplyQuadratic
     // detRy := det(x) R y
     DistMatrix<Real,VC,STAR> d(x.Grid());
     SOCDets( x, d, orders, firstInds, cutoff );
-    SOCBroadcast( d, orders, firstInds, cutoff );
+    ConeBroadcast( d, orders, firstInds, cutoff );
     auto Ry = y;
     SOCReflect( Ry, orders, firstInds );
     DistMatrix<Real,VC,STAR> detRy(x.Grid());
@@ -81,7 +81,7 @@ void SOCApplyQuadratic
     // z := 2 (x^T y) x
     DistMatrix<Real,VC,STAR> xTy(x.Grid());
     SOCDots( x, y, xTy, orders, firstInds, cutoff );
-    SOCBroadcast( xTy, orders, firstInds, cutoff );
+    ConeBroadcast( xTy, orders, firstInds, cutoff );
     Hadamard( xTy, x, z );
     z *= 2;
 
@@ -102,7 +102,7 @@ void SOCApplyQuadratic
     // detRy := det(x) R y
     DistMultiVec<Real> d(x.Comm()); 
     SOCDets( x, d, orders, firstInds, cutoff );
-    SOCBroadcast( d, orders, firstInds, cutoff );
+    ConeBroadcast( d, orders, firstInds, cutoff );
     auto Ry = y;
     SOCReflect( Ry, orders, firstInds );
     DistMultiVec<Real> detRy(x.Comm());
@@ -111,7 +111,7 @@ void SOCApplyQuadratic
     // z := 2 (x^T y) x
     DistMultiVec<Real> xTy(x.Comm());
     SOCDots( x, y, xTy, orders, firstInds, cutoff );
-    SOCBroadcast( xTy, orders, firstInds, cutoff );
+    ConeBroadcast( xTy, orders, firstInds, cutoff );
     Hadamard( xTy, x, z );
     z *= 2;
 

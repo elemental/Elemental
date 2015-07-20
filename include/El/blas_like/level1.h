@@ -515,6 +515,22 @@ EL_EXPORT ElError ElDiagonalScaleDistSparse_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMultiVec_z d, ElDistSparseMatrix_z X );
 
+EL_EXPORT ElError ElDiagonalScaleDistMultiVec_i
+( ElLeftOrRight side, 
+  ElConstDistMultiVec_i d, ElDistMultiVec_i X );
+EL_EXPORT ElError ElDiagonalScaleDistMultiVec_s
+( ElLeftOrRight side, 
+  ElConstDistMultiVec_s d, ElDistMultiVec_s X );
+EL_EXPORT ElError ElDiagonalScaleDistMultiVec_d
+( ElLeftOrRight side,
+  ElConstDistMultiVec_d d, ElDistMultiVec_d X );
+EL_EXPORT ElError ElDiagonalScaleDistMultiVec_c
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMultiVec_c d, ElDistMultiVec_c X );
+EL_EXPORT ElError ElDiagonalScaleDistMultiVec_z
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMultiVec_z d, ElDistMultiVec_z X );
+
 /* DiagonalScaleTrapezoid
    ====================== */
 EL_EXPORT ElError ElDiagonalScaleTrapezoid_i
@@ -634,6 +650,19 @@ EL_EXPORT ElError ElDiagonalSolveDistSparse_c
 EL_EXPORT ElError ElDiagonalSolveDistSparse_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMultiVec_z d, ElDistSparseMatrix_z X );
+
+EL_EXPORT ElError ElDiagonalSolveDistMultiVec_s
+( ElLeftOrRight side, 
+  ElConstDistMultiVec_s d, ElDistMultiVec_s X );
+EL_EXPORT ElError ElDiagonalSolveDistMultiVec_d
+( ElLeftOrRight side,
+  ElConstDistMultiVec_d d, ElDistMultiVec_d X );
+EL_EXPORT ElError ElDiagonalSolveDistMultiVec_c
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMultiVec_c d, ElDistMultiVec_c X );
+EL_EXPORT ElError ElDiagonalSolveDistMultiVec_z
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMultiVec_z d, ElDistMultiVec_z X );
 
 /* Dot 
    === */

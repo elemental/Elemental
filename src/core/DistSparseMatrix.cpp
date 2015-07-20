@@ -98,6 +98,16 @@ void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 }
 
 template<typename T>
+void DistSparseMatrix<T>::FreezeSparsity() 
+{ distGraph_.frozenSparsity_ = true; }
+template<typename T>
+void DistSparseMatrix<T>::UnfreezeSparsity() 
+{ distGraph_.frozenSparsity_ = false; }
+template<typename T>
+bool DistSparseMatrix<T>::FrozenSparsity() const 
+{ return distGraph_.frozenSparsity_; }
+
+template<typename T>
 void DistSparseMatrix<T>::Update( Int row, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::Update"))
@@ -141,6 +151,7 @@ template<typename T>
 void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueUpdate"))
+    // TODO: Use FrozenSparsity()
     if( row == END ) row = Height() - 1;
     if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
@@ -163,9 +174,17 @@ template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueLocalUpdate"))
-    distGraph_.QueueLocalConnection( localRow, col );
-    vals_.push_back( value );
-    multMeta.ready = false;
+    if( FrozenSparsity() )
+    {
+        const Int offset = distGraph_.Offset( localRow, col );
+        vals_[offset] += value;
+    }
+    else
+    {
+        distGraph_.QueueLocalConnection( localRow, col );
+        vals_.push_back( value );
+        multMeta.ready = false;
+    }
 }
 
 template<typename T>
@@ -188,8 +207,16 @@ template<typename T>
 void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueZero"))
-    distGraph_.QueueLocalDisconnection( localRow, col );
-    multMeta.ready = false;
+    if( FrozenSparsity() )
+    {
+        const Int offset = distGraph_.Offset( localRow, col );
+        vals_[offset] = 0;
+    }
+    else
+    {
+        distGraph_.QueueLocalDisconnection( localRow, col );
+        multMeta.ready = false;
+    }
 }
 
 template<typename T>
@@ -201,6 +228,7 @@ void DistSparseMatrix<T>::ProcessQueues()
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
+
     // Send the remote updates
     // =======================
     const int commSize = mpi::Size( distGraph_.comm_ );
@@ -231,7 +259,8 @@ void DistSparseMatrix<T>::ProcessQueues()
         // -------------------
         auto recvBuf=
           mpi::AllToAll( sendBuf, sendCounts, sendOffs, distGraph_.comm_ );
-        Reserve( NumLocalEntries()+recvBuf.size() );
+        if( !FrozenSparsity() )
+            Reserve( NumLocalEntries()+recvBuf.size() );
         for( auto& entry : recvBuf )
             QueueUpdate( entry );
     }
@@ -280,42 +309,52 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
     if( distGraph_.locallyConsistent_ )
         return;
 
-    const Int numLocalEntries = vals_.size();
     Int numRemoved = 0;
+    const Int numLocalEntries = vals_.size();
     vector<Entry<T>> entries( numLocalEntries );
-    for( Int s=0; s<numLocalEntries; ++s )
+    if( distGraph_.markedForRemoval_.size() != 0 )
     {
-        pair<Int,Int> candidate(distGraph_.sources_[s],distGraph_.targets_[s]);
-        if( distGraph_.markedForRemoval_.find(candidate) ==
-            distGraph_.markedForRemoval_.end() )
+        for( Int s=0; s<numLocalEntries; ++s )
         {
-            entries[s-numRemoved].i = distGraph_.sources_[s];
-            entries[s-numRemoved].j = distGraph_.targets_[s];
-            entries[s-numRemoved].value = vals_[s];
+            pair<Int,Int> candidate(distGraph_.sources_[s],
+                                    distGraph_.targets_[s]);
+            if( distGraph_.markedForRemoval_.find(candidate) ==
+                distGraph_.markedForRemoval_.end() )
+            {
+                entries[s-numRemoved].i = distGraph_.sources_[s];
+                entries[s-numRemoved].j = distGraph_.targets_[s];
+                entries[s-numRemoved].value = vals_[s];
+            }
+            else
+            {
+                ++numRemoved;
+            }
         }
-        else
-        {
-            ++numRemoved;
-        }
+        SwapClear( distGraph_.markedForRemoval_ );
+        entries.resize( numLocalEntries-numRemoved );
     }
-    SwapClear( distGraph_.markedForRemoval_ );
-    entries.resize( numLocalEntries-numRemoved );
+    else
+    {
+        for( Int s=0; s<numLocalEntries; ++s )
+            entries[s] = Entry<T>{distGraph_.sources_[s],
+                                  distGraph_.targets_[s],vals_[s]};
+    }
     std::sort( entries.begin(), entries.end(), CompareEntries );
+    const Int numSorted = entries.size();
+
     // Combine duplicates
     // ------------------
     Int lastUnique=0;
-    for( Int s=1; s<numLocalEntries; ++s )
+    for( Int s=1; s<numSorted; ++s )
     {
         if( entries[s].i != entries[lastUnique].i ||
             entries[s].j != entries[lastUnique].j )
-        {
-            ++lastUnique;
-            entries[lastUnique] = entries[s];
-        }
+            entries[++lastUnique] = entries[s];
         else
             entries[lastUnique].value += entries[s].value;
     }
     const Int numUnique = lastUnique+1;
+
     entries.resize( numUnique );
     distGraph_.sources_.resize( numUnique );
     distGraph_.targets_.resize( numUnique );
@@ -326,7 +365,7 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
         distGraph_.targets_[s] = entries[s].j;
         vals_[s] = entries[s].value;
     }
-    distGraph_.ComputeEdgeOffsets();
+    distGraph_.ComputeSourceOffsets();
     distGraph_.locallyConsistent_ = true;
 }
 
@@ -440,7 +479,7 @@ Int DistSparseMatrix<T>::Blocksize() const { return distGraph_.Blocksize(); }
 template<typename T>
 int DistSparseMatrix<T>::RowOwner( Int i ) const 
 { 
-    if( i == END ) i = Height() - 1;
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::RowOwner"))
     return distGraph_.SourceOwner(i); 
 }
 
@@ -448,7 +487,6 @@ template<typename T>
 Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
 { 
     DEBUG_ONLY(CSE cse("DistSparseMatrix::GlobalRow"))
-    if( iLoc == END ) iLoc = LocalHeight() - 1;
     return distGraph_.GlobalSource(iLoc); 
 }
 
@@ -456,7 +494,6 @@ template<typename T>
 Int DistSparseMatrix<T>::LocalRow( Int i ) const
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::LocalRow"))
-    if( i == END ) i = Height() - 1;
     return distGraph_.LocalSource(i);
 }
 
@@ -477,18 +514,23 @@ Int DistSparseMatrix<T>::Col( Int localInd ) const
 }
 
 template<typename T>
-Int DistSparseMatrix<T>::EntryOffset( Int localRow ) const
+Int DistSparseMatrix<T>::RowOffset( Int localRow ) const
 {
-    DEBUG_ONLY(CSE cse("DistSparseMatrix::EntryOffset"))
-    if( localRow == END ) localRow = LocalHeight() - 1;
-    return distGraph_.EdgeOffset( localRow );
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::RowOffset"))
+    return distGraph_.SourceOffset( localRow );
+}
+
+template<typename T>
+Int DistSparseMatrix<T>::Offset( Int localRow, Int col ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Offset"))
+    return distGraph_.Offset( localRow, col );
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::NumConnections"))
-    if( localRow == END ) localRow = LocalHeight() - 1;
     return distGraph_.NumConnections( localRow );
 }
 
@@ -560,11 +602,29 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
  
     // Compute the set of row indices that we need from X in a normal
     // multiply or update of Y in the adjoint case
+    const Int* colBuffer = LockedTargetBuffer();
     const Int numLocalEntries = NumLocalEntries();
-    set<Int> indexSet;
+    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
     for( Int e=0; e<numLocalEntries; ++e )
-        indexSet.insert( Col(e) );
-    const Int numRecvInds = indexSet.size();
+        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
+    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
+    meta.colOffs.resize(numLocalEntries);
+    {
+        Int uniqueOff=-1, lastUnique=-1;
+        for( Int e=0; e<numLocalEntries; ++e )    
+        {
+            if( lastUnique != uniqueCols[e].value )
+            {
+                ++uniqueOff;
+                lastUnique = uniqueCols[e].value;
+                uniqueCols[uniqueOff] = uniqueCols[e];
+            }
+            meta.colOffs[uniqueCols[e].index] = uniqueOff;
+        }
+        uniqueCols.resize( uniqueOff+1 );
+    }
+    const Int numRecvInds = uniqueCols.size();
+    meta.numRecvInds = numRecvInds;
     vector<Int> recvInds( numRecvInds );
     meta.recvSizes.clear();
     meta.recvSizes.resize( commSize, 0 );
@@ -572,9 +632,9 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     const Int vecBlocksize = Width() / commSize;
     {
         Int off=0, lastOff=0, qPrev=0;
-        for( auto setIt=indexSet.cbegin(); setIt!=indexSet.cend(); ++setIt )
+        for( ; off<numRecvInds; ++off )
         {
-            const Int j = *setIt;
+            const Int j = uniqueCols[off].value;
             const Int q = RowToProcess( j, vecBlocksize, commSize );
             while( qPrev != q )
             {
@@ -584,7 +644,7 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
                 lastOff = off;
                 ++qPrev;
             }
-            recvInds[off++] = j;
+            recvInds[off] = j;
         }
         while( qPrev != commSize-1 )
         {
@@ -612,9 +672,6 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
       meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(),
       comm );
 
-    meta.colOffs.resize( numLocalEntries );
-    for( Int s=0; s<numLocalEntries; ++s )
-        meta.colOffs[s] = Find( recvInds, Col(s) );
     meta.numRecvInds = numRecvInds;
     meta.ready = true;
 

@@ -8,13 +8,13 @@
 #
 import El
 
-m = 4000
-n = 2000
+m = 6000
+n = 4000
+
 display = True
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
-# Make a sparse matrix with the last column dense
 def Rectang(height,width):
   A = El.DistSparseMatrix()
   A.Resize(height,width)
@@ -22,18 +22,13 @@ def Rectang(height,width):
   A.Reserve(5*localHeight)
   for sLoc in xrange(localHeight):
     s = A.GlobalRow(sLoc)
-    if s < width: 
-      A.QueueLocalUpdate( sLoc, s,        11 )
-    if s >= 1 and s-1 < width:
-      A.QueueLocalUpdate( sLoc, s-1,      -1 )
-    if s+1 < width:
-      A.QueueLocalUpdate( sLoc, s+1,       2 )
-    if s >= height and s-height < width:
-      A.QueueLocalUpdate( sLoc, s-height, -3 )
-    if s+height < width: 
-      A.QueueLocalUpdate( sLoc, s+height,  4 )
+    A.QueueLocalUpdate( sLoc, s%width, 11 )
+    A.QueueLocalUpdate( sLoc, (s-1)%width, -1 )
+    A.QueueLocalUpdate( sLoc, (s+1)%width,  2 )
+    A.QueueLocalUpdate( sLoc, (s-height)%width, -3 )
+    A.QueueLocalUpdate( sLoc, (s+height)%width,  4 )
     # The dense last column
-    A.QueueLocalUpdate( sLoc, width-1, -5/height );
+    #A.QueueLocalUpdate( sLoc, width-1, -5/height );
 
   A.ProcessQueues()
   return A
@@ -45,20 +40,21 @@ if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
+ctrl = El.NNLSCtrl_d()
+ctrl.socpCtrl.mehrotraCtrl.progress = True
+ctrl.socpCtrl.mehrotraCtrl.time = True
+ctrl.socpCtrl.mehrotraCtrl.qsdCtrl.progress = True
 startNNLS = El.mpi.Time()
-x = El.NNLS( A, b )
+x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()
 if worldRank == 0:
   print "NNLS time:", endNNLS-startNNLS, "seconds"
-
 if display:
   El.Display( x, "x" )
 
 e = El.DistMultiVec()
 El.Copy( b, e )
-El.SparseMultiply( El.NORMAL, -1., A, x, 1., e )
-if display:
-  El.Display( e, "e" )
+El.Multiply( El.NORMAL, -1., A, x, 1., e )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
   print "|| A x - b ||_2 =", eTwoNorm
@@ -68,10 +64,10 @@ xLS = El.LeastSquares( A, b )
 endLS = El.mpi.Time()
 if worldRank == 0:
   print "LS time:", endLS-startLS, "seconds"
-El.Copy( b, e )
-El.SparseMultiply( El.NORMAL, -1., A, xLS, 1., e )
 if display:
-  El.Display( e, "e" )
+  El.Display( xLS, "xLS" )
+El.Copy( b, e )
+El.Multiply( El.NORMAL, -1., A, xLS, 1., e )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
   print "|| A x_{LS} - b ||_2 =", eTwoNorm

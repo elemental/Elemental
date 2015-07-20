@@ -68,8 +68,6 @@ void RowMaxNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
 {
     DEBUG_ONLY(CSE cse("RowMaxNorms"))
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     norms.AlignWith( A );
     norms.Resize( A.Height(), 1 );
     RowMaxNorms( A.LockedMatrix(), norms.Matrix() );
@@ -105,7 +103,7 @@ void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     {
         Real scale = 0;
         Real scaledSquare = 1;
-        const Int offset = A.EntryOffset( i );
+        const Int offset = A.RowOffset( i );
         const Int numConn = A.NumConnections( i );
         for( Int e=offset; e<offset+numConn; ++e )
             UpdateScaledSquare( A.Value(e), scale, scaledSquare );
@@ -123,7 +121,7 @@ void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     for( Int i=0; i<m; ++i )
     {
         Real rowMax = 0;
-        const Int offset = A.EntryOffset( i );
+        const Int offset = A.RowOffset( i );
         const Int numConn = A.NumConnections( i );
         for( Int e=offset; e<offset+numConn; ++e )
             rowMax = Max(rowMax,Abs(A.Value(e)));
@@ -143,7 +141,7 @@ void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
     {
         Real scale = 0;
         Real scaledSquare = 1;
-        const Int offset = A.EntryOffset( iLoc );
+        const Int offset = A.RowOffset( iLoc );
         const Int numConn = A.NumConnections( iLoc );
         for( Int e=offset; e<offset+numConn; ++e )
             UpdateScaledSquare( A.Value(e), scale, scaledSquare );
@@ -162,7 +160,7 @@ void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         Real rowMax = 0;
-        const Int offset = A.EntryOffset( iLoc );
+        const Int offset = A.RowOffset( iLoc );
         const Int numConn = A.NumConnections( iLoc );
         for( Int e=offset; e<offset+numConn; ++e )
             rowMax = Max(rowMax,Abs(A.Value(e)));

@@ -43,7 +43,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        qp::box::ADMMCtrl<Real> ctrl;
+        ADMMCtrl<Real> ctrl;
         ctrl.rho = rho;
         ctrl.alpha = alpha;
         ctrl.maxIter = maxIter;

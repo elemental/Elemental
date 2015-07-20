@@ -101,8 +101,8 @@ if worldRank == 0:
 
 E = El.DistMultiVec()
 El.Copy( D, E )
-El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
-El.SparseMultiply( El.NORMAL, -1., B, Y, 1., E )
+El.Multiply( El.NORMAL, -1., A, X, 1., E )
+El.Multiply( El.NORMAL, -1., B, Y, 1., E )
 residNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "D - A X - B Y" )
@@ -137,8 +137,8 @@ def SolveWeighted(A,B,D,lambd):
     print "lambda=", lambd, ": || Y ||_F =", YNorm
 
   El.Copy( D, E )
-  El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
-  El.SparseMultiply( El.NORMAL, -1., B, Y, 1., E )
+  El.Multiply( El.NORMAL, -1., A, X, 1., E )
+  El.Multiply( El.NORMAL, -1., B, Y, 1., E )
   residNorm = El.FrobeniusNorm( E )
   if worldRank == 0:
     print "lambda=", lambd, ": || D - A X - B Y ||_F / || D ||_F =", residNorm/DNorm

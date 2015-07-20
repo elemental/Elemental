@@ -24,8 +24,8 @@ void SOCApply
     SOCDots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
-    SOCBroadcast( xRoots, orders, firstInds );
-    SOCBroadcast( yRoots, orders, firstInds );
+    ConeBroadcast( xRoots, orders, firstInds );
+    ConeBroadcast( yRoots, orders, firstInds );
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
         if( i != firstInds.Get(i,0) )
@@ -63,8 +63,8 @@ void SOCApply
     SOCDots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
-    SOCBroadcast( xRoots, orders, firstInds );
-    SOCBroadcast( yRoots, orders, firstInds );
+    ConeBroadcast( xRoots, orders, firstInds );
+    ConeBroadcast( yRoots, orders, firstInds );
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -89,8 +89,8 @@ void SOCApply
     SOCDots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
-    SOCBroadcast( xRoots, orders, firstInds );
-    SOCBroadcast( yRoots, orders, firstInds );
+    ConeBroadcast( xRoots, orders, firstInds );
+    ConeBroadcast( yRoots, orders, firstInds );
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {

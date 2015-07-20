@@ -8,10 +8,10 @@
 #
 import El
 
-n0=20
-n1=20
+n0=100
+n1=100
 output = False
-display = False
+display = True
 worldSize = El.mpi.WorldSize()
 worldRank = El.mpi.WorldRank()
 
@@ -45,9 +45,6 @@ def ConcatFD2D(N0,N1):
       A.QueueUpdate( s, s+N0,    El.ComplexDouble(4,9) )
       A.QueueUpdate( s, sRel+N0, El.ComplexDouble(3,10) )
 
-    # The dense last column
-    A.QueueUpdate( s, width-1, El.ComplexDouble(-10/height) );
-
   A.ProcessLocalQueues()
   return A
 
@@ -55,15 +52,9 @@ A = ConcatFD2D(n0,n1)
 b = El.DistMultiVec(El.zTag)
 #El.Gaussian( b, n0*n1, 1 )
 El.Ones( b, n0*n1, 1 )
-if display:
-  El.Display( A, "A" )
-  El.Display( b, "b" )
-if output:
-  El.Print( A, "A" )
-  El.Print( b, "b" )
 
 ctrl = El.BPCtrl_z()
-ctrl.ipmCtrl.mehrotraCtrl.minTol = 1e-5
+ctrl.ipmCtrl.mehrotraCtrl.minTol = 1e-4
 ctrl.ipmCtrl.mehrotraCtrl.targetTol = 1e-8
 ctrl.ipmCtrl.mehrotraCtrl.time = True
 ctrl.ipmCtrl.mehrotraCtrl.progress = True
@@ -83,12 +74,8 @@ if output:
 xOneNorm = El.EntrywiseNorm( x, 1 )
 e = El.DistMultiVec(El.zTag)
 El.Copy( b, e )
-El.SparseMultiply \
+El.Multiply \
 ( El.NORMAL, El.ComplexDouble(-1), A, x, El.ComplexDouble(1), e )
-if display:
-  El.Display( e, "e" )
-if output:
-  El.Print( e, "e" )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
   print "|| x ||_1       =", xOneNorm

@@ -27,7 +27,7 @@ namespace nnls {
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, const Matrix<Real>& B, Matrix<Real>& X, 
-  const qp::box::ADMMCtrl<Real>& ctrl )
+  const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::ADMM"))
     if( IsComplex<Real>::val ) 
@@ -45,7 +45,7 @@ template<typename Real>
 Int ADMM
 ( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& B, 
         AbstractDistMatrix<Real>& X,
-  const qp::box::ADMMCtrl<Real>& ctrl )
+  const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::ADMM"))
     if( IsComplex<Real>::val ) 

@@ -258,8 +258,8 @@ struct RegQSDCtrl
     RegQSDRefineAlg alg=REG_REFINE_FGMRES;
     Real relTol;
     Real relTolRefine;
-    Int maxIts=15;
-    Int maxRefineIts=15;
+    Int maxIts=8;
+    Int maxRefineIts=3;
     Int restart=10;
     bool progress=false;
     bool time=false;
@@ -269,7 +269,7 @@ struct RegQSDCtrl
         const Real eps = Epsilon<Real>(); 
         regPrimal = regDual = Pow(eps,Real(0.5));
         relTol = Pow(eps,Real(0.5));
-        relTolRefine = Pow(eps,Real(0.5));
+        relTolRefine = Pow(eps,Real(0.8));
     }
 };
 

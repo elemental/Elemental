@@ -7,11 +7,28 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "./NNLS/SOCP.hpp"
+#include "./NNLS/QP.hpp"
 #include "./NNLS/ADMM.hpp"
-#include "./NNLS/IPM.hpp"
 
 namespace El {
 
+// SOCP formulation
+// ----------------
+//
+// Solve each problem
+//
+//   min || A x - b ||_2
+//   s.t. x >= 0
+//
+// via the SOCP
+//
+//   min t
+//   s.t. || A x - b ||_2 <= t, x >= 0.
+//
+// QP formulation
+// --------------
+//
 // Solve each problem 
 //
 //   min || A x - b ||_2 
@@ -28,77 +45,87 @@ namespace El {
 
 template<typename Real>
 void NNLS
-( const Matrix<Real>& A, const Matrix<Real>& B, 
+( const Matrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NNLS"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
-    if( ctrl.useIPM )
-        nnls::IPM( A, B, X, ctrl.ipmCtrl );
+    if( ctrl.approach == NNLS_SOCP )
+        nnls::SOCP( A, B, X, ctrl.socpCtrl );
+    else if( ctrl.approach == NNLS_QP )
+        nnls::QP( A, B, X, ctrl.qpCtrl );
     else
         nnls::ADMM( A, B, X, ctrl.admmCtrl );
 }
 
 template<typename Real>
 void NNLS
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, 
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& B, 
         AbstractDistMatrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NNLS"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
-    if( ctrl.useIPM )
-        nnls::IPM( A, B, X, ctrl.ipmCtrl );
+    if( ctrl.approach == NNLS_SOCP )
+        nnls::SOCP( A, B, X, ctrl.socpCtrl );
+    else if( ctrl.approach == NNLS_QP )
+        nnls::QP( A, B, X, ctrl.qpCtrl );
     else
         nnls::ADMM( A, B, X, ctrl.admmCtrl );
 }
 
 template<typename Real>
 void NNLS
-( const SparseMatrix<Real>& A, const Matrix<Real>& B, 
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NNLS"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
-    if( !ctrl.useIPM )
+    if( ctrl.approach == NNLS_SOCP )
+        nnls::SOCP( A, B, X, ctrl.socpCtrl );
+    else if( ctrl.approach == NNLS_QP )
+        nnls::QP( A, B, X, ctrl.qpCtrl );
+    else
         LogicError("ADMM NNLS not yet supported for sparse matrices");
-    nnls::IPM( A, B, X, ctrl.ipmCtrl );
 }
 
 template<typename Real>
 void NNLS
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, 
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& B, 
         DistMultiVec<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NNLS"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
-    if( !ctrl.useIPM )
+    if( ctrl.approach == NNLS_SOCP )
+        nnls::SOCP( A, B, X, ctrl.socpCtrl );
+    else if( ctrl.approach == NNLS_QP )
+        nnls::QP( A, B, X, ctrl.qpCtrl );
+    else
         LogicError("ADMM NNLS not yet supported for sparse matrices");
-    nnls::IPM( A, B, X, ctrl.ipmCtrl );
 }
 
 #define PROTO(Real) \
   template void NNLS \
-  ( const Matrix<Real>& A, const Matrix<Real>& B, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& B, \
           Matrix<Real>& X, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NNLS \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& B, \
           AbstractDistMatrix<Real>& X, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NNLS \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& B, \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& B, \
           Matrix<Real>& X, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NNLS \
-  ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& B, \
           DistMultiVec<Real>& X, \
     const NNLSCtrl<Real>& ctrl );
 

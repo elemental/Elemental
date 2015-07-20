@@ -12,6 +12,7 @@ namespace El {
 namespace reg_qsd_ldl {
 
 // TODO: Switch to returning the relative residual of the refined solution
+// TODO: Do not accept iterative refinements which increase the residual norm
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
@@ -26,13 +27,18 @@ inline Int RegularizedSolveAfterNoPromote
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
+    const Base<F> bNorm = MaxNorm( b );
+    Timer timer;
 
     // Compute the initial guess
     // =========================
     Matrix<F> x;
     ldl::MatrixNode<F> xNodal( invMap, info, b );
+    if( time )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, x );
 
     Int refineIt = 0;
@@ -41,13 +47,16 @@ inline Int RegularizedSolveAfterNoPromote
         Matrix<F> dx, y;
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
+        if( time )
+            timer.Start();
         Multiply( NORMAL, F(1), A, x, F(1), y );
+        if( time )
+            Output("  Multiply time: ",timer.Stop()," secs");
         b -= y;
-        Base<F> errorNorm = Nrm2( b );
+        Base<F> errorNorm = MaxNorm( b );
         if( progress )
             Output("original rel error: ",errorNorm/bNorm);
  
-        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
@@ -60,7 +69,11 @@ inline Int RegularizedSolveAfterNoPromote
             // Compute the proposed update to the solution
             // -------------------------------------------
             xNodal.Pull( invMap, info, b );
+            if( time )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
             x += dx;
 
@@ -69,18 +82,25 @@ inline Int RegularizedSolveAfterNoPromote
             b = bOrig;
             y = x;
             DiagonalScale( LEFT, NORMAL, reg, y );
+            if( time )
+                timer.Start();
             Multiply( NORMAL, F(1), A, x, F(1), y );
+            if( time )
+                Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
-            auto newErrorNorm = Nrm2( b );
+            auto newErrorNorm = MaxNorm( b );
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
-        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -105,14 +125,19 @@ inline Int RegularizedSolveAfterNoPromote
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     auto bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
+    const Base<F> bNorm = MaxNorm( b );
+    Timer timer;
 
     // Compute the initial guess
     // =========================
     Matrix<F> x;
     DiagonalSolve( LEFT, NORMAL, d, b );
     ldl::MatrixNode<F> xNodal( invMap, info, b );
+    if( time )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, x );
     DiagonalSolve( LEFT, NORMAL, d, x );
 
@@ -121,16 +146,18 @@ inline Int RegularizedSolveAfterNoPromote
     {
         Matrix<F> dx, y;
         y = x;
-        DiagonalScale( LEFT, NORMAL, d, y );
         DiagonalScale( LEFT, NORMAL, reg, y );
-        DiagonalScale( LEFT, NORMAL, d, y );
+        if( time )
+            timer.Start();
         Multiply( NORMAL, F(1), A, x, F(1), y );
+        if( time )
+            Output("  Multiply time: ",timer.Stop()," secs");
+        b = bOrig;
         b -= y;
-        Base<F> errorNorm = Nrm2( b );
+        Base<F> errorNorm = MaxNorm( b );
         if( progress )
             Output("original rel error: ",errorNorm/bNorm);
  
-        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
@@ -144,7 +171,11 @@ inline Int RegularizedSolveAfterNoPromote
             // -------------------------------------------
             DiagonalSolve( LEFT, NORMAL, d, b );
             xNodal.Pull( invMap, info, b );
+            if( time )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
             DiagonalSolve( LEFT, NORMAL, d, dx );
             x += dx;
@@ -153,21 +184,26 @@ inline Int RegularizedSolveAfterNoPromote
             // ----------------------
             b = bOrig;
             y = x;
-            DiagonalScale( LEFT, NORMAL, d, y );
             DiagonalScale( LEFT, NORMAL, reg, y );
-            DiagonalScale( LEFT, NORMAL, d, y );
+            if( time )
+                timer.Start();
             Multiply( NORMAL, F(1), A, x, F(1), y );
+            if( time )
+                Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
-            auto newErrorNorm = Nrm2( b );
+            auto newErrorNorm = MaxNorm( b );
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
-        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -190,11 +226,12 @@ inline Int RegularizedSolveAfterPromote
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
+    Timer timer;
 
     Matrix<PF> bProm, bOrigProm;
     Copy( b, bProm );
     Copy( b, bOrigProm );
-    const PReal bNorm = Nrm2( bOrigProm );
+    const PReal bNorm = MaxNorm( bOrigProm );
 
     Matrix<PReal> regProm;
     Copy( reg, regProm );
@@ -202,7 +239,11 @@ inline Int RegularizedSolveAfterPromote
     // Compute the initial guess
     // =========================
     ldl::MatrixNode<F> xNodal( invMap, info, b );
+    if( time )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, b );
     Matrix<PF> xProm;
     Copy( b, xProm );
@@ -216,13 +257,16 @@ inline Int RegularizedSolveAfterPromote
         Matrix<PF> dxProm, yProm;
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
+        if( time )
+            timer.Start();
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        if( time )
+            Output("  Multiply time: ",timer.Stop()," secs");
         bProm -= yProm;
-        auto errorNorm = Nrm2( bProm );
+        auto errorNorm = MaxNorm( bProm );
         if( progress )
             Output("original rel error: ",errorNorm/bNorm);
  
-        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
@@ -236,7 +280,11 @@ inline Int RegularizedSolveAfterPromote
             // -------------------------------------------
             Copy( bProm, b );
             xNodal.Pull( invMap, info, b );
+            if( time )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
             xProm += dxProm;
@@ -246,18 +294,25 @@ inline Int RegularizedSolveAfterPromote
             bProm = bOrigProm;
             yProm = xProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
+            if( time )
+                timer.Start();
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            if( time )
+                Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
-            auto newErrorNorm = Nrm2( bProm );
+            auto newErrorNorm = MaxNorm( bProm );
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
-        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -281,11 +336,12 @@ inline Int RegularizedSolveAfterPromote
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
+    Timer timer;
 
     Matrix<PF> bProm, bOrigProm;
     Copy( b, bProm );
     Copy( b, bOrigProm );
-    const PReal bNorm = Nrm2( bOrigProm );
+    const PReal bNorm = MaxNorm( bOrigProm );
 
     Matrix<PReal> dProm;
     Copy( d, dProm );
@@ -297,7 +353,11 @@ inline Int RegularizedSolveAfterPromote
     // =========================
     DiagonalSolve( LEFT, NORMAL, d, b );
     ldl::MatrixNode<F> xNodal( invMap, info, b );
+    if( time )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, b );
     DiagonalSolve( LEFT, NORMAL, d, b );
 
@@ -312,16 +372,18 @@ inline Int RegularizedSolveAfterPromote
     {
         Matrix<PF> dxProm, yProm;
         yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, dProm, yProm );
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        DiagonalScale( LEFT, NORMAL, dProm, yProm );
+        if( time )
+            timer.Start();
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        if( time )
+            Output("  Multiply time: ",timer.Stop()," secs");
+        bProm = bOrigProm;
         bProm -= yProm;
-        auto errorNorm = Nrm2( bProm );
+        auto errorNorm = MaxNorm( bProm );
         if( progress )
             Output("original rel error: ",errorNorm/bNorm);
  
-        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
@@ -336,7 +398,11 @@ inline Int RegularizedSolveAfterPromote
             Copy( bProm, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             xNodal.Pull( invMap, info, b );
+            if( time )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
@@ -346,21 +412,26 @@ inline Int RegularizedSolveAfterPromote
             // ----------------------
             bProm = bOrigProm;
             yProm = xProm;
-            DiagonalScale( LEFT, NORMAL, dProm, yProm );
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            DiagonalScale( LEFT, NORMAL, dProm, yProm );
+            if( time )
+                timer.Start();
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            if( time )
+                Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
-            auto newErrorNorm = Nrm2( bProm );
+            auto newErrorNorm = MaxNorm( bProm );
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
-        SetIndent( indent );
     }
     // Store the final result
     // ======================
@@ -380,9 +451,15 @@ Int RegularizedSolveAfter
   bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
            ( A, reg, invMap, info, front, b, relTol, maxRefineIts, 
              progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+           ( A, reg, invMap, info, front, b, relTol, maxRefineIts, 
+             progress, time );
+#endif
 }
 
 template<typename F>
@@ -397,9 +474,15 @@ Int RegularizedSolveAfter
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, 
              b, relTol, maxRefineIts, progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+           ( A, reg, d, invMap, info, front, 
+             b, relTol, maxRefineIts, progress, time );
+#endif
 }
 
 template<typename F>
@@ -415,16 +498,21 @@ inline Int RegularizedSolveAfterNoPromote
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
+    Timer timer;
 
     DistMultiVec<F> bOrig(comm);
     bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
+    const Base<F> bNorm = MaxNorm( b );
 
     // Compute the initial guess
     // =========================
     DistMultiVec<F> x(comm);
     ldl::DistMultiVecNode<F> xNodal( invMap, info, b );
+    if( time && commRank == 0 )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time && commRank == 0 )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, x );
 
     Int refineIt = 0;
@@ -433,9 +521,13 @@ inline Int RegularizedSolveAfterNoPromote
         DistMultiVec<F> dx(comm), y(comm);
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
+        if( time && commRank == 0 )
+            timer.Start();
         Multiply( NORMAL, F(1), A, x, F(1), y );
+        if( time && commRank == 0 )
+            Output("  Multiply time: ",timer.Stop()," secs");
         b -= y;
-        Base<F> errorNorm = Nrm2( b );
+        Base<F> errorNorm = MaxNorm( b );
         if( progress && commRank == 0 )
             Output("original rel error: ",errorNorm/bNorm);
 
@@ -452,7 +544,11 @@ inline Int RegularizedSolveAfterNoPromote
             // Compute the proposed update to the solution
             // -------------------------------------------
             xNodal.Pull( invMap, info, b );
+            if( time && commRank == 0 )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time && commRank == 0 )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
             x += dx;
 
@@ -461,21 +557,26 @@ inline Int RegularizedSolveAfterNoPromote
             b = bOrig;
             y = x;
             DiagonalScale( LEFT, NORMAL, reg, y );
+            if( time && commRank == 0 )
+                timer.Start();
             Multiply( NORMAL, F(1), A, x, F(1), y );
+            if( time && commRank == 0 )
+                Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
-            Base<F> newErrorNorm = Nrm2( b );
+            Base<F> newErrorNorm = MaxNorm( b );
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress && commRank == 0 )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
-        SetIndent( indent );
     }
-    // Store the final result
-    // ======================
     b = x;
     return refineIt;
 }
@@ -494,17 +595,22 @@ inline Int RegularizedSolveAfterNoPromote
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfterNoPromote"))
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
+    Timer timer;
 
     DistMultiVec<F> bOrig(comm);
     bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
+    const Base<F> bNorm = MaxNorm( b );
 
     // Compute the initial guess
     // =========================
     DistMultiVec<F> x(comm);
     DiagonalSolve( LEFT, NORMAL, d, b );
     ldl::DistMultiVecNode<F> xNodal( invMap, info, b );
+    if( time && commRank == 0 )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time && commRank == 0 )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, x );
     DiagonalSolve( LEFT, NORMAL, d, x );
 
@@ -513,16 +619,18 @@ inline Int RegularizedSolveAfterNoPromote
     {
         DistMultiVec<F> dx(comm), y(comm);
         y = x;
-        DiagonalScale( LEFT, NORMAL, d, y );
         DiagonalScale( LEFT, NORMAL, reg, y );
-        DiagonalScale( LEFT, NORMAL, d, y );
+        if( time && commRank == 0 )
+            timer.Start();
         Multiply( NORMAL, F(1), A, x, F(1), y );
+        if( time && commRank == 0 )
+            Output("  Multiply time:",timer.Stop()," secs");
+        b = bOrig;
         b -= y;
-        Base<F> errorNorm = Nrm2( b );
+        Base<F> errorNorm = MaxNorm( b );
         if( progress && commRank == 0 )
             Output("original rel error: ",errorNorm/bNorm);
 
-        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
@@ -536,7 +644,11 @@ inline Int RegularizedSolveAfterNoPromote
             // -------------------------------------------
             DiagonalSolve( LEFT, NORMAL, d, b );
             xNodal.Pull( invMap, info, b );
+            if( time && commRank == 0 )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time && commRank == 0 )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
             DiagonalSolve( LEFT, NORMAL, d, dx );
             x += dx;
@@ -545,26 +657,28 @@ inline Int RegularizedSolveAfterNoPromote
             // ------------------------
             b = bOrig;
             y = x;
-            DiagonalScale( LEFT, NORMAL, d, y );
             DiagonalScale( LEFT, NORMAL, reg, y );
-            DiagonalScale( LEFT, NORMAL, d, y );
+            if( time && commRank == 0 )
+                timer.Start();
             Multiply( NORMAL, F(1), A, x, F(1), y );
+            if( time && commRank == 0 )
+                Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
-            Base<F> newErrorNorm = Nrm2( b );
+            Base<F> newErrorNorm = MaxNorm( b );
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress && commRank == 0 )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
-        SetIndent( indent );
     }
-    // Store the final result
-    // ======================
     b = x;
-
     return refineIt;
 }
 
@@ -582,9 +696,9 @@ inline Int RegularizedSolveAfterPromote
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
-
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
+    Timer timer;
 
     DistMultiVec<PF> bProm(comm), bOrigProm(comm);
     Copy( b, bProm ); 
@@ -597,7 +711,11 @@ inline Int RegularizedSolveAfterPromote
     // Compute the initial guess
     // =========================
     ldl::DistMultiVecNode<F> xNodal( invMap, info, b );
+    if( time && commRank == 0 )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time && commRank == 0 )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, b );
     DistMultiVec<PF> xProm(comm);
     Copy( b, xProm );
@@ -611,7 +729,11 @@ inline Int RegularizedSolveAfterPromote
         DistMultiVec<PF> dxProm(comm), yProm(comm);
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
+        if( time && commRank == 0 )
+            timer.Start();
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        if( time && commRank == 0 )
+            Output("  Multiply time: ",timer.Stop()," secs");
         bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
@@ -631,7 +753,11 @@ inline Int RegularizedSolveAfterPromote
             // -------------------------------------------
             Copy( bProm, b );
             xNodal.Pull( invMap, info, b );
+            if( time && commRank == 0 )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time && commRank == 0 )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
             xProm += dxProm;
@@ -641,7 +767,11 @@ inline Int RegularizedSolveAfterPromote
             bProm = bOrigProm;
             yProm = xProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
+            if( time && commRank == 0 )
+                timer.Start();
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            if( time && commRank == 0 )
+                Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
@@ -650,12 +780,14 @@ inline Int RegularizedSolveAfterPromote
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress && commRank == 0 )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
         SetIndent( indent );
     }
-    // Store the final result
-    // ======================
     Copy( xProm, b );
     return refineIt;
 }
@@ -675,9 +807,9 @@ inline Int RegularizedSolveAfterPromote
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
-
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
+    Timer timer, iterTimer;
 
     DistMultiVec<PF> bProm(comm), bOrigProm(comm);
     Copy( b, bProm ); 
@@ -694,7 +826,11 @@ inline Int RegularizedSolveAfterPromote
     // =========================
     DiagonalSolve( LEFT, NORMAL, d, b );
     ldl::DistMultiVecNode<F> xNodal( invMap, info, b );
+    if( time && commRank == 0 )
+        timer.Start();
     ldl::SolveAfter( info, front, xNodal );
+    if( time && commRank == 0 )
+        Output("  LDL apply time: ",timer.Stop()," secs");
     xNodal.Push( invMap, info, b );
     DiagonalSolve( LEFT, NORMAL, d, b );
 
@@ -709,16 +845,18 @@ inline Int RegularizedSolveAfterPromote
     {
         DistMultiVec<PF> dxProm(comm), yProm(comm);
         yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, dProm, yProm );
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        DiagonalScale( LEFT, NORMAL, dProm, yProm );
+        if( time && commRank == 0 )
+            timer.Start();
         Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        if( time && commRank == 0 )
+            Output("  Multiply time: ",timer.Stop()," secs");
+        bProm = bOrigProm;
         bProm -= yProm;
         auto errorNorm = Nrm2( bProm );
         if( progress && commRank == 0 )
             Output("original rel error: ",errorNorm/bNorm);
 
-        const Int indent = PushIndent();
         while( true )
         {
             if( errorNorm/bNorm <= relTol )
@@ -727,13 +865,19 @@ inline Int RegularizedSolveAfterPromote
                     Output(errorNorm/bNorm," <= ",relTol);
                 break;
             }
+            if( time && commRank == 0 )
+                iterTimer.Start();
 
             // Compute the proposed update to the solution
             // -------------------------------------------
             Copy( bProm, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             xNodal.Pull( invMap, info, b );
+            if( time && commRank == 0 )
+                timer.Start();
             ldl::SolveAfter( info, front, xNodal );
+            if( time && commRank == 0 )
+                Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
@@ -743,10 +887,12 @@ inline Int RegularizedSolveAfterPromote
             // ----------------------
             bProm = bOrigProm;
             yProm = xProm;
-            DiagonalScale( LEFT, NORMAL, dProm, yProm );
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            DiagonalScale( LEFT, NORMAL, dProm, yProm );
+            if( time && commRank == 0 )
+                timer.Start();
             Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            if( time && commRank == 0 )
+                Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
@@ -754,15 +900,17 @@ inline Int RegularizedSolveAfterPromote
 
             errorNorm = newErrorNorm;
             ++refineIt;
+            if( time && commRank == 0 )
+                Output("Refine step time: ",iterTimer.Stop()," secs");
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+            {
+                if( progress && commRank == 0 )
+                    Output("Iterative refinement did not converge in time"); 
+                break;
+            }
         }
-        SetIndent( indent );
     }
-    // Store the final result
-    // ======================
     Copy( xProm, b );
-
     return refineIt;
 }
 
@@ -777,8 +925,13 @@ Int RegularizedSolveAfter
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
     ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+    ( A, reg, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#endif
 }
 
 template<typename F>
@@ -793,8 +946,13 @@ Int RegularizedSolveAfter
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_qsd_ldl::RegularizedSolveAfter"))
+#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
     ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#else
+    return RegularizedSolveAfterNoPromote
+    ( A, reg, d, invMap, info, front, b, relTol, maxRefineIts, progress, time );
+#endif
 }
 
 template<typename F>
@@ -2504,7 +2662,7 @@ Int FGMRESSolveAfter
 
             // Run the j'th step of Arnoldi
             // ----------------------------
-            if( commRank == 0 )
+            if( time && commRank == 0 )
                 timer.Start();
             for( Int i=0; i<=j; ++i )
             {

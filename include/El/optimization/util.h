@@ -132,29 +132,29 @@ EL_EXPORT ElError ElSOCDotsDistMultiVec_d
   ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds,
   ElInt cutoff );
 
-/* SOC Broadcast
-   ------------- */
-EL_EXPORT ElError ElSOCBroadcast_s
+/* Cone Broadcast
+   -------------- */
+EL_EXPORT ElError ElConeBroadcast_s
 ( ElMatrix_s x, 
   ElConstMatrix_i orders, ElConstMatrix_i firstInds );
-EL_EXPORT ElError ElSOCBroadcast_d
+EL_EXPORT ElError ElConeBroadcast_d
 ( ElMatrix_d x, 
   ElConstMatrix_i orders, ElConstMatrix_i firstInds );
 
-EL_EXPORT ElError ElSOCBroadcastDist_s
+EL_EXPORT ElError ElConeBroadcastDist_s
 ( ElDistMatrix_s x, 
   ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
   ElInt cutoff );
-EL_EXPORT ElError ElSOCBroadcastDist_d
+EL_EXPORT ElError ElConeBroadcastDist_d
 ( ElDistMatrix_d x, 
   ElConstDistMatrix_i orders, ElConstDistMatrix_i firstInds,
   ElInt cutoff );
 
-EL_EXPORT ElError ElSOCBroadcastDistMultiVec_s
+EL_EXPORT ElError ElConeBroadcastDistMultiVec_s
 ( ElDistMultiVec_s x, 
   ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds,
   ElInt cutoff );
-EL_EXPORT ElError ElSOCBroadcastDistMultiVec_d
+EL_EXPORT ElError ElConeBroadcastDistMultiVec_d
 ( ElDistMultiVec_d x, 
   ElConstDistMultiVec_i orders, ElConstDistMultiVec_i firstInds,
   ElInt cutoff );

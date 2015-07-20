@@ -333,20 +333,37 @@ class SparseMatrix(object):
     else: DataExcept()
     return value.value
 
-  lib.ElSparseMatrixEntryOffset_i.argtypes = \
-  lib.ElSparseMatrixEntryOffset_s.argtypes = \
-  lib.ElSparseMatrixEntryOffset_d.argtypes = \
-  lib.ElSparseMatrixEntryOffset_c.argtypes = \
-  lib.ElSparseMatrixEntryOffset_z.argtypes = \
+  lib.ElSparseMatrixRowOffset_i.argtypes = \
+  lib.ElSparseMatrixRowOffset_s.argtypes = \
+  lib.ElSparseMatrixRowOffset_d.argtypes = \
+  lib.ElSparseMatrixRowOffset_c.argtypes = \
+  lib.ElSparseMatrixRowOffset_z.argtypes = \
     [c_void_p,iType,POINTER(iType)]
-  def EntryOffset(self,row):
+  def RowOffset(self,row):
     offset = iType()
     args = [self.obj,row,pointer(offset)]
-    if   self.tag == iTag: lib.ElSparseMatrixEntryOffset_i(*args)
-    elif self.tag == sTag: lib.ElSparseMatrixEntryOffset_s(*args)
-    elif self.tag == dTag: lib.ElSparseMatrixEntryOffset_d(*args)
-    elif self.tag == cTag: lib.ElSparseMatrixEntryOffset_c(*args)
-    elif self.tag == zTag: lib.ElSparseMatrixEntryOffset_z(*args)
+    if   self.tag == iTag: lib.ElSparseMatrixRowOffset_i(*args)
+    elif self.tag == sTag: lib.ElSparseMatrixRowOffset_s(*args)
+    elif self.tag == dTag: lib.ElSparseMatrixRowOffset_d(*args)
+    elif self.tag == cTag: lib.ElSparseMatrixRowOffset_c(*args)
+    elif self.tag == zTag: lib.ElSparseMatrixRowOffset_z(*args)
+    else: DataExcept()
+    return offset.value
+
+  lib.ElSparseMatrixOffset_i.argtypes = \
+  lib.ElSparseMatrixOffset_s.argtypes = \
+  lib.ElSparseMatrixOffset_d.argtypes = \
+  lib.ElSparseMatrixOffset_c.argtypes = \
+  lib.ElSparseMatrixOffset_z.argtypes = \
+    [c_void_p,iType,iType,POINTER(iType)]
+  def Offset(self,row,col):
+    offset = iType()
+    args = [self.obj,row,col,pointer(offset)]
+    if   self.tag == iTag: lib.ElSparseMatrixOffset_i(*args)
+    elif self.tag == sTag: lib.ElSparseMatrixOffset_s(*args)
+    elif self.tag == dTag: lib.ElSparseMatrixOffset_d(*args)
+    elif self.tag == cTag: lib.ElSparseMatrixOffset_c(*args)
+    elif self.tag == zTag: lib.ElSparseMatrixOffset_z(*args)
     else: DataExcept()
     return offset.value
 

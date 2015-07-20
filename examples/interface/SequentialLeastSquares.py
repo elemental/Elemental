@@ -53,7 +53,7 @@ xNrm = El.Nrm2(x)
 if display:
   El.Display( x, "x" )
 print "|| x ||_2 =", xNrm
-El.SparseMultiply(El.NORMAL,-1.,A,x,1.,y)
+El.Multiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)

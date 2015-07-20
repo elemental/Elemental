@@ -81,7 +81,7 @@ bTwoNorm = El.Nrm2( b )
 bInfNorm = El.MaxNorm( b )
 r = El.DistMultiVec()
 El.Copy( b, r )
-El.SparseMultiply( El.NORMAL, -1., A, x, 1., r )
+El.Multiply( El.NORMAL, -1., A, x, 1., r )
 if display:
   El.Display( r, "r" )
 rTwoNorm = El.Nrm2( r )
@@ -101,7 +101,7 @@ if display:
   El.Display( xLS, "x_{LS}" )
 rLS = El.DistMultiVec()
 El.Copy( b, rLS )
-El.SparseMultiply( El.NORMAL, -1., A, xLS, 1., rLS )
+El.Multiply( El.NORMAL, -1., A, xLS, 1., rLS )
 if display:
   El.Display( rLS, "A x_{LS} - b" )
 rLSTwoNorm = El.Nrm2(rLS)

@@ -196,8 +196,8 @@ void Kronecker
         const Int iA = i / mB;
         const Int iB = i % mB;
 
-        const Int offA = A.EntryOffset( iA );
-        const Int offB = A.EntryOffset( iB );
+        const Int offA = A.RowOffset( iA );
+        const Int offB = A.RowOffset( iB );
         const Int numConnectA = A.NumConnections( iA );
         const Int numConnectB = B.NumConnections( iB );
         for( Int eA=offA; eA<offA+numConnectA; ++eA )

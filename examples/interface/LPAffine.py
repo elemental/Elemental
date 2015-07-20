@@ -54,14 +54,14 @@ xGen = El.DistMultiVec()
 El.Gaussian(xGen,n,1)
 b = El.DistMultiVec()
 El.Zeros( b, m, 1 )
-El.SparseMultiply( El.NORMAL, 1., A, xGen, 0., b )
+El.Multiply( El.NORMAL, 1., A, xGen, 0., b )
 # h := G xGen + sGen
 # ------------------
 sGen = El.DistMultiVec()
 El.Uniform(sGen,k,1,0.5,0.5)
 h = El.DistMultiVec()
 El.Copy( sGen, h )
-El.SparseMultiply( El.NORMAL, 1., G, xGen, 1., h )
+El.Multiply( El.NORMAL, 1., G, xGen, 1., h )
 
 # Generate a c which implies a dual feasible (y,z)
 # ================================================
@@ -71,8 +71,8 @@ zGen = El.DistMultiVec()
 El.Uniform(zGen,k,1,0.5,0.5)
 c = El.DistMultiVec()
 El.Zeros(c,n,1)
-El.SparseMultiply( El.TRANSPOSE, -1., A, yGen, 1., c )
-El.SparseMultiply( El.TRANSPOSE, -1., G, zGen, 1., c )
+El.Multiply( El.TRANSPOSE, -1., A, yGen, 1., c )
+El.Multiply( El.TRANSPOSE, -1., G, zGen, 1., c )
 
 if display:
   El.Display( A, "A" )

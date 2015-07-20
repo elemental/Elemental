@@ -37,6 +37,7 @@ void ProductLanczos
 {
     DEBUG_ONLY(CSE cse("ProductLanczos"))
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -63,6 +64,8 @@ void ProductLanczos
         v *= 1/beta;
     }
         
+    // TODO: Incorporate Frobenius norm of A?
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         if( k > 0 )
@@ -96,6 +99,11 @@ void ProductLanczos
         // v := w / || w ||_2
         // -----------------
         const Real beta = FrobeniusNorm( v );
+        if( beta <= minBeta )
+        {
+            T.Resize( k+1, k+1 );        
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Rayleigh quotient as appropriate
@@ -116,6 +124,7 @@ Base<F> ProductLanczosDecomp
 {
     DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -147,6 +156,8 @@ Base<F> ProductLanczosDecomp
     }
         
     Real beta = 0;
+    // TODO: Incorporate Frobenius norm of A
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         // w := A^H (A v)
@@ -180,6 +191,11 @@ Base<F> ProductLanczosDecomp
         // v := w / || w ||_2
         // -----------------
         beta = FrobeniusNorm( v );
+        if( beta <= minBeta )        
+        {
+            T.Resize( k+1, k+1 );    
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Lanczos decomposition as appropriate
@@ -201,6 +217,7 @@ void ProductLanczos
 {
     DEBUG_ONLY(CSE cse("ProductLanczos"))
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -233,6 +250,8 @@ void ProductLanczos
         v *= 1/beta;
     }
         
+    // TODO: Use Frobenius norm of A
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         if( k > 0 )
@@ -266,6 +285,11 @@ void ProductLanczos
         // v := w / || w ||_2
         // -----------------
         const Real beta = FrobeniusNorm( v );
+        if( beta <= minBeta )
+        {
+            T.Resize( k+1, k+1 );
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Rayleigh quotient as appropriate
@@ -286,6 +310,7 @@ Base<F> ProductLanczosDecomp
 {
     DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
     typedef Base<F> Real;
+    const Real eps = Epsilon<Real>();
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -324,6 +349,8 @@ Base<F> ProductLanczosDecomp
     }
 
     Real beta = 0;
+    // TODO: Use the Frobenius norm of A
+    const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
         // w := A^H (A v_k)
@@ -357,6 +384,11 @@ Base<F> ProductLanczosDecomp
         // v := w / || w ||_2
         // -----------------
         beta = FrobeniusNorm( v );
+        if( beta <= minBeta )
+        {
+            T.Resize( k+1, k+1 );
+            break;
+        }
         v *= 1/beta;
 
         // Expand the Lanczos decomposition as appropriate

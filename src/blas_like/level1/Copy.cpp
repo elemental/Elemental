@@ -144,7 +144,7 @@ void Copy( const Graph& A, Graph& B )
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
     B.consistent_ = A.consistent_;
-    B.edgeOffsets_ = A.edgeOffsets_;
+    B.sourceOffsets_ = A.sourceOffsets_;
     B.ProcessQueues();
 }
 
@@ -160,7 +160,7 @@ void Copy( const Graph& A, DistGraph& B )
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
     B.locallyConsistent_ = A.consistent_;
-    B.localEdgeOffsets_ = A.edgeOffsets_;
+    B.localSourceOffsets_ = A.sourceOffsets_;
     B.ProcessLocalQueues();
 }
 
@@ -178,7 +178,7 @@ void Copy( const DistGraph& A, Graph& B )
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
     B.consistent_ = A.locallyConsistent_;
-    B.edgeOffsets_ = A.localEdgeOffsets_;
+    B.sourceOffsets_ = A.localSourceOffsets_;
     B.ProcessQueues();
 }
 
@@ -194,7 +194,7 @@ void Copy( const DistGraph& A, DistGraph& B )
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
     B.locallyConsistent_ = A.locallyConsistent_;
-    B.localEdgeOffsets_ = A.localEdgeOffsets_;
+    B.localSourceOffsets_ = A.localSourceOffsets_;
     B.ProcessLocalQueues();
 }
 
@@ -307,6 +307,7 @@ void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
+// TODO: Switch to using the QueueUpdate routines of AbstractDistMatrix
 template<typename S,typename T>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
@@ -430,6 +431,7 @@ void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
+// TODO: Switch to using the QueueUpdate routines of AbstractDistMatrix
 template<typename T>
 void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 {
@@ -476,6 +478,7 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
         B.Set( entry );
 }
 
+// TODO: Switch to using the QueueUpdate routines of DistMultiVec
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
 {
@@ -528,12 +531,16 @@ template<typename T>
 void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    const Int m = XDist.Height();
+    const Int n = XDist.Width();
+    X.Resize( m, n, Max(m,1) );
+    if( Min(m,n) == 0 )
+        return;
+
     const mpi::Comm comm = XDist.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
-    const Int m = XDist.Height();
-    const Int n = XDist.Width();
     const int numLocalEntries = XDist.LocalHeight()*n;
     vector<int> entrySizes(commSize);
     mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
@@ -541,7 +548,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     const int numEntries = Scan( entrySizes, entryOffs );
 
     vector<T> recvBuf( numEntries );
-    X.Resize( m, n, Max(m,1) );
+
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
     {
@@ -574,6 +581,11 @@ template<typename T>
 void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 {
     DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    const Int m = XDist.Height();
+    const Int n = XDist.Width();
+    if( Min(m,n) == 0 )
+        return;
+
     const mpi::Comm comm = XDist.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );

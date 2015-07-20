@@ -101,7 +101,7 @@ if output:
 E = El.DistMultiVec()
 
 El.Copy( C, E )
-El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
+El.Multiply( El.NORMAL, -1., A, X, 1., E )
 residNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "C - A X" )
@@ -111,7 +111,7 @@ if worldRank == 0:
   print "|| C - A X ||_F / || C ||_F =", residNorm/CNorm
 
 El.Copy( D, E )
-El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
+El.Multiply( El.NORMAL, -1., B, X, 1., E )
 equalNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "D - B X" )
@@ -142,7 +142,7 @@ def SolveWeighted(A,B,C,D,lambd):
   X=El.LeastSquares(AEmb,CEmb,ctrl)
 
   El.Copy( C, E )
-  El.SparseMultiply( El.NORMAL, -1., A, X, 1., E )
+  El.Multiply( El.NORMAL, -1., A, X, 1., E )
   residNorm = El.FrobeniusNorm( E )
   if display:
     El.Display( E, "C - A X" )
@@ -152,7 +152,7 @@ def SolveWeighted(A,B,C,D,lambd):
     print "lambda=", lambd, ": || C - A X ||_F / || C ||_F =", residNorm/CNorm
 
   El.Copy( D, E )
-  El.SparseMultiply( El.NORMAL, -1., B, X, 1., E )
+  El.Multiply( El.NORMAL, -1., B, X, 1., E )
   equalNorm = El.FrobeniusNorm( E )
   if display:
     El.Display( E, "D - B X" )

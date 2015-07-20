@@ -82,6 +82,10 @@ public:
     // --------
     void Reserve( Int numLocalEntries, Int numRemoteEntries=0 );
 
+    void FreezeSparsity();
+    void UnfreezeSparsity();
+    bool FrozenSparsity() const;
+
     // Expensive independent updates and explicit zeroing
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     void Update( const Entry<T>& entry );
@@ -154,7 +158,8 @@ public:
     Int Row( Int localInd ) const;
     Int Col( Int localInd ) const;
     T Value( Int localInd ) const;
-    Int EntryOffset( Int localRow ) const;
+    Int RowOffset( Int localRow ) const;
+    Int Offset( Int localRow, Int col ) const;
     Int NumConnections( Int localRow ) const;
     Int* SourceBuffer();
     Int* TargetBuffer();

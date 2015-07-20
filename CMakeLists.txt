@@ -66,7 +66,7 @@ option(EL_C_INTERFACE "Build C interface" ON)
 if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
   # Define PYTHON_SITE_PACKAGES if you want to install the python package
   # somewhere other than the default system-wide location (e.g., within your
-  # home directory). Alternatively, if you do NOT define PYTHON_SITE_PACKAGES
+  # home directory). Alternatively, if you do NOT define PYTHON_SITE_PACKAGES 
   # and instead define INSTALL_PYTHON_INTO_USER_SITE=ON, Elemental will
   # install its Python interface into site.USER_SITE in your home directory.
   option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" TRUE)
@@ -113,7 +113,7 @@ option(EL_BUILD_SCALAPACK "Avoid search for ScaLAPACK and instead build?" OFF)
 # By default, a search is performed for ParMETIS via find_package, and, if this
 # search fails, ParMETIS is downloaded from the official location:
 #    http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz
-# If BUILD_PARMETIS is turned on, then no initial call to find_package is
+# If BUILD_PARMETIS is turned on, then no initial call to find_package is 
 # performed.
 #
 # Should you want to manually specify a ParMETIS installation, you can set the
@@ -124,10 +124,10 @@ option(EL_BUILD_PARMETIS "Build ParMETIS?" OFF)
 # in using Elemental in commercial applications should disable ParMETIS
 option(EL_DISABLE_PARMETIS "Disable ParMETIS?" OFF)
 
-# If ParMETIS is disabled, a search is performed for METIS via find_package,
-# and, if this search fails, METIS is cloned from the git repo
+# If ParMETIS is disabled, a search is performed for METIS via find_package, 
+# and, if this search fails, METIS is cloned from the git repo 
 #     https://github.com/poulson/Metis.git.
-# If EL_BUILD_METIS is turned on, then no initial call to find_package is
+# If EL_BUILD_METIS is turned on, then no initial call to find_package is 
 # performed.
 #
 # Should you want to manually specify a METIS installation, you can set the
@@ -198,10 +198,10 @@ mark_as_advanced(EL_VECTOR_WARNINGS)
 
 # Add the header file include directories first (so they have priority)
 # ---------------------------------------------------------------------
-message(STATUS
+message(STATUS 
   "Appending ${PROJECT_SOURCE_DIR}/include for Elemental's source includes")
 include_directories("${PROJECT_SOURCE_DIR}/include")
-message(STATUS
+message(STATUS 
   "Appending ${PROJECT_BINARY_DIR}/include for Elemental's binary includes")
 include_directories("${PROJECT_BINARY_DIR}/include")
 
@@ -288,12 +288,12 @@ if(APPLE)
   # (but later on when installing)
   set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-  # Add automatically determined parts of RPATH which point to directories
+  # Add automatically determined parts of RPATH which point to directories 
   # outside the build tree to the install RPATH
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
   # RPATH to be used when installing, but only if it's not a system directory
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES 
     "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
   if("${isSystemDir}" STREQUAL "-1")
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -439,9 +439,7 @@ target_link_libraries(El ${LINK_LIBS})
 if(EL_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS El
-    EXPORT ElTargets
-    DESTINATION lib)
+install(TARGETS El EXPORT ElTargets DESTINATION lib)
 
 # Decide if/how to install the Python interface
 # ---------------------------------------------
@@ -454,19 +452,19 @@ if(BUILD_SHARED_LIBS)
       if(INSTALL_PYTHON_INTO_USER_SITE)
         execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
           "import site; print site.USER_SITE"
-          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
           OUTPUT_STRIP_TRAILING_WHITESPACE)
       else()
         execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
           "from distutils.sysconfig import get_python_lib; print get_python_lib()"
-          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-      endif()
-      set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES}
+      endif()  
+      set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} 
         CACHE PATH "Destination for Python site package directory")
     endif()
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/python/
-      DESTINATION ${PYTHON_SITE_PACKAGES}/El
+      DESTINATION ${PYTHON_SITE_PACKAGES}/El 
       FILES_MATCHING PATTERN "*.py")
     install(FILES ${PROJECT_BINARY_DIR}/python/core/environment.py
       DESTINATION ${PYTHON_SITE_PACKAGES}/El/core)
@@ -513,12 +511,12 @@ install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
 add_executable(sandbox-test ${PROJECT_SOURCE_DIR}/sandbox/test.cpp)
 set_source_files_properties(${PROJECT_SOURCE_DIR}/sandbox/test.cpp PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
 target_link_libraries(sandbox-test El)
-set_target_properties(sandbox-test PROPERTIES OUTPUT_NAME sandbox-test
+set_target_properties(sandbox-test PROPERTIES OUTPUT_NAME sandbox-test 
   RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 if(EL_LINK_FLAGS)
   set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin
+add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin 
   COMMAND sandbox-test)
 
 # Test drivers
@@ -546,7 +544,7 @@ if(EL_TESTS)
       endif()
       install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
-        add_test(NAME Tests/${TYPE}/${TESTNAME}
+        add_test(NAME Tests/${TYPE}/${TESTNAME} 
           WORKING_DIRECTORY ${TEST_DIR} COMMAND tests-${TYPE}-${TESTNAME})
       endif()
     endforeach()
@@ -594,7 +592,7 @@ endif()
 # =====
 # While PackageMaker is deprecated, productbuild is not yet supported by CPack.
 # Furthermore, it is possible to download the "Late July 2012" version of
-# PackageMaker (which curiously has a release date of August 7, 2012) from
+# PackageMaker (which curiously has a release date of August 7, 2012) from 
 # Apple, but it appears to be incompatible with Yosemite.
 #
 # Lastly, the current CPack configuration does not yet allow the Python
@@ -604,7 +602,7 @@ set(CPACK_PACKAGE_NAME "Elemental")
 set(CPACK_PACKAGE_VENDOR "libelemental.org")
 set(CPACK_PACKAGE_VERSION_MAJOR ${EL_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${EL_VERSION_MINOR})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
   "Distributed-memory linear algebra and optimization")
 set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/cmake/El.png)
 include(CPack)
@@ -613,8 +611,7 @@ include(CPack)
 # =====
 # Create ElConfig.cmake for find_package.
 # Add all targets to the build-tree export set
-export(TARGETS El pmrrr
-    FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
+export(TARGETS El pmrrr FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
@@ -624,10 +621,11 @@ export(PACKAGE El)
 file(RELATIVE_PATH REL_INCLUDE_DIR "${PROJECT_BINARY_DIR}"
     "${PROJECT_BINARY_DIR}include")
 # ... for the build tree
-configure_file(ElConfig.cmake.in
+configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfig.cmake.in
     "${PROJECT_BINARY_DIR}/ElConfig.cmake" @ONLY)
 # ... for both
-configure_file(ElConfigVersion.cmake.in
+configure_file(
+    ${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfigVersion.cmake.in
     "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake" @ONLY)
 
 # Install the ElConfig.cmake and ElConfigVersion.cmake
@@ -637,8 +635,7 @@ install(FILES
     "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake"
     DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
-install(EXPORT ElTargets
-    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+install(EXPORT ElTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 # Subproject
 # ==========

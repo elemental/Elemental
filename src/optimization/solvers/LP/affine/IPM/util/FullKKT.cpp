@@ -34,9 +34,12 @@ namespace affine {
 
 template<typename Real>
 void KKT
-( const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& s, const Matrix<Real>& z,
-        Matrix<Real>& J, bool onlyLower )
+( const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& s,
+  const Matrix<Real>& z,
+        Matrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int m = A.Height();
@@ -79,9 +82,12 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A,    const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& s,    const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, bool onlyLower )
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& s,
+  const AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& JPre,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int m = A.Height();
@@ -125,9 +131,12 @@ void KKT
 
 template<typename Real>
 void KKT
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& s,       const Matrix<Real>& z,
-        SparseMatrix<Real>& J, bool onlyLower )
+( const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& s,
+  const Matrix<Real>& z,
+        SparseMatrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int n = A.Width();
@@ -137,10 +146,28 @@ void KKT
 }
 
 template<typename Real>
+void StaticKKT
+( const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& regPerm,
+        SparseMatrix<Real>& J,
+  bool onlyLower )
+{
+    DEBUG_ONLY(CSE cse("lp::affine::StaticKKT"))
+    const Int n = A.Width();
+    SparseMatrix<Real> Q;
+    Q.Resize( n, n );
+    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
+}
+
+template<typename Real>
 void KKT
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& s,     const DistMultiVec<Real>& z,
-        DistSparseMatrix<Real>& J, bool onlyLower )
+( const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::affine::KKT"))
     const Int n = A.Width();
@@ -150,23 +177,62 @@ void KKT
     qp::affine::KKT( Q, A, G, s, z, J, onlyLower );
 }
 
+template<typename Real>
+void StaticKKT
+( const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& regPerm,
+        DistSparseMatrix<Real>& J,
+  bool onlyLower )
+{
+    DEBUG_ONLY(CSE cse("lp::affine::StaticKKT"))
+    const Int n = A.Width();
+    mpi::Comm comm = A.Comm();
+    DistSparseMatrix<Real> Q(comm);
+    Q.Resize( n, n );
+    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
+}
+
 #define PROTO(Real) \
   template void KKT \
-  ( const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& s, const Matrix<Real>& z, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& s, \
+    const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, bool onlyLower ); \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& G, \
+    const AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& J, \
+    bool onlyLower ); \
   template void KKT \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& s,       const Matrix<Real>& z, \
-          SparseMatrix<Real>& J, bool onlyLower ); \
+  ( const SparseMatrix<Real>& A, \
+    const SparseMatrix<Real>& G, \
+    const Matrix<Real>& s, \
+    const Matrix<Real>& z, \
+          SparseMatrix<Real>& J, \
+    bool onlyLower ); \
+  template void StaticKKT \
+  ( const SparseMatrix<Real>& A, \
+    const SparseMatrix<Real>& G, \
+    const Matrix<Real>& regPerm, \
+          SparseMatrix<Real>& J, \
+    bool onlyLower ); \
   template void KKT \
-  ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& s,     const DistMultiVec<Real>& z, \
-          DistSparseMatrix<Real>& J, bool onlyLower );
+  ( const DistSparseMatrix<Real>& A, \
+    const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& s, \
+    const DistMultiVec<Real>& z, \
+          DistSparseMatrix<Real>& J, \
+    bool onlyLower ); \
+  template void StaticKKT \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& regPerm, \
+          DistSparseMatrix<Real>& J, \
+    bool onlyLower );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

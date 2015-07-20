@@ -10,10 +10,19 @@
 #ifndef EL_OPTIMIZATION_SOLVERS_HPP
 #define EL_OPTIMIZATION_SOLVERS_HPP
 
-// TODO: Refactor many of the control structures to reduce redundancy
-
 namespace El {
 
+namespace KKTSystemNS {
+enum KKTSystem {
+  FULL_KKT,
+  AUGMENTED_KKT,
+  NORMAL_KKT
+};
+}
+using namespace KKTSystemNS;
+
+// Infeasible Path-Following Interior Point Method (IPF)
+// =====================================================
 template<typename Real>
 struct IPFLineSearchCtrl 
 {
@@ -24,14 +33,69 @@ struct IPFLineSearchCtrl
     bool print=false;
 };
 
-namespace KKTSystemNS {
-enum KKTSystem {
-  FULL_KKT,
-  AUGMENTED_KKT,
-  NORMAL_KKT
+template<typename Real>
+struct IPFCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
+    Int maxIts=1000;
+    Real centering=0.9; 
+    KKTSystem system=FULL_KKT;
+    IPFLineSearchCtrl<Real> lineSearchCtrl;
+
+    RegQSDCtrl<Real> qsdCtrl;
+    bool outerEquil=true, innerEquil=true;
+    Int basisSize = 6;
+    bool print=false;
+    bool time=false;
 };
-}
-using namespace KKTSystemNS;
+
+// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
+// ===============================================================
+template<typename Real>
+inline Real StepLengthCentrality
+( Real mu, Real muAff, Real alphaAffPri, Real alphaAffDual )
+{ return Pow(1-Min(alphaAffPri,alphaAffDual),Real(3)); }
+
+template<typename Real>
+inline Real MehrotraCentrality
+( Real mu, Real muAff, Real alphaAffPri, Real alphaAffDual )
+{ return Min(Pow(muAff/mu,Real(3)),Real(1)); }
+
+template<typename Real>
+struct MehrotraCtrl 
+{
+    bool primalInit=false, dualInit=false;
+    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
+    Int maxIts=1000;
+    Real maxStepRatio=0.99;
+    KKTSystem system=FULL_KKT;
+
+    RegQSDCtrl<Real> qsdCtrl;
+    bool outerEquil=true, innerEquil=true;
+    Int basisSize = 6;
+    bool print=false;
+    bool time=false;
+
+    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
+    //       the default, (muAff/mu)^3 
+};
+
+// Alternating Direction Method of Multipliers
+// ===========================================
+template<typename Real>
+struct ADMMCtrl
+{
+    Real rho=1;
+    Real alpha=1.2;
+    Int maxIter=500;
+    Real absTol=1e-6;
+    Real relTol=1e-4;
+    bool inv=true;
+    bool print=true;
+};
 
 // Linear program
 // ==============
@@ -60,69 +124,6 @@ namespace direct {
 //   s.t. A^T y -z + c = 0, z >= 0
 //
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-template<typename Real>
-struct IPFCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real centering=0.9; 
-    KKTSystem system;
-
-    RegQSDCtrl<Real> qsdCtrl;
-
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
-
-    bool equilibrate=true;
-    bool print=false;
-    bool time=false;
-
-    IPFCtrl( bool isSparse ) 
-    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
-};
-
-// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
-// ---------------------------------------------------------------
-template<typename Real>
-struct MehrotraCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real maxStepRatio=0.99;
-    KKTSystem system;
-    RegQSDCtrl<Real> qsdCtrl;
-    bool outerEquil=true, innerEquil=true;
-    bool scaleTwoNorm=true;
-    Int basisSize = 6;
-    bool print=false;
-    bool time=false;
-
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
-
-    MehrotraCtrl( bool isSparse )
-    { system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
-};
-
-// Alternating Direction Method of Multipliers (ADMM)
-// --------------------------------------------------
-template<typename Real>
-struct ADMMCtrl
-{
-    Real rho=1;
-    Real alpha=1.2;
-    Int maxIter=500;
-    Real absTol=1e-6;
-    Real relTol=1e-4;
-    bool inv=true;
-    bool print=true;
-};
-
 // Control structure for the high-level "direct" conic-form LP solver
 // ------------------------------------------------------------------
 template<typename Real>
@@ -134,8 +135,10 @@ struct Ctrl
     MehrotraCtrl<Real> mehrotraCtrl;
 
     Ctrl( bool isSparse ) 
-    : ipfCtrl(isSparse), mehrotraCtrl(isSparse)
-    { }
+    { 
+        ipfCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
+        mehrotraCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
+    }
 };
 
 } // namespace direct
@@ -150,47 +153,6 @@ namespace affine {
 //   max -b^T y - h^T z
 //   s.t. A^T y + G^T z + c = 0, z >= 0
 //
-
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-template<typename Real>
-struct IPFCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real centering=0.9; 
-
-    RegQSDCtrl<Real> qsdCtrl;
-
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
-
-    bool equilibrate=true;
-    bool print=false;
-    bool time=false;
-};
-
-// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
-// ---------------------------------------------------------------
-template<typename Real>
-struct MehrotraCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real maxStepRatio=0.99;
-    RegQSDCtrl<Real> qsdCtrl;
-    bool outerEquil=true, innerEquil=true;
-    bool scaleTwoNorm=true;
-    Int basisSize = 6;
-    bool print=false;
-    bool time=false;
-
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
-};
 
 // Control structure for the high-level "affine" conic-form LP solver
 // ------------------------------------------------------------------
@@ -299,49 +261,6 @@ namespace direct {
 //   s.t. A^T y - z + c in range(Q), z >= 0
 //
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-template<typename Real>
-struct IPFCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real centering=0.9; 
-    KKTSystem system=AUGMENTED_KKT;
-
-    RegQSDCtrl<Real> qsdCtrl;
-
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
-
-    bool equilibrate=true;
-    bool print=false;
-    bool time=false;
-};
-
-// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
-// ---------------------------------------------------------------
-template<typename Real>
-struct MehrotraCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real maxStepRatio=0.99;
-    KKTSystem system=AUGMENTED_KKT;
-    RegQSDCtrl<Real> qsdCtrl;
-    bool outerEquil=true, innerEquil=true;
-    bool scaleTwoNorm=true;
-    Int basisSize = 6;
-    bool print=false;
-    bool time=false;
-
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
-};
-
 // Control structure for the high-level "direct" conic-form QP solver
 // ------------------------------------------------------------------
 template<typename Real>
@@ -350,6 +269,12 @@ struct Ctrl
     QPApproach approach=QP_MEHROTRA;
     IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
+
+    Ctrl()
+    {
+        ipfCtrl.system = AUGMENTED_KKT;
+        mehrotraCtrl.system = AUGMENTED_KKT;
+    }
 };
 
 } // namespace direct
@@ -364,47 +289,6 @@ namespace affine {
 //   max (1/2) (A^T y + G^T z + c)^T pinv(Q) (A^T y + G^T z + c)  -b^T y - h^T z
 //   s.t. A^T y + G^T z + c in range(Q), z >= 0
 //
-
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-template<typename Real>
-struct IPFCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real centering=0.9; 
-
-    RegQSDCtrl<Real> qsdCtrl;
-
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
-
-    bool equilibrate=true;
-    bool print=false;
-    bool time=false;
-};
-
-// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
-// ---------------------------------------------------------------
-template<typename Real>
-struct MehrotraCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real maxStepRatio=0.99;
-    RegQSDCtrl<Real> qsdCtrl;
-    bool outerEquil=true, innerEquil=true;
-    bool scaleTwoNorm=true;
-    Int basisSize = 6;
-    bool print=false;
-    bool time=false;
-
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
-};
 
 // Control structure for the high-level "affine" conic-form QP solver
 // ------------------------------------------------------------------
@@ -426,18 +310,6 @@ namespace box {
 
 // Alternating Direction Method of Multipliers
 // -------------------------------------------
-template<typename Real>
-struct ADMMCtrl
-{
-    Real rho=1;
-    Real alpha=1.2;
-    Int maxIter=500;
-    Real absTol=1e-6;
-    Real relTol=1e-4;
-    bool inv=true;
-    bool print=true;
-};
-
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& Q, const Matrix<Real>& C, 
@@ -550,31 +422,6 @@ namespace direct {
 // where the cone K is a product of second-order cones.
 //
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-// TODO
-
-// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
-// ---------------------------------------------------------------
-template<typename Real>
-struct MehrotraCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real maxStepRatio=0.99;
-    RegQSDCtrl<Real> qsdCtrl;
-    bool outerEquil=true, innerEquil=true;
-    bool scaleTwoNorm=true;
-    Int basisSize = 6;
-    bool print=false;
-    bool time=false;
-
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
-};
-
 // Control structure for the high-level "affine" conic-form LP solver
 // ------------------------------------------------------------------
 template<typename Real>
@@ -583,6 +430,13 @@ struct Ctrl
     SOCPApproach approach=SOCP_MEHROTRA;
     //IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
+
+    Ctrl()
+    {
+        mehrotraCtrl.system = AUGMENTED_KKT;
+        mehrotraCtrl.minTol = Pow(Epsilon<Real>(),Real(0.25));
+        mehrotraCtrl.targetTol = Pow(Epsilon<Real>(),Real(0.5));
+    }
 };
 
 } // namespace direct
@@ -600,31 +454,6 @@ namespace affine {
 // where the cone K is a product of second-order cones.
 //
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// -----------------------------------------------------
-// TODO
-
-// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
-// ---------------------------------------------------------------
-template<typename Real>
-struct MehrotraCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real maxStepRatio=0.99;
-    RegQSDCtrl<Real> qsdCtrl;
-    bool outerEquil=true, innerEquil=true;
-    bool scaleTwoNorm=true;
-    Int basisSize = 6;
-    bool print=false;
-    bool time=false;
-
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
-};
-
 // Control structure for the high-level "affine" conic-form LP solver
 // ------------------------------------------------------------------
 template<typename Real>
@@ -633,6 +462,12 @@ struct Ctrl
     SOCPApproach approach=SOCP_MEHROTRA;
     //IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
+
+    Ctrl()
+    {
+        mehrotraCtrl.minTol = Pow(Epsilon<Real>(),Real(0.25));
+        mehrotraCtrl.targetTol = Pow(Epsilon<Real>(),Real(0.5));
+    }
 };
 
 } // namespace affine

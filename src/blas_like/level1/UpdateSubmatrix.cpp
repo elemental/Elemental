@@ -32,6 +32,7 @@ void UpdateSubmatrix
     }
 }
 
+// TODO: Adopt the same approach as GetSubmatrix
 template<typename T>
 void UpdateSubmatrix
 (       AbstractDistMatrix<T>& A, 

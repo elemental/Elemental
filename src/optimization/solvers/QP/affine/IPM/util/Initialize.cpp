@@ -66,11 +66,15 @@ namespace affine {
 template<typename Real>
 void Initialize
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& A, 
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
@@ -183,11 +187,15 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
@@ -300,21 +308,26 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c,
+( const SparseMatrix<Real>& JStatic,
+  const Matrix<Real>& regTmp,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
-        vector<Int>& map,            vector<Int>& invMap, 
-        ldl::Separator& rootSep,          ldl::NodeInfo& info,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
+  const vector<Int>& map,
+  const vector<Int>& invMap, 
+  const ldl::Separator& rootSep,
+  const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = G.Height();
+    const Int m = b.Height();
+    const Int n = c.Width();
+    const Int k = h.Height();
     if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
@@ -337,27 +350,17 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    SparseMatrix<Real> J, JOrig;
+    auto JOrig = JStatic;
+    JOrig.FreezeSparsity();
     Matrix<Real> ones;
     Ones( ones, k, 1 );
-    KKT( Q, A, G, ones, ones, JOrig, false );
-    J = JOrig;
+    FinishKKT( m, n, ones, ones, JOrig );
+    auto J = JOrig;
+    J.FreezeSparsity();
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    Matrix<Real> reg;
-    reg.Resize( n+m+k, 1 );
-    for( Int i=0; i<n+m+k; ++i )
-    {
-        if( i < n )
-            reg.Set( i, 0, qsdCtrl.regPrimal );
-        else
-            reg.Set( i, 0, -qsdCtrl.regDual );
-    }
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
-    NestedDissection( J.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
     ldl::Front<Real> JFront;
     JFront.Pull( J, map, info );
     LDL( info, JFront, LDL_2D );
@@ -382,7 +385,8 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_qsd_ldl::SolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -400,7 +404,8 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_qsd_ldl::SolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -439,22 +444,27 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A,  const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c,
+( const DistSparseMatrix<Real>& JStatic,
+  const DistMultiVec<Real>& regTmp,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,            DistMultiVec<Real>& s,
-        DistMap& map,                     DistMap& invMap, 
-        ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
+  const DistMap& map,
+  const DistMap& invMap, 
+  const ldl::DistSeparator& rootSep,
+  const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = G.Height();
-    mpi::Comm comm = A.Comm();
+    const Int m = b.Height();
+    const Int n = c.Height();
+    const Int k = h.Height();
+    mpi::Comm comm = JStatic.Comm();
     if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
@@ -478,30 +488,23 @@ void Initialize
     // Form the KKT matrix
     // ===================
     DistSparseMatrix<Real> JOrig(comm);
+    JOrig = JStatic;
+    JOrig.FreezeSparsity();
+    JOrig.multMeta = JStatic.multMeta;
     DistMultiVec<Real> ones(comm);
     Ones( ones, k, 1 );
-    KKT( Q, A, G, ones, ones, JOrig, false );
+    FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
+    J.FreezeSparsity();
+    J.multMeta = JStatic.multMeta;
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    DistMultiVec<Real> reg(comm);
-    reg.Resize( n+m+k, 1 );
-    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
-    {
-        const Int i = reg.FirstLocalRow() + iLoc;
-        if( i < n )
-            reg.SetLocal( iLoc, 0, qsdCtrl.regPrimal );
-        else
-            reg.SetLocal( iLoc, 0, -qsdCtrl.regDual );
-    }
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
-
-    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
+    // TODO: Use PullUpdate just on the identity (or avoid it entirely?)
     ldl::DistFront<Real> JFront;
     JFront.Pull( J, map, rootSep, info );
+    // TODO: Consider selective inversion
     LDL( info, JFront, LDL_2D );
 
     DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
@@ -523,7 +526,8 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_qsd_ldl::SolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -541,7 +545,8 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_qsd_ldl::SolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -581,40 +586,58 @@ void Initialize
 #define PROTO(Real) \
   template void Initialize \
   ( const Matrix<Real>& Q, \
-    const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+    const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
-          Matrix<Real>& z,       Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
+    const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& G, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const SparseMatrix<Real>& Q, \
-    const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
+  ( const SparseMatrix<Real>& JStatic, \
+    const Matrix<Real>& regTmp, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
-          Matrix<Real>& z,             Matrix<Real>& s, \
-          vector<Int>& map,            vector<Int>& invMap, \
-          ldl::Separator& rootSep,     ldl::NodeInfo& info, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
+    const vector<Int>& map, \
+    const vector<Int>& invMap, \
+    const ldl::Separator& rootSep, \
+    const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
-  ( const DistSparseMatrix<Real>& Q, \
-    const DistSparseMatrix<Real>& A,  const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
+  ( const DistSparseMatrix<Real>& JStatic, \
+    const DistMultiVec<Real>& regTmp, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z,            DistMultiVec<Real>& s, \
-          DistMap& map,                     DistMap& invMap, \
-          ldl::DistSeparator& rootSep,      ldl::DistNodeInfo& info, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& s, \
+    const DistMap& map, \
+    const DistMap& invMap, \
+    const ldl::DistSeparator& rootSep, \
+    const ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl );
 

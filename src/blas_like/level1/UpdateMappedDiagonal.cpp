@@ -38,7 +38,8 @@ void UpdateMappedDiagonal
     DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
 
     const Int numUpdates = d.Height();
-    A.Reserve( A.NumEntries() + numUpdates );
+    if( !A.FrozenSparsity() )
+        A.Reserve( A.NumEntries() + numUpdates );
 
     for( Int k=0; k<numUpdates; ++k )
     {
@@ -106,7 +107,8 @@ void UpdateMappedDiagonal
     if( offset != 0 )
         LogicError("Offset assumed to be zero for distributed sparse matrices");
 
-    A.Reserve( A.NumLocalEntries() + d.LocalHeight() );
+    if( !A.FrozenSparsity() )
+        A.Reserve( A.NumLocalEntries() + d.LocalHeight() );
 
     const Int localHeight = d.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )

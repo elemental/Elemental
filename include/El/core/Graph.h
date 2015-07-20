@@ -102,10 +102,15 @@ EL_EXPORT ElError ElGraphSource
 EL_EXPORT ElError ElGraphTarget
 ( ElConstGraph graph, ElInt edge, ElInt* target );
 
-/* Int Graph::EdgeOffset( Int source ) const
-   ----------------------------------------- */
-EL_EXPORT ElError ElGraphEdgeOffset
-( ElConstGraph graph, ElInt source, ElInt* edgeOffset );
+/* Int Graph::SourceOffset( Int source ) const
+   ------------------------------------------- */
+EL_EXPORT ElError ElGraphSourceOffset
+( ElConstGraph graph, ElInt source, ElInt* sourceOffset );
+
+/* Int Graph::Offset( Int source, Int target ) const
+   ------------------------------------------------- */
+EL_EXPORT ElError ElGraphOffset
+( ElConstGraph graph, ElInt source, ElInt target, ElInt* offset );
 
 /* Int Graph::NumConnections( Int source ) const
    --------------------------------------------- */

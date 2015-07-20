@@ -215,39 +215,171 @@ Int LogisticRegression
   Real gamma, Regularization penalty=L1_PENALTY,
   const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 
+// Robust least squares
+// ====================
+// Given || [dA, db] ||_2 <= rho, minimize the worst-case error of
+//
+//     || (A+dA) x - (b+db) ||_2,
+//
+// which can be shown to be equal to
+//
+//     || A x - b ||_2 + rho || [x; 1] ||_2,
+//
+// which can be formulated as the SOCP
+//
+//     min t + rho s 
+//     s.t. || A x - b ||_2 <= t, || [x; 1] ||_2 <= s.
+//
+// (See [1] or Subsection 2.7 of [2].)
+//
+// While a Singular Value Decomposition can also be used to solve RLS [1],
+// the current implementation is based upon Second-Order Cone Programming.
+//
+// [1] L. El Ghaoui and H. Lebret, "Robust solutions to least-squares problems
+//     with uncertain data", SIAM J. Matrix Anal. and Appl., Vol. 18, No. 4,
+//     1997. DOI: http://epubs.siam.org/doi/abs/10.1137/S0895479896298130
+//
+// [2] M.S. Lobo, L. Vandenberghe, S. Boyd, and H. Lebret, 
+//     "Applications of second-order cone programming", 
+//     Linear Algebra and its Applications, Vol. 284, Issues 1-3, 1998. 
+//     DOI: http://www.sciencedirect.com/science/article/pii/S0024379598100320
+// 
+// TODO: Complex implementations which simply unpack the real and imaginary
+//       components of x.
+//
+template<typename Real>
+void RLS
+( const Matrix<Real>& A, 
+  const Matrix<Real>& b, 
+        Real rho,
+        Matrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void RLS
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, 
+        Real rho,
+        AbstractDistMatrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void RLS
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b, 
+        Real rho,
+        Matrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void RLS
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, 
+        Real rho,
+        DistMultiVec<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+
 // Non-negative least squares
 // ==========================
-// TODO: Generalize to complex
 // NOTE: The following can solve a *sequence* of NNLS problems
+
+namespace NNLSApproachNS {
+enum NNLSApproach {
+    NNLS_ADMM, // The ADMM implementation is still a prototype
+    NNLS_QP,
+    NNLS_SOCP
+};
+} // namespace NNLSApproachNS
+using namespace NNLSApproachNS;
 
 template<typename Real>
 struct NNLSCtrl {
-  // NOTE: The ADMM implementation is still a prototype
-  bool useIPM=true;
-  qp::box::ADMMCtrl<Real> admmCtrl;
-  qp::direct::Ctrl<Real> ipmCtrl;    
+  NNLSApproach approach=NNLS_SOCP;
+  ADMMCtrl<Real> admmCtrl;
+  qp::direct::Ctrl<Real> qpCtrl;    
+  socp::affine::Ctrl<Real> socpCtrl;
 };
 
 template<typename Real>
 void NNLS
-( const Matrix<Real>& A, const Matrix<Real>& B, 
+( const Matrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& B, 
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& B, 
         AbstractDistMatrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
-( const SparseMatrix<Real>& A, const Matrix<Real>& B, 
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& B, 
         Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& B, 
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& B, 
         DistMultiVec<Real>& X,
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
+
+// Robust non-negative least squares
+// =================================
+// Given || [dA, db] ||_2 <= rho, minimize the worst-case error of
+//
+//     || (A+dA) x - (b+db) ||_2,
+//
+// which can be shown to be equal to
+//
+//     || A x - b ||_2 + rho || [x; 1] ||_2,
+//
+// subject to the constraint that x >= 0. Just as in the case of RLS, the
+// problem can easily be formulated as an SOCP, which, in this case, is
+//
+//     min t + rho s 
+//     s.t. || A x - b ||_2 <= t, || [x; 1] ||_2 <= s, x >= 0.
+//
+// (See [1] or Subsection 2.7 of [2].)
+//
+// While a Singular Value Decomposition can also be used to solve RLS [1],
+// the current implementation is based upon Second-Order Cone Programming.
+//
+// [1] L. El Ghaoui and H. Lebret, "Robust solutions to least-squares problems
+//     with uncertain data", SIAM J. Matrix Anal. and Appl., Vol. 18, No. 4,
+//     1997. DOI: http://epubs.siam.org/doi/abs/10.1137/S0895479896298130
+//
+// [2] M.S. Lobo, L. Vandenberghe, S. Boyd, and H. Lebret, 
+//     "Applications of second-order cone programming", 
+//     Linear Algebra and its Applications, Vol. 284, Issues 1-3, 1998. 
+//     DOI: http://www.sciencedirect.com/science/article/pii/S0024379598100320
+// 
+template<typename Real>
+void RNNLS
+( const Matrix<Real>& A, 
+  const Matrix<Real>& b, 
+        Real rho,
+        Matrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void RNNLS
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b, 
+        Real rho,
+        AbstractDistMatrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void RNNLS
+( const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b, 
+        Real rho,
+        Matrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
+template<typename Real>
+void RNNLS
+( const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b, 
+        Real rho,
+        DistMultiVec<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 
 // Non-negative matrix factorization
 // =================================

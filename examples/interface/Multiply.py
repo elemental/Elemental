@@ -77,9 +77,9 @@ AAdj = El.DistSparseMatrix()
 El.Adjoint( A, AAdj )
 z = El.DistMultiVec()
 El.Uniform( z, A.Width(), 1 )
-El.SparseMultiply( El.ADJOINT, 1., A, y, 0., z )
+El.Multiply( El.ADJOINT, 1., A, y, 0., z )
 zNrm2 = El.FrobeniusNorm( z )
-El.SparseMultiply( El.NORMAL, -1., AAdj, y, 1., z )
+El.Multiply( El.NORMAL, -1., AAdj, y, 1., z )
 eNrm2 = El.FrobeniusNorm( z )
 if worldRank == 0:
   print "|| A^H y ||_2 =", zNrm2

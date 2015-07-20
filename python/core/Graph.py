@@ -101,11 +101,17 @@ class Graph(object):
     lib.ElGraphTarget(self.obj,edge,pointer(target))
     return target.value
 
-  lib.ElGraphEdgeOffset.argtypes = [c_void_p,iType,POINTER(iType)]
-  def EdgeOffset(self,source):
-    edgeOffset = iType()
-    lib.ElGraphEdgeOffset(self.obj,source,pointer(edgeOffset))
-    return edgeOffset.value
+  lib.ElGraphSourceOffset.argtypes = [c_void_p,iType,POINTER(iType)]
+  def SourceOffset(self,source):
+    sourceOffset = iType()
+    lib.ElGraphSourceOffset(self.obj,source,pointer(sourceOffset))
+    return sourceOffset.value
+
+  lib.ElGraphOffset.argtypes = [c_void_p,iType,iType,POINTER(iType)]
+  def Offset(self,source,target):
+    offset = iType()
+    lib.ElGraphOffset(self.obj,source,target,pointer(offset))
+    return offset.value
 
   lib.ElGraphNumConnections.argtypes = [c_void_p,iType,POINTER(iType)]
   def NumConnections(self,source):

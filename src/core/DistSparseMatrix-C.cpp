@@ -113,10 +113,14 @@ extern "C" {
   ElError ElDistSparseMatrixValue_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt localInd, CREFLECT(T)* value ) \
   { EL_TRY( *value = CReflect(CReflect(A)->Value(localInd)) ) } \
-  ElError ElDistSparseMatrixEntryOffset_ ## SIG \
+  ElError ElDistSparseMatrixRowOffset_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt localRow, \
-    ElInt* localEntryOffset ) \
-  { EL_TRY( *localEntryOffset = CReflect(A)->EntryOffset(localRow) ) } \
+    ElInt* localRowOffset ) \
+  { EL_TRY( *localRowOffset = CReflect(A)->RowOffset(localRow) ) } \
+  ElError ElDistSparseMatrixOffset_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt col, \
+    ElInt* localOffset ) \
+  { EL_TRY( *localOffset = CReflect(A)->Offset(localRow,col) ) } \
   ElError ElDistSparseMatrixNumConnections_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt* numConnections ) \
   { EL_TRY( *numConnections = CReflect(A)->NumConnections(localRow) ) } \

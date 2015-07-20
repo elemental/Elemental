@@ -63,7 +63,7 @@ void Reshape
          " did not preserve the total number of entries");
 
     B.SetGrid( g ); 
-    Zeros( B, m, n );
+    Zeros( B, mNew, nNew );
     mpi::Comm comm = g.ViewingComm();
     const int commSize = mpi::Size( comm );  
 

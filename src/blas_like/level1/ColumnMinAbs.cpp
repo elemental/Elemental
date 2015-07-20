@@ -57,8 +57,6 @@ void ColumnMinAbs
 {
     DEBUG_ONLY(CSE cse("ColumnMinAbs"))
     const Int n = A.Width();
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     mins.AlignWith( A );
     mins.Resize( n, 1 );
     ColumnMinAbs( A.LockedMatrix(), mins.Matrix() );
@@ -75,8 +73,6 @@ void ColumnMinAbsNonzero
     if( upperBounds.ColAlign() != A.RowAlign() )
         LogicError("upperBounds was not properly aligned");
     const Int n = A.Width();
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
     mins.AlignWith( A );
     mins.Resize( n, 1 );
     ColumnMinAbsNonzero
@@ -155,7 +151,6 @@ void ColumnMinAbsNonzero
     // ---------------
     typedef Base<F> Real;
     const Int m = A.Height();
-    const Int n = A.Width();
     mins = upperBounds;
     const Int* colBuf = A.LockedTargetBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
