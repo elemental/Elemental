@@ -792,8 +792,8 @@ void Mehrotra
             regPerm.Set( i, 0, -10*eps );
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     // Initialize the static portion of the KKT system
     // ===============================================
@@ -1178,8 +1178,8 @@ void Mehrotra
             regPerm.SetLocal( iLoc, 0, -10*eps );
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     // Compute the static portion of the KKT system
     // ============================================
@@ -1344,9 +1344,9 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             if( wMaxNorm >= selInvTol )
-                LDL( info, JFront, LDL_SELINV_2D );
-            else
                 LDL( info, JFront, LDL_2D );
+            else
+                LDL( info, JFront, LDL_SELINV_2D );
             if( commRank == 0 && ctrl.time )
                 Output("LDL: ",timer.Stop()," secs");
 

@@ -910,8 +910,8 @@ void Mehrotra
             }
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -1377,8 +1377,8 @@ void Mehrotra
             }
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);

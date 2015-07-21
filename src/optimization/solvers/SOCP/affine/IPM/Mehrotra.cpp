@@ -908,8 +908,8 @@ void Mehrotra
             }
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
@@ -1561,8 +1561,8 @@ void Mehrotra
         regTmp.ProcessQueues();
         regPerm.ProcessQueues();
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================

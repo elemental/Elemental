@@ -623,8 +623,8 @@ void IPF
             regPerm.Set( i, 0, -10*eps );
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     // Construct the static portion of the KKT system
     // ==============================================
@@ -934,8 +934,8 @@ void IPF
             regPerm.SetLocal( iLoc, 0, -10*eps );
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
+    regPerm *= origTwoNormEst;
 
     // Construct the static portion of the KKT system
     // ==============================================
