@@ -786,10 +786,10 @@ void IPF
             // Form the KKT system
             // -------------------
             KKT( Q, A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             J = JOrig;
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -829,10 +829,10 @@ void IPF
             // Form the KKT system
             // -------------------
             AugmentedKKT( Q, A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             J = JOrig;
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -1170,7 +1170,7 @@ void IPF
             // Form the KKT system
             // -------------------
             KKT( Q, A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Cache the metadata for the finalized JOrig
             if( numIts == 0 )
@@ -1179,7 +1179,7 @@ void IPF
                 JOrig.multMeta = metaOrig;
 
             J = JOrig;
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol ) 
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -1223,7 +1223,7 @@ void IPF
             // Form the KKT system
             // -------------------
             AugmentedKKT( Q, A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Cache the metadata for the finalized JOrig
             if( numIts == 0 )
@@ -1232,7 +1232,7 @@ void IPF
                 JOrig.multMeta = metaOrig;
 
             J = JOrig;
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )

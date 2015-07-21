@@ -910,6 +910,13 @@ void Mehrotra
             }
         }
     }
+    else if( ctrl.system == NORMAL_KKT )
+    {
+        regTmp.Resize( m, 1 );
+        regPerm.Resize( m, 1 );
+        Fill( regTmp, ctrl.qsdCtrl.regDual );
+        Fill( regPerm, 100*eps ); 
+    }
     regTmp *= origTwoNormEst;
     regPerm *= origTwoNormEst;
 
@@ -1013,15 +1020,15 @@ void Mehrotra
                 AugmentedKKT( A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
             try
             {
                 J = JOrig;
+                UpdateDiagonal( J, Real(1), regTmp );
 
-                UpdateRealPartOfDiagonal( J, Real(1), regTmp );
                 if( wMaxNorm >= ruizEquilTol )
                     SymmetricRuizEquil( J, dInner, ctrl.print );
                 else if( wMaxNorm >= diagEquilTol )
@@ -1058,14 +1065,24 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            NormalKKT( A, x, z, J, false );
+            // TODO: Switch to using the static KKT system
+            NormalKKT( A, regPerm, x, z, JOrig, false );
+            J = JOrig; 
+            UpdateDiagonal( J, Real(1), regTmp ); 
+             
+            if( wMaxNorm >= ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.print );
+            else if( wMaxNorm >= diagEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
             // Solve for the direction
             // -----------------------
             try
             {
-                // TODO: Add equilibration
                 if( numIts == 0 )
                 {
                     NestedDissection( J.LockedGraph(), map, rootSep, info );
@@ -1073,10 +1090,10 @@ void Mehrotra
                 }
                 JFront.Pull( J, map, info );
 
-                LDL( info, JFront );
-                ldl::SolveWithIterativeRefinement
-                ( J, invMap, info, JFront, dyAff, 
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                LDL( info, JFront, LDL_2D );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, dyAff, 
+                  ctrl.qsdCtrl );
             }
             catch(...)
             {
@@ -1194,9 +1211,9 @@ void Mehrotra
             NormalKKTRHS( A, x, z, rc, rb, rmu, dy );
             try
             {
-                ldl::SolveWithIterativeRefinement
-                ( J, invMap, info, JFront, dy, 
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, dy, 
+                  ctrl.qsdCtrl );
             }
             catch(...)
             {
@@ -1377,6 +1394,13 @@ void Mehrotra
             }
         }
     }
+    else if( ctrl.system == NORMAL_KKT )
+    {
+        regTmp.Resize( m, 1 );
+        regPerm.Resize( m, 1 );
+        Fill( regTmp, ctrl.qsdCtrl.regDual );
+        Fill( regPerm, 100*eps ); 
+    }
     regTmp *= origTwoNormEst;
     regPerm *= origTwoNormEst;
 
@@ -1482,7 +1506,7 @@ void Mehrotra
                 AugmentedKKT( A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
@@ -1495,7 +1519,7 @@ void Mehrotra
                     JOrig.multMeta = metaOrig;
                 J = JOrig;
 
-                UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+                UpdateDiagonal( J, Real(1), regTmp );
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 if( wMaxNorm >= ruizEquilTol )
@@ -1554,7 +1578,17 @@ void Mehrotra
         {
             // Assemble the KKT system
             // -----------------------
-            NormalKKT( A, x, z, J, false );
+            NormalKKT( A, regPerm, x, z, JOrig, false );
+            J = JOrig;
+            UpdateDiagonal( J, Real(1), regTmp );
+
+            if( wMaxNorm >= ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.print );
+            else if( wMaxNorm >= diagEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+
             NormalKKTRHS( A, x, z, rc, rb, rmu, dyAff );
 
             // Solve for the direction
@@ -1578,15 +1612,15 @@ void Mehrotra
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                LDL( info, JFront, LDL_1D );
+                LDL( info, JFront, LDL_2D );
                 if( commRank == 0 && ctrl.time )
                     Output("LDL: ",timer.Stop()," secs");
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start(); 
-                ldl::SolveWithIterativeRefinement
-                ( J, invMap, info, JFront, dyAff, 
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, dyAff, 
+                  ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1717,9 +1751,9 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                ldl::SolveWithIterativeRefinement
-                ( J, invMap, info, JFront, dy, 
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, dy, 
+                  ctrl.qsdCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }

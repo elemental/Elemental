@@ -151,6 +151,8 @@ void SolveAfter
     }
 } 
 
+// TODO: Improve these implementations 
+//       (e.g., limit maxRefineIts to 3 by default)
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const SparseMatrix<F>& A,

@@ -45,7 +45,7 @@ def ConcatFD2D(N0,N1):
       A.QueueUpdate( s, sRel+N0, 3 )
 
     # The dense last column
-    A.QueueUpdate( s, width-1, -10/height );
+    #A.QueueUpdate( s, width-1, -10/height );
 
   A.ProcessLocalQueues()
   return A
@@ -60,6 +60,8 @@ if display:
 
 ctrl = El.BPCtrl_d(isSparse=True)
 ctrl.useSOCP = False
+ctrl.lpIPMCtrl.mehrotraCtrl.system = El.NORMAL_KKT
+#ctrl.lpIPMCtrl.mehrotraCtrl.system = El.AUGMENTED_KKT
 ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.time = True
 ctrl.socpIPMCtrl.mehrotraCtrl.progress = True

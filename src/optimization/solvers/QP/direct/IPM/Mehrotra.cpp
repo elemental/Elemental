@@ -973,7 +973,7 @@ void Mehrotra
                 AugmentedKKT( Q, A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
@@ -981,7 +981,7 @@ void Mehrotra
             {
                 J = JOrig;
 
-                UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+                UpdateDiagonal( J, Real(1), regTmp );
                 if( wMaxNorm >= ruizEquilTol )
                     SymmetricRuizEquil( J, dInner, ctrl.print );
                 else if( wMaxNorm >= diagEquilTol )
@@ -1419,7 +1419,7 @@ void Mehrotra
                 AugmentedKKT( Q, A, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
@@ -1432,7 +1432,7 @@ void Mehrotra
                     JOrig.multMeta = metaOrig;
                 J = JOrig;
 
-                UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+                UpdateDiagonal( J, Real(1), regTmp );
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 if( wMaxNorm >= ruizEquilTol )

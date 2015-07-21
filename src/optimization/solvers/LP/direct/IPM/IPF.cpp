@@ -688,6 +688,13 @@ void IPF
             }
         }
     }
+    else if( ctrl.system == NORMAL_KKT )
+    {
+        regTmp.Resize( m, 1 );
+        regPerm.Resize( m, 1 );
+        Fill( regTmp, ctrl.qsdCtrl.regDual );
+        Fill( regPerm, 100*eps );
+    }
     regTmp *= origTwoNormEst;
     regPerm *= origTwoNormEst;
 
@@ -782,10 +789,10 @@ void IPF
             // Construct the KKT system
             // ------------------------
             KKT( A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
             J = JOrig;
 
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -825,10 +832,10 @@ void IPF
             // Construct the KKT system
             // ------------------------
             AugmentedKKT( A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
             J = JOrig;
 
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -867,7 +874,17 @@ void IPF
         {
             // Construct the KKT system
             // ------------------------
-            NormalKKT( A, x, z, J, false );
+            NormalKKT( A, regPerm, x, z, JOrig, false );
+            J = JOrig;
+            UpdateDiagonal( J, Real(1), regTmp );
+
+            if( wMaxNorm >= ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.print );
+            else if( wMaxNorm >= diagEquilTol )
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+
             // TODO: Add equilibration (need to extend ldl::SolveWith...)
             if( numIts == 0 )
             {
@@ -882,9 +899,9 @@ void IPF
             try
             {
                 LDL( info, JFront, LDL_2D ); 
-                ldl::SolveWithIterativeRefinement
-                ( J, invMap, info, JFront, dy, 
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, dy, 
+                  ctrl.qsdCtrl );
             }
             catch(...)
             {
@@ -1086,6 +1103,13 @@ void IPF
             }
         }
     }
+    else if( ctrl.system == NORMAL_KKT )
+    {
+        regTmp.Resize( m, 1 );
+        regPerm.Resize( m, 1 );
+        Fill( regTmp, ctrl.qsdCtrl.regDual );
+        Fill( regPerm, 100*eps );
+    }
     regTmp *= origTwoNormEst;
     regPerm *= origTwoNormEst;
 
@@ -1182,7 +1206,7 @@ void IPF
             // Construct the KKT system
             // ------------------------
             KKT( A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Cache the metadata for the finalized JOrig
             if( numIts == 0 )
@@ -1191,7 +1215,7 @@ void IPF
                 JOrig.multMeta = metaOrig;
             J = JOrig;
 
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -1236,7 +1260,7 @@ void IPF
             // Construct the KKT system
             // ------------------------
             AugmentedKKT( A, x, z, JOrig, false );
-            UpdateRealPartOfDiagonal( JOrig, Real(1), regPerm );
+            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Cache the metadata for the finalized JOrig
             if( numIts == 0 )
@@ -1245,7 +1269,7 @@ void IPF
                 JOrig.multMeta = metaOrig;
             J = JOrig;
 
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -1291,7 +1315,17 @@ void IPF
         {
             // Construct the KKT system
             // ------------------------
-            NormalKKT( A, x, z, J, false );
+            NormalKKT( A, regPerm, x, z, JOrig, false );
+            J = JOrig;
+            UpdateDiagonal( J, Real(1), regTmp );
+
+            if( wMaxNorm >= ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.print );
+            else if( wMaxNorm >= diagEquilTol )
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+
             // Cache the metadata for the finalized J
             if( numIts == 0 )
             {
@@ -1308,10 +1342,10 @@ void IPF
             // -----------------------
             try
             {
-                LDL( info, JFront, LDL_INTRAPIV_1D ); 
-                ldl::SolveWithIterativeRefinement
-                ( J, invMap, info, JFront, dy, 
-                  ctrl.qsdCtrl.relTolRefine, ctrl.qsdCtrl.maxRefineIts );
+                LDL( info, JFront, LDL_2D ); 
+                reg_qsd_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, dy, 
+                  ctrl.qsdCtrl );
             }
             catch(...)
             {

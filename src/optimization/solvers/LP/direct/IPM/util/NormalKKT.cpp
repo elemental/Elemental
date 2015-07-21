@@ -31,8 +31,10 @@ namespace direct {
 template<typename Real>
 void NormalKKT
 ( const Matrix<Real>& A,
-  const Matrix<Real>& x, const Matrix<Real>& z,
-        Matrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& x, 
+  const Matrix<Real>& z,
+        Matrix<Real>& J, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
 
@@ -56,8 +58,10 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J, bool onlyLower )
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
 
@@ -84,14 +88,18 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& x,       const Matrix<Real>& z,
-        SparseMatrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& regPerm,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
+        SparseMatrix<Real>& J, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    const Int m = A.Height();
+    const Int n = A.Width();
 
     // d := sqrt(z) <> sqrt(x)
     // =======================
-    const Int n = A.Width();
     Matrix<Real> d;
     d.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
@@ -102,7 +110,9 @@ void NormalKKT
     SparseMatrix<Real> G;
     Transpose( A, G );
     DiagonalScale( LEFT, NORMAL, d, G );
-    Syrk( LOWER, TRANSPOSE, Real(1), G, J );
+    Zeros( J, m, m );
+    UpdateDiagonal( J, Real(1), regPerm );
+    Syrk( LOWER, TRANSPOSE, Real(1), G, Real(1), J );
     if( !onlyLower )
         MakeSymmetric( LOWER, J );
 }
@@ -110,10 +120,14 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, 
-        DistSparseMatrix<Real>& J, bool onlyLower )
+  const DistMultiVec<Real>& regPerm,
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& z, 
+        DistSparseMatrix<Real>& J, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     if( !mpi::Congruent( comm, x.Comm() ) )
@@ -134,7 +148,9 @@ void NormalKKT
     DistSparseMatrix<Real> G(comm);
     Transpose( A, G );
     DiagonalScale( LEFT, NORMAL, d, G );
-    Syrk( LOWER, TRANSPOSE, Real(1), G, J );
+    Zeros( J, m, m );
+    UpdateDiagonal( J, Real(1), regPerm );
+    Syrk( LOWER, TRANSPOSE, Real(1), G, Real(1), J );
     if( !onlyLower )
         MakeSymmetric( LOWER, J );
 }
@@ -142,8 +158,10 @@ void NormalKKT
 template<typename Real>
 void NormalKKTRHS
 ( const Matrix<Real>& A,
-  const Matrix<Real>& x,  const Matrix<Real>& z, 
-  const Matrix<Real>& rc, const Matrix<Real>& rb, 
+  const Matrix<Real>& x,
+  const Matrix<Real>& z, 
+  const Matrix<Real>& rc,
+  const Matrix<Real>& rb, 
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
@@ -165,8 +183,10 @@ void NormalKKTRHS
 template<typename Real>
 void NormalKKTRHS
 ( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& z, 
-  const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rb, 
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z, 
+  const AbstractDistMatrix<Real>& rc,
+  const AbstractDistMatrix<Real>& rb, 
   const AbstractDistMatrix<Real>& rmu,        
         AbstractDistMatrix<Real>& d )
 {
@@ -188,8 +208,10 @@ void NormalKKTRHS
 template<typename Real>
 void NormalKKTRHS
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& x,       const Matrix<Real>& z, 
-  const Matrix<Real>& rc,      const Matrix<Real>& rb, 
+  const Matrix<Real>& x,
+  const Matrix<Real>& z, 
+  const Matrix<Real>& rc,
+  const Matrix<Real>& rb, 
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
@@ -211,8 +233,10 @@ void NormalKKTRHS
 template<typename Real>
 void NormalKKTRHS
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, 
-  const DistMultiVec<Real>& rc,    const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& z, 
+  const DistMultiVec<Real>& rc,
+  const DistMultiVec<Real>& rb, 
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& d )
 {
@@ -251,10 +275,14 @@ void NormalKKTRHS
 
 template<typename Real>
 void ExpandNormalSolution
-( const Matrix<Real>& A,  const Matrix<Real>& c,
-  const Matrix<Real>& x,  const Matrix<Real>& z,
-  const Matrix<Real>& rc, const Matrix<Real>& rmu,
-        Matrix<Real>& dx, const Matrix<Real>& dy, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& c,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
+  const Matrix<Real>& rc,
+  const Matrix<Real>& rmu,
+        Matrix<Real>& dx,
+  const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
@@ -275,10 +303,14 @@ void ExpandNormalSolution
 
 template<typename Real>
 void ExpandNormalSolution
-( const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& dx, const AbstractDistMatrix<Real>& dy, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
+  const AbstractDistMatrix<Real>& rc,
+  const AbstractDistMatrix<Real>& rmu,
+        AbstractDistMatrix<Real>& dx,
+  const AbstractDistMatrix<Real>& dy, 
         AbstractDistMatrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
@@ -299,10 +331,14 @@ void ExpandNormalSolution
 
 template<typename Real>
 void ExpandNormalSolution
-( const SparseMatrix<Real>& A, const Matrix<Real>& c,
-  const Matrix<Real>& x,       const Matrix<Real>& z,
-  const Matrix<Real>& rc,      const Matrix<Real>& rmu,
-        Matrix<Real>& dx,      const Matrix<Real>& dy, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& c,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
+  const Matrix<Real>& rc,
+  const Matrix<Real>& rmu,
+        Matrix<Real>& dx,
+  const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
@@ -323,10 +359,14 @@ void ExpandNormalSolution
 
 template<typename Real>
 void ExpandNormalSolution
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& rc,    const DistMultiVec<Real>& rmu,
-        DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& c,
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& rc,
+  const DistMultiVec<Real>& rmu,
+        DistMultiVec<Real>& dx,
+  const DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
@@ -348,67 +388,97 @@ void ExpandNormalSolution
 #define PROTO(Real) \
   template void NormalKKT \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x,       const Matrix<Real>& z, \
+    const Matrix<Real>& regPerm, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
           SparseMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& regPerm, \
+    const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKTRHS \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& x,  const Matrix<Real>& z, \
-    const Matrix<Real>& rc, const Matrix<Real>& rb, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+    const Matrix<Real>& rc, \
+    const Matrix<Real>& rb, \
     const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rb, \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& rc, \
+    const AbstractDistMatrix<Real>& rb, \
     const AbstractDistMatrix<Real>& rmu, \
           AbstractDistMatrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x,       const Matrix<Real>& z, \
-    const Matrix<Real>& rc,      const Matrix<Real>& rb, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+    const Matrix<Real>& rc, \
+    const Matrix<Real>& rb, \
     const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x,   const DistMultiVec<Real>& z, \
-    const DistMultiVec<Real>& rc,  const DistMultiVec<Real>& rb, \
+    const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& rc, \
+    const DistMultiVec<Real>& rb, \
     const DistMultiVec<Real>& rmu, \
           DistMultiVec<Real>& d ); \
   template void ExpandNormalSolution \
-  ( const Matrix<Real>& A,  const Matrix<Real>& c, \
-    const Matrix<Real>& x,  const Matrix<Real>& z, \
-    const Matrix<Real>& rc, const Matrix<Real>& rmu, \
-          Matrix<Real>& dx, const Matrix<Real>& dy, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& c, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+    const Matrix<Real>& rc, \
+    const Matrix<Real>& rmu, \
+          Matrix<Real>& dx, \
+    const Matrix<Real>& dy, \
           Matrix<Real>& dz ); \
   template void ExpandNormalSolution \
-  ( const AbstractDistMatrix<Real>& A,  const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& x,  const AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Real>& rc, const AbstractDistMatrix<Real>& rmu, \
-          AbstractDistMatrix<Real>& dx, const AbstractDistMatrix<Real>& dy, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& c, \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& rc, \
+    const AbstractDistMatrix<Real>& rmu, \
+          AbstractDistMatrix<Real>& dx, \
+    const AbstractDistMatrix<Real>& dy, \
           AbstractDistMatrix<Real>& dz ); \
   template void ExpandNormalSolution \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& c, \
-    const Matrix<Real>& x,       const Matrix<Real>& z, \
-    const Matrix<Real>& rc,      const Matrix<Real>& rmu, \
-          Matrix<Real>& dx,      const Matrix<Real>& dy, \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& c, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+    const Matrix<Real>& rc, \
+    const Matrix<Real>& rmu, \
+          Matrix<Real>& dx, \
+    const Matrix<Real>& dy, \
           Matrix<Real>& dz ); \
   template void ExpandNormalSolution \
-  ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& c, \
-    const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z, \
-    const DistMultiVec<Real>& rc,    const DistMultiVec<Real>& rmu, \
-          DistMultiVec<Real>& dx,    const DistMultiVec<Real>& dy, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& c, \
+    const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& rc, \
+    const DistMultiVec<Real>& rmu, \
+          DistMultiVec<Real>& dx, \
+    const DistMultiVec<Real>& dy, \
           DistMultiVec<Real>& dz );
 
 #define EL_NO_INT_PROTO

@@ -791,7 +791,7 @@ void IPF
         FinishKKT( m, n, s, z, JOrig );
         J = JOrig;
         J.FreezeSparsity();
-        UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regTmp );
 
         if( wMaxNorm >= ruizEquilTol )
             SymmetricRuizEquil( J, dInner, ctrl.print );
@@ -1121,7 +1121,7 @@ void IPF
         JOrig.multMeta = JStatic.multMeta;
         J = JOrig;
         J.FreezeSparsity();
-        UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regTmp );
         J.multMeta = JStatic.multMeta;
 
         if( wMaxNorm >= ruizEquilTol )

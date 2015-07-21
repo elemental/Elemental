@@ -149,6 +149,7 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const SparseMatrix<Real>& A,
+  const Matrix<Real>& regPerm,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -156,6 +157,7 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& regPerm,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,

@@ -916,7 +916,7 @@ void Mehrotra
     SparseMatrix<Real> JStatic;
     StaticKKT
     ( A, G, firstInds, origToSparseFirstInds, kSparse, JOrig, onlyLower );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    UpdateDiagonal( JStatic, Real(1), regPerm );
 
     Real relError = 1;
     vector<Int> map, invMap;
@@ -1037,7 +1037,7 @@ void Mehrotra
         {
             J = JOrig;
 
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -1569,7 +1569,7 @@ void Mehrotra
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT
     ( A, G, firstInds, origToSparseFirstInds, kSparse, JStatic, onlyLower );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    UpdateDiagonal( JStatic, Real(1), regPerm );
 
     Real relError = 1;
     DistMap map, invMap;
@@ -1720,7 +1720,7 @@ void Mehrotra
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )

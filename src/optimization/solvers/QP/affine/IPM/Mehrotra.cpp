@@ -924,7 +924,7 @@ void Mehrotra
         {
             J = JOrig;
             J.FreezeSparsity();
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
 
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
@@ -1326,7 +1326,7 @@ void Mehrotra
             J = JOrig;
             J.FreezeSparsity();
             J.multMeta = JStatic.multMeta;
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regTmp );
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
