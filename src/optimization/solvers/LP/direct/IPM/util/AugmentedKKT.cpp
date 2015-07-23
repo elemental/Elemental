@@ -32,8 +32,10 @@ namespace direct {
 template<typename Real>
 void AugmentedKKT
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& x, const Matrix<Real>& z,
-        Matrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
+        Matrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int m = A.Height();
@@ -54,8 +56,10 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, bool onlyLower )
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& JPre, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int m = A.Height();
@@ -79,8 +83,10 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& x,       const Matrix<Real>& z,
-        SparseMatrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
+        SparseMatrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int n = A.Width();
@@ -92,8 +98,10 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
-        DistSparseMatrix<Real>& J, bool onlyLower )
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int n = A.Width();
@@ -105,20 +113,28 @@ void AugmentedKKT
 #define PROTO(Real) \
   template void AugmentedKKT \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
-    Matrix<Real>& J, bool onlyLower ); \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+          Matrix<Real>& J, \
+    bool onlyLower ); \
   template void AugmentedKKT \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
-    AbstractDistMatrix<Real>& J, bool onlyLower ); \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& J, \
+    bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
-    SparseMatrix<Real>& J, bool onlyLower ); \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+          SparseMatrix<Real>& J, \
+    bool onlyLower ); \
   template void AugmentedKKT \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, \
-    DistSparseMatrix<Real>& J, bool onlyLower );
+    const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& z, \
+          DistSparseMatrix<Real>& J, \
+    bool onlyLower );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

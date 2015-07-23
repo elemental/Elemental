@@ -55,6 +55,7 @@ void IPF
     auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
+    Real bScale, cScale;
     Matrix<Real> dRow, dCol;
     if( ctrl.outerEquil )
     {
@@ -69,9 +70,31 @@ void IPF
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -292,9 +315,33 @@ void IPF
 
     if( ctrl.outerEquil )
     {
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            Output
+            ("Exiting with:\n",Indent(),
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 
@@ -339,6 +386,7 @@ void IPF
     // Equilibrate the LP by diagonally scaling A
     const Int m = A.Height();
     const Int n = A.Width();
+    Real bScale, cScale;
     DistMatrix<Real,MC,STAR> dRow(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
     if( ctrl.outerEquil )
@@ -354,9 +402,31 @@ void IPF
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print && commRank == 0 )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -585,10 +655,35 @@ void IPF
     SetIndent( indent );
 
     if( ctrl.outerEquil )
-    {
+    {    
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            if( commRank == 0 )
+                Output
+                ("Exiting with:\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 
@@ -618,6 +713,7 @@ void IPF
     auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
+    Real bScale, cScale;
     Matrix<Real> dRow, dCol;
     if( ctrl.outerEquil )
     {
@@ -632,9 +728,31 @@ void IPF
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -1000,9 +1118,33 @@ void IPF
 
     if( ctrl.outerEquil )
     {
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            Output
+            ("Exiting with:\n",Indent(),
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 
@@ -1035,6 +1177,7 @@ void IPF
     auto c = cPre;
     const Int m = A.Height();
     const Int n = A.Width();
+    Real bScale, cScale;
     DistMultiVec<Real> dRow(comm), dCol(comm);
     if( ctrl.outerEquil )
     {
@@ -1049,9 +1192,31 @@ void IPF
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print && commRank == 0 )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -1448,10 +1613,35 @@ void IPF
     SetIndent( indent );
 
     if( ctrl.outerEquil )
-    {
+    {    
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            if( commRank == 0 )
+                Output
+                ("Exiting with:\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 

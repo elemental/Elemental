@@ -62,6 +62,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     const Int degree = n;
+    Real bScale, cScale;
     Matrix<Real> dRow, dCol;
     if( ctrl.outerEquil )
     {
@@ -76,9 +77,31 @@ void Mehrotra
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -397,9 +420,33 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            Output
+            ("Exiting with:\n",Indent(),
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 
@@ -452,6 +499,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     const Int degree = n;
+    Real bScale, cScale;
     DistMatrix<Real,MC,STAR> dRow(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
     if( ctrl.outerEquil )
@@ -467,9 +515,31 @@ void Mehrotra
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print && commRank == 0 )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -800,9 +870,34 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            if( commRank == 0 )
+                Output
+                ("Exiting with:\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 
@@ -840,6 +935,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     const Int degree = n;
+    Real bScale, cScale;
     Matrix<Real> dRow, dCol;
     if( ctrl.outerEquil )
     {
@@ -854,9 +950,31 @@ void Mehrotra
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -1006,6 +1124,7 @@ void Mehrotra
              "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  ||  w  ||_max = ",wMaxNorm,"\n",Indent(),
              "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
              "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
@@ -1053,9 +1172,17 @@ void Mehrotra
                 UpdateDiagonal( J, Real(1), regTmp );
 
                 if( wMaxNorm >= ruizEquilTol )
+                {
+                    if( ctrl.print )
+                        Output("Running SymmetricRuizEquil");
                     SymmetricRuizEquil( J, dInner, ctrl.print );
+                }
                 else if( wMaxNorm >= diagEquilTol )
-                    SymmetricRuizEquil( J, dInner, ctrl.print );
+                {
+                    if( ctrl.print )
+                        Output("Running SymmetricDiagonalEquil"); 
+                    SymmetricDiagonalEquil( J, dInner, ctrl.print );
+                }
                 else
                     Ones( dInner, J.Height(), 1 );
 
@@ -1094,9 +1221,17 @@ void Mehrotra
             UpdateDiagonal( J, Real(1), regTmp ); 
              
             if( wMaxNorm >= ruizEquilTol )
+            {
+                if( ctrl.print )
+                    Output("Running SymmetricRuizEquil");
                 SymmetricRuizEquil( J, dInner, ctrl.print );
+            }
             else if( wMaxNorm >= diagEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.print );
+            {
+                if( ctrl.print )
+                    Output("Running SymmetricDiagonalEquil");
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            }
             else
                 Ones( dInner, J.Height(), 1 );
 
@@ -1191,6 +1326,7 @@ void Mehrotra
         DiagonalScale( LEFT, NORMAL, dxAff, dz );
         rmu += dz;
         Shift( rmu, -sigma*mu );
+
         if( ctrl.system == FULL_KKT )
         {
             KKTRHS( rc, rb, rmu, z, d );
@@ -1276,9 +1412,33 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            Output
+            ("Exiting with:\n",Indent(),
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  primal = ",primObj,"\n",Indent(),
+             "  dual   = ",dualObj,"\n",Indent(),
+             "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 
@@ -1320,6 +1480,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     const Int degree = n;
+    Real bScale, cScale;
     DistMultiVec<Real> dRow(comm), dCol(comm);
     if( ctrl.outerEquil )
     {
@@ -1338,9 +1499,31 @@ void Mehrotra
             DiagonalScale( LEFT, NORMAL, dRow, y );
             DiagonalSolve( LEFT, NORMAL, dCol, z );
         }
+
+        // Rescale || b ||_max and || c||_max to roughly one (similar to PDCO)
+        bScale = Max(MaxNorm(b),Real(1));
+        cScale = Max(MaxNorm(c),Real(1));
+        b *= Real(1)/bScale;
+        c *= Real(1)/cScale;
+        if( ctrl.primalInit )
+        {
+            x *= Real(1)/bScale;
+        }
+        if( ctrl.dualInit )
+        {
+            y *= Real(1)/cScale;
+            z *= Real(1)/cScale;
+        }
+        if( ctrl.print )
+        {
+            Output("Scaling b down by ",bScale);
+            Output("Scaling c down by ",cScale);
+        }
     }
     else
     {
+        bScale = 1;
+        cScale = 1;
         Ones( dRow, m, 1 );
         Ones( dCol, n, 1 );
     }
@@ -1496,6 +1679,7 @@ void Mehrotra
                  "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  ||  w  ||_max = ",wMaxNorm,"\n",Indent(),
                  "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
                  "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
@@ -1550,9 +1734,17 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 if( wMaxNorm >= ruizEquilTol )
+                {
+                    if( ctrl.print && commRank == 0 )
+                        Output("Running SymmetricRuizEquil");
                     SymmetricRuizEquil( J, dInner, ctrl.print );
+                }
                 else if( wMaxNorm >= diagEquilTol )
+                {
+                    if( ctrl.print && commRank == 0 )
+                        Output("Running SymmetricDiagonalEquil");
                     SymmetricDiagonalEquil( J, dInner, ctrl.print );
+                }
                 else
                     Ones( dInner, J.Height(), 1 );
                 if( commRank == 0 && ctrl.time )
@@ -1610,9 +1802,17 @@ void Mehrotra
             UpdateDiagonal( J, Real(1), regTmp );
 
             if( wMaxNorm >= ruizEquilTol )
+            {
+                if( ctrl.print && commRank == 0 )
+                    Output("Running SymmetricRuizEquil");
                 SymmetricRuizEquil( J, dInner, ctrl.print );
+            }
             else if( wMaxNorm >= diagEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.print );
+            {
+                if( ctrl.print && commRank == 0 )
+                    Output("Running SymmetricRuizEquil");
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            }
             else
                 Ones( dInner, J.Height(), 1 );
 
@@ -1822,9 +2022,34 @@ void Mehrotra
 
     if( ctrl.outerEquil )
     {
+        x *= bScale;
+        y *= cScale;
+        z *= cScale;
         DiagonalSolve( LEFT, NORMAL, dCol, x );
         DiagonalSolve( LEFT, NORMAL, dRow, y );
         DiagonalScale( LEFT, NORMAL, dCol, z );
+        if( ctrl.print )
+        {
+            b *= bScale;
+            c *= cScale;
+            DiagonalScale( LEFT, NORMAL, dRow, b );
+            DiagonalScale( LEFT, NORMAL, dCol, c );
+            const Real primObj = Dot(c,x);
+            const Real dualObj = -Dot(b,y);
+            const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+            const Real xNrm2 = Nrm2( x );
+            const Real yNrm2 = Nrm2( y );
+            const Real zNrm2 = Nrm2( z );
+            if( commRank == 0 )
+                Output
+                ("Exiting with:\n",Indent(),
+                 "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+                 "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+                 "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+                 "  primal = ",primObj,"\n",Indent(),
+                 "  dual   = ",dualObj,"\n",Indent(),
+                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+        }
     }
 }
 

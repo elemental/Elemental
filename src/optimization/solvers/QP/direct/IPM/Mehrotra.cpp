@@ -1562,29 +1562,17 @@ void Mehrotra
         if( ctrl.print && commRank == 0 )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
-
-        // TODO: Use function<Real(Real,Real,Real,Real)>
-        Real sigma;
-        if( stepLengthSigma )
-        {
-            sigma = Pow(1-Min(alphaAffPri,alphaAffDual),Real(3));
-        }
-        else
-        {
-            // NOTE: dz and dx are used as temporaries
-            dx = x;
-            dz = z;
-            Axpy( alphaAffPri,  dxAff, dx );
-            Axpy( alphaAffDual, dzAff, dz );
-            const Real muAff = Dot(dx,dz) / n;
-            // TODO: Allow the user to override this function
-            sigma = Pow(muAff/mu,Real(3)); 
-            sigma = Min(sigma,Real(1));
-            if( ctrl.print && commRank == 0 )
-                Output("muAff = ",muAff,", mu = ",mu);
-        }
-        if( ctrl.print && commRank == 0 )
-            Output("sigma = ",sigma);
+        // NOTE: dz and dx are used as temporaries
+        dx = x;
+        dz = z;
+        Axpy( alphaAffPri,  dxAff, dx );
+        Axpy( alphaAffDual, dzAff, dz );
+        const Real muAff = Dot(dx,dz) / degree;
+        if( ctrl.print )
+            Output("muAff = ",muAff,", mu = ",mu);
+        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        if( ctrl.print )
+            Output("sigma=",sigma);
 
         // Solve for the combined direction
         // ================================
