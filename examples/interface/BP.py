@@ -63,6 +63,7 @@ ctrl.useSOCP = False
 ctrl.lpIPMCtrl.mehrotraCtrl.system = El.NORMAL_KKT
 #ctrl.lpIPMCtrl.mehrotraCtrl.system = El.AUGMENTED_KKT
 ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
+ctrl.lpIPMCtrl.mehrotraCtrl.qsdCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.time = True
 ctrl.socpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.outerEquil = False

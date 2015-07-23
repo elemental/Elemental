@@ -256,7 +256,7 @@ if(NOT WIN32)
           "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
       else()
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-          set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O2 -g -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
         else()
           set(${LANG}_FLAGS "-O2 -g" CACHE STRING
             "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")

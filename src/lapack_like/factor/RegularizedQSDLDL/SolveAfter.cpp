@@ -44,7 +44,7 @@ inline Int RegularizedSolveAfterNoPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<F> dx, y;
+        Matrix<F> dx, xCand, y;
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
         if( time )
@@ -75,16 +75,17 @@ inline Int RegularizedSolveAfterNoPromote
             if( time )
                 Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // Check the new residual
             // ----------------------
             b = bOrig;
-            y = x;
+            y = xCand;
             DiagonalScale( LEFT, NORMAL, reg, y );
             if( time )
                 timer.Start();
-            Multiply( NORMAL, F(1), A, x, F(1), y );
+            Multiply( NORMAL, F(1), A, xCand, F(1), y );
             if( time )
                 Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
@@ -92,14 +93,15 @@ inline Int RegularizedSolveAfterNoPromote
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-            {
-                if( progress )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
     }
     // Store the final result
@@ -108,9 +110,6 @@ inline Int RegularizedSolveAfterNoPromote
     return refineIt;
 }
 
-// A will be the original sparse matrix for this system, 
-// but the applied regularization is of the form diag(dR)*diag(reg)*diag(dC),
-// and the sparse-direct factorization is of inv(diag(dR)) A inv(diag(dC)).
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
 ( const SparseMatrix<F>& A,
@@ -144,7 +143,7 @@ inline Int RegularizedSolveAfterNoPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<F> dx, y;
+        Matrix<F> dx, y, xCand;
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
         if( time )
@@ -178,16 +177,17 @@ inline Int RegularizedSolveAfterNoPromote
                 Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
             DiagonalSolve( LEFT, NORMAL, d, dx );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // Check the new residual
             // ----------------------
             b = bOrig;
-            y = x;
+            y = xCand;
             DiagonalScale( LEFT, NORMAL, reg, y );
             if( time )
                 timer.Start();
-            Multiply( NORMAL, F(1), A, x, F(1), y );
+            Multiply( NORMAL, F(1), A, xCand, F(1), y );
             if( time )
                 Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
@@ -195,14 +195,15 @@ inline Int RegularizedSolveAfterNoPromote
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-            {
-                if( progress )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
     }
     // Store the final result
@@ -254,7 +255,7 @@ inline Int RegularizedSolveAfterPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<PF> dxProm, yProm;
+        Matrix<PF> dxProm, xCandProm, yProm;
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         if( time )
@@ -287,16 +288,17 @@ inline Int RegularizedSolveAfterPromote
                 Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
-            xProm += dxProm;
+            xCandProm = xProm;
+            xCandProm += dxProm;
 
             // Check the new residual
             // ----------------------
             bProm = bOrigProm;
-            yProm = xProm;
+            yProm = xCandProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             if( time )
                 timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
             if( time )
                 Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
@@ -304,14 +306,15 @@ inline Int RegularizedSolveAfterPromote
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                xProm = xCandProm;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-            {
-                if( progress )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
     }
     // Store the final result
@@ -370,7 +373,7 @@ inline Int RegularizedSolveAfterPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<PF> dxProm, yProm;
+        Matrix<PF> dxProm, xCandProm, yProm;
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         if( time )
@@ -406,16 +409,17 @@ inline Int RegularizedSolveAfterPromote
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
-            xProm += dxProm;
+            xCandProm = xProm;
+            xCandProm += dxProm;
 
             // Check the new residual
             // ----------------------
             bProm = bOrigProm;
-            yProm = xProm;
+            yProm = xCandProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             if( time )
                 timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
             if( time )
                 Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
@@ -423,14 +427,15 @@ inline Int RegularizedSolveAfterPromote
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                xProm = xCandProm;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-            {
-                if( progress )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
     }
     // Store the final result
@@ -518,7 +523,7 @@ inline Int RegularizedSolveAfterNoPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<F> dx(comm), y(comm);
+        DistMultiVec<F> dx(comm), xCand(comm), y(comm);
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
         if( time && commRank == 0 )
@@ -550,16 +555,17 @@ inline Int RegularizedSolveAfterNoPromote
             if( time && commRank == 0 )
                 Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // Compute the new residual
             // ------------------------
             b = bOrig;
-            y = x;
+            y = xCand;
             DiagonalScale( LEFT, NORMAL, reg, y );
             if( time && commRank == 0 )
                 timer.Start();
-            Multiply( NORMAL, F(1), A, x, F(1), y );
+            Multiply( NORMAL, F(1), A, xCand, F(1), y );
             if( time && commRank == 0 )
                 Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
@@ -567,14 +573,15 @@ inline Int RegularizedSolveAfterNoPromote
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-            {
-                if( progress && commRank == 0 )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
     }
     b = x;
@@ -617,7 +624,7 @@ inline Int RegularizedSolveAfterNoPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<F> dx(comm), y(comm);
+        DistMultiVec<F> dx(comm), xCand(comm), y(comm);
         y = x;
         DiagonalScale( LEFT, NORMAL, reg, y );
         if( time && commRank == 0 )
@@ -651,16 +658,17 @@ inline Int RegularizedSolveAfterNoPromote
                 Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, dx );
             DiagonalSolve( LEFT, NORMAL, d, dx );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // Compute the new residual
             // ------------------------
             b = bOrig;
-            y = x;
+            y = xCand;
             DiagonalScale( LEFT, NORMAL, reg, y );
             if( time && commRank == 0 )
                 timer.Start();
-            Multiply( NORMAL, F(1), A, x, F(1), y );
+            Multiply( NORMAL, F(1), A, xCand, F(1), y );
             if( time && commRank == 0 )
                 Output("  Multiply time: ",timer.Stop()," secs");
             b -= y;
@@ -668,14 +676,15 @@ inline Int RegularizedSolveAfterNoPromote
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-            {
-                if( progress && commRank == 0 )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
     }
     b = x;
@@ -726,7 +735,7 @@ inline Int RegularizedSolveAfterPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<PF> dxProm(comm), yProm(comm);
+        DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         if( time && commRank == 0 )
@@ -760,16 +769,17 @@ inline Int RegularizedSolveAfterPromote
                 Output("  LDL apply time: ",timer.Stop()," secs");
             xNodal.Push( invMap, info, b );
             Copy( b, dxProm );
-            xProm += dxProm;
+            xCandProm = xProm;
+            xCandProm += dxProm;
 
             // Check the new residual
             // ----------------------
             bProm = bOrigProm;
-            yProm = xProm;
+            yProm = xCandProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             if( time && commRank == 0 )
                 timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
             if( time && commRank == 0 )
                 Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
@@ -777,14 +787,15 @@ inline Int RegularizedSolveAfterPromote
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                xProm = xCandProm;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-            {
-                if( progress && commRank == 0 )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
         SetIndent( indent );
     }
@@ -843,7 +854,7 @@ inline Int RegularizedSolveAfterPromote
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<PF> dxProm(comm), yProm(comm);
+        DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
         yProm = xProm;
         DiagonalScale( LEFT, NORMAL, regProm, yProm );
         if( time && commRank == 0 )
@@ -881,16 +892,17 @@ inline Int RegularizedSolveAfterPromote
             xNodal.Push( invMap, info, b );
             DiagonalSolve( LEFT, NORMAL, d, b );
             Copy( b, dxProm );
-            xProm += dxProm;
+            xCandProm = xProm;
+            xCandProm += dxProm;
 
             // Check the new residual
             // ----------------------
             bProm = bOrigProm;
-            yProm = xProm;
+            yProm = xCandProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             if( time && commRank == 0 )
                 timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
             if( time && commRank == 0 )
                 Output("  Multiply time: ",timer.Stop()," secs");
             bProm -= yProm;
@@ -898,16 +910,17 @@ inline Int RegularizedSolveAfterPromote
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                xProm = xCandProm;
+            else
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( time && commRank == 0 )
                 Output("Refine step time: ",iterTimer.Stop()," secs");
             if( refineIt >= maxRefineIts )
-            {
-                if( progress && commRank == 0 )
-                    Output("Iterative refinement did not converge in time"); 
                 break;
-            }
         }
     }
     Copy( xProm, b );
@@ -978,7 +991,7 @@ Int IRSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<F> dx;
+        Matrix<F> dx, xCand;
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress )
@@ -999,20 +1012,27 @@ Int IRSolveAfter
             dx = b;
             RegularizedSolveAfter
             ( A, reg, invMap, info, front, dx, relTol, maxRefineIts, progress );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // Compute the new residual
             // ------------------------
             b = bOrig;
-            Multiply( NORMAL, F(-1), A, x, F(1), b );
+            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                RuntimeError("Iterative refinement did not converge");
+                break;
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+                RuntimeError("Iterative refinement did not converge"); 
         }
         SetIndent( indent );
     }
@@ -1046,7 +1066,7 @@ Int IRSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<F> dx;
+        Matrix<F> dx, xCand;
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress )
@@ -1068,20 +1088,26 @@ Int IRSolveAfter
             RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, 
               dx, relTol, maxRefineIts, progress );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // Compute the new residual
             // ------------------------
             b = bOrig;
-            Multiply( NORMAL, F(-1), A, x, F(1), b );
+            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                RuntimeError("Iterative refinement did not converge"); 
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge in time"); 
+                RuntimeError("Iterative refinement did not converge"); 
         }
         SetIndent( indent );
     }
@@ -1119,7 +1145,7 @@ Int IRSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<F> dx(comm);
+        DistMultiVec<F> dx(comm), xCand(comm);
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
@@ -1140,20 +1166,26 @@ Int IRSolveAfter
             dx = b;
             RegularizedSolveAfter
             ( A, reg, invMap, info, front, dx, relTol, maxRefineIts, progress );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // If the proposed update lowers the residual, accept it
             // -----------------------------------------------------
             b = bOrig;
-            Multiply( NORMAL, F(-1), A, x, F(1), b );
+            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                RuntimeError("Iterative refinement did not converge");
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Refinement did not converge in time");
+                RuntimeError("Iterative refinement did not converge");
         }
         SetIndent( indent );
     }
@@ -1192,7 +1224,7 @@ Int IRSolveAfter
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<F> dx(comm);
+        DistMultiVec<F> dx(comm), xCand(comm);
         Multiply( NORMAL, F(-1), A, x, F(1), b );
         Base<F> errorNorm = Nrm2( b );
         if( progress && commRank == 0 )
@@ -1214,20 +1246,26 @@ Int IRSolveAfter
             RegularizedSolveAfter
             ( A, reg, d, invMap, info, front, 
               dx, relTol, maxRefineIts, progress );
-            x += dx;
+            xCand = x;
+            xCand += dx;
 
             // If the proposed update lowers the residual, accept it
             // -----------------------------------------------------
             b = bOrig;
-            Multiply( NORMAL, F(-1), A, x, F(1), b );
+            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
             Base<F> newErrorNorm = Nrm2( b );
             if( progress && commRank == 0 )
                 Output("refined rel error: ",newErrorNorm/bNorm);
 
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                RuntimeError("Iterative refinement did not converge");
+
             errorNorm = newErrorNorm;
             ++refineIt;
             if( refineIt >= maxRefineIts )
-                RuntimeError("Refinement did not converge in time");
+                RuntimeError("Iterative refinement did not converge");
         }
         SetIndent( indent );
     }

@@ -100,6 +100,18 @@ void IPF
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
+    if( ctrl.print )
+    {
+        const Real QNrm1 = HermitianOneNorm( LOWER, Q );
+        const Real ANrm1 = OneNorm( A );
+        const Real GNrm1 = OneNorm( G );
+        Output("|| Q ||_1 = ",QNrm1);
+        Output("|| A ||_1 = ",ANrm1);
+        Output("|| G ||_1 = ",GNrm1);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+        Output("|| h ||_2 = ",hNrm2);
+    }
 
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s, 
@@ -375,6 +387,21 @@ void IPF
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
+    if( ctrl.print )
+    {
+        const Real QNrm1 = HermitianOneNorm( LOWER, Q );
+        const Real ANrm1 = OneNorm( A );
+        const Real GNrm1 = OneNorm( G );
+        if( commRank == 0 )
+        {
+            Output("|| Q ||_1 = ",QNrm1);
+            Output("|| A ||_1 = ",ANrm1);
+            Output("|| G ||_1 = ",GNrm1);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+            Output("|| h ||_2 = ",hNrm2);
+        }
+    }
 
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s, 
@@ -642,10 +669,14 @@ void IPF
     const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstQ + twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
-        Output
-        ("|| Q ||_2 estimate: ",twoNormEstQ,"\n",Indent(),
-         "|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
-         "|| G ||_2 estimate: ",twoNormEstG);
+    {
+        Output("|| Q ||_2 estimate: ",twoNormEstQ);
+        Output("|| A ||_2 estimate: ",twoNormEstA);
+        Output("|| G ||_2 estimate: ",twoNormEstG);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+        Output("|| h ||_2 = ",hNrm2);
+    }
 
     Matrix<Real> regTmp, regPerm;
     regTmp.Resize( m+n+k, 1 );
@@ -967,10 +998,14 @@ void IPF
     const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstQ + twoNormEstA + twoNormEstG + 1;
     if( ctrl.print && commRank == 0 )
-        Output
-        ("|| Q ||_2 estimate: ",twoNormEstQ,"\n",Indent(),
-         "|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
-         "|| G ||_2 estimate: ",twoNormEstG);
+    {
+        Output("|| Q ||_2 estimate: ",twoNormEstQ);
+        Output("|| A ||_2 estimate: ",twoNormEstA);
+        Output("|| G ||_2 estimate: ",twoNormEstG);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+        Output("|| h ||_2 = ",hNrm2);
+    }
 
     DistMultiVec<Real> regTmp(comm), regPerm(comm);
     regTmp.Resize( m+n+k, 1 );

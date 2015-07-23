@@ -279,7 +279,7 @@ T SparseMatrix<T>::Value( Int index ) const
 { 
     DEBUG_ONLY(
       CSE cse("SparseMatrix::Value");
-      if( index < 0 || index >= vals_.size() )
+      if( index < 0 || index >= Int(vals_.size()) )
           LogicError("Entry number out of bounds");
     )
     return vals_[index];

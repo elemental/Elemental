@@ -85,6 +85,13 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
+    if( ctrl.print )
+    {
+        const Real ANrm1 = OneNorm( A );
+        Output("|| A ||_1 = ",ANrm1);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+    }
 
     Initialize
     ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
@@ -469,6 +476,16 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
+    if( ctrl.print )
+    {
+        const Real ANrm1 = OneNorm( A );
+        if( commRank == 0 )
+        {
+            Output("|| A ||_1 = ",ANrm1);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+        }
+    }
 
     Initialize
     ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
@@ -849,7 +866,11 @@ void Mehrotra
     const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + 1;
     if( ctrl.print )
+    {
         Output("|| A ||_2 estimate: ",twoNormEstA);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+    }
 
     vector<Int> map, invMap;
     ldl::NodeInfo info;
@@ -859,6 +880,7 @@ void Mehrotra
     // augmented formulation
     if( ctrl.system == AUGMENTED_KKT )
     {
+        // TODO: Push 'demandAccurateLinSys' into this routine
         Initialize
         ( A, b, c, x, y, z, map, invMap, rootSep, info,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
@@ -868,6 +890,7 @@ void Mehrotra
         vector<Int> augMap, augInvMap;
         ldl::NodeInfo augInfo;
         ldl::Separator augRootSep;
+        // TODO: Push 'demandAccurateLinSys' into this routine
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
@@ -1327,7 +1350,11 @@ void Mehrotra
     const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + 1;
     if( ctrl.print )
+    {
         Output("|| A ||_2 estimate: ",twoNormEstA);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+    }
 
     DistMap map, invMap;
     ldl::DistNodeInfo info;
