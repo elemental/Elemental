@@ -48,6 +48,13 @@ DistMatrixNode<T>::DistMatrixNode( const DistMultiVecNode<T>& X )
 }
 
 template<typename T>
+DistMatrixNode<T>::~DistMatrixNode()
+{
+    delete child;
+    delete duplicate;
+}
+
+template<typename T>
 const DistMatrixNode<T>&
 DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
 {

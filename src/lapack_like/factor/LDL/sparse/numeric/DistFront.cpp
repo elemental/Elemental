@@ -48,6 +48,13 @@ DistFront<F>::DistFront
     Pull( A, reordering, sep, info, conjugate );
 }
 
+template<typename F>
+DistFront<F>::~DistFront()
+{
+    delete child;
+    delete duplicate;
+}
+
 // NOTE: 
 // The current implementation (conjugate-)transposes A into the frontal tree
 template<typename F>
@@ -308,6 +315,10 @@ void DistFront<F>::Pull
       unpackEntriesLocal = 
       [&]( const Separator& sep, const NodeInfo& node, Front<F>& front )
       {
+          // Delete any existing children
+          for( auto* childFront : front.children )
+              delete childFront;
+
           const Int numChildren = sep.children.size();
           front.children.resize( numChildren );
           for( Int c=0; c<numChildren; ++c )
@@ -364,6 +375,7 @@ void DistFront<F>::Pull
 
           if( sep.child == nullptr )
           {
+              delete front.duplicate;
               front.duplicate = new Front<F>(&front);
               unpackEntriesLocal
               ( *sep.duplicate, *node.duplicate, *front.duplicate );
@@ -372,6 +384,7 @@ void DistFront<F>::Pull
 
               return;
           }
+          delete front.child;
           front.child = new DistFront<F>(&front);
           unpackEntries( *sep.child, *node.child, *front.child );
 
@@ -1064,6 +1077,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
     if( front.child == nullptr )
     {
         child = nullptr;
+        delete duplicate;
         duplicate = new Front<F>(this);
         *duplicate = *front.duplicate;
         const Grid& grid = front.L2D.Grid();
@@ -1075,6 +1089,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
     else
     {
         duplicate = nullptr;
+        delete child;
         child = new DistFront<F>(this);  
         *child = *front.child;
         L1D = front.L1D;

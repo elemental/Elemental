@@ -48,6 +48,13 @@ DistMultiVecNode<T>::DistMultiVecNode( const DistMatrixNode<T>& X )
 }
 
 template<typename T>
+DistMultiVecNode<T>::~DistMultiVecNode()
+{
+    delete child;
+    delete duplicate;
+}
+
+template<typename T>
 const DistMultiVecNode<T>&
 DistMultiVecNode<T>::operator=( const DistMatrixNode<T>& X )
 {
@@ -88,6 +95,10 @@ void DistMultiVecNode<T>::Pull
     function<void(const NodeInfo&,MatrixNode<T>&)> localCount =
       [&]( const NodeInfo& node, MatrixNode<T>& XNode )
       {
+        // Delete any existing children
+        for( auto* childNode : XNode.children )
+            delete childNode;
+
         const Int numChildren = node.children.size();
         XNode.children.resize(numChildren);
         for( Int c=0; c<numChildren; ++c )
@@ -112,6 +123,7 @@ void DistMultiVecNode<T>::Pull
 
             return;
         }
+        delete XNode.child;
         XNode.child = new DistMultiVecNode<T>(&XNode);
         count( *node.child, *XNode.child );
 

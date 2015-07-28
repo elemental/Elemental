@@ -72,6 +72,8 @@ struct MatrixNode
     MatrixNode
     ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X );
 
+    ~MatrixNode();
+
     const MatrixNode<T>& operator=( const MatrixNode<T>& X );
 
     void Pull
@@ -116,6 +118,8 @@ struct DistMultiVecNode
       const DistMultiVec<T>& X );
 
     DistMultiVecNode( const DistMatrixNode<T>& X );
+
+    ~DistMultiVecNode();
 
     const DistMultiVecNode<T>& operator=( const DistMatrixNode<T>& X );
 
@@ -165,6 +169,8 @@ struct DistMatrixNode
 
     DistMatrixNode( const DistMultiVecNode<T>& X );
 
+    ~DistMatrixNode();
+
     const DistMatrixNode<T>& operator=( const DistMultiVecNode<T>& X );
 
     void Pull
@@ -207,6 +213,8 @@ struct Front
     Front
     ( const SparseMatrix<F>& A, const vector<Int>& reordering,
       const NodeInfo& rootInfo, bool conjugate=true );
+
+    ~Front();
 
     void Pull
     ( const SparseMatrix<F>& A, const vector<Int>& reordering, 
@@ -282,6 +290,8 @@ struct DistFront
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
       bool conjugate=false );
+
+    ~DistFront();
 
     void Pull
     ( const DistSparseMatrix<F>& A,

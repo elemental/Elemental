@@ -54,6 +54,13 @@ Front<F>::Front
 }
 
 template<typename F>
+Front<F>::~Front()
+{
+    for( auto* child : children )
+        delete child;
+}
+
+template<typename F>
 void Front<F>::Pull
 ( const SparseMatrix<F>& A, 
   const vector<Int>& reordering,
@@ -82,7 +89,7 @@ void Front<F>::Pull
       [&]( const NodeInfo& node, Front<F>& front )
       {
         // Delete any existing children
-        for( Front<F>* child : front.children )
+        for( auto* child : front.children )
             delete child;
 
         const Int numChildren = node.children.size();
@@ -321,6 +328,9 @@ const Front<F>& Front<F>::operator=( const Front<F>& front )
     piv = front.piv;
     work = front.work;
     // Do not copy parent...
+    // Delete any existing children
+    for( auto* child : children )
+        delete child;
     const int numChildren = front.children.size();
     children.resize( numChildren );
     for( int c=0; c<numChildren; ++c )

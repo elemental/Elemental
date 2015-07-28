@@ -49,10 +49,21 @@ MatrixNode<T>::MatrixNode
 }
 
 template<typename T>
+MatrixNode<T>::~MatrixNode()
+{
+    for( auto* child : children )
+        delete child;
+}
+
+template<typename T>
 const MatrixNode<T>& MatrixNode<T>::operator=( const MatrixNode<T>& X )
 {
     DEBUG_ONLY(CSE cse("MatrixNode::operator="))
     matrix = X.matrix; 
+
+    // Delete any existing children
+    for( auto* child : children )
+        delete child;
  
     const Int numChildren = X.children.size();
     children.resize( numChildren );
@@ -71,7 +82,7 @@ void MatrixNode<T>::Pull
     DEBUG_ONLY(CSE cse("MatrixNode::Pull"))
  
     // Clean up any pre-existing children
-    for( MatrixNode<T>* child : children )
+    for( auto* child : children )
         delete child;
 
     const Int numChildren = info.children.size();
