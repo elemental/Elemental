@@ -213,6 +213,8 @@ void Tikhonov
         auto BEmbT = BEmb( IR(0,m), IR(0,numRHS) );
         BEmbT = B;
     }
+    else
+        BEmb = B;
 
     // Solve the higher-dimensional problem
     // ====================================
@@ -290,6 +292,8 @@ void Tikhonov
         for( auto& entry : recvBuf )
             BEmb.Update( entry );
     }
+    else
+        BEmb = B;
 
     // Solve the higher-dimensional problem
     // ====================================
