@@ -13,69 +13,52 @@ namespace lp {
 namespace affine {
 
 template<typename Real>
-void IPF
-( const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
+void Mehrotra
+( const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
-void IPF
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
+void Mehrotra
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& s,
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
-void IPF
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c,
+void Mehrotra
+( const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
+  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
-void IPF
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+void Mehrotra
+( const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
-
-template<typename Real>
-void Mehrotra
-( const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
-  const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
-template<typename Real>
-void Mehrotra
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
-template<typename Real>
-void Mehrotra
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c,
-  const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
-template<typename Real>
-void Mehrotra
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 } // namespace affine

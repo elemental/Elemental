@@ -1669,126 +1669,6 @@ inline ElKKTSystem CReflect( KKTSystem system )
 inline KKTSystem CReflect( ElKKTSystem system )
 { return static_cast<KKTSystem>(system); }
 
-/* Infeasible Path-following IPM
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
-inline ElIPFLineSearchCtrl_s CReflect( const IPFLineSearchCtrl<float>& ctrl )
-{
-    ElIPFLineSearchCtrl_s ctrlC;
-    ctrlC.gamma     = ctrl.gamma;
-    ctrlC.beta      = ctrl.beta;
-    ctrlC.psi       = ctrl.psi;
-    ctrlC.stepRatio = ctrl.stepRatio;
-    ctrlC.print     = ctrl.print;
-    return ctrlC;
-}
-inline ElIPFLineSearchCtrl_d CReflect( const IPFLineSearchCtrl<double>& ctrl )
-{
-    ElIPFLineSearchCtrl_d ctrlC;
-    ctrlC.gamma     = ctrl.gamma;
-    ctrlC.beta      = ctrl.beta;
-    ctrlC.psi       = ctrl.psi;
-    ctrlC.stepRatio = ctrl.stepRatio;
-    ctrlC.print     = ctrl.print;
-    return ctrlC;
-}
-inline IPFLineSearchCtrl<float> CReflect( ElIPFLineSearchCtrl_s ctrlC )
-{
-    IPFLineSearchCtrl<float> ctrl;
-    ctrl.gamma     = ctrlC.gamma;
-    ctrl.beta      = ctrlC.beta;
-    ctrl.psi       = ctrlC.psi;
-    ctrl.stepRatio = ctrlC.stepRatio;
-    ctrl.print     = ctrlC.print;
-    return ctrl;
-}
-inline IPFLineSearchCtrl<double> CReflect( ElIPFLineSearchCtrl_d ctrlC )
-{
-    IPFLineSearchCtrl<double> ctrl;
-    ctrl.gamma     = ctrlC.gamma;
-    ctrl.beta      = ctrlC.beta;
-    ctrl.psi       = ctrlC.psi;
-    ctrl.stepRatio = ctrlC.stepRatio;
-    ctrl.print     = ctrlC.print;
-    return ctrl;
-}
-
-inline ElIPFCtrl_s CReflect( const IPFCtrl<float>& ctrl )
-{
-    ElIPFCtrl_s ctrlC;
-    ctrlC.primalInit     = ctrl.primalInit;
-    ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.minTol         = ctrl.minTol;
-    ctrlC.targetTol      = ctrl.targetTol;
-    ctrlC.maxIts         = ctrl.maxIts;
-    ctrlC.centering      = ctrl.centering;
-    ctrlC.system         = CReflect(ctrl.system);
-    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
-    ctrlC.outerEquil     = ctrl.outerEquil;
-    ctrlC.innerEquil     = ctrl.innerEquil;
-    ctrlC.basisSize      = ctrl.basisSize;
-    ctrlC.print          = ctrl.print;
-    ctrlC.time           = ctrl.time;
-    return ctrlC;
-}
-inline ElIPFCtrl_d CReflect( const IPFCtrl<double>& ctrl )
-{
-    ElIPFCtrl_d ctrlC;
-    ctrlC.primalInit     = ctrl.primalInit;
-    ctrlC.dualInit       = ctrl.dualInit;
-    ctrlC.minTol         = ctrl.minTol;
-    ctrlC.targetTol      = ctrl.targetTol;
-    ctrlC.maxIts         = ctrl.maxIts;
-    ctrlC.centering      = ctrl.centering;
-    ctrlC.system         = CReflect(ctrl.system);
-    ctrlC.lineSearchCtrl = CReflect(ctrl.lineSearchCtrl);
-    ctrlC.qsdCtrl        = CReflect(ctrl.qsdCtrl);
-    ctrlC.outerEquil     = ctrl.outerEquil;
-    ctrlC.innerEquil     = ctrl.innerEquil;
-    ctrlC.basisSize      = ctrl.basisSize;
-    ctrlC.print          = ctrl.print;
-    ctrlC.time           = ctrl.time;
-    return ctrlC;
-}
-inline IPFCtrl<float> CReflect( ElIPFCtrl_s ctrlC )
-{
-    IPFCtrl<float> ctrl;
-    ctrl.primalInit     = ctrlC.primalInit;
-    ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.minTol         = ctrlC.minTol;
-    ctrl.targetTol      = ctrlC.targetTol;
-    ctrl.maxIts         = ctrlC.maxIts;
-    ctrl.centering      = ctrlC.centering;
-    ctrl.system         = CReflect(ctrlC.system);
-    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
-    ctrl.outerEquil     = ctrlC.outerEquil;
-    ctrl.innerEquil     = ctrlC.innerEquil;
-    ctrl.basisSize      = ctrlC.basisSize;
-    ctrl.print          = ctrlC.print;
-    ctrl.time           = ctrlC.time;
-    return ctrl;
-}
-inline IPFCtrl<double> CReflect( ElIPFCtrl_d ctrlC )
-{
-    IPFCtrl<double> ctrl;
-    ctrl.primalInit     = ctrlC.primalInit;
-    ctrl.dualInit       = ctrlC.dualInit;
-    ctrl.minTol         = ctrlC.minTol;
-    ctrl.targetTol      = ctrlC.targetTol;
-    ctrl.maxIts         = ctrlC.maxIts;
-    ctrl.centering      = ctrlC.centering;
-    ctrl.system         = CReflect(ctrlC.system);
-    ctrl.lineSearchCtrl = CReflect(ctrlC.lineSearchCtrl);
-    ctrl.qsdCtrl        = CReflect(ctrlC.qsdCtrl);
-    ctrl.outerEquil     = ctrlC.outerEquil;
-    ctrl.innerEquil     = ctrlC.innerEquil;
-    ctrl.basisSize      = ctrlC.basisSize;
-    ctrl.print          = ctrlC.print;
-    ctrl.time           = ctrlC.time;
-    return ctrl;
-}
-
 /* Mehrotra's Predictor-Corrector IPM
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
@@ -1929,7 +1809,6 @@ inline ElLPDirectCtrl_s CReflect( const lp::direct::Ctrl<float>& ctrl )
     ElLPDirectCtrl_s ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
     ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -1938,7 +1817,6 @@ inline ElLPDirectCtrl_d CReflect( const lp::direct::Ctrl<double>& ctrl )
     ElLPDirectCtrl_d ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
     ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -1947,7 +1825,6 @@ inline lp::direct::Ctrl<float> CReflect( ElLPDirectCtrl_s ctrlC )
     lp::direct::Ctrl<float> ctrl(false);
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
@@ -1956,7 +1833,6 @@ inline lp::direct::Ctrl<double> CReflect( ElLPDirectCtrl_d ctrlC )
     lp::direct::Ctrl<double> ctrl(false);
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
@@ -1967,7 +1843,6 @@ inline ElLPAffineCtrl_s CReflect( const lp::affine::Ctrl<float>& ctrl )
 {
     ElLPAffineCtrl_s ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -1975,7 +1850,6 @@ inline ElLPAffineCtrl_d CReflect( const lp::affine::Ctrl<double>& ctrl )
 {
     ElLPAffineCtrl_d ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -1983,7 +1857,6 @@ inline lp::affine::Ctrl<float> CReflect( ElLPAffineCtrl_s ctrlC )
 {
     lp::affine::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
@@ -1991,7 +1864,6 @@ inline lp::affine::Ctrl<double> CReflect( ElLPAffineCtrl_d ctrlC )
 {
     lp::affine::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
@@ -2009,7 +1881,6 @@ inline ElQPDirectCtrl_s CReflect( const qp::direct::Ctrl<float>& ctrl )
 {
     ElQPDirectCtrl_s ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -2017,7 +1888,6 @@ inline ElQPDirectCtrl_d CReflect( const qp::direct::Ctrl<double>& ctrl )
 {
     ElQPDirectCtrl_d ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -2025,7 +1895,6 @@ inline qp::direct::Ctrl<float> CReflect( ElQPDirectCtrl_s ctrlC )
 {
     qp::direct::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
@@ -2033,7 +1902,6 @@ inline qp::direct::Ctrl<double> CReflect( ElQPDirectCtrl_d ctrlC )
 {
     qp::direct::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
@@ -2044,7 +1912,6 @@ inline ElQPAffineCtrl_s CReflect( const qp::affine::Ctrl<float>& ctrl )
 {
     ElQPAffineCtrl_s ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -2052,7 +1919,6 @@ inline ElQPAffineCtrl_d CReflect( const qp::affine::Ctrl<double>& ctrl )
 {
     ElQPAffineCtrl_d ctrlC;
     ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.ipfCtrl      = CReflect(ctrl.ipfCtrl);
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
@@ -2060,7 +1926,6 @@ inline qp::affine::Ctrl<float> CReflect( ElQPAffineCtrl_s ctrlC )
 {
     qp::affine::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
@@ -2068,7 +1933,6 @@ inline qp::affine::Ctrl<double> CReflect( ElQPAffineCtrl_d ctrlC )
 {
     qp::affine::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.ipfCtrl      = CReflect(ctrlC.ipfCtrl);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }

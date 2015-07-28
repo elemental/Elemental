@@ -14,8 +14,10 @@ namespace El {
 
 template<typename Real>
 void SVM
-( const Matrix<Real>& A, const Matrix<Real>& d, 
-        Real lambda,           Matrix<Real>& x,
+( const Matrix<Real>& A, 
+  const Matrix<Real>& d, 
+        Real lambda,
+        Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVM"))
@@ -27,8 +29,10 @@ void SVM
 
 template<typename Real>
 void SVM
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
-        Real lambda,                       AbstractDistMatrix<Real>& x, 
+( const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& d, 
+        Real lambda, 
+        AbstractDistMatrix<Real>& x, 
   const SVMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svm::ADMM"))
@@ -40,8 +44,10 @@ void SVM
 
 template<typename Real>
 void SVM
-( const SparseMatrix<Real>& A, const Matrix<Real>& d, 
-        Real lambda,                 Matrix<Real>& x,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& d, 
+        Real lambda,
+        Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVM"))
@@ -52,8 +58,10 @@ void SVM
 
 template<typename Real>
 void SVM
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& d, 
-        Real lambda,                     DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& d, 
+        Real lambda,
+        DistMultiVec<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVM"))
@@ -64,20 +72,28 @@ void SVM
 
 #define PROTO(Real) \
   template void SVM \
-  ( const Matrix<Real>& A, const Matrix<Real>& d, \
-          Real lambda,           Matrix<Real>& x, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& d, \
+          Real lambda, \
+          Matrix<Real>& x, \
     const SVMCtrl<Real>& ctrl ); \
   template void SVM \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, \
-          Real lambda,                       AbstractDistMatrix<Real>& x, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& d, \
+          Real lambda, \
+          AbstractDistMatrix<Real>& x, \
     const SVMCtrl<Real>& ctrl ); \
   template void SVM \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& d, \
-          Real lambda,                 Matrix<Real>& x, \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& d, \
+          Real lambda, \
+          Matrix<Real>& x, \
     const SVMCtrl<Real>& ctrl ); \
   template void SVM \
-  ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& d, \
-          Real lambda,                     DistMultiVec<Real>& x, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& d, \
+          Real lambda, \
+          DistMultiVec<Real>& x, \
     const SVMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

@@ -81,6 +81,18 @@ Int NumNonPositive( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumNonPositive( const DistMultiVec<Real>& A );
 
+// Compute the complementarity ratio for the positive orthant
+// ==========================================================
+template<typename Real>
+Real PosComplementRatio
+( const Matrix<Real>& s, const Matrix<Real>& z );
+template<typename Real>
+Real PosComplementRatio
+( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& z );
+template<typename Real>
+Real PosComplementRatio
+( const DistMultiVec<Real>& s, const DistMultiVec<Real>& z );
+
 // Compute a positive-orthant Nesterov-Todd point
 // ==============================================
 // The Nesterov-Todd point, w, is a member of the positive orthant whose 
@@ -100,6 +112,27 @@ void PositiveNesterovTodd
 ( const DistMultiVec<Real>& s, 
   const DistMultiVec<Real>& z, 
         DistMultiVec<Real>& w );
+
+// Force pair into positive orthant
+// ================================
+template<typename Real>
+void ForcePairIntoPosOrth
+(       Matrix<Real>& s,
+        Matrix<Real>& z,
+  const Matrix<Real>& w,
+  Real wMaxNormLimit );
+template<typename Real>
+void ForcePairIntoPosOrth
+(       AbstractDistMatrix<Real>& s,
+        AbstractDistMatrix<Real>& z,
+  const AbstractDistMatrix<Real>& w,
+  Real wMaxNormLimit );
+template<typename Real>
+void ForcePairIntoPosOrth
+(       DistMultiVec<Real>& s,
+        DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& w,
+  Real wMaxNormLimit );
 
 // Cone Broadcast
 // ==============

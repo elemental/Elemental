@@ -12,66 +12,6 @@ using namespace El;
 
 extern "C" {
 
-/* Infeasible Path-Following IPM
-   ============================= */
-ElError ElIPFLineSearchCtrlDefault_s( ElIPFLineSearchCtrl_s* ctrl )
-{
-    ctrl->gamma = 1e-3;
-    ctrl->beta = 2;
-    ctrl->psi = 100;
-    ctrl->stepRatio = 1.5;
-    ctrl->print = false;
-    return EL_SUCCESS;
-}
-
-ElError ElIPFLineSearchCtrlDefault_d( ElIPFLineSearchCtrl_d* ctrl )
-{
-    ctrl->gamma = 1e-3;
-    ctrl->beta = 2;
-    ctrl->psi = 100;
-    ctrl->stepRatio = 1.5;
-    ctrl->print = false;
-    return EL_SUCCESS;
-}
-
-ElError ElIPFCtrlDefault_s( ElIPFCtrl_s* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-2;
-    ctrl->targetTol = 1e-4;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ctrl->system = EL_FULL_KKT;
-    ElIPFLineSearchCtrlDefault_s( &ctrl->lineSearchCtrl );
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
-ElError ElIPFCtrlDefault_d( ElIPFCtrl_d* ctrl )
-{
-    ctrl->primalInit = false;
-    ctrl->dualInit = false;
-    ctrl->minTol = 1e-5;
-    ctrl->targetTol = 1e-8;
-    ctrl->maxIts = 1000;
-    ctrl->centering = 0.9;
-    ctrl->system = EL_FULL_KKT;
-    ElIPFLineSearchCtrlDefault_d( &ctrl->lineSearchCtrl );
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
-    ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
-    ctrl->basisSize = 6;
-    ctrl->print = false;
-    ctrl->time = false;
-    return EL_SUCCESS;
-}
-
 /* Mehrotra Predictor-Corrector IPM
    ================================ */
 ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
@@ -145,18 +85,11 @@ ElError ElLPDirectCtrlDefault_s( ElLPDirectCtrl_s* ctrl, bool isSparse )
 {
     ctrl->approach = EL_LP_MEHROTRA;
     ElADMMCtrlDefault_s( &ctrl->admmCtrl );
-    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
     if( isSparse )
-    {
-        ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
         ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
-    }
     else
-    {
-        ctrl->ipfCtrl.system = EL_NORMAL_KKT;
         ctrl->mehrotraCtrl.system = EL_NORMAL_KKT;
-    }
     return EL_SUCCESS;
 }
 
@@ -164,18 +97,11 @@ ElError ElLPDirectCtrlDefault_d( ElLPDirectCtrl_d* ctrl, bool isSparse )
 {
     ctrl->approach = EL_LP_MEHROTRA;
     ElADMMCtrlDefault_d( &ctrl->admmCtrl );
-    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
     if( isSparse )
-    {
-        ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
         ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
-    }
     else
-    {
-        ctrl->ipfCtrl.system = EL_NORMAL_KKT;
         ctrl->mehrotraCtrl.system = EL_NORMAL_KKT;
-    }
     return EL_SUCCESS;
 }
 
@@ -184,7 +110,6 @@ ElError ElLPDirectCtrlDefault_d( ElLPDirectCtrl_d* ctrl, bool isSparse )
 ElError ElLPAffineCtrlDefault_s( ElLPAffineCtrl_s* ctrl )
 {
     ctrl->approach = EL_LP_MEHROTRA;
-    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
@@ -192,7 +117,6 @@ ElError ElLPAffineCtrlDefault_s( ElLPAffineCtrl_s* ctrl )
 ElError ElLPAffineCtrlDefault_d( ElLPAffineCtrl_d* ctrl )
 {
     ctrl->approach = EL_LP_MEHROTRA;
-    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
@@ -205,9 +129,7 @@ ElError ElLPAffineCtrlDefault_d( ElLPAffineCtrl_d* ctrl )
 ElError ElQPDirectCtrlDefault_s( ElQPDirectCtrl_s* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
-    ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
     ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
     return EL_SUCCESS;
 }
@@ -215,9 +137,7 @@ ElError ElQPDirectCtrlDefault_s( ElQPDirectCtrl_s* ctrl )
 ElError ElQPDirectCtrlDefault_d( ElQPDirectCtrl_d* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
-    ctrl->ipfCtrl.system = EL_AUGMENTED_KKT;
     ctrl->mehrotraCtrl.system = EL_AUGMENTED_KKT;
     return EL_SUCCESS;
 }
@@ -227,7 +147,6 @@ ElError ElQPDirectCtrlDefault_d( ElQPDirectCtrl_d* ctrl )
 ElError ElQPAffineCtrlDefault_s( ElQPAffineCtrl_s* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElIPFCtrlDefault_s( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_s( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }
@@ -235,7 +154,6 @@ ElError ElQPAffineCtrlDefault_s( ElQPAffineCtrl_s* ctrl )
 ElError ElQPAffineCtrlDefault_d( ElQPAffineCtrl_d* ctrl )
 {
     ctrl->approach = EL_QP_MEHROTRA;
-    ElIPFCtrlDefault_d( &ctrl->ipfCtrl );
     ElMehrotraCtrlDefault_d( &ctrl->mehrotraCtrl );
     return EL_SUCCESS;
 }

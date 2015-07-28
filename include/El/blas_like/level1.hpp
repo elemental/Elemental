@@ -1532,9 +1532,11 @@ void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
 template<typename T,typename S>
 void ShiftDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
 template<typename T,typename S>
-void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset=0 );
+void ShiftDiagonal
+( SparseMatrix<T>& A, S alpha, Int offset=0, bool existingDiag=false );
 template<typename T,typename S>
-void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset=0 );
+void ShiftDiagonal
+( DistSparseMatrix<T>& A, S alpha, Int offset=0, bool existingDiag=false );
 
 // Transpose
 // =========
@@ -1621,26 +1623,29 @@ void UpdateImagPartOfDiagonal
 
 template<typename T>
 void UpdateDiagonal
-( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset=0 );
+( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset=0, 
+  bool diagExists=false );
 template<typename T>
 void UpdateRealPartOfDiagonal
-( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0,
+  bool diagExists=false );
 template<typename T>
 void UpdateImagPartOfDiagonal
-( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0,
+  bool diagExists=false );
 
 template<typename T>
 void UpdateDiagonal
 ( DistSparseMatrix<T>& A, T alpha, 
-  const DistMultiVec<T>& d, Int offset=0 );
+  const DistMultiVec<T>& d, Int offset=0, bool diagExists=false );
 template<typename T>
 void UpdateRealPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha, 
-  const DistMultiVec<Base<T>>& d, Int offset=0 );
+  const DistMultiVec<Base<T>>& d, Int offset=0, bool diagExists=false );
 template<typename T>
 void UpdateImagPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha, 
-  const DistMultiVec<Base<T>>& d, Int offset=0 );
+  const DistMultiVec<Base<T>>& d, Int offset=0, bool diagExists=false );
 
 // UpdateMappedDiagonal
 // ====================
@@ -1656,11 +1661,11 @@ void UpdateMappedDiagonal
 template<typename T,typename S>
 void UpdateMappedDiagonal
 ( SparseMatrix<T>& A, const Matrix<S>& d, 
-  function<void(T&,S)> func, Int offset=0 );
+  function<void(T&,S)> func, Int offset=0, bool diagExists=false );
 template<typename T,typename S>
 void UpdateMappedDiagonal
 ( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, 
-  function<void(T&,S)> func, Int offset=0 );
+  function<void(T&,S)> func, Int offset=0, bool diagExists=false );
 
 // UpdateSubmatrix
 // ===============

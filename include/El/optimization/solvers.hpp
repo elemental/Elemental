@@ -21,36 +21,6 @@ enum KKTSystem {
 }
 using namespace KKTSystemNS;
 
-// Infeasible Path-Following Interior Point Method (IPF)
-// =====================================================
-template<typename Real>
-struct IPFLineSearchCtrl 
-{
-    Real gamma=1e-3;
-    Real beta=2;
-    Real psi=100;
-    Real stepRatio=1.5;
-    bool print=false;
-};
-
-template<typename Real>
-struct IPFCtrl 
-{
-    bool primalInit=false, dualInit=false;
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
-    Int maxIts=1000;
-    Real centering=0.9; 
-    KKTSystem system=FULL_KKT;
-    IPFLineSearchCtrl<Real> lineSearchCtrl;
-
-    RegQSDCtrl<Real> qsdCtrl;
-    bool outerEquil=true, innerEquil=true;
-    Int basisSize = 6;
-    bool print=false;
-    bool time=false;
-};
-
 // Mehrotra's Predictor-Corrector Infeasible Interior Point Method
 // ===============================================================
 template<typename Real>
@@ -103,10 +73,7 @@ struct ADMMCtrl
 namespace LPApproachNS {
 enum LPApproach {
   LP_ADMM,
-  LP_IPF,
-  LP_IPF_SELFDUAL,     // NOTE: Not yet supported
-  LP_MEHROTRA,
-  LP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
+  LP_MEHROTRA
 };
 } // namespace LPApproachNS
 using namespace LPApproachNS;
@@ -131,14 +98,10 @@ struct Ctrl
 {
     LPApproach approach=LP_MEHROTRA;
     ADMMCtrl<Real> admmCtrl;
-    IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
     Ctrl( bool isSparse ) 
-    { 
-        ipfCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
-        mehrotraCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT );
-    }
+    { mehrotraCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
 } // namespace direct
@@ -160,7 +123,6 @@ template<typename Real>
 struct Ctrl
 {
     LPApproach approach=LP_MEHROTRA;
-    IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 };
 
@@ -240,10 +202,7 @@ void LP
 namespace QPApproachNS {
 enum QPApproach {
   QP_ADMM,
-  QP_IPF,
-  QP_IPF_SELFDUAL,     // NOTE: Not yet supported
-  QP_MEHROTRA,
-  QP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
+  QP_MEHROTRA
 };
 } // namespace QPApproachNS
 using namespace QPApproachNS;
@@ -267,14 +226,9 @@ template<typename Real>
 struct Ctrl
 {
     QPApproach approach=QP_MEHROTRA;
-    IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
-    Ctrl()
-    {
-        ipfCtrl.system = AUGMENTED_KKT;
-        mehrotraCtrl.system = AUGMENTED_KKT;
-    }
+    Ctrl() { mehrotraCtrl.system = AUGMENTED_KKT; }
 };
 
 } // namespace direct
@@ -296,7 +250,6 @@ template<typename Real>
 struct Ctrl
 {
     QPApproach approach=QP_MEHROTRA;
-    IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 };
 
@@ -399,11 +352,8 @@ void QP
 // =========================
 namespace SOCPApproachNS {
 enum SOCPApproach {
-  SOCP_ADMM,             // NOTE: Not yet supported
-  SOCP_IPF,              // NOTE: Not yet supported
-  SOCP_IPF_SELFDUAL,     // NOTE: Not yet supported
-  SOCP_MEHROTRA,
-  SOCP_MEHROTRA_SELFDUAL // NOTE: Not yet supported
+  SOCP_ADMM,     // NOTE: Not yet supported
+  SOCP_MEHROTRA
 };
 } // namespace SOCPApproachNS
 using namespace SOCPApproachNS;
@@ -428,7 +378,6 @@ template<typename Real>
 struct Ctrl
 {
     SOCPApproach approach=SOCP_MEHROTRA;
-    //IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
     Ctrl()
@@ -460,7 +409,6 @@ template<typename Real>
 struct Ctrl
 {
     SOCPApproach approach=SOCP_MEHROTRA;
-    //IPFCtrl<Real> ipfCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
     Ctrl()

@@ -62,6 +62,7 @@ ctrl = El.BPCtrl_d(isSparse=True)
 ctrl.useSOCP = False
 ctrl.lpIPMCtrl.mehrotraCtrl.system = El.NORMAL_KKT
 #ctrl.lpIPMCtrl.mehrotraCtrl.system = El.AUGMENTED_KKT
+ctrl.lpIPMCtrl.mehrotraCtrl.time = True
 ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
 ctrl.lpIPMCtrl.mehrotraCtrl.qsdCtrl.progress = True
 ctrl.socpIPMCtrl.mehrotraCtrl.time = True

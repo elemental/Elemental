@@ -73,64 +73,68 @@ void UpdateImagPartOfDiagonal
 
 template<typename T>
 void UpdateDiagonal
-( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset )
+( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset, 
+  bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateDiagonal"))
     function<void(T&,T)> func
     ( [alpha]( T& beta, T gamma ) { beta += alpha*gamma; } );
-    UpdateMappedDiagonal( A, d, func, offset );
+    UpdateMappedDiagonal( A, d, func, offset, diagExists );
 }
 
 template<typename T>
 void UpdateRealPartOfDiagonal
-( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset, 
+  bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateRealPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( [alpha]( T& beta, Base<T> gamma ) { UpdateRealPart(beta,alpha*gamma); } );
-    UpdateMappedDiagonal( A, d, func, offset );
+    UpdateMappedDiagonal( A, d, func, offset, diagExists );
 }
 
 template<typename T>
 void UpdateImagPartOfDiagonal
-( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset,
+  bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateImagPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( [alpha]( T& beta, Base<T> gamma ) { UpdateImagPart(beta,alpha*gamma); } );
-    UpdateMappedDiagonal( A, d, func, offset );
+    UpdateMappedDiagonal( A, d, func, offset, diagExists );
 }
 
 template<typename T>
 void UpdateDiagonal
-( DistSparseMatrix<T>& A, T alpha, const DistMultiVec<T>& d, Int offset )
+( DistSparseMatrix<T>& A, T alpha, const DistMultiVec<T>& d, Int offset,
+  bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateDiagonal"))
     function<void(T&,T)> func
     ( [alpha]( T& beta, T gamma ) { beta += alpha*gamma; } );
-    UpdateMappedDiagonal( A, d, func, offset );
+    UpdateMappedDiagonal( A, d, func, offset, diagExists );
 }
 
 template<typename T>
 void UpdateRealPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha, 
-  const DistMultiVec<Base<T>>& d, Int offset )
+  const DistMultiVec<Base<T>>& d, Int offset, bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateRealPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( [alpha]( T& beta, Base<T> gamma ) { UpdateRealPart(beta,alpha*gamma); } );
-    UpdateMappedDiagonal( A, d, func, offset );
+    UpdateMappedDiagonal( A, d, func, offset, diagExists );
 }
 
 template<typename T>
 void UpdateImagPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha, 
-  const DistMultiVec<Base<T>>& d, Int offset )
+  const DistMultiVec<Base<T>>& d, Int offset, bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateImagPartOfDiagonal"))
     function<void(T&,Base<T>)> func
     ( [alpha]( T& beta, Base<T> gamma ) { UpdateImagPart(beta,alpha*gamma); } );
-    UpdateMappedDiagonal( A, d, func, offset );
+    UpdateMappedDiagonal( A, d, func, offset, diagExists );
 }
 
 #define PROTO_DIST(T,U,V) \
@@ -152,20 +156,23 @@ void UpdateImagPartOfDiagonal
   template void UpdateImagPartOfDiagonal \
   ( Matrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset ); \
   template void UpdateDiagonal \
-  ( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset ); \
+  ( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset, \
+    bool diagExists ); \
   template void UpdateRealPartOfDiagonal \
-  ( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset ); \
+  ( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset, \
+    bool diagExists ); \
   template void UpdateImagPartOfDiagonal \
-  ( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset ); \
+  ( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset, \
+    bool diagExists ); \
   template void UpdateDiagonal \
   ( DistSparseMatrix<T>& A, T alpha, \
-    const DistMultiVec<T>& d, Int offset ); \
+    const DistMultiVec<T>& d, Int offset, bool diagExists ); \
   template void UpdateRealPartOfDiagonal \
   ( DistSparseMatrix<T>& A, Base<T> alpha, \
-    const DistMultiVec<Base<T>>& d, Int offset ); \
+    const DistMultiVec<Base<T>>& d, Int offset, bool diagExists ); \
   template void UpdateImagPartOfDiagonal \
   ( DistSparseMatrix<T>& A, Base<T> alpha, \
-    const DistMultiVec<Base<T>>& d, Int offset ); \
+    const DistMultiVec<Base<T>>& d, Int offset, bool diagExists ); \
   PROTO_DIST(T,CIRC,CIRC) \
   PROTO_DIST(T,MC,  MR  ) \
   PROTO_DIST(T,MC,  STAR) \

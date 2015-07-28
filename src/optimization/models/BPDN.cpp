@@ -14,8 +14,10 @@ namespace El {
 
 template<typename Real>
 void BPDN
-( const Matrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,           Matrix<Real>& x,
+( const Matrix<Real>& A, 
+  const Matrix<Real>& b, 
+        Real lambda,
+        Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("BPDN"))
@@ -27,8 +29,10 @@ void BPDN
 
 template<typename Real>
 void BPDN
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
-        Real lambda,                       AbstractDistMatrix<Real>& x,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b, 
+        Real lambda,
+        AbstractDistMatrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("BPDN"))
@@ -40,8 +44,10 @@ void BPDN
 
 template<typename Real>
 void BPDN
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,                 Matrix<Real>& x,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, 
+        Real lambda, 
+        Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("BPDN"))
@@ -52,8 +58,10 @@ void BPDN
 
 template<typename Real>
 void BPDN
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
-        Real lambda,                     DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, 
+        Real lambda,
+        DistMultiVec<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("BPDN"))
@@ -64,22 +72,26 @@ void BPDN
 
 #define PROTO(Real) \
   template void BPDN \
-  ( const Matrix<Real>& A, const Matrix<Real>& b, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
           Real lambda, \
           Matrix<Real>& x, \
     const BPDNCtrl<Real>& ctrl ); \
   template void BPDN \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
           Real lambda, \
           AbstractDistMatrix<Real>& x, \
     const BPDNCtrl<Real>& ctrl ); \
   template void BPDN \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& b, \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, \
           Real lambda, \
           Matrix<Real>& x, \
     const BPDNCtrl<Real>& ctrl ); \
   template void BPDN \
-  ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, \
           Real lambda, \
           DistMultiVec<Real>& x, \
     const BPDNCtrl<Real>& ctrl );

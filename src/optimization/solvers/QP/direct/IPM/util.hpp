@@ -229,69 +229,6 @@ void ExpandAugmentedSolution
         DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz );
 
-// Line search
-// ===========
-template<typename Real>
-Real IPFLineSearch
-( const Matrix<Real>& Q,
-  const Matrix<Real>& A,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& x,
-  const Matrix<Real>& y,  
-  const Matrix<Real>& z,
-  const Matrix<Real>& dx,
-  const Matrix<Real>& dy, 
-  const Matrix<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
-template<typename Real>
-Real IPFLineSearch
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& dx,
-  const AbstractDistMatrix<Real>& dy,
-  const AbstractDistMatrix<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
-template<typename Real>
-Real IPFLineSearch
-( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& x,
-  const Matrix<Real>& y,  
-  const Matrix<Real>& z,
-  const Matrix<Real>& dx,
-  const Matrix<Real>& dy, 
-  const Matrix<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
-template<typename Real>
-Real IPFLineSearch
-( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& y,
-  const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dy,
-  const DistMultiVec<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
-
 } // namespace direct
 } // namespace qp
 } // namespace El

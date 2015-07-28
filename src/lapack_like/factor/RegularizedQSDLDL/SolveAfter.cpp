@@ -583,6 +583,7 @@ inline Int RegularizedSolveAfterNoPromote
             if( refineIt >= maxRefineIts )
                 break;
         }
+        SetIndent( indent );
     }
     b = x;
     return refineIt;
