@@ -19,6 +19,8 @@ template<typename Real>
 void Initialize
 ( const Matrix<Real>& A,
   const Matrix<Real>& G,
+        Real gamma, 
+        Real delta,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -31,6 +33,8 @@ template<typename Real>
 void Initialize
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
+        Real gamma, 
+        Real delta,
   const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
@@ -42,7 +46,6 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& JStatic,
-  const Matrix<Real>& regTmp,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -55,11 +58,10 @@ void Initialize
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegLDLCtrl<Real>& regLDLCtrl );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& JStatic,
-  const DistMultiVec<Real>& regTmp,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
@@ -72,7 +74,7 @@ void Initialize
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegLDLCtrl<Real>& regLDLCtrl );
 
 // Full system
 // ===========
@@ -80,6 +82,8 @@ template<typename Real>
 void KKT
 ( const Matrix<Real>& A,
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& J,
@@ -88,6 +92,8 @@ template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const AbstractDistMatrix<Real>& s,
   const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& J,
@@ -96,6 +102,8 @@ template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -104,13 +112,16 @@ template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& regPerm,
+        Real gamma,
+        Real delta,
         SparseMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -119,7 +130,8 @@ template<typename Real>
 void StaticKKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& regPerm,
+        Real gamma,
+        Real delta,
         DistSparseMatrix<Real>& J,
   bool onlyLower=true );
 

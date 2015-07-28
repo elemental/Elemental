@@ -13,8 +13,11 @@ namespace El {
 template<typename F> 
 void Tikhonov
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& B, 
-  const Matrix<F>& G,       Matrix<F>& X, TikhonovAlg alg )
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+  const Matrix<F>& G,
+        Matrix<F>& X,
+  TikhonovAlg alg )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
     const bool normal = ( orientation==NORMAL );
@@ -65,8 +68,10 @@ void Tikhonov
 template<typename F> 
 void Tikhonov
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
-  const AbstractDistMatrix<F>& G,          AbstractDistMatrix<F>& XPre, 
+  const AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& BPre, 
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<F>& XPre, 
   TikhonovAlg alg )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
@@ -179,8 +184,10 @@ void Tikhonov
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B,
-  const SparseMatrix<F>& G,       Matrix<F>& X, 
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B,
+  const SparseMatrix<F>& G,
+        Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
@@ -213,6 +220,8 @@ void Tikhonov
         auto BEmbT = BEmb( IR(0,m), IR(0,numRHS) );
         BEmbT = B;
     }
+    else
+        BEmb = B;
 
     // Solve the higher-dimensional problem
     // ====================================
@@ -230,8 +239,10 @@ void Tikhonov
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
-  const DistSparseMatrix<F>& G,       DistMultiVec<F>& X, 
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B,
+  const DistSparseMatrix<F>& G,
+        DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
@@ -263,33 +274,15 @@ void Tikhonov
     Zeros( BEmb, WEmb.Height(), numRHS );
     if( m >= n )
     {
-        // BEmb := [B; 0]
-        // --------------
-        // TODO: Automate this process
-        // Compute the metadata
-        // ^^^^^^^^^^^^^^^^^^^^
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
-            sendCounts[ BEmb.RowOwner(B.GlobalRow(iLoc)) ] += numRHS;
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        // Pack
-        // ^^^^
-        auto offs = sendOffs;
-        vector<Entry<F>> sendBuf(totalSend);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
-        {
-            const Int i = B.GlobalRow(iLoc);
-            const int owner = BEmb.RowOwner(i);
+        const Int BLocalHeight = B.LocalHeight();
+        BEmb.Reserve( BLocalHeight*numRHS );
+        for( Int iLoc=0; iLoc<BLocalHeight; ++iLoc )
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{ i, j, B.GetLocal(iLoc,j) };
-        }
-        // Exchange and unpack
-        // ^^^^^^^^^^^^^^^^^^^
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            BEmb.Update( entry );
+                BEmb.QueueUpdate( B.GlobalRow(iLoc), j, B.GetLocal(iLoc,j) );
+        BEmb.ProcessQueues();
     }
+    else
+        BEmb = B;
 
     // Solve the higher-dimensional problem
     // ====================================
@@ -307,22 +300,30 @@ void Tikhonov
 #define PROTO(F) \
   template void Tikhonov \
   ( Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& B, \
-    const Matrix<F>& G,       Matrix<F>& X, TikhonovAlg alg ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& B, \
+    const Matrix<F>& G, \
+          Matrix<F>& X, TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& G,       AbstractDistMatrix<F>& X, \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& G, \
+          AbstractDistMatrix<F>& X, \
     TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const SparseMatrix<F>& A, const Matrix<F>& B, \
-    const SparseMatrix<F>& G,       Matrix<F>& X, \
+    const SparseMatrix<F>& A, \
+    const Matrix<F>& B, \
+    const SparseMatrix<F>& G, \
+          Matrix<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-    const DistSparseMatrix<F>& G,       DistMultiVec<F>& X, \
+    const DistSparseMatrix<F>& A, \
+    const DistMultiVec<F>& B, \
+    const DistSparseMatrix<F>& G, \
+          DistMultiVec<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

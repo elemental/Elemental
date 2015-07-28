@@ -15,26 +15,23 @@ namespace direct {
 
 // The full KKT system is of the form
 //
-//   |  0 A^T     -I    | | x |   |          -c            |
-//   |  A 0        0    | | y |   |           b            |,
-//   | -I 0   (-z <> x) | | z | = | - z <> (x o z + tau e) |
+//   |  gamma^2*I     A^T          -I     | | dx |   |   -r_c        |
+//   |       A    -delta^2*I        0     | | dy |   |   -r_b        |,
+//   |      -I         0      -inv(z) o x | | dz | = | inv(z) o r_mu |
 //
-// and the particular system solved is of the form
+// where, in the case of a naive update with barrier parameter tau,
 //
-//   |  0 A^T     -I    | | dx |   |   -rc    |
-//   |  A 0        0    | | dy |   |   -rb    |,
-//   | -I 0   (-z <> x) | | dz | = | z <> rmu |
-//
-// where 
-//
-//   rc = A^T y - z + c,
-//   rb = A x - b,
-//   rmu = x o z - tau e
+//   r_c = A^T y - z + c,
+//   r_b = A x - b,
+//   r_mu = x o z - tau e.
 
 template<typename Real>
 void KKT
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& x, const Matrix<Real>& z,
+        Real gamma,
+        Real delta,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
@@ -47,14 +44,21 @@ void KKT
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
 
+    // Jxx := gamma^2*I
+    // ================
+    ShiftDiagonal( Jxx, gamma*gamma );
+
+    // Jyy := -delta^2*I
+    // =================
+    ShiftDiagonal( Jyy, -delta*delta );
+
     // Jyx := A
     // ========
     Jyx = A;
 
     // Jzx := -I
     // =========
-    Identity( Jzx, n, n );
-    Jzx *= -1;
+    ShiftDiagonal( Jzx, Real(-1) );
 
     // Jzz := - z <> x
     // ===============
@@ -72,15 +76,17 @@ void KKT
 
         // Jxz := -I
         // =========
-        Identity( Jxz, n, n );
-        Jxz *= -1;
+        ShiftDiagonal( Jxz, Real(-1) );
     }
 }
 
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& z,
+        Real gamma,
+        Real delta,
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
@@ -95,14 +101,16 @@ void KKT
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
+    ShiftDiagonal( Jxx, gamma*gamma );
+    ShiftDiagonal( Jyy, -delta*delta );
+
     // Jyx := A
     // ========
     Jyx = A;
 
     // Jzx := -I
     // =========
-    Identity( Jzx, n, n );
-    Jzx *= -1;
+    ShiftDiagonal( Jzx, Real(-1) );
 
     // Jzz := - z <> x
     // ===============
@@ -119,53 +127,70 @@ void KKT
 
         // Jxz := -I
         // =========
-        Identity( Jxz, n, n );
-        Jxz *= -1;
+        ShiftDiagonal( Jxz, Real(-1) );
     }
 }
 
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& x,       const Matrix<Real>& z,
+        Real gamma,
+        Real delta,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
-    qp::direct::KKT( Q, A, x, z, J, onlyLower );
+    qp::direct::KKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
 
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
+        Real gamma,
+        Real delta,
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
     const Int n = A.Width();
     DistSparseMatrix<Real> Q(A.Comm());
     Q.Resize( n, n );
-    qp::direct::KKT( Q, A, x, z, J, onlyLower );
+    qp::direct::KKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
 
 #define PROTO(Real) \
   template void KKT \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
+          Real gamma, \
+          Real delta, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
+          Real gamma, \
+          Real delta, \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
+          Real gamma, \
+          Real delta, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
           SparseMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, \
+          Real gamma, \
+          Real delta, \
+    const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, bool onlyLower );
 
 #define EL_NO_INT_PROTO

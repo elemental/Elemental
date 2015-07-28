@@ -29,7 +29,7 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
-  ElRegQSDCtrl_s qsdCtrl;
+  ElRegLDLCtrl_s regLDLCtrl;
   bool innerEquil, outerEquil;
   ElInt basisSize;
   bool print;
@@ -43,7 +43,7 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;
-  ElRegQSDCtrl_d qsdCtrl;
+  ElRegLDLCtrl_d regLDLCtrl;
   bool innerEquil, outerEquil;
   ElInt basisSize;
   bool print;

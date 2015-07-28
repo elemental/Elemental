@@ -19,6 +19,9 @@ template<typename Real>
 void Initialize
 ( const Matrix<Real>& A, 
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -33,6 +36,9 @@ template<typename Real>
 void Initialize
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const AbstractDistMatrix<Real>& b, 
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
@@ -47,6 +53,9 @@ template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const Matrix<Real>& b, 
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -57,11 +66,14 @@ void Initialize
         Matrix<Real>& z, 
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegLDLCtrl<Real>& regLDLCtrl );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A, 
   const DistSparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
@@ -72,7 +84,7 @@ void Initialize
         DistMultiVec<Real>& z, 
         DistMultiVec<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, Int cutoffPar, 
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegLDLCtrl<Real>& regLDLCtrl );
 
 // Full system
 // ===========
@@ -80,6 +92,9 @@ template<typename Real>
 void KKT
 ( const Matrix<Real>& A, 
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
@@ -89,6 +104,9 @@ template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A, 
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const AbstractDistMatrix<Real>& w,
   const AbstractDistMatrix<Int>& orders,
   const AbstractDistMatrix<Int>& firstInds,
@@ -98,6 +116,9 @@ template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
@@ -110,6 +131,9 @@ template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const Matrix<Int>& firstInds,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
@@ -130,6 +154,9 @@ template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
   const DistSparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
@@ -142,6 +169,9 @@ template<typename Real>
 void StaticKKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta, 
   const DistMultiVec<Int>& firstInds,
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,

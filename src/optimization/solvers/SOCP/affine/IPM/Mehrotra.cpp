@@ -61,6 +61,9 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
     const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
 
     auto A = APre;
@@ -113,7 +116,7 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
+    ( A, G, gamma, delta, beta, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
@@ -223,7 +226,7 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, w, orders, firstInds, J );
+        KKT( A, G, gamma, delta, beta, w, orders, firstInds, J );
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
 
         // Solve for the direction
@@ -399,6 +402,9 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
     const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
 
     const Grid& grid = APre.Grid();
@@ -462,7 +468,7 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
+    ( A, G, gamma, delta, beta, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar );
 
     Real relError = 1;
@@ -585,7 +591,9 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, w, orders, firstInds, J, onlyLower, cutoffPar );
+        KKT
+        ( A, G, gamma, delta, beta, w, 
+          orders, firstInds, J, onlyLower, cutoffPar );
         KKTRHS
         ( rc, rb, rh, rmu, wRoot, orders, firstInds, d, cutoffPar );
 
@@ -768,6 +776,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     const Real wMaxLimit = Pow(eps,Real(-0.4));
     const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
     // Sizes of || w ||_max which force levels of equilibration
@@ -826,7 +840,7 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
+    ( A, G, gamma, delta, beta, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
 
     // Form the offsets for the sparse embedding of the barrier's Hessian
@@ -899,22 +913,14 @@ void Mehrotra
                  dx,    dy,    dz,    ds,
                  dzAffScaled, dsAffScaled;
 
-    // TODO: Expose regularization rules to user
-    Matrix<Real> regPerm, regTmp;
-    regPerm.Resize( n+m+kSparse, 1 );
-    regTmp.Resize( n+m+kSparse, 1 );
+    Matrix<Real> regTmp;
+    Zeros( regTmp, n+m+kSparse, 1 );
     for( Int i=0; i<n+m+kSparse; ++i )
     {
         if( i < n )
-        {
-            regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*eps );
-        }
+            regTmp.Set( i, 0, gammaTmp*gammaTmp );
         else if( i < n+m )
-        {
-            regTmp.Set( i, 0, -ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, -10*eps );
-        }
+            regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         else
         {
             const Int iCone = i-(n+m);
@@ -924,26 +930,19 @@ void Mehrotra
             const bool embedded = ( order != sparseOrder );
           
             if( embedded && iCone == firstInd+sparseOrder-1 )
-            {
-                regTmp.Set( i, 0, ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, 10*eps );
-            }
+                regTmp.Set( i, 0, betaTmp*betaTmp );
             else
-            {
-                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*eps );
-            }
+                regTmp.Set( i, 0, -betaTmp*betaTmp );
         }
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, firstInds, origToSparseFirstInds, kSparse, JOrig, onlyLower );
-    UpdateDiagonal( JStatic, Real(1), regPerm );
+    ( A, G, gamma, delta, beta, 
+      firstInds, origToSparseFirstInds, kSparse, JOrig, onlyLower );
 
     Real relError = 1;
     vector<Int> map, invMap;
@@ -1077,9 +1076,9 @@ void Mehrotra
             JFront.Pull( J, map, info );
 
             LDL( info, JFront, LDL_2D );
-            reg_qsd_ldl::SolveAfter
+            ldl::SolveAfter
             ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-              ctrl.qsdCtrl );
+              ctrl.regLDLCtrl );
         } 
         catch(...)
         {
@@ -1176,9 +1175,9 @@ void Mehrotra
           orders, firstInds, origToSparseFirstInds, kSparse, d );
         try 
         {
-            reg_qsd_ldl::SolveAfter
+            ldl::SolveAfter
             ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-              ctrl.qsdCtrl );
+              ctrl.regLDLCtrl );
         } 
         catch(...)
         {
@@ -1263,6 +1262,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = false;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
     const Real wMaxLimit = Pow(eps,Real(-0.4));
     // Sizes of || w ||_max which force levels of equilibration
@@ -1333,9 +1338,9 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
-    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
+    ( A, G, gamma, delta, beta, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar, 
-      ctrl.qsdCtrl );
+      ctrl.regLDLCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
@@ -1544,24 +1549,17 @@ void Mehrotra
 
     // Form the regularization vectors
     // ===============================
-    DistMultiVec<Real> regPerm(comm), regTmp(comm);
+    DistMultiVec<Real> regTmp(comm);
     Zeros( regTmp, n+m+kSparse, 1 );
-    Zeros( regPerm, n+m+kSparse, 1 );
     // Set the analytical part
     // -----------------------
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-        {
-            regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*eps );
-        }
+            regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
         else if( i < n+m )
-        {
-            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*eps );
-        }
+            regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
         else
             break;
     }
@@ -1570,7 +1568,6 @@ void Mehrotra
     {
         const Int sparseLocalHeight = sparseFirstInds.LocalHeight();
         regTmp.Reserve( sparseLocalHeight );
-        regPerm.Reserve( sparseLocalHeight );
         for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
         {
             const Int iCone = sparseFirstInds.GlobalRow(iLoc);
@@ -1579,28 +1576,20 @@ void Mehrotra
             const bool embedded = ( order != sparseOrder ); 
             const Int firstInd = sparseFirstInds.GetLocal(iLoc,0);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-            {
-                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, 10*eps );
-            }
+                regTmp.QueueUpdate( n+m+iCone, 0, betaTmp*betaTmp );
             else
-            {
-                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, -10*eps );
-            }
+                regTmp.QueueUpdate( n+m+iCone, 0, -betaTmp*betaTmp );
         }
         regTmp.ProcessQueues();
-        regPerm.ProcessQueues();
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT
-    ( A, G, firstInds, origToSparseFirstInds, kSparse, JStatic, onlyLower );
-    UpdateDiagonal( JStatic, Real(1), regPerm );
+    ( A, G, gamma, delta, beta, 
+      firstInds, origToSparseFirstInds, kSparse, JStatic, onlyLower );
 
     Real relError = 1;
     DistMap map, invMap;

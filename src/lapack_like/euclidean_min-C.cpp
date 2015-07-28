@@ -18,7 +18,9 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
     ctrl->alpha = Pow(eps,float(0.25));
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
+    ctrl->damp = Pow(eps,float(0.4));
+    ctrl->dampTmp = Pow(eps,float(0.3));
+    ElRegLDLCtrlDefault_s( &ctrl->regLDLCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;
@@ -31,7 +33,9 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
     ctrl->alpha = Pow(eps,double(0.25));
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
+    ctrl->damp = Pow(eps,double(0.4));
+    ctrl->dampTmp = Pow(eps,double(0.3));
+    ElRegLDLCtrlDefault_d( &ctrl->regLDLCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;

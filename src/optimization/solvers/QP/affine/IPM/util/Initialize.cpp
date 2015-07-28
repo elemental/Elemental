@@ -68,6 +68,8 @@ void Initialize
 ( const Matrix<Real>& Q,
   const Matrix<Real>& A, 
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -78,6 +80,8 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    const Real eps = Epsilon<Real>();
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -105,7 +109,7 @@ void Initialize
     // ===================
     Matrix<Real> J, ones;
     Ones( ones, k, 1 );
-    KKT( Q, A, G, ones, ones, J );
+    KKT( Q, A, G, gamma, delta, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
@@ -117,11 +121,15 @@ void Initialize
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {
-        // Minimize || G x - h ||^2, s.t. A x = b  by solving
+        // Minimize a perturbation of 
+        // 
+        //   || G x - h ||^2, s.t. A x = b  
         //
-        //    | Q A^T G^T | |  x |   | 0 |
-        //    | A  0   0  | |  u | = | b |,
-        //    | G  0  -I  | | -s |   | h |
+        // by solving
+        //
+        //    | Q+gamma^2*I     A^T    G^T | |  x |   | 0 |
+        //    |     A       -delta^2*I  0  | |  u | = | b |,
+        //    |     G            0     -I  | | -s |   | h |
         //
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
@@ -136,11 +144,15 @@ void Initialize
     }
     if( !dualInit )
     {
-        // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
+        // Minimize a perturbation of 
         //
-        //    | Q A^T G^T | | u |   | -c |
-        //    | A  0   0  | | y | = |  0 |,
-        //    | G  0  -I  | | z |   |  0 |
+        //   || z ||^2, s.t. A^T y + G^T z + c in range(Q) 
+        //
+        // by solving
+        //
+        //    | Q+gamma^2*I     A^T    G^T | | u |   | -c |
+        //    |      A      -delta^2*I  0  | | y | = |  0 |,
+        //    |      G           0     -I  | | z |   |  0 |
         //
         //    where 'u' is an unused dummy variable.
         rc = c;
@@ -151,11 +163,10 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -189,6 +200,8 @@ void Initialize
 ( const AbstractDistMatrix<Real>& Q,
   const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
@@ -199,6 +212,8 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    const Real eps = Epsilon<Real>();
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -227,7 +242,7 @@ void Initialize
     // ===================
     DistMatrix<Real> J(g), ones(g);
     Ones( ones, k, 1 );
-    KKT( Q, A, G, ones, ones, J );
+    KKT( Q, A, G, gamma, delta, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
@@ -273,11 +288,10 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -309,7 +323,6 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& JStatic,
-  const Matrix<Real>& regTmp,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -322,9 +335,11 @@ void Initialize
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegLDLCtrl<Real>& regLDLCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    const Real eps = Epsilon<Real>();
+
     const Int m = b.Height();
     const Int n = c.Width();
     const Int k = h.Height();
@@ -350,17 +365,16 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    auto JOrig = JStatic;
-    JOrig.FreezeSparsity();
+    auto J = JStatic;
+    J.FreezeSparsity();
     Matrix<Real> ones;
     Ones( ones, k, 1 );
-    FinishKKT( m, n, ones, ones, JOrig );
-    auto J = JOrig;
-    J.FreezeSparsity();
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+    FinishKKT( m, n, ones, ones, J );
 
-    // (Approximately) factor the KKT matrix
-    // =====================================
+    // Factor the KKT matrix
+    // =====================
+    Matrix<Real> reg;
+    Zeros( reg, n+m+k, 1 );
     ldl::Front<Real> JFront;
     JFront.Pull( J, map, info );
     LDL( info, JFront, LDL_2D );
@@ -371,11 +385,15 @@ void Initialize
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {
-        // Minimize || G x - h ||^2, s.t. A x = b  by solving
+        // Minimize a perturbation of 
         //
-        //    | Q A^T G^T | |  x |   | 0 |
-        //    | A  0   0  | |  u | = | b |,
-        //    | G  0  -I  | | -s |   | h |
+        //   || G x - h ||^2, s.t. A x = b
+        //
+        // by solving
+        //
+        //    | Q+gamma^2*I     A^T    G^T | |  x |   | 0 |
+        //    |     A       -delta^2*I  0  | |  u | = | b |,
+        //    |     G            0     -I  | | -s |   | h |
         //
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
@@ -385,18 +403,21 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        ldl::SolveAfter( J, reg, invMap, info, JFront, d, regLDLCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
     if( !dualInit )
     {
-        // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
+        // Minimize a perturbation of 
         //
-        //    | Q A^T G^T | | u |   | -c |
-        //    | A  0   0  | | y | = |  0 |,
-        //    | G  0  -I  | | z |   |  0 |
+        //   || z ||^2, s.t. A^T y + G^T z + c in range(Q) 
+        //
+        // by solving
+        //
+        //    | Q+gamma^2*I     A^T    G^T | | u |   | -c |
+        //    |      A      -delta^2*I  0  | | y | = |  0 |,
+        //    |      G           0     -I  | | z |   |  0 |
         //
         //    where 'u' is an unused dummy variable.
         rc = c;
@@ -404,16 +425,14 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        ldl::SolveAfter( J, reg, invMap, info, JFront, d, regLDLCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -445,7 +464,6 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& JStatic,
-  const DistMultiVec<Real>& regTmp,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
@@ -458,9 +476,11 @@ void Initialize
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegLDLCtrl<Real>& regLDLCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    const Real eps = Epsilon<Real>();
+
     const Int m = b.Height();
     const Int n = c.Height();
     const Int k = h.Height();
@@ -487,20 +507,18 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> JOrig(comm);
-    JOrig = JStatic;
-    JOrig.FreezeSparsity();
-    JOrig.multMeta = JStatic.multMeta;
-    DistMultiVec<Real> ones(comm);
-    Ones( ones, k, 1 );
-    FinishKKT( m, n, ones, ones, JOrig );
-    auto J = JOrig;
+    DistSparseMatrix<Real> J(comm);
+    J = JStatic;
     J.FreezeSparsity();
     J.multMeta = JStatic.multMeta;
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+    DistMultiVec<Real> ones(comm);
+    Ones( ones, k, 1 );
+    FinishKKT( m, n, ones, ones, J );
 
-    // (Approximately) factor the KKT matrix
-    // =====================================
+    // Factor the KKT matrix
+    // =====================
+    DistMultiVec<Real> reg(comm);
+    Zeros( reg, n+m+k, 1 );
     // TODO: Use PullUpdate just on the identity (or avoid it entirely?)
     ldl::DistFront<Real> JFront;
     JFront.Pull( J, map, rootSep, info );
@@ -512,11 +530,15 @@ void Initialize
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {
-        // Minimize || G x - h ||^2, s.t. A x = b  by solving
+        // Minimize a perturbation of 
         //
-        //    | Q A^T G^T | |  x |   | 0 |
-        //    | A  0   0  | |  u | = | b |,
-        //    | G  0  -I  | | -s |   | h |
+        //   || G x - h ||^2, s.t. A x = b 
+        //
+        // by solving
+        //
+        //    | Q+gamma^2*I     A^T    G^T | |  x |   | 0 |
+        //    |      A      -delta^2*I  0  | |  u | = | b |,
+        //    |      G           0     -I  | | -s |   | h |
         //
         //   where 'u' is an unused dummy variable.
         Zeros( rc, n, 1 );
@@ -526,18 +548,21 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        ldl::SolveAfter( J, reg, invMap, info, JFront, d, regLDLCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
     if( !dualInit )
     {
-        // Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
+        // Minimize a perturbation of 
         //
-        //    | Q A^T G^T | | u |   | -c |
-        //    | A  0   0  | | y | = |  0 |,
-        //    | G  0  -I  | | z |   |  0 |
+        //   || z ||^2, s.t. A^T y + G^T z + c in range(Q) 
+        //
+        // by solving
+        //
+        //    | Q+gamma^2*I     A^T    G^T | | u |   | -c |
+        //    |      A      -delta^2*I  0  | | y | = |  0 |,
+        //    |      G           0     -I  | | z |   |  0 |
         //
         //    where 'u' is an unused dummy variable.
         rc = c;
@@ -545,16 +570,14 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        ldl::SolveAfter( J, reg, invMap, info, JFront, d, regLDLCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -588,6 +611,8 @@ void Initialize
   ( const Matrix<Real>& Q, \
     const Matrix<Real>& A, \
     const Matrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
@@ -600,6 +625,8 @@ void Initialize
   ( const AbstractDistMatrix<Real>& Q, \
     const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
@@ -610,7 +637,6 @@ void Initialize
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& JStatic, \
-    const Matrix<Real>& regTmp, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
@@ -623,10 +649,9 @@ void Initialize
     const ldl::Separator& rootSep, \
     const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegLDLCtrl<Real>& regLDLCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
-    const DistMultiVec<Real>& regTmp, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
@@ -639,7 +664,7 @@ void Initialize
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegLDLCtrl<Real>& regLDLCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

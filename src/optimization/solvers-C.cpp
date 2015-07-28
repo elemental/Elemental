@@ -23,7 +23,7 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
+    ElRegLDLCtrlDefault_s( &ctrl->regLDLCtrl );
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->basisSize = 6;
@@ -41,7 +41,7 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
+    ElRegLDLCtrlDefault_d( &ctrl->regLDLCtrl );
     ctrl->outerEquil = true;
     ctrl->innerEquil = true;
     ctrl->basisSize = 6;

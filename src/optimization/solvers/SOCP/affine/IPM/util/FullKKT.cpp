@@ -176,6 +176,9 @@ template<typename Real>
 void KKT
 ( const Matrix<Real>& A, 
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta,
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
@@ -229,12 +232,19 @@ void KKT
 
         i += order;
     }
+
+    ShiftDiagonal( Jxx, gamma*gamma );
+    ShiftDiagonal( Jyy, -delta*delta );
+    ShiftDiagonal( Jzz, -beta*beta );
 }
 
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A,    
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta,
   const AbstractDistMatrix<Real>& w,
   const AbstractDistMatrix<Int>& ordersPre,
   const AbstractDistMatrix<Int>& firstIndsPre,
@@ -330,12 +340,18 @@ void KKT
                 Jzz.UpdateLocal( iLoc, jLoc, -2*omega_i*omega_j ); 
         }
     }
+    ShiftDiagonal( Jxx, gamma*gamma );
+    ShiftDiagonal( Jyy, -delta*delta );
+    ShiftDiagonal( Jzz, -beta*beta );
 }
 
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta,
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
@@ -349,6 +365,8 @@ void KKT
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
+    const Int numEntriesA = A.NumEntries();
+    const Int numEntriesG = G.NumEntries();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
@@ -363,7 +381,7 @@ void KKT
     {
         // Count the number of entries to queue in the lower triangle
         // ----------------------------------------------------------
-        Int numEntries = A.NumEntries() + G.NumEntries();
+        Int numEntries = numEntriesA + numEntriesG + n+m;
         for( Int i=0; i<k; ++i )
         {
             const Int order = orders.Get(i,0);
@@ -394,9 +412,13 @@ void KKT
         // Queue the nonzeros
         // ------------------
         J.Reserve( numEntries );
-        for( Int e=0; e<A.NumEntries(); ++e )
+        for( Int i=0; i<n; ++i )
+            J.QueueUpdate( i, i, gamma*gamma );
+        for( Int i=0; i<m; ++i )
+            J.QueueUpdate( i+n, i+n, -delta*delta );
+        for( Int e=0; e<numEntriesA; ++e )
             J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
-        for( Int e=0; e<G.NumEntries(); ++e )
+        for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
             const Int firstInd = firstInds.Get(i,0);
@@ -421,10 +443,12 @@ void KKT
                 // diag(det(w) R - 2 w w^T)
                 if( i == firstInd )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, +wDet-2*omega_i*omega_i );
+                    ( n+m+iSparse, n+m+iSparse, 
+                      +wDet-2*omega_i*omega_i+beta*beta );
                 else
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, -wDet-2*omega_i*omega_i );
+                    ( n+m+iSparse, n+m+iSparse, 
+                      -wDet-2*omega_i*omega_i-beta*beta );
 
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
@@ -451,19 +475,19 @@ void KKT
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
                     J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0 );
+                    ( coneOff, coneOff, -wDet*delta0-beta*beta );
                     J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet        );
+                    ( coneOff+order,   coneOff+order,   -wDet-beta*beta );
                     J.QueueUpdate
                     ( coneOff+order+1, coneOff,         -wDet*u0     );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet        );
+                    ( coneOff+order+1, coneOff+order+1,  wDet+beta*beta );
                 }
                 else
                 {
                     // Queue up an entry of D, u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
-                    J.QueueUpdate( n+m+iSparse,     n+m+iSparse, -wDet        );
+                    J.QueueUpdate( n+m+iSparse, n+m+iSparse, -wDet-beta*beta  );
                     J.QueueUpdate( coneOff+order,   n+m+iSparse,  vPsi*psiMap );
                     J.QueueUpdate( coneOff+order+1, n+m+iSparse, -uPsi*psiMap );
                 }
@@ -474,7 +498,7 @@ void KKT
     {
         // Count the number of entries to queue
         // ------------------------------------
-        Int numEntries = 2*A.NumEntries() + 2*G.NumEntries();
+        Int numEntries = 2*numEntriesA + 2*numEntriesG + n+m;
         for( Int i=0; i<k; ++i )
         {
             const Int order = orders.Get(i,0);
@@ -506,12 +530,16 @@ void KKT
         // Queue the nonzeros
         // ------------------
         J.Reserve( numEntries );
-        for( Int e=0; e<A.NumEntries(); ++e )
+        for( Int i=0; i<n; ++i ) 
+            J.QueueUpdate( i, i, gamma*gamma );
+        for( Int i=0; i<m; ++i )
+            J.QueueUpdate( i+n, i+n, -delta*delta );
+        for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e) );
             J.QueueUpdate( A.Col(e),   A.Row(e)+n, A.Value(e) );
         }
-        for( Int e=0; e<G.NumEntries(); ++e )
+        for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
             const Int firstInd = firstInds.Get(i,0);
@@ -537,10 +565,12 @@ void KKT
                 // diag(det(w) R - 2 w w^T)
                 if( i == firstInd )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, +wDet-2*omega_i*omega_i );
+                    ( n+m+iSparse, n+m+iSparse,
+                      +wDet-2*omega_i*omega_i+beta*beta );
                 else
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, -wDet-2*omega_i*omega_i );
+                    ( n+m+iSparse, n+m+iSparse,
+                      -wDet-2*omega_i*omega_i-beta*beta );
 
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<firstInd+order; ++j )
@@ -569,15 +599,15 @@ void KKT
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
                     J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0 );
+                    ( coneOff, coneOff, -wDet*delta0-beta*beta );
                     J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet        );
+                    ( coneOff+order,   coneOff+order,   -wDet-beta*beta );
                     J.QueueUpdate
                     ( coneOff+order+1, coneOff,         -wDet*u0     );
                     J.QueueUpdate
                     ( coneOff,         coneOff+order+1, -wDet*u0     );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet        );
+                    ( coneOff+order+1, coneOff+order+1,  wDet+beta*beta );
                 }
                 else
                 {
@@ -585,7 +615,7 @@ void KKT
                     // u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet        ); 
+                    ( n+m+iSparse, n+m+iSparse, -wDet-beta*beta      ); 
                     J.QueueUpdate
                     ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
                     J.QueueUpdate
@@ -605,7 +635,12 @@ template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& origToSparseOrders,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
         SparseMatrix<Real>& J, 
@@ -614,14 +649,37 @@ void StaticKKT
     DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int numEntriesA = A.NumEntries();
+    const Int numEntriesG = G.NumEntries();
     Zeros( J, n+m+kSparse, n+m+kSparse );
     if( onlyLower )
     {
-        const Int numEntries = A.NumEntries() + G.NumEntries();
+        Int numEntries = numEntriesA + numEntriesG + m + n;
+
+        // Count the number of updates in the cone
+        for( Int i=0; i<k; ++i )
+        {
+            const Int order = orders.Get(i,0);
+            const Int firstInd = firstInds.Get(i,0);
+            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            if( order == sparseOrder )
+            {
+                if( i == firstInd )
+                
+                // HERE
+                // HERE
+            }
+            else
+            {
+                // HERE
+            }
+        }
+
         J.Reserve( numEntries );
-        for( Int e=0; e<A.NumEntries(); ++e )
+        for( Int e=0; e<numEntriesA; ++e )
             J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
-        for( Int e=0; e<G.NumEntries(); ++e )
+        for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
             const Int firstInd = firstInds.Get(i,0);
@@ -629,11 +687,14 @@ void StaticKKT
             const Int iSparse = i + (firstIndSparse-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
+
+        // TODO: Update the cone
+        LogicError("This routine is not yet finished");
     }
     else
     {
-        const Int numEntries = 2*A.NumEntries() + 2*G.NumEntries();
-        J.Reserve( numEntries );
+        const Int numEntries = 2*numEntriesA + 2*numEntriesG;
+        J.Reserve( numEntries + m+n+kSparse );
         for( Int e=0; e<A.NumEntries(); ++e )
         {
             J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e) );
@@ -649,6 +710,81 @@ void StaticKKT
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
     }
+
+    for( Int i=0; i<n; ++i )
+        J.QueueUpdate( i, i, gamma*gamma );        
+    for( Int i=0; i<m; ++i )
+        J.QueueUpdate( i+n, i+n, -delta*delta );
+    for( Int i=0; i<k; ++i )
+    {
+        const Int order = orders.Get(i,0);
+        const Int firstInd = firstInds.Get(i,0);
+        const Int sparseOrder = origToSparseOrders.Get(i,0);
+        const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+
+        const Int sparseOff = sparseFirstInd-firstInd;
+        const Int iSparse = i+sparseOff;
+
+        const Real omega_i = w.Get(i,0);
+        const Real wDet = wDets.Get(i,0);
+        if( order == sparseOrder )
+        {
+            // diag(det(w) R - 2 w w^T)
+            // LEFT OFF HERE...completely and utterly overwhelemed and talk at
+            // Berkeley tomorrow. Need to carefully handle the positivity.
+            if( i == firstInd )
+                J.QueueUpdate
+                ( n+m+iSparse, n+m+iSparse, 
+                  +wDet-2*omega_i*omega_i+beta*beta );
+            else
+                J.QueueUpdate
+                ( n+m+iSparse, n+m+iSparse, 
+                  -wDet-2*omega_i*omega_i-beta*beta );
+
+            // offdiag(-2 w w^T)
+            for( Int j=firstInd; j<i; ++j )
+                J.QueueUpdate
+                ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w.Get(j,0) );
+        }
+        else
+        {
+            const Int coneOff = n+m+sparseFirstInd;
+            const Real wLower = wLowers.Get(i,0);
+            const Real wPsi = wLower / Sqrt(wDet);
+            const Real wPsiSq = wPsi*wPsi;
+            const Real uPsi = 
+              Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
+            // Apply a pseudoinverse of sorts instead of 1/wPsi
+            const Real wPsiPinv = 
+              ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+            // NOTE: This includes the outer wDet factor
+            const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
+            if( i == firstInd )
+            {
+                // Queue up an entry of D and u, and then the (scaled) 
+                // -1 and +1
+                const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
+                const Real delta0 = 2*wPsiSq + 1 - u0*u0;
+                J.QueueUpdate
+                ( coneOff, coneOff, -wDet*delta0-beta*beta );
+                J.QueueUpdate
+                ( coneOff+order,   coneOff+order,   -wDet-beta*beta );
+                J.QueueUpdate
+                ( coneOff+order+1, coneOff,         -wDet*u0     );
+                J.QueueUpdate
+                ( coneOff+order+1, coneOff+order+1,  wDet+beta*beta );
+            }
+            else
+            {
+                // Queue up an entry of D, u, and v
+                const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
+                J.QueueUpdate( n+m+iSparse, n+m+iSparse, -wDet-beta*beta  );
+                J.QueueUpdate( coneOff+order,   n+m+iSparse,  vPsi*psiMap );
+                J.QueueUpdate( coneOff+order+1, n+m+iSparse, -uPsi*psiMap );
+            }
+        }
+    }
+
     J.ProcessQueues();
 }
 

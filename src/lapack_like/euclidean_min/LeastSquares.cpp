@@ -15,8 +15,9 @@ namespace ls {
 template<typename F> 
 void Overwrite
 ( Orientation orientation, 
-  Matrix<F>& A, const Matrix<F>& B, 
-  Matrix<F>& X )
+        Matrix<F>& A, 
+  const Matrix<F>& B, 
+        Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
@@ -40,8 +41,9 @@ void Overwrite
 template<typename F> 
 void Overwrite
 ( Orientation orientation, 
-  AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& X )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& B, 
+        AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
@@ -70,7 +72,8 @@ void Overwrite
 template<typename F> 
 void LeastSquares
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& B, 
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LeastSquares"))
@@ -81,7 +84,8 @@ void LeastSquares
 template<typename F> 
 void LeastSquares
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
         AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LeastSquares"))
@@ -89,14 +93,21 @@ void LeastSquares
     ls::Overwrite( orientation, ACopy, B, X ); 
 }
 
-// The following routines solve either
+// The following routines approximately solve either
 //
 //   Minimum length: 
-//     min_X || X ||_F 
-//     s.t. W X = B, or
+//
+//     min_X { || X ||_F : W X = B },
+//
+// or
 //
 //   Least squares:  
+//
 //     min_X || W X - B ||_F,
+//
+// which are both special cases of 
+//
+//   min_{X,R} { || gamma X ||_F^2 + || R ||_F^2 : W X + delta R = B },
 //
 // where W=op(A) is either A, A^T, or A^H, via forming a Hermitian 
 // quasi-semidefinite system 
@@ -147,11 +158,16 @@ void LeastSquares
 
 namespace ls {
 
+// TODO: Also add support for normal equations
 template<typename F>
 inline void Equilibrated
-( const SparseMatrix<F>& A,  const Matrix<F>& B, 
+( const SparseMatrix<F>& A,
+  const Matrix<F>& B, 
         Matrix<F>& X,
-  Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl )
+  Base<F> alpha, 
+  Base<F> damp,
+  Base<F> dampTmp,
+  const RegLDLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
       CSE cse("ls::Equilibrated");
@@ -165,32 +181,54 @@ inline void Equilibrated
     const Int numRHS = B.Width();
     const Int numEntriesA = A.NumEntries();
 
+    Matrix<Real> reg;
     SparseMatrix<F> J;
+    Zeros( reg, m+n, 1 );
     Zeros( J, m+n, m+n );
-    J.Reserve( 2*numEntriesA + Max(m,n) );
+    J.Reserve( 2*numEntriesA + m+n );
     if( m >= n )
     {
-        // Form J = [alpha*I, A; A^H, 0]
-        // =============================
+        // Form J = [alpha*I, A; A^H, -damp^2*I]
+        // =====================================
         for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Row(e),   A.Col(e)+m,      A.Value(e)  );
             J.QueueUpdate( A.Col(e)+m, A.Row(e),   Conj(A.Value(e)) );
         }
-        for( Int e=0; e<m; ++e )
-            J.QueueUpdate( e, e, alpha );
+        for( Int i=0; i<m+n; ++i )
+        {
+            if( i < m )         
+            {
+                J.QueueUpdate( i, i, alpha );
+            }
+            else
+            {
+                J.QueueUpdate( i, i, -damp*damp );
+                reg.Set( i, 0, -dampTmp*dampTmp );
+            }
+        }
     }
     else
     {
-        // Form J = [alpha, A^H; A, 0]
-        // ===========================
+        // Form J = [alpha*I, A^H; A, -damp^2*I]
+        // =====================================
         for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)) );
             J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e)  );
         }
-        for( Int e=0; e<n; ++e )
-            J.QueueUpdate( e, e, alpha );
+        for( Int i=0; i<m+n; ++i )
+        {
+            if( i < n )
+            {
+                J.QueueUpdate( i, i, alpha );
+            }
+            else
+            {
+                J.QueueUpdate( i, i, -damp*damp );
+                reg.Set( i, 0, -dampTmp*dampTmp );
+            }
+        }
     }
     J.ProcessQueues();
 
@@ -213,15 +251,9 @@ inline void Equilibrated
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    Matrix<Real> reg;
-    reg.Resize( m+n, 1 );
-    for( Int i=0; i<Max(m,n); ++i )
-        reg.Set( i, 0, ctrl.regPrimal );
-    for( Int i=Max(m,n); i<m+n; ++i )
-        reg.Set( i, 0, -ctrl.regDual );
     SparseMatrix<F> JOrig;
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), reg, 0, true );
 
     vector<Int> map, invMap;
     ldl::NodeInfo info;
@@ -240,7 +272,7 @@ inline void Equilibrated
     {
         auto d = D( ALL, IR(j) );
         u = d;
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
+        ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
         d = u;
     }
 
@@ -266,7 +298,8 @@ inline void Equilibrated
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B, 
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B, 
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -328,7 +361,8 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl );
+    ls::Equilibrated
+    ( ABar, BBar, X, ctrl.alpha, ctrl.damp, ctrl.dampTmp, ctrl.regLDLCtrl );
 
     // Unequilibrate the solution
     // ==========================
@@ -337,11 +371,17 @@ void LeastSquares
 
 namespace ls {
 
+// TODO: Also add support for normal equations
 template<typename F>
 void Equilibrated
-( const DistSparseMatrix<F>& A,  const DistMultiVec<F>& B, 
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B, 
         DistMultiVec<F>& X,
-  Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl, bool time )
+  Base<F> alpha,
+  Base<F> damp,
+  Base<F> dampTmp,
+  const RegLDLCtrl<Base<F>>& ctrl,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("ls::Equilibrated");
@@ -358,155 +398,67 @@ void Equilibrated
     const Int n = A.Width();
     const Int numRHS = B.Width();
 
-    // J := [alpha*I,A;A^H,0] or [alpha*I,A^H;A,0]
-    // ===========================================
+    // J := [alpha*I,A;A^H,-damp^2] or [alpha*I,A^H;A,-damp^2]
+    // =======================================================
+    DistMultiVec<Real> reg(comm);
     DistSparseMatrix<F> J(comm);
+    Zeros( reg, m+n, 1 );
     Zeros( J, m+n, m+n );
-    // Count the number of local alpha updates
-    // ---------------------------------------
-    Int numAlphaUpdates = 0;
-    for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-    {
-        const Int i = J.GlobalRow(iLoc);
-        if( i < Max(m,n) )
-            ++numAlphaUpdates;
-        else
-            break;
-    }
+    const Int localHeight = J.LocalHeight();
     const Int numLocalEntriesA = A.NumLocalEntries();
+    J.Reserve( localHeight+2*numLocalEntriesA, 2*numLocalEntriesA );
+    // Queue the diagonal
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<numLocalEntriesA; ++e )
+        const Int i = J.GlobalRow(iLoc); 
+        if( i < Max(m,n) )
+            J.QueueLocalUpdate( iLoc, i, alpha );
+        else
         {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            if( m >= n )
-            {
-                // Sending A
-                ++sendCounts[ J.RowOwner(i) ];
-                // Sending A^H
-                ++sendCounts[ J.RowOwner(j+m) ];
-            }
-            else
-            {
-                // Sending A
-                ++sendCounts[ J.RowOwner(i+n) ];
-                // Sending A^H
-                ++sendCounts[ J.RowOwner(j) ];
-            }
+            J.QueueLocalUpdate( iLoc, i, -damp*damp );
+            reg.SetLocal( iLoc, 0, -dampTmp*dampTmp );
         }
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<F>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int e=0; e<numLocalEntriesA; ++e )
-        {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            const F value = A.Value(e);
-
-            if( m >= n )
-            {
-                // Sending A
-                sendBuf[offs[J.RowOwner(i)]++] = Entry<F>{i,j+m,value};
-                // Sending A^H
-                sendBuf[offs[J.RowOwner(j+m)]++] = Entry<F>{j+m,i,Conj(value)};
-            }
-            else
-            {
-                // Sending A
-                sendBuf[offs[J.RowOwner(i+n)]++] = Entry<F>{i+n,j,value};
-                // Sending A^H
-                sendBuf[offs[J.RowOwner(j)]++] = Entry<F>{j,i+n,Conj(value)};
-            }
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        J.Reserve( recvBuf.size()+numAlphaUpdates );
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-        {
-            const Int i = J.GlobalRow(iLoc);
-            if( i < Max(m,n) )
-                J.QueueUpdate( i, i, alpha );
-            else
-                break;
-        }
-        for( auto& entry : recvBuf )
-            J.QueueUpdate( entry );
-        J.ProcessQueues();
     }
+    // Queue A and A^T
+    for( Int e=0; e<numLocalEntriesA; ++e )
+    {
+        if( m >= n )
+        {
+            J.QueueUpdate( A.Row(e),   A.Col(e)+m,      A.Value(e),  false );
+            J.QueueUpdate( A.Col(e)+m, A.Row(e),   Conj(A.Value(e)), false );
+        }
+        else
+        {
+            J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e),  false  );
+            J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)), false );
+        }
+    }
+    J.ProcessQueues();
 
     // Set D to [B; 0] or [0; B]
     // =========================
     DistMultiVec<F> D(comm);
     Zeros( D, m+n, numRHS );
+    const Int BLocalHeight = B.LocalHeight();
+    D.Reserve( BLocalHeight*numRHS );
+    for( Int iLoc=0; iLoc<BLocalHeight; ++iLoc )
     {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        const Int i = B.GlobalRow(iLoc);
+        for( Int j=0; j<numRHS; ++j )
         {
-            const Int i = B.GlobalRow(iLoc);
             if( m >= n )
-                sendCounts[ D.RowOwner(i) ] += numRHS;
+                D.QueueUpdate( i, j, B.GetLocal(iLoc,j) );
             else
-                sendCounts[ D.RowOwner(i+n) ] += numRHS;
+                D.QueueUpdate( i+n, j, B.GetLocal(iLoc,j) );
         }
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<F>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
-        {
-            const Int i = B.GlobalRow(iLoc);
-            if( m >= n )
-            {
-                int owner = D.RowOwner(i);
-                for( Int j=0; j<numRHS; ++j )
-                {
-                    const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]++] = Entry<F>{i,j,value};
-                }
-            }
-            else
-            {
-                int owner = D.RowOwner(i+n);
-                for( Int j=0; j<numRHS; ++j )
-                {
-                    const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]++] = Entry<F>{i+n,j,value};
-                }
-            }
-        }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            D.Update( entry );
-    }
+    }      
+    D.ProcessQueues();
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    DistMultiVec<Real> reg(comm);
-    reg.Resize( m+n, 1 );
-    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
-    {
-        const Int i = reg.GlobalRow(iLoc);
-        if( i < Max(m,n) )
-            reg.SetLocal( iLoc, 0, ctrl.regPrimal );
-        else
-            reg.SetLocal( iLoc, 0, -ctrl.regDual );
-    }
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), reg, 0, true );
 
     DistMap map, invMap;
     ldl::DistNodeInfo info;
@@ -538,7 +490,7 @@ void Equilibrated
     {
         auto dLoc = DLoc( ALL, IR(j) );
         Copy( dLoc, uLoc );
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
+        ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
         Copy( uLoc, dLoc );
     }
     if( commRank == 0 && time )
@@ -557,7 +509,8 @@ void Equilibrated
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B, 
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -621,7 +574,9 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl, ctrl.time );
+    ls::Equilibrated
+    ( ABar, BBar, X, ctrl.alpha, ctrl.damp, ctrl.dampTmp, ctrl.regLDLCtrl, 
+      ctrl.time );
 
     // Unequilibrate the solution
     // ==========================
@@ -630,25 +585,37 @@ void LeastSquares
 
 #define PROTO(F) \
   template void ls::Overwrite \
-  ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X ); \
+  ( Orientation orientation, \
+          Matrix<F>& A, \
+    const Matrix<F>& B, \
+          Matrix<F>& X ); \
   template void ls::Overwrite \
-  ( Orientation orientation, AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
-  template void LeastSquares \
-  ( Orientation orientation, const Matrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X ); \
-  template void LeastSquares \
-  ( Orientation orientation, const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
+  ( Orientation orientation, \
+          AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+          AbstractDistMatrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \
-    const SparseMatrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X, const LeastSquaresCtrl<Base<F>>& ctrl ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& B, \
+          Matrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \
-    const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-    DistMultiVec<F>& X, const LeastSquaresCtrl<Base<F>>& ctrl );
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+          AbstractDistMatrix<F>& X ); \
+  template void LeastSquares \
+  ( Orientation orientation, \
+    const SparseMatrix<F>& A, \
+    const Matrix<F>& B, \
+          Matrix<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl ); \
+  template void LeastSquares \
+  ( Orientation orientation, \
+    const DistSparseMatrix<F>& A, \
+    const DistMultiVec<F>& B, \
+          DistMultiVec<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

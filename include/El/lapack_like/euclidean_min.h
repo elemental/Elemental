@@ -84,7 +84,9 @@ typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
   float alpha;
-  ElRegQSDCtrl_s qsdCtrl;
+  float damp;
+  float dampTmp;
+  ElRegLDLCtrl_s regLDLCtrl;
   bool equilibrate;
   bool progress;
   bool time;
@@ -95,7 +97,9 @@ typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
   double alpha;
-  ElRegQSDCtrl_d qsdCtrl;
+  double damp;
+  double dampTmp;
+  ElRegLDLCtrl_d regLDLCtrl;
   bool equilibrate;
   bool progress;
   bool time;

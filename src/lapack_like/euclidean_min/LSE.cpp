@@ -68,9 +68,12 @@ namespace lse {
 
 template<typename F> 
 void Overwrite
-( Matrix<F>& A, Matrix<F>& B, 
-  Matrix<F>& C, Matrix<F>& D, 
-  Matrix<F>& X, bool computeResidual )
+( Matrix<F>& A,
+  Matrix<F>& B, 
+  Matrix<F>& C,
+  Matrix<F>& D, 
+  Matrix<F>& X,
+  bool computeResidual )
 {
     DEBUG_ONLY(CSE cse("lse::Overwrite"))
     const Int m = A.Height();
@@ -155,9 +158,12 @@ void Overwrite
 
 template<typename F> 
 void Overwrite
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
-  AbstractDistMatrix<F>& CPre, AbstractDistMatrix<F>& DPre, 
-  AbstractDistMatrix<F>& XPre, bool computeResidual )
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre, 
+  AbstractDistMatrix<F>& CPre,
+  AbstractDistMatrix<F>& DPre, 
+  AbstractDistMatrix<F>& XPre,
+  bool computeResidual )
 {
     DEBUG_ONLY(CSE cse("lse::Overwrite"))
 
@@ -255,8 +261,10 @@ void Overwrite
 
 template<typename F> 
 void LSE
-( const Matrix<F>& A, const Matrix<F>& B, 
-  const Matrix<F>& C, const Matrix<F>& D, 
+( const Matrix<F>& A,
+  const Matrix<F>& B, 
+  const Matrix<F>& C,
+  const Matrix<F>& D, 
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LSE"))
@@ -266,8 +274,10 @@ void LSE
 
 template<typename F> 
 void LSE
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, 
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& C,
+  const AbstractDistMatrix<F>& D, 
         AbstractDistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LSE"))
@@ -277,8 +287,10 @@ void LSE
 
 template<typename F> 
 void LSE
-( const SparseMatrix<F>& A, const SparseMatrix<F>& B, 
-  const Matrix<F>& C,       const Matrix<F>& D, 
+( const SparseMatrix<F>& A,
+  const SparseMatrix<F>& B, 
+  const Matrix<F>& C,
+  const Matrix<F>& D, 
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -331,12 +343,14 @@ void LSE
     // Form the augmented matrix
     // =========================
     //
-    //         | 0     A^H    B^H |
-    //     J = | A  -alpha*I   0  |
-    //         | B      0      0  |
+    //         | damp^2*I    A^H       B^H   |
+    //     J = | A        -alpha*I      0    |
+    //         | B            0    -damp^2*I |
     //
     const Int numEntriesW = W.NumEntries();
+    Matrix<Real> reg;
     SparseMatrix<F> J; 
+    Zeros( reg, n+m+k, 1 );
     Zeros( J, n+m+k, n+m+k );
     J.Reserve( 2*numEntriesW+m ); 
     for( Int e=0; e<numEntriesW; ++e )
@@ -344,24 +358,32 @@ void LSE
         J.QueueUpdate( W.Row(e)+n, W.Col(e),        W.Value(e)  );
         J.QueueUpdate( W.Col(e),   W.Row(e)+n, Conj(W.Value(e)) );
     }
-    for( Int e=0; e<m; ++e )
-        J.QueueUpdate( e+n, e+n, -ctrl.alpha );
+
+    for( Int i=0; i<n+m+k; ++i )
+    {
+        if( i < n )
+        {
+            reg.Set( i, 0, ctrl.dampTmp*ctrl.dampTmp );
+            J.QueueUpdate( i, i, ctrl.damp*ctrl.damp );
+        }
+        else if( i < n+m )
+        {
+            J.QueueUpdate( i, i, -ctrl.alpha );
+        }
+        else
+        {
+            reg.Set( i, 0, -ctrl.dampTmp*ctrl.dampTmp );
+            J.QueueUpdate( i, i, -ctrl.damp*ctrl.damp );
+        }
+    }
     J.ProcessQueues();
     
-    // Add the a priori regularization
-    // ===============================
-    Matrix<Real> reg;
-    Zeros( reg, n+m+k, 1 );
-    for( Int i=0; i<n; ++i )
-        reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-    for( Int i=n; i<n+m+k; ++i )
-        reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
-    SparseMatrix<F> JOrig;
-    JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
-
     // Factor the regularized system
     // =============================
+    SparseMatrix<F> JOrig;
+    JOrig = J;
+    UpdateRealPartOfDiagonal( J, Real(1), reg, 0, true );
+
     vector<Int> map, invMap; 
     ldl::NodeInfo info;
     ldl::Separator rootSep;
@@ -378,8 +400,7 @@ void LSE
     {
         auto g = G( ALL, IR(j) );
         u = g;
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
+        ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl.regLDLCtrl );
         g = u;
     }
 
@@ -391,8 +412,10 @@ void LSE
 
 template<typename F> 
 void LSE
-( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B, 
-  const DistMultiVec<F>& C,     const DistMultiVec<F>& D, 
+( const DistSparseMatrix<F>& A,
+  const DistSparseMatrix<F>& B, 
+  const DistMultiVec<F>& C,
+  const DistMultiVec<F>& D, 
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -438,132 +461,70 @@ void LSE
     //   G = [ 0; C; D ]
     DistMultiVec<F> G(comm);
     Zeros( G, n+m+k, numRHS );
+    const Int CLocalHeight = C.LocalHeight();
+    const Int DLocalHeight = D.LocalHeight();
+    G.Reserve( (CLocalHeight+DLocalHeight)*numRHS );
+    for( Int iLoc=0; iLoc<CLocalHeight; ++iLoc )
     {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<C.LocalHeight(); ++iLoc )
-        {
-            const Int i = C.GlobalRow(iLoc);
-            sendCounts[ G.RowOwner(i+n) ] += numRHS;
-        }
-        for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
-        {
-            const Int i = D.GlobalRow(iLoc);
-            sendCounts[ G.RowOwner(i+n+m) ] += numRHS;
-        }
-        // Pack the data
-        // -------------
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        auto offs = sendOffs;
-        vector<Entry<F>> sendBuf(totalSend);
-        for( Int iLoc=0; iLoc<C.LocalHeight(); ++iLoc )
-        {
-            const Int i = C.GlobalRow(iLoc);
-            const int owner = G.RowOwner(i+n);
-            for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{i+n,j,C.GetLocal(iLoc,j)};
-        }
-        for( Int iLoc=0; iLoc<D.LocalHeight(); ++iLoc )
-        {
-            const Int i = D.GlobalRow(iLoc);
-            const int owner = G.RowOwner(i+n+m);
-            for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{i+n+m,j,D.GetLocal(iLoc,j)};
-        }
-        // Exchange and unpack the data
-        // ----------------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            G.Set( entry );
+        const Int i = C.GlobalRow(iLoc);
+        for( Int j=0; j<numRHS; ++j )
+            G.QueueUpdate( i+n, j, C.GetLocal(iLoc,0) );
     }
+    for( Int iLoc=0; iLoc<DLocalHeight; ++iLoc )
+    {
+        const Int i = D.GlobalRow(iLoc);
+        for( Int j=0; j<numRHS; ++j )
+            G.QueueUpdate( i+n+m, j, D.GetLocal(iLoc,0) );
+    }
+    G.ProcessQueues();
 
     // Form the augmented matrix
     // =========================
     //
-    //         | 0     A^H    B^H |
-    //     J = | A  -alpha*I   0  |
-    //         | B      0      0  |
+    //         | damp^2*I    A^H       B^H   |
+    //     J = | A        -alpha*I      0    |
+    //         | B            0    -damp^2*I |
     //
     const Int numEntriesW = W.NumLocalEntries();
-    DistSparseMatrix<F> J(comm); 
-    Zeros( J, n+m+k, n+m+k );
-    {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<numEntriesW; ++e )
-        {
-            ++sendCounts[ J.RowOwner(W.Row(e)+n) ];
-            ++sendCounts[ J.RowOwner(W.Col(e))   ];
-        }
-        // Pack W
-        // ------
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        auto offs = sendOffs;
-        vector<Entry<F>> sendBuf(totalSend);
-        for( Int e=0; e<numEntriesW; ++e )
-        {
-            const Int i = W.Row(e);
-            const Int j = W.Col(e);
-            const F value = W.Value(e);
-            // Send this entry of W into its normal position
-            int owner = J.RowOwner(i+n);
-            sendBuf[offs[owner]++] = Entry<F>{i+n,j,value};
-            // Send this entry of W into its adjoint position
-            owner = J.RowOwner(j);
-            sendBuf[offs[owner]++] = Entry<F>{j,i+n,Conj(value)};
-        }
-        // Exchange and unpack the data
-        // ----------------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        // Count the total number of negative alpha updates
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        Int numNegAlphaUpdates = 0;
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-        {
-            const Int i = J.GlobalRow(iLoc);
-            if( i >= n+m )
-                break;
-            else if( i >= n )
-                ++numNegAlphaUpdates;
-        }
-        // Unpack
-        // ^^^^^^
-        J.Reserve( recvBuf.size() + numNegAlphaUpdates );
-        for( auto& entry : recvBuf )
-            J.QueueUpdate( entry );
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
-        {
-            const Int i = J.GlobalRow(iLoc);
-            if( i >= n+m )
-                break;
-            else if( i >= n )
-                J.QueueUpdate( i, i, -ctrl.alpha );
-        }
-        J.ProcessQueues();
-    }
-
-    // Add the a priori regularization
-    // ===============================
     DistMultiVec<Real> reg(comm);
+    DistSparseMatrix<F> J(comm); 
     Zeros( reg, n+m+k, 1 );
-    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
+    Zeros( J, n+m+k, n+m+k );
+    const Int JLocalHeight = J.LocalHeight();
+    J.Reserve( numEntriesW+JLocalHeight, numEntriesW );
+    // Queue the local updates
+    for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
     {
-        const Int i = reg.GlobalRow(iLoc);
+        const Int i = J.GlobalRow(iLoc);
         if( i < n )
-            reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+        {
+            J.QueueLocalUpdate( iLoc, i, ctrl.damp*ctrl.damp );
+            reg.SetLocal( iLoc, 0, ctrl.dampTmp*ctrl.dampTmp );
+        }
+        else if( i < n+m )
+        {
+            J.QueueLocalUpdate( iLoc, i, -ctrl.alpha );
+        }
         else
-            reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+        {
+            J.QueueLocalUpdate( iLoc, i, -ctrl.damp*ctrl.damp );
+            reg.SetLocal( iLoc, 0, -ctrl.dampTmp*ctrl.dampTmp );
+        }
     }
-    DistSparseMatrix<F> JOrig(comm);
-    JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    // Queue the (possibly) remote updates
+    for( Int e=0; e<numEntriesW; ++e )
+    {
+        J.QueueUpdate( W.Row(e)+n, W.Col(e),      W.Value(e),  false );
+        J.QueueUpdate( W.Col(e),   W.Row(e), Conj(W.Value(e)), false );
+    }
+    J.ProcessQueues();
 
     // Factor the regularized system
     // =============================
+    DistSparseMatrix<F> JOrig(comm);
+    JOrig = J;
+    UpdateRealPartOfDiagonal( J, Real(1), reg, 0, true );
+
     DistMap map, invMap; 
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
@@ -582,8 +543,7 @@ void LSE
     {
         auto gLoc = GLoc( ALL, IR(j) );
         uLoc = gLoc;
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
+        ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl.regLDLCtrl );
         gLoc = uLoc;
     }
 
@@ -595,29 +555,41 @@ void LSE
 
 #define PROTO(F) \
   template void lse::Overwrite \
-  ( Matrix<F>& A, Matrix<F>& B, \
-    Matrix<F>& C, Matrix<F>& D, \
+  ( Matrix<F>& A, \
+    Matrix<F>& B, \
+    Matrix<F>& C, \
+    Matrix<F>& D, \
     Matrix<F>& X, bool computeResidual ); \
   template void lse::Overwrite \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<F>& C, \
+    AbstractDistMatrix<F>& D, \
     AbstractDistMatrix<F>& X, bool computeResidual ); \
   template void LSE \
-  ( const Matrix<F>& A, const Matrix<F>& B, \
-    const Matrix<F>& C, const Matrix<F>& D, \
+  ( const Matrix<F>& A, \
+    const Matrix<F>& B, \
+    const Matrix<F>& C, \
+    const Matrix<F>& D, \
           Matrix<F>& X ); \
   template void LSE \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, \
+  ( const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& C, \
+    const AbstractDistMatrix<F>& D, \
           AbstractDistMatrix<F>& X ); \
   template void LSE \
-  ( const SparseMatrix<F>& A, const SparseMatrix<F>& B, \
-    const Matrix<F>& C,       const Matrix<F>& D, \
+  ( const SparseMatrix<F>& A, \
+    const SparseMatrix<F>& B, \
+    const Matrix<F>& C, \
+    const Matrix<F>& D, \
           Matrix<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void LSE \
-  ( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B, \
-    const DistMultiVec<F>& C,     const DistMultiVec<F>& D, \
+  ( const DistSparseMatrix<F>& A, \
+    const DistSparseMatrix<F>& B, \
+    const DistMultiVec<F>& C, \
+    const DistMultiVec<F>& D, \
           DistMultiVec<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 

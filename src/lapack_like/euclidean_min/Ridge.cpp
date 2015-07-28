@@ -13,8 +13,10 @@ namespace El {
 template<typename F> 
 void Ridge
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& B, 
-        Base<F> gamma,      Matrix<F>& X, 
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+        Base<F> gamma,
+        Matrix<F>& X, 
   RidgeAlg alg )
 {
     DEBUG_ONLY(CSE cse("Ridge"))
@@ -89,8 +91,10 @@ void Ridge
 template<typename F> 
 void Ridge
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
-        Base<F> gamma,                     AbstractDistMatrix<F>& XPre, 
+  const AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& BPre, 
+        Base<F> gamma,
+        AbstractDistMatrix<F>& XPre, 
   RidgeAlg alg )
 {
     DEBUG_ONLY(CSE cse("Ridge"))
@@ -169,8 +173,10 @@ void Ridge
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B, 
-        Base<F> gamma,            Matrix<F>& X, 
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B, 
+        Base<F> gamma,
+        Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
@@ -179,19 +185,19 @@ void Ridge
           LogicError("Heights of A and B must match");
     )
 
-    const Int n = A.Width();
-    SparseMatrix<F> G;
-    Zeros( G, n, n );
-    ShiftDiagonal( G, gamma );
-
-    Tikhonov( orientation, A, B, G, X, ctrl );
+    // Least Squares is actually performing ridge regression anyway
+    auto ctrlMod = ctrl;
+    ctrlMod.damp = Max(ctrlMod.damp,gamma);
+    LeastSquares( orientation, A, B, X, ctrlMod );
 }
 
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
-        Base<F> gamma,                DistMultiVec<F>& X, 
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B, 
+        Base<F> gamma,
+        DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
@@ -200,34 +206,40 @@ void Ridge
           LogicError("Heights of A and B must match");
     )
 
-    const Int n = A.Width();
-    DistSparseMatrix<F> G(A.Comm());
-    Zeros( G, n, n );
-    ShiftDiagonal( G, gamma );
-
-    Tikhonov( orientation, A, B, G, X, ctrl );
+    // Least Squares is actually performing ridge regression anyway
+    auto ctrlMod = ctrl;
+    ctrlMod.damp = Max(ctrlMod.damp,gamma);
+    LeastSquares( orientation, A, B, X, ctrlMod );
 }
 
 #define PROTO(F) \
   template void Ridge \
   ( Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& B, \
-          Base<F> gamma,      Matrix<F>& X, \
+    const Matrix<F>& A, \
+    const Matrix<F>& B, \
+          Base<F> gamma, \
+          Matrix<F>& X, \
     RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-          Base<F> gamma,                  AbstractDistMatrix<F>& X, \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+          Base<F> gamma, \
+          AbstractDistMatrix<F>& X, \
     RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const SparseMatrix<F>& A, const Matrix<F>& B, \
-          Base<F> gamma,            Matrix<F>& X, \
+    const SparseMatrix<F>& A, \
+    const Matrix<F>& B, \
+          Base<F> gamma, \
+          Matrix<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void Ridge \
   ( Orientation orientation, \
-    const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-          Base<F> gamma,                DistMultiVec<F>& X, \
+    const DistSparseMatrix<F>& A, \
+    const DistMultiVec<F>& B, \
+          Base<F> gamma, \
+          DistMultiVec<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

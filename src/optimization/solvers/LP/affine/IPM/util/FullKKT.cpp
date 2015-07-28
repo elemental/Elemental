@@ -13,19 +13,13 @@ namespace El {
 namespace lp {
 namespace affine {
 
-// The full KKT system is of the form
+// The full (regularized) KKT system is of the form
 //
-//   | 0 A^T      G     | | x |   |        -c             |
-//   | A 0        0     | | y |   |         b             |,
-//   | G 0    -(z <> s) | | z | = | -z <> (s o z + tau e) |
+//   | gamma^2*I     A^T           G       | | dx |   |     -r_c             |
+//   |      A    -delta^2*I        0       | | dy |   |     -r_b             |,
+//   |      G         0      -(inv(z) o s) | | dz | = | -r_h + inv(z) o r_mu |
 //
-// and the particular system solved is of the form
-//
-//   | 0 A^T      G     | | dx |   |     -r_c        |
-//   | A 0        0     | | dy |   |     -r_b        |,
-//   | G 0    -(z <> s) | | dz | = | -rh + z <> r_mu |
-//
-// where 
+// where, in the case of a naive update with barrier parameter tau, has
 //
 //   r_c  = A^T y + G^T z + c,
 //   r_b  = A x - b,
@@ -36,6 +30,8 @@ template<typename Real>
 void KKT
 ( const Matrix<Real>& A,
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& J,
@@ -51,6 +47,9 @@ void KKT
     auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+
+    ShiftDiagonal( Jxx, gamma*gamma );
+    ShiftDiagonal( Jyy, -delta*delta ); 
 
     // Jyx := A
     // ========
@@ -84,6 +83,8 @@ template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const AbstractDistMatrix<Real>& s,
   const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre,
@@ -101,6 +102,9 @@ void KKT
     auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
+
+    ShiftDiagonal( Jxx, gamma*gamma );
+    ShiftDiagonal( Jyy, -delta*delta );
 
     // Jyx := A
     // ========
@@ -133,6 +137,8 @@ template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -142,14 +148,15 @@ void KKT
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
-    qp::affine::KKT( Q, A, G, s, z, J, onlyLower );
+    qp::affine::KKT( Q, A, G, gamma, delta, s, z, J, onlyLower );
 }
 
 template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& regPerm,
+        Real gamma,
+        Real delta,
         SparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -157,13 +164,15 @@ void StaticKKT
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
-    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
+    qp::affine::StaticKKT( Q, A, G, gamma, delta, J, onlyLower );
 }
 
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -174,14 +183,15 @@ void KKT
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);
     Q.Resize( n, n );
-    qp::affine::KKT( Q, A, G, s, z, J, onlyLower );
+    qp::affine::KKT( Q, A, G, gamma, delta, s, z, J, onlyLower );
 }
 
 template<typename Real>
 void StaticKKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& regPerm,
+        Real gamma,
+        Real delta,
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -190,19 +200,23 @@ void StaticKKT
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);
     Q.Resize( n, n );
-    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
+    qp::affine::StaticKKT( Q, A, G, gamma, delta, J, onlyLower );
 }
 
 #define PROTO(Real) \
   template void KKT \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& s, \
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const AbstractDistMatrix<Real>& s, \
     const AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& J, \
@@ -210,6 +224,8 @@ void StaticKKT
   template void KKT \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& s, \
     const Matrix<Real>& z, \
           SparseMatrix<Real>& J, \
@@ -217,12 +233,15 @@ void StaticKKT
   template void StaticKKT \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
-    const Matrix<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, \
@@ -230,7 +249,8 @@ void StaticKKT
   template void StaticKKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
           DistSparseMatrix<Real>& J, \
     bool onlyLower );
 

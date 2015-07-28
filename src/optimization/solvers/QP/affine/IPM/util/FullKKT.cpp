@@ -14,28 +14,24 @@ namespace affine {
 
 // The full KKT system is of the form
 //
-//   | Q A^T      G     | | x |   |        -c             |
-//   | A 0        0     | | y |   |         b             |,
-//   | G 0    -(z <> s) | | z | = | -z <> (s o z + tau e) |
+//   | Q+gamma^2*I     A^T         G     | | dx |   |     -r_c             |
+//   |       A     -delta^2*I      0     | | dy |   |     -r_b             |,
+//   |       G          0      -(z <> s) | | dz | = | -r_h + inv(z) o r_mu |
 //
-// and the particular system solved is of the form
+// where, in the case of a naive update with barrier parameter tau,
 //
-//   | Q A^T      G     | | dx |   |     -rc        |
-//   | A 0        0     | | dy |   |     -rb        |,
-//   | G 0    -(z <> s) | | dz | = | -rh + z <> rmu |
-//
-// where 
-//
-//   rc  = Q x + A^T y + G^T z + c,
-//   rb  = A x - b,
-//   rh  = G x + s - h,
-//   rmu = s o z - tau e
+//   r_c  = Q x + A^T y + G^T z + c,
+//   r_b  = A x - b,
+//   r_h  = G x + s - h,
+//   r_mu = s o z - tau e.
 
 template<typename Real>
 void KKT
 ( const Matrix<Real>& Q,
   const Matrix<Real>& A,
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& J, 
@@ -52,9 +48,14 @@ void KKT
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
 
-    // Jxx := Q
-    // ========
+    // Jxx := Q + gamma^2*I
+    // ====================
     Jxx = Q;
+    ShiftDiagonal( Jxx, gamma*gamma );
+
+    // Jyy := -delta^2*I
+    // =================
+    ShiftDiagonal( Jyy, -delta*delta );
 
     // Jyx := A
     // ========
@@ -89,6 +90,8 @@ void KKT
 ( const AbstractDistMatrix<Real>& Q,
   const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const AbstractDistMatrix<Real>& s,
   const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre, 
@@ -108,9 +111,14 @@ void KKT
     auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
     auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
-    // Jxx := Q
-    // ========
+    // Jxx := Q + gamma^2*I
+    // ====================
     Jxx = Q;
+    ShiftDiagonal( Jxx, gamma*gamma );
+
+    // Jyy := -delta^2*I
+    // =================
+    ShiftDiagonal( Jyy, -delta*delta );
 
     // Jyx := A
     // ========
@@ -144,6 +152,8 @@ void KKT
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J, 
@@ -171,12 +181,12 @@ void KKT
         numUsedEntriesQ = numEntriesQ;
 
     if( onlyLower )
-        J.Reserve( numUsedEntriesQ + numEntriesA + numEntriesG + k );
+        J.Reserve( numUsedEntriesQ + numEntriesA + numEntriesG + m+n+k );
     else
-        J.Reserve( numUsedEntriesQ + 2*numEntriesA + 2*numEntriesG + k );
+        J.Reserve( numUsedEntriesQ + 2*numEntriesA + 2*numEntriesG + m+n+k );
 
-    // Jxx = Q
-    // =======
+    // Jxx = Q + gamma^2*I
+    // ===================
     for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
@@ -184,6 +194,13 @@ void KKT
         if( i >= j || !onlyLower )
             J.QueueUpdate( i, j, Q.Value(e) );
     }
+    for( Int i=0; i<n; ++i )
+        J.QueueUpdate( i, i, gamma*gamma );
+
+    // Jyy = -delta^2*I
+    // ================
+    for( Int i=0; i<m; ++i )
+        J.QueueUpdate( i+n, i+n, -delta*delta );
 
     // Jyx = A (and Jxy = A^T)
     // =======================
@@ -209,6 +226,7 @@ void KKT
         J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
 
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -216,7 +234,8 @@ void StaticKKT
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& regPerm,
+        Real gamma,
+        Real delta,
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
@@ -246,8 +265,8 @@ void StaticKKT
     else
         J.Reserve( numUsedEntriesQ + 2*numEntriesA + 2*numEntriesG + n+m+k );
 
-    // Jxx = Q
-    // =======
+    // Jxx = Q + gamma^2*I
+    // ===================
     for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
@@ -255,6 +274,18 @@ void StaticKKT
         if( i >= j || !onlyLower )
             J.QueueUpdate( i, j, Q.Value(e) );
     }
+    for( Int i=0; i<n; ++i )
+        J.QueueUpdate( i, i, gamma*gamma );
+
+    // Jyy = -delta^2*I
+    // ================
+    for( Int i=0; i<m; ++i )
+        J.QueueUpdate( i+n, i+n, -delta*delta );
+
+    // Jzz = 0
+    // =======
+    for( Int i=0; i<k; ++i )
+        J.QueueUpdate( i+n+m, i+n+m, 0 );
 
     // Jyx = A (and Jxy = A^T)
     // =======================
@@ -274,12 +305,8 @@ void StaticKKT
             J.QueueUpdate( G.Col(e), n+m+G.Row(e), G.Value(e) );
     }
 
-    // Add the regularization
-    // ======================
-    for( Int e=0; e<n+m+k; ++e )
-        J.QueueUpdate( e, e, regPerm.Get(e,0) );
-
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -306,6 +333,8 @@ void KKT
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -321,23 +350,37 @@ void KKT
 
     J.SetComm( A.Comm() );
     Zeros( J, n+m+k, n+m+k );
+    const Int JLocalHeight = J.LocalHeight();
 
     // Compute the number of entries to send
     // =====================================
-    Int numEntries = numEntriesA + numEntriesG + s.LocalHeight();
+    Int numRemote = numEntriesA + numEntriesG;
     if( !onlyLower )
-        numEntries += numEntriesA + numEntriesG;
+        numRemote += numEntriesA + numEntriesG;
     for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            ++numEntries;
+            ++numRemote;
     }
 
     // Queue and process the entries
     // =============================
-    J.Reserve( numEntries, numEntries );
+    // TODO: Lower these upper bounds; no explicit zeros for Jzz
+    J.Reserve( JLocalHeight+numRemote, numRemote );
+    // Fill in the diagonal regularization
+    // -----------------------------------
+    for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
+    {
+        const Int i = J.GlobalRow(iLoc);
+        if( i < n )
+            J.QueueLocalUpdate( iLoc, i, gamma*gamma );
+        else if( i < n+m )
+            J.QueueLocalUpdate( iLoc, i, -delta*delta );
+        else
+            break;
+    }
     // Pack Q
     // ------
     for( Int e=0; e<numEntriesQ; ++e )
@@ -376,6 +419,7 @@ void KKT
         J.QueueUpdate( i, i, value, false );
     }
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -383,7 +427,8 @@ void StaticKKT
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& regPerm,
+        Real gamma,
+        Real delta,
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -397,7 +442,7 @@ void StaticKKT
 
     J.SetComm( A.Comm() );
     Zeros( J, n+m+k, n+m+k );
-    const Int localHeightJ = J.LocalHeight();
+    const Int JLocalHeight = J.LocalHeight();
 
     // Compute the number of entries to send
     // =====================================
@@ -414,7 +459,7 @@ void StaticKKT
 
     // Queue and process the entries
     // =============================
-    J.Reserve( numEntries+localHeightJ, numEntries );
+    J.Reserve( numEntries+JLocalHeight, numEntries );
     // Pack Q
     // ------
     for( Int e=0; e<numEntriesQ; ++e )
@@ -444,14 +489,20 @@ void StaticKKT
         if( !onlyLower )
             J.QueueUpdate( j, i, G.Value(e), false );
     }
-    // Pack regPerm
-    // ------------
-    for( Int iLoc=0; iLoc<localHeightJ; ++iLoc )
+    // Pack the regularization
+    // -----------------------
+    for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
     {
         const Int i = J.GlobalRow(iLoc);
-        J.QueueLocalUpdate( iLoc, i, regPerm.GetLocal(iLoc,0) );
+        if( i < n )
+            J.QueueLocalUpdate( iLoc, i, gamma*gamma );
+        else if( i < n+m )
+            J.QueueLocalUpdate( iLoc, i, -delta*delta );
+        else
+            J.QueueLocalUpdate( iLoc, i, 0 );
     }
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -749,6 +800,8 @@ void ExpandSolution
   ( const Matrix<Real>& Q, \
     const Matrix<Real>& A, \
     const Matrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& s, \
     const Matrix<Real>& z, \
           Matrix<Real>& J, \
@@ -757,6 +810,8 @@ void ExpandSolution
   ( const AbstractDistMatrix<Real>& Q, \
     const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const AbstractDistMatrix<Real>& s, \
     const AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& J, \
@@ -765,6 +820,8 @@ void ExpandSolution
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& s, \
     const Matrix<Real>& z, \
           SparseMatrix<Real>& J, \
@@ -773,7 +830,8 @@ void ExpandSolution
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
-    const Matrix<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \
@@ -785,6 +843,8 @@ void ExpandSolution
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, \
@@ -793,7 +853,8 @@ void ExpandSolution
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
           DistSparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \

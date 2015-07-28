@@ -27,29 +27,35 @@ namespace El {
 template<typename F>
 void LeastSquares
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& B, 
-                            Matrix<F>& X );
+  const Matrix<F>& A,
+  const Matrix<F>& B,
+        Matrix<F>& X );
 template<typename F>
 void LeastSquares
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-                                        AbstractDistMatrix<F>& X );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
+        AbstractDistMatrix<F>& X );
 
 template<typename Real>
 struct LeastSquaresCtrl 
 {
     bool scaleTwoNorm=true;
-    Int basisSize=15; // only used if 'scaleTwoNorm' is true
+    Int basisSize=6; // only used if 'scaleTwoNorm' is true
 
     // Note: while 'alpha' should ideally be roughly equal to the minimum 
     //       singular value of A (possibly scaled down to unit two-norm),
     //       Saunders has recommended in at least one publication that 
     //       alpha ~= 1e-4 is a decent default. After experimenting with the
     //       estimation of the minimum singular value via Lanczos on A^H A
-    //       failed (the literature agrees), I fell back to this default value.
+    //       failed, I fell back to this default value.
     Real alpha=Pow(Epsilon<Real>(),Real(0.25));
+ 
 
-    RegQSDCtrl<Real> qsdCtrl;
+    Real damp=Pow(Epsilon<Real>(),Real(0.4));
+    Real dampTmp=Pow(Epsilon<Real>(),Real(0.3));
+
+    RegLDLCtrl<Real> regLDLCtrl;
     bool equilibrate=true;
     bool progress=false;
     bool time=false;
@@ -58,14 +64,16 @@ struct LeastSquaresCtrl
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& Y, 
-                                  Matrix<F>& X,
+  const SparseMatrix<F>& A,
+  const Matrix<F>& Y, 
+        Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, 
-                                      DistMultiVec<F>& X,
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& Y, 
+        DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Dense versions which overwrite their input
@@ -75,13 +83,15 @@ namespace ls {
 template<typename F>
 void Overwrite
 ( Orientation orientation, 
-  Matrix<F>& A, const Matrix<F>& B, 
-                      Matrix<F>& X );
+        Matrix<F>& A,
+  const Matrix<F>& B, 
+        Matrix<F>& X );
 template<typename F>
 void Overwrite
 ( Orientation orientation, 
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-                                  AbstractDistMatrix<F>& X );
+        AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
+        AbstractDistMatrix<F>& X );
 
 } // namespace ls
 
@@ -102,27 +112,35 @@ using namespace RidgeAlgNS;
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& B, 
-        Base<F> gamma,      Matrix<F>& X, 
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+        Base<F> gamma,
+        Matrix<F>& X, 
   RidgeAlg alg=RIDGE_CHOLESKY );
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  Base<F> gamma,                        AbstractDistMatrix<F>& X, 
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
+        Base<F> gamma,
+        AbstractDistMatrix<F>& X, 
   RidgeAlg alg=RIDGE_CHOLESKY );
 
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B, 
-        Base<F> gamma,            Matrix<F>& X, 
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B, 
+        Base<F> gamma,
+        Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
-        Base<F> gamma,                DistMultiVec<F>& X, 
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B, 
+        Base<F> gamma,
+        DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Tikhonov regularization
@@ -130,12 +148,16 @@ void Ridge
 
 // Either solve the regularized Least Squares problem
 //
-//    min_ X || [W;G] X - [B;0] ||_F
-// 
+//    min_X || | W | X - | B | ||
+//          || | G |     | 0 | ||_F
+//
 // or the regularized Minimum Length problem
 //
-//    min_{X,S} || [X; S] ||_F 
-//    s.t. [W, G] [X; S] = B,
+//    min_{X,S} || | X | ||
+//              || | S | ||_F
+//
+//    s.t. | W, G | | X | = B,
+//                  | S |
 //
 // where W is defined as op(A), which is either A, A^T, or A^H.
 //
@@ -150,27 +172,35 @@ using namespace TikhonovAlgNS;
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& B, 
-  const Matrix<F>& G,       Matrix<F>& X, 
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+  const Matrix<F>& G,
+        Matrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& G,       AbstractDistMatrix<F>& X, 
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B,
-  const SparseMatrix<F>& G,       Matrix<F>& X,
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B,
+  const SparseMatrix<F>& G,
+        Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
-  const DistSparseMatrix<F>& G,       DistMultiVec<F>& X,
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B,
+  const DistSparseMatrix<F>& G,
+        DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Equality-constrained Least Squarees
@@ -179,25 +209,33 @@ void Tikhonov
 //   min_X || A X - C ||_F subject to B X = D
 template<typename F>
 void LSE
-( const Matrix<F>& A, const Matrix<F>& B, 
-  const Matrix<F>& C, const Matrix<F>& D, 
+( const Matrix<F>& A,
+  const Matrix<F>& B, 
+  const Matrix<F>& C,
+  const Matrix<F>& D, 
         Matrix<F>& X );
 template<typename F>
 void LSE
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, 
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
+  const AbstractDistMatrix<F>& C,
+  const AbstractDistMatrix<F>& D, 
         AbstractDistMatrix<F>& X );
 
 template<typename F>
 void LSE
-( const SparseMatrix<F>& A, const SparseMatrix<F>& B,
-  const Matrix<F>& C,       const Matrix<F>& D,
+( const SparseMatrix<F>& A,
+  const SparseMatrix<F>& B,
+  const Matrix<F>& C,
+  const Matrix<F>& D,
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void LSE
-( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B,
-  const DistMultiVec<F>& C,     const DistMultiVec<F>& D,
+( const DistSparseMatrix<F>& A,
+  const DistSparseMatrix<F>& B,
+  const DistMultiVec<F>& C,
+  const DistMultiVec<F>& D,
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
@@ -209,12 +247,17 @@ namespace lse {
 // are modified
 template<typename F>
 void Overwrite
-( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, 
+( Matrix<F>& A,
+  Matrix<F>& B,
+  Matrix<F>& C,
+  Matrix<F>& D, 
   Matrix<F>& X, bool computeResidual=false );
 template<typename F>
 void Overwrite
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, 
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& C,
+  AbstractDistMatrix<F>& D, 
   AbstractDistMatrix<F>& X, bool computeResidual=false );
 
 } // namespace lse
@@ -226,26 +269,34 @@ void Overwrite
 
 template<typename F>
 void GLM
-( const Matrix<F>& A, const Matrix<F>& B, 
+( const Matrix<F>& A,
+  const Matrix<F>& B, 
   const Matrix<F>& D, 
-        Matrix<F>& X,       Matrix<F>& Y );
+        Matrix<F>& X,
+        Matrix<F>& Y );
 template<typename F>
 void GLM
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B, 
   const AbstractDistMatrix<F>& D, 
-        AbstractDistMatrix<F>& X,       AbstractDistMatrix<F>& Y );
+        AbstractDistMatrix<F>& X,
+        AbstractDistMatrix<F>& Y );
 
 template<typename F>
 void GLM
-( const SparseMatrix<F>& A, const SparseMatrix<F>& B,
+( const SparseMatrix<F>& A,
+  const SparseMatrix<F>& B,
   const Matrix<F>& D,             
-        Matrix<F>& X,             Matrix<F>& Y,
+        Matrix<F>& X,
+        Matrix<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void GLM
-( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B,
+( const DistSparseMatrix<F>& A,
+  const DistSparseMatrix<F>& B,
   const DistMultiVec<F>& D,           
-        DistMultiVec<F>& X,           DistMultiVec<F>& Y,
+        DistMultiVec<F>& X,
+        DistMultiVec<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Dense versions which overwrite the input where possible
@@ -255,11 +306,16 @@ namespace glm {
 // A and B are overwritten with their factorizations and X is returned in D
 template<typename F>
 void Overwrite
-( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y );
+( Matrix<F>& A,
+  Matrix<F>& B,
+  Matrix<F>& D,
+  Matrix<F>& Y );
 template<typename F>
 void Overwrite
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& D,
+  AbstractDistMatrix<F>& Y );
 
 } // namespace glm
 

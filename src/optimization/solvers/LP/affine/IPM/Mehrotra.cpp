@@ -47,6 +47,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -58,6 +59,9 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -110,7 +114,7 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, x, y, z, s, 
+    ( A, G, gamma, delta, beta, b, c, h, x, y, z, s, 
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
@@ -208,7 +212,7 @@ void Mehrotra
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, J );
+        KKT( A, G, gamma, delta, beta, s, z, J );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
         // Solve for the direction
@@ -353,6 +357,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -364,6 +369,9 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -442,7 +450,7 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, x, y, z, s, 
+    ( A, G, gamma, delta, beta, b, c, h, x, y, z, s, 
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
@@ -545,7 +553,7 @@ void Mehrotra
         DiagonalScale( LEFT, NORMAL, s, rmu );
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, J );
+        KKT( A, G, gamma, delta, beta, s, z, J );
         KKTRHS( rc, rb, rh, rmu, z, d );
         // Solve for the proposed step
         // ---------------------------
@@ -702,6 +710,12 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -757,29 +771,23 @@ void Mehrotra
         Output("|| h ||_2 = ",hNrm2);
     }
 
-    Matrix<Real> regTmp, regPerm;
-    regTmp.Resize( n+m+k, 1 );
-    regPerm.Resize( n+m+k, 1 );
+    Matrix<Real> regTmp;
+    Zeros( regTmp, n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
         if( i < n )
-        {
-            regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*eps );
-        }
+            regTmp.Set( i, 0, gammaTmp*gammaTmp );
+        else if( i < n+m )
+            regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         else
-        {
-            regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.Set( i, 0, -10*eps );
-        }
+            regTmp.Set( i, 0, -betaTmp*betaTmp );
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
-    StaticKKT( A, G, regPerm, JStatic, false );
+    StaticKKT( A, G, gamma, delta, beta, JStatic, false );
     JStatic.FreezeSparsity();
     vector<Int> map, invMap;
     ldl::NodeInfo info;
@@ -788,8 +796,8 @@ void Mehrotra
     InvertMap( map, invMap );
 
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+    ( JStatic, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -914,8 +922,8 @@ void Mehrotra
             JFront.Pull( J, map, info );
 
             LDL( info, JFront, LDL_2D );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.regLDLCtrl );
         }
         catch(...)
         {
@@ -995,8 +1003,8 @@ void Mehrotra
         // ---------------------------
         try
         {
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.regLDLCtrl );
         }
         catch(...)
         {
@@ -1068,6 +1076,12 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -1131,30 +1145,24 @@ void Mehrotra
         Output("|| h ||_2 = ",hNrm2);
     }
 
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
-    regTmp.Resize( n+m+k, 1 );
-    regPerm.Resize( n+m+k, 1 );
+    DistMultiVec<Real> regTmp(comm);
+    Zeros( regTmp, n+m+k, 1 );
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-        {
-            regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*eps );
-        }
+            regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
+        else if( i < n+m )
+            regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
         else
-        {
-            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*eps );
-        }
+            regTmp.SetLocal( iLoc, 0, -betaTmp*betaTmp );
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Construct the static part of the KKT system
     // ===========================================
     DistSparseMatrix<Real> JStatic(comm);
-    StaticKKT( A, G, regPerm, JStatic, false );
+    StaticKKT( A, G, gamma, delta, beta, JStatic, false );
     JStatic.FreezeSparsity();
     JStatic.InitializeMultMeta();
     DistMap map, invMap;
@@ -1170,9 +1178,9 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s, 
+    ( JStatic, b, c, h, x, y, z, s, 
       map, invMap, rootSep, info, 
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
@@ -1313,8 +1321,8 @@ void Mehrotra
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.regLDLCtrl );
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
         }
@@ -1399,8 +1407,8 @@ void Mehrotra
         {
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.qsdCtrl );
+            ldl::SolveAfter
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.regLDLCtrl );
             if( commRank == 0 && ctrl.time )
                 Output("Corrector: ",timer.Stop()," secs");
         }

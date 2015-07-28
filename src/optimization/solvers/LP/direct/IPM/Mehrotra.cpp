@@ -59,6 +59,7 @@ void Mehrotra
     // TODO: Implement nonzero regularization
     const Real gamma = 0;
     const Real delta = 0;
+    const Real beta = 0;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -122,7 +123,8 @@ void Mehrotra
     }
 
     Initialize
-    ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
+    ( A, gamma, delta, b, c, x, y, z, 
+      ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
     Real muOld = 0.1;
     Real relError = 1;
@@ -217,7 +219,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            KKT( A, x, z, J );
+            KKT( A, gamma, delta, beta, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
             // Solve for the direction
@@ -241,7 +243,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            AugmentedKKT( A, x, z, J );
+            AugmentedKKT( A, gamma, delta, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Solve for the step
@@ -493,6 +495,7 @@ void Mehrotra
     // TODO: Implement nonzero regularization
     const Real gamma = 0;
     const Real delta = 0;
+    const Real beta = 0;
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -579,7 +582,8 @@ void Mehrotra
     }
 
     Initialize
-    ( A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
+    ( A, gamma, delta, b, c, x, y, z, 
+      ctrl.primalInit, ctrl.dualInit, standardShift ); 
 
     Real muOld = 0.1;
     Real relError = 1;
@@ -682,7 +686,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            KKT( A, x, z, J );
+            KKT( A, gamma, delta, beta, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
             // Solve for the direction
@@ -706,7 +710,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            AugmentedKKT( A, x, z, J );
+            AugmentedKKT( A, gamma, delta, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Solve for the direction
@@ -956,15 +960,15 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
-    Real gamma, delta, gammaTmp, deltaTmp;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    Real gammaTmp, deltaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
-        gamma = delta = gammaTmp = deltaTmp = 0;
+        gammaTmp = deltaTmp = 0;
     }
     else
     {
-        gamma = Pow(eps,Real(0.35));
-        delta = Pow(eps,Real(0.35));
         gammaTmp = Pow(eps,Real(0.25));
         deltaTmp = Pow(eps,Real(0.25));
     }
@@ -1046,8 +1050,9 @@ void Mehrotra
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+        ( A, gamma, delta, b, c, x, y, z, 
+          map, invMap, rootSep, info,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     }  
     else
     {
@@ -1055,25 +1060,26 @@ void Mehrotra
         ldl::NodeInfo augInfo;
         ldl::Separator augRootSep;
         Initialize
-        ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+        ( A, gamma, delta, b, c, x, y, z, 
+          augMap, augInvMap, augRootSep, augInfo,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     }
 
     Matrix<Real> regTmp;
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
+        Zeros( regTmp, m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
             if( i < n )
                 regTmp.Set( i, 0, gammaTmp*gammaTmp );
-            else 
+            else if( i < n+m )
                 regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
+        Zeros( regTmp, n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
             if( i < n )
@@ -1084,7 +1090,7 @@ void Mehrotra
     }
     else if( ctrl.system == NORMAL_KKT )
     {
-        regTmp.Resize( m, 1 );
+        Zeros( regTmp, m, 1 );
         Fill( regTmp, deltaTmp*deltaTmp );
     }
     regTmp *= origTwoNormEst;
@@ -1195,12 +1201,12 @@ void Mehrotra
             // ------------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( A, x, z, JOrig, false );
+                KKT( A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( A, x, z, JOrig, false );
+                AugmentedKKT( A, gamma, delta, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
@@ -1234,9 +1240,9 @@ void Mehrotra
                 JFront.Pull( J, map, info );
 
                 LDL( info, JFront, LDL_2D );
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
             }
             catch(...)
             {
@@ -1273,10 +1279,10 @@ void Mehrotra
 
                 LDL( info, JFront, LDL_2D );
                 // NOTE: regTmp should be all zeros; replace with unregularized
-                reg_qsd_ldl::RegularizedSolveAfter
+                ldl::RegularizedSolveAfter
                 ( J, regTmp, invMap, info, JFront, dyAff, 
-                  ctrl.qsdCtrl.relTol, ctrl.qsdCtrl.maxRefineIts,
-                  ctrl.qsdCtrl.progress, ctrl.qsdCtrl.time );
+                  ctrl.regLDLCtrl.relTol, ctrl.regLDLCtrl.maxRefineIts,
+                  ctrl.regLDLCtrl.progress, ctrl.regLDLCtrl.time );
             }
             catch(...)
             {
@@ -1361,9 +1367,9 @@ void Mehrotra
             KKTRHS( rc, rb, rmu, z, d );
             try
             {
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
             }
             catch(...)
             {
@@ -1380,9 +1386,9 @@ void Mehrotra
             AugmentedKKTRHS( x, rc, rb, rmu, d );
             try
             {
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
             }
             catch(...)
             {
@@ -1400,10 +1406,10 @@ void Mehrotra
             try
             {
                 // NOTE: regTmp should be all zeros; replace with unregularized
-                reg_qsd_ldl::RegularizedSolveAfter
+                ldl::RegularizedSolveAfter
                 ( J, regTmp, invMap, info, JFront, dy,
-                  ctrl.qsdCtrl.relTol, ctrl.qsdCtrl.maxRefineIts,
-                  ctrl.qsdCtrl.progress, ctrl.qsdCtrl.time );
+                  ctrl.regLDLCtrl.relTol, ctrl.regLDLCtrl.maxRefineIts,
+                  ctrl.regLDLCtrl.progress, ctrl.regLDLCtrl.time );
             }
             catch(...)
             {
@@ -1499,15 +1505,15 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
-    Real gamma, delta, gammaTmp, deltaTmp;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    Real gammaTmp, deltaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
-        gamma = delta = gammaTmp = deltaTmp = 0;
+        gammaTmp = deltaTmp = 0;
     }
     else
     {
-        gamma = Pow(eps,Real(0.35));
-        delta = Pow(eps,Real(0.35));
         gammaTmp = Pow(eps,Real(0.25));
         deltaTmp = Pow(eps,Real(0.25));
     }
@@ -1597,8 +1603,9 @@ void Mehrotra
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+        ( A, gamma, delta, b, c, x, y, z, 
+          map, invMap, rootSep, info,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     }  
     else
     {
@@ -1606,8 +1613,9 @@ void Mehrotra
         ldl::DistNodeInfo augInfo;
         ldl::DistSeparator augRootSep;
         Initialize
-        ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+        ( A, gamma, delta, b, c, x, y, z, 
+          augMap, augInvMap, augRootSep, augInfo,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     }
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
@@ -1615,19 +1623,19 @@ void Mehrotra
     DistMultiVec<Real> regTmp(comm);
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
+        Zeros( regTmp, m+2*n, 1 );
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
             if( i < n )
                 regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
-            else
+            else if( i < n+m )
                 regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
+        Zeros( regTmp, n+m, 1 );
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
@@ -1639,7 +1647,7 @@ void Mehrotra
     }
     else if( ctrl.system == NORMAL_KKT )
     {
-        regTmp.Resize( m, 1 );
+        Zeros( regTmp, m, 1 );
         Fill( regTmp, deltaTmp*deltaTmp );
     }
     regTmp *= origTwoNormEst;
@@ -1748,12 +1756,12 @@ void Mehrotra
             // -----------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( A, x, z, JOrig, false );
+                KKT( A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( A, x, z, JOrig, false );
+                AugmentedKKT( A, gamma, delta, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
@@ -1811,9 +1819,9 @@ void Mehrotra
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1836,11 +1844,8 @@ void Mehrotra
             // Assemble the KKT system
             // -----------------------
             // TODO: Apply updates on top of explicit zeros
-            Output("Building NormalKKT");
             NormalKKT( A, gamma, delta, x, z, J, false );
-            Output("Building NormalKKTRHS");
             NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dyAff );
-            Output("Built NormalKKTRHS");
 
             // Solve for the direction
             // -----------------------
@@ -1869,10 +1874,10 @@ void Mehrotra
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start(); 
-                reg_qsd_ldl::RegularizedSolveAfter
+                ldl::RegularizedSolveAfter
                 ( J, regTmp, invMap, info, JFront, dyAff, 
-                  ctrl.qsdCtrl.relTol, ctrl.qsdCtrl.maxRefineIts,
-                  ctrl.qsdCtrl.progress, ctrl.qsdCtrl.time );
+                  ctrl.regLDLCtrl.relTol, ctrl.regLDLCtrl.maxRefineIts,
+                  ctrl.regLDLCtrl.progress, ctrl.regLDLCtrl.time );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1960,9 +1965,9 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -1983,9 +1988,9 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -2006,10 +2011,10 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::RegularizedSolveAfter
+                ldl::RegularizedSolveAfter
                 ( J, regTmp, invMap, info, JFront, dy, 
-                  ctrl.qsdCtrl.relTol, ctrl.qsdCtrl.maxRefineIts,
-                  ctrl.qsdCtrl.progress, ctrl.qsdCtrl.time );
+                  ctrl.regLDLCtrl.relTol, ctrl.regLDLCtrl.maxRefineIts,
+                  ctrl.regLDLCtrl.progress, ctrl.regLDLCtrl.time );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }

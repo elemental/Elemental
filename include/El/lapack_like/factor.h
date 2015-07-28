@@ -368,13 +368,11 @@ typedef enum
   EL_REG_REFINE_LGMRES,
   EL_REG_REFINE_IR,
   EL_REG_REFINE_IR_MOD
-} ElRegQSDRefineAlg;
+} ElRegLDLRefineAlg;
 
 typedef struct
 {
-  float regPrimal;
-  float regDual;
-  ElRegQSDRefineAlg alg;
+  ElRegLDLRefineAlg alg;
   float relTol;
   float relTolRefine;
   ElInt maxIts;
@@ -382,14 +380,12 @@ typedef struct
   ElInt restart;
   bool progress;
   bool time;
-} ElRegQSDCtrl_s;
-EL_EXPORT ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl );
+} ElRegLDLCtrl_s;
+EL_EXPORT ElError ElRegLDLCtrlDefault_s( ElRegLDLCtrl_s* ctrl );
 
 typedef struct
 {
-  double regPrimal;
-  double regDual;
-  ElRegQSDRefineAlg alg;
+  ElRegLDLRefineAlg alg;
   double relTol;
   double relTolRefine;
   ElInt maxIts;
@@ -397,8 +393,8 @@ typedef struct
   ElInt restart;
   bool progress;
   bool time;
-} ElRegQSDCtrl_d;
-EL_EXPORT ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl );
+} ElRegLDLCtrl_d;
+EL_EXPORT ElError ElRegLDLCtrlDefault_d( ElRegLDLCtrl_d* ctrl );
 
 /* TODO: Wrappers for regularized factorizations and solves */
 

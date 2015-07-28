@@ -15,10 +15,10 @@ namespace direct {
 
 // Form 
 //
-//    | (x <> z)  A^T | | dx | = | -r_c - x <> r_mu |,
-//    |    A       0  | | dy |   | -r_b             |
+//    | inv(x) o z + gamma^2*I      A^T   | | dx | = | -r_c - inv(x) o r_mu |,
+//    |           A            -delta^2*I | | dy |   | -r_b                 |
 //
-// where 
+// where, in the case of a naive step with barrier parameter tau,
 //
 //    r_b  = A x - b,
 //    r_c  = A^T y - z + c,
@@ -26,12 +26,14 @@ namespace direct {
 //
 // and dz can be computed using
 //
-//   dz = - x <> (r_mu + z o dx)
+//   dz = -inv(x) o (r_mu + z o dx)
 //
 
 template<typename Real>
 void AugmentedKKT
 ( const Matrix<Real>& A, 
+        Real gamma,
+        Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         Matrix<Real>& J,
@@ -48,6 +50,8 @@ void AugmentedKKT
     Matrix<Real> d( z );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d );
+    ShiftDiagonal( Jxx, gamma*gamma );
+    ShiftDiagonal( Jyy, -delta*delta );
     Jyx = A;
     if( !onlyLower )
         Transpose( A, Jxy );
@@ -56,6 +60,8 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const AbstractDistMatrix<Real>& A, 
+        Real gamma,
+        Real delta,
   const AbstractDistMatrix<Real>& x,
   const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre, 
@@ -75,6 +81,8 @@ void AugmentedKKT
     DistMatrix<Real,MC,STAR> d( z );
     DiagonalSolve( LEFT, NORMAL, x, d );
     Diagonal( Jxx, d );
+    ShiftDiagonal( Jxx, gamma*gamma );
+    ShiftDiagonal( Jyy, -delta*delta );
     Jyx = A;
     if( !onlyLower )
         Transpose( A, Jxy );
@@ -83,6 +91,8 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& A, 
+        Real gamma,
+        Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -92,12 +102,14 @@ void AugmentedKKT
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Zeros( Q, n, n );
-    qp::direct::AugmentedKKT( Q, A, x, z, J, onlyLower );
+    qp::direct::AugmentedKKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
 
 template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& A,
+        Real gamma,
+        Real delta,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -107,30 +119,38 @@ void AugmentedKKT
     const Int n = A.Width();
     DistSparseMatrix<Real> Q(A.Comm());
     Zeros( Q, n, n );
-    qp::direct::AugmentedKKT( Q, A, x, z, J, onlyLower );
+    qp::direct::AugmentedKKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
 
 #define PROTO(Real) \
   template void AugmentedKKT \
   ( const Matrix<Real>& A, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& x, \
     const Matrix<Real>& z, \
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
   ( const AbstractDistMatrix<Real>& A, \
+          Real gamma, \
+          Real delta, \
     const AbstractDistMatrix<Real>& x, \
     const AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& x, \
     const Matrix<Real>& z, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
   ( const DistSparseMatrix<Real>& A, \
+          Real gamma, \
+          Real delta, \
     const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, \

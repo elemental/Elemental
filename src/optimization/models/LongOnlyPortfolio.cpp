@@ -23,7 +23,7 @@ void LongOnlyPortfolio
 
     qp::direct::Ctrl<Real> ctrl;
     ctrl.mehrotraCtrl.print = true;
-    ctrl.mehrotraCtrl.qsdCtrl.progress = true;
+    ctrl.mehrotraCtrl.regLDLCtrl.progress = true;
 
     // Rather than making a copy of Sigma to form gamma*Sigma, scale c
     // ===============================================================
@@ -64,7 +64,7 @@ void LongOnlyPortfolio
         socp::affine::Ctrl<Real> ctrl;
         ctrl.mehrotraCtrl.time = true;
         ctrl.mehrotraCtrl.print = true;
-        ctrl.mehrotraCtrl.qsdCtrl.progress = true;
+        ctrl.mehrotraCtrl.regLDLCtrl.progress = true;
 
         // Form cHat = [-c^T, gamma, gamma, 0, 0]
         // ======================================

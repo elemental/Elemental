@@ -1365,16 +1365,14 @@ inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
     return ctrl;
 }
 
-inline RegQSDRefineAlg CReflect( ElRegQSDRefineAlg alg ) 
-{ return static_cast<RegQSDRefineAlg>(alg); }
-inline ElRegQSDRefineAlg CReflect( RegQSDRefineAlg alg )
-{ return static_cast<ElRegQSDRefineAlg>(alg); }
+inline RegLDLRefineAlg CReflect( ElRegLDLRefineAlg alg ) 
+{ return static_cast<RegLDLRefineAlg>(alg); }
+inline ElRegLDLRefineAlg CReflect( RegLDLRefineAlg alg )
+{ return static_cast<ElRegLDLRefineAlg>(alg); }
 
-inline ElRegQSDCtrl_s CReflect( const RegQSDCtrl<float>& ctrl )
+inline ElRegLDLCtrl_s CReflect( const RegLDLCtrl<float>& ctrl )
 {
-    ElRegQSDCtrl_s ctrlC;
-    ctrlC.regPrimal    = ctrl.regPrimal;
-    ctrlC.regDual      = ctrl.regDual;
+    ElRegLDLCtrl_s ctrlC;
     ctrlC.alg          = CReflect(ctrl.alg);
     ctrlC.relTol       = ctrl.relTol;
     ctrlC.relTolRefine = ctrl.relTolRefine;
@@ -1385,11 +1383,9 @@ inline ElRegQSDCtrl_s CReflect( const RegQSDCtrl<float>& ctrl )
     return ctrlC;
 }
 
-inline ElRegQSDCtrl_d CReflect( const RegQSDCtrl<double>& ctrl )
+inline ElRegLDLCtrl_d CReflect( const RegLDLCtrl<double>& ctrl )
 {
-    ElRegQSDCtrl_d ctrlC;
-    ctrlC.regPrimal    = ctrl.regPrimal;
-    ctrlC.regDual      = ctrl.regDual;
+    ElRegLDLCtrl_d ctrlC;
     ctrlC.alg          = CReflect(ctrl.alg);
     ctrlC.relTol       = ctrl.relTol;
     ctrlC.relTolRefine = ctrl.relTolRefine;
@@ -1400,11 +1396,9 @@ inline ElRegQSDCtrl_d CReflect( const RegQSDCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline RegQSDCtrl<float> CReflect( const ElRegQSDCtrl_s& ctrlC )
+inline RegLDLCtrl<float> CReflect( const ElRegLDLCtrl_s& ctrlC )
 {
-    RegQSDCtrl<float> ctrl;
-    ctrl.regPrimal    = ctrlC.regPrimal;
-    ctrl.regDual      = ctrlC.regDual;
+    RegLDLCtrl<float> ctrl;
     ctrl.alg          = CReflect(ctrlC.alg);
     ctrl.relTol       = ctrlC.relTol;
     ctrl.relTolRefine = ctrlC.relTolRefine;
@@ -1415,11 +1409,9 @@ inline RegQSDCtrl<float> CReflect( const ElRegQSDCtrl_s& ctrlC )
     return ctrl;
 }
 
-inline RegQSDCtrl<double> CReflect( const ElRegQSDCtrl_d& ctrlC )
+inline RegLDLCtrl<double> CReflect( const ElRegLDLCtrl_d& ctrlC )
 {
-    RegQSDCtrl<double> ctrl;
-    ctrl.regPrimal    = ctrlC.regPrimal;
-    ctrl.regDual      = ctrlC.regDual;
+    RegLDLCtrl<double> ctrl;
     ctrl.alg          = CReflect(ctrlC.alg);
     ctrl.relTol       = ctrlC.relTol;
     ctrl.relTolRefine = ctrlC.relTolRefine;
@@ -1436,7 +1428,9 @@ inline ElLeastSquaresCtrl_s CReflect( const LeastSquaresCtrl<float>& ctrl )
     ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.alpha        = ctrl.alpha; 
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.damp         = ctrl.damp;
+    ctrlC.dampTmp      = ctrl.dampTmp;
+    ctrlC.regLDLCtrl   = CReflect(ctrl.regLDLCtrl);
     ctrlC.equilibrate  = ctrl.equilibrate;
     ctrlC.progress     = ctrl.progress;
     ctrlC.time         = ctrl.time;
@@ -1449,7 +1443,9 @@ inline ElLeastSquaresCtrl_d CReflect( const LeastSquaresCtrl<double>& ctrl )
     ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.alpha        = ctrl.alpha; 
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.damp         = ctrl.damp;
+    ctrlC.dampTmp      = ctrl.dampTmp;
+    ctrlC.regLDLCtrl   = CReflect(ctrl.regLDLCtrl);
     ctrlC.equilibrate  = ctrl.equilibrate;
     ctrlC.progress     = ctrl.progress;
     ctrlC.time         = ctrl.time;
@@ -1462,7 +1458,9 @@ inline LeastSquaresCtrl<float> CReflect( const ElLeastSquaresCtrl_s& ctrlC )
     ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.alpha        = ctrlC.alpha; 
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.damp         = ctrlC.damp;
+    ctrl.dampTmp      = ctrlC.dampTmp;
+    ctrl.regLDLCtrl   = CReflect(ctrlC.regLDLCtrl);
     ctrl.equilibrate  = ctrlC.equilibrate;
     ctrl.progress     = ctrlC.progress;
     ctrl.time         = ctrlC.time;
@@ -1475,7 +1473,9 @@ inline LeastSquaresCtrl<double> CReflect( const ElLeastSquaresCtrl_d& ctrlC )
     ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.alpha        = ctrlC.alpha; 
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.damp         = ctrlC.damp;
+    ctrl.dampTmp      = ctrlC.dampTmp;
+    ctrl.regLDLCtrl   = CReflect(ctrlC.regLDLCtrl);
     ctrl.equilibrate  = ctrlC.equilibrate;
     ctrl.progress     = ctrlC.progress;
     ctrl.time         = ctrlC.time;
@@ -1681,7 +1681,7 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.regLDLCtrl   = CReflect(ctrl.regLDLCtrl);
     ctrlC.outerEquil   = ctrl.outerEquil;
     ctrlC.innerEquil   = ctrl.innerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
@@ -1699,7 +1699,7 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.regLDLCtrl   = CReflect(ctrl.regLDLCtrl);
     ctrlC.outerEquil   = ctrl.outerEquil;
     ctrlC.innerEquil   = ctrl.innerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
@@ -1717,7 +1717,7 @@ inline MehrotraCtrl<float> CReflect( ElMehrotraCtrl_s ctrlC )
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.regLDLCtrl   = CReflect(ctrlC.regLDLCtrl);
     ctrl.outerEquil   = ctrlC.outerEquil;
     ctrl.innerEquil   = ctrlC.innerEquil;
     ctrl.basisSize    = ctrlC.basisSize;
@@ -1735,7 +1735,7 @@ inline MehrotraCtrl<double> CReflect( ElMehrotraCtrl_d ctrlC )
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.regLDLCtrl   = CReflect(ctrlC.regLDLCtrl);
     ctrl.outerEquil   = ctrlC.outerEquil;
     ctrl.innerEquil   = ctrlC.innerEquil;
     ctrl.basisSize    = ctrlC.basisSize;

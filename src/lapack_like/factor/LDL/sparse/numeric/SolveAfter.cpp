@@ -25,8 +25,10 @@ namespace ldl {
 
 template<typename F>
 void SolveAfter
-( const vector<Int>& invMap, const NodeInfo& info, 
-  const Front<F>& front, Matrix<F>& X )
+( const vector<Int>& invMap,
+  const NodeInfo& info, 
+  const Front<F>& front,
+        Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -37,7 +39,9 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X )
+( const NodeInfo& info,
+  const Front<F>& front, 
+        MatrixNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -62,8 +66,10 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const DistMap& invMap, const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMultiVec<F>& X )
+( const DistMap& invMap,
+  const DistNodeInfo& info, 
+  const DistFront<F>& front,
+        DistMultiVec<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -84,7 +90,8 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMultiVecNode<F>& X )
+  const DistFront<F>& front,
+        DistMultiVecNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -119,7 +126,8 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMatrixNode<F>& X )
+  const DistFront<F>& front,
+        DistMatrixNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -156,9 +164,12 @@ void SolveAfter
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const SparseMatrix<F>& A,
-  const vector<Int>& invMap, const NodeInfo& info,
-  const Front<F>& front, Matrix<F>& y,
-  Base<F> minReductionFactor, Int maxRefineIts )
+  const vector<Int>& invMap,
+  const NodeInfo& info,
+  const Front<F>& front,
+        Matrix<F>& y,
+  Base<F> minReductionFactor,
+  Int maxRefineIts )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveWithIterativeRefinement"))
     auto yOrig = y;
@@ -215,9 +226,12 @@ Int SolveWithIterativeRefinement
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
-  const DistMap& invMap, const DistNodeInfo& info,
-  const DistFront<F>& front, DistMultiVec<F>& y,
-  Base<F> minReductionFactor, Int maxRefineIts )
+  const DistMap& invMap,
+  const DistNodeInfo& info,
+  const DistFront<F>& front,
+        DistMultiVec<F>& y,
+        Base<F> minReductionFactor,
+        Int maxRefineIts )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveWithIterativeRefinement"))
     mpi::Comm comm = y.Comm();
@@ -276,30 +290,43 @@ Int SolveWithIterativeRefinement
 
 #define PROTO(F) \
   template void SolveAfter \
-  ( const vector<Int>& invMap, const NodeInfo& info, \
-    const Front<F>& front, Matrix<F>& X ); \
+  ( const vector<Int>& invMap, \
+    const NodeInfo& info, \
+    const Front<F>& front, \
+          Matrix<F>& X ); \
   template void SolveAfter \
-  ( const DistMap& invMap, const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMultiVec<F>& X ); \
+  ( const DistMap& invMap, \
+    const DistNodeInfo& info, \
+    const DistFront<F>& front, \
+          DistMultiVec<F>& X ); \
   template void SolveAfter \
   ( const NodeInfo& info, \
-    const Front<F>& front, MatrixNode<F>& X ); \
+    const Front<F>& front, \
+          MatrixNode<F>& X ); \
   template void SolveAfter \
   ( const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMultiVecNode<F>& X ); \
+    const DistFront<F>& front, \
+          DistMultiVecNode<F>& X ); \
   template void SolveAfter \
   ( const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMatrixNode<F>& X ); \
+    const DistFront<F>& front, \
+          DistMatrixNode<F>& X ); \
   template Int SolveWithIterativeRefinement \
   ( const SparseMatrix<F>& A, \
-    const vector<Int>& invMap, const NodeInfo& info, \
-    const Front<F>& front, Matrix<F>& y, \
-    Base<F> minReductionFactor, Int maxRefineIts ); \
+    const vector<Int>& invMap, \
+    const NodeInfo& info, \
+    const Front<F>& front, \
+          Matrix<F>& y, \
+          Base<F> minReductionFactor, \
+          Int maxRefineIts ); \
   template Int SolveWithIterativeRefinement \
   ( const DistSparseMatrix<F>& A, \
-    const DistMap& invMap, const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMultiVec<F>& y, \
-    Base<F> minReductionFactor, Int maxRefineIts );
+    const DistMap& invMap, \
+    const DistNodeInfo& info, \
+    const DistFront<F>& front, \
+          DistMultiVec<F>& y, \
+          Base<F> minReductionFactor, \
+          Int maxRefineIts );
  
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

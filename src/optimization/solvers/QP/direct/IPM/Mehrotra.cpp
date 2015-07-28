@@ -49,6 +49,9 @@ void Mehrotra
     const bool stepLengthSigma = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = 0;
+    const Real delta = 0;
+    const Real beta  = 0;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
@@ -193,7 +196,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            KKT( Q, A, x, z, J );
+            KKT( Q, A, gamma, delta, beta, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
             // Solve for the direction
@@ -217,7 +220,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            AugmentedKKT( Q, A, x, z, J );
+            AugmentedKKT( Q, A, gamma, delta, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Solve for the direction
@@ -394,6 +397,9 @@ void Mehrotra
     const bool stepLengthSigma = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = 0;
+    const Real delta = 0;
+    const Real beta  = 0;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
@@ -570,7 +576,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            KKT( Q, A, x, z, J );
+            KKT( Q, A, gamma, delta, beta, x, z, J );
             KKTRHS( rc, rb, rmu, z, d );
 
             // Solve for the direction
@@ -594,7 +600,7 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            AugmentedKKT( Q, A, x, z, J );
+            AugmentedKKT( Q, A, gamma, delta, x, z, J );
             AugmentedKKTRHS( x, rc, rb, rmu, d );
 
             // Solve for the direction
@@ -778,6 +784,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -839,8 +851,9 @@ void Mehrotra
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+        ( Q, A, gamma, delta, b, c, x, y, z, 
+          map, invMap, rootSep, info,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     }  
     else
     {
@@ -848,49 +861,37 @@ void Mehrotra
         ldl::NodeInfo augInfo;
         ldl::Separator augRootSep;
         Initialize
-        ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+        ( Q, A, gamma, delta, b, c, x, y, z,
+          augMap, augInvMap, augRootSep, augInfo,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     }
 
-    Matrix<Real> regTmp, regPerm;
+    Matrix<Real> regTmp;
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
-        regPerm.Resize( m+2*n, 1 );
+        Zeros( regTmp, m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
             if( i < n )
-            {
-                regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.Set( i, 0, 10*eps );
-            }
+                regTmp.Set( i, 0, gammaTmp*gammaTmp );
+            else if( i < n+m )
+                regTmp.Set( i, 0, -deltaTmp*deltaTmp );
             else
-            {
-                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*eps );
-            }
+                regTmp.Set( i, 0, -betaTmp*betaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
-        regPerm.Resize( n+m, 1 );
+        Zeros( regTmp, n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
             if( i < n )
-            {
-                regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.Set( i, 0, 10*eps );
-            }
+                regTmp.Set( i, 0, gammaTmp*gammaTmp );
             else
-            {
-                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*eps );
-            }
+                regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         }
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -989,12 +990,12 @@ void Mehrotra
             // -------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( Q, A, x, z, JOrig, false );
+                KKT( Q, A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( Q, A, x, z, JOrig, false );
+                AugmentedKKT( Q, A, gamma, delta, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
             UpdateDiagonal( JOrig, Real(1), regPerm );
@@ -1023,9 +1024,9 @@ void Mehrotra
                 JFront.Pull( J, map, info );
 
                 LDL( info, JFront, LDL_2D );
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
             }
             catch(...)
             {
@@ -1115,9 +1116,9 @@ void Mehrotra
             // -----------------------
             try
             {
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
             }
             catch(...)
             {
@@ -1138,9 +1139,9 @@ void Mehrotra
             // -----------------------
             try
             {
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
             }
             catch(...)
             {
@@ -1211,6 +1212,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -1276,14 +1283,14 @@ void Mehrotra
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
-    // TODO: Add permanent regularization and cache J metadata
     if( commRank == 0 && ctrl.time )
         timer.Start();
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl ); 
+        ( Q, A, gamma, delta, b, c, x, y, z, 
+          map, invMap, rootSep, info,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl ); 
     }  
     else
     {
@@ -1291,53 +1298,41 @@ void Mehrotra
         ldl::DistNodeInfo augInfo;
         ldl::DistSeparator augRootSep;
         Initialize
-        ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+        ( Q, A, gamma, delta, b, c, x, y, z, 
+          augMap, augInvMap, augRootSep, augInfo,
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.regLDLCtrl );
     }
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    DistMultiVec<Real> regTmp(comm);
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
-        regPerm.Resize( m+2*n, 1 );
+        Zeros( regTmp, m+2*n, 1 );
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
             if( i < n )
-            {
-                regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.SetLocal( iLoc, 0, 10*eps );
-            }
+                regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
+            else if( i < n+m )
+                regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
             else
-            {
-                regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.SetLocal( iLoc, 0, -10*eps );
-            }
+                regTmp.SetLocal( iLoc, 0, -betaTmp*betaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
-        regPerm.Resize( n+m, 1 );
+        Zeros( regTmp, n+m, 1 );
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
             if( i < n )
-            {
-                regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.SetLocal( iLoc, 0, 10*eps );
-            }
+                regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
             else
-            {
-                regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.SetLocal( iLoc, 0, -10*eps );
-            }
+                regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
         }
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
@@ -1438,15 +1433,14 @@ void Mehrotra
             // -------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( Q, A, x, z, JOrig, false );
+                KKT( Q, A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( Q, A, x, z, JOrig, false );
+                AugmentedKKT( Q, A, gamma, delta, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
-            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
@@ -1499,9 +1493,9 @@ void Mehrotra
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1596,9 +1590,9 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -1623,9 +1617,9 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
+                ldl::SolveAfter
                 ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                  ctrl.regLDLCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }

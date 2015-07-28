@@ -67,6 +67,8 @@ template<typename Real>
 void Initialize
 ( const Matrix<Real>& A,
   const Matrix<Real>& G,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -104,7 +106,7 @@ void Initialize
     // ===================
     Matrix<Real> J, ones;
     Ones( ones, k, 1 );
-    KKT( A, G, ones, ones, J );
+    KKT( A, G, gamma, delta, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
@@ -187,6 +189,8 @@ template<typename Real>
 void Initialize
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
+        Real gamma,
+        Real delta,
   const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,
   const AbstractDistMatrix<Real>& h,
@@ -225,7 +229,7 @@ void Initialize
     // ===================
     DistMatrix<Real> J(g), ones(g);
     Ones( ones, k, 1 );
-    KKT( A, G, ones, ones, J );
+    KKT( A, G, gamma, delta, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
@@ -307,7 +311,6 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& JStatic,
-  const Matrix<Real>& regTmp,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -320,18 +323,17 @@ void Initialize
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegLDLCtrl<Real>& regLDLCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     qp::affine::Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
-      primalInit, dualInit, standardShift, qsdCtrl );
+    ( JStatic, b, c, h, x, y, z, s, map, invMap, rootSep, info,
+      primalInit, dualInit, standardShift, regLDLCtrl );
 }
 
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& JStatic,
-  const DistMultiVec<Real>& regTmp,
   const DistMultiVec<Real>& b, 
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
@@ -344,19 +346,21 @@ void Initialize
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegLDLCtrl<Real>& regLDLCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     qp::affine::Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s,
+    ( JStatic, b, c, h, x, y, z, s,
       map, invMap, rootSep, info, 
-      primalInit, dualInit, standardShift, qsdCtrl );
+      primalInit, dualInit, standardShift, regLDLCtrl );
 }
 
 #define PROTO(Real) \
   template void Initialize \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
@@ -368,6 +372,8 @@ void Initialize
   template void Initialize \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
@@ -378,7 +384,6 @@ void Initialize
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& JStatic, \
-    const Matrix<Real>& regTmp, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
@@ -391,10 +396,9 @@ void Initialize
     const ldl::Separator& rootSep, \
     const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegLDLCtrl<Real>& regLDLCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
-    const DistMultiVec<Real>& regTmp, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
@@ -407,7 +411,7 @@ void Initialize
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegLDLCtrl<Real>& regLDLCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
