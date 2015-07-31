@@ -46,6 +46,7 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -344,13 +345,17 @@ void Mehrotra
         // ================================
         rc *= 1-sigma;
         rb *= 1-sigma;
-        // r_mu := x o z + dxAff o dzAff - sigma*mu
-        // ----------------------------------------
-        // NOTE: We are using dz as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        rmu += dz;
         Shift( rmu, -sigma*mu );
+        if( mehrotra )
+        {
+            // r_mu += dxAff o dzAff
+            // ---------------------
+            // NOTE: We are using dz as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dxAff, dz );
+            rmu += dz;
+        }
+
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new KKT RHS
@@ -480,6 +485,7 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -810,13 +816,17 @@ void Mehrotra
         // ================================
         rc *= 1-sigma;
         rb *= 1-sigma;
-        // r_mu := x o z + dxAff o dzAff - sigma*mu
-        // ----------------------------------------
-        // NOTE: dz is used as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        rmu += dz;
         Shift( rmu, -sigma*mu );
+        if( mehrotra )
+        {
+            // r_mu += dxAff o dzAff
+            // ---------------------
+            // NOTE: dz is used as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dxAff, dz );
+            rmu += dz;
+        }
+
         if( ctrl.system == FULL_KKT )
         {
             // Construct the new KKT RHS
@@ -947,6 +957,7 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -1347,14 +1358,17 @@ void Mehrotra
         // ================================
         rc *= 1-sigma;
         rb *= 1-sigma;
-        // r_mu := (x o z + dxAff o dzAff) - sigma*mu
-        // ------------------------------------------
-        // NOTE: dz is used as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        rmu += dz;
-        // TODO: Gondzio's corrections 
         Shift( rmu, -sigma*mu );
+        // TODO: Gondzio's corrections 
+        if( mehrotra )
+        {
+            // r_mu += dxAff o dzAff
+            // ---------------------
+            // NOTE: dz is used as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dxAff, dz );
+            rmu += dz;
+        }
 
         if( ctrl.system == FULL_KKT )
         {
@@ -1490,6 +1504,7 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these to the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -1946,13 +1961,17 @@ void Mehrotra
         // ================================
         rc *= 1-sigma;
         rb *= 1-sigma;
-        // r_mu := x o z + dxAff o dzAff - sigma*mu
-        // ----------------------------------------
-        // NOTE: dz is used as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dxAff, dz );
-        rmu += dz;
         Shift( rmu, -sigma*mu );
+        if( mehrotra )
+        {
+            // r_mu += dxAff o dzAff
+            // ---------------------
+            // NOTE: dz is used as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dxAff, dz );
+            rmu += dz;
+        }
+
         if( ctrl.system == FULL_KKT )
         {
             KKTRHS( rc, rb, rmu, z, d );

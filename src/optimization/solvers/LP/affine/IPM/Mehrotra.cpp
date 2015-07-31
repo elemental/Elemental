@@ -49,6 +49,7 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -281,13 +282,17 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := s o z + dsAff o dzAff - sigma*mu
-        // ----------------------------------------
-        // NOTE: Using dz as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, dz );
-        rmu += dz;
         Shift( rmu, -sigma*mu );
+        if( mehrotra )
+        {
+            // r_mu += dsAff o dzAff
+            // ---------------------
+            // NOTE: Using dz as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dsAff, dz );
+            rmu += dz;
+        }
+
         // Construct the new KKT RHS
         // -------------------------
         KKTRHS( rc, rb, rh, rmu, z, d );
@@ -355,6 +360,7 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -618,13 +624,17 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := s o z + dsAff o dzAff - sigma*mu
-        // ----------------------------------------
-        // NOTE: dz is used as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, dz ); 
-        rmu += dz;
         Shift( rmu, -sigma*mu );
+        if( mehrotra )
+        {
+            // r_mu += dsAff o dzAff
+            // ---------------------
+            // NOTE: dz is used as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dsAff, dz ); 
+            rmu += dz;
+        }
+
         // Construct the new KKT RHS
         // -------------------------
         KKTRHS( rc, rb, rh, rmu, z, d );
@@ -693,6 +703,7 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -981,13 +992,17 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := s o z + dsAff o dzAff - sigma*mu
-        // ----------------------------------------
-        // NOTE: dz is used as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, dz );
-        rmu += dz;
         Shift( rmu, -sigma*mu );
+        if( mehrotra )
+        {
+            // r_mu := dsAff o dzAff
+            // ---------------------
+            // NOTE: dz is used as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dsAff, dz );
+            rmu += dz;
+        }
+
         // Construct the new KKT RHS
         // -------------------------
         KKTRHS( rc, rb, rh, rmu, z, d );
@@ -1059,6 +1074,7 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -1383,13 +1399,17 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := s o z + dsAff o dzAff - sigma*mu
-        // ----------------------------------------
-        // NOTE: dz is used as a temporary
-        dz = dzAff;
-        DiagonalScale( LEFT, NORMAL, dsAff, dz );
-        rmu += dz;
         Shift( rmu, -sigma*mu );
+        if( mehrotra )
+        {
+            // r_mu += dsAff o dzAff
+            // ---------------------
+            // NOTE: dz is used as a temporary
+            dz = dzAff;
+            DiagonalScale( LEFT, NORMAL, dsAff, dz );
+            rmu += dz;
+        }
+
         // Construct the new KKT RHS
         // -------------------------
         KKTRHS( rc, rb, rh, rmu, z, d );

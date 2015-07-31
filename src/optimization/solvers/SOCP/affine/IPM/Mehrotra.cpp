@@ -52,6 +52,7 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -309,12 +310,22 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
-        SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds );
-        rmu += l;
+        if( mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
@@ -389,6 +400,7 @@ void Mehrotra
     const bool onlyLower = true;
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -675,12 +687,23 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
-        SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds, cutoffPar );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds, cutoffPar );
-        rmu += l;
+        if( mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply
+            ( dsAffScaled, dzAffScaled, rmu, orders, firstInds, cutoffPar );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds, cutoffPar );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
@@ -758,6 +781,7 @@ void Mehrotra
     const bool onlyLower = false;
 
     // TODO: Move these into the control structure
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -1161,14 +1185,22 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
-        SOCApplyQuadratic( wRootInv, dsAff, orders, firstInds );
-        SOCApplyQuadratic( wRoot,    dzAff, orders, firstInds );
-        SOCApply( dsAff, dzAff, rmu, orders, firstInds );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds );
-        rmu += l;
+        if( mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
@@ -1252,6 +1284,7 @@ void Mehrotra
     const bool onlyLower = false;
 
     // TODO: Move these into the control structur
+    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -1890,18 +1923,26 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
         if( ctrl.time && commRank == 0 )
             timer.Start();
-        SOCApplyQuadratic( wRootInv, dsAff, orders, firstInds );
-        SOCApplyQuadratic( wRoot,    dzAff, orders, firstInds );
-        SOCApply( dsAff, dzAff, rmu, orders, firstInds );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds );
-        rmu += l;
+        if( mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
         if( ctrl.time && commRank == 0 )
             Output("r_mu formation: ",timer.Stop()," secs");
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
