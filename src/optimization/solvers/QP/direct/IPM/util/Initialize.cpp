@@ -73,9 +73,12 @@ namespace direct {
 
 template<typename Real>
 void Initialize
-( const Matrix<Real>& Q, const Matrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c,
-        Matrix<Real>& x,       Matrix<Real>& y,
+( const Matrix<Real>& Q,
+  const Matrix<Real>& A, 
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
@@ -177,9 +180,12 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
+( const AbstractDistMatrix<Real>& Q,
+  const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
@@ -282,18 +288,28 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& Q,  const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,        const Matrix<Real>& c,
-        Matrix<Real>& x,              Matrix<Real>& y,
+( const SparseMatrix<Real>& Q,
+  const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
-        vector<Int>& map,             vector<Int>& invMap, 
-        ldl::Separator& rootSep,           ldl::NodeInfo& info,
+        vector<Int>& map,
+        vector<Int>& invMap, 
+        ldl::Separator& rootSep,
+        ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
+
+    const Real eps = Epsilon<Real>();
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+
     if( primalInit )
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -315,7 +331,7 @@ void Initialize
     SparseMatrix<Real> J, JOrig;
     Matrix<Real> ones;
     Ones( ones, n, 1 );
-    AugmentedKKT( Q, A, ones, ones, JOrig, false );
+    AugmentedKKT( Q, A, gamma, delta, ones, ones, JOrig, false );
     J = JOrig;
 
     // (Approximately) factor the KKT matrix
@@ -409,18 +425,28 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& Q,  const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
+( const DistSparseMatrix<Real>& Q,
+  const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-        DistMap& map,                     DistMap& invMap, 
-        ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info,
+        DistMap& map,
+        DistMap& invMap, 
+        ldl::DistSeparator& rootSep,
+        ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int m = A.Height();
     const Int n = A.Width();
+
+    const Real eps = Epsilon<Real>();
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+
     mpi::Comm comm = A.Comm();
     if( primalInit )
         if( x.Height() != n || x.Width() != 1 )
@@ -443,7 +469,7 @@ void Initialize
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     DistMultiVec<Real> ones(comm);
     Ones( ones, n, 1 );
-    AugmentedKKT( Q, A, ones, ones, JOrig, false );
+    AugmentedKKT( Q, A, gamma, delta, ones, ones, JOrig, false );
     J = JOrig;
 
     // (Approximately) factor the KKT matrix
@@ -538,33 +564,49 @@ void Initialize
 
 #define PROTO(Real) \
   template void Initialize \
-  ( const Matrix<Real>& Q, const Matrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
+  ( const Matrix<Real>& Q, \
+    const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
+  ( const AbstractDistMatrix<Real>& Q, \
+    const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
+  ( const SparseMatrix<Real>& Q, \
+    const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
-          vector<Int>& map,            vector<Int>& invMap, \
-          ldl::Separator& rootSep,          ldl::NodeInfo& info, \
+          vector<Int>& map, \
+          vector<Int>& invMap, \
+          ldl::Separator& rootSep, \
+          ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl ); \
   template void Initialize \
-  ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
+  ( const DistSparseMatrix<Real>& Q, \
+    const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
-          DistMap& map,                     DistMap& invMap, \
-          ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info, \
+          DistMap& map, \
+          DistMap& invMap, \
+          ldl::DistSeparator& rootSep, \
+          ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegQSDCtrl<Real>& qsdCtrl );
 

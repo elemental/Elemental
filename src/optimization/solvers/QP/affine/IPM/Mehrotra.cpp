@@ -755,6 +755,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -818,30 +824,20 @@ void Mehrotra
     }
 
     // TODO: Expose regularization rules to user
-    Matrix<Real> regPerm, regTmp;
-    regPerm.Resize( n+m+k, 1 );
+    Matrix<Real> regTmp;
     regTmp.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )
-        {
-            regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*eps );
-        }
-        else
-        {
-            regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.Set( i, 0, -10*eps );
-        }
+        if( i < n )        regTmp.Set( i, 0,  gammaTmp*gammaTmp );
+        else if( i < n+m ) regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+        else               regTmp.Set( i, 0, -betaTmp*betaTmp );
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
-    StaticKKT( Q, A, G, regPerm, JStatic, false );
-    JStatic.FreezeSparsity();
+    StaticKKT( Q, A, G, gamma, delta, beta, JStatic, false );
     vector<Int> map, invMap;
     ldl::NodeInfo info;
     ldl::Separator rootSep;
@@ -898,6 +894,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
+        Axpy( -delta*delta, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -906,6 +903,7 @@ void Mehrotra
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
+        Axpy( gamma*gamma, x, rc );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h; rh *= -1;
@@ -1139,6 +1137,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta  = Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -1212,31 +1216,21 @@ void Mehrotra
         Output("|| h ||_2 = ",hNrm2);
     }
 
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    DistMultiVec<Real> regTmp(comm);
     regTmp.Resize( n+m+k, 1 );
-    regPerm.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
-        if( i < n )
-        {
-            regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*eps );
-        }
-        else
-        {
-            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*eps );
-        }
+        if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+        else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+        else               regTmp.SetLocal( iLoc, 0, -betaTmp*betaTmp );
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Compute the static portion of the KKT system
     // ============================================
     DistSparseMatrix<Real> JStatic(comm);
-    StaticKKT( Q, A, G, regPerm, JStatic, false );
-    JStatic.FreezeSparsity();
+    StaticKKT( Q, A, G, gamma, delta, beta, JStatic, false );
     JStatic.InitializeMultMeta();
     DistMap map, invMap;
     ldl::DistNodeInfo info;
@@ -1306,6 +1300,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
+        Axpy( -delta*delta, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -1314,6 +1309,7 @@ void Mehrotra
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
+        Axpy( gamma*gamma, x, rc );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h; rh *= -1;

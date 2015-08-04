@@ -34,7 +34,8 @@ namespace direct {
 template<typename Real>
 void KKT
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& x, const Matrix<Real>& z,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
@@ -80,7 +81,8 @@ void KKT
 template<typename Real>
 void KKT
 ( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& z,
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
@@ -127,45 +129,63 @@ void KKT
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& x,       const Matrix<Real>& z,
+        Real gamma,
+        Real delta,
+        Real beta,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
-    qp::direct::KKT( Q, A, x, z, J, onlyLower );
+    qp::direct::KKT( Q, A, gamma, delta, beta, x, z, J, onlyLower );
 }
 
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
+        Real gamma,
+        Real delta,
+        Real beta,
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
     const Int n = A.Width();
     DistSparseMatrix<Real> Q(A.Comm());
     Q.Resize( n, n );
-    qp::direct::KKT( Q, A, x, z, J, onlyLower );
+    qp::direct::KKT( Q, A, gamma, delta, beta, x, z, J, onlyLower );
 }
 
 #define PROTO(Real) \
   template void KKT \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
           SparseMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
+    const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& z, \
           DistSparseMatrix<Real>& J, bool onlyLower );
 
 #define EL_NO_INT_PROTO

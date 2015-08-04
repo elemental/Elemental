@@ -87,6 +87,9 @@ template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A, 
+        Real gamma,
+        Real delta,
+        Real beta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -95,6 +98,9 @@ template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A, 
+        Real gamma,
+        Real delta,
+        Real beta,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -166,6 +172,8 @@ template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -174,6 +182,8 @@ template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A,
+        Real gamma,
+        Real delta,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,

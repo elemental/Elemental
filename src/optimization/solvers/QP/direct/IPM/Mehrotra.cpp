@@ -789,6 +789,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta =  Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -863,45 +869,27 @@ void Mehrotra
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
     }
 
-    Matrix<Real> regTmp, regPerm;
+    Matrix<Real> regTmp;
     if( ctrl.system == FULL_KKT )
     {
         regTmp.Resize( m+2*n, 1 );
-        regPerm.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
-            if( i < n )
-            {
-                regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.Set( i, 0, 10*eps );
-            }
-            else
-            {
-                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*eps );
-            }
+            if( i < n )        regTmp.Set( i, 0,  gammaTmp*gammaTmp );
+            else if( i < n+m ) regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+            else               regTmp.Set( i, 0, -betaTmp*betaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
         regTmp.Resize( n+m, 1 );
-        regPerm.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
-            if( i < n )
-            {
-                regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.Set( i, 0, 10*eps );
-            }
-            else
-            {
-                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*eps );
-            }
+            if( i < n ) regTmp.Set( i, 0,  gammaTmp*gammaTmp );
+            else        regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         }
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -950,6 +938,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
+        Axpy( -delta*delta, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -958,6 +947,7 @@ void Mehrotra
         rc -= z;
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
+        Axpy( gamma*gamma, x, rc );
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -1000,15 +990,15 @@ void Mehrotra
             // -------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( Q, A, x, z, JOrig, false );
+                KKT( Q, A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( Q, A, x, z, JOrig, false );
+                AugmentedKKT( Q, A, gamma, delta, x, z, JOrig, false );
+                // TODO: Incorporate beta?
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
-            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------
@@ -1227,6 +1217,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta =  Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
@@ -1313,47 +1309,29 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    DistMultiVec<Real> regTmp(comm);
     if( ctrl.system == FULL_KKT )
     {
         regTmp.Resize( m+2*n, 1 );
-        regPerm.Resize( m+2*n, 1 );
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n )
-            {
-                regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.SetLocal( iLoc, 0, 10*eps );
-            }
-            else
-            {
-                regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.SetLocal( iLoc, 0, -10*eps );
-            }
+            if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+            else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+            else               regTmp.SetLocal( iLoc, 0, -betaTmp*betaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
         regTmp.Resize( n+m, 1 );
-        regPerm.Resize( n+m, 1 );
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n )
-            {
-                regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-                regPerm.SetLocal( iLoc, 0, 10*eps );
-            }
-            else
-            {
-                regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.SetLocal( iLoc, 0, -10*eps );
-            }
+            if( i < n ) regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+            else        regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
         }
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     DistSparseMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
@@ -1454,15 +1432,14 @@ void Mehrotra
             // -------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( Q, A, x, z, JOrig, false );
+                KKT( Q, A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( Q, A, x, z, JOrig, false );
+                AugmentedKKT( Q, A, gamma, delta, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
-            UpdateDiagonal( JOrig, Real(1), regPerm );
 
             // Solve for the direction
             // -----------------------

@@ -216,7 +216,9 @@ void StaticKKT
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& regPerm,
+        Real gamma,
+        Real delta,
+        Real beta,
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
@@ -246,8 +248,8 @@ void StaticKKT
     else
         J.Reserve( numUsedEntriesQ + 2*numEntriesA + 2*numEntriesG + n+m+k );
 
-    // Jxx = Q
-    // =======
+    // Jxx = Q + gamma^2*I
+    // ===================
     for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
@@ -255,6 +257,13 @@ void StaticKKT
         if( i >= j || !onlyLower )
             J.QueueUpdate( i, j, Q.Value(e) );
     }
+    for( Int i=0; i<n; ++i )
+        J.QueueUpdate( i, i, gamma*gamma );
+
+    // Jyy = -delta^2*I
+    // ================
+    for( Int i=0; i<m; ++i )
+        J.QueueUpdate( i+n, i+n, -delta*delta );
 
     // Jyx = A (and Jxy = A^T)
     // =======================
@@ -274,12 +283,13 @@ void StaticKKT
             J.QueueUpdate( G.Col(e), n+m+G.Row(e), G.Value(e) );
     }
 
-    // Add the regularization
-    // ======================
-    for( Int e=0; e<n+m+k; ++e )
-        J.QueueUpdate( e, e, regPerm.Get(e,0) );
+    // Jzz = -beta^2*I
+    // ===============
+    for( Int i=0; i<k; ++i )
+        J.QueueUpdate( i+m+n, i+m+n, -beta*beta );
 
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -383,7 +393,9 @@ void StaticKKT
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& regPerm,
+        Real gamma,
+        Real delta,
+        Real beta,
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -444,14 +456,17 @@ void StaticKKT
         if( !onlyLower )
             J.QueueUpdate( j, i, G.Value(e), false );
     }
-    // Pack regPerm
-    // ------------
+    // Add the regularization
+    // ----------------------
     for( Int iLoc=0; iLoc<localHeightJ; ++iLoc )
     {
         const Int i = J.GlobalRow(iLoc);
-        J.QueueLocalUpdate( iLoc, i, regPerm.GetLocal(iLoc,0) );
+        if( i < n )        J.QueueLocalUpdate( iLoc, i,  gamma*gamma );
+        else if( i < n+m ) J.QueueLocalUpdate( iLoc, i, -delta*delta );
+        else               J.QueueLocalUpdate( iLoc, i, -beta*beta );
     }
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -773,7 +788,9 @@ void ExpandSolution
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
-    const Matrix<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \
@@ -793,7 +810,9 @@ void ExpandSolution
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
           DistSparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \

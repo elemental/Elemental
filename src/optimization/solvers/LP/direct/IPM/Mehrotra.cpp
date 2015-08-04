@@ -150,10 +150,7 @@ void Mehrotra
         // =============================
         Real mu = Dot(x,z) / degree;
         const Real compRatio = PosComplementRatio( x, z );
-        if( compRatio > balanceTol )
-            mu = muOld;
-        else
-            mu = Min( mu, muOld );
+        mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
         // Check for convergence
@@ -619,10 +616,7 @@ void Mehrotra
         // =============================
         Real mu = Dot(x,z) / degree;
         const Real compRatio = PosComplementRatio( x, z );
-        if( compRatio > balanceTol )
-            mu = muOld;
-        else
-            mu = Min( mu, muOld );
+        mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
         // Check for convergence
@@ -967,17 +961,19 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
-    Real gamma, delta, gammaTmp, deltaTmp;
+    Real gamma, delta, beta, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
-        gamma = delta = gammaTmp = deltaTmp = 0;
+        gamma = delta = beta = gammaTmp = deltaTmp = betaTmp = 0;
     }
     else
     {
         gamma = Pow(eps,Real(0.35));
         delta = Pow(eps,Real(0.35));
+        beta  = Pow(eps,Real(0.35));
         gammaTmp = Pow(eps,Real(0.25));
         deltaTmp = Pow(eps,Real(0.25));
+        betaTmp  = Pow(eps,Real(0.25));
     }
     const Real balanceTol = Pow(eps,Real(-0.19));
     const Real wMaxLimit = Pow(eps,Real(-0.4));
@@ -1076,10 +1072,9 @@ void Mehrotra
         regTmp.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
-            if( i < n )
-                regTmp.Set( i, 0, gammaTmp*gammaTmp );
-            else 
-                regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+            if( i < n )        regTmp.Set( i, 0,  gammaTmp*gammaTmp );
+            else if( i < n+m ) regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+            else               regTmp.Set( i, 0, -betaTmp*betaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -1087,10 +1082,8 @@ void Mehrotra
         regTmp.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
-            if( i < n )
-                regTmp.Set( i, 0, gammaTmp*gammaTmp );
-            else
-                regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+            if( i < n ) regTmp.Set( i, 0,  gammaTmp*gammaTmp );
+            else        regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         }
     }
     else if( ctrl.system == NORMAL_KKT )
@@ -1159,10 +1152,7 @@ void Mehrotra
         // =============================
         Real mu = Dot(x,z) / degree;
         const Real compRatio = PosComplementRatio( x, z );
-        if( compRatio > balanceTol )
-            mu = muOld;
-        else
-            mu = Min( mu, muOld );
+        mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
         if( ctrl.print )
@@ -1206,12 +1196,12 @@ void Mehrotra
             // ------------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( A, x, z, JOrig, false );
+                KKT( A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( A, x, z, JOrig, false );
+                AugmentedKKT( A, gamma, delta, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
@@ -1514,17 +1504,19 @@ void Mehrotra
     const bool forceSameStep = false;
     const bool checkResiduals = true;
     const bool standardShift = true;
-    Real gamma, delta, gammaTmp, deltaTmp;
+    Real gamma, delta, beta, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
-        gamma = delta = gammaTmp = deltaTmp = 0;
+        gamma = delta = beta = gammaTmp = deltaTmp = betaTmp = 0;
     }
     else
     {
         gamma = Pow(eps,Real(0.35));
         delta = Pow(eps,Real(0.35));
+        beta  = Pow(eps,Real(0.35));
         gammaTmp = Pow(eps,Real(0.25));
         deltaTmp = Pow(eps,Real(0.25));
+        betaTmp  = Pow(eps,Real(0.25));
     }
     const Real balanceTol = Pow(eps,Real(-0.19));
     // Sizes of || w ||_max which force levels of equilibration
@@ -1634,10 +1626,9 @@ void Mehrotra
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n )
-                regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
-            else
-                regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+            if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+            else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+            else               regTmp.SetLocal( iLoc, 0, -betaTmp*betaTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -1646,10 +1637,8 @@ void Mehrotra
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n )
-                regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
-            else
-                regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+            if( i < n ) regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+            else        regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
         }
     }
     else if( ctrl.system == NORMAL_KKT )
@@ -1688,10 +1677,7 @@ void Mehrotra
         // =============================
         Real mu = Dot(x,z) / degree;
         const Real compRatio = PosComplementRatio( x, z );
-        if( compRatio > balanceTol )
-            mu = muOld;
-        else
-            mu = Min( mu, muOld );
+        mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
         PositiveNesterovTodd( x, z, w );
@@ -1763,12 +1749,12 @@ void Mehrotra
             // -----------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( A, x, z, JOrig, false );
+                KKT( A, gamma, delta, beta, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( A, x, z, JOrig, false );
+                AugmentedKKT( A, gamma, delta, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
