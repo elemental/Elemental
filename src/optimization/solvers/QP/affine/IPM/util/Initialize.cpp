@@ -322,7 +322,7 @@ void Initialize
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = b.Height();
@@ -385,8 +385,7 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, regTmp, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -404,8 +403,7 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, regTmp, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -458,7 +456,7 @@ void Initialize
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = b.Height();
@@ -526,8 +524,7 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, regTmp, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -545,8 +542,7 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, regTmp, invMap, info, JFront, d, solveCtrl );
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -623,7 +619,7 @@ void Initialize
     const ldl::Separator& rootSep, \
     const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
     const DistMultiVec<Real>& regTmp, \
@@ -639,7 +635,7 @@ void Initialize
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

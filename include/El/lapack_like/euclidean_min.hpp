@@ -49,7 +49,7 @@ struct LeastSquaresCtrl
     //       failed (the literature agrees), I fell back to this default value.
     Real alpha=Pow(Epsilon<Real>(),Real(0.25));
 
-    RegQSDCtrl<Real> qsdCtrl;
+    RegSolveCtrl<Real> solveCtrl;
     bool equilibrate=true;
     bool progress=false;
     bool time=false;

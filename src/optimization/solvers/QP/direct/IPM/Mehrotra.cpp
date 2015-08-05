@@ -857,7 +857,7 @@ void Mehrotra
     {
         Initialize
         ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }  
     else
     {
@@ -866,7 +866,7 @@ void Mehrotra
         ldl::Separator augRootSep;
         Initialize
         ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }
 
     Matrix<Real> regTmp;
@@ -1024,9 +1024,8 @@ void Mehrotra
                 JFront.Pull( J, map, info );
 
                 LDL( info, JFront, LDL_2D );
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             }
             catch(...)
             {
@@ -1120,9 +1119,8 @@ void Mehrotra
             // -----------------------
             try
             {
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             }
             catch(...)
             {
@@ -1143,9 +1141,8 @@ void Mehrotra
             // -----------------------
             try
             {
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
             }
             catch(...)
             {
@@ -1295,7 +1292,7 @@ void Mehrotra
     {
         Initialize
         ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl ); 
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl ); 
     }  
     else
     {
@@ -1304,7 +1301,7 @@ void Mehrotra
         ldl::DistSeparator augRootSep;
         Initialize
         ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
@@ -1492,9 +1489,8 @@ void Mehrotra
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1593,9 +1589,8 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -1620,9 +1615,8 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_qsd_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.qsdCtrl );
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }

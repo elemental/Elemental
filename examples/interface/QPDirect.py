@@ -97,7 +97,7 @@ z = El.DistMultiVec()
 
 if testMehrotra:
   ctrl.approach = El.QP_MEHROTRA
-  ctrl.mehrotraCtrl.qsdCtrl.progress = progress
+  ctrl.mehrotraCtrl.solveCtrl.progress = progress
   ctrl.mehrotraCtrl.primalInit = manualInit
   ctrl.mehrotraCtrl.dualInit = manualInit
   ctrl.mehrotraCtrl.progress = progress

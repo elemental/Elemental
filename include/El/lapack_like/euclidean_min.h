@@ -84,7 +84,7 @@ typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
   float alpha;
-  ElRegQSDCtrl_s qsdCtrl;
+  ElRegSolveCtrl_s solveCtrl;
   bool equilibrate;
   bool progress;
   bool time;
@@ -95,7 +95,7 @@ typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
   double alpha;
-  ElRegQSDCtrl_d qsdCtrl;
+  ElRegSolveCtrl_d solveCtrl;
   bool equilibrate;
   bool progress;
   bool time;

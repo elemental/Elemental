@@ -461,24 +461,24 @@ def MultiplyAfterLDLPiv(A,dSub,p,B,conjugate=True):
 # Regularized Quasi-Semidefinite LDL^H factorization
 # ==================================================
 
-# Emulate an enum for the Regularized QSD LDL solve/refinement
-(REG_REFINE_FGMRES,REG_REFINE_LGMRES,REG_REFINE_IR,REG_REFINE_IR_MOD)=(0,1,2,3)
+# Emulate an enum for the Regularized LDL solve/refinement
+(REG_SOLVE_FGMRES,REG_SOLVE_LGMRES,REG_SOLVE_IR,REG_SOLVE_IR_MOD)=(0,1,2,3)
 
-lib.ElRegQSDCtrlDefault_s.argtypes = \
-lib.ElRegQSDCtrlDefault_d.argtypes = \
+lib.ElRegSolveCtrlDefault_s.argtypes = \
+lib.ElRegSolveCtrlDefault_d.argtypes = \
   [c_void_p]
-class RegQSDCtrl_s(ctypes.Structure):
+class RegSolveCtrl_s(ctypes.Structure):
   _fields_ = [("alg",c_uint),("relTol",sType),("relTolRefine",sType),
               ("maxIts",iType),("maxRefineIts",iType),("restart",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):
-    lib.ElRegQSDCtrlDefault_s(pointer(self))
-class RegQSDCtrl_d(ctypes.Structure):
+    lib.ElRegSolveCtrlDefault_s(pointer(self))
+class RegSolveCtrl_d(ctypes.Structure):
   _fields_ = [("alg",c_uint),("relTol",dType),("relTolRefine",dType),
               ("maxIts",iType),("maxRefineIts",iType),("restart",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):
-    lib.ElRegQSDCtrlDefault_d(pointer(self))
+    lib.ElRegSolveCtrlDefault_d(pointer(self))
 
 # TODO: Wrappers for the factorization and solve
 

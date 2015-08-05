@@ -300,7 +300,7 @@ void Initialize
         ldl::Separator& rootSep,
         ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int m = A.Height();
@@ -374,7 +374,7 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInit ) 
@@ -387,7 +387,7 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         z *= -1;
     }
@@ -439,7 +439,7 @@ void Initialize
         ldl::DistSeparator& rootSep,
         ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int m = A.Height();
@@ -515,7 +515,7 @@ void Initialize
         Zeros( rmu, n, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
     if( !dualInit ) 
@@ -528,7 +528,7 @@ void Initialize
         Zeros( rb, m, 1 );
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
         z *= -1;
     }
@@ -598,7 +598,7 @@ void Initialize
           ldl::Separator& rootSep, \
           ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, \
@@ -612,7 +612,7 @@ void Initialize
           ldl::DistSeparator& rootSep, \
           ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -57,7 +57,7 @@ void Initialize
         Matrix<Real>& z, 
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A, 
@@ -72,7 +72,7 @@ void Initialize
         DistMultiVec<Real>& z, 
         DistMultiVec<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, Int cutoffPar, 
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegSolveCtrl<Real>& solveCtrl );
 
 // Full system
 // ===========

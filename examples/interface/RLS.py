@@ -44,7 +44,7 @@ if display:
 ctrl = El.SOCPAffineCtrl_d()
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.time = True
-ctrl.mehrotraCtrl.qsdCtrl.progress = True
+ctrl.mehrotraCtrl.solveCtrl.progress = True
 startRLS = El.mpi.Time()
 x = El.RLS( A, b, rho, ctrl )
 endRLS = El.mpi.Time()

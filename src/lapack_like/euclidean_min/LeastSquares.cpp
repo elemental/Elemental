@@ -157,7 +157,7 @@ inline void Equilibrated
   const Matrix<F>& B, 
         Matrix<F>& X,
         Base<F> alpha,
-  const RegQSDCtrl<Base<F>>& ctrl )
+  const RegSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
       CSE cse("ls::Equilibrated");
@@ -251,7 +251,7 @@ inline void Equilibrated
     {
         auto d = D( ALL, IR(j) );
         u = d;
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
         d = u;
     }
 
@@ -340,7 +340,7 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl );
+    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.solveCtrl );
 
     // Unequilibrate the solution
     // ==========================
@@ -355,7 +355,7 @@ void Equilibrated
   const DistMultiVec<F>& B, 
         DistMultiVec<F>& X,
         Base<F> alpha,
-  const RegQSDCtrl<Base<F>>& ctrl,
+  const RegSolveCtrl<Base<F>>& ctrl,
   bool time )
 {
     DEBUG_ONLY(
@@ -559,7 +559,7 @@ void Equilibrated
     {
         auto dLoc = DLoc( ALL, IR(j) );
         Copy( dLoc, uLoc );
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
         Copy( uLoc, dLoc );
     }
     if( commRank == 0 && time )
@@ -643,7 +643,7 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl, ctrl.time );
+    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.solveCtrl, ctrl.time );
 
     // Unequilibrate the solution
     // ==========================

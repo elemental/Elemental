@@ -59,7 +59,7 @@ void Mehrotra
     affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
+    affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;
@@ -100,7 +100,7 @@ void Mehrotra
     affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
+    affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;
@@ -140,7 +140,7 @@ void Mehrotra
     affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
+    affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;
@@ -181,7 +181,7 @@ void Mehrotra
     affineCtrl.targetTol = ctrl.targetTol;
     affineCtrl.maxIts = ctrl.maxIts;
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
+    affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
     affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;

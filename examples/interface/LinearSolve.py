@@ -65,12 +65,10 @@ ctrl.basisSize = 15
 ctrl.alpha = 1e-5
 ctrl.equilibrate = True
 ctrl.progress = True
-ctrl.qsdCtrl.regPrimal = 0
-ctrl.qsdCtrl.regDual = 1e-8
-ctrl.qsdCtrl.alg = El.REG_REFINE_FGMRES
-ctrl.qsdCtrl.relTol = 1e-12
-ctrl.qsdCtrl.relTolRefine = 1e-18
-ctrl.qsdCtrl.progress = True
+ctrl.solveCtrl.alg = El.REG_REFINE_FGMRES
+ctrl.solveCtrl.relTol = 1e-12
+ctrl.solveCtrl.relTolRefine = 1e-18
+ctrl.solveCtrl.progress = True
 
 solveStart = El.mpi.Time()
 El.LinearSolve(A,x,ctrl)

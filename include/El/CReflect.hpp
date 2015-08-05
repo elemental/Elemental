@@ -1365,14 +1365,14 @@ inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
     return ctrl;
 }
 
-inline RegQSDRefineAlg CReflect( ElRegQSDRefineAlg alg ) 
-{ return static_cast<RegQSDRefineAlg>(alg); }
-inline ElRegQSDRefineAlg CReflect( RegQSDRefineAlg alg )
-{ return static_cast<ElRegQSDRefineAlg>(alg); }
+inline RegSolveAlg CReflect( ElRegSolveAlg alg ) 
+{ return static_cast<RegSolveAlg>(alg); }
+inline ElRegSolveAlg CReflect( RegSolveAlg alg )
+{ return static_cast<ElRegSolveAlg>(alg); }
 
-inline ElRegQSDCtrl_s CReflect( const RegQSDCtrl<float>& ctrl )
+inline ElRegSolveCtrl_s CReflect( const RegSolveCtrl<float>& ctrl )
 {
-    ElRegQSDCtrl_s ctrlC;
+    ElRegSolveCtrl_s ctrlC;
     ctrlC.alg          = CReflect(ctrl.alg);
     ctrlC.relTol       = ctrl.relTol;
     ctrlC.relTolRefine = ctrl.relTolRefine;
@@ -1383,9 +1383,9 @@ inline ElRegQSDCtrl_s CReflect( const RegQSDCtrl<float>& ctrl )
     return ctrlC;
 }
 
-inline ElRegQSDCtrl_d CReflect( const RegQSDCtrl<double>& ctrl )
+inline ElRegSolveCtrl_d CReflect( const RegSolveCtrl<double>& ctrl )
 {
-    ElRegQSDCtrl_d ctrlC;
+    ElRegSolveCtrl_d ctrlC;
     ctrlC.alg          = CReflect(ctrl.alg);
     ctrlC.relTol       = ctrl.relTol;
     ctrlC.relTolRefine = ctrl.relTolRefine;
@@ -1396,9 +1396,9 @@ inline ElRegQSDCtrl_d CReflect( const RegQSDCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline RegQSDCtrl<float> CReflect( const ElRegQSDCtrl_s& ctrlC )
+inline RegSolveCtrl<float> CReflect( const ElRegSolveCtrl_s& ctrlC )
 {
-    RegQSDCtrl<float> ctrl;
+    RegSolveCtrl<float> ctrl;
     ctrl.alg          = CReflect(ctrlC.alg);
     ctrl.relTol       = ctrlC.relTol;
     ctrl.relTolRefine = ctrlC.relTolRefine;
@@ -1409,9 +1409,9 @@ inline RegQSDCtrl<float> CReflect( const ElRegQSDCtrl_s& ctrlC )
     return ctrl;
 }
 
-inline RegQSDCtrl<double> CReflect( const ElRegQSDCtrl_d& ctrlC )
+inline RegSolveCtrl<double> CReflect( const ElRegSolveCtrl_d& ctrlC )
 {
-    RegQSDCtrl<double> ctrl;
+    RegSolveCtrl<double> ctrl;
     ctrl.alg          = CReflect(ctrlC.alg);
     ctrl.relTol       = ctrlC.relTol;
     ctrl.relTolRefine = ctrlC.relTolRefine;
@@ -1428,7 +1428,7 @@ inline ElLeastSquaresCtrl_s CReflect( const LeastSquaresCtrl<float>& ctrl )
     ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.alpha        = ctrl.alpha; 
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate  = ctrl.equilibrate;
     ctrlC.progress     = ctrl.progress;
     ctrlC.time         = ctrl.time;
@@ -1441,7 +1441,7 @@ inline ElLeastSquaresCtrl_d CReflect( const LeastSquaresCtrl<double>& ctrl )
     ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.alpha        = ctrl.alpha; 
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
     ctrlC.equilibrate  = ctrl.equilibrate;
     ctrlC.progress     = ctrl.progress;
     ctrlC.time         = ctrl.time;
@@ -1454,7 +1454,7 @@ inline LeastSquaresCtrl<float> CReflect( const ElLeastSquaresCtrl_s& ctrlC )
     ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.alpha        = ctrlC.alpha; 
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate  = ctrlC.equilibrate;
     ctrl.progress     = ctrlC.progress;
     ctrl.time         = ctrlC.time;
@@ -1467,7 +1467,7 @@ inline LeastSquaresCtrl<double> CReflect( const ElLeastSquaresCtrl_d& ctrlC )
     ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.alpha        = ctrlC.alpha; 
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
     ctrl.equilibrate  = ctrlC.equilibrate;
     ctrl.progress     = ctrlC.progress;
     ctrl.time         = ctrlC.time;
@@ -1673,7 +1673,7 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
     ctrlC.outerEquil   = ctrl.outerEquil;
     ctrlC.innerEquil   = ctrl.innerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
@@ -1691,7 +1691,7 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.maxIts       = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
-    ctrlC.qsdCtrl      = CReflect(ctrl.qsdCtrl);
+    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
     ctrlC.outerEquil   = ctrl.outerEquil;
     ctrlC.innerEquil   = ctrl.innerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
@@ -1709,7 +1709,7 @@ inline MehrotraCtrl<float> CReflect( ElMehrotraCtrl_s ctrlC )
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
     ctrl.outerEquil   = ctrlC.outerEquil;
     ctrl.innerEquil   = ctrlC.innerEquil;
     ctrl.basisSize    = ctrlC.basisSize;
@@ -1727,7 +1727,7 @@ inline MehrotraCtrl<double> CReflect( ElMehrotraCtrl_d ctrlC )
     ctrl.maxIts       = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
-    ctrl.qsdCtrl      = CReflect(ctrlC.qsdCtrl);
+    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
     ctrl.outerEquil   = ctrlC.outerEquil;
     ctrl.innerEquil   = ctrlC.innerEquil;
     ctrl.basisSize    = ctrlC.basisSize;

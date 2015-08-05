@@ -18,7 +18,7 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
     ctrl->alpha = Pow(eps,float(0.25));
-    ElRegQSDCtrlDefault_s( &ctrl->qsdCtrl );
+    ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;
@@ -31,7 +31,7 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
     ctrl->alpha = Pow(eps,double(0.25));
-    ElRegQSDCtrlDefault_d( &ctrl->qsdCtrl );
+    ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;

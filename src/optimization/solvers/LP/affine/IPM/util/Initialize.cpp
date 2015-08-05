@@ -320,12 +320,12 @@ void Initialize
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     qp::affine::Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
-      primalInit, dualInit, standardShift, qsdCtrl );
+      primalInit, dualInit, standardShift, solveCtrl );
 }
 
 template<typename Real>
@@ -344,13 +344,13 @@ void Initialize
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     qp::affine::Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s,
       map, invMap, rootSep, info, 
-      primalInit, dualInit, standardShift, qsdCtrl );
+      primalInit, dualInit, standardShift, solveCtrl );
 }
 
 #define PROTO(Real) \
@@ -391,7 +391,7 @@ void Initialize
     const ldl::Separator& rootSep, \
     const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
     const DistMultiVec<Real>& regTmp, \
@@ -407,7 +407,7 @@ void Initialize
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

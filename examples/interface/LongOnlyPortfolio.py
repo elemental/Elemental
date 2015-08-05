@@ -11,7 +11,7 @@ import El, math
 n = 5000
 r = 50
 gamma = 1.
-display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 

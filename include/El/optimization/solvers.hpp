@@ -43,7 +43,7 @@ struct MehrotraCtrl
     Real maxStepRatio=0.99;
     KKTSystem system=FULL_KKT;
 
-    RegQSDCtrl<Real> qsdCtrl;
+    RegSolveCtrl<Real> solveCtrl;
     bool outerEquil=true, innerEquil=true;
     Int basisSize = 6;
     bool print=false;

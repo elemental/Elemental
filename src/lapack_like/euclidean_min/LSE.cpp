@@ -388,14 +388,14 @@ void LSE
 
     // Successively solve each of the numRHS linear systems
     // ====================================================
+    // TODO: Use a multiple right-hand side version of reg_ldl::SolveAfter
     Matrix<F> u;
     Zeros( u, n+m+k, 1 );
     for( Int j=0; j<numRHS; ++j )
     {
         auto g = G( ALL, IR(j) );
         u = g;
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl.solveCtrl );
         g = u;
     }
 
@@ -598,6 +598,7 @@ void LSE
 
     // Successively solve each of the numRHS linear systems
     // ====================================================
+    // TODO: Use a multiple right-hand side version of reg_ldl::SolveAfter
     DistMultiVec<F> u(comm);
     Zeros( u, n+m+k, 1 );
     auto& GLoc = G.Matrix();
@@ -606,8 +607,7 @@ void LSE
     {
         auto gLoc = GLoc( ALL, IR(j) );
         uLoc = gLoc;
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl.solveCtrl );
         gLoc = uLoc;
     }
 

@@ -20,7 +20,7 @@ class MehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
               ("minTol",sType),("targetTol",sType),
               ("maxIts",iType),("maxStepRatio",sType),
-              ("system",c_uint),("qsdCtrl",RegQSDCtrl_s),
+              ("system",c_uint),("solveCtrl",RegSolveCtrl_s),
               ("innerEquil",bType),("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
@@ -30,7 +30,7 @@ class MehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
               ("minTol",dType),("targetTol",dType),
               ("maxIts",iType),("maxStepRatio",dType),
-              ("system",c_uint),("qsdCtrl",RegQSDCtrl_d),
+              ("system",c_uint),("solveCtrl",RegSolveCtrl_d),
               ("innerEquil",bType),("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]

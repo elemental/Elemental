@@ -43,7 +43,7 @@ if display:
 ctrl = El.NNLSCtrl_d()
 ctrl.socpCtrl.mehrotraCtrl.progress = True
 ctrl.socpCtrl.mehrotraCtrl.time = True
-ctrl.socpCtrl.mehrotraCtrl.qsdCtrl.progress = True
+ctrl.socpCtrl.mehrotraCtrl.solveCtrl.progress = True
 startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()

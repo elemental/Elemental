@@ -46,7 +46,7 @@ void Initialize
         ldl::Separator& rootSep,
         ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A,
@@ -60,7 +60,7 @@ void Initialize
         ldl::DistSeparator& rootSep,
         ldl::DistNodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegSolveCtrl<Real>& solveCtrl );
 
 // Full system
 // ===========

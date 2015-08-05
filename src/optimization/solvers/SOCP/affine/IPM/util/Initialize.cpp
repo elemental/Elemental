@@ -324,7 +324,7 @@ void Initialize
         Matrix<Real>& z, 
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
 
@@ -411,7 +411,7 @@ void Initialize
         rh *= -1;
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -429,7 +429,7 @@ void Initialize
         Zeros( rh, k, 1 );
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -478,7 +478,7 @@ void Initialize
         DistMultiVec<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, 
   Int cutoffPar,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
 
@@ -568,7 +568,7 @@ void Initialize
         rh *= -1;
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -586,7 +586,7 @@ void Initialize
         Zeros( rh, k, 1 );
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -660,7 +660,7 @@ void Initialize
           Matrix<Real>& z, \
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
@@ -674,7 +674,7 @@ void Initialize
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoffPar,\
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
