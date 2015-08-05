@@ -231,7 +231,7 @@ void DistSparseMatrix<T>::ProcessQueues()
 
     // Send the remote updates
     // =======================
-    const int commSize = mpi::Size( distGraph_.comm_ );
+    const int commSize = distGraph_.commSize_;
     {
         // Compute the send counts
         // -----------------------
@@ -597,7 +597,7 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     if( multMeta.ready )
         return multMeta;
     mpi::Comm comm = Comm();
-    const int commSize = mpi::Size( comm );
+    const int commSize = distGraph_.commSize_;
     auto& meta = multMeta;
  
     // Compute the set of row indices that we need from X in a normal

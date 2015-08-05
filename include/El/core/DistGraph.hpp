@@ -120,6 +120,8 @@ public:
 private:
     Int numSources_, numTargets_;
     mpi::Comm comm_;
+    // Apparently calling MPI_Comm_size in an inner loop is a very bad idea...
+    int commSize_;
 
     Int blocksize_;
     Int firstLocalSource_, numLocalSources_;

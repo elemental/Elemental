@@ -13,7 +13,7 @@
 namespace El {
 
 DistMap::DistMap( mpi::Comm comm )
-: numSources_(0)
+: numSources_(0), commSize_(mpi::Size(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -23,7 +23,7 @@ DistMap::DistMap( mpi::Comm comm )
 }
 
 DistMap::DistMap( Int numSources, mpi::Comm comm )
-: numSources_(numSources)
+: numSources_(numSources), commSize_(mpi::Size(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -87,11 +87,10 @@ void DistMap::StoreOwners
 void DistMap::Translate( vector<Int>& localInds ) const
 {
     DEBUG_ONLY(CSE cse("DistMap::Translate"))
-    const int commSize = mpi::Size( comm_ );
     const Int numLocalInds = localInds.size();
 
     // Count how many indices we need each process to map
-    vector<int> requestSizes( commSize, 0 );
+    vector<int> requestSizes( commSize_, 0 );
     for( Int s=0; s<numLocalInds; ++s )
     {
         const Int i = localInds[s];
@@ -100,7 +99,7 @@ void DistMap::Translate( vector<Int>& localInds ) const
     }
 
     // Send our requests and find out what we need to fulfill
-    vector<int> fulfillSizes( commSize );
+    vector<int> fulfillSizes( commSize_ );
     mpi::AllToAll( requestSizes.data(), 1, fulfillSizes.data(), 1, comm_ );
 
     // Prepare for the AllToAll to exchange request sizes
@@ -178,13 +177,12 @@ Int DistMap::NumSources() const { return numSources_; }
 void DistMap::InitializeLocalData()
 {
     const int commRank = mpi::Rank( comm_ );
-    const int commSize = mpi::Size( comm_ );
-    blocksize_ = numSources_/commSize;
+    blocksize_ = numSources_/commSize_;
     firstLocalSource_ = blocksize_*commRank;
     const Int numLocalSources =
-        ( commRank<commSize-1 ?
+        ( commRank<commSize_-1 ?
           blocksize_ :
-          numSources_ - (commSize-1)*blocksize_ );
+          numSources_ - (commSize_-1)*blocksize_ );
     map_.resize( numLocalSources );
 }
 
@@ -201,6 +199,8 @@ void DistMap::SetComm( mpi::Comm comm )
     else
         comm_ = comm;
 
+    commSize_ = mpi::Size(comm_);
+
     InitializeLocalData();
 }
 
@@ -213,7 +213,7 @@ Int DistMap::FirstLocalSource() const { return firstLocalSource_; }
 Int DistMap::NumLocalSources() const { return map_.size(); }
 
 int DistMap::RowOwner( Int i ) const 
-{ return RowToProcess( i, blocksize_, mpi::Size(comm_) ); }
+{ return RowToProcess( i, blocksize_, commSize_ ); }
 
 Int DistMap::GetLocal( Int localSource ) const
 { 
@@ -252,13 +252,12 @@ void DistMap::Empty()
 void DistMap::Resize( Int numSources )
 {
     const int commRank = mpi::Rank( comm_ );
-    const int commSize = mpi::Size( comm_ );
     numSources_ = numSources;
-    blocksize_ = numSources/commSize;
+    blocksize_ = numSources/commSize_;
     firstLocalSource_ = commRank*blocksize_;
     const Int numLocalSources = 
-        ( commRank<commSize-1 ? blocksize_
-                              : numSources-blocksize_*(commSize-1) );
+        ( commRank<commSize_-1 ? blocksize_
+                               : numSources-blocksize_*(commSize_-1) );
     map_.resize( numLocalSources );
 }
 

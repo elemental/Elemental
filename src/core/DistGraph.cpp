@@ -29,7 +29,7 @@ namespace El {
 //       and mpi::COMM_SELF as special cases.
 
 DistGraph::DistGraph( mpi::Comm comm )
-: numSources_(0), numTargets_(0)
+: numSources_(0), numTargets_(0), commSize_(mpi::Size(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -39,7 +39,7 @@ DistGraph::DistGraph( mpi::Comm comm )
 }
 
 DistGraph::DistGraph( Int numSources, mpi::Comm comm )
-: numSources_(numSources), numTargets_(numSources)
+: numSources_(numSources), numTargets_(numSources), commSize_(mpi::Size(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -49,7 +49,7 @@ DistGraph::DistGraph( Int numSources, mpi::Comm comm )
 }
 
 DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
-: numSources_(numSources), numTargets_(numTargets)
+: numSources_(numSources), numTargets_(numTargets), commSize_(mpi::Size(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -143,15 +143,14 @@ void DistGraph::Resize( Int numSources, Int numTargets )
         return;
 
     const int commRank = mpi::Rank( comm_ );
-    const int commSize = mpi::Size( comm_ );
     numSources_ = numSources;
     numTargets_ = numTargets;
-    blocksize_ = numSources/commSize;
+    blocksize_ = numSources/commSize_;
     firstLocalSource_ = commRank*blocksize_;
-    if( commRank < commSize-1 )
+    if( commRank < commSize_-1 )
         numLocalSources_ = blocksize_;
     else
-        numLocalSources_ = numSources - (commSize-1)*blocksize_;
+        numLocalSources_ = numSources - (commSize_-1)*blocksize_;
 
     sources_.resize( 0 );
     targets_.resize( 0 );
@@ -168,13 +167,12 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 void DistGraph::InitializeLocalData()
 {
     const int commRank = mpi::Rank( comm_ );
-    const int commSize = mpi::Size( comm_ );
-    blocksize_ = numSources_/commSize;
+    blocksize_ = numSources_/commSize_;
     firstLocalSource_ = commRank*blocksize_;
-    if( commRank < commSize-1 )
+    if( commRank < commSize_-1 )
         numLocalSources_ = blocksize_;
     else
-        numLocalSources_ = numSources_ - (commSize-1)*blocksize_;
+        numLocalSources_ = numSources_ - (commSize_-1)*blocksize_;
 
     localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )
@@ -196,6 +194,8 @@ void DistGraph::SetComm( mpi::Comm comm )
         comm_ = comm;
     else
         mpi::Dup( comm, comm_ );
+
+    commSize_ = mpi::Size( comm_ );
 
     InitializeLocalData();
 }
@@ -332,11 +332,10 @@ void DistGraph::ProcessQueues()
 
     // Send the remote edges
     // =====================
-    int commSize = mpi::Size( comm_ );
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
+        vector<int> sendCounts(commSize_);
         for( auto s : remoteSources_ )
             ++sendCounts[SourceOwner(s)];
         // Pack the send data
@@ -371,7 +370,7 @@ void DistGraph::ProcessQueues()
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
+        vector<int> sendCounts(commSize_);
         for( Int i=0; i<remoteRemovals_.size(); ++i )
             ++sendCounts[SourceOwner(remoteRemovals_[i].first)];
         // Pack the send data
@@ -485,7 +484,7 @@ int DistGraph::SourceOwner( Int source ) const
 { 
     if( source == END ) source = numSources_ - 1;
     // TODO: Get rid of RowToProcess...
-    return RowToProcess( source, Blocksize(), mpi::Size(Comm()) ); 
+    return RowToProcess( source, blocksize_, commSize_ ); 
 }
 
 Int DistGraph::GlobalSource( Int sLoc ) const
