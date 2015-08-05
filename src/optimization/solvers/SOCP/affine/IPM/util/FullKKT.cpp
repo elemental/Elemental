@@ -332,6 +332,7 @@ void KKT
     }
 }
 
+// TODO: Incorporate {gamma,delta,beta}
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
@@ -400,8 +401,8 @@ void KKT
         {
             const Int i = G.Row(e);
             const Int firstInd = firstInds.Get(i,0);
-            const Int firstIndSparse = origToSparseFirstInds.Get(i,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
@@ -515,8 +516,8 @@ void KKT
         {
             const Int i = G.Row(e);
             const Int firstInd = firstInds.Get(i,0);
-            const Int firstIndSparse = origToSparseFirstInds.Get(i,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
@@ -582,7 +583,7 @@ void KKT
                 else
                 {
                     // Queue up an entry of D and symmetric updates with 
-                    // u, and v
+                    // u and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
                     ( n+m+iSparse,     n+m+iSparse,     -wDet        ); 
@@ -605,7 +606,12 @@ template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
+  const Matrix<Int>& origToSparseOrders,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
         SparseMatrix<Real>& J, 
@@ -614,42 +620,189 @@ void StaticKKT
     DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
+    const Int numEntriesA = A.NumEntries();
+    const Int numEntriesG = G.NumEntries();
+
     Zeros( J, n+m+kSparse, n+m+kSparse );
     if( onlyLower )
     {
-        const Int numEntries = A.NumEntries() + G.NumEntries();
+        Int numEntries = numEntriesA + numEntriesG + m + n + kSparse;
+        // Add on the number of nonzero off-diagonal entries of the Hessian
+        // of the barrier will eventually exist
+        for( Int i=0; i<k; ++i )
+        {
+            const Int order = orders.Get(i,0);
+            const Int firstInd = firstInds.Get(i,0);
+            const Int sparseOrder = origToSparseOrders.Get(i,0);
+
+            if( order == sparseOrder )
+            {
+                numEntries += i-firstInd;
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // An entry of u (the corresponding entry of v is zero)
+                    numEntries += 1;
+                }
+                else
+                {
+                    // An entry of u and v
+                    numEntries += 2;
+                }
+            }
+        }
+
         J.Reserve( numEntries );
-        for( Int e=0; e<A.NumEntries(); ++e )
+        for( Int i=0; i<n; ++i )
+            J.QueueUpdate( i, i, gamma*gamma );
+        for( Int e=0; e<numEntriesA; ++e )
             J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
-        for( Int e=0; e<G.NumEntries(); ++e )
+        for( Int i=0; i<m; ++i )
+            J.QueueUpdate( i+n, i+n, -delta*delta );
+        for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
             const Int firstInd = firstInds.Get(i,0);
-            const Int firstIndSparse = origToSparseFirstInds.Get(i,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
+        }
+        for( Int i=0; i<k; ++i )
+        {
+            const Int order = orders.Get(i,0);
+            const Int firstInd = firstInds.Get(i,0);
+            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
+
+            if( order == sparseOrder )
+            {
+                for( Int jSparse=sparseFirstInd; jSparse<iSparse; ++jSparse )
+                    J.QueueUpdate( iSparse, jSparse, Real(0) );
+                J.QueueUpdate( iSparse, iSparse, -beta*beta );
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // An entry of u (the corresponding entry of v is zero)
+                    J.QueueUpdate( sparseFirstInd+order+1, iSparse, Real(0) );
+                    // The first diagonal entry and those of u and v
+                    J.QueueUpdate
+                    ( sparseFirstInd,       sparseFirstInd,       -beta*beta );
+                    J.QueueUpdate
+                    ( sparseFirstInd+order, sparseFirstInd+order, -beta*beta );
+                    J.QueueUpdate
+                    ( sparseFirstInd+order+1, sparseFirstInd+order+1, 
+                      beta*beta );
+                }
+                else
+                {
+                    // An entry of u and v
+                    J.QueueUpdate( sparseFirstInd+order,   iSparse, Real(0) );
+                    J.QueueUpdate( sparseFirstInd+order+1, iSparse, Real(0) );
+                }
+            }
         }
     }
     else
     {
-        const Int numEntries = 2*A.NumEntries() + 2*G.NumEntries();
+        Int numEntries = 2*numEntriesA + 2*numEntriesG + m + n + kSparse;
+        for( Int i=0; i<k; ++i )
+        {
+            const Int order = orders.Get(i,0);
+            const Int firstInd = firstInds.Get(i,0);
+            const Int sparseOrder = origToSparseOrders.Get(i,0);
+
+            if( order == sparseOrder )
+            {
+                numEntries += order-1;
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // A symmetric update with an entry of u
+                    numEntries += 2;
+                }
+                else
+                {
+                    // Symmetric updates with an entry each of u and v
+                    numEntries += 4;
+                }
+            }
+        }
+
         J.Reserve( numEntries );
-        for( Int e=0; e<A.NumEntries(); ++e )
+        for( Int i=0; i<n; ++i )
+            J.QueueUpdate( i, i, gamma*gamma );
+        for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e) );
             J.QueueUpdate( A.Col(e),   A.Row(e)+n, A.Value(e) );
         }
-        for( Int e=0; e<G.NumEntries(); ++e )
+        for( Int i=0; i<m; ++i )
+            J.QueueUpdate( i+n, i+n, -delta*delta );
+        for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
             const Int firstInd = firstInds.Get(i,0);
-            const Int firstIndSparse = origToSparseFirstInds.Get(i,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
+        for( Int i=0; i<k; ++i )
+        {
+            const Int order = orders.Get(i,0);
+            const Int firstInd = firstInds.Get(i,0);
+            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
+
+            if( order == sparseOrder )
+            {
+                for( Int jSparse=sparseFirstInd; 
+                         jSparse<sparseFirstInd+order; ++jSparse )
+                {
+                    if( jSparse == iSparse )
+                        J.QueueUpdate( iSparse, jSparse, -beta*beta );
+                    else
+                        J.QueueUpdate( iSparse, jSparse, Real(0) );
+                }
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // An entry of u (the corresponding entry of v is zero)
+                    J.QueueUpdate( sparseFirstInd+order+1, iSparse, Real(0) );
+                    J.QueueUpdate( iSparse, sparseFirstInd+order+1, Real(0) );
+                    // The first diagonal entry and those of u and v
+                    J.QueueUpdate
+                    ( sparseFirstInd,       sparseFirstInd,       -beta*beta );
+                    J.QueueUpdate
+                    ( sparseFirstInd+order, sparseFirstInd+order, -beta*beta );
+                    J.QueueUpdate
+                    ( sparseFirstInd+order+1, sparseFirstInd+order+1, 
+                      beta*beta );
+                }
+                else
+                {
+                    // An entry of u and v
+                    J.QueueUpdate( sparseFirstInd+order, iSparse, Real(0) );
+                    J.QueueUpdate( iSparse, sparseFirstInd+order, Real(0) );
+                    J.QueueUpdate( sparseFirstInd+order+1, iSparse, Real(0) );
+                    J.QueueUpdate( iSparse, sparseFirstInd+order+1, Real(0) );
+                }
+            }
+        }
     }
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -710,7 +863,8 @@ void FinishKKT
 
         // Queue the nonzeros
         // ------------------
-        J.Reserve( J.NumEntries()+numEntries );
+        if( !J.FrozenSparsity() )
+            J.Reserve( J.NumEntries()+numEntries );
         for( Int i=0; i<k; ++i )
         {
             const Int order = orders.Get(i,0);
@@ -812,7 +966,8 @@ void FinishKKT
 
         // Queue the nonzeros
         // ------------------
-        J.Reserve( J.NumEntries()+numEntries );
+        if( !J.FrozenSparsity() )
+            J.Reserve( J.NumEntries()+numEntries );
         for( Int i=0; i<k; ++i )
         {
             const Int order = orders.Get(i,0);
@@ -894,6 +1049,7 @@ void FinishKKT
     J.ProcessQueues();
 }
 
+// TODO: Incorporate {gamma,delta,beta}
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
@@ -1042,8 +1198,8 @@ void KKT
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e), false );
         }
         Int lastFirstInd = -1;
@@ -1183,8 +1339,8 @@ void KKT
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e), false );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e), false );
         }
@@ -1293,7 +1449,12 @@ template<typename Real>
 void StaticKKT
 ( const DistSparseMatrix<Real>& A, 
   const DistSparseMatrix<Real>& G,
+        Real gamma,
+        Real delta,
+        Real beta,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
+  const DistMultiVec<Int>& origToSparseOrders,
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,
         DistSparseMatrix<Real>& J, 
@@ -1302,46 +1463,250 @@ void StaticKKT
     DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int k = G.Height();
+    const Int coneLocalHeight = orders.LocalHeight();
+    const Int numEntriesA = A.NumLocalEntries();
+    const Int numEntriesG = G.NumLocalEntries();
+
     mpi::Comm comm = A.Comm();
     J.SetComm( comm );
     Zeros( J, n+m+kSparse, n+m+kSparse );
+    const Int JLocalHeight = J.LocalHeight();
+
+    Int numLocalEntries = 0;
+    for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
+    {
+        const Int i = J.GlobalRow(iLoc);
+        if( i < n+m )    
+            ++numLocalEntries;
+        else
+            break;
+    }
+
     if( onlyLower )
     {
-        Int numRemoteEntries = A.NumLocalEntries() + G.NumLocalEntries();
-        J.Reserve( numRemoteEntries, numRemoteEntries );
-        for( Int e=0; e<A.NumLocalEntries(); ++e )
+        Int numRemoteEntries = numEntriesA + numEntriesG;
+        for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
+        {
+            const Int order = orders.GetLocal(iLoc,0);
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+
+            const Int i = orders.GlobalRow(iLoc);
+            if( order == sparseOrder )
+            {
+                numRemoteEntries += (i-firstInd) + 1;
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // An entry of D and u (the first entry of v is 0), as well
+                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // v and u auxiliary variables
+                    numRemoteEntries += 4;
+                }
+                else
+                {
+                    // An entry of D, u, and v
+                    numRemoteEntries += 3;
+                }
+            }
+        }
+
+        J.Reserve( numLocalEntries+numRemoteEntries, numRemoteEntries );
+
+        for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
+        {
+            const Int i = J.GlobalRow(iLoc);
+            if( i < n )        J.QueueUpdate( iLoc, i,  gamma*gamma );
+            else if( i < n+m ) J.QueueUpdate( iLoc, i, -delta*delta );
+            else break;
+        }
+
+        for( Int e=0; e<numEntriesA; ++e )
             J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e), false );
-        for( Int e=0; e<G.NumLocalEntries(); ++e )
+
+        for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e), false );
+        }
+
+        for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
+        {
+            const Int order = orders.GetLocal(iLoc,0);
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+
+            const Int i = orders.GlobalRow(iLoc);
+            const Int sparseOff = sparseFirstInd-firstInd;
+            const Int iSparse = i+sparseOff;
+
+            if( order == sparseOrder )
+            {
+                // offdiag(-2 w w^T)
+                for( Int j=firstInd; j<i; ++j )
+                    J.QueueUpdate
+                    ( n+m+iSparse, n+m+(j+sparseOff), Real(0), false );
+
+                // diag(det(w) R - 2 w w^T)
+                J.QueueUpdate
+                ( n+m+iSparse, n+m+iSparse, -beta*beta, false );
+            }
+            else
+            {
+                const Int coneOff = n+m+sparseFirstInd;
+                if( i == firstInd )
+                {
+                    // Queue up an entry of D and u, and then the (scaled) 
+                    // -1 and +1
+                    J.QueueUpdate
+                    ( coneOff,         coneOff,       -beta*beta, false );
+                    J.QueueUpdate
+                    ( coneOff+order,   coneOff+order, -beta*beta, false );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff,         Real(0),   false );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff+order+1, beta*beta, false );
+                }
+                else
+                {
+                    // Queue up an entry of D, u, and v
+                    J.QueueUpdate
+                    ( n+m+iSparse,     n+m+iSparse, -beta*beta, false );
+                    J.QueueUpdate
+                    ( coneOff+order,   n+m+iSparse,  Real(0),   false );
+                    J.QueueUpdate
+                    ( coneOff+order+1, n+m+iSparse,  Real(0),   false );
+                }
+            }
         }
     }
     else
     {
-        Int numRemoteEntries = 2*A.NumLocalEntries() + 2*G.NumLocalEntries();
-        J.Reserve( numRemoteEntries, numRemoteEntries );
-        for( Int e=0; e<A.NumLocalEntries(); ++e )
+        Int numRemoteEntries = 2*numEntriesA + 2*numEntriesG;
+        for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
+        {
+            const Int order = orders.GetLocal(iLoc,0);
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+
+            const Int i = orders.GlobalRow(iLoc);
+            if( order == sparseOrder )
+            {
+                numRemoteEntries += order;
+            }
+            else
+            {
+                if( i == firstInd )
+                {
+                    // An entry of D and u (the first entry of v is 0), as well
+                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // v and u auxiliary variables
+                    numRemoteEntries += 5;
+                }
+                else
+                {
+                    // An entry of D, u, and v (and the transposes for u and v)
+                    numRemoteEntries += 5;
+                }
+            }
+        }
+
+        J.Reserve( numLocalEntries+numRemoteEntries, numRemoteEntries );
+
+        for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
+        {
+            const Int i = J.GlobalRow(iLoc);
+            if( i < n )        J.QueueUpdate( iLoc, i,  gamma*gamma );
+            else if( i < n+m ) J.QueueUpdate( iLoc, i, -delta*delta );
+            else break;
+        }
+
+        for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e), false );
             J.QueueUpdate( A.Col(e),   A.Row(e)+n, A.Value(e), false );
         }
-        for( Int e=0; e<G.NumLocalEntries(); ++e )
+        for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
             const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
-            const Int iSparse = i + (firstIndSparse-firstInd);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e), false );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e), false );
         }
+
+        for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
+        {
+            const Int order = orders.GetLocal(iLoc,0);
+            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+
+            const Int i = orders.GlobalRow(iLoc);
+            const Int sparseOff = sparseFirstInd-firstInd;
+            const Int iSparse = i+sparseOff;
+
+            if( order == sparseOrder )
+            {
+                for( Int j=firstInd; j<firstInd+order; ++j )
+                {
+                    if( j == i )
+                        // diag(det(w) R - 2 w w^T)
+                        J.QueueUpdate
+                        ( n+m+iSparse, n+m+iSparse, -beta*beta, false );
+                    else
+                        // offdiag(-2 w w^T)
+                        J.QueueUpdate
+                        ( n+m+iSparse, n+m+(j+sparseOff), Real(0), false );
+                }
+            }
+            else
+            {
+                const Int coneOff = n+m+sparseFirstInd;
+                if( i == firstInd )
+                {
+                    // Queue up an entry of D and u, and then the (scaled) 
+                    // -1 and +1
+                    J.QueueUpdate
+                    ( coneOff,         coneOff,       -beta*beta, false );
+                    J.QueueUpdate
+                    ( coneOff+order,   coneOff+order, -beta*beta, false );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff,         Real(0),   false );
+                    J.QueueUpdate
+                    ( coneOff, coneOff+order+1,         Real(0),   false );
+                    J.QueueUpdate
+                    ( coneOff+order+1, coneOff+order+1, beta*beta, false );
+                }
+                else
+                {
+                    // Queue up an entry of D, u, and v
+                    J.QueueUpdate
+                    ( n+m+iSparse,     n+m+iSparse, -beta*beta, false );
+                    J.QueueUpdate
+                    ( coneOff+order,   n+m+iSparse,   Real(0), false );
+                    J.QueueUpdate
+                    ( n+m+iSparse,     coneOff+order, Real(0), false );
+                    J.QueueUpdate
+                    ( coneOff+order+1, n+m+iSparse,     Real(0), false );
+                    J.QueueUpdate
+                    ( n+m+iSparse,     coneOff+order+1, Real(0), false );
+                }
+            }
+        }
     }
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -1479,7 +1844,8 @@ void FinishKKT
 
         // Queue the nonzeros
         // ------------------
-        J.Reserve( J.NumLocalEntries()+numRemoteEntries, numRemoteEntries );
+        if( !J.FrozenSparsity() )
+            J.Reserve( J.NumLocalEntries()+numRemoteEntries, numRemoteEntries );
         Int lastFirstInd = -1;
         vector<Real> wBuf;
         auto offs = recvOffs;
@@ -1606,7 +1972,8 @@ void FinishKKT
 
         // Queue the nonzeros
         // ------------------
-        J.Reserve( J.NumLocalEntries()+numRemoteEntries, numRemoteEntries );
+        if( !J.FrozenSparsity() )
+            J.Reserve( J.NumLocalEntries()+numRemoteEntries, numRemoteEntries );
         Int lastFirstInd = -1;
         vector<Real> wBuf;
         auto offs = recvOffs;
@@ -1807,8 +2174,8 @@ void KKTRHS
     for( Int i=0; i<kSparse; ++i )
     {
         const Int firstInd = firstInds.Get(i,0);
-        const Int firstIndSparse = origToSparseFirstInds.Get(i,0);
-        const Int iSparse = i + (firstIndSparse-firstInd);
+        const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+        const Int iSparse = i + (sparseFirstInd-firstInd);
         Real value = W_rmu.Get(i,0) - rh.Get(i,0);
         d.Set( n+m+iSparse, 0, value );
     }
@@ -1854,9 +2221,9 @@ void KKTRHS
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
         const Int firstInd = firstInds.GetLocal(iLoc,0);
-        const Int firstIndSparse = origToSparseFirstInds.GetLocal(iLoc,0);
+        const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
         const Int i = rmu.GlobalRow(iLoc);
-        const Int iSparse = i + (firstIndSparse-firstInd);
+        const Int iSparse = i + (sparseFirstInd-firstInd);
         Real value = W_rmu.GetLocal(iLoc,0) - rh.GetLocal(iLoc,0);
         d.QueueUpdate( n+m+iSparse, 0, value );
     }
@@ -2064,7 +2431,12 @@ void ExpandSolution
   template void StaticKKT \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
+    const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
+    const Matrix<Int>& origToSparseOrders, \
     const Matrix<Int>& origToSparseFirstInds, \
           Int kSparse, \
           SparseMatrix<Real>& J, \
@@ -2093,7 +2465,12 @@ void ExpandSolution
   template void StaticKKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
+    const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
+    const DistMultiVec<Int>& origToSparseOrders, \
     const DistMultiVec<Int>& origToSparseFirstInds, \
           Int kSparse, \
           DistSparseMatrix<Real>& J, \

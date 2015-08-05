@@ -792,6 +792,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = true;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta =  Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     const Real wMaxLimit = Pow(eps,Real(-0.4));
     const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
     // Sizes of || w ||_max which force levels of equilibration
@@ -924,20 +930,17 @@ void Mehrotra
                  dzAffScaled, dsAffScaled;
 
     // TODO: Expose regularization rules to user
-    Matrix<Real> regPerm, regTmp;
-    regPerm.Resize( n+m+kSparse, 1 );
+    Matrix<Real> regTmp;
     regTmp.Resize( n+m+kSparse, 1 );
     for( Int i=0; i<n+m+kSparse; ++i )
     {
         if( i < n )
         {
-            regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*eps );
+            regTmp.Set( i, 0, gammaTmp*gammaTmp );
         }
         else if( i < n+m )
         {
-            regTmp.Set( i, 0, -ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, -10*eps );
+            regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         }
         else
         {
@@ -947,27 +950,23 @@ void Mehrotra
             const Int sparseOrder = sparseOrders.Get(iCone,0);
             const bool embedded = ( order != sparseOrder );
           
+            // TODO: Use different diagonal modification for the auxiliary
+            //       variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-            {
-                regTmp.Set( i, 0, ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, 10*eps );
-            }
-            else
-            {
-                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*eps );
-            }
+                regTmp.Set( i, 0, betaTmp*betaTmp );
+            else 
+                regTmp.Set( i, 0, -betaTmp*betaTmp );
         }
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, firstInds, origToSparseFirstInds, kSparse, JOrig, onlyLower );
-    UpdateDiagonal( JStatic, Real(1), regPerm );
+    ( A, G, gamma, delta, beta, 
+      orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
+      kSparse, JOrig, onlyLower );
 
     Real relError = 1;
     vector<Int> map, invMap;
@@ -1073,6 +1072,7 @@ void Mehrotra
         // Form the KKT system
         // -------------------
         JOrig = JStatic;
+        JOrig.FreezeSparsity();
         FinishKKT
         ( m, n, w, 
           orders, firstInds, 
@@ -1296,6 +1296,12 @@ void Mehrotra
     const bool forceSameStep = true;
     const bool checkResiduals = true;
     const bool standardShift = false;
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta =  Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
     const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
     const Real wMaxLimit = Pow(eps,Real(-0.4));
     // Sizes of || w ||_max which force levels of equilibration
@@ -1577,9 +1583,8 @@ void Mehrotra
 
     // Form the regularization vectors
     // ===============================
-    DistMultiVec<Real> regPerm(comm), regTmp(comm);
+    DistMultiVec<Real> regTmp(comm);
     Zeros( regTmp, n+m+kSparse, 1 );
-    Zeros( regPerm, n+m+kSparse, 1 );
     // Set the analytical part
     // -----------------------
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
@@ -1587,13 +1592,11 @@ void Mehrotra
         const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
         {
-            regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*eps );
+            regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
         }
         else if( i < n+m )
         {
-            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*eps );
+            regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
         }
         else
             break;
@@ -1603,7 +1606,6 @@ void Mehrotra
     {
         const Int sparseLocalHeight = sparseFirstInds.LocalHeight();
         regTmp.Reserve( sparseLocalHeight );
-        regPerm.Reserve( sparseLocalHeight );
         for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
         {
             const Int iCone = sparseFirstInds.GlobalRow(iLoc);
@@ -1613,27 +1615,24 @@ void Mehrotra
             const Int firstInd = sparseFirstInds.GetLocal(iLoc,0);
             if( embedded && iCone == firstInd+sparseOrder-1 )
             {
-                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, 10*eps );
+                regTmp.QueueUpdate( n+m+iCone, 0, betaTmp*betaTmp );
             }
             else
             {
-                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, -10*eps );
+                regTmp.QueueUpdate( n+m+iCone, 0, -betaTmp*betaTmp );
             }
         }
         regTmp.ProcessQueues();
-        regPerm.ProcessQueues();
     }
     regTmp *= origTwoNormEst;
-    regPerm *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT
-    ( A, G, firstInds, origToSparseFirstInds, kSparse, JStatic, onlyLower );
-    UpdateDiagonal( JStatic, Real(1), regPerm );
+    ( A, G, gamma, delta, beta, 
+      orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
+      kSparse, JStatic, onlyLower );
 
     Real relError = 1;
     DistMap map, invMap;
@@ -1755,6 +1754,7 @@ void Mehrotra
         if( ctrl.time && commRank == 0 )
             timer.Start();
         JOrig = JStatic;
+        JOrig.FreezeSparsity();
         FinishKKT
         ( m, n, w, 
           orders, firstInds, 
