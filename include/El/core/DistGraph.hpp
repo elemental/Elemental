@@ -143,6 +143,11 @@ private:
     friend void Copy( const DistGraph& A, Graph& B );
     friend void Copy( const DistGraph& A, DistGraph& B );
 
+    template<typename U,typename V>
+    friend void EntrywiseMap
+    ( const DistSparseMatrix<U>& A, DistSparseMatrix<V>& B, 
+      function<V(U)> func );
+
     template<typename F> friend class DistSparseMatrix;
     template<typename F> friend struct ldl::DistFront;
 

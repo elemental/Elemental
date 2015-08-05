@@ -117,6 +117,10 @@ private:
     template<typename U>
     friend void CopyFromRoot
     ( const DistSparseMatrix<U>& ADist, SparseMatrix<U>& A );
+
+    template<typename U,typename V>
+    friend void EntrywiseMap
+    ( const SparseMatrix<U>& A, SparseMatrix<V>& B, function<V(U)> func );
 };
 
 } // namespace El

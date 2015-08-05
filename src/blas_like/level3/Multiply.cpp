@@ -482,8 +482,11 @@ void Multiply
 template<typename T>
 void Multiply
 ( Orientation orientation, 
-  T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
-  T beta,                                      DistMultiVec<T>& Y )
+        T alpha, 
+  const DistSparseMatrix<T>& A,
+  const DistMultiVec<T>& X,
+        T beta,
+        DistMultiVec<T>& Y )
 {
     DEBUG_ONLY(
       CSE cse("Multiply");
@@ -493,9 +496,17 @@ void Multiply
           !mpi::Congruent( X.Comm(), Y.Comm() ) )
           LogicError("Communicators did not match");
     )
+
+    const bool time = false;
+
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
     // TODO: Use sequential implementation if commSize = 1?
+
+    Timer totalTimer, timer;
+    if( time && commRank == 0 )
+        totalTimer.Start();
 
     // Y := beta Y
     Y *= beta;
@@ -545,6 +556,8 @@ void Multiply
           recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
      
         // Perform the local multiply-accumulate, y := alpha A x + y
+        if( time && commRank == 0 )
+            timer.Start();
         MultiplyCSRInterX
         ( NORMAL, A.LocalHeight(), meta.numRecvInds, b,
           alpha, A.LockedOffsetBuffer(), 
@@ -552,6 +565,8 @@ void Multiply
                  A.LockedValueBuffer(),
                  recvVals.data(), 
           T(1),  Y.Matrix().Buffer(), Y.Matrix().LDim() );
+        if( time && commRank == 0 )
+            Output("  MultiplyCSRInterX time: ",timer.Stop());
     }
     else
     {
@@ -561,6 +576,8 @@ void Multiply
             LogicError("The height of A must match the height of X");
 
         // Form and pack the updates to Y
+        if( time && commRank == 0 )
+            timer.Start();
         vector<T> sendVals( meta.numRecvInds*b, 0 );
         MultiplyCSRInterY
         ( orientation, A.LocalHeight(), meta.numRecvInds, b,
@@ -569,6 +586,8 @@ void Multiply
                  A.LockedValueBuffer(),
                  X.LockedMatrix().LockedBuffer(), X.LockedMatrix().LDim(),
           T(1),  sendVals.data() );
+        if( time && commRank == 0 )
+            Output("  MultiplyCSRInterY time: ",timer.Stop());
 
         // Inject the updates to Y into the network
         const Int numRecvInds = meta.sendInds.size();
@@ -589,17 +608,25 @@ void Multiply
                 YBuffer[iLoc+t*ldY] += recvVals[s*b+t];
         }
     }
+    if( time && commRank == 0 )
+        Output("Multiply total time: ",totalTimer.Stop());
 }
 
 #define PROTO(T) \
     template void Multiply \
     ( Orientation orientation, \
-      T alpha, const SparseMatrix<T>& A, const Matrix<T>& X, \
-      T beta,                                  Matrix<T>& Y ); \
+            T alpha, \
+      const SparseMatrix<T>& A, \
+      const Matrix<T>& X, \
+            T beta, \
+            Matrix<T>& Y ); \
     template void Multiply \
     ( Orientation orientation, \
-      T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X, \
-      T beta,                                      DistMultiVec<T>& Y );
+            T alpha, \
+      const DistSparseMatrix<T>& A, \
+      const DistMultiVec<T>& X, \
+            T beta, \
+            DistMultiVec<T>& Y );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

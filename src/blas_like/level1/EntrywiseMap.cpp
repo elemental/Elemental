@@ -71,12 +71,11 @@ void EntrywiseMap
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int numEntries = A.NumEntries();
-    B.Empty();
-    B.Resize( A.Height(), A.Width() );
-    B.Reserve( numEntries );
-    // TODO: Consider avoiding the need for sorting
+
+    B.graph_ = A.graph_;
+    B.vals_.resize( numEntries );
     for( Int k=0; k<numEntries; ++k )
-        B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
+        B.vals_[k] = func(A.vals_[k]);
     B.ProcessQueues();
 }
 
@@ -142,16 +141,18 @@ void EntrywiseMap
   function<T(S)> func )
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
-    const Int numLocalEntries = A.NumLocalEntries();
-    B.Empty();
-    B.SetComm( A.Comm() );
-    B.Resize( A.Height(), A.Width() );
-    B.Reserve( numLocalEntries );
-    // TODO: Consider avoiding the need for sorting
-    for( Int k=0; k<numLocalEntries; ++k )
-        B.QueueUpdate( A.Row(k), A.Col(k), func(A.Value(k)) );
-    B.ProcessLocalQueues();
+    const Int numEntries = A.vals_.size();
+    const Int numRemoteEntries = A.remoteVals_.size();
+
+    B.distGraph_ = A.distGraph_;
+    B.vals_.resize( numEntries );
+    for( Int k=0; k<numEntries; ++k )
+        B.vals_[k] = func(A.vals_[k]);
+    B.remoteVals_.resize( numRemoteEntries );
+    for( Int k=0; k<numRemoteEntries; ++k )
+        B.remoteVals_[k] = func(A.remoteVals_[k]);
     B.multMeta = A.multMeta;
+    B.ProcessQueues();
 }
 
 template<typename S,typename T>
