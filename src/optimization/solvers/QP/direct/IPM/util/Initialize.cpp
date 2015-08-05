@@ -307,8 +307,10 @@ void Initialize
     const Int n = A.Width();
 
     const Real eps = Epsilon<Real>();
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
+    const Real gamma = Pow(eps,Real(0.25));
+    const Real delta = Pow(eps,Real(0.25));
+    const Real gammaTmp = 0;
+    const Real deltaTmp = 0;
 
     if( primalInit )
         if( x.Height() != n || x.Width() != 1 )
@@ -341,9 +343,9 @@ void Initialize
     for( Int i=0; i<n+m; ++i )
     {
         if( i < n )
-            reg.Set( i, 0, qsdCtrl.regPrimal );
+            reg.Set( i, 0, gammaTmp*gammaTmp );
         else
-            reg.Set( i, 0, -qsdCtrl.regDual );
+            reg.Set( i, 0, -deltaTmp*deltaTmp );
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
@@ -444,8 +446,10 @@ void Initialize
     const Int n = A.Width();
 
     const Real eps = Epsilon<Real>();
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
+    const Real gamma = Pow(eps,Real(0.25));
+    const Real delta = Pow(eps,Real(0.25));
+    const Real gammaTmp = 0;
+    const Real deltaTmp = 0;
 
     mpi::Comm comm = A.Comm();
     if( primalInit )
@@ -480,9 +484,9 @@ void Initialize
     {
         const Int i = reg.GlobalRow(iLoc);
         if( i < n )
-            reg.SetLocal( iLoc, 0, qsdCtrl.regPrimal );
+            reg.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
         else
-            reg.SetLocal( iLoc, 0, -qsdCtrl.regDual );
+            reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 

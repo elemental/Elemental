@@ -1373,8 +1373,6 @@ inline ElRegQSDRefineAlg CReflect( RegQSDRefineAlg alg )
 inline ElRegQSDCtrl_s CReflect( const RegQSDCtrl<float>& ctrl )
 {
     ElRegQSDCtrl_s ctrlC;
-    ctrlC.regPrimal    = ctrl.regPrimal;
-    ctrlC.regDual      = ctrl.regDual;
     ctrlC.alg          = CReflect(ctrl.alg);
     ctrlC.relTol       = ctrl.relTol;
     ctrlC.relTolRefine = ctrl.relTolRefine;
@@ -1388,8 +1386,6 @@ inline ElRegQSDCtrl_s CReflect( const RegQSDCtrl<float>& ctrl )
 inline ElRegQSDCtrl_d CReflect( const RegQSDCtrl<double>& ctrl )
 {
     ElRegQSDCtrl_d ctrlC;
-    ctrlC.regPrimal    = ctrl.regPrimal;
-    ctrlC.regDual      = ctrl.regDual;
     ctrlC.alg          = CReflect(ctrl.alg);
     ctrlC.relTol       = ctrl.relTol;
     ctrlC.relTolRefine = ctrl.relTolRefine;
@@ -1403,8 +1399,6 @@ inline ElRegQSDCtrl_d CReflect( const RegQSDCtrl<double>& ctrl )
 inline RegQSDCtrl<float> CReflect( const ElRegQSDCtrl_s& ctrlC )
 {
     RegQSDCtrl<float> ctrl;
-    ctrl.regPrimal    = ctrlC.regPrimal;
-    ctrl.regDual      = ctrlC.regDual;
     ctrl.alg          = CReflect(ctrlC.alg);
     ctrl.relTol       = ctrlC.relTol;
     ctrl.relTolRefine = ctrlC.relTolRefine;
@@ -1418,8 +1412,6 @@ inline RegQSDCtrl<float> CReflect( const ElRegQSDCtrl_s& ctrlC )
 inline RegQSDCtrl<double> CReflect( const ElRegQSDCtrl_d& ctrlC )
 {
     RegQSDCtrl<double> ctrl;
-    ctrl.regPrimal    = ctrlC.regPrimal;
-    ctrl.regDual      = ctrlC.regDual;
     ctrl.alg          = CReflect(ctrlC.alg);
     ctrl.relTol       = ctrlC.relTol;
     ctrl.relTolRefine = ctrlC.relTolRefine;

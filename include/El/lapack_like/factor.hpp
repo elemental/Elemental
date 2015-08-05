@@ -253,8 +253,6 @@ enum RegQSDRefineAlg
 template<typename Real>
 struct RegQSDCtrl
 {
-    Real regPrimal, regDual;
-
     RegQSDRefineAlg alg=REG_REFINE_FGMRES;
     Real relTol;
     Real relTolRefine;
@@ -267,7 +265,6 @@ struct RegQSDCtrl
     RegQSDCtrl()
     {
         const Real eps = Epsilon<Real>(); 
-        regPrimal = regDual = Pow(eps,Real(0.5));
         relTol = Pow(eps,Real(0.5));
         relTolRefine = Pow(eps,Real(0.8));
     }

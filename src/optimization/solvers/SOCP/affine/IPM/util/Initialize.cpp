@@ -156,11 +156,11 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -279,11 +279,11 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -327,6 +327,16 @@ void Initialize
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gamma = Pow(eps,Real(0.25));
+    const Real delta = Pow(eps,Real(0.25));
+    const Real beta  = Pow(eps,Real(0.25));
+    const Real gammaTmp = 0;
+    const Real deltaTmp = 0;
+    const Real betaTmp  = 0;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -356,8 +366,10 @@ void Initialize
     Matrix<Real> ones;
     Ones( ones, k, 1 );
     const bool onlyLower = false;
-    lp::affine::KKT( A, G, ones, ones, JOrig, onlyLower );
+    lp::affine::StaticKKT( A, G, gamma, delta, beta, JOrig, onlyLower );
+    lp::affine::FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
+    J.FreezeSparsity();
 
     // (Approximately) factor the KKT matrix
     // =====================================
@@ -365,10 +377,9 @@ void Initialize
     reg.Resize( n+m+k, 1 );
     for( Int i=0; i<reg.Height(); ++i )
     {
-        if( i < n )
-            reg.Set( i, 0, qsdCtrl.regPrimal );
-        else
-            reg.Set( i, 0, -qsdCtrl.regDual );
+        if( i < n )        reg.Set( i, 0, gammaTmp*gammaTmp );
+        else if( i < n+m ) reg.Set( i, 0, -deltaTmp*deltaTmp );
+        else               reg.Set( i, 0, -betaTmp*betaTmp );
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
@@ -422,11 +433,10 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -471,6 +481,16 @@ void Initialize
   const RegQSDCtrl<Real>& qsdCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gamma = Pow(eps,Real(0.25));
+    const Real delta = Pow(eps,Real(0.25));
+    const Real beta  = Pow(eps,Real(0.25));
+    const Real gammaTmp = 0;
+    const Real deltaTmp = 0;
+    const Real betaTmp  = 0;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -501,8 +521,10 @@ void Initialize
     DistMultiVec<Real> ones(comm);
     Ones( ones, k, 1 );
     const bool onlyLower = false;
-    lp::affine::KKT( A, G, ones, ones, JOrig, onlyLower );
+    lp::affine::StaticKKT( A, G, gamma, delta, beta, JOrig, onlyLower );
+    lp::affine::FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
+    J.FreezeSparsity();
 
     // (Approximately) factor the KKT matrix
     // =====================================
@@ -511,10 +533,9 @@ void Initialize
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
         const Int i = reg.FirstLocalRow() + iLoc;
-        if( i < n )
-            reg.SetLocal( iLoc, 0, qsdCtrl.regPrimal );
-        else
-            reg.SetLocal( iLoc, 0, -qsdCtrl.regDual );
+        if( i < n )        reg.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+        else if( i < n+m ) reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+        else               reg.SetLocal( iLoc, 0, -betaTmp*betaTmp   );
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
@@ -569,11 +590,10 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }

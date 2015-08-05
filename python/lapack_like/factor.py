@@ -468,15 +468,13 @@ lib.ElRegQSDCtrlDefault_s.argtypes = \
 lib.ElRegQSDCtrlDefault_d.argtypes = \
   [c_void_p]
 class RegQSDCtrl_s(ctypes.Structure):
-  _fields_ = [("regPrimal",sType),("regDual",sType),
-              ("alg",c_uint),("relTol",sType),("relTolRefine",sType),
+  _fields_ = [("alg",c_uint),("relTol",sType),("relTolRefine",sType),
               ("maxIts",iType),("maxRefineIts",iType),("restart",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElRegQSDCtrlDefault_s(pointer(self))
 class RegQSDCtrl_d(ctypes.Structure):
-  _fields_ = [("regPrimal",dType),("regDual",dType),
-              ("alg",c_uint),("relTol",dType),("relTolRefine",dType),
+  _fields_ = [("alg",c_uint),("relTol",dType),("relTolRefine",dType),
               ("maxIts",iType),("maxRefineIts",iType),("restart",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):

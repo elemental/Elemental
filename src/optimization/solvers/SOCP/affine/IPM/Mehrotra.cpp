@@ -1087,7 +1087,7 @@ void Mehrotra
         try 
         {
             J = JOrig;
-
+            J.FreezeSparsity();
             UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
@@ -1781,6 +1781,7 @@ void Mehrotra
             else
                 JOrig.multMeta = metaOrig;
             J = JOrig;
+            J.FreezeSparsity();
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();

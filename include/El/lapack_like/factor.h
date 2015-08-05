@@ -372,8 +372,6 @@ typedef enum
 
 typedef struct
 {
-  float regPrimal;
-  float regDual;
   ElRegQSDRefineAlg alg;
   float relTol;
   float relTolRefine;
@@ -387,8 +385,6 @@ EL_EXPORT ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl );
 
 typedef struct
 {
-  double regPrimal;
-  double regDual;
   ElRegQSDRefineAlg alg;
   double relTol;
   double relTolRefine;

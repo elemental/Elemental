@@ -151,11 +151,11 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -273,11 +273,11 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -409,11 +409,11 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -550,11 +550,11 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
