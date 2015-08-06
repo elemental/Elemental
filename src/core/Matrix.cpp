@@ -514,7 +514,6 @@ void Matrix<T>::Empty_()
 template<typename T>
 void Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
 {
-    memory_.Empty();
     height_ = height;
     width_ = width;
     ldim_ = ldim;
@@ -526,7 +525,6 @@ template<typename T>
 void Matrix<T>::LockedAttach_
 ( Int height, Int width, const T* buffer, Int ldim )
 {
-    memory_.Empty();
     height_ = height;
     width_ = width;
     ldim_ = ldim;
@@ -537,7 +535,6 @@ void Matrix<T>::LockedAttach_
 template<typename T>
 void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 {
-    memory_.Empty();
     height_ = height;
     width_ = width;
     ldim_ = ldim;

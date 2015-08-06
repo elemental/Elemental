@@ -67,7 +67,6 @@ if display:
 ctrl = El.LPAffineCtrl_d()
 ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.innerEquil = True
-ctrl.mehrotraCtrl.scaleTwoNorm = True
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.solveCtrl.progress = True
 startCP = El.mpi.Time()

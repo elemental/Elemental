@@ -63,7 +63,6 @@ if display:
 ctrl = El.LPAffineCtrl_d()
 ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.innerEquil = True
-ctrl.mehrotraCtrl.scaleTwoNorm = True
 ctrl.mehrotraCtrl.progress = True
 
 for j in xrange(0,numLambdas):
