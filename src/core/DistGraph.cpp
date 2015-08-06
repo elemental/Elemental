@@ -29,7 +29,8 @@ namespace El {
 //       and mpi::COMM_SELF as special cases.
 
 DistGraph::DistGraph( mpi::Comm comm )
-: numSources_(0), numTargets_(0), commSize_(mpi::Size(comm))
+: numSources_(0), numTargets_(0), 
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -39,7 +40,8 @@ DistGraph::DistGraph( mpi::Comm comm )
 }
 
 DistGraph::DistGraph( Int numSources, mpi::Comm comm )
-: numSources_(numSources), numTargets_(numSources), commSize_(mpi::Size(comm))
+: numSources_(numSources), numTargets_(numSources),
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -49,7 +51,8 @@ DistGraph::DistGraph( Int numSources, mpi::Comm comm )
 }
 
 DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
-: numSources_(numSources), numTargets_(numTargets), commSize_(mpi::Size(comm))
+: numSources_(numSources), numTargets_(numTargets),
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -142,12 +145,11 @@ void DistGraph::Resize( Int numSources, Int numTargets )
     if( numSources_ == numSources && numTargets == numTargets_ )
         return;
 
-    const int commRank = mpi::Rank( comm_ );
     numSources_ = numSources;
     numTargets_ = numTargets;
     blocksize_ = numSources/commSize_;
-    firstLocalSource_ = commRank*blocksize_;
-    if( commRank < commSize_-1 )
+    firstLocalSource_ = commRank_*blocksize_;
+    if( commRank_ < commSize_-1 )
         numLocalSources_ = blocksize_;
     else
         numLocalSources_ = numSources - (commSize_-1)*blocksize_;
@@ -166,10 +168,9 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 // -----------------------
 void DistGraph::InitializeLocalData()
 {
-    const int commRank = mpi::Rank( comm_ );
     blocksize_ = numSources_/commSize_;
-    firstLocalSource_ = commRank*blocksize_;
-    if( commRank < commSize_-1 )
+    firstLocalSource_ = commRank_*blocksize_;
+    if( commRank_ < commSize_-1 )
         numLocalSources_ = blocksize_;
     else
         numLocalSources_ = numSources_ - (commSize_-1)*blocksize_;
@@ -185,6 +186,8 @@ void DistGraph::InitializeLocalData()
 
 void DistGraph::SetComm( mpi::Comm comm )
 {
+    commSize_ = mpi::Size( comm_ );
+    commRank_ = mpi::Rank( comm_ );
     if( comm == comm_ )
         return;
 
@@ -194,8 +197,6 @@ void DistGraph::SetComm( mpi::Comm comm )
         comm_ = comm;
     else
         mpi::Dup( comm, comm_ );
-
-    commSize_ = mpi::Size( comm_ );
 
     InitializeLocalData();
 }

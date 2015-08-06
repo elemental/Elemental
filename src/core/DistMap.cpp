@@ -13,7 +13,8 @@
 namespace El {
 
 DistMap::DistMap( mpi::Comm comm )
-: numSources_(0), commSize_(mpi::Size(comm))
+: numSources_(0),
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -23,7 +24,8 @@ DistMap::DistMap( mpi::Comm comm )
 }
 
 DistMap::DistMap( Int numSources, mpi::Comm comm )
-: numSources_(numSources), commSize_(mpi::Size(comm))
+: numSources_(numSources),
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -45,14 +47,13 @@ void DistMap::StoreOwners
     DEBUG_ONLY(CSE cse("DistMap::StoreOwners"))
     SetComm( comm );
     Resize( numSources );
-    const int commSize = mpi::Size( comm );
 
     // Exchange via AllToAlls
-    vector<int> sendSizes( commSize, 0 );
+    vector<int> sendSizes( commSize_, 0 );
     const Int numLocalInds = localInds.size();
     for( Int s=0; s<numLocalInds; ++s )
         ++sendSizes[ RowOwner(localInds[s]) ]; 
-    vector<int> recvSizes( commSize );
+    vector<int> recvSizes( commSize_ );
     mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
     vector<int> sendOffs, recvOffs;
     const int numSends = Scan( sendSizes, sendOffs );
@@ -75,7 +76,7 @@ void DistMap::StoreOwners
 
     // Form map
     const Int firstLocalSource = FirstLocalSource();
-    for( int q=0; q<commSize; ++q )
+    for( int q=0; q<commSize_; ++q )
     {
         const int size = recvSizes[q];
         const int off = recvOffs[q];
@@ -131,10 +132,9 @@ void DistMap::Translate( vector<Int>& localInds ) const
         DEBUG_ONLY(
           if( iLocal < 0 || iLocal >= (Int)map_.size() )
           {
-              const int commRank = mpi::Rank( comm_ );
               LogicError
               ("invalid request: i=",i,", iLocal=",iLocal,
-               ", commRank=",commRank,", blocksize=",blocksize_);
+               ", commRank=",commRank_,", blocksize=",blocksize_);
           }
         )
         fulfills[s] = map_[iLocal];
@@ -176,11 +176,10 @@ Int DistMap::NumSources() const { return numSources_; }
 
 void DistMap::InitializeLocalData()
 {
-    const int commRank = mpi::Rank( comm_ );
     blocksize_ = numSources_/commSize_;
-    firstLocalSource_ = blocksize_*commRank;
+    firstLocalSource_ = blocksize_*commRank_;
     const Int numLocalSources =
-        ( commRank<commSize_-1 ?
+        ( commRank_<commSize_-1 ?
           blocksize_ :
           numSources_ - (commSize_-1)*blocksize_ );
     map_.resize( numLocalSources );
@@ -188,6 +187,8 @@ void DistMap::InitializeLocalData()
 
 void DistMap::SetComm( mpi::Comm comm )
 {
+    commSize_ = mpi::Size(comm_);
+    commRank_ = mpi::Rank(comm_);
     if( comm == comm_ )
         return;
 
@@ -198,8 +199,6 @@ void DistMap::SetComm( mpi::Comm comm )
         mpi::Dup( comm, comm_ );
     else
         comm_ = comm;
-
-    commSize_ = mpi::Size(comm_);
 
     InitializeLocalData();
 }
@@ -251,13 +250,12 @@ void DistMap::Empty()
 
 void DistMap::Resize( Int numSources )
 {
-    const int commRank = mpi::Rank( comm_ );
     numSources_ = numSources;
     blocksize_ = numSources/commSize_;
-    firstLocalSource_ = commRank*blocksize_;
+    firstLocalSource_ = commRank_*blocksize_;
     const Int numLocalSources = 
-        ( commRank<commSize_-1 ? blocksize_
-                               : numSources-blocksize_*(commSize_-1) );
+        ( commRank_<commSize_-1 ? blocksize_
+                                : numSources-blocksize_*(commSize_-1) );
     map_.resize( numLocalSources );
 }
 

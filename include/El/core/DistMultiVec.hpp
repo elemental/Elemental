@@ -108,6 +108,9 @@ private:
     Int height_, width_;
 
     mpi::Comm comm_;
+    // Calling MPI_Comm_size within an inner loop is apparently a bad idea
+    int commSize_;
+    int commRank_;
 
     Int blocksize_;
     Int firstLocalRow_;

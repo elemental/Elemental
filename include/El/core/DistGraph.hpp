@@ -122,6 +122,7 @@ private:
     mpi::Comm comm_;
     // Apparently calling MPI_Comm_size in an inner loop is a very bad idea...
     int commSize_;
+    int commRank_;
 
     Int blocksize_;
     Int firstLocalSource_, numLocalSources_;

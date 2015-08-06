@@ -17,7 +17,8 @@ namespace El {
 
 template<typename T>
 DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
-: height_(0), width_(0)
+: height_(0), width_(0),
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -28,7 +29,8 @@ DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
 
 template<typename T>
 DistMultiVec<T>::DistMultiVec( Int height, Int width, mpi::Comm comm )
-: height_(height), width_(width)
+: height_(height), width_(width), 
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -76,14 +78,12 @@ void DistMultiVec<T>::Empty()
 template<typename T>
 void DistMultiVec<T>::InitializeLocalData()
 {
-    const Int commRank = mpi::Rank( comm_ );
-    const Int commSize = mpi::Size( comm_ );
-    blocksize_ = height_/commSize;
-    firstLocalRow_ = commRank*blocksize_;
+    blocksize_ = height_/commSize_;
+    firstLocalRow_ = commRank_*blocksize_;
     const Int localHeight =
-        ( commRank<commSize-1 ?
+        ( commRank_<commSize_-1 ?
           blocksize_ :
-          height_ - (commSize-1)*blocksize_ );
+          height_ - (commSize_-1)*blocksize_ );
     multiVec_.Resize( localHeight, width_ );
 }
 
@@ -100,6 +100,8 @@ void DistMultiVec<T>::Resize( Int height, Int width )
 template<typename T>
 void DistMultiVec<T>::SetComm( mpi::Comm comm )
 { 
+    commSize_ = mpi::Size(comm_);
+    commRank_ = mpi::Rank(comm_);
     if( comm == comm_ )
         return;
 
@@ -203,7 +205,7 @@ template<typename T>
 int DistMultiVec<T>::RowOwner( Int i ) const 
 { 
     if( i == END ) i = height_ - 1;
-    return RowToProcess( i, blocksize_, mpi::Size(comm_) ); 
+    return RowToProcess( i, blocksize_, commSize_ ); 
 }
 
 template<typename T>
@@ -212,7 +214,7 @@ int DistMultiVec<T>::Owner( Int i, Int j ) const
 
 template<typename T>
 bool DistMultiVec<T>::IsLocalRow( Int i ) const
-{ return RowOwner(i) == mpi::Rank(comm_); }
+{ return RowOwner(i) == commRank_; }
 
 template<typename T>
 bool DistMultiVec<T>::IsLocal( Int i, Int j ) const
@@ -247,7 +249,7 @@ T DistMultiVec<T>::Get( Int i, Int j ) const
     if( i == END ) i = height_ - 1;
     const int rowOwner = RowOwner(i);
     T value;
-    if( rowOwner == mpi::Rank(comm_) )
+    if( rowOwner == commRank_ )
         value = GetLocal( i-FirstLocalRow(), j );
     mpi::Broadcast( value, rowOwner, comm_ );
     return value;
@@ -334,10 +336,9 @@ template<typename T>
 void DistMultiVec<T>::ProcessQueues()
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::ProcessQueues"))
-    int commSize = mpi::Size( comm_ );
     // Compute the send counts
     // -----------------------
-    vector<int> sendCounts(commSize);
+    vector<int> sendCounts(commSize_);
     for( auto entry : remoteUpdates_ )
         ++sendCounts[Owner(entry.i,entry.j)];
     // Pack the send data

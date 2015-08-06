@@ -69,7 +69,8 @@ T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
     if( A.LocalHeight() != B.LocalHeight() )
         LogicError("A and B must have the same local heights");
     if( A.FirstLocalRow() != B.FirstLocalRow() )
-        LogicError("A and B must own the same rows");
+        LogicError("A.firstLocalRow=",A.FirstLocalRow(),", B ~ ",B.FirstLocalRow());
+        //LogicError("A and B must own the same rows");
 
     T localInnerProd = 0;
     const Int localHeight = A.LocalHeight(); 

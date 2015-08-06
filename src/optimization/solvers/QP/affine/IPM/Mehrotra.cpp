@@ -1414,7 +1414,7 @@ void Mehrotra
         }
         ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
 
-        if( checkResiduals )
+        if( checkResiduals && ctrl.print )
         {
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );

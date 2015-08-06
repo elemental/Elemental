@@ -487,13 +487,15 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
-    mpi::Comm comm = B.Comm();
+    mpi::Comm comm = A.Grid().Comm();
     const int commSize = mpi::Size(comm);
+
     if( A.CrossSize() != 1 || A.RedundantSize() != 1 )
         LogicError
         ("ADM -> DistMultiVec only supported with trivial cross and "
          "redundant sizes");
 
+    B.SetComm( comm );
     B.Resize( m, n );
    
     // Compute the metadata
