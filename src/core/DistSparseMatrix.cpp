@@ -45,8 +45,10 @@ DistSparseMatrix<T>::DistSparseMatrix( const DistSparseMatrix<T>& A )
     distGraph_.comm_ = mpi::COMM_WORLD;
     if( &A != this )
         *this = A;
-    else
-        LogicError("Tried to construct DistMultiVec via itself");
+    DEBUG_ONLY(
+      else
+          LogicError("Tried to construct DistMultiVec via itself");
+    )
 }
 
 template<typename T>

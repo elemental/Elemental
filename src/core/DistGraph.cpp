@@ -74,8 +74,10 @@ DistGraph::DistGraph( const DistGraph& graph )
     DEBUG_ONLY(CSE cse("DistGraph::DistGraph"))
     if( &graph != this )
         *this = graph;
-    else
-        LogicError("Tried to construct DistGraph with itself");
+    DEBUG_ONLY(
+      else
+          LogicError("Tried to construct DistGraph with itself");
+    )
 }
 
 DistGraph::~DistGraph()
@@ -269,13 +271,15 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
     )
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    if( localSource < 0 || localSource >= numLocalSources_ )
-        LogicError
-        ("Local source was out of bounds: ",localSource," is not in [0,",
-         numLocalSources_,")");
-    if( target < 0 || target >= numTargets_ )
-        LogicError
-        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
+    DEBUG_ONLY(
+      if( localSource < 0 || localSource >= numLocalSources_ )
+          LogicError
+          ("Local source out of bounds: ",localSource," is not in [0,",
+           numLocalSources_,")");
+      if( target < 0 || target >= numTargets_ )
+          LogicError
+          ("Target out of bounds: ",target," is not in [0,",numTargets_,")");
+    )
     if( !FrozenSparsity() )
     {
         sources_.push_back( firstLocalSource_+localSource );
@@ -307,13 +311,15 @@ void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
     // TODO: Use FrozenSparsity()
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    if( localSource < 0 || localSource >= numLocalSources_ )
-        LogicError
-        ("Local source was out of bounds: ",localSource," is not in [0,",
-         numLocalSources_,")");
-    if( target < 0 || target >= numTargets_ )
-        LogicError
-        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
+    DEBUG_ONLY(
+      if( localSource < 0 || localSource >= numLocalSources_ )
+          LogicError
+          ("Local source out of bounds: ",localSource," is not in [0,",
+           numLocalSources_,")");
+      if( target < 0 || target >= numTargets_ )
+          LogicError
+          ("Target out of bounds: ",target," is not in [0,",numTargets_,")");
+    )
     if( !FrozenSparsity() )
     {
         markedForRemoval_.insert
@@ -492,8 +498,10 @@ Int DistGraph::GlobalSource( Int sLoc ) const
 {
     DEBUG_ONLY(CSE cse("DistGraph::GlobalSource"))
     if( sLoc == END ) sLoc = numLocalSources_ - 1;
-    if( sLoc < 0 || sLoc >= NumLocalSources() )
-        LogicError("Invalid local source index");
+    DEBUG_ONLY(
+      if( sLoc < 0 || sLoc >= NumLocalSources() )
+          LogicError("Invalid local source index");
+    )
     return sLoc + FirstLocalSource();
 }
 
@@ -501,8 +509,10 @@ Int DistGraph::LocalSource( Int s ) const
 {
     DEBUG_ONLY(CSE cse("DistGraph::LocalSource"))
     if( s == END ) s = numSources_ - 1;
-    if( s < 0 || s >= NumSources() )
-        LogicError("Invalid global source index");
+    DEBUG_ONLY(
+      if( s < 0 || s >= NumSources() )
+          LogicError("Invalid global source index");
+    )
     return s - FirstLocalSource();
 }
 

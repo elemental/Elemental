@@ -59,8 +59,8 @@ void DistMap::StoreOwners
     const int numSends = Scan( sendSizes, sendOffs );
     const int numRecvs = Scan( recvSizes, recvOffs );
     DEBUG_ONLY(
-        if( numRecvs != NumLocalSources() )
-            LogicError("Incorrect number of recv indices");
+      if( numRecvs != NumLocalSources() )
+          LogicError("Incorrect number of recv indices");
     )
     auto offs = sendOffs;
     vector<Int> sendInds( numSends );
@@ -131,11 +131,9 @@ void DistMap::Translate( vector<Int>& localInds ) const
         const Int iLocal = i - firstLocalSource_;
         DEBUG_ONLY(
           if( iLocal < 0 || iLocal >= (Int)map_.size() )
-          {
               LogicError
               ("invalid request: i=",i,", iLocal=",iLocal,
                ", commRank=",commRank_,", blocksize=",blocksize_);
-          }
         )
         fulfills[s] = map_[iLocal];
     }
@@ -217,9 +215,9 @@ int DistMap::RowOwner( Int i ) const
 Int DistMap::GetLocal( Int localSource ) const
 { 
     DEBUG_ONLY(
-        CSE cse("DistMap::GetLocal");
-        if( localSource < 0 || localSource >= (Int)map_.size() )
-            LogicError("local source is out of bounds");
+      CSE cse("DistMap::GetLocal");
+      if( localSource < 0 || localSource >= (Int)map_.size() )
+          LogicError("local source is out of bounds");
     )
     return map_[localSource];
 }
@@ -227,9 +225,9 @@ Int DistMap::GetLocal( Int localSource ) const
 void DistMap::SetLocal( Int localSource, Int target )
 {
     DEBUG_ONLY(
-        CSE cse("DistMap::SetLocal");
-        if( localSource < 0 || localSource >= (Int)map_.size() )
-            LogicError("local source is out of bounds");
+      CSE cse("DistMap::SetLocal");
+      if( localSource < 0 || localSource >= (Int)map_.size() )
+          LogicError("local source is out of bounds");
     )
     map_[localSource] = target; 
 }

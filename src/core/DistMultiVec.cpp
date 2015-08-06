@@ -48,8 +48,10 @@ DistMultiVec<T>::DistMultiVec( const DistMultiVec<T>& A )
     comm_ = mpi::COMM_WORLD;
     if( &A != this )
         *this = A;
-    else
-        LogicError("Tried to construct DistMultiVec via itself");
+    DEBUG_ONLY(
+      else
+          LogicError("Tried to construct DistMultiVec via itself");
+    )
 }
 
 template<typename T>
@@ -225,8 +227,10 @@ Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::GlobalRow"))
     if( iLoc == END ) iLoc = LocalHeight() - 1;
-    if( iLoc < 0 || iLoc >= LocalHeight() )
-        LogicError("Invalid local row index");
+    DEBUG_ONLY(
+      if( iLoc < 0 || iLoc >= LocalHeight() )
+          LogicError("Invalid local row index");
+    )
     return iLoc + FirstLocalRow();
 }
 
@@ -235,8 +239,10 @@ Int DistMultiVec<T>::LocalRow( Int i ) const
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::LocalRow")) 
     if( i == END ) i = Height() - 1;
-    if( i < 0 || i >= Height() )
-        LogicError("Invalid global row index");
+    DEBUG_ONLY(
+      if( i < 0 || i >= Height() )
+          LogicError("Invalid global row index");
+    )
     return i - FirstLocalRow();
 }
 
