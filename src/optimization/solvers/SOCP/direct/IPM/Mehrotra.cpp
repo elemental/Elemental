@@ -61,7 +61,6 @@ void Mehrotra
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;
@@ -102,7 +101,6 @@ void Mehrotra
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;
@@ -142,7 +140,6 @@ void Mehrotra
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;
@@ -183,7 +180,6 @@ void Mehrotra
     affineCtrl.maxStepRatio = ctrl.maxStepRatio;
     affineCtrl.solveCtrl = ctrl.solveCtrl;
     affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
     affineCtrl.basisSize = ctrl.basisSize;
     affineCtrl.print = ctrl.print;
     affineCtrl.time = ctrl.time;

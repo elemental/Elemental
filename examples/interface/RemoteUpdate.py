@@ -71,9 +71,6 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
-ctrl.mehrotraCtrl.outerEquil = True
-ctrl.mehrotraCtrl.innerEquil = True
-ctrl.mehrotraCtrl.scaleTwoNorm = True
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.solveCtrl.relTol = 1e-10
 ctrl.mehrotraCtrl.solveCtrl.relTolRefine = 1e-11

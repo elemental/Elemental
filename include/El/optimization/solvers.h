@@ -30,7 +30,7 @@ typedef struct {
   float maxStepRatio;
   ElKKTSystem system;
   ElRegSolveCtrl_s solveCtrl;
-  bool innerEquil, outerEquil;
+  bool outerEquil;
   ElInt basisSize;
   bool print;
   bool time;
@@ -44,7 +44,7 @@ typedef struct {
   double maxStepRatio;
   ElKKTSystem system;
   ElRegSolveCtrl_d solveCtrl;
-  bool innerEquil, outerEquil;
+  bool outerEquil;
   ElInt basisSize;
   bool print;
   bool time;

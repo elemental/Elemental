@@ -25,7 +25,6 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->system = EL_FULL_KKT;
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
@@ -43,7 +42,6 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
     ctrl->system = EL_FULL_KKT;
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->outerEquil = true;
-    ctrl->innerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;

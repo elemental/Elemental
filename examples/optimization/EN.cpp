@@ -55,12 +55,10 @@ int main( int argc, char* argv[] )
         }
         
         qp::affine::Ctrl<double> ctrl; 
-        ctrl.mehrotraCtrl.outerEquil = true;
-        ctrl.mehrotraCtrl.innerEquil = true;
-        ctrl.mehrotraCtrl.print = true;
-        ctrl.mehrotraCtrl.time = true;
-        ctrl.mehrotraCtrl.solveCtrl.progress = true;
-        ctrl.mehrotraCtrl.solveCtrl.time = true;
+        //ctrl.mehrotraCtrl.print = true;
+        //ctrl.mehrotraCtrl.time = true;
+        //ctrl.mehrotraCtrl.solveCtrl.progress = true;
+        //ctrl.mehrotraCtrl.solveCtrl.time = true;
         
         DistMultiVec<double> x;
         Timer timer;

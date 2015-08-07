@@ -237,7 +237,7 @@ void DistSparseMatrix<T>::ProcessQueues()
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
+        vector<int> sendCounts(commSize,0);
         for( auto s : distGraph_.remoteSources_ )
             ++sendCounts[RowOwner(s)];
         // Pack the send data
@@ -246,7 +246,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Entry<T>> sendBuf(totalSend);
-        for( Int i=0; i<distGraph_.remoteSources_.size(); ++i )
+        for( Int i=0; i<totalSend; ++i )
         {
             const int owner = RowOwner(distGraph_.remoteSources_[i]);
             sendBuf[offs[owner]++] = 
@@ -272,8 +272,9 @@ void DistSparseMatrix<T>::ProcessQueues()
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
-        for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+        vector<int> sendCounts(commSize,0);
+        const Int numRemoteRemovals = distGraph_.remoteRemovals_.size();
+        for( Int i=0; i<numRemoteRemovals; ++i )
             ++sendCounts[RowOwner(distGraph_.remoteRemovals_[i].first)];
         // Pack the send data
         // ------------------
@@ -281,7 +282,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Int> sendRows(totalSend), sendCols(totalSend);
-        for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+        for( Int i=0; i<totalSend; ++i )
         {
             const int owner = RowOwner(distGraph_.remoteRemovals_[i].first);
             sendRows[offs[owner]] = distGraph_.remoteRemovals_[i].first;
@@ -295,7 +296,8 @@ void DistSparseMatrix<T>::ProcessQueues()
           mpi::AllToAll(sendRows,sendCounts,sendOffs,distGraph_.comm_);
         auto recvCols = 
           mpi::AllToAll(sendCols,sendCounts,sendOffs,distGraph_.comm_);
-        for( Int i=0; i<recvRows.size(); ++i )
+        const Int totalRecv = recvRows.size();
+        for( Int i=0; i<totalRecv; ++i )
             QueueZero( recvRows[i], recvCols[i] );
     }
 

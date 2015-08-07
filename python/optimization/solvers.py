@@ -21,7 +21,7 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("minTol",sType),("targetTol",sType),
               ("maxIts",iType),("maxStepRatio",sType),
               ("system",c_uint),("solveCtrl",RegSolveCtrl_s),
-              ("innerEquil",bType),("outerEquil",bType),
+              ("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):
@@ -31,7 +31,7 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("minTol",dType),("targetTol",dType),
               ("maxIts",iType),("maxStepRatio",dType),
               ("system",c_uint),("solveCtrl",RegSolveCtrl_d),
-              ("innerEquil",bType),("outerEquil",bType),
+              ("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
   def __init__(self):

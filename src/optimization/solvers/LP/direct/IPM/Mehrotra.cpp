@@ -976,8 +976,6 @@ void Mehrotra
         betaTmp  = Pow(eps,Real(0.25));
     }
     const Real balanceTol = Pow(eps,Real(-0.19));
-    const Real wMaxLimit = Pow(eps,Real(-0.4));
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));

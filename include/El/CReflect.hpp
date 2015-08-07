@@ -1675,7 +1675,6 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.system       = CReflect(ctrl.system);
     ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
     ctrlC.outerEquil   = ctrl.outerEquil;
-    ctrlC.innerEquil   = ctrl.innerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.print        = ctrl.print;
     ctrlC.time         = ctrl.time;
@@ -1693,7 +1692,6 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.system       = CReflect(ctrl.system);
     ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
     ctrlC.outerEquil   = ctrl.outerEquil;
-    ctrlC.innerEquil   = ctrl.innerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.print        = ctrl.print;
     ctrlC.time         = ctrl.time;
@@ -1711,7 +1709,6 @@ inline MehrotraCtrl<float> CReflect( ElMehrotraCtrl_s ctrlC )
     ctrl.system       = CReflect(ctrlC.system);
     ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
     ctrl.outerEquil   = ctrlC.outerEquil;
-    ctrl.innerEquil   = ctrlC.innerEquil;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.print        = ctrlC.print;
     ctrl.time         = ctrlC.time;
@@ -1729,7 +1726,6 @@ inline MehrotraCtrl<double> CReflect( ElMehrotraCtrl_d ctrlC )
     ctrl.system       = CReflect(ctrlC.system);
     ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
     ctrl.outerEquil   = ctrlC.outerEquil;
-    ctrl.innerEquil   = ctrlC.innerEquil;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.print        = ctrlC.print;
     ctrl.time         = ctrlC.time;

@@ -8,8 +8,8 @@
 #
 import El, math
 
-n = 3000
-r = 30
+n = 5000
+r = 50
 gamma = 1.
 display = False
 worldRank = El.mpi.WorldRank()

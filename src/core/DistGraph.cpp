@@ -188,8 +188,8 @@ void DistGraph::InitializeLocalData()
 
 void DistGraph::SetComm( mpi::Comm comm )
 {
-    commSize_ = mpi::Size( comm_ );
-    commRank_ = mpi::Rank( comm_ );
+    commSize_ = mpi::Size( comm );
+    commRank_ = mpi::Rank( comm );
     if( comm == comm_ )
         return;
 
@@ -342,7 +342,7 @@ void DistGraph::ProcessQueues()
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize_);
+        vector<int> sendCounts(commSize_,0);
         for( auto s : remoteSources_ )
             ++sendCounts[SourceOwner(s)];
         // Pack the send data
@@ -351,7 +351,7 @@ void DistGraph::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Int> sendSources(totalSend), sendTargets(totalSend);
-        for( Int i=0; i<remoteSources_.size(); ++i ) 
+        for( Int i=0; i<totalSend; ++i ) 
         {
             const int owner = SourceOwner(remoteSources_[i]);
             sendSources[offs[owner]] = remoteSources_[i];
@@ -368,7 +368,8 @@ void DistGraph::ProcessQueues()
           mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
         if( !FrozenSparsity() )
             Reserve( NumLocalEdges()+recvSources.size() );
-        for( Int i=0; i<recvSources.size(); ++i )
+        const Int totalRecv = recvSources.size();
+        for( Int i=0; i<totalRecv; ++i )
             QueueConnection( recvSources[i], recvTargets[i] );
     }
 
@@ -377,8 +378,9 @@ void DistGraph::ProcessQueues()
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize_);
-        for( Int i=0; i<remoteRemovals_.size(); ++i )
+        vector<int> sendCounts(commSize_,0);
+        const Int numRemoteRemovals = remoteRemovals_.size();
+        for( Int i=0; i<numRemoteRemovals; ++i )
             ++sendCounts[SourceOwner(remoteRemovals_[i].first)];
         // Pack the send data
         // ------------------
@@ -386,7 +388,7 @@ void DistGraph::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Int> sendSources(totalSend), sendTargets(totalSend);
-        for( Int i=0; i<remoteRemovals_.size(); ++i ) 
+        for( Int i=0; i<totalSend; ++i ) 
         {
             const int owner = SourceOwner(remoteRemovals_[i].first);
             sendSources[offs[owner]] = remoteRemovals_[i].first;
@@ -400,7 +402,8 @@ void DistGraph::ProcessQueues()
           mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
         auto recvTargets = 
           mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
-        for( Int i=0; i<recvSources.size(); ++i )
+        const Int totalRecv = recvSources.size();
+        for( Int i=0; i<totalRecv; ++i )
             QueueDisconnection( recvSources[i], recvTargets[i] );
     }
 
@@ -615,8 +618,14 @@ void DistGraph::ComputeSourceOffsets()
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
+        if( source < firstLocalSource_ || 
+            source >= firstLocalSource_+numLocalSources_ )
+            Output("source=",source,", firstLocalSource=",firstLocalSource_,", numLocalSources=",numLocalSources_);
         for( ; prevSource<source; ++prevSource )
+        {
             localSourceOffsets_[sourceOffset++] = e;
+            //Output("sourceOffset=",sourceOffset,", numLocalSources_=",numLocalSources_,", firstLocalSource_=",firstLocalSource_,", prevSource=",prevSource,", source=",source,", numSources=",NumSources(),", numTargets=",NumTargets());
+        }
     }
     for( ; sourceOffset<=numLocalSources_; ++sourceOffset )
         localSourceOffsets_[sourceOffset] = numLocalEdges;

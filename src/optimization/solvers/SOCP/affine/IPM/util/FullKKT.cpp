@@ -1463,7 +1463,6 @@ void StaticKKT
     DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = G.Height();
     const Int coneLocalHeight = orders.LocalHeight();
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesG = G.NumLocalEntries();

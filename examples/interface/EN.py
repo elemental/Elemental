@@ -8,8 +8,8 @@
 #
 import El
 
-n0 = 50
-n1 = 50
+n0 = 20
+n1 = 20
 lambda1 = 3
 lambda2 = 4
 output = False
@@ -52,7 +52,6 @@ def ConcatFD2D(N0,N1):
 
     # The dense last column
     A.QueueLocalUpdate( sLoc, width-1, -10/height );
-    print -10/height
 
   A.ProcessQueues()
   return A
@@ -68,12 +67,10 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.QPAffineCtrl_d()
-ctrl.mehrotraCtrl.outerEquil = True
-ctrl.mehrotraCtrl.innerEquil = True
-#ctrl.mehrotraCtrl.progress = True
-#ctrl.mehrotraCtrl.time = True
-#ctrl.mehrotraCtrl.solveCtrl.progress = True
-#ctrl.mehrotraCtrl.solveCtrl.time = True
+ctrl.mehrotraCtrl.progress = True
+ctrl.mehrotraCtrl.time = True
+ctrl.mehrotraCtrl.solveCtrl.progress = True
+ctrl.mehrotraCtrl.solveCtrl.time = True
 if worldRank == 0:
   print "lambda1 =", lambda1, "lambda2 =", lambda2
 startEN = El.mpi.Time()

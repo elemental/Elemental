@@ -44,7 +44,7 @@ struct MehrotraCtrl
     KKTSystem system=FULL_KKT;
 
     RegSolveCtrl<Real> solveCtrl;
-    bool outerEquil=true, innerEquil=true;
+    bool outerEquil=true;
     Int basisSize = 6;
     bool print=false;
     bool time=false;

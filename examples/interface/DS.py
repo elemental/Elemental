@@ -13,7 +13,7 @@ n1 = 25
 numLambdas = 5
 startLambda = 0.01
 endLambda = 1
-display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
@@ -61,8 +61,6 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
-ctrl.mehrotraCtrl.outerEquil = True
-ctrl.mehrotraCtrl.innerEquil = True
 ctrl.mehrotraCtrl.progress = True
 
 for j in xrange(0,numLambdas):

@@ -159,7 +159,7 @@ PlaceList
         CSE cse("pspec::PlaceList");
         if( vecList.size() != 0 && vecList[0].Height() <= i )
             LogicError("Invalid index");
-        if( vecList.size() != list.Height() )
+        if( Int(vecList.size()) != list.Height() )
             LogicError("List sizes do not match");
         if( list.Width() != 1 )
             LogicError("list should be a column vector");
@@ -176,7 +176,7 @@ PlaceList
 {
     DEBUG_ONLY(
         CSE cse("pspec::PlaceList");
-        if( matList.size() != list.Height() )
+        if( Int(matList.size()) != list.Height() )
             LogicError("List sizes do not match");
         if( list.Width() != 1 )
             LogicError("List assumed to be a column vector");
@@ -193,7 +193,7 @@ UpdateList
 {
     DEBUG_ONLY(
         CSE cse("pspec::UpdateList");
-        if( matList.size() != list.Height() )
+        if( Int(matList.size()) != list.Height() )
             LogicError("List sizes do not match");
         if( list.Width() != 1 )
             LogicError("list assumed to be a column vector");
@@ -210,7 +210,7 @@ PushBackList
 {
     DEBUG_ONLY(
         CSE cse("pspec::PushBackList"); 
-        if( vecList.size() != list.Height() )
+        if( Int(vecList.size()) != list.Height() )
             LogicError("List sizes do not match");
         if( list.Width() != 1 )
             LogicError("list assumed to be a column vector");

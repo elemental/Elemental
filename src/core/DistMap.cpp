@@ -185,8 +185,8 @@ void DistMap::InitializeLocalData()
 
 void DistMap::SetComm( mpi::Comm comm )
 {
-    commSize_ = mpi::Size(comm_);
-    commRank_ = mpi::Rank(comm_);
+    commSize_ = mpi::Size(comm);
+    commRank_ = mpi::Rank(comm);
     if( comm == comm_ )
         return;
 

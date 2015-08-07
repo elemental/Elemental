@@ -21,9 +21,20 @@ T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B )
     T innerProd(0);
     const Int width = A.Width();
     const Int height = A.Height();
-    for( Int j=0; j<width; ++j )
-        for( Int i=0; i<height; ++i )
-            innerProd += Conj(A.Get(i,j))*B.Get(i,j);
+    const T* ABuf = A.LockedBuffer();
+    const T* BBuf = B.LockedBuffer();
+    const Int ALDim = A.LDim();
+    const Int BLDim = B.LDim();
+    if( height == ALDim && height == BLDim )
+    {
+        innerProd += blas::Dot( height*width, ABuf, 1, BBuf, 1 );
+    }
+    else
+    {
+        for( Int j=0; j<width; ++j )
+            for( Int i=0; i<height; ++i )
+                innerProd += Conj(ABuf[i+j*ALDim])*BBuf[i+j*BLDim];
+    }
     return innerProd;
 }
 
@@ -48,10 +59,22 @@ T HilbertSchmidt
         T localInnerProd(0);
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                localInnerProd += Conj(A.GetLocal(iLoc,jLoc))*
-                                       B.GetLocal(iLoc,jLoc);
+        const T* ABuf = A.LockedBuffer();
+        const T* BBuf = B.LockedBuffer();
+        const Int ALDim = A.LDim();
+        const Int BLDim = B.LDim();
+        if( localHeight == ALDim && localHeight == BLDim )
+        {
+            localInnerProd += 
+              blas::Dot( localHeight*localWidth, ABuf, 1, BBuf, 1 );
+        }
+        else
+        {
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                    localInnerProd += Conj(ABuf[iLoc+jLoc*ALDim])*
+                                           BBuf[iLoc+jLoc*BLDim];
+        }
         innerProd = mpi::AllReduce( localInnerProd, A.DistComm() );
     }
     mpi::Broadcast( innerProd, A.Root(), A.CrossComm() );
@@ -69,15 +92,18 @@ T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
     if( A.LocalHeight() != B.LocalHeight() )
         LogicError("A and B must have the same local heights");
     if( A.FirstLocalRow() != B.FirstLocalRow() )
-        LogicError("A.firstLocalRow=",A.FirstLocalRow(),", B ~ ",B.FirstLocalRow());
-        //LogicError("A and B must own the same rows");
+        LogicError("A and B must own the same rows");
 
     T localInnerProd = 0;
     const Int localHeight = A.LocalHeight(); 
     const Int width = A.Width();
+    const T* ABuf = A.LockedMatrix().LockedBuffer();
+    const T* BBuf = B.LockedMatrix().LockedBuffer();
+    const Int ALDim = A.LockedMatrix().LDim();
+    const Int BLDim = B.LockedMatrix().LDim();
     for( Int j=0; j<width; ++j )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            localInnerProd += Conj(A.GetLocal(iLoc,j))*B.GetLocal(iLoc,j);
+            localInnerProd += Conj(ABuf[iLoc+j*ALDim])*BBuf[iLoc+j*BLDim];
     return mpi::AllReduce( localInnerProd, A.Comm() );
 }
 

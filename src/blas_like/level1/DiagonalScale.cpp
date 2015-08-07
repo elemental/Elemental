@@ -18,33 +18,26 @@ void DiagonalScale
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int ldim = A.LDim();
+    const bool conj = ( orientation == ADJOINT );
+    const TDiag* dBuf = d.LockedBuffer();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
     if( side == LEFT )
     {
         for( Int i=0; i<m; ++i )
         {
-            const T delta = d.Get(i,0);
-            T* ABuffer = A.Buffer(i,0);
-            if( orientation == ADJOINT )
-                for( Int j=0; j<n; ++j )
-                    ABuffer[j*ldim] *= Conj(delta);
-            else
-                for( Int j=0; j<n; ++j )
-                    ABuffer[j*ldim] *= delta;
+            const T delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
+            for( Int j=0; j<n; ++j )
+                ABuf[i+j*ALDim] *= delta;
         }
     }
     else
     {
         for( Int j=0; j<n; ++j )
         {
-            const T delta = d.Get(j,0);
-            T* ABuffer = A.Buffer(0,j);
-            if( orientation == ADJOINT )
-                for( Int i=0; i<m; ++i )
-                    ABuffer[i] *= Conj(delta);
-            else
-                for( Int i=0; i<m; ++i )
-                    ABuffer[i] *= delta;
+            const T delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
+            for( Int i=0; i<m; ++i )
+                ABuf[i+j*ALDim] *= delta;
         }
     }
 }
@@ -95,23 +88,27 @@ void DiagonalScale
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<TDiag>& d, SparseMatrix<T>& A )
+  const Matrix<TDiag>& d, 
+        SparseMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const bool conjugate = ( orientation == ADJOINT );
-    T* vBuf = A.ValueBuffer();
     const Int numEntries = A.NumEntries();
+    T* vBuf = A.ValueBuffer();
+    const Int* rowBuf = A.LockedSourceBuffer();
+    const Int* colBuf = A.LockedTargetBuffer();
+    const TDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
         if( d.Height() != A.Height() )
             LogicError("The size of d must match the height of A");
         for( Int k=0; k<numEntries; ++k )
         {
-            const Int i = A.Row(k);
-            const TDiag delta = ( conjugate ? Conj(d.Get(i,0)) : d.Get(i,0) );
-            vBuf[k] *= T(delta);
+            const Int i = rowBuf[k];
+            const T delta = ( conjugate ? Conj(dBuf[i]) : dBuf[i] );
+            vBuf[k] *= delta;
         }
     }
     else
@@ -120,9 +117,9 @@ void DiagonalScale
             LogicError("The size of d must match the width of A");
         for( Int k=0; k<numEntries; ++k )
         {
-            const Int j = A.Col(k);
-            const TDiag delta = ( conjugate ? Conj(d.Get(j,0)) : d.Get(j,0) );
-            vBuf[k] *= T(delta);
+            const Int j = colBuf[k];
+            const T delta = ( conjugate ? Conj(dBuf[j]) : dBuf[j] );
+            vBuf[k] *= delta;
         }
     }
 }
@@ -130,7 +127,8 @@ void DiagonalScale
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A )
+  const DistMultiVec<TDiag>& d,
+        DistSparseMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( d.Width() != 1 )
@@ -138,112 +136,123 @@ void DiagonalScale
     if( !mpi::Congruent( d.Comm(), A.Comm() ) )
         LogicError("Communicators must be congruent");
     const bool conjugate = ( orientation == ADJOINT );
+    const Int numEntries = A.NumLocalEntries();
+    T* vBuf = A.ValueBuffer();
+    const Int* rowBuf = A.LockedSourceBuffer();
+    const TDiag* dBuf = d.LockedMatrix().LockedBuffer();
+    const Int firstLocalRow = d.FirstLocalRow();
     if( side == LEFT )
     {
-        if( d.Height() != A.Height() )
-            LogicError("The size of d must match the height of A");
+        DEBUG_ONLY(
+          if( d.Height() != A.Height() )
+              LogicError("The size of d must match the height of A");
+        )
         // TODO: Ensure that the DistMultiVec conforms
-        T* vBuf = A.ValueBuffer();
-        const Int firstLocalRow = d.FirstLocalRow();
-        const Int numEntries = A.NumLocalEntries();
         for( Int k=0; k<numEntries; ++k )
         {
-            const Int i = A.Row(k);
+            const Int i = rowBuf[k];
             const Int iLoc = i - firstLocalRow;
-            const TDiag delta = 
-              ( conjugate ? Conj(d.GetLocal(iLoc,0)) : d.GetLocal(iLoc,0) );
-            vBuf[k] *= T(delta);
+            const T delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
+            vBuf[k] *= delta;
         }
     }
     else
     {
-        if( d.Height() != A.Width() )
-            LogicError("The size of d must match the width of A");
+        DEBUG_ONLY(
+          if( d.Height() != A.Width() )
+              LogicError("The size of d must match the width of A");
+        )
         A.InitializeMultMeta();
         const auto& meta = A.multMeta;
 
         // Pack the send values 
         const Int numSendInds = meta.sendInds.size();
-        const Int firstLocalRow = d.FirstLocalRow();
-        vector<TDiag> sendVals( numSendInds );
-        const TDiag* dBuffer = d.LockedMatrix().LockedBuffer();
+        vector<T> sendVals( numSendInds );
+
         for( Int s=0; s<numSendInds; ++s )
         {
             const Int i = meta.sendInds[s];
             const Int iLoc = i - firstLocalRow;
-            sendVals[s] = ( conjugate ? Conj(dBuffer[iLoc]) : dBuffer[iLoc] );
+            sendVals[s] = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
         }
 
         // Now send them
-        vector<TDiag> recvVals( meta.numRecvInds );
+        vector<T> recvVals( meta.numRecvInds );
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
           recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
           A.Comm() );
 
         // Loop over the entries of A and rescale
-        T* vBuf = A.ValueBuffer();
-        const Int numEntries = A.NumLocalEntries();
         for( Int k=0; k<numEntries; ++k )
-        {
-            const TDiag delta = recvVals[meta.colOffs[k]];
-            vBuf[k] *= T(delta);
-        }
+            vBuf[k] *= recvVals[meta.colOffs[k]];
     }
 }
 
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const DistMultiVec<TDiag>& d, DistMultiVec<T>& X )
+  const DistMultiVec<TDiag>& d,
+        DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
-    if( d.Width() != 1 )
-        LogicError("d must be a column vector");
-    if( !mpi::Congruent( d.Comm(), X.Comm() ) )
-        LogicError("Communicators must be congruent");
-    if( side != LEFT )
-        LogicError("Only the 'LEFT' argument is currently supported");
-    if( d.Height() != X.Height() )
-        LogicError("d and X must be the same size");
+    DEBUG_ONLY(
+      CSE cse("DiagonalScale");
+      if( d.Width() != 1 )
+          LogicError("d must be a column vector");
+      if( !mpi::Congruent( d.Comm(), X.Comm() ) )
+          LogicError("Communicators must be congruent");
+      if( side != LEFT )
+          LogicError("Only the 'LEFT' argument is currently supported");
+      if( d.Height() != X.Height() )
+          LogicError("d and X must be the same size");
+    )
     const bool conjugate = ( orientation == ADJOINT );
     const Int width = X.Width();
+    T* XBuf = X.Matrix().Buffer();
+    const Int XLDim = X.Matrix().LDim();
     const Int localHeight = d.LocalHeight();
+    const TDiag* dBuf = d.LockedMatrix().LockedBuffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
     {
-        const T delta = 
-            ( conjugate ? Conj(d.GetLocal(iLoc,0)) : d.GetLocal(iLoc,0) );
+        const T delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
         for( Int j=0; j<width; ++j )
-            X.SetLocal( iLoc, j, delta*X.GetLocal(iLoc,j) ); 
+            XBuf[iLoc+j*XLDim] *= delta;
     }
 }
 
 #define DIST_PROTO(T,U,V) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& A );
+    const AbstractDistMatrix<T>& d, \
+          DistMatrix<T,U,V>& A );
 
 #define DIST_PROTO_REAL(T,U,V) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& A );
+    const AbstractDistMatrix<T>& d, \
+          DistMatrix<Complex<T>,U,V>& A );
 
 #define PROTO(T) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<T>& A ); \
+    const Matrix<T>& d, \
+          Matrix<T>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& A ); \
+    const AbstractDistMatrix<T>& d, \
+          AbstractDistMatrix<T>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, SparseMatrix<T>& A ); \
+    const Matrix<T>& d, \
+          SparseMatrix<T>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, DistSparseMatrix<T>& A ); \
+    const DistMultiVec<T>& d, \
+          DistSparseMatrix<T>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, DistMultiVec<T>& X ); \
+    const DistMultiVec<T>& d, \
+          DistMultiVec<T>& X ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
   DIST_PROTO(T,MC,  STAR); \
@@ -263,19 +272,24 @@ void DiagonalScale
   PROTO(T) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, Matrix<Complex<T>>& A ); \
+    const Matrix<T>& d, \
+          Matrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& A ); \
+    const AbstractDistMatrix<T>& d, \
+          AbstractDistMatrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, SparseMatrix<Complex<T>>& A ); \
+    const Matrix<T>& d, \
+          SparseMatrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, DistSparseMatrix<Complex<T>>& A ); \
+    const DistMultiVec<T>& d, \
+          DistSparseMatrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, DistMultiVec<Complex<T>>& X ); \
+    const DistMultiVec<T>& d, \
+          DistMultiVec<Complex<T>>& X ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \
   DIST_PROTO_REAL(T,MC,  STAR); \

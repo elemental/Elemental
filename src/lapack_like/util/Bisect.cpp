@@ -475,7 +475,7 @@ void BuildChildFromPerm
     // Pack the row indices and how many column entries there will be per row
     vector<Int> rowSendLengths( numSendRows );
     vector<Int> rowSendInds( numSendRows );
-    vector<int> offs = rowSendOffs;
+    auto offs = rowSendOffs;
     for( Int s=0; s<numLocalSources; ++s )
     {
         const Int i = perm.GetLocal(s);
@@ -551,11 +551,10 @@ void BuildChildFromPerm
             const int q = leftTeamOff + 
                 RowToProcess( i, leftTeamBlocksize, leftTeamSize );
 
-            int& off = offs[q];
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );
             for( Int j=0; j<numConnections; ++j )
-                sendInds[off++] = graph.Target( localEdgeOff+j );
+                sendInds[offs[q]++] = graph.Target( localEdgeOff+j );
         }
         else if( i < leftChildSize+rightChildSize )
         {
@@ -563,11 +562,10 @@ void BuildChildFromPerm
                 RowToProcess
                 ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
                
-            int& off = offs[q];
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );
             for( Int j=0; j<numConnections; ++j )
-                sendInds[off++] = graph.Target( localEdgeOff+j );
+                sendInds[offs[q]++] = graph.Target( localEdgeOff+j );
         }
     }
 
