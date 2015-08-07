@@ -966,12 +966,15 @@ void Mehrotra
     StaticKKT
     ( A, G, gamma, delta, beta, 
       orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
-      kSparse, JOrig, onlyLower );
+      kSparse, JStatic, onlyLower );
 
-    Real relError = 1;
     vector<Int> map, invMap;
     ldl::NodeInfo info;
     ldl::Separator rootSep;
+    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+ 
+    Real relError = 1;
     Matrix<Real> dInner;
     Matrix<Real> dxError, dyError, dzError, dmuError;
     const Int indent = PushIndent();
@@ -1096,10 +1099,7 @@ void Mehrotra
             else
                 Ones( dInner, n+m+kSparse, 1 );
 
-            NestedDissection( J.LockedGraph(), map, rootSep, info );
-            InvertMap( map, invMap );
             JFront.Pull( J, map, info );
-
             LDL( info, JFront, LDL_2D );
             reg_ldl::SolveAfter
             ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
@@ -1568,7 +1568,7 @@ void Mehrotra
     }
     const Int kSparse = sparseFirstInds.Height();
 
-    DistSparseMultMeta metaOrig, meta;
+    DistSparseMultMeta metaOrig;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -1588,16 +1588,9 @@ void Mehrotra
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
-        if( i < n )
-        {
-            regTmp.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
-        }
-        else if( i < n+m )
-        {
-            regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
-        }
-        else
-            break;
+        if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+        else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+        else break;
     }
     // Perform the portion that requires remote updates
     // ------------------------------------------------
@@ -1612,13 +1605,9 @@ void Mehrotra
             const bool embedded = ( order != sparseOrder ); 
             const Int firstInd = sparseFirstInds.GetLocal(iLoc,0);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-            {
                 regTmp.QueueUpdate( n+m+iCone, 0, betaTmp*betaTmp );
-            }
             else
-            {
                 regTmp.QueueUpdate( n+m+iCone, 0, -betaTmp*betaTmp );
-            }
         }
         regTmp.ProcessQueues();
     }
@@ -1632,10 +1621,18 @@ void Mehrotra
       orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
       kSparse, JStatic, onlyLower );
 
-    Real relError = 1;
+    auto meta = JStatic.InitializeMultMeta();
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
+    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+    if( commRank == 0 && ctrl.time )
+        Output("ND: ",timer.Stop()," secs");
+    InvertMap( map, invMap );
+
+    Real relError = 1;
     DistMultiVec<Real> dInner(comm);
     DistMultiVec<Real> dxError(comm), dyError(comm), 
                        dzError(comm), dmuError(comm);
@@ -1774,16 +1771,13 @@ void Mehrotra
         try
         {
             // Cache the metadata for the finalized JOrig
-            if( numIts == 0 )
-                metaOrig = JOrig.InitializeMultMeta();
-            else
-                JOrig.multMeta = metaOrig;
+            JOrig.multMeta = meta;
             J = JOrig;
             J.FreezeSparsity();
+            UpdateDiagonal( J, Real(1), regTmp );
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.print );
             else if( wMaxNorm >= diagEquilTol )
@@ -1794,18 +1788,7 @@ void Mehrotra
                 Output("Equilibration: ",timer.Stop()," secs");
 
             // Cache the metadata for the finalized J
-            if( numIts == 0 )
-            {
-                meta = J.InitializeMultMeta();
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                if( commRank == 0 && ctrl.time )
-                    Output("ND: ",timer.Stop()," secs");
-                InvertMap( map, invMap );
-            }
-            else
-                J.multMeta = meta;
+            J.multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
             JFront.Pull( J, map, rootSep, info );

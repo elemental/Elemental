@@ -1025,7 +1025,8 @@ void Mehrotra
 
                 LDL( info, JFront, LDL_2D );
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.solveCtrl );
             }
             catch(...)
             {
