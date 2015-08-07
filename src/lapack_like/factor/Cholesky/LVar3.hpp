@@ -18,9 +18,9 @@ inline void
 LVar3Unb( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LVar3Unb");
-        if( A.Height() != A.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::LVar3Unb");
+      if( A.Height() != A.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -28,18 +28,18 @@ LVar3Unb( Matrix<F>& A )
     F* ABuffer = A.Buffer();
     for( Int j=0; j<n; ++j )
     {
-        Real alpha = RealPart(ABuffer[j+j*lda]);
-        if( alpha <= Real(0) )
+        Real alpha11 = RealPart(ABuffer[j+j*lda]);
+        if( alpha11 <= Real(0) )
             LogicError("A was not numerically HPD");
-        alpha = Sqrt( alpha );
-        ABuffer[j+j*lda] = alpha;
+        alpha11 = Sqrt( alpha11 );
+        ABuffer[j+j*lda] = alpha11;
 
-        for( Int k=j+1; k<n; ++k )
-            ABuffer[k+j*lda] /= alpha;
+        const Int a21Height = n-(j+1);
+        F* a21 = &ABuffer[(j+1)+ j   *lda];
+        F* A22 = &ABuffer[(j+1)+(j+1)*lda];
 
-        for( Int k=j+1; k<n; ++k )
-            for( Int i=k; i<n; ++i )
-                ABuffer[i+k*lda] -= ABuffer[i+j*lda]*Conj(ABuffer[k+j*lda]);
+        blas::Scal( a21Height, Real(1)/alpha11, a21, 1 );
+        blas::Her( 'L', a21Height, -Real(1), a21, 1, A22, lda );
     }
 }
 
@@ -63,6 +63,8 @@ ReverseLVar3Unb( Matrix<F>& A )
             LogicError("A was not numerically HPD");
         alpha = Sqrt( alpha );
         ABuffer[j+j*lda] = alpha;
+
+        // TODO: Switch to BLAS calls
 
         for( Int k=0; k<j; ++k )
             ABuffer[j+k*lda] /= alpha;
