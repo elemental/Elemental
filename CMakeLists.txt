@@ -372,6 +372,12 @@ else()
   endif()
 endif()
 
+# SuiteSparse_LDL
+# ---------------
+# NOTE: This is to be used for the leaves of the multifrontal tree of
+#       Elemental's distributed sparse-direct LDL^T and LDL^H factorizations
+add_subdirectory(external/SuiteSparse_LDL)
+
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
 include(CreateElVars)
@@ -431,7 +437,8 @@ endif()
 if(EL_BUILT_PARMETIS)
   add_dependencies(El project_parmetis)
 endif()
-set(LINK_LIBS pmrrr ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+set(LINK_LIBS pmrrr SuiteSparse_LDL 
+  ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
 endif()
@@ -611,7 +618,8 @@ include(CPack)
 # =====
 # Create ElConfig.cmake for find_package.
 # Add all targets to the build-tree export set
-export(TARGETS El pmrrr FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
+export(TARGETS El pmrrr SuiteSparse_LDL 
+  FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)

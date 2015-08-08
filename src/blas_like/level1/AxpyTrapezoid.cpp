@@ -12,24 +12,29 @@ namespace El {
 
 template<typename T,typename S>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alphaS, const Matrix<T>& X, Matrix<T>& Y, Int offset )
+( UpperOrLower uplo, S alphaS,
+  const Matrix<T>& X,
+        Matrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("AxpyTrapezoid");
-        if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
-            X.Height() != Y.Height() )
-            LogicError("Nonconformal AxpyTrapezoid");
+      CSE cse("AxpyTrapezoid");
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+          X.Height() != Y.Height() )
+          LogicError("Nonconformal AxpyTrapezoid");
     )
     const T alpha = T(alphaS);
     const Int m = X.Height();
     const Int n = X.Width();
+    const T* XBuf = X.LockedBuffer();
+    const Int XLDim = X.LDim();
+    T* YBuf = Y.Buffer();
+    const Int YLDim = Y.LDim();
     if( uplo == UPPER )
     {
         for( Int j=0; j<n; ++j )
         {
             const Int iSize = Max(Min(j+1-offset,m),0);
-            blas::Axpy
-            ( iSize, alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
+            blas::Axpy( iSize, alpha, &XBuf[j*XLDim], 1, &YBuf[j*YLDim], 1 );
         }
     }
     else
@@ -37,7 +42,7 @@ void AxpyTrapezoid
         for( Int j=0; j<n; ++j )
         {
             const Int i = Max(Min(j-offset,m),0);
-            blas::Axpy( m-i, alpha, X.LockedBuffer(i,j), 1, Y.Buffer(i,j), 1 );
+            blas::Axpy( m-i, alpha, &XBuf[i+j*XLDim], 1, &YBuf[i+j*YLDim], 1 );
         }
     }
 }
@@ -45,20 +50,25 @@ void AxpyTrapezoid
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
-  const SparseMatrix<T>& X, SparseMatrix<T>& Y, Int offset )
+  const SparseMatrix<T>& X,
+        SparseMatrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(CSE cse("AxpyTrapezoid"))
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
     const T alpha = T(alphaS);
     const Int numEntries = X.NumEntries();
+    const T* XValBuf = X.LockedValueBuffer();
+    const Int* XRowBuf = X.LockedSourceBuffer();
+    const Int* XColBuf = X.LockedTargetBuffer();
+
     Y.Reserve( Y.NumEntries()+numEntries );
     for( Int k=0; k<numEntries; ++k )
     {
-        const Int i = X.Row(k);
-        const Int j = X.Col(k);
+        const Int i = XRowBuf[k];
+        const Int j = XColBuf[k];
         if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
-            Y.QueueUpdate( i, j, alpha*X.Value(k) );
+            Y.QueueUpdate( i, j, alpha*XValBuf[k] );
     }
     Y.ProcessQueues();
 }
@@ -66,14 +76,15 @@ void AxpyTrapezoid
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
-  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, Int offset )
+  const AbstractDistMatrix<T>& X,
+        AbstractDistMatrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("AxpyTrapezoid");
-        AssertSameGrids( X, Y );
-        if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
-            X.Height() != Y.Height() )
-            LogicError("Nonconformal AxpyTrapezoid");
+      CSE cse("AxpyTrapezoid");
+      AssertSameGrids( X, Y );
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+          X.Height() != Y.Height() )
+          LogicError("Nonconformal AxpyTrapezoid");
     )
     const T alpha = T(alphaS);
 
@@ -136,13 +147,17 @@ void AxpyTrapezoid
     const T alpha = T(alphaS);
     const Int numLocalEntries = X.NumLocalEntries();
     const Int firstLocalRow = X.FirstLocalRow();
+    const T* XValBuf = X.LockedValueBuffer();
+    const Int* XRowBuf = X.LockedSourceBuffer();
+    const Int* XColBuf = X.LockedTargetBuffer();
+
     Y.Reserve( Y.NumLocalEntries()+numLocalEntries );
     for( Int k=0; k<numLocalEntries; ++k )
     {
-        const Int i = X.Row(k);
-        const Int j = X.Col(k);
+        const Int i = XRowBuf[k];
+        const Int j = XColBuf[k];
         if( (uplo==UPPER && j-i >= offset) || (uplo==LOWER && j-i <= offset) )
-            Y.QueueLocalUpdate( i-firstLocalRow, j, alpha*X.Value(k) );
+            Y.QueueLocalUpdate( i-firstLocalRow, j, alpha*XValBuf[k] );
     }
     Y.ProcessLocalQueues();
 }

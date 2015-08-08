@@ -82,25 +82,25 @@ template<typename F>
 void SymmetricRuizEquil
 ( Matrix<F>& A,
   Matrix<Base<F>>& d,
-  bool progress=false );
+  Int maxiter=3, bool progress=false );
 
 template<typename F>
 void SymmetricRuizEquil
 ( AbstractDistMatrix<F>& A,
   AbstractDistMatrix<Base<F>>& d,
-  bool progress=false );
+  Int maxiter=3, bool progress=false );
 
 template<typename F>
 void SymmetricRuizEquil
 ( SparseMatrix<F>& A,
   Matrix<Base<F>>& d,
-  bool progress=false );
+  Int maxiter=3, bool progress=false );
 
 template<typename F>
 void SymmetricRuizEquil
 ( DistSparseMatrix<F>& A,
   DistMultiVec<Base<F>>& d,
-  bool progress=false );
+  Int maxiter=3, bool progress=false );
 
 // Geometric rescaling (ala Fourer, which led to Saunders's gmscale.m)
 // ===================================================================

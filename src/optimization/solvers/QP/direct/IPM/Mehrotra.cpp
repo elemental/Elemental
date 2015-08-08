@@ -798,6 +798,7 @@ void Mehrotra
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
+    const Int ruizMaxIter = 3;
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -1008,7 +1009,7 @@ void Mehrotra
 
                 UpdateDiagonal( J, Real(1), regTmp );
                 if( wMaxNorm >= ruizEquilTol )
-                    SymmetricRuizEquil( J, dInner, ctrl.print );
+                    SymmetricRuizEquil( J, dInner, ruizMaxIter, ctrl.print );
                 else if( wMaxNorm >= diagEquilTol )
                     SymmetricDiagonalEquil( J, dInner, ctrl.print );
                 else
@@ -1224,6 +1225,7 @@ void Mehrotra
     // Sizes of || w ||_max which force levels of equilibration
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
+    const Int ruizMaxIter = 3;
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
@@ -1454,7 +1456,7 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 if( wMaxNorm >= ruizEquilTol )
-                    SymmetricRuizEquil( J, dInner, ctrl.print );
+                    SymmetricRuizEquil( J, dInner, ruizMaxIter, ctrl.print );
                 else if( wMaxNorm >= diagEquilTol )
                     SymmetricDiagonalEquil( J, dInner, ctrl.print );
                 else

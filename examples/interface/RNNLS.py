@@ -12,7 +12,7 @@ m = 6000
 n = 4000
 rho = 10
 
-display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 

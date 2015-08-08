@@ -47,7 +47,7 @@ void SymmetricDiagonalEquil
     if( progress )
     {
         const Real maxNorm = MaxNorm( d ); 
-        cout << "    || d ||_max = " << maxNorm << endl;
+        Output("  || d ||_max = ",maxNorm);
     }
     DiagonalSolve( LEFT, NORMAL, d, A );
     DiagonalSolve( RIGHT, NORMAL, d, A );
@@ -72,23 +72,22 @@ void SymmetricDiagonalEquil
         timer.Start();
     GetMappedDiagonal( A, d, maxSqrt );
     if( commRank == 0 && time )
-        cout << "    Get mapped diag time: " << timer.Stop() << endl;
+        Output("  Get mapped diag time: ",timer.Stop());
     if( commRank == 0 && time )
         timer.Start();
     DiagonalSolve( LEFT, NORMAL, d, A );
     if( commRank == 0 && time )
-        cout << "    Left diag solve time: " << timer.Stop() << endl;
+        Output("  Left diag solve time: ",timer.Stop());
     if( commRank == 0 && time )
         timer.Start();
     DiagonalSolve( RIGHT, NORMAL, d, A );
     if( commRank == 0 && time )
-        cout << "    Right diag solve time: " << timer.Stop() << endl;
+        Output("  Right diag solve time: ",timer.Stop());
     if( progress )
     {
         const Real maxNorm = MaxNorm( d );
         if( commRank == 0 ) 
-            cout << "    Diagonally equilibrated with || d ||_max = " 
-                 << maxNorm << endl;
+            Output("  || d ||_max = ",maxNorm); 
     }
 }
 

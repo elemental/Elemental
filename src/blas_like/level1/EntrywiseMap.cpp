@@ -16,9 +16,11 @@ void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set( i, j, func(A.Get(i,j)) );
+            ABuf[i+j*ALDim] = func(ABuf[i+j*ALDim]);
 }
 
 template<typename T>
@@ -59,10 +61,15 @@ void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func )
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const S* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
     B.Resize( m, n );
+    T* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            B.Set( i, j, func(A.Get(i,j)) );
+            BBuf[i+j*BLDim] = func(ABuf[i+j*ALDim]);
 }
 
 template<typename S,typename T>

@@ -8,8 +8,8 @@
 #
 import El
 
-n0 = 20
-n1 = 20
+n0 = 50
+n1 = 50
 lambda1 = 3
 lambda2 = 4
 output = False

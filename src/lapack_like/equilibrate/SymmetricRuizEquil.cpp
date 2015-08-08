@@ -30,7 +30,7 @@ template<typename F>
 void SymmetricRuizEquil
 ( Matrix<F>& A, 
   Matrix<Base<F>>& d, 
-  bool progress )
+  Int maxIter, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
     LogicError("This routine is not yet written");
@@ -40,7 +40,7 @@ template<typename F>
 void SymmetricRuizEquil
 ( AbstractDistMatrix<F>& APre, 
   AbstractDistMatrix<Base<F>>& dPre,
-  bool progress )
+  Int maxIter, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
     typedef Base<F> Real;
@@ -57,10 +57,6 @@ void SymmetricRuizEquil
 
     const Int n = A.Height();
     Ones( d, n, 1 );
-
-    // TODO: Expose these as control parameters
-    // For now, simply hard-code the number of iterations
-    const Int maxIter = 4; 
 
     DistMatrix<Real,MR,STAR> scales(A.Grid());
     const Int indent = PushIndent();
@@ -83,16 +79,12 @@ template<typename F>
 void SymmetricRuizEquil
 ( SparseMatrix<F>& A, 
   Matrix<Base<F>>& d,
-  bool progress )
+  Int maxIter, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
     typedef Base<F> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
-
-    // TODO: Expose these as control parameters
-    // For now, simply hard-code the number of iterations
-    const Int maxIter = 4; 
 
     Matrix<Real> scales;
     const Int indent = PushIndent();
@@ -114,7 +106,7 @@ template<typename F>
 void SymmetricRuizEquil
 ( DistSparseMatrix<F>& A, 
   DistMultiVec<Base<F>>& d, 
-  bool progress )
+  Int maxIter, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
     typedef Base<F> Real;
@@ -122,10 +114,6 @@ void SymmetricRuizEquil
     mpi::Comm comm = A.Comm();
     d.SetComm( comm );
     Ones( d, n, 1 );
-
-    // TODO: Expose to control structure
-    // For, simply hard-code a small number of iterations
-    const Int maxIter = 4;
 
     DistMultiVec<Real> scales(comm);
     const Int indent = PushIndent();
@@ -147,19 +135,19 @@ void SymmetricRuizEquil
   template void SymmetricRuizEquil \
   ( Matrix<F>& A, \
     Matrix<Base<F>>& d, \
-    bool progress ); \
+    Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
   ( AbstractDistMatrix<F>& A, \
     AbstractDistMatrix<Base<F>>& d, \
-    bool progress ); \
+    Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
   ( SparseMatrix<F>& A, \
     Matrix<Base<F>>& d, \
-    bool progress ); \
+    Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
   ( DistSparseMatrix<F>& A, \
     DistMultiVec<Base<F>>& d, \
-    bool progress );
+    Int maxIter, bool progress );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
