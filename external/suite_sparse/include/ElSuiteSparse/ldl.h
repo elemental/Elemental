@@ -34,7 +34,7 @@
  * Copyright, this License, and the Availability note are retained,
  * and a notice that the code was modified is included.
  */
-#include "ElSuiteSparse_config.h"
+#include "ElSuiteSparse/config.h"
 
 #ifdef EL_LDL_LONG
 #define ElLDL_int ElSuiteSparse_long

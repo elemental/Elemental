@@ -7,17 +7,15 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 
-# TODO: Add support for 'long' version of SuiteSparse LDL?
-
 # Include the header directory
 # ----------------------------
 message(STATUS 
-  "Appending ${CMAKE_CURRENT_SOURCE_DIR} for SuiteSparse_LDL's headers")
-include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}")
+  "Prepending ${CMAKE_CURRENT_SOURCE_DIR}/include for ElSuiteSparse headers")
+include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # Define the header files installation rules
 # ------------------------------------------
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
   FILES_MATCHING PATTERN "*.h")
     
@@ -25,10 +23,10 @@ set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${C_FLAGS}")
 
 # Define the main library and its link libraries
 # ----------------------------------------------
-file(GLOB_RECURSE SUITESPARSE_LDL_SRC RELATIVE 
+file(GLOB_RECURSE EL_SUITESPARSE_SRC RELATIVE 
   ${CMAKE_CURRENT_SOURCE_DIR} "*.c" "*.h")
-add_library(SuiteSparse_LDL ${LIBRARY_TYPE} ${SUITESPARSE_LDL_SRC})
+add_library(ElSuiteSparse ${LIBRARY_TYPE} ${EL_SUITESPARSE_SRC})
 if(EL_LINK_FLAGS)
-  set_target_properties(SuiteSparse_LDL PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
+  set_target_properties(ElSuiteSparse PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS SuiteSparse_LDL EXPORT ElTargets DESTINATION lib)
+install(TARGETS ElSuiteSparse EXPORT ElTargets DESTINATION lib)

@@ -358,8 +358,8 @@ if(EL_BUILT_BLIS_LAPACK)
   endif()
 endif()
 
-# Parallel Multiple Relatively Robust Representations
-# ---------------------------------------------------
+# Elemental's mod's of Parallel Multiple Relatively Robust Representations
+# ------------------------------------------------------------------------
 add_subdirectory(external/pmrrr)
 if(EL_BUILT_SCALAPACK)
   add_dependencies(pmrrr project_scalapack)
@@ -372,11 +372,9 @@ else()
   endif()
 endif()
 
-# SuiteSparse_LDL
-# ---------------
-# NOTE: This is to be used for the leaves of the multifrontal tree of
-#       Elemental's distributed sparse-direct LDL^T and LDL^H factorizations
-add_subdirectory(external/SuiteSparse_LDL)
+# Elemental's modifications of (a subset of) SuiteSparse
+# ------------------------------------------------------
+add_subdirectory(external/suite_sparse)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
@@ -437,7 +435,7 @@ endif()
 if(EL_BUILT_PARMETIS)
   add_dependencies(El project_parmetis)
 endif()
-set(LINK_LIBS pmrrr SuiteSparse_LDL 
+set(LINK_LIBS pmrrr ElSuiteSparse
   ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
@@ -618,7 +616,7 @@ include(CPack)
 # =====
 # Create ElConfig.cmake for find_package.
 # Add all targets to the build-tree export set
-export(TARGETS El pmrrr SuiteSparse_LDL 
+export(TARGETS El pmrrr ElSuiteSparse
   FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
 
 # Export the package for use from the build-tree

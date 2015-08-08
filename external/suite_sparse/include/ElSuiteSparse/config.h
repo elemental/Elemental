@@ -33,44 +33,10 @@
  * Copyright (c) 2012, Timothy A. Davis.  No licensing restrictions apply
  * to this file or to the SuiteSparse_config directory.
  * Author: Timothy A. Davis.
- *
- * Your use or distribution of LDL or any modified version of
- * LDL implies that you agree to this License.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
- *
- * Permission is hereby granted to use or copy this program under the
- * terms of the GNU LGPL, provided that the Copyright, this License,
- * and the Availability of the original version is retained on all copies.
- * User documentation of any code that uses this code or any modified
- * version of this code must cite the Copyright, this License, the
- * Availability note, and "Used by permission." Permission to modify
- * the code and to distribute modified code is granted, provided the
- * Copyright, this License, and the Availability note are retained,
- * and a notice that the code was modified is included.
  */
 
-/*
- * NOTE: Each of the following is namespaced to avoid potential conflicts
- *       with another version of SuiteSparse that might have been passed into
- *       Elemental
- */
-
-#ifndef EL_SUITESPARSECONFIG_H
-#define EL_SUITESPARSECONFIG_H
+#ifndef EL_SUITESPARSE_CONFIG_H
+#define EL_SUITESPARSE_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,7 +51,7 @@ extern "C" {
 
 #ifndef ElSuiteSparse_long
 
-#if _WIN64
+#ifdef _WIN64
 
 #define ElSuiteSparse_long __int64
 #define ElSuiteSparse_long_max _I64_MAX
@@ -98,45 +64,66 @@ extern "C" {
 #define ElSuiteSparse_long_idd "ld"
 
 #endif
-#define ElSuiteSparse_long_id "%" SuiteSparse_long_idd
-#endif
-
-/* For backward compatibility with prior versions of SuiteSparse.  The UF_*
- * macros are deprecated and will be removed in a future version. */
-#ifndef ElUF_long
-#define ElUF_long     ElSuiteSparse_long
-#define ElUF_long_max ElSuiteSparse_long_max
-#define ElUF_long_idd ElSuiteSparse_long_idd
-#define ElUF_long_id  ElSuiteSparse_long_id
+#define ElSuiteSparse_long_id "%" ElSuiteSparse_long_idd
 #endif
 
 /* ========================================================================== */
 /* === SuiteSparse_config parameters and functions ========================== */
 /* ========================================================================== */
 
-/* SuiteSparse-wide parameters will be placed in this struct. */
+/* SuiteSparse-wide parameters are placed in this struct.  It is meant to be
+   an extern, globally-accessible struct.  It is not meant to be updated
+   frequently by multiple threads.  Rather, if an application needs to modify
+   SuiteSparse_config, it should do it once at the beginning of the application,
+   before multiple threads are launched.
 
-typedef struct ElSuiteSparse_config_struct
+   The intent of these function pointers is that they not be used in your
+   application directly, except to assign them to the desired user-provided
+   functions.  Rather, you should use the
+ */
+
+struct ElSuiteSparse_config_struct
 {
-    void *(*malloc_memory) (size_t) ;           /* pointer to malloc */
-    void *(*realloc_memory) (void *, size_t) ;  /* pointer to realloc */
-    void (*free_memory) (void *) ;              /* pointer to free */
-    void *(*calloc_memory) (size_t, size_t) ;   /* pointer to calloc */
+    void *(*malloc_func) (size_t) ;             /* pointer to malloc */
+    void *(*calloc_func) (size_t, size_t) ;     /* pointer to calloc */
+    void *(*realloc_func) (void *, size_t) ;    /* pointer to realloc */
+    void (*free_func) (void *) ;                /* pointer to free */
+    int (*printf_func) (const char *, ...) ;    /* pointer to printf */
+    double (*hypot_func) (double, double) ;     /* pointer to hypot */
+    int (*divcomplex_func) (double, double, double, double, double *, double *);
+} ;
 
-} ElSuiteSparse_config ;
+extern struct ElSuiteSparse_config_struct ElSuiteSparse_config ;
+
+void ElSuiteSparse_start ( void ) ;   /* called to start SuiteSparse */
+
+void ElSuiteSparse_finish ( void ) ;  /* called to finish SuiteSparse */
 
 void *ElSuiteSparse_malloc    /* pointer to allocated block of memory */
 (
     size_t nitems,          /* number of items to malloc (>=1 is enforced) */
+    size_t size_of_item     /* sizeof each item */
+) ;
+
+void *ElSuiteSparse_calloc    /* pointer to allocated block of memory */
+(
+    size_t nitems,          /* number of items to calloc (>=1 is enforced) */
+    size_t size_of_item     /* sizeof each item */
+) ;
+
+void *ElSuiteSparse_realloc   /* pointer to reallocated block of memory, or
+                               to original block if the realloc failed. */
+(
+    size_t nitems_new,      /* new number of items in the object */
+    size_t nitems_old,      /* old number of items in the object */
     size_t size_of_item,    /* sizeof each item */
-    int *ok,                /* TRUE if successful, FALSE otherwise */
-    ElSuiteSparse_config *config        /* SuiteSparse-wide configuration */
+    void *p,                /* old object to reallocate */
+    int *ok                 /* 1 if successful, 0 otherwise */
 ) ;
 
 void *ElSuiteSparse_free      /* always returns NULL */
 (
-    void *p,                /* block to free */
-    ElSuiteSparse_config *config        /* SuiteSparse-wide configuration */
+    void *p                 /* block to free */
 ) ;
 
 void ElSuiteSparse_tic    /* start the timer */
@@ -154,14 +141,34 @@ double ElSuiteSparse_time  /* returns current wall clock time in seconds */
     void
 ) ;
 
+/* returns sqrt (x^2 + y^2), computed reliably */
+double ElSuiteSparse_hypot (double x, double y) ;
+
+/* complex division of c = a/b */
+int ElSuiteSparse_divcomplex
+(
+    double ar, double ai,	/* real and imaginary parts of a */
+    double br, double bi,	/* real and imaginary parts of b */
+    double *cr, double *ci	/* real and imaginary parts of c */
+) ;
+
 /* determine which timer to use, if any */
-#ifndef NTIMER
+#ifdef TIMER
 #ifdef _POSIX_C_SOURCE
 #if    _POSIX_C_SOURCE >= 199309L
 #define EL_SUITESPARSE_TIMER_ENABLED
 #endif
 #endif
 #endif
+
+/* SuiteSparse printf macro */
+#define EL_SUITESPARSE_PRINTF(params) \
+{ \
+    if (ElSuiteSparse_config.printf_func != NULL) \
+    { \
+        (void) (ElSuiteSparse_config.printf_func) params ; \
+    } \
+}
 
 /* ========================================================================== */
 /* === SuiteSparse version ================================================== */
@@ -171,39 +178,66 @@ double ElSuiteSparse_time  /* returns current wall clock time in seconds */
  * which must be used together (UMFPACK requires AMD, CHOLMOD requires AMD,
  * COLAMD, CAMD, and CCOLAMD, etc).  A version number is provided here for the
  * collection itself.  The versions of packages within each version of
- * SuiteSparse are meant to work together.  Combining one packge from one
+ * SuiteSparse are meant to work together.  Combining one package from one
  * version of SuiteSparse, with another package from another version of
  * SuiteSparse, may or may not work.
  *
  * SuiteSparse contains the following packages:
  *
- *  SuiteSparse_config version 4.0.2 (version always the same as SuiteSparse)
- *  AMD             version 2.3.1
- *  BTF             version 1.2.0
- *  CAMD            version 2.3.1
- *  CCOLAMD         version 2.8.0
- *  CHOLMOD         version 2.0.1
- *  COLAMD          version 2.8.0
- *  CSparse         version 3.1.1
- *  CXSparse        version 3.1.1
- *  KLU             version 1.2.1
- *  LDL             version 2.1.0
- *  RBio            version 2.1.1
- *  SPQR            version 1.3.1 (full name is SuiteSparseQR)
- *  UMFPACK         version 5.6.1
+ *  SuiteSparse_config version 4.4.1 (version always the same as SuiteSparse)
+ *  AMD             version 2.4.1
+ *  BTF             version 1.2.1
+ *  CAMD            version 2.4.1
+ *  CCOLAMD         version 2.9.1
+ *  CHOLMOD         version 3.0.5
+ *  COLAMD          version 2.9.1
+ *  CSparse         version 3.1.4
+ *  CXSparse        version 3.1.4
+ *  KLU             version 1.3.2
+ *  LDL             version 2.2.1
+ *  RBio            version 2.2.1
+ *  SPQR            version 2.0.1
+ *  GPUQREngine     version 1.0.0
+ *  SuiteSparse_GPURuntime  version 1.0.0
+ *  UMFPACK         version 5.7.1
  *  MATLAB_Tools    various packages & M-files
  *
  * Other package dependencies:
  *  BLAS            required by CHOLMOD and UMFPACK
  *  LAPACK          required by CHOLMOD
  *  METIS 4.0.1     required by CHOLMOD (optional) and KLU (optional)
+ *  CUBLAS, CUDART  NVIDIA libraries required by CHOLMOD and SPQR when
+ *                  they are compiled with GPU acceleration.
  */
 
-#define EL_SUITESPARSE_DATE "July 17, 2012"
+
+int ElSuiteSparse_version     /* returns SUITESPARSE_VERSION */
+(
+    /* output, not defined on input.  Not used if NULL.  Returns
+       the three version codes in version [0..2]:
+       version [0] is SUITESPARSE_MAIN_VERSION
+       version [1] is SUITESPARSE_SUB_VERSION
+       version [2] is SUITESPARSE_SUBSUB_VERSION
+       */
+    int version [3]
+) ;
+
+/* Versions prior to 4.2.0 do not have the above function.  The following
+   code fragment will work with any version of SuiteSparse:
+
+   #ifdef SUITESPARSE_HAS_VERSION_FUNCTION
+   v = SuiteSparse_version (NULL) ;
+   #else
+   v = SUITESPARSE_VERSION ;
+   #endif
+*/
+#define EL_SUITESPARSE_HAS_VERSION_FUNCTION
+
+#define EL_SUITESPARSE_DATE "Mar 24, 2015"
 #define EL_SUITESPARSE_VER_CODE(main,sub) ((main) * 1000 + (sub))
 #define EL_SUITESPARSE_MAIN_VERSION 4
-#define EL_SUITESPARSE_SUB_VERSION 0
-#define EL_SUITESPARSE_SUBSUB_VERSION 2
+#define EL_SUITESPARSE_SUB_VERSION 4
+#define EL_SUITESPARSE_SUBSUB_VERSION 4
 #define EL_SUITESPARSE_VERSION \
  EL_SUITESPARSE_VER_CODE(EL_SUITESPARSE_MAIN_VERSION,EL_SUITESPARSE_SUB_VERSION)
 

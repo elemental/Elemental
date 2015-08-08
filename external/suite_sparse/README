@@ -1,0 +1,9 @@
+This folder contains Elemental's modifications of a subset of SuiteSparse. Said 
+modifications retain the (non-viral) GNU Lesser General Public License
+version 2.1, or (at your option) any later version.
+
+In particular, modifications of the AMD and LDL modules have been included,
+with an 'El' prefix to avoid conflicts with official versions of SuiteSparse.
+
+Note that amd.f and amdbar.f were removed since they served only as a 
+historical reference, and amd_global.c was removed since it was empty.
