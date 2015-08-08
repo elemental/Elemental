@@ -63,8 +63,14 @@
  * and a notice that the code was modified is included.
  */
 
-#ifndef _SUITESPARSECONFIG_H
-#define _SUITESPARSECONFIG_H
+/*
+ * NOTE: Each of the following is namespaced to avoid potential conflicts
+ *       with another version of SuiteSparse that might have been passed into
+ *       Elemental
+ */
+
+#ifndef EL_SUITESPARSECONFIG_H
+#define EL_SUITESPARSECONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,31 +83,31 @@ extern "C" {
 /* === SuiteSparse_long ===================================================== */
 /* ========================================================================== */
 
-#ifndef SuiteSparse_long
+#ifndef ElSuiteSparse_long
 
 #if _WIN64
 
-#define SuiteSparse_long __int64
-#define SuiteSparse_long_max _I64_MAX
-#define SuiteSparse_long_idd "I64d"
+#define ElSuiteSparse_long __int64
+#define ElSuiteSparse_long_max _I64_MAX
+#define ElSuiteSparse_long_idd "I64d"
 
 #else
 
-#define SuiteSparse_long long
-#define SuiteSparse_long_max LONG_MAX
-#define SuiteSparse_long_idd "ld"
+#define ElSuiteSparse_long long
+#define ElSuiteSparse_long_max LONG_MAX
+#define ElSuiteSparse_long_idd "ld"
 
 #endif
-#define SuiteSparse_long_id "%" SuiteSparse_long_idd
+#define ElSuiteSparse_long_id "%" SuiteSparse_long_idd
 #endif
 
 /* For backward compatibility with prior versions of SuiteSparse.  The UF_*
  * macros are deprecated and will be removed in a future version. */
-#ifndef UF_long
-#define UF_long     SuiteSparse_long
-#define UF_long_max SuiteSparse_long_max
-#define UF_long_idd SuiteSparse_long_idd
-#define UF_long_id  SuiteSparse_long_id
+#ifndef ElUF_long
+#define ElUF_long     ElSuiteSparse_long
+#define ElUF_long_max ElSuiteSparse_long_max
+#define ElUF_long_idd ElSuiteSparse_long_idd
+#define ElUF_long_id  ElSuiteSparse_long_id
 #endif
 
 /* ========================================================================== */
@@ -110,40 +116,40 @@ extern "C" {
 
 /* SuiteSparse-wide parameters will be placed in this struct. */
 
-typedef struct SuiteSparse_config_struct
+typedef struct ElSuiteSparse_config_struct
 {
     void *(*malloc_memory) (size_t) ;           /* pointer to malloc */
     void *(*realloc_memory) (void *, size_t) ;  /* pointer to realloc */
     void (*free_memory) (void *) ;              /* pointer to free */
     void *(*calloc_memory) (size_t, size_t) ;   /* pointer to calloc */
 
-} SuiteSparse_config ;
+} ElSuiteSparse_config ;
 
-void *SuiteSparse_malloc    /* pointer to allocated block of memory */
+void *ElSuiteSparse_malloc    /* pointer to allocated block of memory */
 (
     size_t nitems,          /* number of items to malloc (>=1 is enforced) */
     size_t size_of_item,    /* sizeof each item */
     int *ok,                /* TRUE if successful, FALSE otherwise */
-    SuiteSparse_config *config        /* SuiteSparse-wide configuration */
+    ElSuiteSparse_config *config        /* SuiteSparse-wide configuration */
 ) ;
 
-void *SuiteSparse_free      /* always returns NULL */
+void *ElSuiteSparse_free      /* always returns NULL */
 (
     void *p,                /* block to free */
-    SuiteSparse_config *config        /* SuiteSparse-wide configuration */
+    ElSuiteSparse_config *config        /* SuiteSparse-wide configuration */
 ) ;
 
-void SuiteSparse_tic    /* start the timer */
+void ElSuiteSparse_tic    /* start the timer */
 (
     double tic [2]      /* output, contents undefined on input */
 ) ;
 
-double SuiteSparse_toc  /* return time in seconds since last tic */
+double ElSuiteSparse_toc  /* return time in seconds since last tic */
 (
     double tic [2]      /* input: from last call to SuiteSparse_tic */
 ) ;
 
-double SuiteSparse_time  /* returns current wall clock time in seconds */
+double ElSuiteSparse_time  /* returns current wall clock time in seconds */
 (
     void
 ) ;
@@ -152,7 +158,7 @@ double SuiteSparse_time  /* returns current wall clock time in seconds */
 #ifndef NTIMER
 #ifdef _POSIX_C_SOURCE
 #if    _POSIX_C_SOURCE >= 199309L
-#define SUITESPARSE_TIMER_ENABLED
+#define EL_SUITESPARSE_TIMER_ENABLED
 #endif
 #endif
 #endif
@@ -193,13 +199,13 @@ double SuiteSparse_time  /* returns current wall clock time in seconds */
  *  METIS 4.0.1     required by CHOLMOD (optional) and KLU (optional)
  */
 
-#define SUITESPARSE_DATE "July 17, 2012"
-#define SUITESPARSE_VER_CODE(main,sub) ((main) * 1000 + (sub))
-#define SUITESPARSE_MAIN_VERSION 4
-#define SUITESPARSE_SUB_VERSION 0
-#define SUITESPARSE_SUBSUB_VERSION 2
-#define SUITESPARSE_VERSION \
-    SUITESPARSE_VER_CODE(SUITESPARSE_MAIN_VERSION,SUITESPARSE_SUB_VERSION)
+#define EL_SUITESPARSE_DATE "July 17, 2012"
+#define EL_SUITESPARSE_VER_CODE(main,sub) ((main) * 1000 + (sub))
+#define EL_SUITESPARSE_MAIN_VERSION 4
+#define EL_SUITESPARSE_SUB_VERSION 0
+#define EL_SUITESPARSE_SUBSUB_VERSION 2
+#define EL_SUITESPARSE_VERSION \
+ EL_SUITESPARSE_VER_CODE(EL_SUITESPARSE_MAIN_VERSION,EL_SUITESPARSE_SUB_VERSION)
 
 #ifdef __cplusplus
 }
