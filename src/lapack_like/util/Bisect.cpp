@@ -28,9 +28,11 @@ Int Bisect
     // outside the sources, so we must manually remove them from our graph
     const Int numSources = graph.NumSources();
     const Int numEdges = graph.NumEdges();
+    const Int* sourceBuf = graph.LockedSourceBuffer();
+    const Int* targetBuf = graph.LockedTargetBuffer();
     Int numValidEdges = 0;
     for( Int i=0; i<numEdges; ++i )
-        if( graph.Source(i) != graph.Target(i) && graph.Target(i) < numSources )
+        if( sourceBuf[i] != targetBuf[i] && targetBuf[i] < numSources )
             ++numValidEdges;
 
     // Fill our connectivity (ignoring self and too-large connections)
@@ -41,8 +43,8 @@ Int Bisect
     Int prevSource=-1;
     for( Int edge=0; edge<numEdges; ++edge )
     {
-        const Int source = graph.Source( edge );
-        const Int target = graph.Target( edge );
+        const Int source = sourceBuf[edge];
+        const Int target = targetBuf[edge];
         DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
@@ -53,10 +55,7 @@ Int Bisect
             ++prevSource;
         }
         if( source != target && target < numSources )
-        {
-            adjacency[validCounter] = target;
-            ++validCounter;
-        }
+            adjacency[validCounter++] = target;
     }
     DEBUG_ONLY(
       if( sourceOff != numSources )
@@ -117,9 +116,11 @@ Int Bisect
     // outside the sources, so we must manually remove them from our graph
     const Int numSources = graph.NumSources();
     const Int numLocalEdges = graph.NumLocalEdges();
+    const Int* sourceBuf = graph.LockedSourceBuffer();
+    const Int* targetBuf = graph.LockedTargetBuffer();
     Int numLocalValidEdges = 0;
     for( Int i=0; i<numLocalEdges; ++i )
-        if( graph.Source(i) != graph.Target(i) && graph.Target(i) < numSources )
+        if( sourceBuf[i] != targetBuf[i] && targetBuf[i] < numSources )
             ++numLocalValidEdges;
 
     // Fill our local connectivity (ignoring self and too-large connections)
@@ -133,8 +134,8 @@ Int Bisect
     Int prevSource=firstLocalSource-1;
     for( Int localEdge=0; localEdge<numLocalEdges; ++localEdge )
     {
-        const Int source = graph.Source( localEdge );
-        const Int target = graph.Target( localEdge );
+        const Int source = sourceBuf[localEdge];
+        const Int target = targetBuf[localEdge];
         DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");

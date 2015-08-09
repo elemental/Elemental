@@ -80,7 +80,7 @@ GLOBAL Int ElAMD_order
     }
 
     /* check the input matrix:	AMD_OK, AMD_INVALID, or AMD_OK_BUT_JUMBLED */
-    status = EL_AMD_valid (n, n, Ap, Ai) ;
+    status = ElAMD_valid (n, n, Ap, Ai) ;
 
     if (status == EL_AMD_INVALID)
     {

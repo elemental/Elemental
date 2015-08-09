@@ -23,12 +23,54 @@ NestedDissectionRecursion
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("ldl::NestedDissectionRecursion"))
-    if( graph.NumSources() <= ctrl.cutoff )
+    const Int numSources = graph.NumSources();
+    const Int* offsetBuf = graph.LockedOffsetBuffer();
+    const Int* sourceBuf = graph.LockedSourceBuffer();
+    const Int* targetBuf = graph.LockedTargetBuffer();
+    if( numSources <= ctrl.cutoff )
     {
+        // Filter out the graph of the diagonal block
+        Int numValidEdges = 0;
+        const Int numEdges = graph.NumEdges();
+        for( Int e=0; e<numEdges; ++e )
+            if( sourceBuf[e] != targetBuf[e] && targetBuf[e] < numSources )
+                ++numValidEdges;
+        vector<int> subOffsets(numSources+1), subTargets(numValidEdges);
+        Int sourceOff = 0;
+        Int validCounter = 0;
+        Int prevSource = -1;
+        for( Int e=0; e<numEdges; ++e )
+        {
+            const Int source = sourceBuf[e]; 
+            const Int target = targetBuf[e];
+            while( source != prevSource )
+            {
+                subOffsets[sourceOff++] = validCounter;
+                ++prevSource;
+            }
+            if( source != target && target < numSources )
+                subTargets[validCounter++] = target;
+        }
+        subOffsets[numSources] = numValidEdges;
+
+        // Technically, SuiteSparse expects column-major storage, but since
+        // the matrix is structurally symmetric, it's okay to pass in the 
+        // row-major representation
+        vector<int> amdPerm(numSources);
+        double* control = nullptr;
+        double* info = nullptr;
+        const int amdStatus = 
+          El_amd_order
+          ( numSources, subOffsets.data(), subTargets.data(), amdPerm.data(), 
+            control, info );
+        if( amdStatus != EL_AMD_OK )
+            RuntimeError("AMD status was ",amdStatus);
+
         // Fill in this node of the local separator tree
-        const Int numSources = graph.NumSources();
         sep.off = off;
-        sep.inds = perm;
+        sep.inds.resize( numSources );
+        for( Int i=0; i<numSources; ++i )
+            sep.inds[i] = perm[amdPerm[i]];
         // TODO: Replace with better deletion mechanism
         SwapClear( sep.children );
 
@@ -40,11 +82,11 @@ NestedDissectionRecursion
         set<Int> lowerStruct;
         for( Int s=0; s<node.size; ++s )
         {
-            const Int numConnections = graph.NumConnections( s );
-            const Int edgeOff = graph.SourceOffset( s );
-            for( Int t=0; t<numConnections; ++t )
+            const Int edgeOff = offsetBuf[s];
+            const Int numConn = offsetBuf[s+1] - edgeOff;
+            for( Int t=0; t<numConn; ++t )
             {
-                const Int target = graph.Target( edgeOff+t );
+                const Int target = targetBuf[edgeOff+t];
                 if( target >= numSources )
                     lowerStruct.insert( off+target );
             }
@@ -57,7 +99,6 @@ NestedDissectionRecursion
         Graph leftChild, rightChild;
         vector<Int> map;
         const Int sepSize = Bisect( graph, leftChild, rightChild, map, ctrl );
-        const Int numSources = graph.NumSources();
         vector<Int> invMap( numSources );
         for( Int s=0; s<numSources; ++s )
             invMap[map[s]] = s;
@@ -79,11 +120,11 @@ NestedDissectionRecursion
         for( Int s=0; s<sepSize; ++s )
         {
             const Int source = sep.inds[s];
-            const Int numConnections = graph.NumConnections( source );
-            const Int edgeOff = graph.SourceOffset( source );
-            for( Int t=0; t<numConnections; ++t )
+            const Int edgeOff = offsetBuf[source];
+            const Int numConn = offsetBuf[source+1] - edgeOff;
+            for( Int t=0; t<numConn; ++t )
             {
-                const Int target = graph.Target( edgeOff+t );
+                const Int target = targetBuf[edgeOff+t];
                 if( target >= numSources )
                     lowerStruct.insert( off+target );
             }
@@ -138,6 +179,11 @@ NestedDissectionRecursion
 
     if( commSize > 1 )
     {
+        const Int numLocalSources = graph.NumLocalSources();
+        const Int firstLocalSource = graph.FirstLocalSource();
+        const Int* offsetBuf = graph.LockedOffsetBuffer();
+        const Int* targetBuf = graph.LockedTargetBuffer();
+
         // Partition the graph and construct the inverse map
         DistGraph child;
         bool childIsOnLeft;
@@ -162,8 +208,7 @@ NestedDissectionRecursion
         // Fill in this node of the DistNode
         node.size = sepSize;
         node.off = sep.off;
-        const Int numLocalSources = graph.NumLocalSources();
-        const Int firstLocalSource = graph.FirstLocalSource();
+
         set<Int> localLowerStruct;
         for( Int s=0; s<sepSize; ++s )
         {
@@ -172,11 +217,11 @@ NestedDissectionRecursion
                 source < firstLocalSource+numLocalSources )
             {
                 const Int localSource = source - firstLocalSource;
-                const Int numConnections = graph.NumConnections( localSource );
-                const Int localOff = graph.SourceOffset( localSource );
-                for( Int t=0; t<numConnections; ++t )
+                const Int edgeOff = offsetBuf[localSource];
+                const Int numConn = offsetBuf[localSource+1] - edgeOff;
+                for( Int t=0; t<numConn; ++t )
                 {
-                    const Int target = graph.Target( localOff+t );
+                    const Int target = targetBuf[edgeOff+t];
                     if( target >= numSources )
                         localLowerStruct.insert( off+target );
                 }
@@ -207,12 +252,13 @@ NestedDissectionRecursion
         DistMap newPerm( child.NumSources(), child.Comm() );
         const Int localChildSize = child.NumLocalSources();
         const Int firstLocalChildSource = child.FirstLocalSource();
+        auto& newPermLoc = newPerm.Map();
         if( childIsOnLeft )
             for( Int s=0; s<localChildSize; ++s )
-                newPerm.SetLocal( s, s+firstLocalChildSource );
+                newPermLoc[s] = s+firstLocalChildSource;
         else
             for( Int s=0; s<localChildSize; ++s )
-                newPerm.SetLocal( s, s+firstLocalChildSource+leftChildSize );
+                newPermLoc[s] = s+firstLocalChildSource+leftChildSize;
         invMap.Extend( newPerm );
         perm.Extend( newPerm );
 
@@ -433,8 +479,9 @@ void BuildMap( const DistSeparator& rootSep, DistMap& map )
 
     // Unpack the indices
     const Int firstLocalSource = map.FirstLocalSource();
+    auto& mapLoc = map.Map();
     for( Int s=0; s<numRecvs; ++s )
-        map.SetLocal( recvOrigInds[s]-firstLocalSource, recvInds[s] );
+        mapLoc[recvOrigInds[s]-firstLocalSource] = recvInds[s];
 }
 
 } // namespace ldl

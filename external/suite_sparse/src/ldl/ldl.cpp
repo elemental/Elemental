@@ -1,10 +1,13 @@
 /* ========================================================================== */
-/* === ldl.c: sparse LDL' factorization and solve package =================== */
+/* === ldl.cpp: sparse LDL' factorization and solve package ================= */
 /* ========================================================================== */
 
 /* 
  * Copyright (c) Timothy A Davis, http://www.suitesparse.com.
  * All Rights Reserved. 
+ *
+ * Copyright (c) Jack Poulson, https://github.com/elemental/Elemental.
+ * All Rights Reserved.
  *
  * Your use or distribution of LDL or any modified version of
  * LDL implies that you agree to this License.
@@ -92,21 +95,21 @@
  * C-callable routines:
  * --------------------
  *
- *        ldl_symbolic:  Given the pattern of A, computes the Lp and Parent arrays
- *            required by ldl_numeric.  Takes time proportional to the number of
- *            nonzeros in L.  Computes the inverse Pinv of P if P is provided.
- *            Also returns Lnz, the count of nonzeros in each column of L below
- *            the diagonal (this is not required by ldl_numeric).
- *        ldl_numeric:  Given the pattern and numerical values of A, the Lp array,
- *            the Parent array, and P and Pinv if applicable, computes the
- *            pattern and numerical values of L and D.
- *        ldl_lsolve:  Solves Lx=b for a dense vector b.
- *        ldl_dsolve:  Solves Dx=b for a dense vector b.
- *        ldl_ltsolve: Solves L'x=b for a dense vector b.
- *        ldl_perm:    Computes x=Pb for a dense vector b.
- *        ldl_permt:   Computes x=P'b for a dense vector b.
- *        ldl_valid_perm:  checks the validity of a permutation vector
- *        ldl_valid_matrix:  checks the validity of the sparse matrix A
+ *      ldl_symbolic:  Given the pattern of A, computes the Lp and Parent arrays
+ *          required by ldl_numeric.  Takes time proportional to the number of
+ *          nonzeros in L.  Computes the inverse Pinv of P if P is provided.
+ *          Also returns Lnz, the count of nonzeros in each column of L below
+ *          the diagonal (this is not required by ldl_numeric).
+ *      ldl_numeric:  Given the pattern and numerical values of A, the Lp array,
+ *          the Parent array, and P and Pinv if applicable, computes the
+ *          pattern and numerical values of L and D.
+ *      ldl_lsolve:  Solves Lx=b for a dense vector b.
+ *      ldl_dsolve:  Solves Dx=b for a dense vector b.
+ *      ldl_ltsolve: Solves L'x=b for a dense vector b.
+ *      ldl_perm:    Computes x=Pb for a dense vector b.
+ *      ldl_permt:   Computes x=P'b for a dense vector b.
+ *      ldl_valid_perm:  checks the validity of a permutation vector
+ *      ldl_valid_matrix:  checks the validity of the sparse matrix A
  *
  * ----------------------------
  * Limitations of this package:
@@ -187,7 +190,18 @@
  * the README file for the License.
  */
 
-#include "ElSuiteSparse/ldl.h"
+#include "ElSuiteSparse/ldl.hpp"
+
+namespace suite_sparse {
+namespace ldl {
+
+template<typename Real>
+inline Real Conj( Real value )
+{ return value; }
+
+template<typename Real>
+inline complex<Real> Conj( complex<Real> value )
+{ return std::conj(value); }
 
 /* ========================================================================== */
 /* === ldl_symbolic ========================================================= */
@@ -217,61 +231,65 @@
  * the sum of (Lnz [k]) * (Lnz [k] + 2) for k = 0 to n-1.
  */
 
-void ElLDL_symbolic
+template<typename IntType>
+void Symbolic
 (
-    ElLDL_int n,         /* A and L are n-by-n, where n >= 0 */
-    ElLDL_int Ap [ ],    /* input of size n+1, not modified */
-    ElLDL_int Ai [ ],    /* input of size nz=Ap[n], not modified */
-    ElLDL_int Lp [ ],    /* output of size n+1, not defined on input */
-    ElLDL_int Parent [ ],/* output of size n, not defined on input */
-    ElLDL_int Lnz [ ],   /* output of size n, not defined on input */
-    ElLDL_int Flag [ ],  /* workspace of size n, not defn. on input or output */
-    ElLDL_int P [ ],     /* optional input of size n */
-    ElLDL_int Pinv [ ]   /* optional output of size n (used if P is not NULL) */
+  IntType n,             // A and L are n-by-n, where n >= 0 
+  const IntType* Ap,     // input of size n+1 
+  const IntType* Ai,     // input of size nz=Ap[n] 
+        IntType* Lp,     // output of size n+1, not defined on input 
+        IntType* Parent, // output of size n, not defined on input 
+        IntType* Lnz,    // output of size n, not defined on input 
+        IntType* Flag,   // workspace of size n, not defn. 
+  const IntType* P,      // optional, of size n 
+        IntType* Pinv    // optional output of size n (used if P is not NULL) 
 )
 {
-    ElLDL_int i, k, p, kk, p2 ;
+    // If P is present then compute Pinv, the inverse of P
     if (P)
+        for (IntType k = 0; k < n; k++)
+            Pinv[P[k]] = k;
+
+    for (IntType k = 0; k < n; k++)
     {
-        /* If P is present then compute Pinv, the inverse of P */
-        for (k = 0 ; k < n ; k++)
+        // L(k,:) pattern: all nodes reachable in etree from nz in A(0:k-1,k)
+        Parent[k] = -1;   // parent of k is not yet known 
+        Flag[k] = k;      // mark node k as visited 
+        Lnz[k] = 0;       // count of nonzeros in column k of L
+        IntType kk = P ? P[k] : k; // kth original, or permuted, column
+        IntType p2 = Ap[kk+1];
+        for (IntType p = Ap[kk] ; p < p2 ; p++)
         {
-            Pinv [P [k]] = k ;
-        }
-    }
-    for (k = 0 ; k < n ; k++)
-    {
-        /* L(k,:) pattern: all nodes reachable in etree from nz in A(0:k-1,k) */
-        Parent [k] = -1 ;   /* parent of k is not yet known */
-        Flag [k] = k ;      /* mark node k as visited */
-        Lnz [k] = 0 ;       /* count of nonzeros in column k of L */
-        kk = (P) ? (P [k]) : (k) ;  /* kth original, or permuted, column */
-        p2 = Ap [kk+1] ;
-        for (p = Ap [kk] ; p < p2 ; p++)
-        {
-            /* A (i,k) is nonzero (original or permuted A) */
-            i = (Pinv) ? (Pinv [Ai [p]]) : (Ai [p]) ;
+            // A (i,k) is nonzero (original or permuted A) 
+            IntType i = Pinv ? Pinv[Ai[p]] : Ai[p];
             if (i < k)
             {
-                /* follow path from i to root of etree, stop at flagged node */
-                for ( ; Flag [i] != k ; i = Parent [i])
+                // follow path from i to root of etree, stop at flagged node 
+                for ( ; Flag[i] != k ; i = Parent[i])
                 {
-                    /* find parent of i if not yet determined */
-                    if (Parent [i] == -1) Parent [i] = k ;
-                    Lnz [i]++ ;         /* L (k,i) is nonzero */
-                    Flag [i] = k ;      /* mark i as visited */
+                    // find parent of i if not yet determined 
+                    if (Parent[i] == -1) Parent[i] = k;
+                    Lnz[i]++;         // L (k,i) is nonzero 
+                    Flag[i] = k;      // mark i as visited 
                 }
             }
         }
     }
-    /* construct Lp index array from Lnz column counts */
-    Lp [0] = 0 ;
-    for (k = 0 ; k < n ; k++)
-    {
-        Lp [k+1] = Lp [k] + Lnz [k] ;
-    }
+    // construct Lp index array from Lnz column counts
+    Lp[0] = 0;
+    for (IntType k = 0; k < n; k++)
+        Lp[k+1] = Lp[k] + Lnz[k];
 }
-
+template void Symbolic
+( int n,
+  const int* Ap,
+  const int* Ai, 
+        int* Lp,
+        int* Parent,
+        int* Lnz,
+        int* Flag,
+  const int* P,
+        int* Pinv );
 
 /* ========================================================================== */
 /* === ldl_numeric ========================================================== */
@@ -283,220 +301,349 @@ void ElLDL_symbolic
  * Lx, and D.  It also requires three size-n workspaces (Y, Pattern, and Flag).
  */
 
-ElLDL_int ElLDL_numeric  /* returns n if successful, k if D (k,k) is zero */
+// TODO: Make this correct for complex Hermitian matrices
+template<typename F,typename IntType>
+IntType Numeric  // returns n if successful, k if D (k,k) is zero 
 (
-    ElLDL_int n,         /* A and L are n-by-n, where n >= 0 */
-    ElLDL_int Ap [ ],    /* input of size n+1, not modified */
-    ElLDL_int Ai [ ],    /* input of size nz=Ap[n], not modified */
-    double Ax [ ],       /* input of size nz=Ap[n], not modified */
-    ElLDL_int Lp [ ],    /* input of size n+1, not modified */
-    ElLDL_int Parent [ ],/* input of size n, not modified */
-    ElLDL_int Lnz [ ],   /* output of size n, not defn. on input */
-    ElLDL_int Li [ ],    /* output of size lnz=Lp[n], not defined on input */
-    double Lx [ ],       /* output of size lnz=Lp[n], not defined on input */
-    double D [ ],        /* output of size n, not defined on input */
-    double Y [ ],        /* workspace of size n, not defn. on input or output */
-    ElLDL_int Pattern [ ],/* workspace of size n, not defn. */
-    ElLDL_int Flag [ ],  /* workspace of size n, not defn. on input or output */
-    ElLDL_int P [ ],        /* optional input of size n */
-    ElLDL_int Pinv [ ]      /* optional input of size n */
+  IntType n,              // A and L are n-by-n, where n >= 0 
+  const IntType* Ap,      // input of size n+1 
+  const IntType* Ai,      // input of size nz=Ap[n]
+  const F* Ax,            // input of size nz=Ap[n]
+  const IntType* Lp,      // input of size n+1
+  const IntType* Parent,  // input of size n
+        IntType* Lnz,     // output of size n, not defn. on input
+        IntType* Li,      // output of size lnz=Lp[n], not defined on input
+        F* Lx,            // output of size lnz=Lp[n], not defined on input
+        F* D,             // output of size n, not defined on input 
+        F* Y,             // workspace of size n, not defn.
+        IntType* Pattern, // workspace of size n, not defn.
+        IntType* Flag,    // workspace of size n, not defn.
+  const IntType* P,       // optional input of size n 
+  const IntType* Pinv,    // optional input of size n 
+        bool conjugate
 )
 {
-    double yi, l_ki ;
-    ElLDL_int i, k, p, kk, p2, len, top ;
-    for (k = 0 ; k < n ; k++)
+    for (IntType k = 0; k < n; k++)
     {
-        /* compute nonzero Pattern of kth row of L, in topological order */
-        Y [k] = 0.0 ;               /* Y(0:k) is now all zero */
-        top = n ;                   /* stack for pattern is empty */
-        Flag [k] = k ;              /* mark node k as visited */
-        Lnz [k] = 0 ;               /* count of nonzeros in column k of L */
-        kk = (P) ? (P [k]) : (k) ;  /* kth original, or permuted, column */
-        p2 = Ap [kk+1] ;
-        for (p = Ap [kk] ; p < p2 ; p++)
+        // compute nonzero Pattern of kth row of L, in topological order 
+        Y[k] = F(0);              // Y(0:k) is now all zero
+        IntType top = n;          // stack for pattern is empty
+        Flag[k] = k;              // mark node k as visited
+        Lnz[k] = 0;               // count of nonzeros in column k of L
+        IntType kk = P ? P[k] : k;  // kth original, or permuted, column 
+        IntType p2 = Ap[kk+1];
+        for (IntType p = Ap[kk]; p < p2; p++)
         {
-            i = (Pinv) ? (Pinv [Ai [p]]) : (Ai [p]) ;  /* get A(i,k) */
+            IntType i = Pinv ? Pinv[Ai[p]] : Ai[p];  // get A(i,k)
             if (i <= k)
             {
-                Y [i] += Ax [p] ;  /* scatter A(i,k) into Y (sum duplicates) */
-                for (len = 0 ; Flag [i] != k ; i = Parent [i])
+                // scatter A(i,k) into Y (sum duplicates)
+                Y[i] += Ax[p];  
+                IntType len;
+                for (len = 0; Flag[i] != k; i=Parent[i])
                 {
-                    Pattern [len++] = i ;   /* L(k,i) is nonzero */
-                    Flag [i] = k ;          /* mark i as visited */
+                    Pattern[len++] = i;   // L(k,i) is nonzero 
+                    Flag[i] = k;          // mark i as visited
                 }
-                while (len > 0) Pattern [--top] = Pattern [--len] ;
+                while (len > 0) Pattern[--top] = Pattern[--len];
             }
         }
-        /* compute numerical values kth row of L (a sparse triangular solve) */
-        D [k] = Y [k] ;             /* get D(k,k) and clear Y(k) */
-        Y [k] = 0.0 ;
-        for ( ; top < n ; top++)
+        // compute numerical values kth row of L (a sparse triangular solve)
+        D[k] = Y[k];             // get D(k,k) and clear Y(k)
+        Y[k] = F(0);
+        for ( ; top < n; top++)
         {
-            i = Pattern [top] ;     /* Pattern [top:n-1] is pattern of L(:,k) */
-            yi = Y [i] ;            /* get and clear Y(i) */
-            Y [i] = 0.0 ;
-            p2 = Lp [i] + Lnz [i] ;
-            for (p = Lp [i] ; p < p2 ; p++)
-            {
-                Y [Li [p]] -= Lx [p] * yi ;
-            }
-            l_ki = yi / D [i] ;     /* the nonzero entry L(k,i) */
-            D [k] -= l_ki * yi ;
-            Li [p] = k ;            /* store L(k,i) in column form of L */
-            Lx [p] = l_ki ;
-            Lnz [i]++ ;             /* increment count of nonzeros in col i */
+            IntType i = Pattern[top]; // Pattern[top:n-1] is of L(:,k)
+            F yi = Y[i];              // get and clear Y(i) 
+            Y[i] = F(0);
+            p2 = Lp[i] + Lnz[i] ;
+            IntType p;
+            for (p = Lp[i]; p < p2; p++)
+                Y[Li[p]] -= Lx[p] * yi;
+            F l_ki = yi / D[i];   // the nonzero entry L(k,i)
+            D[k] -= l_ki * yi;
+            Li[p] = k;            // store L(k,i) in column form of L
+            Lx[p] = l_ki;
+            Lnz[i]++;             // increment count of nonzeros in col i
         }
-        if (D [k] == 0.0) return (k) ; /* failure, D(k,k) is zero */
+        if (D[k] == F(0)) return k; // failure, D(k,k) is zero
     }
-    return (n) ;        /* success, diagonal of D is all nonzero */
+    return n;        // success, diagonal of D is all nonzero
 }
-
+template int Numeric
+( int n, 
+  const int* Ap,
+  const int* Ai,
+  const float* Ax,
+  const int* Lp,
+  const int* Parent, 
+        int* Lnz, 
+        int* Li,
+        float* Lx,
+        float* D,
+        float* Y,
+        int* Pattern,
+        int* Flag,
+  const int* P,
+  const int* Pinv,
+        bool conjugate );
+template int Numeric
+( int n,
+  const int* Ap,
+  const int* Ai,
+  const double* Ax,
+  const int* Lp,
+  const int* Parent,
+        int* Lnz,
+        int* Li,
+        double* Lx,
+        double* D,
+        double* Y,
+        int* Pattern,
+        int* Flag,
+  const int* P,
+  const int* Pinv,
+        bool conjugate );
+template int Numeric
+( int n,
+  const int* Ap,
+  const int* Ai,
+  const complex<float>* Ax,
+  const int* Lp, 
+  const int* Parent,
+        int* Lnz, int* Li,
+        complex<float>* Lx,
+        complex<float>* D,
+        complex<float>* Y,
+        int* Pattern,
+        int* Flag,
+  const int* P,
+  const int* Pinv,
+        bool conjugate );
+template int Numeric
+( int n,
+  const int* Ap,
+  const int* Ai,
+  const complex<double>* Ax,
+  const int* Lp,
+  const int* Parent,
+        int* Lnz,
+        int* Li,
+        complex<double>* Lx, 
+        complex<double>* D,
+        complex<double>* Y,
+        int* Pattern,
+        int* Flag,
+  const int* P,
+  const int* Pinv,
+        bool conjugate );
 
 /* ========================================================================== */
 /* === ldl_lsolve:  solve Lx=b ============================================== */
 /* ========================================================================== */
 
-void ElLDL_lsolve
+template<typename F,typename IntType>
+void LSolve
 (
-    ElLDL_int n,       /* L is n-by-n, where n >= 0 */
-    double X [ ],      /* size n.  right-hand-side on input, soln. on output */
-    ElLDL_int Lp [ ],  /* input of size n+1, not modified */
-    ElLDL_int Li [ ],  /* input of size lnz=Lp[n], not modified */
-    double Lx [ ]      /* input of size lnz=Lp[n], not modified */
+  IntType n,         // L is n-by-n, where n >= 0 
+        F* X,        // size n.  right-hand-side on input, soln. on output 
+  const IntType* Lp, // input of size n+1 
+  const IntType* Li, // input of size lnz=Lp[n] 
+  const F* Lx        // input of size lnz=Lp[n] 
 )
 {
-    ElLDL_int j, p, p2 ;
-    for (j = 0 ; j < n ; j++)
+    for (IntType j = 0; j < n; j++)
     {
-        p2 = Lp [j+1] ;
-        for (p = Lp [j] ; p < p2 ; p++)
-        {
-            X [Li [p]] -= Lx [p] * X [j] ;
-        }
+        IntType p2 = Lp[j+1];
+        for (IntType p = Lp[j]; p < p2; p++)
+            X[Li[p]] -= Lx[p] * X[j];
     }
 }
-
+template void LSolve
+( int n, 
+        float* X,
+  const int* Lp,
+  const int* Li,
+  const float* Lx );
+template void LSolve
+( int n, 
+        double* X,
+  const int* Lp,
+  const int* Li,
+  const double* Lx );
+template void LSolve
+( int n, 
+        complex<float>* X,
+  const int* Lp,
+  const int* Li,
+  const complex<float>* Lx );
+template void LSolve
+( int n,
+        complex<double>* X,
+  const int* Lp,
+  const int* Li,
+  const complex<double>* Lx );
 
 /* ========================================================================== */
 /* === ldl_dsolve:  solve Dx=b ============================================== */
 /* ========================================================================== */
 
-void ElLDL_dsolve
+template<typename F,typename IntType>
+void DSolve
 (
-    ElLDL_int n,    /* D is n-by-n, where n >= 0 */
-    double X [ ],   /* size n.  right-hand-side on input, soln. on output */
-    double D [ ]    /* input of size n, not modified */
+  IntType n,  // D is n-by-n, where n >= 0 
+        F* X, // size n.  right-hand-side on input, soln. on output 
+  const F* D  // input of size n 
 )
 {
-    ElLDL_int j ;
-    for (j = 0 ; j < n ; j++)
-    {
-        X [j] /= D [j] ;
-    }
+    for (IntType j = 0; j < n; j++)
+        X[j] /= D[j];
 }
-
+template void DSolve( int n, float* X, const float* D );
+template void DSolve( int n, double* X, const double* D );
+template void DSolve( int n, complex<float>* X, const complex<float>* D );
+template void DSolve( int n, complex<double>* X, const complex<double>* D );
 
 /* ========================================================================== */
 /* === ldl_ltsolve: solve L'x=b  ============================================ */
 /* ========================================================================== */
 
-void ElLDL_ltsolve
+template<typename F,typename IntType>
+void LTSolve
 (
-    ElLDL_int n,       /* L is n-by-n, where n >= 0 */
-    double X [ ],      /* size n.  right-hand-side on input, soln. on output */
-    ElLDL_int Lp [ ],  /* input of size n+1, not modified */
-    ElLDL_int Li [ ],  /* input of size lnz=Lp[n], not modified */
-    double Lx [ ]      /* input of size lnz=Lp[n], not modified */
+  IntType n,         // L is n-by-n, where n >= 0 */
+        F* X,        // size n.  right-hand-side on input, soln. on output
+  const IntType* Lp, // input of size n+1
+  const IntType* Li, // input of size lnz=Lp[n]
+  const F* Lx,       // input of size lnz=Lp[n]
+  bool conjugate
 )
 {
-    int j, p, p2 ;
-    for (j = n-1 ; j >= 0 ; j--)
+    if( conjugate )
     {
-        p2 = Lp [j+1] ;
-        for (p = Lp [j] ; p < p2 ; p++)
+        for (IntType j = n-1; j >= 0; j--)
         {
-            X [j] -= Lx [p] * X [Li [p]] ;
+            IntType p2 = Lp[j+1] ;
+            for (IntType p = Lp[j]; p < p2; p++)
+                X[j] -= Conj(Lx[p]) * X[Li[p]];
+        }
+    }
+    else
+    {
+        for (IntType j = n-1; j >= 0; j--)
+        {
+            IntType p2 = Lp[j+1] ;
+            for (IntType p = Lp[j]; p < p2; p++)
+                X[j] -= Lx[p] * X[Li[p]];
         }
     }
 }
-
+template void LTSolve
+( int n,
+        float* X,
+  const int* Lp,
+  const int* Li,
+  const float* Lx,
+  bool conjugate );
+template void LTSolve
+( int n,
+        double* X,
+  const int* Lp,
+  const int* Li,
+  const double* Lx,
+  bool conjugate );
+template void LTSolve
+( int n,
+        complex<float>* X,
+  const int* Lp,
+  const int* Li,
+  const complex<float>* Lx,
+  bool conjugate );
+template void LTSolve
+( int n,
+        complex<double>* X,
+  const int* Lp,
+  const int* Li,
+  const complex<double>* Lx,
+  bool conjugate );
 
 /* ========================================================================== */
 /* === ldl_perm: permute a vector, x=Pb ===================================== */
 /* ========================================================================== */
 
-void ElLDL_perm
+template<typename F,typename IntType>
+void Perm
 (
-    ElLDL_int n,         /* size of X, B, and P */
-    double X [ ],        /* output of size n. */
-    double B [ ],        /* input of size n. */
-    ElLDL_int P [ ]      /* input permutation array of size n. */
+  IntType n,       // size of X, B, and P
+        F* X,      // output of size n.
+  const F* B,      // size n.
+  const IntType* P // size n.
 )
 {
-    ElLDL_int j ;
-    for (j = 0 ; j < n ; j++)
-    {
-        X [j] = B [P [j]] ;
-    }
+    for (IntType j = 0; j < n; j++)
+        X[j] = B[P[j]];
 }
-
+template void Perm
+( int n, float* X, const float* B, const int* P );
+template void Perm
+( int n, double* X, const double* B, const int* P );
+template void Perm
+( int n, complex<float>* X, const complex<float>* B, const int* P );
+template void Perm
+( int n, complex<double>* X, const complex<double>* B, const int* P );
 
 /* ========================================================================== */
 /* === ldl_permt: permute a vector, x=P'b =================================== */
 /* ========================================================================== */
 
-void ElLDL_permt
+template<typename F,typename IntType>
+void PermT
 (
-    ElLDL_int n,         /* size of X, B, and P */
-    double X [ ],        /* output of size n. */
-    double B [ ],        /* input of size n. */
-    ElLDL_int P [ ]      /* input permutation array of size n. */
+  IntType n,       // size of X, B, and P 
+        F* X,      // output of size n. 
+  const F* B,      // size n. */
+  const IntType* P // size n.
 )
 {
-    ElLDL_int j ;
-    for (j = 0 ; j < n ; j++)
-    {
-        X [P [j]] = B [j] ;
-    }
+    for (IntType j = 0; j < n; j++)
+        X [P[j]] = B[j];
 }
-
+template void PermT( int n, float* X, const float* B, const int* P );
+template void PermT( int n, double* X, const double* B, const int* P );
+template void PermT
+( int n, complex<float>* X, const complex<float>* B, const int* P );
+template void PermT
+( int n, complex<double>* X, const complex<double>* B, const int* P );
 
 /* ========================================================================== */
 /* === ldl_valid_perm: check if a permutation vector is valid =============== */
 /* ========================================================================== */
 
-ElLDL_int ElLDL_valid_perm  /* returns 1 if valid, 0 otherwise */
+template<typename IntType>
+IntType ValidPerm  // returns 1 if valid, 0 otherwise 
 (
-    ElLDL_int n,
-    ElLDL_int P [ ],    /* input of size n, a permutation of 0:n-1 */
-    ElLDL_int Flag [ ]  /* workspace of size n */
+  IntType n,
+  const IntType* P,    // input of size n, a permutation of 0:n-1
+        IntType* Flag  // workspace of size n
 )
 {
-    ElLDL_int j, k ;
     if (n < 0 || !Flag)
-    {
-        return (0) ;   /* n must be >= 0, and Flag must be present */
-    }
+        return 0; // n must be >= 0, and Flag must be present
     if (!P)
-    {
-        return (1) ;   /* If NULL, P is assumed to be the identity perm. */
-    }
-    for (j = 0 ; j < n ; j++)
-    {
-        Flag [j] = 0 ;            /* clear the Flag array */
-    }
-    for (k = 0 ; k < n ; k++)
-    {
-        j = P [k] ;
-        if (j < 0 || j >= n || Flag [j] != 0)
-        {
-            return (0) ;    /* P is not valid */
-        }
-        Flag [j] = 1 ;
-    }
-    return (1) ;            /* P is valid */
-}
+        return 1; // If NULL, P is assumed to be the identity perm.
 
+    for (IntType j = 0; j < n; j++)
+        Flag[j] = 0; // clear the Flag array
+    for (IntType k = 0 ; k < n ; k++)
+    {
+        IntType j = P[k];
+        if (j < 0 || j >= n || Flag [j] != 0)
+            return 0; // P is not valid
+        Flag[j] = 1;
+    }
+    return 1; // P is valid 
+}
+template int ValidPerm( int n, const int* P, int* Flag );
 
 /* ========================================================================== */
 /* === ldl_valid_matrix: check if a sparse matrix is valid ================== */
@@ -509,31 +656,27 @@ ElLDL_int ElLDL_valid_perm  /* returns 1 if valid, 0 otherwise */
  * Ai [Ap [j] ... Ap [j+1]-1].  The Ax array is not checked.
  */
 
-ElLDL_int ElLDL_valid_matrix
+template<typename IntType>
+IntType ValidMatrix
 (
-    ElLDL_int n,
-    ElLDL_int Ap [ ],
-    ElLDL_int Ai [ ]
+  IntType n,
+  const IntType* Ap,
+  const IntType* Ai
 )
 {
-    ElLDL_int j, p ;
     if (n < 0 || !Ap || !Ai || Ap [0] != 0)
-    {
-        return (0) ;  /* n must be >= 0, and Ap and Ai must be present */
-    }
-    for (j = 0 ; j < n ; j++)
-    {
-        if (Ap [j] > Ap [j+1])
-        {
-            return (0) ;    /* Ap must be monotonically nondecreasing */
-        }
-    }
-    for (p = 0 ; p < Ap [n] ; p++)
-    {
+        return 0;  // n must be >= 0, and Ap and Ai must be present
+    for (IntType j = 0; j < n; j++)
+        if (Ap[j] > Ap[j+1])
+            return 0; // Ap must be monotonically nondecreasing 
+
+    for (IntType p = 0; p < Ap[n]; p++)
         if (Ai [p] < 0 || Ai [p] >= n)
-        {
-            return (0) ;    /* row indices must be in the range 0 to n-1 */
-        }
-    }
-    return (1) ;            /* matrix is valid */
+            return 0; // row indices must be in the range 0 to n-1
+
+    return 1; // matrix is valid 
 }
+template int ValidMatrix( int n, const int* Ap, const int* Ai );
+
+} // namespace ldl
+} // namespace suite_sparse

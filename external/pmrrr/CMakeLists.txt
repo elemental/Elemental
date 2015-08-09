@@ -19,7 +19,7 @@ endif()
 # Include the header directory
 # ----------------------------
 message(STATUS 
-  "Appending ${CMAKE_CURRENT_SOURCE_DIR}/include for PMRRR's headers")
+  "Prepending ${CMAKE_CURRENT_SOURCE_DIR}/include for PMRRR's headers")
 include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # Define the header files installation rules

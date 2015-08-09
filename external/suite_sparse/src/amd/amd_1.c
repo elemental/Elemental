@@ -175,6 +175,6 @@ GLOBAL void ElAMD_1
     /* order the matrix */
     /* --------------------------------------------------------------------- */
 
-    EL_AMD_2 (n, Pe, Iw, Len, iwlen, pfree,
+    ElAMD_2 (n, Pe, Iw, Len, iwlen, pfree,
 	Nv, Pinv, P, Head, Elen, Degree, W, Control, Info) ;
 }
