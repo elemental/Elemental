@@ -203,6 +203,14 @@ template<typename Real>
 inline complex<Real> Conj( complex<Real> value )
 { return std::conj(value); }
 
+template<typename Real>
+inline Real RealPart( Real value )
+{ return value; }
+
+template<typename Real>
+inline Real RealPart( complex<Real> value )
+{ return value.real(); }
+
 /* ========================================================================== */
 /* === ldl_symbolic ========================================================= */
 /* ========================================================================== */
@@ -301,7 +309,6 @@ template void Symbolic
  * Lx, and D.  It also requires three size-n workspaces (Y, Pattern, and Flag).
  */
 
-// TODO: Make this correct for complex Hermitian matrices
 template<typename F,typename IntType>
 IntType Numeric  // returns n if successful, k if D (k,k) is zero 
 (
@@ -360,12 +367,15 @@ IntType Numeric  // returns n if successful, k if D (k,k) is zero
             IntType p;
             for (p = Lp[i]; p < p2; p++)
                 Y[Li[p]] -= Lx[p] * yi;
-            F l_ki = yi / D[i];   // the nonzero entry L(k,i)
+            // the nonzero entry L(k,i)
+            F l_ki = conjugate ? Conj(yi/D[i]) : yi/D[i];
             D[k] -= l_ki * yi;
             Li[p] = k;            // store L(k,i) in column form of L
             Lx[p] = l_ki;
             Lnz[i]++;             // increment count of nonzeros in col i
         }
+        if( conjugate )
+            D[k] = RealPart(D[k]);
         if (D[k] == F(0)) return k; // failure, D(k,k) is zero
     }
     return n;        // success, diagonal of D is all nonzero
@@ -606,7 +616,7 @@ void PermT
 )
 {
     for (IntType j = 0; j < n; j++)
-        X [P[j]] = B[j];
+        X[P[j]] = B[j];
 }
 template void PermT( int n, float* X, const float* B, const int* P );
 template void PermT( int n, double* X, const double* B, const int* P );
