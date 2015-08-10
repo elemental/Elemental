@@ -586,12 +586,20 @@ inline void FrontLowerBackwardSolve
     if( Unfactored(type) )
         LogicError("Cannot solve against an unfactored matrix");
 
-    if( BlockFactorization(type) )
-        FrontBlockLowerBackwardSolve( front.L, W, conjugate );
-    else if( PivotedFactorization(type) )
-        FrontIntraPivLowerBackwardSolve( front.L, front.piv, W, conjugate );
+    if( front.sparseLeaf )
+    {
+        LogicError("Sparse leaves not supported in FrontLowerBackwardSolve");
+    }
     else
-        FrontVanillaLowerBackwardSolve( front.L, W, conjugate );
+    {
+        if( BlockFactorization(type) )
+            FrontBlockLowerBackwardSolve( front.LDense, W, conjugate );
+        else if( PivotedFactorization(type) )
+            FrontIntraPivLowerBackwardSolve
+            ( front.LDense, front.piv, W, conjugate );
+        else
+            FrontVanillaLowerBackwardSolve( front.LDense, W, conjugate );
+    }
 }
 
 template<typename F>

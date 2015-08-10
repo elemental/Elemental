@@ -9,6 +9,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "ElSuiteSparse/ldl.hpp"
 
 namespace El {
 namespace ldl {
@@ -33,7 +34,7 @@ NestedDissectionRecursion
         Int numValidEdges = 0;
         const Int numEdges = graph.NumEdges();
         for( Int e=0; e<numEdges; ++e )
-            if( sourceBuf[e] != targetBuf[e] && targetBuf[e] < numSources )
+            if( targetBuf[e] < numSources )
                 ++numValidEdges;
         vector<int> subOffsets(numSources+1), subTargets(Max(numValidEdges,1));
         Int sourceOff = 0;
@@ -48,7 +49,7 @@ NestedDissectionRecursion
                 subOffsets[sourceOff++] = validCounter;
                 ++prevSource;
             }
-            if( source != target && target < numSources )
+            if( target < numSources )
                 subTargets[validCounter++] = target;
         }
         while( sourceOff <= numSources )
@@ -66,6 +67,17 @@ NestedDissectionRecursion
             control, info );
         if( amdStatus != EL_AMD_OK )
             RuntimeError("AMD status was ",amdStatus);
+
+        // Compute the symbolic factorization of this leaf node using the
+        // reordering just computed
+        node.LOffsets.resize( numSources+1 );
+        node.LParents.resize( numSources );
+        vector<int> LNnz( numSources ), Flag( numSources ), 
+                    amdPermInv( numSources );
+        suite_sparse::ldl::Symbolic 
+        ( numSources, subOffsets.data(), subTargets.data(), 
+          node.LOffsets.data(), node.LParents.data(), LNnz.data(),
+          Flag.data(), amdPerm.data(), amdPermInv.data() );
 
         // Fill in this node of the local separator tree
         sep.off = off;

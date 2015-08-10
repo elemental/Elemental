@@ -24,7 +24,7 @@ namespace ldl {
 
 template<typename F>
 Front<F>::Front( Front<F>* parentNode )
-: parent(parentNode), duplicate(nullptr)
+: sparseLeaf(false), parent(parentNode), duplicate(nullptr)
 { 
     if( parentNode != nullptr )
     {
@@ -35,7 +35,7 @@ Front<F>::Front( Front<F>* parentNode )
 
 template<typename F>
 Front<F>::Front( DistFront<F>* dupNode )
-: parent(nullptr), duplicate(dupNode)
+: sparseLeaf(false), parent(nullptr), duplicate(dupNode)
 {
     isHermitian = dupNode->isHermitian;
     type = dupNode->type;
@@ -47,7 +47,7 @@ Front<F>::Front
   const vector<Int>& reordering,
   const NodeInfo& info,
   bool conjugate )
-: parent(nullptr), duplicate(nullptr)
+: sparseLeaf(false), parent(nullptr), duplicate(nullptr)
 {
     DEBUG_ONLY(CSE cse("Front::Front"))
     Pull( A, reordering, info, conjugate );
@@ -101,35 +101,47 @@ void Front<F>::Pull
         }
 
         const Int lowerSize = node.lowerStruct.size();
-        Zeros( front.L, node.size+lowerSize, node.size );
-
-        for( Int t=0; t<node.size; ++t )
+        const F* AValBuf = A.LockedValueBuffer();
+        const Int* AColBuf = A.LockedTargetBuffer();
+        const Int* AOffsetBuf = A.LockedOffsetBuffer();
+        if( front.sparseLeaf )
         {
-            const Int j = invReorder[node.off+t];
-            const Int numConn = A.NumConnections( j );
-            const Int entryOff = A.RowOffset( j );
-            for( Int k=0; k<numConn; ++k )
+            LogicError("Sparse leaves not yet handled in Front::Pull");
+        }
+        else
+        {
+            Zeros( front.LDense, node.size+lowerSize, node.size );
+            F* LDenseBuf = front.LDense.Buffer();
+            const Int LDenseLDim = front.LDense.LDim();
+            for( Int t=0; t<node.size; ++t )
             {
-                const Int iOrig = A.Col( entryOff+k );
-                const Int i = reordering[iOrig];
-                const F transVal = A.Value( entryOff+k );
-                const F value = ( conjugate ? Conj(transVal) : transVal );
+                const Int j = invReorder[node.off+t];
+                const Int rowOff = AOffsetBuf[j];
+                const Int numConn = AOffsetBuf[j+1] - rowOff;
+                for( Int k=0; k<numConn; ++k )
+                {
+                    const Int iOrig = AColBuf[rowOff+k];
+                    const Int i = reordering[iOrig];
 
-                if( i < node.off+t )
-                    continue;
-                else if( i < node.off+node.size )
-                {
-                    front.L.Set( i-node.off, t, value );
-                }
-                else
-                {
-                    const Int origOff = Find( node.origLowerStruct, i );
-                    const Int row = node.origLowerRelInds[origOff];
-                    DEBUG_ONLY(
-                        if( row < t )
-                            LogicError("Tried to touch upper triangle");
-                    )
-                    front.L.Set( row, t, value );
+                    const F transVal = AValBuf[rowOff+k];
+                    const F value = ( conjugate ? Conj(transVal) : transVal );
+
+                    if( i < node.off+t )
+                        continue;
+                    else if( i < node.off+node.size )
+                    {
+                        LDenseBuf[(i-node.off)+t*LDenseLDim] = value;
+                    }
+                    else
+                    {
+                        const Int origOff = Find( node.origLowerStruct, i );
+                        const Int row = node.origLowerRelInds[origOff];
+                        DEBUG_ONLY(
+                          if( row < t )
+                              LogicError("Tried to touch upper triangle");
+                        )
+                        LDenseBuf[row+t*LDenseLDim] = value;
+                    }
                 }
             }
         }
@@ -166,33 +178,48 @@ void Front<F>::PullUpdate
         for( Int c=0; c<numChildren; ++c )
             pull( *node.children[c], *front.children[c] );
 
-        for( Int t=0; t<node.size; ++t )
-        {
-            const Int j = invReorder[node.off+t];
-            const Int numConn = A.NumConnections( j );
-            const Int entryOff = A.RowOffset( j );
-            for( Int k=0; k<numConn; ++k )
-            {
-                const Int iOrig = A.Col( entryOff+k );
-                const Int i = reordering[iOrig];
-                const F transVal = A.Value( entryOff+k );
-                const F value = ( isHermitian ? Conj(transVal) : transVal );
+        const F* AValBuf = A.LockedValueBuffer();
+        const Int* AColBuf = A.LockedTargetBuffer();
+        const Int* AOffsetBuf = A.LockedOffsetBuffer();
 
-                if( i < node.off+t )
-                    continue;
-                else if( i < node.off+node.size )
+        F* LDenseBuf = front.LDense.Buffer();
+        const Int LDenseLDim = front.LDense.LDim();
+
+        if( front.sparseLeaf )
+        {
+            LogicError("Sparse leaves not yet handled in Front::PullUpdate");
+        }
+        else
+        {
+            for( Int t=0; t<node.size; ++t )
+            {
+                const Int j = invReorder[node.off+t];
+                const Int rowOff = AOffsetBuf[j];
+                const Int numConn = AOffsetBuf[j+1] - rowOff;
+                for( Int k=0; k<numConn; ++k )
                 {
-                    front.L.Update( i-node.off, t, value );
-                }
-                else
-                {
-                    const Int origOff = Find( node.origLowerStruct, i );
-                    const Int row = node.origLowerRelInds[origOff];
-                    DEBUG_ONLY(
-                        if( row < t )
-                            LogicError("Tried to touch upper triangle");
-                    )
-                    front.L.Update( row, t, value );
+                    const Int iOrig = AColBuf[rowOff+k];
+                    const Int i = reordering[iOrig];
+
+                    const F transVal = AValBuf[rowOff+k];
+                    const F value = ( isHermitian ? Conj(transVal) : transVal );
+    
+                    if( i < node.off+t )
+                        continue;
+                    else if( i < node.off+node.size )
+                    {
+                        LDenseBuf[(i-node.off)+t*LDenseLDim] += value;
+                    }
+                    else
+                    {
+                        const Int origOff = Find( node.origLowerStruct, i );
+                        const Int row = node.origLowerRelInds[origOff];
+                        DEBUG_ONLY(
+                          if( row < t )
+                              LogicError("Tried to touch upper triangle");
+                        )
+                        LDenseBuf[row+t*LDenseLDim] += value;
+                    }
                 }
             }
         }
@@ -200,7 +227,7 @@ void Front<F>::PullUpdate
     pull( rootInfo, *this );
 }
 
-
+// TODO: Use lower-level access
 template<typename F>
 void Front<F>::Push
 ( SparseMatrix<F>& A, 
@@ -224,8 +251,8 @@ void Front<F>::Push
       {
           for( const Front<F>* child : front.children )
               countLower( *child );
-          const Int nodeSize = front.L.Width();
-          const Int structSize = front.L.Height() - nodeSize;
+          const Int nodeSize = front.LDense.Width();
+          const Int structSize = front.Height() - nodeSize;
           numLower += (nodeSize*(nodeSize+1))/2 + nodeSize*structSize;
       };
     countLower( *this );
@@ -240,22 +267,29 @@ void Front<F>::Push
             push( *node.children[c], *front.children[c] );
 
         const Int lowerSize = node.lowerStruct.size();
-        for( Int t=0; t<node.size; ++t )
+        if( front.sparseLeaf )
         {
-            const Int j = invReorder[node.off+t];
-
-            // Push in the lower triangle of the diagonal block
-            for( Int s=t; s<node.size; ++s )
+            LogicError("Sparse leaves not yet supported in Front::Push");
+        }
+        else
+        {
+            for( Int t=0; t<node.size; ++t )
             {
-                const Int i = invReorder[node.off+s];
-                A.QueueUpdate( i, j, front.L.Get(s,t) );
-            }
+                const Int j = invReorder[node.off+t];
 
-            // Push in the connectivity 
-            for( Int s=0; s<lowerSize; ++s )
-            {
-                const Int i = invReorder[node.lowerStruct[s]];
-                A.QueueUpdate( i, j, front.L.Get(s+node.size,t) );
+                // Push in the lower triangle of the diagonal block
+                for( Int s=t; s<node.size; ++s )
+                {
+                    const Int i = invReorder[node.off+s];
+                    A.QueueUpdate( i, j, front.LDense.Get(s,t) );
+                }
+
+                // Push in the connectivity 
+                for( Int s=0; s<lowerSize; ++s )
+                {
+                    const Int i = invReorder[node.lowerStruct[s]];
+                    A.QueueUpdate( i, j, front.LDense.Get(s+node.size,t) );
+                }
             }
         }
       };
@@ -264,10 +298,11 @@ void Front<F>::Push
     MakeSymmetric( LOWER, A, isHermitian );
 }
 
+// TODO: Use lower-level access
 template<typename F>
 void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CSE cse("Front::Push"))
+    DEBUG_ONLY(CSE cse("Front::Unpack"))
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
 
@@ -278,8 +313,8 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
       {
           for( const Front<F>* child : front.children )
               countLower( *child );
-          const Int nodeSize = front.L.Width();
-          const Int structSize = front.L.Height() - nodeSize;
+          const Int nodeSize = front.LDense.Width();
+          const Int structSize = front.Height() - nodeSize;
           numLower += (nodeSize*(nodeSize+1))/2 + nodeSize*structSize;
       };
     countLower( *this );
@@ -293,22 +328,29 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
             push( *node.children[c], *front.children[c] );
 
         const Int lowerSize = node.lowerStruct.size();
-        for( Int t=0; t<node.size; ++t )
+        if( front.sparseLeaf )
         {
-            const Int j = node.off+t;
-
-            // Push in the lower triangle of the diagonal block
-            for( Int s=t; s<node.size; ++s )
+            LogicError("Sparse leaves not yet supported for Front::Unpack");
+        }
+        else
+        {
+            for( Int t=0; t<node.size; ++t )
             {
-                const Int i = node.off+s;
-                A.QueueUpdate( i, j, front.L.Get(s,t) );
-            }
+                const Int j = node.off+t;
 
-            // Push in the connectivity 
-            for( Int s=0; s<lowerSize; ++s )
-            {
-                const Int i = node.lowerStruct[s];
-                A.QueueUpdate( i, j, front.L.Get(s+node.size,t) );
+                // Push in the lower triangle of the diagonal block
+                for( Int s=t; s<node.size; ++s )
+                {
+                    const Int i = node.off+s;
+                    A.QueueUpdate( i, j, front.LDense.Get(s,t) );
+                }
+
+                // Push in the connectivity 
+                for( Int s=0; s<lowerSize; ++s )
+                {
+                    const Int i = node.lowerStruct[s];
+                    A.QueueUpdate( i, j, front.LDense.Get(s+node.size,t) );
+                }
             }
         }
       };
@@ -321,12 +363,15 @@ const Front<F>& Front<F>::operator=( const Front<F>& front )
 {
     DEBUG_ONLY(CSE cse("Front::operator="))
     isHermitian = front.isHermitian;
+    sparseLeaf = front.sparseLeaf;
     type = front.type;
-    L = front.L;
+    LDense = front.LDense;
+    LSparse = front.LSparse;
     diag = front.diag;
     subdiag = front.subdiag;
     piv = front.piv;
-    work = front.work;
+    workDense = front.workDense;
+    workSparse = front.workSparse;
     // Do not copy parent...
     // Delete any existing children
     for( auto* child : children )
@@ -342,6 +387,10 @@ const Front<F>& Front<F>::operator=( const Front<F>& front )
 }
 
 template<typename F>
+Int Front<F>::Height() const
+{ return sparseLeaf ? LDense.Height()+LDense.Width() : LDense.Height(); }
+
+template<typename F>
 Int Front<F>::NumEntries() const
 {
     DEBUG_ONLY(CSE cse("Front::NumEntries"))
@@ -352,11 +401,19 @@ Int Front<F>::NumEntries() const
         for( auto* child : front.children )
             count( *child );
 
-        // Add in L
-        numEntries += front.L.Height() * front.L.Width();
- 
-        // Add in the workspace
-        numEntries += front.work.Height()*front.work.Width(); 
+        if( front.sparseLeaf )
+        {
+            // Add in L
+            numEntries += front.LSparse.NumEntries();
+            numEntries += front.LDense.Height() * front.LDense.Width();
+        }
+        else
+        {
+            // Add in L
+            numEntries += front.LDense.Height() * front.LDense.Width();
+        }
+        // Add in the workspace for the Schur complement
+        numEntries += front.workDense.Height()*front.workDense.Width(); 
       };
     count( *this );
     return numEntries;
@@ -372,8 +429,15 @@ Int Front<F>::NumTopLeftEntries() const
       {
         for( auto* child : front.children )
             count( *child );
-        const Int n = front.L.Width();
-        numEntries += n*n;
+        if( front.sparseLeaf )
+        {
+            numEntries += front.LSparse.NumEntries();
+        }
+        else
+        {
+            const Int n = front.LDense.Width();
+            numEntries += n*n;
+        }
       };
     count( *this );
     return numEntries;
@@ -389,9 +453,16 @@ Int Front<F>::NumBottomLeftEntries() const
       {
         for( auto* child : front.children )
             count( *child );
-        const Int m = front.L.Height();
-        const Int n = front.L.Width();
-        numEntries += (m-n)*n;
+        const Int m = front.LDense.Height();
+        const Int n = front.LDense.Width();
+        if( front.sparseLeaf )
+        {
+            numEntries += m*n;
+        }
+        else
+        {
+            numEntries += (m-n)*n;
+        }
       };
     count( *this );
     return numEntries;
@@ -407,9 +478,27 @@ double Front<F>::FactorGFlops() const
       {
         for( auto* child : front.children )
             count( *child );
-        const double m = front.L.Height();
-        const double n = front.L.Width();
-        const double realFrontFlops = (n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n;
+        const double m = front.LDense.Height();
+        const double n = front.LDense.Width();
+        double realFrontFlops=0;
+        if( front.sparseLeaf )
+        {
+            // Count the flops from the sparse factorization
+            const Int* offsetBuf = front.LSparse.LockedOffsetBuffer();
+            for( Int j=0; j<n; ++j )
+            {
+                const Int nnz = offsetBuf[j+1]-offsetBuf[j];
+                realFrontFlops += nnz*(nnz+2.);
+            }
+            // Count the flops from the dense trsm
+            realFrontFlops += m*n;
+            // Count the flops from the Schur-complement update
+            realFrontFlops += m*m*n;
+        }
+        else
+        {
+            realFrontFlops = (n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n;
+        }
         gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
       };
     count( *this );
@@ -426,9 +515,18 @@ double Front<F>::SolveGFlops( Int numRHS ) const
       {
         for( auto* child : front.children )
             count( *child );
-        const double m = front.L.Height();
-        const double n = front.L.Width();
-        const double realFrontFlops = m*n*numRHS;
+        const double m = front.LDense.Height();
+        const double n = front.LDense.Width();
+        double realFrontFlops = 0;
+        if( front.sparseLeaf ) 
+        {
+            const double numEntries = front.LSparse.NumEntries();
+            realFrontFlops = (numEntries+m*n)*numRHS;
+        }
+        else
+        {
+            realFrontFlops = m*n*numRHS;
+        }
         gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
       };
     count( *this );

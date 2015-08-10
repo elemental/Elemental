@@ -194,15 +194,18 @@ template<typename F>
 struct Front
 {
     bool isHermitian;
+    bool sparseLeaf;
     LDLFrontType type;
 
-    Matrix<F> L;
+    Matrix<F> LDense;
+    SparseMatrix<F> LSparse;
 
     Matrix<F> diag;
     Matrix<F> subdiag;
     Matrix<Int> piv;
 
-    Matrix<F> work;
+    Matrix<F> workDense;
+    SparseMatrix<F> workSparse;
 
     Front<F>* parent;
     vector<Front<F>*> children;
@@ -231,6 +234,7 @@ struct Front
 
     const Front<F>& operator=( const Front<F>& front );
 
+    Int Height() const;
     Int NumEntries() const;
     Int NumTopLeftEntries() const;
     Int NumBottomLeftEntries() const;

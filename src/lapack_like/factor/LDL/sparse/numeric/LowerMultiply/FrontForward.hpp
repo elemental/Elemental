@@ -28,11 +28,11 @@ template<typename F>
 inline void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::FrontVanillaLowerForwardMultiply");
-        if( L.Height() < L.Width() || L.Height() != X.Height() )
-            LogicError
-            ("Nonconformal multiply:\n",
-             DimsString(L,"L"),"\n",DimsString(X,"X"));
+      CSE cse("ldl::FrontVanillaLowerForwardMultiply");
+      if( L.Height() < L.Width() || L.Height() != X.Height() )
+          LogicError
+          ("Nonconformal multiply:\n",
+           DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
     Matrix<F> LT, LB, XT, XB;
     LockedPartitionDown( L, LT, LB, L.Width() );
@@ -51,7 +51,14 @@ FrontLowerForwardMultiply( const Front<F>& front, Matrix<F>& W )
         LogicError("Cannot multiply against an unfactored front");
     if( BlockFactorization(front.type) || PivotedFactorization(front.type) )
         LogicError("Blocked and pivoted factorizations not supported");
-    FrontVanillaLowerForwardMultiply( front.L, W );
+    if( front.sparseLeaf )
+    {
+        LogicError("Sparse leaves not supported in FrontLowerForwardMultiply");
+    }
+    else
+    {
+        FrontVanillaLowerForwardMultiply( front.LDense, W );
+    }
 }
 
 template<typename F>

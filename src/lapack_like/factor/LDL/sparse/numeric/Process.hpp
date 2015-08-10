@@ -31,41 +31,42 @@ inline void
 Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
 {
     DEBUG_ONLY(CSE cse("ldl::Process"))
-
-    const int updateSize = info.lowerStruct.size();
-    auto& FL = front.L;
-    auto& FBR = front.work;
-    FBR.Empty();
-    DEBUG_ONLY(
-      if( FL.Height() != info.size+updateSize || FL.Width() != info.size )
-          LogicError("Front was not the proper size");
-    )
-
-    // Process children and add in their updates
-    Zeros( FBR, updateSize, updateSize );
-    const int numChildren = info.children.size();
-    for( Int c=0; c<numChildren; ++c )
+    if( !front.sparseLeaf )
     {
-        Process( *info.children[c], *front.children[c], factorType );
+        const int updateSize = info.lowerStruct.size();
+        auto& FL = front.LDense;
+        auto& FBR = front.workDense;
+        FBR.Empty();
+        DEBUG_ONLY(
+          if( FL.Height() != info.size+updateSize || FL.Width() != info.size )
+              LogicError("Front was not the proper size");
+        )
 
-        auto& childU = front.children[c]->work;
-        const int childUSize = childU.Height();
-        for( int jChild=0; jChild<childUSize; ++jChild )
+        // Process children and add in their updates
+        Zeros( FBR, updateSize, updateSize );
+        const int numChildren = info.children.size();
+        for( Int c=0; c<numChildren; ++c )
         {
-            const int j = info.childRelInds[c][jChild];
-            for( int iChild=jChild; iChild<childUSize; ++iChild )
-            {
-                const int i = info.childRelInds[c][iChild];
-                const F value = childU.Get(iChild,jChild);
-                if( j < info.size )
-                    FL.Update( i, j, value );
-                else
-                    FBR.Update( i-info.size, j-info.size, value );
-            }
-        }
-        childU.Empty();
-    }
+            Process( *info.children[c], *front.children[c], factorType );
 
+            auto& childU = front.children[c]->workDense;
+            const int childUSize = childU.Height();
+            for( int jChild=0; jChild<childUSize; ++jChild )
+            {
+                const int j = info.childRelInds[c][jChild];
+                for( int iChild=jChild; iChild<childUSize; ++iChild )
+                {
+                    const int i = info.childRelInds[c][iChild];
+                    const F value = childU.Get(iChild,jChild);
+                    if( j < info.size )
+                        FL.Update( i, j, value );
+                    else
+                        FBR.Update( i-info.size, j-info.size, value );
+                }
+            }
+            childU.Empty();
+        }
+    }
     ProcessFront( front, factorType );
 }
 
@@ -86,7 +87,7 @@ Process
 
         // Pull the relevant information up from the duplicate
         front.type = frontDup.type;
-        front.work.LockedAttach( grid, frontDup.work );
+        front.work.LockedAttach( grid, frontDup.workDense );
         if( !BlockFactorization(factorType) )
         {
             front.diag.LockedAttach( grid, frontDup.diag );
@@ -156,7 +157,7 @@ Process
     SwapClear( offs );
     childFront.work.Empty();
     if( childFront.duplicate != nullptr )
-        childFront.duplicate->work.Empty();
+        childFront.duplicate->workDense.Empty();
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );

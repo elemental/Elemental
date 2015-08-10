@@ -145,20 +145,30 @@ template<typename F>
 inline void ProcessFront( Front<F>& front, LDLFrontType factorType )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFront"))
-    front.type = factorType;
-    const bool pivoted = PivotedFactorization( factorType );
-    if( BlockFactorization(factorType) )
-        ProcessFrontBlock( front.L, front.work, front.isHermitian, pivoted );
-    else if( pivoted )
+    if( front.sparseLeaf )
     {
-        ProcessFrontIntraPiv
-        ( front.L, front.subdiag, front.piv, front.work, front.isHermitian );
-        GetDiagonal( front.L, front.diag );
+        LogicError("Sparse leaves are not yet enabled");
     }
     else
     {
-        ProcessFrontVanilla( front.L, front.work, front.isHermitian );
-        GetDiagonal( front.L, front.diag );
+        front.type = factorType;
+        const bool pivoted = PivotedFactorization( factorType );
+        if( BlockFactorization(factorType) )
+            ProcessFrontBlock
+            ( front.LDense, front.workDense, front.isHermitian, pivoted );
+        else if( pivoted )
+        {
+            ProcessFrontIntraPiv
+            ( front.LDense, front.subdiag, front.piv, front.workDense, 
+              front.isHermitian );
+            GetDiagonal( front.LDense, front.diag );
+        }
+        else
+        {
+            ProcessFrontVanilla
+            ( front.LDense, front.workDense, front.isHermitian );
+            GetDiagonal( front.LDense, front.diag );
+        }
     }
 }
 

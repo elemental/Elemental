@@ -53,10 +53,18 @@ inline void FrontLowerBackwardMultiply
     if( Unfactored(type) )
         LogicError("Cannot multiply against an unfactored matrix");
 
-    if( type == LDL_2D )
-        FrontVanillaLowerBackwardMultiply( front.L, W, conjugate );
+    if( front.sparseLeaf )
+    {
+        LogicError
+        ("Sparse leaves not yet supported in FrontLowerBackwardMultiply");
+    }
     else
-        LogicError("Unsupported front type");
+    {
+        if( type == LDL_2D )
+            FrontVanillaLowerBackwardMultiply( front.LDense, W, conjugate );
+        else
+            LogicError("Unsupported front type");
+    }
 }
 
 template<typename F>

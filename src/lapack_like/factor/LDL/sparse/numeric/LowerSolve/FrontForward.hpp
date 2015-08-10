@@ -86,12 +86,19 @@ FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
     if( Unfactored(type) )
         LogicError("Cannot solve against an unfactored front");
 
-    if( BlockFactorization(type) )
-        FrontBlockLowerForwardSolve( front.L, W );
-    else if( PivotedFactorization(type) )
-        FrontIntraPivLowerForwardSolve( front.L, front.piv, W );
+    if( front.sparseLeaf )
+    {
+        LogicError("Sparse leaves not yet supported in FrontLowerForwardSolve");
+    }
     else
-        FrontVanillaLowerForwardSolve( front.L, W );
+    {
+        if( BlockFactorization(type) )
+            FrontBlockLowerForwardSolve( front.LDense, W );
+        else if( PivotedFactorization(type) )
+            FrontIntraPivLowerForwardSolve( front.LDense, front.piv, W );
+        else
+            FrontVanillaLowerForwardSolve( front.LDense, W );
+    }
 }
 
 namespace internal {
