@@ -21,7 +21,7 @@ NaturalNestedDissectionRecursion
   const Graph& graph, 
   const vector<Int>& perm,
         Separator& sep, 
-        Node& node,
+        NodeInfo& node,
         Int off, 
         Int cutoff )
 {
@@ -38,7 +38,7 @@ NaturalNestedDissectionRecursion
         for( Int e=0; e<numEdges; ++e )
             if( sourceBuf[e] != targetBuf[e] && targetBuf[e] < numSources )
                 ++numValidEdges;
-        vector<int> subOffsets(numSources+1), subTargets(numValidEdges);
+        vector<int> subOffsets(numSources+1), subTargets(Max(numValidEdges,1));
         Int sourceOff = 0;
         Int validCounter = 0;
         Int prevSource = -1;
@@ -54,8 +54,8 @@ NaturalNestedDissectionRecursion
             if( source != target && target < numSources )
                 subTargets[validCounter++] = target;
         }
-        while( sourceOff <= numSources ) 
-        { subOffsets[sourceOff++] = numValidEdges; }
+        while( sourceOff <= numSources)
+        { subOffsets[sourceOff++] = validCounter; }
 
         // Technically, SuiteSparse expects column-major storage, but since
         // the matrix is structurally symmetric, it's okay to pass in the 
@@ -91,7 +91,7 @@ NaturalNestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.lowerStruct );
+        CopySTL( lowerStruct, node.origLowerStruct );
     }
     else
     {
@@ -134,7 +134,7 @@ NaturalNestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.lowerStruct );
+        CopySTL( lowerStruct, node.origLowerStruct );
 
         // Finish computing the separator indices
         for( Int s=0; s<sepSize; ++s )
@@ -155,8 +155,8 @@ NaturalNestedDissectionRecursion
         node.children.resize( 2 );
         sep.children[0] = new Separator(&sep);
         sep.children[1] = new Separator(&sep);
-        node.children[0] = new Node(&node);
-        node.children[1] = new Node(&node);
+        node.children[0] = new NodeInfo(&node);
+        node.children[1] = new NodeInfo(&node);
         NaturalNestedDissectionRecursion
         ( nxLeft, nyLeft, nzLeft, leftChild, leftPerm, 
           *sep.children[0], *node.children[0], off, cutoff );
@@ -174,7 +174,7 @@ NaturalNestedDissectionRecursion
   const DistGraph& graph, 
   const DistMap& perm,
         DistSeparator& sep, 
-        DistNode& node,
+        DistNodeInfo& node,
         Int off, 
         Int cutoff )
 {
@@ -253,7 +253,7 @@ NaturalNestedDissectionRecursion
           nonUniqueStruct.data(), 
           localStructSizes.data(), localStructOffs.data(), comm );
         set<Int> structSet( nonUniqueStruct.begin(), nonUniqueStruct.end() );
-        CopySTL( structSet, node.lowerStruct );
+        CopySTL( structSet, node.origLowerStruct );
 
         // Finish computing the separator indices
         perm.Translate( sep.inds );
@@ -275,7 +275,7 @@ NaturalNestedDissectionRecursion
         // Recurse
         const Int newOff = ( childIsOnLeft ? off : off+leftChildSize );
         sep.child = new DistSeparator(&sep);
-        node.child = new DistNode(&node);
+        node.child = new DistNodeInfo(&node);
         node.child->onLeft = childIsOnLeft;
         NaturalNestedDissectionRecursion
         ( nxChild, nyChild, nzChild, child, newPerm, 
@@ -286,7 +286,7 @@ NaturalNestedDissectionRecursion
         Graph seqGraph( graph );
 
         sep.duplicate = new Separator(&sep);
-        node.duplicate = new Node(&node);
+        node.duplicate = new NodeInfo(&node);
 
         NaturalNestedDissectionRecursion
         ( nx, ny, nz, seqGraph, perm.Map(), 
@@ -297,7 +297,7 @@ NaturalNestedDissectionRecursion
         sep.inds = sep.duplicate->inds;
         node.size = node.duplicate->size;
         node.off = node.duplicate->off;
-        node.lowerStruct = node.duplicate->lowerStruct;
+        node.origLowerStruct = node.duplicate->origLowerStruct;
     }
 }
 
@@ -308,7 +308,7 @@ void NaturalNestedDissection
   const Graph& graph, 
         vector<Int>& map,
         Separator& sep, 
-        NodeInfo& info,
+        NodeInfo& node,
         Int cutoff )
 {
     DEBUG_ONLY(CSE cse("NaturalNestedDissection"))
@@ -319,7 +319,6 @@ void NaturalNestedDissection
     for( Int s=0; s<numSources; ++s )
         perm[s] = s;
 
-    Node node;
     NaturalNestedDissectionRecursion
     ( nx, ny, nz, graph, perm, sep, node, 0, cutoff );
 
@@ -328,7 +327,7 @@ void NaturalNestedDissection
     DEBUG_ONLY(EnsurePermutation( map ))
 
     // Run the symbolic analysis
-    Analysis( node, info );
+    Analysis( node );
 }
 
 void NaturalNestedDissection
@@ -338,7 +337,7 @@ void NaturalNestedDissection
   const DistGraph& graph, 
         DistMap& map,
         DistSeparator& sep, 
-        DistNodeInfo& info,
+        DistNodeInfo& node,
         Int cutoff, 
         bool storeFactRecvInds )
 {
@@ -351,7 +350,6 @@ void NaturalNestedDissection
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
 
-    DistNode node;
     NaturalNestedDissectionRecursion
     ( nx, ny, nz, graph, perm, sep, node, 0, cutoff );
 
@@ -360,7 +358,7 @@ void NaturalNestedDissection
     DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
-    Analysis( node, info, storeFactRecvInds );
+    Analysis( node, storeFactRecvInds );
 }
 
 } // namespace ldl

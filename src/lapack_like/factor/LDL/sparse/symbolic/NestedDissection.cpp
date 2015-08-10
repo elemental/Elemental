@@ -18,7 +18,7 @@ NestedDissectionRecursion
 ( const Graph& graph, 
   const vector<Int>& perm,
         Separator& sep, 
-        Node& node,
+        NodeInfo& node,
         Int off, 
   const BisectCtrl& ctrl )
 {
@@ -35,7 +35,7 @@ NestedDissectionRecursion
         for( Int e=0; e<numEdges; ++e )
             if( sourceBuf[e] != targetBuf[e] && targetBuf[e] < numSources )
                 ++numValidEdges;
-        vector<int> subOffsets(numSources+1), subTargets(numValidEdges);
+        vector<int> subOffsets(numSources+1), subTargets(Max(numValidEdges,1));
         Int sourceOff = 0;
         Int validCounter = 0;
         Int prevSource = -1;
@@ -52,7 +52,7 @@ NestedDissectionRecursion
                 subTargets[validCounter++] = target;
         }
         while( sourceOff <= numSources )
-        { subOffsets[sourceOff++] = numValidEdges; }
+        { subOffsets[sourceOff++] = validCounter; }
 
         // Technically, SuiteSparse expects column-major storage, but since
         // the matrix is structurally symmetric, it's okay to pass in the 
@@ -92,7 +92,7 @@ NestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.lowerStruct );
+        CopySTL( lowerStruct, node.origLowerStruct );
     }
     else
     {
@@ -130,7 +130,7 @@ NestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.lowerStruct );
+        CopySTL( lowerStruct, node.origLowerStruct );
 
         // Finish computing the separator indices
         for( Int s=0; s<sepSize; ++s )
@@ -151,8 +151,8 @@ NestedDissectionRecursion
         node.children.resize( 2 );
         sep.children[0] = new Separator(&sep);
         sep.children[1] = new Separator(&sep);
-        node.children[0] = new Node(&node);
-        node.children[1] = new Node(&node);
+        node.children[0] = new NodeInfo(&node);
+        node.children[1] = new NodeInfo(&node);
         NestedDissectionRecursion
         ( leftChild, leftPerm, *sep.children[0], *node.children[0], 
           off, ctrl );
@@ -167,7 +167,7 @@ NestedDissectionRecursion
 ( const DistGraph& graph, 
   const DistMap& perm,
         DistSeparator& sep, 
-        DistNode& node,
+        DistNodeInfo& node,
         Int off, 
   const BisectCtrl& ctrl )
 {
@@ -244,7 +244,7 @@ NestedDissectionRecursion
           localConnectedSizes.data(), localConnectedOffs.data(), comm );
         set<Int> lowerStruct
         ( localConnections.begin(), localConnections.end() );
-        CopySTL( lowerStruct, node.lowerStruct );
+        CopySTL( lowerStruct, node.origLowerStruct );
 
         // Finish computing the separator indices
         perm.Translate( sep.inds );
@@ -266,7 +266,7 @@ NestedDissectionRecursion
         // Recurse
         const Int childOff = ( childIsOnLeft ? off : off+leftChildSize );
         sep.child = new DistSeparator(&sep);
-        node.child = new DistNode(&node);
+        node.child = new DistNodeInfo(&node);
         node.child->onLeft = childIsOnLeft;
         NestedDissectionRecursion
         ( child, newPerm, *sep.child, *node.child, childOff, ctrl );
@@ -276,7 +276,7 @@ NestedDissectionRecursion
         Graph seqGraph( graph );
 
         sep.duplicate = new Separator(&sep);
-        node.duplicate = new Node(&node);
+        node.duplicate = new NodeInfo(&node);
 
         NestedDissectionRecursion
         ( seqGraph, perm.Map(), *sep.duplicate, *node.duplicate, off, ctrl );
@@ -286,7 +286,7 @@ NestedDissectionRecursion
         sep.inds = sep.duplicate->inds;
         node.size = node.duplicate->size;
         node.off = node.duplicate->off;
-        node.lowerStruct = node.duplicate->lowerStruct;
+        node.origLowerStruct = node.duplicate->origLowerStruct;
     }
 }
 
@@ -294,7 +294,7 @@ void NestedDissection
 ( const Graph& graph, 
         vector<Int>& map,
         Separator& sep, 
-        NodeInfo& info,
+        NodeInfo& node,
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("ldl::NestedDissection"))
@@ -305,7 +305,6 @@ void NestedDissection
     for( Int s=0; s<numSources; ++s )
         perm[s] = s;
 
-    Node node;
     NestedDissectionRecursion( graph, perm, sep, node, 0, ctrl );
 
     // Construct the distributed reordering    
@@ -313,14 +312,14 @@ void NestedDissection
     DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
-    Analysis( node, info );
+    Analysis( node );
 }
 
 void NestedDissection
 ( const DistGraph& graph, 
         DistMap& map,
         DistSeparator& sep, 
-        DistNodeInfo& info,
+        DistNodeInfo& node,
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("ldl::NestedDissection"))
@@ -332,7 +331,6 @@ void NestedDissection
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
 
-    DistNode node;
     NestedDissectionRecursion( graph, perm, sep, node, 0, ctrl );
 
     // Construct the distributed reordering    
@@ -340,7 +338,7 @@ void NestedDissection
     DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
-    Analysis( node, info, ctrl.storeFactRecvInds );
+    Analysis( node, ctrl.storeFactRecvInds );
 }
 
 void BuildMap( const Separator& rootSep, vector<Int>& map )

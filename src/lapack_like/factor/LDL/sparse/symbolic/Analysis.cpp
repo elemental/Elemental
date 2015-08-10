@@ -25,22 +25,21 @@ namespace El {
 namespace ldl {
 
 inline void PairwiseExchangeLowerStruct
-( Int& theirSize, vector<Int>& theirLowerStruct,
-  const DistNode& node, const DistNodeInfo& childInfo )
+( Int& theirSize, vector<Int>& theirLowerStruct, const DistNodeInfo& node )
 {
     // Determine our partner's rank for this exchange in node's communicator
     const int teamRank = mpi::Rank( node.comm );
     const int teamSize = mpi::Size( node.comm );
-    const int childTeamRank = mpi::Rank( childInfo.comm );
-    const int myTeamSize = mpi::Size( childInfo.comm );
+    const int childTeamRank = mpi::Rank( node.child->comm );
+    const int myTeamSize = mpi::Size( node.child->comm );
     const int otherTeamSize = teamSize - myTeamSize;
     const bool inFirstTeam = ( teamRank == childTeamRank );
     const int partner =
         ( inFirstTeam ? teamRank+myTeamSize : teamRank-otherTeamSize );
 
     // SendRecv the message lengths
-    const Int mySize = childInfo.size;
-    const Int myLowerStructSize = childInfo.lowerStruct.size();
+    const Int mySize = node.child->size;
+    const Int myLowerStructSize = node.child->lowerStruct.size();
     const Int initialSends[2] = { mySize, myLowerStructSize };
     Int initialRecvs[2];
     mpi::SendRecv
@@ -52,19 +51,18 @@ inline void PairwiseExchangeLowerStruct
     // Perform the exchange
     theirLowerStruct.resize( theirLowerStructSize );
     mpi::SendRecv
-    ( &childInfo.lowerStruct[0], myLowerStructSize, partner,
+    ( &node.child->lowerStruct[0], myLowerStructSize, partner,
       &theirLowerStruct[0], theirLowerStructSize, partner, node.comm );
 }
 
 inline void BroadcastLowerStruct
-( Int& theirSize, vector<Int>& theirLowerStruct,
-  const DistNode& node, const DistNodeInfo& childInfo )
+( Int& theirSize, vector<Int>& theirLowerStruct, const DistNodeInfo& node )
 {
     // Determine our partner's rank for this exchange in node's communicator
     const int teamRank = mpi::Rank( node.comm );
     const int teamSize = mpi::Size( node.comm );
-    const int childTeamRank = mpi::Rank( childInfo.comm );
-    const int myTeamSize = mpi::Size( childInfo.comm );
+    const int childTeamRank = mpi::Rank( node.child->comm );
+    const int myTeamSize = mpi::Size( node.child->comm );
     const int otherTeamSize = teamSize - myTeamSize;
     const bool inFirstTeam = ( teamRank == childTeamRank );
 
@@ -74,8 +72,8 @@ inline void BroadcastLowerStruct
             ( inFirstTeam ? teamRank+myTeamSize : teamRank-otherTeamSize );
 
         // SendRecv the message lengths
-        const Int mySize = childInfo.size;
-        const Int myLowerStructSize = childInfo.lowerStruct.size();
+        const Int mySize = node.child->size;
+        const Int myLowerStructSize = node.child->lowerStruct.size();
         const Int initialSends[2] = { mySize, myLowerStructSize };
         Int initialRecvs[2];
         mpi::SendRecv
@@ -87,35 +85,33 @@ inline void BroadcastLowerStruct
         // Perform the exchange
         theirLowerStruct.resize( theirLowerStructSize );
         mpi::SendRecv
-        ( &childInfo.lowerStruct[0], myLowerStructSize, partner,
+        ( &node.child->lowerStruct[0], myLowerStructSize, partner,
           &theirLowerStruct[0], theirLowerStructSize, partner, node.comm );
 
         // Broadcast the other team's child's sizes
-        mpi::Broadcast( initialRecvs, 2, 0, childInfo.comm );
+        mpi::Broadcast( initialRecvs, 2, 0, node.child->comm );
 
         // Broadcast the other team's child's lower struct
         mpi::Broadcast
-        ( &theirLowerStruct[0], theirLowerStructSize, 0, childInfo.comm );
+        ( &theirLowerStruct[0], theirLowerStructSize, 0, node.child->comm );
     } 
     else
     {
         // Receive the other team's child's sizes
         Int initialRecvs[2];
-        mpi::Broadcast( initialRecvs, 2, 0, childInfo.comm );
+        mpi::Broadcast( initialRecvs, 2, 0, node.child->comm );
         theirSize = initialRecvs[0];
         const Int theirLowerStructSize = initialRecvs[1];
 
         // Receive the other team's child's lower struct
         theirLowerStruct.resize( theirLowerStructSize );
         mpi::Broadcast
-        ( &theirLowerStruct[0], theirLowerStructSize, 0, childInfo.comm );
+        ( &theirLowerStruct[0], theirLowerStructSize, 0, node.child->comm );
     }
 }
 
 inline void GetLowerStruct
-( Int& theirSize, vector<Int>& theirLowerStruct,
-  const DistNode& node,
-  const DistNodeInfo& childInfo )
+( Int& theirSize, vector<Int>& theirLowerStruct, const DistNodeInfo& node )
 {
     const int teamSize = mpi::Size( node.comm );
     const int childTeamSize = mpi::Size( node.child->comm );
@@ -123,18 +119,15 @@ inline void GetLowerStruct
         ( node.child->onLeft ? childTeamSize : teamSize-childTeamSize );
     const int rightTeamSize = teamSize - leftTeamSize;
     if( leftTeamSize == rightTeamSize )
-        PairwiseExchangeLowerStruct
-        ( theirSize, theirLowerStruct, node, childInfo );
+        PairwiseExchangeLowerStruct( theirSize, theirLowerStruct, node );
     else
-        BroadcastLowerStruct
-        ( theirSize, theirLowerStruct, node, childInfo );
+        BroadcastLowerStruct( theirSize, theirLowerStruct, node );
 }
 
 inline void ComputeStructAndRelInds
-( Int theirSize, const vector<Int>& theirLowerStruct,
-  const DistNode& node, DistNodeInfo& info )
+( Int theirSize, const vector<Int>& theirLowerStruct, DistNodeInfo& node )
 {
-    const auto& myLowerStruct = info.child->lowerStruct;
+    const auto& myLowerStruct = node.child->lowerStruct;
     DEBUG_ONLY(
       if( !IsStrictlySorted(myLowerStruct) )
       {
@@ -150,9 +143,9 @@ inline void ComputeStructAndRelInds
           else
               LogicError("Their lower struct not sorted");
       }
-      if( !IsStrictlySorted(node.lowerStruct) )
+      if( !IsStrictlySorted(node.origLowerStruct) )
       {
-          if( IsSorted(node.lowerStruct) )
+          if( IsSorted(node.origLowerStruct) )
               LogicError("Repeat in original struct");
           else
               LogicError("Original struct not sorted");
@@ -163,7 +156,7 @@ inline void ComputeStructAndRelInds
     auto childrenStruct = Union( myLowerStruct, theirLowerStruct );
 
     // Now add in the original lower structure
-    auto partialStruct = Union( childrenStruct, node.lowerStruct );
+    auto partialStruct = Union( childrenStruct, node.origLowerStruct );
 
     // Now the node indices
     vector<Int> nodeInds( node.size );
@@ -172,31 +165,31 @@ inline void ComputeStructAndRelInds
     auto fullStruct = Union( nodeInds, partialStruct );
 
     // Construct the relative indices of the original lower structure
-    info.origLowerRelInds = RelativeIndices( node.lowerStruct, fullStruct );
+    node.origLowerRelInds = RelativeIndices( node.origLowerStruct, fullStruct );
 
     // Construct the relative indices of the children
-    info.childSizes.resize(2);
-    info.childRelInds.resize(2);
+    node.childSizes.resize(2);
+    node.childRelInds.resize(2);
     if( node.child->onLeft )
     {
-        info.childSizes[0] = info.child->size;
-        info.childSizes[1] = theirSize;
-        info.childRelInds[0] = RelativeIndices( myLowerStruct, fullStruct );
-        info.childRelInds[1] = RelativeIndices( theirLowerStruct, fullStruct );
+        node.childSizes[0] = node.child->size;
+        node.childSizes[1] = theirSize;
+        node.childRelInds[0] = RelativeIndices( myLowerStruct, fullStruct );
+        node.childRelInds[1] = RelativeIndices( theirLowerStruct, fullStruct );
     }
     else
     {
-        info.childSizes[0] = theirSize;
-        info.childSizes[1] = info.child->size;
-        info.childRelInds[0] = RelativeIndices( theirLowerStruct, fullStruct );
-        info.childRelInds[1] = RelativeIndices( myLowerStruct, fullStruct );
+        node.childSizes[0] = theirSize;
+        node.childSizes[1] = node.child->size;
+        node.childRelInds[0] = RelativeIndices( theirLowerStruct, fullStruct );
+        node.childRelInds[1] = RelativeIndices( myLowerStruct, fullStruct );
     }
 
     // Form lower structure of this node by removing the node indices
     const Int lowerStructSize = fullStruct.size() - node.size;
-    info.lowerStruct.resize( lowerStructSize );
+    node.lowerStruct.resize( lowerStructSize );
     for( Int i=0; i<lowerStructSize; ++i )
-        info.lowerStruct[i] = fullStruct[node.size+i];
+        node.lowerStruct[i] = fullStruct[node.size+i];
     DEBUG_ONLY(
         // Ensure that the root process computed a lowerStruct of the same size
         Int rootLowerStructSize;
@@ -208,31 +201,24 @@ inline void ComputeStructAndRelInds
     )
 }
 
-Int Analysis( const Node& node, NodeInfo& info, Int myOff )
+Int Analysis( NodeInfo& node, Int myOff )
 {
     DEBUG_ONLY(CSE cse("ldl::Analysis"))
 
     // Recurse on the children
     // NOTE: Cleanup of existing info children should be added
     const Int numChildren = node.children.size();
-    info.children.resize( numChildren );
     for( Int c=0; c<numChildren; ++c )
     {
         if( node.children[c] == nullptr )
             LogicError("Node child ",c," was nullptr");
-        info.children[c] = new NodeInfo(&info);
-        myOff = Analysis( *node.children[c], *info.children[c], myOff );
+        myOff = Analysis( *node.children[c], myOff );
     }
     
-    info.size = node.size;
-    info.off= node.off;
-    info.myOff= myOff; 
-    info.origLowerStruct = node.lowerStruct;
-
     DEBUG_ONLY(
-      if( !IsStrictlySorted(node.lowerStruct) )
+      if( !IsStrictlySorted(node.origLowerStruct) )
       {
-          if( IsSorted(node.lowerStruct) )
+          if( IsSorted(node.origLowerStruct) )
               LogicError("Repeat in original lower struct");
           else
               LogicError("Original lower struct not sorted");
@@ -242,8 +228,8 @@ Int Analysis( const Node& node, NodeInfo& info, Int myOff )
     if( numChildren > 0 )
     {
         // Union the structures of the children with the original structure
-        auto fullStruct = node.lowerStruct;
-        for( NodeInfo* child : info.children )
+        auto fullStruct = node.origLowerStruct;
+        for( NodeInfo* child : node.children )
         {
             DEBUG_ONLY(
                 if( !IsStrictlySorted(child->lowerStruct) )
@@ -266,33 +252,34 @@ Int Analysis( const Node& node, NodeInfo& info, Int myOff )
         fullStruct = Union( fullStruct, nodeInds );
 
         // Construct the relative indices of the original lower structure
-        info.origLowerRelInds = RelativeIndices( node.lowerStruct, fullStruct );
+        node.origLowerRelInds = 
+          RelativeIndices( node.origLowerStruct, fullStruct );
 
         // Construct the relative indices of the children
-        info.childRelInds.resize( numChildren );
+        node.childRelInds.resize( numChildren );
         for( Int c=0; c<numChildren; ++c )
-            info.childRelInds[c] = 
-                RelativeIndices( info.children[c]->lowerStruct, fullStruct );
+            node.childRelInds[c] = 
+                RelativeIndices( node.children[c]->lowerStruct, fullStruct );
 
         // Form lower struct of this node by removing node indices
         // (which take up the first node.size indices of fullStruct)
         const Int lowerStructSize = fullStruct.size()-node.size;
-        info.lowerStruct.resize( lowerStructSize );
+        node.lowerStruct.resize( lowerStructSize );
         for( Int i=0; i<lowerStructSize; ++i )
-            info.lowerStruct[i] = fullStruct[node.size+i];
+            node.lowerStruct[i] = fullStruct[node.size+i];
     }
     else
     {
-        info.lowerStruct = node.lowerStruct;
+        node.lowerStruct = node.origLowerStruct;
 
         // Construct the trivial relative indices of the original structure
-        const Int numOrigLowerInds = node.lowerStruct.size();
-        info.origLowerRelInds.resize( numOrigLowerInds );
+        const Int numOrigLowerInds = node.origLowerStruct.size();
+        node.origLowerRelInds.resize( numOrigLowerInds );
         for( Int i=0; i<numOrigLowerInds; ++i )
-            info.origLowerRelInds[i] = i + info.size;
+            node.origLowerRelInds[i] = i + node.size;
     }
 
-    return myOff + info.size;
+    return myOff + node.size;
 }
 
 //
@@ -301,56 +288,47 @@ Int Analysis( const Node& node, NodeInfo& info, Int myOff )
 // tree is binary.
 //
 
-void Analysis
-( const DistNode& node, DistNodeInfo& info, bool computeFactRecvInds )
+void Analysis( DistNodeInfo& node, bool computeFactRecvInds )
 {
     DEBUG_ONLY(CSE cse("ldl::Analysis"))
 
-    // Duplicate the communicator from the distributed eTree 
-    mpi::Dup( node.comm, info.comm );
-    info.grid = new Grid( info.comm );
+    node.grid = new Grid( node.comm );
 
-    info.size = node.size;
-    info.off = node.off;
-    info.onLeft = node.onLeft;
-    info.origLowerStruct = node.lowerStruct;
     if( node.duplicate != nullptr )
     {
         Int myOff = 0;
-        info.duplicate = new NodeInfo(&info);
-        auto& dupInfo = *info.duplicate;
-        Analysis( *node.duplicate, dupInfo, myOff );
+        auto& dupNode = *node.duplicate;
+        Analysis( dupNode, myOff );
 
         // The bottom node was analyzed locally, so just copy its results over
-        info.myOff = dupInfo.myOff;
-        info.lowerStruct = dupInfo.lowerStruct;
-        info.origLowerRelInds = dupInfo.origLowerRelInds;
-        info.childRelInds = dupInfo.childRelInds;
+        node.myOff = dupNode.myOff;
+        node.lowerStruct = dupNode.lowerStruct;
+        node.origLowerRelInds = dupNode.origLowerRelInds;
+        node.childRelInds = dupNode.childRelInds;
 
-        const Int numChildren = dupInfo.childRelInds.size();
-        info.childSizes.resize( numChildren );
+        const Int numChildren = dupNode.childRelInds.size();
+        node.childSizes.resize( numChildren );
         for( Int c=0; c<numChildren; ++c )
-            info.childSizes[c] = dupInfo.children[c]->size;
+            node.childSizes[c] = dupNode.children[c]->size;
 
         return;
     }
 
     if( node.child == nullptr )
         LogicError("Node child was nullptr");
-    info.child = new DistNodeInfo(&info);
-    auto& childInfo = *info.child;
-    Analysis( *node.child, childInfo, computeFactRecvInds );
+    auto& childNode = *node.child;
+    Analysis( childNode, computeFactRecvInds );
 
-    info.myOff = childInfo.myOff + childInfo.size;
+    node.myOff = childNode.myOff + childNode.size;
 
     // Get the lower struct for the child we do not share
     Int theirSize;
     vector<Int> theirLowerStruct;
-    GetLowerStruct( theirSize, theirLowerStruct, node, childInfo );
+    GetLowerStruct( theirSize, theirLowerStruct, node );
 
     // Perform one level of symbolic factorization and then compute
     // a wide variety of relative indices
-    ComputeStructAndRelInds( theirSize, theirLowerStruct, node, info );
+    ComputeStructAndRelInds( theirSize, theirLowerStruct, node );
 }
 
 } // namespace ldl
