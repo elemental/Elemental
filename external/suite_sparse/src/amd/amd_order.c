@@ -20,12 +20,12 @@
 
 GLOBAL Int ElAMD_order
 (
-    Int n,
-    const Int Ap [ ],
-    const Int Ai [ ],
-    Int P [ ],
-    double Control [ ],
-    double Info [ ]
+  Int n,
+  const Int Ap [ ],
+  const Int Ai [ ],
+  Int P [ ],
+  double Control [ ],
+  double Info [ ]
 )
 {
     Int *Len, *S, nz, i, *Pinv, info, status, *Rp, *Ri, *Cp, *Ci, ok ;
@@ -48,16 +48,16 @@ GLOBAL Int ElAMD_order
 	Info [EL_AMD_STATUS] = EL_AMD_OK ;
     }
 
+    if (n == 0)
+    {
+	return EL_AMD_OK;	    /* n is 0 so there's nothing to do */
+    }
+
     /* make sure inputs exist and n is >= 0 */
     if (Ai == (Int *) NULL || Ap == (Int *) NULL || P == (Int *) NULL || n < 0)
     {
 	if (info) Info [EL_AMD_STATUS] = EL_AMD_INVALID ;
 	return (EL_AMD_INVALID) ;	    /* arguments are invalid */
-    }
-
-    if (n == 0)
-    {
-	return (EL_AMD_OK) ;	    /* n is 0 so there's nothing to do */
     }
 
     nz = Ap [n] ;

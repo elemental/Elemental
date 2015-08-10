@@ -10,11 +10,15 @@
 
 namespace El {
 
+// TODO: Avoid sorting since the ordering can easily be preserved
 void GetSubgraph
 ( const Graph& graph, Range<Int> I, Range<Int> J,
         Graph& subgraph )
 {
     DEBUG_ONLY(CSE cse("GetSubgraph"))
+    const Int* offsetBuf = graph.LockedOffsetBuffer();
+    const Int* targetBuf = graph.LockedTargetBuffer();
+
     if( I.end == END )
         I.end = graph.NumSources();
     if( J.end == END )
@@ -28,11 +32,11 @@ void GetSubgraph
     Int numEdgesSub = 0;
     for( Int i=I.beg; i<I.end; ++i )
     {
-        const Int sourceOff = graph.SourceOffset(i);
-        const Int numConn = graph.NumConnections(i);
-        for( Int e=sourceOff; e<sourceOff+numConn; ++e )
+        const Int offset = offsetBuf[i];
+        const Int numConn = offsetBuf[i+1] - offset;
+        for( Int e=offset; e<offset+numConn; ++e )
         {
-            const Int j = graph.Target(e);
+            const Int j = targetBuf[e];
             if( j >= J.beg && j < J.end )
                 ++numEdgesSub;
         }
@@ -42,11 +46,11 @@ void GetSubgraph
     // Insert the edges
     for( Int i=I.beg; i<I.end; ++i ) 
     {
-        const Int sourceOff = graph.SourceOffset(i);
-        const Int numConn = graph.NumConnections(i);
-        for( Int e=sourceOff; e<sourceOff+numConn; ++e )
+        const Int offset = offsetBuf[i];
+        const Int numConn = offsetBuf[i+1] - offset;
+        for( Int e=offset; e<offset+numConn; ++e )
         {
-            const Int j = graph.Target(e);
+            const Int j = targetBuf[e];
             if( j >= J.beg && j < J.end )
                 subgraph.QueueConnection( i-I.beg, j-J.beg );
         }
@@ -66,6 +70,8 @@ void GetSubgraph
         DistGraph& subgraph )
 {
     DEBUG_ONLY(CSE cse("GetSubgraph"))
+    const Int* targetBuf = graph.LockedTargetBuffer();
+    const Int* sourceBuf = graph.LockedSourceBuffer();
     if( I.end == END )
         I.end = graph.NumSources();
     if( J.end == END )
@@ -85,8 +91,8 @@ void GetSubgraph
     vector<int> sendCounts(commSize,0);
     for( Int e=0; e<numEdges; ++e )
     {
-        const Int i = graph.Source(e);
-        const Int j = graph.Target(e);
+        const Int i = sourceBuf[e];
+        const Int j = targetBuf[e];
         if( i >= I.end )
             break;
         else if( i >= I.beg && j >= J.beg && j < J.end )
@@ -101,8 +107,8 @@ void GetSubgraph
     vector<Int> sendSources(totalSend), sendTargets(totalSend);
     for( Int e=0; e<numEdges; ++e )
     {
-        const Int i = graph.Source(e);
-        const Int j = graph.Target(e);
+        const Int i = sourceBuf[e];
+        const Int j = targetBuf[e];
         if( i >= I.end )
             break;
         else if( i >= I.beg && j >= J.beg && j < J.end )
@@ -120,8 +126,9 @@ void GetSubgraph
     // ============================
     auto recvSources = mpi::AllToAll( sendSources, sendCounts, sendOffs, comm );
     auto recvTargets = mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm );
-    subgraph.Reserve( recvSources.size() );
-    for( Int i=0; i<recvSources.size(); ++i )
+    const Int totalRecv = recvSources.size();
+    subgraph.Reserve( totalRecv );
+    for( Int i=0; i<totalRecv; ++i )
         subgraph.QueueConnection( recvSources[i], recvTargets[i] );
     subgraph.ProcessQueues();
 }

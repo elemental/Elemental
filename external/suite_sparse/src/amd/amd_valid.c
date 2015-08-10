@@ -37,11 +37,11 @@
 
 GLOBAL Int ElAMD_valid
 (
-    /* inputs, not modified on output: */
-    Int n_row,		/* A is n_row-by-n_col */
-    Int n_col,
-    const Int Ap [ ],	/* column pointers of A, of size n_col+1 */
-    const Int Ai [ ]	/* row indices of A, of size nz = Ap [n_col] */
+  /* inputs, not modified on output: */
+  Int n_row,		/* A is n_row-by-n_col */
+  Int n_col,
+  const Int Ap [ ],	/* column pointers of A, of size n_col+1 */
+  const Int Ai [ ]	/* row indices of A, of size nz = Ap [n_col] */
 )
 {
     Int nz, j, p1, p2, ilast, i, p, result = EL_AMD_OK ;

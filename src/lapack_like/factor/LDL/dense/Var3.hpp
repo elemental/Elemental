@@ -35,7 +35,6 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
 
     if( conjugate )
     {
-
         for( Int j=0; j<n; ++j )
         {
             const Int a21Height = n - (j+1);

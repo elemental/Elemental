@@ -37,7 +37,7 @@ Int Bisect
 
     // Fill our connectivity (ignoring self and too-large connections)
     vector<idx_t> xAdj( numSources+1 );
-    vector<idx_t> adjacency( numValidEdges );
+    vector<idx_t> adjacency( Max(numValidEdges,1) );
     Int validCounter=0;
     Int sourceOff=0;
     Int prevSource=-1;
@@ -57,11 +57,8 @@ Int Bisect
         if( source != target && target < numSources )
             adjacency[validCounter++] = target;
     }
-    DEBUG_ONLY(
-      if( sourceOff != numSources )
-          LogicError("Mistake in xAdj computation");
-    )
-    xAdj[numSources] = numValidEdges;
+    while( sourceOff <= numSources)
+    { xAdj[sourceOff++] = validCounter; }
 
     // Call METIS_ComputeVertexSeparator, which is meant to be used by ParMETIS
     idx_t nvtxs = numSources;
@@ -128,7 +125,7 @@ Int Bisect
     const Int numLocalSources = graph.NumLocalSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     vector<idx_t> xAdj( numLocalSources+1 );
-    vector<idx_t> adjacency( numLocalValidEdges );
+    vector<idx_t> adjacency( Max(numLocalValidEdges,1) );
     Int validCounter=0;
     Int sourceOff=0;
     Int prevSource=firstLocalSource-1;
@@ -146,16 +143,10 @@ Int Bisect
             ++prevSource;
         }
         if( source != target && target < numSources )
-        {
-            adjacency[validCounter] = target;
-            ++validCounter;
-        }
+            adjacency[validCounter++] = target;
     }
-    DEBUG_ONLY(
-      if( sourceOff != numLocalSources )
-          LogicError("Mistake in xAdj computation");
-    )
-    xAdj[numLocalSources] = numLocalValidEdges;
+    while( sourceOff <= numLocalSources)
+    { xAdj[sourceOff++] = validCounter; }
 
     vector<idx_t> sizes(3);
     if( ctrl.sequential )
@@ -174,7 +165,7 @@ Int Bisect
         Int maxLocalValidEdges=0;
         for( int q=0; q<commSize; ++q )
             maxLocalValidEdges = Max( maxLocalValidEdges, edgeSizes[q] );
-        adjacency.resize( maxLocalValidEdges );
+        adjacency.resize( Max(maxLocalValidEdges,1) );
         vector<idx_t> globalAdj;
         if( commRank == 0 )
             globalAdj.resize( maxLocalValidEdges*commSize, 0 );
@@ -228,9 +219,24 @@ Int Bisect
             options[METIS_OPTION_NSEPS] = ctrl.numSeqSeps;
             vector<idx_t> part(numSources);
             idx_t sepSize;
-            METIS_ComputeVertexSeparator
-            ( &nvtxs, globalXAdj.data(), globalAdj.data(), NULL, options,
-              &sepSize, part.data() );
+
+            if( globalAdj.size() > 0 )
+            {
+                METIS_ComputeVertexSeparator
+                ( &nvtxs, globalXAdj.data(), globalAdj.data(), NULL, options,
+                  &sepSize, part.data() );
+            } 
+            else
+            {
+                sepSize = 0;
+                for( Int i=0; i<numSources; ++i )
+                {
+                    if( i <= numSources/2 )
+                        part[i] = 0;
+                    else
+                        part[i] = 1;
+                } 
+            }
 
             for( Int j=0; j<3; ++j )
                 sizes[j] = 0;

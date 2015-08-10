@@ -1518,8 +1518,8 @@ void StaticKKT
         for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);
-            if( i < n )        J.QueueUpdate( iLoc, i,  gamma*gamma );
-            else if( i < n+m ) J.QueueUpdate( iLoc, i, -delta*delta );
+            if( i < n )        J.QueueLocalUpdate( iLoc, i,  gamma*gamma );
+            else if( i < n+m ) J.QueueLocalUpdate( iLoc, i, -delta*delta );
             else break;
         }
 
@@ -1623,8 +1623,8 @@ void StaticKKT
         for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);
-            if( i < n )        J.QueueUpdate( iLoc, i,  gamma*gamma );
-            else if( i < n+m ) J.QueueUpdate( iLoc, i, -delta*delta );
+            if( i < n )        J.QueueLocalUpdate( iLoc, i,  gamma*gamma );
+            else if( i < n+m ) J.QueueLocalUpdate( iLoc, i, -delta*delta );
             else break;
         }
 

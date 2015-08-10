@@ -1565,7 +1565,7 @@ void Mehrotra
             y *= Real(1)/cScale;
             z *= Real(1)/cScale;
         }
-        if( ctrl.print )
+        if( ctrl.print && commRank == 0 )
         {
             Output("Scaling b down by ",bScale);
             Output("Scaling c down by ",cScale);
@@ -1833,11 +1833,8 @@ void Mehrotra
             // Assemble the KKT system
             // -----------------------
             // TODO: Apply updates on top of explicit zeros
-            Output("Building NormalKKT");
             NormalKKT( A, gamma, delta, x, z, J, false );
-            Output("Building NormalKKTRHS");
             NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dyAff );
-            Output("Built NormalKKTRHS");
 
             // Solve for the direction
             // -----------------------

@@ -51,7 +51,8 @@ NestedDissectionRecursion
             if( source != target && target < numSources )
                 subTargets[validCounter++] = target;
         }
-        subOffsets[numSources] = numValidEdges;
+        while( sourceOff <= numSources )
+        { subOffsets[sourceOff++] = numValidEdges; }
 
         // Technically, SuiteSparse expects column-major storage, but since
         // the matrix is structurally symmetric, it's okay to pass in the 
