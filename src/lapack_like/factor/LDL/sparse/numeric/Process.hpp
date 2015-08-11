@@ -23,6 +23,8 @@
 
 #include "./ProcessFront.hpp"
 
+#include "ElSuiteSparse/ldl.hpp"
+
 namespace El {
 namespace ldl {
 
@@ -31,7 +33,76 @@ inline void
 Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
 {
     DEBUG_ONLY(CSE cse("ldl::Process"))
-    if( !front.sparseLeaf )
+    if( front.sparseLeaf )
+    {
+        const Int numEntries = info.LOffsets.back(); 
+        const Int numSources = info.LOffsets.size()-1;
+        Zeros( front.LSparse, numSources, numSources );
+        front.LSparse.ForceNumEntries( numEntries );
+        F* LValBuf = front.LSparse.ValueBuffer();
+        Int* LRowBuf = front.LSparse.SourceBuffer();
+        Int* LColBuf = front.LSparse.TargetBuffer();
+        Int* LOffsetBuf = front.LSparse.OffsetBuffer();
+        for( Int i=0; i<numSources; ++i )
+        {
+            const Int iStart = info.LOffsets[i];
+            const Int iEnd = info.LOffsets[i+1];
+            LOffsetBuf[i] = iStart;
+            for( Int e=iStart; e<iEnd; ++e )
+                LRowBuf[e] = i;
+        }
+        LOffsetBuf[numSources] = info.LOffsets[numSources];
+        front.diag.Resize( numSources, 1 );
+
+        // Factor the transpose of L
+        // TODO: Reuse these workspaces
+        vector<Int> LNnz(numSources), pattern(numSources), flag(numSources);
+        vector<F> y(numSources);
+        suite_sparse::ldl::Numeric
+        ( numSources, 
+          front.workSparse.LockedOffsetBuffer(),
+          front.workSparse.LockedTargetBuffer(),
+          front.workSparse.LockedValueBuffer(),
+          LOffsetBuf,
+          info.LParents.data(),
+          LNnz.data(),
+          LColBuf,
+          LValBuf,
+          front.diag.Buffer(),
+          y.data(),
+          pattern.data(),
+          flag.data(),
+          (const Int*)nullptr,
+          (const Int*)nullptr,
+          front.isHermitian );
+
+        front.workSparse.Empty();
+
+        // Save a copy of ABL
+        auto ABLCopy = front.LDense;
+        const Int m = front.LDense.Height();
+        const Int n = front.LDense.Width();
+
+        // Solve against the dense bottom-left quadrant (LDense * inv(ATL))
+        bool onLeft = false;
+        suite_sparse::ldl::LTSolveMulti
+        ( onLeft, m, n, front.LDense.Buffer(), front.LDense.LDim(),
+          LOffsetBuf, LColBuf, LValBuf, front.isHermitian );
+        suite_sparse::ldl::DSolveMulti
+        ( onLeft, m, n, front.LDense.Buffer(), front.LDense.LDim(),
+          front.diag.Buffer() );
+        suite_sparse::ldl::LSolveMulti 
+        ( onLeft, m, n, front.LDense.Buffer(), front.LDense.LDim(),
+          LOffsetBuf, LColBuf, LValBuf );
+
+        // Form the Schur complement
+        Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE ); 
+        Zeros( front.workDense, n, n ); 
+        Trrk
+        ( LOWER, NORMAL, orientation, 
+          F(-1), front.LDense, ABLCopy, F(0), front.workDense );
+    }
+    else
     {
         const int updateSize = info.lowerStruct.size();
         auto& FL = front.LDense;
@@ -66,8 +137,8 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
             }
             childU.Empty();
         }
+        ProcessFront( front, factorType );
     }
-    ProcessFront( front, factorType );
 }
 
 template<typename F>

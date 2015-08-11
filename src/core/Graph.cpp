@@ -317,6 +317,17 @@ Int* Graph::SourceBuffer() { return sources_.data(); }
 Int* Graph::TargetBuffer() { return targets_.data(); }
 Int* Graph::OffsetBuffer() { return sourceOffsets_.data(); }
 
+void Graph::ForceNumEdges( Int numEdges )
+{
+    DEBUG_ONLY(CSE cse("Graph::ForceNumEdges"))
+    sources_.resize( numEdges ); 
+    targets_.resize( numEdges );
+    consistent_ = false;
+}
+
+void Graph::ForceConsistency( bool consistent )
+{ consistent_ = consistent; }
+
 const Int* Graph::LockedSourceBuffer() const { return sources_.data(); }
 const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }
 const Int* Graph::LockedOffsetBuffer() const { return sourceOffsets_.data(); }

@@ -575,6 +575,18 @@ template<typename T>
 const T* DistSparseMatrix<T>::LockedValueBuffer() const
 { return vals_.data(); }
 
+template<typename T>
+void DistSparseMatrix<T>::ForceNumLocalEntries( Int numLocalEntries )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::NumLocalEntries"))
+    distGraph_.ForceNumLocalEdges( numLocalEntries );
+    vals_.resize( numLocalEntries );
+}
+
+template<typename T>
+void DistSparseMatrix<T>::ForceConsistency( bool consistent )
+{ distGraph_.ForceConsistency(consistent); }
+
 // Auxiliary routines
 // ==================
 template<typename T>

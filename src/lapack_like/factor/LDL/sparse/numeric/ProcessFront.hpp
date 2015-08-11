@@ -148,6 +148,7 @@ inline void ProcessFront( Front<F>& front, LDLFrontType factorType )
     if( front.sparseLeaf )
     {
         LogicError("Sparse leaves are not yet enabled");
+        // TODO
     }
     else
     {

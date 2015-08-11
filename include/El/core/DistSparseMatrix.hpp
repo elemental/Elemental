@@ -130,6 +130,19 @@ public:
     const DistSparseMatrix<T>& operator+=( const DistSparseMatrix<T>& A );
     const DistSparseMatrix<T>& operator-=( const DistSparseMatrix<T>& A );
 
+    // For manually accessing/modifying buffers
+    // ----------------------------------------
+    void ForceNumLocalEntries( Int numLocalEntries );
+    void ForceConsistency( bool consistent=true );
+    Int* SourceBuffer();
+    Int* TargetBuffer();
+    Int* OffsetBuffer();
+    T* ValueBuffer();
+    const Int* LockedSourceBuffer() const;
+    const Int* LockedTargetBuffer() const;
+    const Int* LockedOffsetBuffer() const;
+    const T* LockedValueBuffer() const;
+
     // Queries
     // =======
 
@@ -161,14 +174,6 @@ public:
     Int RowOffset( Int localRow ) const;
     Int Offset( Int localRow, Int col ) const;
     Int NumConnections( Int localRow ) const;
-    Int* SourceBuffer();
-    Int* TargetBuffer();
-    Int* OffsetBuffer();
-    T* ValueBuffer();
-    const Int* LockedSourceBuffer() const;
-    const Int* LockedTargetBuffer() const;
-    const Int* LockedOffsetBuffer() const;
-    const T* LockedValueBuffer() const;
 
     mutable DistSparseMultMeta multMeta;
     DistSparseMultMeta InitializeMultMeta() const;

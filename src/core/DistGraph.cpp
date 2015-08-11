@@ -586,6 +586,17 @@ const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
 const Int* DistGraph::LockedOffsetBuffer() const 
 { return localSourceOffsets_.data(); }
 
+void DistGraph::ForceNumLocalEdges( Int numLocalEdges )
+{
+    DEBUG_ONLY(CSE cse("DistGraph::ForceNumLocalEdges"))
+    sources_.resize( numLocalEdges );
+    targets_.resize( numLocalEdges );
+    locallyConsistent_ = false;
+}
+
+void DistGraph::ForceConsistency( bool consistent )
+{ locallyConsistent_ = consistent; }
+
 // Auxiliary routines
 // ==================
 void DistGraph::AssertConsistent() const

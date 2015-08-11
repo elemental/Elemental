@@ -106,7 +106,67 @@ void Front<F>::Pull
         const Int* AOffsetBuf = A.LockedOffsetBuffer();
         if( front.sparseLeaf )
         {
-            LogicError("Sparse leaves not yet handled in Front::Pull");
+            front.LSparse.Empty();
+            Zeros( front.LSparse, node.size, node.size );
+            Zeros( front.LDense, lowerSize, node.size );
+
+            // Count the number of sparse entries to queue into the top-left
+            Int numEntriesTopLeft = 0;
+            for( Int t=0; t<node.size; ++t )
+            {
+                const Int j = invReorder[node.off+t];
+                const Int rowOff = AOffsetBuf[j];
+                const Int numConn = AOffsetBuf[j+1] - rowOff;
+                for( Int k=0; k<numConn; ++k )
+                {
+                    const Int iOrig = AColBuf[rowOff+k];
+                    const Int i = reordering[iOrig];
+
+                    if( i < node.off+t )
+                        continue;
+                    else if( i < node.off+node.size )
+                        ++numEntriesTopLeft;
+                }
+            }
+            front.workSparse.Reserve( numEntriesTopLeft ); 
+
+            F* LDenseBuf = front.LDense.Buffer();
+            const Int LDenseLDim = front.LDense.LDim();
+            for( Int t=0; t<node.size; ++t )
+            {
+                const Int j = invReorder[node.off+t];
+                const Int rowOff = AOffsetBuf[j];
+                const Int numConn = AOffsetBuf[j+1] - rowOff;
+                for( Int k=0; k<numConn; ++k )
+                {
+                    const Int iOrig = AColBuf[rowOff+k];
+                    const Int i = reordering[iOrig];
+
+                    const F transVal = AValBuf[rowOff+k];
+                    const F value = ( conjugate ? Conj(transVal) : transVal );
+
+                    if( i < node.off+t )
+                        continue;
+                    else if( i < node.off+node.size )
+                    {
+                        // Since SuiteSparse makes use of column-major ordering,
+                        // and Elemental uses row-major ordering of its sparse
+                        // matrices, we are implicitly storing the transpose.
+                        front.workSparse.QueueUpdate( i-node.off, t, transVal );
+                    }
+                    else
+                    {
+                        const Int origOff = Find( node.origLowerStruct, i );
+                        const Int row = node.origLowerRelInds[origOff];
+                        DEBUG_ONLY(
+                          if( row < t )
+                              LogicError("Tried to touch upper triangle");
+                        )
+                        LDenseBuf[row+t*LDenseLDim] = value;
+                    }
+                }
+            }
+            front.workSparse.ProcessQueues();
         }
         else
         {

@@ -307,6 +307,18 @@ template<typename T>
 const T* SparseMatrix<T>::LockedValueBuffer() const
 { return vals_.data(); }
 
+template<typename T>
+void SparseMatrix<T>::ForceNumEntries( Int numEntries )
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::ForceNumEntries"))
+    graph_.ForceNumEdges( numEntries );
+    vals_.resize( numEntries );
+}
+
+template<typename T>
+void SparseMatrix<T>::ForceConsistency( bool consistent )
+{ graph_.ForceConsistency( consistent ); }
+
 // Auxiliary routines
 // ==================
 

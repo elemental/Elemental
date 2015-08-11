@@ -74,10 +74,26 @@ NestedDissectionRecursion
         node.LParents.resize( numSources );
         vector<int> LNnz( numSources ), Flag( numSources ), 
                     amdPermInv( numSources );
-        suite_sparse::ldl::Symbolic 
-        ( numSources, subOffsets.data(), subTargets.data(), 
-          node.LOffsets.data(), node.LParents.data(), LNnz.data(),
-          Flag.data(), amdPerm.data(), amdPermInv.data() );
+        // This can be simplified once the AMD routine is templated
+        if( sizeof(int) == sizeof(Int) )
+        {
+            suite_sparse::ldl::Symbolic 
+            ( numSources, subOffsets.data(), subTargets.data(), 
+              node.LOffsets.data(), node.LParents.data(), LNnz.data(),
+              Flag.data(), amdPerm.data(), amdPermInv.data() );
+        }
+        else
+        {
+            vector<int> LOffsets_int(numSources+1), LParents_int(numSources);
+            suite_sparse::ldl::Symbolic 
+            ( numSources, subOffsets.data(), subTargets.data(), 
+              LOffsets_int.data(), LParents_int.data(), LNnz.data(),
+              Flag.data(), amdPerm.data(), amdPermInv.data() );
+            for( Int i=0; i<numSources+1; ++i )
+                node.LOffsets[i] = LOffsets_int[i];
+            for( Int i=0; i<numSources; ++i )
+                node.LParents[i] = LParents_int[i];
+        }
 
         // Fill in this node of the local separator tree
         sep.off = off;

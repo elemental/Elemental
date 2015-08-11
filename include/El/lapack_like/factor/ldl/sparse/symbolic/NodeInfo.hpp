@@ -39,8 +39,8 @@ struct NodeInfo
     // Symbolic analysis for modification of SuiteSparse LDL
     // -----------------------------------------------------
     // NOTE: These are only used within leaf nodes
-    vector<int> LOffsets;
-    vector<int> LParents;
+    vector<Int> LOffsets;
+    vector<Int> LParents;
 
     NodeInfo( NodeInfo* parentNode=nullptr )
     : parent(parentNode), duplicate(nullptr)
