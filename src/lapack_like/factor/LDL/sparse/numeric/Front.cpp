@@ -99,6 +99,9 @@ void Front<F>::Pull
             front.children[c] = new Front<F>(&front);
             pull( *node.children[c], *front.children[c] );
         }
+        // Mark this node as a sparse leaf if it does not have any children
+        if( numChildren == 0 )
+            front.sparseLeaf = true;
 
         const Int lowerSize = node.lowerStruct.size();
         const F* AValBuf = A.LockedValueBuffer();
@@ -106,8 +109,8 @@ void Front<F>::Pull
         const Int* AOffsetBuf = A.LockedOffsetBuffer();
         if( front.sparseLeaf )
         {
-            front.LSparse.Empty();
-            Zeros( front.LSparse, node.size, node.size );
+            front.workSparse.Empty();
+            Zeros( front.workSparse, node.size, node.size );
             Zeros( front.LDense, lowerSize, node.size );
 
             // Count the number of sparse entries to queue into the top-left
@@ -162,11 +165,12 @@ void Front<F>::Pull
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
-                        LDenseBuf[row+t*LDenseLDim] = value;
+                        LDenseBuf[(row-node.size)+t*LDenseLDim] = value;
                     }
                 }
             }
             front.workSparse.ProcessQueues();
+            MakeSymmetric( LOWER, front.workSparse, front.isHermitian );
         }
         else
         {

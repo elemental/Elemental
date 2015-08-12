@@ -21,6 +21,7 @@
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTBACKWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTBACKWARD_HPP
 
+#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {
@@ -588,7 +589,21 @@ inline void FrontLowerBackwardSolve
 
     if( front.sparseLeaf )
     {
-        LogicError("Sparse leaves not supported in FrontLowerBackwardSolve");
+        const Int n = front.LDense.Width();
+        const F* LValBuf = front.LSparse.LockedValueBuffer();
+        const Int* LColBuf = front.LSparse.LockedTargetBuffer();
+        const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
+        Matrix<F> WT, WB;
+        PartitionDown( W, WT, WB, n );
+
+        const Orientation orientation = 
+          ( front.isHermitian ? ADJOINT : TRANSPOSE );
+        Gemm( orientation, NORMAL, F(-1), front.LDense, WB, F(1), WT );
+        
+        const bool onLeft = true;
+        suite_sparse::ldl::LTSolveMulti
+        ( onLeft, WT.Height(), WT.Width(), WT.Buffer(), WT.LDim(), 
+          LOffsetBuf, LColBuf, LValBuf );
     }
     else
     {

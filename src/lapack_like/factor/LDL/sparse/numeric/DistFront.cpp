@@ -327,6 +327,9 @@ void DistFront<F>::Pull
             unpackEntriesLocal
             ( *sep.children[c], *node.children[c], *front.children[c] );
         }
+        // Mark this node as a sparse leaf if it does not have any children
+        if( numChildren == 0 )
+            front.sparseLeaf = true;
 
         const Int size = node.size;
         const Int off = node.off;
@@ -334,7 +337,70 @@ void DistFront<F>::Pull
 
         if( front.sparseLeaf )
         {
-            LogicError("Sparse leaves not yet supported in DistFront::Pull");
+            front.workSparse.Empty();
+            Zeros( front.workSparse, size, size );
+            Zeros( front.LDense, lowerSize, size );
+            F* LDenseBuf = front.LDense.Buffer();
+            const Int LDenseLDim = front.LDense.LDim();
+
+            Int numSparseEntries = 0;
+            auto offsCopy = offs;
+            auto entryOffsCopy = entryOffs;
+            for( Int t=0; t<size; ++t )
+            {
+                const Int i = sep.inds[t];
+                const Int q = A.RowOwner(i);
+
+                int& entryOff = entryOffsCopy[q];
+                const Int numEntries = rRowLengths[offsCopy[q]++];
+                for( Int k=0; k<numEntries; ++k )
+                {
+                    const Int target = rTargets[entryOff++];
+                    DEBUG_ONLY(
+                      if( target < off+t )
+                          LogicError("Received entry from upper triangle");
+                    )
+                    if( target < off+size )
+                        ++numSparseEntries;
+                }
+            }
+            front.workSparse.Reserve( numSparseEntries );
+
+            for( Int t=0; t<size; ++t )
+            {
+                const Int i = sep.inds[t];
+                const Int q = A.RowOwner(i);
+
+                int& entryOff = entryOffs[q];
+                const Int numEntries = rRowLengths[offs[q]++];
+
+                for( Int k=0; k<numEntries; ++k )
+                {
+                    const F value = rEntries[entryOff];
+                    const Int target = rTargets[entryOff];
+                    ++entryOff;
+
+                    DEBUG_ONLY(
+                      if( target < off+t )
+                          LogicError("Received entry from upper triangle");
+                    )
+                    if( target < off+size )
+                    {
+                        const F transVal = 
+                          ( front.isHermitian ? Conj(value) : value );
+                        front.workSparse.QueueUpdate( target-off, t, transVal );
+                    }
+                    else
+                    {
+                        // TODO: Avoid this binary search?
+                        Int origOff = Find( node.origLowerStruct, target );
+                        const Int row = node.origLowerRelInds[origOff];
+                        LDenseBuf[(row-size)+t*LDenseLDim] = value;
+                    }
+                }
+            }
+            front.workSparse.ProcessQueues();
+            MakeSymmetric( LOWER, front.workSparse, front.isHermitian );
         }
         else
         {
