@@ -285,7 +285,7 @@ Int Find
 ( const vector<Int>& sortedInds, Int index,
   string msg="Could not find index" );
 
-// TODO: Move this somewhere else or obsolte it entirely
+// TODO: Move this somewhere else or make it obsolete
 inline Int
 RowToProcess( Int i, Int blocksize, Int commSize )
 {

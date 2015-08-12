@@ -300,7 +300,8 @@ void DistFront<F>::Pull
             ( *sep.children[c], *node.children[c], *front.children[c] );
         }
         // Mark this node as a sparse leaf if it does not have any children
-        if( numChildren == 0 )
+        // and is not a duplicate of a dense distributed node
+        if( numChildren == 0 && !front.duplicate )
             front.sparseLeaf = true;
 
         const Int size = node.size;

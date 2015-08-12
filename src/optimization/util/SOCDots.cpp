@@ -261,6 +261,8 @@ void SOCDots
     mpi::AllGather
     ( sendPairs.data(), numSendInts,
       recvPairs.data(), numRecvInts.data(), recvOffs.data(), comm );
+    const Int iFirst = firstLocalRow;
+    const Int iLast = iFirst + localHeight;
     for( Int largeCone=0; largeCone<totalRecv/2; ++largeCone )
     {
         const Int i     = recvPairs[2*largeCone+0];
@@ -268,9 +270,9 @@ void SOCDots
 
         // Compute x(i:i+order)^T y(i:i+order)
         Real localDot = 0;
-        const Int iFirst = firstLocalRow;
-        const Int iLast = iFirst + localHeight;
-        for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
+        const Int jBeg = Max(iFirst,i);
+        const Int jEnd = Min(iLast,i+order);
+        for( Int j=jBeg; j<jEnd; ++j )
             localDot += xBuf[j-iFirst]*yBuf[j-iFirst];
         const int owner = z.Owner(i,0);
         if( z.IsLocal(i,0) )

@@ -26,11 +26,18 @@ void SOCApply
     auto yRoots = y;
     ConeBroadcast( xRoots, orders, firstInds );
     ConeBroadcast( yRoots, orders, firstInds );
+
     const Int height = x.Height();
+    const Real* xBuf     = x.LockedBuffer();
+    const Real* xRootBuf = xRoots.LockedBuffer();
+    const Real* yBuf     = y.LockedBuffer();
+    const Real* yRootBuf = yRoots.LockedBuffer();
+          Real* zBuf = z.Buffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     for( Int i=0; i<height; ++i )
-        if( i != firstInds.Get(i,0) )
-            z.Update( i, 0, xRoots.Get(i,0)*y.Get(i,0) +
-                            yRoots.Get(i,0)*x.Get(i,0) );
+        if( i != firstIndBuf[i] )
+            zBuf[i] += xRootBuf[i]*yBuf[i] + yRootBuf[i]*xBuf[i];
 }
 
 template<typename Real>
@@ -65,15 +72,21 @@ void SOCApply
     auto yRoots = y;
     ConeBroadcast( xRoots, orders, firstInds );
     ConeBroadcast( yRoots, orders, firstInds );
+
     const Int localHeight = x.LocalHeight();
+    const Real* xBuf     = x.LockedBuffer();
+    const Real* xRootBuf = xRoots.LockedBuffer();
+    const Real* yBuf     = y.LockedBuffer();
+    const Real* yRootBuf = yRoots.LockedBuffer();
+          Real* zBuf     = z.Buffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i != firstInd )
-            z.UpdateLocal
-            ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
-                       yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );
+            zBuf[iLoc] += xRootBuf[iLoc]*yBuf[iLoc] + yRootBuf[iLoc]*xBuf[iLoc];
     }
 }
 
@@ -91,15 +104,22 @@ void SOCApply
     auto yRoots = y;
     ConeBroadcast( xRoots, orders, firstInds );
     ConeBroadcast( yRoots, orders, firstInds );
+
+    const Int firstLocalRow = x.FirstLocalRow();
     const Int localHeight = x.LocalHeight();
+    const Real* xBuf     = x.LockedMatrix().LockedBuffer();
+    const Real* xRootBuf = xRoots.LockedMatrix().LockedBuffer();
+    const Real* yBuf     = y.LockedMatrix().LockedBuffer();
+    const Real* yRootBuf = yRoots.LockedMatrix().LockedBuffer();
+          Real* zBuf     = z.Matrix().Buffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int firstInd = firstIndBuf[iLoc];
         if( i != firstInd )
-            z.UpdateLocal
-            ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
-                       yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );
+            zBuf[iLoc] += xRootBuf[iLoc]*yBuf[iLoc] + yRootBuf[iLoc]*xBuf[iLoc];
     }
 }
 

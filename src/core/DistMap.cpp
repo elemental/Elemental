@@ -91,12 +91,25 @@ void DistMap::Translate( vector<Int>& localInds ) const
     const Int numLocalInds = localInds.size();
 
     // Count how many indices we need each process to map
+    // Avoid unncessary branching within the loop by avoiding RowToProcess
     vector<int> requestSizes( commSize_, 0 );
-    for( Int s=0; s<numLocalInds; ++s )
+    if( blocksize_ > 0 )
     {
-        const Int i = localInds[s];
-        if( i < numSources_ )
-            ++requestSizes[ RowOwner(i) ];
+        for( Int s=0; s<numLocalInds; ++s )
+        {
+            const Int i = localInds[s];
+            if( i < numSources_ )
+                ++requestSizes[ std::min(i/blocksize_,commSize_-1) ];
+        }
+    }
+    else
+    {
+        for( Int s=0; s<numLocalInds; ++s )
+        {
+            const Int i = localInds[s];
+            if( i < numSources_ )
+                ++requestSizes[commSize_-1];
+        }
     }
 
     // Send our requests and find out what we need to fulfill
@@ -111,11 +124,24 @@ void DistMap::Translate( vector<Int>& localInds ) const
     // Pack the requested information 
     vector<int> requests( numRequests );
     auto offs = requestOffs;
-    for( Int s=0; s<numLocalInds; ++s )
+    // Avoid unncessary branching within the loop by avoiding RowToProcess
+    if( blocksize_ > 0 )
     {
-        const Int i = localInds[s];
-        if( i < numSources_ )
-            requests[offs[RowOwner(i)]++] = i;
+        for( Int s=0; s<numLocalInds; ++s )
+        {
+            const Int i = localInds[s];
+            if( i < numSources_ )
+                requests[offs[std::min(i/blocksize_,commSize_-1)]++] = i;
+        }
+    }
+    else
+    {
+        for( Int s=0; s<numLocalInds; ++s )
+        {
+            const Int i = localInds[s];
+            if( i < numSources_ )
+                requests[offs[commSize_-1]++] = i;
+        }
     }
 
     // Perform the first index exchange
@@ -144,12 +170,26 @@ void DistMap::Translate( vector<Int>& localInds ) const
       requests.data(), requestSizes.data(), requestOffs.data(), comm_ );
 
     // Unpack in the same way we originally packed
+    // Avoid unncessary branching within the loop by avoiding RowToProcess
     offs = requestOffs;
-    for( Int s=0; s<numLocalInds; ++s )
+    if( blocksize_ > 0 )
     {
-        const Int i = localInds[s];
-        if( i < numSources_ )
-            localInds[s] = requests[offs[RowOwner(i)]++];
+        for( Int s=0; s<numLocalInds; ++s )
+        {
+            const Int i = localInds[s];
+            if( i < numSources_ )
+                localInds[s] = 
+                  requests[offs[std::min(i/blocksize_,commSize_-1)]++];
+        }
+    }
+    else
+    {
+        for( Int s=0; s<numLocalInds; ++s )
+        {
+            const Int i = localInds[s];
+            if( i < numSources_ )
+                localInds[s] = requests[offs[commSize_-1]++];
+        }
     }
 }
 

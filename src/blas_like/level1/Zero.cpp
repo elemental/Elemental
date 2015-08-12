@@ -59,11 +59,7 @@ template<typename T>
 void Zero( DistMultiVec<T>& X )
 {
     DEBUG_ONLY(CSE cse("Zero"))
-    const int localHeight = X.LocalHeight();
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            X.SetLocal( iLocal, j, T(0) );
+    Zero( X.Matrix() );
 }
 
 #define PROTO(T) \

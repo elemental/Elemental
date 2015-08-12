@@ -13,18 +13,26 @@ namespace El {
 template<typename Real>
 void SOCReflect
 (       Matrix<Real>& x, 
-  const Matrix<Int>& orders, const Matrix<Int>& firstInds )
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds )
 {
     DEBUG_ONLY(CSE cse("SOCReflect"))
-    const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
 
+    const Int height = x.Height();
+
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+    Real* xBuf = x.Buffer(); 
+    
     for( Int i=0; i<height; ++i )
-        if( i != firstInds.Get(i,0) )
-            x.Set( i, 0, -x.Get(i,0) );
+        if( i != firstIndBuf[i] )
+            xBuf[i] = -xBuf[i];
 }
 
 template<typename Real>
@@ -47,16 +55,21 @@ void SOCReflect
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
-    const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      const Int height = x.Height();
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
 
     const Int localHeight = x.LocalHeight();
+    Real* xBuf = x.Buffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( x.GlobalRow(iLoc) != firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, -x.GetLocal(iLoc,0) );
+        if( x.GlobalRow(iLoc) != firstIndBuf[iLoc] )
+            xBuf[iLoc] = -xBuf[iLoc];
 }
 
 template<typename Real>
@@ -67,16 +80,22 @@ void SOCReflect
 {
     DEBUG_ONLY(CSE cse("SOCReflect"))
 
-    const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      const Int height = x.Height();
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
 
+    const Int firstLocalRow = x.FirstLocalRow();
     const Int localHeight = x.LocalHeight();
+    Real* xBuf = x.Matrix().Buffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( x.GlobalRow(iLoc) != firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, -x.GetLocal(iLoc,0) );
+        if( iLoc+firstLocalRow != firstIndBuf[iLoc] )
+            xBuf[iLoc] = -xBuf[iLoc];
 }
 
 #define PROTO(Real) \

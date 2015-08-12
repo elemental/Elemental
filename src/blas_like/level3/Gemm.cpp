@@ -18,7 +18,8 @@ namespace El {
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, 
+  T alpha, const Matrix<T>& A,
+           const Matrix<T>& B, 
   T beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
@@ -71,7 +72,8 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, 
+  T alpha, const Matrix<T>& A,
+           const Matrix<T>& B, 
                  Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
@@ -84,7 +86,8 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, 
   GemmAlgorithm alg )
 {
@@ -114,7 +117,8 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
                  AbstractDistMatrix<T>& C, GemmAlgorithm alg )
 {
     DEBUG_ONLY(CSE cse("Gemm"))
@@ -252,27 +256,33 @@ void LocalGemm
 #define PROTO(T) \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
+    T alpha, const Matrix<T>& A, \
+             const Matrix<T>& B, \
     T beta,        Matrix<T>& C ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
+    T alpha, const Matrix<T>& A, \
+             const Matrix<T>& B, \
                    Matrix<T>& C ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
     T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
                    AbstractDistMatrix<T>& C, GemmAlgorithm alg ); \
   template void LocalGemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
     T beta,        AbstractDistMatrix<T>& C ); \
   template void LocalGemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
                    AbstractDistMatrix<T>& C );
 
 #define EL_ENABLE_QUAD
