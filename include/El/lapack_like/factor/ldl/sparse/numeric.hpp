@@ -303,11 +303,31 @@ struct DistFront
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
       bool conjugate=false );
+    // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
+    void Pull
+    ( const DistSparseMatrix<F>& A,
+      const DistMap& reordering,
+      const DistSeparator& rootSep,
+      const DistNodeInfo& info,
+            vector<Int>& mappedSources,
+            vector<Int>& mappedTargets,
+            vector<Int>& colOffs,
+      bool conjugate=false );
+
     void PullUpdate
     ( const DistSparseMatrix<F>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info );
+    // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
+    void PullUpdate
+    ( const DistSparseMatrix<F>& A,
+      const DistMap& reordering,
+      const DistSeparator& rootSep,
+      const DistNodeInfo& info,
+            vector<Int>& mappedSources,
+            vector<Int>& mappedTargets,
+            vector<Int>& colOffs );
 
     // NOTE: This routine is not yet functioning
     void Push

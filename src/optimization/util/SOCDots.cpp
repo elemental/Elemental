@@ -176,7 +176,8 @@ void SOCDots
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
     const int commSize = mpi::Size(comm);
-    const int localHeight = x.LocalHeight();
+    const Int localHeight = x.LocalHeight();
+    const Int firstLocalRow = x.FirstLocalRow();
 
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
@@ -188,6 +189,12 @@ void SOCDots
 
     z.SetComm( x.Comm() );
     Zeros( z, x.Height(), x.Width() );
+
+    const Real* xBuf = x.LockedMatrix().LockedBuffer();
+    const Real* yBuf = y.LockedMatrix().LockedBuffer();
+          Real* zBuf = z.Matrix().Buffer();
+    const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     // Perform an mpi::AllToAll to collect all of the second-order cones of
     // order less than or equal to the cutoff at the root locations and 
@@ -201,14 +208,14 @@ void SOCDots
     Int numRemoteUpdates = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i == firstInd )
-            z.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) );
+            zBuf[iLoc] = xBuf[iLoc]*yBuf[iLoc];
         else if( !z.IsLocal(firstInd,0) )
             ++numRemoteUpdates;
     }
@@ -217,14 +224,14 @@ void SOCDots
     z.Reserve( numRemoteUpdates );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i != firstInd )
-            z.QueueUpdate( firstInd, 0, x.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) );
+            z.QueueUpdate( firstInd, 0, xBuf[iLoc]*yBuf[iLoc] );
     }
     z.ProcessQueues();
 
@@ -233,11 +240,12 @@ void SOCDots
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
     vector<Int> sendPairs;
+    // TODO: Count and reserve so that the push_back's are all O(1)
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int order = orderBuf[iLoc];
+        const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
         {
             sendPairs.push_back( i );
@@ -260,15 +268,15 @@ void SOCDots
 
         // Compute x(i:i+order)^T y(i:i+order)
         Real localDot = 0;
-        const Int iFirst = x.FirstLocalRow();
-        const Int iLast = iFirst + x.LocalHeight();
+        const Int iFirst = firstLocalRow;
+        const Int iLast = iFirst + localHeight;
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
-            localDot += x.GetLocal(j-iFirst,0)*y.GetLocal(j-iFirst,0);
+            localDot += xBuf[j-iFirst]*yBuf[j-iFirst];
         const int owner = z.Owner(i,0);
         if( z.IsLocal(i,0) )
         {
             const Real dot = mpi::Reduce( localDot, owner, x.Comm() );
-            z.Set( i, 0, dot );
+            zBuf[i-firstLocalRow] = dot;
         }
         else
             mpi::Reduce( localDot, owner, x.Comm() );

@@ -124,6 +124,7 @@ void DistGraph::Empty( bool clearMemory )
     numLocalSources_ = 0;
     blocksize_ = 0;
     locallyConsistent_ = true;
+    frozenSparsity_ = false;
     if( clearMemory )
     {
         SwapClear( sources_ );
@@ -146,6 +147,8 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 {
     if( numSources_ == numSources && numTargets == numTargets_ )
         return;
+
+    frozenSparsity_ = false;
 
     numSources_ = numSources;
     numTargets_ = numTargets;

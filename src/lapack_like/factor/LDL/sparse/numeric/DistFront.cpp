@@ -65,6 +65,25 @@ void DistFront<F>::Pull
   const DistNodeInfo& rootInfo,
   bool conjugate )
 {
+    DEBUG_ONLY(CSE cse("DistFront::Pull"))
+    vector<Int> mappedSources, mappedTargets, colOffs;
+    Pull
+    ( A, reordering, rootSep, rootInfo, 
+      mappedSources, mappedTargets, colOffs,
+      conjugate );
+}
+
+template<typename F>
+void DistFront<F>::Pull
+( const DistSparseMatrix<F>& A, 
+  const DistMap& reordering,
+  const DistSeparator& rootSep, 
+  const DistNodeInfo& rootInfo,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
+  bool conjugate )
+{
     DEBUG_ONLY(
       CSE cse("DistFront::Pull");
       if( A.LocalHeight() != reordering.NumLocalSources() )
@@ -77,55 +96,8 @@ void DistFront<F>::Pull
     const int commRank = mpi::Rank( comm ); 
     Timer timer;
 
-    // Compute the unique set of column indices that our process interacts with
-    if( time && commRank == 0 )
-        timer.Start();
-    const Int* colBuffer = A.LockedTargetBuffer();
-    const Int numLocalEntries = A.NumLocalEntries();
-    vector<Int> colOffs(numLocalEntries);
-    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
-    for( Int e=0; e<numLocalEntries; ++e )
-        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
-    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
-    {
-        Int uniqueOff=-1, lastUnique=-1;
-        for( Int e=0; e<numLocalEntries; ++e )
-        {
-            if( lastUnique != uniqueCols[e].value )
-            {
-                ++uniqueOff;
-                lastUnique = uniqueCols[e].value;
-                uniqueCols[uniqueOff] = uniqueCols[e];
-            }
-            colOffs[uniqueCols[e].index] = uniqueOff;
-        }
-        uniqueCols.resize( uniqueOff+1 );
-    }
-    const Int numUniqueCols = uniqueCols.size();
-    if( time && commRank == 0 )
-        Output("Unique sort: ",timer.Stop()," secs");
-
-    // Get the reordered indices of our local rows of the sparse matrix
-    if( time && commRank == 0 )
-        timer.Start();
-    const Int localHeightA = A.LocalHeight();
-    vector<Int> mappedSources(localHeightA);
-    for( Int iLoc=0; iLoc<localHeightA; ++iLoc ) 
-        mappedSources[iLoc] = A.GlobalRow(iLoc);
-    reordering.Translate( mappedSources );
-    if( time && commRank == 0 )
-        Output("Source translation: ",timer.Stop()," secs");
-
-    // Get the reordered indices of the targets of our portion of the 
-    // distributed sparse matrix
-    if( time && commRank == 0 )
-        timer.Start();
-    vector<Int> mappedTargets(numUniqueCols);
-    for( Int e=0; e<numUniqueCols; ++e )
-        mappedTargets[e] = uniqueCols[e].value;
-    reordering.Translate( mappedTargets );
-    if( time && commRank == 0 )
-        Output("Target translation: ",timer.Stop()," secs");
+    A.MappedSources( reordering, mappedSources );
+    A.MappedTargets( reordering, mappedTargets, colOffs );
 
     // Set up the indices for the rows we need from each process
     if( time && commRank == 0 )
@@ -523,6 +495,22 @@ void DistFront<F>::PullUpdate
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo )
 {
+    DEBUG_ONLY(CSE cse("DistFront::PullUpdate"))
+    vector<Int> mappedSources, mappedTargets, colOffs;
+    PullUpdate
+    ( A, reordering, rootSep, rootInfo, mappedSources, mappedTargets, colOffs );
+}
+
+template<typename F>
+void DistFront<F>::PullUpdate
+( const DistSparseMatrix<F>& A, 
+  const DistMap& reordering,
+  const DistSeparator& rootSep, 
+  const DistNodeInfo& rootInfo,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs )
+{
     DEBUG_ONLY(
       CSE cse("DistFront::PullUpdate");
       if( A.LocalHeight() != reordering.NumLocalSources() )
@@ -535,55 +523,8 @@ void DistFront<F>::PullUpdate
     const int commRank = mpi::Rank( comm ); 
     Timer timer;
 
-    // Compute the unique set of column indices that our process interacts with
-    if( time && commRank == 0 )
-        timer.Start();
-    const Int* colBuffer = A.LockedTargetBuffer();
-    const Int numLocalEntries = A.NumLocalEntries();
-    vector<Int> colOffs(numLocalEntries);
-    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
-    for( Int e=0; e<numLocalEntries; ++e )
-        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
-    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
-    {
-        Int uniqueOff=-1, lastUnique=-1;
-        for( Int e=0; e<numLocalEntries; ++e )
-        {
-            if( lastUnique != uniqueCols[e].value )
-            {
-                ++uniqueOff;
-                lastUnique = uniqueCols[e].value;
-                uniqueCols[uniqueOff] = uniqueCols[e];
-            }
-            colOffs[uniqueCols[e].index] = uniqueOff;
-        }
-        uniqueCols.resize( uniqueOff+1 );
-    }
-    const Int numUniqueCols = uniqueCols.size();
-    if( time && commRank == 0 )
-        Output("Unique sort: ",timer.Stop()," secs");
-
-    // Get the reordered indices of our local rows of the sparse matrix
-    if( time && commRank == 0 )
-        timer.Start();
-    const Int localHeightA = A.LocalHeight();
-    vector<Int> mappedSources(localHeightA);
-    for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
-        mappedSources[iLoc] = A.GlobalRow(iLoc);
-    reordering.Translate( mappedSources );
-    if( time && commRank == 0 )
-        Output("Source translation: ",timer.Stop()," secs");
-
-    // Get the reordered indices of the targets of our portion of the 
-    // distributed sparse matrix
-    if( time && commRank == 0 )
-        timer.Start();
-    vector<Int> mappedTargets(numUniqueCols);
-    for( Int e=0; e<numUniqueCols; ++e )
-        mappedTargets[e] = uniqueCols[e].value;
-    reordering.Translate( mappedTargets );
-    if( time && commRank == 0 )
-        Output("Target translation: ",timer.Stop()," secs");
+    A.MappedSources( reordering, mappedSources );
+    A.MappedTargets( reordering, mappedTargets, colOffs );
 
     // Set up the indices for the rows we need from each process
     if( time && commRank == 0 )
@@ -881,6 +822,7 @@ void DistFront<F>::PullUpdate
               LogicError("entryOffs were incorrect");
     )
 }
+
 
 template<typename F>
 void DistFront<F>::Push

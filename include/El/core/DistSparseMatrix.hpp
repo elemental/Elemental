@@ -178,6 +178,12 @@ public:
     mutable DistSparseMultMeta multMeta;
     DistSparseMultMeta InitializeMultMeta() const;
 
+    void MappedSources
+    ( const DistMap& reordering, vector<Int>& mappedSources ) const;
+    void MappedTargets
+    ( const DistMap& reordering, 
+      vector<Int>& mappedTargets, vector<Int>& colOffs ) const;
+
     void AssertConsistent() const;
     void AssertLocallyConsistent() const;
 

@@ -161,10 +161,10 @@ void AugmentedKKT
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumLocalEntries();
     const Int numEntriesA = A.NumLocalEntries();
-    const Int JLocalHeight = J.LocalHeight();
 
     J.SetComm( A.Comm() );
     Zeros( J, m+n, m+n );
+    const Int JLocalHeight = J.LocalHeight();
 
     // Compute the number of entries to send
     // =====================================

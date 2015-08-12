@@ -438,6 +438,9 @@ void Initialize
         DistMap& invMap, 
         ldl::DistSeparator& rootSep,
         ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
@@ -494,7 +497,7 @@ void Initialize
     InvertMap( map, invMap );
 
     ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info );
+    JFront.Pull( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
     LDL( info, JFront, LDL_2D );
 
     // Compute the proposed step from the KKT system
@@ -611,6 +614,9 @@ void Initialize
           DistMap& invMap, \
           ldl::DistSeparator& rootSep, \
           ldl::DistNodeInfo& info, \
+          vector<Int>& mappedSources, \
+          vector<Int>& mappedTargets, \
+          vector<Int>& colOffs, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

@@ -86,6 +86,7 @@ void Graph::Empty( bool clearMemory )
     numSources_ = 0;
     numTargets_ = 0;
     consistent_ = true;
+    frozenSparsity_ = false;
     if( clearMemory )
     {
         SwapClear( sources_ );
@@ -109,6 +110,8 @@ void Graph::Resize( Int numSources, Int numTargets )
     DEBUG_ONLY(CSE cse("Graph::Resize"))
     if( numSources_ == numSources && numTargets_ == numTargets )
         return;
+
+    frozenSparsity_ = false;
 
     numSources_ = numSources;
     numTargets_ = numTargets;
