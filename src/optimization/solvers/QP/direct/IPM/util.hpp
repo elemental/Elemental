@@ -62,6 +62,9 @@ void Initialize
         DistMap& invMap,
         ldl::DistSeparator& rootSep,
         ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl );
 

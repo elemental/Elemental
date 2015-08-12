@@ -1244,11 +1244,15 @@ void Mehrotra
         Output("ND: ",timer.Stop()," secs");
     InvertMap( map, invMap );
 
+    vector<Int> mappedSources, mappedTargets, colOffs;
+    JStatic.MappedSources( map, mappedSources );
+    JStatic.MappedTargets( map, mappedTargets, colOffs );
+
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s, 
-      map, invMap, rootSep, info, 
+      map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs, 
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
@@ -1388,7 +1392,8 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 Output("Equilibration: ",timer.Stop()," secs");
 
-            JFront.Pull( J, map, rootSep, info );
+            JFront.Pull
+            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();

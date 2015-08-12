@@ -73,6 +73,17 @@ public:
     void QueueDisconnection( Int source, Int target );
     void ProcessQueues();
 
+    // For manually modifying/accessing the buffers
+    void ForceNumEdges( Int numEdges );
+    void ForceConsistency( bool consistent=true );
+    Int* SourceBuffer();
+    Int* TargetBuffer();
+    Int* OffsetBuffer();
+    const Int* LockedSourceBuffer() const;
+    const Int* LockedTargetBuffer() const;
+    const Int* LockedOffsetBuffer() const;
+    void ComputeSourceOffsets();
+
     // Queries
     // =======
     Int NumSources() const;
@@ -86,12 +97,6 @@ public:
     Int SourceOffset( Int source ) const;
     Int Offset( Int source, Int target ) const;
     Int NumConnections( Int source ) const;
-    Int* SourceBuffer();
-    Int* TargetBuffer();
-    Int* OffsetBuffer();
-    const Int* LockedSourceBuffer() const;
-    const Int* LockedTargetBuffer() const;
-    const Int* LockedOffsetBuffer() const;
 
     void AssertConsistent() const;
 
@@ -104,7 +109,7 @@ private:
     // Helpers for local indexing
     bool consistent_;
     vector<Int> sourceOffsets_;
-    void ComputeSourceOffsets();
+
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;

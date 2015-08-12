@@ -1593,6 +1593,7 @@ void Mehrotra
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
+    vector<Int> mappedSources, mappedTargets, colOffs;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
@@ -1601,7 +1602,8 @@ void Mehrotra
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( A, b, c, x, y, z, map, invMap, rootSep, info,
+        ( A, b, c, x, y, z, map, invMap, rootSep, info, 
+          mappedSources, mappedTargets, colOffs,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }  
     else
@@ -1609,8 +1611,10 @@ void Mehrotra
         DistMap augMap, augInvMap;
         ldl::DistNodeInfo augInfo;
         ldl::DistSeparator augRootSep;
+        vector<Int> augMappedSources, augMappedTargets, augColOffs;
         Initialize
         ( A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
+          augMappedSources, augMappedTargets, augColOffs,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }
     if( commRank == 0 && ctrl.time )
@@ -1799,7 +1803,9 @@ void Mehrotra
                 }
                 else
                     J.multMeta = meta;
-                JFront.Pull( J, map, rootSep, info );
+                JFront.Pull
+                ( J, map, rootSep, info, 
+                  mappedSources, mappedTargets, colOffs );
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
@@ -1810,7 +1816,8 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1853,7 +1860,9 @@ void Mehrotra
                 }
                 else
                     J.multMeta = meta;
-                JFront.Pull( J, map, rootSep, info );
+                JFront.Pull
+                ( J, map, rootSep, info, 
+                  mappedSources, mappedTargets, colOffs );
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
@@ -1959,7 +1968,8 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -1981,7 +1991,8 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                  ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }

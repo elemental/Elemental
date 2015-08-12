@@ -43,7 +43,7 @@ inline void LowerForwardMultiply
     //       (or a duplicate's parent)
     auto& W = X.work;
     const Int numRHS = X.matrix.Width();
-    W.Resize( front.L.Height(), numRHS );
+    W.Resize( front.Height(), numRHS );
     Matrix<F> WT, WB;
     PartitionDown( W, WT, WB, info.size );
     WT = X.matrix;

@@ -124,6 +124,7 @@ void DistGraph::Empty( bool clearMemory )
     numLocalSources_ = 0;
     blocksize_ = 0;
     locallyConsistent_ = true;
+    frozenSparsity_ = false;
     if( clearMemory )
     {
         SwapClear( sources_ );
@@ -146,6 +147,8 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 {
     if( numSources_ == numSources && numTargets == numTargets_ )
         return;
+
+    frozenSparsity_ = false;
 
     numSources_ = numSources;
     numTargets_ = numTargets;
@@ -585,6 +588,17 @@ const Int* DistGraph::LockedSourceBuffer() const { return sources_.data(); }
 const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
 const Int* DistGraph::LockedOffsetBuffer() const 
 { return localSourceOffsets_.data(); }
+
+void DistGraph::ForceNumLocalEdges( Int numLocalEdges )
+{
+    DEBUG_ONLY(CSE cse("DistGraph::ForceNumLocalEdges"))
+    sources_.resize( numLocalEdges );
+    targets_.resize( numLocalEdges );
+    locallyConsistent_ = false;
+}
+
+void DistGraph::ForceConsistency( bool consistent )
+{ locallyConsistent_ = consistent; }
 
 // Auxiliary routines
 // ==================

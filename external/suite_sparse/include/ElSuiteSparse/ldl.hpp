@@ -78,19 +78,43 @@ IntType Numeric
 
 template<typename F=double,typename IntType=int>
 void LSolve
-( IntType n, 
+( IntType m, 
         F* X,
+  const IntType* Lp,
+  const IntType* Li,
+  const F* Lx ) ;
+template<typename F=double,typename IntType=int>
+void LSolveMulti
+( bool onLeft,
+  IntType m, 
+  IntType n,
+        F* X,
+  IntType XLDim,
   const IntType* Lp,
   const IntType* Li,
   const F* Lx ) ;
 
 template<typename F=double,typename IntType=int>
 void DSolve( IntType n, F* X, const F* D );
+template<typename F=double,typename IntType=int>
+void DSolveMulti
+( bool onLeft, IntType m, IntType n, F* X, IntType XLDim, const F* D );
 
 template<typename F=double,typename IntType=int>
 void LTSolve
-( IntType n,
+( IntType m,
         F* X,
+  const IntType* Lp,
+  const IntType* Li,
+  const F* Lx,
+  bool conjugate=false );
+template<typename F=double,typename IntType=int>
+void LTSolveMulti
+( bool onLeft,
+  IntType m,
+  IntType n,
+        F* X,
+  IntType XLDim,
   const IntType* Lp,
   const IntType* Li,
   const F* Lx,
@@ -101,6 +125,8 @@ void Perm( IntType n, F* X, const F* B, const IntType* P );
 
 template<typename F=double,typename IntType=int>
 void PermT( IntType n, F* X, const F* B, const IntType* P );
+
+// TODO: Multi versions of Perm and PermT?
 
 template<typename IntType=int>
 IntType ValidPerm( IntType n, const IntType* P, IntType* Flag );

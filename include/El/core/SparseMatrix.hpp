@@ -84,6 +84,18 @@ public:
     const SparseMatrix<T>& operator+=( const SparseMatrix<T>& A );
     const SparseMatrix<T>& operator-=( const SparseMatrix<T>& A );
 
+    // For manually modifying data
+    void ForceNumEntries( Int numEntries );
+    void ForceConsistency( bool consistent=true );
+    Int* SourceBuffer();
+    Int* TargetBuffer();
+    Int* OffsetBuffer();
+    T* ValueBuffer();
+    const Int* LockedSourceBuffer() const;
+    const Int* LockedTargetBuffer() const;
+    const Int* LockedOffsetBuffer() const;
+    const T* LockedValueBuffer() const;
+
     // Queries
     // =======
 
@@ -105,14 +117,6 @@ public:
     Int RowOffset( Int row ) const;
     Int Offset( Int row, Int col ) const;
     Int NumConnections( Int row ) const;
-    Int* SourceBuffer();
-    Int* TargetBuffer();
-    Int* OffsetBuffer();
-    T* ValueBuffer();
-    const Int* LockedSourceBuffer() const;
-    const Int* LockedTargetBuffer() const;
-    const Int* LockedOffsetBuffer() const;
-    const T* LockedValueBuffer() const;
 
     void AssertConsistent() const;
 

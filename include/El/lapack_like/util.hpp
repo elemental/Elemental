@@ -24,7 +24,7 @@ struct BisectCtrl
 
     // TODO: Switch to 1024 when SuiteSparse's LDL is used for leaves
     BisectCtrl()
-    : sequential(true), numDistSeps(1), numSeqSeps(1), cutoff(128),
+    : sequential(true), numDistSeps(1), numSeqSeps(1), cutoff(1024),
       storeFactRecvInds(false)
     { }
 };

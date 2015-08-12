@@ -21,6 +21,7 @@
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTBACKWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTBACKWARD_HPP
 
+#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {
@@ -586,12 +587,34 @@ inline void FrontLowerBackwardSolve
     if( Unfactored(type) )
         LogicError("Cannot solve against an unfactored matrix");
 
-    if( BlockFactorization(type) )
-        FrontBlockLowerBackwardSolve( front.L, W, conjugate );
-    else if( PivotedFactorization(type) )
-        FrontIntraPivLowerBackwardSolve( front.L, front.piv, W, conjugate );
+    if( front.sparseLeaf )
+    {
+        const Int n = front.LDense.Width();
+        const F* LValBuf = front.LSparse.LockedValueBuffer();
+        const Int* LColBuf = front.LSparse.LockedTargetBuffer();
+        const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
+        Matrix<F> WT, WB;
+        PartitionDown( W, WT, WB, n );
+
+        const Orientation orientation = 
+          ( front.isHermitian ? ADJOINT : TRANSPOSE );
+        Gemm( orientation, NORMAL, F(-1), front.LDense, WB, F(1), WT );
+        
+        const bool onLeft = true;
+        suite_sparse::ldl::LTSolveMulti
+        ( onLeft, WT.Height(), WT.Width(), WT.Buffer(), WT.LDim(), 
+          LOffsetBuf, LColBuf, LValBuf );
+    }
     else
-        FrontVanillaLowerBackwardSolve( front.L, W, conjugate );
+    {
+        if( BlockFactorization(type) )
+            FrontBlockLowerBackwardSolve( front.LDense, W, conjugate );
+        else if( PivotedFactorization(type) )
+            FrontIntraPivLowerBackwardSolve
+            ( front.LDense, front.piv, W, conjugate );
+        else
+            FrontVanillaLowerBackwardSolve( front.LDense, W, conjugate );
+    }
 }
 
 template<typename F>

@@ -316,6 +316,9 @@ void Initialize
         DistMap& invMap, 
         ldl::DistSeparator& rootSep,
         ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
@@ -326,6 +329,7 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, A, b, c, x, y, z, map, invMap, rootSep, info, 
+      mappedSources, mappedTargets, colOffs,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
@@ -370,6 +374,9 @@ void Initialize
           DistMap& invMap, \
           ldl::DistSeparator& rootSep, \
           ldl::DistNodeInfo& info, \
+          vector<Int>& mappedSources, \
+          vector<Int>& mappedTargets, \
+          vector<Int>& colOffs, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

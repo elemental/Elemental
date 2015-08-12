@@ -52,7 +52,7 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
         {
             if( front.duplicate != nullptr )
             {
-                front.L1D.Attach( front.L2D.Grid(), front.duplicate->L );    
+                front.L1D.Attach( front.L2D.Grid(), front.duplicate->LDense ); 
             }
             else
             {
@@ -68,7 +68,7 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
         {
             if( front.duplicate != nullptr ) 
             {
-                front.L2D.Attach( front.L1D.Grid(), front.duplicate->L );
+                front.L2D.Attach( front.L1D.Grid(), front.duplicate->LDense );
             }
             else
             {
@@ -86,7 +86,7 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
         {
             if( front.duplicate != nullptr )
             {
-                front.L2D.Attach( front.L1D.Grid(), front.duplicate->L );
+                front.L2D.Attach( front.L1D.Grid(), front.duplicate->LDense );
             }
             else
             {
@@ -122,7 +122,7 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
         {
             if( front.duplicate != nullptr )
             {
-                front.L1D.Attach( front.L2D.Grid(), front.duplicate->L );
+                front.L1D.Attach( front.L2D.Grid(), front.duplicate->LDense );
             }
             else
             {

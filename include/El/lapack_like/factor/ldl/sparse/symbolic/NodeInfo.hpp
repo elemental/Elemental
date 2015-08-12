@@ -36,6 +36,12 @@ struct NodeInfo
     // (maps from the child update indices to our frontal indices).
     vector<vector<Int>> childRelInds;
 
+    // Symbolic analysis for modification of SuiteSparse LDL
+    // -----------------------------------------------------
+    // NOTE: These are only used within leaf nodes
+    vector<Int> LOffsets;
+    vector<Int> LParents;
+
     NodeInfo( NodeInfo* parentNode=nullptr )
     : parent(parentNode), duplicate(nullptr)
     { }

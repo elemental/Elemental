@@ -455,6 +455,9 @@ void Initialize
   const DistMap& invMap, 
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
@@ -501,7 +504,7 @@ void Initialize
     // =====================================
     // TODO: Use PullUpdate just on the identity (or avoid it entirely?)
     ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info );
+    JFront.Pull( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
     // TODO: Consider selective inversion
     LDL( info, JFront, LDL_2D );
 
@@ -634,6 +637,9 @@ void Initialize
     const DistMap& invMap, \
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
+          vector<Int>& mappedSources, \
+          vector<Int>& mappedTargets, \
+          vector<Int>& colOffs, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

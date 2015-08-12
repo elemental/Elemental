@@ -343,13 +343,16 @@ void Initialize
   const DistMap& invMap, 
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     qp::affine::Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s,
-      map, invMap, rootSep, info, 
+      map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
@@ -406,6 +409,9 @@ void Initialize
     const DistMap& invMap, \
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
+          vector<Int>& mappedSources, \
+          vector<Int>& mappedTargets, \
+          vector<Int>& colOffs, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

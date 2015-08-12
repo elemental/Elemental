@@ -146,19 +146,26 @@ inline void ProcessFront( Front<F>& front, LDLFrontType factorType )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFront"))
     front.type = factorType;
+    DEBUG_ONLY(
+      if( front.sparseLeaf )
+          LogicError("This should not be possible");
+    )
     const bool pivoted = PivotedFactorization( factorType );
     if( BlockFactorization(factorType) )
-        ProcessFrontBlock( front.L, front.work, front.isHermitian, pivoted );
+        ProcessFrontBlock
+        ( front.LDense, front.workDense, front.isHermitian, pivoted );
     else if( pivoted )
     {
         ProcessFrontIntraPiv
-        ( front.L, front.subdiag, front.piv, front.work, front.isHermitian );
-        GetDiagonal( front.L, front.diag );
+        ( front.LDense, front.subdiag, front.piv, front.workDense, 
+          front.isHermitian );
+        GetDiagonal( front.LDense, front.diag );
     }
     else
     {
-        ProcessFrontVanilla( front.L, front.work, front.isHermitian );
-        GetDiagonal( front.L, front.diag );
+        ProcessFrontVanilla
+        ( front.LDense, front.workDense, front.isHermitian );
+        GetDiagonal( front.LDense, front.diag );
     }
 }
 

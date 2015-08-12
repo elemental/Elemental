@@ -38,6 +38,7 @@ inline void LowerBackwardSolve
     const bool haveParent = X.parent != nullptr;
     bool haveDupMVParent = dupMV != nullptr && dupMV->parent != nullptr;
     bool haveDupMatParent = dupMat != nullptr && dupMat->parent != nullptr;
+    // Ugh. Surely this can be simplified.
     auto& W = 
       (haveParent ? X.work 
                   : (haveDupMVParent ? dupMV->work.Matrix() 
@@ -55,7 +56,7 @@ inline void LowerBackwardSolve
     {
         // Set up a workspace for the child
         auto& childW = X.children[c]->work;
-        childW.Resize( front.children[c]->L.Height(), numRHS );
+        childW.Resize( front.children[c]->Height(), numRHS );
         Matrix<F> childWT, childWB; 
         PartitionDown( childW, childWT, childWB, info.children[c]->size );
         childWT = X.children[c]->matrix;

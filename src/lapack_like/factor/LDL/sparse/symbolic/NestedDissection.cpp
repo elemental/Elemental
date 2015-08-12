@@ -9,6 +9,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "ElSuiteSparse/ldl.hpp"
 
 namespace El {
 namespace ldl {
@@ -33,7 +34,7 @@ NestedDissectionRecursion
         Int numValidEdges = 0;
         const Int numEdges = graph.NumEdges();
         for( Int e=0; e<numEdges; ++e )
-            if( sourceBuf[e] != targetBuf[e] && targetBuf[e] < numSources )
+            if( targetBuf[e] < numSources )
                 ++numValidEdges;
         vector<int> subOffsets(numSources+1), subTargets(Max(numValidEdges,1));
         Int sourceOff = 0;
@@ -48,7 +49,7 @@ NestedDissectionRecursion
                 subOffsets[sourceOff++] = validCounter;
                 ++prevSource;
             }
-            if( source != target && target < numSources )
+            if( target < numSources )
                 subTargets[validCounter++] = target;
         }
         while( sourceOff <= numSources )
@@ -66,6 +67,33 @@ NestedDissectionRecursion
             control, info );
         if( amdStatus != EL_AMD_OK )
             RuntimeError("AMD status was ",amdStatus);
+
+        // Compute the symbolic factorization of this leaf node using the
+        // reordering just computed
+        node.LOffsets.resize( numSources+1 );
+        node.LParents.resize( numSources );
+        vector<int> LNnz( numSources ), Flag( numSources ), 
+                    amdPermInv( numSources );
+        // This can be simplified once the AMD routine is templated
+        if( sizeof(int) == sizeof(Int) )
+        {
+            suite_sparse::ldl::Symbolic 
+            ( numSources, subOffsets.data(), subTargets.data(), 
+              node.LOffsets.data(), node.LParents.data(), LNnz.data(),
+              Flag.data(), amdPerm.data(), amdPermInv.data() );
+        }
+        else
+        {
+            vector<int> LOffsets_int(numSources+1), LParents_int(numSources);
+            suite_sparse::ldl::Symbolic 
+            ( numSources, subOffsets.data(), subTargets.data(), 
+              LOffsets_int.data(), LParents_int.data(), LNnz.data(),
+              Flag.data(), amdPerm.data(), amdPermInv.data() );
+            for( Int i=0; i<numSources+1; ++i )
+                node.LOffsets[i] = LOffsets_int[i];
+            for( Int i=0; i<numSources; ++i )
+                node.LParents[i] = LParents_int[i];
+        }
 
         // Fill in this node of the local separator tree
         sep.off = off;

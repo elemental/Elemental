@@ -1634,6 +1634,10 @@ void Mehrotra
         Output("ND: ",timer.Stop()," secs");
     InvertMap( map, invMap );
 
+    vector<Int> mappedSources, mappedTargets, colOffs;
+    JStatic.MappedSources( map, mappedSources );
+    JStatic.MappedTargets( map, mappedTargets, colOffs );
+
     Real relError = 1;
     DistMultiVec<Real> dInner(comm);
     DistMultiVec<Real> dxError(comm), dyError(comm), 
@@ -1793,7 +1797,8 @@ void Mehrotra
             J.multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
-            JFront.Pull( J, map, rootSep, info );
+            JFront.Pull
+            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
             if( ctrl.time && commRank == 0 )
                 Output("Front pull: ",timer.Stop()," secs");
 

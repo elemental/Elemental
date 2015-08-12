@@ -79,6 +79,17 @@ public:
     void ProcessQueues();
     void ProcessLocalQueues();
 
+    // For manually modifying/accessing buffers
+    void ForceNumLocalEdges( Int numLocalEdges );
+    void ForceConsistency( bool consistent=true );
+    Int* SourceBuffer();
+    Int* TargetBuffer();
+    Int* OffsetBuffer();
+    const Int* LockedSourceBuffer() const;
+    const Int* LockedTargetBuffer() const;
+    const Int* LockedOffsetBuffer() const;
+    void ComputeSourceOffsets();
+
     // Queries
     // =======
 
@@ -107,12 +118,6 @@ public:
     Int SourceOffset( Int localSource ) const;
     Int Offset( Int localSource, Int target ) const;
     Int NumConnections( Int localSource ) const;
-    Int* SourceBuffer();
-    Int* TargetBuffer();
-    Int* OffsetBuffer();
-    const Int* LockedSourceBuffer() const;
-    const Int* LockedTargetBuffer() const;
-    const Int* LockedOffsetBuffer() const;
 
     void AssertConsistent() const;
     void AssertLocallyConsistent() const;
@@ -139,7 +144,6 @@ private:
     // Helpers for local indexing
     bool locallyConsistent_ = true;
     vector<Int> localSourceOffsets_;
-    void ComputeSourceOffsets();
 
     friend class Graph;
     friend void Copy( const Graph& A, DistGraph& B );

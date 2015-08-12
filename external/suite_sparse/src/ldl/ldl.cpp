@@ -288,16 +288,19 @@ void Symbolic
     for (IntType k = 0; k < n; k++)
         Lp[k+1] = Lp[k] + Lnz[k];
 }
-template void Symbolic
-( int n,
-  const int* Ap,
-  const int* Ai, 
-        int* Lp,
-        int* Parent,
-        int* Lnz,
-        int* Flag,
-  const int* P,
-        int* Pinv );
+#define SYMB_PROTO_INT(IntType) \
+  template void Symbolic \
+  ( IntType n, \
+    const IntType* Ap, \
+    const IntType* Ai, \
+          IntType* Lp, \
+          IntType* Parent, \
+          IntType* Lnz, \
+          IntType* Flag, \
+    const IntType* P, \
+          IntType* Pinv );
+SYMB_PROTO_INT(int)
+SYMB_PROTO_INT(long long int)
 
 /* ========================================================================== */
 /* === ldl_numeric ========================================================== */
@@ -380,73 +383,31 @@ IntType Numeric  // returns n if successful, k if D (k,k) is zero
     }
     return n;        // success, diagonal of D is all nonzero
 }
-template int Numeric
-( int n, 
-  const int* Ap,
-  const int* Ai,
-  const float* Ax,
-  const int* Lp,
-  const int* Parent, 
-        int* Lnz, 
-        int* Li,
-        float* Lx,
-        float* D,
-        float* Y,
-        int* Pattern,
-        int* Flag,
-  const int* P,
-  const int* Pinv,
-        bool conjugate );
-template int Numeric
-( int n,
-  const int* Ap,
-  const int* Ai,
-  const double* Ax,
-  const int* Lp,
-  const int* Parent,
-        int* Lnz,
-        int* Li,
-        double* Lx,
-        double* D,
-        double* Y,
-        int* Pattern,
-        int* Flag,
-  const int* P,
-  const int* Pinv,
-        bool conjugate );
-template int Numeric
-( int n,
-  const int* Ap,
-  const int* Ai,
-  const complex<float>* Ax,
-  const int* Lp, 
-  const int* Parent,
-        int* Lnz, int* Li,
-        complex<float>* Lx,
-        complex<float>* D,
-        complex<float>* Y,
-        int* Pattern,
-        int* Flag,
-  const int* P,
-  const int* Pinv,
-        bool conjugate );
-template int Numeric
-( int n,
-  const int* Ap,
-  const int* Ai,
-  const complex<double>* Ax,
-  const int* Lp,
-  const int* Parent,
-        int* Lnz,
-        int* Li,
-        complex<double>* Lx, 
-        complex<double>* D,
-        complex<double>* Y,
-        int* Pattern,
-        int* Flag,
-  const int* P,
-  const int* Pinv,
-        bool conjugate );
+#define NUM_PROTO_INT_SCALAR(IntType,F) \
+  template IntType Numeric \
+  ( IntType n, \
+    const IntType* Ap, \
+    const IntType* Ai, \
+    const F* Ax, \
+    const IntType* Lp, \
+    const IntType* Parent, \
+          IntType* Lnz, \
+          IntType* Li, \
+          F* Lx, \
+          F* D, \
+          F* Y, \
+          IntType* Pattern, \
+          IntType* Flag, \
+    const IntType* P, \
+    const IntType* Pinv, \
+          bool conjugate );
+#define NUM_PROTO_SCALAR(F) \
+  NUM_PROTO_INT_SCALAR(int,F) \
+  NUM_PROTO_INT_SCALAR(long long int,F)
+NUM_PROTO_SCALAR(float)
+NUM_PROTO_SCALAR(double)
+NUM_PROTO_SCALAR(complex<float>)
+NUM_PROTO_SCALAR(complex<double>)
 
 /* ========================================================================== */
 /* === ldl_lsolve:  solve Lx=b ============================================== */
@@ -455,87 +416,56 @@ template int Numeric
 template<typename F,typename IntType>
 void LSolve
 (
-  IntType n,         // L is n-by-n, where n >= 0 
-        F* X,        // size n.  right-hand-side on input, soln. on output 
-  const IntType* Lp, // input of size n+1 
-  const IntType* Li, // input of size lnz=Lp[n] 
-  const F* Lx        // input of size lnz=Lp[n] 
+  IntType m,         // L is m-by-m, where m >= 0 
+        F* X,        // size m.  right-hand-side on input, soln. on output 
+  const IntType* Lp, // input of size m+1 
+  const IntType* Li, // input of size lnz=Lp[m] 
+  const F* Lx        // input of size lnz=Lp[m] 
 )
 {
-    for (IntType j = 0; j < n; j++)
+    for (IntType i = 0; i < m; i++)
     {
-        IntType p2 = Lp[j+1];
-        for (IntType p = Lp[j]; p < p2; p++)
-            X[Li[p]] -= Lx[p] * X[j];
+        IntType p2 = Lp[i+1];
+        for (IntType p = Lp[i]; p < p2; p++)
+            X[Li[p]] -= Lx[p] * X[i];
     }
 }
-template void LSolve
-( int n, 
-        float* X,
-  const int* Lp,
-  const int* Li,
-  const float* Lx );
-template void LSolve
-( int n, 
-        double* X,
-  const int* Lp,
-  const int* Li,
-  const double* Lx );
-template void LSolve
-( int n, 
-        complex<float>* X,
-  const int* Lp,
-  const int* Li,
-  const complex<float>* Lx );
-template void LSolve
-( int n,
-        complex<double>* X,
-  const int* Lp,
-  const int* Li,
-  const complex<double>* Lx );
-
-/* ========================================================================== */
-/* === ldl_dsolve:  solve Dx=b ============================================== */
-/* ========================================================================== */
+#define LSOLVE_PROTO_INT_SCALAR(IntType,F) \
+  template void LSolve \
+  ( IntType n, \
+          F* X, \
+    const IntType* Lp, \
+    const IntType* Li, \
+    const F* Lx );
+#define LSOLVE_PROTO_SCALAR(F) \
+  LSOLVE_PROTO_INT_SCALAR(int,F) \
+  LSOLVE_PROTO_INT_SCALAR(long long int,F)
+LSOLVE_PROTO_SCALAR(float)
+LSOLVE_PROTO_SCALAR(double)
+LSOLVE_PROTO_SCALAR(complex<float>)
+LSOLVE_PROTO_SCALAR(complex<double>)
 
 template<typename F,typename IntType>
-void DSolve
+void LSolveMulti
 (
-  IntType n,  // D is n-by-n, where n >= 0 
-        F* X, // size n.  right-hand-side on input, soln. on output 
-  const F* D  // input of size n 
+  bool onLeft,
+  IntType m,
+  IntType n,
+        F* X,        // m x n
+  IntType XLDim,
+  const IntType* Lp, 
+  const IntType* Li, 
+  const F* Lx      
 )
 {
-    for (IntType j = 0; j < n; j++)
-        X[j] /= D[j];
-}
-template void DSolve( int n, float* X, const float* D );
-template void DSolve( int n, double* X, const double* D );
-template void DSolve( int n, complex<float>* X, const complex<float>* D );
-template void DSolve( int n, complex<double>* X, const complex<double>* D );
-
-/* ========================================================================== */
-/* === ldl_ltsolve: solve L'x=b  ============================================ */
-/* ========================================================================== */
-
-template<typename F,typename IntType>
-void LTSolve
-(
-  IntType n,         // L is n-by-n, where n >= 0 */
-        F* X,        // size n.  right-hand-side on input, soln. on output
-  const IntType* Lp, // input of size n+1
-  const IntType* Li, // input of size lnz=Lp[n]
-  const F* Lx,       // input of size lnz=Lp[n]
-  bool conjugate
-)
-{
-    if( conjugate )
+    if( onLeft )
     {
-        for (IntType j = n-1; j >= 0; j--)
+        for (IntType i = 0; i < m; i++)
         {
-            IntType p2 = Lp[j+1] ;
-            for (IntType p = Lp[j]; p < p2; p++)
-                X[j] -= Conj(Lx[p]) * X[Li[p]];
+            IntType p2 = Lp[i+1];
+            for (IntType p = Lp[i]; p < p2; p++)
+                for (IntType j=0; j<n; ++j )
+                    X[Li[p]+j*XLDim] -= Lx[p] * X[i+j*XLDim];
         }
     }
     else
@@ -544,38 +474,219 @@ void LTSolve
         {
             IntType p2 = Lp[j+1] ;
             for (IntType p = Lp[j]; p < p2; p++)
-                X[j] -= Lx[p] * X[Li[p]];
+                for (IntType i=0; i<m; ++i )
+                    X[i+j*XLDim] -= Lx[p] * X[i+Li[p]*XLDim];
+        }
+
+    }
+}
+#define LSOLVE_MULTI_PROTO_INT_SCALAR(IntType,F) \
+  template void LSolveMulti \
+  ( bool onLeft, \
+    IntType m, \
+    IntType n, \
+          F* X, \
+    IntType XLDim, \
+    const IntType* Lp, \
+    const IntType* Li, \
+    const F* Lx );
+#define LSOLVE_MULTI_PROTO_SCALAR(F) \
+  LSOLVE_MULTI_PROTO_INT_SCALAR(int,F) \
+  LSOLVE_MULTI_PROTO_INT_SCALAR(long long int,F)
+LSOLVE_MULTI_PROTO_SCALAR(float)
+LSOLVE_MULTI_PROTO_SCALAR(double)
+LSOLVE_MULTI_PROTO_SCALAR(complex<float>)
+LSOLVE_MULTI_PROTO_SCALAR(complex<double>)
+
+/* ========================================================================== */
+/* === ldl_dsolve:  solve Dx=b ============================================== */
+/* ========================================================================== */
+
+template<typename F,typename IntType>
+void DSolve
+(
+  IntType m,  // D is m-by-m, where m >= 0 
+        F* X, // size m.  right-hand-side on input, soln. on output 
+  const F* D  // input of size m 
+)
+{
+    for (IntType i = 0; i < m; i++)
+        X[i] /= D[i];
+}
+#define DSOLVE_PROTO_INT_SCALAR(IntType,F) \
+  template void DSolve( IntType m, F* X, const F* D );
+#define DSOLVE_PROTO_SCALAR(F) \
+  DSOLVE_PROTO_INT_SCALAR(int,F) \
+  DSOLVE_PROTO_INT_SCALAR(long long int,F)
+DSOLVE_PROTO_SCALAR(float)
+DSOLVE_PROTO_SCALAR(double)
+DSOLVE_PROTO_SCALAR(complex<float>)
+DSOLVE_PROTO_SCALAR(complex<double>)
+
+template<typename F,typename IntType>
+void DSolveMulti
+(
+  bool onLeft,
+  IntType m,  
+  IntType n,
+        F* X, // m x n
+  IntType XLDim,
+  const F* D 
+)
+{
+    if( onLeft )
+    {
+        for (IntType i = 0; i < m; i++)
+            for (IntType j=0; j < n; j++)
+                X[i+j*XLDim] /= D[i];
+    }
+    else
+    {
+        for (IntType j = 0; j < n; j++)
+            for (IntType i=0; i < m; i++)
+                X[i+j*XLDim] /= D[j];
+    }
+}
+#define DSOLVE_MULTI_PROTO_INT_SCALAR(IntType,F) \
+  template void DSolveMulti \
+  ( bool onLeft, IntType m, IntType n, F* X, IntType XLDim, const F* D );
+#define DSOLVE_MULTI_PROTO_SCALAR(F) \
+  DSOLVE_MULTI_PROTO_INT_SCALAR(int,F) \
+  DSOLVE_MULTI_PROTO_INT_SCALAR(long long int,F)
+DSOLVE_MULTI_PROTO_SCALAR(float)
+DSOLVE_MULTI_PROTO_SCALAR(double)
+DSOLVE_MULTI_PROTO_SCALAR(complex<float>)
+DSOLVE_MULTI_PROTO_SCALAR(complex<double>)
+
+/* ========================================================================== */
+/* === ldl_ltsolve: solve L'x=b  ============================================ */
+/* ========================================================================== */
+
+template<typename F,typename IntType>
+void LTSolve
+(
+  IntType m,         // L is m-by-m, where m >= 0 */
+        F* X,        // size m.  right-hand-side on input, soln. on output
+  const IntType* Lp, // input of size m+1
+  const IntType* Li, // input of size lnz=Lp[m]
+  const F* Lx,       // input of size lnz=Lp[m]
+  bool conjugate
+)
+{
+    if( conjugate )
+    {
+        for (IntType i = m-1; i >= 0; i--)
+        {
+            IntType p2 = Lp[i+1] ;
+            for (IntType p = Lp[i]; p < p2; p++)
+                X[i] -= Conj(Lx[p]) * X[Li[p]];
+        }
+    }
+    else
+    {
+        for (IntType i = m-1; i >= 0; i--)
+        {
+            IntType p2 = Lp[i+1] ;
+            for (IntType p = Lp[i]; p < p2; p++)
+                X[i] -= Lx[p] * X[Li[p]];
         }
     }
 }
-template void LTSolve
-( int n,
-        float* X,
-  const int* Lp,
-  const int* Li,
-  const float* Lx,
-  bool conjugate );
-template void LTSolve
-( int n,
-        double* X,
-  const int* Lp,
-  const int* Li,
-  const double* Lx,
-  bool conjugate );
-template void LTSolve
-( int n,
-        complex<float>* X,
-  const int* Lp,
-  const int* Li,
-  const complex<float>* Lx,
-  bool conjugate );
-template void LTSolve
-( int n,
-        complex<double>* X,
-  const int* Lp,
-  const int* Li,
-  const complex<double>* Lx,
-  bool conjugate );
+#define LTSOLVE_PROTO_INT_SCALAR(IntType,F) \
+  template void LTSolve \
+  ( IntType n, \
+          F* X, \
+    const IntType* Lp, \
+    const IntType* Li, \
+    const F* Lx, \
+    bool conjugate );
+#define LTSOLVE_PROTO_SCALAR(F) \
+  LTSOLVE_PROTO_INT_SCALAR(int,F) \
+  LTSOLVE_PROTO_INT_SCALAR(long long int,F)
+LTSOLVE_PROTO_SCALAR(float)
+LTSOLVE_PROTO_SCALAR(double)
+LTSOLVE_PROTO_SCALAR(complex<float>)
+LTSOLVE_PROTO_SCALAR(complex<double>)
+
+template<typename F,typename IntType>
+void LTSolveMulti
+(
+  bool onLeft,
+  IntType m,
+  IntType n, 
+        F* X,        // m x n
+  IntType XLDim, 
+  const IntType* Lp,
+  const IntType* Li, 
+  const F* Lx, 
+  bool conjugate
+)
+{
+    if( onLeft )
+    {
+        if( conjugate )
+        {
+            for (IntType i = m-1; i >= 0; i--)
+            {
+                IntType p2 = Lp[i+1] ;
+                for (IntType p = Lp[i]; p < p2; p++)
+                    for (IntType j=0; j<n; ++j )
+                        X[i+j*XLDim] -= Conj(Lx[p]) * X[Li[p]+j*XLDim];
+            }
+        }
+        else
+        {
+            for (IntType i = m-1; i >= 0; i--)
+            {
+                IntType p2 = Lp[i+1] ;
+                for (IntType p = Lp[i]; p < p2; p++)
+                    for (IntType j=0; j<n; ++j )
+                        X[i+j*XLDim] -= Lx[p] * X[Li[p]+j*XLDim];
+            }
+        }
+    }
+    else
+    {
+        if( conjugate )
+        {
+            for (IntType j = 0; j < n; j++)
+            {
+                IntType p2 = Lp[j+1];
+                for (IntType p = Lp[j]; p < p2; p++)
+                    for (IntType i=0; i<m; ++i )
+                        X[i+Li[p]*XLDim] -= Conj(Lx[p]) * X[i+j*XLDim];
+            }
+        }
+        else
+        {
+            for (IntType j = 0; j < n; j++)
+            {
+                IntType p2 = Lp[j+1];
+                for (IntType p = Lp[j]; p < p2; p++)
+                    for (IntType i=0; i<m; ++i )
+                        X[i+Li[p]*XLDim] -= Lx[p] * X[i+j*XLDim];
+            }
+        }
+    }
+}
+#define LTSOLVE_MULTI_PROTO_INT_SCALAR(IntType,F) \
+  template void LTSolveMulti \
+  ( bool onLeft, \
+    IntType m, \
+    IntType n, \
+          F* X, \
+    IntType XLDim, \
+    const IntType* Lp, \
+    const IntType* Li, \
+    const F* Lx, \
+    bool conjugate );
+#define LTSOLVE_MULTI_PROTO_SCALAR(F) \
+  LTSOLVE_MULTI_PROTO_INT_SCALAR(int,F) \
+  LTSOLVE_MULTI_PROTO_INT_SCALAR(long long int,F)
+LTSOLVE_MULTI_PROTO_SCALAR(float)
+LTSOLVE_MULTI_PROTO_SCALAR(double)
+LTSOLVE_MULTI_PROTO_SCALAR(complex<float>)
+LTSOLVE_MULTI_PROTO_SCALAR(complex<double>)
 
 /* ========================================================================== */
 /* === ldl_perm: permute a vector, x=Pb ===================================== */
@@ -593,14 +704,19 @@ void Perm
     for (IntType j = 0; j < n; j++)
         X[j] = B[P[j]];
 }
-template void Perm
-( int n, float* X, const float* B, const int* P );
-template void Perm
-( int n, double* X, const double* B, const int* P );
-template void Perm
-( int n, complex<float>* X, const complex<float>* B, const int* P );
-template void Perm
-( int n, complex<double>* X, const complex<double>* B, const int* P );
+#define PERM_PROTO_INT_SCALAR(IntType,F) \
+  template void Perm \
+  ( IntType n, \
+          F* X, \
+    const F* B, \
+    const IntType* P );
+#define PERM_PROTO_SCALAR(F) \
+  PERM_PROTO_INT_SCALAR(int,F) \
+  PERM_PROTO_INT_SCALAR(long long int,F)
+PERM_PROTO_SCALAR(float)
+PERM_PROTO_SCALAR(double)
+PERM_PROTO_SCALAR(complex<float>)
+PERM_PROTO_SCALAR(complex<double>)
 
 /* ========================================================================== */
 /* === ldl_permt: permute a vector, x=P'b =================================== */
@@ -618,12 +734,19 @@ void PermT
     for (IntType j = 0; j < n; j++)
         X[P[j]] = B[j];
 }
-template void PermT( int n, float* X, const float* B, const int* P );
-template void PermT( int n, double* X, const double* B, const int* P );
-template void PermT
-( int n, complex<float>* X, const complex<float>* B, const int* P );
-template void PermT
-( int n, complex<double>* X, const complex<double>* B, const int* P );
+#define PERMT_PROTO_INT_SCALAR(IntType,F) \
+  template void PermT \
+  ( IntType n, \
+          F* X, \
+    const F* B, \
+    const IntType* P );
+#define PERMT_PROTO_SCALAR(F) \
+  PERMT_PROTO_INT_SCALAR(int,F) \
+  PERMT_PROTO_INT_SCALAR(long long int,F)
+PERMT_PROTO_SCALAR(float)
+PERMT_PROTO_SCALAR(double)
+PERMT_PROTO_SCALAR(complex<float>)
+PERMT_PROTO_SCALAR(complex<double>)
 
 /* ========================================================================== */
 /* === ldl_valid_perm: check if a permutation vector is valid =============== */
@@ -654,6 +777,8 @@ IntType ValidPerm  // returns 1 if valid, 0 otherwise
     return 1; // P is valid 
 }
 template int ValidPerm( int n, const int* P, int* Flag );
+template long long int ValidPerm
+( long long int n, const long long int* P, long long int* Flag );
 
 /* ========================================================================== */
 /* === ldl_valid_matrix: check if a sparse matrix is valid ================== */
@@ -687,6 +812,7 @@ IntType ValidMatrix
     return 1; // matrix is valid 
 }
 template int ValidMatrix( int n, const int* Ap, const int* Ai );
+template long long int ValidMatrix( long long int n, const long long int* Ap, const long long int* Ai );
 
 } // namespace ldl
 } // namespace suite_sparse

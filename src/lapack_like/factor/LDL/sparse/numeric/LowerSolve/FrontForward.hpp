@@ -21,6 +21,7 @@
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 
+#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {
@@ -86,12 +87,31 @@ FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
     if( Unfactored(type) )
         LogicError("Cannot solve against an unfactored front");
 
-    if( BlockFactorization(type) )
-        FrontBlockLowerForwardSolve( front.L, W );
-    else if( PivotedFactorization(type) )
-        FrontIntraPivLowerForwardSolve( front.L, front.piv, W );
+    if( front.sparseLeaf )
+    {
+        const Int n = front.LDense.Width();
+        const F* LValBuf = front.LSparse.LockedValueBuffer();
+        const Int* LColBuf = front.LSparse.LockedTargetBuffer();
+        const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
+        Matrix<F> WT, WB;
+        PartitionDown( W, WT, WB, n );
+
+        const bool onLeft = true;
+        suite_sparse::ldl::LSolveMulti
+        ( onLeft, WT.Height(), WT.Width(), WT.Buffer(), WT.LDim(), 
+          LOffsetBuf, LColBuf, LValBuf );
+
+        Gemm( NORMAL, NORMAL, F(-1), front.LDense, WT, F(1), WB );
+    }
     else
-        FrontVanillaLowerForwardSolve( front.L, W );
+    {
+        if( BlockFactorization(type) )
+            FrontBlockLowerForwardSolve( front.LDense, W );
+        else if( PivotedFactorization(type) )
+            FrontIntraPivLowerForwardSolve( front.LDense, front.piv, W );
+        else
+            FrontVanillaLowerForwardSolve( front.LDense, W );
+    }
 }
 
 namespace internal {

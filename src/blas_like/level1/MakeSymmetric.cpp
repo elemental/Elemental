@@ -81,14 +81,29 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 
     MakeTrapezoidal( uplo, A );
 
+    const Int m = A.Height();
     const Int numEntries = A.NumEntries();
     const Int* sBuf = A.LockedSourceBuffer();
     const Int* tBuf = A.LockedTargetBuffer();
     T* vBuf = A.ValueBuffer();
-    if( conjugate && IsComplex<T>::val )
-        for( Int k=0; k<numEntries; ++k )
-            if( sBuf[k] == tBuf[k] ) 
-                vBuf[k] = RealPart(vBuf[k]);
+
+    // Iterate over the diagonal entries
+    Int numDiagonal = 0;
+    for( Int i=0; i<m; ++i )
+    {
+        const Int e = A.Offset( i, i );
+        if( e < numEntries && sBuf[e] == i && tBuf[e] == i )
+        {
+            ++numDiagonal;
+            if( conjugate && IsComplex<T>::val )
+                vBuf[e] = RealPart(vBuf[e]);
+        }
+    }
+
+    A.Reserve( numEntries + (numEntries-numDiagonal) );
+    sBuf = A.LockedSourceBuffer();
+    tBuf = A.LockedTargetBuffer();
+    vBuf = A.ValueBuffer();
 
     if( uplo == LOWER )
     {

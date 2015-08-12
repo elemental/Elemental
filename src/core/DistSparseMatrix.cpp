@@ -575,6 +575,18 @@ template<typename T>
 const T* DistSparseMatrix<T>::LockedValueBuffer() const
 { return vals_.data(); }
 
+template<typename T>
+void DistSparseMatrix<T>::ForceNumLocalEntries( Int numLocalEntries )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::NumLocalEntries"))
+    distGraph_.ForceNumLocalEdges( numLocalEntries );
+    vals_.resize( numLocalEntries );
+}
+
+template<typename T>
+void DistSparseMatrix<T>::ForceConsistency( bool consistent )
+{ distGraph_.ForceConsistency(consistent); }
+
 // Auxiliary routines
 // ==================
 template<typename T>
@@ -680,6 +692,84 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     meta.ready = true;
 
     return meta;
+}
+
+template<typename T>
+void DistSparseMatrix<T>::MappedSources
+( const DistMap& reordering, vector<Int>& mappedSources ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::MappedSources"))
+    mpi::Comm comm = Comm();
+    const int commRank = mpi::Rank( comm );
+    Timer timer;
+    const bool time = false; 
+    const Int localHeight = LocalHeight();
+    if( Int(mappedSources.size()) == localHeight )
+        return;
+
+    // Get the reordered indices of our local rows of the sparse matrix
+    if( time && commRank == 0 )
+        timer.Start();
+    mappedSources.resize( localHeight );
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        mappedSources[iLoc] = GlobalRow(iLoc);
+    reordering.Translate( mappedSources );
+    if( time && commRank == 0 )
+        Output("Source translation: ",timer.Stop()," secs");
+}
+
+template<typename T>
+void DistSparseMatrix<T>::MappedTargets
+( const DistMap& reordering, 
+  vector<Int>& mappedTargets, vector<Int>& colOffs ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::MappedTargets"))
+    if( mappedTargets.size() != 0 && colOffs.size() != 0 ) 
+        return;
+
+    mpi::Comm comm = Comm();
+    const int commRank = mpi::Rank( comm ); 
+    Timer timer;
+    const bool time = false;
+
+    // Compute the unique set of column indices that our process interacts with
+    if( time && commRank == 0 )
+        timer.Start();
+    const Int* colBuffer = LockedTargetBuffer();
+    const Int numLocalEntries = NumLocalEntries();
+    colOffs.resize( numLocalEntries );
+    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
+    for( Int e=0; e<numLocalEntries; ++e )
+        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
+    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
+    {
+        Int uniqueOff=-1, lastUnique=-1;
+        for( Int e=0; e<numLocalEntries; ++e )
+        {
+            if( lastUnique != uniqueCols[e].value )
+            {
+                ++uniqueOff;
+                lastUnique = uniqueCols[e].value;
+                uniqueCols[uniqueOff] = uniqueCols[e];
+            }
+            colOffs[uniqueCols[e].index] = uniqueOff;
+        }
+        uniqueCols.resize( uniqueOff+1 );
+    }
+    const Int numUniqueCols = uniqueCols.size();
+    if( time && commRank == 0 )
+        Output("Unique sort: ",timer.Stop()," secs");
+
+    // Get the reordered indices of the targets of our portion of the 
+    // distributed sparse matrix
+    if( time && commRank == 0 )
+        timer.Start();
+    mappedTargets.resize( numUniqueCols );
+    for( Int e=0; e<numUniqueCols; ++e )
+        mappedTargets[e] = uniqueCols[e].value;
+    reordering.Translate( mappedTargets );
+    if( time && commRank == 0 )
+        Output("Target translation: ",timer.Stop()," secs");
 }
 
 template<typename T>

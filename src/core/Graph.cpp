@@ -86,6 +86,7 @@ void Graph::Empty( bool clearMemory )
     numSources_ = 0;
     numTargets_ = 0;
     consistent_ = true;
+    frozenSparsity_ = false;
     if( clearMemory )
     {
         SwapClear( sources_ );
@@ -109,6 +110,8 @@ void Graph::Resize( Int numSources, Int numTargets )
     DEBUG_ONLY(CSE cse("Graph::Resize"))
     if( numSources_ == numSources && numTargets_ == numTargets )
         return;
+
+    frozenSparsity_ = false;
 
     numSources_ = numSources;
     numTargets_ = numTargets;
@@ -316,6 +319,17 @@ Int Graph::NumConnections( Int source ) const
 Int* Graph::SourceBuffer() { return sources_.data(); }
 Int* Graph::TargetBuffer() { return targets_.data(); }
 Int* Graph::OffsetBuffer() { return sourceOffsets_.data(); }
+
+void Graph::ForceNumEdges( Int numEdges )
+{
+    DEBUG_ONLY(CSE cse("Graph::ForceNumEdges"))
+    sources_.resize( numEdges ); 
+    targets_.resize( numEdges );
+    consistent_ = false;
+}
+
+void Graph::ForceConsistency( bool consistent )
+{ consistent_ = consistent; }
 
 const Int* Graph::LockedSourceBuffer() const { return sources_.data(); }
 const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }

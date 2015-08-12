@@ -51,9 +51,11 @@ int main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
 
+
+        DistMultiVec<C> y( N, 1, comm ), z( N, 1, comm );
+        /*
         if( commRank == 0 )
             cout << "Generating point-source for y..." << endl;
-        DistMultiVec<C> y( N, 1, comm ), z( N, 1, comm );
         Zero( z );
         const Int xSource = n1/2;
         const Int ySource = n2/2;
@@ -62,6 +64,8 @@ int main( int argc, char* argv[] )
         const Int localHeight = z.LocalHeight();
         if( iSource >= firstLocalRow && iSource < firstLocalRow+localHeight )
             z.SetLocal( iSource-firstLocalRow, 0, Complex<double>(1.0,0.0) );
+        */
+        Uniform( z, N, 1 );
         y = z;
 
         if( commRank == 0 )
