@@ -59,7 +59,7 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = true;
     const bool standardShift = true;
-#ifdef RELEASE
+#ifdef EL_RELEASE
     const bool checkResiduals = false;
 #else
     const bool checkResiduals = true;
@@ -375,7 +375,7 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = true;
     const bool standardShift = true;
-#ifdef RELEASE
+#ifdef EL_RELEASE
     const bool checkResiduals = false;
 #else
     const bool checkResiduals = true;
@@ -772,7 +772,7 @@ void Mehrotra
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
     const Int ruizMaxIter = 3;
-#ifdef RELEASE
+#ifdef EL_RELEASE
     const bool checkResiduals = false;
 #else
     const bool checkResiduals = true;
@@ -1161,7 +1161,7 @@ void Mehrotra
     const Int ruizMaxIter = 3;
     //const Real selInvTol = Pow(eps,Real(-0.25));
     const Real selInvTol = 0;
-#ifdef RELEASE
+#ifdef EL_RELEASE
     const bool checkResiduals = false;
 #else
     const bool checkResiduals = true;
