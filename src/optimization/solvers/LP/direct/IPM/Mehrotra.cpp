@@ -54,12 +54,16 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
     const Real balanceTol = Pow(eps,Real(-0.19));
     // TODO: Implement nonzero regularization
     const Real gamma = 0;
     const Real delta = 0;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -490,12 +494,16 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
     const Real balanceTol = Pow(eps,Real(-0.19));
     // TODO: Implement nonzero regularization
     const Real gamma = 0;
     const Real delta = 0;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -959,7 +967,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
     Real gamma, delta, beta, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
@@ -980,6 +987,11 @@ void Mehrotra
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
     const Int ruizMaxIter = 3;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -1498,7 +1510,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
     Real gamma, delta, beta, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
@@ -1519,6 +1530,11 @@ void Mehrotra
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
     const Int ruizMaxIter = 3;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);

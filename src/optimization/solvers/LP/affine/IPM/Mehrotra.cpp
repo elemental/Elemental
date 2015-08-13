@@ -57,8 +57,12 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -368,8 +372,12 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -711,7 +719,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
     const Real gamma = Pow(eps,Real(0.35));
     const Real delta = Pow(eps,Real(0.35));
@@ -723,6 +730,11 @@ void Mehrotra
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
     const Int ruizMaxIter = 3;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -1082,7 +1094,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool forceSameStep = false;
-    const bool checkResiduals = true;
     const bool standardShift = true;
     const Real gamma = Pow(eps,Real(0.35));
     const Real delta = Pow(eps,Real(0.35));
@@ -1094,6 +1105,11 @@ void Mehrotra
     const Real diagEquilTol = Pow(eps,Real(-0.15));
     const Real ruizEquilTol = Pow(eps,Real(-0.25));
     const Int ruizMaxIter = 3;
+#ifdef RELEASE
+    const bool checkResiduals = false;
+#else
+    const bool checkResiduals = true;
+#endif
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);

@@ -470,6 +470,29 @@ Real SOCMaxEig
 
 // TODO: SOC eigenvectors?
 
+// SOC embedding maps
+// ==================
+void SOCEmbeddingMaps
+( const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+        Matrix<Int>& sparseOrders,
+        Matrix<Int>& sparseFirstInds,
+        Matrix<Int>& origToSparseOrders,
+        Matrix<Int>& origToSparseFirstInds,
+        Matrix<Int>& sparseToOrigOrders,
+        Matrix<Int>& sparseToOrigFirstInds,
+  Int cutoffSparse );
+void SOCEmbeddingMaps
+( const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+        DistMultiVec<Int>& sparseOrders,
+        DistMultiVec<Int>& sparseFirstInds,
+        DistMultiVec<Int>& origToSparseOrders,
+        DistMultiVec<Int>& origToSparseFirstInds,
+        DistMultiVec<Int>& sparseToOrigOrders,
+        DistMultiVec<Int>& sparseToOrigFirstInds,
+  Int cutoffSparse );
+
 // Force into SOC
 // ==============
 template<typename Real>
