@@ -124,7 +124,11 @@ private:
     El::Graph graph_;
     vector<T> vals_;
 
-    static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
+    struct CompareEntriesFunctor
+    {
+        bool operator()(const Entry<T>& a, const Entry<T>& b ) 
+        { return a.i < b.i || (a.i == b.i && a.j < b.j); }
+    };
 
     template<typename U> friend class DistSparseMatrix;
     template<typename U> 

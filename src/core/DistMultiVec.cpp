@@ -345,7 +345,7 @@ void DistMultiVec<T>::ProcessQueues()
     // Compute the send counts
     // -----------------------
     vector<int> sendCounts(commSize_);
-    for( auto entry : remoteUpdates_ )
+    for( const auto& entry : remoteUpdates_ )
         ++sendCounts[Owner(entry.i,entry.j)];
     // Pack the send data
     // ------------------
@@ -353,15 +353,19 @@ void DistMultiVec<T>::ProcessQueues()
     const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
     vector<Entry<T>> sendEntries(totalSend);
-    for( auto entry : remoteUpdates_ )
+    for( const auto& entry : remoteUpdates_ )
         sendEntries[offs[Owner(entry.i,entry.j)]++] = entry;
     SwapClear( remoteUpdates_ );
     // Exchange and unpack
     // -------------------
     auto recvEntries = 
       mpi::AllToAll( sendEntries, sendCounts, sendOffs, comm_ );
-    for( auto entry : recvEntries )
-        Update( entry );
+
+    T* matBuf = multiVec_.Buffer();
+    const Int matLDim = multiVec_.LDim();
+    const Int firstLocalRow = FirstLocalRow();
+    for( const auto& entry : recvEntries )
+        matBuf[(entry.i-firstLocalRow)+entry.j*matLDim] += entry.value;
 }
 
 #define PROTO(T) template class DistMultiVec<T>;

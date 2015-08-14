@@ -183,8 +183,10 @@ void DiagonalSolve
             const Int i = A.Row(k);
             const Int iLoc = i - firstLocalRow;
             const F delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
-            if( checkIfSingular && delta == F(0) )
-                throw SingularMatrixException();
+            DEBUG_ONLY(
+              if( checkIfSingular && delta == F(0) )
+                  throw SingularMatrixException();
+            )
             vBuf[k] /= delta;
         }
     }
@@ -241,8 +243,10 @@ void DiagonalSolve
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const F delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
-        if( checkIfSingular && delta == F(0) )
-            throw SingularMatrixException(); 
+        DEBUG_ONLY(
+          if( checkIfSingular && delta == F(0) )
+              throw SingularMatrixException(); 
+        )
         for( Int j=0; j<width; ++j )
             XBuf[iLoc+j*XLDim] /= delta;
     }

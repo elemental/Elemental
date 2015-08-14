@@ -460,24 +460,47 @@ void LSolveMulti
 {
     if( onLeft )
     {
-        for (IntType i = 0; i < m; i++)
+        if( n == 1 )
         {
-            IntType p2 = Lp[i+1];
-            for (IntType p = Lp[i]; p < p2; p++)
-                for (IntType j=0; j<n; ++j )
-                    X[Li[p]+j*XLDim] -= Lx[p] * X[i+j*XLDim];
+            for (IntType i = 0; i < m; i++)
+            {
+                IntType p2 = Lp[i+1];
+                for (IntType p = Lp[i]; p < p2; p++)
+                    X[Li[p]] -= Lx[p] * X[i];
+            }
         }
+        else
+        { 
+            for (IntType i = 0; i < m; i++)
+            {
+                IntType p2 = Lp[i+1];
+                for (IntType p = Lp[i]; p < p2; p++)
+                    for (IntType j=0; j<n; ++j )
+                        X[Li[p]+j*XLDim] -= Lx[p] * X[i+j*XLDim];
+            }
+       }
     }
     else
     {
-        for (IntType j = n-1; j >= 0; j--)
+        if( m == 1 )
         {
-            IntType p2 = Lp[j+1] ;
-            for (IntType p = Lp[j]; p < p2; p++)
-                for (IntType i=0; i<m; ++i )
-                    X[i+j*XLDim] -= Lx[p] * X[i+Li[p]*XLDim];
+            for (IntType j = n-1; j >= 0; j--)
+            {
+                IntType p2 = Lp[j+1] ;
+                for (IntType p = Lp[j]; p < p2; p++)
+                    X[j*XLDim] -= Lx[p] * X[Li[p]*XLDim];
+            }
         }
-
+        else
+        {
+            for (IntType j = n-1; j >= 0; j--)
+            {
+                IntType p2 = Lp[j+1] ;
+                for (IntType p = Lp[j]; p < p2; p++)
+                    for (IntType i=0; i<m; ++i )
+                        X[i+j*XLDim] -= Lx[p] * X[i+Li[p]*XLDim];
+            }
+        }
     }
 }
 #define LSOLVE_MULTI_PROTO_INT_SCALAR(IntType,F) \
@@ -624,14 +647,16 @@ void LTSolveMulti
 {
     if( onLeft )
     {
-        if( conjugate )
+        if( n == 1 )
         {
             for (IntType i = m-1; i >= 0; i--)
             {
                 IntType p2 = Lp[i+1] ;
                 for (IntType p = Lp[i]; p < p2; p++)
-                    for (IntType j=0; j<n; ++j )
-                        X[i+j*XLDim] -= Conj(Lx[p]) * X[Li[p]+j*XLDim];
+                {
+                    F value = ( conjugate ? Conj(Lx[p]) : Lx[p] );
+                    X[i] -= value * X[Li[p]];
+                }
             }
         }
         else
@@ -640,21 +665,26 @@ void LTSolveMulti
             {
                 IntType p2 = Lp[i+1] ;
                 for (IntType p = Lp[i]; p < p2; p++)
+                {
+                    F value = ( conjugate ? Conj(Lx[p]) : Lx[p] );
                     for (IntType j=0; j<n; ++j )
-                        X[i+j*XLDim] -= Lx[p] * X[Li[p]+j*XLDim];
+                        X[i+j*XLDim] -= value * X[Li[p]+j*XLDim];
+                }
             }
         }
     }
     else
     {
-        if( conjugate )
+        if( m == 1 )
         {
             for (IntType j = 0; j < n; j++)
             {
                 IntType p2 = Lp[j+1];
                 for (IntType p = Lp[j]; p < p2; p++)
-                    for (IntType i=0; i<m; ++i )
-                        X[i+Li[p]*XLDim] -= Conj(Lx[p]) * X[i+j*XLDim];
+                {
+                    F value = ( conjugate ? Conj(Lx[p]) : Lx[p] );
+                    X[Li[p]*XLDim] -= value * X[j*XLDim];
+                }
             }
         }
         else
@@ -663,8 +693,11 @@ void LTSolveMulti
             {
                 IntType p2 = Lp[j+1];
                 for (IntType p = Lp[j]; p < p2; p++)
+                {
+                    F value = ( conjugate ? Conj(Lx[p]) : Lx[p] );
                     for (IntType i=0; i<m; ++i )
-                        X[i+Li[p]*XLDim] -= Lx[p] * X[i+j*XLDim];
+                        X[i+Li[p]*XLDim] -= value * X[i+j*XLDim];
+                }
             }
         }
     }

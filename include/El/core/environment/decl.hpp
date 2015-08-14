@@ -92,17 +92,17 @@ void SetDefaultBlockWidth( Int blockWidth );
 std::mt19937& Generator();
 
 template<typename T>
-inline T Max( T m, T n )
+inline const T& Max( const T& m, const T& n )
 { return std::max(m,n); }
 
-inline Int Max( Int m, Int n )
+inline const Int& Max( const Int& m, const Int& n )
 { return std::max(m,n); }
 
 template<typename T>
-inline T Min( T m, T n )
+inline const T& Min( const T& m, const T& n )
 { return std::min(m,n); }
 
-inline Int Min( Int m, Int n )
+inline const Int& Min( const Int& m, const Int& n )
 { return std::min(m,n); }
 
 // Replacement for std::memcpy, which is known to often be suboptimal.

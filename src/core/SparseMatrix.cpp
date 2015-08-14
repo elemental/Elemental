@@ -323,10 +323,6 @@ void SparseMatrix<T>::ForceConsistency( bool consistent )
 // ==================
 
 template<typename T>
-bool SparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
-{ return a.i < b.i || (a.i == b.i && a.j < b.j); }
-
-template<typename T>
 void SparseMatrix<T>::ProcessQueues()
 {
     DEBUG_ONLY(
@@ -367,7 +363,8 @@ void SparseMatrix<T>::ProcessQueues()
             entries[s] = 
               Entry<T>{graph_.sources_[s],graph_.targets_[s],vals_[s]};
     }
-    std::sort( entries.begin(), entries.end(), CompareEntries );
+    CompareEntriesFunctor comparer;
+    std::sort( entries.begin(), entries.end(), comparer );
     const Int numSorted = entries.size();
 
     // Compress out duplicates

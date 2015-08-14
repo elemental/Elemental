@@ -55,6 +55,222 @@ DistFront<F>::~DistFront()
     delete duplicate;
 }
 
+template<typename F>
+inline void UnpackEntriesLocal
+( const Separator& sep,
+  const NodeInfo& node, 
+        Front<F>& front, 
+  const DistSparseMatrix<F>& A,
+  const vector<Int>& rRowLengths,
+  const vector<F>& rEntries, 
+  const vector<Int>& rTargets,
+        vector<int>& offs, 
+        vector<int>& entryOffs )
+{
+    DEBUG_ONLY(CSE cse("UnpackEntriesLocal"))
+
+    // Delete any existing children
+    for( auto* childFront : front.children )
+        delete childFront;
+
+    const Int numChildren = sep.children.size();
+    front.children.resize( numChildren );
+    for( Int c=0; c<numChildren; ++c )
+    {
+        front.children[c] = new Front<F>(&front);
+        UnpackEntriesLocal
+        ( *sep.children[c], *node.children[c], *front.children[c], 
+          A, rRowLengths, rEntries, rTargets, offs, entryOffs );
+    }
+    // Mark this node as a sparse leaf if it does not have any children
+    // and is not a duplicate of a dense distributed node
+    if( numChildren == 0 && !front.duplicate )
+        front.sparseLeaf = true;
+
+    const Int size = node.size;
+    const Int off = node.off;
+    const Int lowerSize = node.lowerStruct.size();
+
+    if( front.sparseLeaf )
+    {
+        front.workSparse.Empty();
+        Zeros( front.workSparse, size, size );
+        Zeros( front.LDense, lowerSize, size );
+        F* LDenseBuf = front.LDense.Buffer();
+        const Int LDenseLDim = front.LDense.LDim();
+
+        Int numSparseEntries = 0;
+        auto offsCopy = offs;
+        auto entryOffsCopy = entryOffs;
+        for( Int t=0; t<size; ++t )
+        {
+            const Int i = sep.inds[t];
+            const Int q = A.RowOwner(i);
+
+            int& entryOff = entryOffsCopy[q];
+            const Int numEntries = rRowLengths[offsCopy[q]++];
+            for( Int k=0; k<numEntries; ++k )
+            {
+                const Int target = rTargets[entryOff++];
+                DEBUG_ONLY(
+                  if( target < off+t )
+                      LogicError("Received entry from upper triangle");
+                )
+                if( target < off+size )
+                    ++numSparseEntries;
+            }
+        }
+        front.workSparse.Reserve( numSparseEntries );
+
+        for( Int t=0; t<size; ++t )
+        {
+            const Int i = sep.inds[t];
+            const Int q = A.RowOwner(i);
+
+            int& entryOff = entryOffs[q];
+            const Int numEntries = rRowLengths[offs[q]++];
+
+            for( Int k=0; k<numEntries; ++k )
+            {
+                const F value = rEntries[entryOff];
+                const Int target = rTargets[entryOff];
+                ++entryOff;
+
+                DEBUG_ONLY(
+                  if( target < off+t )
+                      LogicError("Received entry from upper triangle");
+                )
+                if( target < off+size )
+                {
+                    const F transVal = 
+                      ( front.isHermitian ? Conj(value) : value );
+                    front.workSparse.QueueUpdate( target-off, t, transVal );
+                }
+                else
+                {
+                    // TODO: Avoid this binary search?
+                    Int origOff = Find( node.origLowerStruct, target );
+                    const Int row = node.origLowerRelInds[origOff];
+                    LDenseBuf[(row-size)+t*LDenseLDim] = value;
+                }
+            }
+        }
+        front.workSparse.ProcessQueues();
+        MakeSymmetric( LOWER, front.workSparse, front.isHermitian );
+    }
+    else
+    {
+        Zeros( front.LDense, size+lowerSize, size );
+        F* LDenseBuf = front.LDense.Buffer();
+        const Int LDenseLDim = front.LDense.LDim();
+        for( Int t=0; t<size; ++t )
+        {
+            const Int i = sep.inds[t];
+            const Int q = A.RowOwner(i);
+
+            int& entryOff = entryOffs[q];
+            const Int numEntries = rRowLengths[offs[q]++];
+
+            for( Int k=0; k<numEntries; ++k )
+            {
+                const F value = rEntries[entryOff];
+                const Int target = rTargets[entryOff];
+                ++entryOff;
+
+                DEBUG_ONLY(
+                  if( target < off+t )
+                      LogicError("Received entry from upper triangle");
+                )
+                if( target < off+size )
+                {
+                    LDenseBuf[(target-off)+t*LDenseLDim] = value;
+                }
+                else
+                {
+                    // TODO: Avoid this binary search?
+                    Int origOff = Find( node.origLowerStruct, target );
+                    const Int row = node.origLowerRelInds[origOff];
+                    LDenseBuf[row+t*LDenseLDim] = value;
+                }
+            }
+        }
+    }
+}
+
+template<typename F>
+inline void UnpackEntries
+( const DistSeparator& sep, 
+  const DistNodeInfo& node, 
+        DistFront<F>& front,
+  const DistSparseMatrix<F>& A,
+  const vector<Int>& rRowLengths,
+  const vector<F>& rEntries, 
+  const vector<Int>& rTargets,
+        vector<int>& offs, 
+        vector<int>& entryOffs )
+{
+    DEBUG_ONLY(CSE cse("UnpackEntries"))
+    const Grid& grid = *node.grid;
+
+    if( sep.child == nullptr )
+    {
+        delete front.duplicate;
+        front.duplicate = new Front<F>(&front);
+        UnpackEntriesLocal
+        ( *sep.duplicate, *node.duplicate, *front.duplicate, 
+          A, rRowLengths, rEntries, rTargets, offs, entryOffs );
+
+        front.L2D.Attach( grid, front.duplicate->LDense );
+
+        return;
+    }
+    delete front.child;
+    front.child = new DistFront<F>(&front);
+    UnpackEntries
+    ( *sep.child, *node.child, *front.child, 
+      A, rRowLengths, rEntries, rTargets, offs, entryOffs );
+
+    const Int size = node.size;
+    const Int off = node.off;
+    const Int lowerSize = node.lowerStruct.size();
+    front.L2D.SetGrid( grid );
+    Zeros( front.L2D, size+lowerSize, size );
+        
+    const Int localWidth = front.L2D.LocalWidth();
+    for( Int tLoc=0; tLoc<localWidth; ++tLoc )
+    {
+        const Int t = front.L2D.GlobalCol(tLoc);
+        const Int i = sep.inds[t];
+        const Int q = A.RowOwner(i);
+
+        int& entryOff = entryOffs[q];
+        const Int numEntries = rRowLengths[offs[q]++];
+
+        for( Int k=0; k<numEntries; ++k )
+        {
+            const F value = rEntries[entryOff];
+            const Int target = rTargets[entryOff];
+            ++entryOff;
+
+            DEBUG_ONLY(
+              if( target < off+t )
+                  LogicError("Received entry from upper triangle");
+            )
+            if( target < off+size )
+            {
+                front.L2D.Set( target-off, t, value );
+            }
+            else 
+            {
+                // TODO: Avoid this binary search?
+                const Int origOff = Find( node.origLowerStruct, target );
+                const Int row = node.origLowerRelInds[origOff];
+                front.L2D.Set( row, t, value );
+            }
+        }
+    }
+}
+
 // NOTE: 
 // The current implementation (conjugate-)transposes A into the frontal tree
 template<typename F>
@@ -281,212 +497,14 @@ void DistFront<F>::Pull
     // Unpack the received entries
     if( time && commRank == 0 )
         timer.Start();
-    offs = rRowOffs;
-    auto entryOffs = rEntriesOffs;
-    function<void(const Separator&,const NodeInfo&,Front<F>&)> 
-      unpackEntriesLocal = 
-      [&]( const Separator& sep, const NodeInfo& node, Front<F>& front )
-      {
-        // Delete any existing children
-        for( auto* childFront : front.children )
-            delete childFront;
-
-        const Int numChildren = sep.children.size();
-        front.children.resize( numChildren );
-        for( Int c=0; c<numChildren; ++c )
-        {
-            front.children[c] = new Front<F>(&front);
-            unpackEntriesLocal
-            ( *sep.children[c], *node.children[c], *front.children[c] );
-        }
-        // Mark this node as a sparse leaf if it does not have any children
-        // and is not a duplicate of a dense distributed node
-        if( numChildren == 0 && !front.duplicate )
-            front.sparseLeaf = true;
-
-        const Int size = node.size;
-        const Int off = node.off;
-        const Int lowerSize = node.lowerStruct.size();
-
-        if( front.sparseLeaf )
-        {
-            front.workSparse.Empty();
-            Zeros( front.workSparse, size, size );
-            Zeros( front.LDense, lowerSize, size );
-            F* LDenseBuf = front.LDense.Buffer();
-            const Int LDenseLDim = front.LDense.LDim();
-
-            Int numSparseEntries = 0;
-            auto offsCopy = offs;
-            auto entryOffsCopy = entryOffs;
-            for( Int t=0; t<size; ++t )
-            {
-                const Int i = sep.inds[t];
-                const Int q = A.RowOwner(i);
-
-                int& entryOff = entryOffsCopy[q];
-                const Int numEntries = rRowLengths[offsCopy[q]++];
-                for( Int k=0; k<numEntries; ++k )
-                {
-                    const Int target = rTargets[entryOff++];
-                    DEBUG_ONLY(
-                      if( target < off+t )
-                          LogicError("Received entry from upper triangle");
-                    )
-                    if( target < off+size )
-                        ++numSparseEntries;
-                }
-            }
-            front.workSparse.Reserve( numSparseEntries );
-
-            for( Int t=0; t<size; ++t )
-            {
-                const Int i = sep.inds[t];
-                const Int q = A.RowOwner(i);
-
-                int& entryOff = entryOffs[q];
-                const Int numEntries = rRowLengths[offs[q]++];
-
-                for( Int k=0; k<numEntries; ++k )
-                {
-                    const F value = rEntries[entryOff];
-                    const Int target = rTargets[entryOff];
-                    ++entryOff;
-
-                    DEBUG_ONLY(
-                      if( target < off+t )
-                          LogicError("Received entry from upper triangle");
-                    )
-                    if( target < off+size )
-                    {
-                        const F transVal = 
-                          ( front.isHermitian ? Conj(value) : value );
-                        front.workSparse.QueueUpdate( target-off, t, transVal );
-                    }
-                    else
-                    {
-                        // TODO: Avoid this binary search?
-                        Int origOff = Find( node.origLowerStruct, target );
-                        const Int row = node.origLowerRelInds[origOff];
-                        LDenseBuf[(row-size)+t*LDenseLDim] = value;
-                    }
-                }
-            }
-            front.workSparse.ProcessQueues();
-            MakeSymmetric( LOWER, front.workSparse, front.isHermitian );
-        }
-        else
-        {
-            Zeros( front.LDense, size+lowerSize, size );
-            F* LDenseBuf = front.LDense.Buffer();
-            const Int LDenseLDim = front.LDense.LDim();
-            for( Int t=0; t<size; ++t )
-            {
-                const Int i = sep.inds[t];
-                const Int q = A.RowOwner(i);
-
-                int& entryOff = entryOffs[q];
-                const Int numEntries = rRowLengths[offs[q]++];
-
-                for( Int k=0; k<numEntries; ++k )
-                {
-                    const F value = rEntries[entryOff];
-                    const Int target = rTargets[entryOff];
-                    ++entryOff;
-
-                    DEBUG_ONLY(
-                      if( target < off+t )
-                          LogicError("Received entry from upper triangle");
-                    )
-                    if( target < off+size )
-                    {
-                        LDenseBuf[(target-off)+t*LDenseLDim] = value;
-                    }
-                    else
-                    {
-                        // TODO: Avoid this binary search?
-                        Int origOff = Find( node.origLowerStruct, target );
-                        const Int row = node.origLowerRelInds[origOff];
-                        LDenseBuf[row+t*LDenseLDim] = value;
-                    }
-                }
-            }
-        }
-      };
-    function<void(const DistSeparator&,
-                  const DistNodeInfo&,
-                        DistFront<F>&)> unpackEntries = 
-      [&]( const DistSeparator& sep, const DistNodeInfo& node, 
-                 DistFront<F>& front )
-      {
-        const Grid& grid = *node.grid;
-
-        if( sep.child == nullptr )
-        {
-            delete front.duplicate;
-            front.duplicate = new Front<F>(&front);
-            unpackEntriesLocal
-            ( *sep.duplicate, *node.duplicate, *front.duplicate );
-
-            front.L2D.Attach( grid, front.duplicate->LDense );
-
-            return;
-        }
-        delete front.child;
-        front.child = new DistFront<F>(&front);
-        unpackEntries( *sep.child, *node.child, *front.child );
-
-        const Int size = node.size;
-        const Int off = node.off;
-        const Int lowerSize = node.lowerStruct.size();
-        front.L2D.SetGrid( grid );
-        Zeros( front.L2D, size+lowerSize, size );
-        
-        const Int localWidth = front.L2D.LocalWidth();
-        for( Int tLoc=0; tLoc<localWidth; ++tLoc )
-        {
-            const Int t = front.L2D.GlobalCol(tLoc);
-            const Int i = sep.inds[t];
-            const Int q = A.RowOwner(i);
-
-            int& entryOff = entryOffs[q];
-            const Int numEntries = rRowLengths[offs[q]++];
-
-            for( Int k=0; k<numEntries; ++k )
-            {
-                const F value = rEntries[entryOff];
-                const Int target = rTargets[entryOff];
-                ++entryOff;
-
-                DEBUG_ONLY(
-                  if( target < off+t )
-                      LogicError("Received entry from upper triangle");
-                )
-                if( target < off+size )
-                {
-                    front.L2D.Set( target-off, t, value );
-                }
-                else 
-                {
-                    // TODO: Avoid this binary search?
-                    const Int origOff = Find( node.origLowerStruct, target );
-                    const Int row = node.origLowerRelInds[origOff];
-                    front.L2D.Set( row, t, value );
-                }
-            }
-        }
-      };
     // TODO: Modify constructor of [Dist]Front to default to SYMM_2D?
     type = SYMM_2D;
     isHermitian = conjugate;
-    unpackEntries( rootSep, rootInfo, *this );
+    UnpackEntries
+    ( rootSep, rootInfo, *this, 
+      A, rRowLengths, rEntries, rTargets, rRowOffs, rEntriesOffs );
     if( time && commRank == 0 )
         Output("Unpack: ",timer.Stop()," secs");
-    DEBUG_ONLY(
-      for( Int q=0; q<commSize; ++q )
-          if( entryOffs[q] != rEntriesOffs[q]+rEntriesSizes[q] )
-              LogicError("entryOffs were incorrect");
-    )
 }
 
 template<typename F>
@@ -502,6 +520,7 @@ void DistFront<F>::PullUpdate
     ( A, reordering, rootSep, rootInfo, mappedSources, mappedTargets, colOffs );
 }
 
+// TODO: Begin removing lambdas in a similar manner as for Pull
 template<typename F>
 void DistFront<F>::PullUpdate
 ( const DistSparseMatrix<F>& A, 
