@@ -241,7 +241,7 @@ template<> constexpr Dist DiagRow<MR,MC>() { return STAR; }
 
 // Runtime
 // -------
-inline Dist DiagCol( Dist U, Dist V )
+inline Dist DiagCol( Dist U, Dist V ) EL_NOEXCEPT
 { 
     if( U == MC && V == MR )
         return MD;
@@ -252,7 +252,7 @@ inline Dist DiagCol( Dist U, Dist V )
     else
         return U;
 }
-inline Dist DiagRow( Dist U, Dist V )
+inline Dist DiagRow( Dist U, Dist V ) EL_NOEXCEPT
 {
     if( U == MC && V == MR )
         return STAR;
@@ -288,7 +288,7 @@ template<Dist U> constexpr Dist Collect()       { return STAR; }
 template<>       constexpr Dist Collect<CIRC>() { return CIRC; }
 // Run-time
 // --------
-inline Dist Collect( Dist U ) { return ( U==CIRC ? CIRC : STAR ); }
+inline Dist Collect( Dist U ) EL_NOEXCEPT { return ( U==CIRC ? CIRC : STAR ); }
 
 // Union the distribution over its corresponding partial communicator
 // ==================================================================
@@ -299,7 +299,7 @@ template<>       constexpr Dist Partial<VC>() { return MC; }
 template<>       constexpr Dist Partial<VR>() { return MR; }
 // Run-time
 // --------
-inline Dist Partial( Dist U ) 
+inline Dist Partial( Dist U ) EL_NOEXCEPT
 { 
     if( U == VC ) 
         return MC;
@@ -319,7 +319,7 @@ template<>              constexpr Dist PartialUnionRow<VR,STAR>() { return MC; }
 { return PartialUnionRow<V,U>(); }
 // Run-time
 // --------
-inline Dist PartialUnionRow( Dist U, Dist V )
+inline Dist PartialUnionRow( Dist U, Dist V ) EL_NOEXCEPT
 { 
     if( U == VC )
         return MR;
@@ -328,7 +328,7 @@ inline Dist PartialUnionRow( Dist U, Dist V )
     else
         return V;
 }
-inline Dist PartialUnionCol( Dist U, Dist V )
+inline Dist PartialUnionCol( Dist U, Dist V ) EL_NOEXCEPT
 { return PartialUnionRow( V, U ); }
 
 // Return the product of two distributions
@@ -355,7 +355,7 @@ template<>
 constexpr Dist ProductDistPartner<CIRC,CIRC>() { return CIRC; }
 // Runtime
 // -------
-inline Dist ProductDist( Dist U, Dist V )
+inline Dist ProductDist( Dist U, Dist V ) EL_NOEXCEPT
 {
     if(      U == STAR ) return V;
     else if( V == STAR ) return U;
@@ -364,7 +364,7 @@ inline Dist ProductDist( Dist U, Dist V )
     else if( U == CIRC && V == CIRC ) return CIRC;
     else { return STAR; } // NOTE: This branch should not be possible
 }
-inline Dist ProductDistPartner( Dist U, Dist V )
+inline Dist ProductDistPartner( Dist U, Dist V ) EL_NOEXCEPT
 {
     if( U == CIRC && V == CIRC ) return CIRC;
     else                         return STAR;
@@ -382,11 +382,11 @@ enum ViewType
     LOCKED_OWNER_FIXED = 0x6, // unused
     LOCKED_VIEW_FIXED = 0x7
 };
-static inline bool IsViewing( ViewType v )
+static inline bool IsViewing( ViewType v ) EL_NOEXCEPT
 { return ( v & VIEW ) != 0; }
-static inline bool IsFixedSize( ViewType v )
+static inline bool IsFixedSize( ViewType v ) EL_NOEXCEPT
 { return ( v & OWNER_FIXED ) != 0; }
-static inline bool IsLocked( ViewType v )
+static inline bool IsLocked( ViewType v ) EL_NOEXCEPT
 { return ( v & LOCKED_OWNER ) != 0; }
 }
 using namespace ViewTypeNS;

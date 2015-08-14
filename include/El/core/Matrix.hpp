@@ -75,18 +75,18 @@ public:
 
     // Basic queries
     // =============
-    Int Height() const;
-    Int Width() const;
-    Int LDim() const;
-    Int MemorySize() const;
-    Int DiagonalLength( Int offset=0 ) const;
+    Int Height() const EL_NOEXCEPT;
+    Int Width() const EL_NOEXCEPT;
+    Int LDim() const EL_NOEXCEPT;
+    Int MemorySize() const EL_NOEXCEPT;
+    Int DiagonalLength( Int offset=0 ) const EL_NOEXCEPT;
     T* Buffer();
-    const T* LockedBuffer() const;
     T* Buffer( Int i, Int j );
-    const T* LockedBuffer( Int i, Int j ) const;
-    bool Viewing()   const;
-    bool FixedSize() const;
-    bool Locked()    const;
+    const T* LockedBuffer() const EL_NOEXCEPT;
+    const T* LockedBuffer( Int i, Int j ) const EL_NOEXCEPT;
+    bool Viewing()   const EL_NOEXCEPT;
+    bool FixedSize() const EL_NOEXCEPT;
+    bool Locked()    const EL_NOEXCEPT;
 
     // Single-entry manipulation
     // =========================

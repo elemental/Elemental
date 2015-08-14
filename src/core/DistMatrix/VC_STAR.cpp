@@ -157,34 +157,48 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 // Basic queries
 // =============
 template<typename T>
-mpi::Comm DM::DistComm() const { return this->grid_->VCComm(); }
+mpi::Comm DM::DistComm() const EL_NOEXCEPT
+{ return this->grid_->VCComm(); }
 template<typename T>
-mpi::Comm DM::CrossComm() const { return mpi::COMM_SELF; }
+mpi::Comm DM::CrossComm() const EL_NOEXCEPT
+{ return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::RedundantComm() const { return mpi::COMM_SELF; }
+mpi::Comm DM::RedundantComm() const EL_NOEXCEPT
+{ return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::ColComm() const { return this->grid_->VCComm(); }
+mpi::Comm DM::ColComm() const EL_NOEXCEPT
+{ return this->grid_->VCComm(); }
 template<typename T>
-mpi::Comm DM::RowComm() const { return mpi::COMM_SELF; }
+mpi::Comm DM::RowComm() const EL_NOEXCEPT
+{ return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::PartialColComm() const { return this->grid_->MCComm(); }
+mpi::Comm DM::PartialColComm() const EL_NOEXCEPT
+{ return this->grid_->MCComm(); }
 template<typename T>
-mpi::Comm DM::PartialUnionColComm() const { return this->grid_->MRComm(); }
+mpi::Comm DM::PartialUnionColComm() const EL_NOEXCEPT
+{ return this->grid_->MRComm(); }
 
 template<typename T>
-int DM::ColStride() const { return this->grid_->VCSize(); }
+int DM::ColStride() const EL_NOEXCEPT
+{ return this->grid_->VCSize(); }
 template<typename T>
-int DM::RowStride() const { return 1; }
+int DM::RowStride() const EL_NOEXCEPT
+{ return 1; }
 template<typename T>
-int DM::PartialColStride() const { return this->grid_->MCSize(); }
+int DM::PartialColStride() const EL_NOEXCEPT
+{ return this->grid_->MCSize(); }
 template<typename T>
-int DM::PartialUnionColStride() const { return this->grid_->MRSize(); }
+int DM::PartialUnionColStride() const EL_NOEXCEPT
+{ return this->grid_->MRSize(); }
 template<typename T>
-int DM::DistSize() const { return this->grid_->VCSize(); }
+int DM::DistSize() const EL_NOEXCEPT
+{ return this->grid_->VCSize(); }
 template<typename T>
-int DM::CrossSize() const { return 1; }
+int DM::CrossSize() const EL_NOEXCEPT
+{ return 1; }
 template<typename T>
-int DM::RedundantSize() const { return 1; }
+int DM::RedundantSize() const EL_NOEXCEPT
+{ return 1; }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

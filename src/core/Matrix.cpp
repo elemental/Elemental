@@ -262,28 +262,28 @@ const Matrix<T>& Matrix<T>::operator-=( const Matrix<T>& A )
 // =============
 
 template<typename T>
-Int Matrix<T>::Height() const { return height_; }
+Int Matrix<T>::Height() const EL_NOEXCEPT { return height_; }
 
 template<typename T>
-Int Matrix<T>::Width() const { return width_; }
+Int Matrix<T>::Width() const EL_NOEXCEPT { return width_; }
 
 template<typename T>
-Int Matrix<T>::LDim() const { return ldim_; }
+Int Matrix<T>::LDim() const EL_NOEXCEPT { return ldim_; }
 
 template<typename T>
-Int Matrix<T>::MemorySize() const { return memory_.Size(); }
+Int Matrix<T>::MemorySize() const EL_NOEXCEPT { return memory_.Size(); }
 
 template<typename T>
-Int Matrix<T>::DiagonalLength( Int offset ) const
+Int Matrix<T>::DiagonalLength( Int offset ) const EL_NOEXCEPT
 { return El::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
 T* Matrix<T>::Buffer()
 {
     DEBUG_ONLY(
-        CSE cse("Matrix::Buffer");
-        if( Locked() )
-            LogicError("Cannot return non-const buffer of locked Matrix");
+      CSE cse("Matrix::Buffer");
+      if( Locked() )
+          LogicError("Cannot return non-const buffer of locked Matrix");
     )
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
@@ -306,10 +306,10 @@ T* Matrix<T>::Buffer( Int i, Int j )
 }
 
 template<typename T>
-const T* Matrix<T>::LockedBuffer() const { return data_; }
+const T* Matrix<T>::LockedBuffer() const EL_NOEXCEPT { return data_; }
 
 template<typename T>
-const T* Matrix<T>::LockedBuffer( Int i, Int j ) const
+const T* Matrix<T>::LockedBuffer( Int i, Int j ) const EL_NOEXCEPT
 {
     DEBUG_ONLY(CSE cse("Matrix::LockedBuffer"))
     if( i == END ) i = height_ - 1;
@@ -318,13 +318,16 @@ const T* Matrix<T>::LockedBuffer( Int i, Int j ) const
 }
 
 template<typename T>
-bool Matrix<T>::Viewing() const { return IsViewing( viewType_ ); }
+bool Matrix<T>::Viewing() const EL_NOEXCEPT
+{ return IsViewing( viewType_ ); }
 
 template<typename T>
-bool Matrix<T>::FixedSize() const { return IsFixedSize( viewType_ ); }
+bool Matrix<T>::FixedSize() const EL_NOEXCEPT
+{ return IsFixedSize( viewType_ ); }
 
 template<typename T>
-bool Matrix<T>::Locked() const { return IsLocked( viewType_ ); }
+bool Matrix<T>::Locked() const EL_NOEXCEPT
+{ return IsLocked( viewType_ ); }
 
 // Single-entry manipulation
 // =========================

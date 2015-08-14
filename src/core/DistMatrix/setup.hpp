@@ -219,25 +219,25 @@ template<typename T>
 El::DistData DM::DistData() const { return El::DistData(*this); }
 
 template<typename T>
-Dist DM::ColDist() const { return COLDIST; }
+Dist DM::ColDist() const EL_NOEXCEPT { return COLDIST; }
 template<typename T>
-Dist DM::RowDist() const { return ROWDIST; }
+Dist DM::RowDist() const EL_NOEXCEPT { return ROWDIST; }
 
 template<typename T>
-Dist DM::PartialColDist() const { return Partial<COLDIST>(); }
+Dist DM::PartialColDist() const EL_NOEXCEPT { return Partial<COLDIST>(); }
 template<typename T>
-Dist DM::PartialRowDist() const { return Partial<ROWDIST>(); }
+Dist DM::PartialRowDist() const EL_NOEXCEPT { return Partial<ROWDIST>(); }
 
 template<typename T>
-Dist DM::PartialUnionColDist() const 
+Dist DM::PartialUnionColDist() const EL_NOEXCEPT
 { return PartialUnionCol<COLDIST,ROWDIST>(); }
 template<typename T>
-Dist DM::PartialUnionRowDist() const
+Dist DM::PartialUnionRowDist() const EL_NOEXCEPT
 { return PartialUnionRow<COLDIST,ROWDIST>(); }
 
 template<typename T>
-Dist DM::CollectedColDist() const { return Collect<COLDIST>(); }
+Dist DM::CollectedColDist() const EL_NOEXCEPT { return Collect<COLDIST>(); }
 template<typename T>
-Dist DM::CollectedRowDist() const { return Collect<ROWDIST>(); }
+Dist DM::CollectedRowDist() const EL_NOEXCEPT { return Collect<ROWDIST>(); }
 
 } // namespace El

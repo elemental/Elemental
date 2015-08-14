@@ -204,7 +204,7 @@ inline Int LastOffset( Int n, Int bsize )
 { return bsize*( Mod(n,bsize) ? n/bsize : (n/bsize)-1 ); }
 
 inline Int
-DiagonalLength( Int height, Int width, Int offset )
+DiagonalLength( Int height, Int width, Int offset ) EL_NOEXCEPT
 {
     if( offset > 0 )
     {

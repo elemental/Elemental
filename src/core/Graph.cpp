@@ -15,10 +15,10 @@ namespace El {
 // Constructors and destructors
 // ============================
 
-Graph::Graph() : numSources_(0), numTargets_(0), consistent_(true) { }
+Graph::Graph() : numSources_(0), numTargets_(0) { }
 
 Graph::Graph( Int numVertices )
-: numSources_(numVertices), numTargets_(numVertices), consistent_(true)
+: numSources_(numVertices), numTargets_(numVertices)
 { 
     sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )
@@ -26,7 +26,7 @@ Graph::Graph( Int numVertices )
 }
 
 Graph::Graph( Int numSources, Int numTargets )
-: numSources_(numSources), numTargets_(numTargets), consistent_(true)
+: numSources_(numSources), numTargets_(numTargets)
 { 
     sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )

@@ -605,39 +605,45 @@ AbstractDistMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 // -------------------------
 
 template<typename T>
-Int AbstractDistMatrix<T>::Height() const { return height_; }
+Int AbstractDistMatrix<T>::Height() const EL_NOEXCEPT { return height_; }
 template<typename T>
-Int AbstractDistMatrix<T>::Width() const { return width_; }
+Int AbstractDistMatrix<T>::Width() const EL_NOEXCEPT { return width_; }
 
 template<typename T>
-Int AbstractDistMatrix<T>::DiagonalLength( Int offset ) const
+Int AbstractDistMatrix<T>::DiagonalLength( Int offset ) const EL_NOEXCEPT
 { return El::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
-bool AbstractDistMatrix<T>::Viewing() const { return IsViewing( viewType_ ); }
+bool AbstractDistMatrix<T>::Viewing() const EL_NOEXCEPT 
+{ return IsViewing( viewType_ ); }
 template<typename T>
-bool AbstractDistMatrix<T>::Locked() const { return IsLocked( viewType_ ); }
+bool AbstractDistMatrix<T>::Locked() const EL_NOEXCEPT 
+{ return IsLocked( viewType_ ); }
 
 // Local matrix information
 // ------------------------
 
 template<typename T>
-Int AbstractDistMatrix<T>::LocalHeight() const { return matrix_.Height(); }
+Int AbstractDistMatrix<T>::LocalHeight() const EL_NOEXCEPT
+{ return matrix_.Height(); }
 template<typename T>
-Int AbstractDistMatrix<T>::LocalWidth() const { return matrix_.Width(); }
+Int AbstractDistMatrix<T>::LocalWidth() const EL_NOEXCEPT
+{ return matrix_.Width(); }
 template<typename T>
-Int AbstractDistMatrix<T>::LDim() const { return matrix_.LDim(); }
+Int AbstractDistMatrix<T>::LDim() const EL_NOEXCEPT
+{ return matrix_.LDim(); }
 
 template<typename T>
 El::Matrix<T>& 
-AbstractDistMatrix<T>::Matrix() { return matrix_; }
+AbstractDistMatrix<T>::Matrix() EL_NOEXCEPT { return matrix_; }
 template<typename T>
 const El::Matrix<T>& 
-AbstractDistMatrix<T>::LockedMatrix() const { return matrix_; }
+AbstractDistMatrix<T>::LockedMatrix() const EL_NOEXCEPT { return matrix_; }
 
 template<typename T>
 size_t
-AbstractDistMatrix<T>::AllocatedMemory() const { return matrix_.MemorySize(); }
+AbstractDistMatrix<T>::AllocatedMemory() const EL_NOEXCEPT 
+{ return matrix_.MemorySize(); }
 
 template<typename T>
 T*
@@ -650,57 +656,61 @@ AbstractDistMatrix<T>::Buffer( Int iLoc, Int jLoc )
 
 template<typename T>
 const T*
-AbstractDistMatrix<T>::LockedBuffer() const
+AbstractDistMatrix<T>::LockedBuffer() const EL_NOEXCEPT
 { return matrix_.LockedBuffer(); }
 
 template<typename T>
 const T*
-AbstractDistMatrix<T>::LockedBuffer( Int iLoc, Int jLoc ) const
+AbstractDistMatrix<T>::LockedBuffer( Int iLoc, Int jLoc ) const EL_NOEXCEPT
 { return matrix_.LockedBuffer(iLoc,jLoc); }
 
 // Distribution information
 // ------------------------
 
 template<typename T>
-const El::Grid& AbstractDistMatrix<T>::Grid() const { return *grid_; }
+const El::Grid& AbstractDistMatrix<T>::Grid() const EL_NOEXCEPT
+{ return *grid_; }
 
 template<typename T>
-int AbstractDistMatrix<T>::ColAlign() const { return colAlign_; }
+int AbstractDistMatrix<T>::ColAlign() const EL_NOEXCEPT { return colAlign_; }
 template<typename T>
-int AbstractDistMatrix<T>::RowAlign() const { return rowAlign_; }
+int AbstractDistMatrix<T>::RowAlign() const EL_NOEXCEPT { return rowAlign_; }
 
 template<typename T>
-int AbstractDistMatrix<T>::ColShift() const { return colShift_; }
+int AbstractDistMatrix<T>::ColShift() const EL_NOEXCEPT { return colShift_; }
 template<typename T>
-int AbstractDistMatrix<T>::RowShift() const { return rowShift_; }
+int AbstractDistMatrix<T>::RowShift() const EL_NOEXCEPT { return rowShift_; }
 
 template<typename T>
-bool AbstractDistMatrix<T>::ColConstrained() const { return colConstrained_; }
+bool AbstractDistMatrix<T>::ColConstrained() const EL_NOEXCEPT
+{ return colConstrained_; }
 template<typename T>
-bool AbstractDistMatrix<T>::RowConstrained() const { return rowConstrained_; }
+bool AbstractDistMatrix<T>::RowConstrained() const EL_NOEXCEPT
+{ return rowConstrained_; }
 template<typename T>
-bool AbstractDistMatrix<T>::RootConstrained() const { return rootConstrained_; }
+bool AbstractDistMatrix<T>::RootConstrained() const EL_NOEXCEPT
+{ return rootConstrained_; }
 
 template<typename T>
 bool AbstractDistMatrix<T>::Participating() const
 { return grid_->InGrid() && (CrossRank()==root_); }
 
 template<typename T>
-int AbstractDistMatrix<T>::RowOwner( Int i ) const
+int AbstractDistMatrix<T>::RowOwner( Int i ) const EL_NOEXCEPT
 {
     if( i == END ) i = height_ - 1;
     return int((i+ColAlign()) % ColStride());
 }
 
 template<typename T>
-int AbstractDistMatrix<T>::ColOwner( Int j ) const
+int AbstractDistMatrix<T>::ColOwner( Int j ) const EL_NOEXCEPT
 { 
     if( j == END ) j = width_ - 1;
     return int((j+RowAlign()) % RowStride()); 
 }
 
 template<typename T>
-int AbstractDistMatrix<T>::Owner( Int i, Int j ) const
+int AbstractDistMatrix<T>::Owner( Int i, Int j ) const EL_NOEXCEPT
 { return RowOwner(i)+ColOwner(j)*ColStride(); }
 
 template<typename T>
@@ -726,28 +736,28 @@ Int AbstractDistMatrix<T>::LocalCol( Int j ) const
 }
 
 template<typename T>
-Int AbstractDistMatrix<T>::LocalRowOffset( Int i ) const
+Int AbstractDistMatrix<T>::LocalRowOffset( Int i ) const EL_NOEXCEPT
 { 
     if( i == END ) i = height_ - 1;
     return Length_(i,ColShift(),ColStride()); 
 }
 
 template<typename T>
-Int AbstractDistMatrix<T>::LocalColOffset( Int j ) const
+Int AbstractDistMatrix<T>::LocalColOffset( Int j ) const EL_NOEXCEPT
 { 
     if( j == END ) j = width_ - 1;
     return Length_(j,RowShift(),RowStride()); 
 }
 
 template<typename T>
-Int AbstractDistMatrix<T>::GlobalRow( Int iLoc ) const
+Int AbstractDistMatrix<T>::GlobalRow( Int iLoc ) const EL_NOEXCEPT
 { 
     if( iLoc == END ) iLoc = LocalHeight() - 1;
     return ColShift() + iLoc*ColStride(); 
 }
 
 template<typename T>
-Int AbstractDistMatrix<T>::GlobalCol( Int jLoc ) const
+Int AbstractDistMatrix<T>::GlobalCol( Int jLoc ) const EL_NOEXCEPT
 { 
     if( jLoc == END ) jLoc = LocalWidth() - 1;
     return RowShift() + jLoc*RowStride(); 
@@ -764,26 +774,32 @@ bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
 { return IsLocalRow(i) && IsLocalCol(j); }
 
 template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialColComm() const { return ColComm(); }
+mpi::Comm AbstractDistMatrix<T>::PartialColComm() const EL_NOEXCEPT
+{ return ColComm(); }
 template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialRowComm() const { return RowComm(); }
+mpi::Comm AbstractDistMatrix<T>::PartialRowComm() const EL_NOEXCEPT
+{ return RowComm(); }
 
 template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionColComm() const
+mpi::Comm AbstractDistMatrix<T>::PartialUnionColComm() const EL_NOEXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionRowComm() const
+mpi::Comm AbstractDistMatrix<T>::PartialUnionRowComm() const EL_NOEXCEPT
 { return mpi::COMM_SELF; }
 
 template<typename T>
-int AbstractDistMatrix<T>::PartialColStride() const { return ColStride(); }
+int AbstractDistMatrix<T>::PartialColStride() const EL_NOEXCEPT
+{ return ColStride(); }
 template<typename T>
-int AbstractDistMatrix<T>::PartialRowStride() const { return RowStride(); }
+int AbstractDistMatrix<T>::PartialRowStride() const EL_NOEXCEPT
+{ return RowStride(); }
 
 template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColStride() const { return 1; }
+int AbstractDistMatrix<T>::PartialUnionColStride() const EL_NOEXCEPT
+{ return 1; }
 template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowStride() const { return 1; }
+int AbstractDistMatrix<T>::PartialUnionRowStride() const EL_NOEXCEPT
+{ return 1; }
 
 template<typename T>
 int AbstractDistMatrix<T>::ColRank() const { return mpi::Rank(ColComm()); }
@@ -815,7 +831,7 @@ int AbstractDistMatrix<T>::RedundantRank() const
 { return mpi::Rank(RedundantComm()); }
 
 template<typename T>
-int AbstractDistMatrix<T>::Root() const { return root_; }
+int AbstractDistMatrix<T>::Root() const EL_NOEXCEPT { return root_; }
 
 // Single-entry manipulation
 // =========================

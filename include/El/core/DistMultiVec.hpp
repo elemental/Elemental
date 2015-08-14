@@ -66,21 +66,21 @@ public:
 
     // High-level data
     // ---------------
-    Int Height() const;
-    Int Width() const;
-    Int FirstLocalRow() const;
-    Int LocalHeight() const;
-          El::Matrix<T>& Matrix();
-    const El::Matrix<T>& LockedMatrix() const;
+    Int Height() const EL_NOEXCEPT;
+    Int Width() const EL_NOEXCEPT;
+    Int FirstLocalRow() const EL_NOEXCEPT;
+    Int LocalHeight() const EL_NOEXCEPT;
+          El::Matrix<T>& Matrix() EL_NOEXCEPT;
+    const El::Matrix<T>& LockedMatrix() const EL_NOEXCEPT;
 
     // Distribution information
     // ------------------------
-    mpi::Comm Comm() const;
-    Int Blocksize() const;
-    int RowOwner( Int i ) const;
-    int Owner( Int i, Int j ) const;
-    bool IsLocal( Int i, Int j ) const;
-    bool IsLocalRow( Int i ) const;
+    mpi::Comm Comm() const EL_NOEXCEPT;
+    Int Blocksize() const EL_NOEXCEPT;
+    int RowOwner( Int i ) const EL_NOEXCEPT;
+    int Owner( Int i, Int j ) const EL_NOEXCEPT;
+    bool IsLocal( Int i, Int j ) const EL_NOEXCEPT;
+    bool IsLocalRow( Int i ) const EL_NOEXCEPT;
     Int GlobalRow( Int iLoc ) const;
     Int LocalRow( Int i ) const;
 

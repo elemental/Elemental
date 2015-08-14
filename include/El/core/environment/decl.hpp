@@ -287,7 +287,7 @@ Int Find
 
 // TODO: Move this somewhere else or make it obsolete
 inline Int
-RowToProcess( Int i, Int blocksize, Int commSize )
+RowToProcess( Int i, Int blocksize, Int commSize ) EL_NOEXCEPT
 {
     if( blocksize > 0 )
         return std::min( i/blocksize, commSize-1 );

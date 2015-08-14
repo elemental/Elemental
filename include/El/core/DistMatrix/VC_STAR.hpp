@@ -94,30 +94,30 @@ public:
     // =============
     El::DistData DistData() const override;
 
-    Dist ColDist()             const override;
-    Dist RowDist()             const override;
-    Dist PartialColDist()      const override;
-    Dist PartialRowDist()      const override;
-    Dist PartialUnionColDist() const override;
-    Dist PartialUnionRowDist() const override;
-    Dist CollectedColDist()    const override;
-    Dist CollectedRowDist()    const override;
+    Dist ColDist()             const EL_NOEXCEPT override;
+    Dist RowDist()             const EL_NOEXCEPT override;
+    Dist PartialColDist()      const EL_NOEXCEPT override;
+    Dist PartialRowDist()      const EL_NOEXCEPT override;
+    Dist PartialUnionColDist() const EL_NOEXCEPT override;
+    Dist PartialUnionRowDist() const EL_NOEXCEPT override;
+    Dist CollectedColDist()    const EL_NOEXCEPT override;
+    Dist CollectedRowDist()    const EL_NOEXCEPT override;
 
-    mpi::Comm DistComm()            const override;
-    mpi::Comm CrossComm()           const override;
-    mpi::Comm RedundantComm()       const override;
-    mpi::Comm ColComm()             const override;
-    mpi::Comm RowComm()             const override;
-    mpi::Comm PartialColComm()      const override;
-    mpi::Comm PartialUnionColComm() const override;
+    mpi::Comm DistComm()            const EL_NOEXCEPT override;
+    mpi::Comm CrossComm()           const EL_NOEXCEPT override;
+    mpi::Comm RedundantComm()       const EL_NOEXCEPT override;
+    mpi::Comm ColComm()             const EL_NOEXCEPT override;
+    mpi::Comm RowComm()             const EL_NOEXCEPT override;
+    mpi::Comm PartialColComm()      const EL_NOEXCEPT override;
+    mpi::Comm PartialUnionColComm() const EL_NOEXCEPT override;
 
-    int ColStride()             const override;
-    int RowStride()             const override;
-    int PartialColStride()      const override;
-    int PartialUnionColStride() const override;
-    int DistSize()              const override;
-    int CrossSize()             const override;
-    int RedundantSize()         const override;
+    int ColStride()             const EL_NOEXCEPT override;
+    int RowStride()             const EL_NOEXCEPT override;
+    int PartialColStride()      const EL_NOEXCEPT override;
+    int PartialUnionColStride() const EL_NOEXCEPT override;
+    int DistSize()              const EL_NOEXCEPT override;
+    int CrossSize()             const EL_NOEXCEPT override;
+    int RedundantSize()         const EL_NOEXCEPT override;
 
 private:
     // Friend declarations

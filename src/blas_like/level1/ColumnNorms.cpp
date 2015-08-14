@@ -164,17 +164,13 @@ void ColumnTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     const Int m = A.Height();
     const Int n = A.Width();
     Zeros( norms, n, 1 );
+ 
+    const Int numEntries = A.NumEntries();
     const Int* colBuf = A.LockedTargetBuffer();
-    const Int* offsetBuf = A.LockedOffsetBuffer();
     const F* values = A.LockedValueBuffer();
     Real* normBuf = norms.Buffer(); 
-    for( Int i=0; i<m; ++i )
-    {
-        const Int eStart = offsetBuf[i];
-        const Int eStop = offsetBuf[i+1];
-        for( Int e=eStart; e<eStop; ++e )
-            normBuf[colBuf[e]] += Abs(values[e])*Abs(values[e]);
-    }
+    for( Int e=0; e<numEntries; ++e )
+        normBuf[colBuf[e]] += Abs(values[e])*Abs(values[e]);
 
     // Convert from sums of squares to two-norms
     // -----------------------------------------
@@ -200,17 +196,13 @@ void ColumnMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     const Int m = A.Height();
     const Int n = A.Width();
     Zeros( norms, n, 1 );
+
+    const Int numEntries = A.NumEntries();
     const Int* colBuf = A.LockedTargetBuffer();
-    const Int* offsetBuf = A.LockedOffsetBuffer();
     const F* values = A.LockedValueBuffer();
     Real* normBuf = norms.Buffer(); 
-    for( Int i=0; i<m; ++i )
-    {
-        const Int eStart = offsetBuf[i];
-        const Int eStop = offsetBuf[i+1];
-        for( Int e=eStart; e<eStop; ++e )
-            normBuf[colBuf[e]] = Max(normBuf[colBuf[e]],Abs(values[e]));
-    }
+    for( Int e=0; e<numEntries; ++e )
+        normBuf[colBuf[e]] = Max(normBuf[colBuf[e]],Abs(values[e]));
 }
 
 template<typename F>
@@ -236,18 +228,10 @@ void ColumnTwoNorms
     // Pack the send values 
     // --------------------
     vector<Real> sendVals( meta.numRecvInds, 0 );
-    {
-        const Int ALocalHeight = A.LocalHeight();
-        const Int* offsetBuf = A.LockedOffsetBuffer();
-        const F* values = A.LockedValueBuffer();
-        for( Int i=0; i<ALocalHeight; ++i )
-        {
-            const Int eStart = offsetBuf[i];
-            const Int eStop = offsetBuf[i+1];
-            for( Int e=eStart; e<eStop; ++e )
-                sendVals[meta.colOffs[e]] += Abs(values[e])*Abs(values[e]);
-        }
-    }
+    const Int numEntries = A.NumLocalEntries();
+    const F* values = A.LockedValueBuffer();
+    for( Int e=0; e<numEntries; ++e )
+        sendVals[meta.colOffs[e]] += Abs(values[e])*Abs(values[e]);
 
     // Inject the updates into the network
     // -----------------------------------
@@ -299,19 +283,11 @@ void ColumnMaxNorms
     // Pack the send values 
     // --------------------
     vector<Real> sendVals( meta.numRecvInds, 0 );
-    {
-        const Int ALocalHeight = A.LocalHeight();
-        const Int* offsetBuf = A.LockedOffsetBuffer();
-        const F* values = A.LockedValueBuffer();
-        for( Int i=0; i<ALocalHeight; ++i )
-        {
-            const Int eStart = offsetBuf[i];
-            const Int eStop = offsetBuf[i+1];
-            for( Int e=eStart; e<eStop; ++e )
-                sendVals[meta.colOffs[e]] = 
-                  Max(sendVals[meta.colOffs[e]],Abs(values[e]));
-        }
-    }
+    const Int numEntries = A.NumLocalEntries();
+    const F* values = A.LockedValueBuffer();
+    for( Int e=0; e<numEntries; ++e )
+        sendVals[meta.colOffs[e]] = 
+          Max(sendVals[meta.colOffs[e]],Abs(values[e]));
 
     // Inject the updates into the network
     // -----------------------------------

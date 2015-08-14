@@ -37,6 +37,9 @@
  * Copyright, this License, and the Availability note are retained,
  * and a notice that the code was modified is included.
  */
+#ifndef EL_SUITE_SPARSE_LDL_HPP
+#define EL_SUITE_SPARSE_LDL_HPP
+
 #include "ElSuiteSparse/config.h"
 #include <complex>
 
@@ -144,3 +147,5 @@ IntType ValidMatrix( IntType n, const IntType* Ap, const IntType* Ai );
 #define EL_LDL_SUBSUB_VERSION 1
 #define EL_LDL_VERSION EL_LDL_VERSION_CODE( \
  EL_LDL_MAIN_VERSION,EL_LDL_SUB_VERSION)
+
+#endif // ifndef EL_SUITE_SPARSE_LDL_HPP

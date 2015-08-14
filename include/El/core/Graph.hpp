@@ -107,9 +107,8 @@ private:
     set<pair<Int,Int>> markedForRemoval_;
 
     // Helpers for local indexing
-    bool consistent_;
+    bool consistent_=true;
     vector<Int> sourceOffsets_;
-
 
     friend class DistGraph;
     template<typename F> friend class SparseMatrix;
