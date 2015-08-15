@@ -17,9 +17,16 @@ void Full( const SparseMatrix<T>& A, Matrix<T>& B )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
+    const T* AValBuf = A.LockedValueBuffer();
+    const Int* ARowBuf = A.LockedSourceBuffer();
+    const Int* AColBuf = A.LockedTargetBuffer();
+
+    T* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+
     Zeros( B, m, n );
     for( Int e=0; e<numEntries; ++e )
-        B.Set( A.Row(e), A.Col(e), A.Value(e) );
+        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = AValBuf[e];
 }
 
 template<typename T>

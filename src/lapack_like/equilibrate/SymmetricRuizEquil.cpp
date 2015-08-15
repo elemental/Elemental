@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 inline Real DampScaling( Real alpha )
 {
-    const Real tol = Pow(Epsilon<Real>(),Real(0.33));
+    static const Real tol = Pow(Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
         return 1;
     else 
@@ -50,7 +50,7 @@ void SymmetricRuizEquil
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    auto APtr     = ReadWriteProxy<F,MC,MR>(&APre,control);
+    auto APtr = ReadWriteProxy<F,MC,MR>(&APre,control);
     auto dPtr = WriteProxy<Real,MC,STAR>(&dPre,control); 
     auto& A = *APtr;
     auto& d = *dPtr;
@@ -96,8 +96,7 @@ void SymmetricRuizEquil
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
     }
     SetIndent( indent );
 }
@@ -125,8 +124,7 @@ void SymmetricRuizEquil
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
     }
     SetIndent( indent );
 }

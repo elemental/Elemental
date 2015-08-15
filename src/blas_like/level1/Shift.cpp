@@ -16,9 +16,11 @@ void Shift( Matrix<T>& A, S alpha )
     DEBUG_ONLY(CSE cse("Shift"))
     const Int height = A.Height();
     const Int width = A.Width();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            A.Update( i, j, alpha );
+            ABuf[i+j*ALDim] += alpha;
 }
 
 template<typename T,typename S>

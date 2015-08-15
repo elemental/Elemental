@@ -656,6 +656,8 @@ template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const Matrix<FDiag>& d, Matrix<F>& A, bool checkIfSingular=true );
+template<typename F>
+void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, Matrix<F>& A );
 
 template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
@@ -674,12 +676,18 @@ void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const Matrix<FDiag>& d, SparseMatrix<F>& A, 
   bool checkIfSingular=true );
+template<typename F>
+void SymmetricDiagonalSolve
+( const Matrix<Base<F>>& d, SparseMatrix<F>& A );
 
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const DistMultiVec<FDiag>& d, DistSparseMatrix<F>& A, 
   bool checkIfSingular=true );
+template<typename F>
+void SymmetricDiagonalSolve
+( const DistMultiVec<Base<F>>& d, DistSparseMatrix<F>& A );
 
 template<typename FDiag,typename F>
 void DiagonalSolve

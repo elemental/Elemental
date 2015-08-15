@@ -24,7 +24,7 @@ namespace El {
 template<typename Real>
 inline Real DampScaling( Real alpha )
 {
-    const Real tol = Pow(Epsilon<Real>(),Real(0.33));
+    static const Real tol = Pow(Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
         return 1;
     else
@@ -69,6 +69,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
+        // TODO: Reimplement this as a standalone routine?
         for( Int j=0; j<n; ++j )
         {
             auto aCol = A( ALL, IR(j) );
@@ -82,8 +83,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
 
         auto newMaxAbs = MaxAbs( A );
         const Real newMaxAbsVal = newMaxAbs.value;
@@ -109,8 +109,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
             scales.Set( j, 0, scale );
         }
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
     }
     auto newMaxAbs = MaxAbs( A );
     const Real newMaxAbsVal = newMaxAbs.value;
@@ -174,6 +173,7 @@ void SymmetricGeomEquil
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
+        // TODO: SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
@@ -204,6 +204,7 @@ void SymmetricGeomEquil
         }
         mpi::AllReduce( scales.Buffer(), nLocal, mpi::MAX, A.ColComm() );
         DiagonalScale( LEFT, NORMAL, scales, d );
+        // TODO: SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
@@ -261,8 +262,7 @@ void SymmetricGeomEquil
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
 
         // Determine whether we are done or not
         // ------------------------------------
@@ -292,8 +292,7 @@ void SymmetricGeomEquil
             scales.Set( i, 0, scale );
         }
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
     }
     auto newMaxAbs = MaxAbs( A );
     const Real newMaxAbsVal = newMaxAbs.value;
@@ -354,8 +353,7 @@ void SymmetricGeomEquil
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
 
         // Determine whether we are done or not
         // ------------------------------------
@@ -386,8 +384,7 @@ void SymmetricGeomEquil
             scales.SetLocal( iLoc, 0, scale );
         }
         DiagonalScale( LEFT, NORMAL, scales, d );
-        DiagonalSolve( RIGHT, NORMAL, scales, A );
-        DiagonalSolve( LEFT, NORMAL, scales, A );
+        SymmetricDiagonalSolve( scales, A );
     }
     auto newMaxAbs = MaxAbs( A );
     const Real newMaxAbsVal = newMaxAbs.value;

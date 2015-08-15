@@ -16,9 +16,11 @@ void EntrywiseFill( Matrix<T>& A, function<T(void)> func )
     DEBUG_ONLY(CSE cse("EntrywiseFill"))
     const Int m = A.Height();
     const Int n = A.Width();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set( i, j, func() );
+            ABuf[i+j*ALDim] = func();
 }
 
 template<typename T>

@@ -49,8 +49,7 @@ void SymmetricDiagonalEquil
         const Real maxNorm = MaxNorm( d ); 
         Output("  || d ||_max = ",maxNorm);
     }
-    DiagonalSolve( LEFT, NORMAL, d, A );
-    DiagonalSolve( RIGHT, NORMAL, d, A );
+    SymmetricDiagonalSolve( d, A );
 }
 
 template<typename F>
@@ -75,14 +74,9 @@ void SymmetricDiagonalEquil
         Output("  Get mapped diag time: ",timer.Stop());
     if( commRank == 0 && time )
         timer.Start();
-    DiagonalSolve( LEFT, NORMAL, d, A );
+    SymmetricDiagonalSolve( d, A );
     if( commRank == 0 && time )
-        Output("  Left diag solve time: ",timer.Stop());
-    if( commRank == 0 && time )
-        timer.Start();
-    DiagonalSolve( RIGHT, NORMAL, d, A );
-    if( commRank == 0 && time )
-        Output("  Right diag solve time: ",timer.Stop());
+        Output("  Diag solve time: ",timer.Stop());
     if( progress )
     {
         const Real maxNorm = MaxNorm( d );

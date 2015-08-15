@@ -50,6 +50,23 @@ void DiagonalSolve
     }
 }
 
+template<typename F>
+void SymmetricDiagonalSolve
+( const Matrix<Base<F>>& d, 
+        Matrix<F>& A )
+{
+    DEBUG_ONLY(CSE cse("SymmetricDiagonalSolve"))
+    typedef Base<F> Real;
+    const Int n = A.Width();
+    F* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+    const Real* dBuf = d.LockedBuffer();
+
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<n; ++i ) 
+            ABuf[i+j*ALDim] /= dBuf[i]*dBuf[j];
+}
+
 template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
@@ -152,6 +169,39 @@ void DiagonalSolve
     }
 }
 
+template<typename F>
+void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
+{
+    DEBUG_ONLY(
+      CSE cse("SymmetricDiagonalSolve");
+      if( d.Width() != 1 )
+          LogicError("d must be a column vector");
+      if( d.Height() != A.Height() )
+          LogicError("The size of d must match the height of A");
+    )
+    typedef Base<F> Real;
+
+    const Int numEntries = A.NumEntries();
+    F* vBuf = A.ValueBuffer();
+    const Int* rowBuf = A.LockedSourceBuffer();
+    const Int* colBuf = A.LockedTargetBuffer();
+
+    const Real* dBuf = d.LockedBuffer();
+
+    for( Int k=0; k<numEntries; ++k )
+    {
+        const Int i = rowBuf[k];
+        const Int j = colBuf[k];
+        const Real deltaRow = dBuf[i];
+        const Real deltaCol = dBuf[j];
+        DEBUG_ONLY(
+          if( checkIfSingular && deltaRow*deltaCol == Real(0) )
+              throw SingularMatrixException();
+        )
+        vBuf[k] /= deltaRow*deltaCol;
+    }
+}
+
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
@@ -167,10 +217,14 @@ void DiagonalSolve
           LogicError("Communicators must be congruent");
     )
     const bool conjugate = ( orientation == ADJOINT );
-    F* vBuf = A.ValueBuffer();
+
     const Int numEntries = A.NumLocalEntries();
+    F* vBuf = A.ValueBuffer();
+    const Int* rBuf = A.LockedSourceBuffer();
+
     const FDiag* dBuf = d.LockedMatrix().LockedBuffer();
     const Int firstLocalRow = d.FirstLocalRow();
+
     if( side == LEFT )
     {
         DEBUG_ONLY(
@@ -180,7 +234,7 @@ void DiagonalSolve
         // TODO: Ensure that the DistMultiVec conforms
         for( Int k=0; k<numEntries; ++k )
         {
-            const Int i = A.Row(k);
+            const Int i = rBuf[k];
             const Int iLoc = i - firstLocalRow;
             const F delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
             DEBUG_ONLY(
@@ -215,6 +269,58 @@ void DiagonalSolve
         // Loop over the entries of A and rescale
         for( Int k=0; k<numEntries; ++k )
             vBuf[k] /= recvVals[meta.colOffs[k]];
+    }
+}
+
+template<typename F>
+void SymmetricDiagonalSolve
+( const DistMultiVec<Base<F>>& d,
+        DistSparseMatrix<F>& A )
+{
+    DEBUG_ONLY(
+      CSE cse("SymmetricDiagonalSolve");
+      if( d.Width() != 1 )
+          LogicError("d must be a column vector");
+      if( d.Height() != A.Height() )
+          LogicError("The length of d must match the height of A");
+      if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+          LogicError("Communicators must be congruent");
+    )
+    typedef Base<F> Real;
+
+    const Int numEntries = A.NumLocalEntries();
+    F* vBuf = A.ValueBuffer();
+    const Int* rBuf = A.LockedSourceBuffer();
+
+    const Real* dBuf = d.LockedMatrix().LockedBuffer();
+    const Int firstLocalRow = d.FirstLocalRow();
+
+    A.InitializeMultMeta();
+    const auto& meta = A.multMeta;
+
+    // Pack the send values
+    const Int numSendInds = meta.sendInds.size();
+    vector<Real> sendVals( numSendInds );
+    for( Int s=0; s<numSendInds; ++s )
+    {
+        const Int i = meta.sendInds[s];
+        const Int iLoc = i - firstLocalRow;
+        sendVals[s] = dBuf[iLoc];
+    }
+
+    // Now send them
+    vector<Real> recvVals( meta.numRecvInds );
+    mpi::AllToAll
+    ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
+      A.Comm() );
+
+    // Loop over the entries of A and rescale
+    for( Int k=0; k<numEntries; ++k )
+    {
+        const Int i = rBuf[k];
+        const Int iLoc = i - firstLocalRow;
+        vBuf[k] /= recvVals[meta.colOffs[k]]*dBuf[iLoc];
     }
 }
 
@@ -266,88 +372,97 @@ void DiagonalSolve
           DistMatrix<Complex<T>,U,V>& A, \
     bool checkIfSingular );
 
-#define PROTO(T) \
+#define PROTO(F) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, \
-          Matrix<T>& A, \
+    const Matrix<F>& d, \
+          Matrix<F>& A, \
      bool checkIfSingular ); \
+  template void SymmetricDiagonalSolve \
+  ( const Matrix<Base<F>>& d, \
+          Matrix<F>& A ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
-          AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<F>& d, \
+          AbstractDistMatrix<F>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, \
-          SparseMatrix<T>& A, \
+    const Matrix<F>& d, \
+          SparseMatrix<F>& A, \
     bool checkIfSingular ); \
+  template void SymmetricDiagonalSolve \
+  ( const Matrix<Base<F>>& d, \
+          SparseMatrix<F>& A ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, \
-          DistSparseMatrix<T>& A, \
+    const DistMultiVec<F>& d, \
+          DistSparseMatrix<F>& A, \
     bool checkIfSingular ); \
+  template void SymmetricDiagonalSolve \
+  ( const DistMultiVec<Base<F>>& d, \
+          DistSparseMatrix<F>& A ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, \
-          DistMultiVec<T>& X, \
+    const DistMultiVec<F>& d, \
+          DistMultiVec<F>& X, \
     bool checkIfSingular ); \
-  DIST_PROTO(T,CIRC,CIRC); \
-  DIST_PROTO(T,MC,  MR  ); \
-  DIST_PROTO(T,MC,  STAR); \
-  DIST_PROTO(T,MD,  STAR); \
-  DIST_PROTO(T,MR,  MC  ); \
-  DIST_PROTO(T,MR,  STAR); \
-  DIST_PROTO(T,STAR,MC  ); \
-  DIST_PROTO(T,STAR,MD  ); \
-  DIST_PROTO(T,STAR,MR  ); \
-  DIST_PROTO(T,STAR,STAR); \
-  DIST_PROTO(T,STAR,VC  ); \
-  DIST_PROTO(T,STAR,VR  ); \
-  DIST_PROTO(T,VC  ,STAR); \
-  DIST_PROTO(T,VR  ,STAR);
+  DIST_PROTO(F,CIRC,CIRC); \
+  DIST_PROTO(F,MC,  MR  ); \
+  DIST_PROTO(F,MC,  STAR); \
+  DIST_PROTO(F,MD,  STAR); \
+  DIST_PROTO(F,MR,  MC  ); \
+  DIST_PROTO(F,MR,  STAR); \
+  DIST_PROTO(F,STAR,MC  ); \
+  DIST_PROTO(F,STAR,MD  ); \
+  DIST_PROTO(F,STAR,MR  ); \
+  DIST_PROTO(F,STAR,STAR); \
+  DIST_PROTO(F,STAR,VC  ); \
+  DIST_PROTO(F,STAR,VR  ); \
+  DIST_PROTO(F,VC  ,STAR); \
+  DIST_PROTO(F,VR  ,STAR);
 
-#define PROTO_REAL(T) \
-  PROTO(T) \
+#define PROTO_REAL(Real) \
+  PROTO(Real) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, \
-          Matrix<Complex<T>>& A, \
+    const Matrix<Real>& d, \
+          Matrix<Complex<Real>>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
-          AbstractDistMatrix<Complex<T>>& A, \
+    const AbstractDistMatrix<Real>& d, \
+          AbstractDistMatrix<Complex<Real>>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<T>& d, \
-          SparseMatrix<Complex<T>>& A, \
+    const Matrix<Real>& d, \
+          SparseMatrix<Complex<Real>>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, \
-          DistSparseMatrix<Complex<T>>& A, \
+    const DistMultiVec<Real>& d, \
+          DistSparseMatrix<Complex<Real>>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMultiVec<T>& d, \
-          DistMultiVec<Complex<T>>& X, \
+    const DistMultiVec<Real>& d, \
+          DistMultiVec<Complex<Real>>& X, \
     bool checkIfSingular ); \
-  DIST_PROTO_REAL(T,CIRC,CIRC); \
-  DIST_PROTO_REAL(T,MC,  MR  ); \
-  DIST_PROTO_REAL(T,MC,  STAR); \
-  DIST_PROTO_REAL(T,MD,  STAR); \
-  DIST_PROTO_REAL(T,MR,  MC  ); \
-  DIST_PROTO_REAL(T,MR,  STAR); \
-  DIST_PROTO_REAL(T,STAR,MC  ); \
-  DIST_PROTO_REAL(T,STAR,MD  ); \
-  DIST_PROTO_REAL(T,STAR,MR  ); \
-  DIST_PROTO_REAL(T,STAR,STAR); \
-  DIST_PROTO_REAL(T,STAR,VC  ); \
-  DIST_PROTO_REAL(T,STAR,VR  ); \
-  DIST_PROTO_REAL(T,VC  ,STAR); \
-  DIST_PROTO_REAL(T,VR  ,STAR);
+  DIST_PROTO_REAL(Real,CIRC,CIRC); \
+  DIST_PROTO_REAL(Real,MC,  MR  ); \
+  DIST_PROTO_REAL(Real,MC,  STAR); \
+  DIST_PROTO_REAL(Real,MD,  STAR); \
+  DIST_PROTO_REAL(Real,MR,  MC  ); \
+  DIST_PROTO_REAL(Real,MR,  STAR); \
+  DIST_PROTO_REAL(Real,STAR,MC  ); \
+  DIST_PROTO_REAL(Real,STAR,MD  ); \
+  DIST_PROTO_REAL(Real,STAR,MR  ); \
+  DIST_PROTO_REAL(Real,STAR,STAR); \
+  DIST_PROTO_REAL(Real,STAR,VC  ); \
+  DIST_PROTO_REAL(Real,STAR,VR  ); \
+  DIST_PROTO_REAL(Real,VC  ,STAR); \
+  DIST_PROTO_REAL(Real,VR  ,STAR);
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD
