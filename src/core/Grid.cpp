@@ -197,10 +197,10 @@ Grid::~Grid()
     }
 }
 
-int Grid::MCRank() const { return mpi::Rank(mcComm_); }
-int Grid::MRRank() const { return mpi::Rank(mrComm_); }
-int Grid::VCRank() const { return mpi::Rank(vcComm_); }
-int Grid::VRRank() const { return mpi::Rank(vrComm_); }
+int Grid::MCRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(mcComm_); }
+int Grid::MRRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(mrComm_); }
+int Grid::VCRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(vcComm_); }
+int Grid::VRRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(vrComm_); }
 
 int Grid::MCSize() const EL_NO_EXCEPT { return height_;       }
 int Grid::MRSize() const EL_NO_EXCEPT { return size_/height_; }
@@ -219,12 +219,12 @@ mpi::Comm Grid::MDPerpComm() const EL_NO_EXCEPT { return mdPerpComm_; }
 int Grid::Height() const EL_NO_EXCEPT { return MCSize(); }
 int Grid::Width()  const EL_NO_EXCEPT { return MRSize(); }
 int Grid::Size()   const EL_NO_EXCEPT { return VCSize(); }
-int Grid::Rank() const { return OwningRank(); }
+int Grid::Rank() const EL_NO_RELEASE_EXCEPT { return OwningRank(); }
 
-GridOrder Grid::Order() const { return order_; }
+GridOrder Grid::Order() const EL_NO_EXCEPT { return order_; }
 
-int Grid::Row() const { return MCRank(); }
-int Grid::Col() const { return MRRank(); }
+int Grid::Row() const EL_NO_RELEASE_EXCEPT { return MCRank(); }
+int Grid::Col() const EL_NO_RELEASE_EXCEPT { return MRRank(); }
 mpi::Comm Grid::ColComm() const EL_NO_EXCEPT { return MCComm(); }
 mpi::Comm Grid::RowComm() const EL_NO_EXCEPT { return MRComm(); }
 mpi::Comm Grid::Comm() const EL_NO_EXCEPT
@@ -258,11 +258,13 @@ int Grid::GCD() const EL_NO_EXCEPT { return gcd_; }
 int Grid::LCM() const EL_NO_EXCEPT { return size_/gcd_; }
 
 bool Grid::HaveViewers() const EL_NO_EXCEPT { return haveViewers_; }
-bool Grid::InGrid() const 
+bool Grid::InGrid() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(owningGroup_) != mpi::UNDEFINED; }
 
-int Grid::OwningRank() const { return mpi::Rank(owningGroup_); }
-int Grid::ViewingRank() const { return mpi::Rank(viewingComm_); }
+int Grid::OwningRank() const EL_NO_RELEASE_EXCEPT
+{ return mpi::Rank(owningGroup_); }
+int Grid::ViewingRank() const EL_NO_RELEASE_EXCEPT
+{ return mpi::Rank(viewingComm_); }
 
 int Grid::VCToVR( int vcRank ) const EL_NO_EXCEPT
 {
@@ -284,7 +286,7 @@ int Grid::VRToVC( int vrRank ) const EL_NO_EXCEPT
 
 int Grid::CoordsToVC
 ( Dist colDist, Dist rowDist, 
-  int distRank, int crossRank, int redundantRank ) const
+  int distRank, int crossRank, int redundantRank ) const EL_NO_RELEASE_EXCEPT
 {
     if( colDist == CIRC && rowDist == CIRC )
     {
@@ -329,8 +331,7 @@ int Grid::CoordsToVC
     {
         return VRToVC(distRank);
     }
-    else
-        LogicError("Invalid data distribution");
+    DEBUG_ONLY(else LogicError("Invalid data distribution"))
     return -1;
 }
 
@@ -341,7 +342,7 @@ mpi::Group Grid::OwningGroup() const EL_NO_EXCEPT { return owningGroup_; }
 mpi::Comm Grid::OwningComm()  const EL_NO_EXCEPT { return owningComm_; }
 mpi::Comm Grid::ViewingComm() const EL_NO_EXCEPT { return viewingComm_; }
 
-int Grid::Diag() const
+int Grid::Diag() const EL_NO_RELEASE_EXCEPT
 { 
     const int vcRank = VCRank();
     if( vcRank != mpi::UNDEFINED )
@@ -358,7 +359,7 @@ int Grid::Diag( int vcRank ) const EL_NO_EXCEPT
         return mpi::UNDEFINED;
 }
 
-int Grid::DiagRank() const
+int Grid::DiagRank() const EL_NO_RELEASE_EXCEPT
 { 
     const int vcRank = VCRank();
     if( vcRank != mpi::UNDEFINED )
@@ -378,7 +379,9 @@ int Grid::DiagRank( int vcRank ) const EL_NO_EXCEPT
 // Comparison functions
 // ====================
 
-bool operator==( const Grid& A, const Grid& B ) { return &A == &B; }
-bool operator!=( const Grid& A, const Grid& B ) { return &A != &B; }
+bool operator==( const Grid& A, const Grid& B ) EL_NO_EXCEPT
+{ return &A == &B; }
+bool operator!=( const Grid& A, const Grid& B ) EL_NO_EXCEPT
+{ return &A != &B; }
 
 } // namespace El

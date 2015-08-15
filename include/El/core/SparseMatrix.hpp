@@ -43,9 +43,9 @@ public:
     // --------
     void Reserve( Int numEntries );
 
-    void FreezeSparsity();
-    void UnfreezeSparsity();
-    bool FrozenSparsity() const;
+    void FreezeSparsity() EL_NO_EXCEPT;
+    void UnfreezeSparsity() EL_NO_EXCEPT;
+    bool FrozenSparsity() const EL_NO_EXCEPT;
 
     // Expensive independent updates and explicit zeroing
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,9 +55,9 @@ public:
 
     // Batch updating and zeroing (recommended)
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    void QueueUpdate( const Entry<T>& entry );
-    void QueueUpdate( Int row, Int col, T value );
-    void QueueZero( Int row, Int col );
+    void QueueUpdate( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( Int row, Int col, T value ) EL_NO_RELEASE_EXCEPT;
+    void QueueZero( Int row, Int col ) EL_NO_RELEASE_EXCEPT;
     void ProcessQueues();
 
     // Operator overloading
@@ -86,37 +86,37 @@ public:
 
     // For manually modifying data
     void ForceNumEntries( Int numEntries );
-    void ForceConsistency( bool consistent=true );
-    Int* SourceBuffer();
-    Int* TargetBuffer();
-    Int* OffsetBuffer();
-    T* ValueBuffer();
-    const Int* LockedSourceBuffer() const;
-    const Int* LockedTargetBuffer() const;
-    const Int* LockedOffsetBuffer() const;
-    const T* LockedValueBuffer() const;
+    void ForceConsistency( bool consistent=true ) EL_NO_EXCEPT;
+    Int* SourceBuffer() EL_NO_EXCEPT;
+    Int* TargetBuffer() EL_NO_EXCEPT;
+    Int* OffsetBuffer() EL_NO_EXCEPT;
+    T* ValueBuffer() EL_NO_EXCEPT;
+    const Int* LockedSourceBuffer() const EL_NO_EXCEPT;
+    const Int* LockedTargetBuffer() const EL_NO_EXCEPT;
+    const Int* LockedOffsetBuffer() const EL_NO_EXCEPT;
+    const T* LockedValueBuffer() const EL_NO_EXCEPT;
 
     // Queries
     // =======
 
     // High-level information
     // ----------------------
-    Int Height() const;
-    Int Width() const;
-    Int NumEntries() const;
-    Int Capacity() const;
-    bool Consistent() const;
-    El::Graph& Graph();
-    const El::Graph& LockedGraph() const;
+    Int Height() const EL_NO_EXCEPT;
+    Int Width() const EL_NO_EXCEPT;
+    Int NumEntries() const EL_NO_EXCEPT;
+    Int Capacity() const EL_NO_EXCEPT;
+    bool Consistent() const EL_NO_EXCEPT;
+    El::Graph& Graph() EL_NO_EXCEPT;
+    const El::Graph& LockedGraph() const EL_NO_EXCEPT;
 
     // Entrywise information
     // ---------------------
-    Int Row( Int index ) const;
-    Int Col( Int index ) const;
-    T Value( Int index ) const;
-    Int RowOffset( Int row ) const;
-    Int Offset( Int row, Int col ) const;
-    Int NumConnections( Int row ) const;
+    Int Row( Int index ) const EL_NO_RELEASE_EXCEPT;
+    Int Col( Int index ) const EL_NO_RELEASE_EXCEPT;
+    T Value( Int index ) const EL_NO_RELEASE_EXCEPT;
+    Int RowOffset( Int row ) const EL_NO_RELEASE_EXCEPT;
+    Int Offset( Int row, Int col ) const EL_NO_RELEASE_EXCEPT;
+    Int NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT;
 
     void AssertConsistent() const;
 

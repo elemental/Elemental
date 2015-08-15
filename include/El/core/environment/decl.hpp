@@ -92,17 +92,17 @@ void SetDefaultBlockWidth( Int blockWidth );
 std::mt19937& Generator();
 
 template<typename T>
-inline const T& Max( const T& m, const T& n )
+inline const T& Max( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
-inline const Int& Max( const Int& m, const Int& n )
+inline const Int& Max( const Int& m, const Int& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
 template<typename T>
-inline const T& Min( const T& m, const T& n )
+inline const T& Min( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::min(m,n); }
 
-inline const Int& Min( const Int& m, const Int& n )
+inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 { return std::min(m,n); }
 
 // Replacement for std::memcpy, which is known to often be suboptimal.
@@ -296,7 +296,8 @@ RowToProcess( Int i, Int blocksize, Int commSize ) EL_NO_EXCEPT
 }
 
 template<typename F>
-void UpdateScaledSquare( F alpha, Base<F>& scale, Base<F>& scaledSquare );
+void UpdateScaledSquare
+( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
 
 } // namespace El
 

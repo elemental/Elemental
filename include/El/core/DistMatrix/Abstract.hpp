@@ -128,11 +128,11 @@ public:
           Int            LocalHeight()                      const EL_NO_EXCEPT;
           Int            LocalWidth()                       const EL_NO_EXCEPT;
           Int            LDim()                             const EL_NO_EXCEPT;
-          El::Matrix<T>& Matrix() EL_NO_EXCEPT;
+          El::Matrix<T>& Matrix()                                 EL_NO_EXCEPT;
     const El::Matrix<T>& LockedMatrix()                     const EL_NO_EXCEPT;
           size_t         AllocatedMemory()                  const EL_NO_EXCEPT;
-          T*             Buffer();
-          T*             Buffer( Int iLoc, Int jLoc );
+          T*             Buffer() EL_NO_RELEASE_EXCEPT;
+          T*             Buffer( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
     const T*             LockedBuffer()                     const EL_NO_EXCEPT;
     const T*             LockedBuffer( Int iLoc, Int jLoc ) const EL_NO_EXCEPT;
 
@@ -146,20 +146,20 @@ public:
                   bool         ColConstrained()        const EL_NO_EXCEPT;
                   bool         RowConstrained()        const EL_NO_EXCEPT;
                   bool         RootConstrained()       const EL_NO_EXCEPT;
-                  bool         Participating()         const;
+                  bool         Participating()         const EL_NO_RELEASE_EXCEPT;
 
                   int          RowOwner( Int i )       const EL_NO_EXCEPT;
                   int          ColOwner( Int j )       const EL_NO_EXCEPT;
                   int          Owner( Int i, Int j )   const EL_NO_EXCEPT;
-                  Int          LocalRow( Int i )       const;
-                  Int          LocalCol( Int j )       const;
+                  Int          LocalRow( Int i )       const EL_NO_RELEASE_EXCEPT;
+                  Int          LocalCol( Int j )       const EL_NO_RELEASE_EXCEPT;
                   Int          LocalRowOffset( Int i ) const EL_NO_EXCEPT;
                   Int          LocalColOffset( Int j ) const EL_NO_EXCEPT;
                   Int          GlobalRow( Int iLoc )   const EL_NO_EXCEPT;
                   Int          GlobalCol( Int jLoc )   const EL_NO_EXCEPT;
-                  bool         IsLocalRow( Int i )     const;
-                  bool         IsLocalCol( Int j )     const;
-                  bool         IsLocal( Int i, Int j ) const;
+                  bool         IsLocalRow( Int i )     const EL_NO_RELEASE_EXCEPT;
+                  bool         IsLocalCol( Int j )     const EL_NO_RELEASE_EXCEPT;
+                  bool         IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
 
     virtual       Dist         ColDist()               const EL_NO_EXCEPT = 0;
     virtual       Dist         RowDist()               const EL_NO_EXCEPT = 0;
@@ -197,15 +197,15 @@ public:
     // NOTE: These are all clearly equivalent to composing mpi::Rank
     //       with ColComm(), RowComm(), etc., but it is not clear that
     //       they should be removed just yet.
-                  int          ColRank()               const;
-                  int          RowRank()               const;
-                  int          PartialColRank()        const;
-                  int          PartialRowRank()        const;
-                  int          PartialUnionColRank()   const;
-                  int          PartialUnionRowRank()   const; 
-                  int          DistRank()              const;
-                  int          CrossRank()             const;
-                  int          RedundantRank()         const;
+                  int          ColRank()               const EL_NO_RELEASE_EXCEPT;
+                  int          RowRank()               const EL_NO_RELEASE_EXCEPT;
+                  int          PartialColRank()        const EL_NO_RELEASE_EXCEPT;
+                  int          PartialRowRank()        const EL_NO_RELEASE_EXCEPT;
+                  int          PartialUnionColRank()   const EL_NO_RELEASE_EXCEPT;
+                  int          PartialUnionRowRank()   const EL_NO_RELEASE_EXCEPT;
+                  int          DistRank()              const EL_NO_RELEASE_EXCEPT;
+                  int          CrossRank()             const EL_NO_RELEASE_EXCEPT;
+                  int          RedundantRank()         const EL_NO_RELEASE_EXCEPT;
 
                   int          Root()                  const EL_NO_EXCEPT;
     virtual       El::DistData DistData()              const = 0;
@@ -217,29 +217,29 @@ public:
     // -------------------------
     // NOTE: Local entry manipulation is often much faster and should be
     //       preferred in most circumstances where performance matters.
-    T       Get( Int i, Int j )                            const;
-    Base<T> GetRealPart( Int i, Int j )                    const;
-    Base<T> GetImagPart( Int i, Int j )                    const;
-    void    Set( Int i, Int j, T alpha );
-    void    Set( const Entry<T>& entry );
-    void    SetRealPart( Int i, Int j, Base<T> alpha );
-    void    SetImagPart( Int i, Int j, Base<T> alpha );
-    void    SetRealPart( const Entry<Base<T>>& entry );
-    void    SetImagPart( const Entry<Base<T>>& entry );
-    void    Update( Int i, Int j, T alpha );
-    void    Update( const Entry<T>& entry );
-    void    UpdateRealPart( Int i, Int j, Base<T> alpha );
-    void    UpdateImagPart( Int i, Int j, Base<T> alpha );
-    void    UpdateRealPart( const Entry<Base<T>>& entry );
-    void    UpdateImagPart( const Entry<Base<T>>& entry );
-    void    MakeReal( Int i, Int j );
-    void    Conjugate( Int i, Int j );
+    T       Get( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Base<T> GetRealPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Base<T> GetImagPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    void    Set( Int i, Int j, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void    Set( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
+    void    SetRealPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    SetImagPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    SetRealPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void    SetImagPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void    Update( Int i, Int j, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void    Update( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateRealPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateImagPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateRealPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateImagPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void    MakeReal( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
+    void    Conjugate( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
 
     // Batch updating of remote entries
     // ---------------------------------
     void Reserve( Int numRemoteEntries );
-    void QueueUpdate( const Entry<T>& entry );
-    void QueueUpdate( Int i, Int j, T value );
+    void QueueUpdate( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( Int i, Int j, T value ) EL_NO_RELEASE_EXCEPT;
     void ProcessQueues();
 
     // Local entry manipulation
@@ -248,29 +248,29 @@ public:
     //       via composing [Locked]Matrix() with the corresponding local
     //       routine, but a large amount of code might need to change if 
     //       these were removed.
-    T       GetLocal( Int iLoc, Int jLoc )                            const;
-    Base<T> GetLocalRealPart( Int iLoc, Int jLoc )                    const;
-    Base<T> GetLocalImagPart( Int iLoc, Int jLoc )                    const;
-    void    SetLocal( Int iLoc, Int jLoc, T alpha );
-    void    SetLocal( const Entry<T>& localEntry );
-    void    SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    SetLocalRealPart( const Entry<Base<T>>& localEntry );
-    void    SetLocalImagPart( const Entry<Base<T>>& localEntry );
-    void    UpdateLocal( Int iLoc, Int jLoc, T alpha );
-    void    UpdateLocal( const Entry<T>& localEntry );
-    void    UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
-    void    UpdateLocalRealPart( const Entry<Base<T>>& localEntry );
-    void    UpdateLocalImagPart( const Entry<Base<T>>& localEntry );
-    void    MakeLocalReal( Int iLoc, Int jLoc );
-    void    ConjugateLocal( Int iLoc, Int jLoc );
+    T       GetLocal( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
+    Base<T> GetLocalRealPart( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
+    Base<T> GetLocalImagPart( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
+    void    SetLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void    SetLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void    SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    SetLocalRealPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void    SetLocalImagPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateLocalRealPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void    UpdateLocalImagPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void    MakeLocalReal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
+    void    ConjugateLocal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
 
     // Diagonal manipulation
     // =====================
-    bool DiagonalAlignedWith( const El::DistData& d, Int offset=0 ) const;
-    int DiagonalRoot( Int offset=0 ) const;
-    int DiagonalAlign( Int offset=0 ) const;
+    bool DiagonalAlignedWith( const El::DistData& d, Int offset=0 ) const EL_NO_EXCEPT;
+    int DiagonalRoot( Int offset=0 ) const EL_NO_EXCEPT;
+    int DiagonalAlign( Int offset=0 ) const EL_NO_EXCEPT;
 
     // Assertions
     // ==========

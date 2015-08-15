@@ -450,14 +450,14 @@ void PopBlocksizeStack()
     ::blocksizeStack.pop();
 }
 
-const Grid& DefaultGrid()
+const Grid& DefaultGrid() EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
-        CSE cse("DefaultGrid");
-        if( ::defaultGrid == 0 )
-            LogicError
-            ("Attempted to return a non-existant default grid. Please ensure "
-             "that Elemental is initialized before creating a DistMatrix.");
+      CSE cse("DefaultGrid");
+      if( ::defaultGrid == 0 )
+          LogicError
+          ("Attempted to return a non-existant default grid. Please ensure "
+           "that Elemental is initialized before creating a DistMatrix.");
     )
     return *::defaultGrid;
 }

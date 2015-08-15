@@ -171,7 +171,8 @@ EnsureConsistent( T alpha, mpi::Comm comm, string name )
 }
 
 template<typename F>
-inline void UpdateScaledSquare( F alpha, Base<F>& scale, Base<F>& scaledSquare )
+inline void UpdateScaledSquare
+( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT
 {
     typedef Base<F> Real;
     Real alphaAbs = Abs(alpha);

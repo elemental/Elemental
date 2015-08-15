@@ -244,11 +244,15 @@ void DistGraph::DisconnectLocal( Int localSource, Int target )
     ProcessLocalQueues();
 }
 
-void DistGraph::FreezeSparsity() { frozenSparsity_ = true; }
-void DistGraph::UnfreezeSparsity() { frozenSparsity_ = false; }
-bool DistGraph::FrozenSparsity() const { return frozenSparsity_; }
+void DistGraph::FreezeSparsity() EL_NO_EXCEPT
+{ frozenSparsity_ = true; }
+void DistGraph::UnfreezeSparsity() EL_NO_EXCEPT
+{ frozenSparsity_ = false; }
+bool DistGraph::FrozenSparsity() const EL_NO_EXCEPT
+{ return frozenSparsity_; }
 
 void DistGraph::QueueConnection( Int source, Int target, bool passive )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueConnection"))
     if( source == END ) source = numSources_ - 1;
@@ -266,6 +270,7 @@ void DistGraph::QueueConnection( Int source, Int target, bool passive )
 }
 
 void DistGraph::QueueLocalConnection( Int localSource, Int target )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueLocalConnection"))
     DEBUG_ONLY(
@@ -292,6 +297,7 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
 }
 
 void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueDisconnection"))
     // TODO: Use FrozenSparsity()
@@ -309,6 +315,7 @@ void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 }
 
 void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueLocalDisconnection"))
     // TODO: Use FrozenSparsity()
@@ -469,38 +476,39 @@ void DistGraph::ProcessLocalQueues()
 
 // High-level information
 // ----------------------
-Int DistGraph::NumSources() const { return numSources_; }
-Int DistGraph::NumTargets() const { return numTargets_; }
-Int DistGraph::FirstLocalSource() const { return firstLocalSource_; }
-Int DistGraph::NumLocalSources() const { return numLocalSources_; }
+Int DistGraph::NumSources() const EL_NO_EXCEPT
+{ return numSources_; }
+Int DistGraph::NumTargets() const EL_NO_EXCEPT
+{ return numTargets_; }
+Int DistGraph::FirstLocalSource() const EL_NO_EXCEPT
+{ return firstLocalSource_; }
+Int DistGraph::NumLocalSources() const EL_NO_EXCEPT
+{ return numLocalSources_; }
 
-Int DistGraph::NumLocalEdges() const
-{
-    DEBUG_ONLY(CSE cse("DistGraph::NumLocalEdges"))
-    return sources_.size();
-}
+Int DistGraph::NumLocalEdges() const EL_NO_EXCEPT
+{ return sources_.size(); }
 
-Int DistGraph::Capacity() const
-{
-    DEBUG_ONLY(CSE cse("DistGraph::Capacity"))
-    return Min(sources_.capacity(),targets_.capacity());
-}
+Int DistGraph::Capacity() const EL_NO_EXCEPT
+{ return Min(sources_.capacity(),targets_.capacity()); }
 
-bool DistGraph::LocallyConsistent() const { return locallyConsistent_; }
+bool DistGraph::LocallyConsistent() const EL_NO_EXCEPT
+{ return locallyConsistent_; }
 
 // Distribution information
 // ------------------------
-mpi::Comm DistGraph::Comm() const { return comm_; }
-Int DistGraph::Blocksize() const { return blocksize_; }
+mpi::Comm DistGraph::Comm() const EL_NO_EXCEPT
+{ return comm_; }
+Int DistGraph::Blocksize() const EL_NO_EXCEPT
+{ return blocksize_; }
 
-int DistGraph::SourceOwner( Int source ) const
+int DistGraph::SourceOwner( Int source ) const EL_NO_RELEASE_EXCEPT
 { 
     if( source == END ) source = numSources_ - 1;
     // TODO: Get rid of RowToProcess...
     return RowToProcess( source, blocksize_, commSize_ ); 
 }
 
-Int DistGraph::GlobalSource( Int sLoc ) const
+Int DistGraph::GlobalSource( Int sLoc ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::GlobalSource"))
     if( sLoc == END ) sLoc = numLocalSources_ - 1;
@@ -511,7 +519,7 @@ Int DistGraph::GlobalSource( Int sLoc ) const
     return sLoc + FirstLocalSource();
 }
 
-Int DistGraph::LocalSource( Int s ) const
+Int DistGraph::LocalSource( Int s ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::LocalSource"))
     if( s == END ) s = numSources_ - 1;
@@ -524,7 +532,7 @@ Int DistGraph::LocalSource( Int s ) const
 
 // Detailed local information
 // --------------------------
-Int DistGraph::Source( Int localEdge ) const
+Int DistGraph::Source( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("DistGraph::Source");
@@ -534,7 +542,7 @@ Int DistGraph::Source( Int localEdge ) const
     return sources_[localEdge];
 }
 
-Int DistGraph::Target( Int localEdge ) const
+Int DistGraph::Target( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("DistGraph::Target");
@@ -544,7 +552,7 @@ Int DistGraph::Target( Int localEdge ) const
     return targets_[localEdge];
 }
 
-Int DistGraph::SourceOffset( Int localSource ) const
+Int DistGraph::SourceOffset( Int localSource ) const EL_NO_RELEASE_EXCEPT
 {
     if( localSource == END ) localSource = numLocalSources_ - 1;
     DEBUG_ONLY(
@@ -558,7 +566,7 @@ Int DistGraph::SourceOffset( Int localSource ) const
     return localSourceOffsets_[localSource];
 }
 
-Int DistGraph::Offset( Int localSource, Int target ) const
+Int DistGraph::Offset( Int localSource, Int target ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::Offset"))
     if( localSource == END ) localSource = numLocalSources_ - 1;
@@ -570,7 +578,7 @@ Int DistGraph::Offset( Int localSource, Int target ) const
     return it-targetBuf;
 }
 
-Int DistGraph::NumConnections( Int localSource ) const
+Int DistGraph::NumConnections( Int localSource ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("DistGraph::NumConnections");
@@ -580,13 +588,18 @@ Int DistGraph::NumConnections( Int localSource ) const
     return SourceOffset(localSource+1) - SourceOffset(localSource);
 }
 
-Int* DistGraph::SourceBuffer() { return sources_.data(); }
-Int* DistGraph::TargetBuffer() { return targets_.data(); }
-Int* DistGraph::OffsetBuffer() { return localSourceOffsets_.data(); }
+Int* DistGraph::SourceBuffer() EL_NO_EXCEPT
+{ return sources_.data(); }
+Int* DistGraph::TargetBuffer() EL_NO_EXCEPT
+{ return targets_.data(); }
+Int* DistGraph::OffsetBuffer() EL_NO_EXCEPT
+{ return localSourceOffsets_.data(); }
 
-const Int* DistGraph::LockedSourceBuffer() const { return sources_.data(); }
-const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
-const Int* DistGraph::LockedOffsetBuffer() const 
+const Int* DistGraph::LockedSourceBuffer() const EL_NO_EXCEPT
+{ return sources_.data(); }
+const Int* DistGraph::LockedTargetBuffer() const EL_NO_EXCEPT
+{ return targets_.data(); }
+const Int* DistGraph::LockedOffsetBuffer() const EL_NO_EXCEPT
 { return localSourceOffsets_.data(); }
 
 void DistGraph::ForceNumLocalEdges( Int numLocalEdges )
@@ -597,7 +610,7 @@ void DistGraph::ForceNumLocalEdges( Int numLocalEdges )
     locallyConsistent_ = false;
 }
 
-void DistGraph::ForceConsistency( bool consistent )
+void DistGraph::ForceConsistency( bool consistent ) EL_NO_EXCEPT
 { locallyConsistent_ = consistent; }
 
 // Auxiliary routines

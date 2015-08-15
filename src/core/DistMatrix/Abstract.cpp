@@ -647,11 +647,12 @@ AbstractDistMatrix<T>::AllocatedMemory() const EL_NO_EXCEPT
 
 template<typename T>
 T*
-AbstractDistMatrix<T>::Buffer() { return matrix_.Buffer(); }
+AbstractDistMatrix<T>::Buffer() EL_NO_RELEASE_EXCEPT
+{ return matrix_.Buffer(); }
 
 template<typename T>
 T*
-AbstractDistMatrix<T>::Buffer( Int iLoc, Int jLoc )
+AbstractDistMatrix<T>::Buffer( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT
 { return matrix_.Buffer(iLoc,jLoc); }
 
 template<typename T>
@@ -692,7 +693,7 @@ bool AbstractDistMatrix<T>::RootConstrained() const EL_NO_EXCEPT
 { return rootConstrained_; }
 
 template<typename T>
-bool AbstractDistMatrix<T>::Participating() const
+bool AbstractDistMatrix<T>::Participating() const EL_NO_RELEASE_EXCEPT
 { return grid_->InGrid() && (CrossRank()==root_); }
 
 template<typename T>
@@ -714,7 +715,7 @@ int AbstractDistMatrix<T>::Owner( Int i, Int j ) const EL_NO_EXCEPT
 { return RowOwner(i)+ColOwner(j)*ColStride(); }
 
 template<typename T>
-Int AbstractDistMatrix<T>::LocalRow( Int i ) const
+Int AbstractDistMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(
       CSE cse("ADM::LocalRow");
@@ -725,7 +726,7 @@ Int AbstractDistMatrix<T>::LocalRow( Int i ) const
 }
 
 template<typename T>
-Int AbstractDistMatrix<T>::LocalCol( Int j ) const
+Int AbstractDistMatrix<T>::LocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("ADM::LocalCol");
@@ -764,13 +765,13 @@ Int AbstractDistMatrix<T>::GlobalCol( Int jLoc ) const EL_NO_EXCEPT
 }
 
 template<typename T>
-bool AbstractDistMatrix<T>::IsLocalRow( Int i ) const
+bool AbstractDistMatrix<T>::IsLocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 { return Participating() && RowOwner(i) == ColRank(); }
 template<typename T>
-bool AbstractDistMatrix<T>::IsLocalCol( Int j ) const
+bool AbstractDistMatrix<T>::IsLocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
 { return Participating() && ColOwner(j) == RowRank(); }
 template<typename T>
-bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
+bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
 { return IsLocalRow(i) && IsLocalCol(j); }
 
 template<typename T>
@@ -802,32 +803,34 @@ int AbstractDistMatrix<T>::PartialUnionRowStride() const EL_NO_EXCEPT
 { return 1; }
 
 template<typename T>
-int AbstractDistMatrix<T>::ColRank() const { return mpi::Rank(ColComm()); }
+int AbstractDistMatrix<T>::ColRank() const EL_NO_RELEASE_EXCEPT
+{ return mpi::Rank(ColComm()); }
 template<typename T>
-int AbstractDistMatrix<T>::RowRank() const { return mpi::Rank(RowComm()); }
+int AbstractDistMatrix<T>::RowRank() const EL_NO_RELEASE_EXCEPT
+{ return mpi::Rank(RowComm()); }
 
 template<typename T>
-int AbstractDistMatrix<T>::PartialColRank() const
+int AbstractDistMatrix<T>::PartialColRank() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(PartialColComm()); }
 template<typename T>
-int AbstractDistMatrix<T>::PartialRowRank() const
+int AbstractDistMatrix<T>::PartialRowRank() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(PartialRowComm()); }
 
 template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColRank() const
+int AbstractDistMatrix<T>::PartialUnionColRank() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(PartialUnionColComm()); }
 template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowRank() const
+int AbstractDistMatrix<T>::PartialUnionRowRank() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(PartialUnionRowComm()); }
 
 template<typename T>
-int AbstractDistMatrix<T>::DistRank() const
+int AbstractDistMatrix<T>::DistRank() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(DistComm()); }
 template<typename T>
-int AbstractDistMatrix<T>::CrossRank() const
+int AbstractDistMatrix<T>::CrossRank() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(CrossComm()); }
 template<typename T>
-int AbstractDistMatrix<T>::RedundantRank() const
+int AbstractDistMatrix<T>::RedundantRank() const EL_NO_RELEASE_EXCEPT
 { return mpi::Rank(RedundantComm()); }
 
 template<typename T>
@@ -842,6 +845,7 @@ int AbstractDistMatrix<T>::Root() const EL_NO_EXCEPT { return root_; }
 template<typename T>
 T
 AbstractDistMatrix<T>::Get( Int i, Int j ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("ADM::Get");
@@ -863,6 +867,7 @@ AbstractDistMatrix<T>::Get( Int i, Int j ) const
 template<typename T>
 Base<T>
 AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("ADM::GetRealPart");
@@ -884,6 +889,7 @@ AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
 template<typename T>
 Base<T>
 AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("ADM::GetImagPart");
@@ -910,6 +916,7 @@ AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
 template<typename T>
 void
 AbstractDistMatrix<T>::Set( Int i, Int j, T value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::Set"))
     if( IsLocal(i,j) )
@@ -919,11 +926,13 @@ AbstractDistMatrix<T>::Set( Int i, Int j, T value )
 template<typename T>
 void
 AbstractDistMatrix<T>::Set( const Entry<T>& entry )
+EL_NO_RELEASE_EXCEPT
 { Set( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::SetRealPart"))
     if( IsLocal(i,j) )
@@ -933,11 +942,13 @@ AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
 template<typename T>
 void
 AbstractDistMatrix<T>::SetRealPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { SetRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::SetImagPart"))
     if( IsLocal(i,j) )
@@ -947,11 +958,13 @@ AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 template<typename T>
 void
 AbstractDistMatrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { SetImagPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::Update( Int i, Int j, T value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::Update"))
     if( IsLocal(i,j) )
@@ -961,11 +974,13 @@ AbstractDistMatrix<T>::Update( Int i, Int j, T value )
 template<typename T>
 void
 AbstractDistMatrix<T>::Update( const Entry<T>& entry )
+EL_NO_RELEASE_EXCEPT
 { Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::UpdateRealPart"))
     if( IsLocal(i,j) )
@@ -975,11 +990,13 @@ AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateRealPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { UpdateRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::UpdateImagPart"))
     if( IsLocal(i,j) )
@@ -989,11 +1006,13 @@ AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { UpdateImagPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::MakeReal( Int i, Int j )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::MakeReal"))
     if( IsLocal(i,j) )
@@ -1003,6 +1022,7 @@ AbstractDistMatrix<T>::MakeReal( Int i, Int j )
 template<typename T>
 void
 AbstractDistMatrix<T>::Conjugate( Int i, Int j )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::Conjugate"))
     if( IsLocal(i,j) )
@@ -1020,6 +1040,7 @@ void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
 
 template<typename T>
 void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueueUpdate"))
     if( IsLocal(entry.i,entry.j) )
@@ -1030,6 +1051,7 @@ void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
 
 template<typename T>
 void AbstractDistMatrix<T>::QueueUpdate( Int i, Int j, T value )
+EL_NO_RELEASE_EXCEPT
 { QueueUpdate( Entry<T>{i,j,value} ); }
 
 template<typename T>
@@ -1084,91 +1106,108 @@ void AbstractDistMatrix<T>::ProcessQueues()
 
 template<typename T>
 T AbstractDistMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
+EL_NO_RELEASE_EXCEPT
 { return matrix_.Get(iLoc,jLoc); }
 
 template<typename T>
 Base<T> AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
+EL_NO_RELEASE_EXCEPT
 { return matrix_.GetRealPart(iLoc,jLoc); }
 
 template<typename T>
 Base<T> AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
+EL_NO_RELEASE_EXCEPT
 { return matrix_.GetImagPart(iLoc,jLoc); }
 
 template<typename T>
 void AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
+EL_NO_RELEASE_EXCEPT
 { matrix_.Set(iLoc,jLoc,alpha); }
 
 template<typename T>
 void AbstractDistMatrix<T>::SetLocal( const Entry<T>& localEntry )
+EL_NO_RELEASE_EXCEPT
 { SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalRealPart( const Entry<Base<T>>& localEntry )
+EL_NO_RELEASE_EXCEPT
 { SetLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 { matrix_.SetImagPart(iLoc,jLoc,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalImagPart( const Entry<Base<T>>& localEntry )
+EL_NO_RELEASE_EXCEPT
 { SetLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
+EL_NO_RELEASE_EXCEPT
 { matrix_.Update(iLoc,jLoc,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
+EL_NO_RELEASE_EXCEPT
 { UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocalRealPart
 ( Int iLoc, Int jLoc, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 { matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocalRealPart( const Entry<Base<T>>& localEntry )
+EL_NO_RELEASE_EXCEPT
 { UpdateLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocalImagPart
 ( Int iLoc, Int jLoc, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 { matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocalImagPart( const Entry<Base<T>>& localEntry )
+EL_NO_RELEASE_EXCEPT
 { UpdateLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::MakeLocalReal( Int iLoc, Int jLoc )
+EL_NO_RELEASE_EXCEPT
 { matrix_.MakeReal( iLoc, jLoc ); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
+EL_NO_RELEASE_EXCEPT
 { matrix_.Conjugate( iLoc, jLoc ); }
 
 // Diagonal manipulation
 // =====================
 template<typename T>
 bool AbstractDistMatrix<T>::DiagonalAlignedWith
-( const El::DistData& d, Int offset ) const
+( const El::DistData& d, Int offset ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalAlignedWith"))
     if( Grid() != *d.grid )
@@ -1190,7 +1229,7 @@ bool AbstractDistMatrix<T>::DiagonalAlignedWith
 }
 
 template<typename T>
-int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
+int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalRoot"))
     const auto& grid = Grid();
@@ -1236,7 +1275,7 @@ int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
 }
 
 template<typename T>
-int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
+int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::DiagonalAlign"))
     const auto& grid = Grid();

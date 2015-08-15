@@ -65,10 +65,14 @@ std::ostream& operator<<( std::ostream& os, Complex<Real> alpha );
 
 // Return the real/imaginary part of an element
 // --------------------------------------------
-template<typename Real> Real RealPart( const Real& alpha );
-template<typename Real> Real RealPart( const Complex<Real>& alpha );
-template<typename Real> Real ImagPart( const Real& alpha );
-template<typename Real> Real ImagPart( const Complex<Real>& alpha );
+template<typename Real> Real RealPart( const Real& alpha )
+EL_NO_EXCEPT;
+template<typename Real> Real RealPart( const Complex<Real>& alpha )
+EL_NO_EXCEPT;
+template<typename Real> Real ImagPart( const Real& alpha )
+EL_NO_EXCEPT;
+template<typename Real> Real ImagPart( const Complex<Real>& alpha )
+EL_NO_EXCEPT;
 
 template<typename S,typename T>
 struct Caster {
@@ -85,29 +89,30 @@ struct Caster<S,Complex<T>> {
 // Set the real/imaginary part of an element
 // -----------------------------------------
 template<typename Real>
-void SetRealPart( Real& alpha, const Real& beta );
+void SetRealPart( Real& alpha, const Real& beta ) EL_NO_EXCEPT;
 template<typename Real>
-void SetRealPart( Complex<Real>& alpha, const Real& beta );
+void SetRealPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT;
 template<typename Real>
 void SetImagPart( Real& alpha, const Real& beta );
 template<typename Real>
-void SetImagPart( Complex<Real>& alpha, const Real& beta );
+void SetImagPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT;
 
 // Update the real/imaginary part of an element
 // --------------------------------------------
 template<typename Real>
-void UpdateRealPart( Real& alpha, const Real& beta );
+void UpdateRealPart( Real& alpha, const Real& beta ) EL_NO_EXCEPT;
 template<typename Real>
-void UpdateRealPart( Complex<Real>& alpha, const Real& beta );
+void UpdateRealPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT;
 template<typename Real>
 void UpdateImagPart( Real& alpha, const Real& beta );
 template<typename Real>
-void UpdateImagPart( Complex<Real>& alpha, const Real& beta );
+void UpdateImagPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT;
 
 // Conjugate an element
 // --------------------
-template<typename Real> Real Conj( const Real& alpha );
-template<typename Real> Complex<Real> Conj( const Complex<Real>& alpha );
+template<typename Real> Real Conj( const Real& alpha ) EL_NO_EXCEPT;
+template<typename Real> Complex<Real> Conj( const Complex<Real>& alpha )
+EL_NO_EXCEPT;
 
 // Complex argument
 // ----------------
@@ -130,44 +135,46 @@ template<> Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta );
 // Use the naive algorithm for computing the absolute value
 // --------------------------------------------------------
 // Note: Unnecessary overflow may occur for complex values, please see SafeAbs
-template<typename T> Base<T> Abs( const T& alpha );
+template<typename T> Base<T> Abs( const T& alpha ) EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Quad Abs( const Quad& alpha );
-template<> Quad Abs( const Complex<Quad>& alpha );
+template<> Quad Abs( const Quad& alpha ) EL_NO_EXCEPT;
+template<> Quad Abs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #endif
 
 // Carefully avoid unnecessary overflow in an absolute value computation
 // ---------------------------------------------------------------------
 // Note: The real implementation is equivalent to Abs
-template<typename Real> Real SafeAbs( const Real& alpha );
-template<typename Real> Real SafeAbs( const Complex<Real>& alpha );
+template<typename Real> Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT;
+template<typename Real> Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Quad SafeAbs( const Complex<Quad>& alpha );
+template<> Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #endif
 
 // Return the sum of the absolute values of the real and imaginary components
 // --------------------------------------------------------------------------
-template<typename F> Base<F> FastAbs( const F& alpha );
+template<typename F> Base<F> FastAbs( const F& alpha ) EL_NO_EXCEPT;
 
 // Return the sign of a real element
 // ---------------------------------
-template<typename Real> Real Sgn( const Real& alpha, bool symmetric=true );
+template<typename Real>
+Real Sgn( const Real& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 
 // Exponentiation
 // ==============
-template<typename F> F Exp( const F& alpha );
+template<typename F> F Exp( const F& alpha ) EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Quad Exp( const Quad& alpha );
-template<> Complex<Quad> Exp( const Complex<Quad>& alpha );
+template<> Quad Exp( const Quad& alpha ) EL_NO_EXCEPT;
+template<> Complex<Quad> Exp( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #endif
 
-template<typename F,typename T> F Pow( const F& alpha, const T& beta );
+template<typename F,typename T>
+F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Quad Pow( const Quad& alpha, const Quad& beta );
+template<> Quad Pow( const Quad& alpha, const Quad& beta ) EL_NO_EXCEPT;
 template<> Complex<Quad> Pow
-( const Complex<Quad>& alpha, const Complex<Quad>& beta );
+( const Complex<Quad>& alpha, const Complex<Quad>& beta ) EL_NO_EXCEPT;
 template<> Complex<Quad> Pow
-( const Complex<Quad>& alpha, const Quad& beta );
+( const Complex<Quad>& alpha, const Quad& beta ) EL_NO_EXCEPT;
 #endif
 
 template<typename F> F Log( const F& alpha );

@@ -80,8 +80,8 @@ public:
     Int LDim() const EL_NO_EXCEPT;
     Int MemorySize() const EL_NO_EXCEPT;
     Int DiagonalLength( Int offset=0 ) const EL_NO_EXCEPT;
-    T* Buffer();
-    T* Buffer( Int i, Int j );
+    T* Buffer() EL_NO_RELEASE_EXCEPT;
+    T* Buffer( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
     const T* LockedBuffer() const EL_NO_EXCEPT;
     const T* LockedBuffer( Int i, Int j ) const EL_NO_EXCEPT;
     bool Viewing()   const EL_NO_EXCEPT;
@@ -90,23 +90,23 @@ public:
 
     // Single-entry manipulation
     // =========================
-    T Get( Int i, Int j ) const;
-    Base<T> GetRealPart( Int i, Int j ) const;
-    Base<T> GetImagPart( Int i, Int j ) const;
-    void Set( Int i, Int j, T alpha );
-    void Set( const Entry<T>& entry );
-    void SetRealPart( Int i, Int j, Base<T> alpha );
-    void SetImagPart( Int i, Int j, Base<T> alpha );
-    void SetRealPart( const Entry<Base<T>>& entry );
-    void SetImagPart( const Entry<Base<T>>& entry );
-    void Update( Int i, Int j, T alpha );
-    void Update( const Entry<T>& entry );
-    void UpdateRealPart( Int i, Int j, Base<T> alpha );
-    void UpdateImagPart( Int i, Int j, Base<T> alpha );
-    void UpdateRealPart( const Entry<Base<T>>& entry );
-    void UpdateImagPart( const Entry<Base<T>>& entry );
-    void MakeReal( Int i, Int j );
-    void Conjugate( Int i, Int j );
+    T Get( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Base<T> GetRealPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Base<T> GetImagPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    void Set( Int i, Int j, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void Set( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
+    void SetRealPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void SetImagPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void SetRealPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void SetImagPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void Update( Int i, Int j, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void Update( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
+    void UpdateRealPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void UpdateImagPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
+    void UpdateRealPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void UpdateImagPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void MakeReal( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
+    void Conjugate( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
 
 private:
     // Member variables
@@ -131,8 +131,8 @@ private:
 
     // Return a reference to a single entry without error-checking
     // ===========================================================
-    const T& Get_( Int i, Int j ) const;
-    T& Set_( Int i, Int j );
+    const T& Get_( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    T& Set_( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
 
     // Assertions
     // ==========
