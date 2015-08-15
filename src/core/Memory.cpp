@@ -47,10 +47,10 @@ template<typename G>
 Memory<G>::~Memory() { delete[] buffer_; }
 
 template<typename G>
-G* Memory<G>::Buffer() const EL_NOEXCEPT { return buffer_; }
+G* Memory<G>::Buffer() const EL_NO_EXCEPT { return buffer_; }
 
 template<typename G>
-size_t  Memory<G>::Size() const EL_NOEXCEPT { return size_; }
+size_t  Memory<G>::Size() const EL_NO_EXCEPT { return size_; }
 
 template<typename G>
 G* Memory<G>::Require( size_t size )

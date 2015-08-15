@@ -45,7 +45,7 @@ public:
     template<Dist U,Dist V> BlockDistMatrix( const BlockDistMatrix<T,U,V>& A );
     template<Dist U,Dist V> BlockDistMatrix( const DistMatrix<T,U,V>& A );
     // Move constructor
-    BlockDistMatrix( type&& A ) EL_NOEXCEPT;
+    BlockDistMatrix( type&& A ) EL_NO_EXCEPT;
     // Destructor
     ~BlockDistMatrix();
 

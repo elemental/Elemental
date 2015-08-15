@@ -91,7 +91,7 @@ Matrix<T>::Matrix( const Matrix<T>& A )
 }
 
 template<typename T>
-Matrix<T>::Matrix( Matrix<T>&& A ) EL_NOEXCEPT
+Matrix<T>::Matrix( Matrix<T>&& A ) EL_NO_EXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), ldim_(A.ldim_),
   data_(nullptr), memory_(std::move(A.memory_))
@@ -262,19 +262,19 @@ const Matrix<T>& Matrix<T>::operator-=( const Matrix<T>& A )
 // =============
 
 template<typename T>
-Int Matrix<T>::Height() const EL_NOEXCEPT { return height_; }
+Int Matrix<T>::Height() const EL_NO_EXCEPT { return height_; }
 
 template<typename T>
-Int Matrix<T>::Width() const EL_NOEXCEPT { return width_; }
+Int Matrix<T>::Width() const EL_NO_EXCEPT { return width_; }
 
 template<typename T>
-Int Matrix<T>::LDim() const EL_NOEXCEPT { return ldim_; }
+Int Matrix<T>::LDim() const EL_NO_EXCEPT { return ldim_; }
 
 template<typename T>
-Int Matrix<T>::MemorySize() const EL_NOEXCEPT { return memory_.Size(); }
+Int Matrix<T>::MemorySize() const EL_NO_EXCEPT { return memory_.Size(); }
 
 template<typename T>
-Int Matrix<T>::DiagonalLength( Int offset ) const EL_NOEXCEPT
+Int Matrix<T>::DiagonalLength( Int offset ) const EL_NO_EXCEPT
 { return El::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
@@ -306,10 +306,10 @@ T* Matrix<T>::Buffer( Int i, Int j )
 }
 
 template<typename T>
-const T* Matrix<T>::LockedBuffer() const EL_NOEXCEPT { return data_; }
+const T* Matrix<T>::LockedBuffer() const EL_NO_EXCEPT { return data_; }
 
 template<typename T>
-const T* Matrix<T>::LockedBuffer( Int i, Int j ) const EL_NOEXCEPT
+const T* Matrix<T>::LockedBuffer( Int i, Int j ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("Matrix::LockedBuffer"))
     if( i == END ) i = height_ - 1;
@@ -318,15 +318,15 @@ const T* Matrix<T>::LockedBuffer( Int i, Int j ) const EL_NOEXCEPT
 }
 
 template<typename T>
-bool Matrix<T>::Viewing() const EL_NOEXCEPT
+bool Matrix<T>::Viewing() const EL_NO_EXCEPT
 { return IsViewing( viewType_ ); }
 
 template<typename T>
-bool Matrix<T>::FixedSize() const EL_NOEXCEPT
+bool Matrix<T>::FixedSize() const EL_NO_EXCEPT
 { return IsFixedSize( viewType_ ); }
 
 template<typename T>
-bool Matrix<T>::Locked() const EL_NOEXCEPT
+bool Matrix<T>::Locked() const EL_NO_EXCEPT
 { return IsLocked( viewType_ ); }
 
 // Single-entry manipulation

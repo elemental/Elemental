@@ -183,49 +183,49 @@ const DistMultiVec<T>& DistMultiVec<T>::operator-=( const DistMultiVec<T>& A )
 // High-level information
 // ----------------------
 template<typename T>
-Int DistMultiVec<T>::Height() const EL_NOEXCEPT
+Int DistMultiVec<T>::Height() const EL_NO_EXCEPT
 { return height_; }
 template<typename T>
-Int DistMultiVec<T>::Width() const EL_NOEXCEPT
+Int DistMultiVec<T>::Width() const EL_NO_EXCEPT
 { return multiVec_.Width(); }
 template<typename T>
-Int DistMultiVec<T>::FirstLocalRow() const EL_NOEXCEPT
+Int DistMultiVec<T>::FirstLocalRow() const EL_NO_EXCEPT
 { return firstLocalRow_; }
 template<typename T>
-Int DistMultiVec<T>::LocalHeight() const EL_NOEXCEPT
+Int DistMultiVec<T>::LocalHeight() const EL_NO_EXCEPT
 { return multiVec_.Height(); }
 template<typename T>
-El::Matrix<T>& DistMultiVec<T>::Matrix() EL_NOEXCEPT
+El::Matrix<T>& DistMultiVec<T>::Matrix() EL_NO_EXCEPT
 { return multiVec_; }
 template<typename T>
-const El::Matrix<T>& DistMultiVec<T>::LockedMatrix() const EL_NOEXCEPT
+const El::Matrix<T>& DistMultiVec<T>::LockedMatrix() const EL_NO_EXCEPT
 { return multiVec_; }
 
 // Distribution information
 // ------------------------
 template<typename T>
-mpi::Comm DistMultiVec<T>::Comm() const EL_NOEXCEPT { return comm_; }
+mpi::Comm DistMultiVec<T>::Comm() const EL_NO_EXCEPT { return comm_; }
 
 template<typename T>
-Int DistMultiVec<T>::Blocksize() const EL_NOEXCEPT { return blocksize_; }
+Int DistMultiVec<T>::Blocksize() const EL_NO_EXCEPT { return blocksize_; }
 
 template<typename T>
-int DistMultiVec<T>::RowOwner( Int i ) const EL_NOEXCEPT
+int DistMultiVec<T>::RowOwner( Int i ) const EL_NO_EXCEPT
 { 
     if( i == END ) i = height_ - 1;
     return RowToProcess( i, blocksize_, commSize_ ); 
 }
 
 template<typename T>
-int DistMultiVec<T>::Owner( Int i, Int j ) const EL_NOEXCEPT
+int DistMultiVec<T>::Owner( Int i, Int j ) const EL_NO_EXCEPT
 { return RowOwner(i); }
 
 template<typename T>
-bool DistMultiVec<T>::IsLocalRow( Int i ) const EL_NOEXCEPT
+bool DistMultiVec<T>::IsLocalRow( Int i ) const EL_NO_EXCEPT
 { return RowOwner(i) == commRank_; }
 
 template<typename T>
-bool DistMultiVec<T>::IsLocal( Int i, Int j ) const EL_NOEXCEPT
+bool DistMultiVec<T>::IsLocal( Int i, Int j ) const EL_NO_EXCEPT
 { return IsLocalRow(i); }
 
 template<typename T>

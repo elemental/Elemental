@@ -32,14 +32,16 @@
 #include <type_traits>
 #include <vector>
 
-// The DEBUG_ONLY macro is, to the best of my knowledge, the only preprocessor
-// name defined by Elemental that is not namespaced with "ELEM". Given how
-// frequently it is used, I will leave it as-is unless/until a user/developer 
-// complains.
+// The DEBUG_ONLY and RELEASE_ONLY macros are, to the best of my knowledge, 
+// the only preprocessor names defined by Elemental that is not namespaced 
+// with "EL". Given how frequently they are used, I will leave it as-is 
+// unless/until a user/developer complains.
 #ifdef EL_RELEASE
 # define DEBUG_ONLY(cmd) 
+# define RELEASE_ONLY(cmd) cmd;
 #else
 # define DEBUG_ONLY(cmd) cmd;
+# define RELEASE_ONLY(cmd)
 #endif
 
 #ifdef EL_HYBRID
@@ -72,10 +74,16 @@
 # define EL_OUTER_PARALLEL_FOR_COLLAPSE2 EL_PARALLEL_FOR_COLLAPSE2
 #endif
 
-#ifdef EL_HAVE_NOEXCEPT
-# define EL_NOEXCEPT noexcept
+#ifdef EL_HAVE_NO_EXCEPT
+# define EL_NO_EXCEPT noexcept
 #else
-# define EL_NOEXCEPT
+# define EL_NO_EXCEPT
+#endif
+
+#ifdef EL_RELEASE
+# define EL_NO_RELEASE_EXCEPT EL_NO_EXCEPT
+#else
+# define EL_NO_RELEASE_EXCEPT
 #endif
 
 #define EL_CONCAT2(name1,name2) name1 ## name2

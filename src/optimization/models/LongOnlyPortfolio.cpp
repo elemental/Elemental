@@ -62,9 +62,9 @@ void LongOnlyPortfolio
         const Int r = F.Width();
 
         socp::affine::Ctrl<Real> ctrl;
-        ctrl.mehrotraCtrl.time = true;
-        ctrl.mehrotraCtrl.print = true;
-        ctrl.mehrotraCtrl.solveCtrl.progress = true;
+        //ctrl.mehrotraCtrl.time = true;
+        //ctrl.mehrotraCtrl.print = true;
+        //ctrl.mehrotraCtrl.solveCtrl.progress = true;
 
         // Form cHat = [-c^T, gamma, gamma, 0, 0]
         // ======================================

@@ -46,7 +46,7 @@ AbstractBlockDistMatrix<T>::AbstractBlockDistMatrix
 
 template<typename T>
 AbstractBlockDistMatrix<T>::AbstractBlockDistMatrix
-( AbstractBlockDistMatrix<T>&& A ) EL_NOEXCEPT
+( AbstractBlockDistMatrix<T>&& A ) EL_NO_EXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),

@@ -40,7 +40,7 @@ public:
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
     // Move constructor
-    DistMatrix( type&& A ) EL_NOEXCEPT;
+    DistMatrix( type&& A ) EL_NO_EXCEPT;
     ~DistMatrix();
 
     DistMatrix<T,STAR,VR>* Construct
@@ -94,30 +94,30 @@ public:
     // =============
     El::DistData DistData() const override;
 
-    Dist ColDist()             const EL_NOEXCEPT override;
-    Dist RowDist()             const EL_NOEXCEPT override;
-    Dist PartialColDist()      const EL_NOEXCEPT override;
-    Dist PartialRowDist()      const EL_NOEXCEPT override;
-    Dist PartialUnionColDist() const EL_NOEXCEPT override;
-    Dist PartialUnionRowDist() const EL_NOEXCEPT override;
-    Dist CollectedColDist()    const EL_NOEXCEPT override;
-    Dist CollectedRowDist()    const EL_NOEXCEPT override;
+    Dist ColDist()             const EL_NO_EXCEPT override;
+    Dist RowDist()             const EL_NO_EXCEPT override;
+    Dist PartialColDist()      const EL_NO_EXCEPT override;
+    Dist PartialRowDist()      const EL_NO_EXCEPT override;
+    Dist PartialUnionColDist() const EL_NO_EXCEPT override;
+    Dist PartialUnionRowDist() const EL_NO_EXCEPT override;
+    Dist CollectedColDist()    const EL_NO_EXCEPT override;
+    Dist CollectedRowDist()    const EL_NO_EXCEPT override;
 
-    mpi::Comm DistComm()            const EL_NOEXCEPT override;
-    mpi::Comm CrossComm()           const EL_NOEXCEPT override;
-    mpi::Comm RedundantComm()       const EL_NOEXCEPT override;
-    mpi::Comm ColComm()             const EL_NOEXCEPT override;
-    mpi::Comm RowComm()             const EL_NOEXCEPT override;
-    mpi::Comm PartialRowComm()      const EL_NOEXCEPT override;
-    mpi::Comm PartialUnionRowComm() const EL_NOEXCEPT override;
+    mpi::Comm DistComm()            const EL_NO_EXCEPT override;
+    mpi::Comm CrossComm()           const EL_NO_EXCEPT override;
+    mpi::Comm RedundantComm()       const EL_NO_EXCEPT override;
+    mpi::Comm ColComm()             const EL_NO_EXCEPT override;
+    mpi::Comm RowComm()             const EL_NO_EXCEPT override;
+    mpi::Comm PartialRowComm()      const EL_NO_EXCEPT override;
+    mpi::Comm PartialUnionRowComm() const EL_NO_EXCEPT override;
 
-    int ColStride()             const EL_NOEXCEPT override;
-    int RowStride()             const EL_NOEXCEPT override;
-    int PartialRowStride()      const EL_NOEXCEPT override;
-    int PartialUnionRowStride() const EL_NOEXCEPT override;
-    int DistSize()              const EL_NOEXCEPT override;
-    int CrossSize()             const EL_NOEXCEPT override;
-    int RedundantSize()         const EL_NOEXCEPT override;
+    int ColStride()             const EL_NO_EXCEPT override;
+    int RowStride()             const EL_NO_EXCEPT override;
+    int PartialRowStride()      const EL_NO_EXCEPT override;
+    int PartialUnionRowStride() const EL_NO_EXCEPT override;
+    int DistSize()              const EL_NO_EXCEPT override;
+    int CrossSize()             const EL_NO_EXCEPT override;
+    int RedundantSize()         const EL_NO_EXCEPT override;
 
 private:
     // Friend declarations

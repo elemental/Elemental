@@ -24,61 +24,61 @@ public:
     // Simple interface (simpler version of distributed-based interface)
     int Row() const; // MCRank()
     int Col() const; // MRRank()
-    int Height() const EL_NOEXCEPT; // MCSize()
-    int Width() const EL_NOEXCEPT;  // MRSize()
-    int Size() const EL_NOEXCEPT;   // VCSize() and VRSize()
+    int Height() const EL_NO_EXCEPT; // MCSize()
+    int Width() const EL_NO_EXCEPT;  // MRSize()
+    int Size() const EL_NO_EXCEPT;   // VCSize() and VRSize()
     int Rank() const;          // same as OwningRank()
     GridOrder Order() const;   // either COLUMN_MAJOR or ROW_MAJOR
-    mpi::Comm ColComm() const EL_NOEXCEPT; // MCComm()
-    mpi::Comm RowComm() const EL_NOEXCEPT; // MRComm()
+    mpi::Comm ColComm() const EL_NO_EXCEPT; // MCComm()
+    mpi::Comm RowComm() const EL_NO_EXCEPT; // MRComm()
     // VCComm (VRComm) if COLUMN_MAJOR (ROW_MAJOR)
-    mpi::Comm Comm() const EL_NOEXCEPT;
+    mpi::Comm Comm() const EL_NO_EXCEPT;
 
     // Distribution-based interface
     int MCRank() const;
     int MRRank() const;
     int VCRank() const;
     int VRRank() const;
-    int MCSize() const EL_NOEXCEPT;
-    int MRSize() const EL_NOEXCEPT;
-    int VCSize() const EL_NOEXCEPT;
-    int VRSize() const EL_NOEXCEPT;
-    mpi::Comm MCComm() const EL_NOEXCEPT;
-    mpi::Comm MRComm() const EL_NOEXCEPT;
-    mpi::Comm VCComm() const EL_NOEXCEPT;
-    mpi::Comm VRComm() const EL_NOEXCEPT;
-    mpi::Comm MDComm() const EL_NOEXCEPT;
-    mpi::Comm MDPerpComm() const EL_NOEXCEPT;
+    int MCSize() const EL_NO_EXCEPT;
+    int MRSize() const EL_NO_EXCEPT;
+    int VCSize() const EL_NO_EXCEPT;
+    int VRSize() const EL_NO_EXCEPT;
+    mpi::Comm MCComm() const EL_NO_EXCEPT;
+    mpi::Comm MRComm() const EL_NO_EXCEPT;
+    mpi::Comm VCComm() const EL_NO_EXCEPT;
+    mpi::Comm VRComm() const EL_NO_EXCEPT;
+    mpi::Comm MDComm() const EL_NO_EXCEPT;
+    mpi::Comm MDPerpComm() const EL_NO_EXCEPT;
 
     // Advanced routines
     explicit Grid
     ( mpi::Comm viewers, mpi::Group owners, int height, 
       GridOrder order=COLUMN_MAJOR );
     // greatest common denominator of grid height and width
-    int GCD() const EL_NOEXCEPT;
+    int GCD() const EL_NO_EXCEPT;
     // lowest common multiple of grid height and width
-    int LCM() const EL_NOEXCEPT;
+    int LCM() const EL_NO_EXCEPT;
     bool InGrid() const;
-    bool HaveViewers() const EL_NOEXCEPT;
+    bool HaveViewers() const EL_NO_EXCEPT;
     int OwningRank() const;
     int ViewingRank() const;
 
-    mpi::Group OwningGroup() const EL_NOEXCEPT;
-    mpi::Comm OwningComm() const EL_NOEXCEPT;
-    mpi::Comm ViewingComm() const EL_NOEXCEPT;
+    mpi::Group OwningGroup() const EL_NO_EXCEPT;
+    mpi::Comm OwningComm() const EL_NO_EXCEPT;
+    mpi::Comm ViewingComm() const EL_NO_EXCEPT;
     int Diag() const;
-    int Diag( int vcRank ) const EL_NOEXCEPT;
+    int Diag( int vcRank ) const EL_NO_EXCEPT;
     int DiagRank() const;
-    int DiagRank( int vcRank ) const EL_NOEXCEPT;
+    int DiagRank( int vcRank ) const EL_NO_EXCEPT;
 
-    int VCToVR( int vcRank ) const EL_NOEXCEPT;
-    int VRToVC( int vrRank ) const EL_NOEXCEPT;
+    int VCToVR( int vcRank ) const EL_NO_EXCEPT;
+    int VRToVC( int vrRank ) const EL_NO_EXCEPT;
     int CoordsToVC
     ( Dist colDist, Dist rowDist, 
       int distRank, int crossRank=0, int redundant=0 ) const;
-    int VCToViewing( int VCRank ) const EL_NOEXCEPT;
+    int VCToViewing( int VCRank ) const EL_NO_EXCEPT;
 
-    static int FindFactor( int p ) EL_NOEXCEPT;
+    static int FindFactor( int p ) EL_NO_EXCEPT;
 
 private:
     bool haveViewers_;

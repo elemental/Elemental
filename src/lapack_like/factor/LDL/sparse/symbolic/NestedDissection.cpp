@@ -68,11 +68,14 @@ NestedDissectionRecursion
         if( amdStatus != EL_AMD_OK )
             RuntimeError("AMD status was ",amdStatus);
 
+        // NOTE: This currently breaks if int != Int. El_amd_order should be
+        //       switched over to supporting Int
+
         // Compute the symbolic factorization of this leaf node using the
         // reordering just computed
         node.LOffsets.resize( numSources+1 );
         node.LParents.resize( numSources );
-        vector<int> LNnz( numSources ), Flag( numSources ), 
+        vector<Int> LNnz( numSources ), Flag( numSources ), 
                     amdPermInv( numSources );
         // This can be simplified once the AMD routine is templated
         if( sizeof(int) == sizeof(Int) )

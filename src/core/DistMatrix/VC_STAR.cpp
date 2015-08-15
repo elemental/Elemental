@@ -157,47 +157,47 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 // Basic queries
 // =============
 template<typename T>
-mpi::Comm DM::DistComm() const EL_NOEXCEPT
+mpi::Comm DM::DistComm() const EL_NO_EXCEPT
 { return this->grid_->VCComm(); }
 template<typename T>
-mpi::Comm DM::CrossComm() const EL_NOEXCEPT
+mpi::Comm DM::CrossComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::RedundantComm() const EL_NOEXCEPT
+mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::ColComm() const EL_NOEXCEPT
+mpi::Comm DM::ColComm() const EL_NO_EXCEPT
 { return this->grid_->VCComm(); }
 template<typename T>
-mpi::Comm DM::RowComm() const EL_NOEXCEPT
+mpi::Comm DM::RowComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::PartialColComm() const EL_NOEXCEPT
+mpi::Comm DM::PartialColComm() const EL_NO_EXCEPT
 { return this->grid_->MCComm(); }
 template<typename T>
-mpi::Comm DM::PartialUnionColComm() const EL_NOEXCEPT
+mpi::Comm DM::PartialUnionColComm() const EL_NO_EXCEPT
 { return this->grid_->MRComm(); }
 
 template<typename T>
-int DM::ColStride() const EL_NOEXCEPT
+int DM::ColStride() const EL_NO_EXCEPT
 { return this->grid_->VCSize(); }
 template<typename T>
-int DM::RowStride() const EL_NOEXCEPT
+int DM::RowStride() const EL_NO_EXCEPT
 { return 1; }
 template<typename T>
-int DM::PartialColStride() const EL_NOEXCEPT
+int DM::PartialColStride() const EL_NO_EXCEPT
 { return this->grid_->MCSize(); }
 template<typename T>
-int DM::PartialUnionColStride() const EL_NOEXCEPT
+int DM::PartialUnionColStride() const EL_NO_EXCEPT
 { return this->grid_->MRSize(); }
 template<typename T>
-int DM::DistSize() const EL_NOEXCEPT
+int DM::DistSize() const EL_NO_EXCEPT
 { return this->grid_->VCSize(); }
 template<typename T>
-int DM::CrossSize() const EL_NOEXCEPT
+int DM::CrossSize() const EL_NO_EXCEPT
 { return 1; }
 template<typename T>
-int DM::RedundantSize() const EL_NOEXCEPT
+int DM::RedundantSize() const EL_NO_EXCEPT
 { return 1; }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}

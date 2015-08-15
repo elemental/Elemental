@@ -106,7 +106,7 @@ DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM::DistMatrix( DM&& A ) EL_NOEXCEPT : ADM(std::move(A)) { }
+DM::DistMatrix( DM&& A ) EL_NO_EXCEPT : ADM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
 
@@ -219,25 +219,25 @@ template<typename T>
 El::DistData DM::DistData() const { return El::DistData(*this); }
 
 template<typename T>
-Dist DM::ColDist() const EL_NOEXCEPT { return COLDIST; }
+Dist DM::ColDist() const EL_NO_EXCEPT { return COLDIST; }
 template<typename T>
-Dist DM::RowDist() const EL_NOEXCEPT { return ROWDIST; }
+Dist DM::RowDist() const EL_NO_EXCEPT { return ROWDIST; }
 
 template<typename T>
-Dist DM::PartialColDist() const EL_NOEXCEPT { return Partial<COLDIST>(); }
+Dist DM::PartialColDist() const EL_NO_EXCEPT { return Partial<COLDIST>(); }
 template<typename T>
-Dist DM::PartialRowDist() const EL_NOEXCEPT { return Partial<ROWDIST>(); }
+Dist DM::PartialRowDist() const EL_NO_EXCEPT { return Partial<ROWDIST>(); }
 
 template<typename T>
-Dist DM::PartialUnionColDist() const EL_NOEXCEPT
+Dist DM::PartialUnionColDist() const EL_NO_EXCEPT
 { return PartialUnionCol<COLDIST,ROWDIST>(); }
 template<typename T>
-Dist DM::PartialUnionRowDist() const EL_NOEXCEPT
+Dist DM::PartialUnionRowDist() const EL_NO_EXCEPT
 { return PartialUnionRow<COLDIST,ROWDIST>(); }
 
 template<typename T>
-Dist DM::CollectedColDist() const EL_NOEXCEPT { return Collect<COLDIST>(); }
+Dist DM::CollectedColDist() const EL_NO_EXCEPT { return Collect<COLDIST>(); }
 template<typename T>
-Dist DM::CollectedRowDist() const EL_NOEXCEPT { return Collect<ROWDIST>(); }
+Dist DM::CollectedRowDist() const EL_NO_EXCEPT { return Collect<ROWDIST>(); }
 
 } // namespace El

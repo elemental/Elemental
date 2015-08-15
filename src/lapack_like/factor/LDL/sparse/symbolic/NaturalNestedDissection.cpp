@@ -61,26 +61,59 @@ NaturalNestedDissectionRecursion
         // Technically, SuiteSparse expects column-major storage, but since
         // the matrix is structurally symmetric, it's okay to pass in the 
         // row-major representation
-        vector<int> amdPerm(numSources);
-        double* control = nullptr;
-        double* info = nullptr;
-        const int amdStatus =
-          El_amd_order
-          ( numSources, subOffsets.data(), subTargets.data(), amdPerm.data(),
-            control, info );
-        if( amdStatus != EL_AMD_OK )
-            RuntimeError("AMD status was ",amdStatus);
+        vector<Int> amdPerm(numSources);
+        if( sizeof(int) == sizeof(Int) )
+        {
+            double* control = nullptr;
+            double* info = nullptr;
+            const int amdStatus =
+              El_amd_order
+              ( numSources, subOffsets.data(), subTargets.data(),
+                amdPerm.data(), control, info );
+            if( amdStatus != EL_AMD_OK )
+                RuntimeError("AMD status was ",amdStatus);
+        }
+        else
+        {
+            double* control = nullptr;
+            double* info = nullptr;
+            // TODO: Convert to and from Int
+            // HERE
+            const int amdStatus =
+              El_amd_order
+              ( numSources, subOffsets.data(), subTargets.data(),
+                amdPerm.data(), control, info );
+            if( amdStatus != EL_AMD_OK )
+                RuntimeError("AMD status was ",amdStatus);
+
+        }
 
         // Compute the symbolic factorization of this leaf node using the
         // reordering just computed
         node.LOffsets.resize( numSources+1 );
         node.LParents.resize( numSources );
-        vector<int> LNnz( numSources ), Flag( numSources ),
+        vector<Int> LNnz( numSources ), Flag( numSources ),
                     amdPermInv( numSources );
-        suite_sparse::ldl::Symbolic
-        ( numSources, subOffsets.data(), subTargets.data(),
-          node.LOffsets.data(), node.LParents.data(), LNnz.data(),
-          Flag.data(), amdPerm.data(), amdPermInv.data() );
+        // This can be simplified once the AMD routine is templated
+        if( sizeof(int) == sizeof(Int) )
+        {
+            suite_sparse::ldl::Symbolic 
+            ( numSources, subOffsets.data(), subTargets.data(),
+              node.LOffsets.data(), node.LParents.data(), LNnz.data(),
+              Flag.data(), amdPerm.data(), amdPermInv.data() );
+        }
+        else
+        {
+            vector<int> LOffsets_int(numSources+1), LParents_int(numSources);
+            suite_sparse::ldl::Symbolic
+            ( numSources, subOffsets.data(), subTargets.data(),
+              LOffsets_int.data(), LParents_int.data(), LNnz.data(),
+              Flag.data(), amdPerm.data(), amdPermInv.data() );
+            for( Int i=0; i<numSources+1; ++i )
+                node.LOffsets[i] = LOffsets_int[i];
+            for( Int i=0; i<numSources; ++i )
+                node.LParents[i] = LParents_int[i];
+        }
 
         // Fill in this node of the local separator tree
         sep.off = off;

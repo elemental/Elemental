@@ -23,7 +23,7 @@ public:
     // Constructors and destructors
     // ============================
     // Move constructor
-    AbstractBlockDistMatrix( type&& A ) EL_NOEXCEPT;
+    AbstractBlockDistMatrix( type&& A ) EL_NO_EXCEPT;
 
     virtual ~AbstractBlockDistMatrix();
 

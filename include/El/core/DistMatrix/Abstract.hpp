@@ -23,7 +23,7 @@ public:
     // Constructors and destructors
     // ============================
     // Move constructor
-    AbstractDistMatrix( type&& A ) EL_NOEXCEPT;
+    AbstractDistMatrix( type&& A ) EL_NO_EXCEPT;
 
     virtual ~AbstractDistMatrix();
 
@@ -117,82 +117,82 @@ public:
 
     // Global matrix information
     // -------------------------
-    Int  Height()                       const EL_NOEXCEPT;
-    Int  Width()                        const EL_NOEXCEPT;
-    Int  DiagonalLength( Int offset=0 ) const EL_NOEXCEPT;
-    bool Viewing()                      const EL_NOEXCEPT;
-    bool Locked()                       const EL_NOEXCEPT;
+    Int  Height()                       const EL_NO_EXCEPT;
+    Int  Width()                        const EL_NO_EXCEPT;
+    Int  DiagonalLength( Int offset=0 ) const EL_NO_EXCEPT;
+    bool Viewing()                      const EL_NO_EXCEPT;
+    bool Locked()                       const EL_NO_EXCEPT;
 
     // Local matrix information
     // ------------------------
-          Int            LocalHeight()                      const EL_NOEXCEPT;
-          Int            LocalWidth()                       const EL_NOEXCEPT;
-          Int            LDim()                             const EL_NOEXCEPT;
-          El::Matrix<T>& Matrix() EL_NOEXCEPT;
-    const El::Matrix<T>& LockedMatrix()                     const EL_NOEXCEPT;
-          size_t         AllocatedMemory()                  const EL_NOEXCEPT;
+          Int            LocalHeight()                      const EL_NO_EXCEPT;
+          Int            LocalWidth()                       const EL_NO_EXCEPT;
+          Int            LDim()                             const EL_NO_EXCEPT;
+          El::Matrix<T>& Matrix() EL_NO_EXCEPT;
+    const El::Matrix<T>& LockedMatrix()                     const EL_NO_EXCEPT;
+          size_t         AllocatedMemory()                  const EL_NO_EXCEPT;
           T*             Buffer();
           T*             Buffer( Int iLoc, Int jLoc );
-    const T*             LockedBuffer()                     const EL_NOEXCEPT;
-    const T*             LockedBuffer( Int iLoc, Int jLoc ) const EL_NOEXCEPT;
+    const T*             LockedBuffer()                     const EL_NO_EXCEPT;
+    const T*             LockedBuffer( Int iLoc, Int jLoc ) const EL_NO_EXCEPT;
 
     // Distribution information
     // ------------------------
-            const El::Grid&    Grid()                  const EL_NOEXCEPT;
-                  int          ColAlign()              const EL_NOEXCEPT;
-                  int          RowAlign()              const EL_NOEXCEPT;
-                  int          ColShift()              const EL_NOEXCEPT;
-                  int          RowShift()              const EL_NOEXCEPT;
-                  bool         ColConstrained()        const EL_NOEXCEPT;
-                  bool         RowConstrained()        const EL_NOEXCEPT;
-                  bool         RootConstrained()       const EL_NOEXCEPT;
+            const El::Grid&    Grid()                  const EL_NO_EXCEPT;
+                  int          ColAlign()              const EL_NO_EXCEPT;
+                  int          RowAlign()              const EL_NO_EXCEPT;
+                  int          ColShift()              const EL_NO_EXCEPT;
+                  int          RowShift()              const EL_NO_EXCEPT;
+                  bool         ColConstrained()        const EL_NO_EXCEPT;
+                  bool         RowConstrained()        const EL_NO_EXCEPT;
+                  bool         RootConstrained()       const EL_NO_EXCEPT;
                   bool         Participating()         const;
 
-                  int          RowOwner( Int i )       const EL_NOEXCEPT;
-                  int          ColOwner( Int j )       const EL_NOEXCEPT;
-                  int          Owner( Int i, Int j )   const EL_NOEXCEPT;
+                  int          RowOwner( Int i )       const EL_NO_EXCEPT;
+                  int          ColOwner( Int j )       const EL_NO_EXCEPT;
+                  int          Owner( Int i, Int j )   const EL_NO_EXCEPT;
                   Int          LocalRow( Int i )       const;
                   Int          LocalCol( Int j )       const;
-                  Int          LocalRowOffset( Int i ) const EL_NOEXCEPT;
-                  Int          LocalColOffset( Int j ) const EL_NOEXCEPT;
-                  Int          GlobalRow( Int iLoc )   const EL_NOEXCEPT;
-                  Int          GlobalCol( Int jLoc )   const EL_NOEXCEPT;
+                  Int          LocalRowOffset( Int i ) const EL_NO_EXCEPT;
+                  Int          LocalColOffset( Int j ) const EL_NO_EXCEPT;
+                  Int          GlobalRow( Int iLoc )   const EL_NO_EXCEPT;
+                  Int          GlobalCol( Int jLoc )   const EL_NO_EXCEPT;
                   bool         IsLocalRow( Int i )     const;
                   bool         IsLocalCol( Int j )     const;
                   bool         IsLocal( Int i, Int j ) const;
 
-    virtual       Dist         ColDist()               const EL_NOEXCEPT = 0;
-    virtual       Dist         RowDist()               const EL_NOEXCEPT = 0;
-    virtual       Dist         CollectedColDist()      const EL_NOEXCEPT = 0;
-    virtual       Dist         CollectedRowDist()      const EL_NOEXCEPT = 0;
-    virtual       Dist         PartialColDist()        const EL_NOEXCEPT = 0;
-    virtual       Dist         PartialRowDist()        const EL_NOEXCEPT = 0;
-    virtual       Dist         PartialUnionColDist()   const EL_NOEXCEPT = 0;
-    virtual       Dist         PartialUnionRowDist()   const EL_NOEXCEPT = 0;
+    virtual       Dist         ColDist()               const EL_NO_EXCEPT = 0;
+    virtual       Dist         RowDist()               const EL_NO_EXCEPT = 0;
+    virtual       Dist         CollectedColDist()      const EL_NO_EXCEPT = 0;
+    virtual       Dist         CollectedRowDist()      const EL_NO_EXCEPT = 0;
+    virtual       Dist         PartialColDist()        const EL_NO_EXCEPT = 0;
+    virtual       Dist         PartialRowDist()        const EL_NO_EXCEPT = 0;
+    virtual       Dist         PartialUnionColDist()   const EL_NO_EXCEPT = 0;
+    virtual       Dist         PartialUnionRowDist()   const EL_NO_EXCEPT = 0;
 
-    virtual       mpi::Comm    ColComm()               const EL_NOEXCEPT = 0;
-    virtual       mpi::Comm    RowComm()               const EL_NOEXCEPT = 0;
-    virtual       mpi::Comm    PartialColComm()        const EL_NOEXCEPT;
-    virtual       mpi::Comm    PartialRowComm()        const EL_NOEXCEPT;
-    virtual       mpi::Comm    PartialUnionColComm()   const EL_NOEXCEPT;
-    virtual       mpi::Comm    PartialUnionRowComm()   const EL_NOEXCEPT;
-    virtual       mpi::Comm    DistComm()              const EL_NOEXCEPT = 0;
-    virtual       mpi::Comm    CrossComm()             const EL_NOEXCEPT = 0;
-    virtual       mpi::Comm    RedundantComm()         const EL_NOEXCEPT = 0;
+    virtual       mpi::Comm    ColComm()               const EL_NO_EXCEPT = 0;
+    virtual       mpi::Comm    RowComm()               const EL_NO_EXCEPT = 0;
+    virtual       mpi::Comm    PartialColComm()        const EL_NO_EXCEPT;
+    virtual       mpi::Comm    PartialRowComm()        const EL_NO_EXCEPT;
+    virtual       mpi::Comm    PartialUnionColComm()   const EL_NO_EXCEPT;
+    virtual       mpi::Comm    PartialUnionRowComm()   const EL_NO_EXCEPT;
+    virtual       mpi::Comm    DistComm()              const EL_NO_EXCEPT = 0;
+    virtual       mpi::Comm    CrossComm()             const EL_NO_EXCEPT = 0;
+    virtual       mpi::Comm    RedundantComm()         const EL_NO_EXCEPT = 0;
 
     // NOTE: While these would be equivalent to composing mpi::Size
     //       with ColComm(), RowComm(), etc., for processes *within*
     //       the communicator, this composition is incorrect for 
     //       processes *outside* of the communicator
-    virtual       int          ColStride()             const EL_NOEXCEPT= 0;
-    virtual       int          RowStride()             const EL_NOEXCEPT= 0;
-    virtual       int          PartialColStride()      const EL_NOEXCEPT;
-    virtual       int          PartialRowStride()      const EL_NOEXCEPT;
-    virtual       int          PartialUnionColStride() const EL_NOEXCEPT;
-    virtual       int          PartialUnionRowStride() const EL_NOEXCEPT;
-    virtual       int          DistSize()              const EL_NOEXCEPT= 0;
-    virtual       int          CrossSize()             const EL_NOEXCEPT= 0;
-    virtual       int          RedundantSize()         const EL_NOEXCEPT= 0;
+    virtual       int          ColStride()             const EL_NO_EXCEPT= 0;
+    virtual       int          RowStride()             const EL_NO_EXCEPT= 0;
+    virtual       int          PartialColStride()      const EL_NO_EXCEPT;
+    virtual       int          PartialRowStride()      const EL_NO_EXCEPT;
+    virtual       int          PartialUnionColStride() const EL_NO_EXCEPT;
+    virtual       int          PartialUnionRowStride() const EL_NO_EXCEPT;
+    virtual       int          DistSize()              const EL_NO_EXCEPT= 0;
+    virtual       int          CrossSize()             const EL_NO_EXCEPT= 0;
+    virtual       int          RedundantSize()         const EL_NO_EXCEPT= 0;
 
     // NOTE: These are all clearly equivalent to composing mpi::Rank
     //       with ColComm(), RowComm(), etc., but it is not clear that
@@ -207,7 +207,7 @@ public:
                   int          CrossRank()             const;
                   int          RedundantRank()         const;
 
-                  int          Root()                  const EL_NOEXCEPT;
+                  int          Root()                  const EL_NO_EXCEPT;
     virtual       El::DistData DistData()              const = 0;
 
     // Single-entry manipulation

@@ -64,39 +64,39 @@ public:
     void Connect( Int source, Int target );
     void Disconnect( Int source, Int target );
 
-    void FreezeSparsity();
-    void UnfreezeSparsity();
-    bool FrozenSparsity() const;
+    void FreezeSparsity() EL_NO_EXCEPT;
+    void UnfreezeSparsity() EL_NO_EXCEPT;
+    bool FrozenSparsity() const EL_NO_EXCEPT;
 
     // For appending/removing many edges and then forcing consistency at the end
-    void QueueConnection( Int source, Int target );
+    void QueueConnection( Int source, Int target ) EL_NO_RELEASE_EXCEPT;
     void QueueDisconnection( Int source, Int target );
     void ProcessQueues();
 
     // For manually modifying/accessing the buffers
     void ForceNumEdges( Int numEdges );
-    void ForceConsistency( bool consistent=true );
-    Int* SourceBuffer();
-    Int* TargetBuffer();
-    Int* OffsetBuffer();
-    const Int* LockedSourceBuffer() const;
-    const Int* LockedTargetBuffer() const;
-    const Int* LockedOffsetBuffer() const;
+    void ForceConsistency( bool consistent=true ) EL_NO_EXCEPT;
+    Int* SourceBuffer() EL_NO_EXCEPT;
+    Int* TargetBuffer() EL_NO_EXCEPT;
+    Int* OffsetBuffer() EL_NO_EXCEPT;
+    const Int* LockedSourceBuffer() const EL_NO_EXCEPT;
+    const Int* LockedTargetBuffer() const EL_NO_EXCEPT;
+    const Int* LockedOffsetBuffer() const EL_NO_EXCEPT;
     void ComputeSourceOffsets();
 
     // Queries
     // =======
-    Int NumSources() const;
-    Int NumTargets() const;
-    Int NumEdges() const;
-    Int Capacity() const;
-    bool Consistent() const;
+    Int NumSources() const EL_NO_EXCEPT;
+    Int NumTargets() const EL_NO_EXCEPT;
+    Int NumEdges() const EL_NO_EXCEPT;
+    Int Capacity() const EL_NO_EXCEPT;
+    bool Consistent() const EL_NO_EXCEPT;
 
-    Int Source( Int edge ) const;
-    Int Target( Int edge ) const;
-    Int SourceOffset( Int source ) const;
-    Int Offset( Int source, Int target ) const;
-    Int NumConnections( Int source ) const;
+    Int Source( Int edge ) const EL_NO_RELEASE_EXCEPT;
+    Int Target( Int edge ) const EL_NO_RELEASE_EXCEPT;
+    Int SourceOffset( Int source ) const EL_NO_RELEASE_EXCEPT;
+    Int Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT;
+    Int NumConnections( Int source ) const EL_NO_RELEASE_EXCEPT;
 
     void AssertConsistent() const;
 

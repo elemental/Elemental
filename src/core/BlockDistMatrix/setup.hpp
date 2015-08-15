@@ -129,7 +129,7 @@ BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-BDM::BlockDistMatrix( BDM&& A ) EL_NOEXCEPT : ABDM(std::move(A)) { } 
+BDM::BlockDistMatrix( BDM&& A ) EL_NO_EXCEPT : ABDM(std::move(A)) { } 
 
 template<typename T> BDM::~BlockDistMatrix() { }
 

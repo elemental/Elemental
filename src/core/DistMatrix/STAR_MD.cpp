@@ -168,31 +168,31 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 // Basic queries
 // =============
 template<typename T>
-mpi::Comm DM::DistComm() const EL_NOEXCEPT
+mpi::Comm DM::DistComm() const EL_NO_EXCEPT
 { return this->grid_->MDComm(); }
 template<typename T>
-mpi::Comm DM::CrossComm() const EL_NOEXCEPT
+mpi::Comm DM::CrossComm() const EL_NO_EXCEPT
 { return this->grid_->MDPerpComm(); }
 template<typename T>
-mpi::Comm DM::RedundantComm() const EL_NOEXCEPT
+mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::ColComm() const EL_NOEXCEPT
+mpi::Comm DM::ColComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::RowComm() const EL_NOEXCEPT
+mpi::Comm DM::RowComm() const EL_NO_EXCEPT
 { return this->grid_->MDComm(); }
 
 template<typename T>
-int DM::ColStride() const EL_NOEXCEPT { return 1; }
+int DM::ColStride() const EL_NO_EXCEPT { return 1; }
 template<typename T>
-int DM::RowStride() const EL_NOEXCEPT { return this->grid_->LCM(); }
+int DM::RowStride() const EL_NO_EXCEPT { return this->grid_->LCM(); }
 template<typename T>
-int DM::DistSize() const EL_NOEXCEPT { return this->grid_->LCM(); }
+int DM::DistSize() const EL_NO_EXCEPT { return this->grid_->LCM(); }
 template<typename T>
-int DM::CrossSize() const EL_NOEXCEPT { return this->grid_->GCD(); }
+int DM::CrossSize() const EL_NO_EXCEPT { return this->grid_->GCD(); }
 template<typename T>
-int DM::RedundantSize() const EL_NOEXCEPT { return 1; }
+int DM::RedundantSize() const EL_NO_EXCEPT { return 1; }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

@@ -64,6 +64,7 @@ namespace mpi {
 #ifdef EL_HAVE_QUAD
 static void
 MaxQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {
     const Quad* inData = static_cast<Quad*>(inVoid);
     Quad* outData = static_cast<Quad*>(outVoid);
@@ -76,6 +77,7 @@ MaxQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 
 static void
 MinQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {
     const Quad* inData = static_cast<Quad*>(inVoid);
     Quad* outData = static_cast<Quad*>(outVoid);
@@ -88,6 +90,7 @@ MinQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 
 static void
 SumQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {
     const Quad* inData = static_cast<Quad*>(inVoid);
     Quad* outData = static_cast<Quad*>(outVoid);
@@ -97,6 +100,7 @@ SumQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 
 static void
 SumQuadComplex( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {
     const Complex<Quad>* inData = static_cast<Complex<Quad>*>(inVoid);
     Complex<Quad>* outData = static_cast<Complex<Quad>*>(outVoid);
@@ -108,6 +112,7 @@ SumQuadComplex( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 template<typename T>
 static void
 MaxLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {           
     const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
     ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
@@ -122,19 +127,24 @@ MaxLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
     }
 }
 template void
-MaxLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MaxLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocFunc<float>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MaxLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocFunc<double>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
 template void
-MaxLocFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocFunc<Quad>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #endif
 
 template<typename T>
 static void
 MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {           
     const Entry<T>* inData = static_cast<Entry<T>*>(inVoid);
     Entry<T>* outData = static_cast<Entry<T>*>(outVoid);
@@ -148,19 +158,24 @@ MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
     }
 }
 template void
-MaxLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MaxLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MaxLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
 template void
-MaxLocPairFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+MaxLocPairFunc<Quad>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #endif
 
 template<typename T>
 static void
 MinLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {           
     const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
     ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
@@ -175,19 +190,24 @@ MinLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
     }
 }
 template void
-MinLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+MinLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MinLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+MinLocFunc<float>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MinLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+MinLocFunc<double>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
 template void
-MinLocFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+MinLocFunc<Quad>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #endif
 
 template<typename T>
 static void
 MinLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+EL_NO_EXCEPT
 {           
     const Entry<T>* inData = static_cast<Entry<T>*>(inVoid);
     Entry<T>* outData = static_cast<Entry<T>*>(outVoid);
@@ -201,85 +221,88 @@ MinLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
     }
 }
 template void
-MinLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+MinLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MinLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+MinLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 template void
-MinLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+MinLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
 template void
-MinLocPairFunc<Quad>( void* in, void* out, int* length, Datatype* datatype );
+MinLocPairFunc<Quad>( void* in, void* out, int* length, Datatype* datatype )
+EL_NO_EXCEPT;
 #endif
 
-template<typename R> static Datatype& ValueIntType();
+template<typename R> static Datatype& ValueIntType() EL_NO_EXCEPT;
 template<>
-Datatype& ValueIntType<Int>()    { return ::IntIntType; }
+Datatype& ValueIntType<Int>() EL_NO_EXCEPT { return ::IntIntType; }
 template<>
-Datatype& ValueIntType<float>()  { return ::floatIntType; }
+Datatype& ValueIntType<float>() EL_NO_EXCEPT { return ::floatIntType; }
 template<>
-Datatype& ValueIntType<double>() { return ::doubleIntType; }
+Datatype& ValueIntType<double>() EL_NO_EXCEPT { return ::doubleIntType; }
 #ifdef EL_HAVE_QUAD
 template<>
-Datatype& ValueIntType<Quad>()   { return ::QuadIntType; }
+Datatype& ValueIntType<Quad>() EL_NO_EXCEPT { return ::QuadIntType; }
 #endif
 template<>
-Datatype& ValueIntType<Complex<float>>()  { return ::floatComplexIntType; }
+Datatype& ValueIntType<Complex<float>>() EL_NO_EXCEPT
+{ return ::floatComplexIntType; }
 template<>
-Datatype& ValueIntType<Complex<double>>() { return ::doubleComplexIntType; }
+Datatype& ValueIntType<Complex<double>>() EL_NO_EXCEPT
+{ return ::doubleComplexIntType; }
 #ifdef EL_HAVE_QUAD
 template<>
-Datatype& ValueIntType<Complex<Quad>>()   { return ::QuadComplexIntType; }
-#endif
-
-template<typename R> static Datatype& EntryType();
-template<>
-Datatype& EntryType<Int>()    { return ::IntEntryType; }
-template<>
-Datatype& EntryType<float>()  { return ::floatEntryType; }
-template<>
-Datatype& EntryType<double>() { return ::doubleEntryType; }
-#ifdef EL_HAVE_QUAD
-template<>
-Datatype& EntryType<Quad>()   { return ::QuadEntryType; }
-#endif
-template<>
-Datatype& EntryType<Complex<float>>() { return ::floatComplexEntryType; }
-template<>
-Datatype& EntryType<Complex<double>>() { return ::doubleComplexEntryType; }
-#ifdef EL_HAVE_QUAD
-template<>
-Datatype& EntryType<Complex<Quad>>() { return ::QuadComplexEntryType; }
+Datatype& ValueIntType<Complex<Quad>>() EL_NO_EXCEPT
+{ return ::QuadComplexIntType; }
 #endif
 
-template<> Datatype TypeMap<byte>()          { return MPI_UNSIGNED_CHAR; }
-template<> Datatype TypeMap<int>()           { return MPI_INT; }
-template<> Datatype TypeMap<unsigned>()      { return MPI_UNSIGNED; }
-template<> Datatype TypeMap<long int>()      { return MPI_LONG_INT; }
-template<> Datatype TypeMap<long unsigned>() { return MPI_UNSIGNED_LONG; }
-template<> Datatype TypeMap<long long int>()
-{
+template<typename R> static Datatype& EntryType() EL_NO_EXCEPT;
+template<>
+Datatype& EntryType<Int>() EL_NO_EXCEPT { return ::IntEntryType; }
+template<>
+Datatype& EntryType<float>() EL_NO_EXCEPT { return ::floatEntryType; }
+template<>
+Datatype& EntryType<double>() EL_NO_EXCEPT { return ::doubleEntryType; }
+#ifdef EL_HAVE_QUAD
+template<>
+Datatype& EntryType<Quad>() EL_NO_EXCEPT { return ::QuadEntryType; }
+#endif
+template<>
+Datatype& EntryType<Complex<float>>() EL_NO_EXCEPT
+{ return ::floatComplexEntryType; }
+template<>
+Datatype& EntryType<Complex<double>>() EL_NO_EXCEPT
+{ return ::doubleComplexEntryType; }
+#ifdef EL_HAVE_QUAD
+template<>
+Datatype& EntryType<Complex<Quad>>() EL_NO_EXCEPT
+{ return ::QuadComplexEntryType; }
+#endif
+
+template<> Datatype TypeMap<byte>() EL_NO_EXCEPT
+{ return MPI_UNSIGNED_CHAR; }
+template<> Datatype TypeMap<int>() EL_NO_EXCEPT
+{ return MPI_INT; }
+template<> Datatype TypeMap<unsigned>() EL_NO_EXCEPT
+{ return MPI_UNSIGNED; }
+template<> Datatype TypeMap<long int>() EL_NO_EXCEPT
+{ return MPI_LONG_INT; }
+template<> Datatype TypeMap<long unsigned>() EL_NO_EXCEPT
+{ return MPI_UNSIGNED_LONG; }
+
 #ifdef EL_HAVE_MPI_LONG_LONG
-    return MPI_LONG_LONG_INT;
-#else
-    throw std::runtime_error("MPI_LONG_LONG_INT does not exist");
-    return 0;
+template<> Datatype TypeMap<long long int>() EL_NO_EXCEPT
+{ return MPI_LONG_LONG_INT; }
+template<> Datatype TypeMap<unsigned long long>() EL_NO_EXCEPT
+{ return MPI_UNSIGNED_LONG_LONG; }
 #endif
-}
-template<>
-Datatype TypeMap<unsigned long long>()
-{
-#ifdef EL_HAVE_MPI_LONG_LONG
-    return MPI_UNSIGNED_LONG_LONG;
-#else
-    throw std::runtime_error("MPI_UNSIGNED_LONG_LONG does not exist");
-    return 0;
-#endif
-}
 
-template<> Datatype TypeMap<float>()  { return MPI_FLOAT; }
-template<> Datatype TypeMap<double>() { return MPI_DOUBLE; }
+template<> Datatype TypeMap<float>() EL_NO_EXCEPT { return MPI_FLOAT; }
+template<> Datatype TypeMap<double>() EL_NO_EXCEPT{ return MPI_DOUBLE; }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Quad>()   { return ::QuadType; }
+template<> Datatype TypeMap<Quad>() EL_NO_EXCEPT { return ::QuadType; }
 #endif
 
 /* I'm not sure of whether it is better to manually implement these
@@ -291,7 +314,7 @@ template<> Datatype TypeMap<Quad>()   { return ::QuadType; }
    MPI_C_FLOAT_COMPLEX and MPI_C_DOUBLE_COMPLEX, and so we will, for now,
    use these by default and fall back to MPI_COMPLEX and 
    MPI_DOUBLE_COMPLEX otherwise. */
-template<> Datatype TypeMap<Complex<float>>()  
+template<> Datatype TypeMap<Complex<float>>() EL_NO_EXCEPT
 { 
 #ifdef EL_HAVE_MPI_C_COMPLEX
     return MPI_C_FLOAT_COMPLEX; 
@@ -299,7 +322,7 @@ template<> Datatype TypeMap<Complex<float>>()
     return MPI_COMPLEX;
 #endif
 }
-template<> Datatype TypeMap<Complex<double>>() 
+template<> Datatype TypeMap<Complex<double>>() EL_NO_EXCEPT
 { 
 #ifdef EL_HAVE_MPI_C_COMPLEX
     return MPI_C_DOUBLE_COMPLEX; 
@@ -308,49 +331,50 @@ template<> Datatype TypeMap<Complex<double>>()
 #endif
 }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Complex<Quad>>() { return ::QuadComplexType; }
+template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT 
+{ return ::QuadComplexType; }
 #endif
 
-template<> Datatype TypeMap<ValueInt<Int>>()
+template<> Datatype TypeMap<ValueInt<Int>>() EL_NO_EXCEPT
 { return ValueIntType<Int>(); }
-template<> Datatype TypeMap<ValueInt<float>>()
+template<> Datatype TypeMap<ValueInt<float>>() EL_NO_EXCEPT
 { return ValueIntType<float>(); }
-template<> Datatype TypeMap<ValueInt<double>>()
+template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT
 { return ValueIntType<double>(); }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueInt<Quad>>()
+template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT
 { return ValueIntType<Quad>(); }
 #endif
-template<> Datatype TypeMap<ValueInt<Complex<float>>>()
+template<> Datatype TypeMap<ValueInt<Complex<float>>>() EL_NO_EXCEPT
 { return ValueIntType<Complex<float>>(); }
-template<> Datatype TypeMap<ValueInt<Complex<double>>>()
+template<> Datatype TypeMap<ValueInt<Complex<double>>>() EL_NO_EXCEPT
 { return ValueIntType<Complex<double>>(); }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueInt<Complex<Quad>>>()
+template<> Datatype TypeMap<ValueInt<Complex<Quad>>>() EL_NO_EXCEPT
 { return ValueIntType<Complex<Quad>>(); }
 #endif
 
-template<> Datatype TypeMap<Entry<Int>>()
+template<> Datatype TypeMap<Entry<Int>>() EL_NO_EXCEPT
 { return EntryType<Int>(); }
-template<> Datatype TypeMap<Entry<float>>()
+template<> Datatype TypeMap<Entry<float>>() EL_NO_EXCEPT
 { return EntryType<float>(); }
-template<> Datatype TypeMap<Entry<double>>()
+template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT
 { return EntryType<double>(); }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Entry<Quad>>()
+template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT
 { return EntryType<Quad>(); }
 #endif
-template<> Datatype TypeMap<Entry<Complex<float>>>()
+template<> Datatype TypeMap<Entry<Complex<float>>>() EL_NO_EXCEPT
 { return EntryType<Complex<float>>(); }
-template<> Datatype TypeMap<Entry<Complex<double>>>()
+template<> Datatype TypeMap<Entry<Complex<double>>>() EL_NO_EXCEPT
 { return EntryType<Complex<double>>(); }
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Entry<Complex<Quad>>>()
+template<> Datatype TypeMap<Entry<Complex<Quad>>>() EL_NO_EXCEPT
 { return EntryType<Complex<Quad>>(); }
 #endif
 
 template<typename T>
-static void CreateValueIntType()
+static void CreateValueIntType() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateValueIntType"))
     Datatype typeList[2];
@@ -375,20 +399,20 @@ static void CreateValueIntType()
     MPI_Type_create_struct( 2, blockLengths, displs, typeList, &type );
     MPI_Type_commit( &type );
 }
-template void CreateValueIntType<Int>();
-template void CreateValueIntType<float>();
-template void CreateValueIntType<double>();
+template void CreateValueIntType<Int>() EL_NO_EXCEPT;
+template void CreateValueIntType<float>() EL_NO_EXCEPT;
+template void CreateValueIntType<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template void CreateValueIntType<Quad>();
+template void CreateValueIntType<Quad>() EL_NO_EXCEPT;
 #endif
-template void CreateValueIntType<Complex<float>>();
-template void CreateValueIntType<Complex<double>>();
+template void CreateValueIntType<Complex<float>>() EL_NO_EXCEPT;
+template void CreateValueIntType<Complex<double>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template void CreateValueIntType<Complex<Quad>>();
+template void CreateValueIntType<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
 
 template<typename T>
-static void CreateEntryType()
+static void CreateEntryType() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateEntryType"))
     Datatype typeList[3];
@@ -417,19 +441,19 @@ static void CreateEntryType()
     MPI_Type_create_struct( 3, blockLengths, displs, typeList, &type );
     MPI_Type_commit( &type );
 }
-template void CreateEntryType<Int>();
-template void CreateEntryType<float>();
-template void CreateEntryType<double>();
+template void CreateEntryType<Int>() EL_NO_EXCEPT;
+template void CreateEntryType<float>() EL_NO_EXCEPT;
+template void CreateEntryType<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template void CreateEntryType<Quad>();
+template void CreateEntryType<Quad>() EL_NO_EXCEPT;
 #endif
-template void CreateEntryType<Complex<float>>();
-template void CreateEntryType<Complex<double>>();
+template void CreateEntryType<Complex<float>>() EL_NO_EXCEPT;
+template void CreateEntryType<Complex<double>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template void CreateEntryType<Complex<Quad>>();
+template void CreateEntryType<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
 
-void CreateCustom()
+void CreateCustom() EL_NO_RELEASE_EXCEPT
 {
     // Create the necessary types
     // ==========================
@@ -507,7 +531,7 @@ void CreateCustom()
 #endif
 }
 
-void DestroyCustom()
+void DestroyCustom() EL_NO_RELEASE_EXCEPT
 {
     // Destroy the created types
     // =========================
@@ -579,39 +603,47 @@ void DestroyCustom()
 }
 
 #ifdef EL_HAVE_QUAD
-template<> Op MaxOp<Quad>() { return ::maxQuadOp; }
-template<> Op MinOp<Quad>() { return ::minQuadOp; }
+template<> Op MaxOp<Quad>() EL_NO_EXCEPT { return ::maxQuadOp; }
+template<> Op MinOp<Quad>() EL_NO_EXCEPT { return ::minQuadOp; }
 
-template<> Op SumOp<Quad>()          { return ::sumQuadOp; }
-template<> Op SumOp<Complex<Quad>>() { return ::sumQuadComplexOp; }
+template<> Op SumOp<Quad>() EL_NO_EXCEPT { return ::sumQuadOp; }
+template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT { return ::sumQuadComplexOp; }
 #endif
 
-template<> Op MaxLocOp<Int>()    { return ::maxLocIntOp; }
-template<> Op MaxLocOp<float>()  { return ::maxLocFloatOp; }
-template<> Op MaxLocOp<double>() { return ::maxLocDoubleOp; }
+template<> Op MaxLocOp<Int>() EL_NO_EXCEPT { return ::maxLocIntOp; }
+template<> Op MaxLocOp<float>() EL_NO_EXCEPT { return ::maxLocFloatOp; }
+template<> Op MaxLocOp<double>() EL_NO_EXCEPT { return ::maxLocDoubleOp; }
 #ifdef EL_HAVE_QUAD
-template<> Op MaxLocOp<Quad>()   { return ::maxLocQuadOp; }
+template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT { return ::maxLocQuadOp; }
 #endif
 
-template<> Op MaxLocPairOp<Int>()    { return ::maxLocPairIntOp; }
-template<> Op MaxLocPairOp<float>()  { return ::maxLocPairFloatOp; }
-template<> Op MaxLocPairOp<double>() { return ::maxLocPairDoubleOp; }
+template<> Op MaxLocPairOp<Int>() EL_NO_EXCEPT
+{ return ::maxLocPairIntOp; }
+template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT
+{ return ::maxLocPairFloatOp; }
+template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT
+{ return ::maxLocPairDoubleOp; }
 #ifdef EL_HAVE_QUAD
-template<> Op MaxLocPairOp<Quad>()   { return ::maxLocPairQuadOp; }
+template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT
+{ return ::maxLocPairQuadOp; }
 #endif
 
-template<> Op MinLocOp<Int>()    { return ::minLocIntOp; }
-template<> Op MinLocOp<float>()  { return ::minLocFloatOp; }
-template<> Op MinLocOp<double>() { return ::minLocDoubleOp; }
+template<> Op MinLocOp<Int>() EL_NO_EXCEPT { return ::minLocIntOp; }
+template<> Op MinLocOp<float>() EL_NO_EXCEPT { return ::minLocFloatOp; }
+template<> Op MinLocOp<double>() EL_NO_EXCEPT { return ::minLocDoubleOp; }
 #ifdef EL_HAVE_QUAD
-template<> Op MinLocOp<Quad>()   { return ::minLocQuadOp; }
+template<> Op MinLocOp<Quad>() EL_NO_EXCEPT { return ::minLocQuadOp; }
 #endif
 
-template<> Op MinLocPairOp<Int>()    { return ::minLocPairIntOp; }
-template<> Op MinLocPairOp<float>()  { return ::minLocPairFloatOp; }
-template<> Op MinLocPairOp<double>() { return ::minLocPairDoubleOp; }
+template<> Op MinLocPairOp<Int>() EL_NO_EXCEPT
+{ return ::minLocPairIntOp; }
+template<> Op MinLocPairOp<float>() EL_NO_EXCEPT
+{ return ::minLocPairFloatOp; }
+template<> Op MinLocPairOp<double>() EL_NO_EXCEPT
+{ return ::minLocPairDoubleOp; }
 #ifdef EL_HAVE_QUAD
-template<> Op MinLocPairOp<Quad>()   { return ::minLocPairQuadOp; }
+template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT
+{ return ::minLocPairQuadOp; }
 #endif
 
 } // namespace mpi

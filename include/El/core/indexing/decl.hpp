@@ -53,7 +53,7 @@ Int Shift_( Int rank, Int firstRank, Int numProcs );
 
 Int LastOffset( Int n, Int bsize );
 
-Int DiagonalLength( Int height, Int width, Int offset=0 ) EL_NOEXCEPT;
+Int DiagonalLength( Int height, Int width, Int offset=0 ) EL_NO_EXCEPT;
 
 Int GCD( Int a, Int b ); 
 Int GCD_( Int a, Int b ); 

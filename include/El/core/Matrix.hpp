@@ -32,7 +32,7 @@ public:
     // Create a copy of a matrix
     Matrix( const Matrix<T>& A );
     // Move the metadata from a given matrix
-    Matrix( Matrix<T>&& A ) EL_NOEXCEPT;
+    Matrix( Matrix<T>&& A ) EL_NO_EXCEPT;
     // Destructor
     ~Matrix();
 
@@ -75,18 +75,18 @@ public:
 
     // Basic queries
     // =============
-    Int Height() const EL_NOEXCEPT;
-    Int Width() const EL_NOEXCEPT;
-    Int LDim() const EL_NOEXCEPT;
-    Int MemorySize() const EL_NOEXCEPT;
-    Int DiagonalLength( Int offset=0 ) const EL_NOEXCEPT;
+    Int Height() const EL_NO_EXCEPT;
+    Int Width() const EL_NO_EXCEPT;
+    Int LDim() const EL_NO_EXCEPT;
+    Int MemorySize() const EL_NO_EXCEPT;
+    Int DiagonalLength( Int offset=0 ) const EL_NO_EXCEPT;
     T* Buffer();
     T* Buffer( Int i, Int j );
-    const T* LockedBuffer() const EL_NOEXCEPT;
-    const T* LockedBuffer( Int i, Int j ) const EL_NOEXCEPT;
-    bool Viewing()   const EL_NOEXCEPT;
-    bool FixedSize() const EL_NOEXCEPT;
-    bool Locked()    const EL_NOEXCEPT;
+    const T* LockedBuffer() const EL_NO_EXCEPT;
+    const T* LockedBuffer( Int i, Int j ) const EL_NO_EXCEPT;
+    bool Viewing()   const EL_NO_EXCEPT;
+    bool FixedSize() const EL_NO_EXCEPT;
+    bool Locked()    const EL_NO_EXCEPT;
 
     // Single-entry manipulation
     // =========================
