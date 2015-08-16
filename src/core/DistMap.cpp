@@ -41,51 +41,42 @@ DistMap::~DistMap()
             mpi::Free( comm_ ); 
 }
 
-void DistMap::StoreOwners
-( Int numSources, vector<Int>& localInds, mpi::Comm comm )
+void DistMap::Translate( vector<Int>& localInds ) const
 {
-    DEBUG_ONLY(CSE cse("DistMap::StoreOwners"))
-    SetComm( comm );
-    Resize( numSources );
-
-    // Exchange via AllToAlls
-    vector<int> sendSizes( commSize_, 0 );
-    const Int numLocalInds = localInds.size();
-    for( Int s=0; s<numLocalInds; ++s )
-        ++sendSizes[ RowOwner(localInds[s]) ]; 
-    vector<int> recvSizes( commSize_ );
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
-    vector<int> sendOffs, recvOffs;
-    const int numSends = Scan( sendSizes, sendOffs );
-    const int numRecvs = Scan( recvSizes, recvOffs );
-    DEBUG_ONLY(
-      if( numRecvs != NumLocalSources() )
-          LogicError("Incorrect number of recv indices");
-    )
-    auto offs = sendOffs;
-    vector<Int> sendInds( numSends );
-    for( Int s=0; s<numLocalInds; ++s )
+    DEBUG_ONLY(CSE cse("DistMap::Translate"))
+    vector<int> origOwners;
+    if( origOwners.size() != localInds.size() )
     {
-        const Int i = localInds[s];
-        sendInds[offs[RowOwner(i)]++] = i;
+        const Int numLocalInds = localInds.size();
+        origOwners.resize( numLocalInds );
+        if( blocksize_ > 0 )
+        {
+            for( Int s=0; s<numLocalInds; ++s )
+            {
+                const Int i = localInds[s];
+                if( i < numSources_ )
+                    origOwners[s] = std::min(i/blocksize_,commSize_-1);
+                else
+                    origOwners[s] = -1;
+            }
+        }
+        else
+        {
+            for( Int s=0; s<numLocalInds; ++s )
+            {
+                const Int i = localInds[s];
+                if( i < numSources_ )
+                    origOwners[s] = commSize_-1;
+                else
+                    origOwners[s] = -1;
+            }
+        }
     }
-    vector<Int> recvInds( numRecvs );
-    mpi::AllToAll
-    ( sendInds.data(), sendSizes.data(), sendOffs.data(),
-      recvInds.data(), recvSizes.data(), recvOffs.data(), comm );
-
-    // Form map
-    const Int firstLocalSource = FirstLocalSource();
-    for( int q=0; q<commSize_; ++q )
-    {
-        const int size = recvSizes[q];
-        const int off = recvOffs[q];
-        for( int s=0; s<size; ++s )
-            SetLocal( recvInds[off+s]-firstLocalSource, q );
-    }
+    Translate( localInds, origOwners );
 }
 
-void DistMap::Translate( vector<Int>& localInds ) const
+void DistMap::Translate
+( vector<Int>& localInds, const vector<int>& origOwners ) const
 {
     DEBUG_ONLY(CSE cse("DistMap::Translate"))
     const Int numLocalInds = localInds.size();
@@ -93,23 +84,11 @@ void DistMap::Translate( vector<Int>& localInds ) const
     // Count how many indices we need each process to map
     // Avoid unncessary branching within the loop by avoiding RowToProcess
     vector<int> requestSizes( commSize_, 0 );
-    if( blocksize_ > 0 )
+    for( Int s=0; s<numLocalInds; ++s )
     {
-        for( Int s=0; s<numLocalInds; ++s )
-        {
-            const Int i = localInds[s];
-            if( i < numSources_ )
-                ++requestSizes[ std::min(i/blocksize_,commSize_-1) ];
-        }
-    }
-    else
-    {
-        for( Int s=0; s<numLocalInds; ++s )
-        {
-            const Int i = localInds[s];
-            if( i < numSources_ )
-                ++requestSizes[commSize_-1];
-        }
+        const Int i = localInds[s];
+        if( i < numSources_ )
+            ++requestSizes[origOwners[s]];
     }
 
     // Send our requests and find out what we need to fulfill
@@ -124,24 +103,11 @@ void DistMap::Translate( vector<Int>& localInds ) const
     // Pack the requested information 
     vector<int> requests( numRequests );
     auto offs = requestOffs;
-    // Avoid unncessary branching within the loop by avoiding RowToProcess
-    if( blocksize_ > 0 )
+    for( Int s=0; s<numLocalInds; ++s )
     {
-        for( Int s=0; s<numLocalInds; ++s )
-        {
-            const Int i = localInds[s];
-            if( i < numSources_ )
-                requests[offs[std::min(i/blocksize_,commSize_-1)]++] = i;
-        }
-    }
-    else
-    {
-        for( Int s=0; s<numLocalInds; ++s )
-        {
-            const Int i = localInds[s];
-            if( i < numSources_ )
-                requests[offs[commSize_-1]++] = i;
-        }
+        const Int i = localInds[s];
+        if( i < numSources_ )
+            requests[offs[origOwners[s]]++] = i;
     }
 
     // Perform the first index exchange
@@ -172,24 +138,11 @@ void DistMap::Translate( vector<Int>& localInds ) const
     // Unpack in the same way we originally packed
     // Avoid unncessary branching within the loop by avoiding RowToProcess
     offs = requestOffs;
-    if( blocksize_ > 0 )
+    for( Int s=0; s<numLocalInds; ++s )
     {
-        for( Int s=0; s<numLocalInds; ++s )
-        {
-            const Int i = localInds[s];
-            if( i < numSources_ )
-                localInds[s] = 
-                  requests[offs[std::min(i/blocksize_,commSize_-1)]++];
-        }
-    }
-    else
-    {
-        for( Int s=0; s<numLocalInds; ++s )
-        {
-            const Int i = localInds[s];
-            if( i < numSources_ )
-                localInds[s] = requests[offs[commSize_-1]++];
-        }
+        const Int i = localInds[s];
+        if( i < numSources_ )
+            localInds[s] = requests[offs[origOwners[s]]++];
     }
 }
 

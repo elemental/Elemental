@@ -613,13 +613,21 @@ inline Int RegularizedSolveAfterNoPromote
     // =========================
     DistMultiVec<F> x(comm);
     DiagonalSolve( LEFT, NORMAL, d, b );
+    if( commRank == 0 )
+        timer.Start();
     ldl::DistMultiVecNode<F> xNodal( invMap, info, b );
+    if( commRank == 0 )
+        Output("  DistMultiVecNode pull: ",timer.Stop()," secs");
     if( time && commRank == 0 )
         timer.Start();
     ldl::SolveAfter( info, front, xNodal );
     if( time && commRank == 0 )
         Output("  LDL apply time: ",timer.Stop()," secs");
+    if( commRank == 0 )
+        timer.Start();
     xNodal.Push( invMap, info, x );
+    if( commRank == 0 )
+        Output("  DistMultiVecNode push: ",timer.Stop()," secs");
     DiagonalSolve( LEFT, NORMAL, d, x );
 
     Int refineIt = 0;
@@ -837,13 +845,21 @@ inline Int RegularizedSolveAfterPromote
     // Compute the initial guess
     // =========================
     DiagonalSolve( LEFT, NORMAL, d, b );
+    if( time && commRank == 0 )
+        timer.Start();
     ldl::DistMultiVecNode<F> xNodal( invMap, info, b );
+    if( time && commRank == 0 )
+        Output("  DistMultiVecNode pull: ",timer.Stop()," secs");
     if( time && commRank == 0 )
         timer.Start();
     ldl::SolveAfter( info, front, xNodal );
     if( time && commRank == 0 )
         Output("  LDL apply time: ",timer.Stop()," secs");
+    if( time && commRank == 0 )
+        timer.Start();
     xNodal.Push( invMap, info, b );
+    if( time && commRank == 0 )
+        Output("  DistMultiVecNode push: ",timer.Stop()," secs");
     DiagonalSolve( LEFT, NORMAL, d, b );
 
     DistMultiVec<PF> xProm(comm);
