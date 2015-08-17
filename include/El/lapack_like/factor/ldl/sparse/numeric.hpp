@@ -106,6 +106,13 @@ struct DistMultiVecNodeMeta
     vector<int> sendOffs;
     vector<int> recvSizes;
     vector<int> recvOffs;
+
+    template<typename T>
+    void Initialize
+    ( const DistMultiVecNode<T>& XNode,
+      const DistNodeInfo& info,
+      const DistMap& invMap,
+      const DistMultiVec<T>& X );
 };
 
 // For handling a set of vectors distributed in a [VC,* ] manner over each node

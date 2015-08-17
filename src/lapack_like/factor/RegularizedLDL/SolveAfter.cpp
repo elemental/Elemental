@@ -618,21 +618,21 @@ inline Int RegularizedSolveAfterNoPromote
     // =========================
     DistMultiVec<F> x(comm);
     DiagonalSolve( LEFT, NORMAL, d, b );
-    if( commRank == 0 )
+    if( time && commRank == 0 )
         timer.Start();
     ldl::DistMultiVecNode<F> xNodal;
     xNodal.Pull( invMap, info, b, meta );
-    if( commRank == 0 )
+    if( time && commRank == 0 )
         Output("  DistMultiVecNode pull: ",timer.Stop()," secs");
     if( time && commRank == 0 )
         timer.Start();
     ldl::SolveAfter( info, front, xNodal );
     if( time && commRank == 0 )
         Output("  LDL apply time: ",timer.Stop()," secs");
-    if( commRank == 0 )
+    if( time && commRank == 0 )
         timer.Start();
     xNodal.Push( invMap, info, x, meta );
-    if( commRank == 0 )
+    if( time && commRank == 0 )
         Output("  DistMultiVecNode push: ",timer.Stop()," secs");
     DiagonalSolve( LEFT, NORMAL, d, x );
 
@@ -665,13 +665,21 @@ inline Int RegularizedSolveAfterNoPromote
             // Compute the proposed update to the solution
             // -------------------------------------------
             DiagonalSolve( LEFT, NORMAL, d, b );
+            if( time && commRank == 0 )
+                timer.Start();
             xNodal.Pull( invMap, info, b, meta );
+            if( time && commRank == 0 )
+                Output("  DistMultiVecNode pull: ",timer.Stop()," secs");
             if( time && commRank == 0 )
                 timer.Start();
             ldl::SolveAfter( info, front, xNodal );
             if( time && commRank == 0 )
                 Output("  LDL apply time: ",timer.Stop()," secs");
+            if( time && commRank == 0 )
+                timer.Start();
             xNodal.Push( invMap, info, dx, meta );
+            if( time && commRank == 0 )
+                Output("  DistMultiVecNode push: ",timer.Stop()," secs");
             DiagonalSolve( LEFT, NORMAL, d, dx );
             xCand = x;
             xCand += dx;
@@ -2171,9 +2179,13 @@ Int FGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2269,8 +2281,6 @@ Int FGMRESSolveAfter
 
             // Run the j'th step of Arnoldi
             // ----------------------------
-            if( time )
-                timer.Start();
             for( Int i=0; i<=j; ++i )
             {
                 // H(i,j) := v_i' w
@@ -2295,8 +2305,6 @@ Int FGMRESSolveAfter
                 vjp1 = w;
                 vjp1 *= 1/delta;
             }
-            if( time )
-                Output("Arnoldi took ",timer.Stop()," secs");
 
             // Apply existing rotations to the new column of H
             // -----------------------------------------------
@@ -2314,8 +2322,6 @@ Int FGMRESSolveAfter
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            if( time )
-                timer.Start();
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
             if( std::isnan(RealPart(eta_j_j))   || 
@@ -2354,8 +2360,6 @@ Int FGMRESSolveAfter
                 const F eta_i = y.Get(i,0);
                 Axpy( eta_i, Z( ALL, IR(i) ), x );
             }
-            if( time )
-                Output("expansion took ",timer.Stop()," secs");
 
             // w := b - A x
             // ------------
@@ -2410,9 +2414,13 @@ Int FGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2621,9 +2629,13 @@ Int FGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2729,8 +2741,6 @@ Int FGMRESSolveAfter
 
             // Run the j'th step of Arnoldi
             // ----------------------------
-            if( time && commRank == 0 )
-                timer.Start();
             for( Int i=0; i<=j; ++i )
             {
                 // H(i,j) := v_i' w
@@ -2755,8 +2765,6 @@ Int FGMRESSolveAfter
                 v_jp1Loc = w.Matrix();
                 v_jp1Loc *= 1/delta;
             }
-            if( time && commRank == 0 )
-                Output("Arnoldi took ",timer.Stop()," secs");
 
             // Apply existing rotations to the new column of H
             // -----------------------------------------------
@@ -2774,8 +2782,6 @@ Int FGMRESSolveAfter
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            if( time && commRank == 0 )
-                timer.Start();
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
             if( std::isnan(RealPart(eta_j_j))   || 
@@ -2814,8 +2820,6 @@ Int FGMRESSolveAfter
                 const F eta_i = y.Get(i,0);
                 Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
             }
-            if( time && commRank == 0 )
-                Output("expansion took ",timer.Stop()," secs");
 
             // w := b - A x
             // ------------
@@ -2870,9 +2874,13 @@ Int FGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
     typedef Base<F> Real;
@@ -2978,8 +2986,6 @@ Int FGMRESSolveAfter
 
             // Run the j'th step of Arnoldi
             // ----------------------------
-            if( time && commRank == 0 )
-                timer.Start();
             for( Int i=0; i<=j; ++i )
             {
                 // H(i,j) := v_i' w
@@ -3004,8 +3010,6 @@ Int FGMRESSolveAfter
                 v_jp1Loc = w.Matrix();
                 v_jp1Loc *= 1/delta;
             }
-            if( time && commRank == 0 )
-                Output("Arnoldi took ",timer.Stop()," secs");
 
             // Apply existing rotations to the new column of H
             // -----------------------------------------------
@@ -3023,8 +3027,6 @@ Int FGMRESSolveAfter
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            if( time && commRank == 0 )
-                timer.Start();
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
             if( std::isnan(RealPart(eta_j_j))   || 
@@ -3063,8 +3065,6 @@ Int FGMRESSolveAfter
                 const F eta_i = y.Get(i,0);
                 Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
             }
-            if( time && commRank == 0 )
-                Output("expansion took ",timer.Stop()," secs");
 
             // w := b - A x
             // ------------
