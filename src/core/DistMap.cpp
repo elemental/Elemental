@@ -274,11 +274,17 @@ void InvertMap( const DistMap& map, DistMap& inverseMap )
     const int commSize = mpi::Size( comm );
     const Int numLocalSources = map.NumLocalSources();
     const vector<Int>& localMap = map.Map();
+    const Int firstLocalSource = map.FirstLocalSource();
+
+    // TODO: Allow this to be cached?
+    vector<int> owners(numLocalSources);
+    for( Int s=0; s<numLocalSources; ++s )
+        owners[s] = map.RowOwner(localMap[s]);
 
     // How many pairs of original and mapped indices to send to each process
     vector<int> sendSizes( commSize, 0 );
     for( Int s=0; s<numLocalSources; ++s )
-        sendSizes[map.RowOwner(localMap[s])] += 2;
+        sendSizes[owners[s]] += 2;
 
     // Coordinate all of the processes on their send sizes
     vector<int> recvSizes( commSize );
@@ -301,8 +307,8 @@ void InvertMap( const DistMap& map, DistMap& inverseMap )
     for( Int s=0; s<numLocalSources; ++s )
     {
         const Int i = localMap[s];
-        const int q = map.RowOwner(i);
-        sends[offs[q]++] = s + map.FirstLocalSource();
+        const int q = owners[s];
+        sends[offs[q]++] = s + firstLocalSource;
         sends[offs[q]++] = i;
     }
 
@@ -315,11 +321,12 @@ void InvertMap( const DistMap& map, DistMap& inverseMap )
     // Form our part of the inverse map
     inverseMap.SetComm( comm );
     inverseMap.Resize( map.NumSources() );
+    Int* invMapBuf = inverseMap.Buffer();
     for( Int s=0; s<numRecvs; s+=2 )
     {
         const Int origInd = recvs[s];
         const Int mappedInd = recvs[s+1];
-        inverseMap.SetLocal( mappedInd-map.FirstLocalSource(), origInd );
+        invMapBuf[mappedInd-firstLocalSource] = origInd;
     }
 }
 

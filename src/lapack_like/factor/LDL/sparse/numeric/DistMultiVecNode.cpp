@@ -102,17 +102,18 @@ void DistMultiVecNode<T>::Pull
     function<void(const NodeInfo&,MatrixNode<T>&)> localCount =
       [&]( const NodeInfo& node, MatrixNode<T>& XNode )
       {
-        // Delete any existing children
-        for( auto* childNode : XNode.children )
-            delete childNode;
-
         const Int numChildren = node.children.size();
-        XNode.children.resize(numChildren);
-        for( Int c=0; c<numChildren; ++c )
+        if( XNode.children.size() != node.children.size() )
         {
-            XNode.children[c] = new MatrixNode<T>(&XNode);
-            localCount( *node.children[c], *XNode.children[c] );
+            for( auto* childNode : XNode.children )
+                delete childNode;
+            XNode.children.resize(numChildren);
+            for( Int c=0; c<numChildren; ++c )
+                XNode.children[c] = new MatrixNode<T>(&XNode);
         }
+
+        for( Int c=0; c<numChildren; ++c )
+            localCount( *node.children[c], *XNode.children[c] );
 
         XNode.matrix.Resize( node.size, width );
         numRecvInds += node.size;
@@ -122,21 +123,34 @@ void DistMultiVecNode<T>::Pull
       {
         if( node.child == nullptr )
         {
-            delete XNode.duplicate;
-            XNode.duplicate = new MatrixNode<T>(&XNode);
+            DEBUG_ONLY(
+              if( XNode.child != nullptr )
+                  LogicError("Child should have been a nullptr");
+            )
+            if( XNode.duplicate == nullptr )
+                XNode.duplicate = new MatrixNode<T>(&XNode);
             localCount( *node.duplicate, *XNode.duplicate );
 
             XNode.matrix.Attach( *node.grid, XNode.duplicate->matrix );
-
             return;
         }
-        delete XNode.child;
-        XNode.child = new DistMultiVecNode<T>(&XNode);
+
+        DEBUG_ONLY(
+          if( XNode.duplicate != nullptr )
+              LogicError("Duplicate should have been a nullptr");
+        )
+        if( XNode.child == nullptr )
+            XNode.child = new DistMultiVecNode<T>(&XNode);
         count( *node.child, *XNode.child );
 
-        XNode.commMeta.Empty();
-        XNode.matrix.SetGrid( *node.grid );
-        XNode.matrix.Resize( node.size, width );
+        if( XNode.matrix.Grid() != *node.grid ||
+            XNode.matrix.Height() != node.size ||
+            XNode.matrix.Width() != width )
+        {
+            XNode.commMeta.Empty();
+            XNode.matrix.SetGrid( *node.grid );
+            XNode.matrix.Resize( node.size, width );
+        }
         numRecvInds += XNode.matrix.LocalHeight();
       };
     count( info, *this );
@@ -270,26 +284,6 @@ void DistMultiVecNode<T>::Pull
       if( off != numRecvInds )
           LogicError("Unpacked wrong number of indices");
     )
-}
-
-template<typename T>
-Int DistMultiVecNode<T>::LocalHeight() const
-{
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::LocalHeight"))
-    Int localHeight = 0;
-    function<void(const DistMultiVecNode<T>&)> count = 
-      [&]( const DistMultiVecNode<T>& node )
-      {
-        if( node.child == nullptr )
-        {
-            localHeight += node.duplicate->Height();
-            return;
-        }
-        count( *node.child );
-        localHeight += node.matrix.LocalHeight();
-      };
-    count( *this );
-    return localHeight;
 }
 
 template<typename T>
@@ -454,6 +448,26 @@ void DistMultiVecNode<T>::Push
         for( Int j=0; j<width; ++j )
             XBuf[iLoc+j*XLDim] = recvVals[s*width+j];
     }
+}
+
+template<typename T>
+Int DistMultiVecNode<T>::LocalHeight() const
+{
+    DEBUG_ONLY(CSE cse("DistMultiVecNode::LocalHeight"))
+    Int localHeight = 0;
+    function<void(const DistMultiVecNode<T>&)> count = 
+      [&]( const DistMultiVecNode<T>& node )
+      {
+        if( node.child == nullptr )
+        {
+            localHeight += node.duplicate->Height();
+            return;
+        }
+        count( *node.child );
+        localHeight += node.matrix.LocalHeight();
+      };
+    count( *this );
+    return localHeight;
 }
 
 template<typename T>
