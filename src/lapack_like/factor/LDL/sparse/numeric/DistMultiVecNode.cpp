@@ -90,13 +90,8 @@ void DistMultiVecNode<T>::Pull
   const DistMultiVec<T>& X )
 {
     DEBUG_ONLY(CSE cse("DistMultiVecNode::Pull"))
-    vector<Int> sendInds, recvInds;
-    vector<int> mappedOwners,
-                sendSizes, sendOffs,
-                recvSizes, recvOffs;
-    Pull
-    ( invMap, info, X, sendInds, recvInds, mappedOwners,
-      sendSizes, sendOffs, recvSizes, recvOffs );
+    DistMultiVecNodeMeta meta;
+    Pull( invMap, info, X, meta );
 }
 
 template<typename T>
@@ -104,13 +99,7 @@ void DistMultiVecNode<T>::Pull
 ( const DistMap& invMap,
   const DistNodeInfo& info,
   const DistMultiVec<T>& X,
-        vector<Int>& sendInds,
-        vector<Int>& recvInds,
-        vector<int>& mappedOwners,
-        vector<int>& sendSizes,
-        vector<int>& sendOffs,
-        vector<int>& recvSizes,
-        vector<int>& recvOffs )
+        DistMultiVecNodeMeta& meta )
 {
     DEBUG_ONLY(CSE cse("DistMultiVecNode::Pull"))
     const Int width = X.Width();
@@ -175,10 +164,10 @@ void DistMultiVecNode<T>::Pull
     init( info, *this );
 
     const Int numRecvInds = LocalHeight();
-    if( sendInds.size() == 0 || recvInds.size() == 0 ||
-        mappedOwners.size() == 0 ||
-        sendSizes.size() == 0 || sendOffs.size() == 0 ||
-        recvSizes.size() == 0 || recvOffs.size() == 0 )
+    if( meta.sendInds.size() == 0 || meta.recvInds.size() == 0 ||
+        meta.mappedOwners.size() == 0 ||
+        meta.sendSizes.size() == 0 || meta.sendOffs.size() == 0 ||
+        meta.recvSizes.size() == 0 || meta.recvOffs.size() == 0 )
     {
         // Pack the indices for mapping to the original ordering
         Int off = 0;
@@ -216,58 +205,60 @@ void DistMultiVecNode<T>::Pull
         // TODO: Consider passing in a pre-built origOwners
         invMap.Translate( mappedInds );
 
-        mappedOwners.resize( numRecvInds );
+        meta.mappedOwners.resize( numRecvInds );
         for( int s=0; s<numRecvInds; ++s )
-            mappedOwners[s] = X.RowOwner(mappedInds[s]);
+            meta.mappedOwners[s] = X.RowOwner(mappedInds[s]);
 
         // Figure out how many entries each process owns that we need
-        recvSizes.resize( commSize ); 
+        meta.recvSizes.resize( commSize ); 
         for( int q=0; q<commSize; ++q )
-            recvSizes[q] = 0;
+            meta.recvSizes[q] = 0;
         for( int s=0; s<numRecvInds; ++s )
-            ++recvSizes[mappedOwners[s]];
-        Scan( recvSizes, recvOffs );
-        recvInds.resize( numRecvInds );
-        auto offs = recvOffs;
+            ++meta.recvSizes[meta.mappedOwners[s]];
+        Scan( meta.recvSizes, meta.recvOffs );
+        meta.recvInds.resize( numRecvInds );
+        auto offs = meta.recvOffs;
         for( int s=0; s<numRecvInds; ++s )
-            recvInds[offs[mappedOwners[s]]++] = mappedInds[s];
+            meta.recvInds[offs[meta.mappedOwners[s]]++] = mappedInds[s];
 
         // Coordinate for the coming AllToAll to exchange the indices of X
-        sendSizes.resize( commSize );
-        mpi::AllToAll( recvSizes.data(), 1, sendSizes.data(), 1, comm );
-        const int numSendInds = Scan( sendSizes, sendOffs );
+        meta.sendSizes.resize( commSize );
+        mpi::AllToAll
+        ( meta.recvSizes.data(), 1, meta.sendSizes.data(), 1, comm );
+        const int numSendInds = Scan( meta.sendSizes, meta.sendOffs );
 
         // Request the indices
-        sendInds.resize( numSendInds );
+        meta.sendInds.resize( numSendInds );
         mpi::AllToAll
-        ( recvInds.data(), recvSizes.data(), recvOffs.data(),
-          sendInds.data(), sendSizes.data(), sendOffs.data(), comm );
+        ( meta.recvInds.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+          meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+          comm );
     }
 
     // Fulfill the requests
-    const Int numSendInds = sendInds.size();
+    const Int numSendInds = meta.sendInds.size();
     vector<T> sendVals( numSendInds*width );
     for( Int s=0; s<numSendInds; ++s )
         for( Int j=0; j<width; ++j )
-            sendVals[s*width+j] = XBuf[sendInds[s]-firstLocalRow+j*XLDim];
+            sendVals[s*width+j] = XBuf[meta.sendInds[s]-firstLocalRow+j*XLDim];
 
     // Reply with the values
     vector<T> recvVals( numRecvInds*width );
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] *= width;
-        sendOffs[q] *= width;
-        recvSizes[q] *= width;
-        recvOffs[q] *= width;
+        meta.sendSizes[q] *= width;
+        meta.sendOffs[q] *= width;
+        meta.recvSizes[q] *= width;
+        meta.recvOffs[q] *= width;
     }
     mpi::AllToAll
-    ( sendVals.data(), sendSizes.data(), sendOffs.data(),
-      recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
+    ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), comm );
     SwapClear( sendVals );
 
     // Unpack the values
     Int off = 0;
-    auto offs = recvOffs;
+    auto offs = meta.recvOffs;
     function<void(const NodeInfo&,MatrixNode<T>&)> localUnpack =
       [&]( const NodeInfo& node, MatrixNode<T>& XNode )
       {
@@ -279,7 +270,7 @@ void DistMultiVecNode<T>::Pull
         const Int XNodeLDim = XNode.matrix.LDim();
         for( Int t=0; t<node.size; ++t )
         {
-            const int q = mappedOwners[off++];
+            const int q = meta.mappedOwners[off++];
             for( Int j=0; j<width; ++j )
                 XNodeBuf[t+j*XNodeLDim] = recvVals[offs[q]++];
         }
@@ -299,7 +290,7 @@ void DistMultiVecNode<T>::Pull
         const Int XNodeLDim = XNode.matrix.LDim();
         for( Int tLoc=0; tLoc<localHeight; ++tLoc )
         {
-            const int q = mappedOwners[off++];
+            const int q = meta.mappedOwners[off++];
             for( Int j=0; j<width; ++j )
                 XNodeBuf[tLoc+j*XNodeLDim] = recvVals[offs[q]++];
         }
@@ -313,10 +304,10 @@ void DistMultiVecNode<T>::Pull
     // Exit with the sizes/offsets calibrated to a single right-hand side
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] /= width;
-        sendOffs[q] /= width;
-        recvSizes[q] /= width;
-        recvOffs[q] /= width;
+        meta.sendSizes[q] /= width;
+        meta.sendOffs[q] /= width;
+        meta.recvSizes[q] /= width;
+        meta.recvOffs[q] /= width;
     }
 }
 
@@ -327,11 +318,8 @@ void DistMultiVecNode<T>::Push
         DistMultiVec<T>& X ) const
 {
     DEBUG_ONLY(CSE cse("DistMultiVecNode::Push"))
-    std::vector<Int> sendInds, recvInds;
-    std::vector<int> mappedOwners, sendSizes, sendOffs, recvSizes, recvOffs; 
-    Push
-    ( invMap, info, X, sendInds, recvInds,
-      mappedOwners, sendSizes, sendOffs, recvSizes, recvOffs );
+    DistMultiVecNodeMeta meta;
+    Push( invMap, info, X, meta );
 }
 
 template<typename T>
@@ -339,13 +327,7 @@ void DistMultiVecNode<T>::Push
 ( const DistMap& invMap,
   const DistNodeInfo& info,
         DistMultiVec<T>& X,
-        std::vector<Int>& sendInds,
-        std::vector<Int>& recvInds,
-        std::vector<int>& mappedOwners,
-        std::vector<int>& sendSizes,
-        std::vector<int>& sendOffs,
-        std::vector<int>& recvSizes,
-        std::vector<int>& recvOffs ) const
+        DistMultiVecNodeMeta& meta ) const
 {
     DEBUG_ONLY(CSE cse("DistMultiVecNode::Push"))
     const Int height = info.size + info.off;
@@ -362,10 +344,10 @@ void DistMultiVecNode<T>::Push
     // Fill the set of indices that we need to map to the original ordering
     const int numSendInds = LocalHeight();
 
-    if( sendInds.size() == 0 || recvInds.size() == 0 ||
-        mappedOwners.size() == 0 ||
-        sendSizes.size() == 0 || sendOffs.size() == 0 ||
-        recvSizes.size() == 0 || recvOffs.size() == 0 )
+    if( meta.sendInds.size() == 0 || meta.recvInds.size() == 0 ||
+        meta.mappedOwners.size() == 0 ||
+        meta.sendSizes.size() == 0 || meta.sendOffs.size() == 0 ||
+        meta.recvSizes.size() == 0 || meta.recvOffs.size() == 0 )
     {
         std::vector<Int> mappedInds( numSendInds );
         {
@@ -406,23 +388,23 @@ void DistMultiVecNode<T>::Push
         // TODO: Consider passing in a pre-built origOwners
         invMap.Translate( mappedInds );
 
-        mappedOwners.resize( numSendInds );
+        meta.mappedOwners.resize( numSendInds );
         for( Int s=0; s<numSendInds; ++s )
-            mappedOwners[s] = X.RowOwner(mappedInds[s]);
+            meta.mappedOwners[s] = X.RowOwner(mappedInds[s]);
 
         // Figure out how many indices each process owns that we need to send
-        sendSizes.resize( commSize );
+        meta.sendSizes.resize( commSize );
         for( int q=0; q<commSize; ++q )
-            sendSizes[q] = 0;
+            meta.sendSizes[q] = 0;
         for( Int s=0; s<numSendInds; ++s )
-            ++sendSizes[mappedOwners[s]];
-        Scan( sendSizes, sendOffs );
+            ++meta.sendSizes[meta.mappedOwners[s]];
+        Scan( meta.sendSizes, meta.sendOffs );
 
         // Pack the send indices
-        sendInds.resize( numSendInds );
+        meta.sendInds.resize( numSendInds );
         {
             Int off=0;
-            auto offs = sendOffs;
+            auto offs = meta.sendOffs;
 
             function<void(const NodeInfo&,const MatrixNode<T>&)> localPackInds =
               [&]( const NodeInfo& node, const MatrixNode<T>& XNode )
@@ -436,8 +418,8 @@ void DistMultiVecNode<T>::Push
                 for( Int t=0; t<node.size; ++t )
                 {
                     const Int i = mappedInds[off];
-                    const int q = mappedOwners[off++];
-                    sendInds[offs[q]++] = i;
+                    const int q = meta.mappedOwners[off++];
+                    meta.sendInds[offs[q]++] = i;
                 }
               };
             function<void(const DistNodeInfo&,const DistMultiVecNode<T>&)> 
@@ -457,35 +439,37 @@ void DistMultiVecNode<T>::Push
                 for( Int tLoc=0; tLoc<localHeight; ++tLoc )
                 {
                     const Int i = mappedInds[off];
-                    const int q = mappedOwners[off++];
-                    sendInds[offs[q]++] = i;
+                    const int q = meta.mappedOwners[off++];
+                    meta.sendInds[offs[q]++] = i;
                 }
               };
             packInds( info, *this );
         }
 
         // Coordinate for the coming AllToAll to exchange the indices of x
-        recvSizes.resize( commSize );
-        mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
-        const int numRecvInds = Scan( recvSizes, recvOffs );
+        meta.recvSizes.resize( commSize );
+        mpi::AllToAll
+        ( meta.sendSizes.data(), 1, meta.recvSizes.data(), 1, comm );
+        const int numRecvInds = Scan( meta.recvSizes, meta.recvOffs );
         DEBUG_ONLY(
           if( numRecvInds != X.LocalHeight() )
               LogicError("numRecvInds was not equal to local height");
         )
 
         // Send the indices
-        recvInds.resize( numRecvInds );
+        meta.recvInds.resize( numRecvInds );
         mpi::AllToAll
-        ( sendInds.data(), sendSizes.data(), sendOffs.data(),
-          recvInds.data(), recvSizes.data(), recvOffs.data(), comm );
+        ( meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+          meta.recvInds.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+          comm );
     }
 
     // Pack the send values
-    const Int numRecvInds = recvInds.size();
+    const Int numRecvInds = meta.recvInds.size();
     vector<T> sendVals( numSendInds*width );
     {
         Int off=0;
-        auto offs = sendOffs;
+        auto offs = meta.sendOffs;
         function<void(const NodeInfo&,const MatrixNode<T>&)> localPack = 
           [&]( const NodeInfo& node, const MatrixNode<T>& XNode )
           {
@@ -497,7 +481,7 @@ void DistMultiVecNode<T>::Push
             const Int XNodeLDim = XNode.matrix.LDim();
             for( Int t=0; t<node.size; ++t )
             {
-                const int q = mappedOwners[off++];
+                const int q = meta.mappedOwners[off++];
                 for( Int j=0; j<width; ++j )
                     sendVals[offs[q]*width+j] = XNodeBuf[t+j*XNodeLDim];
                 offs[q]++;
@@ -519,7 +503,7 @@ void DistMultiVecNode<T>::Push
             const Int XNodeLDim = XNode.matrix.LDim();
             for( Int tLoc=0; tLoc<localHeight; ++tLoc )
             {
-                const int q = mappedOwners[off++];
+                const int q = meta.mappedOwners[off++];
                 for( Int j=0; j<width; ++j )
                     sendVals[offs[q]*width+j] = XNodeBuf[tLoc+j*XNodeLDim];
                 offs[q]++;
@@ -532,20 +516,20 @@ void DistMultiVecNode<T>::Push
     vector<T> recvVals( numRecvInds*width );
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] *= width;
-        sendOffs[q] *= width;
-        recvSizes[q] *= width;
-        recvOffs[q] *= width;
+        meta.sendSizes[q] *= width;
+        meta.sendOffs[q] *= width;
+        meta.recvSizes[q] *= width;
+        meta.recvOffs[q] *= width;
     }
     mpi::AllToAll
-    ( sendVals.data(), sendSizes.data(), sendOffs.data(),
-      recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
+    ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), comm );
     SwapClear( sendVals );
 
     // Unpack the values
     for( Int s=0; s<numRecvInds; ++s )
     {
-        const Int i = recvInds[s];
+        const Int i = meta.recvInds[s];
         const Int iLoc = i - firstLocalRow;
         for( Int j=0; j<width; ++j )
             XBuf[iLoc+j*XLDim] = recvVals[s*width+j];
@@ -553,10 +537,10 @@ void DistMultiVecNode<T>::Push
 
     for( int q=0; q<commSize; ++q )
     {
-        sendSizes[q] /= width;
-        sendOffs[q] /= width;
-        recvSizes[q] /= width;
-        recvOffs[q] /= width;
+        meta.sendSizes[q] /= width;
+        meta.sendOffs[q] /= width;
+        meta.recvSizes[q] /= width;
+        meta.recvOffs[q] /= width;
     }
 }
 

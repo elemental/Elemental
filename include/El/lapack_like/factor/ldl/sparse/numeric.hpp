@@ -97,6 +97,17 @@ struct MultiVecCommMeta
     }
 };
 
+struct DistMultiVecNodeMeta
+{
+    vector<Int> sendInds;
+    vector<Int> recvInds;
+    vector<int> mappedOwners;
+    vector<int> sendSizes;
+    vector<int> sendOffs;
+    vector<int> recvSizes;
+    vector<int> recvOffs;
+};
+
 // For handling a set of vectors distributed in a [VC,* ] manner over each node
 // of the elimination tree
 template<typename T>
@@ -132,14 +143,7 @@ struct DistMultiVecNode
     ( const DistMap& invMap,
       const DistNodeInfo& info,
       const DistMultiVec<T>& X,
-            vector<Int>& sendInds,
-            vector<Int>& recvInds,
-            vector<int>& mappedOwners,
-            vector<int>& sendSizes,
-            vector<int>& sendOffs,
-            vector<int>& recvSizes,
-            vector<int>& recvOffs );
-
+            DistMultiVecNodeMeta& meta );
     void Push
     ( const DistMap& invMap,
       const DistNodeInfo& info,
@@ -148,13 +152,7 @@ struct DistMultiVecNode
     ( const DistMap& invMap,
       const DistNodeInfo& info,
             DistMultiVec<T>& X,
-            std::vector<Int>& sendInds,
-            std::vector<Int>& recvInds,
-            std::vector<int>& mappedOwners,
-            std::vector<int>& sendSizes,
-            std::vector<int>& sendOffs,
-            std::vector<int>& recvSizes,
-            std::vector<int>& recvOffs ) const;
+            DistMultiVecNodeMeta& meta ) const;
 
     Int LocalHeight() const;
     void ComputeCommMeta( const DistNodeInfo& info ) const;
