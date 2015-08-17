@@ -114,7 +114,8 @@ struct DistMultiVecNode
     DistMultiVecNode( DistMultiVecNode<T>* parentNode=nullptr );
 
     DistMultiVecNode
-    ( const DistMap& invMap, const DistNodeInfo& info,
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
       const DistMultiVec<T>& X );
 
     DistMultiVecNode( const DistMatrixNode<T>& X );
@@ -123,15 +124,39 @@ struct DistMultiVecNode
 
     const DistMultiVecNode<T>& operator=( const DistMatrixNode<T>& X );
 
-    Int LocalHeight() const;
-
     void Pull
-    ( const DistMap& invMap, const DistNodeInfo& info,
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
       const DistMultiVec<T>& X );
-    void Push
-    ( const DistMap& invMap, const DistNodeInfo& info,
-            DistMultiVec<T>& X ) const;
+    void Pull
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
+      const DistMultiVec<T>& X,
+            vector<Int>& sendInds,
+            vector<Int>& recvInds,
+            vector<int>& mappedOwners,
+            vector<int>& sendSizes,
+            vector<int>& sendOffs,
+            vector<int>& recvSizes,
+            vector<int>& recvOffs );
 
+    void Push
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
+            DistMultiVec<T>& X ) const;
+    void Push
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
+            DistMultiVec<T>& X,
+            std::vector<Int>& sendInds,
+            std::vector<Int>& recvInds,
+            std::vector<int>& mappedOwners,
+            std::vector<int>& sendSizes,
+            std::vector<int>& sendOffs,
+            std::vector<int>& recvSizes,
+            std::vector<int>& recvOffs ) const;
+
+    Int LocalHeight() const;
     void ComputeCommMeta( const DistNodeInfo& info ) const;
 };
 
