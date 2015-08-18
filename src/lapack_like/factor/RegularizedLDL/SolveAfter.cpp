@@ -2372,6 +2372,11 @@ Int FGMRESSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+
+    // Avoid half of the matrix-vector products by keeping the results of 
+    // A z_j and A x_0
+    const bool saveProducts = true;
+
     typedef Base<F> Real;
     const Int n = A.Height();
     Timer iterTimer, timer;
@@ -2380,6 +2385,14 @@ Int FGMRESSolveAfter
     // ======
     Matrix<F> x;
     Zeros( x, n, 1 );
+
+    Matrix<F> Ax0;
+    if( saveProducts )
+    {
+        // A x_0 := 0
+        // ==========
+        Zeros( Ax0, n, 1 );
+    }
 
     // w := b (= b - A x_0)
     // ====================
@@ -2397,7 +2410,7 @@ Int FGMRESSolveAfter
     bool converged = false;
     Matrix<Real> cs;
     Matrix<F> sn, H, t;
-    Matrix<F> x0, V, Z;
+    Matrix<F> x0, V, Z, AZ, q;
     while( !converged )
     {
         if( progress )
@@ -2409,10 +2422,14 @@ Int FGMRESSolveAfter
         Zeros( H,  restart, restart );
         Zeros( V, n, restart );
         Zeros( Z, n, restart );
+        if( saveProducts )
+            Zeros( AZ, n, restart );
         
         // x0 := x
         // =======
         x0 = x;
+        if( saveProducts && iter != 0 )
+            Ax0 = q;
 
         // NOTE: w = b - A x already
 
@@ -2462,6 +2479,11 @@ Int FGMRESSolveAfter
             Multiply( NORMAL, F(1), A, zj, F(0), w );
             if( time )
                 Output("mat-vec took ",timer.Stop()," secs");
+            if( saveProducts )
+            {
+                auto Azj = AZ( ALL, IR(j) );
+                Azj = w;
+            }
 
             // Run the j'th step of Arnoldi
             // ----------------------------
@@ -2539,18 +2561,31 @@ Int FGMRESSolveAfter
             // x := x0 + Zj y
             // ^^^^^^^^^^^^^^
             x = x0;
-            for( Int i=0; i<=j; ++i )
-            {
-                const F eta_i = y.Get(i,0);
-                Axpy( eta_i, Z( ALL, IR(i) ), x );
-            }
+            auto Zj = Z( ALL, IR(0,j+1) );
+            auto yj = y( IR(0,j+1), ALL );
+            Gemv( NORMAL, F(1), Zj, yj, F(1), x );
 
             // w := b - A x
             // ------------
             if( time )
                 timer.Start();
             w = b;
-            Multiply( NORMAL, F(-1), A, x, F(1), w );
+            if( saveProducts )
+            {
+                // q := Ax = Ax0 + A Z_j y_j
+                // ^^^^^^^^^^^^^^^^^^^^^^^^^
+                q = Ax0;
+                auto AZj = AZ( ALL, IR(0,j+1) );
+                Gemv( NORMAL, F(1), AZj, yj, F(1), q );
+
+                // w := b - A x
+                // ^^^^^^^^^^^^
+                w -= q;
+            }
+            else
+            {
+                Multiply( NORMAL, F(-1), A, x, F(1), w );
+            }
             if( time )
                 Output("mat-vec took ",timer.Stop()," secs");
 
@@ -2607,6 +2642,11 @@ Int FGMRESSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+
+    // Avoid half of the matrix-vector products by keeping the results of
+    // A z_j and A x_0
+    const bool saveProducts = true;
+
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -2614,6 +2654,14 @@ Int FGMRESSolveAfter
     // ======
     Matrix<F> x;
     Zeros( x, n, 1 );
+
+    Matrix<F> Ax0;
+    if( saveProducts )
+    {
+        // A x_0 := 0
+        // ==========
+        Zeros( Ax0, n, 1 );
+    }
 
     // w := b (= b - A x_0)
     // ====================
@@ -2630,7 +2678,7 @@ Int FGMRESSolveAfter
     bool converged = false;
     Matrix<Real> cs;
     Matrix<F> sn, H, t;
-    Matrix<F> x0, V, Z;
+    Matrix<F> x0, V, Z, AZ, q;
     while( !converged )
     {
         if( progress )
@@ -2642,10 +2690,14 @@ Int FGMRESSolveAfter
         Zeros( H,  restart, restart );
         Zeros( V, n, restart );
         Zeros( Z, n, restart );
+        if( saveProducts )
+            Zeros( AZ, n, restart );
         
         // x0 := x
         // =======
         x0 = x;
+        if( saveProducts && iter != 0 )
+            Ax0 = q;
 
         // NOTE: w = b - A x already
 
@@ -2685,6 +2737,11 @@ Int FGMRESSolveAfter
             // w := A z_j
             // ----------
             Multiply( NORMAL, F(1), A, zj, F(0), w );
+            if( saveProducts )
+            {
+                auto Azj = AZ( ALL, IR(j) );
+                Azj = w;
+            }
 
             // Run the j'th step of Arnoldi
             // ----------------------------
@@ -2762,16 +2819,29 @@ Int FGMRESSolveAfter
             // x := x0 + Zj y
             // ^^^^^^^^^^^^^^
             x = x0;
-            for( Int i=0; i<=j; ++i )
-            {
-                const F eta_i = y.Get(i,0);
-                Axpy( eta_i, Z( ALL, IR(i) ), x );
-            }
+            auto Zj = Z( ALL, IR(0,j+1) );
+            auto yj = y( IR(0,j+1), ALL );
+            Gemv( NORMAL, F(1), Zj, yj, F(1), x );
 
             // w := b - A x
             // ------------
             w = b;
-            Multiply( NORMAL, F(-1), A, x, F(1), w );
+            if( saveProducts )
+            {
+                // q := A x = Ax0 + A Z_j y_j
+                // ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                q = Ax0;
+                auto AZj = AZ( ALL, IR(0,j+1) );
+                Gemv( NORMAL, F(1), AZj, yj, F(1), q );
+
+                // w := b - A x
+                // ^^^^^^^^^^^^
+                w -= q;
+            }
+            else
+            {
+                Multiply( NORMAL, F(-1), A, x, F(1), w );
+            }
 
             // Residual checks
             // ---------------
@@ -2823,6 +2893,11 @@ Int FGMRESSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+
+    // Avoid half of the matrix-vector products by keeping the results of
+    // A z_j and A x_0
+    const bool saveProducts = true;
+
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -2833,6 +2908,14 @@ Int FGMRESSolveAfter
     // ======
     DistMultiVec<F> x(comm);
     Zeros( x, n, 1 );
+
+    DistMultiVec<F> Ax0(comm);
+    if( saveProducts )
+    {
+        // A x_0 := 0
+        // ==========
+        Zeros( Ax0, n, 1 );
+    }
 
     // w := b (= b - A x_0)
     // ====================
@@ -2850,18 +2933,27 @@ Int FGMRESSolveAfter
     bool converged = false;
     Matrix<Real> cs;
     Matrix<F> sn, H, t;
-    DistMultiVec<F> x0(comm), q(comm), V(comm), Z(comm);
+    DistMultiVec<F> x0(comm), q(comm), V(comm), Z(comm), AZ(comm);
     while( !converged )
     {
         if( progress && commRank == 0 )
             Output("Starting FGMRES iteration ",iter);
         const Int indent = PushIndent();
 
+        // x0 := x
+        // =======
+        x0 = x;
+        if( saveProducts && iter != 0 )
+            Ax0 = q;
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
         Zeros( V, n, restart );
         Zeros( Z, n, restart );
+        if( saveProducts )
+            Zeros( AZ, n, restart );         
+
         // TODO: Extend DistMultiVec so that it can be directly manipulated
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
@@ -2869,10 +2961,6 @@ Int FGMRESSolveAfter
         auto& ZLoc = Z.Matrix();
         Zeros( q, n, 1 );
         
-        // x0 := x
-        // =======
-        x0 = x;
-
         // NOTE: w = b - A x already
 
         // beta := || w ||_2
@@ -2923,6 +3011,12 @@ Int FGMRESSolveAfter
             Multiply( NORMAL, F(1), A, q, F(0), w );
             if( time && commRank == 0 )
                 Output("mat-vec took ",timer.Stop()," secs");
+            if( saveProducts )
+            {
+                auto& AZLoc = AZ.Matrix();
+                auto AzjLoc = AZLoc( ALL, IR(j) );
+                AzjLoc = w.LockedMatrix();
+            }
 
             // Run the j'th step of Arnoldi
             // ----------------------------
@@ -3000,18 +3094,32 @@ Int FGMRESSolveAfter
             // x := x0 + Zj y
             // ^^^^^^^^^^^^^^
             x = x0;
-            for( Int i=0; i<=j; ++i )
-            {
-                const F eta_i = y.Get(i,0);
-                Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
-            }
+            auto ZjLoc = ZLoc( ALL, IR(0,j+1) );
+            auto yj = y( IR(0,j+1), ALL );
+            Gemv( NORMAL, F(1), ZjLoc, yj, F(1), x.Matrix() );
 
             // w := b - A x
             // ------------
             if( time && commRank == 0 )
                 timer.Start();
             w = b;
-            Multiply( NORMAL, F(-1), A, x, F(1), w );
+            if( saveProducts )
+            {
+                // q := Ax = Ax0 + A Z_j y_j
+                // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                q = Ax0;
+                const auto& AZLoc = AZ.LockedMatrix();
+                auto AZjLoc = AZLoc( ALL, IR(0,j+1) );
+                Gemv( NORMAL, F(1), AZjLoc, yj, F(1), q.Matrix() );
+
+                // w := b - A x
+                // ^^^^^^^^^^^^
+                w -= q;
+            }
+            else
+            {
+                Multiply( NORMAL, F(-1), A, x, F(1), w );
+            }
             if( time && commRank == 0 )
                 Output("mat-vec took ",timer.Stop()," secs");
 
@@ -3093,6 +3201,11 @@ Int FGMRESSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+
+    // Avoid half of the matrix-vector products by keeping the results of
+    // A z_j and A x_0
+    const bool saveProducts = true;
+
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -3103,6 +3216,14 @@ Int FGMRESSolveAfter
     // ======
     DistMultiVec<F> x(comm);
     Zeros( x, n, 1 );
+
+    DistMultiVec<F> Ax0(comm);
+    if( saveProducts )
+    {
+        // A x_0 := 0
+        // ==========
+        Zeros( Ax0, n, 1 );
+    }
 
     // w := b (= b - A x_0)
     // ====================
@@ -3120,18 +3241,27 @@ Int FGMRESSolveAfter
     bool converged = false;
     Matrix<Real> cs;
     Matrix<F> sn, H, t;
-    DistMultiVec<F> x0(comm), q(comm), V(comm), Z(comm);
+    DistMultiVec<F> x0(comm), q(comm), V(comm), Z(comm), AZ(comm);
     while( !converged )
     {
         if( progress && commRank == 0 )
             Output("Starting FGMRES iteration ",iter);
         const Int indent = PushIndent();
 
+        // x0 := x
+        // =======
+        x0 = x;
+        if( saveProducts && iter != 0 )
+            Ax0 = q;
+
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
         Zeros( V, n, restart );
         Zeros( Z, n, restart );
+        if( saveProducts )
+            Zeros( AZ, n, restart );
+
         // TODO: Extend DistMultiVec so that it can be directly manipulated
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
@@ -3139,10 +3269,6 @@ Int FGMRESSolveAfter
         auto& ZLoc = Z.Matrix();
         Zeros( q, n, 1 );
         
-        // x0 := x
-        // =======
-        x0 = x;
-
         // NOTE: w = b - A x already
 
         // beta := || w ||_2
@@ -3193,6 +3319,12 @@ Int FGMRESSolveAfter
             Multiply( NORMAL, F(1), A, q, F(0), w );
             if( time && commRank == 0 )
                 Output("mat-vec took ",timer.Stop()," secs");
+            if( saveProducts )
+            {
+                auto& AZLoc = AZ.Matrix();
+                auto AzjLoc = AZLoc( ALL, IR(j) );
+                AzjLoc = w.LockedMatrix();
+            }
 
             // Run the j'th step of Arnoldi
             // ----------------------------
@@ -3270,18 +3402,32 @@ Int FGMRESSolveAfter
             // x := x0 + Zj y
             // ^^^^^^^^^^^^^^
             x = x0;
-            for( Int i=0; i<=j; ++i )
-            {
-                const F eta_i = y.Get(i,0);
-                Axpy( eta_i, ZLoc( ALL, IR(i) ), x.Matrix() );
-            }
+            auto ZjLoc = ZLoc( ALL, IR(0,j+1) );
+            auto yj = y( IR(0,j+1), ALL );
+            Gemv( NORMAL, F(1), ZjLoc, yj, F(1), x.Matrix() );
 
             // w := b - A x
             // ------------
             if( time && commRank == 0 )
                 timer.Start();
             w = b;
-            Multiply( NORMAL, F(-1), A, x, F(1), w );
+            if( saveProducts )
+            {
+                // q := Ax = Ax0 + A Z_j y_j
+                // ^^^^^^^^^^^^^^^^^^^^^^^^^
+                q = Ax0;
+                const auto& AZLoc = AZ.LockedMatrix();
+                auto AZjLoc = AZLoc( ALL, IR(0,j+1) );
+                Gemv( NORMAL, F(1), AZjLoc, yj, F(1), q.Matrix() );
+
+                // w := b - A x
+                // ^^^^^^^^^^^^
+                w -= q;
+            }
+            else
+            {
+                Multiply( NORMAL, F(-1), A, x, F(1), w );
+            }
             if( time && commRank == 0 )
                 Output("mat-vec took ",timer.Stop()," secs");
 
