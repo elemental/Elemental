@@ -1288,7 +1288,6 @@ void Mehrotra
     const Int n = A.Width();
     const Int degree = SOCDegree( firstInds );
     mpi::Comm comm = APre.Comm();
-    const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
     Timer timer, iterTimer;
 

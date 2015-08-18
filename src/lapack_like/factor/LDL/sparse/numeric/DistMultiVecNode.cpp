@@ -544,8 +544,6 @@ void DistMultiVecNodeMeta::Initialize
         for( Int c=0; c<numChildren; ++c )
             localPackInds( *node.children[c], *XNode.children[c] );
 
-        const T* XNodeBuf = XNode.matrix.LockedBuffer();
-        const Int XNodeLDim = XNode.matrix.LDim();
         for( Int t=0; t<node.size; ++t )
         {
             const Int i = mappedInds[off];
@@ -565,8 +563,6 @@ void DistMultiVecNodeMeta::Initialize
         packInds( *node.child, *XNode.child );
     
         const Int localHeight = XNode.matrix.LocalHeight();
-        const T* XNodeBuf = XNode.matrix.LockedBuffer();
-        const Int XNodeLDim = XNode.matrix.LDim();
         for( Int tLoc=0; tLoc<localHeight; ++tLoc )
         {
             const Int i = mappedInds[off];

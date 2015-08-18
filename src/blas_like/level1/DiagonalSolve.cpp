@@ -195,7 +195,7 @@ void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
         const Real deltaRow = dBuf[i];
         const Real deltaCol = dBuf[j];
         DEBUG_ONLY(
-          if( checkIfSingular && deltaRow*deltaCol == Real(0) )
+          if( deltaRow*deltaCol == Real(0) )
               throw SingularMatrixException();
         )
         vBuf[k] /= deltaRow*deltaCol;

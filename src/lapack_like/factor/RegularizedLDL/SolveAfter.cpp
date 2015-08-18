@@ -914,7 +914,7 @@ inline Int RegularizedSolveAfterPromote
     DiagonalSolve( LEFT, NORMAL, d, b );
     if( time && commRank == 0 )
         timer.Start();
-    ldl::DistMultiVecNode<F> xNodal
+    ldl::DistMultiVecNode<F> xNodal;
     xNodal.Pull( invMap, info, b, meta );
     if( time && commRank == 0 )
         Output("  DistMultiVecNode pull: ",timer.Stop()," secs");

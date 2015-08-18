@@ -161,7 +161,6 @@ void ColumnTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     // Form the sums of squares
     // ------------------------
     typedef Base<F> Real;
-    const Int m = A.Height();
     const Int n = A.Width();
     Zeros( norms, n, 1 );
  
@@ -193,7 +192,6 @@ void ColumnMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     // Form the maxima
     // ---------------
     typedef Base<F> Real;
-    const Int m = A.Height();
     const Int n = A.Width();
     Zeros( norms, n, 1 );
 

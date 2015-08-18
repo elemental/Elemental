@@ -239,7 +239,6 @@ Real MaxStepInSOC
     SOCDots( x, Ry, xTRys, orders, firstInds, cutoff );
 
     const Int localHeight = x.LocalHeight();
-    const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
     const PReal* xBuf = x.LockedBuffer();
     const PReal* yBuf = y.LockedBuffer();
@@ -292,7 +291,6 @@ Real MaxStepInSOC
     const Int localHeight = xProm.LocalHeight();
     const Int firstLocalRow = xProm.FirstLocalRow();
 
-    const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
     const PReal* xBuf = xProm.LockedMatrix().LockedBuffer();
     const PReal* yBuf = yProm.LockedMatrix().LockedBuffer();
