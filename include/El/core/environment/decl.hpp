@@ -281,9 +281,8 @@ void RelativeIndices
 ( vector<Int>& relInds, const vector<Int>& sub, const vector<Int>& full );
 vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full );
 
-Int Find
-( const vector<Int>& sortedInds, Int index,
-  string msg="Could not find index" );
+Int Find( const vector<Int>& sortedInds, Int index );
+Int Find( const vector<Int>& sortedInds, Int index, const string& msg );
 
 // TODO: Move this somewhere else or make it obsolete
 inline Int
