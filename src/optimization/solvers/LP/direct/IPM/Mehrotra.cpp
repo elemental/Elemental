@@ -1678,6 +1678,7 @@ void Mehrotra
     Real relError = 1;
     DistMultiVec<Real> dInner(comm);
     DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
+    ldl::DistMultiVecNodeMeta dmvMeta;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -1832,7 +1833,7 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
                   ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
@@ -1889,7 +1890,7 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start(); 
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp, invMap, info, JFront, dyAff, 
+                ( J, regTmp, invMap, info, JFront, dyAff, dmvMeta,
                   ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress, ctrl.solveCtrl.time );
                 if( commRank == 0 && ctrl.time )
@@ -1984,7 +1985,7 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
                   ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
@@ -2007,7 +2008,7 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
                   ctrl.solveCtrl );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
@@ -2030,7 +2031,7 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp, invMap, info, JFront, dy, 
+                ( J, regTmp, invMap, info, JFront, dy, dmvMeta,
                   ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress, ctrl.solveCtrl.time );
                 if( commRank == 0 && ctrl.time )

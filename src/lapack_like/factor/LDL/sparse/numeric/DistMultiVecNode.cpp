@@ -477,7 +477,9 @@ void DistMultiVecNodeMeta::Initialize
         sendOffs.size()     != 0 &&
         recvSizes.size()    != 0 &&
         recvOffs.size()     != 0 )
+    {
         return;
+    }
 
     const Int numSendInds = XNode.LocalHeight();
     mpi::Comm comm = info.comm;

@@ -1433,6 +1433,7 @@ void Mehrotra
     DistMultiVec<Real> dInner(comm);
     DistMultiVec<Real> dxError(comm), dyError(comm), 
                        dzError(comm), dmuError(comm);
+    ldl::DistMultiVecNodeMeta dmvMeta;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -1602,7 +1603,8 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta, 
+              ctrl.solveCtrl );
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
         }
@@ -1733,7 +1735,8 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+            ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+              ctrl.solveCtrl );
             if( commRank == 0 && ctrl.time )
                 Output("Corrector solver: ",timer.Stop()," secs");
         }

@@ -296,6 +296,19 @@ Int RegularizedSolveAfter
         Int maxRefineIts,
         bool progress=false,
         bool time=false );
+template<typename F>
+Int RegularizedSolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& y,
+        ldl::DistMultiVecNodeMeta& meta,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
 
 template<typename F>
 Int RegularizedSolveAfter
@@ -323,6 +336,20 @@ Int RegularizedSolveAfter
         Int maxRefineIts,
         bool progress=false,
         bool time=false );
+template<typename F>
+Int RegularizedSolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& y,
+        ldl::DistMultiVecNodeMeta& meta,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
 
 template<typename F>
 Int SolveAfter
@@ -341,6 +368,16 @@ Int SolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
         DistMultiVec<F>& y,
+  const RegSolveCtrl<Base<F>>& ctrl );
+template<typename F>
+Int SolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& y,
+        ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<F>>& ctrl );
 
 template<typename F>
@@ -362,6 +399,17 @@ Int SolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
         DistMultiVec<F>& y,
+  const RegSolveCtrl<Base<F>>& ctrl );
+template<typename F>
+Int SolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& y,
+        ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<F>>& ctrl );
 
 } // namespace reg_ldl
