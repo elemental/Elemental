@@ -361,7 +361,8 @@ void SOCP
         for( Int iLoc=0; iLoc<xHatLocalHeight; ++iLoc )
         {
             const Int i = xHat.GlobalRow(iLoc);
-            X.QueueUpdate( i-1, j, xHat.GetLocal(iLoc,0) );
+            if( i > 0 )
+                X.QueueUpdate( i-1, j, xHat.GetLocal(iLoc,0) );
         }
         X.ProcessQueues();
     }
