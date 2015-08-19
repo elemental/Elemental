@@ -288,6 +288,45 @@ inline void FrontVanillaLowerForwardSolve
 }
 
 template<typename F>
+inline void FrontVanillaLowerForwardSolve
+( const DistMatrix<F>& L,
+        DistMatrix<F,VC,STAR>& XPre )
+{
+    DEBUG_ONLY(
+      CSE cse("ldl::FrontVanillaLowerForwardSolve");
+      if( L.Grid() != XPre.Grid() )
+          LogicError("L and X must be distributed over the same grid");
+      if( L.Height() < L.Width() || L.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal solve:\n",
+           DimsString(L,"L"),"\n",DimsString(XPre,"X"));
+    )
+    const Grid& g = L.Grid();
+    if( g.Size() == 1 )
+    {
+        FrontVanillaLowerForwardSolve( L.LockedMatrix(), XPre.Matrix() );
+        return;
+    }
+
+    DistMatrix<F> X( XPre );
+
+    // Separate the top and bottom portions of X and L
+    const Int snSize = L.Width();
+    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
+    LockedPartitionDown( L, LT, LB, snSize );
+    PartitionDown( X, XT, XB, snSize );
+
+    // XT := inv(LT) XT
+    // TODO: Replace with TrsmLLNMedium?
+    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
+
+    // XB := XB - LB XT
+    Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
+
+    XPre = X;
+}
+
+template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
   const DistMatrix<Int,VC,STAR>& p,
@@ -624,7 +663,8 @@ inline void FrontBlockLowerForwardSolve
 template<typename F>
 inline void 
 FrontLowerForwardSolve
-( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W )
+( const DistFront<F>& front,
+        DistMatrix<F,VC,STAR>& W )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardSolve"))
     const LDLFrontType type = front.type;
@@ -632,6 +672,8 @@ FrontLowerForwardSolve
     // TODO: Add support for LDL_2D
     if( type == LDL_1D )
         FrontVanillaLowerForwardSolve( front.L1D, W );
+    else if( type == LDL_2D )
+        FrontVanillaLowerForwardSolve( front.L2D, W );
     else if( type == LDL_SELINV_1D )
         FrontFastLowerForwardSolve( front.L1D, W );
     else if( type == LDL_SELINV_2D )

@@ -31,7 +31,8 @@ namespace internal {
 
 template<typename F>
 void BackwardMany
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
   bool conjugate=false )
 {
     // TODO: Replace this with modified inline code?
@@ -41,7 +42,8 @@ void BackwardMany
 
 template<typename F>
 void BackwardSingle
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
   bool conjugate=false )
 {
     const Grid& g = L.Grid();
@@ -82,7 +84,8 @@ void BackwardSingle
 
 template<typename F>
 inline void FrontVanillaLowerBackwardSolve
-( const Matrix<F>& L, Matrix<F>& X, bool conjugate )
+( const Matrix<F>& L,
+        Matrix<F>& X, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontVanillaLowerBackwardSolve");
@@ -102,7 +105,9 @@ inline void FrontVanillaLowerBackwardSolve
 
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
-( const Matrix<F>& L, const Matrix<Int>& p, Matrix<F>& X, bool conjugate )
+( const Matrix<F>& L,
+  const Matrix<Int>& p,
+        Matrix<F>& X, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
@@ -113,7 +118,8 @@ inline void FrontIntraPivLowerBackwardSolve
 
 template<typename F>
 inline void FrontVanillaLowerBackwardSolve
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
   bool conjugate, bool singleL11AllGather=true )
 {
     DEBUG_ONLY(
@@ -156,8 +162,10 @@ inline void FrontVanillaLowerBackwardSolve
 
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
-( const DistMatrix<F,VC,STAR>& L, const DistMatrix<Int,VC,STAR>& p,
-  DistMatrix<F,VC,STAR>& X, bool conjugate, bool singleL11AllGather=true )
+( const DistMatrix<F,VC,STAR>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F,VC,STAR>& X,
+  bool conjugate, bool singleL11AllGather=true )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
 
@@ -172,7 +180,9 @@ inline void FrontIntraPivLowerBackwardSolve
 
 template<typename F>
 inline void FrontVanillaLowerBackwardSolve
-( const DistMatrix<F>& L, DistMatrix<F>& X, bool conjugate )
+( const DistMatrix<F>& L,
+        DistMatrix<F>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontVanillaLowerBackwardSolve");
@@ -201,9 +211,47 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
+inline void FrontVanillaLowerBackwardSolve
+( const DistMatrix<F>& L,
+        DistMatrix<F,VC,STAR>& XPre,
+  bool conjugate )
+{
+    DEBUG_ONLY(
+      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
+      if( L.Grid() != XPre.Grid() )
+          LogicError("L and X must be distributed over the same grid");
+      if( L.Height() < L.Width() || L.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal solve:\n",
+           DimsString(L,"L"),"\n",DimsString(XPre,"X"));
+    )
+    const Grid& g = L.Grid();
+    if( g.Size() == 1 )
+    {
+        FrontVanillaLowerBackwardSolve
+        ( L.LockedMatrix(), XPre.Matrix(), conjugate );
+        return;
+    }
+
+    DistMatrix<F> X( XPre );
+
+    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
+    LockedPartitionDown( L, LT, LB, L.Width() );
+    PartitionDown( X, XT, XB, L.Width() );
+
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
+    Trsm( LEFT, LOWER, orientation, UNIT, F(1), LT, XT );
+
+    XPre = X;
+}
+
+template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
-( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p,
-  DistMatrix<F>& X, bool conjugate )
+( const DistMatrix<F>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
 
@@ -218,7 +266,8 @@ inline void FrontIntraPivLowerBackwardSolve
 
 template<typename F>
 inline void FrontFastLowerBackwardSolve
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
     DEBUG_ONLY(
@@ -261,8 +310,10 @@ inline void FrontFastLowerBackwardSolve
 
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
-( const DistMatrix<F,VC,STAR>& L, const DistMatrix<Int,VC,STAR>& p,
-  DistMatrix<F,VC,STAR>& X, bool conjugate )
+( const DistMatrix<F,VC,STAR>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F,VC,STAR>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
 
@@ -277,7 +328,8 @@ inline void FrontFastIntraPivLowerBackwardSolve
 
 template<typename F>
 inline void FrontFastLowerBackwardSolve
-( const DistMatrix<F>& L, DistMatrix<F,VC,STAR>& X, bool conjugate )
+( const DistMatrix<F>& L,
+        DistMatrix<F,VC,STAR>& X, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontFastLowerBackwardSolve");
@@ -341,8 +393,10 @@ inline void FrontFastLowerBackwardSolve
 
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
-( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p,
-  DistMatrix<F,VC,STAR>& X, bool conjugate )
+( const DistMatrix<F>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F,VC,STAR>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
 
@@ -357,7 +411,9 @@ inline void FrontFastIntraPivLowerBackwardSolve
 
 template<typename F>
 inline void FrontFastLowerBackwardSolve
-( const DistMatrix<F>& L, DistMatrix<F>& X, bool conjugate )
+( const DistMatrix<F>& L,
+        DistMatrix<F>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontFastLowerBackwardSolve");
@@ -393,8 +449,10 @@ inline void FrontFastLowerBackwardSolve
 
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
-( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p,
-  DistMatrix<F>& X, bool conjugate )
+( const DistMatrix<F>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
 
@@ -409,7 +467,9 @@ inline void FrontFastIntraPivLowerBackwardSolve
 
 template<typename F>
 inline void FrontBlockLowerBackwardSolve
-( const Matrix<F>& L, Matrix<F>& X, bool conjugate )
+( const Matrix<F>& L,
+        Matrix<F>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerBackwardSolve");
@@ -433,7 +493,9 @@ inline void FrontBlockLowerBackwardSolve
 
 template<typename F>
 inline void FrontBlockLowerBackwardSolve
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X, bool conjugate )
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerBackwardSolve");
@@ -476,7 +538,9 @@ inline void FrontBlockLowerBackwardSolve
 
 template<typename F>
 inline void FrontBlockLowerBackwardSolve
-( const DistMatrix<F>& L, DistMatrix<F,VC,STAR>& X, bool conjugate )
+( const DistMatrix<F>& L,
+        DistMatrix<F,VC,STAR>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerBackwardSolve");
@@ -544,7 +608,9 @@ inline void FrontBlockLowerBackwardSolve
 
 template<typename F>
 inline void FrontBlockLowerBackwardSolve
-( const DistMatrix<F>& L, DistMatrix<F>& X, bool conjugate )
+( const DistMatrix<F>& L,
+        DistMatrix<F>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerBackwardSolve");
@@ -580,12 +646,16 @@ inline void FrontBlockLowerBackwardSolve
 
 template<typename F>
 inline void FrontLowerBackwardSolve
-( const Front<F>& front, Matrix<F>& W, bool conjugate )
+( const Front<F>& front,
+        Matrix<F>& W,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
     LDLFrontType type = front.type;
-    if( Unfactored(type) )
-        LogicError("Cannot solve against an unfactored matrix");
+    DEBUG_ONLY(
+      if( Unfactored(type) )
+          LogicError("Cannot solve against an unfactored matrix");
+    )
 
     if( front.sparseLeaf )
     {
@@ -619,12 +689,16 @@ inline void FrontLowerBackwardSolve
 
 template<typename F>
 inline void FrontLowerBackwardSolve
-( const DistFront<F>& front, DistMatrix<F>& W, bool conjugate )
+( const DistFront<F>& front,
+        DistMatrix<F>& W,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
     LDLFrontType type = front.type;
-    if( Unfactored(type) )
-        LogicError("Cannot solve against an unfactored matrix");
+    DEBUG_ONLY(
+      if( Unfactored(type) )
+          LogicError("Cannot solve against an unfactored matrix");
+    )
     const bool blocked = BlockFactorization(type);
 
     if( type == LDL_2D )
@@ -645,16 +719,22 @@ inline void FrontLowerBackwardSolve
 
 template<typename F>
 inline void FrontLowerBackwardSolve
-( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W, bool conjugate )
+( const DistFront<F>& front,
+        DistMatrix<F,VC,STAR>& W,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
     LDLFrontType type = front.type;
-    if( Unfactored(type) )
-        LogicError("Cannot solve against an unfactored matrix");
+    DEBUG_ONLY(
+      if( Unfactored(type) )
+          LogicError("Cannot solve against an unfactored matrix");
+    )
     const bool blocked = BlockFactorization(type);
 
     if( type == LDL_1D )
         FrontVanillaLowerBackwardSolve( front.L1D, W, conjugate );
+    else if( type == LDL_2D )
+        FrontVanillaLowerBackwardSolve( front.L2D, W, conjugate );
     else if( type == LDL_SELINV_1D )
         FrontFastLowerBackwardSolve( front.L1D, W, conjugate );
     else if( type == LDL_SELINV_2D )

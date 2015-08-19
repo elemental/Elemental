@@ -89,6 +89,7 @@ void SolveAfter
 
     // TODO: Only perform the switch if there are a sufficient 
     //       number of right-hand sides?
+    /*
     if( !FrontIs1D(front.type) )
     {
         // TODO: Add warning?
@@ -97,6 +98,7 @@ void SolveAfter
         X = XMat;
         return;
     }
+    */
 
     const Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE );
     if( BlockFactorization(front.type) )
