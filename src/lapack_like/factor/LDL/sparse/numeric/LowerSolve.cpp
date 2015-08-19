@@ -16,8 +16,10 @@ namespace ldl {
 
 template<typename F>
 void LowerSolve
-( Orientation orientation, const NodeInfo& info, 
-  const Front<F>& front, MatrixNode<F>& X )
+( Orientation orientation,
+  const NodeInfo& info, 
+  const Front<F>& front,
+        MatrixNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("LowerSolve"))
     if( orientation == NORMAL )
@@ -28,8 +30,10 @@ void LowerSolve
 
 template<typename F>
 void LowerSolve
-( Orientation orientation, const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMultiVecNode<F>& X )
+( Orientation orientation,
+  const DistNodeInfo& info, 
+  const DistFront<F>& front,
+        DistMultiVecNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("LowerSolve"))
     if( orientation == NORMAL )
@@ -40,8 +44,10 @@ void LowerSolve
 
 template<typename F>
 void LowerSolve
-( Orientation orientation, const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMatrixNode<F>& X )
+( Orientation orientation,
+  const DistNodeInfo& info, 
+  const DistFront<F>& front,
+        DistMatrixNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("LowerSolve"))
     if( orientation == NORMAL )
@@ -52,14 +58,20 @@ void LowerSolve
 
 #define PROTO(F) \
   template void LowerSolve \
-  ( Orientation orientation, const NodeInfo& info, \
-    const Front<F>& front, MatrixNode<F>& X ); \
+  ( Orientation orientation, \
+    const NodeInfo& info, \
+    const Front<F>& front, \
+          MatrixNode<F>& X ); \
   template void LowerSolve \
-  ( Orientation orientation, const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMultiVecNode<F>& X ); \
+  ( Orientation orientation, \
+    const DistNodeInfo& info, \
+    const DistFront<F>& front, \
+          DistMultiVecNode<F>& X ); \
   template void LowerSolve \
-  ( Orientation orientation, const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMatrixNode<F>& X );
+  ( Orientation orientation, \
+    const DistNodeInfo& info, \
+    const DistFront<F>& front, \
+          DistMatrixNode<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

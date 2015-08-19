@@ -29,7 +29,8 @@ namespace ldl {
 template<typename F> 
 inline void LowerBackwardSolve
 ( const NodeInfo& info, 
-  const Front<F>& front, MatrixNode<F>& X, bool conjugate )
+  const Front<F>& front,
+        MatrixNode<F>& X, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::LowerBackwardSolve"))
 
@@ -52,6 +53,8 @@ inline void LowerBackwardSolve
         X.matrix = W( IR(0,info.size), IR(0,numRHS) );
 
     const Int numChildren = front.children.size();
+    const F* WBuf = W.LockedBuffer();
+    const Int WLDim = W.LDim();
     for( Int c=0; c<numChildren; ++c )
     {
         // Set up a workspace for the child
@@ -63,11 +66,13 @@ inline void LowerBackwardSolve
 
         // Update the child's workspace
         const Int childUSize = childWB.Height();
+        F* childWBBuf = childWB.Buffer();
+        const Int childWBLDim = childWB.LDim();
         for( Int iChild=0; iChild<childUSize; ++iChild )
         {
             const Int i = info.childRelInds[c][iChild];
             for( Int j=0; j<numRHS; ++j )
-                childWB.Set( iChild, j, W.Get(i,j) );
+                childWBBuf[iChild+j*childWBLDim] = WBuf[i+j*WLDim];
         }
     }
     if( haveParent )
@@ -109,8 +114,10 @@ inline void LowerBackwardSolve
     // Set up a workspace for our child
     const bool frontIs1D = FrontIs1D( front.type );
     const auto& childFront = *front.child;
-    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
-        LogicError("Incompatible front type mixture");
+    DEBUG_ONLY(
+      if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+          LogicError("Incompatible front type mixture");
+    )
     const Grid& childGrid =
       ( frontIs1D ? childFront.L1D.Grid() : childFront.L2D.Grid() );
     const Int childFrontHeight =
@@ -143,11 +150,15 @@ inline void LowerBackwardSolve
     {
         F* sendVals = &sendBuf[sendOffs[q]];
         const auto& recvInds = X.commMeta.childRecvInds[q];
-        for( unsigned k=0; k<recvInds.size(); ++k )
-            StridedMemCopy
-            ( &sendVals[k*numRHS],           1,
-              W.LockedBuffer(recvInds[k],0), W.LDim(),
-              numRHS );
+        const Int numRecvInds = recvInds.size();
+        const F* WBuf = W.LockedBuffer();
+        const Int WLDim = W.LDim();
+        for( Int k=0; k<numRecvInds; ++k )
+        {
+            const Int recvInd = recvInds[k];
+            for( Int j=0; j<numRHS; ++j )
+                sendVals[k*numRHS+j] = WBuf[recvInd+j*WLDim];
+        }
     }
     if( haveParent )
         W.Empty();
@@ -164,12 +175,14 @@ inline void LowerBackwardSolve
     // Unpack the updates using the send approach from the forward solve
     const Int myChild = ( info.child->onLeft ? 0 : 1 );
     const Int localHeight = childWB.LocalHeight();
+    F* childWBBuf = childWB.Buffer();
+    const Int childWBLDim = childWB.LDim();
     for( Int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
     {
         const Int iUpdate = childWB.GlobalRow(iUpdateLoc);
         const int q = W.RowOwner(info.childRelInds[myChild][iUpdate]);
         for( Int j=0; j<numRHS; ++j )
-            childWB.SetLocal( iUpdateLoc, j, recvBuf[recvOffs[q]++] );
+            childWBBuf[iUpdateLoc+j*childWBLDim] = recvBuf[recvOffs[q]++];
     }
     SwapClear( recvBuf );
     SwapClear( recvSizes );
@@ -181,7 +194,8 @@ inline void LowerBackwardSolve
 template<typename F>
 inline void LowerBackwardSolve
 ( const DistNodeInfo& info,
-  const DistFront<F>& front, DistMatrixNode<F>& X, bool conjugate )
+  const DistFront<F>& front,
+        DistMatrixNode<F>& X, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::LowerBackwardSolve [DistMatrixNode]"))
     if( front.duplicate != nullptr )
@@ -204,8 +218,10 @@ inline void LowerBackwardSolve
 
     // Set up a workspace for our child
     const auto& childFront = *front.child;
-    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
-        LogicError("Incompatible front type mixture");
+    DEBUG_ONLY(
+      if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+          LogicError("Incompatible front type mixture");
+    )
     const Grid& childGrid = childFront.L2D.Grid();
     const Int childFrontHeight = childFront.L2D.Height();
     auto& childW = X.child->work;
@@ -233,15 +249,18 @@ inline void LowerBackwardSolve
 
     // Pack the updates
     vector<F> sendBuf( sendBufSize );
+    const F* WBuf = W.Buffer();
+    const Int WLDim = W.LDim();
     for( int q=0; q<commSize; ++q )
     {
         F* sendVals = &sendBuf[sendOffs[q]];
         const auto& recvInds = X.commMeta.childRecvInds[q];
-        for( unsigned k=0; k<recvInds.size()/2; ++k )
+        const Int numRecvInds = recvInds.size();
+        for( Int k=0; k<numRecvInds/2; ++k )
         {
             const Int iLoc = recvInds[2*k+0];
             const Int jLoc = recvInds[2*k+1];
-            sendVals[k] = W.GetLocal( iLoc, jLoc );
+            sendVals[k] = WBuf[iLoc+jLoc*WLDim];
         }
     }
     if( haveParent )
@@ -261,6 +280,8 @@ inline void LowerBackwardSolve
     const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     const Int localHeight = childWB.LocalHeight();
     const Int localWidth = childWB.LocalWidth();
+    F* childWBBuf = childWB.Buffer();
+    const Int childWBLDim = childWB.LDim();
     for( Int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
     {
         const Int iUpdate = childWB.GlobalRow(iUpdateLoc);
@@ -269,7 +290,7 @@ inline void LowerBackwardSolve
         {
             const Int j = childWB.GlobalCol(jLoc);
             const int q = W.Owner( i, j );
-            childWB.SetLocal( iUpdateLoc, jLoc, recvBuf[recvOffs[q]++] );
+            childWBBuf[iUpdateLoc+jLoc*childWBLDim] = recvBuf[recvOffs[q]++];
         }
     }
     SwapClear( recvBuf );

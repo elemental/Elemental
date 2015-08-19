@@ -20,8 +20,10 @@ namespace trsm {
 template<typename F>
 inline void
 LUTLarge
-( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre,
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -79,8 +81,10 @@ LUTLarge
 template<typename F>
 inline void
 LUTMedium
-( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -139,8 +143,10 @@ LUTMedium
 template<typename F,Dist rowDist>
 inline void
 LUTSmall
-( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F,STAR,rowDist>& U, DistMatrix<F,rowDist,STAR>& X,
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const DistMatrix<F,STAR,rowDist>& U,
+        DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

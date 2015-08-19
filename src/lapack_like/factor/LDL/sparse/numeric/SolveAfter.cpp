@@ -1,18 +1,10 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
-   The University of Texas at Austin.
+   Copyright (c) 2013-2015, Jack Poulson.
    All rights reserved.
 
-   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2011-2013, Jack Poulson and Lexing Ying.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and 
-   The Georgia Institute of Technology.
-   All rights reserved.
-
-   Copyright (c) 2014-2015, Jack Poulson and Stanford University.
-   All rights reserved.
-   
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
@@ -25,8 +17,10 @@ namespace ldl {
 
 template<typename F>
 void SolveAfter
-( const vector<Int>& invMap, const NodeInfo& info, 
-  const Front<F>& front, Matrix<F>& X )
+( const vector<Int>& invMap,
+  const NodeInfo& info, 
+  const Front<F>& front,
+        Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -37,7 +31,9 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X )
+( const NodeInfo& info,
+  const Front<F>& front,
+        MatrixNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -62,8 +58,10 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const DistMap& invMap, const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMultiVec<F>& X )
+( const DistMap& invMap,
+  const DistNodeInfo& info, 
+  const DistFront<F>& front,
+        DistMultiVec<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -84,10 +82,13 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMultiVecNode<F>& X )
+  const DistFront<F>& front,
+        DistMultiVecNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
+    // TODO: Only perform the switch if there are a sufficient 
+    //       number of right-hand sides?
     if( !FrontIs1D(front.type) )
     {
         // TODO: Add warning?
@@ -119,7 +120,8 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( const DistNodeInfo& info, 
-  const DistFront<F>& front, DistMatrixNode<F>& X )
+  const DistFront<F>& front,
+        DistMatrixNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
 
@@ -156,8 +158,10 @@ void SolveAfter
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const SparseMatrix<F>& A,
-  const vector<Int>& invMap, const NodeInfo& info,
-  const Front<F>& front, Matrix<F>& y,
+  const vector<Int>& invMap,
+  const NodeInfo& info,
+  const Front<F>& front,
+        Matrix<F>& y,
   Base<F> minReductionFactor, Int maxRefineIts )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveWithIterativeRefinement"))
@@ -215,8 +219,10 @@ Int SolveWithIterativeRefinement
 template<typename F>
 Int SolveWithIterativeRefinement
 ( const DistSparseMatrix<F>& A,
-  const DistMap& invMap, const DistNodeInfo& info,
-  const DistFront<F>& front, DistMultiVec<F>& y,
+  const DistMap& invMap,
+  const DistNodeInfo& info,
+  const DistFront<F>& front,
+        DistMultiVec<F>& y,
   Base<F> minReductionFactor, Int maxRefineIts )
 {
     DEBUG_ONLY(CSE cse("ldl::SolveWithIterativeRefinement"))
@@ -225,12 +231,15 @@ Int SolveWithIterativeRefinement
     DistMultiVec<F> yOrig(comm);
     yOrig = y;
 
+    ldl::DistMultiVecNodeMeta meta;
+
     // Compute the initial guess
     // =========================
     DistMultiVec<F> x(comm);
-    DistMultiVecNode<F> xNodal( invMap, info, y );
+    DistMultiVecNode<F> xNodal;
+    xNodal.Pull( invMap, info, y, meta );
     SolveAfter( info, front, xNodal );
-    xNodal.Push( invMap, info, x );
+    xNodal.Push( invMap, info, x, meta );
 
     Int refineIt = 0;
     if( maxRefineIts > 0 )
@@ -242,9 +251,9 @@ Int SolveWithIterativeRefinement
         {
             // Compute the proposed update to the solution
             // -------------------------------------------
-            xNodal.Pull( invMap, info, y );
+            xNodal.Pull( invMap, info, y, meta );
             SolveAfter( info, front, xNodal );
-            xNodal.Push( invMap, info, dx );
+            xNodal.Push( invMap, info, dx, meta );
             xCand = x;
             xCand += dx;
 
@@ -276,29 +285,40 @@ Int SolveWithIterativeRefinement
 
 #define PROTO(F) \
   template void SolveAfter \
-  ( const vector<Int>& invMap, const NodeInfo& info, \
-    const Front<F>& front, Matrix<F>& X ); \
+  ( const vector<Int>& invMap, \
+    const NodeInfo& info, \
+    const Front<F>& front, \
+          Matrix<F>& X ); \
   template void SolveAfter \
-  ( const DistMap& invMap, const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMultiVec<F>& X ); \
+  ( const DistMap& invMap, \
+    const DistNodeInfo& info, \
+    const DistFront<F>& front, \
+          DistMultiVec<F>& X ); \
   template void SolveAfter \
   ( const NodeInfo& info, \
-    const Front<F>& front, MatrixNode<F>& X ); \
+    const Front<F>& front, \
+          MatrixNode<F>& X ); \
   template void SolveAfter \
   ( const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMultiVecNode<F>& X ); \
+    const DistFront<F>& front, \
+          DistMultiVecNode<F>& X ); \
   template void SolveAfter \
   ( const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMatrixNode<F>& X ); \
+    const DistFront<F>& front, \
+          DistMatrixNode<F>& X ); \
   template Int SolveWithIterativeRefinement \
   ( const SparseMatrix<F>& A, \
-    const vector<Int>& invMap, const NodeInfo& info, \
-    const Front<F>& front, Matrix<F>& y, \
+    const vector<Int>& invMap, \
+    const NodeInfo& info, \
+    const Front<F>& front, \
+          Matrix<F>& y, \
     Base<F> minReductionFactor, Int maxRefineIts ); \
   template Int SolveWithIterativeRefinement \
   ( const DistSparseMatrix<F>& A, \
-    const DistMap& invMap, const DistNodeInfo& info, \
-    const DistFront<F>& front, DistMultiVec<F>& y, \
+    const DistMap& invMap, \
+    const DistNodeInfo& info, \
+    const DistFront<F>& front, \
+          DistMultiVec<F>& y, \
     Base<F> minReductionFactor, Int maxRefineIts );
  
 #define EL_NO_INT_PROTO

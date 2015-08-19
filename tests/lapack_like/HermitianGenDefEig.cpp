@@ -14,9 +14,12 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   Pencil pencil, UpperOrLower uplo,
-  const AbstractDistMatrix<F>& AOrig, const AbstractDistMatrix<F>& BOrig,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B,
-  const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& X )
+  const AbstractDistMatrix<F>& AOrig,
+  const AbstractDistMatrix<F>& BOrig,
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B,
+  const AbstractDistMatrix<Base<F>>& w,
+  const AbstractDistMatrix<F>& X )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -140,10 +143,14 @@ void TestCorrectness
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=VR>
 void TestHermitianGenDefEig
-( bool testCorrectness, bool print,
+( bool testCorrectness,
+  bool print,
   Pencil pencil,
-  bool onlyEigvals, UpperOrLower uplo, 
-  Int m, SortType sort, const Grid& g, 
+  bool onlyEigvals,
+  UpperOrLower uplo, 
+  Int m,
+  SortType sort,
+  const Grid& g, 
   const HermitianEigSubset<Base<F>> subset, 
   const HermitianEigCtrl<F>& ctrl )
 {

@@ -18,8 +18,10 @@ namespace trsm {
 template<typename F>
 inline void
 RLT
-( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(

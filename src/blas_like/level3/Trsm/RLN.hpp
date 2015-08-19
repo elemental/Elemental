@@ -20,7 +20,8 @@ template<typename F>
 inline void
 RLN
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("trsm::RLN"))

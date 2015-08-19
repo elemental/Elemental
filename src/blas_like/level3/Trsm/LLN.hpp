@@ -19,7 +19,8 @@ template<typename F>
 inline void
 LLNLarge
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("trsm::LLNLarge"))
@@ -72,7 +73,8 @@ template<typename F>
 inline void
 LLNMedium
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("trsm::LLNMedium"))

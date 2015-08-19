@@ -20,8 +20,10 @@ namespace trsm {
 template<typename F>
 inline void
 LLTLarge
-( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -80,8 +82,10 @@ LLTLarge
 template<typename F>
 inline void
 LLTMedium
-( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -141,8 +145,10 @@ LLTMedium
 template<typename F,Dist colDist>
 inline void
 LLTSmall
-( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F,colDist,STAR>& L, DistMatrix<F,colDist,STAR>& X,
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const DistMatrix<F,colDist,STAR>& L,
+        DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -193,8 +199,10 @@ LLTSmall
 template<typename F,Dist rowDist>
 inline void
 LLTSmall
-( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F,STAR,rowDist>& L, DistMatrix<F,rowDist,STAR>& X,
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const DistMatrix<F,STAR,rowDist>& L,
+        DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

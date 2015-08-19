@@ -31,7 +31,8 @@ DistMatrixNode<T>::DistMatrixNode( DistMatrixNode<T>* parentNode )
 
 template<typename T>
 DistMatrixNode<T>::DistMatrixNode
-( const DistMap& invMap, const DistNodeInfo& info,
+( const DistMap& invMap,
+  const DistNodeInfo& info,
   const DistMultiVec<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
@@ -84,7 +85,8 @@ DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
 
 template<typename T>
 void DistMatrixNode<T>::Pull
-( const DistMap& invMap, const DistNodeInfo& info,
+( const DistMap& invMap,
+  const DistNodeInfo& info,
   const DistMultiVec<T>& X )
 {
     DEBUG_ONLY(CSE cse("DistMatrixNode::Pull"))
@@ -94,7 +96,8 @@ void DistMatrixNode<T>::Pull
 
 template<typename T>
 void DistMatrixNode<T>::Push
-( const DistMap& invMap, const DistNodeInfo& info,
+( const DistMap& invMap,
+  const DistNodeInfo& info,
         DistMultiVec<T>& X ) const
 {
     DEBUG_ONLY(CSE cse("DistMatrixNode::Push"))
@@ -111,7 +114,7 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
         return;
     if( child == nullptr )
         return;
-   
+    
     const Int numRHS = matrix.Width();
     const Int childSize = info.child->size;
     const Int updateSize = info.child->lowerStruct.size();
