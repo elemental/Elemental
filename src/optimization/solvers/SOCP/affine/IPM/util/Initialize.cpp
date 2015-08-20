@@ -411,7 +411,9 @@ void Initialize
         rh *= -1;
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -429,7 +431,9 @@ void Initialize
         Zeros( rh, k, 1 );
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
@@ -568,7 +572,9 @@ void Initialize
         rh *= -1;
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -586,7 +592,9 @@ void Initialize
         Zeros( rh, k, 1 );
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, solveCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 

@@ -1386,22 +1386,56 @@ def TV(b,lambdPre,ctrl=None):
 
 # Long-only portfolio
 # ===================
+lib.ElLongOnlyPortfolioSparse_s.argtypes = \
 lib.ElLongOnlyPortfolioDistSparse_s.argtypes = \
   [c_void_p,c_void_p,c_void_p,sType,c_void_p]
+
+lib.ElLongOnlyPortfolioSparse_d.argtypes = \
 lib.ElLongOnlyPortfolioDistSparse_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,dType,c_void_p]
 
+lib.ElLongOnlyPortfolioXSparse_s.argtypes = \
+lib.ElLongOnlyPortfolioXDistSparse_s.argtypes = \
+  [c_void_p,c_void_p,c_void_p,sType,c_void_p,SOCPAffineCtrl_s]
+
+lib.ElLongOnlyPortfolioXSparse_d.argtypes = \
+lib.ElLongOnlyPortfolioXDistSparse_d.argtypes = \
+  [c_void_p,c_void_p,c_void_p,dType,c_void_p,SOCPAffineCtrl_d]
+
+lib.ElLongOnlyPortfolioSparse_s.restype = \
+lib.ElLongOnlyPortfolioSparse_d.restype = \
 lib.ElLongOnlyPortfolioDistSparse_s.restype = \
 lib.ElLongOnlyPortfolioDistSparse_d.restype = \
+lib.ElLongOnlyPortfolioXSparse_s.restype = \
+lib.ElLongOnlyPortfolioXSparse_d.restype = \
+lib.ElLongOnlyPortfolioXDistSparse_s.restype = \
+lib.ElLongOnlyPortfolioXDistSparse_d.restype = \
   c_uint
 
-def LongOnlyPortfolio(d,F,c,gammaPre):
+def LongOnlyPortfolio(d,F,c,gammaPre,ctrl=None):
   gamma = TagToType(d.tag)(gammaPre)
-  if type(F) is DistSparseMatrix:
+  if type(F) is SparseMatrix:
+    x = Matrix(d.tag)
+    args = [d.obj,F.obj,c.obj,gamma,x.obj]
+    argsCtrl = [d.obj,F.obj,c.obj,gamma,x.obj,ctrl]
+    if   d.tag == sTag:
+      if ctrl==None: lib.ElLongOnlyPortfolioSparse_s(*args)
+      else:          lib.ElLongOnlyPortfolioXSparse_s(*argsCtrl)
+    elif d.tag == dTag:
+      if ctrl==None: lib.ElLongOnlyPortfolioSparse_d(*args)
+      else:          lib.ElLongOnlyPortfolioXSparse_d(*argsCtrl)
+    else: DataExcept()
+    return x
+  elif type(F) is DistSparseMatrix:
     x = DistMultiVec(d.tag,d.Comm())
     args = [d.obj,F.obj,c.obj,gamma,x.obj]
-    if   d.tag == sTag: lib.ElLongOnlyPortfolioDistSparse_s(*args)
-    elif d.tag == dTag: lib.ElLongOnlyPortfolioDistSparse_d(*args)
+    argsCtrl = [d.obj,F.obj,c.obj,gamma,x.obj,ctrl]
+    if   d.tag == sTag:
+      if ctrl==None: lib.ElLongOnlyPortfolioDistSparse_s(*args)
+      else:          lib.ElLongOnlyPortfolioXDistSparse_s(*argsCtrl)
+    elif d.tag == dTag:
+      if ctrl==None: lib.ElLongOnlyPortfolioDistSparse_d(*args)
+      else:          lib.ElLongOnlyPortfolioXDistSparse_d(*argsCtrl)
     else: DataExcept()
     return x
   else: TypeExcept()

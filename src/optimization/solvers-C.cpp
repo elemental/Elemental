@@ -24,6 +24,7 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
+    ctrl->resolveReg = true;
     ctrl->outerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;
@@ -41,6 +42,7 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
+    ctrl->resolveReg = true;
     ctrl->outerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;

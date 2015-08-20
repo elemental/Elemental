@@ -626,22 +626,37 @@ void TV
 //
 // where D is diagonal and F has a (hopefully) small number of columns.
 
-// TODO: Extend support to several other input types
-// TODO: Add control structures
+template<typename Real>
+void LongOnlyPortfolio
+( const SparseMatrix<Real>& Sigma,
+  const Matrix<Real>& c,
+        Real gamma,
+        Matrix<Real>& x,
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void LongOnlyPortfolio
 ( const DistSparseMatrix<Real>& Sigma,
   const DistMultiVec<Real>& c,
         Real gamma,
-        DistMultiVec<Real>& x );
+        DistMultiVec<Real>& x,
+  const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 
+template<typename Real>
+void LongOnlyPortfolio
+( const Matrix<Real>& d,
+  const SparseMatrix<Real>& F,
+  const Matrix<Real>& c,
+        Real gamma,
+        Matrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void LongOnlyPortfolio
 ( const DistMultiVec<Real>& d,
   const DistSparseMatrix<Real>& F,
   const DistMultiVec<Real>& c,
         Real gamma,
-        DistMultiVec<Real>& x );
+        DistMultiVec<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 
 } // namespace El
 

@@ -1037,9 +1037,15 @@ void Mehrotra
                 JFront.Pull( J, map, info );
 
                 LDL( info, JFront, LDL_2D );
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                  ctrl.solveCtrl );
+                if( ctrl.resolveReg )
+                    reg_ldl::SolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
+                      ctrl.solveCtrl );
+                else
+                    reg_ldl::RegularizedSolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                      ctrl.solveCtrl.progress );
             }
             catch(...)
             {
@@ -1133,8 +1139,15 @@ void Mehrotra
             // -----------------------
             try
             {
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+                if( ctrl.resolveReg )
+                    reg_ldl::SolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                      ctrl.solveCtrl );
+                else
+                    reg_ldl::RegularizedSolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                      ctrl.solveCtrl.progress );
             }
             catch(...)
             {
@@ -1155,8 +1168,16 @@ void Mehrotra
             // -----------------------
             try
             {
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, ctrl.solveCtrl );
+                if( ctrl.resolveReg )
+                    reg_ldl::SolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                      ctrl.solveCtrl ); 
+                else
+                    reg_ldl::RegularizedSolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                      ctrl.solveCtrl.progress );
+
             }
             catch(...)
             {
@@ -1515,9 +1536,15 @@ void Mehrotra
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl );
+                if( ctrl.resolveReg )
+                    reg_ldl::SolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                      ctrl.solveCtrl );
+                else
+                    reg_ldl::RegularizedSolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                      ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -1616,9 +1643,15 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl );
+                if( ctrl.resolveReg )
+                    reg_ldl::SolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                      ctrl.solveCtrl );
+                else
+                    reg_ldl::RegularizedSolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                      ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -1643,9 +1676,15 @@ void Mehrotra
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl );
+                if( ctrl.resolveReg )
+                    reg_ldl::SolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                      ctrl.solveCtrl );
+                else
+                    reg_ldl::RegularizedSolveAfter
+                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                      ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }

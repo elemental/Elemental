@@ -1674,6 +1674,7 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
     ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
+    ctrlC.resolveReg   = ctrl.resolveReg;
     ctrlC.outerEquil   = ctrl.outerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.print        = ctrl.print;
@@ -1691,6 +1692,7 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system       = CReflect(ctrl.system);
     ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
+    ctrlC.resolveReg   = ctrl.resolveReg;
     ctrlC.outerEquil   = ctrl.outerEquil;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.print        = ctrl.print;
@@ -1708,6 +1710,7 @@ inline MehrotraCtrl<float> CReflect( ElMehrotraCtrl_s ctrlC )
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
     ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
+    ctrl.resolveReg   = ctrlC.resolveReg;
     ctrl.outerEquil   = ctrlC.outerEquil;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.print        = ctrlC.print;
@@ -1725,6 +1728,7 @@ inline MehrotraCtrl<double> CReflect( ElMehrotraCtrl_d ctrlC )
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system       = CReflect(ctrlC.system);
     ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
+    ctrl.resolveReg   = ctrlC.resolveReg;
     ctrl.outerEquil   = ctrlC.outerEquil;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.print        = ctrlC.print;

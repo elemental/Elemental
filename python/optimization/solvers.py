@@ -21,6 +21,7 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("minTol",sType),("targetTol",sType),
               ("maxIts",iType),("maxStepRatio",sType),
               ("system",c_uint),("solveCtrl",RegSolveCtrl_s),
+              ("resolveReg",bType),
               ("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]
@@ -31,6 +32,7 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("minTol",dType),("targetTol",dType),
               ("maxIts",iType),("maxStepRatio",dType),
               ("system",c_uint),("solveCtrl",RegSolveCtrl_d),
+              ("resolveReg",bType),
               ("outerEquil",bType),
               ("basisSize",iType),
               ("progress",bType),("time",bType)]

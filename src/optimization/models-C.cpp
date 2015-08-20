@@ -817,6 +817,14 @@ ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
       CReflect(ctrl) ) ) } \
   /* Long-only portfolio
      =================== */ \
+  ElError ElLongOnlyPortfolioSparse_ ## SIG \
+  ( ElConstMatrix_ ## SIG d, ElConstSparseMatrix_ ## SIG F, \
+    ElConstMatrix_ ## SIG c, Real gamma, \
+    ElMatrix_ ## SIG x ) \
+  { EL_TRY( LongOnlyPortfolio( \
+      *CReflect(d), *CReflect(F), \
+      *CReflect(c), CReflect(gamma), \
+      *CReflect(x) ) ) } \
   ElError ElLongOnlyPortfolioDistSparse_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG d, ElConstDistSparseMatrix_ ## SIG F, \
     ElConstDistMultiVec_ ## SIG c, Real gamma, \
@@ -824,10 +832,28 @@ ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
   { EL_TRY( LongOnlyPortfolio( \
       *CReflect(d), *CReflect(F), \
       *CReflect(c), CReflect(gamma), \
-      *CReflect(x) ) ) }
+      *CReflect(x) ) ) } \
+  /* Expert versions
+     --------------- */ \
+  ElError ElLongOnlyPortfolioXSparse_ ## SIG \
+  ( ElConstMatrix_ ## SIG d, ElConstSparseMatrix_ ## SIG F, \
+    ElConstMatrix_ ## SIG c, Real gamma, \
+    ElMatrix_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LongOnlyPortfolio( \
+      *CReflect(d), *CReflect(F), \
+      *CReflect(c), CReflect(gamma), \
+      *CReflect(x), CReflect(ctrl) ) ) } \
+  ElError ElLongOnlyPortfolioXDistSparse_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG d, ElConstDistSparseMatrix_ ## SIG F, \
+    ElConstDistMultiVec_ ## SIG c, Real gamma, \
+    ElDistMultiVec_ ## SIG x, ElSOCPAffineCtrl_ ## SIG ctrl ) \
+  { EL_TRY( LongOnlyPortfolio( \
+      *CReflect(d), *CReflect(F), \
+      *CReflect(c), CReflect(gamma), \
+      *CReflect(x), CReflect(ctrl) ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F) \
+  C_PROTO_FIELD(SIG,SIGBASE,F)
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

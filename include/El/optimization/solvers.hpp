@@ -44,6 +44,9 @@ struct MehrotraCtrl
     KKTSystem system=FULL_KKT;
 
     RegSolveCtrl<Real> solveCtrl;
+    // TODO: Generalize this to a strategy (e.g., resolve if stagnating)
+    bool resolveReg=true;
+
     bool outerEquil=true;
     Int basisSize = 6;
     bool print=false;

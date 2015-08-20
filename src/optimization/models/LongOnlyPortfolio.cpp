@@ -12,18 +12,42 @@ namespace El {
 
 template<typename Real>
 void LongOnlyPortfolio
+( const SparseMatrix<Real>& Sigma,
+  const Matrix<Real>& c,
+        Real gamma,
+        Matrix<Real>& x,
+  const qp::direct::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
+    const Int n = c.Height();
+
+    // Rather than making a copy of Sigma to form gamma*Sigma, scale c
+    // ===============================================================
+    auto cScaled = c;
+    cScaled *= -1/gamma;
+
+    // Enforce 1^T x = 1
+    // ================= 
+    SparseMatrix<Real> A;
+    Ones( A, 1, n );
+    Matrix<Real> b;
+    Ones( b, 1, 1 );
+
+    Matrix<Real> y, z;
+    QP( Sigma, A, b, cScaled, x, y, z, ctrl );
+}
+
+template<typename Real>
+void LongOnlyPortfolio
 ( const DistSparseMatrix<Real>& Sigma,
   const DistMultiVec<Real>& c,
         Real gamma,
-        DistMultiVec<Real>& x )
+        DistMultiVec<Real>& x,
+  const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
     const Int n = c.Height();
     mpi::Comm comm = c.Comm();
-
-    qp::direct::Ctrl<Real> ctrl;
-    ctrl.mehrotraCtrl.print = true;
-    ctrl.mehrotraCtrl.solveCtrl.progress = true;
 
     // Rather than making a copy of Sigma to form gamma*Sigma, scale c
     // ===============================================================
@@ -43,11 +67,153 @@ void LongOnlyPortfolio
 
 template<typename Real>
 void LongOnlyPortfolio
+( const Matrix<Real>& d,
+  const SparseMatrix<Real>& F,
+  const Matrix<Real>& c,
+        Real gamma,
+        Matrix<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
+    const Int n = c.Height();
+ 
+    // TODO: Expose this as a control parameter
+    const bool useSOCP = true;
+
+    if( useSOCP )
+    {
+        const Int r = F.Width();
+
+        // Form cHat = [-c^T, gamma, gamma, 0, 0]
+        // ======================================
+        Matrix<Real> cHat;
+        Zeros( cHat, n+4, 1 );
+        for( Int i=0; i<n; ++i )
+            cHat.Set( i, 0, -c.Get(i,0) );
+        cHat.Set( n, 0, gamma );
+        cHat.Set( n+1, 0, gamma );
+
+        // Form A = [1^T, 0, 0, 0, 0]
+        // ==========================
+        SparseMatrix<Real> A;
+        Zeros( A, 1, n+4 );
+        A.Reserve( n );
+        for( Int j=0; j<n; ++j )
+            A.QueueUpdate( 0, j, Real(1) );
+        A.ProcessQueues();
+
+        // Form b = 1
+        // ==========
+        Matrix<Real> b;
+        Ones( b, 1, 1 );
+
+        // Form G
+        // ======
+        // G = |   -I      0  0  0  0 |
+        //     |    0      0  0 -1  0 |
+        //     | -sqrt(D)  0  0  0  0 |
+        //     |    0      0  0  0 -1 |
+        //     |   -F^T    0  0  0  0 |
+        //     |    0     -1  0  0  0 |
+        //     |    0      1  0  0  0 |
+        //     |    0      0  0 -2  0 |
+        //     |    0      0 -1  0  0 |
+        //     |    0      0  1  0  0 |
+        //     |    0      0  0  0 -2 |
+        SparseMatrix<Real> G;
+        {
+            const Int GHeight = 2*n+r+8;
+            const Int GWidth = n+4;
+            Zeros( G, GHeight, GWidth );
+
+            const Int numEntriesF = F.NumEntries();
+            const Int numUpdates = (2*n+8) + numEntriesF;
+            G.Reserve( numUpdates );
+            for( Int i=0; i<n; ++i )
+                G.QueueUpdate( i, i, Real(-1) ); 
+            G.QueueUpdate( n, n+2, Real(-1) );
+            for( Int i=0; i<n; ++i )
+                G.QueueUpdate( i+n+1, i, -Sqrt(d.Get(i,0)) );
+            G.QueueUpdate( 2*n+1, n+3, Real(-1) );
+            // This is the only portion which will not be sorted :-(
+            for( Int e=0; e<numEntriesF; ++e )
+                G.QueueUpdate( 2*n+2+F.Col(e), F.Row(e), -F.Value(e) );
+            G.QueueUpdate( 2*n+r+2, n, Real(-1) );
+            G.QueueUpdate( 2*n+r+3, n, Real(+1) );
+            G.QueueUpdate( 2*n+r+4, n+2, Real(-2) );
+            G.QueueUpdate( 2*n+r+5, n+1, Real(-1) );
+            G.QueueUpdate( 2*n+r+6, n+1, Real(+1) );
+            G.QueueUpdate( 2*n+r+7, n+3, Real(-2) );
+            G.ProcessQueues();
+        }
+
+        // Form h = [0; 0; 0; 0; 0; 1; 1; 0; 1; 1; 0]
+        // ==========================================
+        Matrix<Real> h;
+        Zeros( h, 2*n+r+8, 1 );
+        h.Set( 2*n+r+2, 0, Real(1) );
+        h.Set( 2*n+r+3, 0, Real(1) );
+        h.Set( 2*n+r+5, 0, Real(1) );
+        h.Set( 2*n+r+6, 0, Real(1) );
+
+        // Form orders and firstInds
+        // =========================
+        Matrix<Int> orders, firstInds; 
+        Zeros( orders, 2*n+r+8, 1 );
+        Zeros( firstInds, 2*n+r+8, 1 );
+        for( Int i=0; i<n; ++i )
+        {
+            orders.Set( i, 0, 1 );
+            firstInds.Set( i, 0, i );
+        }
+        for( Int i=n; i<2*n+1; ++i )
+        {
+            orders.Set( i, 0, n+1 );
+            orders.Set( i, 0, n );
+        }
+        for( Int i=2*n+1; i<2*n+r+2; ++i )
+        {
+            orders.Set( i, 0, r+1 );
+            firstInds.Set( i, 0, 2*n+1 );
+        }
+        for( Int i=2*n+r+2; i<2*n+r+5; ++i )
+        {
+            orders.Set( i, 0, 3 );
+            firstInds.Set( i, 0, 2*n+r+2 );
+        }
+        for( Int i=2*n+r+5; i<2*n+r+8; ++i )
+        {
+            orders.Set( i, 0, 3 );
+            firstInds.Set( i, 0, 2*n+r+5 );
+        }
+
+        // Solve the Second-Order Cone problem
+        // ===================================
+        Matrix<Real> xHat, y, z, s;
+        SOCP( A, G, b, cHat, h, orders, firstInds, xHat, y, z, s, ctrl );
+
+        // Extract x from [x; t; s; u; v]
+        // ==============================
+        x = xHat( IR(0,n), ALL );
+    }
+    else
+    {
+        SparseMatrix<Real> Sigma;
+        Diagonal( Sigma, d );
+        Syrk( LOWER, NORMAL, Real(1), F, Real(1), Sigma );
+        MakeSymmetric( LOWER, Sigma );
+        LongOnlyPortfolio( Sigma, c, gamma, x );
+    }
+}
+
+template<typename Real>
+void LongOnlyPortfolio
 ( const DistMultiVec<Real>& d,
   const DistSparseMatrix<Real>& F,
   const DistMultiVec<Real>& c,
         Real gamma,
-        DistMultiVec<Real>& x )
+        DistMultiVec<Real>& x,
+  const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
     const Int n = c.Height();
@@ -60,14 +226,6 @@ void LongOnlyPortfolio
     if( useSOCP )
     {
         const Int r = F.Width();
-
-        socp::affine::Ctrl<Real> ctrl;
-        /*
-        ctrl.mehrotraCtrl.time = true;
-        ctrl.mehrotraCtrl.print = true;
-        ctrl.mehrotraCtrl.solveCtrl.progress = true;
-        ctrl.mehrotraCtrl.solveCtrl.time = true;
-        */
 
         // Form cHat = [-c^T, gamma, gamma, 0, 0]
         // ======================================
@@ -268,16 +426,31 @@ void LongOnlyPortfolio
 
 #define PROTO(Real) \
   template void LongOnlyPortfolio \
+  ( const SparseMatrix<Real>& Sigma, \
+    const Matrix<Real>& c, \
+          Real gamma, \
+          Matrix<Real>& x, \
+    const qp::direct::Ctrl<Real>& ctrl ); \
+  template void LongOnlyPortfolio \
   ( const DistSparseMatrix<Real>& Sigma, \
     const DistMultiVec<Real>& c, \
           Real gamma, \
-          DistMultiVec<Real>& x ); \
+          DistMultiVec<Real>& x, \
+    const qp::direct::Ctrl<Real>& ctrl ); \
+  template void LongOnlyPortfolio \
+  ( const Matrix<Real>& d, \
+    const SparseMatrix<Real>& F, \
+    const Matrix<Real>& c, \
+          Real gamma, \
+          Matrix<Real>& x, \
+    const socp::affine::Ctrl<Real>& ctrl ); \
   template void LongOnlyPortfolio \
   ( const DistMultiVec<Real>& d, \
     const DistSparseMatrix<Real>& F, \
     const DistMultiVec<Real>& c, \
           Real gamma, \
-          DistMultiVec<Real>& x );
+          DistMultiVec<Real>& x, \
+    const socp::affine::Ctrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
