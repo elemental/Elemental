@@ -52,21 +52,13 @@ void Mehrotra
     const Real eps = Epsilon<Real>();
 
     // TODO: Move these into the control structure
-    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
-    const bool forceSameStep = true;
     const bool standardShift = true;
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     auto A = APre;
     auto G = GPre;
@@ -209,7 +201,8 @@ void Mehrotra
         // Compute the affine search direction
         // ===================================
         Real wMaxNorm = MaxNorm(w);
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit = 
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -253,7 +246,7 @@ void Mehrotra
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -292,7 +285,7 @@ void Mehrotra
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
         Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
@@ -314,7 +307,7 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
@@ -356,7 +349,7 @@ void Mehrotra
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -404,7 +397,6 @@ void Mehrotra
     const bool onlyLower = true;
 
     // TODO: Move these into the control structure
-    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -412,14 +404,7 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const Int cutoffPar = 1000;
-    const bool forceSameStep = true;
     const bool standardShift = true;
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -585,7 +570,8 @@ void Mehrotra
         // Compute the affine search direction
         // ===================================
         Real wMaxNorm = MaxNorm(w);
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC
@@ -633,7 +619,7 @@ void Mehrotra
         SOCApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -673,7 +659,7 @@ void Mehrotra
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1), cutoffPar );
         Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
@@ -695,7 +681,7 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
@@ -741,7 +727,7 @@ void Mehrotra
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -789,7 +775,6 @@ void Mehrotra
     const bool onlyLower = false;
 
     // TODO: Move these into the control structure
-    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -797,7 +782,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool cutoffSparse = 64;
-    const bool forceSameStep = true;
     const bool standardShift = true;
     const Real gamma = Pow(eps,Real(0.35));
     const Real delta = Pow(eps,Real(0.35));
@@ -805,17 +789,6 @@ void Mehrotra
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
     const Real betaTmp  = Pow(eps,Real(0.25));
-    const Real wMaxLimit = Pow(eps,Real(-0.4));
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
-    // Sizes of || w ||_max which force levels of equilibration
-    const Real diagEquilTol = Pow(eps,Real(-0.15));
-    const Real ruizEquilTol = Pow(eps,Real(-0.25));
-    const Int ruizMaxIter = 3;
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     auto A = APre;
     auto G = GPre;
@@ -1016,12 +989,13 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
         Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
+        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -1058,9 +1032,9 @@ void Mehrotra
             J = JOrig;
             J.FreezeSparsity();
             UpdateDiagonal( J, Real(1), regTmp );
-            if( wMaxNorm >= ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= diagEquilTol )
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, n+m+kSparse, 1 );
@@ -1095,7 +1069,7 @@ void Mehrotra
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -1135,7 +1109,7 @@ void Mehrotra
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
         Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
@@ -1157,7 +1131,7 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
@@ -1214,7 +1188,7 @@ void Mehrotra
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -1262,7 +1236,6 @@ void Mehrotra
     const bool onlyLower = false;
 
     // TODO: Move these into the control structur
-    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -1271,7 +1244,6 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const Int cutoffSparse = 64;
     const Int cutoffPar = 1000;
-    const bool forceSameStep = true;
     const bool standardShift = false;
     const Real gamma = Pow(eps,Real(0.35));
     const Real delta = Pow(eps,Real(0.35));
@@ -1279,17 +1251,6 @@ void Mehrotra
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
     const Real betaTmp  = Pow(eps,Real(0.25));
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
-    const Real wMaxLimit = Pow(eps,Real(-0.4));
-    // Sizes of || w ||_max which force levels of equilibration
-    const Real diagEquilTol = Pow(eps,Real(-0.15));
-    const Real ruizEquilTol = Pow(eps,Real(-0.25));
-    const Int ruizMaxIter = 3;
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     auto A = APre;
     auto G = GPre;
@@ -1524,12 +1485,13 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
         Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
+        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( ctrl.print && commRank == 0 )
             Output
             ("|| w ||_max = ",wMaxNorm,", limit is ",wMaxNormLimit);
@@ -1589,9 +1551,9 @@ void Mehrotra
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            if( wMaxNorm >= ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= diagEquilTol )
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, n+m+kSparse, 1 );
@@ -1647,7 +1609,7 @@ void Mehrotra
         SOCApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             if( ctrl.time && commRank == 0 )
                 timer.Start();
@@ -1701,7 +1663,7 @@ void Mehrotra
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
         if( ctrl.time && commRank == 0 )
             Output("Affine line search: ",timer.Stop()," secs");
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
@@ -1725,7 +1687,7 @@ void Mehrotra
         rh *= 1-sigma;
         if( ctrl.time && commRank == 0 )
             timer.Start();
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
@@ -1799,7 +1761,7 @@ void Mehrotra
             Output("Combined line search: ",timer.Stop()," secs");
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);

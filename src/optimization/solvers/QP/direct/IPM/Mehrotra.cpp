@@ -45,8 +45,6 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
-    const bool mehrotra = true;
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
     const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
@@ -54,11 +52,6 @@ void Mehrotra
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -245,7 +238,7 @@ void Mehrotra
         else
             LogicError("Invalid KKT system choice");
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -280,7 +273,7 @@ void Mehrotra
         // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
@@ -302,7 +295,7 @@ void Mehrotra
         rb *= 1-sigma;
         rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -360,7 +353,7 @@ void Mehrotra
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -399,8 +392,6 @@ void Mehrotra
 {
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
 
-    const bool mehrotra = true;
-    const bool forceSameStep = true;
     const bool stepLengthSigma = true;
     const bool standardShift = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
@@ -408,11 +399,6 @@ void Mehrotra
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -631,7 +617,7 @@ void Mehrotra
         else
             LogicError("Invalid KKT system choice");
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -667,7 +653,7 @@ void Mehrotra
         // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
@@ -689,7 +675,7 @@ void Mehrotra
         rb *= 1-sigma;
         rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu := dxAff o dzAff
             // ---------------------
@@ -747,7 +733,7 @@ void Mehrotra
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -787,14 +773,12 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
     const Real eps = Epsilon<Real>();
 
-    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
-    const bool forceSameStep = true;
     const bool standardShift = true;
     const Real gamma = Pow(eps,Real(0.35));
     const Real delta = Pow(eps,Real(0.35));
@@ -802,15 +786,6 @@ void Mehrotra
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
     const Real betaTmp  = Pow(eps,Real(0.25));
-    // Sizes of || w ||_max which force levels of equilibration
-    const Real diagEquilTol = Pow(eps,Real(-0.15));
-    const Real ruizEquilTol = Pow(eps,Real(-0.25));
-    const Int ruizMaxIter = 3;
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -1020,9 +995,10 @@ void Mehrotra
                 J = JOrig;
 
                 UpdateDiagonal( J, Real(1), regTmp );
-                if( wMaxNorm >= ruizEquilTol )
-                    SymmetricRuizEquil( J, dInner, ruizMaxIter, ctrl.print );
-                else if( wMaxNorm >= diagEquilTol )
+                if( wMaxNorm >= ctrl.ruizEquilTol )
+                    SymmetricRuizEquil
+                    ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+                else if( wMaxNorm >= ctrl.diagEquilTol )
                     SymmetricDiagonalEquil( J, dInner, ctrl.print );
                 else
                     Ones( dInner, J.Height(), 1 );
@@ -1063,7 +1039,7 @@ void Mehrotra
         else
             LogicError("Invalid KKT system choice");
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -1098,7 +1074,7 @@ void Mehrotra
         // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
@@ -1120,7 +1096,7 @@ void Mehrotra
         rb *= 1-sigma;
         rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -1199,7 +1175,7 @@ void Mehrotra
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -1239,14 +1215,12 @@ void Mehrotra
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
     const Real eps = Epsilon<Real>();
 
-    const bool mehrotra = true;
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
-    const bool forceSameStep = true;
     const bool standardShift = true;
     const Real gamma = Pow(eps,Real(0.35));
     const Real delta = Pow(eps,Real(0.35));
@@ -1254,15 +1228,6 @@ void Mehrotra
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
     const Real betaTmp  = Pow(eps,Real(0.25));
-    // Sizes of || w ||_max which force levels of equilibration
-    const Real diagEquilTol = Pow(eps,Real(-0.15));
-    const Real ruizEquilTol = Pow(eps,Real(-0.25));
-    const Int ruizMaxIter = 3;
-#ifdef EL_RELEASE
-    const bool checkResiduals = false;
-#else
-    const bool checkResiduals = true;
-#endif
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
@@ -1497,9 +1462,10 @@ void Mehrotra
                 UpdateDiagonal( J, Real(1), regTmp );
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                if( wMaxNorm >= ruizEquilTol )
-                    SymmetricRuizEquil( J, dInner, ruizMaxIter, ctrl.print );
-                else if( wMaxNorm >= diagEquilTol )
+                if( wMaxNorm >= ctrl.ruizEquilTol )
+                    SymmetricRuizEquil
+                    ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+                else if( wMaxNorm >= ctrl.diagEquilTol )
                     SymmetricDiagonalEquil( J, dInner, ctrl.print );
                 else
                     Ones( dInner, J.Height(), 1 );
@@ -1564,7 +1530,7 @@ void Mehrotra
         else
             LogicError("Invalid KKT system choice");
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -1600,7 +1566,7 @@ void Mehrotra
         // ==============================
         Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
         Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
@@ -1622,7 +1588,7 @@ void Mehrotra
         rb *= 1-sigma;
         rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
-        if( mehrotra )
+        if( ctrl.mehrotra )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -1708,7 +1674,7 @@ void Mehrotra
         Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);

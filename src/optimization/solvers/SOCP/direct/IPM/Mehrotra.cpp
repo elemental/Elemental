@@ -52,18 +52,9 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.solveCtrl = ctrl.solveCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     Matrix<Real> s;
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl); 
@@ -92,18 +83,9 @@ void Mehrotra
     DistMatrix<Real> h(grid);
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.solveCtrl = ctrl.solveCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     DistMatrix<Real> s(grid);
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
@@ -131,18 +113,9 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.solveCtrl = ctrl.solveCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     Matrix<Real> s;
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
@@ -171,18 +144,9 @@ void Mehrotra
     DistMultiVec<Real> h(comm);
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.solveCtrl = ctrl.solveCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     DistMultiVec<Real> s(comm);
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);

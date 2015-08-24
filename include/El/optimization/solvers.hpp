@@ -36,21 +36,104 @@ inline Real MehrotraCentrality
 template<typename Real>
 struct MehrotraCtrl 
 {
+    // Mark whether or not the primal and/or dual variables were 
+    // user-initialized. 
+    //
+    // For problems with 'direct' cone constraints, i.e., x in K, the primal 
+    // variable is 'x' and the dual variables are 'y' and 'z'. For problems with
+    // 'affine' cone constraints, i.e., (h - G x) in K, the primal variables are
+    // 'x' and 's', while the dual variables are again 'y' and 'z'.
+    //
+    // NOTE: User initialization has not yet been tested, so there might be a 
+    //       trivial bug.
     bool primalInit=false, dualInit=false;
+
+    // Throw an exception if this tolerance could not be achieved.
     Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+
+    // Exit the Interior Point Methods if this tolerance has been achieved.
     Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
+
+    // The maximum number of iterations of the IPM. This should only be 
+    // activated in pathological circumstances, as even 100 iterations of an 
+    // IPM is excessive.
     Int maxIts=1000;
+
+    // If a step of length alpha would hit the boundary, instead step a distance
+    // of 'maxStepRatio*alpha'.
     Real maxStepRatio=0.99;
+
+    // For configuring how many reductions of the first-order optimality 
+    // conditions should be performed before solving a linear system.
+    // For problems with 'affine' cone constraints, i.e., (h - G x) in K,
+    // this should remain as FULL_KKT. For sparse problems with 'direct' cone 
+    // constraints, i.e., x in K, both AUGMENTED_KKT (use a QSD solver) and 
+    // NORMAL_KKT (use a Cholesky solver) are also possible. The latter should
+    // be avoided when the normal equations are sufficiently denser than the 
+    // (larger) augmented formulation.
     KKTSystem system=FULL_KKT;
 
+    // Use Mehrotra's second-order corrector?
+    // TODO: Add support for Gondzio's correctors
+    bool mehrotra=true;
+
+    // Force the primal and dual step lengths to be the same size?
+    bool forceSameStep=true;
+
+    // The controls for quasi-(semi)definite solves
     RegSolveCtrl<Real> solveCtrl;
-    // TODO: Generalize this to a strategy (e.g., resolve if stagnating)
+  
+    // Always use an iterative solver to resolve the regularization?
+    // TODO: Generalize this to a strategy (e.g., resolve if stagnating),
+    //       as this choice has been observed to substantially impact both the
+    //       cost and number of iterations.
     bool resolveReg=true;
 
+    // Wrap the Interior Point Method with an equilibration.
+    // This should almost always be set to true.
     bool outerEquil=true;
+
+    // The size of the Krylov subspace used for loosely estimating two-norms of 
+    // sparse matrices.
     Int basisSize = 6;
+
+    // Print the progress of the Interior Point Method?
     bool print=false;
+
+    // Time the components of the Interior Point Method?
     bool time=false;
+
+    // A lower bound on the maximum entry in the Nesterov-Todd scaling point
+    // before ad-hoc procedures to enforce the cone constraints should be 
+    // employed.
+    Real wSafeMaxNorm=Pow(Epsilon<Real>(),Real(-0.15));
+
+    // If the Nesterov-Todd scaling point has an entry of magnitude greater than
+    // the following and the minimum tolerance has been achieved, simply stop
+    // and declare success. This is meant to prevent expensive (equilibrated)
+    // further steps which are too polluted with floating-point error to 
+    // make substantial progress.
+    Real wMaxLimit=Pow(Epsilon<Real>(),Real(-0.4));
+
+    // If the maximum entry in the NT scaling point is larger in magnitude than
+    // this value, then use Ruiz equilibration on the KKT system (with the 
+    // specified limit on the number of iterations).
+    Real ruizEquilTol=Pow(Epsilon<Real>(),Real(-0.25));
+    Int ruizMaxIter=3;
+
+    // If Ruiz equilibration was not performed, but the max norm of the NT
+    // scaling point is larger than this value, then use diagonal equilibration
+    // for solving the KKT system.
+    Real diagEquilTol=Pow(Epsilon<Real>(),Real(-0.15));
+
+    // Whether or not additional matrix-vector multiplications should be 
+    // performed in order to check the accuracy of the solution to each
+    // block row of the KKT system.
+#ifdef EL_RELEASE
+    bool checkResiduals=false;
+#else
+    bool checkResiduals=true;
+#endif
 
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 

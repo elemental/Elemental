@@ -22,6 +22,7 @@ typedef enum {
 
 /* Mehrotra Predictor-Corrector IPM
    ================================ */
+/* See the C++ structure for documentation of the members */
 typedef struct {
   bool primalInit, dualInit;
   float minTol;
@@ -29,12 +30,20 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
+  bool mehrotra;
+  bool forceSameStep;
   ElRegSolveCtrl_s solveCtrl;
   bool resolveReg;
   bool outerEquil;
   ElInt basisSize;
   bool print;
   bool time;
+  float wSafeMaxNorm;
+  float wMaxLimit;
+  float ruizEquilTol;
+  ElInt ruizMaxIter;
+  float diagEquilTol;
+  bool checkResiduals;
 } ElMehrotraCtrl_s;
 
 typedef struct {
@@ -44,12 +53,20 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;
+  bool mehrotra;
+  bool forceSameStep;
   ElRegSolveCtrl_d solveCtrl;
   bool resolveReg;
   bool outerEquil;
   ElInt basisSize;
   bool print;
   bool time;
+  double wSafeMaxNorm;
+  double wMaxLimit;
+  double ruizEquilTol;
+  ElInt ruizMaxIter;
+  double diagEquilTol;
+  bool checkResiduals;
 } ElMehrotraCtrl_d;
 
 EL_EXPORT ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl );

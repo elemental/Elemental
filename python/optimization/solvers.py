@@ -19,23 +19,45 @@ lib.ElMehrotraCtrlDefault_d.argtypes = \
 class MehrotraCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
               ("minTol",sType),("targetTol",sType),
-              ("maxIts",iType),("maxStepRatio",sType),
-              ("system",c_uint),("solveCtrl",RegSolveCtrl_s),
+              ("maxIts",iType),
+              ("maxStepRatio",sType),
+              ("system",c_uint),
+              ("mehrotra",bType),
+              ("forceSameStep",bType),
+              ("solveCtrl",RegSolveCtrl_s),
               ("resolveReg",bType),
               ("outerEquil",bType),
               ("basisSize",iType),
-              ("progress",bType),("time",bType)]
+              ("progress",bType),
+              ("time",bType),
+              ("wSafeMaxNorm",sType),
+              ("wMaxLimit",sType),
+              ("ruizEquilTol",sType),
+              ("ruizMaxIter",iType),
+              ("diagEquilTol",sType),
+              ("checkResiduals",bType)]
   def __init__(self):
     lib.ElMehrotraCtrlDefault_s(pointer(self))
 class MehrotraCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
               ("minTol",dType),("targetTol",dType),
-              ("maxIts",iType),("maxStepRatio",dType),
-              ("system",c_uint),("solveCtrl",RegSolveCtrl_d),
+              ("maxIts",iType),
+              ("maxStepRatio",dType),
+              ("system",c_uint),
+              ("mehrotra",bType),
+              ("forceSameStep",bType),
+              ("solveCtrl",RegSolveCtrl_d),
               ("resolveReg",bType),
               ("outerEquil",bType),
               ("basisSize",iType),
-              ("progress",bType),("time",bType)]
+              ("progress",bType),
+              ("time",bType),
+              ("wSafeMaxNorm",dType),
+              ("wMaxLimit",dType),
+              ("ruizEquilTol",dType),
+              ("ruizMaxIter",iType),
+              ("diagEquilTol",dType),
+              ("checkResiduals",bType)]
   def __init__(self):
     lib.ElMehrotraCtrlDefault_d(pointer(self))
 

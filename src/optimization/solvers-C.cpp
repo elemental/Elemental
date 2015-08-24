@@ -23,12 +23,27 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
+    ctrl->mehrotra = true;
+    ctrl->forceSameStep = true;
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->resolveReg = true;
     ctrl->outerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
+
+    const float eps = Epsilon<float>();
+    ctrl->wSafeMaxNorm = Pow(eps,float(-0.15));
+    ctrl->wMaxLimit = Pow(eps,float(-0.4));
+    ctrl->ruizEquilTol = Pow(eps,float(-0.25));
+    ctrl->ruizMaxIter = 3;
+    ctrl->diagEquilTol = Pow(eps,float(-0.15));
+#ifdef EL_RELEASE
+    ctrl->checkResiduals = false;
+#else
+    ctrl->checkResiduals = true;
+#endif
+
     return EL_SUCCESS;
 }
 
@@ -41,12 +56,27 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
+    ctrl->mehrotra = true;
+    ctrl->forceSameStep = true;
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->resolveReg = true;
     ctrl->outerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;
     ctrl->time = false;
+
+    const double eps = Epsilon<double>();
+    ctrl->wSafeMaxNorm = Pow(eps,double(-0.15));
+    ctrl->wMaxLimit = Pow(eps,double(-0.4));
+    ctrl->ruizEquilTol = Pow(eps,double(-0.25));
+    ctrl->ruizMaxIter = 3;
+    ctrl->diagEquilTol = Pow(eps,double(-0.15));
+#ifdef EL_RELEASE
+    ctrl->checkResiduals = false;
+#else
+    ctrl->checkResiduals = true;
+#endif
+
     return EL_SUCCESS;
 }
 
