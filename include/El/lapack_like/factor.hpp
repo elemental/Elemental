@@ -245,9 +245,7 @@ void SolveAfter
 enum RegSolveAlg
 {
   REG_SOLVE_FGMRES,
-  REG_SOLVE_LGMRES,
-  REG_SOLVE_IR,
-  REG_SOLVE_IR_MOD
+  REG_SOLVE_LGMRES
 };
 
 template<typename Real>
@@ -279,7 +277,7 @@ Int RegularizedSolveAfter
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front,
-        Matrix<F>& y,
+        Matrix<F>& B,
         Base<F> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
@@ -291,7 +289,7 @@ Int RegularizedSolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
         Base<F> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
@@ -303,7 +301,7 @@ Int RegularizedSolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
         Base<F> relTolRefine,
         Int maxRefineIts,
@@ -318,7 +316,7 @@ Int RegularizedSolveAfter
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front,
-        Matrix<F>& y,
+        Matrix<F>& B,
         Base<F> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
@@ -331,7 +329,7 @@ Int RegularizedSolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
         Base<F> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
@@ -344,7 +342,7 @@ Int RegularizedSolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
         Base<F> relTolRefine,
         Int maxRefineIts,
@@ -358,7 +356,7 @@ Int SolveAfter
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front,
-        Matrix<F>& y,
+        Matrix<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
@@ -367,7 +365,7 @@ Int SolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
@@ -376,7 +374,7 @@ Int SolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<F>>& ctrl );
 
@@ -388,7 +386,7 @@ Int SolveAfter
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front,
-        Matrix<F>& y,
+        Matrix<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
@@ -398,7 +396,7 @@ Int SolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
@@ -408,7 +406,7 @@ Int SolveAfter
   const DistMap& invMap,
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front,
-        DistMultiVec<F>& y,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<F>>& ctrl );
 

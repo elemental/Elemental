@@ -77,7 +77,7 @@ startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
 if worldRank == 0:
-  print "LOP time (resolve reg.):", endLOP-startLOP, "seconds"
+  print "LOP time (resolve reg. w/ equil):", endLOP-startLOP, "seconds"
 if display:
   El.Display( x, "x" )
 
@@ -87,7 +87,7 @@ startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
 if worldRank == 0:
-  print "LOP time (no resolve reg.):", endLOP-startLOP, "seconds"
+  print "LOP time (no resolve reg. w/ equil):", endLOP-startLOP, "seconds"
 if display:
   El.Display( x, "x" )
 

@@ -244,16 +244,7 @@ inline void Equilibrated
 
     // Successively solve each of the linear systems
     // =============================================
-    // TODO: Extend the iterative refinement to handle multiple RHS
-    Matrix<F> u;
-    Zeros( u, m+n, 1 );
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto d = D( ALL, IR(j) );
-        u = d;
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
-        d = u;
-    }
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, D, ctrl );
 
     Zeros( X, n, numRHS );
     if( m >= n )
@@ -546,22 +537,11 @@ void Equilibrated
     if( commRank == 0 && time )
         cout << "  LDL: " << timer.Stop() << " secs" << endl;
 
-    // Successively solve each of the k linear systems
-    // ===============================================
-    // TODO: Extend the iterative refinement to handle multiple right-hand sides
-    DistMultiVec<F> u(comm);
-    Zeros( u, m+n, 1 );
-    auto& DLoc = D.Matrix();
-    auto& uLoc = u.Matrix();
+    // Solve the k linear systems
+    // ==========================
     if( commRank == 0 && time )
         timer.Start();
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto dLoc = DLoc( ALL, IR(j) );
-        Copy( dLoc, uLoc );
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
-        Copy( uLoc, dLoc );
-    }
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, D, ctrl );
     if( commRank == 0 && time )
         cout << "  Solve: " << timer.Stop() << " secs" << endl;
 

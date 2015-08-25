@@ -462,7 +462,7 @@ def MultiplyAfterLDLPiv(A,dSub,p,B,conjugate=True):
 # ==================================================
 
 # Emulate an enum for the Regularized LDL solve/refinement
-(REG_SOLVE_FGMRES,REG_SOLVE_LGMRES,REG_SOLVE_IR,REG_SOLVE_IR_MOD)=(0,1,2,3)
+(REG_SOLVE_FGMRES,REG_SOLVE_LGMRES)=(0,1)
 
 lib.ElRegSolveCtrlDefault_s.argtypes = \
 lib.ElRegSolveCtrlDefault_d.argtypes = \

@@ -10,7 +10,7 @@ import El
 
 n0 = n1 = 20
 display = False
-output = True
+output = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 

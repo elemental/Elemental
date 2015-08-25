@@ -309,18 +309,9 @@ void GLM
     ldl::Front<F> JFront( J, map, info );
     LDL( info, JFront );
 
-    // Successively solve each of the numRHS linear systems
-    // ====================================================
-    // TODO: Use a multiple right-hand side version of reg_ldl::SolveAfter
-    Matrix<F> u;
-    Zeros( u, m+n+k, 1 );
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto g = G( ALL, IR(j) );
-        u = g;
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl.solveCtrl );
-        g = u;
-    }
+    // Solve the linear systems
+    // ========================
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
@@ -507,20 +498,9 @@ void GLM
     ldl::DistFront<F> JFront( J, map, rootSep, info );
     LDL( info, JFront );
 
-    // Successively solve each of the numRHS linear systems
-    // ====================================================
-    // TODO: Use a multiple right-hand side version of reg_ldl::SolveAfter
-    DistMultiVec<F> u(comm);
-    Zeros( u, m+n+k, 1 );
-    auto& GLoc = G.Matrix();
-    auto& uLoc = u.Matrix();
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto gLoc = GLoc( ALL, IR(j) );
-        Copy( gLoc, uLoc );
-        reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl.solveCtrl );
-        Copy( uLoc, gLoc );
-    }
+    // Solve the linear systems
+    // ========================
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================

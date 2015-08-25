@@ -12,10 +12,19 @@ namespace El {
 namespace reg_ldl {
 
 // TODO: Switch to returning the relative residual of the refined solution
+
 // TODO: Do not accept iterative refinements which increase the residual norm
 
+// TODO: Introduce functors for applying linear operator and its approximate
+//       inverse to reduce redundancy between equilibrated and unequilibrated
+//       versions
+
+// TODO: Implement multi-RHS version of LGMRES
+
+// TODO: Implement multi-RHS version of FGMRES
+
 template<typename F>
-inline Int RegularizedSolveAfterNoPromote
+inline Int RegularizedSolveAfterNoPromoteSingle
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap, 
@@ -25,7 +34,11 @@ inline Int RegularizedSolveAfterNoPromote
   Base<F> relTol, Int maxRefineIts, 
   bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
+      if( b.Width() != 1 )    
+          LogicError("Expected a single right-hand side");
+    )
     auto bOrig = b;
     const Base<F> bNorm = MaxNorm( b );
     Timer timer;
@@ -112,6 +125,31 @@ inline Int RegularizedSolveAfterNoPromote
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          RegularizedSolveAfterNoPromoteSingle
+          (A,reg,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterNoPromoteSingle
 ( const SparseMatrix<F>& A,
   const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
@@ -122,7 +160,11 @@ inline Int RegularizedSolveAfterNoPromote
   Base<F> relTol, Int maxRefineIts, 
   bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
+      if( b.Width() != 1 )    
+          LogicError("Expected a single right-hand side");
+    )
     auto bOrig = b;
     const Base<F> bNorm = MaxNorm( b );
     Timer timer;
@@ -213,7 +255,33 @@ inline Int RegularizedSolveAfterNoPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromote
+inline Int RegularizedSolveAfterNoPromote
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
+  const Matrix<Base<F>>& d, 
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          RegularizedSolveAfterNoPromoteSingle
+          (A,reg,d,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterPromoteSingle
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap, 
@@ -223,7 +291,11 @@ inline Int RegularizedSolveAfterPromote
   Base<F> relTol, Int maxRefineIts, 
   bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
@@ -327,6 +399,31 @@ template<typename F>
 inline Int RegularizedSolveAfterPromote
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          RegularizedSolveAfterPromoteSingle
+          (A,reg,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterPromoteSingle
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
@@ -335,7 +432,11 @@ inline Int RegularizedSolveAfterPromote
   Base<F> relTol, Int maxRefineIts, 
   bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
@@ -445,24 +546,50 @@ inline Int RegularizedSolveAfterPromote
 }
 
 template<typename F>
+inline Int RegularizedSolveAfterPromote
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const Matrix<Base<F>>& d, 
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol, Int maxRefineIts, 
+  bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          RegularizedSolveAfterPromoteSingle
+          (A,reg,d,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
 Int RegularizedSolveAfter
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
-        Matrix<F>& b,
+        Matrix<F>& B,
   Base<F> relTol, Int maxRefineIts, 
   bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
-           ( A, reg, invMap, info, front, b, relTol, maxRefineIts, 
+           ( A, reg, invMap, info, front, B, relTol, maxRefineIts, 
              progress, time );
 #else
     return RegularizedSolveAfterNoPromote
-           ( A, reg, invMap, info, front, b, relTol, maxRefineIts, 
+           ( A, reg, invMap, info, front, B, relTol, maxRefineIts, 
              progress, time );
 #endif
 }
@@ -475,23 +602,23 @@ Int RegularizedSolveAfter
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
-        Matrix<F>& b,
+        Matrix<F>& B,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, 
-             b, relTol, maxRefineIts, progress, time );
+             B, relTol, maxRefineIts, progress, time );
 #else
     return RegularizedSolveAfterNoPromote
            ( A, reg, d, invMap, info, front, 
-             b, relTol, maxRefineIts, progress, time );
+             B, relTol, maxRefineIts, progress, time );
 #endif
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterNoPromote
+inline Int RegularizedSolveAfterNoPromoteSingle
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap, 
@@ -501,7 +628,11 @@ inline Int RegularizedSolveAfterNoPromote
         ldl::DistMultiVecNodeMeta& meta,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
     Timer timer;
@@ -598,18 +729,52 @@ inline Int RegularizedSolveAfterNoPromote
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = RegularizedSolveAfterNoPromoteSingle
+          ( A, reg, invMap, info, front, u, meta,
+            relTol, maxRefineIts, progress, time );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterNoPromote
-           ( A, reg, invMap, info, front, b, meta,
+           ( A, reg, invMap, info, front, B, meta,
              relTol, maxRefineIts, progress, time );
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterNoPromote
+inline Int RegularizedSolveAfterNoPromoteSingle
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
@@ -620,7 +785,11 @@ inline Int RegularizedSolveAfterNoPromote
         ldl::DistMultiVecNodeMeta& meta,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     mpi::Comm comm = A.Comm();
     const Int commRank = mpi::Rank(comm);
     Timer timer;
@@ -737,18 +906,53 @@ inline Int RegularizedSolveAfterNoPromote
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = RegularizedSolveAfterNoPromoteSingle
+          ( A, reg, d, invMap, info, front, u, meta,
+            relTol, maxRefineIts, progress, time );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d, 
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterNoPromote
-           ( A, reg, d, invMap, info, front, b, meta,
+           ( A, reg, d, invMap, info, front, B, meta,
              relTol, maxRefineIts, progress, time );
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromote
+inline Int RegularizedSolveAfterPromoteSingle
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap, 
@@ -758,7 +962,11 @@ inline Int RegularizedSolveAfterPromote
         ldl::DistMultiVecNodeMeta& meta,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
@@ -868,18 +1076,52 @@ inline Int RegularizedSolveAfterPromote
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = RegularizedSolveAfterPromoteSingle
+          ( A, reg, invMap, info, front, u, meta,
+            relTol, maxRefineIts, progress, time );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterPromote
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterPromote
-           ( A, reg, invMap, info, front, b, meta,
+           ( A, reg, invMap, info, front, B, meta,
              relTol, maxRefineIts, progress, time );
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromote
+inline Int RegularizedSolveAfterPromoteSingle
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d, 
@@ -890,7 +1132,11 @@ inline Int RegularizedSolveAfterPromote
         ldl::DistMultiVecNodeMeta& meta,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
@@ -1020,13 +1266,48 @@ inline Int RegularizedSolveAfterPromote
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = RegularizedSolveAfterPromoteSingle
+          ( A, reg, d, invMap, info, front, u, meta,
+            relTol, maxRefineIts, progress, time );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int RegularizedSolveAfterPromote
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d, 
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterPromote
-           ( A, reg, d, invMap, info, front, b, meta,
+           ( A, reg, d, invMap, info, front, B, meta,
              relTol, maxRefineIts, progress, time );
 }
 
@@ -1037,18 +1318,18 @@ Int RegularizedSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
-    ( A, reg, invMap, info, front, b, meta,
+    ( A, reg, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
 #else
     return RegularizedSolveAfterNoPromote
-    ( A, reg, invMap, info, front, b, meta,
+    ( A, reg, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
 #endif
 }
@@ -1060,13 +1341,13 @@ Int RegularizedSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfter
-           ( A, reg, invMap, info, front, b, meta,
+           ( A, reg, invMap, info, front, B, meta,
              relTol, maxRefineIts, progress, time );
 }
 
@@ -1078,18 +1359,18 @@ Int RegularizedSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
-    ( A, reg, d, invMap, info, front, b, meta,
+    ( A, reg, d, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
 #else
     return RegularizedSolveAfterNoPromote
-    ( A, reg, d, invMap, info, front, b, meta,
+    ( A, reg, d, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
 #endif
 }
@@ -1102,363 +1383,18 @@ Int RegularizedSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
   Base<F> relTol, Int maxRefineIts, bool progress, bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfter
-    ( A, reg, d, invMap, info, front, b, meta,
+    ( A, reg, d, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
 }
 
 template<typename F>
-Int IRSolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap, 
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
-{
-    DEBUG_ONLY(CSE cse("reg_ldl::IRSolveAfter"))
-    auto bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
-
-    // Compute the initial guess
-    // =========================
-    auto x = b;
-    RegularizedSolveAfter
-    ( A, reg, invMap, info, front, x, relTol, maxRefineIts, progress );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<F> dx, xCand;
-        Multiply( NORMAL, F(-1), A, x, F(1), b );
-        Base<F> errorNorm = Nrm2( b );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            dx = b;
-            RegularizedSolveAfter
-            ( A, reg, invMap, info, front, dx, relTol, maxRefineIts, progress );
-            xCand = x;
-            xCand += dx;
-
-            // Compute the new residual
-            // ------------------------
-            b = bOrig;
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
-            Base<F> newErrorNorm = Nrm2( b );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                RuntimeError("Iterative refinement did not converge");
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge"); 
-        }
-        SetIndent( indent );
-    }
-    // Store the final result
-    // ======================
-    b = x;
-    return refineIt;
-}
-
-template<typename F>
-Int IRSolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d,
-  const vector<Int>& invMap, 
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
-{
-    DEBUG_ONLY(CSE cse("reg_ldl::IRSolveAfter"))
-    auto bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
-
-    // Compute the initial guess
-    // =========================
-    auto x = b;
-    RegularizedSolveAfter
-    ( A, reg, d, invMap, info, front, x, relTol, maxRefineIts, progress );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<F> dx, xCand;
-        Multiply( NORMAL, F(-1), A, x, F(1), b );
-        Base<F> errorNorm = Nrm2( b );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            dx = b;
-            RegularizedSolveAfter
-            ( A, reg, d, invMap, info, front, 
-              dx, relTol, maxRefineIts, progress );
-            xCand = x;
-            xCand += dx;
-
-            // Compute the new residual
-            // ------------------------
-            b = bOrig;
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
-            Base<F> newErrorNorm = Nrm2( b );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                RuntimeError("Iterative refinement did not converge"); 
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge"); 
-        }
-        SetIndent( indent );
-    }
-    // Store the final result
-    // ======================
-    b = x;
-    return refineIt;
-}
-
-template<typename F>
-Int IRSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-        ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress )
-{
-    DEBUG_ONLY(CSE cse("reg_ldl::IRSolveAfter"))
-    mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
-
-    DistMultiVec<F> bOrig(comm);
-    bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
-
-    // Compute the initial guess
-    // =========================
-    DistMultiVec<F> x(comm);
-    x = b;
-    RegularizedSolveAfter
-    ( A, reg, invMap, info, front, x, meta, relTol, maxRefineIts, progress );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<F> dx(comm), xCand(comm);
-        Multiply( NORMAL, F(-1), A, x, F(1), b );
-        Base<F> errorNorm = Nrm2( b );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            dx = b;
-            RegularizedSolveAfter
-            ( A, reg, invMap, info, front, dx, meta, 
-              relTol, maxRefineIts, progress );
-            xCand = x;
-            xCand += dx;
-
-            // If the proposed update lowers the residual, accept it
-            // -----------------------------------------------------
-            b = bOrig;
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
-            Base<F> newErrorNorm = Nrm2( b );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                RuntimeError("Iterative refinement did not converge");
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge");
-        }
-        SetIndent( indent );
-    }
-    // Store the final result
-    // ======================
-    b = x;
-    return refineIt;
-}
-
-template<typename F>
-Int IRSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
-{
-    DEBUG_ONLY(CSE cse("reg_ldl::IRSolveAfter"))
-    ldl::DistMultiVecNodeMeta meta;
-    return IRSolveAfter
-           ( A, reg, invMap, info, front, b, meta,
-             relTol, maxRefineIts, progress );
-}
-
-template<typename F>
-Int IRSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-        ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress )
-{
-    DEBUG_ONLY(CSE cse("reg_ldl::IRSolveAfter"))
-    mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
-
-    DistMultiVec<F> bOrig(comm);
-    bOrig = b;
-    const Base<F> bNorm = Nrm2( b );
-
-    // Compute the initial guess
-    // =========================
-    DistMultiVec<F> x(comm);
-    x = b;
-    RegularizedSolveAfter
-    ( A, reg, d, invMap, info, front, x, meta, relTol, maxRefineIts, progress );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<F> dx(comm), xCand(comm);
-        Multiply( NORMAL, F(-1), A, x, F(1), b );
-        Base<F> errorNorm = Nrm2( b );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            dx = b;
-            RegularizedSolveAfter
-            ( A, reg, d, invMap, info, front, dx, meta,
-              relTol, maxRefineIts, progress );
-            xCand = x;
-            xCand += dx;
-
-            // If the proposed update lowers the residual, accept it
-            // -----------------------------------------------------
-            b = bOrig;
-            Multiply( NORMAL, F(-1), A, xCand, F(1), b );
-            Base<F> newErrorNorm = Nrm2( b );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                RuntimeError("Iterative refinement did not converge");
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                RuntimeError("Iterative refinement did not converge");
-        }
-        SetIndent( indent );
-    }
-    // Store the final result
-    // ======================
-    b = x;
-    return refineIt;
-}
-
-template<typename F>
-Int IRSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-  Base<F> relTol, Int maxRefineIts, bool progress )
-{
-    DEBUG_ONLY(CSE cse("reg_ldl::IRSolveAfter"))
-    ldl::DistMultiVecNodeMeta meta;
-    return IRSolveAfter
-           ( A, reg, d, invMap, info, front, b, meta,
-             relTol, maxRefineIts, progress );
-}
-
-template<typename F>
-Int LGMRESSolveAfter
+inline Int LGMRESSolveAfterSingle
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap, 
@@ -1468,7 +1404,11 @@ Int LGMRESSolveAfter
   Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::LGMRESSolveAfterSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -1668,6 +1608,32 @@ Int LGMRESSolveAfter
 
 template<typename F>
 Int LGMRESSolveAfter
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol,       Int restart,      Int maxIts,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          LGMRESSolveAfterSingle
+          (A,reg,invMap,info,front,b,
+           relTol,restart,maxIts,relTolRefine,maxRefineIts,progress);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int LGMRESSolveAfterSingle
 ( const SparseMatrix<F>& A,
   const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
@@ -1678,7 +1644,11 @@ Int LGMRESSolveAfter
   Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::LGMRESSolveAfterSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -1878,6 +1848,33 @@ Int LGMRESSolveAfter
 
 template<typename F>
 Int LGMRESSolveAfter
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
+  const Matrix<Base<F>>& d,
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol,       Int restart,      Int maxIts,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          LGMRESSolveAfterSingle
+          (A,reg,d,invMap,info,front,b,
+           relTol,restart,maxIts,relTolRefine,maxRefineIts,progress);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int LGMRESSolveAfterSingle
 ( const DistSparseMatrix<F>& A,
   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap, 
@@ -1888,7 +1885,11 @@ Int LGMRESSolveAfter
   Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::LGMRESSolveAfterSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -2101,19 +2102,54 @@ Int LGMRESSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol,       Int restart,      Int maxIts,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = LGMRESSolveAfterSingle
+          ( A, reg, invMap, info, front, u, meta,
+            relTol, restart, maxIts, relTolRefine, maxRefineIts, progress );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+Int LGMRESSolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
     return LGMRESSolveAfter
-           ( A, reg, invMap, info, front, b, meta,
+           ( A, reg, invMap, info, front, B, meta,
              relTol, restart, maxIts, relTolRefine, maxRefineIts, progress );
 }
 
 template<typename F>
-Int LGMRESSolveAfter
+inline Int LGMRESSolveAfterSingle
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
@@ -2125,7 +2161,11 @@ Int LGMRESSolveAfter
   Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::LGMRESSolveAfterSingle");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -2339,14 +2379,50 @@ Int LGMRESSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol,       Int restart,      Int maxIts,
+  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = LGMRESSolveAfterSingle
+          ( A, reg, d, invMap, info, front, u, meta,
+            relTol, restart, maxIts, relTolRefine, maxRefineIts, progress );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+Int LGMRESSolveAfter
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol,       Int restart,      Int maxIts,
   Base<F> relTolRefine, Int maxRefineIts, bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
     return LGMRESSolveAfter
-           ( A, reg, d, invMap, info, front, b, meta,
+           ( A, reg, d, invMap, info, front, B, meta,
              relTol, restart, maxIts, relTolRefine, maxRefineIts, progress );
 }
 
@@ -2356,7 +2432,7 @@ Int LGMRESSolveAfter
 //   SIAM J. Sci. Comput., Vol. 14, No. 2, pp. 461--469, 1993.
 
 template<typename F>
-Int FGMRESSolveAfter
+inline Int FGMRESSolveAfterSingle
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap, 
@@ -2371,7 +2447,11 @@ Int FGMRESSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::FGMRESSolveAfterSingle");
+      if( b.Width() != 1 )    
+          LogicError("Expected a single right-hand side");
+    )
 
     // Avoid half of the matrix-vector products by keeping the results of 
     // A z_j and A x_0
@@ -2628,6 +2708,37 @@ template<typename F>
 Int FGMRESSolveAfter
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          FGMRESSolveAfterSingle
+          (A,reg,invMap,info,front,b,
+           relTol,restart,maxIts,relTolRefine,maxRefineIts,progress,time);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int FGMRESSolveAfterSingle
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
@@ -2641,7 +2752,11 @@ Int FGMRESSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::FGMRESSolveAfterSingle");
+      if( b.Width() != 1 )    
+          LogicError("Expected a single right-hand side");
+    )
 
     // Avoid half of the matrix-vector products by keeping the results of
     // A z_j and A x_0
@@ -2877,6 +2992,38 @@ Int FGMRESSolveAfter
 
 template<typename F>
 Int FGMRESSolveAfter
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const Matrix<Base<F>>& d,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    Int mostRefineIts = 0;
+    const Int width = B.Width();
+    for( Int j=0; j<width; ++j )
+    {
+        auto b = B( ALL, IR(j) );
+        const Int refineIts = 
+          FGMRESSolveAfterSingle
+          (A,reg,d,invMap,info,front,b,
+           relTol,restart,maxIts,relTolRefine,maxRefineIts,progress,time);
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+inline Int FGMRESSolveAfterSingle
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap, 
@@ -2892,7 +3039,11 @@ Int FGMRESSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::FGMRESSolveAfterSingle");
+      if( b.Width() != 1 )    
+          LogicError("Expected a single right-hand side");
+    )
 
     // Avoid half of the matrix-vector products by keeping the results of
     // A z_j and A x_0
@@ -3165,7 +3316,48 @@ Int FGMRESSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = FGMRESSolveAfterSingle
+          ( A, reg, invMap, info, front, u, meta,
+            relTol, restart, maxIts, relTolRefine, maxRefineIts,
+            progress, time );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+Int FGMRESSolveAfter
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol,
   Int restart,
   Int maxIts,
@@ -3177,13 +3369,13 @@ Int FGMRESSolveAfter
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
     return FGMRESSolveAfter
-           ( A, reg, invMap, info, front, b, meta,
+           ( A, reg, invMap, info, front, B, meta,
              relTol, restart, maxIts, relTolRefine, maxRefineIts,
              progress, time );
 }
 
 template<typename F>
-Int FGMRESSolveAfter
+inline Int FGMRESSolveAfterSingle
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
@@ -3200,7 +3392,11 @@ Int FGMRESSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    DEBUG_ONLY(
+      CSE cse("reg_ldl::FGMRESSolveAfterSingle");
+      if( b.Width() != 1 )    
+          LogicError("Expected a single right-hand side");
+    )
 
     // Avoid half of the matrix-vector products by keeping the results of
     // A z_j and A x_0
@@ -3474,7 +3670,49 @@ Int FGMRESSolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+    mpi::Comm comm = A.Comm();
+
+    Int mostRefineIts = 0;
+    DistMultiVec<F> u(comm);
+    Zeros( u, m, 1 );
+    auto& BLoc = B.Matrix();
+    auto& uLoc = u.Matrix();
+    for( Int j=0; j<n; ++j )
+    {
+        auto bLoc = BLoc( ALL, IR(j) );
+        Copy( bLoc, uLoc );
+        const Int refineIts = FGMRESSolveAfterSingle
+          ( A, reg, d, invMap, info, front, u, meta,
+            relTol, restart, maxIts, relTolRefine, maxRefineIts,
+            progress, time );
+        Copy( uLoc, bLoc );
+        mostRefineIts = Max(mostRefineIts,refineIts);
+    }
+    return mostRefineIts;
+}
+
+template<typename F>
+Int FGMRESSolveAfter
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
   Base<F> relTol,
   Int restart,
   Int maxIts,
@@ -3486,7 +3724,7 @@ Int FGMRESSolveAfter
     DEBUG_ONLY(CSE cse("reg_ldl::FGMRESSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
     return FGMRESSolveAfter
-           ( A, reg, d, invMap, info, front, b, meta,
+           ( A, reg, d, invMap, info, front, B, meta,
              relTol, restart, maxIts, relTolRefine, maxRefineIts,
              progress, time );
 }
@@ -3500,7 +3738,7 @@ Int SolveAfter
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
-        Matrix<F>& b,
+        Matrix<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::SolveAfter"))
@@ -3508,24 +3746,16 @@ Int SolveAfter
     {
     case REG_SOLVE_FGMRES:
         return FGMRESSolveAfter
-        ( A, reg, invMap, info, front, b, 
+        ( A, reg, invMap, info, front, B, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress, ctrl.time );
     case REG_SOLVE_LGMRES:
         return LGMRESSolveAfter
-        ( A, reg, invMap, info, front, b, 
+        ( A, reg, invMap, info, front, B, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
-    case REG_SOLVE_IR:
-        return IRSolveAfter
-        ( A, reg, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
-    case REG_SOLVE_IR_MOD:    
-        return RegularizedSolveAfter
-        ( A, reg, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -3540,7 +3770,7 @@ Int SolveAfter
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
-        Matrix<F>& b,
+        Matrix<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::SolveAfter"))
@@ -3548,24 +3778,16 @@ Int SolveAfter
     {
     case REG_SOLVE_FGMRES:
         return FGMRESSolveAfter
-        ( A, reg, d, invMap, info, front, b, 
+        ( A, reg, d, invMap, info, front, B, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress, ctrl.time );
     case REG_SOLVE_LGMRES:
         return LGMRESSolveAfter
-        ( A, reg, d, invMap, info, front, b, 
+        ( A, reg, d, invMap, info, front, B, 
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
-    case REG_SOLVE_IR:
-        return IRSolveAfter
-        ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
-    case REG_SOLVE_IR_MOD:    
-        return RegularizedSolveAfter
-        ( A, reg, d, invMap, info, front, b, 
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -3579,7 +3801,7 @@ Int SolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<F>>& ctrl )
 {
@@ -3588,24 +3810,16 @@ Int SolveAfter
     {
     case REG_SOLVE_FGMRES:
         return FGMRESSolveAfter
-        ( A, reg, invMap, info, front, b, meta,
+        ( A, reg, invMap, info, front, B, meta,
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress, ctrl.time );
     case REG_SOLVE_LGMRES:
         return LGMRESSolveAfter
-        ( A, reg, invMap, info, front, b, meta,
+        ( A, reg, invMap, info, front, B, meta,
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
-    case REG_SOLVE_IR:
-        return IRSolveAfter
-        ( A, reg, invMap, info, front, b, meta,
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
-    case REG_SOLVE_IR_MOD:    
-        return RegularizedSolveAfter
-        ( A, reg, invMap, info, front, b, meta,
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -3619,12 +3833,12 @@ Int SolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::SolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
-    return SolveAfter( A, reg, invMap, info, front, b, meta, ctrl );
+    return SolveAfter( A, reg, invMap, info, front, B, meta, ctrl );
 }
 
 template<typename F>
@@ -3635,7 +3849,7 @@ Int SolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<F>>& ctrl )
 {
@@ -3644,24 +3858,16 @@ Int SolveAfter
     {
     case REG_SOLVE_FGMRES:
         return FGMRESSolveAfter
-        ( A, reg, d, invMap, info, front, b, meta,
+        ( A, reg, d, invMap, info, front, B, meta,
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress, ctrl.time );
     case REG_SOLVE_LGMRES:
         return LGMRESSolveAfter
-        ( A, reg, d, invMap, info, front, b, meta,
+        ( A, reg, d, invMap, info, front, B, meta,
           ctrl.relTol, ctrl.restart, ctrl.maxIts,
           ctrl.relTolRefine, ctrl.maxRefineIts, 
           ctrl.progress );
-    case REG_SOLVE_IR:
-        return IRSolveAfter
-        ( A, reg, d, invMap, info, front, b, meta,
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress );
-    case REG_SOLVE_IR_MOD:    
-        return RegularizedSolveAfter
-        ( A, reg, d, invMap, info, front, b, meta,
-          ctrl.relTolRefine, ctrl.maxRefineIts, ctrl.progress, ctrl.time );
     default:
         LogicError("Invalid refinement algorithm");
         return -1;
@@ -3676,12 +3882,12 @@ Int SolveAfter
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
+        DistMultiVec<F>& B,
   const RegSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::SolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
-    return SolveAfter( A, reg, d, invMap, info, front, b, meta, ctrl );
+    return SolveAfter( A, reg, d, invMap, info, front, B, meta, ctrl );
 }
 
 #define PROTO(F) \
@@ -3691,7 +3897,7 @@ Int SolveAfter
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
     const ldl::Front<F>& front, \
-          Matrix<F>& b, \
+          Matrix<F>& B, \
     Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
   ( const SparseMatrix<F>& A, \
@@ -3700,7 +3906,7 @@ Int SolveAfter
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
     const ldl::Front<F>& front, \
-          Matrix<F>& b, \
+          Matrix<F>& B, \
     Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
   ( const DistSparseMatrix<F>& A, \
@@ -3708,7 +3914,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
     Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
   ( const DistSparseMatrix<F>& A, \
@@ -3716,7 +3922,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
     Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
@@ -3726,7 +3932,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
     Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
   ( const DistSparseMatrix<F>& A, \
@@ -3735,7 +3941,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
     Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int SolveAfter \
@@ -3744,7 +3950,7 @@ Int SolveAfter
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
     const ldl::Front<F>& front, \
-          Matrix<F>& b, \
+          Matrix<F>& B, \
     const RegSolveCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const SparseMatrix<F>& A, \
@@ -3753,7 +3959,7 @@ Int SolveAfter
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
     const ldl::Front<F>& front, \
-          Matrix<F>& b, \
+          Matrix<F>& B, \
     const RegSolveCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A, \
@@ -3761,7 +3967,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
     const RegSolveCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A, \
@@ -3769,7 +3975,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
     const RegSolveCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
@@ -3779,7 +3985,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
     const RegSolveCtrl<Base<F>>& ctrl ); \
   template Int SolveAfter \
   ( const DistSparseMatrix<F>& A, \
@@ -3788,7 +3994,7 @@ Int SolveAfter
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
     const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& b, \
+          DistMultiVec<F>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
     const RegSolveCtrl<Base<F>>& ctrl );
 

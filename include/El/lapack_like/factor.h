@@ -364,9 +364,7 @@ EL_EXPORT ElError ElMultiplyAfterLDLPivDist_z
 typedef enum
 {
   EL_REG_SOLVE_FGMRES,
-  EL_REG_SOLVE_LGMRES,
-  EL_REG_SOLVE_IR,
-  EL_REG_SOLVE_IR_MOD
+  EL_REG_SOLVE_LGMRES
 } ElRegSolveAlg;
 
 typedef struct
