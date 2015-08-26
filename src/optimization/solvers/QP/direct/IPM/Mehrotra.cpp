@@ -1276,12 +1276,19 @@ void Mehrotra
     const Real twoNormEstQ = HermitianTwoNormEstimate( Q, ctrl.basisSize );
     const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstQ + twoNormEstA + 1;
-    if( ctrl.print && commRank == 0 )
+    if( ctrl.print )
     {
-        Output("|| Q ||_2 estimate: ",twoNormEstQ);
-        Output("|| A ||_2 estimate: ",twoNormEstA);
-        Output("|| b ||_2 = ",bNrm2);
-        Output("|| c ||_2 = ",cNrm2);
+        const double imbalanceQ = Q.Imbalance();
+        const double imbalanceA = A.Imbalance();
+        if( commRank == 0 )
+        {
+            Output("|| Q ||_2 estimate: ",twoNormEstQ);
+            Output("|| A ||_2 estimate: ",twoNormEstA);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+            Output("Imbalance factor of Q: ",imbalanceQ);
+            Output("Imbalance factor of A: ",imbalanceA);
+        }
     }
 
     DistMap map, invMap;
@@ -1460,21 +1467,16 @@ void Mehrotra
                 J = JOrig;
 
                 UpdateDiagonal( J, Real(1), regTmp );
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                if( wMaxNorm >= ctrl.ruizEquilTol )
-                    SymmetricRuizEquil
-                    ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-                else if( wMaxNorm >= ctrl.diagEquilTol )
-                    SymmetricDiagonalEquil( J, dInner, ctrl.print );
-                else
-                    Ones( dInner, J.Height(), 1 );
-                if( commRank == 0 && ctrl.time )
-                    Output("Equilibration: ",timer.Stop()," secs");
-
                 // Cache the metadata for the finalized J
                 if( numIts == 0 )
                 {
+                    if( ctrl.print )
+                    {
+                        const double imbalanceJ = J.Imbalance();
+                        if( commRank == 0 )
+                            Output("Imbalance factor of J: ",imbalanceJ);
+                    }
+
                     meta = J.InitializeMultMeta();
                     if( ctrl.system == FULL_KKT || 
                         (ctrl.primalInit && ctrl.dualInit) )
@@ -1490,6 +1492,19 @@ void Mehrotra
                 }
                 else
                     J.multMeta = meta;
+
+                if( commRank == 0 && ctrl.time )
+                    timer.Start();
+                if( wMaxNorm >= ctrl.ruizEquilTol )
+                    SymmetricRuizEquil
+                    ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+                else if( wMaxNorm >= ctrl.diagEquilTol )
+                    SymmetricDiagonalEquil( J, dInner, ctrl.print );
+                else
+                    Ones( dInner, J.Height(), 1 );
+                if( commRank == 0 && ctrl.time )
+                    Output("Equilibration: ",timer.Stop()," secs");
+
                 JFront.Pull
                 ( J, map, rootSep, info, 
                   mappedSources, mappedTargets, colOffs );

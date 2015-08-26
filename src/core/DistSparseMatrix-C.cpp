@@ -124,6 +124,9 @@ extern "C" {
   ElError ElDistSparseMatrixNumConnections_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt localRow, ElInt* numConnections ) \
   { EL_TRY( *numConnections = CReflect(A)->NumConnections(localRow) ) } \
+  ElError ElDistSparseMatrixImbalance_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, double* imbalance ) \
+  { EL_TRY( *imbalance = CReflect(A)->Imbalance() ) } \
   ElError ElDistSparseMatrixSourceBuffer_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt** sourceBuffer ) \
   { EL_TRY( *sourceBuffer = CReflect(A)->SourceBuffer() ) } \

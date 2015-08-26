@@ -1303,13 +1303,20 @@ void Mehrotra
     const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
     const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
-    if( ctrl.print && commRank == 0 )
+    if( ctrl.print )
     {
-        Output("|| A ||_2 estimate: ",twoNormEstA);
-        Output("|| G ||_2 estimate: ",twoNormEstG);
-        Output("|| b ||_2 = ",bNrm2);
-        Output("|| c ||_2 = ",cNrm2);
-        Output("|| h ||_2 = ",hNrm2);
+        const double imbalanceA = A.Imbalance();
+        const double imbalanceG = G.Imbalance();
+        if( commRank == 0 )
+        {
+            Output("|| A ||_2 estimate: ",twoNormEstA);
+            Output("|| G ||_2 estimate: ",twoNormEstG);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+            Output("|| h ||_2 = ",hNrm2);
+            Output("Imbalance factor of A: ",imbalanceA);
+            Output("Imbalance factor of G: ",imbalanceG);
+        }
     }
 
     if( commRank == 0 && ctrl.time )
@@ -1387,6 +1394,12 @@ void Mehrotra
     ( A, G, gamma, delta, beta, 
       orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
       kSparse, JStatic, onlyLower );
+    if( ctrl.print )
+    {
+        const Real imbalanceJ = JStatic.Imbalance();
+        if( commRank == 0 )
+            Output("Imbalance factor of J: ",imbalanceJ);
+    }
 
     auto meta = JStatic.InitializeMultMeta();
     if( commRank == 0 && ctrl.time )

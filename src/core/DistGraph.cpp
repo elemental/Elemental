@@ -588,6 +588,17 @@ Int DistGraph::NumConnections( Int localSource ) const EL_NO_RELEASE_EXCEPT
     return SourceOffset(localSource+1) - SourceOffset(localSource);
 }
 
+double DistGraph::Imbalance() const
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("DistGraph::Imbalance"))
+    Int numLocalEdges = NumLocalEdges();
+    double numEdges = mpi::AllReduce( numLocalEdges, comm_ );
+    double maxLocalEdges = mpi::AllReduce( numLocalEdges, mpi::MAX, comm_ );
+    double commSize = commSize_;
+    return (maxLocalEdges*commSize)/numEdges;
+}
+
 Int* DistGraph::SourceBuffer() EL_NO_EXCEPT
 { return sources_.data(); }
 Int* DistGraph::TargetBuffer() EL_NO_EXCEPT

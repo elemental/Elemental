@@ -549,6 +549,14 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<typename T>
+double DistSparseMatrix<T>::Imbalance() const
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Imbalance"))
+    return distGraph_.Imbalance(); 
+}
+
+template<typename T>
 T DistSparseMatrix<T>::Value( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
 { 

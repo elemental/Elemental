@@ -1202,14 +1202,23 @@ void Mehrotra
     const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
     const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + twoNormEstQ + 1;
-    if( ctrl.print && commRank == 0 )
+    if( ctrl.print )
     {
-        Output("|| Q ||_2 estimate: ",twoNormEstQ);
-        Output("|| A ||_2 estimate: ",twoNormEstA);
-        Output("|| G ||_2 estimate: ",twoNormEstG);
-        Output("|| b ||_2 = ",bNrm2);
-        Output("|| c ||_2 = ",cNrm2);
-        Output("|| h ||_2 = ",hNrm2);
+        const double imbalanceQ = Q.Imbalance();
+        const double imbalanceA = A.Imbalance();
+        const double imbalanceG = G.Imbalance();
+        if( commRank == 0 )
+        {
+            Output("|| Q ||_2 estimate: ",twoNormEstQ);
+            Output("|| A ||_2 estimate: ",twoNormEstA);
+            Output("|| G ||_2 estimate: ",twoNormEstG);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+            Output("|| h ||_2 = ",hNrm2);
+            Output("Imbalance factor of Q: ",imbalanceQ);
+            Output("Imbalance factor of A: ",imbalanceA);
+            Output("Imbalance factor of G: ",imbalanceG);
+        }
     }
 
     DistMultiVec<Real> regTmp(comm);
@@ -1228,6 +1237,13 @@ void Mehrotra
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT( Q, A, G, gamma, delta, beta, JStatic, false );
     JStatic.InitializeMultMeta();
+    if( ctrl.print )
+    {
+        const double imbalanceJ = JStatic.Imbalance();
+        if( commRank == 0 )
+            Output("Imbalance factor of J: ",imbalanceJ);
+    }
+
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;

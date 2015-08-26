@@ -181,6 +181,10 @@ public:
     Int Offset( Int localRow, Int col ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int localRow ) const EL_NO_RELEASE_EXCEPT;
 
+    // Return the ratio of the maximum number of local nonzeros to the 
+    // total number of nonzeros divided by the number of processes
+    double Imbalance() const EL_NO_RELEASE_EXCEPT;
+
     mutable DistSparseMultMeta multMeta;
     DistSparseMultMeta InitializeMultMeta() const;
 

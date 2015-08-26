@@ -123,6 +123,10 @@ public:
     Int Offset( Int localSource, Int target ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int localSource ) const EL_NO_RELEASE_EXCEPT;
 
+    // Return the ratio of the maximum number of local edges to the 
+    // total number of edges divided by the number of processes
+    double Imbalance() const EL_NO_RELEASE_EXCEPT;
+
     void AssertConsistent() const;
     void AssertLocallyConsistent() const;
 

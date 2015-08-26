@@ -1587,9 +1587,14 @@ void Mehrotra
     const Real origTwoNormEst = twoNormEstA + 1;
     if( ctrl.print )
     {
-        Output("|| A ||_2 estimate: ",twoNormEstA);
-        Output("|| b ||_2 = ",bNrm2);
-        Output("|| c ||_2 = ",cNrm2);
+        const double imbalanceA = A.Imbalance();
+        if( commRank == 0 )
+        {
+            Output("|| A ||_2 estimate: ",twoNormEstA);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+            Output("Imbalance factor of A: ",imbalanceA);
+        }
     }
 
     DistMap map, invMap;
@@ -1774,6 +1779,27 @@ void Mehrotra
                 J = JOrig;
 
                 UpdateDiagonal( J, Real(1), regTmp );
+                // Cache the metadata for the finalized J
+                if( numIts == 0 )
+                {
+                    if( ctrl.print )
+                    {
+                        const double imbalanceJ = J.Imbalance();
+                        if( commRank == 0 )
+                            Output("Imbalance factor of J: ",imbalanceJ);
+                    }
+
+                    meta = J.InitializeMultMeta();
+                    if( commRank == 0 && ctrl.time )
+                        timer.Start();
+                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                    if( commRank == 0 && ctrl.time )
+                        Output("ND: ",timer.Stop()," secs");
+                    InvertMap( map, invMap );
+                }
+                else
+                    J.multMeta = meta;
+
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -1794,19 +1820,6 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     Output("Equilibration: ",timer.Stop()," secs");
 
-                // Cache the metadata for the finalized J
-                if( numIts == 0 )
-                {
-                    meta = J.InitializeMultMeta();
-                    if( commRank == 0 && ctrl.time )
-                        timer.Start();
-                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                    if( commRank == 0 && ctrl.time )
-                        Output("ND: ",timer.Stop()," secs");
-                    InvertMap( map, invMap );
-                }
-                else
-                    J.multMeta = meta;
                 JFront.Pull
                 ( J, map, rootSep, info, 
                   mappedSources, mappedTargets, colOffs );
@@ -1860,6 +1873,13 @@ void Mehrotra
                 // Cache the metadata for the finalized J
                 if( numIts == 0 )
                 {
+                    if( ctrl.print )
+                    {
+                        const double imbalanceJ = J.Imbalance();
+                        if( commRank == 0 )
+                            Output("Imbalance factor of J: ",imbalanceJ);
+                    }
+
                     meta = J.InitializeMultMeta();
                     if( commRank == 0 && ctrl.time )
                         timer.Start();
