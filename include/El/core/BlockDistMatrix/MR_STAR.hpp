@@ -46,7 +46,8 @@ public:
     BlockDistMatrix( const type& A );
     BlockDistMatrix( const absType& A );
     template<Dist U,Dist V> BlockDistMatrix( const BlockDistMatrix<T,U,V>& A );
-    template<Dist U,Dist V> BlockDistMatrix( const DistMatrix<T,U,V>& A );
+    template<Dist U,Dist V>
+    BlockDistMatrix( const DistMatrix<T,U,V,ELEMENTAL>& A );
     // Move constructor
     BlockDistMatrix( type&& A ) EL_NO_EXCEPT;
     // Destructor
@@ -61,7 +62,8 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
-    template<Dist U,Dist V> type& operator=( const DistMatrix<T,U,V>& A );
+    template<Dist U,Dist V>
+    type& operator=( const DistMatrix<T,U,V,ELEMENTAL>& A );
     type& operator=( const absType& A );
     type& operator=( const BlockDistMatrix<T,MC,  MR  >& A );
     type& operator=( const BlockDistMatrix<T,MC,  STAR>& A );
@@ -108,7 +110,7 @@ public:
 private:
     // Friend declarations
     // ===================
-    template<typename S,Dist U,Dist V> friend class DistMatrix;
+    template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 };
 

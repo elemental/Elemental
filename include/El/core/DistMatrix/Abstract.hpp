@@ -321,9 +321,8 @@ protected:
 
     // Friend declarations
     // ===================
-    template<typename S,Dist J,Dist K> friend class DistMatrix;
+    template<typename S,Dist J,Dist K,DistWrap wrap> friend class DistMatrix;
 
-    template<typename S,Dist J,Dist K> friend class GeneralBlockDistMatrix;
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 };
 

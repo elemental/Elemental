@@ -119,7 +119,7 @@ public:
 private:
     // Friend declarations
     // ===================
-    template<typename S,Dist U,Dist V> friend class DistMatrix;
+    template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 };
 

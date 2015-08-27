@@ -147,9 +147,14 @@ namespace El {
 template<typename T=double> class Matrix;
 
 template<typename T=double> class AbstractDistMatrix;
+
+template<typename T=double,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENTAL>
+class DistMatrix;
+
+// TODO: Merge into AbstractDistMatrix
 template<typename T=double> class AbstractBlockDistMatrix;
 
-template<typename T=double,Dist U=MC,Dist V=MR> class DistMatrix;
+// TODO: Merge into DistMatrix
 template<typename T=double,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 
 } // namespace El

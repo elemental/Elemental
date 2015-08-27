@@ -15,7 +15,7 @@
 
 namespace El {
 
-#define DM DistMatrix<T,COLDIST,ROWDIST>
+#define DM DistMatrix<T,COLDIST,ROWDIST,ELEMENTAL>
 #define ADM AbstractDistMatrix<T>
 
 // Public section
