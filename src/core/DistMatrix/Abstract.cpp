@@ -18,23 +18,22 @@ namespace El {
 
 template<typename T>
 AbstractDistMatrix<T>::AbstractDistMatrix( const El::Grid& grid, int root )
-: viewType_(OWNER),
-  height_(0), width_(0),
-  matrix_(0,0,true),
-  colConstrained_(false), rowConstrained_(false), rootConstrained_(false),
-  colAlign_(0), rowAlign_(0),
-  root_(root), grid_(&grid)
+: root_(root), grid_(&grid)
 { }
 
 template<typename T>
 AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A ) 
 EL_NO_EXCEPT
 : viewType_(A.viewType_),
-  height_(A.height_), width_(A.width_), 
-  colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
+  height_(A.height_),
+  width_(A.width_), 
+  colConstrained_(A.colConstrained_),
+  rowConstrained_(A.rowConstrained_),
   rootConstrained_(A.rootConstrained_),
-  colAlign_(A.colAlign_), rowAlign_(A.rowAlign_),
-  colShift_(A.colShift_), rowShift_(A.rowShift_), 
+  colAlign_(A.colAlign_),
+  rowAlign_(A.rowAlign_),
+  colShift_(A.colShift_),
+  rowShift_(A.rowShift_), 
   root_(A.root_),
   grid_(A.grid_)
 { matrix_.ShallowSwap( A.matrix_ ); }

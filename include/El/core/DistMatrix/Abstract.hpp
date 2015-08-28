@@ -138,77 +138,77 @@ public:
 
     // Distribution information
     // ------------------------
-            const El::Grid&    Grid()                  const EL_NO_EXCEPT;
-                  int          ColAlign()              const EL_NO_EXCEPT;
-                  int          RowAlign()              const EL_NO_EXCEPT;
-                  int          ColShift()              const EL_NO_EXCEPT;
-                  int          RowShift()              const EL_NO_EXCEPT;
-                  bool         ColConstrained()        const EL_NO_EXCEPT;
-                  bool         RowConstrained()        const EL_NO_EXCEPT;
-                  bool         RootConstrained()       const EL_NO_EXCEPT;
-                  bool         Participating()         const EL_NO_RELEASE_EXCEPT;
+    const El::Grid& Grid() const EL_NO_EXCEPT;
 
-                  int          RowOwner( Int i )       const EL_NO_EXCEPT;
-                  int          ColOwner( Int j )       const EL_NO_EXCEPT;
-                  int          Owner( Int i, Int j )   const EL_NO_EXCEPT;
-                  Int          LocalRow( Int i )       const EL_NO_RELEASE_EXCEPT;
-                  Int          LocalCol( Int j )       const EL_NO_RELEASE_EXCEPT;
-                  Int          LocalRowOffset( Int i ) const EL_NO_EXCEPT;
-                  Int          LocalColOffset( Int j ) const EL_NO_EXCEPT;
-                  Int          GlobalRow( Int iLoc )   const EL_NO_EXCEPT;
-                  Int          GlobalCol( Int jLoc )   const EL_NO_EXCEPT;
-                  bool         IsLocalRow( Int i )     const EL_NO_RELEASE_EXCEPT;
-                  bool         IsLocalCol( Int j )     const EL_NO_RELEASE_EXCEPT;
-                  bool         IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    int  ColAlign()              const EL_NO_EXCEPT;
+    int  RowAlign()              const EL_NO_EXCEPT;
+    int  ColShift()              const EL_NO_EXCEPT;
+    int  RowShift()              const EL_NO_EXCEPT;
+    bool ColConstrained()        const EL_NO_EXCEPT;
+    bool RowConstrained()        const EL_NO_EXCEPT;
+    bool RootConstrained()       const EL_NO_EXCEPT;
+    bool Participating()         const EL_NO_RELEASE_EXCEPT;
+    int  Root()                  const EL_NO_EXCEPT;
 
-    virtual       Dist         ColDist()               const EL_NO_EXCEPT = 0;
-    virtual       Dist         RowDist()               const EL_NO_EXCEPT = 0;
-    virtual       Dist         CollectedColDist()      const EL_NO_EXCEPT = 0;
-    virtual       Dist         CollectedRowDist()      const EL_NO_EXCEPT = 0;
-    virtual       Dist         PartialColDist()        const EL_NO_EXCEPT = 0;
-    virtual       Dist         PartialRowDist()        const EL_NO_EXCEPT = 0;
-    virtual       Dist         PartialUnionColDist()   const EL_NO_EXCEPT = 0;
-    virtual       Dist         PartialUnionRowDist()   const EL_NO_EXCEPT = 0;
+    int  RowOwner( Int i )       const EL_NO_EXCEPT;
+    int  ColOwner( Int j )       const EL_NO_EXCEPT;
+    int  Owner( Int i, Int j )   const EL_NO_EXCEPT;
+    Int  LocalRow( Int i )       const EL_NO_RELEASE_EXCEPT;
+    Int  LocalCol( Int j )       const EL_NO_RELEASE_EXCEPT;
+    Int  LocalRowOffset( Int i ) const EL_NO_EXCEPT;
+    Int  LocalColOffset( Int j ) const EL_NO_EXCEPT;
+    Int  GlobalRow( Int iLoc )   const EL_NO_EXCEPT;
+    Int  GlobalCol( Int jLoc )   const EL_NO_EXCEPT;
+    bool IsLocalRow( Int i )     const EL_NO_RELEASE_EXCEPT;
+    bool IsLocalCol( Int j )     const EL_NO_RELEASE_EXCEPT;
+    bool IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
 
-    virtual       mpi::Comm    ColComm()               const EL_NO_EXCEPT = 0;
-    virtual       mpi::Comm    RowComm()               const EL_NO_EXCEPT = 0;
-    virtual       mpi::Comm    PartialColComm()        const EL_NO_EXCEPT;
-    virtual       mpi::Comm    PartialRowComm()        const EL_NO_EXCEPT;
-    virtual       mpi::Comm    PartialUnionColComm()   const EL_NO_EXCEPT;
-    virtual       mpi::Comm    PartialUnionRowComm()   const EL_NO_EXCEPT;
-    virtual       mpi::Comm    DistComm()              const EL_NO_EXCEPT = 0;
-    virtual       mpi::Comm    CrossComm()             const EL_NO_EXCEPT = 0;
-    virtual       mpi::Comm    RedundantComm()         const EL_NO_EXCEPT = 0;
+    // NOTE: These are all clearly equivalent to composing mpi::Rank
+    //       with ColComm(), RowComm(), etc., but it is not clear that
+    //       they should be removed just yet.
+    int ColRank()             const EL_NO_RELEASE_EXCEPT;
+    int RowRank()             const EL_NO_RELEASE_EXCEPT;
+    int PartialColRank()      const EL_NO_RELEASE_EXCEPT;
+    int PartialRowRank()      const EL_NO_RELEASE_EXCEPT;
+    int PartialUnionColRank() const EL_NO_RELEASE_EXCEPT;
+    int PartialUnionRowRank() const EL_NO_RELEASE_EXCEPT;
+    int DistRank()            const EL_NO_RELEASE_EXCEPT;
+    int CrossRank()           const EL_NO_RELEASE_EXCEPT;
+    int RedundantRank()       const EL_NO_RELEASE_EXCEPT;
+
+    virtual Dist         ColDist()               const EL_NO_EXCEPT = 0;
+    virtual Dist         RowDist()               const EL_NO_EXCEPT = 0;
+    virtual Dist         CollectedColDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist         CollectedRowDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialColDist()        const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialRowDist()        const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialUnionColDist()   const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialUnionRowDist()   const EL_NO_EXCEPT = 0;
+
+    virtual mpi::Comm    ColComm()               const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm    RowComm()               const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm    PartialColComm()        const EL_NO_EXCEPT;
+    virtual mpi::Comm    PartialRowComm()        const EL_NO_EXCEPT;
+    virtual mpi::Comm    PartialUnionColComm()   const EL_NO_EXCEPT;
+    virtual mpi::Comm    PartialUnionRowComm()   const EL_NO_EXCEPT;
+    virtual mpi::Comm    DistComm()              const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm    CrossComm()             const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm    RedundantComm()         const EL_NO_EXCEPT = 0;
 
     // NOTE: While these would be equivalent to composing mpi::Size
     //       with ColComm(), RowComm(), etc., for processes *within*
     //       the communicator, this composition is incorrect for 
     //       processes *outside* of the communicator
-    virtual       int          ColStride()             const EL_NO_EXCEPT= 0;
-    virtual       int          RowStride()             const EL_NO_EXCEPT= 0;
-    virtual       int          PartialColStride()      const EL_NO_EXCEPT;
-    virtual       int          PartialRowStride()      const EL_NO_EXCEPT;
-    virtual       int          PartialUnionColStride() const EL_NO_EXCEPT;
-    virtual       int          PartialUnionRowStride() const EL_NO_EXCEPT;
-    virtual       int          DistSize()              const EL_NO_EXCEPT= 0;
-    virtual       int          CrossSize()             const EL_NO_EXCEPT= 0;
-    virtual       int          RedundantSize()         const EL_NO_EXCEPT= 0;
-
-    // NOTE: These are all clearly equivalent to composing mpi::Rank
-    //       with ColComm(), RowComm(), etc., but it is not clear that
-    //       they should be removed just yet.
-                  int          ColRank()               const EL_NO_RELEASE_EXCEPT;
-                  int          RowRank()               const EL_NO_RELEASE_EXCEPT;
-                  int          PartialColRank()        const EL_NO_RELEASE_EXCEPT;
-                  int          PartialRowRank()        const EL_NO_RELEASE_EXCEPT;
-                  int          PartialUnionColRank()   const EL_NO_RELEASE_EXCEPT;
-                  int          PartialUnionRowRank()   const EL_NO_RELEASE_EXCEPT;
-                  int          DistRank()              const EL_NO_RELEASE_EXCEPT;
-                  int          CrossRank()             const EL_NO_RELEASE_EXCEPT;
-                  int          RedundantRank()         const EL_NO_RELEASE_EXCEPT;
-
-                  int          Root()                  const EL_NO_EXCEPT;
-    virtual       El::DistData DistData()              const = 0;
+    virtual int          ColStride()             const EL_NO_EXCEPT= 0;
+    virtual int          RowStride()             const EL_NO_EXCEPT= 0;
+    virtual int          PartialColStride()      const EL_NO_EXCEPT;
+    virtual int          PartialRowStride()      const EL_NO_EXCEPT;
+    virtual int          PartialUnionColStride() const EL_NO_EXCEPT;
+    virtual int          PartialUnionRowStride() const EL_NO_EXCEPT;
+    virtual int          DistSize()              const EL_NO_EXCEPT= 0;
+    virtual int          CrossSize()             const EL_NO_EXCEPT= 0;
+    virtual int          RedundantSize()         const EL_NO_EXCEPT= 0;
+    virtual El::DistData DistData()              const = 0;
 
     // Single-entry manipulation
     // =========================
@@ -251,24 +251,35 @@ public:
     T       GetLocal( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
     Base<T> GetLocalRealPart( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
     Base<T> GetLocalImagPart( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
-    void    SetLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
-    void    SetLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void    SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    SetLocalRealPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void    SetLocalImagPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateLocalRealPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateLocalImagPart( const Entry<Base<T>>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void    MakeLocalReal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
-    void    ConjugateLocal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
+
+    void SetLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void SetLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+    EL_NO_RELEASE_EXCEPT;
+    void SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+    EL_NO_RELEASE_EXCEPT;
+    void SetLocalRealPart( const Entry<Base<T>>& localEntry )
+    EL_NO_RELEASE_EXCEPT;
+    void SetLocalImagPart( const Entry<Base<T>>& localEntry )
+    EL_NO_RELEASE_EXCEPT;
+
+    void UpdateLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
+    void UpdateLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+    EL_NO_RELEASE_EXCEPT;
+    void UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+    EL_NO_RELEASE_EXCEPT;
+    void UpdateLocalRealPart( const Entry<Base<T>>& localEntry )
+    EL_NO_RELEASE_EXCEPT;
+    void UpdateLocalImagPart( const Entry<Base<T>>& localEntry )
+    EL_NO_RELEASE_EXCEPT;
+    void MakeLocalReal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
+    void ConjugateLocal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
 
     // Diagonal manipulation
     // =====================
-    bool DiagonalAlignedWith( const El::DistData& d, Int offset=0 ) const EL_NO_EXCEPT;
+    bool DiagonalAlignedWith
+    ( const El::DistData& d, Int offset=0 ) const EL_NO_EXCEPT;
     int DiagonalRoot( Int offset=0 ) const EL_NO_EXCEPT;
     int DiagonalAlign( Int offset=0 ) const EL_NO_EXCEPT;
 
@@ -287,16 +298,20 @@ protected:
 
     // Global and local matrix information 
     // -----------------------------------
-    ViewType viewType_;
-    Int height_, width_;
-    El::Matrix<T> matrix_;
+    ViewType viewType_=OWNER;
+    Int height_=0, width_=0;
+    El::Matrix<T> matrix_=El::Matrix<T>(0,0,true);
     
     // Process grid and distribution metadata
     // --------------------------------------
-    bool colConstrained_, rowConstrained_, rootConstrained_;
-    int colAlign_, rowAlign_,
-        colShift_, rowShift_;
-    int root_;
+    bool colConstrained_=false, 
+         rowConstrained_=false,
+         rootConstrained_=false;
+    int colAlign_=0, 
+        rowAlign_=0,
+        colShift_=0,
+        rowShift_=0;
+    int root_=0;
     const El::Grid* grid_;
 
     // Remote updates
