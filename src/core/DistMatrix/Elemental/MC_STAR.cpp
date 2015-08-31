@@ -9,7 +9,7 @@
 #include "El.hpp"
 
 #define COLDIST MC
-#define ROWDIST MR
+#define ROWDIST STAR
 
 #include "./setup.hpp"
 
@@ -24,25 +24,28 @@ namespace El {
 // Make a copy
 // -----------
 template<typename T>
-DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MC,MR] = [MC,STAR]"))
-    copy::RowFilter( A, *this );
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [MC,MR]"))
+    copy::RowAllGather( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [STAR,MR]"))
-    copy::ColFilter( A, *this );
+{
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,MR]"))
+    DistMatrix<T,MC,MR> A_MC_MR(this->Grid());
+    A_MC_MR.AlignColsWith(*this);
+    A_MC_MR = A;
+    *this = A_MC_MR;
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MC,MR] = [MD,STAR]"))
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [MD,STAR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -52,7 +55,7 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 {
-    DEBUG_ONLY(CSE cse("[MC,MR] = [STAR,MD]"))
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,MD]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -61,29 +64,8 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [MR,MC]"))
-    const Grid& grid = A.Grid();
-    if( grid.Height() == grid.Width() )
-    {
-        const int gridDim = grid.Height();
-        const int sendRank = this->RowOwner(A.ColShift()) + 
-                             this->ColOwner(A.RowShift())*gridDim;
-        const int recvRank = A.ColOwner(this->RowShift()) + 
-                             A.RowOwner(this->ColShift())*gridDim;
-        copy::Exchange( A, *this, sendRank, recvRank, grid.VCComm() );
-    }
-    else
-    {
-        copy::TransposeDist( A, *this );
-    }
-    return *this;
-}
-
-template<typename T>
-DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [MR,STAR]"))
+{
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [MR,MC]"))
     auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( A );
     auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( this->Grid() );
     A_VC_STAR->AlignColsWith(*this);
@@ -94,41 +76,74 @@ DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 }
 
 template<typename T>
+DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
+{
+    DEBUG_ONLY(
+      CSE cse("[MC,STAR] = [MR,STAR]");
+      AssertSameGrids( *this, A );
+    )
+    const Grid& grid = A.Grid();
+    if( grid.Height() == grid.Width() )
+    {
+        const int gridDim = grid.Height();
+        const int transposeRank =
+            this->RowOwner(A.ColShift()) + gridDim*A.RowOwner(this->ColShift());
+        copy::Exchange( A, *this, transposeRank, transposeRank, grid.VCComm() );
+    }
+    else
+    {
+        auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( A );
+        auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( grid );
+        A_VC_STAR->AlignColsWith(*this);
+        *A_VC_STAR = *A_VR_STAR;
+        A_VR_STAR.reset(); 
+        *this = *A_VC_STAR;
+    }
+    return *this;
+}
+
+template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [STAR,MC]"))
-    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( A );
-    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( this->Grid() );
-    A_STAR_VR->AlignRowsWith(*this);
-    *A_STAR_VR = *A_STAR_VC;
-    A_STAR_VC.reset();
-    *this = *A_STAR_VR;
+{
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,MC]"))
+    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
+    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( *A_MR_MC );
+    A_MR_MC.reset();
+
+    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( this->Grid() );
+    A_VC_STAR->AlignColsWith(*this);
+    *A_VC_STAR = *A_VR_STAR;
+    A_VR_STAR.reset(); 
+
+    *this = *A_VC_STAR;
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [VC,STAR]"))
-    copy::ColAllToAllPromote( A, *this );
+{
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [VC,STAR]"))
+    copy::PartialColAllGather( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [STAR,VC]"))
-    DistMatrix<T,STAR,VR> A_STAR_VR(this->Grid());
-    A_STAR_VR.AlignRowsWith(*this);
-    A_STAR_VR = A;
-    *this = A_STAR_VR;
+{
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,VC]"))
+    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( A );
+    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( this->Grid() );
+    A_MC_MR->AlignColsWith(*this);
+    *A_MC_MR = *A_STAR_VR;
+    A_STAR_VR.reset();
+    *this = *A_MC_MR;
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [VR,STAR]"))
+{
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [VR,STAR]"))
     DistMatrix<T,VC,STAR> A_VC_STAR(this->Grid());
     A_VC_STAR.AlignColsWith(*this);
     A_VC_STAR = A;
@@ -138,32 +153,38 @@ DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[MC,MR] = [STAR,VR]"))
-    copy::RowAllToAllPromote( A, *this );
+{
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,VR]"))
+    DistMatrix<T,MC,MR> A_MC_MR(this->Grid());
+    A_MC_MR.AlignColsWith(*this);
+    A_MC_MR = A;
+    *this = A_MC_MR;
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MC,MR] = [STAR,STAR]"))
-    copy::Filter( A, *this );
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,STAR]"))
+    copy::ColFilter( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CSE cse("[MC,MR] = [CIRC,CIRC]"))
-    copy::Scatter( A, *this );
+    DEBUG_ONLY(CSE cse("[MC,STAR] = [CIRC,CIRC]"))
+    DistMatrix<T,MC,MR> A_MC_MR( this->Grid() );
+    A_MC_MR.AlignWith( *this );
+    A_MC_MR = A;
+    *this = A_MC_MR;
     return *this;
 }
 
 template<typename T>
-DM& DM::operator=( const AbstractDistMatrix<T>& A )
+DM& DM::operator=( const ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DM = ADM"))
+    DEBUG_ONLY(CSE cse("DM = EM"))
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
@@ -176,26 +197,31 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 // Basic queries
 // =============
 template<typename T>
-mpi::Comm DM::DistComm() const EL_NO_EXCEPT { return this->grid_->VCComm(); }
+mpi::Comm DM::DistComm() const EL_NO_EXCEPT
+{ return this->grid_->MCComm(); }
 template<typename T>
-mpi::Comm DM::CrossComm() const EL_NO_EXCEPT { return mpi::COMM_SELF; }
+mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
+{ return this->grid_->MRComm(); }
 template<typename T>
-mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT { return mpi::COMM_SELF; }
+mpi::Comm DM::CrossComm() const EL_NO_EXCEPT
+{ return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::ColComm() const EL_NO_EXCEPT { return this->grid_->MCComm(); }
+mpi::Comm DM::ColComm() const EL_NO_EXCEPT
+{ return this->grid_->MCComm(); }
 template<typename T>
-mpi::Comm DM::RowComm() const EL_NO_EXCEPT { return this->grid_->MRComm(); }
+mpi::Comm DM::RowComm() const EL_NO_EXCEPT
+{ return mpi::COMM_SELF; }
 
 template<typename T>
 int DM::ColStride() const EL_NO_EXCEPT { return this->grid_->MCSize(); }
 template<typename T>
-int DM::RowStride() const EL_NO_EXCEPT { return this->grid_->MRSize(); }
+int DM::RowStride() const EL_NO_EXCEPT { return 1; }
 template<typename T>
-int DM::DistSize() const EL_NO_EXCEPT { return this->grid_->VCSize(); }
+int DM::DistSize() const EL_NO_EXCEPT { return this->grid_->MCSize(); }
 template<typename T>
 int DM::CrossSize() const EL_NO_EXCEPT { return 1; }
 template<typename T>
-int DM::RedundantSize() const EL_NO_EXCEPT { return 1; }
+int DM::RedundantSize() const EL_NO_EXCEPT { return this->grid_->MRSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
@@ -215,8 +241,8 @@ int DM::RedundantSize() const EL_NO_EXCEPT { return 1; }
 #define PROTO(T) \
   template class DistMatrix<T,COLDIST,ROWDIST>; \
   BOTH( T,CIRC,CIRC); \
-  OTHER(T,MC,  MR  ); \
-  BOTH( T,MC,  STAR); \
+  BOTH( T,MC,  MR  ); \
+  OTHER(T,MC,  STAR); \
   BOTH( T,MD,  STAR); \
   BOTH( T,MR,  MC  ); \
   BOTH( T,MR,  STAR); \

@@ -32,7 +32,7 @@ void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 
 template<typename F> 
 void MultiplyAfter
-( const AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& B, bool conjugated )
+( const ElementalMatrix<F>& APre, ElementalMatrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
         CSE cse("ldl::MultiplyAfter");
@@ -83,8 +83,8 @@ void MultiplyAfter
 
 template<typename F> 
 void MultiplyAfter
-( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& dSub, 
-  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& BPre, 
+( const ElementalMatrix<F>& APre, const ElementalMatrix<F>& dSub, 
+  const ElementalMatrix<Int>& p, ElementalMatrix<F>& BPre, 
   bool conjugated )
 {
     DEBUG_ONLY(

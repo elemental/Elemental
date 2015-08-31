@@ -41,7 +41,7 @@ void UpdateImagPartOfDiagonal
 
 template<typename T,Dist U,Dist V>
 void UpdateDiagonal
-( DistMatrix<T,U,V>& A, T alpha, const AbstractDistMatrix<T>& d, Int offset )
+( DistMatrix<T,U,V>& A, T alpha, const ElementalMatrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CSE cse("UpdateDiagonal"))
     function<void(T&,T)> func
@@ -51,7 +51,7 @@ void UpdateDiagonal
 
 template<typename T,Dist U,Dist V>
 void UpdateRealPartOfDiagonal
-( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, 
+( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d, 
   Int offset )
 {
     DEBUG_ONLY(CSE cse("UpdateRealPartOfDiagonal"))
@@ -62,7 +62,7 @@ void UpdateRealPartOfDiagonal
 
 template<typename T,Dist U,Dist V>
 void UpdateImagPartOfDiagonal
-( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, 
+( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d, 
   Int offset )
 {
     DEBUG_ONLY(CSE cse("UpdateImagPartOfDiagonal"))
@@ -139,13 +139,13 @@ void UpdateImagPartOfDiagonal
 
 #define PROTO_DIST(T,U,V) \
   template void UpdateDiagonal \
-  ( DistMatrix<T,U,V>& A, T alpha, const AbstractDistMatrix<T>& d, \
+  ( DistMatrix<T,U,V>& A, T alpha, const ElementalMatrix<T>& d, \
     Int offset ); \
   template void UpdateRealPartOfDiagonal \
-  ( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, \
+  ( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d, \
     Int offset ); \
   template void UpdateImagPartOfDiagonal \
-  ( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, \
+  ( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d, \
     Int offset );
 
 #define PROTO(T) \

@@ -163,7 +163,7 @@ void Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
 }
 
 template<typename F>
-void Riffle( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
+void Riffle( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CSE cse("Riffle"))
     Riffle( P, n );
@@ -194,12 +194,11 @@ void RiffleDecay( Matrix<F>& A, Int n )
 }
 
 template<typename F>
-void RiffleDecay( AbstractDistMatrix<F>& A, Int n )
+void RiffleDecay( ElementalMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CSE cse("RiffleDecay"))
     Riffle( A, n );
-    unique_ptr<AbstractDistMatrix<F>> 
-      PInf( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<F>> PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     RiffleStationary( *PInf, n );
     A -= *PInf;
@@ -214,14 +213,14 @@ void RiffleDecay( AbstractDistMatrix<F>& A, Int n )
   template void Riffle \
   ( Matrix<F>& P, Matrix<F>& PInf, Int n ); \
   template void Riffle \
-  ( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n ); \
+  ( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n ); \
   template void Riffle \
   ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void RiffleStationary( Matrix<F>& PInf, Int n ); \
   template void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n ); \
   template void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void RiffleDecay( Matrix<F>& A, Int n ); \
-  template void RiffleDecay( AbstractDistMatrix<F>& A, Int n );
+  template void RiffleDecay( ElementalMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

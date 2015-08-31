@@ -117,7 +117,7 @@ template<typename F>
 inline void
 LV
 ( Conjugation conjugation, Int offset, 
-  AbstractDistMatrix<F>& HPre, const AbstractDistMatrix<F>& tPre )
+  ElementalMatrix<F>& HPre, const ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(
         CSE cse("expand_packed_reflectors::LV");

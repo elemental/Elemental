@@ -76,9 +76,9 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const AbstractDistMatrix<F      >& APre, const AbstractDistMatrix<F>& t, 
-  const AbstractDistMatrix<Base<F>>& d,    const AbstractDistMatrix<F>& B, 
-        AbstractDistMatrix<F      >& XPre )
+  const ElementalMatrix<F      >& APre, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<Base<F>>& d,    const ElementalMatrix<F>& B, 
+        ElementalMatrix<F      >& XPre )
 {
     DEBUG_ONLY(CSE cse("lq::SolveAfter"))
     const Int m = APre.Height();

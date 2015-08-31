@@ -157,11 +157,11 @@ void Overwrite
 
 template<typename F> 
 void Overwrite
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& BPre, 
-  AbstractDistMatrix<F>& CPre,
-  AbstractDistMatrix<F>& DPre, 
-  AbstractDistMatrix<F>& XPre, bool computeResidual )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre, 
+  ElementalMatrix<F>& CPre,
+  ElementalMatrix<F>& DPre, 
+  ElementalMatrix<F>& XPre, bool computeResidual )
 {
     DEBUG_ONLY(CSE cse("lse::Overwrite"))
 
@@ -272,11 +272,11 @@ void LSE
 
 template<typename F> 
 void LSE
-( const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& C,
-  const AbstractDistMatrix<F>& D, 
-        AbstractDistMatrix<F>& X )
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& C,
+  const ElementalMatrix<F>& D, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LSE"))
     DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
@@ -605,11 +605,11 @@ void LSE
     Matrix<F>& D, \
     Matrix<F>& X, bool computeResidual ); \
   template void lse::Overwrite \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<F>& C, \
-    AbstractDistMatrix<F>& D, \
-    AbstractDistMatrix<F>& X, bool computeResidual ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
+    ElementalMatrix<F>& C, \
+    ElementalMatrix<F>& D, \
+    ElementalMatrix<F>& X, bool computeResidual ); \
   template void LSE \
   ( const Matrix<F>& A, \
     const Matrix<F>& B, \
@@ -617,11 +617,11 @@ void LSE
     const Matrix<F>& D, \
           Matrix<F>& X ); \
   template void LSE \
-  ( const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& C, \
-    const AbstractDistMatrix<F>& D, \
-          AbstractDistMatrix<F>& X ); \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+    const ElementalMatrix<F>& C, \
+    const ElementalMatrix<F>& D, \
+          ElementalMatrix<F>& X ); \
   template void LSE \
   ( const SparseMatrix<F>& A, \
     const SparseMatrix<F>& B, \

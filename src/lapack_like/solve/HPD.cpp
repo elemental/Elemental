@@ -25,7 +25,7 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
-  AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
+  ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("hpd_solve::Overwrite"))
 
@@ -51,7 +51,7 @@ void HPDSolve
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("HPDSolve"))
     DistMatrix<F> ACopy( A );
@@ -114,13 +114,13 @@ void HPDSolve
     Matrix<F>& A, Matrix<F>& B ); \
   template void hpd_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+    ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
   template void HPDSolve \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, Matrix<F>& B ); \
   template void HPDSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+    const ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
   template void HPDSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, const BisectCtrl& ctrl ); \
   template void HPDSolve \

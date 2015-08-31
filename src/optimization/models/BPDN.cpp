@@ -29,10 +29,10 @@ void BPDN
 
 template<typename Real>
 void BPDN
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("BPDN"))
@@ -78,10 +78,10 @@ void BPDN
           Matrix<Real>& x, \
     const BPDNCtrl<Real>& ctrl ); \
   template void BPDN \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
           Real lambda, \
-          AbstractDistMatrix<Real>& x, \
+          ElementalMatrix<Real>& x, \
     const BPDNCtrl<Real>& ctrl ); \
   template void BPDN \
   ( const SparseMatrix<Real>& A, \

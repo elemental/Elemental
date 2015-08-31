@@ -23,10 +23,10 @@ void GQR
 
 template<typename F> 
 void GQR
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
-  AbstractDistMatrix<F>& BPre, 
-  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB )
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& tA, ElementalMatrix<Base<F>>& dA,
+  ElementalMatrix<F>& BPre, 
+  ElementalMatrix<F>& tB, ElementalMatrix<Base<F>>& dB )
 {
     DEBUG_ONLY(CSE cse("GQR"))
   
@@ -53,7 +53,7 @@ void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 }
 
 template<typename F> 
-void ExplicitTriang( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
+void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("gqr::ExplicitTriang"))
 
@@ -76,14 +76,14 @@ void ExplicitTriang( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
   ( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA, \
     Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB ); \
   template void GQR \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA, \
-    AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& tA, ElementalMatrix<Base<F>>& dA, \
+    ElementalMatrix<F>& B, \
+    ElementalMatrix<F>& tB, ElementalMatrix<Base<F>>& dB ); \
   template void gqr::ExplicitTriang \
   ( Matrix<F>& A, Matrix<F>& B ); \
   template void gqr::ExplicitTriang \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -77,7 +77,7 @@ void HermitianPseudoinverse
 }
 
 template<typename F>
-void Pseudoinverse( AbstractDistMatrix<F>& APre, Base<F> tolerance )
+void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("Pseudoinverse"))
 
@@ -114,7 +114,7 @@ void Pseudoinverse( AbstractDistMatrix<F>& APre, Base<F> tolerance )
 
 template<typename F>
 void HermitianPseudoinverse
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, Base<F> tolerance )
+( UpperOrLower uplo, ElementalMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
 
@@ -147,11 +147,11 @@ void HermitianPseudoinverse
 
 #define PROTO(F) \
   template void Pseudoinverse( Matrix<F>& A, Base<F> tolerance ); \
-  template void Pseudoinverse( AbstractDistMatrix<F>& A, Base<F> tolerance ); \
+  template void Pseudoinverse( ElementalMatrix<F>& A, Base<F> tolerance ); \
   template void HermitianPseudoinverse \
   ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance ); \
   template void HermitianPseudoinverse \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, Base<F> tolerance );
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, Base<F> tolerance );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

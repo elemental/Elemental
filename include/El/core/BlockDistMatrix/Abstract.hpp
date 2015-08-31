@@ -59,9 +59,9 @@ public:
     ( Int blockWidth, int rowAlign, Int rowCut=0, bool constrain=true );
     void FreeAlignments();
     void SetRoot( int root, bool constrain=true );
-    void AlignWith( const El::BlockDistData& data, bool constrain=true );
-    void AlignColsWith( const El::BlockDistData& data, bool constrain=true );
-    void AlignRowsWith( const El::BlockDistData& data, bool constrain=true );
+    void AlignWith( const El::BlockCyclicData& data, bool constrain=true );
+    void AlignColsWith( const El::BlockCyclicData& data, bool constrain=true );
+    void AlignRowsWith( const El::BlockCyclicData& data, bool constrain=true );
     // TODO: The interface for these routines could be improved
     void AlignAndResize
     ( Int blockHeight, Int blockWidth, 
@@ -191,7 +191,7 @@ public:
                   int               RedundantRank()         const;
 
                   int               Root()                  const;
-    virtual       El::BlockDistData DistData()              const = 0;
+    virtual       El::BlockCyclicData DistData()              const = 0;
 
     // Single-entry manipulation
     // =========================
@@ -240,7 +240,8 @@ public:
 
     // Diagonal manipulation
     // =====================
-    bool DiagonalAlignedWith( const El::BlockDistData& d, Int offset=0 ) const;
+    bool DiagonalAlignedWith
+    ( const El::BlockCyclicData& d, Int offset=0 ) const;
     int DiagonalRoot( Int offset=0 ) const;
     int DiagonalAlign( Int offset=0 ) const;
 

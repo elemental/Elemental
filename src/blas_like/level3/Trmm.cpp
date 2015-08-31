@@ -53,7 +53,7 @@ template<typename T>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
+  T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("Trmm"))
     X *= alpha;
@@ -91,7 +91,7 @@ template<typename T>
 void LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B )
+  T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LocalTrmm");
@@ -112,11 +112,11 @@ void LocalTrmm
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+    T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void LocalTrmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B );
+    T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

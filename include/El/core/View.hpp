@@ -52,7 +52,7 @@ inline Matrix<T> LockedView( const Matrix<T>& B )
 // ----------
 
 template<typename T>
-inline void View( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+inline void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -65,7 +65,7 @@ inline void View( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 
 template<typename T>
 inline void LockedView
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
+( ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -99,7 +99,7 @@ inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
 // ---------------
 
 template<typename T>
-inline void View( AbstractBlockDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+inline void View( AbstractBlockDistMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -112,7 +112,7 @@ inline void View( AbstractBlockDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 
 template<typename T>
 inline void LockedView
-( AbstractBlockDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
+( AbstractBlockDistMatrix<T>& A, const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -124,7 +124,7 @@ inline void LockedView
 }
 
 template<typename T>
-inline void View( AbstractDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
+inline void View( ElementalMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -140,7 +140,7 @@ inline void View( AbstractDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 
 template<typename T>
 inline void LockedView
-( AbstractDistMatrix<T>& A, const AbstractBlockDistMatrix<T>& B )
+( ElementalMatrix<T>& A, const AbstractBlockDistMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -269,7 +269,7 @@ inline Matrix<T> LockedView
 
 template<typename T>
 inline void View
-( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B,
+( ElementalMatrix<T>& A, ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
@@ -296,7 +296,7 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+( ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
@@ -323,7 +323,7 @@ inline void LockedView
 
 template<typename T>
 inline void View
-( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
+( ElementalMatrix<T>& A, ElementalMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
@@ -335,7 +335,7 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
+( ElementalMatrix<T>& A, const ElementalMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )

@@ -43,7 +43,7 @@ Binary( Matrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-Binary( AbstractDistMatrix<T>& A, const string filename )
+Binary( ElementalMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::Binary"))
     std::ifstream file( filename.c_str(), std::ios::binary );

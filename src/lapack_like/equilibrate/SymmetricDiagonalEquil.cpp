@@ -24,7 +24,7 @@ void SymmetricDiagonalEquil
 
 template<typename F>
 void SymmetricDiagonalEquil
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, bool progress )
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
     // TODO: Ensure A is square
@@ -89,7 +89,7 @@ void SymmetricDiagonalEquil
   template void SymmetricDiagonalEquil \
   ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
   template void SymmetricDiagonalEquil \
-  ( AbstractDistMatrix<F>& A,  AbstractDistMatrix<Base<F>>& d, \
+  ( ElementalMatrix<F>& A,  ElementalMatrix<Base<F>>& d, \
     bool progress ); \
   template void SymmetricDiagonalEquil \
   ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress ); \

@@ -91,12 +91,12 @@ void NormalKKT
 
 template<typename Real>
 void NormalKKT
-( const AbstractDistMatrix<Real>& A,
+( const ElementalMatrix<Real>& A,
         Real gamma, 
         Real delta,
-  const AbstractDistMatrix<Real>& xPre,
-  const AbstractDistMatrix<Real>& zPre,
-        AbstractDistMatrix<Real>& J,
+  const ElementalMatrix<Real>& xPre,
+  const ElementalMatrix<Real>& zPre,
+        ElementalMatrix<Real>& J,
   bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
@@ -276,14 +276,14 @@ void NormalKKTRHS
 
 template<typename Real>
 void NormalKKTRHS
-( const AbstractDistMatrix<Real>& A,
+( const ElementalMatrix<Real>& A,
         Real gamma,
-  const AbstractDistMatrix<Real>& xPre,
-  const AbstractDistMatrix<Real>& zPre, 
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu,        
-        AbstractDistMatrix<Real>& d )
+  const ElementalMatrix<Real>& xPre,
+  const ElementalMatrix<Real>& zPre, 
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rmu,        
+        ElementalMatrix<Real>& d )
 {
     DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
     const Int n = A.Width();
@@ -450,15 +450,15 @@ void ExpandNormalSolution
 
 template<typename Real>
 void ExpandNormalSolution
-( const AbstractDistMatrix<Real>& A,
+( const ElementalMatrix<Real>& A,
         Real gamma,
-  const AbstractDistMatrix<Real>& xPre,
-  const AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& dx,
-  const AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz )
+  const ElementalMatrix<Real>& xPre,
+  const ElementalMatrix<Real>& zPre,
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rmu,
+        ElementalMatrix<Real>& dx,
+  const ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
     const Int n = A.Width();
@@ -600,12 +600,12 @@ void ExpandNormalSolution
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
-  ( const AbstractDistMatrix<Real>& A, \
+  ( const ElementalMatrix<Real>& A, \
           Real gamma, \
           Real delta, \
-    const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, bool onlyLower ); \
+    const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \
@@ -630,14 +630,14 @@ void ExpandNormalSolution
     const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void NormalKKTRHS \
-  ( const AbstractDistMatrix<Real>& A, \
+  ( const ElementalMatrix<Real>& A, \
           Real gamma, \
-    const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, \
-    const AbstractDistMatrix<Real>& rmu, \
-          AbstractDistMatrix<Real>& d ); \
+    const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Real>& rc, \
+    const ElementalMatrix<Real>& rb, \
+    const ElementalMatrix<Real>& rmu, \
+          ElementalMatrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \
@@ -667,15 +667,15 @@ void ExpandNormalSolution
     const Matrix<Real>& dy, \
           Matrix<Real>& dz ); \
   template void ExpandNormalSolution \
-  ( const AbstractDistMatrix<Real>& A, \
+  ( const ElementalMatrix<Real>& A, \
           Real gamma, \
-    const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rmu, \
-          AbstractDistMatrix<Real>& dx, \
-    const AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz ); \
+    const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Real>& rc, \
+    const ElementalMatrix<Real>& rmu, \
+          ElementalMatrix<Real>& dx, \
+    const ElementalMatrix<Real>& dy, \
+          ElementalMatrix<Real>& dz ); \
   template void ExpandNormalSolution \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \

@@ -189,17 +189,17 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, 
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z, 
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& x, 
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z, 
+        ElementalMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
 {
@@ -643,17 +643,17 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoff ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \

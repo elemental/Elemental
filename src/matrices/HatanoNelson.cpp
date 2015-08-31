@@ -36,7 +36,7 @@ void HatanoNelson
 
 template<typename F>
 void HatanoNelson
-( AbstractDistMatrix<F>& A, Int n, 
+( ElementalMatrix<F>& A, Int n, 
   F center, Base<F> radius, F g, bool periodic )
 {
     DEBUG_ONLY(CSE cse("HatanoNelson"))
@@ -62,7 +62,7 @@ void HatanoNelson
   template void HatanoNelson \
   ( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic ); \
   template void HatanoNelson \
-  ( AbstractDistMatrix<F>& A, Int n, \
+  ( ElementalMatrix<F>& A, Int n, \
     F center, Base<F> radius, F g, bool periodic );
 
 #define EL_NO_INT_PROTO

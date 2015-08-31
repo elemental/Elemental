@@ -13,7 +13,7 @@ namespace copy {
 
 template<typename T>
 void Gather
-( const AbstractDistMatrix<T>& A,
+( const ElementalMatrix<T>& A,
         DistMatrix<T,CIRC,CIRC>& B )
 {
     DEBUG_ONLY(CSE cse("copy::Gather"))
@@ -166,7 +166,7 @@ void Gather
 
 #define PROTO(T) \
   template void Gather \
-  ( const AbstractDistMatrix<T>& A, \
+  ( const ElementalMatrix<T>& A, \
           DistMatrix<T,CIRC,CIRC>& B ); \
   template void Gather \
   ( const AbstractBlockDistMatrix<T>& A, \

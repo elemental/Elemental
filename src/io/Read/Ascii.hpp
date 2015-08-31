@@ -63,7 +63,7 @@ Ascii( Matrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-Ascii( AbstractDistMatrix<T>& A, const string filename )
+Ascii( ElementalMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::Ascii"))
     std::ifstream file( filename.c_str() );

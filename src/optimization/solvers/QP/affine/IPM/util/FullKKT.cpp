@@ -86,12 +86,12 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, 
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre, 
   bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKT"))
@@ -523,12 +523,12 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rh,
-  const AbstractDistMatrix<Real>& rmu, 
-  const AbstractDistMatrix<Real>& z, 
-        AbstractDistMatrix<Real>& dPre )
+( const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rh,
+  const ElementalMatrix<Real>& rmu, 
+  const ElementalMatrix<Real>& z, 
+        ElementalMatrix<Real>& dPre )
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
 
@@ -614,10 +614,10 @@ void ExpandCoreSolution
 template<typename Real>
 void ExpandCoreSolution
 ( Int m, Int n, Int k,
-  const AbstractDistMatrix<Real>& dPre,
-        AbstractDistMatrix<Real>& dx,
-        AbstractDistMatrix<Real>& dy,
-        AbstractDistMatrix<Real>& dz )
+  const ElementalMatrix<Real>& dPre,
+        ElementalMatrix<Real>& dx,
+        ElementalMatrix<Real>& dy,
+        ElementalMatrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
 
@@ -714,14 +714,14 @@ void ExpandSolution
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n, 
-  const AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Real>& rmu,
-  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& dx,
-        AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz,
-        AbstractDistMatrix<Real>& ds )
+  const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& dx,
+        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz,
+        ElementalMatrix<Real>& ds )
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
     const int k = s.Height();
@@ -769,12 +769,12 @@ void ExpandSolution
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& Q, \
@@ -828,12 +828,12 @@ void ExpandSolution
     const Matrix<Real>& z, \
           Matrix<Real>& d ); \
   template void KKTRHS \
-  ( const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, \
-    const AbstractDistMatrix<Real>& rh, \
-    const AbstractDistMatrix<Real>& rmu, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& d ); \
+  ( const ElementalMatrix<Real>& rc, \
+    const ElementalMatrix<Real>& rb, \
+    const ElementalMatrix<Real>& rh, \
+    const ElementalMatrix<Real>& rmu, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& d ); \
   template void KKTRHS \
   ( const DistMultiVec<Real>& rc, \
     const DistMultiVec<Real>& rb, \
@@ -849,10 +849,10 @@ void ExpandSolution
           Matrix<Real>& dz ); \
   template void ExpandCoreSolution \
   ( Int m, Int n, Int k, \
-    const AbstractDistMatrix<Real>& d, \
-          AbstractDistMatrix<Real>& dx, \
-          AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz ); \
+    const ElementalMatrix<Real>& d, \
+          ElementalMatrix<Real>& dx, \
+          ElementalMatrix<Real>& dy, \
+          ElementalMatrix<Real>& dz ); \
   template void ExpandCoreSolution \
   ( Int m, Int n, Int k, \
     const DistMultiVec<Real>& d, \
@@ -871,14 +871,14 @@ void ExpandSolution
           Matrix<Real>& ds ); \
   template void ExpandSolution \
   ( Int m, Int n, \
-    const AbstractDistMatrix<Real>& d, \
-    const AbstractDistMatrix<Real>& rmu, \
-    const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& dx, \
-          AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz, \
-          AbstractDistMatrix<Real>& ds ); \
+    const ElementalMatrix<Real>& d, \
+    const ElementalMatrix<Real>& rmu, \
+    const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& dx, \
+          ElementalMatrix<Real>& dy, \
+          ElementalMatrix<Real>& dz, \
+          ElementalMatrix<Real>& ds ); \
   template void ExpandSolution \
   ( Int m, Int n, \
     const DistMultiVec<Real>& d, \

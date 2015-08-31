@@ -88,7 +88,7 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
+( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, 
   function<T(S)> func )
 { 
     if( A.DistData().colDist == B.DistData().colDist &&
@@ -178,7 +178,7 @@ void EntrywiseMap
   template void EntrywiseMap \
   ( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func ); \
   template void EntrywiseMap \
-  ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, \
+  ( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, \
     function<T(S)> func ); \
   template void EntrywiseMap \
   ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, \

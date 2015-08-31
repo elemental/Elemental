@@ -82,7 +82,7 @@ void Display( const Matrix<Real>& A, string title="Matrix" );
 template<typename Real>
 void Display( const Matrix<Complex<Real>>& A, string title="Matrix" );
 template<typename T>
-void Display( const AbstractDistMatrix<T>& A, string title="DistMatrix" );
+void Display( const ElementalMatrix<T>& A, string title="DistMatrix" );
 template<typename T>
 void Display
 ( const AbstractBlockDistMatrix<T>& A, string title="BlockDistMatrix" );
@@ -118,7 +118,7 @@ template<typename T>
 void Print( const Matrix<T>& A, string title="Matrix", ostream& os=cout );
 template<typename T>
 void Print
-( const AbstractDistMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
+( const ElementalMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
 template<typename T>
 void Print
 ( const AbstractBlockDistMatrix<T>& A, string title="BlockDistMatrix",
@@ -158,7 +158,7 @@ template<typename T>
 void Read( Matrix<T>& A, const string filename, FileFormat format=AUTO );
 template<typename T>
 void Read
-( AbstractDistMatrix<T>& A, 
+( ElementalMatrix<T>& A, 
   const string filename, FileFormat format=AUTO, bool sequential=false );
 template<typename T>
 void Read
@@ -171,7 +171,7 @@ template<typename T>
 void Spy( const Matrix<T>& A, string title="Matrix", Base<T> tol=0 );
 template<typename T>
 void Spy
-( const AbstractDistMatrix<T>& A, string title="DistMatrix", Base<T> tol=0 );
+( const ElementalMatrix<T>& A, string title="DistMatrix", Base<T> tol=0 );
 template<typename T>
 void Spy
 ( const AbstractBlockDistMatrix<T>& A,
@@ -185,7 +185,7 @@ void Write
   string title="" );
 template<typename T>
 void Write
-( const AbstractDistMatrix<T>& A, string basename="DistMatrix",
+( const ElementalMatrix<T>& A, string basename="DistMatrix",
   FileFormat format=BINARY, string title="" );
 template<typename T>
 void Write

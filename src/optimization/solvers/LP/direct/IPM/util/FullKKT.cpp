@@ -80,10 +80,10 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, bool onlyLower )
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::KKT"))
     const Int m = A.Height();
@@ -167,10 +167,10 @@ void KKT
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, bool onlyLower ); \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \

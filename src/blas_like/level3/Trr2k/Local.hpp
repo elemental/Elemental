@@ -22,9 +22,9 @@ LocalTrr2kKernel
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-                 AbstractDistMatrix<T>& E )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
+                 ElementalMatrix<T>& E )
 {
     DEBUG_ONLY(CSE cse("LocalTrr2kKernel"))
 
@@ -34,7 +34,7 @@ LocalTrr2kKernel
     const bool transD = orientD != NORMAL;
     // TODO: Stringent distribution and alignment checks
 
-    typedef AbstractDistMatrix<T> ADM;
+    typedef ElementalMatrix<T> ADM;
     auto A0 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
     auto A1 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
     auto B0 = unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
@@ -125,9 +125,9 @@ void LocalTrr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
+  T gamma,       ElementalMatrix<T>& E )
 {
     using namespace trr2k;
     DEBUG_ONLY(CSE cse("LocalTrr2k"))
@@ -147,7 +147,7 @@ void LocalTrr2k
     }
     else
     {
-        typedef AbstractDistMatrix<T> ADM;
+        typedef ElementalMatrix<T> ADM;
         // Ugh. This is likely too much overhead. It should be measured.
         auto A0 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
         auto A1 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );

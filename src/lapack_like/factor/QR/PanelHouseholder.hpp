@@ -69,7 +69,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 template<typename F> 
 inline void
 PanelHouseholder
-( DistMatrix<F>& A, AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d )
+( DistMatrix<F>& A, ElementalMatrix<F>& t, ElementalMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(
         CSE cse("qr::PanelHouseholder");

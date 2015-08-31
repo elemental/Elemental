@@ -16,8 +16,8 @@ namespace axpy_contract {
 template<typename T>
 void PartialColScatter
 ( T alpha,
-  const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B )
+  const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("axpy_contract::PartialColScatter"))
     AssertSameGrids( A, B );
@@ -77,8 +77,8 @@ void PartialColScatter
 template<typename T>
 void PartialRowScatter
 ( T alpha,
-  const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B )
+  const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("axpy_contract::PartialRowScatter"))
     AssertSameGrids( A, B );
@@ -128,8 +128,8 @@ void PartialRowScatter
 template<typename T>
 void ColScatter
 ( T alpha,
-  const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B )
+  const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("axpy_contract::ColScatter"))
     AssertSameGrids( A, B );
@@ -235,8 +235,8 @@ void ColScatter
 template<typename T>
 void RowScatter
 ( T alpha,
-  const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B )
+  const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("axpy_contract::RowScatter"))
     AssertSameGrids( A, B );
@@ -380,8 +380,8 @@ void RowScatter
 template<typename T>
 void Scatter
 ( T alpha,
-  const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B )
+  const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("axpy_contract::Scatter"))
     AssertSameGrids( A, B );
@@ -430,8 +430,8 @@ void Scatter
 template<typename T>
 void AxpyContract
 ( T alpha,
-  const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B )
+  const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AxpyContract"))
     const Dist U = B.ColDist();
@@ -466,8 +466,8 @@ void AxpyContract
 #define PROTO(T) \
   template void AxpyContract \
   ( T alpha, \
-    const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B ); \
+    const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B ); \
   template void AxpyContract \
   ( T alpha, \
     const AbstractBlockDistMatrix<T>& A, \

@@ -8,8 +8,8 @@
 */
 #include "El.hpp"
 
-#define COLDIST VC
-#define ROWDIST STAR
+#define COLDIST STAR
+#define ROWDIST VR
 
 #include "./setup.hpp"
 
@@ -26,32 +26,32 @@ namespace El {
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [MC,MR]"))
-    copy::ColAllToAllDemote( A, *this );
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [MC,MR]"))
+    copy::RowAllToAllDemote( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [MC,STAR]"))
-    copy::PartialColFilter( A, *this );
-    return *this;
-}
-
-template<typename T>
-DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MR]"))
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [MC,STAR]"))
     DistMatrix<T,MC,MR> A_MC_MR( A );
     *this = A_MC_MR;
     return *this;
 }
 
 template<typename T>
+DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
+{ 
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [STAR,MR]"))
+    copy::PartialRowFilter( A, *this );
+    return *this;
+}
+
+template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [MD,STAR]"))
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [MD,STAR]"))
     // TODO: Optimize this later if important
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -61,7 +61,7 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MD]"))
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [STAR,MD]"))
     // TODO: Optimize this later if important
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -71,80 +71,80 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 { 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [MR,MC]"))
-    DistMatrix<T,VR,STAR> A_VR_STAR( A );
-    *this = A_VR_STAR;
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [MR,MC]"))
+    DistMatrix<T,STAR,VC> A_STAR_VC( A );
+    *this = A_STAR_VC;
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [MR,STAR]"))
-    DistMatrix<T,VR,STAR> A_VR_STAR( A );
-    *this = A_VR_STAR;
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [MR,STAR]"))
+    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
+    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( *A_MR_MC );
+    A_MR_MC.reset(); 
+    *this = *A_STAR_VC;
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MC]"))
-    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( *A_MR_MC );
-    A_MR_MC.reset(); 
-    *this = *A_VR_STAR;
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [STAR,MC]"))
+    DistMatrix<T,STAR,VC> A_STAR_VC( A );
+    *this = A_STAR_VC;
     return *this;
 }
 
 template<typename T>
-DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
+DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,VC]"))
-    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( *A_MR_MC );
-    A_MR_MC.reset(); 
-    *this = *A_VR_STAR;
-    return *this;
-}
-
-template<typename T>
-DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [VR,STAR]"))
-    copy::ColwiseVectorExchange<T,MR,MC>( A, *this );
-    return *this;
-}
-
-template<typename T>
-DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
-{ 
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,VR]"))
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [VC,STAR]"))
     DistMatrix<T,MC,MR> A_MC_MR( A );
     *this = A_MC_MR;
     return *this;
 }
 
 template<typename T>
+DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
+{ 
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [STAR,VC]"))
+    copy::RowwiseVectorExchange<T,MC,MR>( A, *this );
+    return *this;
+}
+
+template<typename T>
+DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
+{ 
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [VR,STAR]"))
+    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
+    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( *A_MR_MC );
+    A_MR_MC.reset(); 
+    *this = *A_STAR_VC;
+    return *this;
+}
+
+template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
-{
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,STAR]"))
-    copy::ColFilter( A, *this );
+{ 
+    DEBUG_ONLY(CSE cse("[STAR,VR] = [STAR,STAR]"))
+    copy::RowFilter( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CSE cse("[VC,STAR] = [CIRC,CIRC]"))
+    DEBUG_ONLY(CSE cse("[VR,STAR] = [CIRC,CIRC]"))
     copy::Scatter( A, *this );
     return *this;
 }
 
 template<typename T>
-DM& DM::operator=( const AbstractDistMatrix<T>& A )
+DM& DM::operator=( const ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DM = ADM"))
+    DEBUG_ONLY(CSE cse("DM = EM"))
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
@@ -158,7 +158,7 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
 // =============
 template<typename T>
 mpi::Comm DM::DistComm() const EL_NO_EXCEPT
-{ return this->grid_->VCComm(); }
+{ return this->grid_->VRComm(); }
 template<typename T>
 mpi::Comm DM::CrossComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
@@ -167,32 +167,32 @@ mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
 mpi::Comm DM::ColComm() const EL_NO_EXCEPT
-{ return this->grid_->VCComm(); }
-template<typename T>
-mpi::Comm DM::RowComm() const EL_NO_EXCEPT
 { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM::PartialColComm() const EL_NO_EXCEPT
-{ return this->grid_->MCComm(); }
+mpi::Comm DM::RowComm() const EL_NO_EXCEPT
+{ return this->grid_->VRComm(); }
 template<typename T>
-mpi::Comm DM::PartialUnionColComm() const EL_NO_EXCEPT
+mpi::Comm DM::PartialRowComm() const EL_NO_EXCEPT
 { return this->grid_->MRComm(); }
+template<typename T>
+mpi::Comm DM::PartialUnionRowComm() const EL_NO_EXCEPT
+{ return this->grid_->MCComm(); }
 
 template<typename T>
 int DM::ColStride() const EL_NO_EXCEPT
-{ return this->grid_->VCSize(); }
-template<typename T>
-int DM::RowStride() const EL_NO_EXCEPT
 { return 1; }
 template<typename T>
-int DM::PartialColStride() const EL_NO_EXCEPT
-{ return this->grid_->MCSize(); }
+int DM::RowStride() const EL_NO_EXCEPT
+{ return this->grid_->VRSize(); }
 template<typename T>
-int DM::PartialUnionColStride() const EL_NO_EXCEPT
+int DM::PartialRowStride() const EL_NO_EXCEPT
 { return this->grid_->MRSize(); }
 template<typename T>
+int DM::PartialUnionRowStride() const EL_NO_EXCEPT
+{ return this->grid_->MCSize(); }
+template<typename T>
 int DM::DistSize() const EL_NO_EXCEPT
-{ return this->grid_->VCSize(); }
+{ return this->grid_->VRSize(); }
 template<typename T>
 int DM::CrossSize() const EL_NO_EXCEPT
 { return 1; }
@@ -228,8 +228,8 @@ int DM::RedundantSize() const EL_NO_EXCEPT
   BOTH( T,STAR,MR  ); \
   BOTH( T,STAR,STAR); \
   BOTH( T,STAR,VC  ); \
-  BOTH( T,STAR,VR  ); \
-  OTHER(T,VC,  STAR); \
+  OTHER(T,STAR,VR  ); \
+  BOTH( T,VC,  STAR); \
   BOTH( T,VR,  STAR);
 
 #define EL_ENABLE_QUAD

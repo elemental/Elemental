@@ -69,7 +69,7 @@ inline void MakeExtendedKahan
 
 template<typename F>
 inline void MakeExtendedKahan
-( AbstractDistMatrix<F>& A, Base<F> phi, Base<F> mu )
+( ElementalMatrix<F>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
     typedef Base<F> Real;
@@ -94,8 +94,7 @@ inline void MakeExtendedKahan
     // Start by setting A to the identity, and then modify the necessary 
     // l x l blocks of its 3 x 3 partitioning.
     MakeIdentity( A );
-    unique_ptr<AbstractDistMatrix<F>> 
-        ABlock( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<F>> ABlock( A.Construct(A.Grid(),A.Root()) );
     View( *ABlock, A, IR(2*l,3*l), IR(2*l,3*l) );
     *ABlock *= mu;
     View( *ABlock, A, IR(0,l), IR(l,2*l) );
@@ -126,7 +125,7 @@ void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 }
 
 template<typename F>
-void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
+void ExtendedKahan( ElementalMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CSE cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
@@ -138,7 +137,7 @@ void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
   template void ExtendedKahan \
   ( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu ); \
   template void ExtendedKahan \
-  ( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
+  ( ElementalMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

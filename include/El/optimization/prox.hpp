@@ -83,12 +83,12 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real rho, Int numIts=5 );
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int SVT( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
+Int SVT( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F>
 Int SVT
-( AbstractDistMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
+( ElementalMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F,Dist U>
 Int SVT( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
 
@@ -99,24 +99,24 @@ namespace svt {
 template<typename F>
 Int Cross( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Cross( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
+Int Cross( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int Normal( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Normal( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
+Int Normal( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int PivotedQR
 ( Matrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 template<typename F>
 Int PivotedQR
-( AbstractDistMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
+( ElementalMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 
 template<typename F>
-Int TSQR( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
+Int TSQR( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
 
 } // namespace svt
 

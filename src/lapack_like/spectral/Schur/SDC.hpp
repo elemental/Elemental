@@ -1143,7 +1143,7 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& wPre, 
+( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& wPre, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
@@ -1318,8 +1318,8 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& wPre, 
-  AbstractDistMatrix<F>& QPre, bool fullTriangle=true, 
+( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& wPre, 
+  ElementalMatrix<F>& QPre, bool fullTriangle=true, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(

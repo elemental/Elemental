@@ -78,8 +78,8 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& y )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& x,
+  T beta,        ElementalMatrix<T>& y )
 {
     DEBUG_ONLY(CSE cse("Gemv"))
     if( orientation == NORMAL )
@@ -91,8 +91,8 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
-                 AbstractDistMatrix<T>& y )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& x,
+                 ElementalMatrix<T>& y )
 {
     DEBUG_ONLY(CSE cse("Gemv"))
     y.AlignWith( A );
@@ -106,8 +106,8 @@ void Gemv
 template<typename T>
 void LocalGemv
 ( Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& y )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& x,
+  T beta,        ElementalMatrix<T>& y )
 {
     DEBUG_ONLY(CSE cse("LocalGemv"))
     // TODO: Add error checking here
@@ -128,16 +128,16 @@ void LocalGemv
                    Matrix<T>& y ); \
   template void Gemv \
   ( Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-    T beta,        AbstractDistMatrix<T>& y ); \
+    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& x, \
+    T beta,        ElementalMatrix<T>& y ); \
   template void Gemv \
   ( Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-                   AbstractDistMatrix<T>& y ); \
+    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& x, \
+                   ElementalMatrix<T>& y ); \
   template void LocalGemv \
   ( Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-    T beta,        AbstractDistMatrix<T>& y );
+    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& x, \
+    T beta,        ElementalMatrix<T>& y );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

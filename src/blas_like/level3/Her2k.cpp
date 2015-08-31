@@ -34,8 +34,8 @@ void Her2k
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha,      const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  Base<T> beta,       AbstractDistMatrix<T>& C )
+  T alpha,      const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  Base<T> beta,       ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Her2k"))
     Syr2k( uplo, orientation, alpha, A, B, T(beta), C, true );
@@ -44,8 +44,8 @@ void Her2k
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Her2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
@@ -64,14 +64,14 @@ void Her2k
                    Matrix<T>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, \
-             const AbstractDistMatrix<T>& B, \
-                   AbstractDistMatrix<T>& C ); \
+    T alpha, const ElementalMatrix<T>& A, \
+             const ElementalMatrix<T>& B, \
+                   ElementalMatrix<T>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha,      const AbstractDistMatrix<T>& A, \
-                  const AbstractDistMatrix<T>& B, \
-    Base<T> beta,       AbstractDistMatrix<T>& C );
+    T alpha,      const ElementalMatrix<T>& A, \
+                  const ElementalMatrix<T>& B, \
+    Base<T> beta,       ElementalMatrix<T>& C );
 
 // blas::Her2k not yet supported for Int
 #define EL_NO_INT_PROTO

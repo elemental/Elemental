@@ -12,8 +12,8 @@ namespace El {
 
 template<typename T>
 void TransposeContract
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, bool conjugate )
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeContract"))
     const Dist U = B.ColDist();
@@ -24,7 +24,7 @@ void TransposeContract
     }
     else
     {
-        unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<ElementalMatrix<T>> 
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, true );
@@ -74,8 +74,8 @@ void TransposeContract
 
 #define PROTO(T) \
   template void TransposeContract \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B, bool conjugate ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, bool conjugate ); \
   template void TransposeContract \
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<T>& B, bool conjugate );

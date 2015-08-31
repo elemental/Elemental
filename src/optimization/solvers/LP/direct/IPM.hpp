@@ -23,12 +23,12 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>(false) );
 template<typename Real>
 void Mehrotra
@@ -59,10 +59,10 @@ Int ADMM
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 template<typename Real>
 Int ADMM
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& z,
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 
 } // namespace direct

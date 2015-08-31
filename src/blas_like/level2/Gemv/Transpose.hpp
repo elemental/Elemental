@@ -14,9 +14,9 @@ template<typename T>
 inline void
 Transpose
 ( Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& yPre )
+  T alpha, const ElementalMatrix<T>& APre,
+           const ElementalMatrix<T>& x,
+  T beta,        ElementalMatrix<T>& yPre )
 {
     DEBUG_ONLY(
       CSE cse("gemv::Transpose");
@@ -116,7 +116,7 @@ inline void
 Transpose
 ( Orientation orientation,
   T alpha, const DistMatrix<T>& A,
-           const AbstractDistMatrix<T>& x,
+           const ElementalMatrix<T>& x,
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
     DEBUG_ONLY(

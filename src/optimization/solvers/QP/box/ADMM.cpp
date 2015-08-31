@@ -135,8 +135,8 @@ Int ADMM
 
 template<typename Real>
 Int ADMM
-( const AbstractDistMatrix<Real>& QPre, const AbstractDistMatrix<Real>& CPre, 
-  Real lb, Real ub, AbstractDistMatrix<Real>& ZPre, 
+( const ElementalMatrix<Real>& QPre, const ElementalMatrix<Real>& CPre, 
+  Real lb, Real ub, ElementalMatrix<Real>& ZPre, 
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::box::ADMM"))
@@ -254,8 +254,8 @@ Int ADMM
     Real lb, Real ub, Matrix<Real>& Z, \
     const ADMMCtrl<Real>& ctrl ); \
   template Int ADMM \
-  ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& C, \
-    Real lb, Real ub, AbstractDistMatrix<Real>& Z, \
+  ( const ElementalMatrix<Real>& Q, const ElementalMatrix<Real>& C, \
+    Real lb, Real ub, ElementalMatrix<Real>& Z, \
     const ADMMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

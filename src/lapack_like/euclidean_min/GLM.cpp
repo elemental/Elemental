@@ -108,10 +108,10 @@ void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 
 template<typename F> 
 void Overwrite
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& BPre, 
-  AbstractDistMatrix<F>& DPre,
-  AbstractDistMatrix<F>& YPre )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre, 
+  ElementalMatrix<F>& DPre,
+  ElementalMatrix<F>& YPre )
 {
     DEBUG_ONLY(CSE cse("glm::Overwrite"))
 
@@ -191,11 +191,11 @@ void GLM
 
 template<typename F> 
 void GLM
-( const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& D, 
-        AbstractDistMatrix<F>& X,
-        AbstractDistMatrix<F>& Y )
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& D, 
+        ElementalMatrix<F>& X,
+        ElementalMatrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("GLM"))
     DistMatrix<F> ACopy( A ), BCopy( B );
@@ -516,10 +516,10 @@ void GLM
   template void glm::Overwrite \
   ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y ); \
   template void glm::Overwrite \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<F>& D, \
-    AbstractDistMatrix<F>& Y ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
+    ElementalMatrix<F>& D, \
+    ElementalMatrix<F>& Y ); \
   template void GLM \
   ( const Matrix<F>& A, \
     const Matrix<F>& B, \
@@ -527,11 +527,11 @@ void GLM
           Matrix<F>& X, \
           Matrix<F>& Y ); \
   template void GLM \
-  ( const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& D, \
-          AbstractDistMatrix<F>& X, \
-          AbstractDistMatrix<F>& Y ); \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+    const ElementalMatrix<F>& D, \
+          ElementalMatrix<F>& X, \
+          ElementalMatrix<F>& Y ); \
   template void GLM \
   ( const SparseMatrix<F>& A, \
     const SparseMatrix<F>& B, \

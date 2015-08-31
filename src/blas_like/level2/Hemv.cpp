@@ -22,9 +22,9 @@ void Hemv
 template<typename T>
 void Hemv
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& y,
+  T alpha, const ElementalMatrix<T>& A,
+           const ElementalMatrix<T>& x,
+  T beta,        ElementalMatrix<T>& y,
   const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Hemv"))
@@ -37,8 +37,8 @@ void Hemv
     const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y ); \
   template void Hemv \
   ( UpperOrLower uplo, T alpha, \
-    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-    T beta, AbstractDistMatrix<T>& y, \
+    const ElementalMatrix<T>& A, const ElementalMatrix<T>& x, \
+    T beta, ElementalMatrix<T>& y, \
     const SymvCtrl<T>& ctrl );
 
 #define EL_ENABLE_QUAD

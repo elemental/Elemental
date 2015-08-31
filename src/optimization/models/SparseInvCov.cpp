@@ -109,7 +109,7 @@ Int SparseInvCov
 
 template<typename F>
 Int SparseInvCov
-( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& ZPre,
+( const ElementalMatrix<F>& D, Base<F> lambda, ElementalMatrix<F>& ZPre,
   const SparseInvCovCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SparseInvCov"))
@@ -206,7 +206,7 @@ Int SparseInvCov
   ( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z, \
     const SparseInvCovCtrl<Base<F>>& ctrl ); \
   template Int SparseInvCov \
-  ( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& Z, \
+  ( const ElementalMatrix<F>& D, Base<F> lambda, ElementalMatrix<F>& Z, \
     const SparseInvCovCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

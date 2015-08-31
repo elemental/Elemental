@@ -25,7 +25,7 @@ InertiaType Inertia
 
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Inertia"))
@@ -45,7 +45,7 @@ InertiaType Inertia
   template InertiaType Inertia \
   ( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template InertiaType Inertia \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     const LDLPivotCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

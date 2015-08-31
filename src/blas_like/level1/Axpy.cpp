@@ -72,7 +72,7 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 }
 
 template<typename T,typename S>
-void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
+void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 {
     DEBUG_ONLY(
       CSE cse("Axpy");
@@ -80,8 +80,8 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
     )
     const T alpha = T(alphaS);
 
-    const DistData XDistData = X.DistData();
-    const DistData YDistData = Y.DistData();
+    const ElementalData XDistData = X.DistData();
+    const ElementalData YDistData = Y.DistData();
 
     if( XDistData == YDistData )
     {
@@ -89,8 +89,7 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
     }
     else
     {
-        unique_ptr<AbstractDistMatrix<T>> 
-          XCopy( Y.Construct(Y.Grid(),Y.Root()) );
+        unique_ptr<ElementalMatrix<T>> XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
         Axpy( alpha, XCopy->LockedMatrix(), Y.Matrix() );
@@ -137,7 +136,7 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
 #define PROTO_TYPES(T,S) \
   template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
-  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( S alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void Axpy \
   ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Axpy \

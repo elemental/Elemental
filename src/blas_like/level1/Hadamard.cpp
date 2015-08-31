@@ -36,13 +36,14 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 
 template<typename T> 
 void Hadamard
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-        AbstractDistMatrix<T>& C )
+( const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B, 
+        ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Hadamard"))
-    const DistData ADistData = A.DistData();
-    const DistData BDistData = B.DistData();
-    DistData CDistData = C.DistData();
+    const ElementalData ADistData = A.DistData();
+    const ElementalData BDistData = B.DistData();
+    ElementalData CDistData = C.DistData();
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     AssertSameGrids( A, B );
@@ -74,9 +75,9 @@ void Hadamard
   template void Hadamard \
   ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
   template void Hadamard \
-  ( const AbstractDistMatrix<T>& A, \
-    const AbstractDistMatrix<T>& B, \
-          AbstractDistMatrix<T>& C ); \
+  ( const ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& B, \
+          ElementalMatrix<T>& C ); \
   template void Hadamard \
   ( const DistMultiVec<T>& A, \
     const DistMultiVec<T>& B, \

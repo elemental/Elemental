@@ -29,15 +29,15 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
@@ -89,11 +89,11 @@ void KKT
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT

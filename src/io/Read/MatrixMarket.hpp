@@ -220,7 +220,7 @@ MatrixMarket( Matrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
+MatrixMarket( ElementalMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::MatrixMarket"))
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );

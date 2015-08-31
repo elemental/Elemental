@@ -72,7 +72,7 @@ void IndexDependentMap
 
 template<typename S,typename T>
 void IndexDependentMap
-( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
+( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, 
   function<T(Int,Int,S)> func )
 {
     DEBUG_ONLY(CSE cse("IndexDependentMap"))
@@ -124,7 +124,7 @@ void IndexDependentMap
   template void IndexDependentMap \
   ( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func ); \
   template void IndexDependentMap \
-  ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, \
+  ( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, \
     function<T(Int,Int,S)> func ); \
   template void IndexDependentMap \
   ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, \

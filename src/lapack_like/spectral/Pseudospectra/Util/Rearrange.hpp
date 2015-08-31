@@ -36,14 +36,14 @@ template<typename T>
 inline void
 ReshapeIntoGrid
 ( Int realSize, Int imagSize, 
-  const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& X )
+  const ElementalMatrix<T>& x, ElementalMatrix<T>& X )
 {
     X.SetGrid( x.Grid() );
     X.Resize( imagSize, realSize );
 
-    auto xSub = unique_ptr<AbstractDistMatrix<T>>
+    auto xSub = unique_ptr<ElementalMatrix<T>>
     ( x.Construct(x.Grid(),x.Root()) );
-    auto XSub = unique_ptr<AbstractDistMatrix<T>>
+    auto XSub = unique_ptr<ElementalMatrix<T>>
     ( X.Construct(X.Grid(),X.Root()) );
 
     for( Int j=0; j<realSize; ++j )
@@ -88,8 +88,8 @@ RestoreOrdering( const Matrix<Int>& preimage, Matrix<T1>& x, Matrix<T2>& y )
 template<typename T>
 inline void
 RestoreOrdering
-( const AbstractDistMatrix<Int>& preimage,
-        AbstractDistMatrix<T>& x )
+( const ElementalMatrix<Int>& preimage,
+        ElementalMatrix<T>& x )
 {
     DEBUG_ONLY(CSE cse("pspec::RestoreOrdering"))
     DistMatrix<Int,STAR,STAR> preimageCopy( preimage );
@@ -105,9 +105,9 @@ RestoreOrdering
 template<typename T1,typename T2>
 inline void
 RestoreOrdering
-( const AbstractDistMatrix<Int>& preimage,
-        AbstractDistMatrix<T1>& x,
-        AbstractDistMatrix<T2>& y )
+( const ElementalMatrix<Int>& preimage,
+        ElementalMatrix<T1>& x,
+        ElementalMatrix<T2>& y )
 {
     DEBUG_ONLY(CSE cse("pspec::RestoreOrdering"))
     DistMatrix<Int,STAR,STAR> preimageCopy( preimage );

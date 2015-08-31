@@ -7,24 +7,25 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_STAR_VR_DECL_HPP
-#define EL_DISTMATRIX_STAR_VR_DECL_HPP
+#ifndef EL_DISTMATRIX_ELEMENTAL_VR_STAR_DECL_HPP
+#define EL_DISTMATRIX_ELEMENTAL_VR_STAR_DECL_HPP
 
 namespace El {
 
-// Partial specialization to A[* ,VR].
+// Partial specialization to A[VR,* ].
 //
-// The rows of these distributed matrices are spread throughout the 
-// process grid in a row-major fashion, while the columns are not 
+// The columns of these distributed matrices are spread throughout the 
+// process grid in a row-major fashion, while the rows are not 
 // distributed.
 template<typename T>
-class DistMatrix<T,STAR,VR> : public AbstractDistMatrix<T>
+class DistMatrix<T,VR,STAR> : public ElementalMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractDistMatrix<T> absType;
-    typedef DistMatrix<T,STAR,VR> type;
+    typedef ElementalMatrix<T> elemType;
+    typedef DistMatrix<T,VR,STAR> type;
 
     // Constructors and destructors
     // ============================
@@ -36,16 +37,16 @@ public:
     ( Int height, Int width, const El::Grid& g=DefaultGrid(), int root=0 );
     // Create a copy of distributed matrix A
     DistMatrix( const type& A );
-    DistMatrix( const absType& A );
+    DistMatrix( const elemType& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
     // Move constructor
     DistMatrix( type&& A ) EL_NO_EXCEPT;
     ~DistMatrix();
 
-    DistMatrix<T,STAR,VR>* Construct
+    DistMatrix<T,VR,STAR>* Construct
     ( const El::Grid& g, int root ) const override;
-    DistMatrix<T,VR,STAR>* ConstructTranspose
+    DistMatrix<T,STAR,VR>* ConstructTranspose
     ( const El::Grid& g, int root ) const override;
     DistMatrix<T,VR,STAR>* ConstructDiagonal
     ( const El::Grid& g, int root ) const override;
@@ -60,7 +61,7 @@ public:
 
     // Make a copy
     // -----------
-    type& operator=( const absType& A );
+    type& operator=( const elemType& A );
     type& operator=( const DistMatrix<T,MC,  MR  >& A );
     type& operator=( const DistMatrix<T,MC,  STAR>& A );
     type& operator=( const DistMatrix<T,STAR,MR  >& A );
@@ -87,12 +88,12 @@ public:
 
     // Addition/subtraction
     // --------------------
-    const type& operator+=( const absType& A );
-    const type& operator-=( const absType& A );
+    const type& operator+=( const elemType& A );
+    const type& operator-=( const elemType& A );
 
     // Basic queries
     // =============
-    El::DistData DistData() const override;
+    El::ElementalData DistData() const override;
 
     Dist ColDist()             const EL_NO_EXCEPT override;
     Dist RowDist()             const EL_NO_EXCEPT override;
@@ -108,13 +109,13 @@ public:
     mpi::Comm RedundantComm()       const EL_NO_EXCEPT override;
     mpi::Comm ColComm()             const EL_NO_EXCEPT override;
     mpi::Comm RowComm()             const EL_NO_EXCEPT override;
-    mpi::Comm PartialRowComm()      const EL_NO_EXCEPT override;
-    mpi::Comm PartialUnionRowComm() const EL_NO_EXCEPT override;
+    mpi::Comm PartialColComm()      const EL_NO_EXCEPT override;
+    mpi::Comm PartialUnionColComm() const EL_NO_EXCEPT override;
 
     int ColStride()             const EL_NO_EXCEPT override;
     int RowStride()             const EL_NO_EXCEPT override;
-    int PartialRowStride()      const EL_NO_EXCEPT override;
-    int PartialUnionRowStride() const EL_NO_EXCEPT override;
+    int PartialColStride()      const EL_NO_EXCEPT override;
+    int PartialUnionColStride() const EL_NO_EXCEPT override;
     int DistSize()              const EL_NO_EXCEPT override;
     int CrossSize()             const EL_NO_EXCEPT override;
     int RedundantSize()         const EL_NO_EXCEPT override;
@@ -123,9 +124,10 @@ private:
     // Friend declarations
     // ===================
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
+    // TODO: Remove once BlockDistMatrix has been merged
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 };
 
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_STAR_VR_DECL_HPP
+#endif // ifndef EL_DISTMATRIX_ELEMENTAL_VR_STAR_DECL_HPP

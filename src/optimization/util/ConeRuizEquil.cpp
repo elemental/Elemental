@@ -37,13 +37,13 @@ void ConeRuizEquil
 
 template<typename F>
 void ConeRuizEquil
-(       AbstractDistMatrix<F>& APre, 
-        AbstractDistMatrix<F>& BPre,
-        AbstractDistMatrix<Base<F>>& dRowAPre, 
-        AbstractDistMatrix<Base<F>>& dRowBPre,
-        AbstractDistMatrix<Base<F>>& dColPre,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
+(       ElementalMatrix<F>& APre, 
+        ElementalMatrix<F>& BPre,
+        ElementalMatrix<Base<F>>& dRowAPre, 
+        ElementalMatrix<Base<F>>& dRowBPre,
+        ElementalMatrix<Base<F>>& dColPre,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
   Int cutoff,
   bool progress )
 {
@@ -240,13 +240,13 @@ void ConeRuizEquil
     const Matrix<Int>& firstInds, \
     bool progress ); \
   template void ConeRuizEquil \
-  (       AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<F>& B, \
-          AbstractDistMatrix<Base<F>>& dRowA, \
-          AbstractDistMatrix<Base<F>>& dRowB, \
-          AbstractDistMatrix<Base<F>>& dCol, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
+  (       ElementalMatrix<F>& A, \
+          ElementalMatrix<F>& B, \
+          ElementalMatrix<Base<F>>& dRowA, \
+          ElementalMatrix<Base<F>>& dRowB, \
+          ElementalMatrix<Base<F>>& dCol, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
     Int cutoff, bool progress ); \
   template void ConeRuizEquil \
   (       SparseMatrix<F>& A, \

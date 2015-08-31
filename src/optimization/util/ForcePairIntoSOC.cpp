@@ -46,11 +46,11 @@ void ForcePairIntoSOC
 
 template<typename Real>
 void ForcePairIntoSOC
-(       AbstractDistMatrix<Real>& sPre, 
-        AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Real>& wPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+(       ElementalMatrix<Real>& sPre, 
+        ElementalMatrix<Real>& zPre,
+  const ElementalMatrix<Real>& wPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Real wMaxNormLimit, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ForcePairIntoSOC"))
@@ -127,11 +127,11 @@ void ForcePairIntoSOC
     const Matrix<Int>& firstInds, \
     Real wMaxNormLimit ); \
   template void ForcePairIntoSOC \
-  (       AbstractDistMatrix<Real>& s, \
-          AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Real>& w, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
+  (       ElementalMatrix<Real>& s, \
+          ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Real>& w, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
     Real wMaxNormLimit, Int cutoff ); \
   template void ForcePairIntoSOC \
   (       DistMultiVec<Real>& s, \

@@ -38,8 +38,8 @@ void SymmetricRuizEquil
 
 template<typename F>
 void SymmetricRuizEquil
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Base<F>>& dPre,
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<Base<F>>& dPre,
   Int maxIter, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
@@ -135,8 +135,8 @@ void SymmetricRuizEquil
     Matrix<Base<F>>& d, \
     Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& d, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& d, \
     Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
   ( SparseMatrix<F>& A, \

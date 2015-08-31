@@ -14,7 +14,7 @@ namespace copy {
 template<typename T>
 void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
-        AbstractDistMatrix<T>& B )
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
@@ -138,7 +138,7 @@ void Scatter
 #define PROTO(T) \
   template void Scatter \
   ( const DistMatrix<T,CIRC,CIRC>& A, \
-          AbstractDistMatrix<T>& B ); \
+          ElementalMatrix<T>& B ); \
   template void Scatter \
   ( const BlockDistMatrix<T,CIRC,CIRC>& A, \
           AbstractBlockDistMatrix<T>& B ); \

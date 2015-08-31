@@ -39,7 +39,7 @@ BinaryFlat( Matrix<T>& A, Int height, Int width, const string filename )
 template<typename T>
 inline void
 BinaryFlat
-( AbstractDistMatrix<T>& A, Int height, Int width, const string filename )
+( ElementalMatrix<T>& A, Int height, Int width, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::BinaryFlat"))
     std::ifstream file( filename.c_str(), std::ios::binary );

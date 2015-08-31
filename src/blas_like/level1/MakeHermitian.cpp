@@ -18,7 +18,7 @@ void MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 }
 
 template<typename T>
-void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A )
+void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("MakeHermitian"))
     MakeSymmetric( uplo, A, true );
@@ -40,7 +40,7 @@ void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
 
 #define PROTO(T) \
   template void MakeHermitian( UpperOrLower uplo, Matrix<T>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A ); \
+  template void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A ); \
   template void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A ); \
   template void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A );
 

@@ -16,7 +16,7 @@
 namespace El {
 
 #define DM DistMatrix<T,COLDIST,ROWDIST,ELEMENTAL>
-#define ADM AbstractDistMatrix<T>
+#define EM ElementalMatrix<T>
 
 // Public section
 // ##############
@@ -26,7 +26,7 @@ namespace El {
 
 template<typename T>
 DM::DistMatrix( const El::Grid& grid, int root )
-: ADM(grid,root)
+: EM(grid,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
@@ -35,7 +35,7 @@ DM::DistMatrix( const El::Grid& grid, int root )
 
 template<typename T>
 DM::DistMatrix( Int height, Int width, const El::Grid& grid, int root )
-: ADM(grid,root)
+: EM(grid,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
@@ -45,7 +45,7 @@ DM::DistMatrix( Int height, Int width, const El::Grid& grid, int root )
 
 template<typename T>
 DM::DistMatrix( const DM& A )
-: ADM(A.Grid())
+: EM(A.Grid())
 {
     DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -60,7 +60,7 @@ DM::DistMatrix( const DM& A )
 template<typename T>
 template<Dist U,Dist V>
 DM::DistMatrix( const DistMatrix<T,U,V>& A )
-: ADM(A.Grid())
+: EM(A.Grid())
 {
     DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -74,10 +74,10 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM::DistMatrix( const AbstractDistMatrix<T>& A )
-: ADM(A.Grid())
+DM::DistMatrix( const ElementalMatrix<T>& A )
+: EM(A.Grid())
 {
-    DEBUG_ONLY(CSE cse("DM(ADM)"))
+    DEBUG_ONLY(CSE cse("DM(EM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.viewType_ = OWNER;
     this->SetShifts();
@@ -96,7 +96,7 @@ DM::DistMatrix( const AbstractDistMatrix<T>& A )
 template<typename T>
 template<Dist U,Dist V>
 DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
-: ADM(A.Grid())
+: EM(A.Grid())
 {
     DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
@@ -106,7 +106,7 @@ DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM::DistMatrix( DM&& A ) EL_NO_EXCEPT : ADM(std::move(A)) { }
+DM::DistMatrix( DM&& A ) EL_NO_EXCEPT : EM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
 
@@ -180,7 +180,7 @@ DM& DM::operator=( DM&& A )
     if( this->Viewing() || A.Viewing() )
         this->operator=( (const DM&)A );
     else
-        ADM::operator=( std::move(A) );
+        EM::operator=( std::move(A) );
     return *this;
 }
 
@@ -197,7 +197,7 @@ const DM& DM::operator*=( T alpha )
 // Addition/subtraction
 // --------------------
 template<typename T>
-const DM& DM::operator+=( const ADM& A )
+const DM& DM::operator+=( const EM& A )
 {
     DEBUG_ONLY(CSE cse("DM += DM&"))
     Axpy( T(1), A, *this );
@@ -205,7 +205,7 @@ const DM& DM::operator+=( const ADM& A )
 }
 
 template<typename T>
-const DM& DM::operator-=( const ADM& A )
+const DM& DM::operator-=( const EM& A )
 {
     DEBUG_ONLY(CSE cse("DM -= DM&"))
     Axpy( T(-1), A, *this );
@@ -216,7 +216,7 @@ const DM& DM::operator-=( const ADM& A )
 // =================
 
 template<typename T>
-El::DistData DM::DistData() const { return El::DistData(*this); }
+El::ElementalData DM::DistData() const { return El::ElementalData(*this); }
 
 template<typename T>
 Dist DM::ColDist() const EL_NO_EXCEPT { return COLDIST; }

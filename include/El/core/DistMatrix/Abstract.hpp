@@ -27,77 +27,20 @@ public:
 
     virtual ~AbstractDistMatrix();
 
-    virtual AbstractDistMatrix<T>* Construct
-    ( const El::Grid& g, int root ) const = 0;
-    virtual AbstractDistMatrix<T>* ConstructTranspose
-    ( const El::Grid& g, int root ) const = 0;
-    virtual AbstractDistMatrix<T>* ConstructDiagonal
-    ( const El::Grid& g, int root ) const = 0;
-    // TODO: ConstructPartialCol and friends?
-
     // Assignment and reconfiguration
     // ==============================
-    void Empty();
+    virtual void Empty();
     void EmptyData();
     void SetGrid( const El::Grid& grid );
-    void Resize( Int height, Int width );
-    void Resize( Int height, Int width, Int ldim );
-    // NOTE: The 'consistent' in this name should not be confused with the
-    //       'AssertLocallyConsistent()' function, which has to do with whether
-    //       the local queues have been processed. Perhaps these routine names
-    //       should be changed.
-    void MakeConsistent( bool includingViewers=false );
+    virtual void Resize( Int height, Int width ) = 0;
+    virtual void Resize( Int height, Int width, Int ldim ) = 0;
+
     void MakeSizeConsistent( bool includingViewers=false );
 
-    // Realignment
-    // -----------
-    void Align( int colAlign, int rowAlign, bool constrain=true );
-    void AlignCols( int colAlign, bool constrain=true );
-    void AlignRows( int rowAlign, bool constrain=true );
-    void FreeAlignments();
     void SetRoot( int root, bool constrain=true );
-    void AlignWith
-    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
-    void AlignColsWith
-    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
-    void AlignRowsWith
-    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
-    void AlignAndResize
-    ( int colAlign, int rowAlign, Int height, Int width, 
-      bool force=false, bool constrain=true );
-    void AlignColsAndResize
-    ( int colAlign, Int height, Int width, 
-      bool force=false, bool constrain=true );
-    void AlignRowsAndResize
-    ( int rowAlign, Int height, Int width, 
-      bool force=false, bool constrain=true );
-
-    // Buffer attachment
-    // -----------------
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width, const El::Grid& grid, 
-      int colAlign, int rowAlign, T* buffer, Int ldim, int root=0 );
-    void LockedAttach
-    ( Int height, Int width, const El::Grid& grid,
-      int colAlign, int rowAlign, const T* buffer, Int ldim, int root=0 );
-    void Attach
-    ( Int height, Int width, const El::Grid& grid,
-      int colAlign, int rowAlign, El::Matrix<T>& A, int root=0 );
-    void LockedAttach
-    ( Int height, Int width, const El::Grid& grid,
-      int colAlign, int rowAlign, const El::Matrix<T>& A, int root=0 );
-    // (Immutable) view of a local matrix's buffer
-    void Attach( const El::Grid& grid, El::Matrix<T>& A );
-    void LockedAttach( const El::Grid& grid, const El::Matrix<T>& A );
 
     // Operator overloading
     // ====================
-
-    // Copy
-    // ----
-    const type& operator=( const type& A );
-    const type& operator=( const DistMultiVec<T>& A );
 
     // Move assignment
     // ---------------
@@ -106,11 +49,6 @@ public:
     // Rescaling
     // ---------
     const type& operator*=( T alpha );
-
-    // Addition/subtraction
-    // --------------------
-    const type& operator+=( const type& A );
-    const type& operator-=( const type& A );
 
     // Basic queries
     // =============
@@ -140,25 +78,26 @@ public:
     // ------------------------
     const El::Grid& Grid() const EL_NO_EXCEPT;
 
-    int  ColAlign()              const EL_NO_EXCEPT;
-    int  RowAlign()              const EL_NO_EXCEPT;
-    int  ColShift()              const EL_NO_EXCEPT;
-    int  RowShift()              const EL_NO_EXCEPT;
-    bool ColConstrained()        const EL_NO_EXCEPT;
-    bool RowConstrained()        const EL_NO_EXCEPT;
-    bool RootConstrained()       const EL_NO_EXCEPT;
-    bool Participating()         const EL_NO_RELEASE_EXCEPT;
-    int  Root()                  const EL_NO_EXCEPT;
+    int  ColAlign()        const EL_NO_EXCEPT;
+    int  RowAlign()        const EL_NO_EXCEPT;
+    int  ColShift()        const EL_NO_EXCEPT;
+    int  RowShift()        const EL_NO_EXCEPT;
+    bool ColConstrained()  const EL_NO_EXCEPT;
+    bool RowConstrained()  const EL_NO_EXCEPT;
+    bool RootConstrained() const EL_NO_EXCEPT;
+    bool Participating()   const EL_NO_RELEASE_EXCEPT;
+    int  Root()            const EL_NO_EXCEPT;
 
-    int  RowOwner( Int i )       const EL_NO_EXCEPT;
-    int  ColOwner( Int j )       const EL_NO_EXCEPT;
-    int  Owner( Int i, Int j )   const EL_NO_EXCEPT;
+    virtual int  RowOwner( Int i )       const EL_NO_EXCEPT = 0;
+    virtual int  ColOwner( Int j )       const EL_NO_EXCEPT = 0;
+    virtual Int  LocalRowOffset( Int i ) const EL_NO_EXCEPT = 0;
+    virtual Int  LocalColOffset( Int j ) const EL_NO_EXCEPT = 0;
+    virtual Int  GlobalRow( Int iLoc )   const EL_NO_EXCEPT = 0;
+    virtual Int  GlobalCol( Int jLoc )   const EL_NO_EXCEPT = 0;
+
     Int  LocalRow( Int i )       const EL_NO_RELEASE_EXCEPT;
     Int  LocalCol( Int j )       const EL_NO_RELEASE_EXCEPT;
-    Int  LocalRowOffset( Int i ) const EL_NO_EXCEPT;
-    Int  LocalColOffset( Int j ) const EL_NO_EXCEPT;
-    Int  GlobalRow( Int iLoc )   const EL_NO_EXCEPT;
-    Int  GlobalCol( Int jLoc )   const EL_NO_EXCEPT;
+    int  Owner( Int i, Int j )   const EL_NO_EXCEPT;
     bool IsLocalRow( Int i )     const EL_NO_RELEASE_EXCEPT;
     bool IsLocalCol( Int j )     const EL_NO_RELEASE_EXCEPT;
     bool IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
@@ -176,39 +115,42 @@ public:
     int CrossRank()           const EL_NO_RELEASE_EXCEPT;
     int RedundantRank()       const EL_NO_RELEASE_EXCEPT;
 
-    virtual Dist         ColDist()               const EL_NO_EXCEPT = 0;
-    virtual Dist         RowDist()               const EL_NO_EXCEPT = 0;
-    virtual Dist         CollectedColDist()      const EL_NO_EXCEPT = 0;
-    virtual Dist         CollectedRowDist()      const EL_NO_EXCEPT = 0;
-    virtual Dist         PartialColDist()        const EL_NO_EXCEPT = 0;
-    virtual Dist         PartialRowDist()        const EL_NO_EXCEPT = 0;
-    virtual Dist         PartialUnionColDist()   const EL_NO_EXCEPT = 0;
-    virtual Dist         PartialUnionRowDist()   const EL_NO_EXCEPT = 0;
+    virtual Dist     ColDist()             const EL_NO_EXCEPT = 0;
+    virtual Dist     RowDist()             const EL_NO_EXCEPT = 0;
+    virtual Dist     CollectedColDist()    const EL_NO_EXCEPT = 0;
+    virtual Dist     CollectedRowDist()    const EL_NO_EXCEPT = 0;
+    virtual Dist     PartialColDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist     PartialRowDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist     PartialUnionColDist() const EL_NO_EXCEPT = 0;
+    virtual Dist     PartialUnionRowDist() const EL_NO_EXCEPT = 0;
+    virtual DistWrap Wrap()                const EL_NO_EXCEPT = 0;
 
-    virtual mpi::Comm    ColComm()               const EL_NO_EXCEPT = 0;
-    virtual mpi::Comm    RowComm()               const EL_NO_EXCEPT = 0;
-    virtual mpi::Comm    PartialColComm()        const EL_NO_EXCEPT;
-    virtual mpi::Comm    PartialRowComm()        const EL_NO_EXCEPT;
-    virtual mpi::Comm    PartialUnionColComm()   const EL_NO_EXCEPT;
-    virtual mpi::Comm    PartialUnionRowComm()   const EL_NO_EXCEPT;
-    virtual mpi::Comm    DistComm()              const EL_NO_EXCEPT = 0;
-    virtual mpi::Comm    CrossComm()             const EL_NO_EXCEPT = 0;
-    virtual mpi::Comm    RedundantComm()         const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm ColComm()             const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm RowComm()             const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm PartialColComm()      const EL_NO_EXCEPT;
+    virtual mpi::Comm PartialRowComm()      const EL_NO_EXCEPT;
+    virtual mpi::Comm PartialUnionColComm() const EL_NO_EXCEPT;
+    virtual mpi::Comm PartialUnionRowComm() const EL_NO_EXCEPT;
+    virtual mpi::Comm DistComm()            const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm CrossComm()           const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm RedundantComm()       const EL_NO_EXCEPT = 0;
 
     // NOTE: While these would be equivalent to composing mpi::Size
     //       with ColComm(), RowComm(), etc., for processes *within*
     //       the communicator, this composition is incorrect for 
     //       processes *outside* of the communicator
-    virtual int          ColStride()             const EL_NO_EXCEPT= 0;
-    virtual int          RowStride()             const EL_NO_EXCEPT= 0;
-    virtual int          PartialColStride()      const EL_NO_EXCEPT;
-    virtual int          PartialRowStride()      const EL_NO_EXCEPT;
-    virtual int          PartialUnionColStride() const EL_NO_EXCEPT;
-    virtual int          PartialUnionRowStride() const EL_NO_EXCEPT;
-    virtual int          DistSize()              const EL_NO_EXCEPT= 0;
-    virtual int          CrossSize()             const EL_NO_EXCEPT= 0;
-    virtual int          RedundantSize()         const EL_NO_EXCEPT= 0;
-    virtual El::DistData DistData()              const = 0;
+    virtual int ColStride()             const EL_NO_EXCEPT= 0;
+    virtual int RowStride()             const EL_NO_EXCEPT= 0;
+    virtual int PartialColStride()      const EL_NO_EXCEPT;
+    virtual int PartialRowStride()      const EL_NO_EXCEPT;
+    virtual int PartialUnionColStride() const EL_NO_EXCEPT;
+    virtual int PartialUnionRowStride() const EL_NO_EXCEPT;
+    virtual int DistSize()              const EL_NO_EXCEPT= 0;
+    virtual int CrossSize()             const EL_NO_EXCEPT= 0;
+    virtual int RedundantSize()         const EL_NO_EXCEPT= 0;
+
+    virtual int DiagonalRoot( Int offset=0 ) const EL_NO_EXCEPT = 0;
+    virtual int DiagonalAlign( Int offset=0 ) const EL_NO_EXCEPT = 0;
 
     // Single-entry manipulation
     // =========================
@@ -276,13 +218,6 @@ public:
     void MakeLocalReal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
     void ConjugateLocal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
 
-    // Diagonal manipulation
-    // =====================
-    bool DiagonalAlignedWith
-    ( const El::DistData& d, Int offset=0 ) const EL_NO_EXCEPT;
-    int DiagonalRoot( Int offset=0 ) const EL_NO_EXCEPT;
-    int DiagonalAlign( Int offset=0 ) const EL_NO_EXCEPT;
-
     // Assertions
     // ==========
     void ComplainIfReal() const;
@@ -295,64 +230,47 @@ public:
 protected:
     // Member variables
     // ================
+    bool colConstrained_=false,
+         rowConstrained_=false,
+         rootConstrained_=false;
+    int colAlign_=0,
+        rowAlign_=0,
+        colShift_=0,
+        rowShift_=0;
+    int root_=0;
 
     // Global and local matrix information 
     // -----------------------------------
     ViewType viewType_=OWNER;
     Int height_=0, width_=0;
     El::Matrix<T> matrix_=El::Matrix<T>(0,0,true);
-    
-    // Process grid and distribution metadata
-    // --------------------------------------
-    bool colConstrained_=false, 
-         rowConstrained_=false,
-         rootConstrained_=false;
-    int colAlign_=0, 
-        rowAlign_=0,
-        colShift_=0,
-        rowShift_=0;
-    int root_=0;
     const El::Grid* grid_;
 
     // Remote updates
     // --------------
     vector<Entry<T>> remoteUpdates_;
 
-    // Private constructors
-    // ====================
+    // Protected constructors
+    // ======================
     // Create a 0 x 0 distributed matrix
     AbstractDistMatrix( const El::Grid& g=DefaultGrid(), int root=0 );
 
-    // Exchange metadata with another matrix
-    // =====================================
-    virtual void ShallowSwap( type& A );
-
     // Modify the distribution metadata
     // ================================
-    void SetShifts();
-    void SetColShift();
-    void SetRowShift();
-    void SetGrid();
+    virtual void SetShifts();
+    virtual void SetColShift();
+    virtual void SetRowShift();
+
+private:
+    // Exchange metadata with another matrix
+    // =====================================
+    void ShallowSwap( type& A );
 
     // Friend declarations
     // ===================
     template<typename S,Dist J,Dist K,DistWrap wrap> friend class DistMatrix;
-
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 };
-
-template<typename T>
-void AssertConforming1x2
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
-
-template<typename T>
-void AssertConforming2x1
-( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
-
-template<typename T>
-void AssertConforming2x2
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
 
 } // namespace El
 

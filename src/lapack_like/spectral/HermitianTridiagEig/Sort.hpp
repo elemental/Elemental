@@ -42,7 +42,7 @@ void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
 
 template<typename Real,typename F>
 void Sort
-( AbstractDistMatrix<Real>& w, AbstractDistMatrix<F>& Z, SortType sort )
+( ElementalMatrix<Real>& w, ElementalMatrix<F>& Z, SortType sort )
 {
     DEBUG_ONLY(CSE cse("herm_eig::Sort"))
     if( sort == UNSORTED )

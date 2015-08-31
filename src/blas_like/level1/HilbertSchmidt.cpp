@@ -40,7 +40,7 @@ T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B )
 
 template<typename T> 
 T HilbertSchmidt
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
+( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("HilbertSchmidt"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
@@ -110,7 +110,7 @@ T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 #define PROTO(T) \
   template T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B ); \
   template T HilbertSchmidt \
-  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B ); \
   template T HilbertSchmidt \
   ( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 

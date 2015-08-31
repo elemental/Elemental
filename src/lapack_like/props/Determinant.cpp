@@ -21,9 +21,8 @@ SafeProduct<F>  SafeDeterminant( const Matrix<F>& A )
     return det::LUPartialPiv( B ); 
 }
 
-// TODO: Switch to AbstractDistMatrix
 template<typename F>
-SafeProduct<F> SafeDeterminant( const AbstractDistMatrix<F>& A )
+SafeProduct<F> SafeDeterminant( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("SafeDeterminant"))
     DistMatrix<F> B( A );
@@ -41,7 +40,7 @@ SafeProduct<Base<F>> SafeHPDDeterminant
 
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("SafeHPDDeterminant"))
     DistMatrix<F> B( A );
@@ -65,7 +64,7 @@ SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite )
 }
 
 template<typename F>
-SafeProduct<F> SafeDeterminant( AbstractDistMatrix<F>& A, bool canOverwrite )
+SafeProduct<F> SafeDeterminant( ElementalMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("SafeDeterminant"))
     if( canOverwrite )
@@ -97,7 +96,7 @@ SafeProduct<Base<F>> SafeHPDDeterminant
 
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite )
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("SafeHPDDeterminant"))
     if( canOverwrite )
@@ -120,7 +119,7 @@ F Determinant( const Matrix<F>& A )
 }
 
 template<typename F>
-F Determinant( const AbstractDistMatrix<F>& A )
+F Determinant( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("Determinant"))
     SafeProduct<F> safeDet = SafeDeterminant( A );
@@ -136,7 +135,7 @@ Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-Base<F> HPDDeterminant( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> HPDDeterminant( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HPDDeterminant"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
@@ -152,7 +151,7 @@ F Determinant( Matrix<F>& A, bool canOverwrite )
 }
 
 template<typename F>
-F Determinant( AbstractDistMatrix<F>& A, bool canOverwrite )
+F Determinant( ElementalMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("Determinant"))
     SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
@@ -170,7 +169,7 @@ Base<F> HPDDeterminant
 
 template<typename F>
 Base<F> HPDDeterminant
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite )
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("HPDDeterminant"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
@@ -179,43 +178,43 @@ Base<F> HPDDeterminant
 
 #define PROTO(F) \
   template SafeProduct<F> SafeDeterminant( const Matrix<F>& A ); \
-  template SafeProduct<F> SafeDeterminant( const AbstractDistMatrix<F>& A ); \
+  template SafeProduct<F> SafeDeterminant( const ElementalMatrix<F>& A ); \
   template SafeProduct<F> SafeDeterminant \
   ( Matrix<F>& A, bool canOverwrite ); \
   template SafeProduct<F> SafeDeterminant \
-  ( AbstractDistMatrix<F>& A, bool canOverwrite ); \
+  ( ElementalMatrix<F>& A, bool canOverwrite ); \
   \
   template SafeProduct<Base<F>> SafeHPDDeterminant \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template SafeProduct<Base<F>> SafeHPDDeterminant \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
   template SafeProduct<Base<F>> SafeHPDDeterminant \
   ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
   template SafeProduct<Base<F>> SafeHPDDeterminant \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite ); \
   \
   template F Determinant( const Matrix<F>& A ); \
-  template F Determinant( const AbstractDistMatrix<F>& A ); \
+  template F Determinant( const ElementalMatrix<F>& A ); \
   template F Determinant( Matrix<F>& A, bool canOverwrite ); \
-  template F Determinant( AbstractDistMatrix<F>& A, bool canOverwrite ); \
+  template F Determinant( ElementalMatrix<F>& A, bool canOverwrite ); \
   \
   template Base<F> HPDDeterminant \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
   template Base<F> HPDDeterminant \
   ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
   template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite ); \
   \
   template SafeProduct<Base<F>> hpd_det::AfterCholesky \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template SafeProduct<Base<F>> hpd_det::AfterCholesky \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
   ( const Matrix<F>& A, const Matrix<Int>& p ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p );
+  ( const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

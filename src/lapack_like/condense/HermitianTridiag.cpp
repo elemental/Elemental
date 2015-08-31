@@ -29,7 +29,7 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 
 template<typename F> 
 void HermitianTridiag
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
+( UpperOrLower uplo, ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre,
   const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiag"))
@@ -129,7 +129,7 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F>
 void ExplicitCondensed
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, 
   const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_tridiag::ExplicitCondensed"))
@@ -147,20 +147,20 @@ void ExplicitCondensed
   template void HermitianTridiag \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
   template void HermitianTridiag \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t, \
     const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ExplicitCondensed \
   ( UpperOrLower uplo, Matrix<F>& A ); \
   template void herm_tridiag::ExplicitCondensed \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
   template void herm_tridiag::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
-          AbstractDistMatrix<F>& B );
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+          ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -81,7 +81,7 @@ public:
 
     // Basic queries
     // =============
-    El::BlockDistData DistData() const override;
+    El::BlockCyclicData DistData() const override;
 
     Dist ColDist()             const override;
     Dist RowDist()             const override;

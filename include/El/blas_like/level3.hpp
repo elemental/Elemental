@@ -39,27 +39,27 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
 
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
 
 template<typename T>
 void LocalGemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C );
+  T alpha, const ElementalMatrix<T>& A,
+           const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C );
 template<typename T>
 void LocalGemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C );
+  T alpha, const ElementalMatrix<T>& A,
+           const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C );
 
 // Hemm
 // ====
@@ -71,8 +71,8 @@ void Hemm
 template<typename T>
 void Hemm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C );
 
 // Herk
 // ====
@@ -88,12 +88,12 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, 
-  Base<T> beta,        AbstractDistMatrix<T>& C );
+  Base<T> alpha, const ElementalMatrix<T>& A, 
+  Base<T> beta,        ElementalMatrix<T>& C );
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C );
+  Base<T> alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& C );
 
 template<typename T>
 void Herk
@@ -133,14 +133,14 @@ void Her2k
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha,      const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  Base<T> beta,       AbstractDistMatrix<T>& C );
+  T alpha,      const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  Base<T> beta,       ElementalMatrix<T>& C );
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C );
 
 // Multiply
 // ========
@@ -176,30 +176,30 @@ void MultiShiftQuasiTrsm
 template<typename F>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts,
-  AbstractDistMatrix<F>& B );
+  F alpha, const ElementalMatrix<F>& A, const ElementalMatrix<F>& shifts,
+  ElementalMatrix<F>& B );
 template<typename Real>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   Complex<Real> alpha,
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Complex<Real>>& shifts,
-        AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag );
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Complex<Real>>& shifts,
+        ElementalMatrix<Real>& BReal, ElementalMatrix<Real>& BImag );
 
 template<typename F>
 void LocalMultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
-           const AbstractDistMatrix<F>& shifts,
-                 AbstractDistMatrix<F>& X );
+           const ElementalMatrix<F>& shifts,
+                 ElementalMatrix<F>& X );
 template<typename Real>
 void LocalMultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   Complex<Real> alpha,
   const DistMatrix<Real,STAR,STAR>& A,
-  const AbstractDistMatrix<Complex<Real>>& shifts,
-        AbstractDistMatrix<Real>& XReal,
-        AbstractDistMatrix<Real>& XImag );
+  const ElementalMatrix<Complex<Real>>& shifts,
+        ElementalMatrix<Real>& XReal,
+        ElementalMatrix<Real>& XImag );
 
 // MultiShiftTrsm
 // ==============
@@ -210,8 +210,8 @@ void MultiShiftTrsm
 template<typename F>
 void MultiShiftTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& shifts,
-  AbstractDistMatrix<F>& X );
+  F alpha, const ElementalMatrix<F>& U, const ElementalMatrix<F>& shifts,
+  ElementalMatrix<F>& X );
 
 // QuasiTrsm
 // =========
@@ -223,13 +223,13 @@ void QuasiTrsm
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
   bool checkIfSingular=false );
 
 template<typename F>
 void LocalQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X,
+  F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X,
   bool checkIfSingular=false );
 
 // Symm
@@ -242,8 +242,8 @@ void Symm
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C, bool conjugate=false );
 
 namespace symm {
 
@@ -301,12 +301,12 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
+  T alpha, const ElementalMatrix<T>& A, 
+  T beta,        ElementalMatrix<T>& C, bool conjugate=false );
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C,
+  T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& C,
   bool conjugate=false );
 
 template<typename T>
@@ -348,15 +348,15 @@ void Syr2k
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C,
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C,
   bool conjugate=false );
 
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C,
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C,
   bool conjugate=false );
 
 // Trdtrmm
@@ -370,11 +370,11 @@ void Trdtrmm
 
 template<typename F>
 void Trdtrmm
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false );
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate=false );
 template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo,
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, 
+  ElementalMatrix<F>& A, const ElementalMatrix<F>& dOff, 
   bool conjugate=false );
 
 template<typename F>
@@ -397,13 +397,13 @@ template<typename T>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X );
+  T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& X );
 
 template<typename T>
 void LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B );
+  T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B );
 
 // Trsm
 // ====
@@ -427,14 +427,14 @@ template<typename F>
 void Trsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
   bool checkIfSingular=false, TrsmAlgorithm alg=TRSM_DEFAULT );
 
 template<typename F>
 void LocalTrsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X,
+  F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X,
   bool checkIfSingular=false );
 
 // Trstrm
@@ -449,7 +449,7 @@ template<typename F>
 void Trstrm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X,
+  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& X,
   bool checkIfSingular=true );
 template<typename F>
 void Trstrm
@@ -464,7 +464,7 @@ template<typename T>
 void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false );
 template<typename T>
 void Trtrmm
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate=false );
+( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate=false );
 template<typename T>
 void Trtrmm
 ( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate=false );
@@ -478,7 +478,7 @@ void TwoSidedTrmm
 template<typename T>
 void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-  AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+  ElementalMatrix<T>& A, const ElementalMatrix<T>& B );
 template<typename T>
 void LocalTwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
@@ -493,7 +493,7 @@ void TwoSidedTrsm
 template<typename F>
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+  ElementalMatrix<F>& A, const ElementalMatrix<F>& B );
 template<typename F>
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
@@ -511,8 +511,8 @@ template<typename T>
 void Trrk
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C );
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
@@ -558,9 +558,9 @@ void Trr2k
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
+  T gamma,       ElementalMatrix<T>& E );
 
 // The distributions of the oriented matrices must match
 template<typename T>
@@ -568,9 +568,9 @@ void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E );
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
+  T gamma,       ElementalMatrix<T>& E );
 
 } // namespace El
 

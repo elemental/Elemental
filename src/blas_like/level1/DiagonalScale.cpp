@@ -45,7 +45,7 @@ void DiagonalScale
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A )
+  const ElementalMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( side == LEFT )
@@ -75,7 +75,7 @@ void DiagonalScale
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A )
+  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
@@ -223,13 +223,13 @@ void DiagonalScale
 #define DIST_PROTO(T,U,V) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
+    const ElementalMatrix<T>& d, \
           DistMatrix<T,U,V>& A );
 
 #define DIST_PROTO_REAL(T,U,V) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
+    const ElementalMatrix<T>& d, \
           DistMatrix<Complex<T>,U,V>& A );
 
 #define PROTO(T) \
@@ -239,8 +239,8 @@ void DiagonalScale
           Matrix<T>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
-          AbstractDistMatrix<T>& A ); \
+    const ElementalMatrix<T>& d, \
+          ElementalMatrix<T>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<T>& d, \
@@ -276,8 +276,8 @@ void DiagonalScale
           Matrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
-          AbstractDistMatrix<Complex<T>>& A ); \
+    const ElementalMatrix<T>& d, \
+          ElementalMatrix<Complex<T>>& A ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<T>& d, \

@@ -120,10 +120,10 @@ void RNNLS
 
 template<typename Real>
 void RNNLS
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& bPre, 
+( const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& bPre, 
         Real rho,
-        AbstractDistMatrix<Real>& xPre,
+        ElementalMatrix<Real>& xPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("RNNLS"))
@@ -421,10 +421,10 @@ void RNNLS
           Matrix<Real>& x, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void RNNLS \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
           Real rho, \
-          AbstractDistMatrix<Real>& x, \
+          ElementalMatrix<Real>& x, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void RNNLS \
   ( const SparseMatrix<Real>& A, \

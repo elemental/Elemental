@@ -68,7 +68,7 @@ Base<F> SymmetricKyFanSchattenNorm
 }
 
 template<typename F> 
-Base<F> KyFanSchattenNorm( const AbstractDistMatrix<F>& A, Int k, Base<F> p )
+Base<F> KyFanSchattenNorm( const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
     DEBUG_ONLY(CSE cse("KyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -90,7 +90,7 @@ Base<F> KyFanSchattenNorm( const AbstractDistMatrix<F>& A, Int k, Base<F> p )
 
 template<typename F>
 Base<F> HermitianKyFanSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
     DEBUG_ONLY(CSE cse("HermitianKyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -112,7 +112,7 @@ Base<F> HermitianKyFanSchattenNorm
 
 template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
     DEBUG_ONLY(CSE cse("SymmetricKyFanSchattenNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -137,15 +137,15 @@ Base<F> SymmetricKyFanSchattenNorm
   template Base<F> KyFanSchattenNorm \
   ( const Matrix<F>& A, Int k, Base<F> p ); \
   template Base<F> KyFanSchattenNorm \
-  ( const AbstractDistMatrix<F>& A, Int k, Base<F> p ); \
+  ( const ElementalMatrix<F>& A, Int k, Base<F> p ); \
   template Base<F> HermitianKyFanSchattenNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p ); \
   template Base<F> HermitianKyFanSchattenNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p ); \
   template Base<F> SymmetricKyFanSchattenNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p ); \
   template Base<F> SymmetricKyFanSchattenNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p );
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

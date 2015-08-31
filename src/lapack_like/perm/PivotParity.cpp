@@ -31,7 +31,7 @@ bool PivotParity( const Matrix<Int>& p, Int pivotOffset )
     return isOdd;
 }
 
-bool PivotParity( const AbstractDistMatrix<Int>& pPre, Int pivotOffset ) 
+bool PivotParity( const ElementalMatrix<Int>& pPre, Int pivotOffset ) 
 {
     DEBUG_ONLY(
         CSE cse("PivotParity");

@@ -57,7 +57,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F> 
 SafeProduct<Base<F>> AfterCholesky
-( UpperOrLower uplo, const AbstractDistMatrix<F>& APre )
+( UpperOrLower uplo, const ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
 
@@ -90,7 +90,7 @@ SafeProduct<Base<F>> AfterCholesky
 
 template<typename F> 
 inline SafeProduct<Base<F>> 
-Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
+Cholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
 

@@ -57,8 +57,8 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 template<typename F> 
 inline void
 Householder
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre, 
-  AbstractDistMatrix<Base<F>>& dPre )
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre, 
+  ElementalMatrix<Base<F>>& dPre )
 {
     DEBUG_ONLY(
         CSE cse("rq::Householder");

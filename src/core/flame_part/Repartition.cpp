@@ -26,9 +26,9 @@ void RepartitionUp
 
 template<typename T>
 void RepartitionUp
-( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0,
-                             AbstractDistMatrix<T>& A1,
-  AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
+( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0,
+                          ElementalMatrix<T>& A1,
+  ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
       CSE cse("RepartitionUp");
@@ -52,9 +52,9 @@ void LockedRepartitionUp
 
 template<typename T>
 void LockedRepartitionUp
-( const AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0,
-                                   AbstractDistMatrix<T>& A1,
-  const AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
+( const ElementalMatrix<T>& AT, ElementalMatrix<T>& A0,
+                                ElementalMatrix<T>& A1,
+  const ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
       CSE cse("LockedRepartitionUp");
@@ -81,9 +81,9 @@ void RepartitionDown
 
 template<typename T>
 void RepartitionDown
-( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0,
-                             AbstractDistMatrix<T>& A1,
-  AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
+( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0,
+                          ElementalMatrix<T>& A1,
+  ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
       CSE cse("RepartitionDown");
@@ -107,9 +107,9 @@ void LockedRepartitionDown
 
 template<typename T>
 void LockedRepartitionDown
-( const AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0,
-                                   AbstractDistMatrix<T>& A1,
-  const AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int A1Height )
+( const ElementalMatrix<T>& AT, ElementalMatrix<T>& A0,
+                                ElementalMatrix<T>& A1,
+  const ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
     DEBUG_ONLY(
       CSE cse("LockedRepartitionDown");
@@ -135,9 +135,9 @@ void RepartitionLeft
 
 template<typename T>
 void RepartitionLeft
-( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR,
-  AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, 
-  AbstractDistMatrix<T>& A2, Int A1Width )
+( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR,
+  ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
+  ElementalMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
       CSE cse("RepartitionLeft");
@@ -160,9 +160,9 @@ void LockedRepartitionLeft
 
 template<typename T>
 void LockedRepartitionLeft
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR,
-  AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, 
-  AbstractDistMatrix<T>& A2, Int A1Width )
+( const ElementalMatrix<T>& AL, const ElementalMatrix<T>& AR,
+  ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
+  ElementalMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
       CSE cse("LockedRepartitionLeft");
@@ -188,9 +188,9 @@ void RepartitionRight
 
 template<typename T>
 void RepartitionRight
-( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR,
-  AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, 
-  AbstractDistMatrix<T>& A2, Int A1Width )
+( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR,
+  ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
+  ElementalMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
       CSE cse("RepartitionRight");
@@ -213,9 +213,9 @@ void LockedRepartitionRight
 
 template<typename T>
 void LockedRepartitionRight
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR,
-  AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, 
-  AbstractDistMatrix<T>& A2, Int A1Width )
+( const ElementalMatrix<T>& AL, const ElementalMatrix<T>& AR,
+  ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
+  ElementalMatrix<T>& A2, Int A1Width )
 {
     DEBUG_ONLY(
       CSE cse("LockedRepartitionRight");
@@ -249,14 +249,14 @@ void RepartitionUpDiagonal
 
 template<typename T>
 void RepartitionUpDiagonal
-( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, 
-  AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, 
-  AbstractDistMatrix<T>& A02,
-  AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, 
-  AbstractDistMatrix<T>& A12,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
-  AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, 
-  AbstractDistMatrix<T>& A22, Int bsize )
+( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, 
+  ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, 
+  ElementalMatrix<T>& A02,
+  ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, 
+  ElementalMatrix<T>& A12,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
+  ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
+  ElementalMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
       CSE cse("RepartitionUpDiagonal");
@@ -294,14 +294,14 @@ void LockedRepartitionUpDiagonal
 
 template<typename T>
 void LockedRepartitionUpDiagonal
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR, 
-  AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, 
-  AbstractDistMatrix<T>& A02,
-  AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, 
-  AbstractDistMatrix<T>& A12,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR, 
-  AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, 
-  AbstractDistMatrix<T>& A22, Int bsize )
+( const ElementalMatrix<T>& ATL, const ElementalMatrix<T>& ATR, 
+  ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, 
+  ElementalMatrix<T>& A02,
+  ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, 
+  ElementalMatrix<T>& A12,
+  const ElementalMatrix<T>& ABL, const ElementalMatrix<T>& ABR, 
+  ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
+  ElementalMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
       CSE cse("LockedRepartitionUpDiagonal");
@@ -340,14 +340,14 @@ void RepartitionDownDiagonal
 
 template<typename T>
 void RepartitionDownDiagonal
-( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, 
-  AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, 
-  AbstractDistMatrix<T>& A02,
-  AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, 
-  AbstractDistMatrix<T>& A12,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
-  AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, 
-  AbstractDistMatrix<T>& A22, Int bsize )
+( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, 
+  ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, 
+  ElementalMatrix<T>& A02,
+  ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, 
+  ElementalMatrix<T>& A12,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
+  ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
+  ElementalMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
       CSE cse("RepartitionDownDiagonal");
@@ -381,14 +381,14 @@ void LockedRepartitionDownDiagonal
 
 template<typename T>
 void LockedRepartitionDownDiagonal
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR, 
-  AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, 
-  AbstractDistMatrix<T>& A02,
-  AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, 
-  AbstractDistMatrix<T>& A12,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR, 
-  AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, 
-  AbstractDistMatrix<T>& A22, Int bsize )
+( const ElementalMatrix<T>& ATL, const ElementalMatrix<T>& ATR, 
+  ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, 
+  ElementalMatrix<T>& A02,
+  ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, 
+  ElementalMatrix<T>& A12,
+  const ElementalMatrix<T>& ABL, const ElementalMatrix<T>& ABR, 
+  ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
+  ElementalMatrix<T>& A22, Int bsize )
 {
     DEBUG_ONLY(
       CSE cse("LockedRepartitionDownDiagonal");
@@ -411,64 +411,64 @@ void LockedRepartitionDownDiagonal
                    Matrix<T>& A1, \
     Matrix<T>& AB, Matrix<T>& A2, Int bsize ); \
   template void RepartitionDown \
-  ( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0, \
-                               AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0, \
+                            ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int bsize ); \
   template void LockedRepartitionDown \
   ( const Matrix<T>& AT, Matrix<T>& A0, \
                          Matrix<T>& A1, \
     const Matrix<T>& AB, Matrix<T>& A2, Int bsize ); \
   template void LockedRepartitionDown \
-  ( const AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0, \
-                                     AbstractDistMatrix<T>& A1, \
-    const AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( const ElementalMatrix<T>& AT, ElementalMatrix<T>& A0, \
+                                  ElementalMatrix<T>& A1, \
+    const ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int bsize ); \
   /* Upward */ \
   template void RepartitionUp \
   ( Matrix<T>& AT, Matrix<T>& A0, \
                    Matrix<T>& A1, \
     Matrix<T>& AB, Matrix<T>& A2, Int bsize ); \
   template void RepartitionUp \
-  ( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0, \
-                               AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0, \
+                            ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int bsize ); \
   template void LockedRepartitionUp \
   ( const Matrix<T>& AT, Matrix<T>& A0, \
                          Matrix<T>& A1, \
     const Matrix<T>& AB, Matrix<T>& A2, Int bsize ); \
   template void LockedRepartitionUp \
-  ( const AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0, \
-                                     AbstractDistMatrix<T>& A1, \
-    const AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( const ElementalMatrix<T>& AT, ElementalMatrix<T>& A0, \
+                                  ElementalMatrix<T>& A1, \
+    const ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int bsize ); \
   /* Rightward */ \
   template void RepartitionRight \
   ( Matrix<T>& AL, Matrix<T>& AR, \
     Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int bsize ); \
   template void RepartitionRight \
-  ( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, \
-    AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, \
+    ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& A2, Int bsize ); \
   template void LockedRepartitionRight \
   ( const Matrix<T>& AL, const Matrix<T>& AR, \
     Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int bsize ); \
   template void LockedRepartitionRight \
-  ( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR, \
-    AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( const ElementalMatrix<T>& AL, const ElementalMatrix<T>& AR, \
+    ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& A2, Int bsize ); \
   /* Leftward */ \
   template void RepartitionLeft \
   ( Matrix<T>& AL, Matrix<T>& AR, \
     Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int bsize ); \
   template void RepartitionLeft \
-  ( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, \
-    AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, \
+    ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& A2, Int bsize ); \
   template void LockedRepartitionLeft \
   ( const Matrix<T>& AL, const Matrix<T>& AR, \
     Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int bsize ); \
   template void LockedRepartitionLeft \
-  ( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR, \
-    AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& A2, Int bsize ); \
+  ( const ElementalMatrix<T>& AL, const ElementalMatrix<T>& AR, \
+    ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& A2, Int bsize ); \
   /* Down a diagonal */ \
   template void RepartitionDownDiagonal \
   ( Matrix<T>& ATL, Matrix<T>& ATR, \
@@ -477,14 +477,14 @@ void LockedRepartitionDownDiagonal
     Matrix<T>& ABL, Matrix<T>& ABR, \
     Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize ); \
   template void RepartitionDownDiagonal \
-  ( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, \
-    AbstractDistMatrix<T>& A02, \
-    AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, \
-    AbstractDistMatrix<T>& A12, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, \
-    AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, \
-    AbstractDistMatrix<T>& A22, Int bsize ); \
+  ( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, \
+    ElementalMatrix<T>& A02, \
+    ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, \
+    ElementalMatrix<T>& A12, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, \
+    ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, \
+    ElementalMatrix<T>& A22, Int bsize ); \
   template void LockedRepartitionDownDiagonal \
   ( const Matrix<T>& ATL, const Matrix<T>& ATR, \
     Matrix<T>& A00, Matrix<T>& A01, Matrix<T>& A02, \
@@ -492,14 +492,14 @@ void LockedRepartitionDownDiagonal
     const Matrix<T>& ABL, const Matrix<T>& ABR, \
     Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize ); \
   template void LockedRepartitionDownDiagonal \
-  ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, \
-    AbstractDistMatrix<T>& A02, \
-    AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, \
-    AbstractDistMatrix<T>& A12, \
-    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR, \
-    AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, \
-    AbstractDistMatrix<T>& A22, Int bsize ); \
+  ( const ElementalMatrix<T>& ATL, const ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, \
+    ElementalMatrix<T>& A02, \
+    ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, \
+    ElementalMatrix<T>& A12, \
+    const ElementalMatrix<T>& ABL, const ElementalMatrix<T>& ABR, \
+    ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, \
+    ElementalMatrix<T>& A22, Int bsize ); \
   /* Up a diagonal */ \
   template void RepartitionUpDiagonal \
   ( Matrix<T>& ATL, Matrix<T>& ATR, \
@@ -508,14 +508,14 @@ void LockedRepartitionDownDiagonal
     Matrix<T>& ABL, Matrix<T>& ABR, \
     Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize ); \
   template void RepartitionUpDiagonal \
-  ( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, \
-    AbstractDistMatrix<T>& A02, \
-    AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, \
-    AbstractDistMatrix<T>& A12, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, \
-    AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, \
-    AbstractDistMatrix<T>& A22, Int bsize ); \
+  ( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, \
+    ElementalMatrix<T>& A02, \
+    ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, \
+    ElementalMatrix<T>& A12, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, \
+    ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, \
+    ElementalMatrix<T>& A22, Int bsize ); \
   template void LockedRepartitionUpDiagonal \
   ( const Matrix<T>& ATL, const Matrix<T>& ATR, \
     Matrix<T>& A00, Matrix<T>& A01, Matrix<T>& A02, \
@@ -523,14 +523,14 @@ void LockedRepartitionDownDiagonal
     const Matrix<T>& ABL, const Matrix<T>& ABR, \
     Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize ); \
   template void LockedRepartitionUpDiagonal \
-  ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, \
-    AbstractDistMatrix<T>& A02, \
-    AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, \
-    AbstractDistMatrix<T>& A12, \
-    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR, \
-    AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, \
-    AbstractDistMatrix<T>& A22, Int bsize );
+  ( const ElementalMatrix<T>& ATL, const ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, \
+    ElementalMatrix<T>& A02, \
+    ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, \
+    ElementalMatrix<T>& A12, \
+    const ElementalMatrix<T>& ABL, const ElementalMatrix<T>& ABR, \
+    ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, \
+    ElementalMatrix<T>& A22, Int bsize );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

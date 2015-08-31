@@ -68,10 +68,10 @@ ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x )
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
-        if( m != 1 && n != 1 )
-            LogicError("Input should have been a vector");
-        if( !x.Grid().InGrid() )
-            LogicError("viewing processes are not allowed");
+      if( m != 1 && n != 1 )
+          LogicError("Input should have been a vector");
+      if( !x.Grid().InGrid() )
+          LogicError("viewing processes are not allowed");
     )
     ValueInt<Real> pivot;
     if( Min(m,n) == 0 )

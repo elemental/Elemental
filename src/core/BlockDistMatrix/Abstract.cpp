@@ -379,7 +379,7 @@ void AbstractBlockDistMatrix<T>::SetRoot( int root, bool constrain )
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::AlignWith
-( const El::BlockDistData& data, bool constrain )
+( const El::BlockCyclicData& data, bool constrain )
 { 
     DEBUG_ONLY(CSE cse("ABDM::AlignWith"))
     AlignColsWith( data, constrain );
@@ -1059,7 +1059,7 @@ void AbstractBlockDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
 // =====================
 template<typename T>
 bool AbstractBlockDistMatrix<T>::DiagonalAlignedWith
-( const El::BlockDistData& d, Int offset ) const
+( const El::BlockCyclicData& d, Int offset ) const
 {
     DEBUG_ONLY(CSE cse("ABDM::DiagonalAlignedWith"))
     // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
@@ -1086,7 +1086,7 @@ int AbstractBlockDistMatrix<T>::DiagonalAlign( Int offset ) const
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::AlignColsWith
-( const El::BlockDistData& data, bool constrain )
+( const El::BlockCyclicData& data, bool constrain )
 {
     DEBUG_ONLY(CSE cse("ABDM::AlignColsWith"))
     SetGrid( *data.grid );
@@ -1113,7 +1113,7 @@ void AbstractBlockDistMatrix<T>::AlignColsWith
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::AlignRowsWith
-( const El::BlockDistData& data, bool constrain )
+( const El::BlockCyclicData& data, bool constrain )
 {
     DEBUG_ONLY(CSE cse("ABDM::AlignRowsWith"))
     SetGrid( *data.grid );

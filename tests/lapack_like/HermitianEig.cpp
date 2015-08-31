@@ -13,8 +13,8 @@ using namespace El;
 template<typename F>
 void TestCorrectness
 ( bool print, UpperOrLower uplo,
-  const AbstractDistMatrix<F>& AOrig, const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& Z )
+  const ElementalMatrix<F>& AOrig, const ElementalMatrix<F>& A,
+  const ElementalMatrix<Base<F>>& w, const ElementalMatrix<F>& Z )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();

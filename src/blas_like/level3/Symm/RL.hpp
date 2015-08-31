@@ -93,8 +93,8 @@ void LocalAccumulateRL
 template<typename T>
 inline void
 RLA
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RLA");
@@ -153,8 +153,8 @@ RLA
 template<typename T>
 inline void
 RLC
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RLC");
@@ -213,8 +213,8 @@ RLC
 template<typename T>
 inline void
 RL
-( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C, bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::RL"))
     // TODO: Come up with a better routing mechanism

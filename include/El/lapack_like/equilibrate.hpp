@@ -23,9 +23,9 @@ void RuizEquil
 
 template<typename F>
 void RuizEquil
-( AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<Base<F>>& dRow,
-  AbstractDistMatrix<Base<F>>& dCol,
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& dRow,
+  ElementalMatrix<Base<F>>& dCol,
   bool progress=false );
 
 template<typename F>
@@ -53,11 +53,11 @@ void StackedRuizEquil
 
 template<typename F>
 void StackedRuizEquil
-( AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<F>& B,
-  AbstractDistMatrix<Base<F>>& dRowA,
-  AbstractDistMatrix<Base<F>>& dRowB,
-  AbstractDistMatrix<Base<F>>& dCol,
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& B,
+  ElementalMatrix<Base<F>>& dRowA,
+  ElementalMatrix<Base<F>>& dRowB,
+  ElementalMatrix<Base<F>>& dCol,
   bool progress=false );
 
 template<typename F>
@@ -86,8 +86,8 @@ void SymmetricRuizEquil
 
 template<typename F>
 void SymmetricRuizEquil
-( AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<Base<F>>& d,
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& d,
   Int maxiter=3, bool progress=false );
 
 template<typename F>
@@ -111,8 +111,8 @@ void GeomEquil
   bool progress=false );
 template<typename F>
 void GeomEquil
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<Base<F>>& dRow, AbstractDistMatrix<Base<F>>& dCol,
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<Base<F>>& dRow, ElementalMatrix<Base<F>>& dCol,
   bool progress=false );
 template<typename F>
 void GeomEquil
@@ -132,7 +132,7 @@ void SymmetricGeomEquil
 ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
 template<typename F>
 void SymmetricGeomEquil
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, 
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, 
   bool progress=false );
 template<typename F>
 void SymmetricGeomEquil
@@ -148,10 +148,10 @@ void StackedGeomEquil
   bool progress=false );
 template<typename F>
 void StackedGeomEquil
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
-  AbstractDistMatrix<Base<F>>& dRowA, 
-  AbstractDistMatrix<Base<F>>& dRowB, 
-  AbstractDistMatrix<Base<F>>& dCol,
+( ElementalMatrix<F>& A, ElementalMatrix<F>& B,
+  ElementalMatrix<Base<F>>& dRowA, 
+  ElementalMatrix<Base<F>>& dRowB, 
+  ElementalMatrix<Base<F>>& dCol,
   bool progress=false );
 template<typename F>
 void StackedGeomEquil
@@ -173,7 +173,7 @@ void SymmetricDiagonalEquil
 ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
 template<typename F>
 void SymmetricDiagonalEquil
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, 
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, 
   bool progress=false );
 template<typename F>
 void SymmetricDiagonalEquil

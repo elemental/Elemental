@@ -13,13 +13,13 @@ namespace copy {
 
 // (U,V) |-> (U,Collect(V))
 template<typename T>
-void RowAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ) 
+void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ) 
 {
     DEBUG_ONLY(
-        CSE cse("copy::RowAllGather");
-        if( A.ColDist() != B.ColDist() || 
-            Collect(A.RowDist()) != B.RowDist() )
-            LogicError("Incompatible distributions");
+      CSE cse("copy::RowAllGather");
+      if( A.ColDist() != B.ColDist() || 
+          Collect(A.RowDist()) != B.RowDist() )
+          LogicError("Incompatible distributions");
     )
     AssertSameGrids( A, B );
     const Int height = A.Height();
@@ -161,7 +161,7 @@ void RowAllGather
 
 #define PROTO(T) \
   template void RowAllGather \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void RowAllGather \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 

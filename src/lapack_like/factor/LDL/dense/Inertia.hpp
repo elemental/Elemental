@@ -144,7 +144,7 @@ Inertia
 
 template<typename F>
 InertiaType Inertia
-( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub )
+( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub )
 {
     DEBUG_ONLY(CSE cse("ldl::Inertia"))
     typedef Base<F> Real;

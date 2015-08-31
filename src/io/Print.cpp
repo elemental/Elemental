@@ -33,7 +33,7 @@ void Print( const Matrix<T>& A, string title, ostream& os )
 
 template<typename T>
 void Print
-( const AbstractDistMatrix<T>& A, string title, ostream& os )
+( const ElementalMatrix<T>& A, string title, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -184,7 +184,7 @@ void Print( const vector<T>& x, string title, ostream& os )
   template void Print \
   ( const Matrix<T>& A, string title, ostream& os ); \
   template void Print \
-  ( const AbstractDistMatrix<T>& A, string title, ostream& os ); \
+  ( const ElementalMatrix<T>& A, string title, ostream& os ); \
   template void Print \
   ( const AbstractBlockDistMatrix<T>& A, \
     string title, ostream& os ); \

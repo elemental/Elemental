@@ -86,7 +86,7 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 
 template<typename F>
 inline void
-LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
+LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CSE cse("trdtrmm::LVar1");
@@ -145,7 +145,7 @@ LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
 template<typename F>
 inline void
 LVar1
-( AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& dSubPre, 
+( ElementalMatrix<F>& LPre, const ElementalMatrix<F>& dSubPre, 
   bool conjugate=false )
 {
     DEBUG_ONLY(

@@ -91,8 +91,8 @@ void LocalAccumulateLU
 template<typename T>
 inline void
 LUA
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre,
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -149,8 +149,8 @@ LUA
 template<typename T>
 inline void
 LUC
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre,
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -211,8 +211,8 @@ LUC
 template<typename T>
 inline void
 LU
-( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C, bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::LU"))
     // TODO: Come up with a better routing mechanism

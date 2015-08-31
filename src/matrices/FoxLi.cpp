@@ -55,7 +55,7 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 }
 
 template<typename Real>
-void FoxLi( AbstractDistMatrix<Complex<Real>>& APre, Int n, Real omega )
+void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
 {
     DEBUG_ONLY(CSE cse("FoxLi"))
     typedef Complex<Real> C;
@@ -117,7 +117,7 @@ void FoxLi( AbstractDistMatrix<Complex<Real>>& APre, Int n, Real omega )
 #define PROTO(Real) \
   template void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega ); \
   template void FoxLi \
-  ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real omega );
+  ( ElementalMatrix<Complex<Real>>& A, Int n, Real omega );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

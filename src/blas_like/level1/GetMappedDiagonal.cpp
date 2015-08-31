@@ -34,7 +34,7 @@ void GetMappedDiagonal
 
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
-( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& dPre, 
+( const DistMatrix<T,U,V>& A, ElementalMatrix<S>& dPre, 
   function<S(T)> func, Int offset )
 { 
     DEBUG_ONLY(
@@ -149,7 +149,7 @@ void GetMappedDiagonal
 
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void GetMappedDiagonal \
-  ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, \
+  ( const DistMatrix<T,U,V>& A, ElementalMatrix<S>& d, \
     function<S(T)> func, Int offset );
 
 #define PROTO_TYPES(S,T) \

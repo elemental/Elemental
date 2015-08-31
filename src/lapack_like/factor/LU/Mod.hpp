@@ -272,8 +272,8 @@ void LUMod
 
 template<typename F>
 void LUMod
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p, 
-  const AbstractDistMatrix<F>& u, const AbstractDistMatrix<F>& v, 
+( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p, 
+  const ElementalMatrix<F>& u, const ElementalMatrix<F>& v, 
   bool conjugate, Base<F> tau )
 {
     DEBUG_ONLY(CSE cse("LUMod"))

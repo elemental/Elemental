@@ -42,8 +42,10 @@ void HermitianFromEVD
 
 template<typename F>
 void HermitianFromEVD
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
-  const AbstractDistMatrix<Base<F>>& wPre, const AbstractDistMatrix<F>& ZPre )
+( UpperOrLower uplo, 
+        ElementalMatrix<F>& APre,
+  const ElementalMatrix<Base<F>>& wPre,
+  const ElementalMatrix<F>& ZPre )
 {
     DEBUG_ONLY(CSE cse("HermitianFromEVD"))
     typedef Base<F> Real;
@@ -86,11 +88,15 @@ void HermitianFromEVD
 
 #define PROTO(F) \
   template void HermitianFromEVD \
-  ( UpperOrLower uplo, Matrix<F>& A, \
-    const Matrix<Base<F>>& w, const Matrix<F>& Z ); \
+  ( UpperOrLower uplo, \
+          Matrix<F>& A, \
+    const Matrix<Base<F>>& w, \
+    const Matrix<F>& Z ); \
   template void HermitianFromEVD \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& Z );
+  ( UpperOrLower uplo, \
+          ElementalMatrix<F>& A, \
+    const ElementalMatrix<Base<F>>& w, \
+    const ElementalMatrix<F>& Z );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

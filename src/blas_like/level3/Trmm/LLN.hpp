@@ -70,7 +70,7 @@ template<typename T>
 inline void
 LLNA
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNA");
@@ -114,7 +114,7 @@ template<typename T>
 inline void
 LLNCOld
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNCOld");
@@ -172,7 +172,7 @@ template<typename T>
 inline void
 LLNC
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNC");
@@ -225,7 +225,7 @@ LLNC
 template<typename T>
 inline void
 LLN
-( UnitOrNonUnit diag, const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
+( UnitOrNonUnit diag, const ElementalMatrix<T>& L, ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::LLN"))
     // TODO: Come up with a better routing mechanism

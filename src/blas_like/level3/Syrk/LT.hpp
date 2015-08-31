@@ -13,8 +13,8 @@ namespace syrk {
 template<typename T>
 inline void
 LT
-( T alpha, const AbstractDistMatrix<T>& APre, 
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& APre, 
+                 ElementalMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syrk::LT");

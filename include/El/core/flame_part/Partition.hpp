@@ -21,8 +21,8 @@ void PartitionDown
 
 template<typename T>
 void PartitionDown
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAT=Blocksize() );
 
 template<typename T>
@@ -31,8 +31,8 @@ void LockedPartitionDown
 
 template<typename T>
 void LockedPartitionDown
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAT=Blocksize() );
 
 // Partition upwards from the bottom
@@ -44,8 +44,8 @@ void PartitionUp
 
 template<typename T>
 void PartitionUp
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAB=Blocksize() );
 
 template<typename T>
@@ -54,8 +54,8 @@ void LockedPartitionUp
 
 template<typename T>
 void LockedPartitionUp
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAB=Blocksize() );
 
 // Partition rightwards from the left
@@ -67,8 +67,8 @@ void PartitionRight
 
 template<typename T>
 void PartitionRight
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAL=Blocksize() );
 
 template<typename T>
@@ -77,8 +77,8 @@ void LockedPartitionRight
 
 template<typename T>
 void LockedPartitionRight
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAL=Blocksize() );
 
 // Partition leftwards from the right
@@ -90,8 +90,8 @@ void PartitionLeft
 
 template<typename T>
 void PartitionLeft
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAR=Blocksize() );
 
 template<typename T>
@@ -101,8 +101,8 @@ void LockedPartitionLeft
 
 template<typename T>
 void LockedPartitionLeft
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAR=Blocksize() );
 
 // Partition downward on a particular diagonal
@@ -118,9 +118,9 @@ void PartitionDownOffsetDiagonal
 template<typename T>
 void PartitionDownOffsetDiagonal
 ( Int offset,
-  AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 template<typename T>
@@ -133,9 +133,9 @@ void LockedPartitionDownOffsetDiagonal
 template<typename T>
 void LockedPartitionDownOffsetDiagonal
 ( Int offset,
-  const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 // Partition upwards on a particular diagonal
@@ -151,9 +151,9 @@ void PartitionUpOffsetDiagonal
 template<typename T>
 void PartitionUpOffsetDiagonal
 ( Int offset,
-  AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 template<typename T>
@@ -166,9 +166,9 @@ void LockedPartitionUpOffsetDiagonal
 template<typename T>
 void LockedPartitionUpOffsetDiagonal
 ( Int offset,
-  const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 // Partition downwards on the main diagonal
@@ -182,9 +182,9 @@ void PartitionDownDiagonal
 
 template<typename T>
 void PartitionDownDiagonal
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 template<typename T>
@@ -195,9 +195,9 @@ void LockedPartitionDownDiagonal
 
 template<typename T>
 void LockedPartitionDownDiagonal
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 // Partition upwards on the main diagonal
@@ -211,9 +211,9 @@ void PartitionUpDiagonal
 
 template<typename T>
 void PartitionUpDiagonal
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 template<typename T>
@@ -224,9 +224,9 @@ void LockedPartitionUpDiagonal
 
 template<typename T>
 void LockedPartitionUpDiagonal
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist=Blocksize() );
 
 } // namespace El

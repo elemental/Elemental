@@ -27,13 +27,15 @@ namespace El {
 template<typename F>
 void LeastSquares
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& B, 
-                            Matrix<F>& X );
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+        Matrix<F>& X );
 template<typename F>
 void LeastSquares
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-                                        AbstractDistMatrix<F>& X );
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B,
+        ElementalMatrix<F>& X );
 
 template<typename Real>
 struct LeastSquaresCtrl 
@@ -58,14 +60,16 @@ struct LeastSquaresCtrl
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& Y, 
-                                  Matrix<F>& X,
+  const SparseMatrix<F>& A,
+  const Matrix<F>& Y, 
+        Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& Y, 
-                                      DistMultiVec<F>& X,
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& Y, 
+        DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 // Dense versions which overwrite their input
@@ -80,8 +84,8 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( Orientation orientation, 
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-                                  AbstractDistMatrix<F>& X );
+  ElementalMatrix<F>& A, const ElementalMatrix<F>& B, 
+                                  ElementalMatrix<F>& X );
 
 } // namespace ls
 
@@ -108,8 +112,8 @@ void Ridge
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  Base<F> gamma,                        AbstractDistMatrix<F>& X, 
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, 
+  Base<F> gamma,                     ElementalMatrix<F>& X, 
   RidgeAlg alg=RIDGE_CHOLESKY );
 
 template<typename F>
@@ -156,8 +160,8 @@ void Tikhonov
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& G,       AbstractDistMatrix<F>& X, 
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& G,       ElementalMatrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 
 template<typename F>
@@ -184,9 +188,9 @@ void LSE
         Matrix<F>& X );
 template<typename F>
 void LSE
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, 
-        AbstractDistMatrix<F>& X );
+( const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& C, const ElementalMatrix<F>& D, 
+        ElementalMatrix<F>& X );
 
 template<typename F>
 void LSE
@@ -213,9 +217,9 @@ void Overwrite
   Matrix<F>& X, bool computeResidual=false );
 template<typename F>
 void Overwrite
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, 
-  AbstractDistMatrix<F>& X, bool computeResidual=false );
+( ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
+  ElementalMatrix<F>& C, ElementalMatrix<F>& D, 
+  ElementalMatrix<F>& X, bool computeResidual=false );
 
 } // namespace lse
 
@@ -231,9 +235,9 @@ void GLM
         Matrix<F>& X,       Matrix<F>& Y );
 template<typename F>
 void GLM
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& D, 
-        AbstractDistMatrix<F>& X,       AbstractDistMatrix<F>& Y );
+( const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& D, 
+        ElementalMatrix<F>& X,       ElementalMatrix<F>& Y );
 
 template<typename F>
 void GLM
@@ -258,8 +262,8 @@ void Overwrite
 ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y );
 template<typename F>
 void Overwrite
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y );
+( ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
+  ElementalMatrix<F>& D, ElementalMatrix<F>& Y );
 
 } // namespace glm
 

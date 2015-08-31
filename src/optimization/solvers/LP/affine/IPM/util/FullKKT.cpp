@@ -82,11 +82,11 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre,
   bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::affine::KKT"))
@@ -205,11 +205,11 @@ void StaticKKT
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \

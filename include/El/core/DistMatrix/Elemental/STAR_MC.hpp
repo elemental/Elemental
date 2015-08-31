@@ -7,22 +7,26 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_STAR_STAR_DECL_HPP
-#define EL_DISTMATRIX_STAR_STAR_DECL_HPP
+#ifndef EL_DISTMATRIX_ELEMENTAL_STAR_MC_DECL_HPP
+#define EL_DISTMATRIX_ELEMENTAL_STAR_MC_DECL_HPP
 
 namespace El {
 
-// Partial specialization to A[* ,* ].
+// Partial specialization to A[* ,MC].
 //
-// The entire matrix is replicated across all processes.
+// The columns of these distributed matrices will be replicated on all 
+// processes (*), and the rows will be distributed like "Matrix Columns" 
+// (MC). Thus the rows will be distributed among columns of the process
+// grid.
 template<typename T>
-class DistMatrix<T,STAR,STAR> : public AbstractDistMatrix<T>
+class DistMatrix<T,STAR,MC> : public ElementalMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractDistMatrix<T> absType;
-    typedef DistMatrix<T,STAR,STAR> type;
+    typedef ElementalMatrix<T> elemType;
+    typedef DistMatrix<T,STAR,MC> type;
 
     // Constructors and destructors
     // ============================
@@ -34,18 +38,18 @@ public:
     ( Int height, Int width, const El::Grid& g=DefaultGrid(), int root=0 );
     // Create a copy of distributed matrix A
     DistMatrix( const type& A );
-    DistMatrix( const absType& A );
+    DistMatrix( const elemType& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
     // Move constructor
     DistMatrix( type&& A ) EL_NO_EXCEPT;
     ~DistMatrix();
 
-    DistMatrix<T,STAR,STAR>* Construct
+    DistMatrix<T,STAR,MC>* Construct
     ( const El::Grid& g, int root ) const override;
-    DistMatrix<T,STAR,STAR>* ConstructTranspose
-    ( const El::Grid& g, int root) const override;
-    DistMatrix<T,STAR,STAR>* ConstructDiagonal
+    DistMatrix<T,MC,STAR>* ConstructTranspose
+    ( const El::Grid& g, int root ) const override;
+    DistMatrix<T,MC,STAR>* ConstructDiagonal
     ( const El::Grid& g, int root ) const override;
 
     // Operator overloading
@@ -58,7 +62,7 @@ public:
 
     // Make a copy
     // -----------
-    type& operator=( const absType& A );
+    type& operator=( const elemType& A );
     type& operator=( const DistMatrix<T,MC,  MR  >& A );
     type& operator=( const DistMatrix<T,MC,  STAR>& A );
     type& operator=( const DistMatrix<T,STAR,MR  >& A );
@@ -85,12 +89,12 @@ public:
 
     // Addition/subtraction
     // --------------------
-    const type& operator+=( const absType& A );
-    const type& operator-=( const absType& A );
+    const type& operator+=( const elemType& A );
+    const type& operator-=( const elemType& A );
 
     // Basic queries
     // =============
-    El::DistData DistData() const override;
+    El::ElementalData DistData() const override;
 
     Dist ColDist()             const EL_NO_EXCEPT override;
     Dist RowDist()             const EL_NO_EXCEPT override;
@@ -117,9 +121,10 @@ private:
     // Friend declarations
     // ===================
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
+    // TODO: Remove once BlockDistMatrix has been merged
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 };
 
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_STAR_STAR_DECL_HPP
+#endif // ifndef EL_DISTMATRIX_ELEMENTAL_STAR_MC_DECL_HPP

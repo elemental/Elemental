@@ -67,8 +67,8 @@ Int LogisticRegression
 
 template<typename Real>
 Int LogisticRegression
-( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
-        AbstractDistMatrix<Real>& w, 
+( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, 
+        ElementalMatrix<Real>& w, 
   Real gamma, Regularization penalty, 
   const ModelFitCtrl<Real>& ctrl )
 {
@@ -133,8 +133,8 @@ Int LogisticRegression
     Real gamma, Regularization penalty, \
     const ModelFitCtrl<Real>& ctrl ); \
   template Int LogisticRegression \
-  ( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, \
-          AbstractDistMatrix<Real>& w, \
+  ( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, \
+          ElementalMatrix<Real>& w, \
     Real gamma, Regularization penalty, \
     const ModelFitCtrl<Real>& ctrl );
 

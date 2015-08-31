@@ -43,7 +43,7 @@ void Spy( const Matrix<T>& A, string title, Base<T> tol )
 }
 
 template<typename T>
-void Spy( const AbstractDistMatrix<T>& A, string title, Base<T> tol )
+void Spy( const ElementalMatrix<T>& A, string title, Base<T> tol )
 {
     DEBUG_ONLY(CSE cse("Spy"))
 #ifdef EL_HAVE_QT5
@@ -91,7 +91,7 @@ void Spy( const AbstractBlockDistMatrix<T>& A, string title, Base<T> tol )
 #define PROTO(T) \
   template void Spy ( const Matrix<T>& A, string title, Base<T> tol ); \
   template void Spy \
-  ( const AbstractDistMatrix<T>& A, string title, Base<T> tol ); \
+  ( const ElementalMatrix<T>& A, string title, Base<T> tol ); \
   template void Spy \
   ( const AbstractBlockDistMatrix<T>& A, string title, Base<T> tol ); 
 

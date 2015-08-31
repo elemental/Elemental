@@ -24,9 +24,9 @@ namespace El {
 // Make a copy
 // -----------
 template<typename T>
-DM& DM::operator=( const AbstractDistMatrix<T>& A )
+DM& DM::operator=( const ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = ADM"));
+    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = EM"));
     copy::Gather( A, *this );
     return *this;
 }

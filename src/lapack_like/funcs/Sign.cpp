@@ -210,7 +210,7 @@ void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 }
 
 template<typename F>
-void Sign( AbstractDistMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
+void Sign( ElementalMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Sign"))
 
@@ -222,7 +222,7 @@ void Sign( AbstractDistMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
 
 template<typename F>
 void Sign
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& NPre, 
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& NPre, 
   const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Sign"))
@@ -308,7 +308,7 @@ void HermitianSign
 
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianSign"))
@@ -340,7 +340,7 @@ void HermitianSign
 
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& NPre,
+( UpperOrLower uplo, ElementalMatrix<F>& APre, ElementalMatrix<F>& NPre,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianSign"))
@@ -387,23 +387,23 @@ void HermitianSign
   template void Sign \
   ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
-  ( AbstractDistMatrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
+  ( ElementalMatrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
   ( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
     const SignCtrl<Base<F>> ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
     const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO

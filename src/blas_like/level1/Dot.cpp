@@ -18,7 +18,7 @@ T Dot( const Matrix<T>& A, const Matrix<T>& B )
 }
 
 template<typename T>
-T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
+T Dot( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Dot"))
     return HilbertSchmidt( A, B );
@@ -34,7 +34,7 @@ T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 #define PROTO(T) \
   template T Dot( const Matrix<T>& A, const Matrix<T>& B ); \
   template T Dot \
-  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B ); \
   template T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 #define EL_ENABLE_QUAD

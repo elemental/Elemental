@@ -80,7 +80,7 @@ LUPartialPiv( Matrix<F>& A )
 
 template<typename F> 
 void AfterLUPartialPiv
-( AbstractDistMatrix<F>& APre, const AbstractDistMatrix<Int>& p )
+( ElementalMatrix<F>& APre, const ElementalMatrix<Int>& p )
 {
     DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
 
@@ -148,7 +148,7 @@ void AfterLUPartialPiv
 
 template<typename F> 
 inline void
-LUPartialPiv( AbstractDistMatrix<F>& A )
+LUPartialPiv( ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )

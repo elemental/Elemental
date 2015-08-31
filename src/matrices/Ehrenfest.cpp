@@ -117,7 +117,7 @@ void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
 }
 
 template<typename F>
-void Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
+void Ehrenfest( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CSE cse("Ehrenfest"))
     Ehrenfest( P, n );
@@ -148,12 +148,11 @@ void EhrenfestDecay( Matrix<F>& A, Int n )
 }
 
 template<typename F>
-void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
+void EhrenfestDecay( ElementalMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CSE cse("EhrenfestDecay"))
     Ehrenfest( A, n );
-    unique_ptr<AbstractDistMatrix<F>> 
-      PInf( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<F>> PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
     EhrenfestStationary( *PInf, n );
     A -= *PInf;
@@ -165,7 +164,7 @@ void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
   template void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n ); \
   template void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n ); \
   template void Ehrenfest \
-  ( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n ); \
+  ( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n ); \
   template void Ehrenfest \
   ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void EhrenfestStationary( Matrix<F>& PInf, Int n ); \
@@ -173,7 +172,7 @@ void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
   template void EhrenfestStationary \
   ( AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void EhrenfestDecay( Matrix<F>& A, Int n ); \
-  template void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n );
+  template void EhrenfestDecay( ElementalMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

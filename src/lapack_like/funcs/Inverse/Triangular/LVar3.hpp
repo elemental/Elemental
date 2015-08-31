@@ -76,7 +76,7 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 
 template<typename F>
 inline void
-LVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& LPre )
+LVar3( UnitOrNonUnit diag, ElementalMatrix<F>& LPre )
 {
     DEBUG_ONLY(
         CSE cse("triang_inv::LVar3");

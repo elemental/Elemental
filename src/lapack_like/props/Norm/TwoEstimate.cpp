@@ -46,7 +46,7 @@ Base<F> TwoNormEstimate( const Matrix<F>& A, Base<F> tol, Int maxIts )
 
 template<typename F>
 Base<F> TwoNormEstimate
-( const AbstractDistMatrix<F>& APre, Base<F> tol, Int maxIts )
+( const ElementalMatrix<F>& APre, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CSE cse("TwoNormEstimate"))
     typedef Base<F> Real;
@@ -148,7 +148,7 @@ Base<F> HermitianTwoNormEstimate
 
 template<typename F>
 Base<F> HermitianTwoNormEstimate
-( UpperOrLower uplo, const AbstractDistMatrix<F>& APre, Base<F> tol, 
+( UpperOrLower uplo, const ElementalMatrix<F>& APre, Base<F> tol, 
   Int maxIts )
 {
     DEBUG_ONLY(CSE cse("HermitianTwoNormEstimate"))
@@ -225,7 +225,7 @@ Base<F> SymmetricTwoNormEstimate
 
 template<typename F>
 Base<F> SymmetricTwoNormEstimate
-( UpperOrLower uplo, const AbstractDistMatrix<F>& APre, Base<F> tol, 
+( UpperOrLower uplo, const ElementalMatrix<F>& APre, Base<F> tol, 
   Int maxIts )
 {
     DEBUG_ONLY(CSE cse("SymmetricTwoNormEstimate"))
@@ -269,7 +269,7 @@ Base<F> SymmetricTwoNormEstimate
   template Base<F> TwoNormEstimate \
   ( const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> TwoNormEstimate \
-  ( const AbstractDistMatrix<F>& A, Base<F> tol, Int maxIts ); \
+  ( const ElementalMatrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> TwoNormEstimate \
   ( const SparseMatrix<F>& A, Int basisSize ); \
   template Base<F> TwoNormEstimate \
@@ -281,12 +281,12 @@ Base<F> SymmetricTwoNormEstimate
   template Base<F> HermitianTwoNormEstimate \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> HermitianTwoNormEstimate \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> tol, \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> tol, \
     Int maxIts ); \
   template Base<F> SymmetricTwoNormEstimate \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> SymmetricTwoNormEstimate \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> tol, \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> tol, \
     Int maxIts );
 
 #define EL_NO_INT_PROTO

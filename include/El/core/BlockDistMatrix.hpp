@@ -12,7 +12,7 @@
 
 namespace El {
 
-struct BlockDistData
+struct BlockCyclicData
 {
     Dist colDist, rowDist;
     Int blockHeight, blockWidth;
@@ -21,10 +21,10 @@ struct BlockDistData
     int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
 
-    BlockDistData() { }
+    BlockCyclicData() { }
 
     template<typename T>
-    BlockDistData( const AbstractBlockDistMatrix<T>& A )
+    BlockCyclicData( const AbstractBlockDistMatrix<T>& A )
     : colDist(A.ColDist()), rowDist(A.RowDist()), 
       blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
       colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
@@ -32,7 +32,7 @@ struct BlockDistData
       root(A.Root()), grid(&A.Grid())
     { }
 };
-inline bool operator==( const BlockDistData& A, const BlockDistData& B )
+inline bool operator==( const BlockCyclicData& A, const BlockCyclicData& B )
 { return A.colDist     == B.colDist &&
          A.rowDist     == B.rowDist &&
          A.blockHeight == B.blockHeight &&

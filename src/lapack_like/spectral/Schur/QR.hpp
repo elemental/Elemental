@@ -54,7 +54,7 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
+( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w,
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
@@ -116,7 +116,7 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
+( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w,
   BlockDistMatrix<F>& Q, bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
@@ -196,7 +196,7 @@ QR
 template<typename F>
 inline void
 QR
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
+( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
@@ -254,8 +254,8 @@ QR
 template<typename F>
 inline void
 QR
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
-  AbstractDistMatrix<F>& QPre, bool fullTriangle, const HessQRCtrl& ctrl )
+( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& w, 
+  ElementalMatrix<F>& QPre, bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;

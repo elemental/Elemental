@@ -33,7 +33,7 @@ void Sort( Matrix<Real>& X, SortType sort )
 }
 
 template<typename Real>
-void Sort( AbstractDistMatrix<Real>& X, SortType sort )
+void Sort( ElementalMatrix<Real>& X, SortType sort )
 {
     DEBUG_ONLY(CSE cse("Sort"))
     if( sort == UNSORTED )
@@ -92,7 +92,7 @@ vector<ValueInt<Real>> TaggedSort
 
 template<typename Real>
 vector<ValueInt<Real>> TaggedSort
-( const AbstractDistMatrix<Real>& x, SortType sort )
+( const ElementalMatrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CSE cse("TaggedSort"))
     if( x.ColDist()==STAR && x.RowDist()==STAR )
@@ -108,11 +108,11 @@ vector<ValueInt<Real>> TaggedSort
 
 #define PROTO(Real) \
   template void Sort( Matrix<Real>& x, SortType sort ); \
-  template void Sort( AbstractDistMatrix<Real>& x, SortType sort ); \
+  template void Sort( ElementalMatrix<Real>& x, SortType sort ); \
   template vector<ValueInt<Real>> TaggedSort \
   ( const Matrix<Real>& x, SortType sort ); \
   template vector<ValueInt<Real>> TaggedSort \
-  ( const AbstractDistMatrix<Real>& x, SortType sort );
+  ( const ElementalMatrix<Real>& x, SortType sort );
 
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"

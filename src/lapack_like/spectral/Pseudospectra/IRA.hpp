@@ -662,9 +662,9 @@ IRA
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 IRA
-( const AbstractDistMatrix<Complex<Real>>& UPre, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
-        AbstractDistMatrix<Real>& invNormsPre, 
+( const ElementalMatrix<Complex<Real>>& UPre, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre, 
+        ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::IRA"))
@@ -942,9 +942,9 @@ IRA
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 IRA
-( const AbstractDistMatrix<Real>& UPre, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
-        AbstractDistMatrix<Real>& invNormsPre, 
+( const ElementalMatrix<Real>& UPre, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre, 
+        ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::IRA"))

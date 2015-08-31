@@ -1,0 +1,174 @@
+Bernoulli.cpp:void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n )
+Bernoulli.cpp:  template void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n ); \
+BullsHead.cpp:void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
+BullsHead.cpp:   template void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+Cauchy.cpp:( AbstractDistMatrix<F1>& A, 
+Cauchy.cpp:  ( AbstractDistMatrix<F1>& A, \
+CauchyLike.cpp:( AbstractDistMatrix<F1>& A,
+CauchyLike.cpp:  ( AbstractDistMatrix<F1>& A, \
+Circulant.cpp:void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
+Circulant.cpp:  template void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a ); \
+Demmel.cpp:void Demmel( AbstractDistMatrix<F>& A, Int n )
+Demmel.cpp:  template void Demmel( AbstractDistMatrix<F>& A, Int n ); \
+Diagonal.cpp:void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
+Diagonal.cpp:void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
+Diagonal.cpp:void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
+Diagonal.cpp:  template void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d ); \
+Diagonal.cpp:  template void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d ); \
+Diagonal.cpp:  ( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d ); \
+DruinskyToledo.cpp:void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
+DruinskyToledo.cpp:    unique_ptr<AbstractDistMatrix<F>> 
+DruinskyToledo.cpp:  template void DruinskyToledo( AbstractDistMatrix<F>& A, Int k );
+DynamicRegCounter.cpp:void DynamicRegCounter( AbstractDistMatrix<T>& APre, Int n )
+DynamicRegCounter.cpp:  template void DynamicRegCounter( AbstractDistMatrix<T>& A, Int n ); \
+Egorov.cpp:( AbstractDistMatrix<Complex<Real>>& A, 
+Egorov.cpp:  ( AbstractDistMatrix<Complex<Real>>& A, \
+Ehrenfest.cpp:void Ehrenfest( AbstractDistMatrix<F>& P, Int n )
+Ehrenfest.cpp:void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
+Ehrenfest.cpp:void Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
+Ehrenfest.cpp:void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
+Ehrenfest.cpp:    unique_ptr<AbstractDistMatrix<F>> 
+Ehrenfest.cpp:  template void Ehrenfest( AbstractDistMatrix<F>& P, Int n ); \
+Ehrenfest.cpp:  ( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n ); \
+Ehrenfest.cpp:  template void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n ); \
+Ehrenfest.cpp:  template void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n );
+ExtendedKahan.cpp:( AbstractDistMatrix<F>& A, Base<F> phi, Base<F> mu )
+ExtendedKahan.cpp:    unique_ptr<AbstractDistMatrix<F>> 
+ExtendedKahan.cpp:void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
+ExtendedKahan.cpp:  ( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
+Fiedler.cpp:void Fiedler( AbstractDistMatrix<F>& A, const vector<F>& c )
+Fiedler.cpp:  template void Fiedler( AbstractDistMatrix<F>& A, const vector<F>& c ); \
+Forsythe.cpp:void Forsythe( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda )
+Forsythe.cpp:  ( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda ); \
+Fourier.cpp:void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
+Fourier.cpp:  template void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+FourierIdentity.cpp:void FourierIdentity( AbstractDistMatrix<Complex<Real>>& A, Int n )
+FourierIdentity.cpp:    unique_ptr<AbstractDistMatrix<C>> AL( A.Construct(A.Grid(),A.Root()) );
+FourierIdentity.cpp:    unique_ptr<AbstractDistMatrix<C>> AR( A.Construct(A.Grid(),A.Root()) );
+FourierIdentity.cpp:  ( AbstractDistMatrix<Complex<Real>>& A, Int n );
+FoxLi.cpp:void FoxLi( AbstractDistMatrix<Complex<Real>>& APre, Int n, Real omega )
+FoxLi.cpp:  ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real omega );
+Gaussian.cpp:void MakeGaussian( AbstractDistMatrix<F>& A, F mean, Base<F> stddev )
+Gaussian.cpp:( AbstractDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
+Gaussian.cpp:  ( AbstractDistMatrix<F>& A, F mean, Base<F> stddev ); \
+Gaussian.cpp:  ( AbstractDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev ); \
+GCDMatrix.cpp:void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n )
+GCDMatrix.cpp:  template void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n ); \
+Gear.cpp:void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t )
+Gear.cpp:  template void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t ); \
+GEPPGrowth.cpp:void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
+GEPPGrowth.cpp:    unique_ptr<AbstractDistMatrix<T>> 
+GEPPGrowth.cpp:  template void GEPPGrowth( AbstractDistMatrix<T>& A, Int n );
+GKS.cpp:void GKS( AbstractDistMatrix<F>& A, Int n )
+GKS.cpp:  template void GKS( AbstractDistMatrix<F>& A, Int n ); \
+Grcar.cpp:void Grcar( AbstractDistMatrix<T>& A, Int n, Int k )
+Grcar.cpp:  template void Grcar( AbstractDistMatrix<T>& A, Int n, Int k ); \
+Haar.cpp:void Haar( AbstractDistMatrix<F>& A, Int n )
+Haar.cpp:( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+Haar.cpp:  AbstractDistMatrix<Base<F>>& d, Int n )
+Haar.cpp:  template void Haar( AbstractDistMatrix<F>& A, Int n ); \
+Haar.cpp:  ( AbstractDistMatrix<F>& A, \
+Haar.cpp:    AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d, Int n );
+Hankel.cpp:void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
+Hankel.cpp:  ( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a ); \
+Hanowa.cpp:void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
+Hanowa.cpp:    unique_ptr<AbstractDistMatrix<T>> 
+Hanowa.cpp:  template void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu );
+HatanoNelson.cpp:( AbstractDistMatrix<F>& A, Int n, 
+HatanoNelson.cpp:  ( AbstractDistMatrix<F>& A, Int n, \
+Helmholtz.cpp:void Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
+Helmholtz.cpp:void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
+Helmholtz.cpp:void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
+Helmholtz.cpp:  ( AbstractDistMatrix<F>& H, Int nx, F shift ); \
+Helmholtz.cpp:  ( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift ); \
+Helmholtz.cpp:  ( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift ); \
+HelmholtzPML.cpp:( AbstractDistMatrix<Complex<Real>>& H, Int n, 
+HelmholtzPML.cpp:( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, 
+HelmholtzPML.cpp:( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
+HelmholtzPML.cpp:  ( AbstractDistMatrix<Complex<Real>>& H, Int nx, \
+HelmholtzPML.cpp:  ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, \
+HelmholtzPML.cpp:  ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, \
+HermitianFromEVD.cpp:( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
+HermitianFromEVD.cpp:  const AbstractDistMatrix<Base<F>>& wPre, const AbstractDistMatrix<F>& ZPre )
+HermitianFromEVD.cpp:  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+HermitianFromEVD.cpp:    const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& Z );
+HermitianUniformSpectrum.cpp:( AbstractDistMatrix<F>& APre, Int n, Base<F> lower, Base<F> upper )
+HermitianUniformSpectrum.cpp:  ( AbstractDistMatrix<F>& A, Int n, Base<F> lower, Base<F> upper );
+Hilbert.cpp:void Hilbert( AbstractDistMatrix<F>& A, Int n )
+Hilbert.cpp:  template void Hilbert( AbstractDistMatrix<F>& A, Int n ); \
+Identity.cpp:void MakeIdentity( AbstractDistMatrix<T>& I )
+Identity.cpp:void Identity( AbstractDistMatrix<T>& I, Int m, Int n )
+Identity.cpp:  template void MakeIdentity( AbstractDistMatrix<T>& I ); \
+Identity.cpp:  template void Identity( AbstractDistMatrix<T>& I, Int m, Int n ); \
+JordanCholesky.cpp:void JordanCholesky( AbstractDistMatrix<T>& A, Int n )
+JordanCholesky.cpp:  template void JordanCholesky( AbstractDistMatrix<T>& A, Int n ); \
+Jordan.cpp:void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda )
+Jordan.cpp:  template void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda ); \
+Kahan.cpp:void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
+Kahan.cpp:  template void Kahan( AbstractDistMatrix<F>& A, Int n, F phi ); \
+KMS.cpp:void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
+KMS.cpp:  template void KMS( AbstractDistMatrix<T>& K, Int n, T rho ); \
+Laplacian.cpp:void Laplacian( AbstractDistMatrix<F>& L, Int n )
+Laplacian.cpp:void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
+Laplacian.cpp:void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
+Laplacian.cpp:  template void Laplacian( AbstractDistMatrix<F>& L, Int nx ); \
+Laplacian.cpp:  template void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny ); \
+Laplacian.cpp:  ( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz ); \
+Lauchli.cpp:void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
+Lauchli.cpp:    unique_ptr<AbstractDistMatrix<T>> a0( A.Construct(A.Grid(),A.Root()) );
+Lauchli.cpp:  template void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu );
+Legendre.cpp:MakeLegendre( AbstractDistMatrix<F>& A )
+Legendre.cpp:void Legendre( AbstractDistMatrix<F>& A, Int n )
+Legendre.cpp:  template void Legendre( AbstractDistMatrix<F>& A, Int n ); \
+Lehmer.cpp:void Lehmer( AbstractDistMatrix<F>& L, Int n )
+Lehmer.cpp:  template void Lehmer( AbstractDistMatrix<F>& L, Int n ); \
+Lotkin.cpp:void Lotkin( AbstractDistMatrix<F>& A, Int n )
+Lotkin.cpp:  template void Lotkin( AbstractDistMatrix<F>& A, Int n ); \
+MinIJ.cpp:void MinIJ( AbstractDistMatrix<T>& M, Int n )
+MinIJ.cpp:  template void MinIJ( AbstractDistMatrix<T>& M, Int n ); \
+NormalFromEVD.cpp:(       AbstractDistMatrix<Complex<Real>>& APre,
+NormalFromEVD.cpp:  const AbstractDistMatrix<Complex<Real>>& wPre, 
+NormalFromEVD.cpp:  const AbstractDistMatrix<Complex<Real>>& ZPre )
+NormalFromEVD.cpp:  (       AbstractDistMatrix<Complex<Real>>& A, \
+NormalFromEVD.cpp:    const AbstractDistMatrix<Complex<Real>>& w, \
+NormalFromEVD.cpp:    const AbstractDistMatrix<Complex<Real>>& Z );
+NormalUniformSpectrum.cpp:( AbstractDistMatrix<Complex<Real>>& APre, Int n, 
+NormalUniformSpectrum.cpp:  ( AbstractDistMatrix<Complex<Real>>& A, Int n, \
+Ones.cpp:void Ones( AbstractDistMatrix<T>& A, Int m, Int n )
+Ones.cpp:  template void Ones( AbstractDistMatrix<T>& A, Int m, Int n ); \
+OneTwoOne.cpp:void OneTwoOne( AbstractDistMatrix<T>& A, Int n )
+OneTwoOne.cpp:  template void OneTwoOne( AbstractDistMatrix<T>& A, Int n ); \
+Parter.cpp:void Parter( AbstractDistMatrix<F>& P, Int n )
+Parter.cpp:  template void Parter( AbstractDistMatrix<F>& P, Int n ); \
+Pei.cpp:void Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
+Pei.cpp:  template void Pei( AbstractDistMatrix<T>& P, Int n, T alpha ); \
+Redheffer.cpp:void Redheffer( AbstractDistMatrix<T>& R, Int n )
+Redheffer.cpp:  template void Redheffer( AbstractDistMatrix<T>& R, Int n ); \
+Riffle.cpp:void Riffle( AbstractDistMatrix<F>& P, Int n )
+Riffle.cpp:void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
+Riffle.cpp:  template void Riffle( AbstractDistMatrix<F>& P, Int n ); \
+Riffle.cpp:  template void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n ); \
+Ris.cpp:void Ris( AbstractDistMatrix<F>& R, Int n )
+Ris.cpp:  template void Ris( AbstractDistMatrix<F>& R, Int n ); \
+ThreeValued.cpp:void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p )
+ThreeValued.cpp:  ( AbstractDistMatrix<T>& A, Int m, Int n, double p ); \
+Toeplitz.cpp:void Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const vector<T>& a )
+Toeplitz.cpp:  ( AbstractDistMatrix<T1>& A, \
+TrefethenEmbree.cpp:void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n )
+TrefethenEmbree.cpp:  ( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+Triangle.cpp:void Triangle( AbstractDistMatrix<F>& A, Int n )
+Triangle.cpp:  template void Triangle( AbstractDistMatrix<F>& A, Int n ); \
+TriW.cpp:void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k )
+TriW.cpp:  template void TriW( AbstractDistMatrix<T>& A, Int n, T alpha, Int k ); \
+Uniform.cpp:void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
+Uniform.cpp:void Uniform( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
+Uniform.cpp:  ( AbstractDistMatrix<T>& A, T center, Base<T> radius ); \
+Uniform.cpp:  ( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
+Walsh.cpp:void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary )
+Walsh.cpp:  template void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary );
+Whale.cpp:void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
+Whale.cpp:  template void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+Wilkinson.cpp:void Wilkinson( AbstractDistMatrix<T>& A, Int k )
+Wilkinson.cpp:  template void Wilkinson( AbstractDistMatrix<T>& A, Int k );
+Zeros.cpp:void Zeros( AbstractDistMatrix<T>& A, Int m, Int n )
+Zeros.cpp:  template void Zeros( AbstractDistMatrix<T>& A, Int m, Int n ); \

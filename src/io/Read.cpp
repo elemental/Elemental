@@ -47,7 +47,7 @@ void Read( Matrix<T>& A, const string filename, FileFormat format )
 
 template<typename T>
 void Read
-( AbstractDistMatrix<T>& A, const string filename, FileFormat format,
+( ElementalMatrix<T>& A, const string filename, FileFormat format,
   bool sequential )
 {
     DEBUG_ONLY(CSE cse("Read"))
@@ -163,7 +163,7 @@ void Read
   template void Read \
   ( Matrix<T>& A, const string filename, FileFormat format ); \
   template void Read \
-  ( AbstractDistMatrix<T>& A, const string filename, \
+  ( ElementalMatrix<T>& A, const string filename, \
     FileFormat format, bool sequential ); \
   template void Read \
   ( AbstractBlockDistMatrix<T>& A, const string filename, \

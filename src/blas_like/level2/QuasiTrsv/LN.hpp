@@ -148,7 +148,7 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 template<typename F>
 inline void
 LN
-( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre, 
+( const ElementalMatrix<F>& LPre, ElementalMatrix<F>& xPre, 
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(

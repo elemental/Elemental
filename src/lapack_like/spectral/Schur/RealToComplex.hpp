@@ -53,8 +53,8 @@ void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 
 template<typename Real>
 void RealToComplex
-( const AbstractDistMatrix<        Real >& UQuasiPre, 
-        AbstractDistMatrix<Complex<Real>>& UPre )
+( const ElementalMatrix<        Real >& UQuasiPre, 
+        ElementalMatrix<Complex<Real>>& UPre )
 {
     DEBUG_ONLY(CSE cse("schur::RealToComplex"))
     typedef Complex<Real> C;

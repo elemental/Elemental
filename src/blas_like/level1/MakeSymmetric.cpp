@@ -53,7 +53,7 @@ void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 
 template<typename T>
 void MakeSymmetric
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate )
+( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("MakeSymmetric"))
     if( A.Height() != A.Width() )
@@ -63,8 +63,7 @@ void MakeSymmetric
     if( conjugate )
         MakeDiagonalReal(A);
 
-    unique_ptr<AbstractDistMatrix<T>> 
-      ATrans( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<T>> ATrans( A.Construct(A.Grid(),A.Root()) );
     Transpose( A, *ATrans, conjugate );
     if( uplo == LOWER )
         AxpyTrapezoid( UPPER, T(1), *ATrans, A, 1 );
@@ -201,7 +200,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
   template void MakeSymmetric \
   ( UpperOrLower uplo, Matrix<T>& A, bool conjugate ); \
   template void MakeSymmetric \
-  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate ); \
+  ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate ); \
   template void MakeSymmetric \
   ( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate ); \
   template void MakeSymmetric \

@@ -13,13 +13,13 @@ namespace copy {
 
 // (Collect(U),V) |-> (U,V)
 template<typename T>
-void ColFilter( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+void ColFilter( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CSE cse("copy::ColFilter");
-        if( A.ColDist() != Collect(B.ColDist()) ||
-            A.RowDist() != B.RowDist() )
-            LogicError("Incompatible distributions");
+      CSE cse("copy::ColFilter");
+      if( A.ColDist() != Collect(B.ColDist()) ||
+          A.RowDist() != B.RowDist() )
+          LogicError("Incompatible distributions");
     )
     AssertSameGrids( A, B );
 
@@ -88,7 +88,7 @@ void ColFilter
 
 #define PROTO(T) \
   template void ColFilter \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void ColFilter \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 

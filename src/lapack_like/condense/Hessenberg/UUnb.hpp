@@ -73,7 +73,7 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void UUnb( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
+inline void UUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(CSE cse("hessenberg::UUnb"))
 

@@ -58,9 +58,9 @@ void PivotsToPartialPermutation
 }
 
 void PivotsToPartialPermutation
-( const AbstractDistMatrix<Int>& pivots, 
-        AbstractDistMatrix<Int>& p, 
-        AbstractDistMatrix<Int>& pInv, Int offset )
+( const ElementalMatrix<Int>& pivots, 
+        ElementalMatrix<Int>& p, 
+        ElementalMatrix<Int>& pInv, Int offset )
 {
     DEBUG_ONLY(
         CSE cse("PivotsToPartialPermutation");

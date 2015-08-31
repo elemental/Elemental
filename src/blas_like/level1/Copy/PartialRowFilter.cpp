@@ -13,13 +13,13 @@ namespace copy {
 
 template<typename T>
 void PartialRowFilter
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
-        CSE cse("copy::PartialRowFilter");
-        if( A.ColDist() != B.ColDist() ||
-            A.RowDist() != Partial(B.RowDist()) )
-            LogicError("Incompatible distributions");
+      CSE cse("copy::PartialRowFilter");
+      if( A.ColDist() != B.ColDist() ||
+          A.RowDist() != Partial(B.RowDist()) )
+          LogicError("Incompatible distributions");
     )
     AssertSameGrids( A, B );
 
@@ -99,7 +99,7 @@ void PartialRowFilter
 
 #define PROTO(T) \
   template void PartialRowFilter \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void PartialRowFilter \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 

@@ -25,7 +25,7 @@ Base<F> InfinityCondition( const Matrix<F>& A )
 }
 
 template<typename F> 
-Base<F> InfinityCondition( const AbstractDistMatrix<F>& A )
+Base<F> InfinityCondition( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("InfinityCondition"))
     typedef Base<F> Real;
@@ -40,7 +40,7 @@ Base<F> InfinityCondition( const AbstractDistMatrix<F>& A )
 
 #define PROTO(F) \
   template Base<F> InfinityCondition( const Matrix<F>& A ); \
-  template Base<F> InfinityCondition( const AbstractDistMatrix<F>& A );
+  template Base<F> InfinityCondition( const ElementalMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

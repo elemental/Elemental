@@ -20,7 +20,8 @@ namespace El {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-void Sylvester( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
+void Sylvester
+( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Sylvester"))
     Sign( W, ctrl );
@@ -48,7 +49,7 @@ void Sylvester( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 
 template<typename F>
 void Sylvester
-( Int m, AbstractDistMatrix<F>& WPre, AbstractDistMatrix<F>& X, 
+( Int m, ElementalMatrix<F>& WPre, ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Sylvester"))
@@ -83,17 +84,20 @@ void Sylvester
 
 template<typename F>
 void Sylvester
-( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, Matrix<F>& X,
+( const Matrix<F>& A,
+  const Matrix<F>& B,
+  const Matrix<F>& C,
+        Matrix<F>& X,
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("Sylvester");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( B.Height() != B.Width() )
-            LogicError("B must be square");
-        if( C.Height() != A.Height() || C.Width() != B.Height() )
-            LogicError("C must conform with A and B");
+      CSE cse("Sylvester");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( B.Height() != B.Width() )
+          LogicError("B must be square");
+      if( C.Height() != A.Height() || C.Width() != B.Height() )
+          LogicError("C must conform with A and B");
     )
     const Int m = C.Height();
     const Int n = C.Width();
@@ -111,19 +115,21 @@ void Sylvester
 
 template<typename F>
 void Sylvester
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& C,       AbstractDistMatrix<F>& X, 
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& C,
+        ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("Sylvester");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( B.Height() != B.Width() )
-            LogicError("B must be square");
-        if( C.Height() != A.Height() || C.Width() != B.Height() )
-            LogicError("C must conform with A and B");
-        AssertSameGrids( A, B, C );
+      CSE cse("Sylvester");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( B.Height() != B.Width() )
+          LogicError("B must be square");
+      if( C.Height() != A.Height() || C.Width() != B.Height() )
+          LogicError("C must conform with A and B");
+      AssertSameGrids( A, B, C );
     )
     const Int m = C.Height();
     const Int n = C.Width();
@@ -144,14 +150,19 @@ void Sylvester
   template void Sylvester \
   ( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
-  ( Int m, AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X, \
+  ( Int m, ElementalMatrix<F>& W, ElementalMatrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
-  ( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, \
-    Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  ( const Matrix<F>& A, \
+    const Matrix<F>& B, \
+    const Matrix<F>& C, \
+          Matrix<F>& X, \
+    SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& C,       AbstractDistMatrix<F>& X, \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+    const ElementalMatrix<F>& C, \
+          ElementalMatrix<F>& X, \
     SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO

@@ -34,13 +34,13 @@ void QP
 
 template<typename Real>
 void QP
-( const AbstractDistMatrix<Real>& Q, 
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, 
-  const AbstractDistMatrix<Real>& c, 
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& Q, 
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& c, 
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
@@ -111,16 +111,16 @@ void QP
 
 template<typename Real>
 void QP
-( const AbstractDistMatrix<Real>& Q, 
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c, 
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& Q, 
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c, 
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
@@ -183,13 +183,13 @@ void QP
           Matrix<Real>& z, \
     const qp::direct::Ctrl<Real>& ctrl ); \
   template void QP \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     const qp::direct::Ctrl<Real>& ctrl ); \
   template void QP \
   ( const SparseMatrix<Real>& Q, \
@@ -222,16 +222,16 @@ void QP
           Matrix<Real>& s, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void QP \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void QP \
   ( const SparseMatrix<Real>& Q, \

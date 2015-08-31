@@ -94,7 +94,7 @@ void Display( const Matrix<Complex<Real>>& A, string title )
 }
 
 template<typename T>
-void Display( const AbstractDistMatrix<T>& A, string title )
+void Display( const ElementalMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -344,7 +344,7 @@ void DisplayLocal
 #define PROTO(T) \
   template void Display( const Matrix<T>& A, string title ); \
   template void Display \
-  ( const AbstractDistMatrix<T>& A, string title ); \
+  ( const ElementalMatrix<T>& A, string title ); \
   template void Display \
   ( const AbstractBlockDistMatrix<T>& A, string title ); \
   template void Display( const DistMultiVec<T>& X, string title ); \

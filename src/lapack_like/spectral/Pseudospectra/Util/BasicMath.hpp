@@ -25,7 +25,7 @@ TriangIsNormal( const Matrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline bool
-TriangIsNormal( const AbstractDistMatrix<F>& UPre, Base<F> tol )
+TriangIsNormal( const ElementalMatrix<F>& UPre, Base<F> tol )
 {
     auto UPtr = ReadProxy<F,MC,MR>( &UPre );
     auto& U = *UPtr;
@@ -49,7 +49,7 @@ QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline bool
-QuasiTriangIsNormal( const AbstractDistMatrix<F>& U, Base<F> tol )
+QuasiTriangIsNormal( const ElementalMatrix<F>& U, Base<F> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );

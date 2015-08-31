@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_VC_STAR_DECL_HPP
-#define EL_DISTMATRIX_VC_STAR_DECL_HPP
+#ifndef EL_DISTMATRIX_ELEMENTAL_VC_STAR_DECL_HPP
+#define EL_DISTMATRIX_ELEMENTAL_VC_STAR_DECL_HPP
 
 namespace El {
 
@@ -18,12 +18,13 @@ namespace El {
 // process grid in a column-major fashion, while the rows are not 
 // distributed.
 template<typename T>
-class DistMatrix<T,VC,STAR> : public AbstractDistMatrix<T>
+class DistMatrix<T,VC,STAR> : public ElementalMatrix<T>
 {
 public:
     // Typedefs
     // ========
     typedef AbstractDistMatrix<T> absType;
+    typedef ElementalMatrix<T> elemType;
     typedef DistMatrix<T,VC,STAR> type;
 
     // Constructors and destructors
@@ -36,7 +37,7 @@ public:
     ( Int height, Int width, const El::Grid& g=DefaultGrid(), int root=0 );
     // Create a copy of distributed matrix A
     DistMatrix( const type& A );
-    DistMatrix( const absType& A );
+    DistMatrix( const elemType& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
     // Move constructor
@@ -60,7 +61,7 @@ public:
 
     // Make a copy
     // -----------
-    type& operator=( const absType& A );
+    type& operator=( const elemType& A );
     type& operator=( const DistMatrix<T,MC,  MR  >& A );
     type& operator=( const DistMatrix<T,MC,  STAR>& A );
     type& operator=( const DistMatrix<T,STAR,MR  >& A );
@@ -87,12 +88,12 @@ public:
 
     // Addition/subtraction
     // --------------------
-    const type& operator+=( const absType& A );
-    const type& operator-=( const absType& A );
+    const type& operator+=( const elemType& A );
+    const type& operator-=( const elemType& A );
 
     // Basic queries
     // =============
-    El::DistData DistData() const override;
+    El::ElementalData DistData() const override;
 
     Dist ColDist()             const EL_NO_EXCEPT override;
     Dist RowDist()             const EL_NO_EXCEPT override;
@@ -123,9 +124,10 @@ private:
     // Friend declarations
     // ===================
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
+    // TODO: Remove once BlockDistMatrix has been merged
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 };
 
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_VC_STAR_DECL_HPP
+#endif // ifndef EL_DISTMATRIX_ELEMENTAL_VC_STAR_DECL_HPP

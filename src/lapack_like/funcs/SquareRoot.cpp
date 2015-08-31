@@ -98,7 +98,7 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 
 template<typename F>
 inline int
-Newton( AbstractDistMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
+Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("square_root::Newton"))
 
@@ -151,7 +151,7 @@ void SquareRoot( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 }
 
 template<typename F>
-void SquareRoot( AbstractDistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
+void SquareRoot( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("SquareRoot"))
     square_root::Newton( A, ctrl );
@@ -209,7 +209,7 @@ void HPSDSquareRoot
 
 template<typename F>
 void HPSDSquareRoot
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HPSDSquareRoot"))
@@ -265,11 +265,11 @@ void HPSDSquareRoot
   template void SquareRoot \
   ( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void SquareRoot \
-  ( AbstractDistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
+  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl ); \
   template void HPSDSquareRoot \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO

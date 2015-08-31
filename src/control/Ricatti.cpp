@@ -20,7 +20,8 @@ namespace El {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
+void Ricatti
+( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Ricatti"))
     Sign( W, ctrl );
@@ -43,7 +44,8 @@ void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 
 template<typename F>
 void Ricatti
-( AbstractDistMatrix<F>& WPre, AbstractDistMatrix<F>& X, 
+( ElementalMatrix<F>& WPre,
+  ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Ricatti"))
@@ -73,19 +75,22 @@ void Ricatti
 template<typename F>
 void Ricatti
 ( UpperOrLower uplo, 
-  const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, Matrix<F>& X,
+  const Matrix<F>& A,
+  const Matrix<F>& K,
+  const Matrix<F>& L,
+        Matrix<F>& X,
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("Sylvester");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( K.Height() != K.Width() )
-            LogicError("K must be square");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
-        if( A.Height() != K.Height() || A.Height() != L.Height() )
-            LogicError("A, K, and L must be the same size");
+      CSE cse("Sylvester");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( K.Height() != K.Width() )
+          LogicError("K must be square");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
+      if( A.Height() != K.Height() || A.Height() != L.Height() )
+          LogicError("A, K, and L must be the same size");
     )
     const Int n = A.Height();
     Matrix<F> W, WTL, WTR,
@@ -106,21 +111,23 @@ void Ricatti
 template<typename F>
 void Ricatti
 ( UpperOrLower uplo, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& K, 
-  const AbstractDistMatrix<F>& L,       AbstractDistMatrix<F>& X, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& K, 
+  const ElementalMatrix<F>& L,
+        ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("Sylvester");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( K.Height() != K.Width() )
-            LogicError("K must be square");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
-        if( A.Height() != K.Height() || A.Height() != L.Height() )
-            LogicError("A, K, and L must be the same size");
-        AssertSameGrids( A, K, L );
+      CSE cse("Sylvester");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( K.Height() != K.Width() )
+          LogicError("K must be square");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
+      if( A.Height() != K.Height() || A.Height() != L.Height() )
+          LogicError("A, K, and L must be the same size");
+      AssertSameGrids( A, K, L );
     )
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -141,18 +148,26 @@ void Ricatti
 
 #define PROTO(F) \
   template void Ricatti \
-  ( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  ( Matrix<F>& W, \
+    Matrix<F>& X, \
+    SignCtrl<Base<F>> ctrl ); \
   template void Ricatti \
-  ( AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X, \
+  ( ElementalMatrix<F>& W, \
+    ElementalMatrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
   template void Ricatti \
   ( UpperOrLower uplo, \
-    const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, \
-          Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& K, \
+    const Matrix<F>& L, \
+          Matrix<F>& X, \
+    SignCtrl<Base<F>> ctrl ); \
   template void Ricatti \
   ( UpperOrLower uplo, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& K, \
-    const AbstractDistMatrix<F>& L,       AbstractDistMatrix<F>& X, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& K, \
+    const ElementalMatrix<F>& L, \
+          ElementalMatrix<F>& X, \
     SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO

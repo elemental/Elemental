@@ -24,7 +24,7 @@ void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 
 template<typename T>
 void ImagPart
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag )
+( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag )
 { 
     auto imagPart = []( T alpha ) { return ImagPart(alpha); };
     function<Base<T>(T)> realLambda( imagPart );
@@ -43,7 +43,7 @@ void ImagPart
 #define PROTO(T) \
   template void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag ); \
   template void ImagPart \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag ); \
   template void ImagPart \
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<Base<T>>& AImag );

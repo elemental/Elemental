@@ -27,7 +27,7 @@ void DynamicRegCounter( Matrix<T>& A, Int n )
 }
 
 template<typename T>
-void DynamicRegCounter( AbstractDistMatrix<T>& APre, Int n )
+void DynamicRegCounter( ElementalMatrix<T>& APre, Int n )
 {
     DEBUG_ONLY(CSE cse("DynamicRegCounter"))
     auto APtr = WriteProxy<T,MC,MR>(&APre);
@@ -116,7 +116,7 @@ void DynamicRegCounter( DistSparseMatrix<T>& A, Int n )
 
 #define PROTO(T) \
   template void DynamicRegCounter( Matrix<T>& A, Int n ); \
-  template void DynamicRegCounter( AbstractDistMatrix<T>& A, Int n ); \
+  template void DynamicRegCounter( ElementalMatrix<T>& A, Int n ); \
   template void DynamicRegCounter( SparseMatrix<T>& A, Int n ); \
   template void DynamicRegCounter( DistSparseMatrix<T>& A, Int n );
 

@@ -40,9 +40,9 @@ void NormalFromEVD
 
 template<typename Real>
 void NormalFromEVD
-(       AbstractDistMatrix<Complex<Real>>& APre,
-  const AbstractDistMatrix<Complex<Real>>& wPre, 
-  const AbstractDistMatrix<Complex<Real>>& ZPre )
+(       ElementalMatrix<Complex<Real>>& APre,
+  const ElementalMatrix<Complex<Real>>& wPre, 
+  const ElementalMatrix<Complex<Real>>& ZPre )
 {
     DEBUG_ONLY(CSE cse("NormalFromEVD"))
     typedef Complex<Real> C;
@@ -85,9 +85,9 @@ void NormalFromEVD
     const Matrix<Complex<Real>>& w, \
     const Matrix<Complex<Real>>& Z ); \
   template void NormalFromEVD \
-  (       AbstractDistMatrix<Complex<Real>>& A, \
-    const AbstractDistMatrix<Complex<Real>>& w, \
-    const AbstractDistMatrix<Complex<Real>>& Z );
+  (       ElementalMatrix<Complex<Real>>& A, \
+    const ElementalMatrix<Complex<Real>>& w, \
+    const ElementalMatrix<Complex<Real>>& Z );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

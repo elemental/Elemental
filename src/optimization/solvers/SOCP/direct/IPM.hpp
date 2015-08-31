@@ -25,14 +25,14 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra

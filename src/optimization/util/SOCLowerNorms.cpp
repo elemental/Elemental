@@ -37,10 +37,10 @@ void SOCLowerNorms
 
 template<typename Real>
 void SOCLowerNorms
-( const AbstractDistMatrix<Real>& xPre, 
-        AbstractDistMatrix<Real>& lowerNormsPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+        ElementalMatrix<Real>& lowerNormsPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCLowerNorms"))
@@ -110,10 +110,10 @@ void SOCLowerNorms
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCLowerNorms \
-  ( const AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& lowerNorms, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& lowerNorms, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCLowerNorms \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& lowerNorms, \

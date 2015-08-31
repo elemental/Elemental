@@ -39,7 +39,7 @@ void HermitianUniformSpectrum
 
 template<typename F>
 void HermitianUniformSpectrum
-( AbstractDistMatrix<F>& APre, Int n, Base<F> lower, Base<F> upper )
+( ElementalMatrix<F>& APre, Int n, Base<F> lower, Base<F> upper )
 {
     DEBUG_ONLY(CSE cse("HermitianUniformSpectrum"))
     APre.Resize( n, n );
@@ -76,7 +76,7 @@ void HermitianUniformSpectrum
   template void HermitianUniformSpectrum \
   ( Matrix<F>& A, Int n, Base<F> lower, Base<F> upper ); \
   template void HermitianUniformSpectrum \
-  ( AbstractDistMatrix<F>& A, Int n, Base<F> lower, Base<F> upper );
+  ( ElementalMatrix<F>& A, Int n, Base<F> lower, Base<F> upper );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -12,8 +12,8 @@ namespace El {
 
 template<typename T>
 void AdjointAxpyContract
-( T alpha, const AbstractDistMatrix<T>& A, 
-                 AbstractDistMatrix<T>& B )
+( T alpha, const ElementalMatrix<T>& A, 
+                 ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AdjointAxpyContract"))
     TransposeAxpyContract( alpha, A, B, true );
@@ -30,8 +30,8 @@ void AdjointAxpyContract
 
 #define PROTO(T) \
   template void AdjointAxpyContract \
-  ( T alpha, const AbstractDistMatrix<T>& A, \
-                   AbstractDistMatrix<T>& B ); \
+  ( T alpha, const ElementalMatrix<T>& A, \
+                   ElementalMatrix<T>& B ); \
   template void AdjointAxpyContract \
   ( T alpha, const AbstractBlockDistMatrix<T>& A, \
                    AbstractBlockDistMatrix<T>& B );

@@ -64,7 +64,7 @@ void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
+void Cholesky( UpperOrLower uplo, ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("Cholesky"))
     if( uplo == LOWER )
@@ -75,7 +75,7 @@ void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 
 template<typename F> 
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p )
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& p )
 {
     DEBUG_ONLY(CSE cse("Cholesky"))
     if( uplo == LOWER )
@@ -90,7 +90,7 @@ void Cholesky
 { Cholesky( uplo, A.Matrix() ); }
 
 template<typename F> 
-void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
+void ReverseCholesky( UpperOrLower uplo, ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("ReverseCholesky"))
     if( uplo == LOWER )
@@ -122,8 +122,8 @@ void CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
 
 template<typename F>
 void CholeskyMod
-( UpperOrLower uplo, AbstractDistMatrix<F>& T, 
-  Base<F> alpha, AbstractDistMatrix<F>& V )
+( UpperOrLower uplo, ElementalMatrix<F>& T, 
+  Base<F> alpha, ElementalMatrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("CholeskyMod"))
     if( alpha == Base<F>(0) )
@@ -148,7 +148,7 @@ void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
+void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("HPSDCholesky"))
 
@@ -167,36 +167,36 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 
 #define PROTO(F) \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
+  template void Cholesky( UpperOrLower uplo, ElementalMatrix<F>& A ); \
   template void Cholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
   template void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A ); \
   template void ReverseCholesky \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A ); \
   template void ReverseCholesky \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p ); \
   template void Cholesky \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& p ); \
   template void CholeskyMod \
   ( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V ); \
   template void CholeskyMod \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& T, \
-    Base<F> alpha, AbstractDistMatrix<F>& V ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& T, \
+    Base<F> alpha, ElementalMatrix<F>& V ); \
   template void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
+  template void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& A ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+    const ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p, \
-          AbstractDistMatrix<F>& B ); 
+    const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p, \
+          ElementalMatrix<F>& B ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

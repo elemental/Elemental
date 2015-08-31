@@ -176,7 +176,7 @@ BDM& BDM::operator=( BDM&& A )
 // =================
 
 template<typename T>
-El::BlockDistData BDM::DistData() const { return El::BlockDistData(*this); }
+El::BlockCyclicData BDM::DistData() const { return El::BlockCyclicData(*this); }
 
 template<typename T>
 Dist BDM::ColDist() const { return COLDIST; }

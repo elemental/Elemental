@@ -34,11 +34,11 @@ Matrix<T> GetSubmatrix
 
 template<typename T>
 void GetSubmatrix
-( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J, 
-        AbstractDistMatrix<T>& ASub )
+( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J, 
+        ElementalMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    unique_ptr<AbstractDistMatrix<T>> 
+    unique_ptr<ElementalMatrix<T>> 
       ASubView( A.Construct(A.Grid(),A.Root()) );
     LockedView( *ASubView, A, I, J );
     Copy( *ASubView, ASub );
@@ -46,7 +46,7 @@ void GetSubmatrix
 
 template<typename T>
 DistMatrix<T> GetSubmatrix
-( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J )
+( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J )
 {
     DistMatrix<T> ASub( A.Grid() );
     GetSubmatrix( A, I, J, ASub );
@@ -301,7 +301,7 @@ void GetSubmatrix
 
 template<typename T>
 DistMatrix<T> GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
+( const ElementalMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J )
 {
     DistMatrix<T> ASub( A.Grid() );
@@ -317,10 +317,10 @@ DistMatrix<T> GetSubmatrix
   template Matrix<T> GetSubmatrix \
   ( const Matrix<T>& A, Range<Int> I, Range<Int> J ); \
   template void GetSubmatrix \
-  ( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J, \
-          AbstractDistMatrix<T>& ASub ); \
+  ( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J, \
+          ElementalMatrix<T>& ASub ); \
   template DistMatrix<T> GetSubmatrix \
-  ( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J ); \
+  ( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J ); \
   template void GetSubmatrix \
   ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
           SparseMatrix<T>& ASub ); \
@@ -349,9 +349,8 @@ DistMatrix<T> GetSubmatrix
     const vector<Int>& I, const vector<Int>& J, \
           AbstractDistMatrix<T>& ASub ); \
   template DistMatrix<T> GetSubmatrix \
-  ( const AbstractDistMatrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J ); \
-
+  ( const ElementalMatrix<T>& A, \
+    const vector<Int>& I, const vector<Int>& J );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

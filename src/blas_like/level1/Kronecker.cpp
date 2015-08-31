@@ -33,7 +33,7 @@ void Kronecker( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 
 template<typename T> 
 void Kronecker
-( const Matrix<T>& A, const Matrix<T>& B, AbstractDistMatrix<T>& CPre )
+( const Matrix<T>& A, const Matrix<T>& B, ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(CSE cse("Kronecker"))
 
@@ -237,7 +237,7 @@ void Kronecker
   template void Kronecker \
   ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
   template void Kronecker \
-  ( const Matrix<T>& A, const Matrix<T>& B, AbstractDistMatrix<T>& C ); \
+  ( const Matrix<T>& A, const Matrix<T>& B, ElementalMatrix<T>& C ); \
   template void Kronecker \
   ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C ); \
   template void Kronecker \

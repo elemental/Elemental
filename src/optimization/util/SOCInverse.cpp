@@ -35,10 +35,10 @@ void SOCInverse
 
 template<typename Real>
 void SOCInverse
-( const AbstractDistMatrix<Real>& xPre, 
-        AbstractDistMatrix<Real>& xInvPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+        ElementalMatrix<Real>& xInvPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCInverse"))
@@ -97,10 +97,10 @@ void SOCInverse
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCInverse \
-  ( const AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& xInv, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& xInv, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCInverse \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& xInv, \

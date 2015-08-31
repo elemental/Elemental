@@ -26,8 +26,8 @@ void PartitionDown
 
 template<typename T>
 void PartitionDown
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAT )
 {
     DEBUG_ONLY(
@@ -54,8 +54,8 @@ void LockedPartitionDown
 
 template<typename T>
 void LockedPartitionDown
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAT )
 {
     DEBUG_ONLY(
@@ -82,8 +82,8 @@ void PartitionUp
 
 template<typename T>
 void PartitionUp
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAB )
 {
     DEBUG_ONLY(
@@ -104,8 +104,8 @@ void LockedPartitionUp
 
 template<typename T>
 void LockedPartitionUp
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, 
   Int heightAB )
 {
     DEBUG_ONLY(
@@ -132,8 +132,8 @@ void PartitionRight
 
 template<typename T>
 void PartitionRight
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAL )
 {
     DEBUG_ONLY(
@@ -160,8 +160,8 @@ void LockedPartitionRight
 
 template<typename T>
 void LockedPartitionRight
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAL )
 {
     DEBUG_ONLY(
@@ -188,8 +188,8 @@ void PartitionLeft
 
 template<typename T>
 void PartitionLeft
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAR )
 {
     DEBUG_ONLY(
@@ -211,8 +211,8 @@ void LockedPartitionLeft
 
 template<typename T>
 void LockedPartitionLeft
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, 
   Int widthAR )
 {
     DEBUG_ONLY(
@@ -250,9 +250,9 @@ void PartitionDownOffsetDiagonal
 template<typename T>
 void PartitionDownOffsetDiagonal
 ( Int offset,
-  AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -297,9 +297,9 @@ void LockedPartitionDownOffsetDiagonal
 template<typename T>
 void LockedPartitionDownOffsetDiagonal
 ( Int offset,
-  const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -338,9 +338,9 @@ void PartitionUpOffsetDiagonal
 template<typename T>
 void PartitionUpOffsetDiagonal
 ( Int offset,
-  AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -367,9 +367,9 @@ void LockedPartitionUpOffsetDiagonal
 template<typename T>
 void LockedPartitionUpOffsetDiagonal
 ( Int offset,
-  const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+  const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -396,9 +396,9 @@ void PartitionDownDiagonal
 
 template<typename T>
 void PartitionDownDiagonal
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -421,9 +421,9 @@ void LockedPartitionDownDiagonal
 
 template<typename T>
 void LockedPartitionDownDiagonal
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -449,9 +449,9 @@ void PartitionUpDiagonal
 
 template<typename T>
 void PartitionUpDiagonal
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -474,9 +474,9 @@ void LockedPartitionUpDiagonal
 
 template<typename T>
 void LockedPartitionUpDiagonal
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR,
-        AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR,
+        ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   Int diagDist )
 {
     DEBUG_ONLY(
@@ -494,44 +494,44 @@ void LockedPartitionUpDiagonal
   template void LockedPartitionDown \
   ( const Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAT ); \
   template void PartitionDown \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, Int heightAT ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, Int heightAT ); \
   template void LockedPartitionDown \
-  ( const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, Int heightAT ); \
+  ( const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, Int heightAT ); \
   /* Upwards */ \
   template void PartitionUp \
   ( Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAB ); \
   template void LockedPartitionUp \
   ( const Matrix<T>& A, Matrix<T>& AT, Matrix<T>& AB, Int heightAB ); \
   template void PartitionUp \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, Int heightAB ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, Int heightAB ); \
   template void LockedPartitionUp \
-  ( const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& AB, Int heightAB ); \
+  ( const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AT, ElementalMatrix<T>& AB, Int heightAB ); \
   /* Leftward */ \
   template void PartitionLeft \
   ( Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAR ); \
   template void LockedPartitionLeft \
   ( const Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAR ); \
   template void PartitionLeft \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, Int widthAR ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, Int widthAR ); \
   template void LockedPartitionLeft \
-  ( const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, Int widthAR ); \
+  ( const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, Int widthAR ); \
   /* Rightward */ \
   template void PartitionRight \
   ( Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAL ); \
   template void LockedPartitionRight \
   ( const Matrix<T>& A, Matrix<T>& AL, Matrix<T>& AR, Int widthAL ); \
   template void PartitionRight \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, Int widthAL ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, Int widthAL ); \
   template void LockedPartitionRight \
-  ( const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, Int widthAL ); \
+  ( const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, Int widthAL ); \
   /* Down the main diagonal */ \
   template void PartitionDownDiagonal \
   ( Matrix<T>& A, \
@@ -542,13 +542,13 @@ void LockedPartitionUpDiagonal
     Matrix<T>& ATL, Matrix<T>& ATR, \
     Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist ); \
   template void PartitionDownDiagonal \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist ); \
   template void LockedPartitionDownDiagonal \
-  ( const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist ); \
+  ( const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist ); \
   /* Down an offset diagonal */ \
   template void PartitionDownOffsetDiagonal \
   ( Int offset, Matrix<T>& A, \
@@ -559,13 +559,13 @@ void LockedPartitionUpDiagonal
     Matrix<T>& ATL, Matrix<T>& ATR, \
     Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist ); \
   template void PartitionDownOffsetDiagonal \
-  ( Int offset, AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist ); \
+  ( Int offset, ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist ); \
   template void LockedPartitionDownOffsetDiagonal \
-  ( Int offset, const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist ); \
+  ( Int offset, const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist ); \
   /* Up the main diagonal */ \
   template void PartitionUpDiagonal \
   ( Matrix<T>& A, \
@@ -576,13 +576,13 @@ void LockedPartitionUpDiagonal
     Matrix<T>& ATL, Matrix<T>& ATR, \
     Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist ); \
   template void PartitionUpDiagonal \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist ); \
   template void LockedPartitionUpDiagonal \
-  ( const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist ); \
+  ( const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist ); \
   /* Up an offset diagonal */ \
   template void PartitionUpOffsetDiagonal \
   ( Int offset, Matrix<T>& A, \
@@ -593,13 +593,13 @@ void LockedPartitionUpDiagonal
     Matrix<T>& ATL, Matrix<T>& ATR, \
     Matrix<T>& ABL, Matrix<T>& ABR, Int diagDist ); \
   template void PartitionUpOffsetDiagonal \
-  ( Int offset, AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist ); \
+  ( Int offset, ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist ); \
   template void LockedPartitionUpOffsetDiagonal \
-  ( Int offset, const AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, Int diagDist );
+  ( Int offset, const ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, Int diagDist );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

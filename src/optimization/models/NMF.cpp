@@ -36,9 +36,9 @@ void NMF
 
 template<typename Real>
 void NMF
-( const AbstractDistMatrix<Real>& APre, 
-        AbstractDistMatrix<Real>& XPre, 
-        AbstractDistMatrix<Real>& YPre,
+( const ElementalMatrix<Real>& APre, 
+        ElementalMatrix<Real>& XPre, 
+        ElementalMatrix<Real>& YPre,
   const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NMF"))
@@ -67,9 +67,9 @@ void NMF
           Matrix<Real>& Y, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NMF \
-  ( const AbstractDistMatrix<Real>& A, \
-          AbstractDistMatrix<Real>& X, \
-          AbstractDistMatrix<Real>& Y, \
+  ( const ElementalMatrix<Real>& A, \
+          ElementalMatrix<Real>& X, \
+          ElementalMatrix<Real>& Y, \
     const NNLSCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

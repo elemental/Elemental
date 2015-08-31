@@ -148,6 +148,8 @@ template<typename T=double> class Matrix;
 
 template<typename T=double> class AbstractDistMatrix;
 
+template<typename T=double> class ElementalMatrix;
+
 template<typename T=double,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENTAL>
 class DistMatrix;
 

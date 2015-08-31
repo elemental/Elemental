@@ -180,8 +180,8 @@ template<typename F>
 inline void
 Panel
 ( DistMatrix<F>& AFull, 
-  AbstractDistMatrix<F>& dSub, 
-  AbstractDistMatrix<Int>& p, 
+  ElementalMatrix<F>& dSub, 
+  ElementalMatrix<Int>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )

@@ -520,8 +520,8 @@ void SDC
 
 template<typename F>
 void SDC
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Base<F>>& wPre, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre, 
+  ElementalMatrix<Base<F>>& wPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SDC"))
@@ -573,8 +573,8 @@ void SDC
 template<typename F>
 void SDC
 ( UpperOrLower uplo, 
-  AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& wPre, 
-  AbstractDistMatrix<F>& QPre, 
+  ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& wPre, 
+  ElementalMatrix<F>& QPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SDC"))

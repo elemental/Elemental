@@ -14,7 +14,7 @@ using namespace El;
 
 template<typename T>
 ElError ElDistMatrixCreateSpecific
-( ElDist U_C, ElDist V_C, ElConstGrid grid, AbstractDistMatrix<T>** A )
+( ElDist U_C, ElDist V_C, ElConstGrid grid, ElementalMatrix<T>** A )
 {
     try 
     {
@@ -46,9 +46,9 @@ extern "C" {
   ( ElDist U, ElDist V, ElConstGrid grid, \
     ElDistMatrix_ ## SIG *A ) \
   { \
-    AbstractDistMatrix<T>* ADM; \
-    ElError error = ElDistMatrixCreateSpecific( U, V, grid, &ADM ); \
-    *A = CReflect(ADM); \
+    ElementalMatrix<T>* EM; \
+    ElError error = ElDistMatrixCreateSpecific( U, V, grid, &EM ); \
+    *A = CReflect(EM); \
     return error; \
   } \
   /* ~DistMatrix() */ \
@@ -101,17 +101,17 @@ extern "C" {
   ElError ElDistMatrixSetRoot_ ## SIG \
   ( ElDistMatrix_ ## SIG A, int root, bool constrain ) \
   { EL_TRY( CReflect(A)->SetRoot(root,constrain) ) } \
-  /* void AlignWith( const DistData& data, bool constrain ) */ \
+  /* void AlignWith( const ElementalData& data, bool constrain ) */ \
   ElError ElDistMatrixAlignWith_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistData distData, bool constrain ) \
+  ( ElDistMatrix_ ## SIG A, ElElementalData distData, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignWith( CReflect(distData), constrain ) ) } \
-  /* void AlignColsWith( const DistData& data, bool constrain ) */ \
+  /* void AlignColsWith( const ElementalData& data, bool constrain ) */ \
   ElError ElDistMatrixAlignColsWith_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistData distData, bool constrain ) \
+  ( ElDistMatrix_ ## SIG A, ElElementalData distData, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignColsWith( CReflect(distData), constrain ) ) } \
-  /* void AlignRowsWith( const DistData& data, bool constrain ) */ \
+  /* void AlignRowsWith( const ElementalData& data, bool constrain ) */ \
   ElError ElDistMatrixAlignRowsWith_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistData distData, bool constrain ) \
+  ( ElDistMatrix_ ## SIG A, ElElementalData distData, bool constrain ) \
   { EL_TRY( CReflect(A)->AlignRowsWith( CReflect(distData), constrain ) ) } \
   /* void AlignAndResize \
      ( int colAlign, int rowAlign, Int height, Int width, \
@@ -334,10 +334,10 @@ extern "C" {
   ElError ElDistMatrixIsLocal_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElInt i, ElInt j, bool* isLocal ) \
   { EL_TRY( *isLocal = CReflect(A)->IsLocal(i,j) ) } \
-  /* DistData DistData() const */ \
+  /* ElementalData ElementalData() const */ \
   ElError ElDistMatrixDistData_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElDistData* distData ) \
-  { EL_TRY( DistData data = CReflect(A)->DistData(); \
+  ( ElConstDistMatrix_ ## SIG A, ElElementalData* distData ) \
+  { EL_TRY( ElementalData data = CReflect(A)->DistData(); \
             *distData = CReflect( data ) ) } \
   /* mpi::Comm DistComm() const */ \
   ElError ElDistMatrixDistComm_ ## SIG \
@@ -508,9 +508,9 @@ extern "C" {
   { EL_TRY( CReflect(A)->UpdateLocalImagPart(iLoc,jLoc,alpha) ) }
 
 #define DISTMATRIX_DIAGONAL(SIG,SIGBASE,T) \
-  /* bool DiagonalAlignedWith( const DistData& data, Int offset ) const */ \
+  /* bool DiagonalAlignedWith( const ElementalData& data, Int offset ) const */ \
   ElError ElDistMatrixDiagonalAlignedWith_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElDistData distData, ElInt offset, \
+  ( ElConstDistMatrix_ ## SIG A, ElElementalData distData, ElInt offset, \
     bool* aligned ) \
   { EL_TRY( *aligned = CReflect(A)->DiagonalAlignedWith \
                        (CReflect(distData),offset) ) } \

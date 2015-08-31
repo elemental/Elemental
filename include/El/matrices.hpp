@@ -104,7 +104,7 @@ void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d );
 template<typename F>
 void DruinskyToledo( Matrix<F>& A, Int n );
 template<typename F>
-void DruinskyToledo( AbstractDistMatrix<F>& A, Int n );
+void DruinskyToledo( ElementalMatrix<F>& A, Int n );
 
 // DynamicRegCounter
 // =================
@@ -127,7 +127,7 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int n );
 template<typename T>
 void DynamicRegCounter( Matrix<T>& A, Int n );
 template<typename T>
-void DynamicRegCounter( AbstractDistMatrix<T>& A, Int n );
+void DynamicRegCounter( ElementalMatrix<T>& A, Int n );
 template<typename T>
 void DynamicRegCounter( SparseMatrix<T>& A, Int n );
 template<typename T>
@@ -159,7 +159,7 @@ void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n );
 template<typename F>
 void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n );
 template<typename F>
-void Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n );
+void Ehrenfest( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n );
 template<typename F>
 void Ehrenfest
 ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n );
@@ -174,7 +174,7 @@ void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n );
 template<typename F>
 void EhrenfestDecay( Matrix<F>& A, Int n );
 template<typename F>
-void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n );
+void EhrenfestDecay( ElementalMatrix<F>& A, Int n );
 /*
 template<typename F>
 void EhrenfestDecay( AbstractBlockDistMatrix<F,U,V>& A, Int n );
@@ -185,7 +185,7 @@ void EhrenfestDecay( AbstractBlockDistMatrix<F,U,V>& A, Int n );
 template<typename F>
 void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu );
 template<typename F>
-void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
+void ExtendedKahan( ElementalMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
 
 // Fiedler
 // =======
@@ -210,7 +210,7 @@ void Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda );
 template<typename Real>
 void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega );
 template<typename Real>
-void FoxLi( AbstractDistMatrix<Complex<Real>>& A, Int n, Real omega );
+void FoxLi( ElementalMatrix<Complex<Real>>& A, Int n, Real omega );
 
 // Fourier
 // =======
@@ -227,7 +227,7 @@ void Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
 template<typename Real>
 void FourierIdentity( Matrix<Complex<Real>>& A, Int n );
 template<typename Real>
-void FourierIdentity( AbstractDistMatrix<Complex<Real>>& A, Int n );
+void FourierIdentity( ElementalMatrix<Complex<Real>>& A, Int n );
 
 // Greatest Common Denominator matrix
 // ==================================
@@ -252,7 +252,7 @@ void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t );
 template<typename F>
 void GEPPGrowth( Matrix<F>& A, Int n );
 template<typename F>
-void GEPPGrowth( AbstractDistMatrix<F>& A, Int n );
+void GEPPGrowth( ElementalMatrix<F>& A, Int n );
 template<typename F>
 void GEPPGrowth( AbstractBlockDistMatrix<F>& A, Int n );
 
@@ -289,7 +289,7 @@ void Hankel
 template<typename T>
 void Hanowa( Matrix<T>& A, Int n, T mu );
 template<typename T>
-void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu );
+void Hanowa( ElementalMatrix<T>& A, Int n, T mu );
 
 // Hatano-Nelson
 // =============
@@ -298,7 +298,7 @@ void HatanoNelson
 ( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic=true );
 template<typename F>
 void HatanoNelson
-( AbstractDistMatrix<F>& A, Int n, F center, Base<F> radius, F g,
+( ElementalMatrix<F>& A, Int n, F center, Base<F> radius, F g,
   bool periodic=true );
 /*
 template<typename F>
@@ -393,12 +393,16 @@ void HelmholtzPML
 // ==================
 template<typename F>
 void HermitianFromEVD
-( UpperOrLower uplo, Matrix<F>& A,
-  const Matrix<Base<F>>& w, const Matrix<F>& Z );
+( UpperOrLower uplo,
+        Matrix<F>& A,
+  const Matrix<Base<F>>& w,
+  const Matrix<F>& Z );
 template<typename F>
 void HermitianFromEVD
-( UpperOrLower uplo, AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& Z );
+( UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+  const ElementalMatrix<Base<F>>& w,
+  const ElementalMatrix<F>& Z );
 
 // Hilbert
 // =======
@@ -504,7 +508,7 @@ void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny, Int nz );
 template<typename T>
 void Lauchli( Matrix<T>& A, Int n, T mu );
 template<typename T>
-void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu );
+void Lauchli( ElementalMatrix<T>& A, Int n, T mu );
 
 // Legendre
 // ========
@@ -551,9 +555,9 @@ void NormalFromEVD
   const Matrix<Complex<Real>>& Z );
 template<typename Real>
 void NormalFromEVD
-(       AbstractDistMatrix<Complex<Real>>& A,
-  const AbstractDistMatrix<Complex<Real>>& w,
-  const AbstractDistMatrix<Complex<Real>>& Z );
+(       ElementalMatrix<Complex<Real>>& A,
+  const ElementalMatrix<Complex<Real>>& w,
+  const ElementalMatrix<Complex<Real>>& Z );
 
 // Ones
 // ====
@@ -620,7 +624,7 @@ void Riffle
 ( Matrix<F>& P, Matrix<F>& PInf, Int n );
 template<typename F>
 void Riffle
-( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n );
+( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n );
 template<typename F>
 void Riffle
 ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n );
@@ -635,7 +639,7 @@ void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n );
 template<typename F>
 void RiffleDecay( Matrix<F>& A, Int n );
 template<typename F>
-void RiffleDecay( AbstractDistMatrix<F>& A, Int n );
+void RiffleDecay( ElementalMatrix<F>& A, Int n );
 
 // Ris
 // ===
@@ -697,7 +701,7 @@ void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary=false );
 template<typename T>
 void WalshIdentity( Matrix<T>& A, Int k, bool binary=false );
 template<typename T>
-void WalshIdentity( AbstractDistMatrix<T>& A, Int k, bool binary=false );
+void WalshIdentity( ElementalMatrix<T>& A, Int k, bool binary=false );
 
 // Whale
 // =====
@@ -771,14 +775,18 @@ void Gaussian
 template<typename F> 
 void Haar( Matrix<F>& A, Int n );
 template<typename F> 
-void Haar( AbstractDistMatrix<F>& A, Int n );
+void Haar( ElementalMatrix<F>& A, Int n );
 
 template<typename F> 
-void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n );
+void ImplicitHaar
+( Matrix<F>& A,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d, Int n );
 template<typename F> 
 void ImplicitHaar
-( AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d, Int n );
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& t,
+  ElementalMatrix<Base<F>>& d, Int n );
 
 // Hermitian uniform spectrum
 // ==========================
@@ -787,7 +795,7 @@ void HermitianUniformSpectrum
 ( Matrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
 template<typename F>
 void HermitianUniformSpectrum
-( AbstractDistMatrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
+( ElementalMatrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
 
 // Normal uniform spectrum
 // =======================
@@ -797,7 +805,7 @@ void NormalUniformSpectrum
   Complex<Real> center=0, Real radius=1 );
 template<typename Real>
 void NormalUniformSpectrum
-( AbstractDistMatrix<Complex<Real>>& A, Int n,
+( ElementalMatrix<Complex<Real>>& A, Int n,
   Complex<Real> center=0, Real radius=1 );
 
 // Three-valued
@@ -839,7 +847,7 @@ void UniformHelmholtzGreens
 ( Matrix<Complex<Real>>& A, Int n, Real lambda );
 template<typename Real>
 void UniformHelmholtzGreens
-( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda );
+( ElementalMatrix<Complex<Real>>& A, Int n, Real lambda );
 template<typename Real>
 void UniformHelmholtzGreens
 ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda );
@@ -849,7 +857,7 @@ void UniformHelmholtzGreens
 template<typename F>
 void Wigner( Matrix<F>& A, Int n, F mean=0, Base<F> stddev=1 );
 template<typename F>
-void Wigner( AbstractDistMatrix<F>& A, Int n, F mean=0, Base<F> stddev=1 );
+void Wigner( ElementalMatrix<F>& A, Int n, F mean=0, Base<F> stddev=1 );
 
 } // namespace El
 

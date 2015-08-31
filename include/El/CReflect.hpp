@@ -353,86 +353,86 @@ inline ElConstMatrix_c CReflect( const Matrix<Complex<float>>* A )
 inline ElConstMatrix_z CReflect( const Matrix<Complex<double>>* A )
 { return (ElConstMatrix_z)EL_RC(const struct ElMatrix_zDummy*,A); }
 
-// AbstractDistMatrix
-// ------------------
-inline AbstractDistMatrix<Int>* 
+// ElementalMatrix
+// ---------------
+inline ElementalMatrix<Int>* 
 CReflect( ElDistMatrix_i A )
-{ return EL_RC(AbstractDistMatrix<Int>*,A); }
+{ return EL_RC(ElementalMatrix<Int>*,A); }
 
-inline AbstractDistMatrix<float>* 
+inline ElementalMatrix<float>* 
 CReflect( ElDistMatrix_s A )
-{ return EL_RC(AbstractDistMatrix<float>*,A); }
+{ return EL_RC(ElementalMatrix<float>*,A); }
 
-inline AbstractDistMatrix<double>* 
+inline ElementalMatrix<double>* 
 CReflect( ElDistMatrix_d A )
-{ return EL_RC(AbstractDistMatrix<double>*,A); }
+{ return EL_RC(ElementalMatrix<double>*,A); }
 
-inline AbstractDistMatrix<Complex<float>>* 
+inline ElementalMatrix<Complex<float>>* 
 CReflect( ElDistMatrix_c A )
-{ return EL_RC(AbstractDistMatrix<Complex<float>>*,A); }
+{ return EL_RC(ElementalMatrix<Complex<float>>*,A); }
 
-inline AbstractDistMatrix<Complex<double>>* 
+inline ElementalMatrix<Complex<double>>* 
 CReflect( ElDistMatrix_z A )
-{ return EL_RC(AbstractDistMatrix<Complex<double>>*,A); }
+{ return EL_RC(ElementalMatrix<Complex<double>>*,A); }
 
-inline const AbstractDistMatrix<Int>* 
+inline const ElementalMatrix<Int>* 
 CReflect( ElConstDistMatrix_i A )
-{ return EL_RC(const AbstractDistMatrix<Int>*,A); }
+{ return EL_RC(const ElementalMatrix<Int>*,A); }
 
-inline const AbstractDistMatrix<float>* 
+inline const ElementalMatrix<float>* 
 CReflect( ElConstDistMatrix_s A )
-{ return EL_RC(const AbstractDistMatrix<float>*,A); }
+{ return EL_RC(const ElementalMatrix<float>*,A); }
 
-inline const AbstractDistMatrix<double>* 
+inline const ElementalMatrix<double>* 
 CReflect( ElConstDistMatrix_d A )
-{ return EL_RC(const AbstractDistMatrix<double>*,A); }
+{ return EL_RC(const ElementalMatrix<double>*,A); }
 
-inline const AbstractDistMatrix<Complex<float>>* 
+inline const ElementalMatrix<Complex<float>>* 
 CReflect( ElConstDistMatrix_c A )
-{ return EL_RC(const AbstractDistMatrix<Complex<float>>*,A); }
+{ return EL_RC(const ElementalMatrix<Complex<float>>*,A); }
 
-inline const AbstractDistMatrix<Complex<double>>* 
+inline const ElementalMatrix<Complex<double>>* 
 CReflect( ElConstDistMatrix_z A )
-{ return EL_RC(const AbstractDistMatrix<Complex<double>>*,A); }
+{ return EL_RC(const ElementalMatrix<Complex<double>>*,A); }
 
 inline ElDistMatrix_i
-CReflect( AbstractDistMatrix<Int>* A )
+CReflect( ElementalMatrix<Int>* A )
 { return (ElDistMatrix_i)EL_RC(struct ElDistMatrix_iDummy*,A); }
 
 inline ElDistMatrix_s 
-CReflect( AbstractDistMatrix<float>* A )
+CReflect( ElementalMatrix<float>* A )
 { return (ElDistMatrix_s)EL_RC(struct ElDistMatrix_sDummy*,A); }
 
 inline ElDistMatrix_d 
-CReflect( AbstractDistMatrix<double>* A )
+CReflect( ElementalMatrix<double>* A )
 { return (ElDistMatrix_d)EL_RC(struct ElDistMatrix_dDummy*,A); }
 
 inline ElDistMatrix_c 
-CReflect( AbstractDistMatrix<Complex<float>>* A )
+CReflect( ElementalMatrix<Complex<float>>* A )
 { return (ElDistMatrix_c)EL_RC(struct ElDistMatrix_cDummy*,A); }
 
 inline ElDistMatrix_z 
-CReflect( AbstractDistMatrix<Complex<double>>* A )
+CReflect( ElementalMatrix<Complex<double>>* A )
 { return (ElDistMatrix_z)EL_RC(struct ElDistMatrix_zDummy*,A); }
 
 inline ElConstDistMatrix_i
-CReflect( const AbstractDistMatrix<Int>* A )
+CReflect( const ElementalMatrix<Int>* A )
 { return (ElConstDistMatrix_i)EL_RC(const struct ElDistMatrix_iDummy*,A); }
 
 inline ElConstDistMatrix_s 
-CReflect( const AbstractDistMatrix<float>* A )
+CReflect( const ElementalMatrix<float>* A )
 { return (ElConstDistMatrix_s)EL_RC(const struct ElDistMatrix_sDummy*,A); }
 
 inline ElConstDistMatrix_d 
-CReflect( const AbstractDistMatrix<double>* A )
+CReflect( const ElementalMatrix<double>* A )
 { return (ElConstDistMatrix_d)EL_RC(const struct ElDistMatrix_dDummy*,A); }
 
 inline ElConstDistMatrix_c 
-CReflect( const AbstractDistMatrix<Complex<float>>* A )
+CReflect( const ElementalMatrix<Complex<float>>* A )
 { return (ElConstDistMatrix_c)EL_RC(const struct ElDistMatrix_cDummy*,A); }
 
 inline ElConstDistMatrix_z 
-CReflect( const AbstractDistMatrix<Complex<double>>* A )
+CReflect( const ElementalMatrix<Complex<double>>* A )
 { return (ElConstDistMatrix_z)EL_RC(const struct ElDistMatrix_zDummy*,A); }
 
 /* Graph
@@ -660,9 +660,9 @@ inline ElConstDistMultiVec_c CReflect( const DistMultiVec<Complex<float>>* A )
 inline ElConstDistMultiVec_z CReflect( const DistMultiVec<Complex<double>>* A )
 { return (ElConstDistMultiVec_z)EL_RC(const struct ElDistMultiVec_zDummy*,A); }
 
-inline ElDistData CReflect( const DistData& data )
+inline ElElementalData CReflect( const ElementalData& data )
 {
-    ElDistData distData;
+    ElElementalData distData;
     distData.colDist = CReflect(data.colDist);
     distData.rowDist = CReflect(data.rowDist);
     distData.colAlign = data.colAlign;
@@ -672,9 +672,9 @@ inline ElDistData CReflect( const DistData& data )
     return distData;
 }
 
-inline DistData CReflect( const ElDistData& distData )
+inline ElementalData CReflect( const ElElementalData& distData )
 {
-    DistData data;
+    ElementalData data;
     data.colDist = CReflect(distData.colDist);
     data.rowDist = CReflect(distData.rowDist);
     data.colAlign = distData.colAlign;

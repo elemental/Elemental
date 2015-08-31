@@ -29,9 +29,9 @@ void SOCShift
 
 template<typename Real>
 void SOCShift
-(       AbstractDistMatrix<Real>& xPre, Real shift,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre )
+(       ElementalMatrix<Real>& xPre, Real shift,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre )
 {
     DEBUG_ONLY(CSE cse("SOCShift"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
@@ -85,9 +85,9 @@ void SOCShift
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCShift \
-  (       AbstractDistMatrix<Real>& x, Real shift, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds ); \
+  (       ElementalMatrix<Real>& x, Real shift, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds ); \
   template void SOCShift \
   (       DistMultiVec<Real>& x, Real shift, \
     const DistMultiVec<Int>& orders, \

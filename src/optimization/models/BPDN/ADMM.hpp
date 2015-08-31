@@ -159,8 +159,8 @@ Int ADMM
 
 template<typename F>
 Int ADMM
-( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& bPre, 
-        Base<F> lambda,                    AbstractDistMatrix<F>& zPre, 
+( const ElementalMatrix<F>& APre, const ElementalMatrix<F>& bPre, 
+        Base<F> lambda,                    ElementalMatrix<F>& zPre, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::ADMM"))

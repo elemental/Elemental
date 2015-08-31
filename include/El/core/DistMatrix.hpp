@@ -12,23 +12,23 @@
 
 namespace El {
 
-struct DistData
+struct ElementalData
 {
     Dist colDist, rowDist;
     int colAlign, rowAlign; 
     int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
 
-    DistData() { }
+    ElementalData() { }
 
     template<typename T>
-    DistData( const AbstractDistMatrix<T>& A )
+    ElementalData( const ElementalMatrix<T>& A )
     : colDist(A.ColDist()), rowDist(A.RowDist()),
       colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
       root(A.Root()), grid(&A.Grid())
     { }
 };
-inline bool operator==( const DistData& A, const DistData& B )
+inline bool operator==( const ElementalData& A, const ElementalData& B )
 { return A.colDist  == B.colDist &&
          A.rowDist  == B.rowDist &&
          A.colAlign == B.colAlign &&
@@ -49,20 +49,22 @@ class DistMultiVec;
 } // namespace El
 
 #include "./DistMatrix/Abstract.hpp"
-#include "./DistMatrix/CIRC_CIRC.hpp"
-#include "./DistMatrix/MC_MR.hpp"
-#include "./DistMatrix/MC_STAR.hpp"
-#include "./DistMatrix/MD_STAR.hpp"
-#include "./DistMatrix/MR_MC.hpp"
-#include "./DistMatrix/MR_STAR.hpp"
-#include "./DistMatrix/STAR_MC.hpp"
-#include "./DistMatrix/STAR_MD.hpp"
-#include "./DistMatrix/STAR_MR.hpp"
-#include "./DistMatrix/STAR_STAR.hpp"
-#include "./DistMatrix/STAR_VC.hpp"
-#include "./DistMatrix/STAR_VR.hpp"
-#include "./DistMatrix/VC_STAR.hpp"
-#include "./DistMatrix/VR_STAR.hpp"
+#include "./DistMatrix/Elemental.hpp"
+// TODO: BlockCyclic.hpp and BlockNonCyclic.hpp
+#include "./DistMatrix/Elemental/CIRC_CIRC.hpp"
+#include "./DistMatrix/Elemental/MC_MR.hpp"
+#include "./DistMatrix/Elemental/MC_STAR.hpp"
+#include "./DistMatrix/Elemental/MD_STAR.hpp"
+#include "./DistMatrix/Elemental/MR_MC.hpp"
+#include "./DistMatrix/Elemental/MR_STAR.hpp"
+#include "./DistMatrix/Elemental/STAR_MC.hpp"
+#include "./DistMatrix/Elemental/STAR_MD.hpp"
+#include "./DistMatrix/Elemental/STAR_MR.hpp"
+#include "./DistMatrix/Elemental/STAR_STAR.hpp"
+#include "./DistMatrix/Elemental/STAR_VC.hpp"
+#include "./DistMatrix/Elemental/STAR_VR.hpp"
+#include "./DistMatrix/Elemental/VC_STAR.hpp"
+#include "./DistMatrix/Elemental/VR_STAR.hpp"
 
 namespace El {
 

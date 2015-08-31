@@ -32,7 +32,7 @@ void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 }
 
 template<typename F>
-void ExplicitTriang( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
+void ExplicitTriang( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::ExplicitTriang"))
     DistMatrix<F,MD,STAR> t(A.Grid());
@@ -69,7 +69,7 @@ void ExplicitUnitary( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 }
 
 template<typename F>
-void ExplicitUnitary( AbstractDistMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
+void ExplicitUnitary( ElementalMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
 
@@ -121,7 +121,7 @@ void Explicit( Matrix<F>& A, Matrix<F>& R, const QRCtrl<Base<F>>& ctrl )
 
 template<typename F>
 void Explicit
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, 
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& R, 
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
@@ -180,8 +180,8 @@ void Explicit
 
 template<typename F>
 void Explicit
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, 
-  AbstractDistMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& R, 
+  ElementalMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
 

@@ -14,16 +14,16 @@ namespace transpose {
 // (Partial(V),U) |-> (U,V)
 template<typename T>
 void PartialRowFilter
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& B, bool conjugate )
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::PartialRowFilter");
-        if( A.ColDist() != Partial(B.RowDist()) ||
-            A.RowDist() != B.ColDist() )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::PartialRowFilter");
+      if( A.ColDist() != Partial(B.RowDist()) ||
+          A.RowDist() != B.ColDist() )
+          LogicError("Incompatible distributions");
     )
-    unique_ptr<AbstractDistMatrix<T>>
+    unique_ptr<ElementalMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, false );
@@ -44,10 +44,10 @@ void PartialRowFilter
         AbstractBlockDistMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::PartialRowFilter");
-        if( A.ColDist() != Partial(B.RowDist()) ||
-            A.RowDist() != B.ColDist() )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::PartialRowFilter");
+      if( A.ColDist() != Partial(B.RowDist()) ||
+          A.RowDist() != B.ColDist() )
+          LogicError("Incompatible distributions");
     )
     unique_ptr<AbstractBlockDistMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
@@ -66,8 +66,8 @@ void PartialRowFilter
 
 #define PROTO(T) \
   template void PartialRowFilter \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B, bool conjugate ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, bool conjugate ); \
   template void PartialRowFilter \
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<T>& B, bool conjugate );

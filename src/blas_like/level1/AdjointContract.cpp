@@ -11,8 +11,7 @@
 namespace El {
 
 template<typename T>
-void AdjointContract
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+void AdjointContract( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AdjointContract"))
     TransposeContract( A, B, true );
@@ -29,8 +28,8 @@ void AdjointContract
 
 #define PROTO(T) \
   template void AdjointContract \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B ); \
   template void AdjointContract \
   ( const AbstractBlockDistMatrix<T>& A, \
           AbstractBlockDistMatrix<T>& B );

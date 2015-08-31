@@ -74,7 +74,7 @@ void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 
 template<typename Real>
 void UniformHelmholtzGreens
-( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda )
+( ElementalMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
@@ -194,7 +194,7 @@ void UniformHelmholtzGreens
   template void UniformHelmholtzGreens \
   ( Matrix<Complex<Real>>& A, Int n, Real lambda ); \
   template void UniformHelmholtzGreens \
-  ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda ); \
+  ( ElementalMatrix<Complex<Real>>& A, Int n, Real lambda ); \
   template void UniformHelmholtzGreens \
   ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda );
 

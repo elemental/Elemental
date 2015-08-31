@@ -169,7 +169,7 @@ template<typename F>
 void
 Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, bool conjugate )
+  const ElementalMatrix<F>& D, ElementalMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symmetric2x2Scale"))
     const Int m = A.Height();
@@ -261,7 +261,7 @@ Symmetric2x2Scale
     const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate ); \
   template void Symmetric2x2Scale \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, \
+    const ElementalMatrix<F>& D, ElementalMatrix<F>& A, \
     bool conjugate );
 
 #define EL_NO_INT_PROTO

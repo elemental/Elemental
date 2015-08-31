@@ -175,9 +175,9 @@ Int ADMM
 
 template<typename Real>
 Int ADMM
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& bPre, const AbstractDistMatrix<Real>& cPre,
-        AbstractDistMatrix<Real>& zPre, 
+( const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& bPre, const ElementalMatrix<Real>& cPre,
+        ElementalMatrix<Real>& zPre, 
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::ADMM"))
@@ -340,8 +340,8 @@ Int ADMM
     Matrix<Real>& z, \
     const ADMMCtrl<Real>& ctrl ); \
   template Int ADMM \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c,       AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c,       ElementalMatrix<Real>& z, \
     const ADMMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

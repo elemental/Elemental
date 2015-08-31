@@ -25,8 +25,8 @@ void ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo,
   VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation, Int offset,
-  const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& A );
+  const ElementalMatrix<F>& H, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& A );
 
 // ExpandPackedReflectors
 // ======================
@@ -37,40 +37,40 @@ void ExpandPackedReflectors
 template<typename F>
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t );
+  Int offset, ElementalMatrix<F>& H, const ElementalMatrix<F>& t );
 
 // HyperbolicReflector
 // ===================
 template<typename F>
 F LeftHyperbolicReflector( F& chi, Matrix<F>& x );
 template<typename F>
-F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x );
+F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x );
 template<typename F>
 F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x );
 template<typename F>
 F LeftHyperbolicReflector
-( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 template<typename F>
 F RightHyperbolicReflector( F& chi, Matrix<F>& x );
 template<typename F>
-F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x );
+F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x );
 template<typename F>
 F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x );
 template<typename F>
 F RightHyperbolicReflector
-( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 namespace hyp_reflector {
 
 template<typename F>
-F Col( F& chi, AbstractDistMatrix<F>& x );
+F Col( F& chi, ElementalMatrix<F>& x );
 template<typename F>
-F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 template<typename F>
-F Row( F& chi, AbstractDistMatrix<F>& x );
+F Row( F& chi, ElementalMatrix<F>& x );
 template<typename F>
-F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+F Row( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 } // namespace reflector
 
@@ -79,31 +79,31 @@ F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x );
 template<typename F>
-F LeftReflector( F& chi, AbstractDistMatrix<F>& x );
+F LeftReflector( F& chi, ElementalMatrix<F>& x );
 template<typename F>
 F LeftReflector( Matrix<F>& chi, Matrix<F>& x );
 template<typename F>
-F LeftReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 template<typename F>
 F RightReflector( F& chi, Matrix<F>& x );
 template<typename F>
-F RightReflector( F& chi, AbstractDistMatrix<F>& x );
+F RightReflector( F& chi, ElementalMatrix<F>& x );
 template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x );
 template<typename F>
-F RightReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 namespace reflector {
 
 template<typename F>
-F Col( F& chi, AbstractDistMatrix<F>& x );
+F Col( F& chi, ElementalMatrix<F>& x );
 template<typename F>
-F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 template<typename F>
-F Row( F& chi, AbstractDistMatrix<F>& x );
+F Row( F& chi, ElementalMatrix<F>& x );
 template<typename F>
-F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+F Row( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 } // namespace reflector
 

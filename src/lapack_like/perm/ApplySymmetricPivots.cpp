@@ -32,8 +32,8 @@ void ApplySymmetricPivots
 
 template<typename T>
 void ApplySymmetricPivots
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, 
-  const AbstractDistMatrix<Int>& pivots, bool conjugate, Int offset )
+( UpperOrLower uplo, ElementalMatrix<T>& A, 
+  const ElementalMatrix<Int>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CSE cse("ApplySymmetricPivots");
@@ -72,8 +72,8 @@ void ApplyInverseSymmetricPivots
 
 template<typename T>
 void ApplyInverseSymmetricPivots
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, 
-  const AbstractDistMatrix<Int>& pivots, bool conjugate, Int offset )
+( UpperOrLower uplo, ElementalMatrix<T>& A, 
+  const ElementalMatrix<Int>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CSE cse("ApplyInverseSymmetricPivots");
@@ -95,14 +95,14 @@ void ApplyInverseSymmetricPivots
   ( UpperOrLower uplo, Matrix<T>& A, const Matrix<Int>& p, \
     bool conjugate, Int offset ); \
   template void ApplySymmetricPivots \
-  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, \
-    const AbstractDistMatrix<Int>& p, bool conjugate, Int offset ); \
+  ( UpperOrLower uplo, ElementalMatrix<T>& A, \
+    const ElementalMatrix<Int>& p, bool conjugate, Int offset ); \
   template void ApplyInverseSymmetricPivots \
   ( UpperOrLower uplo, Matrix<T>& A, const Matrix<Int>& p, \
     bool conjugate, Int offset ); \
   template void ApplyInverseSymmetricPivots \
-  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, \
-    const AbstractDistMatrix<Int>& p, bool conjugate, Int offset );
+  ( UpperOrLower uplo, ElementalMatrix<T>& A, \
+    const ElementalMatrix<Int>& p, bool conjugate, Int offset );
 
 #include "El/macros/Instantiate.h"
 

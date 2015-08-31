@@ -177,10 +177,10 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,       ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
@@ -343,12 +343,12 @@ void Initialize
           Matrix<Real>& z, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \

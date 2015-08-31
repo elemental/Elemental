@@ -45,7 +45,7 @@ void Write
 
 template<typename T>
 void Write
-( const AbstractDistMatrix<T>& A, 
+( const ElementalMatrix<T>& A, 
   string basename, FileFormat format, string title )
 {
     DEBUG_ONLY(CSE cse("Write"))
@@ -86,7 +86,7 @@ void Write
   ( const Matrix<T>& A, \
     string basename, FileFormat format, string title ); \
   template void Write \
-  ( const AbstractDistMatrix<T>& A, \
+  ( const ElementalMatrix<T>& A, \
     string basename, FileFormat format, string title ); \
   template void Write \
   ( const AbstractBlockDistMatrix<T>& A, \

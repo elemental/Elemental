@@ -32,7 +32,7 @@ Real PosComplementRatio
 
 template<typename Real>
 Real PosComplementRatio
-( const AbstractDistMatrix<Real>& sPre, const AbstractDistMatrix<Real>& zPre )
+( const ElementalMatrix<Real>& sPre, const ElementalMatrix<Real>& zPre )
 {
     DEBUG_ONLY(CSE cse("PosComplementRatio"))
     ProxyCtrl ctrl;
@@ -82,7 +82,7 @@ Real PosComplementRatio
   template Real PosComplementRatio \
   ( const Matrix<Real>& s, const Matrix<Real>& z ); \
   template Real PosComplementRatio \
-  ( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& z ); \
+  ( const ElementalMatrix<Real>& s, const ElementalMatrix<Real>& z ); \
   template Real PosComplementRatio \
   ( const DistMultiVec<Real>& s, const DistMultiVec<Real>& z );
 
