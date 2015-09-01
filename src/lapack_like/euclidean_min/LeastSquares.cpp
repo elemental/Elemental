@@ -41,9 +41,9 @@ void Overwrite
 template<typename F> 
 void Overwrite
 ( Orientation orientation, 
-        AbstractDistMatrix<F>& APre,
-  const AbstractDistMatrix<F>& B, 
-        AbstractDistMatrix<F>& X )
+        ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& B, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
@@ -84,9 +84,9 @@ void LeastSquares
 template<typename F> 
 void LeastSquares
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B, 
-        AbstractDistMatrix<F>& X )
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LeastSquares"))
     DistMatrix<F> ACopy( A );
@@ -638,9 +638,9 @@ void LeastSquares
           Matrix<F>& X ); \
   template void ls::Overwrite \
   ( Orientation orientation, \
-          AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, \
-          AbstractDistMatrix<F>& X ); \
+          ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+          ElementalMatrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \
     const Matrix<F>& A, \
@@ -648,9 +648,9 @@ void LeastSquares
           Matrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, \
-          AbstractDistMatrix<F>& X ); \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+          ElementalMatrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \
     const SparseMatrix<F>& A, \

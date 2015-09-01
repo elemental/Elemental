@@ -66,8 +66,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& tPre, 
-  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& BPre )
+  const ElementalMatrix<F>& APre, const ElementalMatrix<F>& tPre, 
+  const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);

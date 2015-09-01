@@ -27,8 +27,8 @@ void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 void QR
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d )
+( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(CSE cse("QR"))
     qr::Householder( A, t, d );
@@ -48,8 +48,8 @@ void QR
 
 template<typename F> 
 void QR
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p,
+( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d, ElementalMatrix<Int>& p,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
@@ -59,44 +59,44 @@ void QR
 #define PROTO(F) \
   template void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void QR \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
-    AbstractDistMatrix<Base<F>>& d ); \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& t, \
+    ElementalMatrix<Base<F>>& d ); \
   template void QR \
   ( Matrix<F>& A, Matrix<F>& t, \
     Matrix<Base<F>>& d, Matrix<Int>& p, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void QR \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
-    AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p, \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& t, \
+    ElementalMatrix<Base<F>>& d, ElementalMatrix<Int>& p, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
   ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
-  ( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
+  ( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitUnitary \
   ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitUnitary \
-  ( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
+  ( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
   ( Matrix<F>& A, Matrix<F>& R, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
   ( Matrix<F>& A, Matrix<F>& R, \
     Matrix<Int>& P, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, \
-    AbstractDistMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl ); \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R, \
+    ElementalMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
     const Matrix<Base<F>>& d, Matrix<F>& B ); \
   template void qr::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
-    const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B ); \
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& B ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
@@ -104,24 +104,24 @@ void QR
           Matrix<F>& X ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F      >& A, const AbstractDistMatrix<F>& t, \
-    const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B, \
-          AbstractDistMatrix<F      >& X ); \
+    const ElementalMatrix<F      >& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& B, \
+          ElementalMatrix<F      >& X ); \
   template void qr::Cholesky \
   ( Matrix<F>& A, Matrix<F>& R ); \
   template void qr::Cholesky \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R ); \
-  template qr::TreeData<F> qr::TS( const AbstractDistMatrix<F>& A ); \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R ); \
+  template qr::TreeData<F> qr::TS( const ElementalMatrix<F>& A ); \
   template void qr::ExplicitTS \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R ); \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R ); \
   template Matrix<F>& qr::ts::RootQR \
-  ( const AbstractDistMatrix<F>& A, TreeData<F>& treeData ); \
+  ( const ElementalMatrix<F>& A, TreeData<F>& treeData ); \
   template const Matrix<F>& qr::ts::RootQR \
-  ( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData ); \
+  ( const ElementalMatrix<F>& A, const TreeData<F>& treeData ); \
   template void qr::ts::Reduce \
-  ( const AbstractDistMatrix<F>& A, TreeData<F>& treeData ); \
+  ( const ElementalMatrix<F>& A, TreeData<F>& treeData ); \
   template void qr::ts::Scatter \
-  ( AbstractDistMatrix<F>& A, const TreeData<F>& treeData ); 
+  ( ElementalMatrix<F>& A, const TreeData<F>& treeData ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

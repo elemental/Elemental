@@ -185,15 +185,15 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
@@ -369,15 +369,15 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& JStatic, \

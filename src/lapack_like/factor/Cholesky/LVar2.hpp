@@ -50,7 +50,7 @@ LVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-LVar2( AbstractDistMatrix<F>& APre )
+LVar2( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::LVar2");

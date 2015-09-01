@@ -164,7 +164,7 @@ template<typename F>
 inline void
 LT
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre,
+  const ElementalMatrix<F>& LPre, ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(

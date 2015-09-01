@@ -50,7 +50,7 @@ void HermitianFunction
 ( UpperOrLower uplo, Matrix<F>& A, function<Base<F>(Base<F>)> func );
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, 
   function<Base<F>(Base<F>)> func );
 
 template<typename Real>
@@ -59,7 +59,7 @@ void HermitianFunction
   function<Complex<Real>(Real)> func );
 template<typename Real>
 void HermitianFunction
-( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& A,
+( UpperOrLower uplo, ElementalMatrix<Complex<Real>>& A,
   function<Complex<Real>(Real)> func );
 
 // Inverse
@@ -67,7 +67,7 @@ void HermitianFunction
 template<typename F>
 void Inverse( Matrix<F>& A );
 template<typename F>
-void Inverse( AbstractDistMatrix<F>& A );
+void Inverse( ElementalMatrix<F>& A );
 template<typename F>
 void LocalInverse( DistMatrix<F,STAR,STAR>& A );
 namespace inverse {
@@ -75,13 +75,13 @@ template<typename F>
 void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p );
 template<typename F>
 void AfterLUPartialPiv
-( AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p );
+( ElementalMatrix<F>& A, const ElementalMatrix<Int>& p );
 } // namespace inverse
 
 template<typename F>
 void HPDInverse( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A );
 template<typename F>
 void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
@@ -91,7 +91,7 @@ void HermitianInverse
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void HermitianInverse
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LocalHermitianInverse
@@ -104,7 +104,7 @@ void SymmetricInverse
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void SymmetricInverse
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LocalSymmetricInverse
@@ -115,7 +115,7 @@ template<typename F>
 void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A );
 template<typename F>
 void TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, AbstractDistMatrix<F>& A  );
+( UpperOrLower uplo, UnitOrNonUnit diag, ElementalMatrix<F>& A  );
 template<typename F>
 void LocalTriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A );
@@ -125,14 +125,14 @@ void LocalTriangularInverse
 template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance=0 );
 template<typename F>
-void Pseudoinverse( AbstractDistMatrix<F>& A, Base<F> tolerance=0 );
+void Pseudoinverse( ElementalMatrix<F>& A, Base<F> tolerance=0 );
 
 template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance=0 );
 template<typename F>
 void HermitianPseudoinverse
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, Base<F> tolerance=0 );
+( UpperOrLower uplo, ElementalMatrix<F>& A, Base<F> tolerance=0 );
 
 // Sign
 // ====
@@ -141,7 +141,7 @@ void Sign
 ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sign
-( AbstractDistMatrix<F>& A, const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
+( ElementalMatrix<F>& A, const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
 void Sign
@@ -149,7 +149,7 @@ void Sign
   const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sign
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, 
+( ElementalMatrix<F>& A, ElementalMatrix<F>& N, 
   const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
@@ -158,7 +158,7 @@ void HermitianSign
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 template<typename F>
@@ -167,7 +167,7 @@ void HermitianSign
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& N, 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // SquareRoot
@@ -178,7 +178,7 @@ void SquareRoot
   const SquareRootCtrl<Base<F>> ctrl=SquareRootCtrl<Base<F>>() );
 template<typename F>
 void SquareRoot
-( AbstractDistMatrix<F>& A,
+( ElementalMatrix<F>& A,
   const SquareRootCtrl<Base<F>> ctrl=SquareRootCtrl<Base<F>>() );
 
 template<typename F>
@@ -187,7 +187,7 @@ void HPSDSquareRoot
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HPSDSquareRoot
-( UpperOrLower uplo, AbstractDistMatrix<F>& A,
+( UpperOrLower uplo, ElementalMatrix<F>& A,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 } // namespace El

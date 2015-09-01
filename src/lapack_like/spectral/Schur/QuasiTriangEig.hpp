@@ -64,7 +64,7 @@ Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
 
 template<typename F>
 void QuasiTriangEig
-( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<Complex<Base<F>>>& w )
+( const ElementalMatrix<F>& UPre, ElementalMatrix<Complex<Base<F>>>& w )
 {
     DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
 
@@ -85,7 +85,7 @@ void QuasiTriangEig
 
 template<typename F>
 DistMatrix<Complex<Base<F>>,VR,STAR> 
-QuasiTriangEig( const AbstractDistMatrix<F>& U )
+QuasiTriangEig( const ElementalMatrix<F>& U )
 {
     DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
     DistMatrix<Complex<Base<F>>,VR,STAR> w(U.Grid());

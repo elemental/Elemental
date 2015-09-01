@@ -26,9 +26,9 @@ void SlidePartitionUp
 
 template<typename T>
 void SlidePartitionUp
-( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0,
-                             AbstractDistMatrix<T>& A1,
-  AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2 )
+( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0,
+                          ElementalMatrix<T>& A1,
+  ElementalMatrix<T>& AB, ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlidePartitionUp");
@@ -52,9 +52,9 @@ void SlideLockedPartitionUp
 
 template<typename T>
 void SlideLockedPartitionUp
-( AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& A0,
-                             const AbstractDistMatrix<T>& A1,
-  AbstractDistMatrix<T>& AB, const AbstractDistMatrix<T>& A2 )
+( ElementalMatrix<T>& AT, const ElementalMatrix<T>& A0,
+                          const ElementalMatrix<T>& A1,
+  ElementalMatrix<T>& AB, const ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlideLockedPartitionUp");
@@ -81,9 +81,9 @@ void SlidePartitionDown
 
 template<typename T>
 void SlidePartitionDown
-( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0,
-                             AbstractDistMatrix<T>& A1,
-  AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2 )
+( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0,
+                          ElementalMatrix<T>& A1,
+  ElementalMatrix<T>& AB, ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlidePartitionDown");
@@ -107,9 +107,9 @@ void SlideLockedPartitionDown
 
 template<typename T>
 void SlideLockedPartitionDown
-( AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& A0,
-                             const AbstractDistMatrix<T>& A1,
-  AbstractDistMatrix<T>& AB, const AbstractDistMatrix<T>& A2 )
+( ElementalMatrix<T>& AT, const ElementalMatrix<T>& A0,
+                          const ElementalMatrix<T>& A1,
+  ElementalMatrix<T>& AB, const ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlideLockedPartitionDown");
@@ -135,8 +135,8 @@ void SlidePartitionLeft
 
 template<typename T>
 void SlidePartitionLeft
-( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR,
-  AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, AbstractDistMatrix<T>& A2 )
+( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR,
+  ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlidePartitionLeft");
@@ -159,8 +159,11 @@ void SlideLockedPartitionLeft
 
 template<typename T>
 void SlideLockedPartitionLeft
-( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR,
-  const AbstractDistMatrix<T>& A0, const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2 )
+(       ElementalMatrix<T>& AL,
+        ElementalMatrix<T>& AR,
+  const ElementalMatrix<T>& A0,
+  const ElementalMatrix<T>& A1,
+  const ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlideLockedPartitionLeft");
@@ -186,8 +189,8 @@ void SlidePartitionRight
 
 template<typename T>
 void SlidePartitionRight
-( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR,
-  AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, AbstractDistMatrix<T>& A2 )
+( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR,
+  ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlidePartitionRight");
@@ -210,8 +213,11 @@ void SlideLockedPartitionRight
 
 template<typename T>
 void SlideLockedPartitionRight
-( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR,
-  const AbstractDistMatrix<T>& A0, const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2 )
+(       ElementalMatrix<T>& AL,
+        ElementalMatrix<T>& AR,
+  const ElementalMatrix<T>& A0,
+  const ElementalMatrix<T>& A1,
+  const ElementalMatrix<T>& A2 )
 {
     DEBUG_ONLY(
       CSE cse("SlideLockedPartitionRight");
@@ -243,11 +249,11 @@ void SlidePartitionUpDiagonal
 
 template<typename T>
 void SlidePartitionUpDiagonal
-( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, 
-  AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, AbstractDistMatrix<T>& A02,
-  AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, AbstractDistMatrix<T>& A12,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, AbstractDistMatrix<T>& A20, 
-  AbstractDistMatrix<T>& A21, AbstractDistMatrix<T>& A22 )
+( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, 
+  ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, ElementalMatrix<T>& A02,
+  ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, ElementalMatrix<T>& A12,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, ElementalMatrix<T>& A20, 
+  ElementalMatrix<T>& A21, ElementalMatrix<T>& A22 )
 {
     DEBUG_ONLY(
       CSE cse("SlidePartitionUpDiagonal");
@@ -281,11 +287,19 @@ void SlideLockedPartitionUpDiagonal
 
 template<typename T>
 void SlideLockedPartitionUpDiagonal
-( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, 
-  const AbstractDistMatrix<T>& A00, const AbstractDistMatrix<T>& A01, const AbstractDistMatrix<T>& A02,
-  const AbstractDistMatrix<T>& A10, const AbstractDistMatrix<T>& A11, const AbstractDistMatrix<T>& A12,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
-  const AbstractDistMatrix<T>& A20, const AbstractDistMatrix<T>& A21, const AbstractDistMatrix<T>& A22 )
+(       ElementalMatrix<T>& ATL,
+        ElementalMatrix<T>& ATR, 
+  const ElementalMatrix<T>& A00,
+  const ElementalMatrix<T>& A01,
+  const ElementalMatrix<T>& A02,
+  const ElementalMatrix<T>& A10,
+  const ElementalMatrix<T>& A11,
+  const ElementalMatrix<T>& A12,
+        ElementalMatrix<T>& ABL,
+        ElementalMatrix<T>& ABR, 
+  const ElementalMatrix<T>& A20,
+  const ElementalMatrix<T>& A21,
+  const ElementalMatrix<T>& A22 )
 {
     DEBUG_ONLY(
       CSE cse("SlideLockedPartitionUpDiagonal");
@@ -322,11 +336,11 @@ void SlidePartitionDownDiagonal
 
 template<typename T>
 void SlidePartitionDownDiagonal
-( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, 
-  AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, AbstractDistMatrix<T>& A02,
-  AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, AbstractDistMatrix<T>& A12,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
-  AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, AbstractDistMatrix<T>& A22 )
+( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, 
+  ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, ElementalMatrix<T>& A02,
+  ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, ElementalMatrix<T>& A12,
+  ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
+  ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, ElementalMatrix<T>& A22 )
 {
     DEBUG_ONLY(
       CSE cse("SlidePartitionDownDiagonal");
@@ -360,11 +374,19 @@ void SlideLockedPartitionDownDiagonal
 
 template<typename T>
 void SlideLockedPartitionDownDiagonal
-( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, 
-  const AbstractDistMatrix<T>& A00, const AbstractDistMatrix<T>& A01, const AbstractDistMatrix<T>& A02,
-  const AbstractDistMatrix<T>& A10, const AbstractDistMatrix<T>& A11, const AbstractDistMatrix<T>& A12,
-  AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, 
-  const AbstractDistMatrix<T>& A20, const AbstractDistMatrix<T>& A21, const AbstractDistMatrix<T>& A22 )
+(       ElementalMatrix<T>& ATL,
+        ElementalMatrix<T>& ATR, 
+  const ElementalMatrix<T>& A00,
+  const ElementalMatrix<T>& A01,
+  const ElementalMatrix<T>& A02,
+  const ElementalMatrix<T>& A10,
+  const ElementalMatrix<T>& A11,
+  const ElementalMatrix<T>& A12,
+        ElementalMatrix<T>& ABL,
+        ElementalMatrix<T>& ABR, 
+  const ElementalMatrix<T>& A20,
+  const ElementalMatrix<T>& A21,
+  const ElementalMatrix<T>& A22 )
 {
     DEBUG_ONLY(
       CSE cse("SlideLockedPartitionDownDiagonal");
@@ -387,60 +409,60 @@ void SlideLockedPartitionDownDiagonal
                    Matrix<T>& A1, \
     Matrix<T>& AB, Matrix<T>& A2 ); \
   template void SlidePartitionDown \
-  ( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0, \
-                               AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0, \
+                               ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& AB, ElementalMatrix<T>& A2 ); \
   template void SlideLockedPartitionDown \
   ( Matrix<T>& AT, const Matrix<T>& A0, \
                    const Matrix<T>& A1, \
     Matrix<T>& AB, const Matrix<T>& A2 ); \
   template void SlideLockedPartitionDown \
-  ( AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& A0, \
-                               const AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& AB, const AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AT, const ElementalMatrix<T>& A0, \
+                               const ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& AB, const ElementalMatrix<T>& A2 ); \
   /* Upward */ \
   template void SlidePartitionUp \
   ( Matrix<T>& AT, Matrix<T>& A0, \
                    Matrix<T>& A1, \
     Matrix<T>& AB, Matrix<T>& A2 ); \
   template void SlidePartitionUp \
-  ( AbstractDistMatrix<T>& AT, AbstractDistMatrix<T>& A0, \
-                               AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& AB, AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AT, ElementalMatrix<T>& A0, \
+                               ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& AB, ElementalMatrix<T>& A2 ); \
   template void SlideLockedPartitionUp \
   ( Matrix<T>& AT, const Matrix<T>& A0, \
                    const Matrix<T>& A1, \
     Matrix<T>& AB, const Matrix<T>& A2 ); \
   template void SlideLockedPartitionUp \
-  ( AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& A0, \
-                               const AbstractDistMatrix<T>& A1, \
-    AbstractDistMatrix<T>& AB, const AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AT, const ElementalMatrix<T>& A0, \
+                               const ElementalMatrix<T>& A1, \
+    ElementalMatrix<T>& AB, const ElementalMatrix<T>& A2 ); \
   /* Right */ \
   template void SlidePartitionRight \
   ( Matrix<T>& AL, Matrix<T>& AR, \
     Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2 ); \
   template void SlidePartitionRight \
-  ( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, \
-    AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, \
+    ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, ElementalMatrix<T>& A2 ); \
   template void SlideLockedPartitionRight \
   ( Matrix<T>& AL, Matrix<T>& AR, \
     const Matrix<T>& A0, const Matrix<T>& A1, const Matrix<T>& A2 ); \
   template void SlideLockedPartitionRight \
-  ( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, \
-    const AbstractDistMatrix<T>& A0, const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, \
+    const ElementalMatrix<T>& A0, const ElementalMatrix<T>& A1, const ElementalMatrix<T>& A2 ); \
   /* Left */ \
   template void SlidePartitionLeft \
   ( Matrix<T>& AL, Matrix<T>& AR, \
     Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2 ); \
   template void SlidePartitionLeft \
-  ( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, \
-    AbstractDistMatrix<T>& A0, AbstractDistMatrix<T>& A1, AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, \
+    ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, ElementalMatrix<T>& A2 ); \
   template void SlideLockedPartitionLeft \
   ( Matrix<T>& AL, Matrix<T>& AR, \
     const Matrix<T>& A0, const Matrix<T>& A1, const Matrix<T>& A2 ); \
   template void SlideLockedPartitionLeft \
-  ( AbstractDistMatrix<T>& AL, AbstractDistMatrix<T>& AR, \
-    const AbstractDistMatrix<T>& A0, const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2 ); \
+  ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR, \
+    const ElementalMatrix<T>& A0, const ElementalMatrix<T>& A1, const ElementalMatrix<T>& A2 ); \
   /* Down diagonal */ \
   template void SlidePartitionDownDiagonal \
   ( Matrix<T>& ATL, Matrix<T>& ATR, \
@@ -449,11 +471,11 @@ void SlideLockedPartitionDownDiagonal
     Matrix<T>& ABL, Matrix<T>& ABR, \
     Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22 ); \
   template void SlidePartitionDownDiagonal \
-  ( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, AbstractDistMatrix<T>& A02, \
-    AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, AbstractDistMatrix<T>& A12, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, \
-    AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, AbstractDistMatrix<T>& A22 ); \
+  ( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, ElementalMatrix<T>& A02, \
+    ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, ElementalMatrix<T>& A12, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, \
+    ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, ElementalMatrix<T>& A22 ); \
   template void SlideLockedPartitionDownDiagonal \
   ( Matrix<T>& ATL, Matrix<T>& ATR, \
     const Matrix<T>& A00, const Matrix<T>& A01, const Matrix<T>& A02, \
@@ -461,11 +483,11 @@ void SlideLockedPartitionDownDiagonal
     Matrix<T>& ABL, Matrix<T>& ABR, \
     const Matrix<T>& A20, const Matrix<T>& A21, const Matrix<T>& A22 ); \
   template void SlideLockedPartitionDownDiagonal \
-  ( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    const AbstractDistMatrix<T>& A00, const AbstractDistMatrix<T>& A01, const AbstractDistMatrix<T>& A02, \
-    const AbstractDistMatrix<T>& A10, const AbstractDistMatrix<T>& A11, const AbstractDistMatrix<T>& A12, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, \
-    const AbstractDistMatrix<T>& A20, const AbstractDistMatrix<T>& A21, const AbstractDistMatrix<T>& A22 ); \
+  ( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    const ElementalMatrix<T>& A00, const ElementalMatrix<T>& A01, const ElementalMatrix<T>& A02, \
+    const ElementalMatrix<T>& A10, const ElementalMatrix<T>& A11, const ElementalMatrix<T>& A12, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, \
+    const ElementalMatrix<T>& A20, const ElementalMatrix<T>& A21, const ElementalMatrix<T>& A22 ); \
   /* Up diagonal */ \
   template void SlidePartitionUpDiagonal \
   ( Matrix<T>& ATL, Matrix<T>& ATR, \
@@ -474,11 +496,11 @@ void SlideLockedPartitionDownDiagonal
     Matrix<T>& ABL, Matrix<T>& ABR, \
     Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22 ); \
   template void SlidePartitionUpDiagonal \
-  ( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    AbstractDistMatrix<T>& A00, AbstractDistMatrix<T>& A01, AbstractDistMatrix<T>& A02, \
-    AbstractDistMatrix<T>& A10, AbstractDistMatrix<T>& A11, AbstractDistMatrix<T>& A12, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, \
-    AbstractDistMatrix<T>& A20, AbstractDistMatrix<T>& A21, AbstractDistMatrix<T>& A22 ); \
+  ( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    ElementalMatrix<T>& A00, ElementalMatrix<T>& A01, ElementalMatrix<T>& A02, \
+    ElementalMatrix<T>& A10, ElementalMatrix<T>& A11, ElementalMatrix<T>& A12, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, \
+    ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, ElementalMatrix<T>& A22 ); \
   template void SlideLockedPartitionUpDiagonal \
   ( Matrix<T>& ATL, Matrix<T>& ATR, \
     const Matrix<T>& A00, const Matrix<T>& A01, const Matrix<T>& A02, \
@@ -486,11 +508,11 @@ void SlideLockedPartitionDownDiagonal
     Matrix<T>& ABL, Matrix<T>& ABR, \
     const Matrix<T>& A20, const Matrix<T>& A21, const Matrix<T>& A22 ); \
   template void SlideLockedPartitionUpDiagonal \
-  ( AbstractDistMatrix<T>& ATL, AbstractDistMatrix<T>& ATR, \
-    const AbstractDistMatrix<T>& A00, const AbstractDistMatrix<T>& A01, const AbstractDistMatrix<T>& A02, \
-    const AbstractDistMatrix<T>& A10, const AbstractDistMatrix<T>& A11, const AbstractDistMatrix<T>& A12, \
-    AbstractDistMatrix<T>& ABL, AbstractDistMatrix<T>& ABR, \
-    const AbstractDistMatrix<T>& A20, const AbstractDistMatrix<T>& A21, const AbstractDistMatrix<T>& A22 );
+  ( ElementalMatrix<T>& ATL, ElementalMatrix<T>& ATR, \
+    const ElementalMatrix<T>& A00, const ElementalMatrix<T>& A01, const ElementalMatrix<T>& A02, \
+    const ElementalMatrix<T>& A10, const ElementalMatrix<T>& A11, const ElementalMatrix<T>& A12, \
+    ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, \
+    const ElementalMatrix<T>& A20, const ElementalMatrix<T>& A21, const ElementalMatrix<T>& A22 );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

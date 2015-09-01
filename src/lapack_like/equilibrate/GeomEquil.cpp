@@ -235,8 +235,8 @@ void StackedGeomEquil
 
 template<typename F>
 void GeomEquil
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Base<F>>& dRowPre, AbstractDistMatrix<Base<F>>& dColPre,
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<Base<F>>& dRowPre, ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("GeomEquil"))
@@ -328,11 +328,11 @@ void GeomEquil
 
 template<typename F>
 void StackedGeomEquil
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<F>& BPre,
-  AbstractDistMatrix<Base<F>>& dRowAPre, 
-  AbstractDistMatrix<Base<F>>& dRowBPre,
-  AbstractDistMatrix<Base<F>>& dColPre,
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& BPre,
+  ElementalMatrix<Base<F>>& dRowAPre, 
+  ElementalMatrix<Base<F>>& dRowBPre,
+  ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("StackedGeomEquil"))
@@ -1031,8 +1031,8 @@ void StackedGeomEquil
   ( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, \
     bool progress ); \
   template void GeomEquil \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& dRow, AbstractDistMatrix<Base<F>>& dCol, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& dRow, ElementalMatrix<Base<F>>& dCol, \
     bool progress ); \
   template void GeomEquil \
   ( SparseMatrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, \
@@ -1046,10 +1046,10 @@ void StackedGeomEquil
     Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, \
     Matrix<Base<F>>& dCol, bool progress ); \
   template void StackedGeomEquil \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<Base<F>>& dRowA, \
-    AbstractDistMatrix<Base<F>>& dRowB, \
-    AbstractDistMatrix<Base<F>>& dCol, bool progress ); \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+    ElementalMatrix<Base<F>>& dRowA, \
+    ElementalMatrix<Base<F>>& dRowB, \
+    ElementalMatrix<Base<F>>& dCol, bool progress ); \
   template void StackedGeomEquil \
   ( SparseMatrix<F>& A, SparseMatrix<F>& B, \
     Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, \

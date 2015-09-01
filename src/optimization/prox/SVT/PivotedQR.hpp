@@ -61,7 +61,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 
 template<typename F>
 Int PivotedQR
-( AbstractDistMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
+( ElementalMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
         CSE cse("svt::PivotedQR");

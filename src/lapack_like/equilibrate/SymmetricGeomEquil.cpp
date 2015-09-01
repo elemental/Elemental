@@ -122,8 +122,8 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
 
 template<typename F>
 void SymmetricGeomEquil
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Base<F>>& dPre, bool progress )
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<Base<F>>& dPre, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
     typedef Base<F> Real;
@@ -399,8 +399,8 @@ void SymmetricGeomEquil
   template void SymmetricGeomEquil \
   ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
   template void SymmetricGeomEquil \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& d, bool progress ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& d, bool progress ); \
   template void SymmetricGeomEquil \
   ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
   template void SymmetricGeomEquil \

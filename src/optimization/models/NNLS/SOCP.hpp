@@ -108,9 +108,9 @@ void SOCP
 
 template<typename Real>
 void SOCP
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& BPre, 
-        AbstractDistMatrix<Real>& XPre,
+( const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& BPre, 
+        ElementalMatrix<Real>& XPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::SOCP"))

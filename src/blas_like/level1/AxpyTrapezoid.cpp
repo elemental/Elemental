@@ -76,8 +76,8 @@ void AxpyTrapezoid
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
-  const AbstractDistMatrix<T>& X,
-        AbstractDistMatrix<T>& Y, Int offset )
+  const ElementalMatrix<T>& X,
+        ElementalMatrix<T>& Y, Int offset )
 {
     DEBUG_ONLY(
       CSE cse("AxpyTrapezoid");
@@ -88,8 +88,8 @@ void AxpyTrapezoid
     )
     const T alpha = T(alphaS);
 
-    const DistData XDistData = X.DistData();
-    const DistData YDistData = Y.DistData();
+    const ElementalData XDistData = X.DistData();
+    const ElementalData YDistData = Y.DistData();
 
     if( XDistData == YDistData )
     {
@@ -126,8 +126,7 @@ void AxpyTrapezoid
     }
     else
     {
-        unique_ptr<AbstractDistMatrix<T>> 
-          XCopy( Y.Construct(Y.Grid(),Y.Root()) );
+        unique_ptr<ElementalMatrix<T>> XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
         AxpyTrapezoid( uplo, alpha, *XCopy, Y, offset );
@@ -168,7 +167,7 @@ void AxpyTrapezoid
     const Matrix<T>& A, Matrix<T>& B, Int offset ); \
   template void AxpyTrapezoid \
   ( UpperOrLower uplo, S alpha, \
-    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, Int offset ); \
+    const ElementalMatrix<T>& A, ElementalMatrix<T>& B, Int offset ); \
   template void AxpyTrapezoid \
   ( UpperOrLower uplo, S alpha, \
     const SparseMatrix<T>& A, SparseMatrix<T>& B, Int offset ); \

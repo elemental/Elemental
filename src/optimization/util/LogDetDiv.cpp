@@ -50,7 +50,7 @@ Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("LogDetDiv"))
     AssertSameGrids( A, B );
@@ -100,7 +100,7 @@ Base<F> LogDetDiv
   ( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B ); \
   template Base<F> LogDetDiv \
   ( UpperOrLower uplo, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

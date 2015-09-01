@@ -29,10 +29,10 @@ void SVM
 
 template<typename Real>
 void SVM
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& d, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& d, 
         Real lambda, 
-        AbstractDistMatrix<Real>& x, 
+        ElementalMatrix<Real>& x, 
   const SVMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svm::ADMM"))
@@ -78,10 +78,10 @@ void SVM
           Matrix<Real>& x, \
     const SVMCtrl<Real>& ctrl ); \
   template void SVM \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& d, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& d, \
           Real lambda, \
-          AbstractDistMatrix<Real>& x, \
+          ElementalMatrix<Real>& x, \
     const SVMCtrl<Real>& ctrl ); \
   template void SVM \
   ( const SparseMatrix<Real>& A, \

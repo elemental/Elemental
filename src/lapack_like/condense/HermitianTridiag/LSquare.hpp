@@ -16,7 +16,7 @@ namespace herm_tridiag {
 
 template<typename F> 
 void LSquare
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre,
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre,
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(

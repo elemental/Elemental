@@ -294,8 +294,8 @@ template<typename F>
 inline void
 LUTLarge
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
-        AbstractDistMatrix<F>& XPre )
+  const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre,
+        ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTLarge");
@@ -357,10 +357,10 @@ template<typename Real>
 inline void
 LUTLarge
 ( Orientation orientation, 
-  const AbstractDistMatrix<Real>& UPre, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
-        AbstractDistMatrix<Real>& XRealPre, 
-        AbstractDistMatrix<Real>& XImagPre )
+  const ElementalMatrix<Real>& UPre, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre, 
+        ElementalMatrix<Real>& XRealPre, 
+        ElementalMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTLarge");
@@ -441,8 +441,8 @@ template<typename F>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre, 
-        AbstractDistMatrix<F>& XPre )
+  const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre, 
+        ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTMedium");
@@ -510,10 +510,10 @@ template<typename Real>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const AbstractDistMatrix<Real>& UPre, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
-        AbstractDistMatrix<Real>& XRealPre, 
-        AbstractDistMatrix<Real>& XImagPre )
+  const ElementalMatrix<Real>& UPre, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre, 
+        ElementalMatrix<Real>& XRealPre, 
+        ElementalMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUTMedium");

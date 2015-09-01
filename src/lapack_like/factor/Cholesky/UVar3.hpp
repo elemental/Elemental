@@ -139,7 +139,7 @@ ReverseUVar3( Matrix<F>& A )
 
 template<typename F> 
 inline void
-UVar3( AbstractDistMatrix<F>& APre )
+UVar3( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::UVar3");
@@ -189,7 +189,7 @@ UVar3( AbstractDistMatrix<F>& APre )
 
 template<typename F> 
 inline void
-ReverseUVar3( AbstractDistMatrix<F>& APre )
+ReverseUVar3( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::ReverseUVar3");

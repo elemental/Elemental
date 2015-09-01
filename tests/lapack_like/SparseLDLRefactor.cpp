@@ -15,7 +15,7 @@ template<typename F>
 void MakeFrontsUniform( ldl::Front<F>& front )
 {
     ldl::ChangeFrontType( front, SYMM_2D );
-    MakeUniform( front.L );
+    MakeUniform( front.LDense );
     for( ldl::Front<F>* child : front.children )
         MakeFrontsUniform( *child );
 }

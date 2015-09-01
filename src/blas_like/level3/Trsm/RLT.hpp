@@ -20,8 +20,8 @@ inline void
 RLT
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& LPre,
-        AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(

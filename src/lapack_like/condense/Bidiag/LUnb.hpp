@@ -102,8 +102,8 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 
 template<typename F> 
 inline void LUnb
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<F>& tPPre, AbstractDistMatrix<F>& tQPre )
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& tPPre, ElementalMatrix<F>& tQPre )
 {
     DEBUG_ONLY(
         CSE cse("bidiag::LUnb");

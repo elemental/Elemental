@@ -14,12 +14,12 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   Pencil pencil, UpperOrLower uplo,
-  const AbstractDistMatrix<F>& AOrig,
-  const AbstractDistMatrix<F>& BOrig,
-  const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B,
-  const AbstractDistMatrix<Base<F>>& w,
-  const AbstractDistMatrix<F>& X )
+  const ElementalMatrix<F>& AOrig,
+  const ElementalMatrix<F>& BOrig,
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B,
+  const ElementalMatrix<Base<F>>& w,
+  const ElementalMatrix<F>& X )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();

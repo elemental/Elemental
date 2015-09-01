@@ -221,29 +221,37 @@ struct Ctrl
 template<typename Real>
 void LP
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c,
-        Matrix<Real>& x,       Matrix<Real>& y,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
 void LP
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,       const Matrix<Real>& c,
-        Matrix<Real>& x,             Matrix<Real>& y,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 
@@ -251,35 +259,51 @@ void LP
 // -----------------
 template<typename Real>
 void LP
-( const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
+( const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c,
+( const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+( const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 
 // Quadratic program
@@ -351,13 +375,15 @@ namespace box {
 // -------------------------------------------
 template<typename Real>
 Int ADMM
-( const Matrix<Real>& Q, const Matrix<Real>& C, 
+( const Matrix<Real>& Q,
+  const Matrix<Real>& C, 
   Real lb, Real ub, Matrix<Real>& X, 
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 template<typename Real>
 Int ADMM
-( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& C, 
-  Real lb, Real ub, AbstractDistMatrix<Real>& X,
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& C, 
+  Real lb, Real ub, ElementalMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 
 } // namespace box
@@ -368,30 +394,42 @@ Int ADMM
 // -----------------
 template<typename Real>
 void QP
-( const Matrix<Real>& Q, const Matrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c,
-        Matrix<Real>& x,       Matrix<Real>& y,
+( const Matrix<Real>& Q,
+  const Matrix<Real>& A, 
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
-( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
-( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,       const Matrix<Real>& c,
-        Matrix<Real>& x,             Matrix<Real>& y,
+( const SparseMatrix<Real>& Q,
+  const SparseMatrix<Real>& A, 
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
-( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
+( const DistSparseMatrix<Real>& Q,
+  const DistSparseMatrix<Real>& A, 
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 
@@ -400,38 +438,54 @@ void QP
 template<typename Real>
 void QP
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c,
+  const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void QP
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void QP
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c,
+  const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
   const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void QP
 ( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c,
+  const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 
 // Second-order Cone Program
@@ -522,14 +576,14 @@ void SOCP
   const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x,       
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& x,       
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,       
   const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
 template<typename Real>
 void SOCP
@@ -572,17 +626,17 @@ void SOCP
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, 
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x,       
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& x,       
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,       
+        ElementalMatrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP

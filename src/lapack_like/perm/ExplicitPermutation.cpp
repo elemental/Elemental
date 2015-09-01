@@ -24,7 +24,7 @@ void ExplicitPermutation( const Matrix<Int>& p, Matrix<Int>& P )
 }
 
 void ExplicitPermutation
-( const AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& P )
+( const ElementalMatrix<Int>& p, ElementalMatrix<Int>& P )
 {
     DEBUG_ONLY(
         CSE cse("ExplicitPermutation");

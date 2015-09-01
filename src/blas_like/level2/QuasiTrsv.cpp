@@ -40,7 +40,7 @@ void QuasiTrsv
 template<typename F>
 void QuasiTrsv
 ( UpperOrLower uplo, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x, 
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& x, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("QuasiTrsv"))
@@ -66,7 +66,7 @@ void QuasiTrsv
     const Matrix<F>& A, Matrix<F>& x, bool checkIfSingular ); \
   template void QuasiTrsv \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x, \
+    const ElementalMatrix<F>& A, ElementalMatrix<F>& x, \
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO

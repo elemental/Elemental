@@ -149,8 +149,8 @@ inline void TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre, Base<F> tol )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
         CSE cse("svd::TallAbsoluteThresholded");
@@ -230,8 +230,8 @@ TallAbsoluteThresholded
 template<typename F>
 inline void
 TallRelativeThresholded
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre, Base<F> relTol )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
         CSE cse("svd::TallRelativeThresholded");
@@ -299,8 +299,8 @@ TallRelativeThresholded
 
 template<typename F>
 inline void TallThresholded
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
@@ -312,8 +312,8 @@ inline void TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& sPre, 
-  AbstractDistMatrix<F>& VPre, Base<F> tol )
+( DistMatrix<F,VC,STAR>& A, ElementalMatrix<Base<F>>& sPre, 
+  ElementalMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
         CSE cse("svd::TallAbsoluteThresholded");
@@ -392,8 +392,8 @@ TallAbsoluteThresholded
 template<typename F>
 inline void
 TallRelativeThresholded
-( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& sPre, 
-  AbstractDistMatrix<F>& VPre, Base<F> relTol )
+( DistMatrix<F,VC,STAR>& A, ElementalMatrix<Base<F>>& sPre, 
+  ElementalMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
         CSE cse("svd::TallRelativeThresholded");
@@ -461,8 +461,8 @@ TallRelativeThresholded
 
 template<typename F>
 void TallThresholded
-( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
+( DistMatrix<F,VC,STAR>& A, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
@@ -607,8 +607,8 @@ inline void WideThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre, Base<F> tol )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
         CSE cse("svd::WideAbsoluteThresholded");
@@ -688,8 +688,8 @@ WideAbsoluteThresholded
 template<typename F>
 inline void
 WideRelativeThresholded
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre, Base<F> relTol )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
         CSE cse("svd::WideRelativeThresholded");
@@ -757,8 +757,8 @@ WideRelativeThresholded
 
 template<typename F>
 inline void WideThresholded
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::WideThresholded"))
     if( relative )
@@ -784,8 +784,8 @@ void Thresholded
 
 template<typename F>
 void Thresholded
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )

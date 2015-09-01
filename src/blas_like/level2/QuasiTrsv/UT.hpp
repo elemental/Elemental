@@ -169,7 +169,7 @@ template<typename F>
 inline void
 UT
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& xPre,
+  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(

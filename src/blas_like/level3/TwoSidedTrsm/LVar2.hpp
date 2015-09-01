@@ -82,7 +82,7 @@ template<typename F>
 inline void
 LVar2
 ( UnitOrNonUnit diag, 
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& L )
+  ElementalMatrix<F>& A, const ElementalMatrix<F>& L )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::LVar2");

@@ -51,11 +51,11 @@ void SOCDots
 // TODO: An alternate, trivial implementation to benchmark against
 template<typename Real>
 void SOCDots
-( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& yPre,
-        AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Real>& yPre,
+        ElementalMatrix<Real>& zPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCDots"))
@@ -293,11 +293,11 @@ void SOCDots
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCDots \
-  ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCDots \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \

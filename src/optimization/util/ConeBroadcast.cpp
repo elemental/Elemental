@@ -47,9 +47,9 @@ void ConeBroadcast
 // TODO: Use lower-level access
 template<typename Real>
 void ConeBroadcast
-(       AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+(       ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ConeBroadcast"))
@@ -259,9 +259,9 @@ void ConeBroadcast
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void ConeBroadcast \
-  (       AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  (       ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void ConeBroadcast \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

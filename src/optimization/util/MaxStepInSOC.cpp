@@ -208,10 +208,10 @@ Real MaxStepInSOC
 
 template<typename Real>
 Real MaxStepInSOC
-( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& yPre, 
-  const AbstractDistMatrix<Int>& ordersPre,
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Real>& yPre, 
+  const ElementalMatrix<Int>& ordersPre,
+  const ElementalMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
@@ -324,10 +324,10 @@ Real MaxStepInSOC
     const Matrix<Int>& firstInds, \
     Real upperBound ); \
   template Real MaxStepInSOC \
-  ( const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& ds, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
+  ( const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& ds, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
     Real upperBound, Int cutoff ); \
   template Real MaxStepInSOC \
   ( const DistMultiVec<Real>& s, \

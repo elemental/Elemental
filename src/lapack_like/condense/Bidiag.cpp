@@ -26,8 +26,8 @@ void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 
 template<typename F> 
 void Bidiag
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ )
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ )
 {
     DEBUG_ONLY(CSE cse("Bidiag"))
     if( A.Height() >= A.Width() )
@@ -70,8 +70,8 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
 
 template<typename F>
 void Explicit
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<F>& PPre, AbstractDistMatrix<F>& QPre )
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& PPre, ElementalMatrix<F>& QPre )
 {
     DEBUG_ONLY(CSE cse("bidiag::Explicit"))
 
@@ -124,7 +124,7 @@ void ExplicitCondensed( Matrix<F>& A )
 }
 
 template<typename F> 
-void ExplicitCondensed( AbstractDistMatrix<F>& A )
+void ExplicitCondensed( ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("bidiag::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> tP(A.Grid()), tQ(A.Grid());
@@ -146,28 +146,28 @@ void ExplicitCondensed( AbstractDistMatrix<F>& A )
 #define PROTO(F) \
   template void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ ); \
   template void Bidiag \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ ); \
   template void bidiag::Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q ); \
   template void bidiag::Explicit \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& Q ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& P, ElementalMatrix<F>& Q ); \
   template void bidiag::ExplicitCondensed( Matrix<F>& A ); \
-  template void bidiag::ExplicitCondensed( AbstractDistMatrix<F>& A ); \
+  template void bidiag::ExplicitCondensed( ElementalMatrix<F>& A ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
-          AbstractDistMatrix<F>& B ); \
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+          ElementalMatrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
-          AbstractDistMatrix<F>& B );
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+          ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -227,6 +227,15 @@ Dist StringToDist( std::string s );
 using namespace DistNS;
 typedef Dist Distribution;
 
+namespace DistWrapNS {
+enum DistWrap {
+    ELEMENTAL,
+    BLOCK_CYCLIC,
+    BLOCK_NONCYCLIC
+};
+}
+using namespace DistWrapNS;
+
 // Return either the row or column piece of the implied diagonal distribution
 // ==========================================================================
 

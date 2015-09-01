@@ -17,9 +17,9 @@ template<typename T>
 void TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  T alpha, const ElementalMatrix<T>& APre,
+           const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("trrk::TrrkNT");

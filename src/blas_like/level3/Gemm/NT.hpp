@@ -15,8 +15,8 @@ template<typename T>
 inline void
 SUMMA_NTA
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTA");
@@ -66,8 +66,8 @@ template<typename T>
 inline void
 SUMMA_NTB
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTB");
@@ -120,8 +120,8 @@ template<typename T>
 inline void
 SUMMA_NTC
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre )
+  T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTC");
@@ -174,8 +174,8 @@ template<typename T>
 inline void
 SUMMA_NT
 ( Orientation orientB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CSE cse("gemm::SUMMA_NT"))
     const Int m = C.Height();

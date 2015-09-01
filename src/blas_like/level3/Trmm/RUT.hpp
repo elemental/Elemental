@@ -71,7 +71,7 @@ template<typename T>
 inline void
 RUTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUTA");
@@ -116,7 +116,7 @@ template<typename T>
 inline void
 RUTC
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUTC");
@@ -173,7 +173,7 @@ template<typename T>
 inline void
 RUT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
+  const ElementalMatrix<T>& U, ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::RUT"))
     // TODO: Come up with a better routing mechanism

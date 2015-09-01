@@ -76,21 +76,21 @@ void BuildChildFromPerm
 template<typename Real>
 ValueInt<Real> Median( const Matrix<Real>& x );
 template<typename Real>
-ValueInt<Real> Median( const AbstractDistMatrix<Real>& x );
+ValueInt<Real> Median( const ElementalMatrix<Real>& x );
 
 // Sort
 // ====
 template<typename Real>
 void Sort( Matrix<Real>& X, SortType sort=ASCENDING );
 template<typename Real>
-void Sort( AbstractDistMatrix<Real>& X, SortType sort=ASCENDING );
+void Sort( ElementalMatrix<Real>& X, SortType sort=ASCENDING );
 
 template<typename Real>
 vector<ValueInt<Real>> TaggedSort
 ( const Matrix<Real>& x, SortType sort=ASCENDING );
 template<typename Real>
 vector<ValueInt<Real>> TaggedSort
-( const AbstractDistMatrix<Real>& x, SortType sort=ASCENDING );
+( const ElementalMatrix<Real>& x, SortType sort=ASCENDING );
 
 } // namespace El
 

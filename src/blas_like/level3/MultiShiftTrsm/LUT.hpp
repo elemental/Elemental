@@ -43,8 +43,8 @@ template<typename F>
 inline void
 LUT
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
-        AbstractDistMatrix<F>& XPre ) 
+  const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre,
+        ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUT"))
 

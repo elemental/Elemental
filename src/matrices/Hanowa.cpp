@@ -39,7 +39,7 @@ void Hanowa( Matrix<T>& A, Int n, T mu )
 }
 
 template<typename T>
-void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
+void Hanowa( ElementalMatrix<T>& A, Int n, T mu )
 {
     DEBUG_ONLY(CSE cse("Hanowa"))
     if( n % 2 != 0 )
@@ -50,8 +50,7 @@ void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
 
     for( Int j=0; j<m; ++j )
         d[j] = mu;
-    unique_ptr<AbstractDistMatrix<T>> 
-      ABlock( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<T>> ABlock( A.Construct(A.Grid(),A.Root()) );
     View( *ABlock, A, IR(0,m), IR(0,m) );
     Diagonal( *ABlock, d );
     View( *ABlock, A, IR(m,2*m), IR(m,2*m) );
@@ -68,11 +67,9 @@ void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
     Diagonal( *ABlock, d );
 }
 
-// TODO: AbstractBlockDistMatrix version
-
 #define PROTO(T) \
   template void Hanowa( Matrix<T>& A, Int n, T mu ); \
-  template void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu );
+  template void Hanowa( ElementalMatrix<T>& A, Int n, T mu );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

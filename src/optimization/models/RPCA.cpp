@@ -27,7 +27,7 @@ inline void NormalizeEntries( Matrix<F>& A )
 }
 
 template<typename F>
-inline void NormalizeEntries( AbstractDistMatrix<F>& A )
+inline void NormalizeEntries( ElementalMatrix<F>& A )
 { 
     auto unitMap = []( F alpha ) 
                    { return alpha==F(0) ? F(1) : alpha/Abs(alpha); };
@@ -132,8 +132,8 @@ inline void ADMM
 
 template<typename F>
 inline void ADMM
-( const AbstractDistMatrix<F>& MPre, AbstractDistMatrix<F>& LPre, 
-        AbstractDistMatrix<F>& SPre, const RPCACtrl<Base<F>>& ctrl )
+( const ElementalMatrix<F>& MPre, ElementalMatrix<F>& LPre, 
+        ElementalMatrix<F>& SPre, const RPCACtrl<Base<F>>& ctrl )
 {
     auto MPtr = ReadProxy<F,MC,MR>( &MPre ); auto& M = *MPtr;
     auto LPtr = WriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
@@ -373,8 +373,8 @@ inline void ALM
 
 template<typename F>
 inline void ALM
-( const AbstractDistMatrix<F>& MPre, 
-        AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& SPre, 
+( const ElementalMatrix<F>& MPre, 
+        ElementalMatrix<F>& LPre, ElementalMatrix<F>& SPre, 
   const RPCACtrl<Base<F>>& ctrl )
 {
     auto MPtr = ReadProxy<F,MC,MR>( &MPre ); auto& M = *MPtr;
@@ -530,8 +530,8 @@ void RPCA
 
 template<typename F>
 void RPCA
-( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, 
-        AbstractDistMatrix<F>& S,
+( const ElementalMatrix<F>& M, ElementalMatrix<F>& L, 
+        ElementalMatrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("RPCA"))
@@ -546,8 +546,8 @@ void RPCA
   ( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S, \
     const RPCACtrl<Base<F>>& ctrl ); \
   template void RPCA \
-  ( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, \
-          AbstractDistMatrix<F>& S, const RPCACtrl<Base<F>>& ctrl );
+  ( const ElementalMatrix<F>& M, ElementalMatrix<F>& L, \
+          ElementalMatrix<F>& S, const RPCACtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

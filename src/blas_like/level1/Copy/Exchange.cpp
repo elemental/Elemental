@@ -13,8 +13,8 @@ namespace copy {
 
 template<typename T>
 void Exchange
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& B, 
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& B, 
   int sendRank, int recvRank, mpi::Comm comm )
 {
     DEBUG_ONLY(
@@ -104,7 +104,7 @@ void Exchange
 
 #define PROTO(T) \
   template void Exchange \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B, \
     int sendRank, int recvRank, mpi::Comm comm );
 
 #define EL_ENABLE_QUAD

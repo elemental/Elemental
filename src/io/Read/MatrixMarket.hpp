@@ -220,7 +220,7 @@ MatrixMarket( Matrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
+MatrixMarket( ElementalMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::MatrixMarket"))
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
@@ -236,10 +236,10 @@ MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-MatrixMarket( AbstractBlockDistMatrix<T>& A, const string filename )
+MatrixMarket( BlockCyclicMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::MatrixMarket"))
-    BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
+    DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
     {
         MatrixMarket( A_CIRC_CIRC.Matrix(), filename );

@@ -28,7 +28,7 @@ void TwoSidedTrsm
 template<typename F> 
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
+  ElementalMatrix<F>& A, const ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
     if( uplo == LOWER )
@@ -49,7 +49,7 @@ void TwoSidedTrsm
     Matrix<F>& A, const Matrix<F>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B ); \
+    ElementalMatrix<F>& A, const ElementalMatrix<F>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
     DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B );

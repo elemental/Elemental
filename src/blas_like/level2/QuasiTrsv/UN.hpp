@@ -146,7 +146,7 @@ UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 template<typename F>
 inline void
 UN
-( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& xPre,
+( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(

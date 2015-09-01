@@ -70,7 +70,7 @@ void SymmetricDiagonalSolve
 template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<FDiag>& dPre, 
+  const ElementalMatrix<FDiag>& dPre, 
         DistMatrix<F,U,V>& A,
   bool checkIfSingular )
 {
@@ -107,8 +107,8 @@ void DiagonalSolve
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<FDiag>& d,
-        AbstractDistMatrix<F>& A,
+  const ElementalMatrix<FDiag>& d,
+        ElementalMatrix<F>& A,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("DiagonalSolve"))
@@ -361,14 +361,14 @@ void DiagonalSolve
 #define DIST_PROTO(T,U,V) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
+    const ElementalMatrix<T>& d, \
           DistMatrix<T,U,V>& A, \
     bool checkIfSingular );
 
 #define DIST_PROTO_REAL(T,U,V) \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, \
+    const ElementalMatrix<T>& d, \
           DistMatrix<Complex<T>,U,V>& A, \
     bool checkIfSingular );
 
@@ -383,8 +383,8 @@ void DiagonalSolve
           Matrix<F>& A ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<F>& d, \
-          AbstractDistMatrix<F>& A, \
+    const ElementalMatrix<F>& d, \
+          ElementalMatrix<F>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
@@ -431,8 +431,8 @@ void DiagonalSolve
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<Real>& d, \
-          AbstractDistMatrix<Complex<Real>>& A, \
+    const ElementalMatrix<Real>& d, \
+          ElementalMatrix<Complex<Real>>& A, \
     bool checkIfSingular ); \
   template void DiagonalSolve \
   ( LeftOrRight side, Orientation orientation, \

@@ -166,7 +166,7 @@ QDWH( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 template<typename F>
 inline Int 
 QDWHInner
-( AbstractDistMatrix<F>& APre, Base<F> sMinUpper, const PolarCtrl& ctrl )
+( ElementalMatrix<F>& APre, Base<F> sMinUpper, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWHInner"))
 
@@ -261,7 +261,7 @@ QDWHInner
 
 template<typename F>
 inline Int 
-QDWH( AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
+QDWH( ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
 
@@ -302,7 +302,7 @@ QDWH( AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
 template<typename F>
 inline Int 
 QDWH
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre, 
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre, 
   const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
@@ -463,7 +463,7 @@ QDWH
 template<typename F>
 inline int
 QDWHInner
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, Base<F> sMinUpper, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre, Base<F> sMinUpper, 
   const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
@@ -563,7 +563,7 @@ QDWHInner
 
 template<typename F>
 inline Int 
-QDWH( UpperOrLower uplo, AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
+QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
 
@@ -593,7 +593,7 @@ QDWH( UpperOrLower uplo, AbstractDistMatrix<F>& APre, const PolarCtrl& ctrl )
 template<typename F>
 inline Int
 QDWH
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre, 
   const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))

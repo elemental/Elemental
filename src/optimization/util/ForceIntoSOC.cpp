@@ -35,9 +35,9 @@ void ForceIntoSOC
 
 template<typename Real>
 void ForceIntoSOC
-(       AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+(       ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Real minDist, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ForceIntoSOC"))
@@ -98,9 +98,9 @@ void ForceIntoSOC
     const Matrix<Int>& firstInds, \
     Real minDist ); \
   template void ForceIntoSOC \
-  (       AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
+  (       ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
     Real minDist, Int cutoff ); \
   template void ForceIntoSOC \
   (       DistMultiVec<Real>& x, \

@@ -111,7 +111,7 @@ Var3( Matrix<F>& A, bool conjugate=false )
 
 template<typename F>
 inline void
-Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
+Var3( ElementalMatrix<F>& APre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("ldl::Var3");

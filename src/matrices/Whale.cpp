@@ -52,28 +52,9 @@ void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
     FillDiagonal( A, C( 0, 1), -4 );
 }
 
-template<typename Real>
-void Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("Whale"))
-    if( n < 5 )
-        LogicError("Must be at least 5x5 to have a fourth-order symbol");
-    typedef Complex<Real> C;
-    Zeros( A, n, n );
-    FillDiagonal( A, C(-1),     4 );
-    FillDiagonal( A, C(-3,-2),  3 );
-    FillDiagonal( A, C( 0, 1),  2 );
-    FillDiagonal( A, C(1),      1 );
-    FillDiagonal( A, C(10),    -1 );
-    FillDiagonal( A, C( 3, 1), -2 );
-    FillDiagonal( A, C(4),     -3 );
-    FillDiagonal( A, C( 0, 1), -4 );
-}
-
 #define PROTO(Real) \
   template void Whale( Matrix<Complex<Real>>& A, Int n ); \
-  template void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
-  template void Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+  template void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

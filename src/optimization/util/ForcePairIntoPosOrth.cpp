@@ -32,9 +32,9 @@ void ForcePairIntoPosOrth
 
 template<typename Real>
 void ForcePairIntoPosOrth
-(       AbstractDistMatrix<Real>& sPre, 
-        AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Real>& wPre,
+(       ElementalMatrix<Real>& sPre, 
+        ElementalMatrix<Real>& zPre,
+  const ElementalMatrix<Real>& wPre,
   Real wMaxNormLimit )
 {
     DEBUG_ONLY(CSE cse("ForcePairIntoPosOrth"))
@@ -90,9 +90,9 @@ void ForcePairIntoPosOrth
     const Matrix<Real>& w, \
     Real wMaxNormLimit ); \
   template void ForcePairIntoPosOrth \
-  (       AbstractDistMatrix<Real>& s, \
-          AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Real>& w, \
+  (       ElementalMatrix<Real>& s, \
+          ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Real>& w, \
     Real wMaxNormLimit ); \
   template void ForcePairIntoPosOrth \
   (       DistMultiVec<Real>& s, \

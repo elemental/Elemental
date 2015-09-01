@@ -46,9 +46,9 @@ void Helper
 
 template<typename Real>
 void Helper
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
-        AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
+        ElementalMatrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bp::Helper"))
@@ -65,9 +65,9 @@ void Helper
 
 template<typename Real>
 void Helper
-( const AbstractDistMatrix<Complex<Real>>& A, 
-  const AbstractDistMatrix<Complex<Real>>& b, 
-        AbstractDistMatrix<Complex<Real>>& x,
+( const ElementalMatrix<Complex<Real>>& A, 
+  const ElementalMatrix<Complex<Real>>& b, 
+        ElementalMatrix<Complex<Real>>& x,
   const BPCtrl<Complex<Real>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bp::Helper"))
@@ -140,9 +140,9 @@ void BP
 
 template<typename F>
 void BP
-( const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& b,
-        AbstractDistMatrix<F>& x,
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& b,
+        ElementalMatrix<F>& x,
   const BPCtrl<F>& ctrl )
 { bp::Helper( A, b, x, ctrl ); }
 
@@ -169,9 +169,9 @@ void BP
           Matrix<F>& x, \
     const BPCtrl<F>& ctrl ); \
   template void BP \
-  ( const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& b, \
-          AbstractDistMatrix<F>& x, \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& b, \
+          ElementalMatrix<F>& x, \
     const BPCtrl<F>& ctrl ); \
   template void BP \
   ( const SparseMatrix<F>& A, \

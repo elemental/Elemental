@@ -14,16 +14,16 @@ namespace transpose {
 // (V,Partial(U)) |-> (U,V)
 template<typename T>
 void PartialColFilter
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& B, bool conjugate )
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::PartialColFilter");
-        if( A.ColDist() != B.RowDist() ||
-            A.RowDist() != Partial(B.ColDist()) )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::PartialColFilter");
+      if( A.ColDist() != B.RowDist() ||
+          A.RowDist() != Partial(B.ColDist()) )
+          LogicError("Incompatible distributions");
     )
-    unique_ptr<AbstractDistMatrix<T>>
+    unique_ptr<ElementalMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, false );
@@ -40,16 +40,16 @@ void PartialColFilter
 
 template<typename T>
 void PartialColFilter
-( const AbstractBlockDistMatrix<T>& A, 
-        AbstractBlockDistMatrix<T>& B, bool conjugate )
+( const BlockCyclicMatrix<T>& A, 
+        BlockCyclicMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::PartialColFilter");
-        if( A.ColDist() != B.RowDist() ||
-            A.RowDist() != Partial(B.ColDist()) )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::PartialColFilter");
+      if( A.ColDist() != B.RowDist() ||
+          A.RowDist() != Partial(B.ColDist()) )
+          LogicError("Incompatible distributions");
     )
-    unique_ptr<AbstractBlockDistMatrix<T>>
+    unique_ptr<BlockCyclicMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, false );
@@ -66,11 +66,11 @@ void PartialColFilter
 
 #define PROTO(T) \
   template void PartialColFilter \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B, bool conjugate ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, bool conjugate ); \
   template void PartialColFilter \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<T>& B, bool conjugate );
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

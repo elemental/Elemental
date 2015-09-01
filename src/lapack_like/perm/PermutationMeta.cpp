@@ -11,8 +11,8 @@
 namespace El {
 
 PermutationMeta::PermutationMeta
-( const AbstractDistMatrix<Int>& perm,
-  const AbstractDistMatrix<Int>& invPerm )
+( const ElementalMatrix<Int>& perm,
+  const ElementalMatrix<Int>& invPerm )
 {
     DEBUG_ONLY(
         CSE cse("PermutationMeta::PermutationMeta");

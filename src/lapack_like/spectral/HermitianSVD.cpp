@@ -56,8 +56,8 @@ void HermitianSVD
 // TODO: Add support for HermitianEigSubset and HermitianEigCtrl
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& U, AbstractDistMatrix<F>& V )
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& U, ElementalMatrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("HermitianSVD"))
 
@@ -105,7 +105,7 @@ void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s )
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s )
 {
     DEBUG_ONLY(CSE cse("HermitianSVD"))
 
@@ -124,15 +124,15 @@ void HermitianSVD
   template void HermitianSVD \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s ); \
   template void HermitianSVD \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& s ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& s ); \
   template void HermitianSVD \
   ( UpperOrLower uplo, Matrix<F>& A, \
     Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V ); \
   template void HermitianSVD \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, \
-    AbstractDistMatrix<F>& V );
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& s, ElementalMatrix<F>& U, \
+    ElementalMatrix<F>& V );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

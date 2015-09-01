@@ -20,8 +20,8 @@ inline void
 RUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(

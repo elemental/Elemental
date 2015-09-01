@@ -36,7 +36,7 @@ void HermitianFunction
 
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
+( UpperOrLower uplo, ElementalMatrix<F>& APre,
   function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CSE cse("HermitianFunction [Real]"))
@@ -96,7 +96,7 @@ void HermitianFunction
 
 template<typename Real>
 void HermitianFunction
-( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& APre, 
+( UpperOrLower uplo, ElementalMatrix<Complex<Real>>& APre, 
   function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CSE cse("HermitianFunction [Complex]"))
@@ -134,7 +134,7 @@ void HermitianFunction
   ( UpperOrLower uplo, Matrix<F>& A, \
     function<Base<F>(Base<F>)> func ); \
   template void HermitianFunction \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     function<Base<F>(Base<F>)> func );
 
 #define PROTO_REAL(Real) \
@@ -143,7 +143,7 @@ void HermitianFunction
   ( UpperOrLower uplo, Matrix<Complex<Real>>& A, \
     function<Complex<Real>(Real)> func ); \
   template void HermitianFunction \
-  ( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& A, \
+  ( UpperOrLower uplo, ElementalMatrix<Complex<Real>>& A, \
     function<Complex<Real>(Real)> func );
 
 #define EL_NO_INT_PROTO

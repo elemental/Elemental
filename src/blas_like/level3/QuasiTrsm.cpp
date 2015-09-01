@@ -22,7 +22,7 @@ namespace El {
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -116,7 +116,7 @@ void QuasiTrsm
 template<typename F>
 void LocalQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X,
+  F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -209,11 +209,11 @@ void QuasiTrsm
     F alpha, const Matrix<F>& A, Matrix<F>& B, bool checkIfSingular ); \
   template void QuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
     bool checkIfSingular ); \
   template void LocalQuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X, \
+    F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X, \
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO

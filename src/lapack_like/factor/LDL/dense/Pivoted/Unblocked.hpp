@@ -132,8 +132,8 @@ Unblocked
 template<typename F>
 inline void
 Unblocked
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& dSub, 
-  AbstractDistMatrix<Int>& p, bool conjugate=false, 
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& dSub, 
+  ElementalMatrix<Int>& p, bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(

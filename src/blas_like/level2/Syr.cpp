@@ -44,8 +44,8 @@ void Syr
 template<typename T>
 void Syr
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& x,
-                 AbstractDistMatrix<T>& APre, bool conjugate )
+  T alpha, const ElementalMatrix<T>& x,
+                 ElementalMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("Syr");
@@ -155,7 +155,7 @@ void Syr
     const Matrix<T>& x, Matrix<T>& A, bool conjugate ); \
   template void Syr \
   ( UpperOrLower uplo, T alpha, \
-    const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A, bool conjugate );
+    const ElementalMatrix<T>& x, ElementalMatrix<T>& A, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

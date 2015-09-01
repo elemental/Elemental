@@ -17,29 +17,29 @@ template<typename T>
 void Merge1x2( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR )
 {
     DEBUG_ONLY(
-        CSE cse("Merge1x2");
-        if( BL.Locked() || BR.Locked() )
-            LogicError("Cannot grab an unlocked view of a locked matrix");
-        if( BL.Height() != BR.Height() )
-            LogicError("1x2 must have consistent height to combine");
-        if( BL.LDim() != BR.LDim() )
-            LogicError("1x2 must have consistent ldims to combine");
-        if( BR.Buffer() != (BL.Buffer()+BL.LDim()*BL.Width()) )
-            LogicError("1x2 must have contiguous memory");
+      CSE cse("Merge1x2");
+      if( BL.Locked() || BR.Locked() )
+          LogicError("Cannot grab an unlocked view of a locked matrix");
+      if( BL.Height() != BR.Height() )
+          LogicError("1x2 must have consistent height to combine");
+      if( BL.LDim() != BR.LDim() )
+          LogicError("1x2 must have consistent ldims to combine");
+      if( BR.Buffer() != (BL.Buffer()+BL.LDim()*BL.Width()) )
+          LogicError("1x2 must have contiguous memory");
     )
     A.Attach( BL.Height(), BL.Width()+BR.Width(), BL.Buffer(), BL.LDim() );
 }
 
 template<typename T>
 void Merge1x2
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& BL, AbstractDistMatrix<T>& BR )
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& BL, ElementalMatrix<T>& BR )
 {
     DEBUG_ONLY(
-        CSE cse("Merge1x2");
-        AssertSameGrids( A, BL, BR );
-        AssertSameDists( A, BL, BR );
-        AssertConforming1x2( BL, BR );
+      CSE cse("Merge1x2");
+      AssertSameGrids( A, BL, BR );
+      AssertSameDists( A, BL, BR );
+      AssertConforming1x2( BL, BR );
     )
     A.Attach
     ( BL.Height(), BL.Width()+BR.Width(), BL.Grid(), 
@@ -50,13 +50,13 @@ template<typename T>
 void LockedMerge1x2( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR )
 {
     DEBUG_ONLY(
-        CSE cse("LockedMerge1x2");
-        if( BL.Height() != BR.Height() )
-            LogicError("1x2 must have consistent height to combine");
-        if( BL.LDim() != BR.LDim() )
-            LogicError("1x2 must have consistent ldims to combine");
-        if( BR.LockedBuffer() != (BL.LockedBuffer()+BL.LDim()*BL.Width()) )
-            LogicError("1x2 must have contiguous memory");
+      CSE cse("LockedMerge1x2");
+      if( BL.Height() != BR.Height() )
+          LogicError("1x2 must have consistent height to combine");
+      if( BL.LDim() != BR.LDim() )
+          LogicError("1x2 must have consistent ldims to combine");
+      if( BR.LockedBuffer() != (BL.LockedBuffer()+BL.LDim()*BL.Width()) )
+          LogicError("1x2 must have contiguous memory");
     )
     A.LockedAttach
     ( BL.Height(), BL.Width()+BR.Width(), BL.LockedBuffer(), BL.LDim() );
@@ -64,14 +64,14 @@ void LockedMerge1x2( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR )
 
 template<typename T>
 void LockedMerge1x2
-(       AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& BL, const AbstractDistMatrix<T>& BR )
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& BL, const ElementalMatrix<T>& BR )
 {
     DEBUG_ONLY(
-        CSE cse("LockedMerge1x2");
-        AssertSameGrids( A, BL, BR );
-        AssertSameDists( A, BL, BR );
-        AssertConforming1x2( BL, BR );
+      CSE cse("LockedMerge1x2");
+      AssertSameGrids( A, BL, BR );
+      AssertSameDists( A, BL, BR );
+      AssertConforming1x2( BL, BR );
     )
     A.LockedAttach
     ( BL.Height(), BL.Width()+BR.Width(), BL.Grid(), 
@@ -121,29 +121,29 @@ template<typename T>
 void Merge2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 {
     DEBUG_ONLY(
-        CSE cse("Merge2x1");
-        if( BT.Locked() || BB.Locked() )
-            LogicError("Cannot grab an unlocked view of a locked matrix");
-        if( BT.Width() != BB.Width() )
-            LogicError("2x1 must have consistent width to combine");
-        if( BT.LDim() != BB.LDim() )
-            LogicError("2x1 must have consistent ldim to combine");
-        if( BB.Buffer() != (BT.Buffer() + BT.Height()) )
-            LogicError("2x1 must have contiguous memory");
+      CSE cse("Merge2x1");
+      if( BT.Locked() || BB.Locked() )
+          LogicError("Cannot grab an unlocked view of a locked matrix");
+      if( BT.Width() != BB.Width() )
+          LogicError("2x1 must have consistent width to combine");
+      if( BT.LDim() != BB.LDim() )
+          LogicError("2x1 must have consistent ldim to combine");
+      if( BB.Buffer() != (BT.Buffer() + BT.Height()) )
+          LogicError("2x1 must have contiguous memory");
     )
     A.Attach( BT.Height()+BB.Height(), BT.Width(), BT.Buffer(), BT.LDim() );
 }
 
 template<typename T>
 void Merge2x1
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& BT, AbstractDistMatrix<T>& BB )
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& BT, ElementalMatrix<T>& BB )
 {
     DEBUG_ONLY(
-        CSE cse("Merge2x1");
-        AssertSameGrids( A, BT, BB );
-        AssertSameDists( A, BT, BB );
-        AssertConforming2x1( BT, BB );
+      CSE cse("Merge2x1");
+      AssertSameGrids( A, BT, BB );
+      AssertSameDists( A, BT, BB );
+      AssertConforming2x1( BT, BB );
     )
     A.Attach
     ( BT.Height()+BB.Height(), BT.Width(), BT.Grid(), 
@@ -154,13 +154,13 @@ template<typename T>
 void LockedMerge2x1( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB )
 {
     DEBUG_ONLY(
-        CSE cse("LockedMerge2x1");
-        if( BT.Width() != BB.Width() )
-            LogicError("2x1 must have consistent width to combine");
-        if( BT.LDim() != BB.LDim() )
-            LogicError("2x1 must have consistent ldim to combine");
-        if( BB.LockedBuffer() != (BT.LockedBuffer() + BT.Height()) )
-            LogicError("2x1 must have contiguous memory");
+      CSE cse("LockedMerge2x1");
+      if( BT.Width() != BB.Width() )
+          LogicError("2x1 must have consistent width to combine");
+      if( BT.LDim() != BB.LDim() )
+          LogicError("2x1 must have consistent ldim to combine");
+      if( BB.LockedBuffer() != (BT.LockedBuffer() + BT.Height()) )
+          LogicError("2x1 must have contiguous memory");
     )
     A.LockedAttach
     ( BT.Height()+BB.Height(), BT.Width(), BT.LockedBuffer(), BT.LDim() );
@@ -168,15 +168,15 @@ void LockedMerge2x1( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB )
 
 template<typename T>
 void LockedMerge2x1
-(       AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& BT,
-  const AbstractDistMatrix<T>& BB )
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& BT,
+  const ElementalMatrix<T>& BB )
 {
     DEBUG_ONLY(
-        CSE cse("LockedMerge2x1");
-        AssertSameGrids( A, BT, BB );
-        AssertSameDists( A, BT, BB );
-        AssertConforming2x1( BT, BB );
+      CSE cse("LockedMerge2x1");
+      AssertSameGrids( A, BT, BB );
+      AssertSameDists( A, BT, BB );
+      AssertConforming2x1( BT, BB );
     )
     A.LockedAttach
     ( BT.Height()+BB.Height(), BT.Width(), BT.Grid(), 
@@ -229,22 +229,22 @@ void Merge2x2
   Matrix<T>& BBL, Matrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CSE cse("Merge2x2");
-        if( BTL.Locked() || BTR.Locked() || BBL.Locked() || BBR.Locked() )
-            LogicError("Cannot grab an unlocked view of a locked matrix");
-        if( BTL.Width() != BBL.Width()   ||
-            BTR.Width() != BBR.Width()   ||
-            BTL.Height() != BTR.Height() ||
-            BBL.Height() != BBR.Height()   )
-            LogicError("2x2 must conform to combine");
-        if( BTL.LDim() != BTR.LDim() ||
-            BTR.LDim() != BBL.LDim() ||
-            BBL.LDim() != BBR.LDim()   )
-            LogicError("2x2 must have consistent ldims to combine");
-        if( BBL.Buffer() != (BTL.Buffer() + BTL.Height()) ||
-            BBR.Buffer() != (BTR.Buffer() + BTR.Height()) ||
-            BTR.Buffer() != (BTL.Buffer() + BTL.LDim()*BTL.Width()) )
-            LogicError("2x2 must have contiguous memory");
+      CSE cse("Merge2x2");
+      if( BTL.Locked() || BTR.Locked() || BBL.Locked() || BBR.Locked() )
+          LogicError("Cannot grab an unlocked view of a locked matrix");
+      if( BTL.Width() != BBL.Width()   ||
+          BTR.Width() != BBR.Width()   ||
+          BTL.Height() != BTR.Height() ||
+          BBL.Height() != BBR.Height()   )
+          LogicError("2x2 must conform to combine");
+      if( BTL.LDim() != BTR.LDim() ||
+          BTR.LDim() != BBL.LDim() ||
+          BBL.LDim() != BBR.LDim()   )
+          LogicError("2x2 must have consistent ldims to combine");
+      if( BBL.Buffer() != (BTL.Buffer() + BTL.Height()) ||
+          BBR.Buffer() != (BTR.Buffer() + BTR.Height()) ||
+          BTR.Buffer() != (BTL.Buffer() + BTL.LDim()*BTL.Width()) )
+          LogicError("2x2 must have contiguous memory");
     )
     A.Attach
     ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
@@ -253,15 +253,15 @@ void Merge2x2
 
 template<typename T>
 void Merge2x2
-( AbstractDistMatrix<T>& A,
-  AbstractDistMatrix<T>& BTL, AbstractDistMatrix<T>& BTR,
-  AbstractDistMatrix<T>& BBL, AbstractDistMatrix<T>& BBR )
+( ElementalMatrix<T>& A,
+  ElementalMatrix<T>& BTL, ElementalMatrix<T>& BTR,
+  ElementalMatrix<T>& BBL, ElementalMatrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CSE cse("Merge2x2");
-        AssertSameGrids( A, BTL, BTR, BBL, BBR );
-        AssertSameDists( A, BTL, BTR, BBL, BBR );
-        AssertConforming2x2( BTL, BTR, BBL, BBR );
+      CSE cse("Merge2x2");
+      AssertSameGrids( A, BTL, BTR, BBL, BBR );
+      AssertSameDists( A, BTL, BTR, BBL, BBR );
+      AssertConforming2x2( BTL, BTR, BBL, BBR );
     )
     A.Attach
     ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), BTL.Grid(),
@@ -275,20 +275,20 @@ void LockedMerge2x2
   const Matrix<T>& BBL, const Matrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CSE cse("LockedMerge2x2");
-        if( BTL.Width() != BBL.Width()   ||
-            BTR.Width() != BBR.Width()   ||
-            BTL.Height() != BTR.Height() ||
-            BBL.Height() != BBR.Height()   )
-            LogicError("2x2 must conform to combine");
-        if( BTL.LDim() != BTR.LDim() ||
-            BTR.LDim() != BBL.LDim() ||
-            BBL.LDim() != BBR.LDim()   )
-            LogicError("2x2 must have consistent ldims to combine");
-        if( BBL.LockedBuffer() != (BTL.LockedBuffer()+BTL.Height()) ||
-            BBR.LockedBuffer() != (BTR.LockedBuffer()+BTR.Height()) ||
-            BTR.LockedBuffer() != (BTL.LockedBuffer()+BTL.LDim()*BTL.Width()) )
-            LogicError("2x2 must have contiguous memory");
+      CSE cse("LockedMerge2x2");
+      if( BTL.Width() != BBL.Width()   ||
+          BTR.Width() != BBR.Width()   ||
+          BTL.Height() != BTR.Height() ||
+          BBL.Height() != BBR.Height()   )
+          LogicError("2x2 must conform to combine");
+      if( BTL.LDim() != BTR.LDim() ||
+          BTR.LDim() != BBL.LDim() ||
+          BBL.LDim() != BBR.LDim()   )
+          LogicError("2x2 must have consistent ldims to combine");
+      if( BBL.LockedBuffer() != (BTL.LockedBuffer()+BTL.Height()) ||
+          BBR.LockedBuffer() != (BTR.LockedBuffer()+BTR.Height()) ||
+          BTR.LockedBuffer() != (BTL.LockedBuffer()+BTL.LDim()*BTL.Width()) )
+          LogicError("2x2 must have contiguous memory");
     )
     A.LockedAttach
     ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
@@ -297,15 +297,15 @@ void LockedMerge2x2
 
 template<typename T>
 void LockedMerge2x2
-(       AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& BTL, const AbstractDistMatrix<T>& BTR,
-  const AbstractDistMatrix<T>& BBL, const AbstractDistMatrix<T>& BBR )
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& BTL, const ElementalMatrix<T>& BTR,
+  const ElementalMatrix<T>& BBL, const ElementalMatrix<T>& BBR )
 {
     DEBUG_ONLY(
-        CSE cse("LockedMerge2x2");
-        AssertSameGrids( A, BTL, BTR, BBL, BBR );
-        AssertSameDists( A, BTL, BTR, BBL, BBR );
-        AssertConforming2x2( BTL, BTR, BBL, BBR );
+      CSE cse("LockedMerge2x2");
+      AssertSameGrids( A, BTL, BTR, BBL, BBR );
+      AssertSameDists( A, BTL, BTR, BBL, BBR );
+      AssertConforming2x2( BTL, BTR, BBL, BBR );
     )
     A.LockedAttach
     ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), BTL.Grid(),
@@ -375,38 +375,38 @@ DistMatrix<T,U,V> LockedMerge2x2
 #define PROTO(T) \
   template void Merge1x2( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR ); \
   template void Merge1x2 \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& BL, AbstractDistMatrix<T>& BR ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& BL, ElementalMatrix<T>& BR ); \
   template void LockedMerge1x2 \
   ( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR ); \
   template void LockedMerge1x2 \
-  ( AbstractDistMatrix<T>& A, \
-    const AbstractDistMatrix<T>& BL, const AbstractDistMatrix<T>& BR ); \
+  ( ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& BL, const ElementalMatrix<T>& BR ); \
   template void Merge2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB ); \
   template void Merge2x1 \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& BT, AbstractDistMatrix<T>& BB ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& BT, ElementalMatrix<T>& BB ); \
   template void LockedMerge2x1 \
   ( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB ); \
   template void LockedMerge2x1 \
-  ( AbstractDistMatrix<T>& A, \
-    const AbstractDistMatrix<T>& BT, const AbstractDistMatrix<T>& BB ); \
+  ( ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& BT, const ElementalMatrix<T>& BB ); \
   template void Merge2x2 \
   ( Matrix<T>& A, \
     Matrix<T>& BTL, Matrix<T>& BTR, \
     Matrix<T>& BBL, Matrix<T>& BBR ); \
   template void Merge2x2 \
-  ( AbstractDistMatrix<T>& A, \
-    AbstractDistMatrix<T>& BTL, AbstractDistMatrix<T>& BTR, \
-    AbstractDistMatrix<T>& BBL, AbstractDistMatrix<T>& BBR ); \
+  ( ElementalMatrix<T>& A, \
+    ElementalMatrix<T>& BTL, ElementalMatrix<T>& BTR, \
+    ElementalMatrix<T>& BBL, ElementalMatrix<T>& BBR ); \
   template void LockedMerge2x2 \
   ( Matrix<T>& A, \
     const Matrix<T>& BTL, const Matrix<T>& BTR, \
     const Matrix<T>& BBL, const Matrix<T>& BBR ); \
   template void LockedMerge2x2 \
-  ( AbstractDistMatrix<T>& A, \
-    const AbstractDistMatrix<T>& BTL, const AbstractDistMatrix<T>& BTR, \
-    const AbstractDistMatrix<T>& BBL, const AbstractDistMatrix<T>& BBR ); \
+  ( ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& BTL, const ElementalMatrix<T>& BTR, \
+    const ElementalMatrix<T>& BBL, const ElementalMatrix<T>& BBR ); \
   template Matrix<T> Merge1x2( Matrix<T>& BL, Matrix<T>& BR );  \
   template Matrix<T> LockedMerge1x2 \
   ( const Matrix<T>& BL, const Matrix<T>& BR ); \

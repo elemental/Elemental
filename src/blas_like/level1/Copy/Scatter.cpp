@@ -14,7 +14,7 @@ namespace copy {
 template<typename T>
 void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
-        AbstractDistMatrix<T>& B )
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
@@ -81,8 +81,8 @@ void Scatter
 
 template<typename T>
 void Scatter
-( const BlockDistMatrix<T,CIRC,CIRC>& A,
-        AbstractBlockDistMatrix<T>& B )
+( const DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& A,
+        BlockCyclicMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
@@ -127,8 +127,8 @@ void Scatter
 
 template<typename T>
 void Scatter
-( const BlockDistMatrix<T,CIRC,CIRC>& A,
-        BlockDistMatrix<T,STAR,STAR>& B )
+( const DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& A,
+        DistMatrix<T,STAR,STAR,BLOCK_CYCLIC>& B )
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
@@ -138,16 +138,16 @@ void Scatter
 #define PROTO(T) \
   template void Scatter \
   ( const DistMatrix<T,CIRC,CIRC>& A, \
-          AbstractDistMatrix<T>& B ); \
+          ElementalMatrix<T>& B ); \
   template void Scatter \
-  ( const BlockDistMatrix<T,CIRC,CIRC>& A, \
-          AbstractBlockDistMatrix<T>& B ); \
+  ( const DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& A, \
+          BlockCyclicMatrix<T>& B ); \
   template void Scatter \
   ( const DistMatrix<T,CIRC,CIRC>& A, \
           DistMatrix<T,STAR,STAR>& B ); \
   template void Scatter \
-  ( const BlockDistMatrix<T,CIRC,CIRC>& A, \
-          BlockDistMatrix<T,STAR,STAR>& B );
+  ( const DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& A, \
+          DistMatrix<T,STAR,STAR,BLOCK_CYCLIC>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -66,8 +66,8 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
+  T alpha, const ElementalMatrix<T>& A, 
+  T beta,        ElementalMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     ScaleTrapezoid( beta, uplo, C );
@@ -84,8 +84,8 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
-                 AbstractDistMatrix<T>& C, bool conjugate )
+  T alpha, const ElementalMatrix<T>& A, 
+                 ElementalMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
@@ -289,12 +289,12 @@ void Syrk
     T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, \
-    T beta, AbstractDistMatrix<T>& C, bool conjugate ); \
+    T alpha, const ElementalMatrix<T>& A, \
+    T beta, ElementalMatrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const AbstractDistMatrix<T>& A, \
-                   AbstractDistMatrix<T>& C, bool conjugate ); \
+    T alpha, const ElementalMatrix<T>& A, \
+                   ElementalMatrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
     T alpha, const SparseMatrix<T>& A, \

@@ -252,10 +252,10 @@ ElError ElGetSubgraphDist
   /* Full */ \
   ElError ElFull_ ## SIG \
   ( ElConstSparseMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
-  { EL_TRY( Full( *CReflect(A), *CReflect(B) ) ) } \
+  { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElFullDist_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( Full( *CReflect(A), *CReflect(B) ) ) } \
+  { EL_TRY( Copy( *CReflect(A), *CReflect(B) ) ) } \
   /* GetSubmatrix */ \
   ElError ElGetContigSubmatrix_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElRange_i I, ElRange_i J, \

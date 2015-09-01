@@ -31,13 +31,6 @@ void Fill( AbstractDistMatrix<T>& A, T alpha )
 }
 
 template<typename T>
-void Fill( AbstractBlockDistMatrix<T>& A, T alpha )
-{
-    DEBUG_ONLY(CSE cse("Fill"))
-    Fill( A.Matrix(), alpha );
-}
-
-template<typename T>
 void Fill( DistMultiVec<T>& A, T alpha )
 {
     DEBUG_ONLY(CSE cse("Fill"))
@@ -82,7 +75,6 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
 #define PROTO(T) \
   template void Fill( Matrix<T>& A, T alpha ); \
   template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
-  template void Fill( AbstractBlockDistMatrix<T>& A, T alpha ); \
   template void Fill( DistMultiVec<T>& A, T alpha ); \
   template void Fill( SparseMatrix<T>& A, T alpha ); \
   template void Fill( DistSparseMatrix<T>& A, T alpha );

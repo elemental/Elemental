@@ -76,7 +76,7 @@ inline void U( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void U( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
+inline void U( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(
         CSE cse("hessenberg::U");

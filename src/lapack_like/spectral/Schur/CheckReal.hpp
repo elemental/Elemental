@@ -60,7 +60,7 @@ void CheckRealSchur( const Matrix<Complex<Real>>& U, bool standardForm )
 }
 
 template<typename Real>
-void CheckRealSchur( const AbstractDistMatrix<Real>& UPre, bool standardForm )
+void CheckRealSchur( const ElementalMatrix<Real>& UPre, bool standardForm )
 {
     DEBUG_ONLY(CSE cse("CheckRealSchur")) 
 
@@ -107,7 +107,7 @@ void CheckRealSchur( const AbstractDistMatrix<Real>& UPre, bool standardForm )
 
 template<typename Real>
 void CheckRealSchur
-( const AbstractDistMatrix<Complex<Real>>& U, bool standardForm )
+( const ElementalMatrix<Complex<Real>>& U, bool standardForm )
 {
     DEBUG_ONLY(CSE cse("CheckRealSchur")) 
     LogicError("ChceckRealSchur called for complex matrix");

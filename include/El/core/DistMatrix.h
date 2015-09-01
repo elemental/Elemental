@@ -24,10 +24,10 @@ typedef struct
     int colAlign, rowAlign;
     int root;
     ElConstGrid grid;
-} ElDistData;
+} ElElementalData;
 
-/* An anonymous struct meant as a placeholder for AbstractDistMatrix<T>
-   -------------------------------------------------------------------- */
+/* An anonymous struct meant as a placeholder for ElementalMatrix<T>
+   ----------------------------------------------------------------- */
 typedef struct ElDistMatrix_iDummy* ElDistMatrix_i;
 typedef struct ElDistMatrix_sDummy* ElDistMatrix_s;
 typedef struct ElDistMatrix_dDummy* ElDistMatrix_d;
@@ -61,40 +61,40 @@ EL_EXPORT ElError ElDistMatrixCreateSpecific_c
 EL_EXPORT ElError ElDistMatrixCreateSpecific_z
 ( ElDist U, ElDist V, ElConstGrid g, ElDistMatrix_z* A );
 
-/* AbstractDistMatrix<T>::~AbstractDistMatrix()
-   -------------------------------------------- */
+/* ElementalMatrix<T>::~ElementalMatrix()
+   -------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDestroy_i( ElConstDistMatrix_i A );
 EL_EXPORT ElError ElDistMatrixDestroy_s( ElConstDistMatrix_s A );
 EL_EXPORT ElError ElDistMatrixDestroy_d( ElConstDistMatrix_d A );
 EL_EXPORT ElError ElDistMatrixDestroy_c( ElConstDistMatrix_c A );
 EL_EXPORT ElError ElDistMatrixDestroy_z( ElConstDistMatrix_z A );
 
-/* void AbstractDistMatrix<T>::Empty()
-   ----------------------------------- */
+/* void ElementalMatrix<T>::Empty()
+   -------------------------------- */
 EL_EXPORT ElError ElDistMatrixEmpty_i( ElDistMatrix_i A );
 EL_EXPORT ElError ElDistMatrixEmpty_s( ElDistMatrix_s A );
 EL_EXPORT ElError ElDistMatrixEmpty_d( ElDistMatrix_d A );
 EL_EXPORT ElError ElDistMatrixEmpty_c( ElDistMatrix_c A );
 EL_EXPORT ElError ElDistMatrixEmpty_z( ElDistMatrix_z A );
 
-/* void AbstractDistMatrix<T>::EmptyData()
-   --------------------------------------- */
+/* void ElementalMatrix<T>::EmptyData()
+   ------------------------------------ */
 EL_EXPORT ElError ElDistMatrixEmptyData_i( ElDistMatrix_i A );
 EL_EXPORT ElError ElDistMatrixEmptyData_s( ElDistMatrix_s A );
 EL_EXPORT ElError ElDistMatrixEmptyData_d( ElDistMatrix_d A );
 EL_EXPORT ElError ElDistMatrixEmptyData_c( ElDistMatrix_c A );
 EL_EXPORT ElError ElDistMatrixEmptyData_z( ElDistMatrix_z A );
 
-/* void AbstractDistMatrix<T>::SetGrid( const Grid& g )
-   ---------------------------------------------------- */
+/* void ElementalMatrix<T>::SetGrid( const Grid& g )
+   ------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixSetGrid_i( ElDistMatrix_i A, ElConstGrid grid );
 EL_EXPORT ElError ElDistMatrixSetGrid_s( ElDistMatrix_s A, ElConstGrid grid );
 EL_EXPORT ElError ElDistMatrixSetGrid_d( ElDistMatrix_d A, ElConstGrid grid );
 EL_EXPORT ElError ElDistMatrixSetGrid_c( ElDistMatrix_c A, ElConstGrid grid );
 EL_EXPORT ElError ElDistMatrixSetGrid_z( ElDistMatrix_z A, ElConstGrid grid );
 
-/* void AbstractDistMatrix<T>::Resize( Int height, Int width )
-   ----------------------------------------------------------- */
+/* void ElementalMatrix<T>::Resize( Int height, Int width )
+   -------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixResize_i
 ( ElDistMatrix_i A, ElInt height, ElInt width );
 EL_EXPORT ElError ElDistMatrixResize_s
@@ -106,8 +106,8 @@ EL_EXPORT ElError ElDistMatrixResize_c
 EL_EXPORT ElError ElDistMatrixResize_z
 ( ElDistMatrix_z A, ElInt height, ElInt width );
 
-/* void AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
-   --------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::Resize( Int height, Int width, Int ldim )
+   ------------------------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixResizeWithLDim_i
 ( ElDistMatrix_i A, ElInt height, ElInt width, ElInt ldim );
 EL_EXPORT ElError ElDistMatrixResizeWithLDim_s
@@ -119,8 +119,8 @@ EL_EXPORT ElError ElDistMatrixResizeWithLDim_c
 EL_EXPORT ElError ElDistMatrixResizeWithLDim_z
 ( ElDistMatrix_z A, ElInt height, ElInt width, ElInt ldim );
 
-/* void AbstractDistMatrix<T>::MakeConsistent( bool includeViewers )
-   ----------------------------------------------------------------- */
+/* void ElementalMatrix<T>::MakeConsistent( bool includeViewers )
+   -------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixMakeConsistent_i
 ( ElDistMatrix_i A, bool includeViewers );
 EL_EXPORT ElError ElDistMatrixMakeConsistent_s
@@ -132,8 +132,8 @@ EL_EXPORT ElError ElDistMatrixMakeConsistent_c
 EL_EXPORT ElError ElDistMatrixMakeConsistent_z
 ( ElDistMatrix_z A, bool includeViewers );
 
-/* void AbstractDistMatrix<T>::MakeSizeConsistent( bool includeViewers )
-   --------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::MakeSizeConsistent( bool includeViewers )
+   ------------------------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixMakeSizeConsistent_i
 ( ElDistMatrix_i A, bool includeViewers );
 EL_EXPORT ElError ElDistMatrixMakeSizeConsistent_s
@@ -145,7 +145,7 @@ EL_EXPORT ElError ElDistMatrixMakeSizeConsistent_c
 EL_EXPORT ElError ElDistMatrixMakeSizeConsistent_z
 ( ElDistMatrix_z A, bool includeViewers );
 
-/* void AbstractDistMatrix<T>::Align
+/* void ElementalMatrix<T>::Align
    ( int colAlign, int rowAlign, bool constrain )
    ---------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlign_i
@@ -159,8 +159,8 @@ EL_EXPORT ElError ElDistMatrixAlign_c
 EL_EXPORT ElError ElDistMatrixAlign_z
 ( ElDistMatrix_z A, int colAlign, int rowAlign, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignCols( int colAlign, bool constrain )
-   --------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::AlignCols( int colAlign, bool constrain )
+   ------------------------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixAlignCols_i
 ( ElDistMatrix_i A, int colAlign, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignCols_s
@@ -172,8 +172,8 @@ EL_EXPORT ElError ElDistMatrixAlignCols_c
 EL_EXPORT ElError ElDistMatrixAlignCols_z
 ( ElDistMatrix_z A, int colAlign, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignRows( int rowAlign, bool constrain )
-   --------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::AlignRows( int rowAlign, bool constrain )
+   ------------------------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixAlignRows_i
 ( ElDistMatrix_i A, int rowAlign, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRows_s
@@ -185,16 +185,16 @@ EL_EXPORT ElError ElDistMatrixAlignRows_c
 EL_EXPORT ElError ElDistMatrixAlignRows_z
 ( ElDistMatrix_z A, int rowAlign, bool constrain );
 
-/* void AbstractDistMatrix<T>::FreeAlignments()
-   -------------------------------------------- */
+/* void ElementalMatrix<T>::FreeAlignments()
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistMatrixFreeAlignments_i( ElDistMatrix_i A );
 EL_EXPORT ElError ElDistMatrixFreeAlignments_s( ElDistMatrix_s A );
 EL_EXPORT ElError ElDistMatrixFreeAlignments_d( ElDistMatrix_d A );
 EL_EXPORT ElError ElDistMatrixFreeAlignments_c( ElDistMatrix_c A );
 EL_EXPORT ElError ElDistMatrixFreeAlignments_z( ElDistMatrix_z A );
 
-/* void AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
-   --------------------------------------------------------------- */
+/* void ElementalMatrix<T>::SetRoot( int root, bool constrain )
+   ------------------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixSetRoot_i
 ( ElDistMatrix_i A, int root, bool constrain );
 EL_EXPORT ElError ElDistMatrixSetRoot_s
@@ -206,49 +206,49 @@ EL_EXPORT ElError ElDistMatrixSetRoot_c
 EL_EXPORT ElError ElDistMatrixSetRoot_z
 ( ElDistMatrix_z A, int root, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignWith
+/* void ElementalMatrix<T>::AlignWith
    ( const DistData& data, bool constrain )
    ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlignWith_i
-( ElDistMatrix_i A, ElDistData distData, bool constrain );
+( ElDistMatrix_i A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_s
-( ElDistMatrix_s A, ElDistData distData, bool constrain );
+( ElDistMatrix_s A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_d
-( ElDistMatrix_d A, ElDistData distData, bool constrain );
+( ElDistMatrix_d A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_c
-( ElDistMatrix_c A, ElDistData distData, bool constrain );
+( ElDistMatrix_c A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_z
-( ElDistMatrix_z A, ElDistData distData, bool constrain );
+( ElDistMatrix_z A, ElElementalData distData, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignColsWith
+/* void ElementalMatrix<T>::AlignColsWith
    ( const DistData& data, bool constrain )
-   ----------------------------------------- */
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlignColsWith_i
-( ElDistMatrix_i A, ElDistData distData, bool constrain );
+( ElDistMatrix_i A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_s
-( ElDistMatrix_s A, ElDistData distData, bool constrain );
+( ElDistMatrix_s A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_d
-( ElDistMatrix_d A, ElDistData distData, bool constrain );
+( ElDistMatrix_d A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_c
-( ElDistMatrix_c A, ElDistData distData, bool constrain );
+( ElDistMatrix_c A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_z
-( ElDistMatrix_z A, ElDistData distData, bool constrain );
+( ElDistMatrix_z A, ElElementalData distData, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignRowsWith
+/* void ElementalMatrix<T>::AlignRowsWith
    ( const DistData& data, bool constrain )
-   ----------------------------------------- */
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_i
-( ElDistMatrix_i A, ElDistData distData, bool constrain );
+( ElDistMatrix_i A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_s
-( ElDistMatrix_s A, ElDistData distData, bool constrain );
+( ElDistMatrix_s A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_d
-( ElDistMatrix_d A, ElDistData distData, bool constrain );
+( ElDistMatrix_d A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_c
-( ElDistMatrix_c A, ElDistData distData, bool constrain );
+( ElDistMatrix_c A, ElElementalData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_z
-( ElDistMatrix_z A, ElDistData distData, bool constrain );
+( ElDistMatrix_z A, ElElementalData distData, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignAndResize
+/* void ElementalMatrix<T>::AlignAndResize
   ( int colAlign, int rowAlign, Int height, Int width, 
     bool force, bool constrain )
    --------------------------------------------------- */
@@ -268,7 +268,7 @@ EL_EXPORT ElError ElDistMatrixAlignAndResize_z
 ( ElDistMatrix_z A, int colAlign, int rowAlign, ElInt height, ElInt width,
   bool force, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignColsAndResize
+/* void ElementalMatrix<T>::AlignColsAndResize
    ( int colAlign, Int height, Int width, bool force, bool constrain )
    ------------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlignColsAndResize_i
@@ -287,7 +287,7 @@ EL_EXPORT ElError ElDistMatrixAlignColsAndResize_z
 ( ElDistMatrix_z A, int colAlign, ElInt height, ElInt width, 
   bool force, bool constrain );
 
-/* void AbstractDistMatrix<T>::AlignRowsAndResize
+/* void ElementalMatrix<T>::AlignRowsAndResize
   ( int rowAlign, Int height, Int width, bool force, bool constrain )
    ------------------------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixAlignRowsAndResize_i
@@ -306,7 +306,7 @@ EL_EXPORT ElError ElDistMatrixAlignRowsAndResize_z
 ( ElDistMatrix_z A, int rowAlign, ElInt height, ElInt width,
   bool force, bool constrain );
 
-/* void AbstractDistMatrix<T>::Attach
+/* void ElementalMatrix<T>::Attach
    ( Int height, Int width, const Grid& grid, int colAlign, int rowAlign, 
      T* buffer, Int ldim, int root )
    ---------------------------------------------------------------------- */
@@ -331,7 +331,7 @@ EL_EXPORT ElError ElDistMatrixAttach_z
   int colAlign, int rowAlign, complex_double* buffer, ElInt ldim, 
   int root );
 
-/* void AbstractDistMatrix<T>::LockedAttach
+/* void ElementalMatrix<T>::LockedAttach
    ( Int height, Int width, const Grid& grid, int colAlign, int rowAlign, 
      const T* buffer, Int ldim, int root )
    ---------------------------------------------------------------------- */
@@ -356,24 +356,24 @@ EL_EXPORT ElError ElDistMatrixLockedAttach_z
   int colAlign, int rowAlign, const complex_double* buffer, 
   ElInt ldim, int root );
 
-/* Int AbstractDistMatrix<T>::Height() const
-   ----------------------------------------- */
+/* Int ElementalMatrix<T>::Height() const
+   -------------------------------------- */
 EL_EXPORT ElError ElDistMatrixHeight_i( ElConstDistMatrix_i A, ElInt* height );
 EL_EXPORT ElError ElDistMatrixHeight_s( ElConstDistMatrix_s A, ElInt* height );
 EL_EXPORT ElError ElDistMatrixHeight_d( ElConstDistMatrix_d A, ElInt* height );
 EL_EXPORT ElError ElDistMatrixHeight_c( ElConstDistMatrix_c A, ElInt* height );
 EL_EXPORT ElError ElDistMatrixHeight_z( ElConstDistMatrix_z A, ElInt* height );
 
-/* Int AbstractDistMatrix<T>::Width() const
-   ---------------------------------------- */
+/* Int ElementalMatrix<T>::Width() const
+   ------------------------------------- */
 EL_EXPORT ElError ElDistMatrixWidth_i( ElConstDistMatrix_i A, ElInt* width );
 EL_EXPORT ElError ElDistMatrixWidth_s( ElConstDistMatrix_s A, ElInt* width );
 EL_EXPORT ElError ElDistMatrixWidth_d( ElConstDistMatrix_d A, ElInt* width );
 EL_EXPORT ElError ElDistMatrixWidth_c( ElConstDistMatrix_c A, ElInt* width );
 EL_EXPORT ElError ElDistMatrixWidth_z( ElConstDistMatrix_z A, ElInt* width );
 
-/* Int AbstractDistMatrix<T>::DiagonalLength( Int offset ) const
-   ------------------------------------------------------------- */
+/* Int ElementalMatrix<T>::DiagonalLength( Int offset ) const
+   ---------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDiagonalLength_i
 ( ElConstDistMatrix_i A, ElInt offset, ElInt* length );
 EL_EXPORT ElError ElDistMatrixDiagonalLength_s
@@ -385,24 +385,24 @@ EL_EXPORT ElError ElDistMatrixDiagonalLength_c
 EL_EXPORT ElError ElDistMatrixDiagonalLength_z
 ( ElConstDistMatrix_z A, ElInt offset, ElInt* length );
 
-/* bool AbstractDistMatrix<T>::Viewing() const
-   ------------------------------------------- */
+/* bool ElementalMatrix<T>::Viewing() const
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixViewing_i( ElConstDistMatrix_i A, bool* viewing );
 EL_EXPORT ElError ElDistMatrixViewing_s( ElConstDistMatrix_s A, bool* viewing );
 EL_EXPORT ElError ElDistMatrixViewing_d( ElConstDistMatrix_d A, bool* viewing );
 EL_EXPORT ElError ElDistMatrixViewing_c( ElConstDistMatrix_c A, bool* viewing );
 EL_EXPORT ElError ElDistMatrixViewing_z( ElConstDistMatrix_z A, bool* viewing );
 
-/* bool AbstractDistMatrix<T>::Locked() const
-   ------------------------------------------ */
+/* bool ElementalMatrix<T>::Locked() const
+   --------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLocked_i( ElConstDistMatrix_i A, bool* locked );
 EL_EXPORT ElError ElDistMatrixLocked_s( ElConstDistMatrix_s A, bool* locked );
 EL_EXPORT ElError ElDistMatrixLocked_d( ElConstDistMatrix_d A, bool* locked );
 EL_EXPORT ElError ElDistMatrixLocked_c( ElConstDistMatrix_c A, bool* locked );
 EL_EXPORT ElError ElDistMatrixLocked_z( ElConstDistMatrix_z A, bool* locked );
 
-/* Int AbstractDistMatrix<T>::LocalHeight() const
-   ---------------------------------------------- */
+/* Int ElementalMatrix<T>::LocalHeight() const
+   ------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLocalHeight_i
 ( ElConstDistMatrix_i A, ElInt* localHeight );
 EL_EXPORT ElError ElDistMatrixLocalHeight_s
@@ -414,8 +414,8 @@ EL_EXPORT ElError ElDistMatrixLocalHeight_c
 EL_EXPORT ElError ElDistMatrixLocalHeight_z
 ( ElConstDistMatrix_z A, ElInt* localHeight );
 
-/* Int AbstractDistMatrix<T>::LocalWidth() const
-   --------------------------------------------- */
+/* Int ElementalMatrix<T>::LocalWidth() const
+   ------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixLocalWidth_i
 ( ElConstDistMatrix_i A, ElInt* localWidth );
 EL_EXPORT ElError ElDistMatrixLocalWidth_s
@@ -427,24 +427,24 @@ EL_EXPORT ElError ElDistMatrixLocalWidth_c
 EL_EXPORT ElError ElDistMatrixLocalWidth_z
 ( ElConstDistMatrix_z A, ElInt* localWidth );
 
-/* Int AbstractDistMatrix<T>::LDim() const
-   --------------------------------------- */
+/* Int ElementalMatrix<T>::LDim() const
+   ------------------------------------ */
 EL_EXPORT ElError ElDistMatrixLDim_i( ElConstDistMatrix_i A, ElInt* ldim );
 EL_EXPORT ElError ElDistMatrixLDim_s( ElConstDistMatrix_s A, ElInt* ldim );
 EL_EXPORT ElError ElDistMatrixLDim_d( ElConstDistMatrix_d A, ElInt* ldim );
 EL_EXPORT ElError ElDistMatrixLDim_c( ElConstDistMatrix_c A, ElInt* ldim );
 EL_EXPORT ElError ElDistMatrixLDim_z( ElConstDistMatrix_z A, ElInt* ldim );
 
-/* Matrix<T>& AbstractDistMatrix<T>::Matrix() 
-   ------------------------------------------ */
+/* Matrix<T>& ElementalMatrix<T>::Matrix() 
+   --------------------------------------- */
 EL_EXPORT ElError ElDistMatrixMatrix_i( ElDistMatrix_i A, ElMatrix_i* ALoc );
 EL_EXPORT ElError ElDistMatrixMatrix_s( ElDistMatrix_s A, ElMatrix_s* ALoc );
 EL_EXPORT ElError ElDistMatrixMatrix_d( ElDistMatrix_d A, ElMatrix_d* ALoc );
 EL_EXPORT ElError ElDistMatrixMatrix_c( ElDistMatrix_c A, ElMatrix_c* ALoc );
 EL_EXPORT ElError ElDistMatrixMatrix_z( ElDistMatrix_z A, ElMatrix_z* ALoc );
 
-/* const Matrix<T>& AbstractDistMatrix<T>::LockedMatrix() const
-   ------------------------------------------------------------ */
+/* const Matrix<T>& ElementalMatrix<T>::LockedMatrix() const
+   --------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLockedMatrix_i
 ( ElConstDistMatrix_i A, ElConstMatrix_i* ALoc );
 EL_EXPORT ElError ElDistMatrixLockedMatrix_s
@@ -456,8 +456,8 @@ EL_EXPORT ElError ElDistMatrixLockedMatrix_c
 EL_EXPORT ElError ElDistMatrixLockedMatrix_z
 ( ElConstDistMatrix_z A, ElConstMatrix_z* ALoc );
 
-/* size_t AbstractDistMatrix<T>::AllocatedMemory() const
-   ----------------------------------------------------- */
+/* size_t ElementalMatrix<T>::AllocatedMemory() const
+   -------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAllocatedMemory_i
 ( ElConstDistMatrix_i A, size_t* mem );
 EL_EXPORT ElError ElDistMatrixAllocatedMemory_s
@@ -469,8 +469,8 @@ EL_EXPORT ElError ElDistMatrixAllocatedMemory_c
 EL_EXPORT ElError ElDistMatrixAllocatedMemory_z
 ( ElConstDistMatrix_z A, size_t* mem );
 
-/* T* AbstractDistMatrix<T>::Buffer()
-   ---------------------------------- */
+/* T* ElementalMatrix<T>::Buffer()
+   ------------------------------- */
 EL_EXPORT ElError ElDistMatrixBuffer_i
 ( ElDistMatrix_i A, ElInt** buffer );
 EL_EXPORT ElError ElDistMatrixBuffer_s
@@ -482,8 +482,8 @@ EL_EXPORT ElError ElDistMatrixBuffer_c
 EL_EXPORT ElError ElDistMatrixBuffer_z
 ( ElDistMatrix_z A, complex_double** buffer );
 
-/* const T* AbstractDistMatrix<T>::LockedBuffer() const
-   ---------------------------------------------------- */
+/* const T* ElementalMatrix<T>::LockedBuffer() const
+   ------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLockedBuffer_i
 ( ElConstDistMatrix_i A, const ElInt** buffer );
 EL_EXPORT ElError ElDistMatrixLockedBuffer_s
@@ -495,8 +495,8 @@ EL_EXPORT ElError ElDistMatrixLockedBuffer_c
 EL_EXPORT ElError ElDistMatrixLockedBuffer_z
 ( ElConstDistMatrix_z A, const complex_double** buffer );
 
-/* const Grid& AbstractDistMatrix<T>::Grid() const
-   ----------------------------------------------- */
+/* const Grid& ElementalMatrix<T>::Grid() const
+   -------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGrid_i
 ( ElConstDistMatrix_i A, ElConstGrid* grid );
 EL_EXPORT ElError ElDistMatrixGrid_s
@@ -508,8 +508,8 @@ EL_EXPORT ElError ElDistMatrixGrid_c
 EL_EXPORT ElError ElDistMatrixGrid_z
 ( ElConstDistMatrix_z A, ElConstGrid* grid );
 
-/* bool AbstractDistMatrix<T>::ColConstrained() const
-   -------------------------------------------------- */
+/* bool ElementalMatrix<T>::ColConstrained() const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixColConstrained_i
 ( ElConstDistMatrix_i A, bool* colConst );
 EL_EXPORT ElError ElDistMatrixColConstrained_s
@@ -521,8 +521,8 @@ EL_EXPORT ElError ElDistMatrixColConstrained_c
 EL_EXPORT ElError ElDistMatrixColConstrained_z
 ( ElConstDistMatrix_z A, bool* colConst );
 
-/* bool AbstractDistMatrix<T>::RowConstrained() const
-   -------------------------------------------------- */
+/* bool ElementalMatrix<T>::RowConstrained() const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRowConstrained_i
 ( ElConstDistMatrix_i A, bool* rowConst );
 EL_EXPORT ElError ElDistMatrixRowConstrained_s
@@ -534,8 +534,8 @@ EL_EXPORT ElError ElDistMatrixRowConstrained_c
 EL_EXPORT ElError ElDistMatrixRowConstrained_z
 ( ElConstDistMatrix_z A, bool* rowConst );
 
-/* bool AbstractDistMatrix<T>::RootConstrained() const
-   --------------------------------------------------- */
+/* bool ElementalMatrix<T>::RootConstrained() const
+   ------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixRootConstrained_i
 ( ElConstDistMatrix_i A, bool* rootConst );
 EL_EXPORT ElError ElDistMatrixRootConstrained_s
@@ -547,8 +547,8 @@ EL_EXPORT ElError ElDistMatrixRootConstrained_c
 EL_EXPORT ElError ElDistMatrixRootConstrained_z
 ( ElConstDistMatrix_z A, bool* rootConst );
 
-/* int AbstractDistMatrix<T>::ColAlign() const
-   ------------------------------------------- */
+/* int ElementalMatrix<T>::ColAlign() const
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixColAlign_i
 ( ElConstDistMatrix_i A, int* colAlign );
 EL_EXPORT ElError ElDistMatrixColAlign_s
@@ -560,8 +560,8 @@ EL_EXPORT ElError ElDistMatrixColAlign_c
 EL_EXPORT ElError ElDistMatrixColAlign_z
 ( ElConstDistMatrix_z A, int* colAlign );
 
-/* int AbstractDistMatrix<T>::RowAlign() const
-   ------------------------------------------- */
+/* int ElementalMatrix<T>::RowAlign() const
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRowAlign_i
 ( ElConstDistMatrix_i A, int* rowAlign );
 EL_EXPORT ElError ElDistMatrixRowAlign_s
@@ -573,8 +573,8 @@ EL_EXPORT ElError ElDistMatrixRowAlign_c
 EL_EXPORT ElError ElDistMatrixRowAlign_z
 ( ElConstDistMatrix_z A, int* rowAlign );
 
-/* int AbstractDistMatrix<T>::ColShift() const
-   ------------------------------------------- */
+/* int ElementalMatrix<T>::ColShift() const
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixColShift_i
 ( ElConstDistMatrix_i A, int* colShift );
 EL_EXPORT ElError ElDistMatrixColShift_s
@@ -586,8 +586,8 @@ EL_EXPORT ElError ElDistMatrixColShift_c
 EL_EXPORT ElError ElDistMatrixColShift_z
 ( ElConstDistMatrix_z A, int* colShift );
 
-/* int AbstractDistMatrix<T>::RowShift() const
-   ------------------------------------------- */
+/* int ElementalMatrix<T>::RowShift() const
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRowShift_i
 ( ElConstDistMatrix_i A, int* rowShift );
 EL_EXPORT ElError ElDistMatrixRowShift_s
@@ -599,24 +599,24 @@ EL_EXPORT ElError ElDistMatrixRowShift_c
 EL_EXPORT ElError ElDistMatrixRowShift_z
 ( ElConstDistMatrix_z A, int* rowShift );
 
-/* int AbstractDistMatrix<T>::ColRank() const
-   ------------------------------------------ */
+/* int ElementalMatrix<T>::ColRank() const
+   --------------------------------------- */
 EL_EXPORT ElError ElDistMatrixColRank_i( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixColRank_s( ElConstDistMatrix_s A, int* rank );
 EL_EXPORT ElError ElDistMatrixColRank_d( ElConstDistMatrix_d A, int* rank );
 EL_EXPORT ElError ElDistMatrixColRank_c( ElConstDistMatrix_c A, int* rank );
 EL_EXPORT ElError ElDistMatrixColRank_z( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::RowRank() const
-   ------------------------------------------ */
+/* int ElementalMatrix<T>::RowRank() const
+   --------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRowRank_i( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixRowRank_s( ElConstDistMatrix_s A, int* rank );
 EL_EXPORT ElError ElDistMatrixRowRank_d( ElConstDistMatrix_d A, int* rank );
 EL_EXPORT ElError ElDistMatrixRowRank_c( ElConstDistMatrix_c A, int* rank );
 EL_EXPORT ElError ElDistMatrixRowRank_z( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::PartialColRank() const
-   ------------------------------------------------- */
+/* int ElementalMatrix<T>::PartialColRank() const
+   ---------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialColRank_i
 ( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixPartialColRank_s
@@ -628,8 +628,8 @@ EL_EXPORT ElError ElDistMatrixPartialColRank_c
 EL_EXPORT ElError ElDistMatrixPartialColRank_z
 ( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::PartialRowRank() const
-   ------------------------------------------------- */
+/* int ElementalMatrix<T>::PartialRowRank() const
+   ---------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialRowRank_i
 ( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixPartialRowRank_s
@@ -641,8 +641,8 @@ EL_EXPORT ElError ElDistMatrixPartialRowRank_c
 EL_EXPORT ElError ElDistMatrixPartialRowRank_z
 ( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::PartialUnionColRank() const
-   ------------------------------------------------------ */
+/* int ElementalMatrix<T>::PartialUnionColRank() const
+   --------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialUnionColRank_i
 ( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixPartialUnionColRank_s
@@ -654,8 +654,8 @@ EL_EXPORT ElError ElDistMatrixPartialUnionColRank_c
 EL_EXPORT ElError ElDistMatrixPartialUnionColRank_z
 ( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::PartialUnionRowRank() const
-   ------------------------------------------------------ */
+/* int ElementalMatrix<T>::PartialUnionRowRank() const
+   --------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialUnionRowRank_i
 ( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixPartialUnionRowRank_s
@@ -667,8 +667,8 @@ EL_EXPORT ElError ElDistMatrixPartialUnionRowRank_c
 EL_EXPORT ElError ElDistMatrixPartialUnionRowRank_z
 ( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::DistRank() const
-   ------------------------------------------- */
+/* int ElementalMatrix<T>::DistRank() const
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDistRank_i
 ( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixDistRank_s
@@ -680,16 +680,16 @@ EL_EXPORT ElError ElDistMatrixDistRank_c
 EL_EXPORT ElError ElDistMatrixDistRank_z
 ( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::CrossRank() const
-   -------------------------------------------- */
+/* int ElementalMatrix<T>::CrossRank() const
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistMatrixCrossRank_i( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixCrossRank_s( ElConstDistMatrix_s A, int* rank );
 EL_EXPORT ElError ElDistMatrixCrossRank_d( ElConstDistMatrix_d A, int* rank );
 EL_EXPORT ElError ElDistMatrixCrossRank_c( ElConstDistMatrix_c A, int* rank );
 EL_EXPORT ElError ElDistMatrixCrossRank_z( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::RedundantRank() const
-   ------------------------------------------------ */
+/* int ElementalMatrix<T>::RedundantRank() const
+   --------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRedundantRank_i
 ( ElConstDistMatrix_i A, int* rank );
 EL_EXPORT ElError ElDistMatrixRedundantRank_s
@@ -701,16 +701,16 @@ EL_EXPORT ElError ElDistMatrixRedundantRank_c
 EL_EXPORT ElError ElDistMatrixRedundantRank_z
 ( ElConstDistMatrix_z A, int* rank );
 
-/* int AbstractDistMatrix<T>::Root() const
-   --------------------------------------- */
+/* int ElementalMatrix<T>::Root() const
+   ------------------------------------ */
 EL_EXPORT ElError ElDistMatrixRoot_i( ElConstDistMatrix_i A, int* root );
 EL_EXPORT ElError ElDistMatrixRoot_s( ElConstDistMatrix_s A, int* root );
 EL_EXPORT ElError ElDistMatrixRoot_d( ElConstDistMatrix_d A, int* root );
 EL_EXPORT ElError ElDistMatrixRoot_c( ElConstDistMatrix_c A, int* root );
 EL_EXPORT ElError ElDistMatrixRoot_z( ElConstDistMatrix_z A, int* root );
 
-/* bool AbstractDistMatrix<T>::Participating() const
-   ------------------------------------------------- */
+/* bool ElementalMatrix<T>::Participating() const
+   ---------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixParticipating_i
 ( ElConstDistMatrix_i A, bool* participating );
 EL_EXPORT ElError ElDistMatrixParticipating_s
@@ -722,8 +722,8 @@ EL_EXPORT ElError ElDistMatrixParticipating_c
 EL_EXPORT ElError ElDistMatrixParticipating_z
 ( ElConstDistMatrix_z A, bool* participating );
 
-/* int AbstractDistMatrix<T>::RowOwner( Int i ) const
-   -------------------------------------------------- */
+/* int ElementalMatrix<T>::RowOwner( Int i ) const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRowOwner_i
 ( ElConstDistMatrix_i A, ElInt i, int* rowOwner );
 EL_EXPORT ElError ElDistMatrixRowOwner_s
@@ -735,8 +735,8 @@ EL_EXPORT ElError ElDistMatrixRowOwner_c
 EL_EXPORT ElError ElDistMatrixRowOwner_z
 ( ElConstDistMatrix_z A, ElInt i, int* rowOwner );
 
-/* int AbstractDistMatrix<T>::ColOwner( Int j ) const
-   -------------------------------------------------- */
+/* int ElementalMatrix<T>::ColOwner( Int j ) const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixColOwner_i
 ( ElConstDistMatrix_i A, ElInt j, int* colOwner );
 EL_EXPORT ElError ElDistMatrixColOwner_s
@@ -748,8 +748,8 @@ EL_EXPORT ElError ElDistMatrixColOwner_c
 EL_EXPORT ElError ElDistMatrixColOwner_z
 ( ElConstDistMatrix_z A, ElInt j, int* colOwner );
 
-/* int AbstractDistMatrix<T>::Owner( Int i, Int j ) const
-   ------------------------------------------------------ */
+/* int ElementalMatrix<T>::Owner( Int i, Int j ) const
+   --------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixOwner_i
 ( ElConstDistMatrix_i A, ElInt i, ElInt j, int* owner );
 EL_EXPORT ElError ElDistMatrixOwner_s
@@ -761,8 +761,8 @@ EL_EXPORT ElError ElDistMatrixOwner_c
 EL_EXPORT ElError ElDistMatrixOwner_z
 ( ElConstDistMatrix_z A, ElInt i, ElInt j, int* owner );
 
-/* Int AbstractDistMatrix<T>::LocalRow( Int i ) const
-   -------------------------------------------------- */
+/* Int ElementalMatrix<T>::LocalRow( Int i ) const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLocalRow_i
 ( ElConstDistMatrix_i A, ElInt i, ElInt* iLoc );
 EL_EXPORT ElError ElDistMatrixLocalRow_s
@@ -774,8 +774,8 @@ EL_EXPORT ElError ElDistMatrixLocalRow_c
 EL_EXPORT ElError ElDistMatrixLocalRow_z
 ( ElConstDistMatrix_z A, ElInt i, ElInt* iLoc );
 
-/* Int AbstractDistMatrix<T>::LocalCol( Int j ) const
-   -------------------------------------------------- */
+/* Int ElementalMatrix<T>::LocalCol( Int j ) const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLocalCol_i
 ( ElConstDistMatrix_i A, ElInt j, ElInt* jLoc );
 EL_EXPORT ElError ElDistMatrixLocalCol_s
@@ -787,8 +787,8 @@ EL_EXPORT ElError ElDistMatrixLocalCol_c
 EL_EXPORT ElError ElDistMatrixLocalCol_z
 ( ElConstDistMatrix_z A, ElInt j, ElInt* jLoc );
 
-/* Int AbstractDistMatrix<T>::LocalRowOffset( Int i ) const
-   -------------------------------------------------------- */
+/* Int ElementalMatrix<T>::LocalRowOffset( Int i ) const
+   ----------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLocalRowOffset_i
 ( ElConstDistMatrix_i A, ElInt i, ElInt* iLoc );
 EL_EXPORT ElError ElDistMatrixLocalRowOffset_s
@@ -800,8 +800,8 @@ EL_EXPORT ElError ElDistMatrixLocalRowOffset_c
 EL_EXPORT ElError ElDistMatrixLocalRowOffset_z
 ( ElConstDistMatrix_z A, ElInt i, ElInt* iLoc );
 
-/* Int AbstractDistMatrix<T>::LocalColOffset( Int j ) const
-   -------------------------------------------------------- */
+/* Int ElementalMatrix<T>::LocalColOffset( Int j ) const
+   ----------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixLocalColOffset_i
 ( ElConstDistMatrix_i A, ElInt j, ElInt* jLoc );
 EL_EXPORT ElError ElDistMatrixLocalColOffset_s
@@ -813,8 +813,8 @@ EL_EXPORT ElError ElDistMatrixLocalColOffset_c
 EL_EXPORT ElError ElDistMatrixLocalColOffset_z
 ( ElConstDistMatrix_z A, ElInt j, ElInt* jLoc );
 
-/* Int AbstractDistMatrix<T>::GlobalRow( Int iLoc ) const
-   ------------------------------------------------------ */
+/* Int ElementalMatrix<T>::GlobalRow( Int iLoc ) const
+   --------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGlobalRow_i
 ( ElConstDistMatrix_i A, ElInt iLoc, ElInt* i );
 EL_EXPORT ElError ElDistMatrixGlobalRow_s
@@ -826,8 +826,8 @@ EL_EXPORT ElError ElDistMatrixGlobalRow_c
 EL_EXPORT ElError ElDistMatrixGlobalRow_z
 ( ElConstDistMatrix_z A, ElInt iLoc, ElInt* i );
 
-/* Int AbstractDistMatrix<T>::GlobalCol( Int jLoc ) const
-   ------------------------------------------------------ */
+/* Int ElementalMatrix<T>::GlobalCol( Int jLoc ) const
+   --------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGlobalCol_i
 ( ElConstDistMatrix_i A, ElInt jLoc, ElInt* j );
 EL_EXPORT ElError ElDistMatrixGlobalCol_s
@@ -839,8 +839,8 @@ EL_EXPORT ElError ElDistMatrixGlobalCol_c
 EL_EXPORT ElError ElDistMatrixGlobalCol_z
 ( ElConstDistMatrix_z A, ElInt jLoc, ElInt* j );
 
-/* bool AbstractDistMatrix<T>::IsLocalRow( Int i ) const
-   ----------------------------------------------------- */
+/* bool ElementalMatrix<T>::IsLocalRow( Int i ) const
+   -------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixIsLocalRow_i
 ( ElConstDistMatrix_i A, ElInt i, bool* isLocal );
 EL_EXPORT ElError ElDistMatrixIsLocalRow_s
@@ -852,8 +852,8 @@ EL_EXPORT ElError ElDistMatrixIsLocalRow_c
 EL_EXPORT ElError ElDistMatrixIsLocalRow_z
 ( ElConstDistMatrix_z A, ElInt i, bool* isLocal );
 
-/* bool AbstractDistMatrix<T>::IsLocalCol( Int j ) const
-   ----------------------------------------------------- */
+/* bool ElementalMatrix<T>::IsLocalCol( Int j ) const
+   -------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixIsLocalCol_i
 ( ElConstDistMatrix_i A, ElInt j, bool* isLocal );
 EL_EXPORT ElError ElDistMatrixIsLocalCol_s
@@ -865,8 +865,8 @@ EL_EXPORT ElError ElDistMatrixIsLocalCol_c
 EL_EXPORT ElError ElDistMatrixIsLocalCol_z
 ( ElConstDistMatrix_z A, ElInt j, bool* isLocal );
 
-/* bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
-   --------------------------------------------------------- */
+/* bool ElementalMatrix<T>::IsLocal( Int i, Int j ) const
+   ------------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixIsLocal_i
 ( ElConstDistMatrix_i A, ElInt i, ElInt j, bool* isLocal );
 EL_EXPORT ElError ElDistMatrixIsLocal_s
@@ -878,21 +878,21 @@ EL_EXPORT ElError ElDistMatrixIsLocal_c
 EL_EXPORT ElError ElDistMatrixIsLocal_z
 ( ElConstDistMatrix_z A, ElInt i, ElInt j, bool* isLocal );
 
-/* DistData AbstractDistMatrix<T>::DistData() const
-   ------------------------------------------------ */
+/* DistData ElementalMatrix<T>::DistData() const
+   --------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDistData_i
-( ElConstDistMatrix_i A, ElDistData* distData );
+( ElConstDistMatrix_i A, ElElementalData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_s
-( ElConstDistMatrix_s A, ElDistData* distData );
+( ElConstDistMatrix_s A, ElElementalData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_d
-( ElConstDistMatrix_d A, ElDistData* distData );
+( ElConstDistMatrix_d A, ElElementalData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_c
-( ElConstDistMatrix_c A, ElDistData* distData );
+( ElConstDistMatrix_c A, ElElementalData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_z
-( ElConstDistMatrix_z A, ElDistData* distData );
+( ElConstDistMatrix_z A, ElElementalData* distData );
 
-/* mpi::Comm AbstractDistMatrix<T>::DistComm() const
-   ------------------------------------------------- */
+/* mpi::Comm ElementalMatrix<T>::DistComm() const
+   ---------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDistComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixDistComm_s
@@ -904,8 +904,8 @@ EL_EXPORT ElError ElDistMatrixDistComm_c
 EL_EXPORT ElError ElDistMatrixDistComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::CrossComm() const
-   -------------------------------------------------- */
+/* mpi::Comm ElementalMatrix<T>::CrossComm() const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixCrossComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixCrossComm_s
@@ -917,8 +917,8 @@ EL_EXPORT ElError ElDistMatrixCrossComm_c
 EL_EXPORT ElError ElDistMatrixCrossComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::RedundantComm() const
-   ------------------------------------------------------ */
+/* mpi::Comm ElementalMatrix<T>::RedundantComm() const
+   --------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRedundantComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixRedundantComm_s
@@ -930,8 +930,8 @@ EL_EXPORT ElError ElDistMatrixRedundantComm_c
 EL_EXPORT ElError ElDistMatrixRedundantComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::ColComm() const
-   ------------------------------------------------ */
+/* mpi::Comm ElementalMatrix<T>::ColComm() const
+   --------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixColComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixColComm_s
@@ -943,8 +943,8 @@ EL_EXPORT ElError ElDistMatrixColComm_c
 EL_EXPORT ElError ElDistMatrixColComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::RowComm() const
-   ------------------------------------------------ */
+/* mpi::Comm ElementalMatrix<T>::RowComm() const
+   --------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRowComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixRowComm_s
@@ -956,8 +956,8 @@ EL_EXPORT ElError ElDistMatrixRowComm_c
 EL_EXPORT ElError ElDistMatrixRowComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::PartialColComm() const
-   ------------------------------------------------------- */
+/* mpi::Comm ElementalMatrix<T>::PartialColComm() const
+   ---------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialColComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixPartialColComm_s
@@ -969,8 +969,8 @@ EL_EXPORT ElError ElDistMatrixPartialColComm_c
 EL_EXPORT ElError ElDistMatrixPartialColComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::PartialRowComm() const
-   ------------------------------------------------------- */
+/* mpi::Comm ElementalMatrix<T>::PartialRowComm() const
+   ---------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialRowComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixPartialRowComm_s
@@ -982,8 +982,8 @@ EL_EXPORT ElError ElDistMatrixPartialRowComm_c
 EL_EXPORT ElError ElDistMatrixPartialRowComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::PartialUnionColComm() const
-   ------------------------------------------------------------ */
+/* mpi::Comm ElementalMatrix<T>::PartialUnionColComm() const
+   --------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialUnionColComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixPartialUnionColComm_s
@@ -995,8 +995,8 @@ EL_EXPORT ElError ElDistMatrixPartialUnionColComm_c
 EL_EXPORT ElError ElDistMatrixPartialUnionColComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* mpi::Comm AbstractDistMatrix<T>::PartialUnionRowComm() const
-   ------------------------------------------------------------ */
+/* mpi::Comm ElementalMatrix<T>::PartialUnionRowComm() const
+   --------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialUnionRowComm_i
 ( ElConstDistMatrix_i A, MPI_Comm* comm );
 EL_EXPORT ElError ElDistMatrixPartialUnionRowComm_s
@@ -1008,8 +1008,8 @@ EL_EXPORT ElError ElDistMatrixPartialUnionRowComm_c
 EL_EXPORT ElError ElDistMatrixPartialUnionRowComm_z
 ( ElConstDistMatrix_z A, MPI_Comm* comm );
 
-/* int AbstractDistMatrix<T>::ColStride() const
-   -------------------------------------------- */
+/* int ElementalMatrix<T>::ColStride() const
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistMatrixColStride_i
 ( ElConstDistMatrix_i A, int* stride );
 EL_EXPORT ElError ElDistMatrixColStride_s
@@ -1021,8 +1021,8 @@ EL_EXPORT ElError ElDistMatrixColStride_c
 EL_EXPORT ElError ElDistMatrixColStride_z
 ( ElConstDistMatrix_z A, int* stride );
 
-/* int AbstractDistMatrix<T>::RowStride() const
-   -------------------------------------------- */
+/* int ElementalMatrix<T>::RowStride() const
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRowStride_i
 ( ElConstDistMatrix_i A, int* stride );
 EL_EXPORT ElError ElDistMatrixRowStride_s
@@ -1034,8 +1034,8 @@ EL_EXPORT ElError ElDistMatrixRowStride_c
 EL_EXPORT ElError ElDistMatrixRowStride_z
 ( ElConstDistMatrix_z A, int* stride );
 
-/* int AbstractDistMatrix<T>::PartialColStride() const
-   --------------------------------------------------- */
+/* int ElementalMatrix<T>::PartialColStride() const
+   ------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixPartialColStride_i
 ( ElConstDistMatrix_i A, int* stride );
 EL_EXPORT ElError ElDistMatrixPartialColStride_s
@@ -1047,8 +1047,8 @@ EL_EXPORT ElError ElDistMatrixPartialColStride_c
 EL_EXPORT ElError ElDistMatrixPartialColStride_z
 ( ElConstDistMatrix_z A, int* stride );
 
-/* int AbstractDistMatrix<T>::PartialRowStride() const
-   --------------------------------------------------- */
+/* int ElementalMatrix<T>::PartialRowStride() const
+   ------------------------------------------------ */
 EL_EXPORT ElError ElDistMatrixPartialRowStride_i
 ( ElConstDistMatrix_i A, int* stride );
 EL_EXPORT ElError ElDistMatrixPartialRowStride_s
@@ -1060,8 +1060,8 @@ EL_EXPORT ElError ElDistMatrixPartialRowStride_c
 EL_EXPORT ElError ElDistMatrixPartialRowStride_z
 ( ElConstDistMatrix_z A, int* stride );
 
-/* int AbstractDistMatrix<T>::PartialUnionColStride() const
-   -------------------------------------------------------- */
+/* int ElementalMatrix<T>::PartialUnionColStride() const
+   ----------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialUnionColStride_i
 ( ElConstDistMatrix_i A, int* stride );
 EL_EXPORT ElError ElDistMatrixPartialUnionColStride_s
@@ -1073,8 +1073,8 @@ EL_EXPORT ElError ElDistMatrixPartialUnionColStride_c
 EL_EXPORT ElError ElDistMatrixPartialUnionColStride_z
 ( ElConstDistMatrix_z A, int* stride );
 
-/* int AbstractDistMatrix<T>::PartialUnionRowStride() const
-   -------------------------------------------------------- */
+/* int ElementalMatrix<T>::PartialUnionRowStride() const
+   ----------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixPartialUnionRowStride_i
 ( ElConstDistMatrix_i A, int* stride );
 EL_EXPORT ElError ElDistMatrixPartialUnionRowStride_s
@@ -1086,8 +1086,8 @@ EL_EXPORT ElError ElDistMatrixPartialUnionRowStride_c
 EL_EXPORT ElError ElDistMatrixPartialUnionRowStride_z
 ( ElConstDistMatrix_z A, int* stride );
 
-/* int AbstractDistMatrix<T>::DistSize() const
-   ------------------------------------------- */
+/* int ElementalMatrix<T>::DistSize() const
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDistSize_i
 ( ElConstDistMatrix_i A, int* commSize );
 EL_EXPORT ElError ElDistMatrixDistSize_s
@@ -1099,8 +1099,8 @@ EL_EXPORT ElError ElDistMatrixDistSize_c
 EL_EXPORT ElError ElDistMatrixDistSize_z
 ( ElConstDistMatrix_z A, int* commSize );
 
-/* int AbstractDistMatrix<T>::CrossSize() const
-   -------------------------------------------- */
+/* int ElementalMatrix<T>::CrossSize() const
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistMatrixCrossSize_i
 ( ElConstDistMatrix_i A, int* commSize );
 EL_EXPORT ElError ElDistMatrixCrossSize_s
@@ -1112,8 +1112,8 @@ EL_EXPORT ElError ElDistMatrixCrossSize_c
 EL_EXPORT ElError ElDistMatrixCrossSize_z
 ( ElConstDistMatrix_z A, int* commSize );
 
-/* int AbstractDistMatrix<T>::RedundantSize() const
-   ------------------------------------------------ */
+/* int ElementalMatrix<T>::RedundantSize() const
+   --------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixRedundantSize_i
 ( ElConstDistMatrix_i A, int* commSize );
 EL_EXPORT ElError ElDistMatrixRedundantSize_s
@@ -1125,8 +1125,8 @@ EL_EXPORT ElError ElDistMatrixRedundantSize_c
 EL_EXPORT ElError ElDistMatrixRedundantSize_z
 ( ElConstDistMatrix_z A, int* commSize );
 
-/* T AbstractDistMatrix<T>::Get( Int i, Int j ) const
-   -------------------------------------------------- */
+/* T ElementalMatrix<T>::Get( Int i, Int j ) const
+   ----------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGet_i
 ( ElConstDistMatrix_i A, ElInt i, ElInt j, ElInt* val );
 EL_EXPORT ElError ElDistMatrixGet_s
@@ -1138,22 +1138,22 @@ EL_EXPORT ElError ElDistMatrixGet_c
 EL_EXPORT ElError ElDistMatrixGet_z
 ( ElConstDistMatrix_z A, ElInt i, ElInt j, complex_double* val );
 
-/* Base<T> AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
-   ---------------------------------------------------------------- */
+/* Base<T> ElementalMatrix<T>::GetRealPart( Int i, Int j ) const
+   ------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGetRealPart_c
 ( ElConstDistMatrix_c A, ElInt i, ElInt j, float* val );
 EL_EXPORT ElError ElDistMatrixGetRealPart_z
 ( ElConstDistMatrix_z A, ElInt i, ElInt j, double* val );
 
-/* Base<T> AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
-   ---------------------------------------------------------------- */
+/* Base<T> ElementalMatrix<T>::GetImagPart( Int i, Int j ) const
+   ------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGetImagPart_c
 ( ElConstDistMatrix_c A, ElInt i, ElInt j, float* val );
 EL_EXPORT ElError ElDistMatrixGetImagPart_z
 ( ElConstDistMatrix_z A, ElInt i, ElInt j, double* val );
 
-/* void AbstractDistMatrix<T>::Set( Int i, Int j, T alpha )
-   -------------------------------------------------------- */
+/* void ElementalMatrix<T>::Set( Int i, Int j, T alpha )
+   ----------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixSet_i
 ( ElDistMatrix_i A, ElInt i, ElInt j, ElInt alpha );
 EL_EXPORT ElError ElDistMatrixSet_s
@@ -1165,22 +1165,22 @@ EL_EXPORT ElError ElDistMatrixSet_c
 EL_EXPORT ElError ElDistMatrixSet_z
 ( ElDistMatrix_z A, ElInt i, ElInt j, complex_double alpha );
 
-/* void AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
-   ---------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
+   ------------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixSetRealPart_c
 ( ElDistMatrix_c A, ElInt i, ElInt j, float alpha );
 EL_EXPORT ElError ElDistMatrixSetRealPart_z
 ( ElDistMatrix_z A, ElInt i, ElInt j, double alpha );
 
-/* void AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
-   ---------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
+   ------------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixSetImagPart_c
 ( ElDistMatrix_c A, ElInt i, ElInt j, float alpha );
 EL_EXPORT ElError ElDistMatrixSetImagPart_z
 ( ElDistMatrix_z A, ElInt i, ElInt j, double alpha );
 
-/* void AbstractDistMatrix<T>::Update( Int i, Int j, T alpha )
-   ----------------------------------------------------------- */
+/* void ElementalMatrix<T>::Update( Int i, Int j, T alpha )
+   -------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixUpdate_i
 ( ElDistMatrix_i A, ElInt i, ElInt j, ElInt alpha );
 EL_EXPORT ElError ElDistMatrixUpdate_s
@@ -1192,32 +1192,32 @@ EL_EXPORT ElError ElDistMatrixUpdate_c
 EL_EXPORT ElError ElDistMatrixUpdate_z
 ( ElDistMatrix_z A, ElInt i, ElInt j, complex_double alpha );
 
-/* void AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
-   ------------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
+   ---------------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixUpdateRealPart_c
 ( ElDistMatrix_c A, ElInt i, ElInt j, float alpha );
 EL_EXPORT ElError ElDistMatrixUpdateRealPart_z
 ( ElDistMatrix_z A, ElInt i, ElInt j, double alpha );
 
-/* void AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
-   ------------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
+   ---------------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixUpdateImagPart_c
 ( ElDistMatrix_c A, ElInt i, ElInt j, float alpha );
 EL_EXPORT ElError ElDistMatrixUpdateImagPart_z
 ( ElDistMatrix_z A, ElInt i, ElInt j, double alpha );
 
-/* void AbstractDistMatrix<T>::MakeReal( Int i, Int j )
-   ---------------------------------------------------- */
+/* void ElementalMatrix<T>::MakeReal( Int i, Int j )
+   ------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixMakeReal_c( ElDistMatrix_c A, ElInt i, ElInt j );
 EL_EXPORT ElError ElDistMatrixMakeReal_z( ElDistMatrix_z A, ElInt i, ElInt j );
 
-/* void AbstractDistMatrix<T>::Conjugate( Int i, Int j )
-   ----------------------------------------------------- */
+/* void ElementalMatrix<T>::Conjugate( Int i, Int j )
+   -------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixConjugate_c( ElDistMatrix_c A, ElInt i, ElInt j );
 EL_EXPORT ElError ElDistMatrixConjugate_z( ElDistMatrix_z A, ElInt i, ElInt j );
 
-/* void AbstractDistMatrix<T>::Reserve( Int numRemoteEntries )
-   ----------------------------------------------------------- */
+/* void ElementalMatrix<T>::Reserve( Int numRemoteEntries )
+   -------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixReserve_i
 ( ElDistMatrix_i A, ElInt numRemoteEntries );
 EL_EXPORT ElError ElDistMatrixReserve_s
@@ -1229,8 +1229,8 @@ EL_EXPORT ElError ElDistMatrixReserve_c
 EL_EXPORT ElError ElDistMatrixReserve_z
 ( ElDistMatrix_z A, ElInt numRemoteEntries );
 
-/* void AbstractDistMatrix<T>::QueueUpdate( Int i, Int j, T value )
-   ---------------------------------------------------------------- */
+/* void ElementalMatrix<T>::QueueUpdate( Int i, Int j, T value )
+   ------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixQueueUpdate_i
 ( ElDistMatrix_i A, ElInt i, ElInt j, ElInt value );
 EL_EXPORT ElError ElDistMatrixQueueUpdate_s
@@ -1242,16 +1242,16 @@ EL_EXPORT ElError ElDistMatrixQueueUpdate_c
 EL_EXPORT ElError ElDistMatrixQueueUpdate_z
 ( ElDistMatrix_z A, ElInt i, ElInt j, complex_double value );
 
-/* void AbstractDistMatrix<T>::ProcessQueues()
-   ------------------------------------------- */
+/* void ElementalMatrix<T>::ProcessQueues()
+   ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixProcessQueues_i( ElDistMatrix_i A );
 EL_EXPORT ElError ElDistMatrixProcessQueues_s( ElDistMatrix_s A );
 EL_EXPORT ElError ElDistMatrixProcessQueues_d( ElDistMatrix_d A );
 EL_EXPORT ElError ElDistMatrixProcessQueues_c( ElDistMatrix_c A );
 EL_EXPORT ElError ElDistMatrixProcessQueues_z( ElDistMatrix_z A );
 
-/* T AbstractDistMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
-   ------------------------------------------------------------- */
+/* T ElementalMatrix<T>::GetLocal( Int iLoc, Int jLoc ) const
+   ---------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGetLocal_i
 ( ElConstDistMatrix_i A, ElInt iLoc, ElInt jLoc, ElInt* val );
 EL_EXPORT ElError ElDistMatrixGetLocal_s
@@ -1263,24 +1263,24 @@ EL_EXPORT ElError ElDistMatrixGetLocal_c
 EL_EXPORT ElError ElDistMatrixGetLocal_z
 ( ElConstDistMatrix_z A, ElInt iLoc, ElInt jLoc, complex_double* val );
 
-/* Base<T> AbstractDistMatrix<T>::GetLocalRealPart
+/* Base<T> ElementalMatrix<T>::GetLocalRealPart
    ( Int iLoc, Int jLoc ) const
-   ----------------------------------------------- */
+   -------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGetLocalRealPart_c
 ( ElConstDistMatrix_c A, ElInt iLoc, ElInt jLoc, float* val );
 EL_EXPORT ElError ElDistMatrixGetLocalRealPart_z
 ( ElConstDistMatrix_z A, ElInt iLoc, ElInt jLoc, double* val );
 
-/* Base<T> AbstractDistMatrix<T>::GetLocalImagPart
+/* Base<T> ElementalMatrix<T>::GetLocalImagPart
    ( Int iLoc, Int jLoc ) const
-   ----------------------------------------------- */
+   -------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixGetLocalImagPart_c
 ( ElConstDistMatrix_c A, ElInt iLoc, ElInt jLoc, float* val );
 EL_EXPORT ElError ElDistMatrixGetLocalImagPart_z
 ( ElConstDistMatrix_z A, ElInt iLoc, ElInt jLoc, double* val );
 
-/* void AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T val )
-   ----------------------------------------------------------------- */
+/* void ElementalMatrix<T>::SetLocal( Int iLoc, Int jLoc, T val )
+   -------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixSetLocal_i
 ( ElDistMatrix_i A, ElInt iLoc, ElInt jLoc, ElInt val );
 EL_EXPORT ElError ElDistMatrixSetLocal_s
@@ -1292,24 +1292,24 @@ EL_EXPORT ElError ElDistMatrixSetLocal_c
 EL_EXPORT ElError ElDistMatrixSetLocal_z
 ( ElDistMatrix_z A, ElInt iLoc, ElInt jLoc, complex_double val );
 
-/* void AbstractDistMatrix<T>::SetLocalRealPart
+/* void ElementalMatrix<T>::SetLocalRealPart
    ( Int iLoc, Int jLoc, Base<T> val )
-   -------------------------------------------- */
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistMatrixSetLocalRealPart_c
 ( ElDistMatrix_c A, ElInt iLoc, ElInt jLoc, float val );
 EL_EXPORT ElError ElDistMatrixSetLocalRealPart_z
 ( ElDistMatrix_z A, ElInt iLoc, ElInt jLoc, double val );
 
-/* void AbstractDistMatrix<T>::SetLocalImagPart
+/* void ElementalMatrix<T>::SetLocalImagPart
    ( Int iLoc, Int jLoc, Base<T> val )
-   -------------------------------------------- */
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistMatrixSetLocalImagPart_c
 ( ElDistMatrix_c A, ElInt iLoc, ElInt jLoc, float val );
 EL_EXPORT ElError ElDistMatrixSetLocalImagPart_z
 ( ElDistMatrix_z A, ElInt iLoc, ElInt jLoc, double val );
 
-/* void AbstractDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T val )
-   -------------------------------------------------------------------- */
+/* void ElementalMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T val )
+   ----------------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixUpdateLocal_i
 ( ElDistMatrix_i A, ElInt iLoc, ElInt jLoc, ElInt val );
 EL_EXPORT ElError ElDistMatrixUpdateLocal_s
@@ -1321,38 +1321,43 @@ EL_EXPORT ElError ElDistMatrixUpdateLocal_c
 EL_EXPORT ElError ElDistMatrixUpdateLocal_z
 ( ElDistMatrix_z A, ElInt iLoc, ElInt jLoc, complex_double val );
 
-/* void AbstractDistMatrix<T>::UpdateLocalRealPart
+/* void ElementalMatrix<T>::UpdateLocalRealPart
    ( Int iLoc, Int jLoc, Base<T> val )
-   ----------------------------------------------- */
+   -------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixUpdateLocalRealPart_c
 ( ElDistMatrix_c A, ElInt iLoc, ElInt jLoc, float val );
 EL_EXPORT ElError ElDistMatrixUpdateLocalRealPart_z
 ( ElDistMatrix_z A, ElInt iLoc, ElInt jLoc, double val );
 
-/* void AbstractDistMatrix<T>::UpdateLocalImagPart
+/* void ElementalMatrix<T>::UpdateLocalImagPart
    ( Int iLoc, Int jLoc, Base<T> val )
-   ----------------------------------------------- */
+   -------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixUpdateLocalImagPart_c
 ( ElDistMatrix_c A, ElInt iLoc, ElInt jLoc, float val );
 EL_EXPORT ElError ElDistMatrixUpdateLocalImagPart_z
 ( ElDistMatrix_z A, ElInt iLoc, ElInt jLoc, double val );
 
-/* bool AbstractDistMatrix<T>::DiagonalAlignedWith
+/* bool ElementalMatrix<T>::DiagonalAlignedWith
    ( const DistData& data, Int offset ) const
-   ----------------------------------------------- */
+   -------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_i
-( ElConstDistMatrix_i A, ElDistData distData, ElInt offset, bool* aligned );
+( ElConstDistMatrix_i A, ElElementalData distData, ElInt offset,
+  bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_s
-( ElConstDistMatrix_s A, ElDistData distData, ElInt offset, bool* aligned );
+( ElConstDistMatrix_s A, ElElementalData distData, ElInt offset,
+  bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_d
-( ElConstDistMatrix_d A, ElDistData distData, ElInt offset, bool* aligned );
+( ElConstDistMatrix_d A, ElElementalData distData, ElInt offset,
+  bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_c
-( ElConstDistMatrix_c A, ElDistData distData, ElInt offset, bool* aligned );
+( ElConstDistMatrix_c A, ElElementalData distData, ElInt offset,
+  bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_z
-( ElConstDistMatrix_z A, ElDistData distData, ElInt offset, bool* aligned );
+( ElConstDistMatrix_z A, ElElementalData distData, ElInt offset,
+  bool* aligned );
 
-/* int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
-   ----------------------------------------------------------- */
+/* int ElementalMatrix<T>::DiagonalRoot( Int offset ) const
+   -------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDiagonalRoot_i
 ( ElConstDistMatrix_i A, ElInt offset, int* root );
 EL_EXPORT ElError ElDistMatrixDiagonalRoot_s
@@ -1364,8 +1369,8 @@ EL_EXPORT ElError ElDistMatrixDiagonalRoot_c
 EL_EXPORT ElError ElDistMatrixDiagonalRoot_z
 ( ElConstDistMatrix_z A, ElInt offset, int* root );
 
-/* int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
-   ------------------------------------------------------------ */
+/* int ElementalMatrix<T>::DiagonalAlign( Int offset ) const
+   --------------------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDiagonalRoot_i
 ( ElConstDistMatrix_i A, ElInt offset, int* align );
 EL_EXPORT ElError ElDistMatrixDiagonalRoot_s

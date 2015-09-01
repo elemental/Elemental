@@ -24,7 +24,7 @@ void ExplicitTriang( Matrix<F>& A )
 }
 
 template<typename F>
-void ExplicitTriang( AbstractDistMatrix<F>& A )
+void ExplicitTriang( ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("rq::ExplicitTriang"))
     DistMatrix<F,MD,STAR> t(A.Grid());

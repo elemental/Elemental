@@ -28,21 +28,10 @@ void Forsythe( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda )
         J.Set( n-1, 0, alpha );
 }
 
-template<typename T>
-void Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda )
-{
-    DEBUG_ONLY(CSE cse("Forsythe"))
-    Jordan( J, n, lambda );
-    if( n > 0 )
-        J.Set( n-1, 0, alpha );
-}
-
 #define PROTO(T) \
   template void Forsythe( Matrix<T>& J, Int n, T alpha, T lambda ); \
   template void Forsythe \
-  ( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda ); \
-  template void Forsythe \
-  ( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda );
+  ( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

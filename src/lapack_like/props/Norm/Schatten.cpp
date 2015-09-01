@@ -37,7 +37,7 @@ Base<F> SymmetricSchattenNorm
 }
 
 template<typename F> 
-Base<F> SchattenNorm( const AbstractDistMatrix<F>& A, Base<F> p )
+Base<F> SchattenNorm( const ElementalMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CSE cse("SchattenNorm"))
     const Int minDim = Min(A.Height(),A.Width());
@@ -46,7 +46,7 @@ Base<F> SchattenNorm( const AbstractDistMatrix<F>& A, Base<F> p )
 
 template<typename F>
 Base<F> HermitianSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CSE cse("HermitianSchattenNorm"))
     const Int minDim = A.Height();
@@ -55,7 +55,7 @@ Base<F> HermitianSchattenNorm
 
 template<typename F>
 Base<F> SymmetricSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CSE cse("SymmetricSchattenNorm"))
     const Int minDim = A.Height();
@@ -64,15 +64,15 @@ Base<F> SymmetricSchattenNorm
 
 #define PROTO(F) \
   template Base<F> SchattenNorm( const Matrix<F>& A, Base<F> p ); \
-  template Base<F> SchattenNorm( const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> SchattenNorm( const ElementalMatrix<F>& A, Base<F> p ); \
   template Base<F> HermitianSchattenNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
   template Base<F> HermitianSchattenNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p ); \
   template Base<F> SymmetricSchattenNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
   template Base<F> SymmetricSchattenNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p );
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

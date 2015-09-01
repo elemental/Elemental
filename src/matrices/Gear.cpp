@@ -40,25 +40,9 @@ void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t )
     G.Set( n-1, n-Abs(t), Sgn(t) );
 }
 
-template<typename T>
-void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t )
-{
-    DEBUG_ONLY(CSE cse("Gear"))
-    if( s == 0 || s > n || s < -n )
-        LogicError("Invalid s value");
-    if( t == 0 || t > n || t < -n )
-        LogicError("Invalid t value");
-    Zeros( G, n, n );
-    FillDiagonal( G, T(1), -1 );
-    FillDiagonal( G, T(1),  1 );
-    G.Set( 0,   Abs(s)-1, Sgn(s) );
-    G.Set( n-1, n-Abs(t), Sgn(t) );
-}
-
 #define PROTO(T) \
   template void Gear( Matrix<T>& G, Int n, Int s, Int t ); \
-  template void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t ); \
-  template void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t );
+  template void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

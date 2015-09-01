@@ -109,11 +109,11 @@ void EN
 
 template<typename Real>
 void EN
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
         Real lambda1,
         Real lambda2,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("EN"))
@@ -353,11 +353,11 @@ void EN
           Matrix<Real>& x, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void EN \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
           Real lambda1, \
           Real lambda2, \
-          AbstractDistMatrix<Real>& x, \
+          ElementalMatrix<Real>& x, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void EN \
   ( const SparseMatrix<Real>& A, \

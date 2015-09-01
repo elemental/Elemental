@@ -34,24 +34,9 @@ void Lotkin( AbstractDistMatrix<F>& A, Int n )
     } 
 }
 
-template<typename F>
-void Lotkin( AbstractBlockDistMatrix<F>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("Lotkin"))
-    Hilbert( A, n );
-    // Set first row to all ones
-    if( A.ColShift() == 0 )
-    {
-        const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            A.SetLocal( 0, jLoc, F(1) );
-    } 
-}
-
 #define PROTO(F) \
   template void Lotkin( Matrix<F>& A, Int n ); \
-  template void Lotkin( AbstractDistMatrix<F>& A, Int n ); \
-  template void Lotkin( AbstractBlockDistMatrix<F>& A, Int n );
+  template void Lotkin( AbstractDistMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

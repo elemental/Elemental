@@ -77,8 +77,8 @@ template<typename F>
 inline void
 LLHF
 ( Conjugation conjugation, Int offset, 
-  const AbstractDistMatrix<F>& HPre, const AbstractDistMatrix<F>& tPre, 
-        AbstractDistMatrix<F>& APre )
+  const ElementalMatrix<F>& HPre, const ElementalMatrix<F>& tPre, 
+        ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CSE cse("apply_packed_reflectors::LLHF");

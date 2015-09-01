@@ -71,7 +71,7 @@ template<typename F>
 void Trstrm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X,
+  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("Trstrm"))
@@ -136,7 +136,7 @@ void Trstrm
   template void Trstrm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X, \
+    F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& X, \
     bool checkIfSingular ); \
   template void Trstrm \
   ( LeftOrRight side, UpperOrLower uplo, \

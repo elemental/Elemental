@@ -73,7 +73,7 @@ template<typename T>
 inline void
 LUNA
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUNA");
@@ -118,7 +118,7 @@ template<typename T>
 inline void
 LUNCOld
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUNCOld");
@@ -176,7 +176,7 @@ template<typename T>
 inline void
 LUNC
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUNC");
@@ -228,7 +228,7 @@ LUNC
 template<typename T>
 inline void
 LUN
-( UnitOrNonUnit diag, const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
+( UnitOrNonUnit diag, const ElementalMatrix<T>& U, ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::LUN"))
     // TODO: Come up with a better routing mechanism

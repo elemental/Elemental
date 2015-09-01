@@ -75,7 +75,7 @@ void ApplyInverseRowPivots
 
 template<typename T>
 void ApplyRowPivots
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, Int offset )
+( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyRowPivots"))
     DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
@@ -94,7 +94,7 @@ void ApplyRowPivots
 
 template<typename T>
 void ApplyInverseRowPivots
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, Int offset )
+( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyInverseRowPivots"))
     DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
@@ -115,12 +115,12 @@ void ApplyInverseRowPivots
   template void ApplyRowPivots \
   ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
   template void ApplyRowPivots \
-  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, \
+  ( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, \
     Int offset ); \
   template void ApplyInverseRowPivots \
   ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
   template void ApplyInverseRowPivots \
-  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& pivots, \
+  ( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, \
     Int offset );
 
 #include "El/macros/Instantiate.h"

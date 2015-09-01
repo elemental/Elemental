@@ -34,6 +34,9 @@ struct Comm
 {
     MPI_Comm comm;
     Comm( MPI_Comm mpiComm=MPI_COMM_NULL ) EL_NO_EXCEPT : comm(mpiComm) { }
+
+    inline int Rank() const EL_NO_RELEASE_EXCEPT;
+    inline int Size() const EL_NO_RELEASE_EXCEPT;
 };
 inline bool operator==( const Comm& a, const Comm& b ) EL_NO_EXCEPT
 { return a.comm == b.comm; }
@@ -45,6 +48,9 @@ struct Group
     MPI_Group group;
     Group( MPI_Group mpiGroup=MPI_GROUP_NULL ) EL_NO_EXCEPT 
     : group(mpiGroup) { }
+
+    inline int Rank() const EL_NO_RELEASE_EXCEPT;
+    inline int Size() const EL_NO_RELEASE_EXCEPT;
 };
 inline bool operator==( const Group& a, const Group& b ) EL_NO_EXCEPT
 { return a.group == b.group; }
@@ -757,6 +763,11 @@ template<> Op MinLocPairOp<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
 template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT;
 #endif
+
+int Comm::Rank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(*this); }
+int Comm::Size() const EL_NO_RELEASE_EXCEPT { return mpi::Size(*this); }
+int Group::Rank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(*this); }
+int Group::Size() const EL_NO_RELEASE_EXCEPT { return mpi::Size(*this); }
 
 } // mpi
 } // elem

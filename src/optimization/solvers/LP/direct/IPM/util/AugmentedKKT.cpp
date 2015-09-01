@@ -55,10 +55,10 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre, 
   bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
@@ -122,10 +122,10 @@ void AugmentedKKT
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \

@@ -35,7 +35,7 @@ void Copy( const Matrix<S>& A, Matrix<T>& B )
 }
 
 template<typename T,Dist U,Dist V>
-inline void Copy( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B )
+inline void Copy( const ElementalMatrix<T>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     B = A;
@@ -44,7 +44,7 @@ inline void Copy( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B )
 // Datatype conversions should not be very common, and so it is likely best to
 // avoid explicitly instantiating every combination
 template<typename S,typename T,Dist U,Dist V>
-inline void Copy( const AbstractDistMatrix<S>& A, DistMatrix<T,U,V>& B )
+inline void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
@@ -72,7 +72,7 @@ inline void Copy( const AbstractDistMatrix<S>& A, DistMatrix<T,U,V>& B )
 
 template<typename T,Dist U,Dist V>
 inline void Copy
-( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B )
+( const BlockCyclicMatrix<T>& A, DistMatrix<T,U,V,BLOCK_CYCLIC>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     B = A;
@@ -82,7 +82,7 @@ inline void Copy
 // avoid explicitly instantiating every combination
 template<typename S,typename T,Dist U,Dist V>
 inline void Copy
-( const AbstractBlockDistMatrix<S>& A, BlockDistMatrix<T,U,V>& B )
+( const BlockCyclicMatrix<S>& A, DistMatrix<T,U,V,BLOCK_CYCLIC>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
@@ -104,7 +104,7 @@ inline void Copy
             return;
         }
     }
-    BlockDistMatrix<S,U,V> BOrig(A.Grid());
+    DistMatrix<S,U,V,BLOCK_CYCLIC> BOrig(A.Grid());
     BOrig.AlignWith( B );
     BOrig = A;
     B.Resize( A.Height(), A.Width() );
@@ -112,7 +112,7 @@ inline void Copy
 }
 
 template<typename S,typename T>
-void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
+void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
@@ -123,13 +123,53 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
 }
 
 template<typename S,typename T>
-void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B )
+void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CSE cse("Copy"))
+    const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
+    if( wrapA == ELEMENTAL && wrapB == ELEMENTAL )
+    {
+        auto& ACast = dynamic_cast<const ElementalMatrix<T>&>(A);
+        auto& BCast = dynamic_cast<ElementalMatrix<T>&>(B);
+        BCast = ACast;
+    }
+    else if( wrapA == BLOCK_CYCLIC && wrapB == BLOCK_CYCLIC )
+    {
+        auto& ACast = dynamic_cast<const BlockCyclicMatrix<T>&>(A);
+        auto& BCast = dynamic_cast<BlockCyclicMatrix<T>&>(B);
+        BCast = ACast;
+    }
+    else // TODO: More branching once DistMultiVec merged
+    {
+        B.SetGrid( A.Grid() );
+        Zeros( B, A.Height(), A.Width() );
+        if( A.RedundantRank() == 0 )
+        {
+            const Int localHeight = A.LocalHeight();
+            const Int localWidth = A.LocalWidth();
+            B.Reserve( localHeight*localWidth );
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            {
+                const Int j = A.GlobalCol(jLoc);
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                {
+                    const Int i = A.GlobalRow(iLoc);
+                    B.QueueUpdate( i, j, T(A.GetLocal(iLoc,jLoc)) );
+                }
+            }
+        }
+        B.ProcessQueues();
+    }
+}
+
+template<typename S,typename T>
+void Copy( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(B); \
-        Copy( A, BCast );
+      auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST,BLOCK_CYCLIC>&>(B); \
+      Copy( A, BCast );
     #include "El/macros/GuardAndPayload.h"
 }
 
@@ -219,6 +259,29 @@ void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
     B.MakeSizeConsistent( includingViewers );
 }
 
+template<typename T>
+void CopyFromRoot
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B,
+  bool includingViewers )
+{
+    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    if( B.CrossRank() != B.Root() )
+        LogicError("Called CopyFromRoot from non-root");
+    B.Resize( A.Height(), A.Width() );
+    B.MakeSizeConsistent( includingViewers );
+    B.Matrix() = A;
+}
+
+template<typename T>
+void CopyFromNonRoot
+( DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B, bool includingViewers )
+{
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    if( B.CrossRank() == B.Root() )
+        LogicError("Called CopyFromNonRoot from root");
+    B.MakeSizeConsistent( includingViewers );
+}
+
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
 {
     DEBUG_ONLY(CSE cse("CopyFromRoot"))
@@ -288,9 +351,19 @@ template<typename S,typename T>
 void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
-    Zeros( B, A.Height(), A.Width() );
-    for( Int k=0; k<A.NumEntries(); ++k )
-        B.Update( A.Row(k), A.Col(k), Caster<S,T>::Cast(A.Value(k)) );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int numEntries = A.NumEntries();
+    const S* AValBuf = A.LockedValueBuffer();
+    const Int* ARowBuf = A.LockedSourceBuffer();
+    const Int* AColBuf = A.LockedTargetBuffer();
+    
+    T* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+    
+    Zeros( B, m, n );
+    for( Int e=0; e<numEntries; ++e )
+        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = T(AValBuf[e]);
 }
 
 template<typename T>
@@ -307,51 +380,18 @@ void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
-// TODO: Switch to using the QueueUpdate routines of AbstractDistMatrix
 template<typename S,typename T>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
-    mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size( comm ); 
-    if( !mpi::Congruent( B.Grid().Comm(), comm ) )
-        LogicError("Communicators of A and B must be congruent");
-    if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
-        LogicError("Trivial cross and redundant communicators required");
-
-    Zeros( B, A.Height(), A.Width() );
-
-    // Compute the number of entries of A to send to each member of B
-    // ==============================================================
+    const Int m = A.Height();
+    const Int n = A.Width();
     const Int numEntries = A.NumLocalEntries();
-    vector<int> sendCounts(commSize,0);
-    for( Int k=0; k<numEntries; ++k )
-    {
-        const Int i = A.Row(k);
-        const Int j = A.Col(k);
-        ++sendCounts[ B.Owner(i,j) ];
-    }
-
-    // Pack the triplets
-    // =================
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int k=0; k<numEntries; ++k )
-    {
-        const Int i = A.Row(k);
-        const Int j = A.Col(k);
-        const T value = Caster<S,T>::Cast(A.Value(k));
-        const int owner = B.Owner(i,j);
-        sendBuf[offs[owner]++] = Entry<T>{ i, j, value };
-    }
-
-    // Exchange and unpack the triplets
-    // ================================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        B.Update( entry );
+    Zeros( B, m, n );
+    B.Reserve( numEntries );
+    for( Int e=0; e<numEntries; ++e )
+        B.QueueUpdate( A.Row(e), A.Col(e), T(A.Value(e)) );
+    B.ProcessQueues();
 }
 
 template<typename T>
@@ -431,7 +471,6 @@ void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
-// TODO: Switch to using the QueueUpdate routines of AbstractDistMatrix
 template<typename T>
 void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 {
@@ -439,46 +478,17 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
-    mpi::Comm comm = B.DistComm();
-    const int commSize = mpi::Size(comm);
-    if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
-        LogicError
-        ("DistMultiVec -> ADM only supported with trivial cross and "
-         "redundant sizes");
-
-    B.Resize( m, n );
-   
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);
-    for( Int j=0; j<n; ++j )
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
-            ++sendCounts[ B.Owner(A.GlobalRow(iLoc),j) ]; 
-
-    // Pack
-    // ====
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int j=0; j<n; ++j )
+    Zeros( B, m, n );
+    B.Reserve( mLoc*n );
+    for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            const int owner = B.Owner(i,j);
-            sendBuf[offs[owner]++] = Entry<T>{ i, j, A.GetLocal(iLoc,j) };
-        }
+        const Int i = A.GlobalRow(iLoc);
+        for( Int j=0; j<n; ++j )
+            B.QueueUpdate( i, j, A.GetLocal(iLoc,j) );
     }
-
-    // Exchange and unpack
-    // ===================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        B.Set( entry );
+    B.ProcessQueues();
 }
 
-// TODO: Switch to using the QueueUpdate routines of DistMultiVec
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
 {
@@ -488,45 +498,19 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     mpi::Comm comm = A.Grid().Comm();
-    const int commSize = mpi::Size(comm);
-
-    if( A.CrossSize() != 1 || A.RedundantSize() != 1 )
-        LogicError
-        ("ADM -> DistMultiVec only supported with trivial cross and "
-         "redundant sizes");
-
     B.SetComm( comm );
-    B.Resize( m, n );
-   
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
-            ++sendCounts[ B.RowOwner(A.GlobalRow(iLoc)) ]; 
-
-    // Pack
-    // ====
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+    Zeros( B, m, n );
+    B.Reserve( mLoc*nLoc );
+    for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+        const Int i = A.GlobalRow(iLoc);
+        for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
-            const Int i = A.GlobalRow(iLoc);
-            const int owner = B.RowOwner(i);
-            sendBuf[offs[owner]++] = Entry<T>{ i, j, A.GetLocal(iLoc,jLoc) };
+            const Int j = A.GlobalCol(jLoc);
+            B.QueueUpdate( i, j, A.GetLocal(iLoc,jLoc) );
         }
     }
-
-    // Exchange and unpack
-    // ===================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        B.Set( entry );
+    B.ProcessQueues();
 }
 
 template<typename T>
@@ -624,9 +608,11 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
   template void Copy \
   ( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
+  ( const ElementalMatrix<S>& A, ElementalMatrix<T>& B ); \
+  template void Copy \
   ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
-  ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B ); \
+  ( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B ); \
   template void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B ); \
   template void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B ); \
   template void Copy( const SparseMatrix<S>& A, Matrix<T>& B ); \

@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, r, order );
 
-        BlockDistMatrix<Complex<double>> A(m,n,g,mb,nb);
+        DistMatrix<Complex<double>,MC,MR,BLOCK_CYCLIC> A(m,n,g,mb,nb);
         Fill( A, Complex<double>(1) );
         A.Matrix() *= double(commRank);
         if( print )
@@ -56,7 +56,7 @@ main( int argc, char* argv[] )
             //       reordering in P{S,D}HSEQR (within P{S,D}TRORD).
             //       This driver was therefore switched to complex arithmetic.
             DistMatrix<Complex<double>,VR,STAR> w( m, 1, g );
-            BlockDistMatrix<Complex<double>> Q(m,m,g,mb,nb);
+            DistMatrix<Complex<double>,MC,MR,BLOCK_CYCLIC> Q(m,m,g,mb,nb);
             Schur( A, w, Q, fullTriangle );
             if( print )
             {

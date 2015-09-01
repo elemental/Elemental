@@ -17,78 +17,78 @@ namespace El {
 template<typename F>
 Base<F> Condition( const Matrix<F>& A, NormType type=TWO_NORM );
 template<typename F>
-Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type=TWO_NORM );
+Base<F> Condition( const ElementalMatrix<F>& A, NormType type=TWO_NORM );
 
 template<typename F>
 Base<F> FrobeniusCondition( const Matrix<F>& A );
 template<typename F>
-Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A );
+Base<F> FrobeniusCondition( const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> InfinityCondition( const Matrix<F>& A );
 template<typename F>
-Base<F> InfinityCondition( const AbstractDistMatrix<F>& A );
+Base<F> InfinityCondition( const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> MaxCondition( const Matrix<F>& A );
 template<typename F>
-Base<F> MaxCondition( const AbstractDistMatrix<F>& A );
+Base<F> MaxCondition( const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> OneCondition( const Matrix<F>& A );
 template<typename F>
-Base<F> OneCondition( const AbstractDistMatrix<F>& A );
+Base<F> OneCondition( const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> TwoCondition( const Matrix<F>& A );
 template<typename F>
-Base<F> TwoCondition( const AbstractDistMatrix<F>& A );
+Base<F> TwoCondition( const ElementalMatrix<F>& A );
 
 // Determinant
 // ===========
 template<typename F>
 SafeProduct<F> SafeDeterminant( const Matrix<F>& A );
 template<typename F>
-SafeProduct<F> SafeDeterminant( const AbstractDistMatrix<F>& A );
+SafeProduct<F> SafeDeterminant( const ElementalMatrix<F>& A );
 template<typename F>
 SafeProduct<F> SafeDeterminant
 ( Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
 SafeProduct<F> SafeDeterminant
-( AbstractDistMatrix<F>& A, bool canOverwrite=false );
+( ElementalMatrix<F>& A, bool canOverwrite=false );
 
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
 ( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+( UpperOrLower uplo, const ElementalMatrix<F>& A );
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
 ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite=false );
 
 template<typename F>
 F Determinant( const Matrix<F>& A );
 template<typename F>
-F Determinant( const AbstractDistMatrix<F>& A );
+F Determinant( const ElementalMatrix<F>& A );
 template<typename F>
 F Determinant( Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
-F Determinant( AbstractDistMatrix<F>& A, bool canOverwrite=false );
+F Determinant( ElementalMatrix<F>& A, bool canOverwrite=false );
 
 template<typename F>
 Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
-Base<F> HPDDeterminant( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+Base<F> HPDDeterminant( UpperOrLower uplo, const ElementalMatrix<F>& A );
 template<typename F>
 Base<F> HPDDeterminant
 ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
 Base<F> HPDDeterminant
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite=false );
 
 namespace hpd_det {
 
@@ -97,7 +97,7 @@ SafeProduct<Base<F>> AfterCholesky
 ( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 SafeProduct<Base<F>> AfterCholesky
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 } // namespace hpd_det
 
@@ -108,7 +108,7 @@ SafeProduct<F> AfterLUPartialPiv
 ( const Matrix<F>& A, const Matrix<Int>& p );
 template<typename F>
 SafeProduct<F> AfterLUPartialPiv
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p );
+( const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p );
 
 } // namespace det
 
@@ -120,7 +120,7 @@ InertiaType Inertia
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 // Norm
@@ -128,14 +128,14 @@ InertiaType Inertia
 template<typename F>
 Base<F> Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 template<typename F>
-Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type=FROBENIUS_NORM );
+Base<F> Norm( const ElementalMatrix<F>& A, NormType type=FROBENIUS_NORM );
 
 template<typename F>
 Base<F> SymmetricNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 template<typename F>
 Base<F> SymmetricNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, const ElementalMatrix<F>& A, 
   NormType type=FROBENIUS_NORM );
 
 template<typename F>
@@ -143,7 +143,7 @@ Base<F> HermitianNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 template<typename F>
 Base<F> HermitianNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, const ElementalMatrix<F>& A, 
   NormType type=FROBENIUS_NORM );
 
 // Entrywise norm
@@ -250,42 +250,42 @@ Base<T> SymmetricInfinityNorm
 template<typename F>
 Base<F> KyFanNorm( const Matrix<F>& A, Int k );
 template<typename F>
-Base<F> KyFanNorm( const AbstractDistMatrix<F>& A, Int k );
+Base<F> KyFanNorm( const ElementalMatrix<F>& A, Int k );
 
 template<typename F>
 Base<F> HermitianKyFanNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k );
 template<typename F>
 Base<F> HermitianKyFanNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k );
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k );
 
 template<typename F>
 Base<F> SymmetricKyFanNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k );
 template<typename F>
 Base<F> SymmetricKyFanNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k );
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k );
 
 // Ky-Fan-Schatten norms
 // ---------------------
 template<typename F>
 Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p );
 template<typename F>
-Base<F> KyFanSchattenNorm( const AbstractDistMatrix<F>& A, Int k, Base<F> p );
+Base<F> KyFanSchattenNorm( const ElementalMatrix<F>& A, Int k, Base<F> p );
 
 template<typename F>
 Base<F> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p );
 template<typename F>
 Base<F> HermitianKyFanSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p );
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p );
 
 template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p );
 template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p );
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p );
 
 // Max norm
 // --------
@@ -323,19 +323,19 @@ Base<T> SymmetricMaxNorm( UpperOrLower uplo, const DistSparseMatrix<T>& A );
 template<typename F>
 Base<F> NuclearNorm( const Matrix<F>& A );
 template<typename F>
-Base<F> NuclearNorm( const AbstractDistMatrix<F>& A );
+Base<F> NuclearNorm( const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 Base<F> HermitianNuclearNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 Base<F> SymmetricNuclearNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 // One norm
 // --------
@@ -359,38 +359,38 @@ Base<T> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 template<typename F>
 Base<F> SchattenNorm( const Matrix<F>& A, Base<F> p );
 template<typename F>
-Base<F> SchattenNorm( const AbstractDistMatrix<F>& A, Base<F> p );
+Base<F> SchattenNorm( const ElementalMatrix<F>& A, Base<F> p );
 
 template<typename F>
 Base<F> HermitianSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p );
 template<typename F>
 Base<F> HermitianSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p );
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p );
 
 template<typename F>
 Base<F> SymmetricSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p );
 template<typename F>
 Base<F> SymmetricSchattenNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p );
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p );
 
 // Two norm
 // --------
 template<typename F>
 Base<F> TwoNorm( const Matrix<F>& A );
 template<typename F>
-Base<F> TwoNorm( const AbstractDistMatrix<F>& A );
+Base<F> TwoNorm( const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
-Base<F> HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+Base<F> HermitianTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
-Base<F> SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+Base<F> SymmetricTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 // Zero "norm"
 // -----------
@@ -410,7 +410,7 @@ Base<F> TwoNormEstimate
 ( const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> TwoNormEstimate
-( const AbstractDistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 );
+( const ElementalMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> TwoNormEstimate( const SparseMatrix<F>& A, Int basisSize=15 );
 template<typename F>
@@ -422,7 +422,7 @@ Base<F> HermitianTwoNormEstimate
   Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> HermitianTwoNormEstimate
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, const ElementalMatrix<F>& A, 
   Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> HermitianTwoNormEstimate
@@ -437,7 +437,7 @@ Base<F> SymmetricTwoNormEstimate
   Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> SymmetricTwoNormEstimate
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
+( UpperOrLower uplo, const ElementalMatrix<F>& A, 
   Base<F> tol=1e-6, Int maxIts=1000 );
 
 // Trace

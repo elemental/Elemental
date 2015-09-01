@@ -30,20 +30,9 @@ void OneTwoOne( AbstractDistMatrix<T>& A, Int n )
     FillDiagonal( A, T(1),  1 );
 }
 
-template<typename T>
-void OneTwoOne( AbstractBlockDistMatrix<T>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("OneTwoOne"))
-    Zeros( A, n, n );
-    FillDiagonal( A, T(1), -1 );
-    FillDiagonal( A, T(2),  0 );
-    FillDiagonal( A, T(1),  1 );
-}
-
 #define PROTO(T) \
   template void OneTwoOne( Matrix<T>& A, Int n ); \
-  template void OneTwoOne( AbstractDistMatrix<T>& A, Int n ); \
-  template void OneTwoOne( AbstractBlockDistMatrix<T>& A, Int n ); 
+  template void OneTwoOne( AbstractDistMatrix<T>& A, Int n );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

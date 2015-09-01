@@ -85,8 +85,8 @@ void LAV
 
 template<typename Real>
 void LAV
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
-        AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, 
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LAV"))
@@ -256,8 +256,8 @@ void LAV
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LAV \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
-          AbstractDistMatrix<Real>& x, \
+  ( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, \
+          ElementalMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LAV \
   ( const SparseMatrix<Real>& A, const Matrix<Real>& b, \

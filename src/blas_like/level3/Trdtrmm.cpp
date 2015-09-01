@@ -44,7 +44,7 @@ void Trdtrmm
 }
 
 template<typename F>
-void Trdtrmm( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate )
+void Trdtrmm( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("Trdtrmm");
@@ -60,7 +60,7 @@ void Trdtrmm( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate )
 template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo, 
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, 
+  ElementalMatrix<F>& A, const ElementalMatrix<F>& dOff, 
   bool conjugate )
 {
     DEBUG_ONLY(
@@ -90,10 +90,10 @@ void Trdtrmm
   template void Trdtrmm \
   ( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate ); \
   template void Trdtrmm \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate ); \
   template void Trdtrmm \
   ( UpperOrLower uplo, \
-    AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, \
+    ElementalMatrix<F>& A, const ElementalMatrix<F>& dOff, \
     bool conjugate ); \
   template void Trdtrmm \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate ); \

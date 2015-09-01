@@ -60,11 +60,11 @@ void ClassicalNT
 
 template<typename Real>
 void ClassicalNT
-( const AbstractDistMatrix<Real>& sPre, 
-  const AbstractDistMatrix<Real>& zPre,
-        AbstractDistMatrix<Real>& wPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& sPre, 
+  const ElementalMatrix<Real>& zPre,
+        ElementalMatrix<Real>& wPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ClassicalNT"))
@@ -206,11 +206,11 @@ void VandenbergheNT
 
 template<typename Real>
 void VandenbergheNT
-( const AbstractDistMatrix<Real>& sPre, 
-  const AbstractDistMatrix<Real>& zPre,
-        AbstractDistMatrix<Real>& wPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& sPre, 
+  const ElementalMatrix<Real>& zPre,
+        ElementalMatrix<Real>& wPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("VandenbergheNT"))
@@ -358,11 +358,11 @@ void SOCNesterovTodd
 
 template<typename Real>
 void SOCNesterovTodd
-( const AbstractDistMatrix<Real>& s, 
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& w,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds,
+( const ElementalMatrix<Real>& s, 
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& w,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
@@ -397,11 +397,11 @@ void SOCNesterovTodd
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCNesterovTodd \
-  ( const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& w, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& w, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCNesterovTodd \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \

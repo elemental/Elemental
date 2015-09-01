@@ -381,13 +381,13 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& QPre,
-  const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& bPre,
-  const AbstractDistMatrix<Real>& cPre,
-        AbstractDistMatrix<Real>& xPre,
-        AbstractDistMatrix<Real>& yPre,
-        AbstractDistMatrix<Real>& zPre,
+( const ElementalMatrix<Real>& QPre,
+  const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& bPre,
+  const ElementalMatrix<Real>& cPre,
+        ElementalMatrix<Real>& xPre,
+        ElementalMatrix<Real>& yPre,
+        ElementalMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
@@ -1726,13 +1726,13 @@ void Mehrotra
           Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& Q, \

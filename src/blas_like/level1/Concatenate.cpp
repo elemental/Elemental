@@ -11,7 +11,10 @@
 namespace El {
 
 template<typename T>
-void HCat( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
+void HCat
+( const Matrix<T>& A,
+  const Matrix<T>& B,
+        Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("HCat"))
     if( A.Height() != B.Height() )
@@ -28,7 +31,10 @@ void HCat( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 }
 
 template<typename T>
-void VCat( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
+void VCat
+( const Matrix<T>& A,
+  const Matrix<T>& B,
+        Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("VCat"))
     if( A.Width() != B.Width() )
@@ -46,8 +52,9 @@ void VCat( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 
 template<typename T>
 inline void HCat
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-        AbstractDistMatrix<T>& CPre )
+( const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B, 
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     if( A.Height() != B.Height() )
@@ -68,8 +75,9 @@ inline void HCat
 
 template<typename T>
 void VCat
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-        AbstractDistMatrix<T>& CPre )
+( const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B, 
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(CSE cse("VCat"))
     if( A.Width() != B.Width() )
@@ -90,7 +98,8 @@ void VCat
 
 template<typename T>
 void HCat
-( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
+( const SparseMatrix<T>& A,
+  const SparseMatrix<T>& B, 
         SparseMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("HCat"))
@@ -114,7 +123,8 @@ void HCat
 
 template<typename T>
 void VCat
-( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
+( const SparseMatrix<T>& A,
+  const SparseMatrix<T>& B, 
         SparseMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("VCat"))
@@ -138,7 +148,8 @@ void VCat
 
 template<typename T>
 void HCat
-( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
+( const DistSparseMatrix<T>& A,
+  const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("HCat"))
@@ -168,7 +179,8 @@ void HCat
 
 template<typename T>
 void VCat
-( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
+( const DistSparseMatrix<T>& A,
+  const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("VCat"))
@@ -187,51 +199,18 @@ void VCat
     const Int numEntriesB = B.NumLocalEntries();
     C.SetComm( A.Comm() );
     Zeros( C, mA+mB, n );
-
-    // Compute the metadata
-    // --------------------
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    vector<int> sendCounts(commSize,0);
+    C.Reserve( numEntriesA+numEntriesB, numEntriesA+numEntriesB );
     for( Int e=0; e<numEntriesA; ++e )
-        ++sendCounts[ C.RowOwner(A.Row(e)) ];
+        C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
     for( Int e=0; e<numEntriesB; ++e )
-        ++sendCounts[ C.RowOwner(B.Row(e)+mA) ];
-    vector<int> sendOffs; 
-    const int totalSend = Scan( sendCounts, sendOffs );
-    // Pack
-    // ----
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( Int e=0; e<numEntriesA; ++e )
-    {
-        const Int i = A.Row(e);    
-        const Int j = A.Col(e);
-        const T value = A.Value(e);
-        const int owner = C.RowOwner(i);
-        sendBuf[offs[owner]++] = Entry<T>{ i, j, value };
-    }
-    for( Int e=0; e<numEntriesB; ++e )
-    {
-        const Int i = B.Row(e)+mA;
-        const Int j = B.Col(e);
-        const T value = B.Value(e);
-        const int owner = C.RowOwner(i);
-        sendBuf[offs[owner]++] = Entry<T>{ i, j, value };
-    }
-
-    // Exchange and unpack
-    // -------------------
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    C.Reserve( recvBuf.size() );
-    for( auto& entry : recvBuf )
-        C.QueueUpdate( entry );
+        C.QueueUpdate( B.Row(e)+mA, B.Col(e), B.Value(e) );
     C.ProcessQueues();
 }
 
 template<typename T>
 void HCat
-( const DistMultiVec<T>& A, const DistMultiVec<T>& B,
+( const DistMultiVec<T>& A,
+  const DistMultiVec<T>& B,
         DistMultiVec<T>& C )
 {
     DEBUG_ONLY(CSE cse("HCat"))
@@ -258,7 +237,8 @@ void HCat
 
 template<typename T>
 void VCat
-( const DistMultiVec<T>& A, const DistMultiVec<T>& B,
+( const DistMultiVec<T>& A,
+  const DistMultiVec<T>& B,
         DistMultiVec<T>& C )
 {
     DEBUG_ONLY(CSE cse("VCat"))
@@ -267,75 +247,68 @@ void VCat
 
     const Int mA = A.Height();
     const Int mB = B.Height();
+    const Int mLocA = A.LocalHeight();
+    const Int mLocB = B.LocalHeight();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
 
-    C.SetComm( comm );
+    C.SetComm( A.Comm() );
     Zeros( C, mA+mB, n );
-    
-    // Compute the metadata
-    // --------------------
-    vector<int> sendCounts(commSize,0);
-    for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
-        sendCounts[ C.RowOwner(A.GlobalRow(iLoc)) ] += n;
-    for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
-        sendCounts[ C.RowOwner(B.GlobalRow(iLoc)+mA) ] += n;
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-
-    // Pack
-    // ----
-    auto offs = sendOffs;
-    vector<Entry<T>> sendBuf(totalSend);
-    for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
+    C.Reserve( (mLocA+mLocB)*n );
+    for( Int iLoc=0; iLoc<mLocA; ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
-        const int owner = C.RowOwner(i);
         for( Int j=0; j<n; ++j )
-            sendBuf[offs[owner]++] = Entry<T>{ i, j, A.GetLocal(iLoc,j) };
+            C.QueueUpdate( i, j, A.GetLocal(iLoc,j) );
     }
-    for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<mLocB; ++iLoc )
     {
-        const Int i = B.GlobalRow(iLoc)+mA;
-        const int owner = C.RowOwner(i);
+        const Int i = B.GlobalRow(iLoc) + mA;
         for( Int j=0; j<n; ++j )
-            sendBuf[offs[owner]++] = Entry<T>{ i, j, B.GetLocal(iLoc,j) };
+            C.QueueUpdate( i, j, B.GetLocal(iLoc,j) );
     }
-
-    // Exchange and unpack
-    // -------------------
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    for( auto& entry : recvBuf )
-        C.Set( entry );
+    C.ProcessQueues();
 }
 
 #define PROTO(T) \
   template void HCat \
-  ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
+  ( const Matrix<T>& A, \
+    const Matrix<T>& B, \
+          Matrix<T>& C ); \
   template void VCat \
-  ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
+  ( const Matrix<T>& A, \
+    const Matrix<T>& B, \
+          Matrix<T>& C ); \
   template void HCat \
-  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-          AbstractDistMatrix<T>& C ); \
+  ( const ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& B, \
+          ElementalMatrix<T>& C ); \
   template void VCat \
-  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-          AbstractDistMatrix<T>& C ); \
+  ( const ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& B, \
+          ElementalMatrix<T>& C ); \
   template void HCat \
-  ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C ); \
+  ( const SparseMatrix<T>& A, \
+    const SparseMatrix<T>& B, \
+          SparseMatrix<T>& C ); \
   template void VCat \
-  ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C ); \
+  ( const SparseMatrix<T>& A, \
+    const SparseMatrix<T>& B, \
+          SparseMatrix<T>& C ); \
   template void HCat \
-  ( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, \
+  ( const DistSparseMatrix<T>& A, \
+    const DistSparseMatrix<T>& B, \
           DistSparseMatrix<T>& C ); \
   template void VCat \
-  ( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, \
+  ( const DistSparseMatrix<T>& A, \
+    const DistSparseMatrix<T>& B, \
           DistSparseMatrix<T>& C ); \
   template void HCat \
-  ( const DistMultiVec<T>& A, const DistMultiVec<T>& B, \
+  ( const DistMultiVec<T>& A, \
+    const DistMultiVec<T>& B, \
           DistMultiVec<T>& C ); \
   template void VCat \
-  ( const DistMultiVec<T>& A, const DistMultiVec<T>& B, \
+  ( const DistMultiVec<T>& A, \
+    const DistMultiVec<T>& B, \
           DistMultiVec<T>& C );
 
 #define EL_ENABLE_QUAD

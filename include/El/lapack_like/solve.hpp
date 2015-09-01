@@ -20,7 +20,7 @@ namespace El {
 template<typename F>
 void LinearSolve( const Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void LinearSolve( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+void LinearSolve( const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 template<typename F>
 void LinearSolve
@@ -36,7 +36,7 @@ namespace lin_solve {
 template<typename F>
 void Overwrite( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void Overwrite( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+void Overwrite( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 } // namespace lin_solve
 
@@ -50,7 +50,7 @@ void HermitianSolve
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 template<typename F>
@@ -74,7 +74,7 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation,
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 } // namespace herm_solve
@@ -90,7 +90,7 @@ void SymmetricSolve
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
@@ -116,7 +116,7 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation,
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
@@ -131,7 +131,7 @@ void HPDSolve
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 template<typename F>
 void HPDSolve
@@ -151,7 +151,7 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation,
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+  ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 } // namespace hpd_solve
 
@@ -165,8 +165,8 @@ void MultiShiftHessSolve
 template<typename F>
 void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
-  F alpha, const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& shifts,
-  AbstractDistMatrix<F>& X );
+  F alpha, const ElementalMatrix<F>& H, const ElementalMatrix<F>& shifts,
+  ElementalMatrix<F>& X );
 
 } // namespace El
 

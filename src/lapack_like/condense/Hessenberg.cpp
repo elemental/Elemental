@@ -26,7 +26,7 @@ void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 
 template<typename F> 
 void Hessenberg
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t )
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t )
 {
     DEBUG_ONLY(CSE cse("Hessenberg"))
     if( uplo == UPPER )
@@ -50,7 +50,7 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A )
+void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("hessenberg::ExplicitCondensed"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
@@ -66,18 +66,18 @@ void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 #define PROTO(F) \
   template void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
   template void Hessenberg \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t ); \
   template void hessenberg::ExplicitCondensed \
   ( UpperOrLower uplo, Matrix<F>& A ); \
   template void hessenberg::ExplicitCondensed \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& H ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
-          AbstractDistMatrix<F>& B );
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+          ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

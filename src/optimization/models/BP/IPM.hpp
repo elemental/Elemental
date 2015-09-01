@@ -72,9 +72,9 @@ void LPIPM
 
 template<typename Real>
 void LPIPM
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
-        AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
+        ElementalMatrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bp::LPIPM"))
@@ -305,9 +305,9 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
-        AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
+        ElementalMatrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
@@ -577,9 +577,9 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const AbstractDistMatrix<Complex<Real>>& A, 
-  const AbstractDistMatrix<Complex<Real>>& b, 
-        AbstractDistMatrix<Complex<Real>>& x,
+( const ElementalMatrix<Complex<Real>>& A, 
+  const ElementalMatrix<Complex<Real>>& b, 
+        ElementalMatrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bp::SOCPIPM"))

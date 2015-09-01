@@ -45,7 +45,7 @@ void Conjugate( AbstractDistMatrix<T>& A )
 }
 
 template<typename T>
-void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Conjugate"))
     Copy( A, B );
@@ -56,8 +56,7 @@ void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
   template void Conjugate( Matrix<T>& A ); \
   template void Conjugate( const Matrix<T>& A, Matrix<T>& B ); \
   template void Conjugate( AbstractDistMatrix<T>& A ); \
-  template void Conjugate \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+  template void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

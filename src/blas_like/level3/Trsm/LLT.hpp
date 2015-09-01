@@ -22,8 +22,8 @@ inline void
 LLTLarge
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& LPre,
-        AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -84,8 +84,8 @@ inline void
 LLTMedium
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& LPre,
-        AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(

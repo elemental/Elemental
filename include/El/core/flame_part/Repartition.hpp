@@ -13,8 +13,8 @@
 namespace El {
 
 // To make our life easier. Undef'd at the bottom of the header
-#define M   Matrix<T>
-#define ADM AbstractDistMatrix<T>
+#define M Matrix<T>
+#define EM ElementalMatrix<T>
 
 // Repartition upwards from the bottom
 // ===================================
@@ -25,9 +25,9 @@ void RepartitionUp
   M& AB, M& A2, Int A1Height=Blocksize() );
 template<typename T>
 void RepartitionUp
-( ADM& AT, ADM& A0,
-           ADM& A1,
-  ADM& AB, ADM& A2, Int A1Height=Blocksize() );
+( EM& AT, EM& A0,
+          EM& A1,
+  EM& AB, EM& A2, Int A1Height=Blocksize() );
 
 template<typename T>
 void LockedRepartitionUp
@@ -36,9 +36,9 @@ void LockedRepartitionUp
   const M& AB, M& A2, Int A1Height=Blocksize() );
 template<typename T>
 void LockedRepartitionUp
-( const ADM& AT, ADM& A0,
-                 ADM& A1,
-  const ADM& AB, ADM& A2, Int A1Height=Blocksize() );
+( const EM& AT, EM& A0,
+                EM& A1,
+  const EM& AB, EM& A2, Int A1Height=Blocksize() );
 
 // Repartition downwards from the top
 // ==================================
@@ -49,9 +49,9 @@ void RepartitionDown
   M& AB, M& A2, Int A1Height=Blocksize() );
 template<typename T>
 void RepartitionDown
-( ADM& AT, ADM& A0,
-           ADM& A1,
-  ADM& AB, ADM& A2, Int A1Height=Blocksize() );
+( EM& AT, EM& A0,
+          EM& A1,
+  EM& AB, EM& A2, Int A1Height=Blocksize() );
 
 template<typename T>
 void LockedRepartitionDown
@@ -60,9 +60,9 @@ void LockedRepartitionDown
   const M& AB, M& A2, Int A1Height=Blocksize() );
 template<typename T>
 void LockedRepartitionDown
-( const ADM& AT, ADM& A0,
-                 ADM& A1,
-  const ADM& AB, ADM& A2, Int A1Height=Blocksize() );
+( const EM& AT, EM& A0,
+                EM& A1,
+  const EM& AB, EM& A2, Int A1Height=Blocksize() );
 
 // Repartition leftwards from the right
 // ====================================
@@ -72,8 +72,8 @@ void RepartitionLeft
   M& A0, M& A1, M& A2, Int A1Width=Blocksize() );
 template<typename T>
 void RepartitionLeft
-( ADM& AL, ADM& AR,
-  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() );
+( EM& AL, EM& AR,
+  EM& A0, EM& A1, EM& A2, Int A1Width=Blocksize() );
 
 template<typename T>
 void LockedRepartitionLeft
@@ -81,8 +81,8 @@ void LockedRepartitionLeft
   M& A0, M& A1, M& A2, Int A1Width=Blocksize() );
 template<typename T>
 void LockedRepartitionLeft
-( const ADM& AL, const ADM& AR,
-  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() );
+( const EM& AL, const EM& AR,
+  EM& A0, EM& A1, EM& A2, Int A1Width=Blocksize() );
 
 // Repartition rightward from the left
 // ===================================
@@ -92,8 +92,8 @@ void RepartitionRight
   M& A0, M& A1, M& A2, Int A1Width=Blocksize() );
 template<typename T>
 void RepartitionRight
-( ADM& AL, ADM& AR,
-  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() );
+( EM& AL, EM& AR,
+  EM& A0, EM& A1, EM& A2, Int A1Width=Blocksize() );
 
 template<typename T>
 void LockedRepartitionRight
@@ -101,8 +101,8 @@ void LockedRepartitionRight
   M& A0, M& A1, M& A2, Int A1Width=Blocksize() );
 template<typename T>
 void LockedRepartitionRight
-( const ADM& AL, const ADM& AR,
-  ADM& A0, ADM& A1, ADM& A2, Int A1Width=Blocksize() );
+( const EM& AL, const EM& AR,
+  EM& A0, EM& A1, EM& A2, Int A1Width=Blocksize() );
 
 // Repartition upwards on a diagonal
 // =================================
@@ -113,9 +113,9 @@ void RepartitionUpDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 template<typename T>
 void RepartitionUpDiagonal
-( ADM& ATL, ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
-                      ADM& A10, ADM& A11, ADM& A12,
-  ADM& ABL, ADM& ABR, ADM& A20, ADM& A21, ADM& A22, Int bsize=Blocksize() );
+( EM& ATL, EM& ATR, EM& A00, EM& A01, EM& A02,
+                    EM& A10, EM& A11, EM& A12,
+  EM& ABL, EM& ABR, EM& A20, EM& A21, EM& A22, Int bsize=Blocksize() );
 
 template<typename T>
 void LockedRepartitionUpDiagonal
@@ -124,9 +124,9 @@ void LockedRepartitionUpDiagonal
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 template<typename T>
 void LockedRepartitionUpDiagonal
-( const ADM& ATL, const ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
-                                  ADM& A10, ADM& A11, ADM& A12,
-  const ADM& ABL, const ADM& ABR, ADM& A20, ADM& A21, ADM& A22, 
+( const EM& ATL, const EM& ATR, EM& A00, EM& A01, EM& A02,
+                                EM& A10, EM& A11, EM& A12,
+  const EM& ABL, const EM& ABR, EM& A20, EM& A21, EM& A22, 
   Int bsize=Blocksize() );
 
 // Repartition downwards on a diagonal
@@ -138,9 +138,9 @@ void RepartitionDownDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 template<typename T>
 void RepartitionDownDiagonal
-( ADM& ATL, ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
-                      ADM& A10, ADM& A11, ADM& A12,
-  ADM& ABL, ADM& ABR, ADM& A20, ADM& A21, ADM& A22, Int bsize=Blocksize() );
+( EM& ATL, EM& ATR, EM& A00, EM& A01, EM& A02,
+                    EM& A10, EM& A11, EM& A12,
+  EM& ABL, EM& ABR, EM& A20, EM& A21, EM& A22, Int bsize=Blocksize() );
 
 template<typename T>
 void LockedRepartitionDownDiagonal
@@ -149,12 +149,12 @@ void LockedRepartitionDownDiagonal
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 template<typename T>
 void LockedRepartitionDownDiagonal
-( const ADM& ATL, const ADM& ATR, ADM& A00, ADM& A01, ADM& A02,
-                                  ADM& A10, ADM& A11, ADM& A12,
-  const ADM& ABL, const ADM& ABR, ADM& A20, ADM& A21, ADM& A22, 
+( const EM& ATL, const EM& ATR, EM& A00, EM& A01, EM& A02,
+                                EM& A10, EM& A11, EM& A12,
+  const EM& ABL, const EM& ABR, EM& A20, EM& A21, EM& A22, 
   Int bsize=Blocksize() );
 
-#undef ADM
+#undef EM
 #undef M
 
 } // namespace El

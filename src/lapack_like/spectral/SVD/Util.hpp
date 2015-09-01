@@ -15,7 +15,7 @@ namespace svd {
 
 template<typename F>
 inline bool
-CheckScale( AbstractDistMatrix<F>& A, Base<F>& scale )
+CheckScale( ElementalMatrix<F>& A, Base<F>& scale )
 {
     scale = 1;
     typedef Base<F> Real;

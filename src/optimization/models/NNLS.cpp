@@ -61,9 +61,9 @@ void NNLS
 
 template<typename Real>
 void NNLS
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& B, 
-        AbstractDistMatrix<Real>& X,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& B, 
+        ElementalMatrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NNLS"))
@@ -114,9 +114,9 @@ void NNLS
           Matrix<Real>& X, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NNLS \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& B, \
-          AbstractDistMatrix<Real>& X, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& B, \
+          ElementalMatrix<Real>& X, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NNLS \
   ( const SparseMatrix<Real>& A, \

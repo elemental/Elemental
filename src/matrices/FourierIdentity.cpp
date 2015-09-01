@@ -22,14 +22,14 @@ void FourierIdentity( Matrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-void FourierIdentity( AbstractDistMatrix<Complex<Real>>& A, Int n )
+void FourierIdentity( ElementalMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CSE cse("FourierIdentity"))
     typedef Complex<Real> C;
 
     A.Resize( n, 2*n );
-    unique_ptr<AbstractDistMatrix<C>> AL( A.Construct(A.Grid(),A.Root()) );
-    unique_ptr<AbstractDistMatrix<C>> AR( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<C>> AL( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<C>> AR( A.Construct(A.Grid(),A.Root()) );
     View( *AL, A, IR(0,n), IR(0,n) );
     View( *AR, A, IR(0,n), IR(n,2*n) );
     Fourier( *AL, n );
@@ -40,7 +40,7 @@ void FourierIdentity( AbstractDistMatrix<Complex<Real>>& A, Int n )
   template void FourierIdentity \
   ( Matrix<Complex<Real>>& A, Int n ); \
   template void FourierIdentity \
-  ( AbstractDistMatrix<Complex<Real>>& A, Int n );
+  ( ElementalMatrix<Complex<Real>>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

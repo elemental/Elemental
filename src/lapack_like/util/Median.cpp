@@ -37,7 +37,7 @@ ValueInt<Real> Median( const Matrix<Real>& x )
 }
 
 template<typename Real>
-ValueInt<Real> Median( const AbstractDistMatrix<Real>& x )
+ValueInt<Real> Median( const ElementalMatrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("Median"))
     if( x.ColDist() == STAR && x.RowDist() == STAR )
@@ -53,7 +53,7 @@ ValueInt<Real> Median( const AbstractDistMatrix<Real>& x )
 
 #define PROTO(Real) \
   template ValueInt<Real> Median( const Matrix<Real>& x ); \
-  template ValueInt<Real> Median( const AbstractDistMatrix<Real>& x );
+  template ValueInt<Real> Median( const ElementalMatrix<Real>& x );
 
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"

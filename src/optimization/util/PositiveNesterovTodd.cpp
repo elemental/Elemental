@@ -31,9 +31,9 @@ void PositiveNesterovTodd
 
 template<typename Real>
 void PositiveNesterovTodd
-( const AbstractDistMatrix<Real>& sPre, 
-  const AbstractDistMatrix<Real>& zPre,
-        AbstractDistMatrix<Real>& wPre )
+( const ElementalMatrix<Real>& sPre, 
+  const ElementalMatrix<Real>& zPre,
+        ElementalMatrix<Real>& wPre )
 {
     DEBUG_ONLY(CSE cse("PositiveNesterovTodd"))
     ProxyCtrl ctrl;
@@ -72,9 +72,9 @@ void PositiveNesterovTodd
     const Matrix<Real>& z, \
           Matrix<Real>& w ); \
   template void PositiveNesterovTodd \
-  ( const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& w ); \
+  ( const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& w ); \
   template void PositiveNesterovTodd \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \

@@ -39,7 +39,7 @@ void SetImagPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 
 template<typename T,Dist U,Dist V>
 void SetDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<T>& d, Int offset )
+( DistMatrix<T,U,V>& A, const ElementalMatrix<T>& d, Int offset )
 {
     DEBUG_ONLY(CSE cse("SetDiagonal"))
     function<void(T&,T)> func
@@ -49,7 +49,7 @@ void SetDiagonal
 
 template<typename T,Dist U,Dist V>
 void SetRealPartOfDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
+( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CSE cse("SetRealPartOfDiagonal"))
     function<void(T&,Base<T>)> func
@@ -59,7 +59,7 @@ void SetRealPartOfDiagonal
 
 template<typename T,Dist U,Dist V>
 void SetImagPartOfDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
+( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_ONLY(CSE cse("SetImagPartOfDiagonal"))
     function<void(T&,Base<T>)> func
@@ -69,7 +69,7 @@ void SetImagPartOfDiagonal
 
 template<typename T>
 void SetDiagonal
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& d, Int offset )
+( ElementalMatrix<T>& A, const ElementalMatrix<T>& d, Int offset )
 {
     // Manual dynamic dispatch
     #define GUARD(CDIST,RDIST) \
@@ -82,7 +82,7 @@ void SetDiagonal
 
 template<typename T>
 void SetRealPartOfDiagonal
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
+( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
     #define GUARD(CDIST,RDIST) \
@@ -95,7 +95,7 @@ void SetRealPartOfDiagonal
 
 template<typename T>
 void SetImagPartOfDiagonal
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
+( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
     #define GUARD(CDIST,RDIST) \
@@ -108,13 +108,13 @@ void SetImagPartOfDiagonal
 
 #define PROTO_DIST(T,U,V) \
   template void SetDiagonal \
-  ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<T>& d, \
+  ( DistMatrix<T,U,V>& A, const ElementalMatrix<T>& d, \
     Int offset ); \
   template void SetRealPartOfDiagonal \
-  ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, \
+  ( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, \
     Int offset ); \
   template void SetImagPartOfDiagonal \
-  ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, \
+  ( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, \
     Int offset );
 
 #define PROTO(T) \
@@ -125,13 +125,13 @@ void SetImagPartOfDiagonal
   template void SetImagPartOfDiagonal \
   ( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset ); \
   template void SetDiagonal \
-  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& d, \
+  ( ElementalMatrix<T>& A, const ElementalMatrix<T>& d, \
     Int offset ); \
   template void SetRealPartOfDiagonal \
-  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, \
+  ( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, \
     Int offset ); \
   template void SetImagPartOfDiagonal \
-  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, \
+  ( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, \
     Int offset ); \
   PROTO_DIST(T,CIRC,CIRC) \
   PROTO_DIST(T,MC,  MR  ) \

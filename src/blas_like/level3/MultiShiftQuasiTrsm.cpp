@@ -141,8 +141,8 @@ void MultiShiftQuasiTrsm
 template<typename F>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts, 
-  AbstractDistMatrix<F>& B )
+  F alpha, const ElementalMatrix<F>& A, const ElementalMatrix<F>& shifts, 
+  ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
       CSE cse("MultiShiftQuasiTrsm");
@@ -234,9 +234,9 @@ template<typename Real>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   Complex<Real> alpha, 
-  const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Complex<Real>>& shifts, 
-        AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag )
+  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Complex<Real>>& shifts, 
+        ElementalMatrix<Real>& BReal, ElementalMatrix<Real>& BImag )
 {
     DEBUG_ONLY(
       CSE cse("MultiShiftQuasiTrsm");
@@ -329,8 +329,8 @@ template<typename F>
 void LocalMultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
-           const AbstractDistMatrix<F>& shifts,
-                 AbstractDistMatrix<F>& X )
+           const ElementalMatrix<F>& shifts,
+                 ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("LocalMultiShiftQuasiTrsm");
@@ -353,9 +353,9 @@ void LocalMultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   Complex<Real> alpha,
   const DistMatrix<Real,STAR,STAR>& A,
-  const AbstractDistMatrix<Complex<Real>>& shifts,
-        AbstractDistMatrix<Real>& XReal,
-        AbstractDistMatrix<Real>& XImag )
+  const ElementalMatrix<Complex<Real>>& shifts,
+        ElementalMatrix<Real>& XReal,
+        ElementalMatrix<Real>& XImag )
 {
     DEBUG_ONLY(
       CSE cse("LocalMultiShiftQuasiTrsm");
@@ -383,13 +383,13 @@ void LocalMultiShiftQuasiTrsm
     F alpha, const Matrix<F>& A, const Matrix<F>& shifts, Matrix<F>& B ); \
   template void MultiShiftQuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& shifts, AbstractDistMatrix<F>& B ); \
+    F alpha, const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& shifts, ElementalMatrix<F>& B ); \
   template void LocalMultiShiftQuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     F alpha, const DistMatrix<F,STAR,STAR>& A, \
-             const AbstractDistMatrix<F>& shifts, \
-                   AbstractDistMatrix<F>& X );
+             const ElementalMatrix<F>& shifts, \
+                   ElementalMatrix<F>& X );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
@@ -400,16 +400,16 @@ void LocalMultiShiftQuasiTrsm
     Matrix<Real>& BReal, Matrix<Real>& BImag ); \
   template void MultiShiftQuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    Complex<Real> alpha, const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Complex<Real>>& shifts, \
-    AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag ); \
+    Complex<Real> alpha, const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Complex<Real>>& shifts, \
+    ElementalMatrix<Real>& BReal, ElementalMatrix<Real>& BImag ); \
   template void LocalMultiShiftQuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     Complex<Real> alpha, \
     const DistMatrix<Real,STAR,STAR>& A, \
-    const AbstractDistMatrix<Complex<Real>>& shifts, \
-          AbstractDistMatrix<Real>& XReal, \
-          AbstractDistMatrix<Real>& XImag );
+    const ElementalMatrix<Complex<Real>>& shifts, \
+          ElementalMatrix<Real>& XReal, \
+          ElementalMatrix<Real>& XImag );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

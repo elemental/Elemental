@@ -66,7 +66,7 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 
 template<typename F>
 inline void
-UUnblockedPivoted( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p )
+UUnblockedPivoted( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::UUnblockedPivoted");
@@ -186,7 +186,7 @@ UPanelPivoted
 template<typename F>
 inline void
 UPanelPivoted
-( DistMatrix<F>& AFull, AbstractDistMatrix<Int>& p, 
+( DistMatrix<F>& AFull, ElementalMatrix<Int>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
 {
     DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
@@ -289,7 +289,7 @@ UVar3( Matrix<F>& A, Matrix<Int>& p )
 
 template<typename F>
 inline void
-UVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
+UVar3( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::UVar3");

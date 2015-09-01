@@ -26,12 +26,12 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
@@ -76,10 +76,10 @@ void KKT
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT
@@ -116,10 +116,10 @@ void AugmentedKKT
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
@@ -156,12 +156,12 @@ void NormalKKT
   bool onlyLower=false );
 template<typename Real>
 void NormalKKT
-( const AbstractDistMatrix<Real>& A,
+( const ElementalMatrix<Real>& A,
         Real gamma,
         Real delta,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=false );
 template<typename Real>
 void NormalKKT
@@ -194,14 +194,14 @@ void NormalKKTRHS
         Matrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
-( const AbstractDistMatrix<Real>& A,
+( const ElementalMatrix<Real>& A,
         Real gamma,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& d );
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rmu,
+        ElementalMatrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
 ( const SparseMatrix<Real>& A,
@@ -236,15 +236,15 @@ void ExpandNormalSolution
         Matrix<Real>& dz );
 template<typename Real>
 void ExpandNormalSolution
-( const AbstractDistMatrix<Real>& A,
+( const ElementalMatrix<Real>& A,
         Real gamma,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& dx, 
-  const AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz );
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rmu,
+        ElementalMatrix<Real>& dx, 
+  const ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz );
 template<typename Real>
 void ExpandNormalSolution
 ( const SparseMatrix<Real>& A,

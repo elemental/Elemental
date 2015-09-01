@@ -37,9 +37,9 @@ void SOCReflect
 
 template<typename Real>
 void SOCReflect
-(       AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre )
+(       ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre )
 {
     DEBUG_ONLY(CSE cse("SOCReflect"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
@@ -104,9 +104,9 @@ void SOCReflect
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCReflect \
-  (       AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds ); \
+  (       ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds ); \
   template void SOCReflect \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

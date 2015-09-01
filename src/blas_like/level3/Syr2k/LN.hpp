@@ -13,8 +13,8 @@ namespace syr2k {
 template<typename T>
 inline void
 LN
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syr2k::LN");

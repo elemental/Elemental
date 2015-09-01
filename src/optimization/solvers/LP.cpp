@@ -53,12 +53,12 @@ void LP
 
 template<typename Real>
 void LP
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z, 
   const lp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
@@ -72,15 +72,15 @@ void LP
 
 template<typename Real>
 void LP
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
@@ -185,23 +185,23 @@ void LP
           Matrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
   template void LP \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const SparseMatrix<Real>& A, \

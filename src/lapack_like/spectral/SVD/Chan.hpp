@@ -18,8 +18,8 @@ namespace svd {
 template<typename F>
 inline void
 ChanUpper
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
         CSE cse("svd::ChanUpper");
@@ -59,7 +59,7 @@ ChanUpper
 template<typename F>
 inline void
 ChanUpper
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(
@@ -91,8 +91,8 @@ ChanUpper
 template<typename F>
 inline void
 Chan
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
         CSE cse("svd::Chan");
@@ -136,7 +136,7 @@ Chan
 template<typename F>
 inline void
 Chan
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))

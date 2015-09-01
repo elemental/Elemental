@@ -55,11 +55,11 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, bool onlyLower )
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre, bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
     const Int m = A.Height();
@@ -261,11 +261,11 @@ void AugmentedKKTRHS
 
 template<typename Real>
 void AugmentedKKTRHS
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& dPre )
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rmu,
+        ElementalMatrix<Real>& dPre )
 {
     DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKTRHS"))
 
@@ -358,13 +358,13 @@ void ExpandAugmentedSolution
 
 template<typename Real>
 void ExpandAugmentedSolution
-( const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rmu,
-  const AbstractDistMatrix<Real>& dPre,
-        AbstractDistMatrix<Real>& dx,
-        AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz )
+( const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& dPre,
+        ElementalMatrix<Real>& dx,
+        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
 
@@ -450,11 +450,11 @@ void ExpandAugmentedSolution
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, bool onlyLower ); \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, \
@@ -479,11 +479,11 @@ void ExpandAugmentedSolution
     const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void AugmentedKKTRHS \
-  ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, \
-    const AbstractDistMatrix<Real>& rmu, \
-          AbstractDistMatrix<Real>& d ); \
+  ( const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& rc, \
+    const ElementalMatrix<Real>& rb, \
+    const ElementalMatrix<Real>& rmu, \
+          ElementalMatrix<Real>& d ); \
   template void AugmentedKKTRHS \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& rc, \
@@ -499,13 +499,13 @@ void ExpandAugmentedSolution
           Matrix<Real>& dy, \
           Matrix<Real>& dz ); \
   template void ExpandAugmentedSolution \
-  ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Real>& rmu, \
-    const AbstractDistMatrix<Real>& d, \
-          AbstractDistMatrix<Real>& dx, \
-          AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz ); \
+  ( const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Real>& rmu, \
+    const ElementalMatrix<Real>& d, \
+          ElementalMatrix<Real>& dx, \
+          ElementalMatrix<Real>& dy, \
+          ElementalMatrix<Real>& dz ); \
   template void ExpandAugmentedSolution \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& z, \

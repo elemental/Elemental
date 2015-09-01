@@ -26,13 +26,13 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
@@ -80,11 +80,11 @@ void KKT
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT
@@ -118,11 +118,11 @@ void KKTRHS
         Matrix<Real>& d );
 template<typename Real>
 void KKTRHS
-( const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& d );
+( const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& d );
 template<typename Real>
 void KKTRHS
 ( const DistMultiVec<Real>& rc,
@@ -141,10 +141,10 @@ void ExpandSolution
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n, 
-  const AbstractDistMatrix<Real>& d,
-        AbstractDistMatrix<Real>& dx,
-        AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz );
+  const ElementalMatrix<Real>& d,
+        ElementalMatrix<Real>& dx,
+        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz );
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n, 
@@ -165,11 +165,11 @@ void AugmentedKKT
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
@@ -201,11 +201,11 @@ void AugmentedKKTRHS
         Matrix<Real>& d );
 template<typename Real>
 void AugmentedKKTRHS
-( const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& d );
+( const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rmu,
+        ElementalMatrix<Real>& d );
 template<typename Real>
 void AugmentedKKTRHS
 ( const DistMultiVec<Real>& x,
@@ -225,13 +225,13 @@ void ExpandAugmentedSolution
         Matrix<Real>& dz );
 template<typename Real>
 void ExpandAugmentedSolution
-( const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rmu,
-  const AbstractDistMatrix<Real>& d,
-        AbstractDistMatrix<Real>& dx,
-        AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz );
+( const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& d,
+        ElementalMatrix<Real>& dx,
+        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz );
 template<typename Real>
 void ExpandAugmentedSolution
 ( const DistMultiVec<Real>& x,

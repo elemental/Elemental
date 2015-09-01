@@ -167,6 +167,13 @@ typedef enum
     EL_CIRC  /* Give to a single process */
 } ElDist;
 
+typedef enum
+{
+    EL_ELEMENTAL,
+    EL_BLOCK_CYCLIC,
+    EL_BLOCK_NONCYCLIC
+} ElDistWrap;
+
 typedef enum 
 {
     EL_FORWARD,

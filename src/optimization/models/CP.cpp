@@ -85,9 +85,9 @@ void CP
 
 template<typename Real>
 void CP
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, 
-        AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("CP"))
@@ -273,9 +273,9 @@ void CP
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void CP \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
-          AbstractDistMatrix<Real>& x, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+          ElementalMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void CP \
   ( const SparseMatrix<Real>& A, \

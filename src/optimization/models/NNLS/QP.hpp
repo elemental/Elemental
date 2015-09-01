@@ -58,9 +58,9 @@ void QP
 
 template<typename Real>
 void QP
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& BPre, 
-        AbstractDistMatrix<Real>& XPre,
+( const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& BPre, 
+        ElementalMatrix<Real>& XPre,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::QP"))

@@ -34,26 +34,11 @@ void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
     IndexDependentFill( A, function<T(Int,Int)>(hankelFill) );
 }
 
-template<typename T>
-void Hankel
-( AbstractBlockDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
-{
-    DEBUG_ONLY(CSE cse("Hankel"))
-    const Int length = m+n-1;
-    if( a.size() != (Unsigned)length )
-        LogicError("a was the wrong size");
-    A.Resize( m, n );
-    auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
-    IndexDependentFill( A, function<T(Int,Int)>(hankelFill) );
-}
-
 #define PROTO(T) \
   template void Hankel \
   ( Matrix<T>& A, Int m, Int n, const vector<T>& a ); \
   template void Hankel \
-  ( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a ); \
-  template void Hankel \
-  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, const vector<T>& a );
+  ( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

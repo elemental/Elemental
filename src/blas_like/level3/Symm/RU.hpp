@@ -94,8 +94,8 @@ void LocalAccumulateRU
 template<typename T>
 inline void
 RUA
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RUA");
@@ -154,8 +154,8 @@ RUA
 template<typename T>
 inline void
 RUC
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, bool conjugate=false )
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CSE cse("symm::RUC");
@@ -215,8 +215,8 @@ RUC
 template<typename T>
 inline void
 RU
-( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C,
+( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C,
   bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::RU"))

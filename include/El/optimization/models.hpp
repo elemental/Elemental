@@ -67,9 +67,9 @@ void BP
   const BPCtrl<F>& ctrl=BPCtrl<F>(false) );
 template<typename F>
 void BP
-( const AbstractDistMatrix<F>& A, 
-  const AbstractDistMatrix<F>& b,
-        AbstractDistMatrix<F>& x,
+( const ElementalMatrix<F>& A, 
+  const ElementalMatrix<F>& b,
+        ElementalMatrix<F>& x,
   const BPCtrl<F>& ctrl=BPCtrl<F>(false) );
 template<typename F>
 void BP
@@ -93,8 +93,8 @@ void CP
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void CP
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
-        AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void CP
@@ -117,8 +117,8 @@ void LAV
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LAV
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
-        AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LAV
@@ -155,9 +155,9 @@ void DS
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void DS
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void DS
@@ -194,8 +194,8 @@ template<typename Real>
 Int ModelFit
 ( function<void(DistMatrix<Real>&,Real)> lossProx,
   function<void(DistMatrix<Real>&,Real)> regProx,
-  const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
-        AbstractDistMatrix<Real>& w,
+  const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, 
+        ElementalMatrix<Real>& w,
   const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 
 // Logistic Regression
@@ -210,8 +210,8 @@ Int LogisticRegression
   const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 template<typename Real>
 Int LogisticRegression
-( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, 
+        ElementalMatrix<Real>& z,
   Real gamma, Regularization penalty=L1_PENALTY,
   const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 
@@ -256,10 +256,10 @@ void RLS
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void RLS
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
         Real rho,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void RLS
@@ -305,9 +305,9 @@ void NNLS
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& B, 
-        AbstractDistMatrix<Real>& X, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& B, 
+        ElementalMatrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NNLS
@@ -361,10 +361,10 @@ void RNNLS
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void RNNLS
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
         Real rho,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void RNNLS
@@ -390,8 +390,8 @@ void NMF
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 template<typename Real>
 void NMF
-( const AbstractDistMatrix<Real>& A, 
-        AbstractDistMatrix<Real>& X, AbstractDistMatrix<Real>& Y,
+( const ElementalMatrix<Real>& A, 
+        ElementalMatrix<Real>& X, ElementalMatrix<Real>& Y,
   const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
 // TODO: Sparse versions
 
@@ -432,9 +432,9 @@ void BPDN
   const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
@@ -462,9 +462,9 @@ void EN
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void EN
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
         Real lambda1,                      Real lambda2,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void EN
@@ -505,8 +505,8 @@ void RPCA
 
 template<typename F>
 void RPCA
-( const AbstractDistMatrix<F>& M, AbstractDistMatrix<F>& L, 
-        AbstractDistMatrix<F>& S,
+( const ElementalMatrix<F>& M, ElementalMatrix<F>& L, 
+        ElementalMatrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl=RPCACtrl<Base<F>>() );
 
 // Sparse inverse covariance selection
@@ -528,7 +528,7 @@ Int SparseInvCov
   const SparseInvCovCtrl<Base<F>>& ctrl=SparseInvCovCtrl<Base<F>>() );
 template<typename F>
 Int SparseInvCov
-( const AbstractDistMatrix<F>& D, Base<F> lambda, AbstractDistMatrix<F>& Z,
+( const ElementalMatrix<F>& D, Base<F> lambda, ElementalMatrix<F>& Z,
   const SparseInvCovCtrl<Base<F>>& ctrl=SparseInvCovCtrl<Base<F>>() );
 
 // Support Vector Machine (soft-margin)
@@ -562,8 +562,8 @@ void SVM
   const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& d, 
-        Real lambda,                       AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& d, 
+        Real lambda,                       ElementalMatrix<Real>& x,
   const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
@@ -593,9 +593,9 @@ void SVM
 
 template<typename Real>
 void TV
-( const AbstractDistMatrix<Real>& b,
+( const ElementalMatrix<Real>& b,
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void TV

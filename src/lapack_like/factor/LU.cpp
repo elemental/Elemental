@@ -44,7 +44,7 @@ void LU( Matrix<F>& A )
 }
 
 template<typename F> 
-void LU( AbstractDistMatrix<F>& APre )
+void LU( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("LU"))
 
@@ -157,7 +157,7 @@ void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 }
 
 template<typename F> 
-void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
+void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
         CSE cse("LU");
@@ -228,8 +228,8 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 
 template<typename F> 
 void LU
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q )
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<Int>& p, ElementalMatrix<Int>& q )
 {
     DEBUG_ONLY(CSE cse("LU"))
     lu::Full( A, p, q );
@@ -237,21 +237,21 @@ void LU
 
 #define PROTO(F) \
   template void LU( Matrix<F>& A ); \
-  template void LU( AbstractDistMatrix<F>& A ); \
+  template void LU( ElementalMatrix<F>& A ); \
   template void LU( DistMatrix<F,STAR,STAR>& A ); \
   template void LU( Matrix<F>& A, Matrix<Int>& p ); \
-  template void LU( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p ); \
+  template void LU( ElementalMatrix<F>& A, ElementalMatrix<Int>& p ); \
   template void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q ); \
   template void LU \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Int>& p, ElementalMatrix<Int>& q ); \
   template void LUMod \
   ( Matrix<F>& A, Matrix<Int>& perm, \
     const Matrix<F>& u, const Matrix<F>& v, bool conjugate, \
     Base<F> tau ); \
   template void LUMod \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& perm, \
-    const AbstractDistMatrix<F>& u, const AbstractDistMatrix<F>& v, \
+  ( ElementalMatrix<F>& A, ElementalMatrix<Int>& perm, \
+    const ElementalMatrix<F>& u, const ElementalMatrix<F>& v, \
     bool conjugate, Base<F> tau ); \
   template void lu::Panel( Matrix<F>& APan, Matrix<Int>& p1 ); \
   template void lu::Panel \
@@ -262,20 +262,20 @@ void LU
   ( Orientation orientation, const Matrix<F>& A, Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+    const ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, const Matrix<F>& A, \
     const Matrix<Int>& p, Matrix<F>& B ); \
   template void lu::SolveAfter \
-  ( Orientation orientation, const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B ); \
+  ( Orientation orientation, const ElementalMatrix<F>& A, \
+    const ElementalMatrix<Int>& p, ElementalMatrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, const Matrix<F>& A, \
     const Matrix<Int>& p, const Matrix<Int>& q, Matrix<F>& B ); \
   template void lu::SolveAfter \
-  ( Orientation orientation, const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<Int>& p, const AbstractDistMatrix<Int>& q, \
-          AbstractDistMatrix<F>& B );
+  ( Orientation orientation, const ElementalMatrix<F>& A, \
+    const ElementalMatrix<Int>& p, const ElementalMatrix<Int>& q, \
+          ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

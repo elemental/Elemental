@@ -19,7 +19,7 @@ void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev )
 }
 
 template<typename F>
-void Wigner( AbstractDistMatrix<F>& A, Int n, F mean, Base<F> stddev )
+void Wigner( ElementalMatrix<F>& A, Int n, F mean, Base<F> stddev )
 {
     DEBUG_ONLY(CSE cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );
@@ -29,7 +29,7 @@ void Wigner( AbstractDistMatrix<F>& A, Int n, F mean, Base<F> stddev )
 #define PROTO(F) \
   template void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev ); \
   template void Wigner \
-  ( AbstractDistMatrix<F>& A, Int n, F mean, Base<F> stddev );
+  ( ElementalMatrix<F>& A, Int n, F mean, Base<F> stddev );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

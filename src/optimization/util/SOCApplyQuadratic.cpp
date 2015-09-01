@@ -44,11 +44,11 @@ void SOCApplyQuadratic
 
 template<typename Real>
 void SOCApplyQuadratic
-( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& yPre,
-        AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Real>& yPre,
+        ElementalMatrix<Real>& zPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
@@ -135,10 +135,10 @@ void SOCApplyQuadratic
 
 template<typename Real>
 void SOCApplyQuadratic
-( const AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
@@ -170,11 +170,11 @@ void SOCApplyQuadratic
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCApplyQuadratic \
-  ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCApplyQuadratic \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
@@ -187,10 +187,10 @@ void SOCApplyQuadratic
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCApplyQuadratic \
-  ( const AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCApplyQuadratic \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \

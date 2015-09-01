@@ -18,7 +18,7 @@ void Adjoint( const Matrix<T>& A, Matrix<T>& B )
 }
 
 template<typename T>
-void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+void Adjoint( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Adjoint"))
     Transpose( A, B, true );
@@ -26,7 +26,7 @@ void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 
 template<typename T>
 void Adjoint
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Adjoint"))
     Transpose( A, B, true );
@@ -49,9 +49,9 @@ void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 #define PROTO(T) \
   template void Adjoint( const Matrix<T>& A, Matrix<T>& B ); \
   template void Adjoint \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void Adjoint \
-  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B ); \
+  ( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B ); \
   template void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 

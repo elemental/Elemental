@@ -16,12 +16,16 @@ namespace El {
 // ========
 template<typename F>
 void Lyapunov
-( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X,
+( const Matrix<F>& A,
+  const Matrix<F>& C,
+        Matrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Lyapunov
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C, 
-        AbstractDistMatrix<F>& X, SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& C, 
+        ElementalMatrix<F>& X,
+  SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 // Ricatti
 // =======
@@ -31,19 +35,24 @@ void Ricatti
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Ricatti
-( AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X,
+( ElementalMatrix<F>& W, ElementalMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
 void Ricatti
 ( UpperOrLower uplo,
-  const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, 
-  Matrix<F>& X, SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
+  const Matrix<F>& A,
+  const Matrix<F>& K,
+  const Matrix<F>& L, 
+        Matrix<F>& X,
+  SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Ricatti
 ( UpperOrLower uplo,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& K, 
-  const AbstractDistMatrix<F>& L,       AbstractDistMatrix<F>& X, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& K, 
+  const ElementalMatrix<F>& L,
+        ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 // Sylvester
@@ -54,17 +63,22 @@ void Sylvester
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sylvester
-( Int m, AbstractDistMatrix<F>& W, AbstractDistMatrix<F>& X,
+( Int m, ElementalMatrix<F>& W, ElementalMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
 void Sylvester
-( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, Matrix<F>& X,
+( const Matrix<F>& A,
+  const Matrix<F>& B,
+  const Matrix<F>& C,
+        Matrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sylvester
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& C,       AbstractDistMatrix<F>& X, 
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& C,
+        ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 } // namespace El

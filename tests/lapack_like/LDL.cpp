@@ -15,7 +15,7 @@ void TestCorrectness
 ( bool conjugated, bool print, 
   const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& dSub,
-  const AbstractDistMatrix<Int>& p,
+  const ElementalMatrix<Int>& p,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;

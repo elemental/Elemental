@@ -15,7 +15,7 @@ namespace qr {
 namespace ts {
 
 template<typename F>
-void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
+void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     DEBUG_ONLY(
         CSE cse("qr::ts::Reduce");
@@ -85,7 +85,7 @@ void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 
 template<typename F>
 Matrix<F>&
-RootQR( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
+RootQR( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -101,7 +101,7 @@ RootQR( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 
 template<typename F>
 const Matrix<F>&
-RootQR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
+RootQR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -117,7 +117,7 @@ RootQR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 
 template<typename F>
 inline Matrix<F>&
-RootPhases( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
+RootPhases( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -133,7 +133,7 @@ RootPhases( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 
 template<typename F>
 inline const Matrix<F>&
-RootPhases( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
+RootPhases( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -149,7 +149,7 @@ RootPhases( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 
 template<typename F>
 inline Matrix<Base<F>>&
-RootSignature( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
+RootSignature( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -165,7 +165,7 @@ RootSignature( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 
 template<typename F>
 inline const Matrix<Base<F>>&
-RootSignature( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
+RootSignature( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -180,7 +180,7 @@ RootSignature( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 }
 
 template<typename F>
-void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
+void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     DEBUG_ONLY(
         CSE cse("qr::ts::Scatter");
@@ -250,7 +250,7 @@ void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 
 template<typename F>
 inline DistMatrix<F,STAR,STAR>
-FormR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
+FormR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -274,7 +274,7 @@ FormR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 // NOTE: This is destructive
 template<typename F>
 inline void
-FormQ( AbstractDistMatrix<F>& A, TreeData<F>& treeData )
+FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -304,7 +304,7 @@ FormQ( AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 } // namespace ts
 
 template<typename F>
-TreeData<F> TS( const AbstractDistMatrix<F>& A )
+TreeData<F> TS( const ElementalMatrix<F>& A )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -325,7 +325,7 @@ TreeData<F> TS( const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-void ExplicitTS( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R )
+void ExplicitTS( ElementalMatrix<F>& A, ElementalMatrix<F>& R )
 {
     auto treeData = TS( A );
     Copy( ts::FormR( A, treeData ), R );

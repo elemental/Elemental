@@ -42,23 +42,9 @@ void GKS( AbstractDistMatrix<F>& A, Int n )
     IndexDependentFill( A, function<F(Int,Int)>(gksFill) );
 }
 
-template<typename F>
-void GKS( AbstractBlockDistMatrix<F>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("GKS"))
-    A.Resize( n, n );
-    auto gksFill = 
-      []( Int i, Int j ) -> F
-      { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
-        else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
-        else              { return  F(0);            } };
-    IndexDependentFill( A, function<F(Int,Int)>(gksFill) );
-}
-
 #define PROTO(F) \
   template void GKS( Matrix<F>& A, Int n ); \
-  template void GKS( AbstractDistMatrix<F>& A, Int n ); \
-  template void GKS( AbstractBlockDistMatrix<F>& A, Int n );
+  template void GKS( AbstractDistMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

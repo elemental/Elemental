@@ -25,7 +25,7 @@ Base<F> FrobeniusCondition( const Matrix<F>& A )
 }
 
 template<typename F> 
-Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A )
+Base<F> FrobeniusCondition( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("FrobeniusCondition"))
     typedef Base<F> Real;
@@ -40,7 +40,7 @@ Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A )
 
 #define PROTO(F) \
   template Base<F> FrobeniusCondition( const Matrix<F>& A ); \
-  template Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A );
+  template Base<F> FrobeniusCondition( const ElementalMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

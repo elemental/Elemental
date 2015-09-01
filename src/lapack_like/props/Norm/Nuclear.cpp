@@ -32,7 +32,7 @@ Base<F> SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F> 
-Base<F> NuclearNorm( const AbstractDistMatrix<F>& A )
+Base<F> NuclearNorm( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("NuclearNorm"))
     return SchattenNorm( A, Base<F>(1) );
@@ -40,7 +40,7 @@ Base<F> NuclearNorm( const AbstractDistMatrix<F>& A )
 
 template<typename F>
 Base<F> HermitianNuclearNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HermitianNuclearNorm"))
     return HermitianSchattenNorm( uplo, A, Base<F>(1) );
@@ -48,7 +48,7 @@ Base<F> HermitianNuclearNorm
 
 template<typename F>
 Base<F> SymmetricNuclearNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("SymmetricNuclearNorm"))
     return SymmetricSchattenNorm( uplo, A, Base<F>(1) );
@@ -56,15 +56,15 @@ Base<F> SymmetricNuclearNorm
 
 #define PROTO(F) \
   template Base<F> NuclearNorm( const Matrix<F>& A ); \
-  template Base<F> NuclearNorm( const AbstractDistMatrix<F>& A ); \
+  template Base<F> NuclearNorm( const ElementalMatrix<F>& A ); \
   template Base<F> HermitianNuclearNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> HermitianNuclearNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
   template Base<F> SymmetricNuclearNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> SymmetricNuclearNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

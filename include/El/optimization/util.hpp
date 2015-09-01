@@ -17,28 +17,28 @@ namespace El {
 template<typename F>
 Base<F> Coherence( const Matrix<F>& A );
 template<typename F>
-Base<F> Coherence( const AbstractDistMatrix<F>& A );
+Base<F> Coherence( const ElementalMatrix<F>& A );
 
 // Covariance
 // ==========
 template<typename F>
 void Covariance( const Matrix<F>& D, Matrix<F>& S );
 template<typename F>
-void Covariance( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
+void Covariance( const ElementalMatrix<F>& D, ElementalMatrix<F>& S );
 
 // Log barrier
 // ===========
 template<typename F>
 Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+Base<F> LogBarrier( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 template<typename F>
 Base<F> LogBarrier
 ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
 Base<F> LogBarrier
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite=false );
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite=false );
 
 // Log-det divergence
 // ==================
@@ -48,7 +48,7 @@ Base<F> LogDetDiv
 template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& B );
 
 // Maximum step within the positive cone
 // =====================================
@@ -59,8 +59,8 @@ Real MaxStepInPositiveCone
   Real upperBound=std::numeric_limits<Real>::max() );
 template<typename Real>
 Real MaxStepInPositiveCone
-( const AbstractDistMatrix<Real>& s, 
-  const AbstractDistMatrix<Real>& ds, 
+( const ElementalMatrix<Real>& s, 
+  const ElementalMatrix<Real>& ds, 
   Real upperBound=std::numeric_limits<Real>::max() );
 template<typename Real>
 Real MaxStepInPositiveCone
@@ -88,7 +88,7 @@ Real PosComplementRatio
 ( const Matrix<Real>& s, const Matrix<Real>& z );
 template<typename Real>
 Real PosComplementRatio
-( const AbstractDistMatrix<Real>& s, const AbstractDistMatrix<Real>& z );
+( const ElementalMatrix<Real>& s, const ElementalMatrix<Real>& z );
 template<typename Real>
 Real PosComplementRatio
 ( const DistMultiVec<Real>& s, const DistMultiVec<Real>& z );
@@ -104,9 +104,9 @@ void PositiveNesterovTodd
         Matrix<Real>& w );
 template<typename Real>
 void PositiveNesterovTodd
-( const AbstractDistMatrix<Real>& s, 
-  const AbstractDistMatrix<Real>& z, 
-        AbstractDistMatrix<Real>& w );
+( const ElementalMatrix<Real>& s, 
+  const ElementalMatrix<Real>& z, 
+        ElementalMatrix<Real>& w );
 template<typename Real>
 void PositiveNesterovTodd
 ( const DistMultiVec<Real>& s, 
@@ -123,9 +123,9 @@ void ForcePairIntoPosOrth
   Real wMaxNormLimit );
 template<typename Real>
 void ForcePairIntoPosOrth
-(       AbstractDistMatrix<Real>& s,
-        AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& w,
+(       ElementalMatrix<Real>& s,
+        ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& w,
   Real wMaxNormLimit );
 template<typename Real>
 void ForcePairIntoPosOrth
@@ -144,9 +144,9 @@ void ConeBroadcast
   const Matrix<Int>& firstInds );
 template<typename Real>
 void ConeBroadcast
-(       AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+(       ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void ConeBroadcast
 (       DistMultiVec<Real>& x,
@@ -164,9 +164,9 @@ void ConeAllReduce
   mpi::Op op=mpi::SUM );
 template<typename Real>
 void ConeAllReduce
-(       AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, 
+(       ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, 
   mpi::Op op=mpi::SUM, Int cutoff=1000 );
 template<typename Real>
 void ConeAllReduce
@@ -190,13 +190,13 @@ void ConeRuizEquil
 
 template<typename F>
 void ConeRuizEquil
-(       AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& B,
-        AbstractDistMatrix<Base<F>>& dRowA,
-        AbstractDistMatrix<Base<F>>& dRowB,
-        AbstractDistMatrix<Base<F>>& dCol,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B,
+        ElementalMatrix<Base<F>>& dRowA,
+        ElementalMatrix<Base<F>>& dRowB,
+        ElementalMatrix<Base<F>>& dCol,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
   Int cutoff=1000, bool progress=false );
 
 template<typename F>
@@ -236,13 +236,13 @@ void ConeGeomEquil
 
 template<typename F>
 void ConeGeomEquil
-(       AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<F>& BPre,
-        AbstractDistMatrix<Base<F>>& dRowAPre,
-        AbstractDistMatrix<Base<F>>& dRowBPre,
-        AbstractDistMatrix<Base<F>>& dColPre,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
+(       ElementalMatrix<F>& APre,
+        ElementalMatrix<F>& BPre,
+        ElementalMatrix<Base<F>>& dRowAPre,
+        ElementalMatrix<Base<F>>& dRowBPre,
+        ElementalMatrix<Base<F>>& dColPre,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
   Int cutoff=1000, bool progress=false );
 
 template<typename F>
@@ -270,7 +270,7 @@ void ConeGeomEquil
 // SOC Degree
 // ==========
 Int SOCDegree( const Matrix<Int>& firstInds );
-Int SOCDegree( const AbstractDistMatrix<Int>& firstInds );
+Int SOCDegree( const ElementalMatrix<Int>& firstInds );
 Int SOCDegree( const DistMultiVec<Int>& firstInds );
 
 // SOC Identity
@@ -282,9 +282,9 @@ void SOCIdentity
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCIdentity
-(       AbstractDistMatrix<Real>& e, 
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds );
+(       ElementalMatrix<Real>& e, 
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds );
 template<typename Real>
 void SOCIdentity
 (       DistMultiVec<Real>& e, 
@@ -302,11 +302,11 @@ void SOCDots
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCDots
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCDots
 ( const DistMultiVec<Real>& x, 
@@ -324,9 +324,9 @@ void SOCReflect
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCReflect
-(       AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds );
+(       ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds );
 template<typename Real>
 void SOCReflect
 (       DistMultiVec<Real>& x,
@@ -343,9 +343,9 @@ void SOCShift
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCShift
-(       AbstractDistMatrix<Real>& x, Real shift,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds );
+(       ElementalMatrix<Real>& x, Real shift,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds );
 template<typename Real>
 void SOCShift
 (       DistMultiVec<Real>& x, Real shift,
@@ -362,10 +362,10 @@ void SOCDets
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCDets
-( const AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& d,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCDets
 ( const DistMultiVec<Real>& x,
@@ -383,10 +383,10 @@ void SOCLowerNorms
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCLowerNorms
-( const AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& lowerNorms,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& lowerNorms,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCLowerNorms
 ( const DistMultiVec<Real>& x,
@@ -404,10 +404,10 @@ void SOCMinEig
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCMinEig
-( const AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& minEigs,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& minEigs,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCMinEig
 ( const DistMultiVec<Real>& x,
@@ -422,9 +422,9 @@ Real SOCMinEig
   const Matrix<Int>& firstInds );
 template<typename Real>
 Real SOCMinEig
-( const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 Real SOCMinEig
 ( const DistMultiVec<Real>& x,
@@ -441,10 +441,10 @@ void SOCMaxEig
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCMaxEig
-( const AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& maxEigs,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& maxEigs,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCMaxEig
 ( const DistMultiVec<Real>& x,
@@ -459,9 +459,9 @@ Real SOCMaxEig
   const Matrix<Int>& firstInds );
 template<typename Real>
 Real SOCMaxEig
-( const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 Real SOCMaxEig
 ( const DistMultiVec<Real>& x,
@@ -503,9 +503,9 @@ void ForceIntoSOC
   Real minDist=0 );
 template<typename Real>
 void ForceIntoSOC
-(       AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
+(       ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
   Real minDist=0, Int cutoff=1000 );
 template<typename Real>
 void ForceIntoSOC
@@ -526,11 +526,11 @@ void ForcePairIntoSOC
   Real wMaxNormLimit );
 template<typename Real>
 void ForcePairIntoSOC
-(       AbstractDistMatrix<Real>& s,
-        AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& w,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
+(       ElementalMatrix<Real>& s,
+        ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& w,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
   Real wMaxNormLimit, Int cutoff=1000 );
 template<typename Real>
 void ForcePairIntoSOC
@@ -551,9 +551,9 @@ Int NumNonSOC
   const Matrix<Int>& firstInds );
 template<typename Real>
 Int NumNonSOC
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 Int NumNonSOC
 ( const DistMultiVec<Real>& x, 
@@ -571,11 +571,11 @@ void SOCApply
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCApply
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCApply
 ( const DistMultiVec<Real>& x, 
@@ -594,10 +594,10 @@ void SOCApply
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCApply
-( const AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x, 
+        ElementalMatrix<Real>& y,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCApply
 ( const DistMultiVec<Real>& x, 
@@ -616,11 +616,11 @@ void SOCApplyQuadratic
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCApplyQuadratic
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCApplyQuadratic
 ( const DistMultiVec<Real>& x, 
@@ -639,10 +639,10 @@ void SOCApplyQuadratic
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCApplyQuadratic
-( const AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x, 
+        ElementalMatrix<Real>& y,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCApplyQuadratic
 ( const DistMultiVec<Real>& x, 
@@ -660,10 +660,10 @@ void SOCInverse
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCInverse
-( const AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& xInv,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& xInv,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCInverse
 ( const DistMultiVec<Real>& x,
@@ -681,10 +681,10 @@ void SOCSquareRoot
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCSquareRoot
-( const AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& xRoot,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& xRoot,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCSquareRoot
 ( const DistMultiVec<Real>& x,
@@ -705,11 +705,11 @@ void SOCNesterovTodd
   const Matrix<Int>& firstInds );
 template<typename Real>
 void SOCNesterovTodd
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& z, 
-        AbstractDistMatrix<Real>& w,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& z, 
+        ElementalMatrix<Real>& w,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
 template<typename Real>
 void SOCNesterovTodd
 ( const DistMultiVec<Real>& s, 
@@ -729,10 +729,10 @@ Real MaxStepInSOC
   Real upperBound=std::numeric_limits<Real>::max() );
 template<typename Real>
 Real MaxStepInSOC
-( const AbstractDistMatrix<Real>& x, 
-  const AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds,
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& y,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds,
   Real upperBound=std::numeric_limits<Real>::max(),
   Int cutoff=1000 );
 template<typename Real>

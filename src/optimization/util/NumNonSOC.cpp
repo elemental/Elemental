@@ -41,9 +41,9 @@ Int NumNonSOC
 
 template<typename Real>
 Int NumNonSOC
-( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("NumNonSOC"))
@@ -102,9 +102,9 @@ Int NumNonSOC
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template Int NumNonSOC \
-  ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template Int NumNonSOC \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

@@ -69,8 +69,8 @@ void Trsm
   Orientation orientation,
   UnitOrNonUnit diag,
   F alpha,
-  const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& B,
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B,
   bool checkIfSingular, TrsmAlgorithm alg )
 {
     DEBUG_ONLY(
@@ -350,7 +350,7 @@ void LocalTrsm
   UnitOrNonUnit diag,
   F alpha,
   const DistMatrix<F,STAR,STAR>& A,
-        AbstractDistMatrix<F>& X,
+        ElementalMatrix<F>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -381,8 +381,8 @@ void LocalTrsm
     Orientation orientation, \
     UnitOrNonUnit diag, \
     F alpha, \
-    const AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<F>& B, \
+    const ElementalMatrix<F>& A, \
+          ElementalMatrix<F>& B, \
     bool checkIfSingular, \
     TrsmAlgorithm alg ); \
   template void LocalTrsm \
@@ -392,7 +392,7 @@ void LocalTrsm
     UnitOrNonUnit diag, \
     F alpha, \
     const DistMatrix<F,STAR,STAR>& A, \
-          AbstractDistMatrix<F>& X, \
+          ElementalMatrix<F>& X, \
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO

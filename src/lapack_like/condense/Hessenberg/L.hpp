@@ -75,7 +75,7 @@ inline void L( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void L( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
+inline void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(
         CSE cse("hessenberg::L");

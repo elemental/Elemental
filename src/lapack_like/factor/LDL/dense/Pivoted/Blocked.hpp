@@ -67,8 +67,8 @@ Blocked
 template<typename F>
 inline void
 Blocked
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& dSubPre,
-  AbstractDistMatrix<Int>& pPre, bool conjugate=false, 
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& dSubPre,
+  ElementalMatrix<Int>& pPre, bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(

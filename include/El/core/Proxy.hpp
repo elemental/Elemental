@@ -41,10 +41,10 @@ shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<const DistMatrix<T,U,V>>
-ReadProxy( const AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>>
-ReadProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+ReadProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 
 // Read-write proxy
 // ================
@@ -58,7 +58,7 @@ shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
-( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+( ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 
 // Write proxy
 // ===========
@@ -72,7 +72,7 @@ shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> WriteProxy
-( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+( ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
 
 } // namespace El
 

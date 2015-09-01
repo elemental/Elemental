@@ -53,7 +53,7 @@ SVD( Matrix<F>& A, Matrix<F>& P )
 
 template<typename F>
 inline void
-SVD( AbstractDistMatrix<F>& APre )
+SVD( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("polar::SVD"))
 
@@ -74,7 +74,7 @@ SVD( AbstractDistMatrix<F>& APre )
 
 template<typename F>
 inline void
-SVD( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre )
+SVD( ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre )
 {
     DEBUG_ONLY(CSE cse("polar::SVD"))
 

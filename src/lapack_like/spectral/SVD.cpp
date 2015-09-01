@@ -37,8 +37,8 @@ void SVD
 
 template<typename F>
 void SVD
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
     if( ctrl.thresholded )
@@ -70,7 +70,7 @@ void SVD( Matrix<F>& A, Matrix<Base<F>>& s )
 
 template<typename F>
 void SVD
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
@@ -81,14 +81,14 @@ void SVD
 #define PROTO(F) \
   template void SVD( Matrix<F>& A, Matrix<Base<F>>& s ); \
   template void SVD \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
+  ( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, \
     const SVDCtrl<Base<F>>& ctrl ); \
   template void SVD \
   ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, \
     const SVDCtrl<Base<F>>& ctrl ); \
   template void SVD \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
-    AbstractDistMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl );
+  ( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, \
+    ElementalMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

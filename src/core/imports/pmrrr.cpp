@@ -99,9 +99,11 @@ Info Eig
     int highAccuracy=0; 
     int nz, offset;
     vector<int> ZSupport(2*n);
+    Output("Entering PMRRR");
     int retval = pmrrr
     ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm.comm,
       &nz, &offset, w, Z, &ldz, ZSupport.data() );
+    Output("Exiting PMRRR");
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
 

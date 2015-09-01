@@ -14,13 +14,13 @@ namespace copy {
 // (U,V) |-> (U,Partial(V))
 template<typename T>
 void PartialRowAllGather
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ) 
+( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ) 
 {
     DEBUG_ONLY(
-        CSE cse("copy::PartialRowAllGather");
-        if( B.ColDist() != A.ColDist() ||
-            B.RowDist() != Partial(A.RowDist()) ) 
-            LogicError("Incompatible distributions");
+      CSE cse("copy::PartialRowAllGather");
+      if( B.ColDist() != A.ColDist() ||
+          B.RowDist() != Partial(A.RowDist()) ) 
+          LogicError("Incompatible distributions");
     )
     AssertSameGrids( A, B );
 
@@ -104,8 +104,8 @@ void PartialRowAllGather
 
 template<typename T>
 void PartialRowAllGather
-( const AbstractBlockDistMatrix<T>& A, 
-        AbstractBlockDistMatrix<T>& B ) 
+( const BlockCyclicMatrix<T>& A, 
+        BlockCyclicMatrix<T>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::PartialRowAllGather"))
     AssertSameGrids( A, B );
@@ -114,9 +114,9 @@ void PartialRowAllGather
 
 #define PROTO(T) \
   template void PartialRowAllGather \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void PartialRowAllGather \
-  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+  ( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

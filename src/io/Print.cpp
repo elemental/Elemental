@@ -33,7 +33,7 @@ void Print( const Matrix<T>& A, string title, ostream& os )
 
 template<typename T>
 void Print
-( const AbstractDistMatrix<T>& A, string title, ostream& os )
+( const ElementalMatrix<T>& A, string title, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -51,7 +51,7 @@ void Print
 
 template<typename T>
 void Print
-( const AbstractBlockDistMatrix<T>& A, string title, ostream& os )
+( const BlockCyclicMatrix<T>& A, string title, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -61,7 +61,7 @@ void Print
     }
     else
     {
-        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Print( A_CIRC_CIRC.LockedMatrix(), title, os );
     }
@@ -184,9 +184,9 @@ void Print( const vector<T>& x, string title, ostream& os )
   template void Print \
   ( const Matrix<T>& A, string title, ostream& os ); \
   template void Print \
-  ( const AbstractDistMatrix<T>& A, string title, ostream& os ); \
+  ( const ElementalMatrix<T>& A, string title, ostream& os ); \
   template void Print \
-  ( const AbstractBlockDistMatrix<T>& A, \
+  ( const BlockCyclicMatrix<T>& A, \
     string title, ostream& os ); \
   template void Print \
   ( const DistMultiVec<T>& X, string title, ostream& os ); \

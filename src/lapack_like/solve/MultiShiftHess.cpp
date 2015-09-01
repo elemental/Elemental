@@ -210,8 +210,8 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename F>
 inline void
 LN
-( F alpha, const AbstractDistMatrix<F>& H, 
-  const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
+( F alpha, const ElementalMatrix<F>& H, 
+  const ElementalMatrix<F>& shiftsPre, ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mshs::LN"))
 
@@ -239,7 +239,7 @@ LN
     // Initialize the workspace for shifted columns of H
     Matrix<F> W(m,nLoc);
     {
-        unique_ptr<AbstractDistMatrix<F>> 
+        unique_ptr<ElementalMatrix<F>> 
           h0( H.Construct(H.Grid(),H.Root()) );
         LockedView( *h0, H, ALL, IR(0) );
         DistMatrix<F,STAR,STAR> h0_STAR_STAR( *h0 );
@@ -251,7 +251,7 @@ LN
     }
      
     // Simultaneously find the LQ factorization and solve against L
-    unique_ptr<AbstractDistMatrix<F>> hB( H.Construct(H.Grid(),H.Root()) );
+    unique_ptr<ElementalMatrix<F>> hB( H.Construct(H.Grid(),H.Root()) );
     DistMatrix<F,STAR,STAR> hB_STAR_STAR( H.Grid() );
     for( Int k=0; k<m-1; ++k )
     {
@@ -327,8 +327,8 @@ LN
 template<typename F>
 inline void
 UN
-( F alpha, const AbstractDistMatrix<F>& H, 
-  const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
+( F alpha, const ElementalMatrix<F>& H, 
+  const ElementalMatrix<F>& shiftsPre, ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mshs::UN"))
 
@@ -356,7 +356,7 @@ UN
     // Initialize the workspace for shifted columns of H
     Matrix<F> W(m,nLoc);
     {
-        unique_ptr<AbstractDistMatrix<F>> 
+        unique_ptr<ElementalMatrix<F>> 
           hLast( H.Construct(H.Grid(),H.Root()) );
         LockedView( *hLast, H, ALL, IR(m-1) );
         DistMatrix<F,STAR,STAR> hLast_STAR_STAR( *hLast );
@@ -368,7 +368,7 @@ UN
     }
      
     // Simultaneously form the RQ factorization and solve against R
-    unique_ptr<AbstractDistMatrix<F>> hT( H.Construct(H.Grid(),H.Root()) );
+    unique_ptr<ElementalMatrix<F>> hT( H.Construct(H.Grid(),H.Root()) );
     DistMatrix<F,STAR,STAR> hT_STAR_STAR( H.Grid() );
     for( Int k=m-1; k>0; --k )
     {
@@ -466,8 +466,8 @@ void MultiShiftHessSolve
 template<typename F>
 void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
-  F alpha, const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& shifts, 
-  AbstractDistMatrix<F>& X )
+  F alpha, const ElementalMatrix<F>& H, const ElementalMatrix<F>& shifts, 
+  ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftHessSolve"))
     if( uplo == LOWER )
@@ -493,8 +493,8 @@ void MultiShiftHessSolve
           Matrix<F>& X ); \
   template void MultiShiftHessSolve \
   ( UpperOrLower uplo, Orientation orientation, F alpha, \
-    const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& shifts, \
-          AbstractDistMatrix<F>& X );
+    const ElementalMatrix<F>& H, const ElementalMatrix<F>& shifts, \
+          ElementalMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

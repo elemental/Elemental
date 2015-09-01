@@ -69,7 +69,7 @@ void UpdateMappedDiagonal
 
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& dPre, 
+( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& dPre, 
   function<void(T&,S)> func, Int offset )
 { 
     DEBUG_ONLY(
@@ -148,7 +148,7 @@ void UpdateMappedDiagonal
 
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void UpdateMappedDiagonal \
-  ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, \
+  ( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& d, \
     function<void(T&,S)> func, Int offset );
 
 #define PROTO_TYPES(S,T) \

@@ -92,7 +92,7 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 
 template<typename F>
 inline int
-InverseFreeSign( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
+InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
     DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
 
@@ -207,7 +207,7 @@ InverseFreeSignDivide( Matrix<F>& X )
 
 template<typename F>
 inline ValueInt<Base<F>>
-InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
+InverseFreeSignDivide( ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
 

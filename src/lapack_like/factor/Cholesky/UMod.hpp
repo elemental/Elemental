@@ -75,7 +75,7 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
 
 template<typename F>
 inline void
-UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
+UUpdate( ElementalMatrix<F>& UPre, ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::mod::UUpdate");
@@ -201,7 +201,7 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
 
 template<typename F>
 inline void
-UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
+UDowndate( ElementalMatrix<F>& UPre, ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::mod::UDowndate");
@@ -293,7 +293,7 @@ UMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
 
 template<typename F>
 inline void
-UMod( AbstractDistMatrix<F>& U, Base<F> alpha, AbstractDistMatrix<F>& V )
+UMod( ElementalMatrix<F>& U, Base<F> alpha, ElementalMatrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("cholesky::UMod"))
     typedef Base<F> Real;

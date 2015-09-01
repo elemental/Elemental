@@ -38,8 +38,8 @@ void Trrk
 template<typename T>
 void Trrk
 ( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,        AbstractDistMatrix<T>& C )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Trrk"))
     ScaleTrapezoid( beta, uplo, C );
@@ -62,8 +62,8 @@ void Trrk
   template void Trrk \
   ( UpperOrLower uplo, \
     Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,        AbstractDistMatrix<T>& C ); \
+    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
+    T beta,        ElementalMatrix<T>& C ); \
   template void LocalTrrk \
    ( UpperOrLower uplo, \
      T alpha, const DistMatrix<T,MC,  STAR>& A, \

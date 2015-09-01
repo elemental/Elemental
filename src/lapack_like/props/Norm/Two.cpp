@@ -42,7 +42,7 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F> 
-Base<F> TwoNorm( const AbstractDistMatrix<F>& A )
+Base<F> TwoNorm( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("TwoNorm"))
     DistMatrix<F> B( A );
@@ -52,7 +52,7 @@ Base<F> TwoNorm( const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-Base<F> HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> HermitianTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HermitianTwoNorm"))
     DistMatrix<F> B( A );
@@ -62,7 +62,7 @@ Base<F> HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-Base<F> SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> SymmetricTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("SymmetricTwoNorm"))
     DistMatrix<F> B( A );
@@ -74,13 +74,13 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 
 #define PROTO(F) \
   template Base<F> TwoNorm( const Matrix<F>& A ); \
-  template Base<F> TwoNorm( const AbstractDistMatrix<F>& A ); \
+  template Base<F> TwoNorm( const ElementalMatrix<F>& A ); \
   template Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> HermitianTwoNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
   template Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> SymmetricTwoNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -38,7 +38,7 @@ void SymmetricInverse
 
 template<typename F>
 void SymmetricInverse
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre, bool conjugate, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre, bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricInverse"))
@@ -80,7 +80,7 @@ void LocalSymmetricInverse
   ( UpperOrLower uplo, Matrix<F>& A, bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricInverse \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void LocalSymmetricInverse \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, \

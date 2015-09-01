@@ -33,8 +33,8 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, 
-  Base<T> beta,        AbstractDistMatrix<T>& C )
+  Base<T> alpha, const ElementalMatrix<T>& A, 
+  Base<T> beta,        ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
@@ -43,7 +43,7 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C )
+  Base<T> alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
@@ -101,11 +101,11 @@ void Herk
     Base<T> alpha, const Matrix<T>& A, Matrix<T>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C ); \
+    Base<T> alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    Base<T> alpha, const AbstractDistMatrix<T>& A, \
-    Base<T> beta,        AbstractDistMatrix<T>& C ); \
+    Base<T> alpha, const ElementalMatrix<T>& A, \
+    Base<T> beta,        ElementalMatrix<T>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
     Base<T> alpha, const SparseMatrix<T>& A, \

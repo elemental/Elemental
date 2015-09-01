@@ -14,57 +14,57 @@ namespace transpose {
 
 template<typename T>
 void ColFilter
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, bool conjugate );
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B, bool conjugate );
 template<typename T>
 void ColFilter
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B, bool conjugate );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B, bool conjugate );
 
 template<typename T>
 void RowFilter
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, bool conjugate );
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B, bool conjugate );
 template<typename T>
 void RowFilter
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B, bool conjugate );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B, bool conjugate );
 
 template<typename T>
 void PartialColFilter
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, bool conjugate );
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B, bool conjugate );
 template<typename T>
 void PartialColFilter
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B, bool conjugate );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B, bool conjugate );
 
 template<typename T>
 void PartialRowFilter
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, bool conjugate );
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B, bool conjugate );
 template<typename T>
 void PartialRowFilter
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B, bool conjugate );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B, bool conjugate );
 
 template<typename T>
 void ColAllGather
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, bool conjugate );
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B, bool conjugate );
 template<typename T>
 void ColAllGather
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B, bool conjugate );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B, bool conjugate );
 
 template<typename T>
 void PartialColAllGather
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, bool conjugate );
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B, bool conjugate );
 template<typename T>
 void PartialColAllGather
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B, bool conjugate );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B, bool conjugate );
 
 } // namespace transpose
 
@@ -97,11 +97,11 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
 
 template<typename T>
 void Transpose
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, bool conjugate )
+( const ElementalMatrix<T>& A, ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    const DistData AData = A.DistData();
-    const DistData BData = B.DistData();
+    const ElementalData AData = A.DistData();
+    const ElementalData BData = B.DistData();
 
     // NOTE: The following are ordered in terms of increasing cost
     if( AData.colDist == BData.rowDist &&
@@ -145,7 +145,7 @@ void Transpose
     }
     else
     {
-        unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<ElementalMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BData );
         Copy( A, *C );
@@ -156,12 +156,12 @@ void Transpose
 
 template<typename T>
 void Transpose
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B, 
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B, 
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    const BlockDistData AData = A.DistData();
-    const BlockDistData BData = B.DistData();
+    const BlockCyclicData AData = A.DistData();
+    const BlockCyclicData BData = B.DistData();
     if( AData.colDist == BData.rowDist &&
         AData.rowDist == BData.colDist &&
         ((AData.colAlign    == BData.rowAlign && 
@@ -209,7 +209,7 @@ void Transpose
     }
     else
     {
-        unique_ptr<AbstractBlockDistMatrix<T>> 
+        unique_ptr<BlockCyclicMatrix<T>> 
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BData );
         Copy( A, *C );
@@ -240,11 +240,11 @@ void Transpose
 #define PROTO(T) \
   template void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate ); \
   template void Transpose \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B, bool conjugate ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, bool conjugate ); \
   template void Transpose \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<T>& B, bool conjugate ); \
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<T>& B, bool conjugate ); \
   template void Transpose \
   ( const SparseMatrix<T>& A, \
           SparseMatrix<T>& B, bool conjugate ); \

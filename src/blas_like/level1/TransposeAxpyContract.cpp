@@ -12,8 +12,8 @@ namespace El {
 
 template<typename T>
 void TransposeAxpyContract
-( T alpha, const AbstractDistMatrix<T>& A, 
-                 AbstractDistMatrix<T>& B, bool conjugate )
+( T alpha, const ElementalMatrix<T>& A, 
+                 ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeAxpyContract"))
     const Dist U = B.ColDist();
@@ -27,7 +27,7 @@ void TransposeAxpyContract
              (A.RowDist() == U && A.ColDist() == Partial(V)) ||
              (A.RowDist() == U && A.ColDist() == Collect(V)) )
     {
-        unique_ptr<AbstractDistMatrix<T>>
+        unique_ptr<ElementalMatrix<T>>
           ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, true );
@@ -48,8 +48,8 @@ void TransposeAxpyContract
 
 template<typename T>
 void TransposeAxpyContract
-( T alpha, const AbstractBlockDistMatrix<T>& A, 
-                 AbstractBlockDistMatrix<T>& B, bool conjugate )
+( T alpha, const BlockCyclicMatrix<T>& A, 
+                 BlockCyclicMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeAxpyContract"))
     LogicError("Not yet implemented");
@@ -57,11 +57,11 @@ void TransposeAxpyContract
 
 #define PROTO(T) \
   template void TransposeAxpyContract \
-  ( T alpha, const AbstractDistMatrix<T>& A, \
-                   AbstractDistMatrix<T>& B, bool conjugate ); \
+  ( T alpha, const ElementalMatrix<T>& A, \
+                   ElementalMatrix<T>& B, bool conjugate ); \
   template void TransposeAxpyContract \
-  ( T alpha, const AbstractBlockDistMatrix<T>& A, \
-                   AbstractBlockDistMatrix<T>& B, bool conjugate );
+  ( T alpha, const BlockCyclicMatrix<T>& A, \
+                   BlockCyclicMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

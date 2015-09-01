@@ -233,12 +233,12 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A,    
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& w,
-  const AbstractDistMatrix<Int>& ordersPre,
-  const AbstractDistMatrix<Int>& firstIndsPre,
-        AbstractDistMatrix<Real>& JPre, 
+( const ElementalMatrix<Real>& A,    
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& w,
+  const ElementalMatrix<Int>& ordersPre,
+  const ElementalMatrix<Int>& firstIndsPre,
+        ElementalMatrix<Real>& JPre, 
   bool onlyLower, Int cutoffPar )
 {
     DEBUG_ONLY(CSE cse("socp::affine::KKT"))
@@ -2107,14 +2107,14 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const AbstractDistMatrix<Real>& rc,  
-  const AbstractDistMatrix<Real>& rb,
-  const AbstractDistMatrix<Real>& rh,  
-  const AbstractDistMatrix<Real>& rmu,
-  const AbstractDistMatrix<Real>& wRoot,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& dPre,
+( const ElementalMatrix<Real>& rc,  
+  const ElementalMatrix<Real>& rb,
+  const ElementalMatrix<Real>& rh,  
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& wRoot,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& dPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
@@ -2257,15 +2257,15 @@ void ExpandSolution
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n,
-  const AbstractDistMatrix<Real>& d, 
-  const AbstractDistMatrix<Real>& rmu,
-  const AbstractDistMatrix<Real>& wRoot, 
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& dx, 
-        AbstractDistMatrix<Real>& dy,
-        AbstractDistMatrix<Real>& dz, 
-        AbstractDistMatrix<Real>& ds,
+  const ElementalMatrix<Real>& d, 
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& wRoot, 
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& dx, 
+        ElementalMatrix<Real>& dy,
+        ElementalMatrix<Real>& dz, 
+        ElementalMatrix<Real>& ds,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
@@ -2409,12 +2409,12 @@ void ExpandSolution
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& w, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-          AbstractDistMatrix<Real>& J, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& w, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
+          ElementalMatrix<Real>& J, \
     bool onlyLower, Int cutoff ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
@@ -2494,14 +2494,14 @@ void ExpandSolution
     const Matrix<Int>& firstInds, \
           Matrix<Real>& d ); \
   template void KKTRHS \
-  ( const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, \
-    const AbstractDistMatrix<Real>& rh, \
-    const AbstractDistMatrix<Real>& rmu, \
-    const AbstractDistMatrix<Real>& wRoot, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-          AbstractDistMatrix<Real>& d, \
+  ( const ElementalMatrix<Real>& rc, \
+    const ElementalMatrix<Real>& rb, \
+    const ElementalMatrix<Real>& rh, \
+    const ElementalMatrix<Real>& rmu, \
+    const ElementalMatrix<Real>& wRoot, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
+          ElementalMatrix<Real>& d, \
     Int cutoff ); \
   template void KKTRHS \
   ( const Matrix<Real>& rc, \
@@ -2539,15 +2539,15 @@ void ExpandSolution
           Matrix<Real>& ds ); \
   template void ExpandSolution \
   ( Int m, Int n, \
-    const AbstractDistMatrix<Real>& d, \
-    const AbstractDistMatrix<Real>& rmu, \
-    const AbstractDistMatrix<Real>& wRoot, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-          AbstractDistMatrix<Real>& dx, \
-          AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz, \
-          AbstractDistMatrix<Real>& ds, \
+    const ElementalMatrix<Real>& d, \
+    const ElementalMatrix<Real>& rmu, \
+    const ElementalMatrix<Real>& wRoot, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
+          ElementalMatrix<Real>& dx, \
+          ElementalMatrix<Real>& dy, \
+          ElementalMatrix<Real>& dz, \
+          ElementalMatrix<Real>& ds, \
           Int cutoff ); \
   template void ExpandSolution \
   ( Int m, Int n, \

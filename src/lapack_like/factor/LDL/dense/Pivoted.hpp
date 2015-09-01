@@ -44,8 +44,8 @@ Pivoted
 template<typename F>
 inline void
 Pivoted
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub, 
-  AbstractDistMatrix<Int>& p, bool conjugate, 
+( ElementalMatrix<F>& A, ElementalMatrix<F>& dSub, 
+  ElementalMatrix<Int>& p, bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ldl::Pivoted"))

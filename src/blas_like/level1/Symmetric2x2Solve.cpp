@@ -326,7 +326,7 @@ template<typename F>
 void
 Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, bool conjugate )
+  const ElementalMatrix<F>& D, ElementalMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symmetric2x2Solve"))
     typedef Base<F> Real;
@@ -440,7 +440,7 @@ Symmetric2x2Solve
     const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate ); \
   template void Symmetric2x2Solve \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A, \
+    const ElementalMatrix<F>& D, ElementalMatrix<F>& A, \
     bool conjugate );
 
 #define EL_NO_INT_PROTO

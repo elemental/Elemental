@@ -21,7 +21,7 @@ Int SOCDegree( const Matrix<Int>& firstInds )
     return degree;
 }
 
-Int SOCDegree( const AbstractDistMatrix<Int>& firstIndsPre )
+Int SOCDegree( const ElementalMatrix<Int>& firstIndsPre )
 {
     DEBUG_ONLY(CSE cse("SOCDegree"))
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
