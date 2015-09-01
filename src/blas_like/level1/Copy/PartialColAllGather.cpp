@@ -116,8 +116,8 @@ void PartialColAllGather
 
 template<typename T,Dist U,Dist V>
 void PartialColAllGather
-( const BlockDistMatrix<T,        U,   V>& A, 
-        BlockDistMatrix<T,Partial<U>(),V>& B ) 
+( const DistMatrix<T,        U,   V,BLOCK_CYCLIC>& A, 
+        DistMatrix<T,Partial<U>(),V,BLOCK_CYCLIC>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::PartialColAllGather"))
     AssertSameGrids( A, B );
@@ -129,8 +129,8 @@ void PartialColAllGather
   ( const DistMatrix<T,        U,   V>& A, \
           DistMatrix<T,Partial<U>(),V>& B ); \
   template void PartialColAllGather \
-  ( const BlockDistMatrix<T,        U,   V>& A, \
-          BlockDistMatrix<T,Partial<U>(),V>& B );
+  ( const DistMatrix<T,        U,   V,BLOCK_CYCLIC>& A, \
+          DistMatrix<T,Partial<U>(),V,BLOCK_CYCLIC>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

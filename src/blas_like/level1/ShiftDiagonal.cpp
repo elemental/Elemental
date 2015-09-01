@@ -43,24 +43,6 @@ void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 }
 
 template<typename T,typename S>
-void ShiftDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
-{
-    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
-    const Int height = A.Height();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        const Int i = j-offset;
-        if( i >= 0 && i < height && A.IsLocalRow(i) )
-        {
-            const Int iLoc = A.LocalRow(i);
-            A.UpdateLocal( iLoc, jLoc, alpha );
-        }
-    }
-}
-
-template<typename T,typename S>
 void ShiftDiagonal
 ( SparseMatrix<T>& A, S alphaPre, Int offset, bool existingDiag )
 {
@@ -122,8 +104,6 @@ void ShiftDiagonal
   template void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset ); \
   template void ShiftDiagonal \
   ( AbstractDistMatrix<T>& A, S alpha, Int offset ); \
-  template void ShiftDiagonal \
-  ( AbstractBlockDistMatrix<T>& A, S alpha, Int offset ); \
   template void ShiftDiagonal \
   ( SparseMatrix<T>& A, S alpha, Int offset, bool existingDiag ); \
   template void ShiftDiagonal \

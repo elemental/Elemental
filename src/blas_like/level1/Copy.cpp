@@ -72,7 +72,7 @@ inline void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
 
 template<typename T,Dist U,Dist V>
 inline void Copy
-( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B )
+( const BlockCyclicMatrix<T>& A, DistMatrix<T,U,V,BLOCK_CYCLIC>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     B = A;
@@ -82,7 +82,7 @@ inline void Copy
 // avoid explicitly instantiating every combination
 template<typename S,typename T,Dist U,Dist V>
 inline void Copy
-( const AbstractBlockDistMatrix<S>& A, BlockDistMatrix<T,U,V>& B )
+( const BlockCyclicMatrix<S>& A, DistMatrix<T,U,V,BLOCK_CYCLIC>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
@@ -104,7 +104,7 @@ inline void Copy
             return;
         }
     }
-    BlockDistMatrix<S,U,V> BOrig(A.Grid());
+    DistMatrix<S,U,V,BLOCK_CYCLIC> BOrig(A.Grid());
     BOrig.AlignWith( B );
     BOrig = A;
     B.Resize( A.Height(), A.Width() );
@@ -133,7 +133,13 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
         auto& BCast = dynamic_cast<ElementalMatrix<T>&>(B);
         BCast = ACast;
     }
-    else // TODO: More branching once BlockDistMatrix and DistMultiVec merged
+    else if( wrapA == BLOCK_CYCLIC && wrapB == BLOCK_CYCLIC )
+    {
+        auto& ACast = dynamic_cast<const BlockCyclicMatrix<T>&>(A);
+        auto& BCast = dynamic_cast<BlockCyclicMatrix<T>&>(B);
+        BCast = ACast;
+    }
+    else // TODO: More branching once DistMultiVec merged
     {
         B.SetGrid( A.Grid() );
         Zeros( B, A.Height(), A.Width() );
@@ -157,13 +163,13 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
 }
 
 template<typename S,typename T>
-void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B )
+void Copy( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(B); \
-        Copy( A, BCast );
+      auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST,BLOCK_CYCLIC>&>(B); \
+      Copy( A, BCast );
     #include "El/macros/GuardAndPayload.h"
 }
 
@@ -246,6 +252,29 @@ void CopyFromRoot
 
 template<typename T>
 void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
+{
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    if( B.CrossRank() == B.Root() )
+        LogicError("Called CopyFromNonRoot from root");
+    B.MakeSizeConsistent( includingViewers );
+}
+
+template<typename T>
+void CopyFromRoot
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B,
+  bool includingViewers )
+{
+    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    if( B.CrossRank() != B.Root() )
+        LogicError("Called CopyFromRoot from non-root");
+    B.Resize( A.Height(), A.Width() );
+    B.MakeSizeConsistent( includingViewers );
+    B.Matrix() = A;
+}
+
+template<typename T>
+void CopyFromNonRoot
+( DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B, bool includingViewers )
 {
     DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
     if( B.CrossRank() == B.Root() )
@@ -583,7 +612,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
   template void Copy \
   ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
-  ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B ); \
+  ( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B ); \
   template void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B ); \
   template void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B ); \
   template void Copy( const SparseMatrix<S>& A, Matrix<T>& B ); \

@@ -95,7 +95,7 @@ DM::DistMatrix( const ElementalMatrix<T>& A )
 
 template<typename T>
 template<Dist U,Dist V>
-DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
+DM::DistMatrix( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A )
 : EM(A.Grid())
 {
     DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
@@ -134,20 +134,20 @@ DM::ConstructDiagonal
 // Return a view
 // -------------
 template<typename T>
-DM DM::operator()( Range<Int> indVert, Range<Int> indHorz )
+DM DM::operator()( Range<Int> I, Range<Int> J )
 {
     DEBUG_ONLY(CSE cse("DM( ind, ind )"))
     if( this->Locked() )
-        return LockedView( *this, indVert, indHorz );
+        return LockedView( *this, I, J );
     else
-        return View( *this, indVert, indHorz );
+        return View( *this, I, J );
 }
 
 template<typename T>
-const DM DM::operator()( Range<Int> indVert, Range<Int> indHorz ) const
+const DM DM::operator()( Range<Int> I, Range<Int> J ) const
 {
     DEBUG_ONLY(CSE cse("DM( ind, ind ) const"))
-    return LockedView( *this, indVert, indHorz );
+    return LockedView( *this, I, J );
 }
 
 // Copy
@@ -162,10 +162,10 @@ DM& DM::operator=( const DM& A )
 
 template<typename T>
 template<Dist U,Dist V>
-DM& DM::operator=( const BlockDistMatrix<T,U,V>& A )
+DM& DM::operator=( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A )
 {
     DEBUG_ONLY(CSE cse("DM = BDM[U,V]"))
-    BlockDistMatrix<T,COLDIST,ROWDIST> AElem(A.Grid(),1,1);
+    DistMatrix<T,COLDIST,ROWDIST,BLOCK_CYCLIC> AElem(A.Grid(),1,1);
     AElem = A;
     DistMatrix<T,COLDIST,ROWDIST> AElemView(A.Grid());
     LockedView( AElemView, AElem ); 

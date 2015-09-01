@@ -90,7 +90,7 @@ void PartialRowFilter
 
 template<typename T>
 void PartialRowFilter
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("copy::PartialRowFilter"))
     AssertSameGrids( A, B );
@@ -101,7 +101,7 @@ void PartialRowFilter
   template void PartialRowFilter \
   ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void PartialRowFilter \
-  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+  ( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -28,10 +28,6 @@ void EntrywiseFill( AbstractDistMatrix<T>& A, function<T(void)> func )
 { EntrywiseFill( A.Matrix(), func ); }
 
 template<typename T>
-void EntrywiseFill( AbstractBlockDistMatrix<T>& A, function<T(void)> func )
-{ EntrywiseFill( A.Matrix(), func ); }
-
-template<typename T>
 void EntrywiseFill( DistMultiVec<T>& A, function<T(void)> func )
 { EntrywiseFill( A.Matrix(), func ); }
 
@@ -40,8 +36,6 @@ void EntrywiseFill( DistMultiVec<T>& A, function<T(void)> func )
   ( Matrix<T>& A, function<T(void)> func ); \
   template void EntrywiseFill \
   ( AbstractDistMatrix<T>& A, function<T(void)> func ); \
-  template void EntrywiseFill \
-  ( AbstractBlockDistMatrix<T>& A, function<T(void)> func ); \
   template void EntrywiseFill \
   ( DistMultiVec<T>& A, function<T(void)> func );
 

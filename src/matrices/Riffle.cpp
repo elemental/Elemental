@@ -63,29 +63,6 @@ void Riffle( AbstractDistMatrix<F>& P, Int n )
 }
 
 template<typename F>
-void Riffle( AbstractBlockDistMatrix<F>& P, Int n )
-{
-    DEBUG_ONLY(CSE cse("Riffle"))
-    typedef Base<F> Real;
-
-    auto logBinom = LogBinomial<Real>( n+1 );
-    auto logEuler = LogEulerian<Real>( n );
-
-    const Real gamma = n*Log(Real(2));
-
-    P.Resize( n, n );
-    auto riffleFill = 
-      [&]( Int i, Int j ) -> F
-      { const Int k = 2*i - j + 1;
-        if( k >= 0 && k <= n+1 )
-            return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
-        else
-            return Base<F>(0); 
-      };
-    IndexDependentFill( P, function<F(Int,Int)>(riffleFill) );
-}
-
-template<typename F>
 void RiffleStationary( Matrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CSE cse("RiffleStationary"))    
@@ -132,29 +109,6 @@ void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
 }
 
 template<typename F>
-void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
-{
-    DEBUG_ONLY(CSE cse("RiffleStationary"))    
-    typedef Base<F> Real;
-    // NOTE: This currently requires quadratic time
-    vector<Real> sigma(n,0), sigmaTmp(n,0);
-    sigma[0] = sigmaTmp[0] = 1;
-    for( Int j=1; j<n; ++j )
-    {
-        sigmaTmp[0] = sigma[0];
-        for( Int k=1; k<=j; ++k )
-            sigmaTmp[k] = (k+1)*sigma[k] + (j-k+1)*sigma[k-1];
-        for( Int k=0; k<n; ++k )
-            sigma[k] = sigmaTmp[k]/(j+1);
-    }
-    SwapClear( sigmaTmp );
-    
-    PInf.Resize( n, n );
-    auto riffleStatFill = [&]( Int i, Int j ) { return sigma[j]; };
-    IndexDependentFill( PInf, function<F(Int,Int)>(riffleStatFill) );
-}
-
-template<typename F>
 void Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CSE cse("Riffle"))
@@ -164,17 +118,6 @@ void Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
 
 template<typename F>
 void Riffle( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
-{
-    DEBUG_ONLY(CSE cse("Riffle"))
-    Riffle( P, n );
-    PInf.SetGrid( P.Grid() );
-    PInf.AlignWith( P.DistData() );
-    RiffleStationary( PInf, n );
-}
-
-template<typename F>
-void Riffle
-( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CSE cse("Riffle"))
     Riffle( P, n );
@@ -204,21 +147,15 @@ void RiffleDecay( ElementalMatrix<F>& A, Int n )
     A -= *PInf;
 }
 
-// TODO: AbstractBlockDistMatrix version
-
 #define PROTO(F) \
   template void Riffle( Matrix<F>& P, Int n ); \
   template void Riffle( AbstractDistMatrix<F>& P, Int n ); \
-  template void Riffle( AbstractBlockDistMatrix<F>& P, Int n ); \
   template void Riffle \
   ( Matrix<F>& P, Matrix<F>& PInf, Int n ); \
   template void Riffle \
   ( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n ); \
-  template void Riffle \
-  ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void RiffleStationary( Matrix<F>& PInf, Int n ); \
   template void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n ); \
-  template void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void RiffleDecay( Matrix<F>& A, Int n ); \
   template void RiffleDecay( ElementalMatrix<F>& A, Int n );
 

@@ -63,55 +63,7 @@ Ascii( Matrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-Ascii( ElementalMatrix<T>& A, const string filename )
-{
-    DEBUG_ONLY(CSE cse("read::Ascii"))
-    std::ifstream file( filename.c_str() );
-    if( !file.is_open() )
-        RuntimeError("Could not open ",filename);
-
-    // Walk through the file once to both count the number of rows and
-    // columns and to ensure that the number of columns is consistent
-    Int height=0, width=0;
-    string line;
-    while( std::getline( file, line ) )
-    {
-        std::stringstream lineStream( line );
-        Int numCols=0;
-        T value;
-        while( lineStream >> value ) ++numCols;
-        if( numCols != 0 )
-        {
-            if( numCols != width && width != 0 )
-                LogicError("Inconsistent number of columns");
-            else
-                width = numCols;
-            ++height;
-        }
-    }
-    file.clear();
-    file.seekg(0,file.beg);
-
-    // Resize the matrix and then read in our local portion
-    A.Resize( height, width );
-    Int i=0;
-    while( std::getline( file, line ) )
-    {
-        std::stringstream lineStream( line );
-        Int j=0;
-        T value;
-        while( lineStream >> value )
-        {
-            A.Set( i, j, value );
-            ++j;
-        }
-        ++i;
-    }
-}
-
-template<typename T>
-inline void
-Ascii( AbstractBlockDistMatrix<T>& A, const string filename )
+Ascii( AbstractDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::Ascii"))
     std::ifstream file( filename.c_str() );

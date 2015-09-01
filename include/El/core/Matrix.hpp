@@ -143,12 +143,11 @@ private:
    
     // Friend declarations
     // ===================
-    template <typename F>               friend class Matrix;
-    template <typename F>               friend class AbstractDistMatrix;
-    template <typename F>               friend class ElementalMatrix;
-    template <typename F>               friend class AbstractBlockDistMatrix;
+    template <typename F> friend class Matrix;
+    template <typename F> friend class AbstractDistMatrix;
+    template <typename F> friend class ElementalMatrix;
+    template <typename F> friend class BlockCyclicMatrix;
     template <typename F,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
-    template <typename F,Dist U,Dist V> friend class BlockDistMatrix;
 };
 
 } // namespace El

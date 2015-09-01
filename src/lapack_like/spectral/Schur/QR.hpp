@@ -54,7 +54,8 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w,
+( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A,
+  ElementalMatrix<Complex<Base<F>>>& w,
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
@@ -116,8 +117,10 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w,
-  BlockDistMatrix<F>& Q, bool fullTriangle, const HessQRCtrl& ctrl )
+( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A,
+  ElementalMatrix<Complex<Base<F>>>& w,
+  DistMatrix<F,MC,MR,BLOCK_CYCLIC>& Q,
+  bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
 #ifdef EL_HAVE_SCALAPACK
@@ -213,7 +216,7 @@ QR
     const Int n = A.Height(); 
     const Int mb = ctrl.blockHeight;
     const Int nb = ctrl.blockWidth;
-    BlockDistMatrix<F> ABlock( n, n, A.Grid(), mb, nb );
+    DistMatrix<F,MC,MR,BLOCK_CYCLIC> ABlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );
     const int context =
@@ -274,8 +277,9 @@ QR
     // Run the Hessenberg QR algorithm in block form
     const Int mb = ctrl.blockHeight;
     const Int nb = ctrl.blockWidth;
-    BlockDistMatrix<F> ABlock( n, n, A.Grid(), mb, nb ), 
-                       QBlock( n, n, A.Grid(), mb, nb );
+    DistMatrix<F,MC,MR,BLOCK_CYCLIC>
+      ABlock( n, n, A.Grid(), mb, nb ), 
+      QBlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
     QBlock = Q;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );

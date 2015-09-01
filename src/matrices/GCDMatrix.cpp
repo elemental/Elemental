@@ -28,19 +28,9 @@ void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n )
     IndexDependentFill( G, function<T(Int,Int)>(gcdFill) );
 }
 
-template<typename T>
-void GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n )
-{
-    DEBUG_ONLY(CSE cse("GCDMatrix"))
-    G.Resize( m, n );
-    auto gcdFill = []( Int i, Int j ) { return T(GCD(i+1,j+1)); };
-    IndexDependentFill( G, function<T(Int,Int)>(gcdFill) );
-}
-
 #define PROTO(T) \
   template void GCDMatrix( Matrix<T>& G, Int m, Int n ); \
-  template void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n ); \
-  template void GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n );
+  template void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

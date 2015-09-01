@@ -27,14 +27,6 @@ void MakeIdentity( AbstractDistMatrix<T>& I )
 }
 
 template<typename T>
-void MakeIdentity( AbstractBlockDistMatrix<T>& I )
-{
-    DEBUG_ONLY(CSE cse("MakeIdentity"))
-    Zero( I );
-    FillDiagonal( I, T(1) );
-}
-
-template<typename T>
 void Identity( Matrix<T>& I, Int m, Int n )
 {
     DEBUG_ONLY(CSE cse("Identity"))
@@ -44,14 +36,6 @@ void Identity( Matrix<T>& I, Int m, Int n )
 
 template<typename T>
 void Identity( AbstractDistMatrix<T>& I, Int m, Int n )
-{
-    DEBUG_ONLY(CSE cse("Identity"))
-    I.Resize( m, n );
-    MakeIdentity( I );
-}
-
-template<typename T>
-void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n )
 {
     DEBUG_ONLY(CSE cse("Identity"))
     I.Resize( m, n );
@@ -91,10 +75,8 @@ void Identity( DistSparseMatrix<T>& I, Int m, Int n )
 #define PROTO(T) \
   template void MakeIdentity( Matrix<T>& I ); \
   template void MakeIdentity( AbstractDistMatrix<T>& I ); \
-  template void MakeIdentity( AbstractBlockDistMatrix<T>& I ); \
   template void Identity( Matrix<T>& I, Int m, Int n ); \
   template void Identity( AbstractDistMatrix<T>& I, Int m, Int n ); \
-  template void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n ); \
   template void Identity( SparseMatrix<T>& I, Int m, Int n ); \
   template void Identity( DistSparseMatrix<T>& I, Int m, Int n );
 

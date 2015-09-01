@@ -26,18 +26,9 @@ void Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
     ShiftDiagonal( P, alpha );
 }
 
-template<typename T>
-void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
-{
-    DEBUG_ONLY(CSE cse("Pei"))
-    Ones( P, n, n );
-    ShiftDiagonal( P, alpha );
-}
-
 #define PROTO(T) \
   template void Pei( Matrix<T>& P, Int n, T alpha ); \
-  template void Pei( AbstractDistMatrix<T>& P, Int n, T alpha ); \
-  template void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha );
+  template void Pei( AbstractDistMatrix<T>& P, Int n, T alpha );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

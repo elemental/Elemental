@@ -30,20 +30,9 @@ void Parter( AbstractDistMatrix<F>& P, Int n )
     IndexDependentFill( P, function<F(Int,Int)>(parterFill) );
 }
 
-template<typename F>
-void Parter( AbstractBlockDistMatrix<F>& P, Int n )
-{
-    DEBUG_ONLY(CSE cse("Parter"))
-    P.Resize( n, n );
-    const F oneHalf = F(1)/F(2);
-    auto parterFill = [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); };
-    IndexDependentFill( P, function<F(Int,Int)>(parterFill) );
-}
-
 #define PROTO(F) \
   template void Parter( Matrix<F>& P, Int n ); \
-  template void Parter( AbstractDistMatrix<F>& P, Int n ); \
-  template void Parter( AbstractBlockDistMatrix<F>& P, Int n );
+  template void Parter( AbstractDistMatrix<F>& P, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

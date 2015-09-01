@@ -39,27 +39,10 @@ void FillDiagonal( AbstractDistMatrix<T>& A, T alpha, Int offset )
     }
 }
 
-template<typename T>
-void FillDiagonal( AbstractBlockDistMatrix<T>& A, T alpha, Int offset )
-{
-    DEBUG_ONLY(CSE cse("FillDiagonal"))
-    const Int height = A.Height();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        const Int i = j-offset;
-        if( i >= 0 && i < height )
-            A.Set( i, j, alpha );
-    }
-}
-
 #define PROTO(T) \
   template void FillDiagonal( Matrix<T>& A, T alpha, Int offset ); \
   template void FillDiagonal \
-  ( AbstractDistMatrix<T>& A, T alpha, Int offset ); \
-  template void FillDiagonal \
-  ( AbstractBlockDistMatrix<T>& A, T alpha, Int offset );
+  ( AbstractDistMatrix<T>& A, T alpha, Int offset );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

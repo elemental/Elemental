@@ -33,7 +33,7 @@ void ImagPart
 
 template<typename T>
 void ImagPart
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<Base<T>>& AImag )
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<Base<T>>& AImag )
 { 
     auto imagPart = []( T alpha ) { return ImagPart(alpha); };
     function<Base<T>(T)> realLambda( imagPart );
@@ -45,8 +45,8 @@ void ImagPart
   template void ImagPart \
   ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag ); \
   template void ImagPart \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<Base<T>>& AImag );
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<Base<T>>& AImag );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

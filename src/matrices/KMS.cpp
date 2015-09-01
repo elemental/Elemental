@@ -34,22 +34,9 @@ void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
     IndexDependentFill( K, function<T(Int,Int)>(kmsFill) );
 }
 
-template<typename T>
-void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
-{
-    DEBUG_ONLY(CSE cse("KMS"))
-    K.Resize( n, n );
-    auto kmsFill = 
-      [=]( Int i, Int j ) -> T
-      { if( i < j ) { return Pow(rho,T(j-i));       } 
-        else        { return Conj(Pow(rho,T(i-j))); } };
-    IndexDependentFill( K, function<T(Int,Int)>(kmsFill) );
-}
-
 #define PROTO(T) \
   template void KMS( Matrix<T>& K, Int n, T rho ); \
-  template void KMS( AbstractDistMatrix<T>& K, Int n, T rho ); \
-  template void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho );
+  template void KMS( AbstractDistMatrix<T>& K, Int n, T rho );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

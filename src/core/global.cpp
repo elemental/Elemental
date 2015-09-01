@@ -22,7 +22,7 @@ std::stack<Int> blocksizeStack;
 Grid* defaultGrid = 0;
 Args* args = 0;
 
-// Default blocksizes for BlockDistMatrix
+// Default blocksizes for BlockCyclicMatrix
 Int blockHeight=32, blockWidth=32;
 
 // A common Mersenne twister configuration

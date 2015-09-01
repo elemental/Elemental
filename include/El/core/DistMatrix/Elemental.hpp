@@ -7,10 +7,34 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_ELEMENTAL_DECL_HPP
-#define EL_DISTMATRIX_ELEMENTAL_DECL_HPP
+#ifndef EL_DISTMATRIX_ELEMENTAL_HPP
+#define EL_DISTMATRIX_ELEMENTAL_HPP
 
 namespace El {
+
+struct ElementalData
+{
+    Dist colDist, rowDist;
+    int colAlign, rowAlign;
+    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
+    const Grid* grid;
+
+    ElementalData() { }
+
+    template<typename T>
+    ElementalData( const ElementalMatrix<T>& A )
+    : colDist(A.ColDist()), rowDist(A.RowDist()),
+      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
+      root(A.Root()), grid(&A.Grid())
+    { }
+};
+inline bool operator==( const ElementalData& A, const ElementalData& B )
+{ return A.colDist  == B.colDist &&
+         A.rowDist  == B.rowDist &&
+         A.colAlign == B.colAlign &&
+         A.rowAlign == B.rowAlign &&
+         A.root     == B.root &&
+         A.grid     == B.grid; }
 
 template<typename T> 
 class ElementalMatrix : public AbstractDistMatrix<T>
@@ -19,6 +43,7 @@ public:
     // Typedefs
     // ========
     typedef ElementalMatrix<T> type;
+    typedef AbstractDistMatrix<T> absType;
 
     // Constructors and destructors
     // ============================
@@ -35,13 +60,11 @@ public:
     ( const El::Grid& g, int root ) const = 0;
     // TODO: ConstructPartialCol and friends?
 
+    // Assignment and reconfiguration
+    // ==============================
     void Resize( Int height, Int width ) override;
     void Resize( Int height, Int width, Int ldim ) override;
 
-    // NOTE: The 'consistent' in this name should not be confused with the
-    //       'AssertLocallyConsistent()' function, which has to do with whether
-    //       the local queues have been processed. Perhaps these routine names
-    //       should be changed.
     void MakeConsistent( bool includingViewers=false );
 
     // Realignment
@@ -108,7 +131,6 @@ public:
     // Basic queries
     // =============
     DistWrap Wrap() const override EL_NO_EXCEPT { return ELEMENTAL; }
-
     virtual El::ElementalData DistData() const = 0;
 
     int  RowOwner( Int i )       const override EL_NO_EXCEPT;
@@ -136,10 +158,7 @@ private:
     // =====================================
     void ShallowSwap( type& A );
 
-    // Friend declarations
-    // ===================
     template<typename S,Dist J,Dist K,DistWrap wrap> friend class DistMatrix;
-    template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 };
 
 template<typename T>
@@ -157,4 +176,4 @@ void AssertConforming2x2
 
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_ELEMENTAL_DECL_HPP
+#endif // ifndef EL_DISTMATRIX_ELEMENTAL_HPP

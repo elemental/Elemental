@@ -35,24 +35,11 @@ void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p )
     Broadcast( A, A.RedundantComm(), 0 );
 }
 
-template<typename T>
-void ThreeValued( AbstractBlockDistMatrix<T>& A, Int m, Int n, double p )
-{
-    DEBUG_ONLY(CSE cse("ThreeValued"))
-    A.Resize( m, n );
-    if( A.RedundantRank() == 0 )
-        ThreeValued( A.Matrix(), A.LocalHeight(), A.LocalWidth(), p );
-    Broadcast( A, A.RedundantComm(), 0 );
-}
-
-
 #define PROTO(T) \
   template void ThreeValued \
   ( Matrix<T>& A, Int m, Int n, double p ); \
   template void ThreeValued \
-  ( AbstractDistMatrix<T>& A, Int m, Int n, double p ); \
-  template void ThreeValued \
-  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, double p );
+  ( AbstractDistMatrix<T>& A, Int m, Int n, double p );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

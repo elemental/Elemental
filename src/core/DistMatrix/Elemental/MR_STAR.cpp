@@ -229,10 +229,10 @@ int DM::RedundantSize() const EL_NO_EXCEPT { return this->grid_->MCSize(); }
   ( const DistMatrix<T,U,V>& A );
 #define OTHER(T,U,V) \
   template DistMatrix<T,COLDIST,ROWDIST>::DistMatrix \
-  ( const BlockDistMatrix<T,U,V>& A ); \
+  ( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A ); \
   template DistMatrix<T,COLDIST,ROWDIST>& \
            DistMatrix<T,COLDIST,ROWDIST>::operator= \
-           ( const BlockDistMatrix<T,U,V>& A )
+           ( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A )
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)

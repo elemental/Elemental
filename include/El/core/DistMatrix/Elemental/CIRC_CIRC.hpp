@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_ELEMENTAL_CIRC_CIRC_DECL_HPP
-#define EL_DISTMATRIX_ELEMENTAL_CIRC_CIRC_DECL_HPP
+#ifndef EL_DISTMATRIX_ELEMENTAL_CIRC_CIRC_HPP
+#define EL_DISTMATRIX_ELEMENTAL_CIRC_CIRC_HPP
 
 namespace El {
 
@@ -33,13 +33,17 @@ public:
     // Create a height x width distributed matrix
     DistMatrix
     ( Int height, Int width, const El::Grid& g=DefaultGrid(), int root=0 );
+
     // Create a direct copy (redistributing if necessary)
     DistMatrix( const type& A );
     DistMatrix( const elemType& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
-    template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
+    template<Dist U,Dist V>
+    DistMatrix( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A );
+
     // Move constructor
     DistMatrix( type&& A ) EL_NO_EXCEPT;
+
     // Destructor
     ~DistMatrix();
 
@@ -62,7 +66,8 @@ public:
     // -----------
     type& operator=( const type& A );
     type& operator=( const elemType& A );
-    template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
+    template<Dist U,Dist V>
+    type& operator=( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A );
 
     // Move assignment
     // ---------------
@@ -103,13 +108,9 @@ public:
     int RedundantSize() const EL_NO_EXCEPT override;
 
 private:
-    // Friend declarations
-    // ===================
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
-    // TODO: Eventually remove once BlockDistMatrix is merged
-    template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 };
 
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_ELEMENTAL_CIRC_CIRC_DECL_HPP
+#endif // ifndef EL_DISTMATRIX_ELEMENTAL_CIRC_CIRC_HPP

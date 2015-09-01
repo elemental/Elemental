@@ -43,69 +43,7 @@ Binary( Matrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-Binary( ElementalMatrix<T>& A, const string filename )
-{
-    DEBUG_ONLY(CSE cse("read::Binary"))
-    std::ifstream file( filename.c_str(), std::ios::binary );
-    if( !file.is_open() )
-        RuntimeError("Could not open ",filename);
-
-    Int height, width;
-    file.read( (char*)&height, sizeof(Int) );
-    file.read( (char*)&width,  sizeof(Int) );
-    const Int numBytes = FileSize( file );
-    const Int metaBytes = 2*sizeof(Int);
-    const Int dataBytes = height*width*sizeof(T);
-    const Int numBytesExp = metaBytes + dataBytes;
-    if( numBytes != numBytesExp )
-        RuntimeError
-        ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
-
-    A.Resize( height, width );
-    if( A.CrossRank() != A.Root() )
-        return;
-    if( A.ColStride() == 1 && A.RowStride() == 1 )
-    {
-        if( A.Height() == A.LDim() )
-            file.read( (char*)A.Buffer(), height*width*sizeof(T) );
-        else
-            for( Int j=0; j<width; ++j )
-                file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
-    }
-    else if( A.ColStride() == 1 )
-    {
-        const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            const Int localIndex = j*height;
-            const std::streamoff pos = metaBytes + localIndex*sizeof(T);
-            file.seekg( pos );
-            file.read( (char*)A.Buffer(0,jLoc), height*sizeof(T) );
-        }
-    }
-    else
-    {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            {
-                const Int i = A.GlobalRow(iLoc);
-                const Int localIndex = i+j*height;
-                const std::streamoff pos = metaBytes + localIndex*sizeof(T);
-                file.seekg( pos );
-                file.read( (char*)A.Buffer(iLoc,jLoc), sizeof(T) );
-            }
-        }
-    }
-}
-
-template<typename T>
-inline void
-Binary( AbstractBlockDistMatrix<T>& A, const string filename )
+Binary( AbstractDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::Binary"))
     std::ifstream file( filename.c_str(), std::ios::binary );

@@ -34,22 +34,9 @@ void Redheffer( AbstractDistMatrix<T>& R, Int n )
     IndexDependentFill( R, function<T(Int,Int)>(redhefferFill) );
 }
 
-template<typename T>
-void Redheffer( AbstractBlockDistMatrix<T>& R, Int n )
-{
-    DEBUG_ONLY(CSE cse("Redheffer"))
-    R.Resize( n, n );
-    auto redhefferFill = 
-      []( Int i, Int j ) -> T
-      { if( j == 0 || ((j+1)%(i+1))==0 ) { return T(1); }
-        else                             { return T(0); } };
-    IndexDependentFill( R, function<T(Int,Int)>(redhefferFill) );
-}
-
 #define PROTO(T) \
   template void Redheffer( Matrix<T>& R, Int n ); \
-  template void Redheffer( AbstractDistMatrix<T>& R, Int n ); \
-  template void Redheffer( AbstractBlockDistMatrix<T>& R, Int n );
+  template void Redheffer( AbstractDistMatrix<T>& R, Int n );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

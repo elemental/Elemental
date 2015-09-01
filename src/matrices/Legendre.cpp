@@ -57,34 +57,6 @@ MakeLegendre( AbstractDistMatrix<F>& A )
     }
 }
 
-template<typename F>
-inline void
-MakeLegendre( AbstractBlockDistMatrix<F>& A )
-{
-    DEBUG_ONLY(CSE cse("MakeLegendre"))
-    if( A.Height() != A.Width() )
-        LogicError("Cannot make a non-square matrix Legendre");
-    Zero( A );
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            if( j == i+1 || j == i-1 )
-            {
-                const Int k = Max( i, j );
-                const F gamma = F(1) / Pow( F(2)*F(k), F(2) );
-                const F beta = F(1) / (F(2)*Sqrt(F(1)-gamma));
-                A.SetLocal( iLoc, jLoc, beta );
-            }
-        }
-    }
-}
-
 template<typename F> 
 void Legendre( Matrix<F>& A, Int n )
 {
@@ -101,18 +73,9 @@ void Legendre( AbstractDistMatrix<F>& A, Int n )
     MakeLegendre( A );
 }
 
-template<typename F> 
-void Legendre( AbstractBlockDistMatrix<F>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("Legendre"))
-    A.Resize( n, n );
-    MakeLegendre( A );
-}
-
 #define PROTO(F) \
   template void Legendre( Matrix<F>& A, Int n ); \
-  template void Legendre( AbstractDistMatrix<F>& A, Int n ); \
-  template void Legendre( AbstractBlockDistMatrix<F>& A, Int n );
+  template void Legendre( AbstractDistMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

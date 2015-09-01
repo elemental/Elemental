@@ -97,6 +97,32 @@ void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 }
 
 template<typename T,typename S>
+void Axpy( S alphaS, const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y )
+{
+    DEBUG_ONLY(
+      CSE cse("Axpy");
+      AssertSameGrids( X, Y );
+    )
+    const T alpha = T(alphaS);
+
+    const BlockCyclicData XDistData = X.DistData();
+    const BlockCyclicData YDistData = Y.DistData();
+
+    if( XDistData == YDistData )
+    {
+        Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
+    }
+    else
+    {
+        unique_ptr<BlockCyclicMatrix<T>>
+          XCopy( Y.Construct(Y.Grid(),Y.Root()) );
+        XCopy->AlignWith( YDistData );
+        Copy( X, *XCopy );
+        Axpy( alpha, XCopy->LockedMatrix(), Y.Matrix() );
+    }
+}
+
+template<typename T,typename S>
 void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 {
     DEBUG_ONLY(CSE cse("Axpy"))
@@ -137,6 +163,8 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
   template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
   ( S alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
+  template void Axpy \
+  ( S alpha, const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B ); \
   template void Axpy \
   ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Axpy \

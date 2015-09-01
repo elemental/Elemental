@@ -81,7 +81,7 @@ void Schur
 
 template<typename F>
 void Schur
-( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w, 
+( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A, ElementalMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
@@ -110,8 +110,10 @@ void Schur
 
 template<typename F>
 void Schur
-( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w, 
-  BlockDistMatrix<F>& Q, bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
+( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A,
+  ElementalMatrix<Complex<Base<F>>>& w, 
+  DistMatrix<F,MC,MR,BLOCK_CYCLIC>& Q,
+  bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
 #ifdef EL_HAVE_SCALAPACK
@@ -129,7 +131,8 @@ void Schur
   ( ElementalMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w, \
     bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
   template void Schur \
-  ( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w, \
+  ( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A, \
+    ElementalMatrix<Complex<Base<F>>>& w, \
     bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
   template void Schur \
   ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, \
@@ -139,8 +142,10 @@ void Schur
     ElementalMatrix<F>& Q, bool fullTriangle, \
     const SchurCtrl<Base<F>> ctrl ); \
   template void Schur \
-  ( BlockDistMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w, \
-    BlockDistMatrix<F>& Q, bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
+  ( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A, \
+    ElementalMatrix<Complex<Base<F>>>& w, \
+    DistMatrix<F,MC,MR,BLOCK_CYCLIC>& Q, \
+    bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
   template void schur::CheckRealSchur \
   ( const Matrix<F>& U, bool standardForm ); \
   template void schur::CheckRealSchur \

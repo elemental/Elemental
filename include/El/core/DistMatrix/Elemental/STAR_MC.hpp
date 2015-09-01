@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_ELEMENTAL_STAR_MC_DECL_HPP
-#define EL_DISTMATRIX_ELEMENTAL_STAR_MC_DECL_HPP
+#ifndef EL_DISTMATRIX_ELEMENTAL_STAR_MC_HPP
+#define EL_DISTMATRIX_ELEMENTAL_STAR_MC_HPP
 
 namespace El {
 
@@ -40,7 +40,8 @@ public:
     DistMatrix( const type& A );
     DistMatrix( const elemType& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
-    template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
+    template<Dist U,Dist V>
+    DistMatrix( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A );
     // Move constructor
     DistMatrix( type&& A ) EL_NO_EXCEPT;
     ~DistMatrix();
@@ -77,7 +78,8 @@ public:
     type& operator=( const DistMatrix<T,STAR,VR  >& A );
     type& operator=( const DistMatrix<T,STAR,STAR>& A );
     type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
-    template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
+    template<Dist U,Dist V>
+    type& operator=( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A );
 
     // Move assignment
     // ---------------
@@ -118,13 +120,9 @@ public:
     int RedundantSize() const EL_NO_EXCEPT override;
 
 private:
-    // Friend declarations
-    // ===================
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
-    // TODO: Remove once BlockDistMatrix has been merged
-    template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 };
 
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_ELEMENTAL_STAR_MC_DECL_HPP
+#endif // ifndef EL_DISTMATRIX_ELEMENTAL_STAR_MC_HPP

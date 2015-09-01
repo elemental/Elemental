@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISTMATRIX_ABSTRACT_DECL_HPP
-#define EL_DISTMATRIX_ABSTRACT_DECL_HPP
+#ifndef EL_DISTMATRIX_ABSTRACT_HPP
+#define EL_DISTMATRIX_ABSTRACT_HPP
 
 namespace El {
 
@@ -266,12 +266,9 @@ private:
     // =====================================
     void ShallowSwap( type& A );
 
-    // Friend declarations
-    // ===================
     template<typename S,Dist J,Dist K,DistWrap wrap> friend class DistMatrix;
-    template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 };
 
 } // namespace El
 
-#endif // ifndef EL_DISTMATRIX_ABSTRACT_DECL_HPP
+#endif // ifndef EL_DISTMATRIX_ABSTRACT_HPP

@@ -12,30 +12,6 @@
 
 namespace El {
 
-struct ElementalData
-{
-    Dist colDist, rowDist;
-    int colAlign, rowAlign; 
-    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
-    const Grid* grid;
-
-    ElementalData() { }
-
-    template<typename T>
-    ElementalData( const ElementalMatrix<T>& A )
-    : colDist(A.ColDist()), rowDist(A.RowDist()),
-      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
-      root(A.Root()), grid(&A.Grid())
-    { }
-};
-inline bool operator==( const ElementalData& A, const ElementalData& B )
-{ return A.colDist  == B.colDist &&
-         A.rowDist  == B.rowDist &&
-         A.colAlign == B.colAlign &&
-         A.rowAlign == B.rowAlign &&
-         A.root     == B.root &&
-         A.grid     == B.grid; }
-
 template<typename DistTypeA,typename DistTypeB>
 inline void AssertSameDist( const DistTypeA& distA, const DistTypeB& distB )
 {
@@ -49,8 +25,8 @@ class DistMultiVec;
 } // namespace El
 
 #include "./DistMatrix/Abstract.hpp"
+
 #include "./DistMatrix/Elemental.hpp"
-// TODO: BlockCyclic.hpp and BlockNonCyclic.hpp
 #include "./DistMatrix/Elemental/CIRC_CIRC.hpp"
 #include "./DistMatrix/Elemental/MC_MR.hpp"
 #include "./DistMatrix/Elemental/MC_STAR.hpp"
@@ -66,7 +42,37 @@ class DistMultiVec;
 #include "./DistMatrix/Elemental/VC_STAR.hpp"
 #include "./DistMatrix/Elemental/VR_STAR.hpp"
 
+#include "./DistMatrix/BlockCyclic.hpp"
+#include "./DistMatrix/BlockCyclic/CIRC_CIRC.hpp"
+#include "./DistMatrix/BlockCyclic/MC_MR.hpp"
+#include "./DistMatrix/BlockCyclic/MC_STAR.hpp"
+#include "./DistMatrix/BlockCyclic/MD_STAR.hpp"
+#include "./DistMatrix/BlockCyclic/MR_MC.hpp"
+#include "./DistMatrix/BlockCyclic/MR_STAR.hpp"
+#include "./DistMatrix/BlockCyclic/STAR_MC.hpp"
+#include "./DistMatrix/BlockCyclic/STAR_MD.hpp"
+#include "./DistMatrix/BlockCyclic/STAR_MR.hpp"
+#include "./DistMatrix/BlockCyclic/STAR_STAR.hpp"
+#include "./DistMatrix/BlockCyclic/STAR_VC.hpp"
+#include "./DistMatrix/BlockCyclic/STAR_VR.hpp"
+#include "./DistMatrix/BlockCyclic/VC_STAR.hpp"
+#include "./DistMatrix/BlockCyclic/VR_STAR.hpp"
+
 namespace El {
+
+#ifdef EL_HAVE_SCALAPACK
+template<typename T>
+inline typename blacs::Desc
+FillDesc( const DistMatrix<T,MC,MR,BLOCK_CYCLIC>& A, int context )
+{
+    if( A.ColCut() != 0 || A.RowCut() != 0 )
+        LogicError("Cannot produce a meaningful descriptor if nonzero cut");
+    typename blacs::Desc desc =
+        { 1, context, A.Height(), A.Width(), A.BlockHeight(), A.BlockWidth(),
+          A.ColAlign(), A.RowAlign(), A.LDim() };
+    return desc;
+}
+#endif
 
 template<typename T>
 inline void AssertSameGrids( const AbstractDistMatrix<T>& A ) { }

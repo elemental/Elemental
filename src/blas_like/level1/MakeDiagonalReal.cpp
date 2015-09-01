@@ -44,29 +44,9 @@ void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset )
     }
 }
 
-template<typename T>
-void MakeDiagonalReal( AbstractBlockDistMatrix<T>& A, Int offset )
-{
-    DEBUG_ONLY(CSE cse("MakeDiagonalReal"))
-    const Int height = A.Height();
-    const Int localWidth = A.LocalWidth();
-    Matrix<T>& ALoc = A.Matrix();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        const Int i = j - offset;
-        if( i < height && A.IsLocal(i,j) )
-        {
-            const Int iLoc = A.LocalRow(i);
-            ALoc.MakeReal( iLoc, jLoc );
-        }
-    }
-}
-
 #define PROTO(T) \
   template void MakeDiagonalReal( Matrix<T>& A, Int offset ); \
-  template void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset ); \
-  template void MakeDiagonalReal( AbstractBlockDistMatrix<T>& A, Int offset ); 
+  template void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

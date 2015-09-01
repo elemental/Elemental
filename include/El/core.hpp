@@ -149,22 +149,16 @@ template<typename T=double> class Matrix;
 template<typename T=double> class AbstractDistMatrix;
 
 template<typename T=double> class ElementalMatrix;
+template<typename T=double> class BlockCyclicMatrix;
 
 template<typename T=double,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENTAL>
 class DistMatrix;
-
-// TODO: Merge into AbstractDistMatrix
-template<typename T=double> class AbstractBlockDistMatrix;
-
-// TODO: Merge into DistMatrix
-template<typename T=double,Dist U=MC,Dist V=MR> class BlockDistMatrix;
 
 } // namespace El
 
 #include "El/core/Matrix.hpp"
 #include "El/core/Grid.hpp"
 #include "El/core/DistMatrix.hpp"
-#include "El/core/BlockDistMatrix.hpp"
 #include "El/core/Proxy.hpp"
 
 // Implement the intertwined parts of the library

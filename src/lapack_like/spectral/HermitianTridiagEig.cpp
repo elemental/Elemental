@@ -21,7 +21,10 @@ namespace herm_tridiag_eig {
 
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Real>& dSub, Matrix<Real>& w, SortType sort,
+(       Matrix<Real>& d,
+        Matrix<Real>& dSub,
+        Matrix<Real>& w,
+        SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     const Int n = d.Height();
@@ -49,7 +52,10 @@ inline void Helper
 
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Complex<Real>>& dSub, Matrix<Real>& w, SortType sort,
+(       Matrix<Real>& d,
+        Matrix<Complex<Real>>& dSub,
+        Matrix<Real>& w,
+        SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     typedef Complex<Real> C;
@@ -73,7 +79,10 @@ inline void Helper
 
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, SortType sort, 
+(       Matrix<Base<F>>& d,
+        Matrix<F>& dSub,
+        Matrix<Base<F>>& w,
+        SortType sort, 
   const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
@@ -131,7 +140,8 @@ inline void Helper
 ( const ElementalMatrix<Real         >& d,
   const ElementalMatrix<Complex<Real>>& dSub,
         ElementalMatrix<Real         >& wPre, 
-  SortType sort, const HermitianEigSubset<Real>& subset )
+        SortType sort,
+  const HermitianEigSubset<Real>& subset )
 {
     ProxyCtrl wCtrl;
     wCtrl.colConstrain = true;
@@ -200,7 +210,8 @@ void HermitianTridiagEig
 ( const ElementalMatrix<Base<F>>& d,
   const ElementalMatrix<F      >& dSub,
         ElementalMatrix<Base<F>>& w, 
-  SortType sort, const HermitianEigSubset<Base<F>>& subset )
+        SortType sort,
+  const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, dSub, w, sort, subset );
@@ -213,8 +224,12 @@ namespace herm_tridiag_eig {
 
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Real>& dSub, Matrix<Real>& w, Matrix<Real>& Z,
-  SortType sort, const HermitianEigSubset<Real>& subset )
+(       Matrix<Real>& d,
+        Matrix<Real>& dSub,
+        Matrix<Real>& w,
+        Matrix<Real>& Z,
+        SortType sort,
+  const HermitianEigSubset<Real>& subset )
 {
     const Int n = d.Height();
     w.Resize( n, 1 );
@@ -252,8 +267,11 @@ inline void Helper
 // T (Y ZHat) = (Y ZHat) Lambda
 template<typename Real>
 inline void Helper
-( Matrix<Real>& d, Matrix<Complex<Real>>& dSub, Matrix<Real>& w, 
-  Matrix<Complex<Real>>& Z, SortType sort,
+(       Matrix<Real>& d,
+        Matrix<Complex<Real>>& dSub,
+        Matrix<Real>& w, 
+        Matrix<Complex<Real>>& Z,
+        SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     typedef Complex<Real> C;
@@ -283,8 +301,12 @@ inline void Helper
 
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, Matrix<F>& Z, 
-  SortType sort, const HermitianEigSubset<Base<F>>& subset )
+(       Matrix<Base<F>>& d,
+        Matrix<F>& dSub,
+        Matrix<Base<F>>& w,
+        Matrix<F>& Z, 
+        SortType sort,
+  const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
@@ -298,7 +320,8 @@ inline void Helper
   const ElementalMatrix<Real>& dSub,
         ElementalMatrix<Real>& wPre, 
         ElementalMatrix<Real>& ZPre, 
-  SortType sort, const HermitianEigSubset<Real>& subset )
+        SortType sort,
+  const HermitianEigSubset<Real>& subset )
 {
     // NOTE: The computation forces double-precision due to PMRRR limitations
 
@@ -370,7 +393,8 @@ inline void Helper
   const ElementalMatrix<Complex<Real>>& dSub,
         ElementalMatrix<Real         >& wPre, 
         ElementalMatrix<Complex<Real>>& ZPre, 
-  SortType sort, const HermitianEigSubset<Real>& subset )
+        SortType sort,
+  const HermitianEigSubset<Real>& subset )
 {
     // NOTE: The computation forces double-precision due to PMRRR limitations
     const Int n = d.Height();
@@ -463,9 +487,12 @@ inline void Helper
 
 template<typename F>
 void HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,       ElementalMatrix<F>& Z, 
-  SortType sort, const HermitianEigSubset<Base<F>>& subset )
+( const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& dSub,
+        ElementalMatrix<Base<F>>& w,
+        ElementalMatrix<F>& Z, 
+        SortType sort,
+  const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
@@ -473,8 +500,11 @@ void HermitianTridiagEig
 
 template<typename Real>
 Int HermitianTridiagEigEstimate
-( const ElementalMatrix<Real>& d, const ElementalMatrix<Real>& dSub,
-        mpi::Comm wColComm, Real vl, Real vu )
+( const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& dSub,
+        mpi::Comm wColComm,
+        Real vl,
+        Real vu )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiagEigEstimate"))
     const Int n = d.Height();
@@ -495,9 +525,13 @@ Int HermitianTridiagEigEstimate
 // Z is assumed to be sufficiently large and properly aligned
 template<typename Real>
 void HermitianTridiagEigPostEstimate
-( const ElementalMatrix<Real>& d,    const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre,       ElementalMatrix<Real>& ZPre,
-  SortType sort, Real vl, Real vu )
+( const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& dSub,
+        ElementalMatrix<Real>& wPre,
+        ElementalMatrix<Real>& ZPre,
+        SortType sort,
+        Real vl,
+        Real vu )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiagEigPostEstimate"))
 
@@ -536,23 +570,39 @@ void HermitianTridiagEigPostEstimate
 
 #define PROTO(F) \
   template void herm_eig::Sort \
-  ( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort ); \
+  ( Matrix<Base<F>>& w, \
+    Matrix<F>& Z, \
+    SortType sort ); \
   template void herm_eig::Sort \
-  ( ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& Z, SortType sort ); \
+  ( ElementalMatrix<Base<F>>& w, \
+    ElementalMatrix<F>& Z, \
+    SortType sort ); \
   template void HermitianTridiagEig \
-  ( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, SortType sort, \
+  (       Matrix<Base<F>>& d, \
+          Matrix<F>& dSub, \
+          Matrix<Base<F>>& w, \
+          SortType sort, \
     const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
-  ( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, Matrix<F>& Z, \
-    SortType sort, const HermitianEigSubset<Base<F>>& subset ); \
+  (       Matrix<Base<F>>& d, \
+          Matrix<F>& dSub, \
+          Matrix<Base<F>>& w, \
+          Matrix<F>& Z, \
+          SortType sort, \
+    const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
-  ( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub, \
+  ( const ElementalMatrix<Base<F>>& d, \
+    const ElementalMatrix<F>& dSub, \
           ElementalMatrix<Base<F>>& w, \
-    SortType sort, const HermitianEigSubset<Base<F>>& subset ); \
+          SortType sort, \
+    const HermitianEigSubset<Base<F>>& subset ); \
   template void HermitianTridiagEig \
-  ( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub, \
-          ElementalMatrix<Base<F>>& w,       ElementalMatrix<F>& Z, \
-    SortType sort, const HermitianEigSubset<Base<F>>& subset );
+  ( const ElementalMatrix<Base<F>>& d, \
+    const ElementalMatrix<F>& dSub, \
+          ElementalMatrix<Base<F>>& w, \
+          ElementalMatrix<F>& Z, \
+          SortType sort, \
+    const HermitianEigSubset<Base<F>>& subset );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
@@ -561,20 +611,26 @@ void HermitianTridiagEigPostEstimate
     const ElementalMatrix<Real>& dSub, \
           mpi::Comm wColComm, Real vl, Real vu ); \
   template void HermitianTridiagEigPostEstimate \
-  ( const ElementalMatrix<Real>& d, const ElementalMatrix<Real>& dSub, \
-          ElementalMatrix<Real>& w,       ElementalMatrix<Real>& Z, \
-    SortType sort, Real vl, Real vu );
+  ( const ElementalMatrix<Real>& d, \
+    const ElementalMatrix<Real>& dSub, \
+          ElementalMatrix<Real>& w, \
+          ElementalMatrix<Real>& Z, \
+          SortType sort, \
+          Real vl, \
+          Real vu );
 
 #define PROTO_FLOAT \
   PROTO_REAL(float) \
   template void herm_eig::Sort \
-  ( ElementalMatrix<float>& w, ElementalMatrix<double>& Z, \
+  ( ElementalMatrix<float>& w, \
+    ElementalMatrix<double>& Z, \
     SortType sort );
 
 #define PROTO_COMPLEX_FLOAT \
   PROTO(Complex<float>) \
   template void herm_eig::Sort \
-  ( ElementalMatrix<float>& w, ElementalMatrix<Complex<double>>& Z, \
+  ( ElementalMatrix<float>& w, \
+    ElementalMatrix<Complex<double>>& Z, \
     SortType sort );
 
 #define EL_NO_INT_PROTO

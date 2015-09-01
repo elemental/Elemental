@@ -14,7 +14,9 @@ namespace El {
 namespace copy {
 
 template<typename T,Dist U,Dist V>
-void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ) 
+void Translate
+( const DistMatrix<T,U,V>& A,
+        DistMatrix<T,U,V>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::Translate"))
     if( A.Grid() != B.Grid() )
@@ -114,7 +116,9 @@ void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 }
 
 template<typename T,Dist U,Dist V>
-void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B ) 
+void Translate
+( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A,
+        DistMatrix<T,U,V,BLOCK_CYCLIC>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::Translate"))
     const Int height = A.Height();
@@ -221,9 +225,11 @@ void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
 
 #define PROTO_DIST(T,U,V) \
   template void Translate \
-  ( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ); \
+  ( const DistMatrix<T,U,V>& A, \
+          DistMatrix<T,U,V>& B ); \
   template void Translate \
-  ( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B );
+  ( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A, \
+          DistMatrix<T,U,V,BLOCK_CYCLIC>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

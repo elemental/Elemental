@@ -30,20 +30,9 @@ void Ris( AbstractDistMatrix<F>& R, Int n )
     IndexDependentFill( R, function<F(Int,Int)>(risFill) );
 }
 
-template<typename F>
-void Ris( AbstractBlockDistMatrix<F>& R, Int n )
-{
-    DEBUG_ONLY(CSE cse("Ris"))
-    R.Resize( n, n );
-    const F oneHalf = F(1)/F(2);
-    auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
-    IndexDependentFill( R, function<F(Int,Int)>(risFill) );
-}
-
 #define PROTO(F) \
   template void Ris( Matrix<F>& R, Int n ); \
-  template void Ris( AbstractDistMatrix<F>& R, Int n ); \
-  template void Ris( AbstractBlockDistMatrix<F>& R, Int n );
+  template void Ris( AbstractDistMatrix<F>& R, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

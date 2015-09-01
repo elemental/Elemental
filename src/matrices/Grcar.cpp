@@ -36,23 +36,9 @@ void Grcar( AbstractDistMatrix<T>& A, Int n, Int k )
         FillDiagonal( A, T(1), j );
 }
 
-template<typename T>
-void Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k )
-{
-    DEBUG_ONLY(CSE cse("Grcar"))
-    if( k < 0 )
-        LogicError("Number of superdiagonals of ones must be non-negative");
-    Zeros( A, n, n );
-    if( n > 1 )
-        FillDiagonal( A, T(-1), -1 );
-    for( Int j=0; j<Min(n,k+1); ++j )
-        FillDiagonal( A, T(1), j );
-}
-
 #define PROTO(T) \
   template void Grcar( Matrix<T>& A, Int n, Int k ); \
-  template void Grcar( AbstractDistMatrix<T>& A, Int n, Int k ); \
-  template void Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k );
+  template void Grcar( AbstractDistMatrix<T>& A, Int n, Int k );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

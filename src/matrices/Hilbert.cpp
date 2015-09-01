@@ -28,19 +28,9 @@ void Hilbert( AbstractDistMatrix<F>& A, Int n )
     IndexDependentFill( A, function<F(Int,Int)>(hilbertFill) );
 }
 
-template<typename F>
-void Hilbert( AbstractBlockDistMatrix<F>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("Hilbert"))
-    A.Resize( n, n );
-    auto hilbertFill = []( Int i, Int j ) { return F(1)/F(i+j+1); };
-    IndexDependentFill( A, function<F(Int,Int)>(hilbertFill) );
-}
-
 #define PROTO(F) \
   template void Hilbert( Matrix<F>& A, Int n ); \
-  template void Hilbert( AbstractDistMatrix<F>& A, Int n ); \
-  template void Hilbert( AbstractBlockDistMatrix<F>& A, Int n );
+  template void Hilbert( AbstractDistMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

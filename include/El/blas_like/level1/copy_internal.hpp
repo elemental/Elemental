@@ -23,7 +23,8 @@ void Exchange
 template<typename T,Dist U,Dist V>
 void Translate( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
 template<typename T,Dist U,Dist V>
-void Translate( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B );
+void Translate
+( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A, DistMatrix<T,U,V,BLOCK_CYCLIC>& B );
 
 template<typename T>
 void TranslateBetweenGrids
@@ -56,8 +57,8 @@ void Filter
         DistMatrix<T,        U,           V   >& B );
 template<typename T,Dist U,Dist V>
 void Filter
-( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A,
-        BlockDistMatrix<T,        U,           V   >& B );
+( const DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK_CYCLIC>& A,
+        DistMatrix<T,        U,           V   ,BLOCK_CYCLIC>& B );
 
 // (V,Collect(U)) |-> (U,V)
 template<typename T>
@@ -66,8 +67,8 @@ void ColFilter
         ElementalMatrix<T>& B );
 template<typename T>
 void ColFilter
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B );
 
 // (U,Collect(V)) |-> (U,V)
 template<typename T>
@@ -76,8 +77,8 @@ void RowFilter
         ElementalMatrix<T>& B );
 template<typename T>
 void RowFilter
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B );
 
 // (Partial(U),V) |-> (U,V)
 template<typename T>
@@ -85,7 +86,7 @@ void PartialColFilter
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void PartialColFilter
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 // (U,Partial(V)) |-> (U,V)
 template<typename T>
@@ -93,7 +94,7 @@ void PartialRowFilter
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void PartialRowFilter
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 template<typename T,Dist U,Dist V>
 void AllGather
@@ -101,8 +102,8 @@ void AllGather
         DistMatrix<T,Collect<U>(),Collect<V>()>& B );
 template<typename T,Dist U,Dist V>
 void AllGather
-( const BlockDistMatrix<T,        U,           V   >& A, 
-        BlockDistMatrix<T,Collect<U>(),Collect<V>()>& B );
+( const DistMatrix<T,        U,           V   ,BLOCK_CYCLIC>& A, 
+        DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK_CYCLIC>& B );
 
 // (U,V) |-> (Collect(U),V)
 template<typename T>
@@ -110,7 +111,7 @@ void ColAllGather
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void ColAllGather
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 // (U,V) |-> (U,Collect(V))
 template<typename T>
@@ -118,7 +119,7 @@ void RowAllGather
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void RowAllGather
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 template<typename T,Dist U,Dist V>
 void PartialColAllGather
@@ -126,8 +127,8 @@ void PartialColAllGather
         DistMatrix<T,Partial<U>(),V>& B );
 template<typename T,Dist U,Dist V>
 void PartialColAllGather
-( const BlockDistMatrix<T,        U,   V>& A,
-        BlockDistMatrix<T,Partial<U>(),V>& B );
+( const DistMatrix<T,        U,   V,BLOCK_CYCLIC>& A,
+        DistMatrix<T,Partial<U>(),V,BLOCK_CYCLIC>& B );
 
 // (U,V) |-> (U,Partial(V))
 template<typename T>
@@ -135,7 +136,7 @@ void PartialRowAllGather
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void PartialRowAllGather
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 template<typename T,Dist U,Dist V>
 void ColAllToAllDemote
@@ -143,8 +144,8 @@ void ColAllToAllDemote
         DistMatrix<T,        U,                     V   >& B );
 template<typename T,Dist U,Dist V>
 void ColAllToAllDemote
-( const BlockDistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& A,
-        BlockDistMatrix<T,        U,                     V   >& B );
+( const DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>(),BLOCK_CYCLIC>& A,
+        DistMatrix<T,        U,                     V   ,BLOCK_CYCLIC>& B );
 
 template<typename T,Dist U,Dist V>
 void RowAllToAllDemote
@@ -152,8 +153,8 @@ void RowAllToAllDemote
         DistMatrix<T,                U,             V   >& B );
 template<typename T,Dist U,Dist V>
 void RowAllToAllDemote
-( const BlockDistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A,
-        BlockDistMatrix<T,                U,             V   >& B );
+( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK_CYCLIC>& A,
+        DistMatrix<T,                U,             V   ,BLOCK_CYCLIC>& B );
 
 template<typename T,Dist U,Dist V>
 void ColAllToAllPromote
@@ -161,8 +162,8 @@ void ColAllToAllPromote
         DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B );
 template<typename T,Dist U,Dist V>
 void ColAllToAllPromote
-( const BlockDistMatrix<T,        U,                     V   >& A,
-        BlockDistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B );
+( const DistMatrix<T,        U,                     V   ,BLOCK_CYCLIC>& A,
+        DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>(),BLOCK_CYCLIC>& B );
 
 template<typename T,Dist U,Dist V>
 void RowAllToAllPromote
@@ -170,8 +171,8 @@ void RowAllToAllPromote
         DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& B );
 template<typename T,Dist U,Dist V>
 void RowAllToAllPromote
-( const BlockDistMatrix<T,                U,             V   >& A,
-        BlockDistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& B );
+( const DistMatrix<T,                U,             V   ,BLOCK_CYCLIC>& A,
+        DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK_CYCLIC>& B );
 
 template<typename T>
 void Gather
@@ -179,8 +180,8 @@ void Gather
         DistMatrix<T,CIRC,CIRC>& B );
 template<typename T>
 void Gather
-( const AbstractBlockDistMatrix<T>& A,
-        BlockDistMatrix<T,CIRC,CIRC>& B );
+( const BlockCyclicMatrix<T>& A,
+        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B );
 
 template<typename T>
 void Scatter
@@ -188,8 +189,8 @@ void Scatter
         ElementalMatrix<T>& B );
 template<typename T>
 void Scatter
-( const BlockDistMatrix<T,CIRC,CIRC>& A,
-        AbstractBlockDistMatrix<T>& B );
+( const DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& A,
+        BlockCyclicMatrix<T>& B );
 
 template<typename T>
 void Scatter
@@ -197,8 +198,8 @@ void Scatter
         DistMatrix<T,STAR,STAR>& B );
 template<typename T>
 void Scatter
-( const BlockDistMatrix<T,CIRC,CIRC>& A,
-        BlockDistMatrix<T,STAR,STAR>& B );
+( const DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& A,
+        DistMatrix<T,STAR,STAR,BLOCK_CYCLIC>& B );
 
 } // namespace copy
 

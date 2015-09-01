@@ -29,7 +29,7 @@ inline Int Length( Int n, Int shift, Int stride )
     return Length_( n, shift, stride );
 }
 
-inline Int Length_( Int n, Int shift, Int stride )
+inline Int Length_( Int n, Int shift, Int stride ) EL_NO_EXCEPT
 {
     return ( n > shift ? (n - shift - 1)/stride + 1 : 0 );
 }
@@ -43,7 +43,7 @@ Length( Int n, Int rank, Int align, Int stride )
 }
 
 inline Int Length_
-( Int n, Int rank, Int align, Int stride )
+( Int n, Int rank, Int align, Int stride ) EL_NO_EXCEPT
 {
     const Int shift = Shift_( rank, align, stride );
     return Length_( n, shift, stride );
@@ -61,7 +61,7 @@ inline Int MaxLength( Int n, Int stride )
     return MaxLength_( n, stride );
 }
 
-inline Int MaxLength_( Int n, Int stride )
+inline Int MaxLength_( Int n, Int stride ) EL_NO_EXCEPT
 { return ( n>0 ? (n-1)/stride + 1 : 0 ); }
 
 inline Int GlobalIndex( Int iLoc, Int shift, Int numProcs )
@@ -85,7 +85,8 @@ inline Int BlockedLength( Int n, Int shift, Int bsize, Int cut, Int stride )
     return BlockedLength_( n, shift, bsize, cut, stride );
 }
 
-inline Int BlockedLength_( Int n, Int shift, Int bsize, Int cut, Int stride )
+inline Int BlockedLength_
+( Int n, Int shift, Int bsize, Int cut, Int stride ) EL_NO_EXCEPT
 {
     Int length=0;
 
@@ -124,7 +125,7 @@ BlockedLength( Int n, Int rank, Int align, Int bsize, Int cut, Int stride )
 }
 
 inline Int BlockedLength_
-( Int n, Int rank, Int align, Int bsize, Int cut, Int stride )
+( Int n, Int rank, Int align, Int bsize, Int cut, Int stride ) EL_NO_EXCEPT
 {
     const Int shift = Shift_( rank, align, stride );
     return BlockedLength_( n, shift, bsize, cut, stride );
@@ -142,7 +143,8 @@ inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
     return MaxBlockedLength_( n, bsize, cut, stride );
 }
 
-inline Int MaxBlockedLength_( Int n, Int bsize, Int cut, Int stride )
+inline Int MaxBlockedLength_
+( Int n, Int bsize, Int cut, Int stride ) EL_NO_EXCEPT
 { return BlockedLength_( n, 0, bsize, cut, stride ); }
 
 inline Int 
@@ -175,7 +177,7 @@ inline Int Mod( Int a, Int b )
     return Mod_( a, b );
 }
 
-inline Int Mod_( Int a, Int b )
+inline Int Mod_( Int a, Int b ) EL_NO_EXCEPT
 {
     const Int rem = a % b;
     return ( rem >= 0 ? rem : rem+b );
@@ -196,7 +198,7 @@ inline Int Shift( Int rank, Int align, Int stride )
     return Shift_( rank, align, stride );
 }
 
-inline Int Shift_( Int rank, Int align, Int stride )
+inline Int Shift_( Int rank, Int align, Int stride ) EL_NO_EXCEPT
 { return Mod(rank-align,stride); }
 
 
@@ -228,7 +230,7 @@ inline Int GCD( Int a, Int b )
     return GCD_( a, b );
 }
 
-inline Int GCD_( Int a, Int b )
+inline Int GCD_( Int a, Int b ) EL_NO_EXCEPT
 {
     if( b == 0 )
         return a;

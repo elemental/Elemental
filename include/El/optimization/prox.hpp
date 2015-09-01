@@ -22,16 +22,12 @@ void LowerClip( Matrix<Real>& X, Real lowerBound=0 );
 template<typename Real>
 void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound=0 );
 template<typename Real>
-void LowerClip( AbstractBlockDistMatrix<Real>& X, Real lowerBound=0 );
-template<typename Real>
 void LowerClip( DistMultiVec<Real>& X, Real lowerBound=0 );
 
 template<typename Real>
 void UpperClip( Matrix<Real>& X, Real upperBound=0 );
 template<typename Real>
 void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound=0 );
-template<typename Real>
-void UpperClip( AbstractBlockDistMatrix<Real>& X, Real upperBound=0 );
 template<typename Real>
 void UpperClip( DistMultiVec<Real>& X, Real upperBound=0 );
 
@@ -41,9 +37,6 @@ void Clip
 template<typename Real>
 void Clip
 ( AbstractDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
-template<typename Real>
-void Clip
-( AbstractBlockDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
 template<typename Real>
 void Clip
 ( DistMultiVec<Real>& X, Real lowerBound=0, Real upperBound=1 );

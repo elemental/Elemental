@@ -87,15 +87,6 @@ void Scale( S alpha, AbstractDistMatrix<Real>& AReal,
 { Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
 
 template<typename T,typename S>
-void Scale( S alpha, AbstractBlockDistMatrix<T>& A )
-{ Scale( alpha, A.Matrix() ); }
-
-template<typename Real,typename S>
-void Scale( S alpha, AbstractBlockDistMatrix<Real>& AReal, 
-                     AbstractBlockDistMatrix<Real>& AImag )
-{ Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
-
-template<typename T,typename S>
 void Scale( S alpha, SparseMatrix<T>& A )
 {
     if( alpha == S(0) )
@@ -142,7 +133,6 @@ void Scale( S alpha, DistMultiVec<T>& A )
 #define PROTO_TYPES(T,S) \
   template void Scale( S alpha, Matrix<T>& A ); \
   template void Scale( S alpha, AbstractDistMatrix<T>& A ); \
-  template void Scale( S alpha, AbstractBlockDistMatrix<T>& A ); \
   template void Scale( S alpha, SparseMatrix<T>& A ); \
   template void Scale( S alpha, DistSparseMatrix<T>& A ); \
   template void Scale( S alpha, DistMultiVec<T>& A );
@@ -171,16 +161,7 @@ void Scale( S alpha, DistMultiVec<T>& A )
                    AbstractDistMatrix<Base<T>>& AImag ); \
   template void Scale \
   ( T alpha, AbstractDistMatrix<Base<T>>& AReal, \
-             AbstractDistMatrix<Base<T>>& AImag ); \
-  template void Scale \
-  ( Int alpha, AbstractBlockDistMatrix<Base<T>>& AReal, \
-               AbstractBlockDistMatrix<Base<T>>& AImag ); \
-  template void Scale \
-  ( Base<T> alpha, AbstractBlockDistMatrix<Base<T>>& AReal, \
-                   AbstractBlockDistMatrix<Base<T>>& AImag ); \
-  template void Scale \
-  ( T alpha, AbstractBlockDistMatrix<Base<T>>& AReal, \
-             AbstractBlockDistMatrix<Base<T>>& AImag );
+             AbstractDistMatrix<Base<T>>& AImag );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -67,8 +67,6 @@ void Hanowa( ElementalMatrix<T>& A, Int n, T mu )
     Diagonal( *ABlock, d );
 }
 
-// TODO: AbstractBlockDistMatrix version
-
 #define PROTO(T) \
   template void Hanowa( Matrix<T>& A, Int n, T mu ); \
   template void Hanowa( ElementalMatrix<T>& A, Int n, T mu );

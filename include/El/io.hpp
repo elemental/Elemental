@@ -85,7 +85,7 @@ template<typename T>
 void Display( const ElementalMatrix<T>& A, string title="DistMatrix" );
 template<typename T>
 void Display
-( const AbstractBlockDistMatrix<T>& A, string title="BlockDistMatrix" );
+( const BlockCyclicMatrix<T>& A, string title="BlockDistMatrix" );
 template<typename T>
 void Display( const DistMultiVec<T>& X, string title="DistMultiVec" );
 
@@ -121,7 +121,7 @@ void Print
 ( const ElementalMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
 template<typename T>
 void Print
-( const AbstractBlockDistMatrix<T>& A, string title="BlockDistMatrix",
+( const BlockCyclicMatrix<T>& A, string title="BlockDistMatrix",
   ostream& os=cout );
 template<typename T>
 void Print
@@ -162,7 +162,7 @@ void Read
   const string filename, FileFormat format=AUTO, bool sequential=false );
 template<typename T>
 void Read
-( AbstractBlockDistMatrix<T>& A, 
+( BlockCyclicMatrix<T>& A, 
   const string filename, FileFormat format=AUTO, bool sequential=false );
 
 // Spy
@@ -174,7 +174,7 @@ void Spy
 ( const ElementalMatrix<T>& A, string title="DistMatrix", Base<T> tol=0 );
 template<typename T>
 void Spy
-( const AbstractBlockDistMatrix<T>& A,
+( const BlockCyclicMatrix<T>& A,
   string title="BlockDistMatrix", Base<T> tol=0 );
 
 // Write
@@ -189,7 +189,7 @@ void Write
   FileFormat format=BINARY, string title="" );
 template<typename T>
 void Write
-( const AbstractBlockDistMatrix<T>& A, string basename="BlockDistMatrix",
+( const BlockCyclicMatrix<T>& A, string basename="BlockDistMatrix",
   FileFormat format=BINARY, string title="" );
 
 } // namespace El

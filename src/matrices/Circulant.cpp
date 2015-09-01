@@ -30,20 +30,9 @@ void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
     IndexDependentFill( A, function<T(Int,Int)>(circFill) );
 }
 
-template<typename T>
-void Circulant( AbstractBlockDistMatrix<T>& A, const vector<T>& a )
-{
-    DEBUG_ONLY(CSE cse("Circulant"))
-    const Int n = a.size();
-    A.Resize( n, n );
-    auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
-    IndexDependentFill( A, function<T(Int,Int)>(circFill) );
-}
-
 #define PROTO(T) \
   template void Circulant( Matrix<T>& A, const vector<T>& a ); \
-  template void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a ); \
-  template void Circulant( AbstractBlockDistMatrix<T>& A, const vector<T>& a ); 
+  template void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
