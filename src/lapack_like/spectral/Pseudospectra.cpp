@@ -1467,7 +1467,7 @@ Matrix<Int> TriangularSpectralPortrait
         width = 2.5*radius;
         if( psCtrl.progress )
             Output
-            ("Setting width to ",width," based on the spectral radius, "radius);
+            ("Setting width to ",width," based on spectral radius, ",radius);
     }
     else
     {
@@ -1516,7 +1516,7 @@ Matrix<Int> TriangularSpectralPortrait
         width = 2.5*radius;
         if( psCtrl.progress )
             Output
-            ("Setting width to ",width," based on the spectral radius, "radius);
+            ("Setting width to ",width," based on spectral radius, ",radius);
     }
     else
     {
