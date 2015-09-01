@@ -124,13 +124,13 @@ UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 
         if( vert )
         {
-            x0 = View( x, 0, 0, k,    1 );
-            x1 = View( x, k, 0, kOld, 1 );
+            View( x0, x, 0, 0, k,    1 );
+            View( x1, x, k, 0, kOld, 1 );
         }
         else
         {
-            x0 = View( x, 0, 0, 1, k    );
-            x1 = View( x, 0, k, 1, kOld );
+            View( x0, x, 0, 0, 1, k    );
+            View( x1, x, 0, k, 1, kOld );
         }
 
         quasitrsv::UNUnb( U11, x1, checkIfSingular );

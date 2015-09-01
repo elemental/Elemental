@@ -147,13 +147,13 @@ UT
 
         if( vert )
         {
-            x1 = View( x, ind1, ALL );
-            x2 = View( x, ind2, ALL );
+            View( x1, x, ind1, ALL );
+            View( x2, x, ind2, ALL );
         }
         else
         {
-            x1 = View( x, ALL, ind1 );
-            x2 = View( x, ALL, ind2 );
+            View( x1, x, ALL, ind1 );
+            View( x2, x, ALL, ind2 );
         }
 
         quasitrsv::UTUnb( TRANSPOSE, U11, x1, checkIfSingular );

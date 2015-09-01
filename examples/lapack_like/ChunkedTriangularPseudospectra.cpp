@@ -138,16 +138,16 @@ main( int argc, char* argv[] )
             isReal = true;
             break;
         case 6: matName=basename;
-            os << basename << "-" 
+            os << basename << "_" 
                << AReal.ColStride() << "x" << AReal.RowStride()
-               << "-" << AReal.DistRank() << ".bin";
+               << "_" << AReal.DistRank() << ".bin";
             AReal.Resize( n, n );
             Read( AReal.Matrix(), os.str(), BINARY );
             isReal = true;
             break;
         case 7: matName=basename;
-            os << basename << "-" << ACpx.ColStride() << "x" << ACpx.RowStride()
-               << "-" << ACpx.DistRank() << ".bin";
+            os << basename << "_" << ACpx.ColStride() << "x" << ACpx.RowStride()
+               << "_" << ACpx.DistRank() << ".bin";
             ACpx.Resize( n, n );
             Read( ACpx.Matrix(), os.str(), BINARY );
             isReal = false;
@@ -268,8 +268,8 @@ main( int argc, char* argv[] )
                          << chunkCenter << endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
-                psCtrl.snapCtrl.imgBase = matName+"-"+imgBase+chunkTag;
-                psCtrl.snapCtrl.numBase = matName+"-"+numBase+chunkTag;
+                psCtrl.snapCtrl.imgBase = matName+"_"+imgBase+chunkTag;
+                psCtrl.snapCtrl.numBase = matName+"_"+numBase+chunkTag;
                 if( isReal )
                 {
                     if( quasi )

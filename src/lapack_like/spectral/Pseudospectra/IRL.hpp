@@ -121,7 +121,7 @@ Restart
     const Int basisSize = HDiagList[0].size();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
-        VLocList[j] = View( VList[j].Matrix() );
+        View( VLocList[j], VList[j].Matrix() );
     Restart
     ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), VLocList );
 }

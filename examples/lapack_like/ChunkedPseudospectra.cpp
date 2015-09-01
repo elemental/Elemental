@@ -289,17 +289,17 @@ main( int argc, char* argv[] )
             {
                 {
                     ostringstream os;
-                    os << matName << "-" 
+                    os << matName << "_" 
                        << AReal.ColStride() << "x" << AReal.RowStride()
-                       << "-" << AReal.DistRank();
+                       << "_" << AReal.DistRank();
                     Write( AReal.LockedMatrix(), os.str(), BINARY );
                 }
                 if( psNorm == PS_ONE_NORM )
                 {
                     ostringstream os;
-                    os << matName << "-Q-"
+                    os << matName << "_Q_"
                        << QReal.ColStride() << "x" << QReal.RowStride()
-                       << "-" << QReal.DistRank();
+                       << "_" << QReal.DistRank();
                     Write( QReal.LockedMatrix(), os.str(), BINARY );
                 }
             } 
@@ -307,17 +307,17 @@ main( int argc, char* argv[] )
             {
                 {
                     ostringstream os;
-                    os << matName << "-" 
+                    os << matName << "_" 
                        << ACpx.ColStride() << "x" << ACpx.RowStride()
-                       << "-" << ACpx.DistRank();
+                       << "_" << ACpx.DistRank();
                     Write( ACpx.LockedMatrix(), os.str(), BINARY );
                 }
                 if( psNorm == PS_ONE_NORM )
                 {
                     ostringstream os;
-                    os << matName << "-Q-"
+                    os << matName << "_Q_"
                        << QCpx.ColStride() << "x" << QCpx.RowStride()
-                       << "-" << QCpx.DistRank();
+                       << "_" << QCpx.DistRank();
                     Write( QCpx.LockedMatrix(), os.str(), BINARY );
                 }
             }
@@ -408,8 +408,8 @@ main( int argc, char* argv[] )
                          << chunkCenter << endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
-                psCtrl.snapCtrl.numBase = matName+"-"+numBase+chunkTag;
-                psCtrl.snapCtrl.imgBase = matName+"-"+imgBase+chunkTag;
+                psCtrl.snapCtrl.numBase = matName+"_"+numBase+chunkTag;
+                psCtrl.snapCtrl.imgBase = matName+"_"+imgBase+chunkTag;
                 if( isReal )
                 {
                     itCountMap = QuasiTriangularSpectralWindow

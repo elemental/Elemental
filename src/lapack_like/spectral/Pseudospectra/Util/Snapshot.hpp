@@ -17,9 +17,12 @@ namespace pspec {
 template<typename Real>
 inline void
 Snapshot
-( const Matrix<Int>& preimage, const Matrix<Real>& estimates, 
+( const Matrix<Int>& preimage,
+  const Matrix<Real>& estimates, 
   const Matrix<Int>& itCounts,
-  Int numIts, bool deflate, SnapshotCtrl& snapCtrl )
+        Int numIts,
+        bool deflate,
+        SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CSE cse("pspec::Snapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
@@ -56,10 +59,10 @@ Snapshot
         if( numSave )
         {
             ostringstream os;
-            os << snapCtrl.numBase << "-" << numIts;
+            os << snapCtrl.numBase << "_" << numIts;
             Write( estMap, os.str(), snapCtrl.numFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"-counts", snapCtrl.numFormat );
+                Write( itCountMap, os.str()+"_counts", snapCtrl.numFormat );
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
@@ -67,26 +70,26 @@ Snapshot
         if( imgSave )
         {
             ostringstream os;
-            os << snapCtrl.imgBase << "-" << numIts;
+            os << snapCtrl.imgBase << "_" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"-counts", snapCtrl.imgFormat );
+                Write( itCountMap, os.str()+"_counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Write( estMap, os.str()+"-discrete", snapCtrl.imgFormat );
+            Write( estMap, os.str()+"_discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
             snapCtrl.imgSaveCount = 0;
         }
         if( imgDisp )
         {
             ostringstream os;
-            os << snapCtrl.imgBase << "-" << numIts;
+            os << snapCtrl.imgBase << "_" << numIts;
             Display( estMap, os.str() );       
             if( snapCtrl.itCounts )
-                Display( itCountMap, os.str()+"-counts" );
+                Display( itCountMap, os.str()+"_counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Display( estMap, os.str()+"-discrete" );
+            Display( estMap, os.str()+"_discrete" );
             SetColorMap( colorMap );
             snapCtrl.imgDispCount = 0;
         }
@@ -96,8 +99,9 @@ Snapshot
 template<typename Real>
 inline void
 FinalSnapshot
-( const Matrix<Real>& estimates, const Matrix<Int>& itCounts, 
-  SnapshotCtrl& snapCtrl )
+( const Matrix<Real>& estimates,
+  const Matrix<Int>& itCounts, 
+        SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CSE cse("pspec::FinalSnapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
@@ -121,7 +125,7 @@ FinalSnapshot
             string base = snapCtrl.numBase;
             Write( estMap, base, snapCtrl.numFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, base+"-counts", snapCtrl.numFormat );
+                Write( itCountMap, base+"_counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
             EntrywiseMap( estMap, function<Real(Real)>(logMap) );
@@ -130,10 +134,10 @@ FinalSnapshot
             string base = snapCtrl.imgBase;
             Write( estMap, base, snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
+                Write( itCountMap, base+"_counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Write( estMap, base+"-discrete", snapCtrl.imgFormat );
+            Write( estMap, base+"_discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
         }
         if( imgDisp )
@@ -141,10 +145,10 @@ FinalSnapshot
             string base = snapCtrl.imgBase;
             Display( estMap, base );       
             if( snapCtrl.itCounts )
-                Display( itCountMap, base+"-counts" );
+                Display( itCountMap, base+"_counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Display( estMap, base+"-discrete" );
+            Display( estMap, base+"_discrete" );
             SetColorMap( colorMap );
         }
     }
@@ -156,7 +160,9 @@ Snapshot
 ( const DistMatrix<Int,    VR,STAR>& preimage, 
   const DistMatrix<Real,MR,STAR>& estimates, 
   const DistMatrix<Int, VR,STAR>& itCounts,
-  Int numIts, bool deflate, SnapshotCtrl& snapCtrl )
+        Int numIts,
+        bool deflate,
+        SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CSE cse("pspec::Snapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
@@ -195,10 +201,10 @@ Snapshot
         if( numSave )
         {
             ostringstream os;
-            os << snapCtrl.numBase << "-" << numIts;
+            os << snapCtrl.numBase << "_" << numIts;
             Write( estMap, os.str(), snapCtrl.numFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"-counts", snapCtrl.numFormat );
+                Write( itCountMap, os.str()+"_counts", snapCtrl.numFormat );
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
@@ -206,26 +212,26 @@ Snapshot
         if( imgSave )
         {
             ostringstream os;
-            os << snapCtrl.imgBase << "-" << numIts;
+            os << snapCtrl.imgBase << "_" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"-counts", snapCtrl.imgFormat );
+                Write( itCountMap, os.str()+"_counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Write( estMap, os.str()+"-discrete", snapCtrl.imgFormat );
+            Write( estMap, os.str()+"_discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
             snapCtrl.imgSaveCount = 0;
         }
         if( imgDisp )
         {
             ostringstream os;
-            os << snapCtrl.imgBase << "-" << numIts;
+            os << snapCtrl.imgBase << "_" << numIts;
             Display( estMap, os.str() );
             if( snapCtrl.itCounts )
-                Display( itCountMap, os.str()+"-counts" );
+                Display( itCountMap, os.str()+"_counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Display( estMap, os.str()+"-discrete" );
+            Display( estMap, os.str()+"_discrete" );
             SetColorMap( colorMap );
             snapCtrl.imgDispCount = 0;
         }
@@ -237,7 +243,7 @@ inline void
 FinalSnapshot
 ( const DistMatrix<Real,VR,STAR>& estimates, 
   const DistMatrix<Int, VR,STAR>& itCounts,
-  SnapshotCtrl& snapCtrl )
+        SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CSE cse("pspec::FinalSnapshot"));
     auto logMap = []( Real alpha ) { return Log(alpha); };
@@ -261,7 +267,7 @@ FinalSnapshot
             string base = snapCtrl.numBase;
             Write( estMap, base, snapCtrl.numFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, base+"-counts", snapCtrl.numFormat );
+                Write( itCountMap, base+"_counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
             EntrywiseMap( estMap, function<Real(Real)>(logMap) );
@@ -270,10 +276,10 @@ FinalSnapshot
             string base = snapCtrl.imgBase;
             Write( estMap, base, snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
+                Write( itCountMap, base+"_counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Write( estMap, base+"-discrete", snapCtrl.imgFormat );
+            Write( estMap, base+"_discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
         }
         if( imgDisp )
@@ -281,10 +287,10 @@ FinalSnapshot
             string base = snapCtrl.imgBase;
             Display( estMap, base );           
             if( snapCtrl.itCounts )
-                Display( itCountMap, base+"-counts" );
+                Display( itCountMap, base+"_counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Display( estMap, base+"-discrete" );
+            Display( estMap, base+"_discrete" );
             SetColorMap( colorMap );
         }
     }

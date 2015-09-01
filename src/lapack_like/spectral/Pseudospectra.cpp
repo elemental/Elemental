@@ -2392,8 +2392,9 @@ DistMatrix<Int> SpectralPortrait
           Int imagSize, \
           PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> HessenbergSpectralWindow \
-  ( const ElementalMatrix<F>& H, const ElementalMatrix<F>& Q, \
-    ElementalMatrix<Base<F>>& invNormMap, \
+  ( const ElementalMatrix<F>& H, \
+    const ElementalMatrix<F>& Q, \
+          ElementalMatrix<Base<F>>& invNormMap, \
     Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
     Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> SpectralWindow \
