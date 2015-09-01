@@ -384,6 +384,7 @@ int init_workQ
     int max_size = imax(1, nz/nthreads);
     bool task_inserted = false;
     int new_first=ibegin, new_last;
+    int sn_first, sn_last, sn_size;
     for (i=ibegin; i<=iend; i++) {
       if (i == iend)
         new_last = i;
@@ -402,7 +403,6 @@ int init_workQ
       
       if (new_size == 1) {
         /* Singleton was found */
-        int sn_first, sn_last, sn_size;
         if (new_first < iWbegin || new_first > iWend) {
           new_first = i + 1;
           continue;
