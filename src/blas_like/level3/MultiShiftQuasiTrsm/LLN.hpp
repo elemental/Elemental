@@ -125,8 +125,8 @@ LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename F>
 inline void
 LLNLarge
-( const AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& shiftsPre, 
-  AbstractDistMatrix<F>& XPre )
+( const ElementalMatrix<F>& LPre, const ElementalMatrix<F>& shiftsPre, 
+  ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LLNLarge"))
     const Int m = XPre.Height();
@@ -182,8 +182,8 @@ LLNLarge
 template<typename F>
 inline void
 LLNMedium
-( const AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& shiftsPre, 
-        AbstractDistMatrix<F>& XPre )
+( const ElementalMatrix<F>& LPre, const ElementalMatrix<F>& shiftsPre, 
+        ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LLNMedium"))
     const Int m = XPre.Height();

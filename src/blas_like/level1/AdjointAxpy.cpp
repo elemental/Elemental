@@ -26,7 +26,7 @@ void AdjointAxpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 
 template<typename T,typename S>
 void AdjointAxpy
-( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
+( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 {
     DEBUG_ONLY(CSE cse("AdjointAxpy"))
     TransposeAxpy( alphaS, X, Y, true );
@@ -44,7 +44,7 @@ void AdjointAxpy
   template void AdjointAxpy \
   ( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void AdjointAxpy \
-  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( S alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void AdjointAxpy \
   ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void AdjointAxpy \

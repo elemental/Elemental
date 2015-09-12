@@ -67,7 +67,7 @@ inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
 
 template<typename F> 
 SafeProduct<F> AfterLUPartialPiv
-( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<Int>& pPre )
+( const ElementalMatrix<F>& APre, const ElementalMatrix<Int>& pPre )
 {
     DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
     if( APre.Height() != APre.Width() )
@@ -111,7 +111,7 @@ SafeProduct<F> AfterLUPartialPiv
 
 template<typename F> 
 inline SafeProduct<F> 
-LUPartialPiv( AbstractDistMatrix<F>& APre )
+LUPartialPiv( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("det::LUPartialPiv"))
     if( APre.Height() != APre.Width() )

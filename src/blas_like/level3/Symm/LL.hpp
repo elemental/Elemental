@@ -91,8 +91,8 @@ void LocalAccumulateLL
 template<typename T>
 inline void
 LLA
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre,
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -150,8 +150,8 @@ LLA
 template<typename T>
 inline void
 LLC
-( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
-                 AbstractDistMatrix<T>& CPre, 
+( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
+                 ElementalMatrix<T>& CPre, 
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -211,8 +211,8 @@ LLC
 
 template<typename T>
 inline void LL
-( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-                 AbstractDistMatrix<T>& C,
+( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+                 ElementalMatrix<T>& C,
   bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::LL"))

@@ -83,7 +83,7 @@ void DiagonalScaleTrapezoid
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A, Int offset )
+  const ElementalMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
     const Int m = A.Height();
@@ -204,7 +204,7 @@ void DiagonalScaleTrapezoid
 template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A, Int offset )
+  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
@@ -235,12 +235,12 @@ void DiagonalScaleTrapezoid
 #define DIST_PROTO(T,U,V) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& A, Int offset );
+    const ElementalMatrix<T>& d, DistMatrix<T,U,V>& A, Int offset );
 
 #define DIST_PROTO_REAL(T,U,V) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& A, Int offset );
+    const ElementalMatrix<T>& d, DistMatrix<Complex<T>,U,V>& A, Int offset );
 
 #define PROTO(T) \
   template void DiagonalScaleTrapezoid \
@@ -248,7 +248,7 @@ void DiagonalScaleTrapezoid
     const Matrix<T>& d, Matrix<T>& A, Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& A, Int offset ); \
+    const ElementalMatrix<T>& d, ElementalMatrix<T>& A, Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<T>& d, SparseMatrix<T>& A, \
@@ -279,7 +279,7 @@ void DiagonalScaleTrapezoid
     const Matrix<T>& d, Matrix<Complex<T>>& A, Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& A, \
+    const ElementalMatrix<T>& d, ElementalMatrix<Complex<T>>& A, \
     Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \

@@ -94,7 +94,7 @@ void Display( const Matrix<Complex<Real>>& A, string title )
 }
 
 template<typename T>
-void Display( const AbstractDistMatrix<T>& A, string title )
+void Display( const ElementalMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -111,7 +111,7 @@ void Display( const AbstractDistMatrix<T>& A, string title )
 }
 
 template<typename T>
-void Display( const AbstractBlockDistMatrix<T>& A, string title )
+void Display( const BlockCyclicMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -121,7 +121,7 @@ void Display( const AbstractBlockDistMatrix<T>& A, string title )
     }
     else
     {
-        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Display( A_CIRC_CIRC.Matrix(), title );
     }
@@ -344,9 +344,9 @@ void DisplayLocal
 #define PROTO(T) \
   template void Display( const Matrix<T>& A, string title ); \
   template void Display \
-  ( const AbstractDistMatrix<T>& A, string title ); \
+  ( const ElementalMatrix<T>& A, string title ); \
   template void Display \
-  ( const AbstractBlockDistMatrix<T>& A, string title ); \
+  ( const BlockCyclicMatrix<T>& A, string title ); \
   template void Display( const DistMultiVec<T>& X, string title ); \
   template void Display \
   ( const SparseMatrix<T>& A, string title ); \

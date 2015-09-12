@@ -8,10 +8,10 @@
 #
 import El
 
-m = 6000
-n = 4000
+m = 10000
+n = 5000
 
-display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
@@ -41,14 +41,27 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.NNLSCtrl_d()
-ctrl.socpCtrl.mehrotraCtrl.progress = True
-ctrl.socpCtrl.mehrotraCtrl.time = True
-ctrl.socpCtrl.mehrotraCtrl.qsdCtrl.progress = True
+ctrl.socpCtrl.mehrotraCtrl.progress = False
+ctrl.socpCtrl.mehrotraCtrl.time = False
+ctrl.socpCtrl.mehrotraCtrl.solveCtrl.progress = False
+
+# Solve *with* resolving the regularization
+ctrl.socpCtrl.mehrotraCtrl.resolveReg = True
 startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()
 if worldRank == 0:
-  print "NNLS time:", endNNLS-startNNLS, "seconds"
+  print "NNLS time (resolve reg.):", endNNLS-startNNLS, "seconds"
+if display:
+  El.Display( x, "x" )
+
+# Solve without resolving the regularization
+ctrl.socpCtrl.mehrotraCtrl.resolveReg = False
+startNNLS = El.mpi.Time()
+x = El.NNLS( A, b, ctrl )
+endNNLS = El.mpi.Time()
+if worldRank == 0:
+  print "NNLS time (no resolve reg.):", endNNLS-startNNLS, "seconds"
 if display:
   El.Display( x, "x" )
 

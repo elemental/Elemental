@@ -113,7 +113,7 @@ Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 }
 
 template<typename F> 
-Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type )
+Base<F> Norm( const ElementalMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CSE cse("Norm"))
     Base<F> norm = 0;
@@ -148,7 +148,7 @@ Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type )
 
 template<typename F>
 Base<F> SymmetricNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CSE cse("SymmetricNorm"))
     Base<F> norm = 0;
@@ -183,7 +183,7 @@ Base<F> SymmetricNorm
 
 template<typename F>
 Base<F> HermitianNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CSE cse("HermitianNorm"))
     Base<F> norm = 0;
@@ -218,15 +218,15 @@ Base<F> HermitianNorm
 
 #define PROTO(F) \
   template Base<F> Norm( const Matrix<F>& A, NormType type ); \
-  template Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type ); \
+  template Base<F> Norm( const ElementalMatrix<F>& A, NormType type ); \
   template Base<F> HermitianNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, NormType type ); \
   template Base<F> HermitianNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type ); \
   template Base<F> SymmetricNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, NormType type ); \
   template Base<F> SymmetricNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type );
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

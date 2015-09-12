@@ -36,7 +36,7 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
-  AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
+  ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre, 
   bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
@@ -74,7 +74,7 @@ void SymmetricSolve
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, 
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
   bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricSolve"))
@@ -154,7 +154,7 @@ void SymmetricSolve
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void symm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugate, \
+    ElementalMatrix<F>& A, ElementalMatrix<F>& B, bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
   ( UpperOrLower uplo, Orientation orientation, \
@@ -162,7 +162,7 @@ void SymmetricSolve
     bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
     bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \

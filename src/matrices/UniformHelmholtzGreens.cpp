@@ -74,66 +74,7 @@ void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 
 template<typename Real>
 void UniformHelmholtzGreens
-( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda )
-{
-    DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
-    typedef Complex<Real> C;
-    const Real pi = 4*Atan( Real(1) );
-    const Real k0 = 2*pi/lambda;
-    const Grid& g = A.Grid();
-
-    // Generate a list of n uniform samples from the 3D unit ball
-    DistMatrix<Real,STAR,VR> X_STAR_VR(3,n,g);
-    for( Int jLoc=0; jLoc<X_STAR_VR.LocalWidth(); ++jLoc )
-    {
-        Real x0, x1, x2;
-        // Sample uniformly from [-1,+1]^3 until a point is drawn from the ball
-        while( true )
-        {
-            x0 = SampleUniform( Real(-1), Real(1) );
-            x1 = SampleUniform( Real(-1), Real(1) );
-            x2 = SampleUniform( Real(-1), Real(1) );
-            const Real radiusSq = x0*x0 + x1*x1 + x2*x2;
-            if( radiusSq > 0 && radiusSq <= 1 )
-                break;
-        }
-        X_STAR_VR.SetLocal( 0, jLoc, x0 );
-        X_STAR_VR.SetLocal( 1, jLoc, x1 );
-        X_STAR_VR.SetLocal( 2, jLoc, x2 );
-    }
-    DistMatrix<Real,STAR,STAR> X_STAR_STAR( X_STAR_VR );
-
-    A.Resize( n, n );
-    for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        const Real xj0 = X_STAR_STAR.GetLocal(0,j);
-        const Real xj1 = X_STAR_STAR.GetLocal(1,j);
-        const Real xj2 = X_STAR_STAR.GetLocal(2,j);
-        for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            if( i == j )
-            {
-                A.SetLocal( iLoc, jLoc, 0 );
-            }
-            else
-            {
-                const Real d0 = X_STAR_STAR.GetLocal(0,i)-xj0;
-                const Real d1 = X_STAR_STAR.GetLocal(1,i)-xj1;
-                const Real d2 = X_STAR_STAR.GetLocal(2,i)-xj2;
-                const Real gamma = k0*Sqrt(d0*d0+d1*d1+d2*d2);
-                const Real realPart = Cos(gamma)/gamma;
-                const Real imagPart = Sin(gamma)/gamma;
-                A.SetLocal( iLoc, jLoc, C(realPart,imagPart) );
-            }
-        }
-    }
-}
-
-template<typename Real>
-void UniformHelmholtzGreens
-( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda )
+( ElementalMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
@@ -194,9 +135,7 @@ void UniformHelmholtzGreens
   template void UniformHelmholtzGreens \
   ( Matrix<Complex<Real>>& A, Int n, Real lambda ); \
   template void UniformHelmholtzGreens \
-  ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda ); \
-  template void UniformHelmholtzGreens \
-  ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda );
+  ( ElementalMatrix<Complex<Real>>& A, Int n, Real lambda );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

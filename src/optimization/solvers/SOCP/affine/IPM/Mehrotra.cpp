@@ -58,10 +58,7 @@ void Mehrotra
         centralityRule = StepLengthCentrality<Real>;
     else
         centralityRule = MehrotraCentrality<Real>;
-    const bool forceSameStep = true;
-    const bool checkResiduals = true;
     const bool standardShift = true;
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
 
     auto A = APre;
     auto G = GPre;
@@ -101,6 +98,16 @@ void Mehrotra
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
+    if( ctrl.print )
+    {
+        const Real ANrm1 = OneNorm( A );
+        const Real GNrm1 = OneNorm( G );
+        Output("|| A ||_1 = ",ANrm1);
+        Output("|| G ||_1 = ",GNrm1);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+        Output("|| h ||_2 = ",hNrm2);
+    }
 
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -194,7 +201,8 @@ void Mehrotra
         // Compute the affine search direction
         // ===================================
         Real wMaxNorm = MaxNorm(w);
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit = 
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -238,7 +246,7 @@ void Mehrotra
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -277,7 +285,7 @@ void Mehrotra
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
         Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
@@ -299,12 +307,22 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
-        SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds );
-        rmu += l;
+        if( ctrl.mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
@@ -331,7 +349,7 @@ void Mehrotra
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -361,17 +379,17 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& GPre,
-  const AbstractDistMatrix<Real>& bPre, 
-  const AbstractDistMatrix<Real>& cPre,
-  const AbstractDistMatrix<Real>& hPre,
-  const AbstractDistMatrix<Int>& ordersPre,
-  const AbstractDistMatrix<Int>& firstIndsPre,
-        AbstractDistMatrix<Real>& xPre, 
-        AbstractDistMatrix<Real>& yPre, 
-        AbstractDistMatrix<Real>& zPre, 
-        AbstractDistMatrix<Real>& sPre,
+( const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& GPre,
+  const ElementalMatrix<Real>& bPre, 
+  const ElementalMatrix<Real>& cPre,
+  const ElementalMatrix<Real>& hPre,
+  const ElementalMatrix<Int>& ordersPre,
+  const ElementalMatrix<Int>& firstIndsPre,
+        ElementalMatrix<Real>& xPre, 
+        ElementalMatrix<Real>& yPre, 
+        ElementalMatrix<Real>& zPre, 
+        ElementalMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
@@ -386,10 +404,7 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const Int cutoffPar = 1000;
-    const bool forceSameStep = true;
-    const bool checkResiduals = true;
     const bool standardShift = true;
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -437,6 +452,19 @@ void Mehrotra
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
+    if( ctrl.print )
+    {
+        const Real ANrm1 = OneNorm( A );
+        const Real GNrm1 = OneNorm( G );
+        if( commRank == 0 )
+        {
+            Output("|| A ||_1 = ",ANrm1);
+            Output("|| G ||_1 = ",GNrm1);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+            Output("|| h ||_2 = ",hNrm2);
+        }
+    }
 
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -542,7 +570,8 @@ void Mehrotra
         // Compute the affine search direction
         // ===================================
         Real wMaxNorm = MaxNorm(w);
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC
@@ -590,7 +619,7 @@ void Mehrotra
         SOCApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -630,7 +659,7 @@ void Mehrotra
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1), cutoffPar );
         Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
@@ -652,12 +681,23 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
-        SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds, cutoffPar );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds, cutoffPar );
-        rmu += l;
+        if( ctrl.mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply
+            ( dsAffScaled, dzAffScaled, rmu, orders, firstInds, cutoffPar );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds, cutoffPar );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
@@ -687,7 +727,7 @@ void Mehrotra
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -742,14 +782,13 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool cutoffSparse = 64;
-    const bool forceSameStep = true;
-    const bool checkResiduals = true;
     const bool standardShift = true;
-    const Real wMaxLimit = Pow(eps,Real(-0.4));
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
-    // Sizes of || w ||_max which force levels of equilibration
-    const Real diagEquilTol = Pow(eps,Real(-0.15));
-    const Real ruizEquilTol = Pow(eps,Real(-0.25));
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta =  Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -794,13 +833,17 @@ void Mehrotra
     const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
-        Output
-        ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
-         "|| G ||_2 estimate: ",twoNormEstG);
+    {
+        Output("|| A ||_2 estimate: ",twoNormEstA);
+        Output("|| G ||_2 estimate: ",twoNormEstG);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
+        Output("|| h ||_2 = ",hNrm2);
+    }
 
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.qsdCtrl );
+      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
 
     // Form the offsets for the sparse embedding of the barrier's Hessian
     // ==================================================================
@@ -808,59 +851,12 @@ void Mehrotra
       origToSparseOrders,    sparseToOrigOrders,
       origToSparseFirstInds, sparseToOrigFirstInds,
       sparseOrders,          sparseFirstInds;
-    // Form the metadata for the original index domain
-    // -----------------------------------------------
-    origToSparseOrders.Resize( k, 1 );
-    origToSparseFirstInds.Resize( k, 1 );
-    Int iSparse=0;
-    for( Int i=0; i<k; )
-    {
-        const Int order = orders.Get(i,0);
-
-        for( Int e=0; e<order; ++e )
-            origToSparseFirstInds.Set( i+e, 0, iSparse );
-
-        if( order > cutoffSparse )
-        {
-            for( Int e=0; e<order; ++e )
-                origToSparseOrders.Set( i+e, 0, order+2 );
-            iSparse += order+2;
-        }
-        else
-        {
-            for( Int e=0; e<order; ++e )
-                origToSparseOrders.Set( i+e, 0, order );
-            iSparse += order;
-        }
-        i += order;
-    }
-    const Int kSparse = iSparse;
-    // Form the metadata for the sparsified index domain
-    // -------------------------------------------------
-    sparseToOrigOrders.Resize( kSparse, 1 );
-    sparseToOrigFirstInds.Resize( kSparse, 1 );
-    iSparse = 0;
-    for( Int i=0; i<k; )
-    {
-        const Int order = orders.Get(i,0);
-        if( order > cutoffSparse )
-        {
-            for( Int e=0; e<order+2; ++e )
-                sparseToOrigOrders.Set( iSparse+e, 0, order );
-            for( Int e=0; e<order+2; ++e )
-                sparseToOrigFirstInds.Set( iSparse+e, 0, i );
-            iSparse += order+2;
-        }
-        else
-        {
-            for( Int e=0; e<order; ++e )
-                sparseToOrigOrders.Set( iSparse+e, 0, order );
-            for( Int e=0; e<order; ++e )
-                sparseToOrigFirstInds.Set( iSparse+e, 0, i );
-            iSparse += order;
-        }
-        i += order;
-    }
+    SOCEmbeddingMaps
+    ( orders, firstInds,
+      sparseOrders, sparseFirstInds,
+      origToSparseOrders, origToSparseFirstInds,
+      sparseToOrigOrders, sparseToOrigFirstInds, cutoffSparse );
+    const Int kSparse = sparseOrders.Height();
 
     SparseMatrix<Real> J, JOrig;
     ldl::Front<Real> JFront;
@@ -873,20 +869,17 @@ void Mehrotra
                  dzAffScaled, dsAffScaled;
 
     // TODO: Expose regularization rules to user
-    Matrix<Real> regPerm, regTmp;
-    regPerm.Resize( n+m+kSparse, 1 );
+    Matrix<Real> regTmp;
     regTmp.Resize( n+m+kSparse, 1 );
     for( Int i=0; i<n+m+kSparse; ++i )
     {
         if( i < n )
         {
-            regTmp.Set( i, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, 10*eps );
+            regTmp.Set( i, 0, gammaTmp*gammaTmp );
         }
         else if( i < n+m )
         {
-            regTmp.Set( i, 0, -ctrl.qsdCtrl.regPrimal );
-            regPerm.Set( i, 0, -10*eps );
+            regTmp.Set( i, 0, -deltaTmp*deltaTmp );
         }
         else
         {
@@ -896,32 +889,31 @@ void Mehrotra
             const Int sparseOrder = sparseOrders.Get(iCone,0);
             const bool embedded = ( order != sparseOrder );
           
+            // TODO: Use different diagonal modification for the auxiliary
+            //       variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-            {
-                regTmp.Set( i, 0, ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, 10*eps );
-            }
-            else
-            {
-                regTmp.Set( i, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.Set( i, 0, -10*eps );
-            }
+                regTmp.Set( i, 0, betaTmp*betaTmp );
+            else 
+                regTmp.Set( i, 0, -betaTmp*betaTmp );
         }
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, firstInds, origToSparseFirstInds, kSparse, JOrig, onlyLower );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    ( A, G, gamma, delta, beta, 
+      orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
+      kSparse, JStatic, onlyLower );
 
-    Real relError = 1;
     vector<Int> map, invMap;
     ldl::NodeInfo info;
     ldl::Separator rootSep;
+    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
+    InvertMap( map, invMap );
+ 
+    Real relError = 1;
     Matrix<Real> dInner;
     Matrix<Real> dxError, dyError, dzError, dmuError;
     const Int indent = PushIndent();
@@ -997,12 +989,13 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
         Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
+        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
             ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -1022,6 +1015,7 @@ void Mehrotra
         // Form the KKT system
         // -------------------
         JOrig = JStatic;
+        JOrig.FreezeSparsity();
         FinishKKT
         ( m, n, w, 
           orders, firstInds, 
@@ -1036,23 +1030,26 @@ void Mehrotra
         try 
         {
             J = JOrig;
-
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-            if( wMaxNorm >= ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.print );
-            else if( wMaxNorm >= diagEquilTol )
+            J.FreezeSparsity();
+            UpdateDiagonal( J, Real(1), regTmp );
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, n+m+kSparse, 1 );
 
-            NestedDissection( J.LockedGraph(), map, rootSep, info );
-            InvertMap( map, invMap );
             JFront.Pull( J, map, info );
-
             LDL( info, JFront, LDL_2D );
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-              ctrl.qsdCtrl );
+            if( ctrl.resolveReg )
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                  ctrl.solveCtrl );
+            else
+                reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts, 
+                  ctrl.solveCtrl.progress );
         } 
         catch(...)
         {
@@ -1072,7 +1069,7 @@ void Mehrotra
         SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
         SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
@@ -1112,7 +1109,7 @@ void Mehrotra
           MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
         Real alphaAffDual = 
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
@@ -1134,14 +1131,22 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
-        SOCApplyQuadratic( wRootInv, dsAff, orders, firstInds );
-        SOCApplyQuadratic( wRoot,    dzAff, orders, firstInds );
-        SOCApply( dsAff, dzAff, rmu, orders, firstInds );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds );
-        rmu += l;
+        if( ctrl.mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
@@ -1149,9 +1154,15 @@ void Mehrotra
           orders, firstInds, origToSparseFirstInds, kSparse, d );
         try 
         {
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-              ctrl.qsdCtrl );
+            if( ctrl.resolveReg )
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                  ctrl.solveCtrl );
+            else
+                reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts, 
+                  ctrl.solveCtrl.progress );
         } 
         catch(...)
         {
@@ -1177,7 +1188,7 @@ void Mehrotra
           MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -1233,14 +1244,13 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const Int cutoffSparse = 64;
     const Int cutoffPar = 1000;
-    const bool forceSameStep = true;
-    const bool checkResiduals = true;
     const bool standardShift = false;
-    const Real wSafeMaxNorm = Pow(eps,Real(-0.15));
-    const Real wMaxLimit = Pow(eps,Real(-0.4));
-    // Sizes of || w ||_max which force levels of equilibration
-    const Real diagEquilTol = Pow(eps,Real(-0.15));
-    const Real ruizEquilTol = Pow(eps,Real(-0.25));
+    const Real gamma = Pow(eps,Real(0.35));
+    const Real delta = Pow(eps,Real(0.35));
+    const Real beta =  Pow(eps,Real(0.35));
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+    const Real betaTmp  = Pow(eps,Real(0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -1253,7 +1263,6 @@ void Mehrotra
     const Int n = A.Width();
     const Int degree = SOCDegree( firstInds );
     mpi::Comm comm = APre.Comm();
-    const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
     Timer timer, iterTimer;
 
@@ -1294,17 +1303,28 @@ void Mehrotra
     const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
     const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
-    if( ctrl.print && commRank == 0 )
-        Output
-        ("|| A ||_2 estimate: ",twoNormEstA,"\n",Indent(),
-         "|| G ||_2 estimate: ",twoNormEstG);
+    if( ctrl.print )
+    {
+        const double imbalanceA = A.Imbalance();
+        const double imbalanceG = G.Imbalance();
+        if( commRank == 0 )
+        {
+            Output("|| A ||_2 estimate: ",twoNormEstA);
+            Output("|| G ||_2 estimate: ",twoNormEstG);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
+            Output("|| h ||_2 = ",hNrm2);
+            Output("Imbalance factor of A: ",imbalanceA);
+            Output("Imbalance factor of G: ",imbalanceG);
+        }
+    }
 
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar, 
-      ctrl.qsdCtrl );
+      ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
@@ -1314,193 +1334,15 @@ void Mehrotra
       origToSparseOrders(comm),    sparseToOrigOrders(comm),
       origToSparseFirstInds(comm), sparseToOrigFirstInds(comm), 
       sparseOrders(comm), sparseFirstInds(comm);
-    // TODO: Move this code block to a subroutine
-    {
-        // Allgather the list of cones with sufficiently large order
-        // ---------------------------------------------------------
-        // TODO: Send triplets instead?
-        vector<Int> sendOrders, sendRoots;
-        const Int localHeight = h.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = h.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            if( order > cutoffSparse && i == firstInd )
-            {
-                sendRoots.push_back( i );
-                sendOrders.push_back( order );
-            }
-        }
-        const int numSendRoots = sendRoots.size();
-        vector<int> numRecvRoots(commSize);
-        mpi::AllGather( &numSendRoots, 1, numRecvRoots.data(), 1, comm );
-        vector<int> recvOffs;
-        const int numRoots = Scan( numRecvRoots, recvOffs );
-        // Receive the roots
-        // ^^^^^^^^^^^^^^^^^
-        vector<Int> recvRoots(numRoots);
-        mpi::AllGather
-        ( sendRoots.data(), numSendRoots,
-          recvRoots.data(), numRecvRoots.data(), recvOffs.data(), comm );
-        SwapClear( sendRoots );
-        // Receive the orders
-        // ^^^^^^^^^^^^^^^^^^
-        vector<Int> recvOrders(numRoots);
-        mpi::AllGather
-        ( sendOrders.data(), numSendRoots,
-          recvOrders.data(), numRecvRoots.data(), recvOffs.data(), comm );
-        SwapClear( sendOrders );
-
-        // TODO: Sort based upon the roots. The current distribution
-        //       guarantees that they are already sorted.
-
-        // Form the metadata for the original domain
-        // -----------------------------------------
-
-        origToSparseOrders.Resize( k, 1 );    
-        auto it = recvRoots.cbegin();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int root = firstInds.GetLocal(iLoc,0);
-            it = std::lower_bound( it, recvRoots.cend(), root );
-            const bool embedded = ( it != recvRoots.cend() && *it == root );
-            const Int sparseOrder = ( embedded ? order+2 : order );
-            origToSparseOrders.SetLocal( iLoc, 0, sparseOrder );
-        }
-
-        origToSparseFirstInds.Resize( k, 1 );    
-        it = recvRoots.cbegin();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int root = firstInds.GetLocal(iLoc,0);
-            it = std::lower_bound( it, recvRoots.cend(), root );
-            const Int numSparseBefore = Int(it-recvRoots.cbegin());
-            const Int sparseOffset = 2*numSparseBefore;
-            origToSparseFirstInds.SetLocal( iLoc, 0, root+sparseOffset );
-        }
-
-        // Form the metadata for the sparsified index domain
-        // -------------------------------------------------
-        Zeros( sparseOrders, k+2*numRoots, 1 );
-        Zeros( sparseFirstInds, k+2*numRoots, 1 );
-        Zeros( sparseToOrigOrders, k+2*numRoots, 1 );
-        Zeros( sparseToOrigFirstInds, k+2*numRoots, 1 );
-
-        // Count the number of updates for each
-        // """"""""""""""""""""""""""""""""""""
-        Int numQueues = 0;
-        it = recvRoots.cbegin();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = firstInds.GlobalRow(iLoc);
-            const Int root = firstInds.GetLocal(iLoc,0);
-            const Int order = orders.GetLocal(iLoc,0);
-            it = std::lower_bound( it, recvRoots.cend(), root );
-            const bool embedded = ( it != recvRoots.cend() && root == *it );
-            numQueues += 1;
-            if( embedded && i - root == order-1 )
-                numQueues += 2;
-        }
-
-        // Form sparseOrders
-        // """""""""""""""""
-        sparseOrders.Reserve( numQueues );
-        it = recvRoots.cbegin();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = firstInds.GlobalRow(iLoc);
-            const Int root = firstInds.GetLocal(iLoc,0);
-            const Int order = orders.GetLocal(iLoc,0);
-            it = std::lower_bound( it, recvRoots.cend(), root );
-            const bool embedded = ( it != recvRoots.cend() && root == *it );
-            const Int sparseOrder = ( embedded ? order+2 : order );
-            const Int numSparseBefore = Int(it-recvRoots.cbegin());
-            const Int sparseOffset = 2*numSparseBefore;
-            const Int iSparse = i + sparseOffset;
-            sparseOrders.QueueUpdate( iSparse, 0, sparseOrder );
-            if( embedded && i - root == order-1 )
-            {
-                sparseOrders.QueueUpdate( iSparse+1, 0, sparseOrder );
-                sparseOrders.QueueUpdate( iSparse+2, 0, sparseOrder );
-            }
-        }
-        sparseOrders.ProcessQueues();
-
-        // Form sparseFirstInds
-        // """"""""""""""""""""
-        sparseFirstInds.Reserve( numQueues );
-        it = recvRoots.cbegin();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = firstInds.GlobalRow(iLoc);
-            const Int root = firstInds.GetLocal(iLoc,0);
-            const Int order = orders.GetLocal(iLoc,0);
-            it = std::lower_bound( it, recvRoots.cend(), root );
-            const bool embedded = ( it != recvRoots.cend() && root == *it );
-            const Int numSparseBefore = Int(it-recvRoots.cbegin());
-            const Int sparseOffset = 2*numSparseBefore;
-            const Int iSparse = i + sparseOffset;
-            const Int sparseRoot = root + sparseOffset;
-            sparseFirstInds.QueueUpdate( iSparse, 0, sparseRoot );
-            if( embedded && i - root == order-1 )
-            {
-                sparseFirstInds.QueueUpdate( iSparse+1, 0, sparseRoot );
-                sparseFirstInds.QueueUpdate( iSparse+2, 0, sparseRoot );
-            }
-        }
-        sparseFirstInds.ProcessQueues();
-
-        // Form sparseToOrigOrders
-        // """""""""""""""""""""""
-        sparseToOrigOrders.Reserve( numQueues );
-        it = recvRoots.cbegin();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = firstInds.GlobalRow(iLoc);
-            const Int root = firstInds.GetLocal(iLoc,0);
-            const Int order = orders.GetLocal(iLoc,0);
-            it = std::lower_bound( it, recvRoots.cend(), root );
-            const bool embedded = ( it != recvRoots.cend() && root == *it );
-            const Int numSparseBefore = Int(it-recvRoots.cbegin());
-            const Int sparseOffset = 2*numSparseBefore;
-            const Int iSparse = i + sparseOffset;
-            sparseToOrigOrders.QueueUpdate( iSparse, 0, order );
-            if( embedded && i - root == order-1 )
-            {
-                sparseToOrigOrders.QueueUpdate( iSparse+1, 0, order );
-                sparseToOrigOrders.QueueUpdate( iSparse+2, 0, order );
-            }
-        }
-        sparseToOrigOrders.ProcessQueues();
-
-        // Form sparseToOrigFirstInds
-        // """"""""""""""""""""""""""
-        sparseToOrigFirstInds.Reserve( numQueues );
-        it = recvRoots.cbegin();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = firstInds.GlobalRow(iLoc);
-            const Int root = firstInds.GetLocal(iLoc,0);
-            const Int order = orders.GetLocal(iLoc,0);
-            it = std::lower_bound( it, recvRoots.cend(), root );
-            const bool embedded = ( it != recvRoots.cend() && root == *it );
-            const Int numSparseBefore = Int(it-recvRoots.cbegin());
-            const Int sparseOffset = 2*numSparseBefore;
-            const Int iSparse = i + sparseOffset;
-            sparseToOrigFirstInds.QueueUpdate( iSparse, 0, root );
-            if( embedded && i - root == order-1 )
-            {
-                sparseToOrigFirstInds.QueueUpdate( iSparse+1, 0, root );
-                sparseToOrigFirstInds.QueueUpdate( iSparse+2, 0, root );
-            }
-        }
-        sparseToOrigFirstInds.ProcessQueues();
-    }
+    SOCEmbeddingMaps
+    ( orders, firstInds,
+      sparseOrders, sparseFirstInds,
+      origToSparseOrders, origToSparseFirstInds,
+      sparseToOrigOrders, sparseToOrigFirstInds,
+      cutoffSparse );
     const Int kSparse = sparseFirstInds.Height();
 
-    DistSparseMultMeta metaOrig, meta;
+    DistSparseMultMeta metaOrig;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -1513,33 +1355,22 @@ void Mehrotra
 
     // Form the regularization vectors
     // ===============================
-    DistMultiVec<Real> regPerm(comm), regTmp(comm);
+    DistMultiVec<Real> regTmp(comm);
     Zeros( regTmp, n+m+kSparse, 1 );
-    Zeros( regPerm, n+m+kSparse, 1 );
     // Set the analytical part
     // -----------------------
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
-        if( i < n )
-        {
-            regTmp.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
-            regPerm.SetLocal( iLoc, 0, 10*eps );
-        }
-        else if( i < n+m )
-        {
-            regTmp.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
-            regPerm.SetLocal( iLoc, 0, -10*eps );
-        }
-        else
-            break;
+        if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+        else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+        else break;
     }
     // Perform the portion that requires remote updates
     // ------------------------------------------------
     {
         const Int sparseLocalHeight = sparseFirstInds.LocalHeight();
         regTmp.Reserve( sparseLocalHeight );
-        regPerm.Reserve( sparseLocalHeight );
         for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
         {
             const Int iCone = sparseFirstInds.GlobalRow(iLoc);
@@ -1548,36 +1379,48 @@ void Mehrotra
             const bool embedded = ( order != sparseOrder ); 
             const Int firstInd = sparseFirstInds.GetLocal(iLoc,0);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-            {
-                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, 10*eps );
-            }
+                regTmp.QueueUpdate( n+m+iCone, 0, betaTmp*betaTmp );
             else
-            {
-                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.qsdCtrl.regDual );
-                regPerm.QueueUpdate( n+m+iCone, 0, -10*eps );
-            }
+                regTmp.QueueUpdate( n+m+iCone, 0, -betaTmp*betaTmp );
         }
         regTmp.ProcessQueues();
-        regPerm.ProcessQueues();
     }
-    Scale( origTwoNormEst, regTmp );
-    Scale( origTwoNormEst, regPerm );
+    regTmp *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT
-    ( A, G, firstInds, origToSparseFirstInds, kSparse, JStatic, onlyLower );
-    UpdateRealPartOfDiagonal( JStatic, Real(1), regPerm );
+    ( A, G, gamma, delta, beta, 
+      orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
+      kSparse, JStatic, onlyLower );
+    if( ctrl.print )
+    {
+        const Real imbalanceJ = JStatic.Imbalance();
+        if( commRank == 0 )
+            Output("Imbalance factor of J: ",imbalanceJ);
+    }
 
-    Real relError = 1;
+    auto meta = JStatic.InitializeMultMeta();
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
+    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+    if( commRank == 0 && ctrl.time )
+        Output("ND: ",timer.Stop()," secs");
+    InvertMap( map, invMap );
+
+    vector<Int> mappedSources, mappedTargets, colOffs;
+    JStatic.MappedSources( map, mappedSources );
+    JStatic.MappedTargets( map, mappedTargets, colOffs );
+
+    Real relError = 1;
     DistMultiVec<Real> dInner(comm);
     DistMultiVec<Real> dxError(comm), dyError(comm), 
                        dzError(comm), dmuError(comm);
+    ldl::DistMultiVecNodeMeta dmvMeta;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -1655,12 +1498,13 @@ void Mehrotra
              ", with rel. error ",relError," which does not meet the minimum ",
              "tolerance of ",ctrl.minTol);
         Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm >= wMaxLimit && relError <= ctrl.minTol )
+        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
             break;
 
         // Compute the affine search direction
         // ===================================
-        const Real wMaxNormLimit = Max(wSafeMaxNorm,10/Min(Real(1),relError));
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( ctrl.print && commRank == 0 )
             Output
             ("|| w ||_max = ",wMaxNorm,", limit is ",wMaxNormLimit);
@@ -1691,6 +1535,7 @@ void Mehrotra
         if( ctrl.time && commRank == 0 )
             timer.Start();
         JOrig = JStatic;
+        JOrig.FreezeSparsity();
         FinishKKT
         ( m, n, w, 
           orders, firstInds, 
@@ -1712,18 +1557,16 @@ void Mehrotra
         try
         {
             // Cache the metadata for the finalized JOrig
-            if( numIts == 0 )
-                metaOrig = JOrig.InitializeMultMeta();
-            else
-                JOrig.multMeta = metaOrig;
+            JOrig.multMeta = meta;
             J = JOrig;
+            J.FreezeSparsity();
+            UpdateDiagonal( J, Real(1), regTmp );
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-            if( wMaxNorm >= ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.print );
-            else if( wMaxNorm >= diagEquilTol )
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, n+m+kSparse, 1 );
@@ -1731,21 +1574,11 @@ void Mehrotra
                 Output("Equilibration: ",timer.Stop()," secs");
 
             // Cache the metadata for the finalized J
-            if( numIts == 0 )
-            {
-                meta = J.InitializeMultMeta();
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                if( commRank == 0 && ctrl.time )
-                    Output("ND: ",timer.Stop()," secs");
-                InvertMap( map, invMap );
-            }
-            else
-                J.multMeta = meta;
+            J.multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
-            JFront.Pull( J, map, rootSep, info );
+            JFront.Pull
+            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
             if( ctrl.time && commRank == 0 )
                 Output("Front pull: ",timer.Stop()," secs");
 
@@ -1757,9 +1590,15 @@ void Mehrotra
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-              ctrl.qsdCtrl );
+            if( ctrl.resolveReg )
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta, 
+                  ctrl.solveCtrl );
+            else
+                reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts, 
+                  ctrl.solveCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
         }
@@ -1783,7 +1622,7 @@ void Mehrotra
         SOCApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
-        if( checkResiduals && ctrl.print )
+        if( ctrl.checkResiduals && ctrl.print )
         {
             if( ctrl.time && commRank == 0 )
                 timer.Start();
@@ -1837,7 +1676,7 @@ void Mehrotra
           MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
         if( ctrl.time && commRank == 0 )
             Output("Affine line search: ",timer.Stop()," secs");
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
@@ -1859,18 +1698,26 @@ void Mehrotra
         rc *= 1-sigma;
         rb *= 1-sigma;
         rh *= 1-sigma;
-        // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
-        // --------------------------------------------------------------
         if( ctrl.time && commRank == 0 )
             timer.Start();
-        SOCApplyQuadratic( wRootInv, dsAff, orders, firstInds );
-        SOCApplyQuadratic( wRoot,    dzAff, orders, firstInds );
-        SOCApply( dsAff, dzAff, rmu, orders, firstInds );
-        SOCShift( rmu, -sigma*mu, orders, firstInds );
-        SOCApply( lInv, rmu, orders, firstInds );
-        rmu += l;
+        if( ctrl.mehrotra )
+        {
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            SOCShift( rmu, -sigma*mu, orders, firstInds );
+            SOCApply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
         if( ctrl.time && commRank == 0 )
             Output("r_mu formation: ",timer.Stop()," secs");
+
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
         KKTRHS
@@ -1881,9 +1728,15 @@ void Mehrotra
         {
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            reg_qsd_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-              ctrl.qsdCtrl );
+            if( ctrl.resolveReg )
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                  ctrl.solveCtrl );
+            else
+                reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts, 
+                  ctrl.solveCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 Output("Corrector solver: ",timer.Stop()," secs");
         }
@@ -1921,7 +1774,7 @@ void Mehrotra
             Output("Combined line search: ",timer.Stop()," secs");
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
-        if( forceSameStep )
+        if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
@@ -1966,17 +1819,17 @@ void Mehrotra
           Matrix<Real>& s, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \

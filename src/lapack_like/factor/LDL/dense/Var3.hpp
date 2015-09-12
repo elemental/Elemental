@@ -14,54 +14,63 @@ namespace El {
 namespace ldl {
 
 // Unblocked serial LDL _without_ partial pivoting
+//
+// Since it is significantly more likely that this 
+// (generally unstable) routine would fail without encountering
+// an exactly zero pivot, it is likely not worth the overhead of
+// exception handling to detect zero pivots
 template<typename F> 
 inline void
 Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::Var3Unb");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("ldl::Var3Unb");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
+    typedef Base<F> Real;
     const Int n = A.Height();
-
-    F* ABuffer = A.Buffer();
     const Int ldim = A.LDim();
-    for( Int j=0; j<n; ++j )
+    F* ABuffer = A.Buffer();
+
+    if( conjugate )
     {
-        const Int a21Height = n - (j+1);
-
-        const F alpha11 = ABuffer[j+j*ldim];
-        if( alpha11 == F(0) )
-            throw ZeroPivotException();
-
-        F* EL_RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
-        if( conjugate )
+        for( Int j=0; j<n; ++j )
         {
-            // A22 := A22 - a21 (a21 / alpha11)^H
-            for( Int k=0; k<a21Height; ++k )
-            {
-                const F beta = Conj(a21[k]/alpha11);
-                F* EL_RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
-                for( Int i=k; i<a21Height; ++i )
-                    A22Col[i] -= a21[i]*beta;
-            }
+            const Int a21Height = n - (j+1);
+
+            const Real alpha11 = RealPart(ABuffer[j+j*ldim]);
+
+            DEBUG_ONLY(
+              if( alpha11 == Real(0) )
+                  throw ZeroPivotException();
+            )
+            const Real alpha11Inv = Real(1)/alpha11;
+            F* a21 = &ABuffer[(j+1)+ j   *ldim];
+            F* A22 = &ABuffer[(j+1)+(j+1)*ldim];
+
+            blas::Her( 'L', a21Height, -alpha11Inv, a21, 1, A22, ldim );
+            blas::Scal( a21Height, alpha11Inv, a21, 1 );
         }
-        else
+    }
+    else
+    {
+        for( Int j=0; j<n; ++j )
         {
-            // A22 := A22 - a21 (a21 / alpha11)^T
-            for( Int k=0; k<a21Height; ++k )
-            {
-                const F beta = a21[k]/alpha11;
-                F* EL_RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
-                for( Int i=k; i<a21Height; ++i )
-                    A22Col[i] -= a21[i]*beta;
-            }
+            const Int a21Height = n - (j+1);
+
+            const F alpha11 = ABuffer[j+j*ldim];
+            DEBUG_ONLY(
+              if( alpha11 == F(0) )
+                  throw ZeroPivotException();
+            )
+            const F alpha11Inv = Real(1)/alpha11;
+            F* a21 = &ABuffer[(j+1)+ j   *ldim];
+            F* A22 = &ABuffer[(j+1)+(j+1)*ldim];
+
+            blas::Syr( 'L', a21Height, -alpha11Inv, a21, 1, A22, ldim );
+            blas::Scal( a21Height, alpha11Inv, a21, 1 );
         }
-        
-        // a21 := a21 / alpha11
-        for( Int i=0; i<a21Height; ++i )
-            a21[i] /= alpha11;
     }
 }
 
@@ -71,9 +80,9 @@ inline void
 Var3( Matrix<F>& A, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::Var3");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("ldl::Var3");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -102,12 +111,12 @@ Var3( Matrix<F>& A, bool conjugate=false )
 
 template<typename F>
 inline void
-Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
+Var3( ElementalMatrix<F>& APre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::Var3");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
+      CSE cse("ldl::Var3");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
     )
     const Grid& g = APre.Grid();
 

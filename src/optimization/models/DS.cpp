@@ -67,7 +67,8 @@ namespace ds {
 
 template<typename Real>
 void Var1
-( const Matrix<Real>& A, const Matrix<Real>& b, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -131,9 +132,10 @@ void Var1
 
 template<typename Real>
 void Var1
-( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& APre,
+  const ElementalMatrix<Real>& b, 
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ds::Var1"))
@@ -200,7 +202,8 @@ void Var1
 
 template<typename Real>
 void Var2
-( const Matrix<Real>& A, const Matrix<Real>& b, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -277,9 +280,10 @@ void Var2
 
 template<typename Real>
 void Var2
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ds::Var2"))
@@ -355,7 +359,8 @@ void Var2
 
 template<typename Real>
 void Var2
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, 
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -436,7 +441,8 @@ void Var2
 
 template<typename Real>
 void Var2
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, 
         Real lambda,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -547,7 +553,8 @@ void Var2
 
 template<typename Real>
 void DS
-( const Matrix<Real>& A, const Matrix<Real>& b, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -558,9 +565,10 @@ void DS
 
 template<typename Real>
 void DS
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("DS"))
@@ -569,7 +577,8 @@ void DS
 
 template<typename Real>
 void DS
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, 
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -580,7 +589,8 @@ void DS
 
 template<typename Real>
 void DS
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, 
         Real lambda,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -591,22 +601,26 @@ void DS
 
 #define PROTO(Real) \
   template void DS \
-  ( const Matrix<Real>& A, const Matrix<Real>& b, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
           Real lambda, \
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void DS \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
           Real lambda, \
-          AbstractDistMatrix<Real>& x, \
+          ElementalMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void DS \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& b, \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, \
           Real lambda, \
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void DS \
-  ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, \
           Real lambda, \
           DistMultiVec<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl );

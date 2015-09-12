@@ -44,25 +44,9 @@ void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
     IndexDependentFill( A, function<F(Int,Int)>(kahanFill) );
 }
 
-template<typename F>
-void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi )
-{
-    DEBUG_ONLY(CSE cse("Kahan"))
-    A.Resize( n, n );
-    const F zeta = Sqrt(F(1)-phi*Conj(phi));
-    typedef Base<F> Real;
-    auto kahanFill = 
-      [=]( Int i, Int j ) -> F
-      { if( i == j )      { return      Pow(zeta,Real(i)); }
-        else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
-        else              { return F(0);                   } };
-    IndexDependentFill( A, function<F(Int,Int)>(kahanFill) );
-}
-
 #define PROTO(F) \
   template void Kahan( Matrix<F>& A, Int n, F phi ); \
-  template void Kahan( AbstractDistMatrix<F>& A, Int n, F phi ); \
-  template void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi ); 
+  template void Kahan( AbstractDistMatrix<F>& A, Int n, F phi );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

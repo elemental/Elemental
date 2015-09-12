@@ -21,6 +21,7 @@
 #ifndef EL_LDL_PROCESS_HPP
 #define EL_LDL_PROCESS_HPP
 
+#include "ElSuiteSparse/ldl.hpp"
 #include "./ProcessFront.hpp"
 
 namespace El {
@@ -31,42 +32,114 @@ inline void
 Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
 {
     DEBUG_ONLY(CSE cse("ldl::Process"))
-
     const int updateSize = info.lowerStruct.size();
-    auto& FL = front.L;
-    auto& FBR = front.work;
+    auto& FBR = front.workDense;
     FBR.Empty();
-    DEBUG_ONLY(
-      if( FL.Height() != info.size+updateSize || FL.Width() != info.size )
-          LogicError("Front was not the proper size");
-    )
-
-    // Process children and add in their updates
     Zeros( FBR, updateSize, updateSize );
-    const int numChildren = info.children.size();
-    for( Int c=0; c<numChildren; ++c )
+    if( front.sparseLeaf )
     {
-        Process( *info.children[c], *front.children[c], factorType );
+        front.type = factorType;
+        const Int m = front.LDense.Height();
+        const Int n = front.LDense.Width();
+        const Int numEntries = info.LOffsets.back();
+        const Int numSources = info.LOffsets.size()-1;
 
-        auto& childU = front.children[c]->work;
-        const int childUSize = childU.Height();
-        for( int jChild=0; jChild<childUSize; ++jChild )
+        Zeros( front.LSparse, numSources, numSources );
+        front.LSparse.ForceNumEntries( numEntries );
+        F* LValBuf = front.LSparse.ValueBuffer();
+        Int* LRowBuf = front.LSparse.SourceBuffer();
+        Int* LColBuf = front.LSparse.TargetBuffer();
+        Int* LOffsetBuf = front.LSparse.OffsetBuffer();
+
+        for( Int i=0; i<numSources; ++i )
         {
-            const int j = info.childRelInds[c][jChild];
-            for( int iChild=jChild; iChild<childUSize; ++iChild )
-            {
-                const int i = info.childRelInds[c][iChild];
-                const F value = childU.Get(iChild,jChild);
-                if( j < info.size )
-                    FL.Update( i, j, value );
-                else
-                    FBR.Update( i-info.size, j-info.size, value );
-            }
+            const Int iStart = info.LOffsets[i];
+            const Int iEnd = info.LOffsets[i+1];
+            LOffsetBuf[i] = iStart;
+            for( Int e=iStart; e<iEnd; ++e )
+                LRowBuf[e] = i;
         }
-        childU.Empty();
-    }
+        LOffsetBuf[numSources] = info.LOffsets[numSources];
+        front.diag.Resize( numSources, 1 );
 
-    ProcessFront( front, factorType );
+        // Factor the transpose of L
+        // TODO: Reuse these workspaces
+        vector<Int> LNnz(numSources), pattern(numSources), flag(numSources);
+        vector<F> y(numSources);
+        suite_sparse::ldl::Numeric
+        ( numSources,
+          front.workSparse.LockedOffsetBuffer(),
+          front.workSparse.LockedTargetBuffer(),
+          front.workSparse.LockedValueBuffer(),
+          LOffsetBuf,
+          info.LParents.data(),
+          LNnz.data(),
+          LColBuf,
+          LValBuf,
+          front.diag.Buffer(),
+          y.data(),
+          pattern.data(),
+          flag.data(),
+          (const Int*)nullptr,
+          (const Int*)nullptr,
+          front.isHermitian );
+        front.LSparse.ForceConsistency();
+
+        front.workSparse.Empty();
+
+        // Solve against L_{TL}^T from the right
+        bool onLeft = false;
+        suite_sparse::ldl::LTSolveMulti
+        ( onLeft, m, n, front.LDense.Buffer(), front.LDense.LDim(),
+          LOffsetBuf, LColBuf, LValBuf, front.isHermitian );
+
+        // Save a copy of ABL
+        auto ABLCopy = front.LDense;
+
+        // Solve against the diagonal
+        suite_sparse::ldl::DSolveMulti
+        ( onLeft, m, n, front.LDense.Buffer(), front.LDense.LDim(),
+          front.diag.Buffer() );
+
+        // Form the Schur complement
+        Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE );
+        Trrk
+        ( LOWER, NORMAL, orientation,
+          F(-1), front.LDense, ABLCopy, F(0), front.workDense );
+    }
+    else
+    {
+        auto& FL = front.LDense;
+        DEBUG_ONLY(
+          if( FL.Height() != info.size+updateSize || FL.Width() != info.size )
+              LogicError("Front was not the proper size");
+        )
+
+        // Process children and add in their updates
+        const int numChildren = info.children.size();
+        for( Int c=0; c<numChildren; ++c )
+        {
+            Process( *info.children[c], *front.children[c], factorType );
+
+            auto& childU = front.children[c]->workDense;
+            const int childUSize = childU.Height();
+            for( int jChild=0; jChild<childUSize; ++jChild )
+            {
+                const int j = info.childRelInds[c][jChild];
+                for( int iChild=jChild; iChild<childUSize; ++iChild )
+                {
+                    const int i = info.childRelInds[c][iChild];
+                    const F value = childU.Get(iChild,jChild);
+                    if( j < info.size )
+                        FL.Update( i, j, value );
+                    else
+                        FBR.Update( i-info.size, j-info.size, value );
+                }
+            }
+            childU.Empty();
+        }
+        ProcessFront( front, factorType );
+    }
 }
 
 template<typename F>
@@ -86,7 +159,7 @@ Process
 
         // Pull the relevant information up from the duplicate
         front.type = frontDup.type;
-        front.work.LockedAttach( grid, frontDup.work );
+        front.work.LockedAttach( grid, frontDup.workDense );
         if( !BlockFactorization(factorType) )
         {
             front.diag.LockedAttach( grid, frontDup.diag );
@@ -156,7 +229,7 @@ Process
     SwapClear( offs );
     childFront.work.Empty();
     if( childFront.duplicate != nullptr )
-        childFront.duplicate->work.Empty();
+        childFront.duplicate->workDense.Empty();
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );

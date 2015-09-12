@@ -68,7 +68,7 @@ template<typename T>
 inline void
 RUNA
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUNA");
@@ -113,7 +113,7 @@ template<typename T>
 inline void
 RUNCOld
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUNCOld");
@@ -163,7 +163,7 @@ template<typename T>
 inline void
 RUNC
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUNC");
@@ -217,7 +217,7 @@ RUNC
 template<typename T>
 inline void
 RUN
-( UnitOrNonUnit diag, const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
+( UnitOrNonUnit diag, const ElementalMatrix<T>& U, ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::RUN"))
     // TODO: Come up with a better routing mechanism

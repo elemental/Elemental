@@ -82,9 +82,9 @@ public:
     // --------
     void Reserve( Int numLocalEntries, Int numRemoteEntries=0 );
 
-    void FreezeSparsity();
-    void UnfreezeSparsity();
-    bool FrozenSparsity() const;
+    void FreezeSparsity() EL_NO_EXCEPT;
+    void UnfreezeSparsity() EL_NO_EXCEPT;
+    bool FrozenSparsity() const EL_NO_EXCEPT;
 
     // Expensive independent updates and explicit zeroing
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,13 +98,19 @@ public:
 
     // Batch updating and zeroing (recommended)
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    void QueueUpdate( const Entry<T>& entry, bool passive=true );
-    void QueueUpdate( Int row, Int col, T value, bool passive=true );
-    void QueueZero( Int row, Int col, bool passive=true );
+    void QueueUpdate( const Entry<T>& entry, bool passive=true )
+    EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( Int row, Int col, T value, bool passive=true )
+    EL_NO_RELEASE_EXCEPT;
+    void QueueZero( Int row, Int col, bool passive=true )
+    EL_NO_RELEASE_EXCEPT;
 
-    void QueueLocalUpdate( const Entry<T>& localEntry );
-    void QueueLocalUpdate( Int localRow, Int col, T value );
-    void QueueLocalZero( Int localRow, Int col );
+    void QueueLocalUpdate( const Entry<T>& localEntry )
+    EL_NO_RELEASE_EXCEPT;
+    void QueueLocalUpdate( Int localRow, Int col, T value )
+    EL_NO_RELEASE_EXCEPT;
+    void QueueLocalZero( Int localRow, Int col )
+    EL_NO_RELEASE_EXCEPT;
 
     void ProcessQueues();
     void ProcessLocalQueues();
@@ -130,48 +136,63 @@ public:
     const DistSparseMatrix<T>& operator+=( const DistSparseMatrix<T>& A );
     const DistSparseMatrix<T>& operator-=( const DistSparseMatrix<T>& A );
 
+    // For manually accessing/modifying buffers
+    // ----------------------------------------
+    void ForceNumLocalEntries( Int numLocalEntries );
+    void ForceConsistency( bool consistent=true ) EL_NO_EXCEPT;
+    Int* SourceBuffer() EL_NO_EXCEPT;
+    Int* TargetBuffer() EL_NO_EXCEPT;
+    Int* OffsetBuffer() EL_NO_EXCEPT;
+    T* ValueBuffer() EL_NO_EXCEPT;
+    const Int* LockedSourceBuffer() const EL_NO_EXCEPT;
+    const Int* LockedTargetBuffer() const EL_NO_EXCEPT;
+    const Int* LockedOffsetBuffer() const EL_NO_EXCEPT;
+    const T* LockedValueBuffer() const EL_NO_EXCEPT;
+
     // Queries
     // =======
 
     // High-level information
     // ----------------------
-    Int Height() const;
-    Int Width() const;
-    El::DistGraph& DistGraph();
-    const El::DistGraph& LockedDistGraph() const;
-    Int FirstLocalRow() const;
-    Int LocalHeight() const;
-    Int NumLocalEntries() const;
-    Int Capacity() const;
-    bool LocallyConsistent() const;
+    Int Height() const EL_NO_EXCEPT;
+    Int Width() const EL_NO_EXCEPT;
+    El::DistGraph& DistGraph() EL_NO_EXCEPT;
+    const El::DistGraph& LockedDistGraph() const EL_NO_EXCEPT;
+    Int FirstLocalRow() const EL_NO_EXCEPT;
+    Int LocalHeight() const EL_NO_EXCEPT;
+    Int NumLocalEntries() const EL_NO_EXCEPT;
+    Int Capacity() const EL_NO_EXCEPT;
+    bool LocallyConsistent() const EL_NO_EXCEPT;
 
     // Distribution information
     // ------------------------
-    mpi::Comm Comm() const;
-    Int Blocksize() const;
-    int RowOwner( Int i ) const;
-    Int GlobalRow( Int iLoc ) const;
-    Int LocalRow( Int i ) const;
+    mpi::Comm Comm() const EL_NO_EXCEPT;
+    Int Blocksize() const EL_NO_EXCEPT;
+    int RowOwner( Int i ) const EL_NO_RELEASE_EXCEPT;
+    Int GlobalRow( Int iLoc ) const EL_NO_RELEASE_EXCEPT;
+    Int LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT;
 
     // Detailed local information
     // --------------------------
-    Int Row( Int localInd ) const;
-    Int Col( Int localInd ) const;
-    T Value( Int localInd ) const;
-    Int RowOffset( Int localRow ) const;
-    Int Offset( Int localRow, Int col ) const;
-    Int NumConnections( Int localRow ) const;
-    Int* SourceBuffer();
-    Int* TargetBuffer();
-    Int* OffsetBuffer();
-    T* ValueBuffer();
-    const Int* LockedSourceBuffer() const;
-    const Int* LockedTargetBuffer() const;
-    const Int* LockedOffsetBuffer() const;
-    const T* LockedValueBuffer() const;
+    Int Row( Int localInd ) const EL_NO_RELEASE_EXCEPT;
+    Int Col( Int localInd ) const EL_NO_RELEASE_EXCEPT;
+    T Value( Int localInd ) const EL_NO_RELEASE_EXCEPT;
+    Int RowOffset( Int localRow ) const EL_NO_RELEASE_EXCEPT;
+    Int Offset( Int localRow, Int col ) const EL_NO_RELEASE_EXCEPT;
+    Int NumConnections( Int localRow ) const EL_NO_RELEASE_EXCEPT;
+
+    // Return the ratio of the maximum number of local nonzeros to the 
+    // total number of nonzeros divided by the number of processes
+    double Imbalance() const EL_NO_RELEASE_EXCEPT;
 
     mutable DistSparseMultMeta multMeta;
     DistSparseMultMeta InitializeMultMeta() const;
+
+    void MappedSources
+    ( const DistMap& reordering, vector<Int>& mappedSources ) const;
+    void MappedTargets
+    ( const DistMap& reordering, 
+      vector<Int>& mappedTargets, vector<Int>& colOffs ) const;
 
     void AssertConsistent() const;
     void AssertLocallyConsistent() const;
@@ -184,6 +205,11 @@ private:
     void InitializeLocalData();
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
+
+    template<typename U,typename V>
+    friend void EntrywiseMap
+    ( const DistSparseMatrix<U>& A, DistSparseMatrix<V>& B, 
+      function<V(U)> func );
 
     template<typename U> friend class SparseMatrix;
     template<typename U> friend struct ldl::DistFront;

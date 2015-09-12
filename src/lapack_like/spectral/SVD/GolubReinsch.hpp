@@ -18,8 +18,8 @@ namespace svd {
 template<typename F>
 inline void
 GolubReinsch
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
 
@@ -101,8 +101,8 @@ GolubReinsch
 template<typename F>
 inline void
 GolubReinschFlame
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre )
+( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
 
@@ -188,8 +188,8 @@ GolubReinschFlame
 template<>
 inline void
 GolubReinsch
-( AbstractDistMatrix<double>& A, AbstractDistMatrix<double>& s, 
-  AbstractDistMatrix<double>& V )
+( ElementalMatrix<double>& A, ElementalMatrix<double>& s, 
+  ElementalMatrix<double>& V )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
@@ -198,8 +198,8 @@ GolubReinsch
 template<>
 inline void
 GolubReinsch
-( AbstractDistMatrix<Complex<double>>& A, AbstractDistMatrix<double>& s, 
-  AbstractDistMatrix<Complex<double>>& V )
+( ElementalMatrix<Complex<double>>& A, ElementalMatrix<double>& s, 
+  ElementalMatrix<Complex<double>>& V )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
@@ -208,7 +208,7 @@ GolubReinsch
 
 template<typename F>
 inline void
-GolubReinsch( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s )
+GolubReinsch( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
 

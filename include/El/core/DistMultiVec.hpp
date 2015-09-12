@@ -66,21 +66,21 @@ public:
 
     // High-level data
     // ---------------
-    Int Height() const;
-    Int Width() const;
-    Int FirstLocalRow() const;
-    Int LocalHeight() const;
-          El::Matrix<T>& Matrix();
-    const El::Matrix<T>& LockedMatrix() const;
+    Int Height() const EL_NO_EXCEPT;
+    Int Width() const EL_NO_EXCEPT;
+    Int FirstLocalRow() const EL_NO_EXCEPT;
+    Int LocalHeight() const EL_NO_EXCEPT;
+          El::Matrix<T>& Matrix() EL_NO_EXCEPT;
+    const El::Matrix<T>& LockedMatrix() const EL_NO_EXCEPT;
 
     // Distribution information
     // ------------------------
-    mpi::Comm Comm() const;
-    Int Blocksize() const;
-    int RowOwner( Int i ) const;
-    int Owner( Int i, Int j ) const;
-    bool IsLocal( Int i, Int j ) const;
-    bool IsLocalRow( Int i ) const;
+    mpi::Comm Comm() const EL_NO_EXCEPT;
+    Int Blocksize() const EL_NO_EXCEPT;
+    int RowOwner( Int i ) const EL_NO_EXCEPT;
+    int Owner( Int i, Int j ) const EL_NO_EXCEPT;
+    bool IsLocal( Int i, Int j ) const EL_NO_EXCEPT;
+    bool IsLocalRow( Int i ) const EL_NO_EXCEPT;
     Int GlobalRow( Int iLoc ) const;
     Int LocalRow( Int i ) const;
 
@@ -108,6 +108,9 @@ private:
     Int height_, width_;
 
     mpi::Comm comm_;
+    // Calling MPI_Comm_size within an inner loop is apparently a bad idea
+    int commSize_;
+    int commRank_;
 
     Int blocksize_;
     Int firstLocalRow_;

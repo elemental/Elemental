@@ -137,15 +137,15 @@ main( int argc, char* argv[] )
             break;
         case 6: matName=basename;
             os << basename << "-" 
-               << AReal.ColStride() << "x" << AReal.RowStride() << "-"
+               << AReal.ColStride() << "x" << AReal.RowStride() << "_"
                << AReal.DistRank() << ".bin";
             AReal.Resize( n, n );
             Read( AReal.Matrix(), os.str(), BINARY ); 
             isReal = true;
             break;
         case 7: matName=basename;
-            os << basename << "-" 
-               << ACpx.ColStride() << "x" << ACpx.RowStride() << "-"
+            os << basename << "_" 
+               << ACpx.ColStride() << "x" << ACpx.RowStride() << "_"
                << ACpx.DistRank() << ".bin";
             ACpx.Resize( n, n );
             Read( ACpx.Matrix(), os.str(), BINARY ); 
@@ -189,8 +189,8 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.imgDispFreq = imgDispFreq;
         psCtrl.snapCtrl.imgFormat = imgFormat;
         psCtrl.snapCtrl.numFormat = numFormat;
-        psCtrl.snapCtrl.imgBase = matName+"-"+imgBase;
-        psCtrl.snapCtrl.numBase = matName+"-"+numBase;
+        psCtrl.snapCtrl.imgBase = matName+"_"+imgBase;
+        psCtrl.snapCtrl.numBase = matName+"_"+numBase;
         psCtrl.snapCtrl.itCounts = itCounts;
 
         // Visualize the pseudospectra by evaluating ||inv(A-sigma I)||_2 

@@ -135,7 +135,7 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 inline void
 LLNLarge
-( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+( const ElementalMatrix<F>& LPre, ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LLNLarge"))
@@ -188,7 +188,7 @@ LLNLarge
 template<typename F>
 inline void
 LLNMedium
-( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+( const ElementalMatrix<F>& LPre, ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LLNMedium"))

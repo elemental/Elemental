@@ -25,7 +25,7 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  ElementalMatrix<F>& A, ElementalMatrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_solve::Overwrite"))
@@ -47,7 +47,7 @@ void HermitianSolve
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianSolve"))
@@ -81,7 +81,7 @@ void HermitianSolve
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void herm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
@@ -89,7 +89,7 @@ void HermitianSolve
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \

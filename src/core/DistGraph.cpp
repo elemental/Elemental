@@ -29,7 +29,8 @@ namespace El {
 //       and mpi::COMM_SELF as special cases.
 
 DistGraph::DistGraph( mpi::Comm comm )
-: numSources_(0), numTargets_(0)
+: numSources_(0), numTargets_(0), 
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -39,7 +40,8 @@ DistGraph::DistGraph( mpi::Comm comm )
 }
 
 DistGraph::DistGraph( Int numSources, mpi::Comm comm )
-: numSources_(numSources), numTargets_(numSources)
+: numSources_(numSources), numTargets_(numSources),
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -49,7 +51,8 @@ DistGraph::DistGraph( Int numSources, mpi::Comm comm )
 }
 
 DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
-: numSources_(numSources), numTargets_(numTargets)
+: numSources_(numSources), numTargets_(numTargets),
+  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
 { 
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
@@ -71,8 +74,10 @@ DistGraph::DistGraph( const DistGraph& graph )
     DEBUG_ONLY(CSE cse("DistGraph::DistGraph"))
     if( &graph != this )
         *this = graph;
-    else
-        LogicError("Tried to construct DistGraph with itself");
+    DEBUG_ONLY(
+      else
+          LogicError("Tried to construct DistGraph with itself");
+    )
 }
 
 DistGraph::~DistGraph()
@@ -119,6 +124,7 @@ void DistGraph::Empty( bool clearMemory )
     numLocalSources_ = 0;
     blocksize_ = 0;
     locallyConsistent_ = true;
+    frozenSparsity_ = false;
     if( clearMemory )
     {
         SwapClear( sources_ );
@@ -142,16 +148,16 @@ void DistGraph::Resize( Int numSources, Int numTargets )
     if( numSources_ == numSources && numTargets == numTargets_ )
         return;
 
-    const int commRank = mpi::Rank( comm_ );
-    const int commSize = mpi::Size( comm_ );
+    frozenSparsity_ = false;
+
     numSources_ = numSources;
     numTargets_ = numTargets;
-    blocksize_ = numSources/commSize;
-    firstLocalSource_ = commRank*blocksize_;
-    if( commRank < commSize-1 )
+    blocksize_ = numSources/commSize_;
+    firstLocalSource_ = commRank_*blocksize_;
+    if( commRank_ < commSize_-1 )
         numLocalSources_ = blocksize_;
     else
-        numLocalSources_ = numSources - (commSize-1)*blocksize_;
+        numLocalSources_ = numSources - (commSize_-1)*blocksize_;
 
     sources_.resize( 0 );
     targets_.resize( 0 );
@@ -167,14 +173,12 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 // -----------------------
 void DistGraph::InitializeLocalData()
 {
-    const int commRank = mpi::Rank( comm_ );
-    const int commSize = mpi::Size( comm_ );
-    blocksize_ = numSources_/commSize;
-    firstLocalSource_ = commRank*blocksize_;
-    if( commRank < commSize-1 )
+    blocksize_ = numSources_/commSize_;
+    firstLocalSource_ = commRank_*blocksize_;
+    if( commRank_ < commSize_-1 )
         numLocalSources_ = blocksize_;
     else
-        numLocalSources_ = numSources_ - (commSize-1)*blocksize_;
+        numLocalSources_ = numSources_ - (commSize_-1)*blocksize_;
 
     localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )
@@ -187,6 +191,8 @@ void DistGraph::InitializeLocalData()
 
 void DistGraph::SetComm( mpi::Comm comm )
 {
+    commSize_ = mpi::Size( comm );
+    commRank_ = mpi::Rank( comm );
     if( comm == comm_ )
         return;
 
@@ -238,11 +244,15 @@ void DistGraph::DisconnectLocal( Int localSource, Int target )
     ProcessLocalQueues();
 }
 
-void DistGraph::FreezeSparsity() { frozenSparsity_ = true; }
-void DistGraph::UnfreezeSparsity() { frozenSparsity_ = false; }
-bool DistGraph::FrozenSparsity() const { return frozenSparsity_; }
+void DistGraph::FreezeSparsity() EL_NO_EXCEPT
+{ frozenSparsity_ = true; }
+void DistGraph::UnfreezeSparsity() EL_NO_EXCEPT
+{ frozenSparsity_ = false; }
+bool DistGraph::FrozenSparsity() const EL_NO_EXCEPT
+{ return frozenSparsity_; }
 
 void DistGraph::QueueConnection( Int source, Int target, bool passive )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueConnection"))
     if( source == END ) source = numSources_ - 1;
@@ -260,6 +270,7 @@ void DistGraph::QueueConnection( Int source, Int target, bool passive )
 }
 
 void DistGraph::QueueLocalConnection( Int localSource, Int target )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueLocalConnection"))
     DEBUG_ONLY(
@@ -268,13 +279,15 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
     )
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    if( localSource < 0 || localSource >= numLocalSources_ )
-        LogicError
-        ("Local source was out of bounds: ",localSource," is not in [0,",
-         numLocalSources_,")");
-    if( target < 0 || target >= numTargets_ )
-        LogicError
-        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
+    DEBUG_ONLY(
+      if( localSource < 0 || localSource >= numLocalSources_ )
+          LogicError
+          ("Local source out of bounds: ",localSource," is not in [0,",
+           numLocalSources_,")");
+      if( target < 0 || target >= numTargets_ )
+          LogicError
+          ("Target out of bounds: ",target," is not in [0,",numTargets_,")");
+    )
     if( !FrozenSparsity() )
     {
         sources_.push_back( firstLocalSource_+localSource );
@@ -284,6 +297,7 @@ void DistGraph::QueueLocalConnection( Int localSource, Int target )
 }
 
 void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueDisconnection"))
     // TODO: Use FrozenSparsity()
@@ -301,18 +315,21 @@ void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 }
 
 void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::QueueLocalDisconnection"))
     // TODO: Use FrozenSparsity()
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    if( localSource < 0 || localSource >= numLocalSources_ )
-        LogicError
-        ("Local source was out of bounds: ",localSource," is not in [0,",
-         numLocalSources_,")");
-    if( target < 0 || target >= numTargets_ )
-        LogicError
-        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
+    DEBUG_ONLY(
+      if( localSource < 0 || localSource >= numLocalSources_ )
+          LogicError
+          ("Local source out of bounds: ",localSource," is not in [0,",
+           numLocalSources_,")");
+      if( target < 0 || target >= numTargets_ )
+          LogicError
+          ("Target out of bounds: ",target," is not in [0,",numTargets_,")");
+    )
     if( !FrozenSparsity() )
     {
         markedForRemoval_.insert
@@ -332,11 +349,10 @@ void DistGraph::ProcessQueues()
 
     // Send the remote edges
     // =====================
-    int commSize = mpi::Size( comm_ );
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
+        vector<int> sendCounts(commSize_,0);
         for( auto s : remoteSources_ )
             ++sendCounts[SourceOwner(s)];
         // Pack the send data
@@ -345,7 +361,7 @@ void DistGraph::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Int> sendSources(totalSend), sendTargets(totalSend);
-        for( Int i=0; i<remoteSources_.size(); ++i ) 
+        for( Int i=0; i<totalSend; ++i ) 
         {
             const int owner = SourceOwner(remoteSources_[i]);
             sendSources[offs[owner]] = remoteSources_[i];
@@ -362,7 +378,8 @@ void DistGraph::ProcessQueues()
           mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
         if( !FrozenSparsity() )
             Reserve( NumLocalEdges()+recvSources.size() );
-        for( Int i=0; i<recvSources.size(); ++i )
+        const Int totalRecv = recvSources.size();
+        for( Int i=0; i<totalRecv; ++i )
             QueueConnection( recvSources[i], recvTargets[i] );
     }
 
@@ -371,8 +388,9 @@ void DistGraph::ProcessQueues()
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
-        for( Int i=0; i<remoteRemovals_.size(); ++i )
+        vector<int> sendCounts(commSize_,0);
+        const Int numRemoteRemovals = remoteRemovals_.size();
+        for( Int i=0; i<numRemoteRemovals; ++i )
             ++sendCounts[SourceOwner(remoteRemovals_[i].first)];
         // Pack the send data
         // ------------------
@@ -380,7 +398,7 @@ void DistGraph::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Int> sendSources(totalSend), sendTargets(totalSend);
-        for( Int i=0; i<remoteRemovals_.size(); ++i ) 
+        for( Int i=0; i<totalSend; ++i ) 
         {
             const int owner = SourceOwner(remoteRemovals_[i].first);
             sendSources[offs[owner]] = remoteRemovals_[i].first;
@@ -394,7 +412,8 @@ void DistGraph::ProcessQueues()
           mpi::AllToAll( sendSources, sendCounts, sendOffs, comm_ );
         auto recvTargets = 
           mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm_ ); 
-        for( Int i=0; i<recvSources.size(); ++i )
+        const Int totalRecv = recvSources.size();
+        for( Int i=0; i<totalRecv; ++i )
             QueueDisconnection( recvSources[i], recvTargets[i] );
     }
 
@@ -457,58 +476,63 @@ void DistGraph::ProcessLocalQueues()
 
 // High-level information
 // ----------------------
-Int DistGraph::NumSources() const { return numSources_; }
-Int DistGraph::NumTargets() const { return numTargets_; }
-Int DistGraph::FirstLocalSource() const { return firstLocalSource_; }
-Int DistGraph::NumLocalSources() const { return numLocalSources_; }
+Int DistGraph::NumSources() const EL_NO_EXCEPT
+{ return numSources_; }
+Int DistGraph::NumTargets() const EL_NO_EXCEPT
+{ return numTargets_; }
+Int DistGraph::FirstLocalSource() const EL_NO_EXCEPT
+{ return firstLocalSource_; }
+Int DistGraph::NumLocalSources() const EL_NO_EXCEPT
+{ return numLocalSources_; }
 
-Int DistGraph::NumLocalEdges() const
-{
-    DEBUG_ONLY(CSE cse("DistGraph::NumLocalEdges"))
-    return sources_.size();
-}
+Int DistGraph::NumLocalEdges() const EL_NO_EXCEPT
+{ return sources_.size(); }
 
-Int DistGraph::Capacity() const
-{
-    DEBUG_ONLY(CSE cse("DistGraph::Capacity"))
-    return Min(sources_.capacity(),targets_.capacity());
-}
+Int DistGraph::Capacity() const EL_NO_EXCEPT
+{ return Min(sources_.capacity(),targets_.capacity()); }
 
-bool DistGraph::LocallyConsistent() const { return locallyConsistent_; }
+bool DistGraph::LocallyConsistent() const EL_NO_EXCEPT
+{ return locallyConsistent_; }
 
 // Distribution information
 // ------------------------
-mpi::Comm DistGraph::Comm() const { return comm_; }
-Int DistGraph::Blocksize() const { return blocksize_; }
+mpi::Comm DistGraph::Comm() const EL_NO_EXCEPT
+{ return comm_; }
+Int DistGraph::Blocksize() const EL_NO_EXCEPT
+{ return blocksize_; }
 
-int DistGraph::SourceOwner( Int source ) const
+int DistGraph::SourceOwner( Int source ) const EL_NO_RELEASE_EXCEPT
 { 
     if( source == END ) source = numSources_ - 1;
     // TODO: Get rid of RowToProcess...
-    return RowToProcess( source, Blocksize(), mpi::Size(Comm()) ); 
+    return RowToProcess( source, blocksize_, commSize_ ); 
 }
 
-Int DistGraph::GlobalSource( Int sLoc ) const
+Int DistGraph::GlobalSource( Int sLoc ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::GlobalSource"))
     if( sLoc == END ) sLoc = numLocalSources_ - 1;
-    if( sLoc < 0 || sLoc >= NumLocalSources() )
-        LogicError("Invalid local source index");
+    DEBUG_ONLY(
+      if( sLoc < 0 || sLoc >= NumLocalSources() )
+          LogicError("Invalid local source index");
+    )
     return sLoc + FirstLocalSource();
 }
 
-Int DistGraph::LocalSource( Int s ) const
+Int DistGraph::LocalSource( Int s ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::LocalSource"))
     if( s == END ) s = numSources_ - 1;
-    if( s < 0 || s >= NumSources() )
-        LogicError("Invalid global source index");
+    DEBUG_ONLY(
+      if( s < 0 || s >= NumSources() )
+          LogicError("Invalid global source index");
+    )
     return s - FirstLocalSource();
 }
 
 // Detailed local information
 // --------------------------
-Int DistGraph::Source( Int localEdge ) const
+Int DistGraph::Source( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("DistGraph::Source");
@@ -518,7 +542,7 @@ Int DistGraph::Source( Int localEdge ) const
     return sources_[localEdge];
 }
 
-Int DistGraph::Target( Int localEdge ) const
+Int DistGraph::Target( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("DistGraph::Target");
@@ -528,7 +552,7 @@ Int DistGraph::Target( Int localEdge ) const
     return targets_[localEdge];
 }
 
-Int DistGraph::SourceOffset( Int localSource ) const
+Int DistGraph::SourceOffset( Int localSource ) const EL_NO_RELEASE_EXCEPT
 {
     if( localSource == END ) localSource = numLocalSources_ - 1;
     DEBUG_ONLY(
@@ -542,7 +566,7 @@ Int DistGraph::SourceOffset( Int localSource ) const
     return localSourceOffsets_[localSource];
 }
 
-Int DistGraph::Offset( Int localSource, Int target ) const
+Int DistGraph::Offset( Int localSource, Int target ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistGraph::Offset"))
     if( localSource == END ) localSource = numLocalSources_ - 1;
@@ -554,7 +578,7 @@ Int DistGraph::Offset( Int localSource, Int target ) const
     return it-targetBuf;
 }
 
-Int DistGraph::NumConnections( Int localSource ) const
+Int DistGraph::NumConnections( Int localSource ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("DistGraph::NumConnections");
@@ -564,14 +588,41 @@ Int DistGraph::NumConnections( Int localSource ) const
     return SourceOffset(localSource+1) - SourceOffset(localSource);
 }
 
-Int* DistGraph::SourceBuffer() { return sources_.data(); }
-Int* DistGraph::TargetBuffer() { return targets_.data(); }
-Int* DistGraph::OffsetBuffer() { return localSourceOffsets_.data(); }
+double DistGraph::Imbalance() const
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("DistGraph::Imbalance"))
+    Int numLocalEdges = NumLocalEdges();
+    double numEdges = mpi::AllReduce( numLocalEdges, comm_ );
+    double maxLocalEdges = mpi::AllReduce( numLocalEdges, mpi::MAX, comm_ );
+    double commSize = commSize_;
+    return (maxLocalEdges*commSize)/numEdges;
+}
 
-const Int* DistGraph::LockedSourceBuffer() const { return sources_.data(); }
-const Int* DistGraph::LockedTargetBuffer() const { return targets_.data(); }
-const Int* DistGraph::LockedOffsetBuffer() const 
+Int* DistGraph::SourceBuffer() EL_NO_EXCEPT
+{ return sources_.data(); }
+Int* DistGraph::TargetBuffer() EL_NO_EXCEPT
+{ return targets_.data(); }
+Int* DistGraph::OffsetBuffer() EL_NO_EXCEPT
 { return localSourceOffsets_.data(); }
+
+const Int* DistGraph::LockedSourceBuffer() const EL_NO_EXCEPT
+{ return sources_.data(); }
+const Int* DistGraph::LockedTargetBuffer() const EL_NO_EXCEPT
+{ return targets_.data(); }
+const Int* DistGraph::LockedOffsetBuffer() const EL_NO_EXCEPT
+{ return localSourceOffsets_.data(); }
+
+void DistGraph::ForceNumLocalEdges( Int numLocalEdges )
+{
+    DEBUG_ONLY(CSE cse("DistGraph::ForceNumLocalEdges"))
+    sources_.resize( numLocalEdges );
+    targets_.resize( numLocalEdges );
+    locallyConsistent_ = false;
+}
+
+void DistGraph::ForceConsistency( bool consistent ) EL_NO_EXCEPT
+{ locallyConsistent_ = consistent; }
 
 // Auxiliary routines
 // ==================
@@ -605,8 +656,14 @@ void DistGraph::ComputeSourceOffsets()
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
+        if( source < firstLocalSource_ || 
+            source >= firstLocalSource_+numLocalSources_ )
+            Output("source=",source,", firstLocalSource=",firstLocalSource_,", numLocalSources=",numLocalSources_);
         for( ; prevSource<source; ++prevSource )
+        {
             localSourceOffsets_[sourceOffset++] = e;
+            //Output("sourceOffset=",sourceOffset,", numLocalSources_=",numLocalSources_,", firstLocalSource_=",firstLocalSource_,", prevSource=",prevSource,", source=",source,", numSources=",NumSources(),", numTargets=",NumTargets());
+        }
     }
     for( ; sourceOffset<=numLocalSources_; ++sourceOffset )
         localSourceOffsets_[sourceOffset] = numLocalEdges;

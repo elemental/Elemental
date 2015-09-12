@@ -40,21 +40,26 @@ inline ostream& operator<<( ostream& os, Complex<Real> alpha )
 // Return the real/imaginary part of an element
 // --------------------------------------------
 template<typename Real>
-inline Real RealPart( const Real&          alpha ) { return alpha; }
+inline Real RealPart( const Real&          alpha ) EL_NO_EXCEPT
+{ return alpha; }
 template<typename Real>
-inline Real RealPart( const Complex<Real>& alpha ) { return alpha.real(); }
+inline Real RealPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
+{ return alpha.real(); }
 
 template<typename Real>
-inline Real ImagPart( const Real&          alpha ) { return 0; }
+inline Real ImagPart( const Real&          alpha ) EL_NO_EXCEPT
+{ return 0; }
 template<typename Real>
-inline Real ImagPart( const Complex<Real>& alpha ) { return alpha.imag(); }
+inline Real ImagPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
+{ return alpha.imag(); }
 
 // Set the real/imaginary part of an element
 // -----------------------------------------
 template<typename Real>
-inline void SetRealPart( Real& alpha, const Real& beta ) { alpha = beta; }
+inline void SetRealPart( Real& alpha, const Real& beta ) EL_NO_EXCEPT
+{ alpha = beta; }
 template<typename Real>
-inline void SetRealPart( Complex<Real>& alpha, const Real& beta )
+inline void SetRealPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha.real(beta); }
 
 template<typename Real>
@@ -64,16 +69,18 @@ inline void SetImagPart( Real& alpha, const Real& beta )
     LogicError("Nonsensical assignment");
 }
 template<typename Real>
-inline void SetImagPart( Complex<Real>& alpha, const Real& beta )
+inline void SetImagPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha.imag(beta); }
 
 // Update the real/imaginary part of an element
 // --------------------------------------------
 template<typename Real>
 inline void UpdateRealPart( Real& alpha, const Real& beta )
+EL_NO_EXCEPT
 { alpha += beta; }
 template<typename Real>
 inline void UpdateRealPart( Complex<Real>& alpha, const Real& beta )
+EL_NO_EXCEPT
 { alpha.real( alpha.real()+beta ); }
 
 template<typename Real>
@@ -84,15 +91,16 @@ inline void UpdateImagPart( Real& alpha, const Real& beta )
 }
 template<typename Real>
 inline void UpdateImagPart( Complex<Real>& alpha, const Real& beta )
+EL_NO_EXCEPT
 { alpha.imag( alpha.imag()+beta ); }
 
 // Conjugate an element
 // --------------------
 template<typename Real>
-inline Real Conj( const Real& alpha ) { return alpha; }
+inline Real Conj( const Real& alpha ) EL_NO_EXCEPT { return alpha; }
 
 template<typename Real>
-inline Complex<Real> Conj( const Complex<Real>& alpha )
+inline Complex<Real> Conj( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Complex<Real>(alpha.real(),-alpha.imag()); }
 
 // Return the complex argument
@@ -132,14 +140,14 @@ inline Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta )
 // Magnitude and sign
 // ==================
 template<typename T>
-inline Base<T> Abs( const T& alpha ) { return std::abs(alpha); }
+inline Base<T> Abs( const T& alpha ) EL_NO_EXCEPT { return std::abs(alpha); }
 
 #ifdef EL_HAVE_QUADMATH
 template<>
-inline Quad Abs( const Quad& alpha ) { return fabsq(alpha); }
+inline Quad Abs( const Quad& alpha ) EL_NO_EXCEPT { return fabsq(alpha); }
 
 template<>
-inline Quad Abs( const Complex<Quad>& alphaPre ) 
+inline Quad Abs( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 { 
     __complex128 alpha;
     __real__(alpha) = alphaPre.real();
@@ -149,15 +157,15 @@ inline Quad Abs( const Complex<Quad>& alphaPre )
 #endif
 
 template<typename Real>
-inline Real SafeAbs( const Real& alpha ) { return Abs(alpha); }
+inline Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT { return Abs(alpha); }
 
 template<typename Real>
-inline Real SafeAbs( const Complex<Real>& alpha )
+inline Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
 
 #ifdef EL_HAVE_QUADMATH
 template<>
-inline Quad SafeAbs( const Complex<Quad>& alpha )
+inline Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT
 {
     // NOTE: We would need to implement our own version of the LAPACK routine.
     //       Since quad-precision is likely to be plenty, we will call Abs 
@@ -167,11 +175,11 @@ inline Quad SafeAbs( const Complex<Quad>& alpha )
 #endif
 
 template<typename F>
-inline Base<F> FastAbs( const F& alpha )
+inline Base<F> FastAbs( const F& alpha ) EL_NO_EXCEPT
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
 
 template<typename Real>
-inline Real Sgn( const Real& alpha, bool symmetric )
+inline Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
 {
     if( alpha < 0 )
         return Real(-1);
@@ -184,15 +192,15 @@ inline Real Sgn( const Real& alpha, bool symmetric )
 // Exponentiation
 // ==============
 template<typename F>
-inline F      Exp( const F&   alpha ) { return std::exp(alpha); }
-inline double Exp( const Int& alpha ) { return std::exp(alpha); }
+inline F      Exp( const F&   alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
+inline double Exp( const Int& alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
 
 #ifdef EL_HAVE_QUADMATH
 template<>
-inline Quad Exp( const Quad& alpha ) { return expq(alpha); }
+inline Quad Exp( const Quad& alpha ) EL_NO_EXCEPT { return expq(alpha); }
 
 template<>
-inline Complex<Quad> Exp( const Complex<Quad>& alphaPre )
+inline Complex<Quad> Exp( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 {
     __complex128 alpha;
     __real__(alpha) = alphaPre.real();
@@ -204,18 +212,19 @@ inline Complex<Quad> Exp( const Complex<Quad>& alphaPre )
 #endif
 
 template<typename F,typename T>
-inline F Pow( const F& alpha, const T& beta ) { return std::pow(alpha,beta); }
+inline F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT
+{ return std::pow(alpha,beta); }
 // NOTE: What about an integer to a floating-point power? Switch to auto 
 //       return type inherited from std::pow?
 
 #ifdef EL_HAVE_QUADMATH
 template<>
-inline Quad Pow( const Quad& alpha, const Quad& beta ) 
+inline Quad Pow( const Quad& alpha, const Quad& beta ) EL_NO_EXCEPT
 { return powq(alpha,beta); }
 
 template<>
 inline Complex<Quad> Pow
-( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre )
+( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre ) EL_NO_EXCEPT
 {
     __complex128 alpha, beta;
     __real__(alpha) = alphaPre.real();
@@ -229,7 +238,7 @@ inline Complex<Quad> Pow
 
 template<>
 inline Complex<Quad> Pow
-( const Complex<Quad>& alphaPre, const Quad& betaPre )
+( const Complex<Quad>& alphaPre, const Quad& betaPre ) EL_NO_EXCEPT
 {
     __complex128 alpha, beta;
     __real__(alpha) = alphaPre.real();

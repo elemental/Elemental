@@ -118,6 +118,9 @@ ElError ElDistGraphNumConnections
 ( ElConstDistGraph graph, ElInt localSource, ElInt* numConnections )
 { EL_TRY( *numConnections = CReflect(graph)->NumConnections(localSource) ) }
 
+ElError ElDistGraphImbalance( ElConstDistGraph graph, double* imbalance )
+{ EL_TRY( *imbalance = CReflect(graph)->Imbalance() ) }
+
 ElError ElDistGraphSourceBuffer( ElDistGraph graph, ElInt** sourceBuffer )
 { EL_TRY( *sourceBuffer = CReflect(graph)->SourceBuffer() ) }
 

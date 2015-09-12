@@ -12,8 +12,8 @@ namespace El {
 
 template<typename T>
 void Contract
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B )
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Contract"))
     AssertSameGrids( A, B );
@@ -63,8 +63,8 @@ void Contract
 
 template<typename T>
 void Contract
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B )
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Contract"))
     AssertSameGrids( A, B );
@@ -120,11 +120,11 @@ void Contract
 
 #define PROTO(T) \
   template void Contract \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B ); \
   template void Contract \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<T>& B );
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -34,22 +34,9 @@ void Lehmer( AbstractDistMatrix<F>& L, Int n )
     IndexDependentFill( L, function<F(Int,Int)>(lehmerFill) );
 }
 
-template<typename F>
-void Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
-{
-    DEBUG_ONLY(CSE cse("Lehmer"))
-    L.Resize( n, n );
-    auto lehmerFill = 
-      []( Int i, Int j ) -> F
-      { if( i < j ) { return F(i+1)/F(j+1); }
-        else        { return F(j+1)/F(i+1); } };
-    IndexDependentFill( L, function<F(Int,Int)>(lehmerFill) );
-}
-
 #define PROTO(F) \
   template void Lehmer( Matrix<F>& L, Int n ); \
-  template void Lehmer( AbstractDistMatrix<F>& L, Int n ); \
-  template void Lehmer( AbstractBlockDistMatrix<F>& L, Int n );
+  template void Lehmer( AbstractDistMatrix<F>& L, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

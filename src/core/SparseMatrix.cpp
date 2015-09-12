@@ -77,11 +77,14 @@ void SparseMatrix<T>::Reserve( Int numEntries )
 }
 
 template<typename T>
-void SparseMatrix<T>::FreezeSparsity() { graph_.frozenSparsity_ = true; }
+void SparseMatrix<T>::FreezeSparsity() EL_NO_EXCEPT
+{ graph_.frozenSparsity_ = true; }
 template<typename T>
-void SparseMatrix<T>::UnfreezeSparsity() { graph_.frozenSparsity_ = false; }
+void SparseMatrix<T>::UnfreezeSparsity() EL_NO_EXCEPT
+{ graph_.frozenSparsity_ = false; }
 template<typename T>
-bool SparseMatrix<T>::FrozenSparsity() const { return graph_.frozenSparsity_; }
+bool SparseMatrix<T>::FrozenSparsity() const EL_NO_EXCEPT
+{ return graph_.frozenSparsity_; }
 
 template<typename T>
 void SparseMatrix<T>::Update( Int row, Int col, T value )
@@ -105,6 +108,7 @@ void SparseMatrix<T>::Zero( Int row, Int col )
 
 template<typename T>
 void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
     if( FrozenSparsity() )
@@ -121,10 +125,12 @@ void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 
 template<typename T>
 void SparseMatrix<T>::QueueUpdate( const Entry<T>& entry )
+EL_NO_RELEASE_EXCEPT
 { QueueUpdate( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void SparseMatrix<T>::QueueZero( Int row, Int col )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
     if( FrozenSparsity() )
@@ -211,108 +217,125 @@ const SparseMatrix<T>& SparseMatrix<T>::operator-=( const SparseMatrix<T>& A )
 // High-level information
 // ----------------------
 template<typename T>
-Int SparseMatrix<T>::Height() const { return graph_.NumSources(); }
+Int SparseMatrix<T>::Height() const EL_NO_EXCEPT
+{ return graph_.NumSources(); }
 template<typename T>
-Int SparseMatrix<T>::Width() const { return graph_.NumTargets(); }
+Int SparseMatrix<T>::Width() const EL_NO_EXCEPT
+{ return graph_.NumTargets(); }
 
 template<typename T>
-Int SparseMatrix<T>::NumEntries() const
+Int SparseMatrix<T>::NumEntries() const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::NumEntries"))
     return graph_.NumEdges();
 }
 
 template<typename T>
-Int SparseMatrix<T>::Capacity() const
+Int SparseMatrix<T>::Capacity() const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::Capacity"))
     return graph_.Capacity();
 }
 
 template<typename T>
-bool SparseMatrix<T>::Consistent() const { return graph_.Consistent(); }
+bool SparseMatrix<T>::Consistent() const EL_NO_EXCEPT
+{ return graph_.Consistent(); }
 
 template<typename T>
-El::Graph& SparseMatrix<T>::Graph() { return graph_; }
+El::Graph& SparseMatrix<T>::Graph() EL_NO_EXCEPT
+{ return graph_; }
 template<typename T>
-const El::Graph& SparseMatrix<T>::LockedGraph() const { return graph_; }
+const El::Graph& SparseMatrix<T>::LockedGraph() const EL_NO_EXCEPT
+{ return graph_; }
 
 // Entrywise information
 // ---------------------
 template<typename T>
-Int SparseMatrix<T>::Row( Int index ) const
+Int SparseMatrix<T>::Row( Int index ) const EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("SparseMatrix::Row"))
     return graph_.Source( index );
 }
 
 template<typename T>
-Int SparseMatrix<T>::Col( Int index ) const
+Int SparseMatrix<T>::Col( Int index ) const EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("SparseMatrix::Col"))
     return graph_.Target( index );
 }
 
 template<typename T>
-Int SparseMatrix<T>::RowOffset( Int row ) const
+Int SparseMatrix<T>::RowOffset( Int row ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::RowOffset"))
     return graph_.SourceOffset( row );
 }
 
 template<typename T>
-Int SparseMatrix<T>::Offset( Int row, Int col ) const
+Int SparseMatrix<T>::Offset( Int row, Int col ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::Offset"))
     return graph_.Offset( row, col );
 }
 
 template<typename T>
-Int SparseMatrix<T>::NumConnections( Int row ) const
+Int SparseMatrix<T>::NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::NumConnections"))
     return graph_.NumConnections( row );
 }
 
 template<typename T>
-T SparseMatrix<T>::Value( Int index ) const
+T SparseMatrix<T>::Value( Int index ) const EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(
       CSE cse("SparseMatrix::Value");
-      if( index < 0 || index >= vals_.size() )
+      if( index < 0 || index >= Int(vals_.size()) )
           LogicError("Entry number out of bounds");
     )
     return vals_[index];
 }
 
 template<typename T>
-Int* SparseMatrix<T>::SourceBuffer() { return graph_.SourceBuffer(); }
+Int* SparseMatrix<T>::SourceBuffer() EL_NO_EXCEPT
+{ return graph_.SourceBuffer(); }
 template<typename T>
-Int* SparseMatrix<T>::TargetBuffer() { return graph_.TargetBuffer(); }
+Int* SparseMatrix<T>::TargetBuffer() EL_NO_EXCEPT
+{ return graph_.TargetBuffer(); }
 template<typename T>
-Int* SparseMatrix<T>::OffsetBuffer() { return graph_.OffsetBuffer(); }
+Int* SparseMatrix<T>::OffsetBuffer() EL_NO_EXCEPT
+{ return graph_.OffsetBuffer(); }
 template<typename T>
-T* SparseMatrix<T>::ValueBuffer() { return vals_.data(); }
+T* SparseMatrix<T>::ValueBuffer() EL_NO_EXCEPT
+{ return vals_.data(); }
 
 template<typename T>
-const Int* SparseMatrix<T>::LockedSourceBuffer() const
+const Int* SparseMatrix<T>::LockedSourceBuffer() const EL_NO_EXCEPT
 { return graph_.LockedSourceBuffer(); }
 template<typename T>
-const Int* SparseMatrix<T>::LockedTargetBuffer() const
+const Int* SparseMatrix<T>::LockedTargetBuffer() const EL_NO_EXCEPT
 { return graph_.LockedTargetBuffer(); }
 template<typename T>
-const Int* SparseMatrix<T>::LockedOffsetBuffer() const 
+const Int* SparseMatrix<T>::LockedOffsetBuffer() const EL_NO_EXCEPT
 { return graph_.LockedOffsetBuffer(); }
 template<typename T>
-const T* SparseMatrix<T>::LockedValueBuffer() const
+const T* SparseMatrix<T>::LockedValueBuffer() const EL_NO_EXCEPT
 { return vals_.data(); }
+
+template<typename T>
+void SparseMatrix<T>::ForceNumEntries( Int numEntries )
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::ForceNumEntries"))
+    graph_.ForceNumEdges( numEntries );
+    vals_.resize( numEntries );
+}
+
+template<typename T>
+void SparseMatrix<T>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
+{ graph_.ForceConsistency( consistent ); }
 
 // Auxiliary routines
 // ==================
-
-template<typename T>
-bool SparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
-{ return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
 template<typename T>
 void SparseMatrix<T>::ProcessQueues()
@@ -355,7 +378,8 @@ void SparseMatrix<T>::ProcessQueues()
             entries[s] = 
               Entry<T>{graph_.sources_[s],graph_.targets_[s],vals_[s]};
     }
-    std::sort( entries.begin(), entries.end(), CompareEntries );
+    CompareEntriesFunctor comparer;
+    std::sort( entries.begin(), entries.end(), comparer );
     const Int numSorted = entries.size();
 
     // Compress out duplicates

@@ -65,7 +65,7 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
-ctrl.mehrotraCtrl.qsdCtrl.progress = True
+ctrl.mehrotraCtrl.solveCtrl.progress = True
 ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.time = True

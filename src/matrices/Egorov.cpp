@@ -37,28 +37,11 @@ void Egorov
     IndexDependentFill( A, function<Complex<Real>(Int,Int)>(egorovFill) );
 }
 
-template<typename Real>
-void Egorov
-( AbstractBlockDistMatrix<Complex<Real>>& A,
-  function<Real(Int,Int)> phase, Int n )
-{
-    DEBUG_ONLY(CSE cse("Egorov"))
-    A.Resize( n, n );
-    auto egorovFill = 
-      [&]( Int i, Int j ) -> Complex<Real>
-      { const Real theta = phase(i,j);
-        return Complex<Real>(Cos(theta),Sin(theta)); }; 
-    IndexDependentFill( A, function<Complex<Real>(Int,Int)>(egorovFill) );
-}
-
 #define PROTO(Real) \
   template void Egorov \
   ( Matrix<Complex<Real>>& A, function<Real(Int,Int)> phase, Int n ); \
   template void Egorov \
   ( AbstractDistMatrix<Complex<Real>>& A, \
-    function<Real(Int,Int)> phase, Int n ); \
-  template void Egorov \
-  ( AbstractBlockDistMatrix<Complex<Real>>& A, \
     function<Real(Int,Int)> phase, Int n );
 
 #define EL_NO_INT_PROTO

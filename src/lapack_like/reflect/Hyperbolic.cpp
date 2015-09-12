@@ -81,7 +81,7 @@ F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
 
 template<typename F>
 F LeftHyperbolicReflector
-( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
+( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("LeftHyperbolicReflector");
@@ -105,7 +105,7 @@ F LeftHyperbolicReflector
 }
 
 template<typename F>
-F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
+F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("LeftHyperbolicReflector");
@@ -148,7 +148,7 @@ F RightHyperbolicReflector( F& chi, Matrix<F>& x )
 
 template<typename F>
 F RightHyperbolicReflector
-( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
+( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("RightHyperbolicReflector");
@@ -172,7 +172,7 @@ F RightHyperbolicReflector
 }
 
 template<typename F>
-F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
+F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("RightHyperbolicReflector");
@@ -192,21 +192,21 @@ F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 
 #define PROTO(F) \
   template F LeftHyperbolicReflector( F& chi, Matrix<F>& x ); \
-  template F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x ); \
+  template F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x ); \
   template F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
   template F LeftHyperbolicReflector \
-  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
+  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
   template F RightHyperbolicReflector( F& chi, Matrix<F>& x ); \
-  template F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x ); \
+  template F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x ); \
   template F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
   template F RightHyperbolicReflector \
-  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
-  template F hyp_reflector::Col( F& chi, AbstractDistMatrix<F>& x ); \
+  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
+  template F hyp_reflector::Col( F& chi, ElementalMatrix<F>& x ); \
   template F hyp_reflector::Col \
-  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
-  template F hyp_reflector::Row( F& chi, AbstractDistMatrix<F>& x ); \
+  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
+  template F hyp_reflector::Row( F& chi, ElementalMatrix<F>& x ); \
   template F hyp_reflector::Row \
-  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
+  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

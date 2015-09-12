@@ -71,7 +71,7 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void LUnb( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre )
+inline void LUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(CSE cse("hessenberg::LUnb"))
 

@@ -12,53 +12,6 @@ namespace El {
 namespace socp {
 namespace direct {
 
-/*
-template<typename Real>
-void IPF
-( const Matrix<Real>& A, 
-  const Matrix<Real>& b, 
-  const Matrix<Real>& c,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
-        Matrix<Real>& y,
-        Matrix<Real>& z, 
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
-template<typename Real>
-void IPF
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z, 
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
-template<typename Real>
-void IPF
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b, 
-  const Matrix<Real>& c,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
-template<typename Real>
-void IPF
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b, 
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-        DistMultiVec<Real>& x, 
-        DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z, 
-  const IPFCtrl<Real>& ctrl=IPFCtrl<Real>() );
-*/
-
 template<typename Real>
 void Mehrotra
 ( const Matrix<Real>& A,
@@ -72,14 +25,14 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra

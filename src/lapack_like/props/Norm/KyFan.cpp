@@ -32,7 +32,7 @@ Base<F> SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 }
 
 template<typename F> 
-Base<F> KyFanNorm( const AbstractDistMatrix<F>& A, Int k )
+Base<F> KyFanNorm( const ElementalMatrix<F>& A, Int k )
 {
     DEBUG_ONLY(CSE cse("KyFanNorm"))
     return KyFanSchattenNorm( A, k, Base<F>(1) );
@@ -40,7 +40,7 @@ Base<F> KyFanNorm( const AbstractDistMatrix<F>& A, Int k )
 
 template<typename F>
 Base<F> HermitianKyFanNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k )
 {
     DEBUG_ONLY(CSE cse("HermitianKyFanNorm"))
     return HermitianKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
@@ -48,7 +48,7 @@ Base<F> HermitianKyFanNorm
 
 template<typename F>
 Base<F> SymmetricKyFanNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k )
+( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k )
 {
     DEBUG_ONLY(CSE cse("SymmetricKyFanNorm"))
     return SymmetricKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
@@ -56,15 +56,15 @@ Base<F> SymmetricKyFanNorm
 
 #define PROTO(F) \
   template Base<F> KyFanNorm( const Matrix<F>& A, Int k ); \
-  template Base<F> KyFanNorm( const AbstractDistMatrix<F>& A, Int k ); \
+  template Base<F> KyFanNorm( const ElementalMatrix<F>& A, Int k ); \
   template Base<F> HermitianKyFanNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
   template Base<F> HermitianKyFanNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k ); \
   template Base<F> SymmetricKyFanNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
   template Base<F> SymmetricKyFanNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k );
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

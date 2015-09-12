@@ -16,12 +16,13 @@ void RowTwoNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
     DEBUG_ONLY(CSE cse("RowTwoNorms"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const F* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
     norms.Resize( m, 1 );
+    Base<F>* normBuf = norms.Buffer();
     for( Int i=0; i<m; ++i )
-    {
-        Base<F> alpha = blas::Nrm2( n, A.LockedBuffer(i,0), A.LDim() );
-        norms.Set( i, 0, alpha );
-    }
+        normBuf[i] = blas::Nrm2( n, &ABuf[i], ALDim );
 }
 
 template<typename F>
@@ -31,13 +32,17 @@ void RowMaxNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    const F* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
     norms.Resize( m, 1 );
+    Real* normBuf = norms.Buffer();
     for( Int i=0; i<m; ++i )
     {
         Real rowMax = 0;
         for( Int j=0; j<n; ++j )
-            rowMax = Max(rowMax,Abs(A.Get(i,j)));
-        norms.Set( i, 0, rowMax );
+            rowMax = Max(rowMax,Abs(ABuf[i+j*ALDim]));
+        normBuf[i] = rowMax;
     }
 }
 
@@ -48,19 +53,22 @@ void RowTwoNorms
     DEBUG_ONLY(CSE cse("RowTwoNorms"))
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
+    const F* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
     norms.AlignWith( A );
 
     // TODO: Switch to more stable parallel norm computation using scaling
     norms.Resize( A.Height(), 1 );
+    Base<F>* normBuf = norms.Buffer();
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
-        Base<F> localNorm = blas::Nrm2(nLocal,A.LockedBuffer(iLoc,0),A.LDim());
-        norms.SetLocal( iLoc, 0, localNorm*localNorm );
+        Base<F> localNorm = blas::Nrm2( nLocal, &ABuf[iLoc], ALDim );
+        normBuf[iLoc] = localNorm*localNorm;
     }
 
-    mpi::AllReduce( norms.Buffer(), mLocal, mpi::SUM, A.RowComm() );
+    mpi::AllReduce( normBuf, mLocal, mpi::SUM, A.RowComm() );
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-        norms.SetLocal( iLoc, 0, Sqrt(norms.GetLocal(iLoc,0)) );
+        normBuf[iLoc] = Sqrt(normBuf[iLoc]);
 }
 
 template<typename F,Dist U,Dist V>
@@ -98,16 +106,20 @@ void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     DEBUG_ONLY(CSE cse("RowTwoNorms"))
     typedef Base<F> Real;
     const Int m = A.Height();
+    const F* valBuf = A.LockedValueBuffer();
+    const Int* offsetBuf = A.LockedOffsetBuffer();
+
     norms.Resize( m, 1 );
+    Real* normBuf = norms.Buffer();
     for( Int i=0; i<m; ++i )
     {
         Real scale = 0;
         Real scaledSquare = 1;
-        const Int offset = A.RowOffset( i );
-        const Int numConn = A.NumConnections( i );
+        const Int offset = offsetBuf[i];
+        const Int numConn = offsetBuf[i+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
-            UpdateScaledSquare( A.Value(e), scale, scaledSquare );
-        norms.Set( i, 0, scale*Sqrt(scaledSquare) );
+            UpdateScaledSquare( valBuf[e], scale, scaledSquare );
+        normBuf[i] = scale*Sqrt(scaledSquare);
     }
 }
 
@@ -117,15 +129,19 @@ void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     DEBUG_ONLY(CSE cse("RowMaxNorms"))
     typedef Base<F> Real;
     const Int m = A.Height();
+    const F* valBuf = A.LockedValueBuffer();
+    const Int* offsetBuf = A.LockedOffsetBuffer();
+
     norms.Resize( m, 1 );
+    Real* normBuf = norms.Buffer();
     for( Int i=0; i<m; ++i )
     {
         Real rowMax = 0;
-        const Int offset = A.RowOffset( i );
-        const Int numConn = A.NumConnections( i );
+        const Int offset = offsetBuf[i];
+        const Int numConn = offsetBuf[i+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
-            rowMax = Max(rowMax,Abs(A.Value(e)));
-        norms.Set( i, 0, rowMax );
+            rowMax = Max(rowMax,Abs(valBuf[e]));
+        normBuf[i] = rowMax;
     }
 }
 
@@ -134,18 +150,22 @@ void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
     DEBUG_ONLY(CSE cse("RowTwoNorms"))
     typedef Base<F> Real;
+    const Int localHeight = A.LocalHeight();
+    const F* valBuf = A.LockedValueBuffer();
+    const Int* offsetBuf = A.LockedOffsetBuffer();
+
     norms.SetComm( A.Comm() );
     norms.Resize( A.Height(), 1 );
-    const Int localHeight = A.LocalHeight();
+    Real* normBuf = norms.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         Real scale = 0;
         Real scaledSquare = 1;
-        const Int offset = A.RowOffset( iLoc );
-        const Int numConn = A.NumConnections( iLoc );
+        const Int offset = offsetBuf[iLoc];
+        const Int numConn = offsetBuf[iLoc+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
-            UpdateScaledSquare( A.Value(e), scale, scaledSquare );
-        norms.SetLocal( iLoc, 0, scale*Sqrt(scaledSquare) );
+            UpdateScaledSquare( valBuf[e], scale, scaledSquare );
+        normBuf[iLoc] = scale*Sqrt(scaledSquare);
     }
 }
 
@@ -154,17 +174,21 @@ void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
     DEBUG_ONLY(CSE cse("RowMaxNorms"))
     typedef Base<F> Real;
+    const Int localHeight = A.LocalHeight();
+    const F* valBuf = A.LockedValueBuffer();
+    const Int* offsetBuf = A.LockedOffsetBuffer();
+
     norms.SetComm( A.Comm() );
     norms.Resize( A.Height(), 1 );
-    const Int localHeight = A.LocalHeight();
+    Real* normBuf = norms.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         Real rowMax = 0;
-        const Int offset = A.RowOffset( iLoc );
-        const Int numConn = A.NumConnections( iLoc );
+        const Int offset = offsetBuf[iLoc];
+        const Int numConn = offsetBuf[iLoc+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
-            rowMax = Max(rowMax,Abs(A.Value(e)));
-        norms.SetLocal( iLoc, 0, rowMax ); 
+            rowMax = Max(rowMax,Abs(valBuf[e]));
+        normBuf[iLoc] = rowMax;
     }
 }
 

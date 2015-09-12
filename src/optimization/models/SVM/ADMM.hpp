@@ -51,8 +51,8 @@ Int ADMM
 
 template<typename Real>
 Int ADMM
-( const AbstractDistMatrix<Real>& G, const AbstractDistMatrix<Real>& q, 
-        Real gamma,                        AbstractDistMatrix<Real>& w, 
+( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, 
+        Real gamma,                        ElementalMatrix<Real>& w, 
   const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svm::ADMM"))

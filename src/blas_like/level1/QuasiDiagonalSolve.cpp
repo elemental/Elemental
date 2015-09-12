@@ -289,7 +289,7 @@ template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo, 
-  const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub, 
+  const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub, 
   DistMatrix<F,U,V>& X, bool conjugated )
 {
     DEBUG_ONLY(CSE cse("QuasiDiagonalSolve"))
@@ -404,7 +404,7 @@ QuasiDiagonalSolve
           bool conjugated ); \
   template void QuasiDiagonalSolve \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub, \
+    const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub, \
           DistMatrix<F,U,V>& X, bool conjugated );
 
 #define PROTO_TYPES(F,FMain) \

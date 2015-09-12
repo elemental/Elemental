@@ -1076,8 +1076,8 @@ EL_EXPORT ElError ElTVDistSparse_s
 EL_EXPORT ElError ElTVDistSparse_d
 ( ElConstDistMultiVec_d b, double lambda, ElDistMultiVec_d x );
 
-/* Expert verions
-   -------------- */
+/* Expert versions
+   --------------- */
 EL_EXPORT ElError ElTVX_s
 ( ElConstMatrix_s b, float lambda, ElMatrix_s x, 
   ElQPAffineCtrl_s ctrl );
@@ -1108,6 +1108,15 @@ EL_EXPORT ElError ElTVXDistSparse_d
 
 /* Long-only Portfolio
    =================== */
+EL_EXPORT ElError ElLongOnlyPortfolioSparse_s
+( ElConstMatrix_s d, ElConstSparseMatrix_s F, 
+  ElConstMatrix_s c, float gamma,
+  ElMatrix_s x );
+EL_EXPORT ElError ElLongOnlyPortfolioSparse_d
+( ElConstMatrix_d d, ElConstSparseMatrix_d F, 
+  ElConstMatrix_d c, double gamma,
+  ElMatrix_d x );
+
 EL_EXPORT ElError ElLongOnlyPortfolioDistSparse_s
 ( ElConstDistMultiVec_s d, ElConstDistSparseMatrix_s F, 
   ElConstDistMultiVec_s c, float gamma,
@@ -1116,6 +1125,26 @@ EL_EXPORT ElError ElLongOnlyPortfolioDistSparse_d
 ( ElConstDistMultiVec_d d, ElConstDistSparseMatrix_d F, 
   ElConstDistMultiVec_d c, double gamma,
   ElDistMultiVec_d x );
+
+/* Expert versions
+   --------------- */
+EL_EXPORT ElError ElLongOnlyPortfolioXSparse_s
+( ElConstMatrix_s d, ElConstSparseMatrix_s F, 
+  ElConstMatrix_s c, float gamma,
+  ElMatrix_s x, ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElLongOnlyPortfolioXSparse_d
+( ElConstMatrix_d d, ElConstSparseMatrix_d F, 
+  ElConstMatrix_d c, double gamma,
+  ElMatrix_d x, ElSOCPAffineCtrl_d ctrl );
+
+EL_EXPORT ElError ElLongOnlyPortfolioXDistSparse_s
+( ElConstDistMultiVec_s d, ElConstDistSparseMatrix_s F, 
+  ElConstDistMultiVec_s c, float gamma,
+  ElDistMultiVec_s x, ElSOCPAffineCtrl_s ctrl );
+EL_EXPORT ElError ElLongOnlyPortfolioXDistSparse_d
+( ElConstDistMultiVec_d d, ElConstDistSparseMatrix_d F, 
+  ElConstDistMultiVec_d c, double gamma,
+  ElDistMultiVec_d x, ElSOCPAffineCtrl_d ctrl );
 
 #ifdef __cplusplus
 } // extern "C"

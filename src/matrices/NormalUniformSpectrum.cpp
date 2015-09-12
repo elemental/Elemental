@@ -37,7 +37,7 @@ void NormalUniformSpectrum
 
 template<typename Real>
 void NormalUniformSpectrum
-( AbstractDistMatrix<Complex<Real>>& APre, Int n, 
+( ElementalMatrix<Complex<Real>>& APre, Int n, 
   Complex<Real> center, Real radius )
 {
     DEBUG_ONLY(CSE cse("NormalUniformSpectrum"))
@@ -72,7 +72,7 @@ void NormalUniformSpectrum
   template void NormalUniformSpectrum \
   ( Matrix<Complex<Real>>& A, Int n, Complex<Real> center, Real radius ); \
   template void NormalUniformSpectrum \
-  ( AbstractDistMatrix<Complex<Real>>& A, Int n, \
+  ( ElementalMatrix<Complex<Real>>& A, Int n, \
     Complex<Real> center, Real radius );
 
 #define EL_NO_INT_PROTO

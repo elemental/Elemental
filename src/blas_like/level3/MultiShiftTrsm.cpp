@@ -34,8 +34,8 @@ void MultiShiftTrsm
 template<typename F>
 void MultiShiftTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& shifts, 
-  AbstractDistMatrix<F>& X )
+  F alpha, const ElementalMatrix<F>& U, const ElementalMatrix<F>& shifts, 
+  ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
     X *= alpha;
@@ -56,8 +56,8 @@ void MultiShiftTrsm
     F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ); \
   template void MultiShiftTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const AbstractDistMatrix<F>& U, \
-    const AbstractDistMatrix<F>& shifts, AbstractDistMatrix<F>& X );
+    F alpha, const ElementalMatrix<F>& U, \
+    const ElementalMatrix<F>& shifts, ElementalMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

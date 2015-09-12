@@ -171,6 +171,10 @@ EL_EXPORT ElError ElDistGraphOffset
 EL_EXPORT ElError ElDistGraphNumConnections
 ( ElConstDistGraph graph, ElInt localSource, ElInt* numConnections );
 
+/* double DistGraph::Imbalance() const
+   ----------------------------------- */
+EL_EXPORT ElError ElDistGraphImbalance( ElConstDistGraph A, double* imbalance );
+
 /* Int* DistGraph::SourceBuffer()
    ------------------------------ */
 EL_EXPORT ElError ElDistGraphSourceBuffer

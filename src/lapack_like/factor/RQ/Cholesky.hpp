@@ -29,7 +29,7 @@ void Cholesky( Matrix<F>& A, Matrix<F>& R )
 }
 
 template<typename F> 
-void Cholesky( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& RPre )
+void Cholesky( ElementalMatrix<F>& APre, ElementalMatrix<F>& RPre )
 {
     DEBUG_ONLY(CSE cse("rq::Cholesky"))
     const Int m = APre.Height();

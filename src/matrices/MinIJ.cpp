@@ -28,19 +28,9 @@ void MinIJ( AbstractDistMatrix<T>& M, Int n )
     IndexDependentFill( M, function<T(Int,Int)>(minIJFill) );
 }
 
-template<typename T>
-void MinIJ( AbstractBlockDistMatrix<T>& M, Int n )
-{
-    DEBUG_ONLY(CSE cse("MinIJ"))
-    M.Resize( n, n );
-    auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
-    IndexDependentFill( M, function<T(Int,Int)>(minIJFill) );
-}
-
 #define PROTO(T) \
   template void MinIJ( Matrix<T>& M, Int n ); \
-  template void MinIJ( AbstractDistMatrix<T>& M, Int n ); \
-  template void MinIJ( AbstractBlockDistMatrix<T>& M, Int n );
+  template void MinIJ( AbstractDistMatrix<T>& M, Int n );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

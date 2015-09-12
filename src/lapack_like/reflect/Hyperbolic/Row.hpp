@@ -14,7 +14,7 @@ namespace El {
 namespace hyp_reflector {
 
 template<typename F>
-F Row( F& chi, AbstractDistMatrix<F>& x )
+F Row( F& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("hyp_reflector::Row");
@@ -56,7 +56,7 @@ F Row( F& chi, AbstractDistMatrix<F>& x )
 }
 
 template<typename F>
-F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
+F Row( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("hyp_reflector::Row");

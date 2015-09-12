@@ -8,8 +8,8 @@
 #
 import El
 
-n0 = 100
-n1 = 100
+n0 = 75
+n1 = 75
 lambda1 = 3
 lambda2 = 4
 output = False
@@ -66,22 +66,32 @@ if display:
   El.Display( A, "A" )
   El.Display( b, "b" )
 
-ctrl = El.QPAffineCtrl_d()
-ctrl.mehrotraCtrl.outerEquil = True
-ctrl.mehrotraCtrl.innerEquil = True
-ctrl.mehrotraCtrl.scaleTwoNorm = True
-ctrl.mehrotraCtrl.basisSize = 15
-ctrl.mehrotraCtrl.progress = True
-ctrl.mehrotraCtrl.time = True
-ctrl.mehrotraCtrl.qsdCtrl.progress = True
-ctrl.mehrotraCtrl.qsdCtrl.time = True
 if worldRank == 0:
   print "lambda1 =", lambda1, "lambda2 =", lambda2
+
+ctrl = El.QPAffineCtrl_d()
+ctrl.mehrotraCtrl.progress = False
+ctrl.mehrotraCtrl.time = False
+ctrl.mehrotraCtrl.solveCtrl.progress = False
+ctrl.mehrotraCtrl.solveCtrl.time = False
+
+# Solve *with* resolving the regularization
+ctrl.mehrotraCtrl.resolveReg = True
 startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = El.mpi.Time()
 if worldRank == 0:
-  print "EN time:", endEN-startEN, "seconds"
+  print "EN time (resolve reg.):", endEN-startEN, "seconds"
+if display:
+  El.Display( x, "x" )
+
+# Solve *without* resolving the regularization
+ctrl.mehrotraCtrl.resolveReg = False
+startEN = El.mpi.Time()
+x = El.EN( A, b, lambda1, lambda2, ctrl )
+endEN = El.mpi.Time()
+if worldRank == 0:
+  print "EN time (no resolve reg.):", endEN-startEN, "seconds"
 if display:
   El.Display( x, "x" )
 

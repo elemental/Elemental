@@ -57,9 +57,9 @@ Analytic
 template<typename Real>
 inline void
 Analytic
-( const AbstractDistMatrix<Complex<Real>>& w, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre,
-        AbstractDistMatrix<Real>& invNormsPre,
+( const ElementalMatrix<Complex<Real>>& w, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre,
+        ElementalMatrix<Real>& invNormsPre,
         SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CSE cse("pspec::Analytic"))

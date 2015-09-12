@@ -21,13 +21,16 @@
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 
+#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {
 namespace ldl {
 
 template<typename F>
-inline void FrontVanillaLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
+inline void FrontVanillaLowerForwardSolve
+( const Matrix<F>& L,
+        Matrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontVanillaLowerForwardSolve");
@@ -46,7 +49,9 @@ inline void FrontVanillaLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
 
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
-( const Matrix<F>& L, const Matrix<Int>& p, Matrix<F>& X )
+( const Matrix<F>& L,
+  const Matrix<Int>& p,
+        Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
     Matrix<F> XT, XB;
@@ -56,7 +61,9 @@ inline void FrontIntraPivLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerForwardSolve( const Matrix<F>& L, Matrix<F>& X )
+inline void FrontBlockLowerForwardSolve
+( const Matrix<F>& L,
+        Matrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerForwardSolve");
@@ -83,22 +90,44 @@ FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardSolve"))
     const LDLFrontType type = front.type;
-    if( Unfactored(type) )
-        LogicError("Cannot solve against an unfactored front");
+    DEBUG_ONLY(
+      if( Unfactored(type) )
+          LogicError("Cannot solve against an unfactored front");
+    )
 
-    if( BlockFactorization(type) )
-        FrontBlockLowerForwardSolve( front.L, W );
-    else if( PivotedFactorization(type) )
-        FrontIntraPivLowerForwardSolve( front.L, front.piv, W );
+    if( front.sparseLeaf )
+    {
+        const Int n = front.LDense.Width();
+        const F* LValBuf = front.LSparse.LockedValueBuffer();
+        const Int* LColBuf = front.LSparse.LockedTargetBuffer();
+        const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
+        Matrix<F> WT, WB;
+        PartitionDown( W, WT, WB, n );
+
+        const bool onLeft = true;
+        suite_sparse::ldl::LSolveMulti
+        ( onLeft, WT.Height(), WT.Width(), WT.Buffer(), WT.LDim(), 
+          LOffsetBuf, LColBuf, LValBuf );
+
+        Gemm( NORMAL, NORMAL, F(-1), front.LDense, WT, F(1), WB );
+    }
     else
-        FrontVanillaLowerForwardSolve( front.L, W );
+    {
+        if( BlockFactorization(type) )
+            FrontBlockLowerForwardSolve( front.LDense, W );
+        else if( PivotedFactorization(type) )
+            FrontIntraPivLowerForwardSolve( front.LDense, front.piv, W );
+        else
+            FrontVanillaLowerForwardSolve( front.LDense, W );
+    }
 }
 
 namespace internal {
 
 template<typename F>
 inline void ForwardMany
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X )
 {
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
@@ -138,7 +167,9 @@ inline void ForwardMany
 }
 
 template<typename F>
-void ForwardSingle( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
+void ForwardSingle
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X )
 {
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
@@ -182,7 +213,8 @@ void ForwardSingle( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
 
 template<typename F>
 inline void FrontVanillaLowerForwardSolve
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
   bool singleL11AllGather=true )
 {
     DEBUG_ONLY(
@@ -204,8 +236,10 @@ inline void FrontVanillaLowerForwardSolve
 
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
-( const DistMatrix<F,VC,STAR>& L, const DistMatrix<Int,VC,STAR>& p, 
-  DistMatrix<F,VC,STAR>& X, bool singleL11AllGather=true )
+( const DistMatrix<F,VC,STAR>& L,
+  const DistMatrix<Int,VC,STAR>& p, 
+        DistMatrix<F,VC,STAR>& X,
+  bool singleL11AllGather=true )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
 
@@ -220,7 +254,8 @@ inline void FrontIntraPivLowerForwardSolve
 
 template<typename F>
 inline void FrontVanillaLowerForwardSolve
-( const DistMatrix<F>& L, DistMatrix<F>& X )
+( const DistMatrix<F>& L,
+        DistMatrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontVanillaLowerForwardSolve");
@@ -253,8 +288,49 @@ inline void FrontVanillaLowerForwardSolve
 }
 
 template<typename F>
+inline void FrontVanillaLowerForwardSolve
+( const DistMatrix<F>& L,
+        DistMatrix<F,VC,STAR>& XPre )
+{
+    DEBUG_ONLY(
+      CSE cse("ldl::FrontVanillaLowerForwardSolve");
+      if( L.Grid() != XPre.Grid() )
+          LogicError("L and X must be distributed over the same grid");
+      if( L.Height() < L.Width() || L.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal solve:\n",
+           DimsString(L,"L"),"\n",DimsString(XPre,"X"));
+    )
+    const Grid& g = L.Grid();
+    if( g.Size() == 1 )
+    {
+        FrontVanillaLowerForwardSolve( L.LockedMatrix(), XPre.Matrix() );
+        return;
+    }
+
+    DistMatrix<F> X( XPre );
+
+    // Separate the top and bottom portions of X and L
+    const Int snSize = L.Width();
+    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
+    LockedPartitionDown( L, LT, LB, snSize );
+    PartitionDown( X, XT, XB, snSize );
+
+    // XT := inv(LT) XT
+    // TODO: Replace with TrsmLLNMedium?
+    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
+
+    // XB := XB - LB XT
+    Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
+
+    XPre = X;
+}
+
+template<typename F>
 inline void FrontIntraPivLowerForwardSolve
-( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& X )
+( const DistMatrix<F>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
 
@@ -269,7 +345,8 @@ inline void FrontIntraPivLowerForwardSolve
 
 template<typename F>
 inline void FrontFastLowerForwardSolve
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontFastLowerForwardSolve");
@@ -309,8 +386,9 @@ inline void FrontFastLowerForwardSolve
 
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
-( const DistMatrix<F,VC,STAR>& L, const DistMatrix<Int,VC,STAR>& p,
-  DistMatrix<F,VC,STAR>& X )
+( const DistMatrix<F,VC,STAR>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
@@ -327,7 +405,8 @@ inline void FrontFastIntraPivLowerForwardSolve
 
 template<typename F>
 inline void FrontFastLowerForwardSolve
-( const DistMatrix<F>& L, DistMatrix<F,VC,STAR>& X )
+( const DistMatrix<F>& L,
+        DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontFastLowerForwardSolve");
@@ -383,8 +462,9 @@ inline void FrontFastLowerForwardSolve
 
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
-( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p,
-  DistMatrix<F,VC,STAR>& X )
+( const DistMatrix<F>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
@@ -399,7 +479,8 @@ inline void FrontFastIntraPivLowerForwardSolve
 
 template<typename F>
 inline void FrontFastLowerForwardSolve
-( const DistMatrix<F>& L, DistMatrix<F>& X )
+( const DistMatrix<F>& L,
+        DistMatrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontFastLowerForwardSolve");
@@ -433,7 +514,9 @@ inline void FrontFastLowerForwardSolve
 
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
-( const DistMatrix<F>& L, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& X )
+( const DistMatrix<F>& L,
+  const DistMatrix<Int,VC,STAR>& p,
+        DistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
@@ -448,7 +531,8 @@ inline void FrontFastIntraPivLowerForwardSolve
 
 template<typename F>
 inline void FrontBlockLowerForwardSolve
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerForwardSolve");
@@ -488,7 +572,8 @@ inline void FrontBlockLowerForwardSolve
 
 template<typename F>
 inline void FrontBlockLowerForwardSolve
-( const DistMatrix<F>& L, DistMatrix<F,VC,STAR>& X )
+( const DistMatrix<F>& L,
+        DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerForwardSolve");
@@ -542,7 +627,8 @@ inline void FrontBlockLowerForwardSolve
 
 template<typename F>
 inline void FrontBlockLowerForwardSolve
-( const DistMatrix<F>& L, DistMatrix<F>& X )
+( const DistMatrix<F>& L,
+        DistMatrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::FrontBlockLowerForwardSolve");
@@ -577,13 +663,17 @@ inline void FrontBlockLowerForwardSolve
 template<typename F>
 inline void 
 FrontLowerForwardSolve
-( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W )
+( const DistFront<F>& front,
+        DistMatrix<F,VC,STAR>& W )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardSolve"))
     const LDLFrontType type = front.type;
 
+    // TODO: Add support for LDL_2D
     if( type == LDL_1D )
         FrontVanillaLowerForwardSolve( front.L1D, W );
+    else if( type == LDL_2D )
+        FrontVanillaLowerForwardSolve( front.L2D, W );
     else if( type == LDL_SELINV_1D )
         FrontFastLowerForwardSolve( front.L1D, W );
     else if( type == LDL_SELINV_2D )

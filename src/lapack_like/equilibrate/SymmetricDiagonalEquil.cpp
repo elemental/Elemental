@@ -24,7 +24,7 @@ void SymmetricDiagonalEquil
 
 template<typename F>
 void SymmetricDiagonalEquil
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& d, bool progress )
+( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, bool progress )
 {
     DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
     // TODO: Ensure A is square
@@ -47,10 +47,9 @@ void SymmetricDiagonalEquil
     if( progress )
     {
         const Real maxNorm = MaxNorm( d ); 
-        cout << "    || d ||_max = " << maxNorm << endl;
+        Output("  || d ||_max = ",maxNorm);
     }
-    DiagonalSolve( LEFT, NORMAL, d, A );
-    DiagonalSolve( RIGHT, NORMAL, d, A );
+    SymmetricDiagonalSolve( d, A );
 }
 
 template<typename F>
@@ -72,23 +71,17 @@ void SymmetricDiagonalEquil
         timer.Start();
     GetMappedDiagonal( A, d, maxSqrt );
     if( commRank == 0 && time )
-        cout << "    Get mapped diag time: " << timer.Stop() << endl;
+        Output("  Get mapped diag time: ",timer.Stop());
     if( commRank == 0 && time )
         timer.Start();
-    DiagonalSolve( LEFT, NORMAL, d, A );
+    SymmetricDiagonalSolve( d, A );
     if( commRank == 0 && time )
-        cout << "    Left diag solve time: " << timer.Stop() << endl;
-    if( commRank == 0 && time )
-        timer.Start();
-    DiagonalSolve( RIGHT, NORMAL, d, A );
-    if( commRank == 0 && time )
-        cout << "    Right diag solve time: " << timer.Stop() << endl;
+        Output("  Diag solve time: ",timer.Stop());
     if( progress )
     {
         const Real maxNorm = MaxNorm( d );
         if( commRank == 0 ) 
-            cout << "    Diagonally equilibrated with || d ||_max = " 
-                 << maxNorm << endl;
+            Output("  || d ||_max = ",maxNorm); 
     }
 }
 
@@ -96,7 +89,7 @@ void SymmetricDiagonalEquil
   template void SymmetricDiagonalEquil \
   ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
   template void SymmetricDiagonalEquil \
-  ( AbstractDistMatrix<F>& A,  AbstractDistMatrix<Base<F>>& d, \
+  ( ElementalMatrix<F>& A,  ElementalMatrix<Base<F>>& d, \
     bool progress ); \
   template void SymmetricDiagonalEquil \
   ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress ); \

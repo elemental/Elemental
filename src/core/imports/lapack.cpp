@@ -280,112 +280,128 @@ template<>
 float MachineEpsilon<float>()
 {
     const char cmach = 'E';
-    return EL_LAPACK(slamch)( &cmach );
+    static float eps = EL_LAPACK(slamch)( &cmach ); 
+    return eps;
 }
 
 template<> 
 double MachineEpsilon<double>()
 {
     const char cmach = 'E';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double eps = EL_LAPACK(dlamch)( &cmach );
+    return eps;
 }
 
 template<> 
 float MachineSafeMin<float>()
 {
     const char cmach = 'S';
-    return EL_LAPACK(slamch)( &cmach );
+    static float safeMin = EL_LAPACK(slamch)( &cmach );
+    return safeMin;
 }
 
 template<> 
 double MachineSafeMin<double>()
 {
     const char cmach = 'S';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double safeMin = EL_LAPACK(dlamch)( &cmach );
+    return safeMin;
 }
 
 template<> 
 float MachineBase<float>()
 {
     const char cmach = 'B';
-    return EL_LAPACK(slamch)( &cmach );
+    static float base = EL_LAPACK(slamch)( &cmach );
+    return base;
 }
 
 template<> 
 double MachineBase<double>()
 {
     const char cmach = 'B';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double base = EL_LAPACK(dlamch)( &cmach );
+    return base;
 }
 
 template<>
 float MachinePrecision<float>()
 {
     const char cmach = 'P';
-    return EL_LAPACK(slamch)( &cmach );
+    static float prec = EL_LAPACK(slamch)( &cmach );
+    return prec;
 }
 
 template<> 
 double MachinePrecision<double>()
 {
     const char cmach = 'P';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double prec = EL_LAPACK(dlamch)( &cmach );
+    return prec;
 }
 
 template<> 
 float MachineUnderflowExponent<float>()
 {
     const char cmach = 'M';
-    return EL_LAPACK(slamch)( &cmach );
+    static float underExp = EL_LAPACK(slamch)( &cmach );
+    return underExp;
 }
 
 template<> 
 double MachineUnderflowExponent<double>()
 {
     const char cmach = 'M';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double underExp = EL_LAPACK(dlamch)( &cmach );
+    return underExp;
 }
 
 template<>
 float MachineUnderflowThreshold<float>()
 {
     const char cmach = 'U';
-    return EL_LAPACK(slamch)( &cmach );
+    static float underThresh = EL_LAPACK(slamch)( &cmach );
+    return underThresh;
 }
 
 template<> 
 double MachineUnderflowThreshold<double>()
 {
     const char cmach = 'U';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double underThresh = EL_LAPACK(dlamch)( &cmach );
+    return underThresh;
 }
 
 template<> 
 float MachineOverflowExponent<float>()
 {
     const char cmach = 'L';
-    return EL_LAPACK(slamch)( &cmach );
+    static float overExp = EL_LAPACK(slamch)( &cmach );
+    return overExp;
 }
 
 template<> 
 double MachineOverflowExponent<double>()
 {
     const char cmach = 'L';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double overExp = EL_LAPACK(dlamch)( &cmach );
+    return overExp;
 }
 
 template<> 
 float MachineOverflowThreshold<float>()
 {
     const char cmach = 'O';
-    return EL_LAPACK(slamch)( &cmach );
+    static float overThresh = EL_LAPACK(slamch)( &cmach );
+    return overThresh;
 }
 
 template<> 
 double MachineOverflowThreshold<double>()
 {
     const char cmach = 'O';
-    return EL_LAPACK(dlamch)( &cmach );
+    static double overThresh = EL_LAPACK(dlamch)( &cmach );
+    return overThresh;
 }
 
 // Safely compute norms

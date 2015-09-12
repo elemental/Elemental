@@ -16,20 +16,15 @@ void Fill( Matrix<T>& A, T alpha )
     DEBUG_ONLY(CSE cse("Fill"))
     const Int height = A.Height();
     const Int width = A.Width();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            A.Set( i, j, alpha );
+            ABuf[i+j*ALDim] = alpha;
 }
 
 template<typename T>
 void Fill( AbstractDistMatrix<T>& A, T alpha )
-{
-    DEBUG_ONLY(CSE cse("Fill"))
-    Fill( A.Matrix(), alpha );
-}
-
-template<typename T>
-void Fill( AbstractBlockDistMatrix<T>& A, T alpha )
 {
     DEBUG_ONLY(CSE cse("Fill"))
     Fill( A.Matrix(), alpha );
@@ -80,7 +75,6 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
 #define PROTO(T) \
   template void Fill( Matrix<T>& A, T alpha ); \
   template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
-  template void Fill( AbstractBlockDistMatrix<T>& A, T alpha ); \
   template void Fill( DistMultiVec<T>& A, T alpha ); \
   template void Fill( SparseMatrix<T>& A, T alpha ); \
   template void Fill( DistSparseMatrix<T>& A, T alpha );

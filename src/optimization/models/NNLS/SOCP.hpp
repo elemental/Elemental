@@ -108,9 +108,9 @@ void SOCP
 
 template<typename Real>
 void SOCP
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& BPre, 
-        AbstractDistMatrix<Real>& XPre,
+( const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& BPre, 
+        ElementalMatrix<Real>& XPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::SOCP"))
@@ -361,7 +361,8 @@ void SOCP
         for( Int iLoc=0; iLoc<xHatLocalHeight; ++iLoc )
         {
             const Int i = xHat.GlobalRow(iLoc);
-            X.QueueUpdate( i-1, j, xHat.GetLocal(iLoc,0) );
+            if( i > 0 )
+                X.QueueUpdate( i-1, j, xHat.GetLocal(iLoc,0) );
         }
         X.ProcessQueues();
     }

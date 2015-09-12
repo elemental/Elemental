@@ -56,7 +56,7 @@ CholeskyUVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-CholeskyUVar2( AbstractDistMatrix<F>& APre )
+CholeskyUVar2( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CSE cse("hpd_inv::CholeskyUVar2");

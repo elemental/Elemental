@@ -69,7 +69,7 @@ template<typename T>
 inline void
 LUTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUTA");
@@ -115,7 +115,7 @@ template<typename T>
 inline void
 LUTCOld
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CSE cse("trmm::LUTCOld");
@@ -177,7 +177,7 @@ template<typename T>
 inline void
 LUTC
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUTC");
@@ -237,7 +237,7 @@ template<typename T>
 inline void
 LUT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
+  const ElementalMatrix<T>& U, ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::LUT"))
     // TODO: Come up with a better routing mechanism

@@ -28,7 +28,7 @@ void GEPPGrowth( Matrix<T>& A, Int n )
 }
 
 template<typename T>
-void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
+void GEPPGrowth( ElementalMatrix<T>& A, Int n )
 {
     DEBUG_ONLY(CSE cse("GEPPGrowth"))
     Identity( A, n, n );
@@ -36,8 +36,7 @@ void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
         return;
 
     // Set the last column to all ones
-    unique_ptr<AbstractDistMatrix<T>> 
-      aLast( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<T>> aLast( A.Construct(A.Grid(),A.Root()) );
     View( *aLast, A, IR(0,n), IR(n-1,n) );
     Fill( *aLast, T(1) );
 
@@ -48,7 +47,7 @@ void GEPPGrowth( AbstractDistMatrix<T>& A, Int n )
 
 #define PROTO(T) \
   template void GEPPGrowth( Matrix<T>& A, Int n ); \
-  template void GEPPGrowth( AbstractDistMatrix<T>& A, Int n );
+  template void GEPPGrowth( ElementalMatrix<T>& A, Int n );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

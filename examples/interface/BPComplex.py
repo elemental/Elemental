@@ -11,7 +11,7 @@ import El
 n0=100
 n1=100
 output = False
-display = True
+display = False
 worldSize = El.mpi.WorldSize()
 worldRank = El.mpi.WorldRank()
 
@@ -58,9 +58,7 @@ ctrl.ipmCtrl.mehrotraCtrl.minTol = 1e-4
 ctrl.ipmCtrl.mehrotraCtrl.targetTol = 1e-8
 ctrl.ipmCtrl.mehrotraCtrl.time = True
 ctrl.ipmCtrl.mehrotraCtrl.progress = True
-ctrl.ipmCtrl.mehrotraCtrl.outerEquil = False
-ctrl.ipmCtrl.mehrotraCtrl.innerEquil = True
-ctrl.ipmCtrl.mehrotraCtrl.qsdCtrl.progress = True
+ctrl.ipmCtrl.mehrotraCtrl.solveCtrl.progress = True
 startBP = El.mpi.Time()
 x = El.BP( A, b, ctrl )
 endBP = El.mpi.Time()

@@ -16,20 +16,15 @@ void Shift( Matrix<T>& A, S alpha )
     DEBUG_ONLY(CSE cse("Shift"))
     const Int height = A.Height();
     const Int width = A.Width();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            A.Update( i, j, alpha );
+            ABuf[i+j*ALDim] += alpha;
 }
 
 template<typename T,typename S>
 void Shift( AbstractDistMatrix<T>& A, S alpha )
-{
-    DEBUG_ONLY(CSE cse("Shift"))
-    Shift( A.Matrix(), alpha );
-}
-
-template<typename T,typename S>
-void Shift( AbstractBlockDistMatrix<T>& A, S alpha )
 {
     DEBUG_ONLY(CSE cse("Shift"))
     Shift( A.Matrix(), alpha );
@@ -45,7 +40,6 @@ void Shift( DistMultiVec<T>& A, S alpha )
 #define PROTO_TYPES(T,S) \
   template void Shift( Matrix<T>& A, S alpha ); \
   template void Shift( AbstractDistMatrix<T>& A, S alpha ); \
-  template void Shift( AbstractBlockDistMatrix<T>& A, S alpha ); \
   template void Shift( DistMultiVec<T>& A, S alpha );
 
 #define PROTO_SAME(T) PROTO_TYPES(T,T) \

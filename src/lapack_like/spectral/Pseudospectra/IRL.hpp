@@ -121,7 +121,7 @@ Restart
     const Int basisSize = HDiagList[0].size();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
-        VLocList[j] = View( VList[j].Matrix() );
+        View( VLocList[j], VList[j].Matrix() );
     Restart
     ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), VLocList );
 }
@@ -353,9 +353,9 @@ IRL
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 IRL
-( const AbstractDistMatrix<Complex<Real>>& UPre, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
-        AbstractDistMatrix<Real>& invNormsPre, 
+( const ElementalMatrix<Complex<Real>>& UPre, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre, 
+        ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::IRL"))

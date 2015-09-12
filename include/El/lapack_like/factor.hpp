@@ -20,14 +20,14 @@ namespace El {
 template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+void Cholesky( UpperOrLower uplo, ElementalMatrix<F>& A );
 template<typename F>
 void Cholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+void ReverseCholesky( UpperOrLower uplo, ElementalMatrix<F>& A );
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
@@ -35,20 +35,20 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p );
 template<typename F>
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p );
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& p );
 
 template<typename F>
 void CholeskyMod
 ( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V );
 template<typename F>
 void CholeskyMod
-( UpperOrLower uplo, AbstractDistMatrix<F>& T, 
-  Base<F> alpha, AbstractDistMatrix<F>& V );
+( UpperOrLower uplo, ElementalMatrix<F>& T, 
+  Base<F> alpha, ElementalMatrix<F>& V );
 
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& A );
 
 namespace cholesky {
 
@@ -59,7 +59,7 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 template<typename F>
 void SolveAfter
@@ -69,8 +69,8 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p,
-        AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p,
+        ElementalMatrix<F>& B );
 
 } // namespace cholesky
 
@@ -125,7 +125,7 @@ struct LDLPivotCtrl {
 template<typename F>
 void LDL( Matrix<F>& A, bool conjugate );
 template<typename F>
-void LDL( AbstractDistMatrix<F>& A, bool conjugate );
+void LDL( ElementalMatrix<F>& A, bool conjugate );
 template<typename F>
 void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate );
 
@@ -138,8 +138,8 @@ void LDL
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LDL
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub,
-  AbstractDistMatrix<Int>& p, bool conjugate,
+( ElementalMatrix<F>& A, ElementalMatrix<F>& dSub,
+  ElementalMatrix<Int>& p, bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 // All fronts of L are required to be initialized to the expansions of the 
@@ -162,7 +162,7 @@ InertiaType Inertia
 ( const Matrix<Base<F>>& d, const Matrix<F>& dSub );
 template<typename F>
 InertiaType Inertia
-( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub );
+( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub );
 
 // Multiply vectors using an implicit representation of an LDL factorization
 // -------------------------------------------------------------------------
@@ -170,7 +170,7 @@ template<typename F>
 void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated );
 template<typename F>
 void MultiplyAfter
-( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugated );
+( const ElementalMatrix<F>& A, ElementalMatrix<F>& B, bool conjugated );
 
 // Multiply vectors using an implicit representation of a pivoted LDL fact.
 // ------------------------------------------------------------------------
@@ -180,8 +180,8 @@ void MultiplyAfter
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
 template<typename F>
 void MultiplyAfter
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dSub,
-  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, bool conjugated );
+( const ElementalMatrix<F>& A, const ElementalMatrix<F>& dSub,
+  const ElementalMatrix<Int>& p, ElementalMatrix<F>& B, bool conjugated );
 
 // Solve linear systems using an implicit LDL factorization
 // --------------------------------------------------------
@@ -189,7 +189,7 @@ template<typename F>
 void SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated );
 template<typename F>
 void SolveAfter
-( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugated );
+( const ElementalMatrix<F>& A, ElementalMatrix<F>& B, bool conjugated );
 
 template<typename F>
 void SolveAfter
@@ -234,108 +234,183 @@ void SolveAfter
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
 template<typename F>
 void SolveAfter
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dSub,
-  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, 
+( const ElementalMatrix<F>& A, const ElementalMatrix<F>& dSub,
+  const ElementalMatrix<Int>& p, ElementalMatrix<F>& B, 
   bool conjugated );
 
 } // namespace ldl
 
-// Regularized Quasi-semidefinite solves
-// =====================================
-enum RegQSDRefineAlg
+// Solve a linear system with a regularized factorization
+// ======================================================
+enum RegSolveAlg
 {
-  REG_REFINE_FGMRES,
-  REG_REFINE_LGMRES,
-  REG_REFINE_IR,
-  REG_REFINE_IR_MOD
+  REG_SOLVE_FGMRES,
+  REG_SOLVE_LGMRES
 };
 
 template<typename Real>
-struct RegQSDCtrl
+struct RegSolveCtrl
 {
-    Real regPrimal, regDual;
-
-    RegQSDRefineAlg alg=REG_REFINE_FGMRES;
+    RegSolveAlg alg=REG_SOLVE_FGMRES;
     Real relTol;
     Real relTolRefine;
-    Int maxIts=8;
-    Int maxRefineIts=3;
-    Int restart=10;
+    Int maxIts=4;
+    Int maxRefineIts=2;
+    Int restart=4;
     bool progress=false;
     bool time=false;
 
-    RegQSDCtrl()
+    RegSolveCtrl()
     {
         const Real eps = Epsilon<Real>(); 
-        regPrimal = regDual = Pow(eps,Real(0.5));
         relTol = Pow(eps,Real(0.5));
         relTolRefine = Pow(eps,Real(0.8));
     }
 };
 
-namespace reg_qsd_ldl {
+namespace reg_ldl {
 
 template<typename F>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,        Matrix<F>& y,
-  Base<F> relTolRefine,       Int maxRefineIts,
-  bool progress=false, bool time=false );
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,
+        Matrix<F>& B,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,   const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,          const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,       DistMultiVec<F>& y,
-  Base<F> relTolRefine,           Int maxRefineIts,
-  bool progress=false, bool time=false );
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
+template<typename F>
+Int RegularizedSolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
 
 template<typename F>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,        Matrix<F>& y,
-  Base<F> relTolRefine,       Int maxRefineIts,
-  bool progress=false, bool time=false );
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,
+        Matrix<F>& B,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
 template<typename F>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,    const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,           const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,        DistMultiVec<F>& y,
-  Base<F> relTolRefine,            Int maxRefineIts,
-  bool progress=false, bool time=false );
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
+template<typename F>
+Int RegularizedSolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+        Base<F> relTolRefine,
+        Int maxRefineIts,
+        bool progress=false,
+        bool time=false );
 
 template<typename F>
 Int SolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,        Matrix<F>& y,
-  const RegQSDCtrl<Base<F>>& ctrl );
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,
+        Matrix<F>& B,
+  const RegSolveCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,             const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,          DistMultiVec<F>& y,
-  const RegQSDCtrl<Base<F>>& ctrl );
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+  const RegSolveCtrl<Base<F>>& ctrl );
+template<typename F>
+Int SolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  const RegSolveCtrl<Base<F>>& ctrl );
 
 template<typename F>
 Int SolveAfter
-( const SparseMatrix<F>& A,   const Matrix<Base<F>>& reg,
+( const SparseMatrix<F>& A,
+  const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,       Matrix<F>& y,
-  const RegQSDCtrl<Base<F>>& ctrl );
+  const vector<Int>& invMap,
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front,
+        Matrix<F>& B,
+  const RegSolveCtrl<Base<F>>& ctrl );
 template<typename F>
 Int SolveAfter
-( const DistSparseMatrix<F>& A,      const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,             const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,          DistMultiVec<F>& y,
-  const RegQSDCtrl<Base<F>>& ctrl );
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+  const RegSolveCtrl<Base<F>>& ctrl );
+template<typename F>
+Int SolveAfter
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap,
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front,
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  const RegSolveCtrl<Base<F>>& ctrl );
 
-} // namespace reg_qsd_ldl
+} // namespace reg_ldl
 
 // LU
 // ==
@@ -359,7 +434,7 @@ using namespace LUPivotTypeNS;
 template<typename F>
 void LU( Matrix<F>& A );
 template<typename F>
-void LU( AbstractDistMatrix<F>& A );
+void LU( ElementalMatrix<F>& A );
 template<typename F>
 void LU( DistMatrix<F,STAR,STAR>& A );
 
@@ -368,7 +443,7 @@ void LU( DistMatrix<F,STAR,STAR>& A );
 template<typename F>
 void LU( Matrix<F>& A, Matrix<Int>& p );
 template<typename F>
-void LU( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p );
+void LU( ElementalMatrix<F>& A, ElementalMatrix<Int>& p );
 
 // LU with full pivoting
 // ---------------------
@@ -376,8 +451,8 @@ template<typename F>
 void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q );
 template<typename F>
 void LU
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q );
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<Int>& p, ElementalMatrix<Int>& q );
 
 // Rank-one modification of a partially-pivoted LU factorization
 // -------------------------------------------------------------
@@ -388,8 +463,8 @@ void LUMod
   Base<F> tau=0.1 );
 template<typename F>
 void LUMod
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
-  const AbstractDistMatrix<F>& u, const AbstractDistMatrix<F>& v, 
+( ElementalMatrix<F>& A, ElementalMatrix<Int>& p,
+  const ElementalMatrix<F>& u, const ElementalMatrix<F>& v, 
   bool conjugate=true, Base<F> tau=0.1 );
 
 namespace lu {
@@ -401,7 +476,7 @@ void SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void SolveAfter
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 // Solve linear systems using an implicit partially-pivoted LU factorization
 // -------------------------------------------------------------------------
@@ -411,8 +486,8 @@ void SolveAfter
   const Matrix<Int>& p, Matrix<F>& B );
 template<typename F>
 void SolveAfter
-( Orientation orientation, const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B );
+( Orientation orientation, const ElementalMatrix<F>& A,
+  const ElementalMatrix<Int>& p, ElementalMatrix<F>& B );
 
 // Solve linear systems using an implicit fully-pivoted LU factorization
 // ---------------------------------------------------------------------
@@ -423,9 +498,9 @@ void SolveAfter
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
-( Orientation orientation, const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<Int>& p, const AbstractDistMatrix<Int>& q,
-        AbstractDistMatrix<F>& B );
+( Orientation orientation, const ElementalMatrix<F>& A,
+  const ElementalMatrix<Int>& p, const ElementalMatrix<Int>& q,
+        ElementalMatrix<F>& B );
 
 } // namespace lu
 
@@ -438,8 +513,8 @@ template<typename F>
 void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
 template<typename F>
 void LQ
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d );
+( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d );
 
 namespace lq {
 
@@ -453,8 +528,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& B );
 
 // Solve a linear system with the implicit representations of L and Q 
 // ------------------------------------------------------------------
@@ -467,30 +542,30 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
-        AbstractDistMatrix<F>& X );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& B,
+        ElementalMatrix<F>& X );
 
 // Overwrite A with L
 // ------------------
 template<typename F>
 void ExplicitTriang( Matrix<F>& A );
 template<typename F>
-void ExplicitTriang( AbstractDistMatrix<F>& A );
+void ExplicitTriang( ElementalMatrix<F>& A );
 
 // Overwrite A with Q
 // ------------------
 template<typename F>
 void ExplicitUnitary( Matrix<F>& A );
 template<typename F>
-void ExplicitUnitary( AbstractDistMatrix<F>& A );
+void ExplicitUnitary( ElementalMatrix<F>& A );
 
 // Return both L and Q such that A = L Q
 // -------------------------------------
 template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A );
 template<typename F>
-void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A );
+void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& A );
 
 } // namespace lq
 
@@ -518,8 +593,8 @@ void QR
 ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
 template<typename F>
 void QR
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d );
+( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d );
 
 // Return an implicit representation of (Q,R,P) such that A P ~= Q R
 // -----------------------------------------------------------------
@@ -530,8 +605,8 @@ void QR
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void QR
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p,
+( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d, ElementalMatrix<Int>& p,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 namespace qr {
@@ -546,8 +621,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& B );
 
 // Solve a linear system with the implicit QR factorization
 // --------------------------------------------------------
@@ -560,9 +635,9 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
-        AbstractDistMatrix<F>& X );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& B,
+        ElementalMatrix<F>& X );
 // TODO: Version which involves permutation matrix
 
 // Cholesky-based QR
@@ -570,7 +645,7 @@ void SolveAfter
 template<typename F>
 void Cholesky( Matrix<F>& A, Matrix<F>& R );
 template<typename F>
-void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
+void Cholesky( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
 
 // Return R (with non-negative diagonal) such that A = Q R or A P = Q R
 // --------------------------------------------------------------------
@@ -579,7 +654,7 @@ void ExplicitTriang
 ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ExplicitTriang
-( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 // Return Q such that either A = Q R or A P = Q R
 // ----------------------------------------------
@@ -588,7 +663,7 @@ void ExplicitUnitary
 ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ExplicitUnitary
-( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 // Return both Q and R such that A = Q R or A P = Q R
 // --------------------------------------------------
@@ -598,7 +673,7 @@ void Explicit
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Explicit
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, 
+( ElementalMatrix<F>& A, ElementalMatrix<F>& R, 
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 // Return (Q,R,P) such that A P = Q R
@@ -610,8 +685,8 @@ void Explicit
   Matrix<Int>& P, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Explicit
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, 
-  AbstractDistMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+( ElementalMatrix<F>& A, ElementalMatrix<F>& R, 
+  ElementalMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
 struct TreeData
@@ -649,27 +724,27 @@ struct TreeData
 
 // Return an implicit tall-skinny QR factorization
 template<typename F>
-TreeData<F> TS( const AbstractDistMatrix<F>& A );
+TreeData<F> TS( const ElementalMatrix<F>& A );
 
 // Return an explicit tall-skinny QR factorization
 template<typename F>
-void ExplicitTS( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
+void ExplicitTS( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
 
 namespace ts {
 
 template<typename F>
 Matrix<F>& RootQR
-( const AbstractDistMatrix<F>& A, TreeData<F>& treeData );
+( const ElementalMatrix<F>& A, TreeData<F>& treeData );
 
 template<typename F>
 const Matrix<F>& RootQR
-( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
+( const ElementalMatrix<F>& A, const TreeData<F>& treeData );
 
 template<typename F>
-void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData );
+void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData );
 
 template<typename F>
-void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
+void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData );
 
 } // namespace ts
 
@@ -681,8 +756,8 @@ template<typename F>
 void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
 template<typename F>
 void RQ
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d );
+( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d );
 
 namespace rq {
 
@@ -694,8 +769,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& B );
 
 template<typename F>
 void SolveAfter
@@ -706,20 +781,20 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const AbstractDistMatrix<F      >& A, const AbstractDistMatrix<F>& t,
-  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
-        AbstractDistMatrix<F      >& X );
+  const ElementalMatrix<F      >& A, const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& B,
+        ElementalMatrix<F      >& X );
 
 // TODO: Think about ensuring this ordering is consistent with lq::Explicit
 template<typename F>
 void Cholesky( Matrix<F>& A, Matrix<F>& R );
 template<typename F>
-void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
+void Cholesky( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
 
 template<typename F>
 void ExplicitTriang( Matrix<F>& A );
 template<typename F>
-void ExplicitTriang( AbstractDistMatrix<F>& A );
+void ExplicitTriang( ElementalMatrix<F>& A );
 
 } // namespace rq
 
@@ -731,17 +806,17 @@ void GQR
   Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
 template<typename F>
 void GQR
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
-  AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<F>& tA, ElementalMatrix<Base<F>>& dA,
+  ElementalMatrix<F>& B, 
+  ElementalMatrix<F>& tB, ElementalMatrix<Base<F>>& dB );
 
 namespace gqr {
 
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void ExplicitTriang( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 } // namespace gqr
 
@@ -753,17 +828,17 @@ void GRQ
   Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
 template<typename F>
 void GRQ
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
-  AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<F>& tA, ElementalMatrix<Base<F>>& dA,
+  ElementalMatrix<F>& B, 
+  ElementalMatrix<F>& tB, ElementalMatrix<Base<F>>& dB );
 
 namespace grq {
 
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void ExplicitTriang( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
+void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 } // namespace grq
 
@@ -776,8 +851,8 @@ void ID
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ID
-( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
-        AbstractDistMatrix<F>& Z, 
+( const ElementalMatrix<F>& A, ElementalMatrix<Int>& p,
+        ElementalMatrix<F>& Z, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
@@ -787,8 +862,8 @@ void ID
   bool canOverwrite=false );
 template<typename F>
 void ID
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
-  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
+( ElementalMatrix<F>& A, ElementalMatrix<Int>& p,
+  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
 
 // Skeleton
@@ -800,9 +875,9 @@ void Skeleton
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Skeleton
-( const AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<Int>& pR, AbstractDistMatrix<Int>& pC,
-  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+( const ElementalMatrix<F>& A,
+  ElementalMatrix<Int>& pR, ElementalMatrix<Int>& pC,
+  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 } // namespace El
 

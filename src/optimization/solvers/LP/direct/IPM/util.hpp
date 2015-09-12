@@ -26,12 +26,12 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
@@ -46,7 +46,7 @@ void Initialize
         ldl::Separator& rootSep,
         ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A,
@@ -59,8 +59,11 @@ void Initialize
         DistMap& invMap,
         ldl::DistSeparator& rootSep,
         ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources, 
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl );
+  const RegSolveCtrl<Real>& solveCtrl );
 
 // Full system
 // ===========
@@ -73,14 +76,17 @@ void KKT
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& A, 
+        Real gamma,
+        Real delta,
+        Real beta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -88,6 +94,9 @@ void KKT
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& A, 
+        Real gamma,
+        Real delta,
+        Real beta,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -107,14 +116,16 @@ void AugmentedKKT
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& A,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -122,6 +133,8 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& A,
+        Real gamma,
+        Real delta,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -135,20 +148,26 @@ using qp::direct::ExpandAugmentedSolution;
 template<typename Real>
 void NormalKKT
 ( const Matrix<Real>& A,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         Matrix<Real>& J,
-  bool onlyLower=true );
+  bool onlyLower=false );
 template<typename Real>
 void NormalKKT
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& J,
-  bool onlyLower=true );
+( const ElementalMatrix<Real>& A,
+        Real gamma,
+        Real delta,
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& J,
+  bool onlyLower=false );
 template<typename Real>
 void NormalKKT
 ( const SparseMatrix<Real>& A,
+        Real gamma,
+        Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J,
@@ -156,6 +175,8 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const DistSparseMatrix<Real>& A,
+        Real gamma,
+        Real delta,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J,
@@ -164,6 +185,7 @@ void NormalKKT
 template<typename Real>
 void NormalKKTRHS
 ( const Matrix<Real>& A,
+        Real gamma,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
   const Matrix<Real>& rc,
@@ -172,16 +194,18 @@ void NormalKKTRHS
         Matrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& d );
+( const ElementalMatrix<Real>& A,
+        Real gamma,
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rmu,
+        ElementalMatrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
 ( const SparseMatrix<Real>& A,
+        Real gamma,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
   const Matrix<Real>& rc,
@@ -191,6 +215,7 @@ void NormalKKTRHS
 template<typename Real>
 void NormalKKTRHS
 ( const DistSparseMatrix<Real>& A,
+        Real gamma,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
   const DistMultiVec<Real>& rc,
@@ -201,7 +226,7 @@ void NormalKKTRHS
 template<typename Real>
 void ExpandNormalSolution
 ( const Matrix<Real>& A,
-  const Matrix<Real>& c,
+        Real gamma,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
   const Matrix<Real>& rc,
@@ -211,19 +236,19 @@ void ExpandNormalSolution
         Matrix<Real>& dz );
 template<typename Real>
 void ExpandNormalSolution
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rmu,
-        AbstractDistMatrix<Real>& dx, 
-  const AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz );
+( const ElementalMatrix<Real>& A,
+        Real gamma,
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rmu,
+        ElementalMatrix<Real>& dx, 
+  const ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz );
 template<typename Real>
 void ExpandNormalSolution
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& c,
+        Real gamma,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
   const Matrix<Real>& rc,
@@ -234,7 +259,7 @@ void ExpandNormalSolution
 template<typename Real>
 void ExpandNormalSolution
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& c,
+        Real gamma,
   const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& z,
   const DistMultiVec<Real>& rc,
@@ -242,65 +267,6 @@ void ExpandNormalSolution
         DistMultiVec<Real>& dx,
   const DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz );
-
-// Line search
-// ===========
-template<typename Real>
-Real IPFLineSearch
-( const Matrix<Real>& A,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& x,
-  const Matrix<Real>& y,  
-  const Matrix<Real>& z,
-  const Matrix<Real>& dx,
-  const Matrix<Real>& dy, 
-  const Matrix<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
-template<typename Real>
-Real IPFLineSearch
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& x,
-  const AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Real>& z,
-  const AbstractDistMatrix<Real>& dx,
-  const AbstractDistMatrix<Real>& dy,
-  const AbstractDistMatrix<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
-template<typename Real>
-Real IPFLineSearch
-( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& x,
-  const Matrix<Real>& y,  
-  const Matrix<Real>& z,
-  const Matrix<Real>& dx,
-  const Matrix<Real>& dy, 
-  const Matrix<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
-template<typename Real>
-Real IPFLineSearch
-( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& y,
-  const DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dy,
-  const DistMultiVec<Real>& dz,
-  Real upperBound,
-  Real bTol, Real cTol,
-  const IPFLineSearchCtrl<Real>& ctrl );
 
 } // namespace direct
 } // namespace lp

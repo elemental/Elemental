@@ -63,9 +63,9 @@ void Skeleton
 
 template<typename F> 
 void Skeleton
-( const AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Int>& permR, AbstractDistMatrix<Int>& permC, 
-  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( const ElementalMatrix<F>& APre, 
+  ElementalMatrix<Int>& permR, ElementalMatrix<Int>& permC, 
+  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Skeleton"))
 
@@ -116,9 +116,9 @@ void Skeleton
     Matrix<Int>& permR, Matrix<Int>& permC, \
     Matrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
   template void Skeleton \
-  ( const AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Int>& permR, AbstractDistMatrix<Int>& permC, \
-    AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl );
+  ( const ElementalMatrix<F>& A, \
+    ElementalMatrix<Int>& permR, ElementalMatrix<Int>& permC, \
+    ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

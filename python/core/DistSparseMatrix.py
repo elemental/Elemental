@@ -586,6 +586,23 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return numConnections.value
 
+  lib.ElDistSparseMatrixImbalance_i.argtypes = \
+  lib.ElDistSparseMatrixImbalance_s.argtypes = \
+  lib.ElDistSparseMatrixImbalance_d.argtypes = \
+  lib.ElDistSparseMatrixImbalance_c.argtypes = \
+  lib.ElDistSparseMatrixImbalance_z.argtypes = \
+    [c_void_p,POINTER(dType)] 
+  def Imbalance(self):
+    imbalance = dType()
+    args = [self.obj,pointer(imbalance)]
+    if   self.tag == iTag: lib.ElDistSparseMatrixImbalance_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixImbalance_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixImbalance_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixImbalance_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixImbalance_z(*args)
+    else: DataExcept()
+    return imbalance.value
+
   lib.ElDistSparseMatrixSourceBuffer_i.argtypes = \
   lib.ElDistSparseMatrixSourceBuffer_s.argtypes = \
   lib.ElDistSparseMatrixSourceBuffer_d.argtypes = \

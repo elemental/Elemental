@@ -136,7 +136,7 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 inline void
 LUNLarge
-( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LUNLarge"))
@@ -197,7 +197,7 @@ LUNLarge
 template<typename F>
 inline void
 LUNMedium
-( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LUNMedium"))

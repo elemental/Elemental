@@ -36,7 +36,7 @@ void Covariance( const Matrix<F>& D, Matrix<F>& S )
 
 template<typename F>
 void Covariance
-( const AbstractDistMatrix<F>& DPre, AbstractDistMatrix<F>& SPre )
+( const ElementalMatrix<F>& DPre, ElementalMatrix<F>& SPre )
 {
     DEBUG_ONLY(CSE cse("Covariance"))
 
@@ -71,7 +71,7 @@ void Covariance
 #define PROTO(F) \
   template void Covariance( const Matrix<F>& D, Matrix<F>& S ); \
   template void Covariance \
-  ( const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& S );
+  ( const ElementalMatrix<F>& D, ElementalMatrix<F>& S );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

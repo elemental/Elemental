@@ -27,10 +27,10 @@ void SOCMinEig
 
 template<typename Real>
 void SOCMinEig
-( const AbstractDistMatrix<Real>& xPre, 
-        AbstractDistMatrix<Real>& minEigsPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+        ElementalMatrix<Real>& minEigsPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCMinEig"))
@@ -105,9 +105,9 @@ Real SOCMinEig
 
 template<typename Real>
 Real SOCMinEig
-( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCMinEig"))
@@ -161,10 +161,10 @@ Real SOCMinEig
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCMinEig \
-  ( const AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& minEigs, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& minEigs, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCMinEig \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& minEigs, \
@@ -175,9 +175,9 @@ Real SOCMinEig
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template Real SOCMinEig \
-  ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template Real SOCMinEig \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

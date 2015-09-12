@@ -29,8 +29,8 @@ Real MaxStepInPositiveCone
 
 template<typename Real>
 Real MaxStepInPositiveCone
-( const AbstractDistMatrix<Real>& sPre, 
-  const AbstractDistMatrix<Real>& dsPre, Real upperBound )
+( const ElementalMatrix<Real>& sPre, 
+  const ElementalMatrix<Real>& dsPre, Real upperBound )
 {
     DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
 
@@ -83,8 +83,8 @@ Real MaxStepInPositiveCone
   template Real MaxStepInPositiveCone \
   ( const Matrix<Real>& s, const Matrix<Real>& ds, Real upperBound ); \
   template Real MaxStepInPositiveCone \
-  ( const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& ds, Real upperBound ); \
+  ( const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& ds, Real upperBound ); \
   template Real MaxStepInPositiveCone \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& ds, Real upperBound );

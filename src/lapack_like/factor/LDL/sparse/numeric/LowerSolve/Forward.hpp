@@ -29,7 +29,8 @@ namespace ldl {
 template<typename F> 
 inline void LowerForwardSolve
 ( const NodeInfo& info, 
-  const Front<F>& front, MatrixNode<F>& X )
+  const Front<F>& front,
+        MatrixNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::LowerForwardSolve"))
 
@@ -43,13 +44,15 @@ inline void LowerForwardSolve
     //       (or a duplicate's parent)
     auto& W = X.work;
     const Int numRHS = X.matrix.Width();
-    W.Resize( front.L.Height(), numRHS );
+    W.Resize( front.Height(), numRHS );
     Matrix<F> WT, WB;
     PartitionDown( W, WT, WB, info.size );
     WT = X.matrix;
     Zero( WB );
 
     // Update using the children (if they exist)
+    F* WBuf = W.Buffer();
+    const Int WLDim = W.LDim();
     for( Int c=0; c<numChildren; ++c )
     {
         auto& childW = X.children[c]->work;
@@ -58,11 +61,13 @@ inline void LowerForwardSolve
         const Int childUSize = childHeight-childSize;
 
         auto childU = childW( IR(childSize,childHeight), IR(0,numRHS) );
+        const F* childUBuf = childU.LockedBuffer();
+        const Int childULDim = childU.LDim();
         for( Int iChild=0; iChild<childUSize; ++iChild )
         {
             const Int iFront = info.childRelInds[c][iChild]; 
             for( Int j=0; j<numRHS; ++j )
-                W.Update( iFront, j, childU.Get(iChild,j) );
+                WBuf[iFront+j*WLDim] += childUBuf[iChild+j*childULDim];
         }
         childW.Empty();
     }
@@ -77,7 +82,8 @@ inline void LowerForwardSolve
 template<typename F>
 inline void LowerForwardSolve
 ( const DistNodeInfo& info,
-  const DistFront<F>& front, DistMultiVecNode<F>& X )
+  const DistFront<F>& front,
+        DistMultiVecNode<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::LowerForwardSolve"))
 
@@ -92,8 +98,10 @@ inline void LowerForwardSolve
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
-    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
-        LogicError("Incompatible front type mixture");
+    DEBUG_ONLY(
+      if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+          LogicError("Incompatible front type mixture");
+    )
 
     LowerForwardSolve( childInfo, childFront, *X.child );
 
@@ -132,12 +140,14 @@ inline void LowerForwardSolve
     const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     auto packOffs = sendOffs;
     const Int localHeight = childU.LocalHeight();
+    const F* childUBuf = childU.LockedBuffer();
+    const Int childULDim = childU.LDim();
     for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
     {
         const Int iChild = childU.GlobalRow(iChildLoc);
         const Int q = W.RowOwner( info.childRelInds[myChild][iChild] );
         for( Int j=0; j<numRHS; ++j )
-            sendBuf[packOffs[q]++] = childU.GetLocal(iChildLoc,j);
+            sendBuf[packOffs[q]++] = childUBuf[iChildLoc+j*childULDim];
     }
     SwapClear( packOffs );
     childW.Empty();
@@ -158,11 +168,12 @@ inline void LowerForwardSolve
     {
         const F* recvVals = &recvBuf[recvOffs[q]];
         const auto& recvInds = X.commMeta.childRecvInds[q];
-        for( unsigned k=0; k<recvInds.size(); ++k )
-            blas::Axpy
-            ( numRHS, F(1),
-              &recvVals[k*numRHS],     1, 
-              W.Buffer(recvInds[k],0), W.LDim() );
+        const Int numRecvInds = recvInds.size();
+        F* WBuf = W.Buffer();
+        const Int WLDim = W.LDim();
+        for( Int k=0; k<numRecvInds; ++k )
+            for( Int j=0; j<numRHS; ++j )
+                WBuf[recvInds[k]+j*WLDim] += recvVals[k*numRHS+j]; 
     }
     SwapClear( recvBuf );
     SwapClear( recvSizes );
@@ -178,7 +189,8 @@ inline void LowerForwardSolve
 template<typename F>
 inline void LowerForwardSolve
 ( const DistNodeInfo& info,
-  const DistFront<F>& front, DistMatrixNode<F>& X )
+  const DistFront<F>& front,
+        DistMatrixNode<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("ldl::DistLowerForwardSolve");
@@ -196,8 +208,10 @@ inline void LowerForwardSolve
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
-    if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
-        LogicError("Incompatible front type mixture");
+    DEBUG_ONLY(
+      if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
+          LogicError("Incompatible front type mixture");
+    )
 
     LowerForwardSolve( childInfo, childFront, *X.child );
 
@@ -237,6 +251,8 @@ inline void LowerForwardSolve
     auto packOffs = sendOffs;
     const Int localHeight = childU.LocalHeight();
     const Int localWidth = childU.LocalWidth();
+    const F* childUBuf = childU.LockedBuffer();
+    const Int childULDim = childU.LDim();
     for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
     {
         const Int iChild = childU.GlobalRow(iChildLoc);
@@ -245,9 +261,11 @@ inline void LowerForwardSolve
         {
             const Int j = childU.GlobalCol(jChildLoc);
             const int q = W.Owner( iParent, j );
-            if( packOffs[q] >= sendBufSize )
-                LogicError("packOffs[",q,"]=",packOffs[q]," >= ",sendBufSize); 
-            sendBuf[packOffs[q]++] = childU.GetLocal(iChildLoc,jChildLoc);
+            DEBUG_ONLY(
+              if( packOffs[q] >= sendBufSize )
+                  LogicError("packOffs[",q,"]=",packOffs[q]," >= ",sendBufSize);
+            )
+            sendBuf[packOffs[q]++] = childUBuf[iChildLoc+jChildLoc*childULDim];
         }
     }
     SwapClear( packOffs );
@@ -268,11 +286,14 @@ inline void LowerForwardSolve
     for( int q=0; q<commSize; ++q )
     {
         const auto& recvInds = X.commMeta.childRecvInds[q];
-        for( unsigned k=0; k<recvInds.size()/2; ++k )
+        const Int numRecvInds = recvInds.size();
+        F* WBuf = W.Buffer();
+        const Int WLDim = W.LDim();
+        for( Int k=0; k<numRecvInds/2; ++k )
         {
             const Int iLoc = recvInds[2*k+0];
             const Int jLoc = recvInds[2*k+1];
-            W.UpdateLocal( iLoc, jLoc, recvBuf[recvOffs[q]+k] );
+            WBuf[iLoc+jLoc*WLDim] += recvBuf[recvOffs[q]+k];
         }
     }
     SwapClear( recvBuf );

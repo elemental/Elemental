@@ -46,8 +46,8 @@ void ApplyP
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("bidiag::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -62,8 +62,8 @@ void ApplyQ
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("bidiag::ApplyP"))
     const bool normal = (orientation==NORMAL);

@@ -28,19 +28,9 @@ void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda )
     FillDiagonal( J, T(1), 1 );
 }
 
-template<typename T>
-void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda )
-{
-    DEBUG_ONLY(CSE cse("Jordan"))
-    Zeros( J, n, n );
-    FillDiagonal( J, lambda );
-    FillDiagonal( J, T(1), 1 );
-}
-
 #define PROTO(T) \
   template void Jordan( Matrix<T>& J, Int n, T lambda ); \
-  template void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda ); \
-  template void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda );
+  template void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

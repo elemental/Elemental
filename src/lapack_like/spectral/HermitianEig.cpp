@@ -229,8 +229,8 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Base<F>>& w, SortType sort, 
+( UpperOrLower uplo, ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& w, SortType sort, 
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -427,8 +427,8 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& ZPre,
+( UpperOrLower uplo, ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& ZPre,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -631,8 +631,8 @@ void HermitianEig
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& w, SortType sort, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl );
 #define EIGPAIR_PROTO(F) \
@@ -646,8 +646,8 @@ void HermitianEig
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z, SortType sort, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& Z, SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl );
 
@@ -657,14 +657,14 @@ void HermitianEig
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
     const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& w, const HermitianSDCCtrl<Base<F>> ctrl ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
     Matrix<F>& Q, const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Q, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& Q, \
     const HermitianSDCCtrl<Base<F>> ctrl );
 
 #define PROTO(F) \

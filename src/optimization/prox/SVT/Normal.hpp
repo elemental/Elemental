@@ -32,7 +32,7 @@ Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 }
 
 template<typename F>
-Int Normal( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
+Int Normal( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CSE cse("svt::Normal"))
 

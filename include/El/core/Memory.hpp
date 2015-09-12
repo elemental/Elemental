@@ -28,8 +28,8 @@ public:
     // Exchange metadata with 'mem'
     void ShallowSwap( Memory<G>& mem );
 
-    G* Buffer() const;
-    size_t Size()   const;
+    G* Buffer() const EL_NO_EXCEPT;
+    size_t Size() const EL_NO_EXCEPT;
 
     G* Require( size_t size );
     void Release();

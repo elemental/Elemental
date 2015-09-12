@@ -92,17 +92,17 @@ void SetDefaultBlockWidth( Int blockWidth );
 std::mt19937& Generator();
 
 template<typename T>
-inline T Max( T m, T n )
+inline const T& Max( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
-inline Int Max( Int m, Int n )
+inline const Int& Max( const Int& m, const Int& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
 template<typename T>
-inline T Min( T m, T n )
+inline const T& Min( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::min(m,n); }
 
-inline Int Min( Int m, Int n )
+inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 { return std::min(m,n); }
 
 // Replacement for std::memcpy, which is known to often be suboptimal.
@@ -281,13 +281,12 @@ void RelativeIndices
 ( vector<Int>& relInds, const vector<Int>& sub, const vector<Int>& full );
 vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full );
 
-Int Find
-( const vector<Int>& sortedInds, Int index,
-  string msg="Could not find index" );
+Int Find( const vector<Int>& sortedInds, Int index );
+Int Find( const vector<Int>& sortedInds, Int index, const string& msg );
 
-// TODO: Move this somewhere else or obsolte it entirely
+// TODO: Move this somewhere else or make it obsolete
 inline Int
-RowToProcess( Int i, Int blocksize, Int commSize )
+RowToProcess( Int i, Int blocksize, Int commSize ) EL_NO_EXCEPT
 {
     if( blocksize > 0 )
         return std::min( i/blocksize, commSize-1 );
@@ -296,7 +295,8 @@ RowToProcess( Int i, Int blocksize, Int commSize )
 }
 
 template<typename F>
-void UpdateScaledSquare( F alpha, Base<F>& scale, Base<F>& scaledSquare );
+void UpdateScaledSquare
+( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
 
 } // namespace El
 

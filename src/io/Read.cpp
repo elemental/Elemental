@@ -47,7 +47,7 @@ void Read( Matrix<T>& A, const string filename, FileFormat format )
 
 template<typename T>
 void Read
-( AbstractDistMatrix<T>& A, const string filename, FileFormat format,
+( ElementalMatrix<T>& A, const string filename, FileFormat format,
   bool sequential )
 {
     DEBUG_ONLY(CSE cse("Read"))
@@ -104,7 +104,7 @@ void Read
 
 template<typename T>
 void Read
-( AbstractBlockDistMatrix<T>& A, const string filename, FileFormat format,
+( BlockCyclicMatrix<T>& A, const string filename, FileFormat format,
   bool sequential )
 {
     DEBUG_ONLY(CSE cse("Read"))
@@ -122,7 +122,7 @@ void Read
     }
     else if( sequential )
     {
-        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
+        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A.Grid() );
         if( format == BINARY_FLAT )
             A_CIRC_CIRC.Resize( A.Height(), A.Width() );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
@@ -163,10 +163,10 @@ void Read
   template void Read \
   ( Matrix<T>& A, const string filename, FileFormat format ); \
   template void Read \
-  ( AbstractDistMatrix<T>& A, const string filename, \
+  ( ElementalMatrix<T>& A, const string filename, \
     FileFormat format, bool sequential ); \
   template void Read \
-  ( AbstractBlockDistMatrix<T>& A, const string filename, \
+  ( BlockCyclicMatrix<T>& A, const string filename, \
     FileFormat format, bool sequential );
 
 #include "El/macros/Instantiate.h"

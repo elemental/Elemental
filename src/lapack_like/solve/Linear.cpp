@@ -163,7 +163,7 @@ void Overwrite( Matrix<F>& A, Matrix<F>& B )
 
 template<typename F> 
 void Overwrite
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("lin_solve::Overwrite"))
     // Perform Gaussian elimination
@@ -189,7 +189,7 @@ void LinearSolve( const Matrix<F>& A, Matrix<F>& B )
 
 template<typename F> 
 void LinearSolve
-( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
+( const ElementalMatrix<F>& A, ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("LinearSolve"))
     DistMatrix<F> ACopy( A );
@@ -222,10 +222,10 @@ void LinearSolve
 #define PROTO(F) \
   template void lin_solve::Overwrite( Matrix<F>& A, Matrix<F>& B ); \
   template void lin_solve::Overwrite \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
   template void LinearSolve( const Matrix<F>& A, Matrix<F>& B ); \
   template void LinearSolve \
-  ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+  ( const ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
   template void LinearSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \

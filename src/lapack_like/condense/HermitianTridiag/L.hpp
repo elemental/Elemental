@@ -59,7 +59,7 @@ void L( Matrix<F>& A, Matrix<F>& t )
 
 template<typename F> 
 void L
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre, 
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre, 
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(

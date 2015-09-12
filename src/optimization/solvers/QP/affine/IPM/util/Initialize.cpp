@@ -151,11 +151,11 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -186,16 +186,16 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
@@ -273,11 +273,11 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -322,7 +322,7 @@ void Initialize
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = b.Height();
@@ -385,8 +385,10 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -404,16 +406,18 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -457,8 +461,11 @@ void Initialize
   const DistMap& invMap, 
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
     const Int m = b.Height();
@@ -503,7 +510,7 @@ void Initialize
     // =====================================
     // TODO: Use PullUpdate just on the identity (or avoid it entirely?)
     ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info );
+    JFront.Pull( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
     // TODO: Consider selective inversion
     LDL( info, JFront, LDL_2D );
 
@@ -526,8 +533,10 @@ void Initialize
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -545,16 +554,18 @@ void Initialize
         Zeros( rh, k, 1 );
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, regTmp, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -597,16 +608,16 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& JStatic, \
@@ -623,7 +634,7 @@ void Initialize
     const ldl::Separator& rootSep, \
     const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
     const DistMultiVec<Real>& regTmp, \
@@ -638,8 +649,11 @@ void Initialize
     const DistMap& invMap, \
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
+          vector<Int>& mappedSources, \
+          vector<Int>& mappedTargets, \
+          vector<Int>& colOffs, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

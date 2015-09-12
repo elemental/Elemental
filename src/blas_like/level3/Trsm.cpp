@@ -21,9 +21,13 @@ namespace El {
 
 template<typename F>
 void Trsm
-( LeftOrRight side, UpperOrLower uplo,
-  Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const Matrix<F>& A, Matrix<F>& B,
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  UnitOrNonUnit diag,
+  F alpha,
+  const Matrix<F>& A,
+        Matrix<F>& B,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -60,9 +64,13 @@ void Trsm
 // TODO: Make the TRSM_DEFAULT switching mechanism smarter (perhaps, empirical)
 template<typename F>
 void Trsm
-( LeftOrRight side, UpperOrLower uplo, 
-  Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+( LeftOrRight side,
+  UpperOrLower uplo, 
+  Orientation orientation,
+  UnitOrNonUnit diag,
+  F alpha,
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B,
   bool checkIfSingular, TrsmAlgorithm alg )
 {
     DEBUG_ONLY(
@@ -336,9 +344,13 @@ void Trsm
 
 template<typename F>
 void LocalTrsm
-( LeftOrRight side, UpperOrLower uplo,
-  Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X,
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  UnitOrNonUnit diag,
+  F alpha,
+  const DistMatrix<F,STAR,STAR>& A,
+        ElementalMatrix<F>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -355,19 +367,32 @@ void LocalTrsm
 
 #define PROTO(F) \
   template void Trsm \
-  ( LeftOrRight side, UpperOrLower uplo, \
-    Orientation orientation, UnitOrNonUnit diag, \
-    F alpha, const Matrix<F>& A, Matrix<F>& B, \
+  ( LeftOrRight side, \
+    UpperOrLower uplo, \
+    Orientation orientation, \
+    UnitOrNonUnit diag, \
+    F alpha, \
+    const Matrix<F>& A, \
+          Matrix<F>& B, \
     bool checkIfSingular ); \
   template void Trsm \
-  ( LeftOrRight side, UpperOrLower uplo, \
-    Orientation orientation, UnitOrNonUnit diag, \
-    F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    bool checkIfSingular, TrsmAlgorithm alg ); \
+  ( LeftOrRight side, \
+    UpperOrLower uplo, \
+    Orientation orientation, \
+    UnitOrNonUnit diag, \
+    F alpha, \
+    const ElementalMatrix<F>& A, \
+          ElementalMatrix<F>& B, \
+    bool checkIfSingular, \
+    TrsmAlgorithm alg ); \
   template void LocalTrsm \
-  ( LeftOrRight side, UpperOrLower uplo, \
-    Orientation orientation, UnitOrNonUnit diag, \
-    F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X, \
+  ( LeftOrRight side, \
+    UpperOrLower uplo, \
+    Orientation orientation, \
+    UnitOrNonUnit diag, \
+    F alpha, \
+    const DistMatrix<F,STAR,STAR>& A, \
+          ElementalMatrix<F>& X, \
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO

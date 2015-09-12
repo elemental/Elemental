@@ -19,7 +19,7 @@ namespace El {
 namespace reflector {
 
 template<typename F> 
-F Col( F& chi, AbstractDistMatrix<F>& x )
+F Col( F& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("reflector::Col");
@@ -87,7 +87,7 @@ F Col( F& chi, AbstractDistMatrix<F>& x )
 }
 
 template<typename F> 
-F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
+F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
         CSE cse("reflector::Col");

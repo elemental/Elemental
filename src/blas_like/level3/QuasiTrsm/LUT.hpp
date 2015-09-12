@@ -150,7 +150,7 @@ template<typename F>
 inline void
 LUTLarge
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre,
+  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -211,7 +211,7 @@ template<typename F>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(

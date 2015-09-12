@@ -15,16 +15,16 @@ namespace El {
 template<typename Real>
 void LP
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c, 
-        Matrix<Real>& x,       Matrix<Real>& y,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_ADMM )
         lp::direct::ADMM( A, b, c, x, ctrl.admmCtrl );
-    else if( ctrl.approach == LP_IPF )
-        lp::direct::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
         lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
@@ -33,17 +33,19 @@ void LP
 
 template<typename Real>
 void LP
-( const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
   const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
-    if( ctrl.approach == LP_IPF )
-        lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
+    if( ctrl.approach == LP_MEHROTRA )
         lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -51,17 +53,17 @@ void LP
 
 template<typename Real>
 void LP
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z, 
   const lp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
     if( ctrl.approach == LP_ADMM )
         lp::direct::ADMM( A, b, c, x, ctrl.admmCtrl );
-    else if( ctrl.approach == LP_IPF )
-        lp::direct::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
     else if( ctrl.approach == LP_MEHROTRA )
         lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
@@ -70,17 +72,19 @@ void LP
 
 template<typename Real>
 void LP
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
-    if( ctrl.approach == LP_IPF )
-        lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
+    if( ctrl.approach == LP_MEHROTRA )
         lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -89,15 +93,15 @@ void LP
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,       const Matrix<Real>& c, 
-        Matrix<Real>& x,             Matrix<Real>& y,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
-    if( ctrl.approach == LP_IPF )
-        lp::direct::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
+    if( ctrl.approach == LP_MEHROTRA )
         lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -105,17 +109,19 @@ void LP
 
 template<typename Real>
 void LP
-( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c, 
+( const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
   const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
-    if( ctrl.approach == LP_IPF )
-        lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
+    if( ctrl.approach == LP_MEHROTRA )
         lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -124,15 +130,15 @@ void LP
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, 
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c, 
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z, 
   const lp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
-    if( ctrl.approach == LP_IPF )
-        lp::direct::IPF( A, b, c, x, y, z, ctrl.ipfCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
+    if( ctrl.approach == LP_MEHROTRA )
         lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -140,17 +146,19 @@ void LP
 
 template<typename Real>
 void LP
-( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, 
+( const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c, 
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LP"))
-    if( ctrl.approach == LP_IPF )
-        lp::affine::IPF( A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
+    if( ctrl.approach == LP_MEHROTRA )
         lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
@@ -159,55 +167,79 @@ void LP
 #define PROTO(Real) \
   template void LP \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
   template void LP \
-  ( const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
-          Matrix<Real>& z,       Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
   template void LP \
-  ( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
   template void LP \
-  ( const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
+  ( const SparseMatrix<Real>& A, \
+    const SparseMatrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
-          Matrix<Real>& z,             Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
   template void LP \
-  ( const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z,           DistMultiVec<Real>& s, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

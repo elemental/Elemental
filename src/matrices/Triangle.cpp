@@ -38,21 +38,9 @@ void Triangle( AbstractDistMatrix<F>& A, Int n )
     FillDiagonal( A, F(1)/F(4), -2 );
 }
 
-template<typename F>
-void Triangle( AbstractBlockDistMatrix<F>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("Triangle"))
-    if( n < 3 )
-        LogicError("Must be at least 3x3 to have a second-order symbol");
-    Zeros( A, n, n );
-    FillDiagonal( A, F(1),       1 );
-    FillDiagonal( A, F(1)/F(4), -2 );
-}
-
 #define PROTO(F) \
   template void Triangle( Matrix<F>& A, Int n ); \
-  template void Triangle( AbstractDistMatrix<F>& A, Int n ); \
-  template void Triangle( AbstractBlockDistMatrix<F>& A, Int n );
+  template void Triangle( AbstractDistMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

@@ -50,7 +50,7 @@ UVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-UVar2( AbstractDistMatrix<F>& APre )
+UVar2( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::UVar2");

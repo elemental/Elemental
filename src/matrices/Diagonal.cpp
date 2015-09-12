@@ -88,38 +88,6 @@ void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 }
 
 template<typename S,typename T>
-void Diagonal( AbstractBlockDistMatrix<S>& D, const vector<T>& d )
-{
-    DEBUG_ONLY(CSE cse("Diagonal"))
-    const Int n = d.size();
-    Zeros( D, n, n );
-
-    const Int localWidth = D.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = D.GlobalCol(jLoc);
-        D.Set( j, j, d[j] );
-    }
-}
-
-template<typename S,typename T>
-void Diagonal( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d )
-{
-    DEBUG_ONLY(CSE cse("Diagonal"))
-    if( d.Width() != 1 )
-        LogicError("d must be a column vector");
-    const Int n = d.Height();
-    Zeros( D, n, n );
-
-    const Int localWidth = D.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = D.GlobalCol(jLoc);
-        D.Set( j, j, d.Get(j,0) );
-    }
-}
-
-template<typename S,typename T>
 void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d )
 {
     DEBUG_ONLY(CSE cse("Diagonal"))
@@ -159,10 +127,6 @@ void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d )
   template void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d ); \
   template void Diagonal \
   ( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d ); \
-  template void Diagonal \
-  ( AbstractBlockDistMatrix<S>& D, const vector<T>& d ); \
-  template void Diagonal \
-  ( AbstractBlockDistMatrix<S>& D, const Matrix<T>& d ); \
   template void Diagonal( SparseMatrix<S>& A, const Matrix<T>& d ); \
   template void Diagonal( DistSparseMatrix<S>& A, const DistMultiVec<T>& d );
 

@@ -18,6 +18,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "ElSuiteSparse/ldl.hpp"
 
 namespace El {
 namespace ldl {
@@ -30,7 +31,8 @@ void DiagonalSolve
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
-        DiagonalSolve( *info.children[c], *front.children[c], *X.children[c] );
+        DiagonalSolve
+        ( *info.children[c], *front.children[c], *X.children[c] );
 
     if( PivotedFactorization(front.type) )
         QuasiDiagonalSolve

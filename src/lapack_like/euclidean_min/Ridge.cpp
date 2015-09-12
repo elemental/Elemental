@@ -89,8 +89,8 @@ void Ridge
 template<typename F> 
 void Ridge
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
-        Base<F> gamma,                     AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& APre, const ElementalMatrix<F>& BPre, 
+        Base<F> gamma,                     ElementalMatrix<F>& XPre, 
   RidgeAlg alg )
 {
     DEBUG_ONLY(CSE cse("Ridge"))
@@ -216,8 +216,8 @@ void Ridge
     RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-          Base<F> gamma,                  AbstractDistMatrix<F>& X, \
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, \
+          Base<F> gamma,                  ElementalMatrix<F>& X, \
     RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \

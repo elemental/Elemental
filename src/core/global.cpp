@@ -22,7 +22,7 @@ std::stack<Int> blocksizeStack;
 Grid* defaultGrid = 0;
 Args* args = 0;
 
-// Default blocksizes for BlockDistMatrix
+// Default blocksizes for BlockCyclicMatrix
 Int blockHeight=32, blockWidth=32;
 
 // A common Mersenne twister configuration
@@ -450,14 +450,14 @@ void PopBlocksizeStack()
     ::blocksizeStack.pop();
 }
 
-const Grid& DefaultGrid()
+const Grid& DefaultGrid() EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
-        CSE cse("DefaultGrid");
-        if( ::defaultGrid == 0 )
-            LogicError
-            ("Attempted to return a non-existant default grid. Please ensure "
-             "that Elemental is initialized before creating a DistMatrix.");
+      CSE cse("DefaultGrid");
+      if( ::defaultGrid == 0 )
+          LogicError
+          ("Attempted to return a non-existant default grid. Please ensure "
+           "that Elemental is initialized before creating a DistMatrix.");
     )
     return *::defaultGrid;
 }
@@ -726,7 +726,18 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full )
     return relInds;
 }
 
-Int Find( const vector<Int>& sortedInds, Int index, string msg )
+Int Find( const vector<Int>& sortedInds, Int index )
+{
+    DEBUG_ONLY(CSE cse("Find"))
+    auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
+    DEBUG_ONLY(
+      if( it == sortedInds.cend() )
+          LogicError("Could not find index");
+    )
+    return it - sortedInds.cbegin();
+}
+
+Int Find( const vector<Int>& sortedInds, Int index, const string& msg )
 {
     DEBUG_ONLY(CSE cse("Find"))
     auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );

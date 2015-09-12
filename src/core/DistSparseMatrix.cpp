@@ -45,8 +45,10 @@ DistSparseMatrix<T>::DistSparseMatrix( const DistSparseMatrix<T>& A )
     distGraph_.comm_ = mpi::COMM_WORLD;
     if( &A != this )
         *this = A;
-    else
-        LogicError("Tried to construct DistMultiVec via itself");
+    DEBUG_ONLY(
+      else
+          LogicError("Tried to construct DistMultiVec via itself");
+    )
 }
 
 template<typename T>
@@ -98,13 +100,13 @@ void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 }
 
 template<typename T>
-void DistSparseMatrix<T>::FreezeSparsity() 
+void DistSparseMatrix<T>::FreezeSparsity() EL_NO_EXCEPT
 { distGraph_.frozenSparsity_ = true; }
 template<typename T>
-void DistSparseMatrix<T>::UnfreezeSparsity() 
+void DistSparseMatrix<T>::UnfreezeSparsity() EL_NO_EXCEPT
 { distGraph_.frozenSparsity_ = false; }
 template<typename T>
-bool DistSparseMatrix<T>::FrozenSparsity() const 
+bool DistSparseMatrix<T>::FrozenSparsity() const EL_NO_EXCEPT
 { return distGraph_.frozenSparsity_; }
 
 template<typename T>
@@ -149,6 +151,7 @@ void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
 
 template<typename T>
 void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueUpdate"))
     // TODO: Use FrozenSparsity()
@@ -168,10 +171,12 @@ void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
 
 template<typename T>
 void DistSparseMatrix<T>::QueueUpdate( const Entry<T>& entry, bool passive )
+EL_NO_RELEASE_EXCEPT
 { QueueUpdate( entry.i, entry.j, entry.value, passive ); }
 
 template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueLocalUpdate"))
     if( FrozenSparsity() )
@@ -189,10 +194,12 @@ void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
 
 template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( const Entry<T>& localEntry )
+EL_NO_RELEASE_EXCEPT
 { QueueLocalUpdate( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
 void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueZero"))
     if( row == END ) row = Height() - 1;
@@ -205,6 +212,7 @@ void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
 
 template<typename T>
 void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::QueueZero"))
     if( FrozenSparsity() )
@@ -231,11 +239,11 @@ void DistSparseMatrix<T>::ProcessQueues()
 
     // Send the remote updates
     // =======================
-    const int commSize = mpi::Size( distGraph_.comm_ );
+    const int commSize = distGraph_.commSize_;
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
+        vector<int> sendCounts(commSize,0);
         for( auto s : distGraph_.remoteSources_ )
             ++sendCounts[RowOwner(s)];
         // Pack the send data
@@ -244,7 +252,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Entry<T>> sendBuf(totalSend);
-        for( Int i=0; i<distGraph_.remoteSources_.size(); ++i )
+        for( Int i=0; i<totalSend; ++i )
         {
             const int owner = RowOwner(distGraph_.remoteSources_[i]);
             sendBuf[offs[owner]++] = 
@@ -270,8 +278,9 @@ void DistSparseMatrix<T>::ProcessQueues()
     {
         // Compute the send counts
         // -----------------------
-        vector<int> sendCounts(commSize);
-        for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+        vector<int> sendCounts(commSize,0);
+        const Int numRemoteRemovals = distGraph_.remoteRemovals_.size();
+        for( Int i=0; i<numRemoteRemovals; ++i )
             ++sendCounts[RowOwner(distGraph_.remoteRemovals_[i].first)];
         // Pack the send data
         // ------------------
@@ -279,7 +288,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
         vector<Int> sendRows(totalSend), sendCols(totalSend);
-        for( Int i=0; i<distGraph_.remoteRemovals_.size(); ++i )
+        for( Int i=0; i<totalSend; ++i )
         {
             const int owner = RowOwner(distGraph_.remoteRemovals_[i].first);
             sendRows[offs[owner]] = distGraph_.remoteRemovals_[i].first;
@@ -293,7 +302,8 @@ void DistSparseMatrix<T>::ProcessQueues()
           mpi::AllToAll(sendRows,sendCounts,sendOffs,distGraph_.comm_);
         auto recvCols = 
           mpi::AllToAll(sendCols,sendCounts,sendOffs,distGraph_.comm_);
-        for( Int i=0; i<recvRows.size(); ++i )
+        const Int totalRecv = recvRows.size();
+        for( Int i=0; i<totalRecv; ++i )
             QueueZero( recvRows[i], recvCols[i] );
     }
 
@@ -433,65 +443,64 @@ DistSparseMatrix<T>::operator-=( const DistSparseMatrix<T>& A )
 // High-level information
 // ----------------------
 template<typename T>
-Int DistSparseMatrix<T>::Height() const { return distGraph_.NumSources(); }
+Int DistSparseMatrix<T>::Height() const EL_NO_EXCEPT
+{ return distGraph_.NumSources(); }
 template<typename T>
-Int DistSparseMatrix<T>::Width() const { return distGraph_.NumTargets(); }
+Int DistSparseMatrix<T>::Width() const EL_NO_EXCEPT
+{ return distGraph_.NumTargets(); }
 
 template<typename T>
-El::DistGraph& DistSparseMatrix<T>::DistGraph() { return distGraph_; }
+El::DistGraph& DistSparseMatrix<T>::DistGraph() EL_NO_EXCEPT
+{ return distGraph_; }
 template<typename T>
-const El::DistGraph& DistSparseMatrix<T>::LockedDistGraph() const
+const El::DistGraph& DistSparseMatrix<T>::LockedDistGraph() const EL_NO_EXCEPT
 { return distGraph_; }
 
 template<typename T>
-Int DistSparseMatrix<T>::FirstLocalRow() const
+Int DistSparseMatrix<T>::FirstLocalRow() const EL_NO_EXCEPT
 { return distGraph_.FirstLocalSource(); }
 
 template<typename T>
-Int DistSparseMatrix<T>::LocalHeight() const
+Int DistSparseMatrix<T>::LocalHeight() const EL_NO_EXCEPT
 { return distGraph_.NumLocalSources(); }
 
 template<typename T>
-Int DistSparseMatrix<T>::NumLocalEntries() const
-{
-    DEBUG_ONLY(CSE cse("DistSparseMatrix::NumLocalEntries"))
-    return distGraph_.NumLocalEdges();
-}
+Int DistSparseMatrix<T>::NumLocalEntries() const EL_NO_EXCEPT
+{ return distGraph_.NumLocalEdges(); }
 
 template<typename T>
-Int DistSparseMatrix<T>::Capacity() const
-{
-    DEBUG_ONLY(CSE cse("DistSparseMatrix::Capacity"))
-    return distGraph_.Capacity();
-}
+Int DistSparseMatrix<T>::Capacity() const EL_NO_EXCEPT
+{ return distGraph_.Capacity(); }
 
 template<typename T>
-bool DistSparseMatrix<T>::LocallyConsistent() const
+bool DistSparseMatrix<T>::LocallyConsistent() const EL_NO_EXCEPT
 { return distGraph_.LocallyConsistent(); }
 
 // Distribution information
 // ------------------------
 template<typename T>
-mpi::Comm DistSparseMatrix<T>::Comm() const { return distGraph_.Comm(); }
+mpi::Comm DistSparseMatrix<T>::Comm() const EL_NO_EXCEPT
+{ return distGraph_.Comm(); }
 template<typename T>
-Int DistSparseMatrix<T>::Blocksize() const { return distGraph_.Blocksize(); }
+Int DistSparseMatrix<T>::Blocksize() const EL_NO_EXCEPT
+{ return distGraph_.Blocksize(); }
 
 template<typename T>
-int DistSparseMatrix<T>::RowOwner( Int i ) const 
+int DistSparseMatrix<T>::RowOwner( Int i ) const EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("DistSparseMatrix::RowOwner"))
     return distGraph_.SourceOwner(i); 
 }
 
 template<typename T>
-Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const
+Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("DistSparseMatrix::GlobalRow"))
     return distGraph_.GlobalSource(iLoc); 
 }
 
 template<typename T>
-Int DistSparseMatrix<T>::LocalRow( Int i ) const
+Int DistSparseMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::LocalRow"))
     return distGraph_.LocalSource(i);
@@ -501,6 +510,7 @@ Int DistSparseMatrix<T>::LocalRow( Int i ) const
 // --------------------------
 template<typename T>
 Int DistSparseMatrix<T>::Row( Int localInd ) const
+EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("DistSparseMatrix::Row"))
     return distGraph_.Source( localInd );
@@ -508,6 +518,7 @@ Int DistSparseMatrix<T>::Row( Int localInd ) const
 
 template<typename T>
 Int DistSparseMatrix<T>::Col( Int localInd ) const
+EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("DistSparseMatrix::Col"))
     return distGraph_.Target( localInd );
@@ -515,6 +526,7 @@ Int DistSparseMatrix<T>::Col( Int localInd ) const
 
 template<typename T>
 Int DistSparseMatrix<T>::RowOffset( Int localRow ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::RowOffset"))
     return distGraph_.SourceOffset( localRow );
@@ -522,6 +534,7 @@ Int DistSparseMatrix<T>::RowOffset( Int localRow ) const
 
 template<typename T>
 Int DistSparseMatrix<T>::Offset( Int localRow, Int col ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::Offset"))
     return distGraph_.Offset( localRow, col );
@@ -529,13 +542,23 @@ Int DistSparseMatrix<T>::Offset( Int localRow, Int col ) const
 
 template<typename T>
 Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::NumConnections"))
     return distGraph_.NumConnections( localRow );
 }
 
 template<typename T>
+double DistSparseMatrix<T>::Imbalance() const
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::Imbalance"))
+    return distGraph_.Imbalance(); 
+}
+
+template<typename T>
 T DistSparseMatrix<T>::Value( Int localInd ) const
+EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(
       CSE cse("DistSparseMatrix::Value");
@@ -547,29 +570,45 @@ T DistSparseMatrix<T>::Value( Int localInd ) const
 }
 
 template<typename T>
-Int* DistSparseMatrix<T>::SourceBuffer() { return distGraph_.SourceBuffer(); }
+Int* DistSparseMatrix<T>::SourceBuffer() EL_NO_EXCEPT
+{ return distGraph_.SourceBuffer(); }
 template<typename T>
-Int* DistSparseMatrix<T>::TargetBuffer() { return distGraph_.TargetBuffer(); }
+Int* DistSparseMatrix<T>::TargetBuffer() EL_NO_EXCEPT
+{ return distGraph_.TargetBuffer(); }
 template<typename T>
-Int* DistSparseMatrix<T>::OffsetBuffer() { return distGraph_.OffsetBuffer(); }
+Int* DistSparseMatrix<T>::OffsetBuffer() EL_NO_EXCEPT
+{ return distGraph_.OffsetBuffer(); }
 template<typename T>
-T* DistSparseMatrix<T>::ValueBuffer() { return vals_.data(); }
+T* DistSparseMatrix<T>::ValueBuffer() EL_NO_EXCEPT
+{ return vals_.data(); }
 
 template<typename T>
-const Int* DistSparseMatrix<T>::LockedSourceBuffer() const
+const Int* DistSparseMatrix<T>::LockedSourceBuffer() const EL_NO_EXCEPT
 { return distGraph_.LockedSourceBuffer(); }
 
 template<typename T>
-const Int* DistSparseMatrix<T>::LockedTargetBuffer() const
+const Int* DistSparseMatrix<T>::LockedTargetBuffer() const EL_NO_EXCEPT
 { return distGraph_.LockedTargetBuffer(); }
 
 template<typename T>
-const Int* DistSparseMatrix<T>::LockedOffsetBuffer() const
+const Int* DistSparseMatrix<T>::LockedOffsetBuffer() const EL_NO_EXCEPT
 { return distGraph_.LockedOffsetBuffer(); }
 
 template<typename T>
-const T* DistSparseMatrix<T>::LockedValueBuffer() const
+const T* DistSparseMatrix<T>::LockedValueBuffer() const EL_NO_EXCEPT
 { return vals_.data(); }
+
+template<typename T>
+void DistSparseMatrix<T>::ForceNumLocalEntries( Int numLocalEntries )
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::NumLocalEntries"))
+    distGraph_.ForceNumLocalEdges( numLocalEntries );
+    vals_.resize( numLocalEntries );
+}
+
+template<typename T>
+void DistSparseMatrix<T>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
+{ distGraph_.ForceConsistency(consistent); }
 
 // Auxiliary routines
 // ==================
@@ -597,7 +636,7 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     if( multMeta.ready )
         return multMeta;
     mpi::Comm comm = Comm();
-    const int commSize = mpi::Size( comm );
+    const int commSize = distGraph_.commSize_;
     auto& meta = multMeta;
  
     // Compute the set of row indices that we need from X in a normal
@@ -676,6 +715,84 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     meta.ready = true;
 
     return meta;
+}
+
+template<typename T>
+void DistSparseMatrix<T>::MappedSources
+( const DistMap& reordering, vector<Int>& mappedSources ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::MappedSources"))
+    mpi::Comm comm = Comm();
+    const int commRank = mpi::Rank( comm );
+    Timer timer;
+    const bool time = false; 
+    const Int localHeight = LocalHeight();
+    if( Int(mappedSources.size()) == localHeight )
+        return;
+
+    // Get the reordered indices of our local rows of the sparse matrix
+    if( time && commRank == 0 )
+        timer.Start();
+    mappedSources.resize( localHeight );
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        mappedSources[iLoc] = GlobalRow(iLoc);
+    reordering.Translate( mappedSources );
+    if( time && commRank == 0 )
+        Output("Source translation: ",timer.Stop()," secs");
+}
+
+template<typename T>
+void DistSparseMatrix<T>::MappedTargets
+( const DistMap& reordering, 
+  vector<Int>& mappedTargets, vector<Int>& colOffs ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::MappedTargets"))
+    if( mappedTargets.size() != 0 && colOffs.size() != 0 ) 
+        return;
+
+    mpi::Comm comm = Comm();
+    const int commRank = mpi::Rank( comm ); 
+    Timer timer;
+    const bool time = false;
+
+    // Compute the unique set of column indices that our process interacts with
+    if( time && commRank == 0 )
+        timer.Start();
+    const Int* colBuffer = LockedTargetBuffer();
+    const Int numLocalEntries = NumLocalEntries();
+    colOffs.resize( numLocalEntries );
+    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
+    for( Int e=0; e<numLocalEntries; ++e )
+        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
+    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
+    {
+        Int uniqueOff=-1, lastUnique=-1;
+        for( Int e=0; e<numLocalEntries; ++e )
+        {
+            if( lastUnique != uniqueCols[e].value )
+            {
+                ++uniqueOff;
+                lastUnique = uniqueCols[e].value;
+                uniqueCols[uniqueOff] = uniqueCols[e];
+            }
+            colOffs[uniqueCols[e].index] = uniqueOff;
+        }
+        uniqueCols.resize( uniqueOff+1 );
+    }
+    const Int numUniqueCols = uniqueCols.size();
+    if( time && commRank == 0 )
+        Output("Unique sort: ",timer.Stop()," secs");
+
+    // Get the reordered indices of the targets of our portion of the 
+    // distributed sparse matrix
+    if( time && commRank == 0 )
+        timer.Start();
+    mappedTargets.resize( numUniqueCols );
+    for( Int e=0; e<numUniqueCols; ++e )
+        mappedTargets[e] = uniqueCols[e].value;
+    reordering.Translate( mappedTargets );
+    if( time && commRank == 0 )
+        Output("Target translation: ",timer.Stop()," secs");
 }
 
 template<typename T>

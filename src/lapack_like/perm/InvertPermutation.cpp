@@ -35,7 +35,7 @@ void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv )
 }
 
 void InvertPermutation
-( const AbstractDistMatrix<Int>& pPre, AbstractDistMatrix<Int>& pInvPre )
+( const ElementalMatrix<Int>& pPre, ElementalMatrix<Int>& pInvPre )
 {
     DEBUG_ONLY(
       CSE cse("InvertPermutation");

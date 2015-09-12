@@ -62,8 +62,8 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 template<typename F>
 inline void
 Full
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q )
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<Int>& p, ElementalMatrix<Int>& q )
 {
     DEBUG_ONLY(
         CSE cse("lu::Full");

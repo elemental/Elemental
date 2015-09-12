@@ -43,8 +43,8 @@ Int ADMM
 
 template<typename Real>
 Int ADMM
-( const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& B, 
-        AbstractDistMatrix<Real>& X,
+( const ElementalMatrix<Real>& APre, const ElementalMatrix<Real>& B, 
+        ElementalMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::ADMM"))

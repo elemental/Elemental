@@ -278,8 +278,8 @@ ReplaceColNorms
 
 template<typename F>
 inline void BusingerGolub
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p, 
+( ElementalMatrix<F>& APre, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d, ElementalMatrix<Int>& p, 
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(

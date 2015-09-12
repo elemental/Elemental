@@ -104,8 +104,8 @@ template<typename Real>
 Int ModelFit
 ( function<void(DistMatrix<Real>&,Real)> lossProx,
   function<void(DistMatrix<Real>&,Real)> regProx,
-  const AbstractDistMatrix<Real>& APre, const AbstractDistMatrix<Real>& bPre, 
-        AbstractDistMatrix<Real>& wPre, 
+  const ElementalMatrix<Real>& APre, const ElementalMatrix<Real>& bPre, 
+        ElementalMatrix<Real>& wPre, 
   const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ModelFit"))
@@ -201,8 +201,8 @@ Int ModelFit
   template Int ModelFit \
   ( function<void(DistMatrix<Real>&,Real)> lossProx, \
     function<void(DistMatrix<Real>&,Real)> regProx, \
-    const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, \
-          AbstractDistMatrix<Real>& w, \
+    const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, \
+          ElementalMatrix<Real>& w, \
     const ModelFitCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

@@ -26,20 +26,27 @@ void SOCApply
     auto yRoots = y;
     ConeBroadcast( xRoots, orders, firstInds );
     ConeBroadcast( yRoots, orders, firstInds );
+
     const Int height = x.Height();
+    const Real* xBuf     = x.LockedBuffer();
+    const Real* xRootBuf = xRoots.LockedBuffer();
+    const Real* yBuf     = y.LockedBuffer();
+    const Real* yRootBuf = yRoots.LockedBuffer();
+          Real* zBuf = z.Buffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     for( Int i=0; i<height; ++i )
-        if( i != firstInds.Get(i,0) )
-            z.Update( i, 0, xRoots.Get(i,0)*y.Get(i,0) +
-                            yRoots.Get(i,0)*x.Get(i,0) );
+        if( i != firstIndBuf[i] )
+            zBuf[i] += xRootBuf[i]*yBuf[i] + yRootBuf[i]*xBuf[i];
 }
 
 template<typename Real>
 void SOCApply
-( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& yPre,
-        AbstractDistMatrix<Real>& zPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Real>& yPre,
+        ElementalMatrix<Real>& zPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCApply"))
@@ -65,15 +72,21 @@ void SOCApply
     auto yRoots = y;
     ConeBroadcast( xRoots, orders, firstInds );
     ConeBroadcast( yRoots, orders, firstInds );
+
     const Int localHeight = x.LocalHeight();
+    const Real* xBuf     = x.LockedBuffer();
+    const Real* xRootBuf = xRoots.LockedBuffer();
+    const Real* yBuf     = y.LockedBuffer();
+    const Real* yRootBuf = yRoots.LockedBuffer();
+          Real* zBuf     = z.Buffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i != firstInd )
-            z.UpdateLocal
-            ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
-                       yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );
+            zBuf[iLoc] += xRootBuf[iLoc]*yBuf[iLoc] + yRootBuf[iLoc]*xBuf[iLoc];
     }
 }
 
@@ -91,15 +104,22 @@ void SOCApply
     auto yRoots = y;
     ConeBroadcast( xRoots, orders, firstInds );
     ConeBroadcast( yRoots, orders, firstInds );
+
+    const Int firstLocalRow = x.FirstLocalRow();
     const Int localHeight = x.LocalHeight();
+    const Real* xBuf     = x.LockedMatrix().LockedBuffer();
+    const Real* xRootBuf = xRoots.LockedMatrix().LockedBuffer();
+    const Real* yBuf     = y.LockedMatrix().LockedBuffer();
+    const Real* yRootBuf = yRoots.LockedMatrix().LockedBuffer();
+          Real* zBuf     = z.Matrix().Buffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int firstInd = firstIndBuf[iLoc];
         if( i != firstInd )
-            z.UpdateLocal
-            ( iLoc, 0, xRoots.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) +
-                       yRoots.GetLocal(iLoc,0)*x.GetLocal(iLoc,0) );
+            zBuf[iLoc] += xRootBuf[iLoc]*yBuf[iLoc] + yRootBuf[iLoc]*xBuf[iLoc];
     }
 }
 
@@ -119,10 +139,10 @@ void SOCApply
 
 template<typename Real>
 void SOCApply
-( const AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y,
-  const AbstractDistMatrix<Int>& orders, 
-  const AbstractDistMatrix<Int>& firstInds,
+( const ElementalMatrix<Real>& x, 
+        ElementalMatrix<Real>& y,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCApply"))
@@ -154,11 +174,11 @@ void SOCApply
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCApply \
-  ( const AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCApply \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
@@ -171,10 +191,10 @@ void SOCApply
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCApply \
-  ( const AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCApply \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \

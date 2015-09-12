@@ -22,8 +22,8 @@ void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ );
 
 template<typename F>
 void Bidiag
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& tP, AbstractDistMatrix<F>& tQ );
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ );
 
 namespace bidiag {
 
@@ -34,14 +34,14 @@ void Explicit
   Matrix<F>& P, Matrix<F>& Q );
 template<typename F>
 void Explicit
-( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& Q );
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<F>& P, ElementalMatrix<F>& Q );
 
 // Only return the condensed bidiagonal matrix
 template<typename F>
 void ExplicitCondensed( Matrix<F>& A ); 
 template<typename F>
-void ExplicitCondensed( AbstractDistMatrix<F>& A );
+void ExplicitCondensed( ElementalMatrix<F>& A );
 
 template<typename F>
 void ApplyQ
@@ -50,8 +50,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& B );
 
 template<typename F>
 void ApplyP
@@ -60,8 +60,8 @@ void ApplyP
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& B );
 
 } // namespace bidiag
 
@@ -90,7 +90,7 @@ template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t,
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t,
   const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
 
 namespace herm_tridiag {
@@ -99,7 +99,7 @@ template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void ExplicitCondensed
-( UpperOrLower uplo, AbstractDistMatrix<F>& A,
+( UpperOrLower uplo, ElementalMatrix<F>& A,
   const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
 
 template<typename F>
@@ -109,8 +109,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& B );
 
 } // namespace herm_tridiag
 
@@ -120,14 +120,14 @@ template<typename F>
 void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void Hessenberg
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t );
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t );
 
 namespace hessenberg {
 
 template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A );
 
 template<typename F>
 void ApplyQ
@@ -136,8 +136,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& B );
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& B );
 
 } // namespace hessenberg
 

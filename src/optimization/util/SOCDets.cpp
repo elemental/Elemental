@@ -25,10 +25,10 @@ void SOCDets
 
 template<typename Real>
 void SOCDets
-( const AbstractDistMatrix<Real>& xPre, 
-        AbstractDistMatrix<Real>& dPre,
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+        ElementalMatrix<Real>& dPre,
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCDets"))
@@ -72,10 +72,10 @@ void SOCDets
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCDets \
-  ( const AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& d, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  ( const ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& d, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void SOCDets \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& d, \

@@ -24,7 +24,7 @@ void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<F>& A )
+void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HPDInverse"))
     if( uplo == LOWER )
@@ -42,7 +42,7 @@ void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 
 #define PROTO(F) \
   template void HPDInverse( UpperOrLower uplo, Matrix<F>& A ); \
-  template void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
+  template void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A ); \
   template void LocalHPDInverse \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 

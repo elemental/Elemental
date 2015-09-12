@@ -65,8 +65,8 @@ void Tikhonov
 template<typename F> 
 void Tikhonov
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& BPre, 
-  const AbstractDistMatrix<F>& G,          AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& APre, const ElementalMatrix<F>& BPre, 
+  const ElementalMatrix<F>& G,          ElementalMatrix<F>& XPre, 
   TikhonovAlg alg )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
@@ -213,6 +213,8 @@ void Tikhonov
         auto BEmbT = BEmb( IR(0,m), IR(0,numRHS) );
         BEmbT = B;
     }
+    else
+        BEmb = B;
 
     // Solve the higher-dimensional problem
     // ====================================
@@ -290,6 +292,8 @@ void Tikhonov
         for( auto& entry : recvBuf )
             BEmb.Update( entry );
     }
+    else
+        BEmb = B;
 
     // Solve the higher-dimensional problem
     // ====================================
@@ -311,8 +315,8 @@ void Tikhonov
     const Matrix<F>& G,       Matrix<F>& X, TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& G,       AbstractDistMatrix<F>& X, \
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, \
+    const ElementalMatrix<F>& G,       ElementalMatrix<F>& X, \
     TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \

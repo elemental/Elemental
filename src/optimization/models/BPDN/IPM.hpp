@@ -110,8 +110,8 @@ void IPM
 
 template<typename Real>
 void IPM
-( const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& b, 
-        Real lambda,                       AbstractDistMatrix<Real>& x,
+( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, 
+        Real lambda,                       ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::IPM"))

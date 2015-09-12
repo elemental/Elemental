@@ -144,8 +144,8 @@ template<typename F>
 inline void
 LLTLarge
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& shiftsPre,
-        AbstractDistMatrix<F>& XPre )
+  const ElementalMatrix<F>& LPre, const ElementalMatrix<F>& shiftsPre,
+        ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LLTLarge");
@@ -215,8 +215,8 @@ LLTLarge
 template<typename F>
 inline void
 LLTMedium
-( Orientation orientation, const AbstractDistMatrix<F>& LPre,
-  const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre )
+( Orientation orientation, const ElementalMatrix<F>& LPre,
+  const ElementalMatrix<F>& shiftsPre, ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LLTMedium");

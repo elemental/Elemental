@@ -86,12 +86,12 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& Q,
-  const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, 
+( const ElementalMatrix<Real>& Q,
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre, 
   bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKT"))
@@ -216,7 +216,9 @@ void StaticKKT
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A, 
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& regPerm,
+        Real gamma,
+        Real delta,
+        Real beta,
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
@@ -246,8 +248,8 @@ void StaticKKT
     else
         J.Reserve( numUsedEntriesQ + 2*numEntriesA + 2*numEntriesG + n+m+k );
 
-    // Jxx = Q
-    // =======
+    // Jxx = Q + gamma^2*I
+    // ===================
     for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
@@ -255,6 +257,13 @@ void StaticKKT
         if( i >= j || !onlyLower )
             J.QueueUpdate( i, j, Q.Value(e) );
     }
+    for( Int i=0; i<n; ++i )
+        J.QueueUpdate( i, i, gamma*gamma );
+
+    // Jyy = -delta^2*I
+    // ================
+    for( Int i=0; i<m; ++i )
+        J.QueueUpdate( i+n, i+n, -delta*delta );
 
     // Jyx = A (and Jxy = A^T)
     // =======================
@@ -274,12 +283,13 @@ void StaticKKT
             J.QueueUpdate( G.Col(e), n+m+G.Row(e), G.Value(e) );
     }
 
-    // Add the regularization
-    // ======================
-    for( Int e=0; e<n+m+k; ++e )
-        J.QueueUpdate( e, e, regPerm.Get(e,0) );
+    // Jzz = -beta^2*I
+    // ===============
+    for( Int i=0; i<k; ++i )
+        J.QueueUpdate( i+m+n, i+m+n, -beta*beta );
 
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -383,7 +393,9 @@ void StaticKKT
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& regPerm,
+        Real gamma,
+        Real delta,
+        Real beta,
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -444,14 +456,17 @@ void StaticKKT
         if( !onlyLower )
             J.QueueUpdate( j, i, G.Value(e), false );
     }
-    // Pack regPerm
-    // ------------
+    // Add the regularization
+    // ----------------------
     for( Int iLoc=0; iLoc<localHeightJ; ++iLoc )
     {
         const Int i = J.GlobalRow(iLoc);
-        J.QueueLocalUpdate( iLoc, i, regPerm.GetLocal(iLoc,0) );
+        if( i < n )        J.QueueLocalUpdate( iLoc, i,  gamma*gamma );
+        else if( i < n+m ) J.QueueLocalUpdate( iLoc, i, -delta*delta );
+        else               J.QueueLocalUpdate( iLoc, i, -beta*beta );
     }
     J.ProcessQueues();
+    J.FreezeSparsity();
 }
 
 template<typename Real>
@@ -508,12 +523,12 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const AbstractDistMatrix<Real>& rc,
-  const AbstractDistMatrix<Real>& rb, 
-  const AbstractDistMatrix<Real>& rh,
-  const AbstractDistMatrix<Real>& rmu, 
-  const AbstractDistMatrix<Real>& z, 
-        AbstractDistMatrix<Real>& dPre )
+( const ElementalMatrix<Real>& rc,
+  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rh,
+  const ElementalMatrix<Real>& rmu, 
+  const ElementalMatrix<Real>& z, 
+        ElementalMatrix<Real>& dPre )
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
 
@@ -599,10 +614,10 @@ void ExpandCoreSolution
 template<typename Real>
 void ExpandCoreSolution
 ( Int m, Int n, Int k,
-  const AbstractDistMatrix<Real>& dPre,
-        AbstractDistMatrix<Real>& dx,
-        AbstractDistMatrix<Real>& dy,
-        AbstractDistMatrix<Real>& dz )
+  const ElementalMatrix<Real>& dPre,
+        ElementalMatrix<Real>& dx,
+        ElementalMatrix<Real>& dy,
+        ElementalMatrix<Real>& dz )
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
 
@@ -699,14 +714,14 @@ void ExpandSolution
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n, 
-  const AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Real>& rmu,
-  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& dx,
-        AbstractDistMatrix<Real>& dy, 
-        AbstractDistMatrix<Real>& dz,
-        AbstractDistMatrix<Real>& ds )
+  const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& dx,
+        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dz,
+        ElementalMatrix<Real>& ds )
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
     const int k = s.Height();
@@ -754,12 +769,12 @@ void ExpandSolution
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& Q, \
@@ -773,7 +788,9 @@ void ExpandSolution
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
-    const Matrix<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \
@@ -793,7 +810,9 @@ void ExpandSolution
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
           DistSparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void FinishKKT \
@@ -809,12 +828,12 @@ void ExpandSolution
     const Matrix<Real>& z, \
           Matrix<Real>& d ); \
   template void KKTRHS \
-  ( const AbstractDistMatrix<Real>& rc, \
-    const AbstractDistMatrix<Real>& rb, \
-    const AbstractDistMatrix<Real>& rh, \
-    const AbstractDistMatrix<Real>& rmu, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& d ); \
+  ( const ElementalMatrix<Real>& rc, \
+    const ElementalMatrix<Real>& rb, \
+    const ElementalMatrix<Real>& rh, \
+    const ElementalMatrix<Real>& rmu, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& d ); \
   template void KKTRHS \
   ( const DistMultiVec<Real>& rc, \
     const DistMultiVec<Real>& rb, \
@@ -830,10 +849,10 @@ void ExpandSolution
           Matrix<Real>& dz ); \
   template void ExpandCoreSolution \
   ( Int m, Int n, Int k, \
-    const AbstractDistMatrix<Real>& d, \
-          AbstractDistMatrix<Real>& dx, \
-          AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz ); \
+    const ElementalMatrix<Real>& d, \
+          ElementalMatrix<Real>& dx, \
+          ElementalMatrix<Real>& dy, \
+          ElementalMatrix<Real>& dz ); \
   template void ExpandCoreSolution \
   ( Int m, Int n, Int k, \
     const DistMultiVec<Real>& d, \
@@ -852,14 +871,14 @@ void ExpandSolution
           Matrix<Real>& ds ); \
   template void ExpandSolution \
   ( Int m, Int n, \
-    const AbstractDistMatrix<Real>& d, \
-    const AbstractDistMatrix<Real>& rmu, \
-    const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& dx, \
-          AbstractDistMatrix<Real>& dy, \
-          AbstractDistMatrix<Real>& dz, \
-          AbstractDistMatrix<Real>& ds ); \
+    const ElementalMatrix<Real>& d, \
+    const ElementalMatrix<Real>& rmu, \
+    const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& dx, \
+          ElementalMatrix<Real>& dy, \
+          ElementalMatrix<Real>& dz, \
+          ElementalMatrix<Real>& ds ); \
   template void ExpandSolution \
   ( Int m, Int n, \
     const DistMultiVec<Real>& d, \

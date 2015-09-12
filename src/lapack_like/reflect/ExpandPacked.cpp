@@ -28,7 +28,7 @@ void ExpandPackedReflectors
 template<typename F> 
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t )
+  Int offset, ElementalMatrix<F>& H, const ElementalMatrix<F>& t )
 {
     DEBUG_ONLY(CSE cse("ExpandPackedReflectors"))
     if( uplo == LOWER && dir == VERTICAL )
@@ -43,7 +43,7 @@ void ExpandPackedReflectors
     Int offset, Matrix<F>& H, const Matrix<F>& t ); \
   template void ExpandPackedReflectors \
   ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
-    Int offset, AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t );
+    Int offset, ElementalMatrix<F>& H, const ElementalMatrix<F>& t );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

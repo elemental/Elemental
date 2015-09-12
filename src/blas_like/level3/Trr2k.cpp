@@ -33,9 +33,9 @@ void Trr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
-  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
-  T gamma,       AbstractDistMatrix<T>& E )
+  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
+  T gamma,       ElementalMatrix<T>& E )
 {
     DEBUG_ONLY(CSE cse("Trr2k"))
     const bool normalA = orientA == NORMAL;
@@ -130,16 +130,16 @@ void Trr2k
   ( UpperOrLower uplo, \
     Orientation orientA, Orientation orientB, \
     Orientation orientC, Orientation orientD, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
-    T gamma,       AbstractDistMatrix<T>& E ); \
+    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
+    T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D, \
+    T gamma,       ElementalMatrix<T>& E ); \
   template void LocalTrr2k \
   ( UpperOrLower uplo, \
     Orientation orientA, Orientation orientB, \
     Orientation orientC, Orientation orientD, \
-    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
-    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
-    T gamma,       AbstractDistMatrix<T>& E );
+    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
+    T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D, \
+    T gamma,       ElementalMatrix<T>& E );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

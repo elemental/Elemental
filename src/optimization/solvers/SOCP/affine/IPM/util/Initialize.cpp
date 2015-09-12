@@ -156,11 +156,11 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -189,17 +189,17 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, 
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z, 
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& x, 
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z, 
+        ElementalMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
 {
@@ -279,11 +279,11 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real eps = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -324,9 +324,19 @@ void Initialize
         Matrix<Real>& z, 
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gamma = Pow(eps,Real(0.25));
+    const Real delta = Pow(eps,Real(0.25));
+    const Real beta  = Pow(eps,Real(0.25));
+    const Real gammaTmp = 0;
+    const Real deltaTmp = 0;
+    const Real betaTmp  = 0;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -356,8 +366,10 @@ void Initialize
     Matrix<Real> ones;
     Ones( ones, k, 1 );
     const bool onlyLower = false;
-    lp::affine::KKT( A, G, ones, ones, JOrig, onlyLower );
+    lp::affine::StaticKKT( A, G, gamma, delta, beta, JOrig, onlyLower );
+    lp::affine::FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
+    J.FreezeSparsity();
 
     // (Approximately) factor the KKT matrix
     // =====================================
@@ -365,10 +377,9 @@ void Initialize
     reg.Resize( n+m+k, 1 );
     for( Int i=0; i<reg.Height(); ++i )
     {
-        if( i < n )
-            reg.Set( i, 0, qsdCtrl.regPrimal );
-        else
-            reg.Set( i, 0, -qsdCtrl.regDual );
+        if( i < n )        reg.Set( i, 0, gammaTmp*gammaTmp );
+        else if( i < n+m ) reg.Set( i, 0, -deltaTmp*deltaTmp );
+        else               reg.Set( i, 0, -betaTmp*betaTmp );
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
@@ -400,7 +411,9 @@ void Initialize
         rh *= -1;
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -418,15 +431,16 @@ void Initialize
         Zeros( rh, k, 1 );
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -468,9 +482,19 @@ void Initialize
         DistMultiVec<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, 
   Int cutoffPar,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gamma = Pow(eps,Real(0.25));
+    const Real delta = Pow(eps,Real(0.25));
+    const Real beta  = Pow(eps,Real(0.25));
+    const Real gammaTmp = 0;
+    const Real deltaTmp = 0;
+    const Real betaTmp  = 0;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -501,8 +525,10 @@ void Initialize
     DistMultiVec<Real> ones(comm);
     Ones( ones, k, 1 );
     const bool onlyLower = false;
-    lp::affine::KKT( A, G, ones, ones, JOrig, onlyLower );
+    lp::affine::StaticKKT( A, G, gamma, delta, beta, JOrig, onlyLower );
+    lp::affine::FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
+    J.FreezeSparsity();
 
     // (Approximately) factor the KKT matrix
     // =====================================
@@ -511,10 +537,9 @@ void Initialize
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
         const Int i = reg.FirstLocalRow() + iLoc;
-        if( i < n )
-            reg.SetLocal( iLoc, 0, qsdCtrl.regPrimal );
-        else
-            reg.SetLocal( iLoc, 0, -qsdCtrl.regDual );
+        if( i < n )        reg.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
+        else if( i < n+m ) reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+        else               reg.SetLocal( iLoc, 0, -betaTmp*betaTmp   );
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
@@ -547,7 +572,9 @@ void Initialize
         rh *= -1;
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
     }
@@ -565,15 +592,16 @@ void Initialize
         Zeros( rh, k, 1 );
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, d, qsdCtrl );
+        reg_ldl::RegularizedSolveAfter
+        ( JOrig, reg, invMap, info, JFront, d,
+          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real epsilon = Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
-    const Real gammaPrimal = Sqrt(epsilon)*Max(sNorm,Real(1));
-    const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
+    const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
+    const Real gammaDual   = Sqrt(eps)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
@@ -615,17 +643,17 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoff ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \
@@ -640,7 +668,7 @@ void Initialize
           Matrix<Real>& z, \
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
@@ -654,7 +682,7 @@ void Initialize
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoffPar,\
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -64,7 +64,7 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, Base<F> tol )
 template<typename F>
 inline void
 PseudoTrsm
-( const AbstractDistMatrix<F>& RLPre, AbstractDistMatrix<F>& RRPre,
+( const ElementalMatrix<F>& RLPre, ElementalMatrix<F>& RRPre,
   Base<F> tol )
 {
     DEBUG_ONLY(CSE cse("id::PseudoTrsm"))
@@ -108,8 +108,8 @@ BusingerGolub
 template<typename F> 
 inline void
 BusingerGolub
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p, 
-  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p, 
+  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("id::BusingerGolub"))
     typedef Base<F> Real;
@@ -162,8 +162,8 @@ void ID
 
 template<typename F> 
 void ID
-( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
-        AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( const ElementalMatrix<F>& A, ElementalMatrix<Int>& p, 
+        ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("ID"))
     DistMatrix<F> B( A );
@@ -172,8 +172,8 @@ void ID
 
 template<typename F> 
 void ID
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
-  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
+( ElementalMatrix<F>& A, ElementalMatrix<Int>& p, 
+  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("ID"))
     if( canOverwrite )
@@ -192,14 +192,14 @@ void ID
   ( const Matrix<F>& A, Matrix<Int>& p, \
           Matrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
   template void ID \
-  ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, \
-          AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
+  ( const ElementalMatrix<F>& A, ElementalMatrix<Int>& p, \
+          ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
   template void ID \
   ( Matrix<F>& A, Matrix<Int>& p, \
     Matrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); \
   template void ID \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, \
-    AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); 
+  ( ElementalMatrix<F>& A, ElementalMatrix<Int>& p, \
+    ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

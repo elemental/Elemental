@@ -22,20 +22,28 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 
     const Int height = A.Height();
     const Int width = A.Width();
+    const T* ABuf = A.LockedBuffer();
+    const T* BBuf = B.LockedBuffer();
+          T* CBuf = C.Buffer();
+    const Int ALDim = A.LDim();
+    const Int BLDim = B.LDim();
+    const Int CLDim = C.LDim();
+
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            C.Set( i, j, A.Get(i,j)*B.Get(i,j) );
+            CBuf[i+j*CLDim] = ABuf[i+j*ALDim]*BBuf[i+j*BLDim];
 }
 
 template<typename T> 
 void Hadamard
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-        AbstractDistMatrix<T>& C )
+( const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B, 
+        ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Hadamard"))
-    const DistData ADistData = A.DistData();
-    const DistData BDistData = B.DistData();
-    DistData CDistData = C.DistData();
+    const ElementalData ADistData = A.DistData();
+    const ElementalData BDistData = B.DistData();
+    ElementalData CDistData = C.DistData();
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     AssertSameGrids( A, B );
@@ -67,9 +75,9 @@ void Hadamard
   template void Hadamard \
   ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
   template void Hadamard \
-  ( const AbstractDistMatrix<T>& A, \
-    const AbstractDistMatrix<T>& B, \
-          AbstractDistMatrix<T>& C ); \
+  ( const ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& B, \
+          ElementalMatrix<T>& C ); \
   template void Hadamard \
   ( const DistMultiVec<T>& A, \
     const DistMultiVec<T>& B, \

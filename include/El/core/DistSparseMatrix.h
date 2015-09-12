@@ -473,7 +473,7 @@ EL_EXPORT ElError ElDistSparseMatrixOffset_z
 ( ElConstDistSparseMatrix_z A, ElInt localRow, ElInt col, ElInt* offset );
 
 /* Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
-   ---------------------------------------------------- */
+   ------------------------------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixNumConnections_i
 ( ElConstDistSparseMatrix_i A, ElInt localRow, ElInt* numConnections );
 EL_EXPORT ElError ElDistSparseMatrixNumConnections_s
@@ -484,6 +484,19 @@ EL_EXPORT ElError ElDistSparseMatrixNumConnections_c
 ( ElConstDistSparseMatrix_c A, ElInt localRow, ElInt* numConnections );
 EL_EXPORT ElError ElDistSparseMatrixNumConnections_z
 ( ElConstDistSparseMatrix_z A, ElInt localRow, ElInt* numConnections );
+
+/* double DistSparseMatrix<T>::Imbalance() const
+   --------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixImbalance_i
+( ElConstDistSparseMatrix_i A, double* imbalance );
+EL_EXPORT ElError ElDistSparseMatrixImbalance_s
+( ElConstDistSparseMatrix_s A, double* imbalance );
+EL_EXPORT ElError ElDistSparseMatrixImbalance_d
+( ElConstDistSparseMatrix_d A, double* imbalance );
+EL_EXPORT ElError ElDistSparseMatrixImbalance_c
+( ElConstDistSparseMatrix_c A, double* imbalance );
+EL_EXPORT ElError ElDistSparseMatrixImbalance_z
+( ElConstDistSparseMatrix_z A, double* imbalance );
 
 /* Int* DistSparseMatrix<T>::SourceBuffer()
    ---------------------------------------- */

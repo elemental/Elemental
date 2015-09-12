@@ -27,7 +27,7 @@ void Polar( Matrix<F>& A, const PolarCtrl& ctrl )
 }
 
 template<typename F>
-void Polar( AbstractDistMatrix<F>& A, const PolarCtrl& ctrl )
+void Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("Polar"))
     if( ctrl.qdwh )
@@ -48,7 +48,7 @@ void Polar( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 
 template<typename F>
 void Polar
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, const PolarCtrl& ctrl )
+( ElementalMatrix<F>& A, ElementalMatrix<F>& P, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("Polar"))
     if( ctrl.qdwh )
@@ -69,7 +69,7 @@ void HermitianPolar( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl )
 
 template<typename F>
 void HermitianPolar
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, const PolarCtrl& ctrl )
+( UpperOrLower uplo, ElementalMatrix<F>& A, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianPolar"))
     if( ctrl.qdwh )
@@ -91,7 +91,7 @@ void HermitianPolar
 
 template<typename F>
 void HermitianPolar
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, 
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& P, 
   const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianPolar"))
@@ -103,20 +103,20 @@ void HermitianPolar
 
 #define PROTO(F) \
   template void Polar( Matrix<F>& A, const PolarCtrl& ctrl ); \
-  template void Polar( AbstractDistMatrix<F>& A, const PolarCtrl& ctrl ); \
+  template void Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl ); \
   template void Polar \
   ( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl ); \
   template void Polar \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, \
+  ( ElementalMatrix<F>& A, ElementalMatrix<F>& P, \
     const PolarCtrl& ctrl ); \
   template void HermitianPolar \
   ( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl ); \
   template void HermitianPolar \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, const PolarCtrl& ctrl ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, const PolarCtrl& ctrl ); \
   template void HermitianPolar \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl ); \
   template void HermitianPolar \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& P, \
     const PolarCtrl& ctrl );
 
 #define EL_NO_INT_PROTO

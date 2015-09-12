@@ -21,20 +21,20 @@ void GetMappedDiagonal
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     S* dBuf = d.Buffer();
-    const T* buffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
     const Int ldim = A.LDim();
     EL_PARALLEL_FOR
     for( Int k=0; k<diagLength; ++k )
     {
         const Int i = iStart + k;
         const Int j = jStart + k;
-        dBuf[k] = func(buffer[i+j*ldim]);
+        dBuf[k] = func(ABuf[i+j*ldim]);
     }
 }
 
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
-( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& dPre, 
+( const DistMatrix<T,U,V>& A, ElementalMatrix<S>& dPre, 
   function<S(T)> func, Int offset )
 { 
     DEBUG_ONLY(
@@ -65,14 +65,14 @@ void GetMappedDiagonal
 
         const Int localDiagLength = d.LocalHeight();
         S* dBuf = d.Buffer();
-        const T* buffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ldim = A.LDim();
         EL_PARALLEL_FOR
         for( Int k=0; k<localDiagLength; ++k )
         {
             const Int iLoc = iLocStart + k*iLocStride;
             const Int jLoc = jLocStart + k*jLocStride;
-            dBuf[k] = func(buffer[iLoc+jLoc*ldim]);
+            dBuf[k] = func(ABuf[iLoc+jLoc*ldim]);
         }
     }
 }
@@ -82,14 +82,32 @@ void GetMappedDiagonal
 ( const SparseMatrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset )
 {
     DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
-    Ones( d, El::DiagonalLength(A.Height(),A.Width(),offset), 1 );
-    const Int numEntries = A.NumEntries();
-    for( Int e=0; e<numEntries; ++e )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const T* valBuf = A.LockedValueBuffer();
+    const Int* colBuf = A.LockedTargetBuffer();
+
+    const Int iStart = Max(-offset,0);
+    const Int jStart = Max( offset,0);
+
+    const Int diagLength = El::DiagonalLength(m,n,offset);
+    Zeros( d, diagLength, 1 );
+    S* dBuf = d.Buffer();
+
+    for( Int k=0; k<diagLength; ++k )
     {
-        const Int i = A.Row(e);
-        const Int j = A.Col(e);
-        if( i+offset == j )
-            d.Set( Min(i,j), 0, func(A.Value(e)) );
+        const Int i = iStart + k;
+        const Int j = jStart + k;
+        const Int thisOff = A.RowOffset(i);
+        const Int nextOff = A.RowOffset(i+1);
+        auto it = std::lower_bound( colBuf+thisOff, colBuf+nextOff, j );
+        if( *it == j )
+        {
+            const Int e = it-colBuf;
+            dBuf[Min(i,j)] = func(valBuf[e]);
+        }
+        else
+            dBuf[Min(i,j)] = func(0);
     }
 }
 
@@ -99,26 +117,39 @@ void GetMappedDiagonal
   function<S(T)> func, Int offset )
 {
     DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
-    if( A.Height() != A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const T* valBuf = A.LockedValueBuffer();
+    const Int* colBuf = A.LockedTargetBuffer();
+
+    if( m != n )
         LogicError("DistSparseMatrix GetMappedDiagonal assumes square matrix");
     if( offset != 0 )
         LogicError("DistSparseMatrix GetMappedDiagonal assumes offset=0");
+
     d.SetComm( A.Comm() );
-    Ones( d, El::DiagonalLength(A.Height(),A.Width(),offset), 1 );
-    
-    const Int numLocalEntries = A.NumLocalEntries();
-    for( Int e=0; e<numLocalEntries; ++e )
+    Ones( d, El::DiagonalLength(m,n,offset), 1 );
+    S* dBuf = d.Matrix().Buffer();
+    const Int dLocalHeight = d.LocalHeight();
+    for( Int iLoc=0; iLoc<dLocalHeight; ++iLoc )
     {
-        const Int i = A.Row(e);
-        const Int j = A.Col(e);
-        if( i == j )
-            d.SetLocal( i-d.FirstLocalRow(), 0, func(A.Value(e)) );
+        const Int i = d.GlobalRow(iLoc);
+        const Int thisOff = A.RowOffset(iLoc);
+        const Int nextOff = A.RowOffset(iLoc+1);
+        auto it = std::lower_bound( colBuf+thisOff, colBuf+nextOff, i );
+        if( *it == i )
+        {
+            const Int e = it-colBuf;
+            dBuf[iLoc] = func(valBuf[e]);
+        }
+        else
+            dBuf[iLoc] = func(0);
     }
 }
 
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void GetMappedDiagonal \
-  ( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, \
+  ( const DistMatrix<T,U,V>& A, ElementalMatrix<S>& d, \
     function<S(T)> func, Int offset );
 
 #define PROTO_TYPES(S,T) \

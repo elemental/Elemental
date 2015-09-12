@@ -104,8 +104,8 @@ void RowAllToAllDemote
 
 template<typename T,Dist U,Dist V>
 void RowAllToAllDemote
-  ( const BlockDistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A, 
-          BlockDistMatrix<T,                U,             V   >& B )
+  ( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK_CYCLIC>& A, 
+          DistMatrix<T,                U,             V   ,BLOCK_CYCLIC>& B )
 {
     DEBUG_ONLY(CSE cse("copy::RowAllToAllDemote"))
     AssertSameGrids( A, B );
@@ -117,8 +117,8 @@ void RowAllToAllDemote
   ( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A, \
           DistMatrix<T,                U,             V   >& B ); \
   template void RowAllToAllDemote \
-  ( const BlockDistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A, \
-          BlockDistMatrix<T,                U,             V   >& B );
+  ( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK_CYCLIC>& A, \
+          DistMatrix<T,                U,             V   ,BLOCK_CYCLIC>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

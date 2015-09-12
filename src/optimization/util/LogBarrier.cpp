@@ -27,7 +27,7 @@ Base<F> LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
 }
 
 template<typename F> 
-Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> LogBarrier( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
@@ -36,7 +36,7 @@ Base<F> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 
 template<typename F> 
 Base<F> LogBarrier
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite )
+( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
@@ -46,11 +46,11 @@ Base<F> LogBarrier
 #define PROTO(F) \
   template Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A ); \
   template Base<F> LogBarrier \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
   template Base<F> LogBarrier \
   ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
   template Base<F> LogBarrier \
-  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite );
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

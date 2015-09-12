@@ -33,31 +33,38 @@ namespace mpi {
 struct Comm
 {
     MPI_Comm comm;
-    Comm( MPI_Comm mpiComm=MPI_COMM_NULL ) : comm(mpiComm) { }
+    Comm( MPI_Comm mpiComm=MPI_COMM_NULL ) EL_NO_EXCEPT : comm(mpiComm) { }
+
+    inline int Rank() const EL_NO_RELEASE_EXCEPT;
+    inline int Size() const EL_NO_RELEASE_EXCEPT;
 };
-inline bool operator==( const Comm& a, const Comm& b )
+inline bool operator==( const Comm& a, const Comm& b ) EL_NO_EXCEPT
 { return a.comm == b.comm; }
-inline bool operator!=( const Comm& a, const Comm& b )
+inline bool operator!=( const Comm& a, const Comm& b ) EL_NO_EXCEPT
 { return a.comm != b.comm; }
 
 struct Group
 {
     MPI_Group group;
-    Group( MPI_Group mpiGroup=MPI_GROUP_NULL ) : group(mpiGroup) { }
+    Group( MPI_Group mpiGroup=MPI_GROUP_NULL ) EL_NO_EXCEPT 
+    : group(mpiGroup) { }
+
+    inline int Rank() const EL_NO_RELEASE_EXCEPT;
+    inline int Size() const EL_NO_RELEASE_EXCEPT;
 };
-inline bool operator==( const Group& a, const Group& b )
+inline bool operator==( const Group& a, const Group& b ) EL_NO_EXCEPT
 { return a.group == b.group; }
-inline bool operator!=( const Group& a, const Group& b )
+inline bool operator!=( const Group& a, const Group& b ) EL_NO_EXCEPT
 { return a.group != b.group; }
 
 struct Op
 {
     MPI_Op op;
-    Op( MPI_Op mpiOp=MPI_OP_NULL ) : op(mpiOp) { }
+    Op( MPI_Op mpiOp=MPI_OP_NULL ) EL_NO_EXCEPT : op(mpiOp) { }
 };
-inline bool operator==( const Op& a, const Op& b )
+inline bool operator==( const Op& a, const Op& b ) EL_NO_EXCEPT
 { return a.op == b.op; }
-inline bool operator!=( const Op& a, const Op& b )
+inline bool operator!=( const Op& a, const Op& b ) EL_NO_EXCEPT
 { return a.op != b.op; }
 
 // Datatype definitions
@@ -107,81 +114,93 @@ const Op BINARY_XOR = MPI_BXOR;
 
 // Added constant(s)
 const int MIN_COLL_MSG = 1; // minimum message size for collectives
-inline int Pad( int count ) { return std::max(count,MIN_COLL_MSG); }
+inline int Pad( int count ) EL_NO_EXCEPT
+{ return std::max(count,MIN_COLL_MSG); }
 
-bool CommSameSizeAsInteger();
-bool GroupSameSizeAsInteger();
+bool CommSameSizeAsInteger() EL_NO_EXCEPT;
+bool GroupSameSizeAsInteger() EL_NO_EXCEPT;
 
 // Environment routines
-void Initialize( int& argc, char**& argv );
-int InitializeThread( int& argc, char**& argv, int required );
-void Finalize();
-bool Initialized();
-bool Finalized();
-int QueryThread();
-void Abort( Comm comm, int errCode );
-double Time();
-void Create( UserFunction* func, bool commutes, Op& op );
-void Free( Op& op );
-void Free( Datatype& type );
+void Initialize( int& argc, char**& argv ) EL_NO_EXCEPT;
+int InitializeThread( int& argc, char**& argv, int required ) EL_NO_EXCEPT;
+void Finalize() EL_NO_EXCEPT;
+bool Initialized() EL_NO_EXCEPT;
+bool Finalized() EL_NO_EXCEPT;
+int QueryThread() EL_NO_EXCEPT;
+void Abort( Comm comm, int errCode ) EL_NO_EXCEPT;
+double Time() EL_NO_EXCEPT;
+void Create( UserFunction* func, bool commutes, Op& op ) EL_NO_RELEASE_EXCEPT;
+void Free( Op& op ) EL_NO_RELEASE_EXCEPT;
+void Free( Datatype& type ) EL_NO_RELEASE_EXCEPT;
 
 // Communicator manipulation
-int WorldRank();
-int WorldSize();
-int Rank( Comm comm );
-int Size( Comm comm );
-void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm );
-void Dup( Comm original, Comm& duplicate );
-void Split( Comm comm, int color, int key, Comm& newComm );
-void Free( Comm& comm );
-bool Congruent( Comm comm1, Comm comm2 );
-void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler );
+int WorldRank() EL_NO_RELEASE_EXCEPT;
+int WorldSize() EL_NO_RELEASE_EXCEPT;
+int Rank( Comm comm ) EL_NO_RELEASE_EXCEPT;
+int Size( Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Create
+( Comm parentComm, Group subsetGroup, Comm& subsetComm ) EL_NO_RELEASE_EXCEPT;
+void Dup( Comm original, Comm& duplicate ) EL_NO_RELEASE_EXCEPT;
+void Split( Comm comm, int color, int key, Comm& newComm ) EL_NO_RELEASE_EXCEPT;
+void Free( Comm& comm ) EL_NO_RELEASE_EXCEPT;
+bool Congruent( Comm comm1, Comm comm2 ) EL_NO_RELEASE_EXCEPT;
+void ErrorHandlerSet
+( Comm comm, ErrorHandler errorHandler ) EL_NO_RELEASE_EXCEPT;
 
 // Cartesian communicator routines
 void CartCreate
 ( Comm comm, int numDims, const int* dimensions, const int* periods, 
-  bool reorder, Comm& cartComm );
+  bool reorder, Comm& cartComm ) EL_NO_RELEASE_EXCEPT;
 void CartSub
-( Comm comm, const int* remainingDims, Comm& subComm );
+( Comm comm, const int* remainingDims, Comm& subComm ) EL_NO_RELEASE_EXCEPT;
 
 // Group manipulation
-int Rank( Group group );
-int Size( Group group );
-void CommGroup( Comm comm, Group& group );
-void Dup( Group group, Group& newGroup );
-void Union( Group groupA, Group groupB, Group& newGroup );
-void Incl( Group group, int n, const int* ranks, Group& subGroup );
-void Excl( Group group, int n, const int* ranks, Group& subGroup );
-void Difference( Group parent, Group subset, Group& complement );
-void Free( Group& group );
-int Translate( Group origGroup, int origRank, Group newGroup );
-int Translate( Comm  origComm,  int origRank, Group newGroup );
-int Translate( Group origGroup, int origRank, Comm  newComm  );
-int Translate( Comm  origComm,  int origRank, Comm  newComm  );
+int Rank( Group group ) EL_NO_RELEASE_EXCEPT;
+int Size( Group group ) EL_NO_RELEASE_EXCEPT;
+void CommGroup( Comm comm, Group& group ) EL_NO_RELEASE_EXCEPT;
+void Dup( Group group, Group& newGroup ) EL_NO_RELEASE_EXCEPT;
+void Union( Group groupA, Group groupB, Group& newGroup ) EL_NO_RELEASE_EXCEPT;
+void Incl
+( Group group, int n, const int* ranks, Group& subGroup ) EL_NO_RELEASE_EXCEPT;
+void Excl
+( Group group, int n, const int* ranks, Group& subGroup ) EL_NO_RELEASE_EXCEPT;
+void Difference
+( Group parent, Group subset, Group& complement ) EL_NO_RELEASE_EXCEPT;
+void Free( Group& group ) EL_NO_RELEASE_EXCEPT;
+int Translate
+( Group origGroup, int origRank, Group newGroup ) EL_NO_RELEASE_EXCEPT;
+int Translate
+( Comm  origComm,  int origRank, Group newGroup ) EL_NO_RELEASE_EXCEPT;
+int Translate
+( Group origGroup, int origRank, Comm  newComm  ) EL_NO_RELEASE_EXCEPT;
+int Translate
+( Comm  origComm,  int origRank, Comm  newComm  ) EL_NO_RELEASE_EXCEPT;
 void Translate
 ( Group origGroup, int size, const int* origRanks, 
-  Group newGroup,                  int* newRanks );
+  Group newGroup,                  int* newRanks ) EL_NO_RELEASE_EXCEPT;
 void Translate
 ( Comm origComm,  int size, const int* origRanks, 
-  Group newGroup,                 int* newRanks );
+  Group newGroup,                 int* newRanks ) EL_NO_RELEASE_EXCEPT;
 void Translate
 ( Group origGroup, int size, const int* origRanks, 
-  Comm newComm,                    int* newRanks );
+  Comm newComm,                    int* newRanks ) EL_NO_RELEASE_EXCEPT;
 void Translate
 ( Comm origComm, int size, const int* origRanks, 
-  Comm newComm,                  int* newRanks );
+  Comm newComm,                  int* newRanks ) EL_NO_RELEASE_EXCEPT;
 
 // Utilities
-void Barrier( Comm comm );
-void Wait( Request& request );
-void Wait( Request& request, Status& status );
-void WaitAll( int numRequests, Request* requests );
-void WaitAll( int numRequests, Request* requests, Status* statuses );
-bool Test( Request& request );
-bool IProbe( int source, int tag, Comm comm, Status& status );
+void Barrier( Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Wait( Request& request ) EL_NO_RELEASE_EXCEPT;
+void Wait( Request& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+void WaitAll( int numRequests, Request* requests ) EL_NO_RELEASE_EXCEPT;
+void WaitAll
+( int numRequests, Request* requests, Status* statuses ) EL_NO_RELEASE_EXCEPT;
+bool Test( Request& request ) EL_NO_RELEASE_EXCEPT;
+bool IProbe
+( int source, int tag, Comm comm, Status& status ) EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
-int GetCount( Status& status );
+int GetCount( Status& status ) EL_NO_RELEASE_EXCEPT;
 
 // Point-to-point communication
 // ============================
@@ -190,147 +209,164 @@ int GetCount( Status& status );
 // ----
 template<typename Real>
 void TaggedSend
-( const Real* buf, int count, int to, int tag, Comm comm );
+( const Real* buf, int count, int to, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedSend
-( const Complex<Real>* buf, int count, int to, int tag, Comm comm );
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void Send( const T* buf, int count, int to, Comm comm );
+void Send( const T* buf, int count, int to, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // If the send-count is one
 template<typename T>
-void TaggedSend( T b, int to, int tag, Comm comm );
+void TaggedSend( T b, int to, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // If the send-count is one and the tag is irrelevant
 template<typename T>
-void Send( T b, int to, Comm comm );
+void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking send
 // -----------------
 template<typename Real>
 void TaggedISend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request );
+( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedISend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request );
+  Request& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void ISend( const T* buf, int count, int to, Comm comm, Request& request );
+void ISend( const T* buf, int count, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one
 template<typename T>
-void TaggedISend( T b, int to, int tag, Comm comm, Request& request );
+void TaggedISend( T b, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one and the tag is irrelevant
 template<typename T>
-void ISend( T b, int to, Comm comm, Request& request );
+void ISend( T b, int to, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking synchronous Send
 // -----------------------------
 template<typename Real>
 void TaggedISSend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request );
+( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedISSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request );
+  Request& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void ISSend( const T* buf, int count, int to, Comm comm, Request& request );
+void ISSend( const T* buf, int count, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one
 template<typename T>
-void TaggedISSend( T b, int to, int tag, Comm comm, Request& request );
+void TaggedISSend( T b, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one and the tag is irrelevant
 template<typename T>
-void ISSend( T b, int to, Comm comm, Request& request );
+void ISSend( T b, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 
 // Recv
 // ----
 template<typename Real>
-void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm );
+void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm );
+void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void Recv( T* buf, int count, int from, Comm comm );
+void Recv( T* buf, int count, int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one
 template<typename T>
-T TaggedRecv( int from, int tag, Comm comm );
+T TaggedRecv( int from, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one and the tag is irrelevant
 template<typename T>
-T Recv( int from, Comm comm );
+T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking recv
 // -----------------
 template<typename Real>
 void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, 
-  Request& request );
+  Request& request ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedIRecv
 ( Complex<Real>* buf, int count, int from, int tag, Comm comm, 
-  Request& request );
+  Request& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void IRecv( T* buf, int count, int from, Comm comm, Request& request );
+void IRecv( T* buf, int count, int from, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one
 template<typename T>
-T TaggedIRecv( int from, int tag, Comm comm, Request& request );
+T TaggedIRecv( int from, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one and the tag is irrelevant
 template<typename T>
-T IRecv( int from, Comm comm, Request& request );
+T IRecv( int from, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
 
 // SendRecv
 // --------
 template<typename Real>
 void TaggedSendRecv
 ( const Real* sbuf, int sc, int to,   int stag,
-        Real* rbuf, int rc, int from, int rtag, Comm comm );
+        Real* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedSendRecv
 ( const Complex<Real>* sbuf, int sc, int to,   int stag,
-        Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm );
+        Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // If the tags are irrelevant
 template<typename T>
 void SendRecv
 ( const T* sbuf, int sc, int to,
-        T* rbuf, int rc, int from, Comm comm );
+        T* rbuf, int rc, int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // If the send and recv counts are one
 template<typename T>
-T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm );
+T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // If the send and recv counts are one and the tags don't matter
 template<typename T>
-T SendRecv( T sb, int to, int from, Comm comm );
+T SendRecv( T sb, int to, int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer SendRecv
 // ----------------------
 template<typename Real>
 void TaggedSendRecv
-( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedSendRecv
 ( Complex<Real>* buf, int count, int to, int stag, int from, int rtag, 
-  Comm comm );
+  Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // If the tags don't matter
 template<typename T>
-void SendRecv( T* buf, int count, int to, int from, Comm comm );
+void SendRecv( T* buf, int count, int to, int from, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Collective communication
 // ========================
@@ -338,13 +374,15 @@ void SendRecv( T* buf, int count, int to, int from, Comm comm );
 // Broadcast
 // ---------
 template<typename Real>
-void Broadcast( Real* buf, int count, int root, Comm comm );
+void Broadcast( Real* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void Broadcast( Complex<Real>* buf, int count, int root, Comm comm );
+void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // If the message length is one
 template<typename T>
-void Broadcast( T& b, int root, Comm comm );
+void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking broadcast
 // ----------------------
@@ -361,14 +399,20 @@ void IBroadcast( T& b, int root, Comm comm, Request& request );
 
 // Gather
 // ------
+// Even though EL_AVOID_COMPLEX_MPI being defined implies that an std::vector
+// copy of the input data will be created, and the memory allocation can clearly
+// fail and throw an exception, said exception is not necessarily thrown on
+// Linux platforms due to the "optimistic" allocation policy. Therefore we will
+// go ahead and allow std::terminate to be called should such an std::bad_alloc
+// exception occur in a Release build
 template<typename Real>
 void Gather
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, int root, Comm comm );
+        Real* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void  Gather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, int root, Comm comm );
+        Complex<Real>* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking gather
 // -------------------
@@ -386,212 +430,236 @@ void IGather
 template<typename Real>
 void Gather
 ( const Real* sbuf, int sc,
-        Real* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+        Real* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, 
-  int root, Comm comm );
+  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // AllGather
 // ---------
+// NOTE: See the corresponding note for Gather on std::bad_alloc exceptions
 template<typename Real>
 void AllGather
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, Comm comm );
+        Real* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, Comm comm );
+        Complex<Real>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // AllGather with variable recv sizes
 // ----------------------------------
 template<typename Real>
 void AllGather
 ( const Real* sbuf, int sc,
-        Real* rbuf, const int* rcs, const int* rds, Comm comm );
+        Real* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm );
+        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Scatter
 // -------
 template<typename Real>
 void Scatter
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, int root, Comm comm );
+        Real* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void Scatter
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, int root, Comm comm );
+        Complex<Real>* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // In-place option
 template<typename Real>
-void Scatter( Real* buf, int sc, int rc, int root, Comm comm );
+void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm );
+void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // AllToAll
 // --------
+// NOTE: See the corresponding note on std::bad_alloc for Gather
 template<typename Real>
 void AllToAll
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, Comm comm );
+        Real* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllToAll
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, Comm comm );
+        Complex<Real>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // AllToAll with non-uniform send/recv sizes
 // -----------------------------------------
 template<typename Real>
 void AllToAll
 ( const Real* sbuf, const int* scs, const int* sds,
-        Real* rbuf, const int* rcs, const int* rds, Comm comm );
+        Real* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllToAll
 ( const Complex<Real>* sbuf, const int* scs, const int* sds,
-        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm );
+        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
 std::vector<T> AllToAll
 ( const std::vector<T>& sendBuf, 
   const std::vector<int>& sendCounts, 
   const std::vector<int>& sendDispls,
-  mpi::Comm comm );
+  mpi::Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Reduce
 // ------
 template<typename T>
 void Reduce
-( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm );
+( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void Reduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, 
-  int root, Comm comm );
+  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm );
+void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // With a message-size of one
 template<typename T>
-T Reduce( T sb, Op op, int root, Comm comm );
+T Reduce( T sb, Op op, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // With a message-size of one and default to SUM
 template<typename T>
-T Reduce( T sb, int root, Comm comm );
+T Reduce( T sb, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer reduce
 // --------------------
 template<typename T>
-void Reduce( T* buf, int count, Op op, int root, Comm comm );
+void Reduce( T* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm );
+void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void Reduce( T* buf, int count, int root, Comm comm );
+void Reduce( T* buf, int count, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // AllReduce
 // ---------
 template<typename T>
-void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm );
+void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllReduce
-( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm );
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm );
+void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // If the message-length is one
 template<typename T>
-T AllReduce( T sb, Op op, Comm comm );
+T AllReduce( T sb, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // If the message-length is one (and default to SUM)
 template<typename T>
-T AllReduce( T sb, Comm comm );
+T AllReduce( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer AllReduce
 // -----------------------
 template<typename T>
-void AllReduce( T* buf, int count, Op op, Comm comm );
+void AllReduce( T* buf, int count, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm );
+void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void AllReduce( T* buf, int count, Comm comm );
+void AllReduce( T* buf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // ReduceScatter
 // -------------
 template<typename Real>
 void ReduceScatter
-( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm );
+( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void ReduceScatter
-( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm );
+( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm );
+void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer ReduceScatter
 // ---------------------------
 template<typename Real>
-void ReduceScatter( Real* buf, int rc, Op op, Comm comm );
+void ReduceScatter( Real* buf, int rc, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm );
+void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void ReduceScatter( T* buf, int rc, Comm comm );
+void ReduceScatter( T* buf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Variable-length ReduceScatter
 // -----------------------------
 template<typename Real>
 void ReduceScatter
-( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm );
+( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void ReduceScatter
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs, Op op, 
-  Comm comm );
+  Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm );
+void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Scan
 // ----
 template<typename T>
-void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm );
+void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void Scan
-( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm );
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void Scan( const T* sbuf, T* rbuf, int count, Comm comm );
+void Scan( const T* sbuf, T* rbuf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // With a message-size of one
 template<typename T>
-T Scan( T sb, Op op, Comm comm );
+T Scan( T sb, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // With a message-size of one and default to SUM
 template<typename T>
-T Scan( T sb, Comm comm );
+T Scan( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer scan
 // ------------------
 template<typename T>
-void Scan( T* buf, int count, Op op, Comm comm );
+void Scan( T* buf, int count, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void Scan( Complex<Real>* buf, int count, Op op, Comm comm );
+void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Default to SUM
 template<typename T>
-void Scan( T* buf, int count, Comm comm );
+void Scan( T* buf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
 void SparseAllToAll
@@ -601,98 +669,105 @@ void SparseAllToAll
         std::vector<T>& recvBuffer,
   const std::vector<int>& recvCounts, 
   const std::vector<int>& recvOffs,
-        Comm comm );
+        Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 void VerifySendsAndRecvs
 ( const std::vector<int>& sendCounts,
   const std::vector<int>& recvCounts, Comm comm );
 
-void CreateCustom();
-void DestroyCustom();
+void CreateCustom() EL_NO_RELEASE_EXCEPT;
+void DestroyCustom() EL_NO_RELEASE_EXCEPT;
 
-template<typename T> Datatype TypeMap();
-template<> Datatype TypeMap<byte>();
-template<> Datatype TypeMap<int>();
-template<> Datatype TypeMap<unsigned>();
-template<> Datatype TypeMap<long int>();
-template<> Datatype TypeMap<long unsigned>();
-template<> Datatype TypeMap<long long int>();
-template<> Datatype TypeMap<unsigned long long>();
-template<> Datatype TypeMap<float>();
-template<> Datatype TypeMap<double>();
-template<> Datatype TypeMap<Complex<float>>();
-template<> Datatype TypeMap<Complex<double>>();
-#ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Complex<Quad>>();
+template<typename T> Datatype TypeMap() EL_NO_EXCEPT;
+template<> Datatype TypeMap<byte>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<int>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<unsigned>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<long int>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<long unsigned>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_MPI_LONG_LONG
+template<> Datatype TypeMap<long long int>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<unsigned long long>() EL_NO_EXCEPT;
 #endif
-template<> Datatype TypeMap<ValueInt<Int>>();
-template<> Datatype TypeMap<ValueInt<float>>();
-template<> Datatype TypeMap<ValueInt<double>>();
+template<> Datatype TypeMap<float>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<double>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Complex<float>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Complex<double>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueInt<Quad>>();
+template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
-template<> Datatype TypeMap<ValueInt<Complex<float>>>();
-template<> Datatype TypeMap<ValueInt<Complex<double>>>();
+template<> Datatype TypeMap<ValueInt<Int>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<ValueInt<float>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueInt<Complex<Quad>>>();
+template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT;
 #endif
-
-template<> Datatype TypeMap<Entry<Int>>();
-template<> Datatype TypeMap<Entry<float>>();
-template<> Datatype TypeMap<Entry<double>>();
+template<> Datatype TypeMap<ValueInt<Complex<float>>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<ValueInt<Complex<double>>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Entry<Quad>>();
-#endif
-template<> Datatype TypeMap<Entry<Complex<float>>>();
-template<> Datatype TypeMap<Entry<Complex<double>>>();
-#ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Entry<Complex<Quad>>>();
+template<> Datatype TypeMap<ValueInt<Complex<Quad>>>() EL_NO_EXCEPT;
 #endif
 
-template<typename Real> inline Op MaxOp() { return MAX; }
-template<typename Real> inline Op MinOp() { return MIN; }
+template<> Datatype TypeMap<Entry<Int>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Entry<float>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Op MaxOp<Quad>();
-template<> Op MinOp<Quad>();
+template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT;
+#endif
+template<> Datatype TypeMap<Entry<Complex<float>>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Entry<Complex<double>>>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<Entry<Complex<Quad>>>() EL_NO_EXCEPT;
 #endif
 
-template<typename T> inline Op SumOp() { return SUM; }
+template<typename Real> inline Op MaxOp() EL_NO_EXCEPT { return MAX; }
+template<typename Real> inline Op MinOp() EL_NO_EXCEPT { return MIN; }
 #ifdef EL_HAVE_QUAD
-template<> Op SumOp<Quad>();
-template<> Op SumOp<Complex<Quad>>();
+template<> Op MaxOp<Quad>() EL_NO_EXCEPT;
+template<> Op MinOp<Quad>() EL_NO_EXCEPT;
 #endif
 
-template<typename Real> Op MaxLocOp();
-template<> Op MaxLocOp<Int>();
-template<> Op MaxLocOp<float>();
-template<> Op MaxLocOp<double>();
+template<typename T> inline Op SumOp() EL_NO_EXCEPT { return SUM; }
 #ifdef EL_HAVE_QUAD
-template<> Op MaxLocOp<Quad>();
+template<> Op SumOp<Quad>() EL_NO_EXCEPT;
+template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
 
-template<typename Real> Op MaxLocPairOp();
-template<> Op MaxLocPairOp<Int>();
-template<> Op MaxLocPairOp<float>();
-template<> Op MaxLocPairOp<double>();
+template<typename Real> Op MaxLocOp() EL_NO_EXCEPT;
+template<> Op MaxLocOp<Int>() EL_NO_EXCEPT;
+template<> Op MaxLocOp<float>() EL_NO_EXCEPT;
+template<> Op MaxLocOp<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Op MaxLocPairOp<Quad>();
+template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT;
 #endif
 
-template<typename Real> Op MinLocOp();
-template<> Op MinLocOp<Int>();
-template<> Op MinLocOp<float>();
-template<> Op MinLocOp<double>();
+template<typename Real> Op MaxLocPairOp() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<Int>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Op MinLocOp<Quad>();
+template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT;
 #endif
 
-template<typename Real> Op MinLocPairOp();
-template<> Op MinLocPairOp<Int>();
-template<> Op MinLocPairOp<float>();
-template<> Op MinLocPairOp<double>();
+template<typename Real> Op MinLocOp() EL_NO_EXCEPT;
+template<> Op MinLocOp<Int>() EL_NO_EXCEPT;
+template<> Op MinLocOp<float>() EL_NO_EXCEPT;
+template<> Op MinLocOp<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
-template<> Op MinLocPairOp<Quad>();
+template<> Op MinLocOp<Quad>() EL_NO_EXCEPT;
 #endif
+
+template<typename Real> Op MinLocPairOp() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<Int>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<float>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QUAD
+template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT;
+#endif
+
+int Comm::Rank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(*this); }
+int Comm::Size() const EL_NO_RELEASE_EXCEPT { return mpi::Size(*this); }
+int Group::Rank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(*this); }
+int Group::Size() const EL_NO_RELEASE_EXCEPT { return mpi::Size(*this); }
 
 } // mpi
 } // elem

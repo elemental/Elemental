@@ -15,8 +15,9 @@ namespace ls {
 template<typename F> 
 void Overwrite
 ( Orientation orientation, 
-  Matrix<F>& A, const Matrix<F>& B, 
-  Matrix<F>& X )
+        Matrix<F>& A,
+  const Matrix<F>& B, 
+        Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
@@ -40,8 +41,9 @@ void Overwrite
 template<typename F> 
 void Overwrite
 ( Orientation orientation, 
-  AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& B, 
-  AbstractDistMatrix<F>& X )
+        ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& B, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
@@ -70,7 +72,8 @@ void Overwrite
 template<typename F> 
 void LeastSquares
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& B, 
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LeastSquares"))
@@ -81,8 +84,9 @@ void LeastSquares
 template<typename F> 
 void LeastSquares
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-        AbstractDistMatrix<F>& X )
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LeastSquares"))
     DistMatrix<F> ACopy( A );
@@ -149,9 +153,11 @@ namespace ls {
 
 template<typename F>
 inline void Equilibrated
-( const SparseMatrix<F>& A,  const Matrix<F>& B, 
+( const SparseMatrix<F>& A,
+  const Matrix<F>& B, 
         Matrix<F>& X,
-  Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl )
+        Base<F> alpha,
+  const RegSolveCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
       CSE cse("ls::Equilibrated");
@@ -159,6 +165,11 @@ inline void Equilibrated
           LogicError("Heights of A and B must match");
     )
     typedef Base<F> Real;
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -216,9 +227,9 @@ inline void Equilibrated
     Matrix<Real> reg;
     reg.Resize( m+n, 1 );
     for( Int i=0; i<Max(m,n); ++i )
-        reg.Set( i, 0, ctrl.regPrimal );
+        reg.Set( i, 0, gammaTmp*gammaTmp );
     for( Int i=Max(m,n); i<m+n; ++i )
-        reg.Set( i, 0, -ctrl.regDual );
+        reg.Set( i, 0, -deltaTmp*deltaTmp );
     SparseMatrix<F> JOrig;
     JOrig = J;
     UpdateRealPartOfDiagonal( J, Real(1), reg );
@@ -233,16 +244,7 @@ inline void Equilibrated
 
     // Successively solve each of the linear systems
     // =============================================
-    // TODO: Extend the iterative refinement to handle multiple RHS
-    Matrix<F> u;
-    Zeros( u, m+n, 1 );
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto d = D( ALL, IR(j) );
-        u = d;
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
-        d = u;
-    }
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, D, ctrl );
 
     Zeros( X, n, numRHS );
     if( m >= n )
@@ -266,7 +268,8 @@ inline void Equilibrated
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B, 
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B, 
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -328,7 +331,7 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl );
+    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.solveCtrl );
 
     // Unequilibrate the solution
     // ==========================
@@ -339,9 +342,12 @@ namespace ls {
 
 template<typename F>
 void Equilibrated
-( const DistSparseMatrix<F>& A,  const DistMultiVec<F>& B, 
+( const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B, 
         DistMultiVec<F>& X,
-  Base<F> alpha, const RegQSDCtrl<Base<F>>& ctrl, bool time )
+        Base<F> alpha,
+  const RegSolveCtrl<Base<F>>& ctrl,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("ls::Equilibrated");
@@ -349,6 +355,12 @@ void Equilibrated
           LogicError("Heights of A and B must match");
     )
     typedef Base<F> Real;
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
@@ -500,9 +512,9 @@ void Equilibrated
     {
         const Int i = reg.GlobalRow(iLoc);
         if( i < Max(m,n) )
-            reg.SetLocal( iLoc, 0, ctrl.regPrimal );
+            reg.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
         else
-            reg.SetLocal( iLoc, 0, -ctrl.regDual );
+            reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
     }
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
@@ -525,22 +537,11 @@ void Equilibrated
     if( commRank == 0 && time )
         cout << "  LDL: " << timer.Stop() << " secs" << endl;
 
-    // Successively solve each of the k linear systems
-    // ===============================================
-    // TODO: Extend the iterative refinement to handle multiple right-hand sides
-    DistMultiVec<F> u(comm);
-    Zeros( u, m+n, 1 );
-    auto& DLoc = D.Matrix();
-    auto& uLoc = u.Matrix();
+    // Solve the k linear systems
+    // ==========================
     if( commRank == 0 && time )
         timer.Start();
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto dLoc = DLoc( ALL, IR(j) );
-        Copy( dLoc, uLoc );
-        reg_qsd_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, u, ctrl );
-        Copy( uLoc, dLoc );
-    }
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, D, ctrl );
     if( commRank == 0 && time )
         cout << "  Solve: " << timer.Stop() << " secs" << endl;
 
@@ -557,7 +558,8 @@ void Equilibrated
 template<typename F>
 void LeastSquares
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B, 
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
@@ -621,7 +623,7 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.qsdCtrl, ctrl.time );
+    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.solveCtrl, ctrl.time );
 
     // Unequilibrate the solution
     // ==========================
@@ -630,25 +632,37 @@ void LeastSquares
 
 #define PROTO(F) \
   template void ls::Overwrite \
-  ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X ); \
+  ( Orientation orientation, \
+          Matrix<F>& A, \
+    const Matrix<F>& B, \
+          Matrix<F>& X ); \
   template void ls::Overwrite \
-  ( Orientation orientation, AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
-  template void LeastSquares \
-  ( Orientation orientation, const Matrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X ); \
-  template void LeastSquares \
-  ( Orientation orientation, const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& X ); \
+  ( Orientation orientation, \
+          ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+          ElementalMatrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \
-    const SparseMatrix<F>& A, const Matrix<F>& B, \
-    Matrix<F>& X, const LeastSquaresCtrl<Base<F>>& ctrl ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& B, \
+          Matrix<F>& X ); \
   template void LeastSquares \
   ( Orientation orientation, \
-    const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-    DistMultiVec<F>& X, const LeastSquaresCtrl<Base<F>>& ctrl );
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+          ElementalMatrix<F>& X ); \
+  template void LeastSquares \
+  ( Orientation orientation, \
+    const SparseMatrix<F>& A, \
+    const Matrix<F>& B, \
+          Matrix<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl ); \
+  template void LeastSquares \
+  ( Orientation orientation, \
+    const DistSparseMatrix<F>& A, \
+    const DistMultiVec<F>& B, \
+          DistMultiVec<F>& X, \
+    const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

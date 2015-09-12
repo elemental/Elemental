@@ -14,8 +14,8 @@ namespace transpose {
 // (Collect(V),U) |-> (U,V)
 template<typename T>
 void RowFilter
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& B, bool conjugate )
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("transpose::RowFilter");
@@ -23,7 +23,7 @@ void RowFilter
           A.RowDist() != B.ColDist() )
           LogicError("Incompatible distributions");
     )
-    unique_ptr<AbstractDistMatrix<T>>
+    unique_ptr<ElementalMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );    
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, true );
@@ -41,8 +41,8 @@ void RowFilter
 
 template<typename T>
 void RowFilter
-( const AbstractBlockDistMatrix<T>& A, 
-        AbstractBlockDistMatrix<T>& B, bool conjugate )
+( const BlockCyclicMatrix<T>& A, 
+        BlockCyclicMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("transpose::RowFilter");
@@ -50,7 +50,7 @@ void RowFilter
           A.RowDist() != B.ColDist() )
           LogicError("Incompatible distributions");
     )
-    unique_ptr<AbstractBlockDistMatrix<T>>
+    unique_ptr<BlockCyclicMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );    
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, true );
@@ -68,11 +68,11 @@ void RowFilter
 
 #define PROTO(T) \
   template void RowFilter \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B, bool conjugate ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, bool conjugate ); \
   template void RowFilter \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<T>& B, bool conjugate );
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

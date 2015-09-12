@@ -82,11 +82,11 @@ void KKT
 
 template<typename Real>
 void KKT
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& s,
-  const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre,
   bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::affine::KKT"))
@@ -149,7 +149,9 @@ template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& regPerm,
+        Real gamma,
+        Real delta,
+        Real beta,
         SparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -157,7 +159,7 @@ void StaticKKT
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
-    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
+    qp::affine::StaticKKT( Q, A, G, gamma, delta, beta, J, onlyLower );
 }
 
 template<typename Real>
@@ -181,7 +183,9 @@ template<typename Real>
 void StaticKKT
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& regPerm,
+        Real gamma,
+        Real delta,
+        Real beta,
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
@@ -190,7 +194,7 @@ void StaticKKT
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);
     Q.Resize( n, n );
-    qp::affine::StaticKKT( Q, A, G, regPerm, J, onlyLower );
+    qp::affine::StaticKKT( Q, A, G, gamma, delta, beta, J, onlyLower );
 }
 
 #define PROTO(Real) \
@@ -201,11 +205,11 @@ void StaticKKT
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& J, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
@@ -217,7 +221,9 @@ void StaticKKT
   template void StaticKKT \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
-    const Matrix<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
           SparseMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
@@ -230,7 +236,9 @@ void StaticKKT
   template void StaticKKT \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& regPerm, \
+          Real gamma, \
+          Real delta, \
+          Real beta, \
           DistSparseMatrix<Real>& J, \
     bool onlyLower );
 

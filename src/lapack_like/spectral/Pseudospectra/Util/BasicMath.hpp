@@ -25,7 +25,7 @@ TriangIsNormal( const Matrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline bool
-TriangIsNormal( const AbstractDistMatrix<F>& UPre, Base<F> tol )
+TriangIsNormal( const ElementalMatrix<F>& UPre, Base<F> tol )
 {
     auto UPtr = ReadProxy<F,MC,MR>( &UPre );
     auto& U = *UPtr;
@@ -49,7 +49,7 @@ QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline bool
-QuasiTriangIsNormal( const AbstractDistMatrix<F>& U, Base<F> tol )
+QuasiTriangIsNormal( const ElementalMatrix<F>& U, Base<F> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );
@@ -254,9 +254,9 @@ InnerProducts
 ( const DistMatrix<F>& X, const DistMatrix<F>& Y, Matrix<Base<F>>& innerProds )
 {
     DEBUG_ONLY(
-        CSE cse("pspec::InnerProducts");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
-            LogicError("X and Y should have been aligned");
+      CSE cse("pspec::InnerProducts");
+      if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
+          LogicError("X and Y should have been aligned");
     )
     InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
     const Int numLocShifts = X.LocalWidth();
@@ -271,10 +271,10 @@ InnerProducts
   Matrix<Real>& innerProds )
 {
     DEBUG_ONLY(
-        CSE cse("pspec::InnerProducts");
-        if( XReal.ColAlign() != YReal.ColAlign() || 
-            XReal.RowAlign() != YReal.RowAlign() )
-            LogicError("X and Y should have been aligned");
+      CSE cse("pspec::InnerProducts");
+      if( XReal.ColAlign() != YReal.ColAlign() || 
+          XReal.RowAlign() != YReal.RowAlign() )
+          LogicError("X and Y should have been aligned");
     )
     InnerProducts
     ( XReal.LockedMatrix(), XImag.LockedMatrix(), 
@@ -290,9 +290,9 @@ InnerProducts
 ( const DistMatrix<F>& X, const DistMatrix<F>& Y, Matrix<F>& innerProds )
 {
     DEBUG_ONLY(
-        CSE cse("pspec::InnerProducts");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
-            LogicError("X and Y should have been aligned");
+      CSE cse("pspec::InnerProducts");
+      if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
+          LogicError("X and Y should have been aligned");
     )
     InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
     const Int numLocShifts = X.LocalWidth();
@@ -307,10 +307,10 @@ InnerProducts
         Matrix<Complex<Real>>& innerProds )
 {
     DEBUG_ONLY(
-        CSE cse("pspec::InnerProducts");
-        if( XReal.ColAlign() != YReal.ColAlign() || 
-            XReal.RowAlign() != YReal.RowAlign() )
-            LogicError("X and Y should have been aligned");
+      CSE cse("pspec::InnerProducts");
+      if( XReal.ColAlign() != YReal.ColAlign() || 
+          XReal.RowAlign() != YReal.RowAlign() )
+          LogicError("X and Y should have been aligned");
     )
     InnerProducts
     ( XReal.LockedMatrix(), XImag.LockedMatrix(), 
@@ -429,10 +429,10 @@ FindConverged
         Real maxDiff )
 {
     DEBUG_ONLY(
-        CSE cse("pspec::FindConverged");
-        if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
-            activeEsts.ColAlign() )
-            LogicError("Invalid column alignment");
+      CSE cse("pspec::FindConverged");
+      if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
+          activeEsts.ColAlign() )
+          LogicError("Invalid column alignment");
     )
     const Real normCap = NormCap<Real>();
 

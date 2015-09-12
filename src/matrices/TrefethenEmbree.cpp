@@ -46,27 +46,10 @@ void TrefethenEmbree( AbstractDistMatrix<Complex<Real>>& A, Int n )
     FillDiagonal( A, C(0,-2), -3 );
 }
 
-template<typename Real>
-void TrefethenEmbree( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
-{
-    DEBUG_ONLY(CSE cse("TrefethenEmbree"))
-    if( n < 4 )
-        LogicError("Must be at least 4x4 to have a third-order symbol");
-    typedef Complex<Real> C;
-    Zeros( A, n, n );
-    FillDiagonal( A, C(2),     3 );
-    FillDiagonal( A, C(-1),    2 );
-    FillDiagonal( A, C(0,2),   1 );
-    FillDiagonal( A, C(-4),   -2 );
-    FillDiagonal( A, C(0,-2), -3 );
-}
-
 #define PROTO(Real) \
   template void TrefethenEmbree( Matrix<Complex<Real>>& A, Int n ); \
   template void TrefethenEmbree \
-  ( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
-  template void TrefethenEmbree \
-  ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+  ( AbstractDistMatrix<Complex<Real>>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

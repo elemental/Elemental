@@ -63,8 +63,8 @@ void Trr2
 template<typename T>
 void Trr2
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& XPre, const AbstractDistMatrix<T>& YPre,
-                 AbstractDistMatrix<T>& APre, bool conjugate )
+  T alpha, const ElementalMatrix<T>& XPre, const ElementalMatrix<T>& YPre,
+                 ElementalMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
         CSE cse("Trr2");
@@ -140,8 +140,8 @@ void Trr2
     Matrix<T>& A, bool conjugate ); \
   template void Trr2 \
   ( UpperOrLower uplo, \
-    T alpha, const AbstractDistMatrix<T>& X, const AbstractDistMatrix<T>& Y, \
-    AbstractDistMatrix<T>& A, bool conjugate );
+    T alpha, const ElementalMatrix<T>& X, const ElementalMatrix<T>& Y, \
+    ElementalMatrix<T>& A, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

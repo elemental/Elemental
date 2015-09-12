@@ -177,10 +177,10 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, const ElementalMatrix<Real>& c,
+        ElementalMatrix<Real>& x,       ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
@@ -283,13 +283,17 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,       const Matrix<Real>& c,
-        Matrix<Real>& x,             Matrix<Real>& y,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
         Matrix<Real>& z,
-        vector<Int>& map,            vector<Int>& invMap, 
-        ldl::Separator& rootSep,          ldl::NodeInfo& info,
+        vector<Int>& map,
+        vector<Int>& invMap, 
+        ldl::Separator& rootSep,
+        ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,  
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int n = A.Width();
@@ -297,19 +301,26 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-      primalInit, dualInit, standardShift, qsdCtrl );
+      primalInit, dualInit, standardShift, solveCtrl );
 }
 
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,            DistMultiVec<Real>& y,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-        DistMap& map,                     DistMap& invMap, 
-        ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info,
+        DistMap& map,
+        DistMap& invMap, 
+        ldl::DistSeparator& rootSep,
+        ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
     const Int n = A.Width();
@@ -318,40 +329,56 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, A, b, c, x, y, z, map, invMap, rootSep, info, 
-      primalInit, dualInit, standardShift, qsdCtrl );
+      mappedSources, mappedTargets, colOffs,
+      primalInit, dualInit, standardShift, solveCtrl );
 }
 
 #define PROTO(Real) \
   template void Initialize \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
-          vector<Int>& map,            vector<Int>& invMap, \
-          ldl::Separator& rootSep,          ldl::NodeInfo& info, \
+          vector<Int>& map, \
+          vector<Int>& invMap, \
+          ldl::Separator& rootSep, \
+          ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,      const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,            DistMultiVec<Real>& y, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
-          DistMap& map,                     DistMap& invMap, \
-          ldl::DistSeparator& rootSep,           ldl::DistNodeInfo& info, \
+          DistMap& map, \
+          DistMap& invMap, \
+          ldl::DistSeparator& rootSep, \
+          ldl::DistNodeInfo& info, \
+          vector<Int>& mappedSources, \
+          vector<Int>& mappedTargets, \
+          vector<Int>& colOffs, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

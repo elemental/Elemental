@@ -78,7 +78,7 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 
 template<typename F>
 inline void
-UVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& UPre )
+UVar3( UnitOrNonUnit diag, ElementalMatrix<F>& UPre )
 {
     DEBUG_ONLY(
         CSE cse("triang_inv::UVar3");

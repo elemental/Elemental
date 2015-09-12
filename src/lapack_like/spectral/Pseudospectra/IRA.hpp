@@ -20,8 +20,8 @@ inline void
 ComputeNewEstimates
 ( const vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
-  Matrix<Real>& activeEsts,
-  Int n )
+        Matrix<Real>& activeEsts,
+        Int n )
 {
     DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
     const Real normCap = NormCap<Real>();
@@ -70,7 +70,7 @@ inline void
 Restart
 ( const vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
-  vector<Matrix<Complex<Real>>>& VList )
+        vector<Matrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int n = VList[0].Height();
@@ -125,8 +125,8 @@ inline void
 Restart
 ( const vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
-  vector<Matrix<Real>>& VRealList,
-  vector<Matrix<Real>>& VImagList )
+        vector<Matrix<Real>>& VRealList,
+        vector<Matrix<Real>>& VImagList )
 {
     DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int n = VRealList[0].Height();
@@ -192,13 +192,13 @@ inline void
 Restart
 ( const vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  vector<DistMatrix<Complex<Real>>>& VList )
+        vector<DistMatrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
-        VLocList[j] = View( VList[j].Matrix() );
+        View( VLocList[j], VList[j].Matrix() );
     Restart( HList, activeConverged.LockedMatrix(), VLocList );
 }
 
@@ -207,8 +207,8 @@ inline void
 Restart
 ( const vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  vector<DistMatrix<Real>>& VRealList,
-  vector<DistMatrix<Real>>& VImagList )
+        vector<DistMatrix<Real>>& VRealList,
+        vector<DistMatrix<Real>>& VImagList )
 {
     DEBUG_ONLY(CSE cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
@@ -216,8 +216,8 @@ Restart
                          VImagLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
-        VRealLocList[j] = View( VRealList[j].Matrix() );
-        VImagLocList[j] = View( VImagList[j].Matrix() ); 
+        View( VRealLocList[j], VRealList[j].Matrix() );
+        View( VImagLocList[j], VImagList[j].Matrix() ); 
     }
     Restart
     ( HList, activeConverged.LockedMatrix(), VRealLocList, VImagLocList );
@@ -226,8 +226,10 @@ Restart
 template<typename Real>
 inline Matrix<Int>
 IRA
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::IRA"))
     using namespace pspec;
@@ -323,8 +325,9 @@ IRA
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = (8.*n*n*numActiveShifts)/(msTime*1e9);
-                    cout << "  MultiShiftTrsm's: " << msTime 
-                         << " seconds, " << gflops << " GFlops" << endl;
+                    Output
+                    ("  MultiShiftTrsm's: ",msTime," seconds, ",
+                     gflops," GFlops");
                 }
             }
             else
@@ -345,8 +348,9 @@ IRA
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = 
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                    cout << "  MultiShiftHessSolve's: " << msTime
-                         << " seconds, " << gflops << " GFlops" << endl;
+                    Output
+                    ("  MultiShiftHessSolve's: ",msTime," seconds, ",
+                     gflops," GFlops");
                 }
             }
 
@@ -662,10 +666,10 @@ IRA
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 IRA
-( const AbstractDistMatrix<Complex<Real>>& UPre, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
-        AbstractDistMatrix<Real>& invNormsPre, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const ElementalMatrix<Complex<Real>>& UPre, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre, 
+        ElementalMatrix<Real>& invNormsPre, 
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::IRA"))
     using namespace pspec;
@@ -942,9 +946,9 @@ IRA
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 IRA
-( const AbstractDistMatrix<Real>& UPre, 
-  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
-        AbstractDistMatrix<Real>& invNormsPre, 
+( const ElementalMatrix<Real>& UPre, 
+  const ElementalMatrix<Complex<Real>>& shiftsPre, 
+        ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::IRA"))

@@ -72,7 +72,7 @@ template<typename T>
 inline void
 RLTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RLTA");
@@ -117,7 +117,7 @@ template<typename T>
 inline void
 RLTC
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RLTC");
@@ -175,7 +175,7 @@ template<typename T>
 inline void
 RLT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
+  const ElementalMatrix<T>& L, ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::RLT"))
     // TODO: Come up with a better routing mechanism

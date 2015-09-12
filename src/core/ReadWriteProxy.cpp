@@ -37,7 +37,7 @@ shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A )
 
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> 
-ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
+ReadWriteProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
     if( std::is_same<S,T>::value )
@@ -90,7 +90,7 @@ ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl )
 
 #define CONVERT_DIST(S,T,U,V) \
   template shared_ptr<DistMatrix<T,U,V>> \
-  ReadWriteProxy( AbstractDistMatrix<S>* A, const ProxyCtrl& ctrl );
+  ReadWriteProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl );
 
 #define CONVERT(S,T) \
   template shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A ); \

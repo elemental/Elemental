@@ -48,7 +48,7 @@ UVar1( Matrix<F>& U, bool conjugate=false )
 
 template<typename F>
 inline void
-UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
+UVar1( ElementalMatrix<F>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CSE cse("trdtrmm::UVar1");

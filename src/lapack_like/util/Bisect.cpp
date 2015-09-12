@@ -28,21 +28,23 @@ Int Bisect
     // outside the sources, so we must manually remove them from our graph
     const Int numSources = graph.NumSources();
     const Int numEdges = graph.NumEdges();
+    const Int* sourceBuf = graph.LockedSourceBuffer();
+    const Int* targetBuf = graph.LockedTargetBuffer();
     Int numValidEdges = 0;
     for( Int i=0; i<numEdges; ++i )
-        if( graph.Source(i) != graph.Target(i) && graph.Target(i) < numSources )
+        if( sourceBuf[i] != targetBuf[i] && targetBuf[i] < numSources )
             ++numValidEdges;
 
     // Fill our connectivity (ignoring self and too-large connections)
     vector<idx_t> xAdj( numSources+1 );
-    vector<idx_t> adjacency( numValidEdges );
+    vector<idx_t> adjacency( Max(numValidEdges,1) );
     Int validCounter=0;
     Int sourceOff=0;
     Int prevSource=-1;
     for( Int edge=0; edge<numEdges; ++edge )
     {
-        const Int source = graph.Source( edge );
-        const Int target = graph.Target( edge );
+        const Int source = sourceBuf[edge];
+        const Int target = targetBuf[edge];
         DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
@@ -53,16 +55,10 @@ Int Bisect
             ++prevSource;
         }
         if( source != target && target < numSources )
-        {
-            adjacency[validCounter] = target;
-            ++validCounter;
-        }
+            adjacency[validCounter++] = target;
     }
-    DEBUG_ONLY(
-      if( sourceOff != numSources )
-          LogicError("Mistake in xAdj computation");
-    )
-    xAdj[numSources] = numValidEdges;
+    while( sourceOff <= numSources)
+    { xAdj[sourceOff++] = validCounter; }
 
     // Call METIS_ComputeVertexSeparator, which is meant to be used by ParMETIS
     idx_t nvtxs = numSources;
@@ -117,9 +113,11 @@ Int Bisect
     // outside the sources, so we must manually remove them from our graph
     const Int numSources = graph.NumSources();
     const Int numLocalEdges = graph.NumLocalEdges();
+    const Int* sourceBuf = graph.LockedSourceBuffer();
+    const Int* targetBuf = graph.LockedTargetBuffer();
     Int numLocalValidEdges = 0;
     for( Int i=0; i<numLocalEdges; ++i )
-        if( graph.Source(i) != graph.Target(i) && graph.Target(i) < numSources )
+        if( sourceBuf[i] != targetBuf[i] && targetBuf[i] < numSources )
             ++numLocalValidEdges;
 
     // Fill our local connectivity (ignoring self and too-large connections)
@@ -127,14 +125,14 @@ Int Bisect
     const Int numLocalSources = graph.NumLocalSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     vector<idx_t> xAdj( numLocalSources+1 );
-    vector<idx_t> adjacency( numLocalValidEdges );
+    vector<idx_t> adjacency( Max(numLocalValidEdges,1) );
     Int validCounter=0;
     Int sourceOff=0;
     Int prevSource=firstLocalSource-1;
     for( Int localEdge=0; localEdge<numLocalEdges; ++localEdge )
     {
-        const Int source = graph.Source( localEdge );
-        const Int target = graph.Target( localEdge );
+        const Int source = sourceBuf[localEdge];
+        const Int target = targetBuf[localEdge];
         DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
@@ -145,16 +143,10 @@ Int Bisect
             ++prevSource;
         }
         if( source != target && target < numSources )
-        {
-            adjacency[validCounter] = target;
-            ++validCounter;
-        }
+            adjacency[validCounter++] = target;
     }
-    DEBUG_ONLY(
-      if( sourceOff != numLocalSources )
-          LogicError("Mistake in xAdj computation");
-    )
-    xAdj[numLocalSources] = numLocalValidEdges;
+    while( sourceOff <= numLocalSources)
+    { xAdj[sourceOff++] = validCounter; }
 
     vector<idx_t> sizes(3);
     if( ctrl.sequential )
@@ -173,7 +165,7 @@ Int Bisect
         Int maxLocalValidEdges=0;
         for( int q=0; q<commSize; ++q )
             maxLocalValidEdges = Max( maxLocalValidEdges, edgeSizes[q] );
-        adjacency.resize( maxLocalValidEdges );
+        adjacency.resize( Max(maxLocalValidEdges,1) );
         vector<idx_t> globalAdj;
         if( commRank == 0 )
             globalAdj.resize( maxLocalValidEdges*commSize, 0 );
@@ -227,9 +219,24 @@ Int Bisect
             options[METIS_OPTION_NSEPS] = ctrl.numSeqSeps;
             vector<idx_t> part(numSources);
             idx_t sepSize;
-            METIS_ComputeVertexSeparator
-            ( &nvtxs, globalXAdj.data(), globalAdj.data(), NULL, options,
-              &sepSize, part.data() );
+
+            if( globalAdj.size() > 0 )
+            {
+                METIS_ComputeVertexSeparator
+                ( &nvtxs, globalXAdj.data(), globalAdj.data(), NULL, options,
+                  &sepSize, part.data() );
+            } 
+            else
+            {
+                sepSize = 0;
+                for( Int i=0; i<numSources; ++i )
+                {
+                    if( i <= numSources/2 )
+                        part[i] = 0;
+                    else
+                        part[i] = 1;
+                } 
+            }
 
             for( Int j=0; j<3; ++j )
                 sizes[j] = 0;
@@ -475,7 +482,7 @@ void BuildChildFromPerm
     // Pack the row indices and how many column entries there will be per row
     vector<Int> rowSendLengths( numSendRows );
     vector<Int> rowSendInds( numSendRows );
-    vector<int> offs = rowSendOffs;
+    auto offs = rowSendOffs;
     for( Int s=0; s<numLocalSources; ++s )
     {
         const Int i = perm.GetLocal(s);
@@ -551,11 +558,10 @@ void BuildChildFromPerm
             const int q = leftTeamOff + 
                 RowToProcess( i, leftTeamBlocksize, leftTeamSize );
 
-            int& off = offs[q];
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );
             for( Int j=0; j<numConnections; ++j )
-                sendInds[off++] = graph.Target( localEdgeOff+j );
+                sendInds[offs[q]++] = graph.Target( localEdgeOff+j );
         }
         else if( i < leftChildSize+rightChildSize )
         {
@@ -563,11 +569,10 @@ void BuildChildFromPerm
                 RowToProcess
                 ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
                
-            int& off = offs[q];
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );
             for( Int j=0; j<numConnections; ++j )
-                sendInds[off++] = graph.Target( localEdgeOff+j );
+                sendInds[offs[q]++] = graph.Target( localEdgeOff+j );
         }
     }
 

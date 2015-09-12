@@ -168,6 +168,12 @@ class DistGraph(object):
     lib.ElDistGraphNumConnections(self.obj,localSource,pointer(numConnections))
     return numConnections.value
 
+  lib.ElDistGraphImbalance.argtypes = [c_void_p,POINTER(dType)]
+  def Imbalance(self):
+    imbalance = dType()
+    lib.ElDistGraphImbalance(self.obj,pointer(imbalance))
+    return imbalance.value
+
   lib.ElDistGraphSourceBuffer.argtypes = [c_void_p,POINTER(POINTER(iType))]
   def SourceBuffer(self):
     sourceBuf = POINTER(iType)()

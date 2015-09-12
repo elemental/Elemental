@@ -39,24 +39,6 @@ void IndexDependentMap
     }
 }
 
-template<typename T>
-void IndexDependentMap
-( AbstractBlockDistMatrix<T>& A, function<T(Int,Int,T)> func )
-{
-    DEBUG_ONLY(CSE cse("IndexDependentMap"))
-    const Int mLoc = A.LocalHeight();
-    const Int nLoc = A.LocalWidth();
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, func(i,j,A.GetLocal(iLoc,jLoc)) );
-        }
-    }
-}
-
 template<typename S,typename T>
 void IndexDependentMap
 ( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func )
@@ -72,7 +54,7 @@ void IndexDependentMap
 
 template<typename S,typename T>
 void IndexDependentMap
-( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
+( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, 
   function<T(Int,Int,S)> func )
 {
     DEBUG_ONLY(CSE cse("IndexDependentMap"))
@@ -93,7 +75,7 @@ void IndexDependentMap
 
 template<typename S,typename T>
 void IndexDependentMap
-( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, 
+( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, 
   function<T(Int,Int,S)> func )
 {
     DEBUG_ONLY(CSE cse("IndexDependentMap"))
@@ -116,18 +98,16 @@ void IndexDependentMap
   template void IndexDependentMap \
   ( Matrix<T>& A, function<T(Int,Int,T)> func ); \
   template void IndexDependentMap \
-  ( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func ); \
-  template void IndexDependentMap \
-  ( AbstractBlockDistMatrix<T>& A, function<T(Int,Int,T)> func );
+  ( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func );
 
 #define PROTO_TYPES(S,T) \
   template void IndexDependentMap \
   ( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func ); \
   template void IndexDependentMap \
-  ( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, \
+  ( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, \
     function<T(Int,Int,S)> func ); \
   template void IndexDependentMap \
-  ( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, \
+  ( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, \
     function<T(Int,Int,S)> func );
 
 #define PROTO_INT(T) \

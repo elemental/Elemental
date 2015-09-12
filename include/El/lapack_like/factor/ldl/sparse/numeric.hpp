@@ -72,6 +72,8 @@ struct MatrixNode
     MatrixNode
     ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X );
 
+    ~MatrixNode();
+
     const MatrixNode<T>& operator=( const MatrixNode<T>& X );
 
     void Pull
@@ -95,6 +97,24 @@ struct MultiVecCommMeta
     }
 };
 
+struct DistMultiVecNodeMeta
+{
+    vector<Int> sendInds;
+    vector<Int> recvInds;
+    vector<int> mappedOwners;
+    vector<int> sendSizes;
+    vector<int> sendOffs;
+    vector<int> recvSizes;
+    vector<int> recvOffs;
+
+    template<typename T>
+    void Initialize
+    ( const DistMultiVecNode<T>& XNode,
+      const DistNodeInfo& info,
+      const DistMap& invMap,
+      const DistMultiVec<T>& X );
+};
+
 // For handling a set of vectors distributed in a [VC,* ] manner over each node
 // of the elimination tree
 template<typename T>
@@ -112,22 +132,36 @@ struct DistMultiVecNode
     DistMultiVecNode( DistMultiVecNode<T>* parentNode=nullptr );
 
     DistMultiVecNode
-    ( const DistMap& invMap, const DistNodeInfo& info,
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
       const DistMultiVec<T>& X );
 
     DistMultiVecNode( const DistMatrixNode<T>& X );
 
+    ~DistMultiVecNode();
+
     const DistMultiVecNode<T>& operator=( const DistMatrixNode<T>& X );
 
-    Int LocalHeight() const;
-
     void Pull
-    ( const DistMap& invMap, const DistNodeInfo& info,
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
       const DistMultiVec<T>& X );
+    void Pull
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
+      const DistMultiVec<T>& X,
+            DistMultiVecNodeMeta& meta );
     void Push
-    ( const DistMap& invMap, const DistNodeInfo& info,
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
             DistMultiVec<T>& X ) const;
+    void Push
+    ( const DistMap& invMap,
+      const DistNodeInfo& info,
+            DistMultiVec<T>& X,
+            DistMultiVecNodeMeta& meta ) const;
 
+    Int LocalHeight() const;
     void ComputeCommMeta( const DistNodeInfo& info ) const;
 };
 
@@ -165,6 +199,8 @@ struct DistMatrixNode
 
     DistMatrixNode( const DistMultiVecNode<T>& X );
 
+    ~DistMatrixNode();
+
     const DistMatrixNode<T>& operator=( const DistMultiVecNode<T>& X );
 
     void Pull
@@ -188,15 +224,18 @@ template<typename F>
 struct Front
 {
     bool isHermitian;
+    bool sparseLeaf;
     LDLFrontType type;
 
-    Matrix<F> L;
+    Matrix<F> LDense;
+    SparseMatrix<F> LSparse;
 
     Matrix<F> diag;
     Matrix<F> subdiag;
     Matrix<Int> piv;
 
-    Matrix<F> work;
+    Matrix<F> workDense;
+    SparseMatrix<F> workSparse;
 
     Front<F>* parent;
     vector<Front<F>*> children;
@@ -207,6 +246,8 @@ struct Front
     Front
     ( const SparseMatrix<F>& A, const vector<Int>& reordering,
       const NodeInfo& rootInfo, bool conjugate=true );
+
+    ~Front();
 
     void Pull
     ( const SparseMatrix<F>& A, const vector<Int>& reordering, 
@@ -223,6 +264,7 @@ struct Front
 
     const Front<F>& operator=( const Front<F>& front );
 
+    Int Height() const;
     Int NumEntries() const;
     Int NumTopLeftEntries() const;
     Int NumBottomLeftEntries() const;
@@ -283,17 +325,39 @@ struct DistFront
       const DistNodeInfo& info,
       bool conjugate=false );
 
+    ~DistFront();
+
     void Pull
     ( const DistSparseMatrix<F>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
       bool conjugate=false );
+    // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
+    void Pull
+    ( const DistSparseMatrix<F>& A,
+      const DistMap& reordering,
+      const DistSeparator& rootSep,
+      const DistNodeInfo& info,
+            vector<Int>& mappedSources,
+            vector<Int>& mappedTargets,
+            vector<Int>& colOffs,
+      bool conjugate=false );
+
     void PullUpdate
     ( const DistSparseMatrix<F>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info );
+    // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
+    void PullUpdate
+    ( const DistSparseMatrix<F>& A,
+      const DistMap& reordering,
+      const DistSeparator& rootSep,
+      const DistNodeInfo& info,
+            vector<Int>& mappedSources,
+            vector<Int>& mappedTargets,
+            vector<Int>& colOffs );
 
     // NOTE: This routine is not yet functioning
     void Push

@@ -75,47 +75,11 @@ void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
     }
 }
 
-template<typename T>
-void AllReduce( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
-{
-    DEBUG_ONLY(CSE cse("AllReduce"))
-    if( !A.Participating() )
-        return;
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    const Int localSize = localHeight*localWidth;
-    if( localHeight == A.LDim() )
-    {
-        mpi::AllReduce( A.Buffer(), localSize, op, comm );
-    }
-    else
-    {
-        vector<T> buf( localSize );
-
-        // Pack
-        copy::util::InterleaveMatrix
-        ( localHeight, localWidth,
-          A.LockedBuffer(), 1, A.LDim(),
-          buf.data(),       1, localHeight );
-
-        mpi::AllReduce( buf.data(), localSize, op, comm );
-
-        // Unpack
-        copy::util::InterleaveMatrix
-        ( localHeight, localWidth,
-          buf.data(), 1, localHeight,
-          A.Buffer(), 1, A.LDim() );
-    }
-}
-
 #define PROTO(T) \
   template void AllReduce \
   ( Matrix<T>& A, mpi::Comm comm, mpi::Op op ); \
   template void AllReduce \
-  ( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op ); \
-  template void AllReduce \
-  ( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op );
+  ( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

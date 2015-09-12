@@ -18,7 +18,8 @@ template<typename F>
 inline void
 LUNLarge
 ( UnitOrNonUnit diag,
-  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("trsm::LUNLarge"))
@@ -71,7 +72,8 @@ template<typename F>
 inline void
 LUNMedium
 ( UnitOrNonUnit diag, 
-  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre,
+  const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("trsm::LUNMedium"))
@@ -124,7 +126,8 @@ template<typename F,Dist colDist>
 inline void
 LUNSmall
 ( UnitOrNonUnit diag,
-  const DistMatrix<F,colDist,STAR>& U, DistMatrix<F,colDist,STAR>& X,
+  const DistMatrix<F,colDist,STAR>& U,
+        DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

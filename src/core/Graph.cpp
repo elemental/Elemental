@@ -1,9 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2015, Jack Poulson.
    All rights reserved.
- 
+
+   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
@@ -15,10 +19,10 @@ namespace El {
 // Constructors and destructors
 // ============================
 
-Graph::Graph() : numSources_(0), numTargets_(0), consistent_(true) { }
+Graph::Graph() : numSources_(0), numTargets_(0) { }
 
 Graph::Graph( Int numVertices )
-: numSources_(numVertices), numTargets_(numVertices), consistent_(true)
+: numSources_(numVertices), numTargets_(numVertices)
 { 
     sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )
@@ -26,7 +30,7 @@ Graph::Graph( Int numVertices )
 }
 
 Graph::Graph( Int numSources, Int numTargets )
-: numSources_(numSources), numTargets_(numTargets), consistent_(true)
+: numSources_(numSources), numTargets_(numTargets)
 { 
     sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )
@@ -86,6 +90,7 @@ void Graph::Empty( bool clearMemory )
     numSources_ = 0;
     numTargets_ = 0;
     consistent_ = true;
+    frozenSparsity_ = false;
     if( clearMemory )
     {
         SwapClear( sources_ );
@@ -109,6 +114,8 @@ void Graph::Resize( Int numSources, Int numTargets )
     DEBUG_ONLY(CSE cse("Graph::Resize"))
     if( numSources_ == numSources && numTargets_ == numTargets )
         return;
+
+    frozenSparsity_ = false;
 
     numSources_ = numSources;
     numTargets_ = numTargets;
@@ -142,9 +149,9 @@ void Graph::Disconnect( Int source, Int target )
     ProcessQueues();
 }
 
-void Graph::FreezeSparsity() { frozenSparsity_ = true; }
-void Graph::UnfreezeSparsity() { frozenSparsity_ = false; }
-bool Graph::FrozenSparsity() const { return frozenSparsity_; }
+void Graph::FreezeSparsity() EL_NO_EXCEPT { frozenSparsity_ = true; }
+void Graph::UnfreezeSparsity() EL_NO_EXCEPT { frozenSparsity_ = false; }
+bool Graph::FrozenSparsity() const EL_NO_EXCEPT { return frozenSparsity_; }
 
 void Graph::QueueConnection( Int source, Int target )
 {
@@ -155,12 +162,14 @@ void Graph::QueueConnection( Int source, Int target )
     )
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    if( source < 0 || source >= numSources_ )
-        LogicError
-        ("Source was out of bounds: ",source," is not in [0,",numSources_,")");
-    if( target < 0 || target >= numTargets_ )
-        LogicError
-        ("Target was out of bounds: ",target," is not in [0,",numTargets_,")");
+    DEBUG_ONLY(
+      if( source < 0 || source >= numSources_ )
+          LogicError
+          ("Source out of bounds: ",source," not in [0,",numSources_,")");
+      if( target < 0 || target >= numTargets_ )
+          LogicError
+          ("Target out of bounds: ",target," not in [0,",numTargets_,")");
+    )
     if( !FrozenSparsity() )
     {
         sources_.push_back( source );
@@ -238,24 +247,24 @@ void Graph::ProcessQueues()
 // Queries
 // =======
 
-Int Graph::NumSources() const { return numSources_; }
-Int Graph::NumTargets() const { return numTargets_; }
+Int Graph::NumSources() const EL_NO_EXCEPT { return numSources_; }
+Int Graph::NumTargets() const EL_NO_EXCEPT { return numTargets_; }
 
-Int Graph::NumEdges() const
+Int Graph::NumEdges() const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("Graph::NumEdges"))
     return sources_.size();
 }
 
-Int Graph::Capacity() const
+Int Graph::Capacity() const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("Graph::Capacity"))
     return Min(sources_.capacity(),targets_.capacity());
 }
 
-bool Graph::Consistent() const { return consistent_; }
+bool Graph::Consistent() const EL_NO_EXCEPT { return consistent_; }
 
-Int Graph::Source( Int edge ) const
+Int Graph::Source( Int edge ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Graph::Source");
@@ -265,7 +274,7 @@ Int Graph::Source( Int edge ) const
     return sources_[edge];
 }
 
-Int Graph::Target( Int edge ) const
+Int Graph::Target( Int edge ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Graph::Target");
@@ -275,7 +284,7 @@ Int Graph::Target( Int edge ) const
     return targets_[edge];
 }
 
-Int Graph::SourceOffset( Int source ) const
+Int Graph::SourceOffset( Int source ) const EL_NO_RELEASE_EXCEPT
 {
     if( source == END ) source = numSources_ - 1;
     DEBUG_ONLY(
@@ -291,7 +300,7 @@ Int Graph::SourceOffset( Int source ) const
     return sourceOffsets_[source];
 }
 
-Int Graph::Offset( Int source, Int target ) const
+Int Graph::Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("Graph::Offset"))
     if( source == END ) source = numSources_ - 1;
@@ -303,7 +312,7 @@ Int Graph::Offset( Int source, Int target ) const
     return it-targetBuf;
 }
 
-Int Graph::NumConnections( Int source ) const
+Int Graph::NumConnections( Int source ) const EL_NO_RELEASE_EXCEPT
 {
     if( source == END ) source = numSources_ - 1;
     DEBUG_ONLY(
@@ -313,13 +322,27 @@ Int Graph::NumConnections( Int source ) const
     return SourceOffset(source+1) - SourceOffset(source);
 }
 
-Int* Graph::SourceBuffer() { return sources_.data(); }
-Int* Graph::TargetBuffer() { return targets_.data(); }
-Int* Graph::OffsetBuffer() { return sourceOffsets_.data(); }
+Int* Graph::SourceBuffer() EL_NO_EXCEPT { return sources_.data(); }
+Int* Graph::TargetBuffer() EL_NO_EXCEPT { return targets_.data(); }
+Int* Graph::OffsetBuffer() EL_NO_EXCEPT { return sourceOffsets_.data(); }
 
-const Int* Graph::LockedSourceBuffer() const { return sources_.data(); }
-const Int* Graph::LockedTargetBuffer() const { return targets_.data(); }
-const Int* Graph::LockedOffsetBuffer() const { return sourceOffsets_.data(); }
+void Graph::ForceNumEdges( Int numEdges )
+{
+    DEBUG_ONLY(CSE cse("Graph::ForceNumEdges"))
+    sources_.resize( numEdges ); 
+    targets_.resize( numEdges );
+    consistent_ = false;
+}
+
+void Graph::ForceConsistency( bool consistent ) EL_NO_EXCEPT
+{ consistent_ = consistent; }
+
+const Int* Graph::LockedSourceBuffer() const EL_NO_EXCEPT
+{ return sources_.data(); }
+const Int* Graph::LockedTargetBuffer() const EL_NO_EXCEPT
+{ return targets_.data(); }
+const Int* Graph::LockedOffsetBuffer() const EL_NO_EXCEPT
+{ return sourceOffsets_.data(); }
 
 // Auxiliary functions
 // ===================

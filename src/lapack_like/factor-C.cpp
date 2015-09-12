@@ -12,33 +12,29 @@ using namespace El;
 
 extern "C" {
 
-ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl )
+ElError ElRegSolveCtrlDefault_s( ElRegSolveCtrl_s* ctrl )
 {
     const float eps = Epsilon<float>();
-    ctrl->regPrimal = Pow(eps,float(0.5));
-    ctrl->regDual = Pow(eps,float(0.5));
-    ctrl->alg = EL_REG_REFINE_FGMRES;
+    ctrl->alg = EL_REG_SOLVE_FGMRES;
     ctrl->relTol = Pow(eps,float(0.5));
     ctrl->relTolRefine = Pow(eps,float(0.8));
-    ctrl->maxIts = 8;
-    ctrl->maxRefineIts = 3;
-    ctrl->restart = 10;
+    ctrl->maxIts = 4;
+    ctrl->maxRefineIts = 2;
+    ctrl->restart = 4;
     ctrl->progress = false;
     ctrl->time = false;
     return EL_SUCCESS;
 }
 
-ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl )
+ElError ElRegSolveCtrlDefault_d( ElRegSolveCtrl_d* ctrl )
 {
     const double eps = Epsilon<double>();
-    ctrl->regPrimal = Pow(eps,0.5);
-    ctrl->regDual = Pow(eps,0.5); 
-    ctrl->alg = EL_REG_REFINE_FGMRES;
+    ctrl->alg = EL_REG_SOLVE_FGMRES;
     ctrl->relTol = Pow(eps,0.5);
     ctrl->relTolRefine = Pow(eps,0.8);
-    ctrl->maxIts = 8;
-    ctrl->maxRefineIts = 3;
-    ctrl->restart = 10;
+    ctrl->maxIts = 4;
+    ctrl->maxRefineIts = 2;
+    ctrl->restart = 4;
     ctrl->progress = false;
     ctrl->time = false;
     return EL_SUCCESS;

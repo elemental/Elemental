@@ -39,31 +39,11 @@ void IndexDependentFill
     }
 }
 
-template<typename T>
-void IndexDependentFill
-( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func )
-{
-    DEBUG_ONLY(CSE cse("IndexDependentFill"))
-    const Int mLoc = A.LocalHeight();
-    const Int nLoc = A.LocalWidth();
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, func(i,j) );
-        }
-    }
-}
-
 #define PROTO(T) \
   template void IndexDependentFill \
   ( Matrix<T>& A, function<T(Int,Int)> func ); \
   template void IndexDependentFill \
-  ( AbstractDistMatrix<T>& A, function<T(Int,Int)> func ); \
-  template void IndexDependentFill \
-  ( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func );
+  ( AbstractDistMatrix<T>& A, function<T(Int,Int)> func );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

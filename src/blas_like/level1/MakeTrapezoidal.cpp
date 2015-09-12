@@ -86,51 +86,6 @@ MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 }
 
 template<typename T>
-void
-MakeTrapezoidal
-( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset )
-{
-    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
-    const Int height = A.Height();
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-
-    T* buffer = A.Buffer();
-    const Int ldim = A.LDim();
-
-    if( uplo == LOWER )
-    {
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            const Int lastZeroRow = j-offset-1;
-            if( lastZeroRow >= 0 )
-            {
-                const Int boundary = Min( lastZeroRow+1, height );
-                const Int numZeroRows = A.LocalRowOffset(boundary);
-                MemZero( &buffer[jLoc*ldim], numZeroRows );
-            }
-        }
-    }
-    else
-    {
-        EL_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            const Int firstZeroRow = Max(j-offset+1,0);
-            const Int numNonzeroRows = A.LocalRowOffset(firstZeroRow);
-            if( numNonzeroRows < localHeight )
-            {
-                T* col = &buffer[numNonzeroRows+jLoc*ldim];
-                MemZero( col, localHeight-numNonzeroRows );
-            }
-        }
-    }
-}
-
-template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
@@ -168,8 +123,6 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
   ( UpperOrLower uplo, Matrix<T>& A, Int offset ); \
   template void MakeTrapezoidal \
   ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset ); \
-  template void MakeTrapezoidal \
-  ( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset ); \
   template void MakeTrapezoidal \
   ( UpperOrLower uplo, SparseMatrix<T>& A, Int offset ); \
   template void MakeTrapezoidal \

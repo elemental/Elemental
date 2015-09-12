@@ -185,15 +185,15 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
@@ -320,12 +320,12 @@ void Initialize
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit, bool dualInit, bool standardShift,
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     qp::affine::Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
-      primalInit, dualInit, standardShift, qsdCtrl );
+      primalInit, dualInit, standardShift, solveCtrl );
 }
 
 template<typename Real>
@@ -343,14 +343,17 @@ void Initialize
   const DistMap& invMap, 
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
+        vector<Int>& mappedSources,
+        vector<Int>& mappedTargets,
+        vector<Int>& colOffs,
   bool primalInit, bool dualInit, bool standardShift, 
-  const RegQSDCtrl<Real>& qsdCtrl )
+  const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
     qp::affine::Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s,
-      map, invMap, rootSep, info, 
-      primalInit, dualInit, standardShift, qsdCtrl );
+      map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs,
+      primalInit, dualInit, standardShift, solveCtrl );
 }
 
 #define PROTO(Real) \
@@ -366,15 +369,15 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& JStatic, \
@@ -391,7 +394,7 @@ void Initialize
     const ldl::Separator& rootSep, \
     const ldl::NodeInfo& info, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl ); \
+    const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
     const DistMultiVec<Real>& regTmp, \
@@ -406,8 +409,11 @@ void Initialize
     const DistMap& invMap, \
     const ldl::DistSeparator& rootSep, \
     const ldl::DistNodeInfo& info, \
+          vector<Int>& mappedSources, \
+          vector<Int>& mappedTargets, \
+          vector<Int>& colOffs, \
     bool primalInit, bool dualInit, bool standardShift, \
-    const RegQSDCtrl<Real>& qsdCtrl );
+    const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

@@ -94,8 +94,8 @@ void ApplyPackedReflectors
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
   Int offset,
-  const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& A )
+  const ElementalMatrix<F>& H, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("ApplyPackedReflectors"))
     if( side == LEFT )
@@ -161,8 +161,8 @@ void ApplyPackedReflectors
   ( LeftOrRight side, UpperOrLower uplo, \
     VerticalOrHorizontal dir, ForwardOrBackward order, \
     Conjugation conjugation, Int offset, \
-    const AbstractDistMatrix<F>& H, const AbstractDistMatrix<F>& t, \
-          AbstractDistMatrix<F>& A );
+    const ElementalMatrix<F>& H, const ElementalMatrix<F>& t, \
+          ElementalMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

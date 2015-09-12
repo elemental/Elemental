@@ -16,68 +16,72 @@ namespace El {
 // =================
 template<typename Real>
 void QP
-( const Matrix<Real>& Q, const Matrix<Real>& A,
-  const Matrix<Real>& b, const Matrix<Real>& c, 
-        Matrix<Real>& x,       Matrix<Real>& y,
+( const Matrix<Real>& Q, 
+  const Matrix<Real>& A,
+  const Matrix<Real>& b, 
+  const Matrix<Real>& c, 
+        Matrix<Real>& x, 
+        Matrix<Real>& y,
         Matrix<Real>& z, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::direct::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
 
 template<typename Real>
 void QP
-( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, 
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
+( const ElementalMatrix<Real>& Q, 
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& c, 
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::direct::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
 
 template<typename Real>
 void QP
-( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A,
-  const Matrix<Real>& b,       const Matrix<Real>& c, 
-        Matrix<Real>& x,             Matrix<Real>& y,
+( const SparseMatrix<Real>& Q, 
+  const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, 
+  const Matrix<Real>& c, 
+        Matrix<Real>& x, 
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::direct::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
 
 template<typename Real>
 void QP
-( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, 
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
+( const DistSparseMatrix<Real>& Q,
+  const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c, 
+        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::direct::IPF( Q, A, b, c, x, y, z, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -87,37 +91,41 @@ void QP
 template<typename Real>
 void QP
 ( const Matrix<Real>& Q, 
-  const Matrix<Real>& A, const Matrix<Real>& G,
-  const Matrix<Real>& b, const Matrix<Real>& c, 
+  const Matrix<Real>& A,
+  const Matrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
   const Matrix<Real>& h,
-        Matrix<Real>& x,       Matrix<Real>& y,
-        Matrix<Real>& z,       Matrix<Real>& s, 
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s, 
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::affine::IPF( Q, A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
 
 template<typename Real>
 void QP
-( const AbstractDistMatrix<Real>& Q, 
-  const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, 
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s,
+( const ElementalMatrix<Real>& Q, 
+  const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& b,
+  const ElementalMatrix<Real>& c, 
+  const ElementalMatrix<Real>& h,
+        ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& y,
+        ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::affine::IPF( Q, A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -125,18 +133,20 @@ void QP
 template<typename Real>
 void QP
 ( const SparseMatrix<Real>& Q, 
-  const SparseMatrix<Real>& A, const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,       const Matrix<Real>& c, 
+  const SparseMatrix<Real>& A,
+  const SparseMatrix<Real>& G,
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
   const Matrix<Real>& h,
-        Matrix<Real>& x,             Matrix<Real>& y,
-        Matrix<Real>& z,             Matrix<Real>& s,
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
+        Matrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::affine::IPF( Q, A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -144,78 +154,108 @@ void QP
 template<typename Real>
 void QP
 ( const DistSparseMatrix<Real>& Q, 
-  const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, 
+  const DistSparseMatrix<Real>& A,
+  const DistSparseMatrix<Real>& G,
+  const DistMultiVec<Real>& b,
+  const DistMultiVec<Real>& c, 
   const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,           DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,           DistMultiVec<Real>& s,
+        DistMultiVec<Real>& x,
+        DistMultiVec<Real>& y,
+        DistMultiVec<Real>& z,
+        DistMultiVec<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QP"))
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
-    else if( ctrl.approach == QP_IPF )
-        qp::affine::IPF( Q, A, G, b, c, h, x, y, z, s, ctrl.ipfCtrl );
     else
         LogicError("Unsupported solver");
 }
 
 #define PROTO(Real) \
   template void QP \
-  ( const Matrix<Real>& Q, const Matrix<Real>& A, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
+  ( const Matrix<Real>& Q, \
+    const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     const qp::direct::Ctrl<Real>& ctrl ); \
   template void QP \
-  ( const AbstractDistMatrix<Real>& Q, const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     const qp::direct::Ctrl<Real>& ctrl ); \
   template void QP \
-  ( const SparseMatrix<Real>& Q, const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
+  ( const SparseMatrix<Real>& Q, \
+    const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
           Matrix<Real>& z, \
     const qp::direct::Ctrl<Real>& ctrl ); \
   template void QP \
-  ( const DistSparseMatrix<Real>& Q, const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
+  ( const DistSparseMatrix<Real>& Q, \
+    const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const qp::direct::Ctrl<Real>& ctrl ); \
   template void QP \
   ( const Matrix<Real>& Q, \
-    const Matrix<Real>& A, const Matrix<Real>& G, \
-    const Matrix<Real>& b, const Matrix<Real>& c, \
+    const Matrix<Real>& A, \
+    const Matrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,       Matrix<Real>& y, \
-          Matrix<Real>& z,       Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void QP \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x,       AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z,       AbstractDistMatrix<Real>& s, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Real>& h, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& s, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void QP \
   ( const SparseMatrix<Real>& Q, \
-    const SparseMatrix<Real>& A, const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b,       const Matrix<Real>& c, \
+    const SparseMatrix<Real>& A, \
+    const SparseMatrix<Real>& G, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
     const Matrix<Real>& h, \
-          Matrix<Real>& x,             Matrix<Real>& y, \
-          Matrix<Real>& z,             Matrix<Real>& s, \
+          Matrix<Real>& x, \
+          Matrix<Real>& y, \
+          Matrix<Real>& z, \
+          Matrix<Real>& s, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void QP \
   ( const DistSparseMatrix<Real>& Q, \
-    const DistSparseMatrix<Real>& A, const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b,     const DistMultiVec<Real>& c, \
+    const DistSparseMatrix<Real>& A, \
+    const DistSparseMatrix<Real>& G, \
+    const DistMultiVec<Real>& b, \
+    const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x,           DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z,           DistMultiVec<Real>& s, \
+          DistMultiVec<Real>& x, \
+          DistMultiVec<Real>& y, \
+          DistMultiVec<Real>& z, \
+          DistMultiVec<Real>& s, \
     const qp::affine::Ctrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

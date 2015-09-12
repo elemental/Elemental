@@ -16,7 +16,7 @@ template<typename F>
 inline void
 LT
 ( Orientation orientation, UnitOrNonUnit diag, 
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre )
+  const ElementalMatrix<F>& LPre, ElementalMatrix<F>& xPre )
 {
     DEBUG_ONLY(
         CSE cse("trsv::LT");

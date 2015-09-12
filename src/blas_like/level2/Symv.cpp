@@ -54,9 +54,9 @@ void Symv
 template<typename T>
 void Symv
 ( UpperOrLower uplo,
-  T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& x,
-  T beta,        AbstractDistMatrix<T>& yPre, bool conjugate,
+  T alpha, const ElementalMatrix<T>& APre,
+           const ElementalMatrix<T>& x,
+  T beta,        ElementalMatrix<T>& yPre, bool conjugate,
   const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
@@ -294,8 +294,8 @@ void LocalRowAccumulate
     bool conjugate ); \
   template void Symv \
   ( UpperOrLower uplo, T alpha, \
-    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
-    T beta, AbstractDistMatrix<T>& y, bool conjugate, \
+    const ElementalMatrix<T>& A, const ElementalMatrix<T>& x, \
+    T beta, ElementalMatrix<T>& y, bool conjugate, \
     const SymvCtrl<T>& ctrl ); \
   template void symv::LocalColAccumulate \
   ( UpperOrLower uplo, T alpha, \

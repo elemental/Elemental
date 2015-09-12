@@ -24,10 +24,9 @@ namespace El {
 template<typename T>
 void Adjoint( const Matrix<T>& A, Matrix<T>& B );
 template<typename T>
-void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+void Adjoint( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
-void Adjoint
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+void Adjoint( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 template<typename T>
 void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B );
 template<typename T>
@@ -37,12 +36,12 @@ void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 // ===============
 template<typename T>
 void AdjointContract
-( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B );
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B );
 template<typename T>
 void AdjointContract
-( const AbstractBlockDistMatrix<T>& A,
-        AbstractBlockDistMatrix<T>& B );
+( const BlockCyclicMatrix<T>& A,
+        BlockCyclicMatrix<T>& B );
 
 // AdjointAxpy
 // ===========
@@ -54,7 +53,10 @@ void AdjointAxpy
 ( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
 template<typename T,typename S>
 void AdjointAxpy
-( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
+template<typename T,typename S>
+void AdjointAxpy
+( S alpha, const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y );
 template<typename T,typename S>
 void AdjointAxpy
 ( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
@@ -63,12 +65,12 @@ void AdjointAxpy
 // ===================
 template<typename T>
 void AdjointAxpyContract
-( T alpha, const AbstractDistMatrix<T>& A,
-                 AbstractDistMatrix<T>& B );
+( T alpha, const ElementalMatrix<T>& A,
+                 ElementalMatrix<T>& B );
 template<typename T>
 void AdjointAxpyContract
-( T alpha, const AbstractBlockDistMatrix<T>& A,
-                 AbstractBlockDistMatrix<T>& B );
+( T alpha, const BlockCyclicMatrix<T>& A,
+                 BlockCyclicMatrix<T>& B );
 
 // AllReduce
 // =========
@@ -78,16 +80,15 @@ void AllReduce
 template<typename T>
 void AllReduce
 ( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
-template<typename T>
-void AllReduce
-( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
 
 // Axpy
 // ====
 template<typename T,typename S>
 void Axpy( S alpha, const Matrix<T>& X, Matrix<T>& Y );
 template<typename T,typename S>
-void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+void Axpy( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
+template<typename T,typename S>
+void Axpy( S alpha, const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 template<typename T,typename S>
@@ -105,7 +106,7 @@ void InterleaveMatrixUpdate
         T* B, Int colStrideB, Int rowStrideB );
 template<typename T>
 void UpdateWithLocalData
-( T alpha, const AbstractDistMatrix<T>& A, DistMatrix<T,STAR,STAR>& B );
+( T alpha, const ElementalMatrix<T>& A, DistMatrix<T,STAR,STAR>& B );
 
 } // namespace util
 } // namespace axpy
@@ -115,12 +116,10 @@ void UpdateWithLocalData
 
 template<typename T>
 void AxpyContract
-( T alpha, const AbstractDistMatrix<T>& A, 
-                 AbstractDistMatrix<T>& B );
+( T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void AxpyContract
-( T alpha, const AbstractBlockDistMatrix<T>& A, 
-                 AbstractBlockDistMatrix<T>& B );
+( T alpha, const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 // AxpyTrapezoid
 // =============
@@ -130,7 +129,11 @@ void AxpyTrapezoid
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha,
-  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, Int offset=0 );
+  const ElementalMatrix<T>& X, ElementalMatrix<T>& Y, Int offset=0 );
+template<typename T,typename S>
+void AxpyTrapezoid
+( UpperOrLower uplo, S alpha,
+  const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y, Int offset=0 );
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha, 
@@ -145,8 +148,6 @@ void AxpyTrapezoid
 // TODO: Matrix<T> version?
 template<typename T>
 void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
-template<typename T>
-void Broadcast( AbstractBlockDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
 
 // Column norms
 // ============
@@ -342,46 +343,56 @@ void RowMinAbsNonzero
 // -------------------------------------
 template<typename T>
 void HCat
-( const Matrix<T>& A, const Matrix<T>& B, 
+( const Matrix<T>& A,
+  const Matrix<T>& B, 
         Matrix<T>& C );
 template<typename T>
 void HCat
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-        AbstractDistMatrix<T>& C );
+( const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B, 
+        ElementalMatrix<T>& C );
 template<typename T>
 void HCat
-( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
+( const SparseMatrix<T>& A,
+  const SparseMatrix<T>& B, 
         SparseMatrix<T>& C );
 template<typename T>
 void HCat
-( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
+( const DistSparseMatrix<T>& A,
+  const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C );
 template<typename T>
 void HCat
-( const DistMultiVec<T>& A, const DistMultiVec<T>& B, 
+( const DistMultiVec<T>& A,
+  const DistMultiVec<T>& B, 
         DistMultiVec<T>& C );
 
 // Vertical concatenation: C := [A; B]
 // -----------------------------------
 template<typename T>
 void VCat
-( const Matrix<T>& A, const Matrix<T>& B, 
+( const Matrix<T>& A,
+  const Matrix<T>& B, 
         Matrix<T>& C );
 template<typename T>
 void VCat
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-        AbstractDistMatrix<T>& C );
+( const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B, 
+        ElementalMatrix<T>& C );
 template<typename T>
 void VCat
-( const SparseMatrix<T>& A, const SparseMatrix<T>& B, 
+( const SparseMatrix<T>& A,
+  const SparseMatrix<T>& B, 
         SparseMatrix<T>& C );
 template<typename T>
 void VCat
-( const DistSparseMatrix<T>& A, const DistSparseMatrix<T>& B, 
+( const DistSparseMatrix<T>& A,
+  const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C );
 template<typename T>
 void VCat
-( const DistMultiVec<T>& A, const DistMultiVec<T>& B, 
+( const DistMultiVec<T>& A,
+  const DistMultiVec<T>& B, 
         DistMultiVec<T>& C );
 
 // Conjugate
@@ -397,7 +408,7 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B );
 template<typename T>
 void Conjugate( AbstractDistMatrix<T>& A );
 template<typename T>
-void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 
 // ConjugateDiagonal
 // =================
@@ -419,11 +430,9 @@ void ConjugateSubmatrix
 // Contract
 // ========
 template<typename T>
-void Contract
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+void Contract( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
-void Contract
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+void Contract( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 // Copy
 // ====
@@ -433,15 +442,27 @@ void Copy( const Matrix<T>& A, Matrix<T>& B );
 template<typename S,typename T>
 void Copy( const Matrix<S>& A, Matrix<T>& B );
 template<typename S,typename T>
+void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B );
+template<typename S,typename T>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 template<typename S,typename T>
-void Copy( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B );
+void Copy( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B );
 
 template<typename T>
 void CopyFromRoot
-( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers=false );
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,ELEMENTAL>& B,
+  bool includingViewers=false );
 template<typename T>
-void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers=false );
+void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC,ELEMENTAL>& B,
+  bool includingViewers=false );
+
+template<typename T>
+void CopyFromRoot
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B,
+  bool includingViewers=false );
+template<typename T>
+void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B,
+  bool includingViewers=false );
 
 void Copy( const Graph& A, Graph& B );
 void Copy( const Graph& A, DistGraph& B );
@@ -601,12 +622,12 @@ void DiagonalScale
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& A );
+  const ElementalMatrix<TDiag>& d, DistMatrix<T,U,V>& A );
 
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A );
+  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A );
 
 template<typename TDiag,typename T>
 void DiagonalScale
@@ -633,12 +654,12 @@ void DiagonalScaleTrapezoid
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& A, Int offset=0 );
+  const ElementalMatrix<TDiag>& d, DistMatrix<T,U,V>& A, Int offset=0 );
 
 template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A, Int offset=0 );
+  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A, Int offset=0 );
 
 template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
@@ -656,17 +677,19 @@ template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const Matrix<FDiag>& d, Matrix<F>& A, bool checkIfSingular=true );
+template<typename F>
+void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, Matrix<F>& A );
 
 template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<FDiag>& d, DistMatrix<F,U,V>& A,
+  const ElementalMatrix<FDiag>& d, DistMatrix<F,U,V>& A,
   bool checkIfSingular=true );
 
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<FDiag>& d, AbstractDistMatrix<F>& A,
+  const ElementalMatrix<FDiag>& d, ElementalMatrix<F>& A,
   bool checkIfSingular=true );
 
 template<typename FDiag,typename F>
@@ -674,12 +697,18 @@ void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const Matrix<FDiag>& d, SparseMatrix<F>& A, 
   bool checkIfSingular=true );
+template<typename F>
+void SymmetricDiagonalSolve
+( const Matrix<Base<F>>& d, SparseMatrix<F>& A );
 
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const DistMultiVec<FDiag>& d, DistSparseMatrix<F>& A, 
   bool checkIfSingular=true );
+template<typename F>
+void SymmetricDiagonalSolve
+( const DistMultiVec<Base<F>>& d, DistSparseMatrix<F>& A );
 
 template<typename FDiag,typename F>
 void DiagonalSolve
@@ -692,7 +721,7 @@ void DiagonalSolve
 template<typename T>
 T Dot( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
-T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+T Dot( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B );
 template<typename T>
 T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
@@ -701,7 +730,7 @@ T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 template<typename T>
 T Dotu( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
-T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
+T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B );
 template<typename T>
 T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
@@ -711,9 +740,6 @@ template<typename T>
 void EntrywiseFill( Matrix<T>& A, function<T(void)> func );
 template<typename T>
 void EntrywiseFill( AbstractDistMatrix<T>& A, function<T(void)> func );
-template<typename T>
-void EntrywiseFill
-( AbstractBlockDistMatrix<T>& A, function<T(void)> func );
 template<typename T>
 void EntrywiseFill( DistMultiVec<T>& A, function<T(void)> func );
 
@@ -725,8 +751,6 @@ template<typename T>
 void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func );
 template<typename T>
 void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(T)> func );
-template<typename T>
-void EntrywiseMap( AbstractBlockDistMatrix<T>& A, function<T(T)> func );
 template<typename T>
 void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func );
 template<typename T>
@@ -740,11 +764,11 @@ void EntrywiseMap
 ( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
-( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
+( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, 
   function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
-( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, 
+( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, 
   function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
@@ -762,8 +786,6 @@ void Fill( Matrix<T>& A, T alpha );
 template<typename T>
 void Fill( AbstractDistMatrix<T>& A, T alpha );
 template<typename T>
-void Fill( AbstractBlockDistMatrix<T>& A, T alpha );
-template<typename T>
 void Fill( DistMultiVec<T>& A, T alpha );
 template<typename T>
 void Fill( SparseMatrix<T>& A, T alpha );
@@ -776,16 +798,9 @@ template<typename T>
 void FillDiagonal( Matrix<T>& A, T alpha, Int offset=0 );
 template<typename T>
 void FillDiagonal( AbstractDistMatrix<T>& A, T alpha, Int offset=0 );
-template<typename T>
-void FillDiagonal( AbstractBlockDistMatrix<T>& A, T alpha, Int offset=0 );
 
 // Full
 // ====
-template<typename T>
-void Full( const SparseMatrix<T>& A, Matrix<T>& B );
-template<typename T>
-void Full( const DistSparseMatrix<T>& A, AbstractDistMatrix<T>& B );
-
 template<typename T>
 Matrix<T> Full( const SparseMatrix<T>& A );
 // NOTE: A distributed version of the above does not exist because it is not
@@ -815,29 +830,29 @@ Matrix<Base<T>> GetImagPartOfDiagonal( const Matrix<T>& A, Int offset=0 );
 template<typename T,Dist U,Dist V>
 void GetDiagonal
 ( const DistMatrix<T,U,V>& A, 
-  AbstractDistMatrix<T>& d, Int offset=0 );
+  ElementalMatrix<T>& d, Int offset=0 );
 template<typename T,Dist U,Dist V>
 void GetRealPartOfDiagonal
 ( const DistMatrix<T,U,V>& A, 
-  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+  ElementalMatrix<Base<T>>& d, Int offset=0 );
 template<typename T,Dist U,Dist V>
 void GetImagPartOfDiagonal
 ( const DistMatrix<T,U,V>& A, 
-  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
-// Versions which will work for AbstractDistMatrix but which make use of a
+  ElementalMatrix<Base<T>>& d, Int offset=0 );
+// Versions which will work for ElementalMatrix but which make use of a
 // manual dynamic dispatch
 template<typename T>
 void GetDiagonal
-( const AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& d, Int offset=0 );
+( const ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& d, Int offset=0 );
 template<typename T>
 void GetRealPartOfDiagonal
-( const AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+( const ElementalMatrix<T>& A, 
+  ElementalMatrix<Base<T>>& d, Int offset=0 );
 template<typename T>
 void GetImagPartOfDiagonal
-( const AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+( const ElementalMatrix<T>& A, 
+  ElementalMatrix<Base<T>>& d, Int offset=0 );
 
 template<typename T,Dist U,Dist V>
 DistMatrix<T,DiagCol<U,V>(),DiagRow<U,V>()>
@@ -856,7 +871,7 @@ void GetMappedDiagonal
 ( const Matrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset=0 );
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
-( const DistMatrix<T,U,V>& A, AbstractDistMatrix<S>& d, 
+( const DistMatrix<T,U,V>& A, ElementalMatrix<S>& d, 
   function<S(T)> func, Int offset=0 );
 template<typename T,typename S>
 void GetMappedDiagonal
@@ -892,11 +907,11 @@ Matrix<T> GetSubmatrix( const Matrix<T>& A, Range<Int> I, Range<Int> J );
 
 template<typename T>
 void GetSubmatrix
-( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J, 
-        AbstractDistMatrix<T>& ASub );
+( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J, 
+        ElementalMatrix<T>& ASub );
 template<typename T>
 DistMatrix<T> GetSubmatrix
-( const AbstractDistMatrix<T>& A, Range<Int> I, Range<Int> J );
+( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J );
 
 template<typename T>
 void GetSubmatrix
@@ -941,7 +956,7 @@ void GetSubmatrix
         AbstractDistMatrix<T>& ASub );
 template<typename T>
 DistMatrix<T> GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
+( const ElementalMatrix<T>& A, 
   const vector<Int>& I, const vector<Int>& J );
 
 // TODO: Sparse versions
@@ -952,9 +967,9 @@ template<typename T>
 void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
 template<typename T>
 void Hadamard
-( const AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& B,
-        AbstractDistMatrix<T>& C );
+( const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B,
+        ElementalMatrix<T>& C );
 template<typename T>
 void Hadamard
 ( const DistMultiVec<T>& A,
@@ -967,7 +982,7 @@ template<typename T>
 T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
 T HilbertSchmidt
-( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& C );
+( const ElementalMatrix<T>& A, const ElementalMatrix<T>& C );
 template<typename T>
 T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
@@ -978,7 +993,7 @@ void ImagPart
 ( const Matrix<T>& A, Matrix<Base<T>>& AImag );
 template<typename T>
 void ImagPart
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag );
+( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag );
 /* TODO: Sparse versions */
 
 // IndexDependentFill
@@ -988,9 +1003,6 @@ void IndexDependentFill( Matrix<T>& A, function<T(Int,Int)> func );
 template<typename T>
 void IndexDependentFill
 ( AbstractDistMatrix<T>& A, function<T(Int,Int)> func );
-template<typename T>
-void IndexDependentFill
-( AbstractBlockDistMatrix<T>& A, function<T(Int,Int)> func );
 
 // IndexDependentMap
 // =================
@@ -999,20 +1011,17 @@ void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,T)> func );
 template<typename T>
 void IndexDependentMap
 ( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func );
-template<typename T>
-void IndexDependentMap
-( AbstractBlockDistMatrix<T>& A, function<T(Int,Int,T)> func );
 
 template<typename S,typename T>
 void IndexDependentMap
 ( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func );
 template<typename S,typename T>
 void IndexDependentMap
-( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B,
+( const ElementalMatrix<S>& A, ElementalMatrix<T>& B,
   function<T(Int,Int,S)> func );
 template<typename S,typename T>
 void IndexDependentMap
-( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B,
+( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B,
   function<T(Int,Int,S)> func );
 
 // Kronecker product
@@ -1021,7 +1030,7 @@ template<typename T>
 void Kronecker( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
 template<typename T>
 void Kronecker
-( const Matrix<T>& A, const Matrix<T>& B, AbstractDistMatrix<T>& C );
+( const Matrix<T>& A, const Matrix<T>& B, ElementalMatrix<T>& C );
 template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C );
@@ -1046,7 +1055,7 @@ void Kronecker
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, Matrix<T>& A );
 template<typename T>
-void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A );
+void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A );
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A );
@@ -1059,8 +1068,6 @@ template<typename T>
 void MakeDiagonalReal( Matrix<T>& A, Int offset=0 );
 template<typename T>
 void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset=0 );
-template<typename T>
-void MakeDiagonalReal( AbstractBlockDistMatrix<T>& A, Int offset=0 );
 
 // MakeReal
 // ========
@@ -1086,7 +1093,7 @@ template<typename T>
 void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false );
 template<typename T>
 void MakeSymmetric
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate=false );
+( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate=false );
 
 template<typename T>
 void MakeSymmetric
@@ -1102,9 +1109,6 @@ void MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset=0 );
 template<typename T>
 void MakeTrapezoidal
 ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 );
-template<typename T>
-void MakeTrapezoidal
-( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset=0 );
 
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset=0 );
@@ -1214,11 +1218,11 @@ void QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<FMain>& d, const Matrix<F>& dSub,
   Matrix<F>& X, bool conjugated=false );
-// TODO: Switch to full AbstractDistMatrix interface
+// TODO: Switch to full ElementalMatrix interface
 template<typename F,typename FMain,Dist U,Dist V>
 void QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo,
-  const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub,
+  const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub,
   DistMatrix<F,U,V>& X, bool conjugated=false );
 
 template<typename F,typename FMain,Dist U,Dist V>
@@ -1257,12 +1261,12 @@ QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<FMain>& d, const Matrix<F>& dSub,
   Matrix<F>& X, bool conjugated=false );
-// TODO: Switch to full AbstractDistMatrix interface
+// TODO: Switch to full ElementalMatrix interface
 template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo,
-  const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub,
+  const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub,
   DistMatrix<F,U,V>& X, bool conjugated=false );
 
 template<typename F,typename FMain,Dist U,Dist V>
@@ -1302,7 +1306,7 @@ void RealPart
 ( const Matrix<T>& A, Matrix<Base<T>>& AReal );
 template<typename T>
 void RealPart
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal );
+( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal );
 /* TODO: Sparse versions */
 
 // Reshape
@@ -1339,8 +1343,6 @@ void Scale( S alpha, Matrix<T>& A );
 template<typename T,typename S>
 void Scale( S alpha, AbstractDistMatrix<T>& A );
 template<typename T,typename S>
-void Scale( S alpha, AbstractBlockDistMatrix<T>& A );
-template<typename T,typename S>
 void Scale( S alpha, SparseMatrix<T>& A );
 template<typename T,typename S>
 void Scale( S alpha, DistSparseMatrix<T>& A );
@@ -1352,10 +1354,6 @@ void Scale( S alpha, Matrix<Real>& AReal, Matrix<Real>& AImag );
 template<typename Real,typename S>
 void Scale
 ( S alpha, AbstractDistMatrix<Real>& AReal, AbstractDistMatrix<Real>& AImag );
-template<typename Real,typename S>
-void Scale
-( S alpha, AbstractBlockDistMatrix<Real>& AReal,
-           AbstractBlockDistMatrix<Real>& AImag );
 
 // ScaleTrapezoid
 // ==============
@@ -1385,26 +1383,24 @@ void SetImagPartOfDiagonal
 
 template<typename T,Dist U,Dist V>
 void SetDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<T>& d, Int offset=0 );
+( DistMatrix<T,U,V>& A, const ElementalMatrix<T>& d, Int offset=0 );
 template<typename T,Dist U,Dist V>
 void SetRealPartOfDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset=0 );
+( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset=0 );
 template<typename T,Dist U,Dist V>
 void SetImagPartOfDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<Base<T>>& d, Int offset=0 );
-// Versions which will work for AbstractDistMatrix but which make use of a
+( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset=0 );
+// Versions which will work for ElementalMatrix but which make use of a
 // manual dynamic dispatch
 template<typename T>
 void SetDiagonal
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& d, Int offset=0 );
+( ElementalMatrix<T>& A, const ElementalMatrix<T>& d, Int offset=0 );
 template<typename T>
 void SetRealPartOfDiagonal
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, 
-  Int offset=0 );
+( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset=0 );
 template<typename T>
 void SetImagPartOfDiagonal
-( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, 
-  Int offset=0 );
+( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset=0 );
 
 // SetSubmatrix
 // ============
@@ -1425,31 +1421,31 @@ template<typename T>
 void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y );
 template<typename T>
 void Swap
-( Orientation orientation, AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+( Orientation orientation, ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
 
 template<typename T>
 void RowSwap( Matrix<T>& A, Int to, Int from );
 template<typename T>
-void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from );
+void RowSwap( ElementalMatrix<T>& A, Int to, Int from );
 
 template<typename T>
 void ColSwap( Matrix<T>& A, Int to, Int from );
 template<typename T>
-void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from );
+void ColSwap( ElementalMatrix<T>& A, Int to, Int from );
 
 template<typename T>
 void SymmetricSwap
 ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate=false );
 template<typename T>
 void SymmetricSwap
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from,
+( UpperOrLower uplo, ElementalMatrix<T>& A, Int to, Int from,
   bool conjugate=false );
 
 template<typename T>
 void HermitianSwap( UpperOrLower uplo, Matrix<T>& A, Int to, Int from );
 template<typename T>
 void HermitianSwap
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from );
+( UpperOrLower uplo, ElementalMatrix<T>& A, Int to, Int from );
 
 // Symmetric2x2Inv
 // ===============
@@ -1467,7 +1463,7 @@ template<typename F>
 void
 Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A,
+  const ElementalMatrix<F>& D, ElementalMatrix<F>& A,
   bool conjugate=false );
 
 template<typename F>
@@ -1495,7 +1491,7 @@ template<typename F>
 void
 Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& A,
+  const ElementalMatrix<F>& D, ElementalMatrix<F>& A,
   bool conjugate=false );
 
 template<typename F>
@@ -1519,8 +1515,6 @@ void Shift( Matrix<T>& A, S alpha );
 template<typename T,typename S>
 void Shift( AbstractDistMatrix<T>& A, S alpha );
 template<typename T,typename S>
-void Shift( AbstractBlockDistMatrix<T>& A, S alpha );
-template<typename T,typename S>
 void Shift( DistMultiVec<T>& A, S alpha );
 
 // ShiftDiagonal
@@ -1530,11 +1524,11 @@ void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset=0 );
 template<typename T,typename S>
 void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
 template<typename T,typename S>
-void ShiftDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
+void ShiftDiagonal
+( SparseMatrix<T>& A, S alpha, Int offset=0, bool existingDiag=false );
 template<typename T,typename S>
-void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset=0 );
-template<typename T,typename S>
-void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset=0 );
+void ShiftDiagonal
+( DistSparseMatrix<T>& A, S alpha, Int offset=0, bool existingDiag=false );
 
 // Transpose
 // =========
@@ -1542,11 +1536,11 @@ template<typename T>
 void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false );
 template<typename T>
 void Transpose
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B,
+( const ElementalMatrix<T>& A, ElementalMatrix<T>& B,
   bool conjugate=false );
 template<typename T>
 void Transpose
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B,
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B,
   bool conjugate=false );
 template<typename T>
 void Transpose
@@ -1559,12 +1553,12 @@ void Transpose
 // =================
 template<typename T>
 void TransposeContract
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& B, bool conjugate=false );
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& B, bool conjugate=false );
 template<typename T>
 void TransposeContract
-( const AbstractBlockDistMatrix<T>& A, 
-        AbstractBlockDistMatrix<T>& B, bool conjugate=false );
+( const BlockCyclicMatrix<T>& A, 
+        BlockCyclicMatrix<T>& B, bool conjugate=false );
 
 // TransposeAxpy
 // =============
@@ -1576,7 +1570,7 @@ void TransposeAxpy
 ( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y, bool conjugate=false );
 template<typename T,typename S>
 void TransposeAxpy
-( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y, 
+( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y, 
   bool conjugate=false );
 template<typename T,typename S>
 void TransposeAxpy
@@ -1587,12 +1581,12 @@ void TransposeAxpy
 // =====================
 template<typename T>
 void TransposeAxpyContract
-( T alpha, const AbstractDistMatrix<T>& A, 
-                 AbstractDistMatrix<T>& B, bool conjugate=false );
+( T alpha, const ElementalMatrix<T>& A, 
+                 ElementalMatrix<T>& B, bool conjugate=false );
 template<typename T>
 void TransposeAxpyContract
-( T alpha, const AbstractBlockDistMatrix<T>& A, 
-                 AbstractBlockDistMatrix<T>& B, bool conjugate=false );
+( T alpha, const BlockCyclicMatrix<T>& A, 
+                 BlockCyclicMatrix<T>& B, bool conjugate=false );
 
 // UpdateDiagonal
 // ==============
@@ -1608,39 +1602,42 @@ void UpdateImagPartOfDiagonal
 
 template<typename T,Dist U,Dist V>
 void UpdateDiagonal
-( DistMatrix<T,U,V>& A, T alpha, const AbstractDistMatrix<T>& d, 
+( DistMatrix<T,U,V>& A, T alpha, const ElementalMatrix<T>& d, 
   Int offset=0 );
 template<typename T,Dist U,Dist V>
 void UpdateRealPartOfDiagonal
-( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, 
+( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d, 
   Int offset=0 );
 template<typename T,Dist U,Dist V>
 void UpdateImagPartOfDiagonal
-( DistMatrix<T,U,V>& A, Base<T> alpha, const AbstractDistMatrix<Base<T>>& d, 
+( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d, 
   Int offset=0 );
 
 template<typename T>
 void UpdateDiagonal
-( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset=0 );
+( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset=0, 
+  bool diagExists=false );
 template<typename T>
 void UpdateRealPartOfDiagonal
-( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0,
+  bool diagExists=false );
 template<typename T>
 void UpdateImagPartOfDiagonal
-( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0 );
+( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset=0,
+  bool diagExists=false );
 
 template<typename T>
 void UpdateDiagonal
 ( DistSparseMatrix<T>& A, T alpha, 
-  const DistMultiVec<T>& d, Int offset=0 );
+  const DistMultiVec<T>& d, Int offset=0, bool diagExists=false );
 template<typename T>
 void UpdateRealPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha, 
-  const DistMultiVec<Base<T>>& d, Int offset=0 );
+  const DistMultiVec<Base<T>>& d, Int offset=0, bool diagExists=false );
 template<typename T>
 void UpdateImagPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha, 
-  const DistMultiVec<Base<T>>& d, Int offset=0 );
+  const DistMultiVec<Base<T>>& d, Int offset=0, bool diagExists=false );
 
 // UpdateMappedDiagonal
 // ====================
@@ -1650,17 +1647,17 @@ void UpdateMappedDiagonal
   function<void(T&,S)> func, Int offset=0 );
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, 
+( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& d, 
   function<void(T&,S)> func, Int offset=0 );
 
 template<typename T,typename S>
 void UpdateMappedDiagonal
 ( SparseMatrix<T>& A, const Matrix<S>& d, 
-  function<void(T&,S)> func, Int offset=0 );
+  function<void(T&,S)> func, Int offset=0, bool diagExists=false );
 template<typename T,typename S>
 void UpdateMappedDiagonal
 ( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, 
-  function<void(T&,S)> func, Int offset=0 );
+  function<void(T&,S)> func, Int offset=0, bool diagExists=false );
 
 // UpdateSubmatrix
 // ===============
@@ -1681,8 +1678,6 @@ template<typename T>
 void Zero( Matrix<T>& A );
 template<typename T>
 void Zero( AbstractDistMatrix<T>& A );
-template<typename T>
-void Zero( AbstractBlockDistMatrix<T>& A );
 template<typename T>
 void Zero( SparseMatrix<T>& A, bool clearMemory=true );
 template<typename T>

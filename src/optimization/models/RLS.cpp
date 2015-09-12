@@ -109,10 +109,10 @@ void RLS
 
 template<typename Real>
 void RLS
-( const AbstractDistMatrix<Real>& APre, 
-  const AbstractDistMatrix<Real>& bPre, 
+( const ElementalMatrix<Real>& APre, 
+  const ElementalMatrix<Real>& bPre, 
         Real rho,
-        AbstractDistMatrix<Real>& xPre,
+        ElementalMatrix<Real>& xPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("RLS"))
@@ -378,10 +378,10 @@ void RLS
           Matrix<Real>& x, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void RLS \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
           Real rho, \
-          AbstractDistMatrix<Real>& x, \
+          ElementalMatrix<Real>& x, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void RLS \
   ( const SparseMatrix<Real>& A, \

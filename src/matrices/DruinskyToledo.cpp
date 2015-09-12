@@ -62,7 +62,7 @@ void DruinskyToledo( Matrix<F>& A, Int k )
 }
 
 template<typename F> 
-void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
+void DruinskyToledo( ElementalMatrix<F>& A, Int k )
 {
     DEBUG_ONLY(CSE cse("DruinskyToledo"))
     const Int n = 2*k;
@@ -85,8 +85,7 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
         sigma -= 1/d[i];
     }
 
-    unique_ptr<AbstractDistMatrix<F>> 
-      ASub( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<F>> ASub( A.Construct(A.Grid(),A.Root()) );
 
     View( *ASub, A, IR(k-2,k), IR(0,k) );
     Ones( *ASub, 2, k );
@@ -109,7 +108,7 @@ void DruinskyToledo( AbstractDistMatrix<F>& A, Int k )
 
 #define PROTO(F) \
   template void DruinskyToledo( Matrix<F>& A, Int k ); \
-  template void DruinskyToledo( AbstractDistMatrix<F>& A, Int k );
+  template void DruinskyToledo( ElementalMatrix<F>& A, Int k );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

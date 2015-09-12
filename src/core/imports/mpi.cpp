@@ -17,7 +17,7 @@ typedef unsigned char* UCP;
 namespace {
 
 inline void 
-SafeMpi( int mpiError )
+SafeMpi( int mpiError ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       if( mpiError != MPI_SUCCESS )    
@@ -35,19 +35,19 @@ SafeMpi( int mpiError )
 namespace El {
 namespace mpi {
 
-bool CommSameSizeAsInteger()
+bool CommSameSizeAsInteger() EL_NO_EXCEPT
 { return sizeof(MPI_Comm) == sizeof(int); }
 
-bool GroupSameSizeAsInteger()
+bool GroupSameSizeAsInteger() EL_NO_EXCEPT
 { return sizeof(MPI_Group) == sizeof(int); }
 
 // MPI environmental routines
 // ==========================
 
-void Initialize( int& argc, char**& argv )
+void Initialize( int& argc, char**& argv ) EL_NO_EXCEPT
 { MPI_Init( &argc, &argv ); }
 
-int InitializeThread( int& argc, char**& argv, int required )
+int InitializeThread( int& argc, char**& argv, int required ) EL_NO_EXCEPT
 { 
     int provided; 
 #ifdef EL_HAVE_MPI_INIT_THREAD
@@ -59,24 +59,24 @@ int InitializeThread( int& argc, char**& argv, int required )
     return provided;
 }
 
-void Finalize()
+void Finalize() EL_NO_EXCEPT
 { MPI_Finalize(); }
 
-bool Initialized()
+bool Initialized() EL_NO_EXCEPT
 { 
     int initialized;
     MPI_Initialized( &initialized );
     return initialized;
 }
 
-bool Finalized()
+bool Finalized() EL_NO_EXCEPT
 {
     int finalized;
     MPI_Finalized( &finalized );
     return finalized;
 }
 
-int QueryThread()
+int QueryThread() EL_NO_EXCEPT
 {
     int provided;
 #ifdef EL_HAVE_MPI_QUERY_THREAD
@@ -87,25 +87,24 @@ int QueryThread()
     return provided;
 }
 
-void Abort( Comm comm, int errCode )
+void Abort( Comm comm, int errCode ) EL_NO_EXCEPT
 { MPI_Abort( comm.comm, errCode ); }
 
-double Time()
-{ return MPI_Wtime(); }
+double Time() EL_NO_EXCEPT { return MPI_Wtime(); }
 
-void Create( UserFunction* func, bool commutes, Op& op )
+void Create( UserFunction* func, bool commutes, Op& op ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Create"))
     SafeMpi( MPI_Op_create( func, commutes, &op.op ) );
 }
 
-void Free( Op& op )
+void Free( Op& op ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Op_free( &op.op ) );
 }
 
-void Free( Datatype& type )
+void Free( Datatype& type ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Type_free( &type ) );
@@ -114,19 +113,19 @@ void Free( Datatype& type )
 // Communicator manipulation 
 // =========================
 
-int WorldRank()
+int WorldRank() EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WorldRank"))
     return Rank( mpi::COMM_WORLD ); 
 }
 
-int WorldSize()
+int WorldSize() EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WorldSize"))
     return Size( mpi::COMM_WORLD );
 }
 
-int Rank( Comm comm )
+int Rank( Comm comm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Rank"))
     if( comm != COMM_NULL )
@@ -138,7 +137,7 @@ int Rank( Comm comm )
     else return mpi::UNDEFINED;
 }
 
-int Size( Comm comm )
+int Size( Comm comm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Size"))
     if( comm != COMM_NULL )
@@ -151,6 +150,7 @@ int Size( Comm comm )
 }
 
 void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Create"))
     SafeMpi( 
@@ -158,25 +158,25 @@ void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm )
     );
 }
 
-void Dup( Comm original, Comm& duplicate )
+void Dup( Comm original, Comm& duplicate ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Dup"))
     SafeMpi( MPI_Comm_dup( original.comm, &duplicate.comm ) );
 }
 
-void Split( Comm comm, int color, int key, Comm& newComm )
+void Split( Comm comm, int color, int key, Comm& newComm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Split"))
     SafeMpi( MPI_Comm_split( comm.comm, color, key, &newComm.comm ) );
 }
 
-void Free( Comm& comm )
+void Free( Comm& comm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Comm_free( &comm.comm ) );
 }
 
-bool Congruent( Comm comm1, Comm comm2 )
+bool Congruent( Comm comm1, Comm comm2 ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Congruent"))
     int result;
@@ -185,6 +185,7 @@ bool Congruent( Comm comm1, Comm comm2 )
 }
 
 void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ErrorHandlerSet"))
 #ifdef EL_HAVE_MPI_COMM_SET_ERRHANDLER
@@ -199,7 +200,7 @@ void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler )
 
 void CartCreate
 ( Comm comm, int numDims, const int* dimensions, const int* periods, 
-  bool reorder, Comm& cartComm )
+  bool reorder, Comm& cartComm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::CartCreate"))
     SafeMpi
@@ -209,18 +210,19 @@ void CartCreate
 }
 
 void CartSub( Comm comm, const int* remainingDims, Comm& subComm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::CartSub"))
     SafeMpi( 
-        MPI_Cart_sub
-        ( comm.comm, const_cast<int*>(remainingDims), &subComm.comm ) 
+      MPI_Cart_sub
+      ( comm.comm, const_cast<int*>(remainingDims), &subComm.comm ) 
     );
 }
 
 // Group manipulation 
 // ==================
 
-int Rank( Group group )
+int Rank( Group group ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Rank"))
     int rank;
@@ -228,7 +230,7 @@ int Rank( Group group )
     return rank;
 }
 
-int Size( Group group )
+int Size( Group group ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Size"))
     int size;
@@ -236,52 +238,55 @@ int Size( Group group )
     return size;
 }
 
-void CommGroup( Comm comm, Group& group )
+void CommGroup( Comm comm, Group& group ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::CommGroup"))
     SafeMpi( MPI_Comm_group( comm.comm, &group.group ) );
 }
 
-void Dup( Group group, Group& newGroup )
+void Dup( Group group, Group& newGroup ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Dup"))
     // For some reason, MPI_Group_dup does not exist
     Excl( group, 0, 0, newGroup ); 
 }
 
-void Union( Group groupA, Group groupB, Group& newGroup )
+void Union( Group groupA, Group groupB, Group& newGroup ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Union"))
     SafeMpi( MPI_Group_union( groupA.group, groupB.group, &newGroup.group ) );
 }
 
 void Incl( Group group, int n, const int* ranks, Group& subGroup )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Incl"))
     SafeMpi( 
-        MPI_Group_incl
-        ( group.group, n, const_cast<int*>(ranks), &subGroup.group ) 
+      MPI_Group_incl
+      ( group.group, n, const_cast<int*>(ranks), &subGroup.group ) 
     );
 }
 
 void Excl( Group group, int n, const int* ranks, Group& subGroup )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Excl"))
     SafeMpi(
-        MPI_Group_excl
-        ( group.group, n, const_cast<int*>(ranks), &subGroup.group )
+      MPI_Group_excl
+      ( group.group, n, const_cast<int*>(ranks), &subGroup.group )
     );
 }
 
 void Difference( Group parent, Group subset, Group& complement )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Difference"))
     SafeMpi( 
-        MPI_Group_difference( parent.group, subset.group, &complement.group ) 
+      MPI_Group_difference( parent.group, subset.group, &complement.group ) 
     );
 }
 
-void Free( Group& group )
+void Free( Group& group ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Free"))
     SafeMpi( MPI_Group_free( &group.group ) );
@@ -291,6 +296,7 @@ void Free( Group& group )
 // =================
 
 int Translate( Group origGroup, int origRank, Group newGroup )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
@@ -299,6 +305,7 @@ int Translate( Group origGroup, int origRank, Group newGroup )
 }
 
 int Translate( Comm origComm, int origRank, Group newGroup )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
@@ -307,6 +314,7 @@ int Translate( Comm origComm, int origRank, Group newGroup )
 }
 
 int Translate( Group origGroup, int origRank, Comm newComm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
@@ -315,6 +323,7 @@ int Translate( Group origGroup, int origRank, Comm newComm )
 }
 
 int Translate( Comm origComm, int origRank, Comm newComm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     int newRank;
@@ -324,7 +333,7 @@ int Translate( Comm origComm, int origRank, Comm newComm )
 
 void Translate
 ( Group origGroup, int size, const int* origRanks, 
-  Group newGroup,                  int* newRanks )
+  Group newGroup,                  int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     SafeMpi
@@ -335,7 +344,7 @@ void Translate
 
 void Translate
 ( Comm origComm,  int size, const int* origRanks, 
-  Group newGroup,                 int* newRanks )
+  Group newGroup,                 int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     Group origGroup;
@@ -346,7 +355,7 @@ void Translate
 
 void Translate
 ( Group origGroup,  int size, const int* origRanks, 
-  Comm newComm,                     int* newRanks )
+  Comm newComm,                     int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     Group newGroup;
@@ -357,7 +366,7 @@ void Translate
 
 void Translate
 ( Comm origComm,  int size, const int* origRanks, 
-  Comm newComm,                   int* newRanks )
+  Comm newComm,                   int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Translate"))
     Group origGroup, newGroup;
@@ -372,14 +381,14 @@ void Translate
 // =================
 
 // Wait until every process in comm reaches this statement
-void Barrier( Comm comm )
+void Barrier( Comm comm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Barrier"))
     SafeMpi( MPI_Barrier( comm.comm ) );
 }
 
 // Test for completion
-bool Test( Request& request )
+bool Test( Request& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Test"))
     Status status;
@@ -389,7 +398,7 @@ bool Test( Request& request )
 }
 
 // Ensure that the request finishes before continuing
-void Wait( Request& request )
+void Wait( Request& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Wait"))
     Status status;
@@ -397,14 +406,14 @@ void Wait( Request& request )
 }
 
 // Ensure that the request finishes before continuing
-void Wait( Request& request, Status& status )
+void Wait( Request& request, Status& status ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Wait"))
     SafeMpi( MPI_Wait( &request, &status ) );
 }
 
 // Ensure that several requests finish before continuing
-void WaitAll( int numRequests, Request* requests )
+void WaitAll( int numRequests, Request* requests ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WaitAll"))
     vector<Status> statuses( numRequests );
@@ -413,6 +422,7 @@ void WaitAll( int numRequests, Request* requests )
 
 // Ensure that several requests finish before continuing
 void WaitAll( int numRequests, Request* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WaitAll"))
     SafeMpi( MPI_Waitall( numRequests, requests, statuses ) );
@@ -420,17 +430,18 @@ void WaitAll( int numRequests, Request* requests, Status* statuses )
 
 // Nonblocking test for message completion
 bool IProbe( int source, int tag, Comm comm, Status& status )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::IProbe"))
     int flag;
     SafeMpi( MPI_Iprobe( source, tag, comm.comm, &flag, &status ) );
     return flag;
 }
-bool IProbe( int source, Comm comm, Status& status )
+bool IProbe( int source, Comm comm, Status& status ) EL_NO_RELEASE_EXCEPT
 { return IProbe( source, 0, comm, status ); }
 
 template<typename T>
-int GetCount( Status& status )
+int GetCount( Status& status ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::GetCount"))
     int count;
@@ -440,17 +451,19 @@ int GetCount( Status& status )
 
 template<typename Real>
 void TaggedSend( const Real* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("mpi::Send"))
     SafeMpi( 
-        MPI_Send
-        ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm )
+      MPI_Send
+      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm )
     );
 }
 
 template<typename Real>
 void TaggedSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Send"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -467,20 +480,21 @@ void TaggedSend
 }
 
 template<typename T>
-void Send( const T* buf, int count, int to, Comm comm )
+void Send( const T* buf, int count, int to, Comm comm ) EL_NO_RELEASE_EXCEPT
 { TaggedSend( buf, count, to, 0, comm ); }
 
 template<typename T>
-void TaggedSend( T b, int to, int tag, Comm comm )
+void TaggedSend( T b, int to, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT
 { TaggedSend( &b, 1, to, tag, comm ); }
 
 template<typename T>
-void Send( T b, int to, Comm comm )
+void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT
 { TaggedSend( b, to, 0, comm ); }
 
 template<typename Real>
 void TaggedISend
 ( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("mpi::ISend"))
     SafeMpi
@@ -492,7 +506,7 @@ void TaggedISend
 template<typename Real>
 void TaggedISend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request )
+  Request& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISend"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -511,19 +525,23 @@ void TaggedISend
 template<typename T>
 void ISend
 ( const T* buf, int count, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { TaggedISend( buf, count, to, 0, comm, request ); } 
 
 template<typename T>
 void TaggedISend( T b, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { TaggedISend( &b, 1, to, tag, comm, request ); }
 
 template<typename T>
 void ISend( T b, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { TaggedISend( b, to, 0, comm, request ); }
 
 template<typename Real>
 void TaggedISSend
 ( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISSend"))
     SafeMpi
@@ -536,6 +554,7 @@ template<typename Real>
 void TaggedISSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request& request )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISSend"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -553,14 +572,17 @@ void TaggedISSend
 
 template<typename T>
 void ISSend( const T* buf, int count, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { TaggedISSend( buf, count, to, 0, comm, request ); }
 
 template<typename T>
 void TaggedISSend( T b, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { TaggedISSend( &b, 1, to, tag, comm, request ); }
 
 template<typename Real>
 void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Recv"))
     Status status;
@@ -570,6 +592,7 @@ void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
 
 template<typename Real>
 void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Recv"))
     Status status;
@@ -585,19 +608,23 @@ void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
 
 template<typename T>
 void Recv( T* buf, int count, int from, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { TaggedRecv( buf, count, from, mpi::ANY_TAG, comm ); }
 
 template<typename T>
 T TaggedRecv( int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { T b; TaggedRecv( &b, 1, from, tag, comm ); return b; }
 
 template<typename T>
 T Recv( int from, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { return TaggedRecv<T>( from, mpi::ANY_TAG, comm ); }
 
 template<typename Real>
 void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::IRecv"))
     SafeMpi
@@ -609,6 +636,7 @@ template<typename Real>
 void TaggedIRecv
 ( Complex<Real>* buf, int count, int from, int tag, 
   Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::IRecv"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -623,20 +651,24 @@ void TaggedIRecv
 
 template<typename T>
 void IRecv( T* buf, int count, int from, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { TaggedIRecv( buf, count, from, mpi::ANY_TAG, comm, request ); }
 
 template<typename T>
 T TaggedIRecv( int from, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { T b; TaggedIRecv( &b, 1, from, tag, comm, request ); return b; }
 
 template<typename T>
 T IRecv( int from, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
 { return TaggedIRecv<T>( from, mpi::ANY_TAG, comm, request ); }
 
 template<typename Real>
 void TaggedSendRecv
 ( const Real* sbuf, int sc, int to,   int stag,
         Real* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
@@ -651,6 +683,7 @@ template<typename Real>
 void TaggedSendRecv
 ( const Complex<Real>* sbuf, int sc, int to,   int stag,
         Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
@@ -674,10 +707,12 @@ template<typename T>
 void SendRecv
 ( const T* sbuf, int sc, int to, 
         T* rbuf, int rc, int from, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { TaggedSendRecv( sbuf, sc, to, 0, rbuf, rc, from, mpi::ANY_TAG, comm ); }
 
 template<typename T>
 T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { 
     T rb; 
     TaggedSendRecv( &sb, 1, to, stag, &rb, 1, from, rtag, comm ); 
@@ -686,11 +721,13 @@ T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
 
 template<typename T>
 T SendRecv( T sb, int to, int from, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { return TaggedSendRecv( sb, to, 0, from, mpi::ANY_TAG, comm ); }
 
 template<typename Real>
 void TaggedSendRecv
 ( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
@@ -701,7 +738,9 @@ void TaggedSendRecv
 
 template<typename Real>
 void TaggedSendRecv
-( Complex<Real>* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+( Complex<Real>* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::SendRecv"))
     Status status;
@@ -720,10 +759,12 @@ void TaggedSendRecv
 
 template<typename T>
 void SendRecv( T* buf, int count, int to, int from, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { TaggedSendRecv( buf, count, to, 0, from, mpi::ANY_TAG, comm ); }
 
 template<typename Real>
 void Broadcast( Real* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Broadcast"))
     SafeMpi( MPI_Bcast( buf, count, TypeMap<Real>(), root, comm.comm ) );
@@ -731,6 +772,7 @@ void Broadcast( Real* buf, int count, int root, Comm comm )
 
 template<typename Real>
 void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Broadcast"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -741,7 +783,7 @@ void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
 }
 
 template<typename T>
-void Broadcast( T& b, int root, Comm comm )
+void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT
 { Broadcast( &b, 1, root, comm ); }
 
 template<typename Real>
@@ -783,6 +825,7 @@ template<typename Real>
 void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Gather"))
     SafeMpi
@@ -795,6 +838,7 @@ template<typename Real>
 void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Gather"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -856,6 +900,7 @@ template<typename Real>
 void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Gather"))
     SafeMpi
@@ -874,7 +919,9 @@ void Gather
 template<typename Real>
 void Gather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+        Complex<Real>* rbuf, const int* rcs, const int* rds, int root,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Gather"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -915,6 +962,7 @@ template<typename Real>
 void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
@@ -935,13 +983,16 @@ template<typename Real>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
-      ( (UCP)const_cast<Complex<Real>*>(sbuf), 2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR, 
-        (UCP)rbuf,                             2*sizeof(Real)*rc, MPI_UNSIGNED_CHAR, 
+      ( (UCP)const_cast<Complex<Real>*>(sbuf),
+        2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR, 
+        (UCP)rbuf,
+        2*sizeof(Real)*rc, MPI_UNSIGNED_CHAR, 
         comm.comm ) );
 #else
  #ifdef EL_AVOID_COMPLEX_MPI
@@ -953,7 +1004,8 @@ void AllGather
     SafeMpi
     ( MPI_Allgather
       ( const_cast<Complex<Real>*>(sbuf), sc, TypeMap<Complex<Real>>(),
-        rbuf,                             rc, TypeMap<Complex<Real>>(), comm.comm ) );
+        rbuf,                             rc, TypeMap<Complex<Real>>(),
+        comm.comm ) );
  #endif
 #endif
 }
@@ -962,6 +1014,7 @@ template<typename Real>
 void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
@@ -995,6 +1048,7 @@ template<typename Real>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllGather"))
 #ifdef EL_USE_BYTE_ALLGATHERS
@@ -1007,8 +1061,10 @@ void AllGather
     }
     SafeMpi
     ( MPI_Allgatherv
-      ( (UCP)const_cast<Complex<Real>*>(sbuf), 2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR, 
-        (UCP)rbuf, byteRcs.data(), byteRds.data(),                MPI_UNSIGNED_CHAR, 
+      ( (UCP)const_cast<Complex<Real>*>(sbuf),
+        2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR, 
+        (UCP)rbuf, byteRcs.data(), byteRds.data(),
+        MPI_UNSIGNED_CHAR, 
         comm.comm ) );
 #else
  #ifdef EL_AVOID_COMPLEX_MPI
@@ -1042,6 +1098,7 @@ template<typename Real>
 void Scatter
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scatter"))
     SafeMpi
@@ -1054,13 +1111,15 @@ template<typename Real>
 void Scatter
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scatter"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Scatter
       ( const_cast<Complex<Real>*>(sbuf), 2*sc, TypeMap<Real>(),
-        rbuf,                             2*rc, TypeMap<Real>(), root, comm.comm ) );
+        rbuf,                             2*rc, TypeMap<Real>(), root,
+        comm.comm ) );
 #else
     SafeMpi
     ( MPI_Scatter
@@ -1072,6 +1131,7 @@ void Scatter
 
 template<typename Real>
 void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scatter"))
     const int commRank = Rank( comm );
@@ -1103,6 +1163,7 @@ void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
 
 template<typename Real>
 void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scatter"))
     const int commRank = Rank( comm );
@@ -1160,6 +1221,7 @@ template<typename Real>
 void AllToAll
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllToAll"))
     SafeMpi
@@ -1172,6 +1234,7 @@ template<typename Real>
 void AllToAll
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllToAll"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -1191,6 +1254,7 @@ template<typename Real>
 void AllToAll
 ( const Real* sbuf, const int* scs, const int* sds, 
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllToAll"))
     SafeMpi
@@ -1210,6 +1274,7 @@ template<typename Real>
 void AllToAll
 ( const Complex<Real>* sbuf, const int* scs, const int* sds,
         Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllToAll"))
 #ifdef EL_AVOID_COMPLEX_MPI
@@ -1250,6 +1315,7 @@ std::vector<T> AllToAll
   const std::vector<int>& sendCounts, 
   const std::vector<int>& sendOffs,
   mpi::Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     const int commSize = mpi::Size( comm ); 
     std::vector<int> recvCounts(commSize);
@@ -1266,6 +1332,7 @@ std::vector<T> AllToAll
 template<typename Real>
 void Reduce
 ( const Real* sbuf, Real* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
@@ -1291,6 +1358,7 @@ template<typename Real>
 void Reduce
 ( const Complex<Real>* sbuf, 
         Complex<Real>* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
@@ -1328,10 +1396,12 @@ void Reduce
 
 template<typename T>
 void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { Reduce( sbuf, rbuf, count, mpi::SUM, root, comm ); }
 
 template<typename T>
 T Reduce( T sb, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { 
     T rb;
     Reduce( &sb, &rb, 1, op, root, comm );
@@ -1340,6 +1410,7 @@ T Reduce( T sb, Op op, int root, Comm comm )
 
 template<typename T>
 T Reduce( T sb, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { 
     T rb;
     Reduce( &sb, &rb, 1, mpi::SUM, root, comm );
@@ -1348,6 +1419,7 @@ T Reduce( T sb, int root, Comm comm )
 
 template<typename Real>
 void Reduce( Real* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
@@ -1388,6 +1460,7 @@ void Reduce( Real* buf, int count, Op op, int root, Comm comm )
 
 template<typename Real>
 void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
     if( count != 0 )
@@ -1475,10 +1548,12 @@ void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
 
 template<typename T>
 void Reduce( T* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { Reduce( buf, count, mpi::SUM, root, comm ); }
 
 template<typename Real>
 void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
@@ -1503,6 +1578,7 @@ void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 template<typename Real>
 void AllReduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
@@ -1539,18 +1615,22 @@ void AllReduce
 
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { AllReduce( sbuf, rbuf, count, mpi::SUM, comm ); }
 
 template<typename T>
 T AllReduce( T sb, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { T rb; AllReduce( &sb, &rb, 1, op, comm ); return rb; }
 
 template<typename T>
 T AllReduce( T sb, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { return AllReduce( sb, mpi::SUM, comm ); }
 
 template<typename Real>
 void AllReduce( Real* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
@@ -1581,6 +1661,7 @@ void AllReduce( Real* buf, int count, Op op, Comm comm )
 
 template<typename Real>
 void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
@@ -1643,10 +1724,12 @@ void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
 
 template<typename T>
 void AllReduce( T* buf, int count, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { AllReduce( buf, count, mpi::SUM, comm ); }
 
 template<typename Real>
 void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
@@ -1677,6 +1760,7 @@ void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
 template<typename Real>
 void ReduceScatter
 ( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
     MPI_Op opC;
@@ -1709,18 +1793,22 @@ void ReduceScatter
 
 template<typename T>
 void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { ReduceScatter( sbuf, rbuf, rc, mpi::SUM, comm ); }
 
 template<typename T>
 T ReduceScatter( T sb, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { T rb; ReduceScatter( &sb, &rb, 1, op, comm ); return rb; }
 
 template<typename T>
 T ReduceScatter( T sb, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { return ReduceScatter( sb, mpi::SUM, comm ); }
 
 template<typename Real>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
@@ -1761,6 +1849,7 @@ void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 // TODO: Handle case where op is not summation
 template<typename Real>
 void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
@@ -1811,11 +1900,13 @@ void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 
 template<typename T>
 void ReduceScatter( T* buf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { ReduceScatter( buf, rc, mpi::SUM, comm ); }
 
 template<typename Real>
 void ReduceScatter
 ( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
     MPI_Op opC;
@@ -1836,7 +1927,9 @@ void ReduceScatter
 
 template<typename Real>
 void ReduceScatter
-( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs, Op op, Comm comm )
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs,
+  Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
     MPI_Op opC;
@@ -1877,6 +1970,7 @@ void ReduceScatter
 
 template<typename T>
 void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { ReduceScatter( sbuf, rbuf, rcs, mpi::SUM, comm ); }
 
 void VerifySendsAndRecvs
@@ -1898,6 +1992,7 @@ void VerifySendsAndRecvs
 
 template<typename Real>
 void Scan( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scan"))
     if( count != 0 )
@@ -1923,6 +2018,7 @@ template<typename Real>
 void Scan
 ( const Complex<Real>* sbuf, 
         Complex<Real>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scan"))
     if( count != 0 )
@@ -1959,10 +2055,12 @@ void Scan
 
 template<typename T>
 void Scan( const T* sbuf, T* rbuf, int count, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { Scan( sbuf, rbuf, count, mpi::SUM, comm ); }
 
 template<typename T>
 T Scan( T sb, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { 
     T rb;
     Scan( &sb, &rb, 1, op, comm );
@@ -1971,6 +2069,7 @@ T Scan( T sb, Op op, Comm comm )
 
 template<typename T>
 T Scan( T sb, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { 
     T rb;
     Scan( &sb, &rb, 1, mpi::SUM, comm );
@@ -1979,6 +2078,7 @@ T Scan( T sb, Comm comm )
 
 template<typename Real>
 void Scan( Real* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scan"))
     if( count != 0 )
@@ -2009,6 +2109,7 @@ void Scan( Real* buf, int count, Op op, Comm comm )
 
 template<typename Real>
 void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Scan"))
     if( count != 0 )
@@ -2071,6 +2172,7 @@ void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
 
 template<typename T>
 void Scan( T* buf, int count, Comm comm )
+EL_NO_RELEASE_EXCEPT
 { Scan( buf, count, mpi::SUM, comm ); }
 
 template<typename T>
@@ -2080,6 +2182,7 @@ void SparseAllToAll
         vector<T>& recvBuffer,
   const vector<int>& recvCounts, const vector<int>& recvDispls,
         mpi::Comm comm )
+EL_NO_RELEASE_EXCEPT
 {
 #ifdef EL_USE_CUSTOM_ALLTOALLV
     const int commSize = mpi::Size( comm );
@@ -2123,95 +2226,170 @@ void SparseAllToAll
 }
 
 #define MPI_PROTO(T) \
-  template int GetCount<T>( Status& status ); \
-  template void TaggedSend( const T* buf, int count, int to, int tag, Comm comm ); \
-  template void Send( const T* buf, int count, int to, Comm comm ); \
-  template void TaggedSend( T b, int to, int tag, Comm comm ); \
-  template void Send( T b, int to, Comm comm ); \
-  template void TaggedISend( const T* buf, int count, int to, int tag, Comm comm, Request& request ); \
-  template void ISend( const T* buf, int count, int to, Comm comm, Request& request ); \
-  template void TaggedISend( T buf, int to, int tag, Comm comm, Request& request ); \
-  template void ISend( T buf, int to, Comm comm, Request& request ); \
-  template void TaggedISSend( const T* buf, int count, int to, int tag, Comm comm, Request& request ); \
-  template void ISSend( const T* buf, int count, int to, Comm comm, Request& request ); \
-  template void TaggedISSend( T b, int to, int tag, Comm comm, Request& request ); \
-  template void TaggedRecv( T* buf, int count, int from, int tag, Comm comm ); \
-  template void Recv( T* buf, int count, int from, Comm comm ); \
-  template T TaggedRecv<T>( int from, int tag, Comm comm ); \
-  template T Recv( int from, Comm comm ); \
-  template void TaggedIRecv( T* buf, int count, int from, int tag, Comm comm, Request& request ); \
-  template void IRecv( T* buf, int count, int from, Comm comm, Request& request ); \
-  template T TaggedIRecv<T>( int from, int tag, Comm comm, Request& request ); \
-  template T IRecv<T>( int from, Comm comm, Request& request ); \
+  template int GetCount<T>( Status& status ) EL_NO_RELEASE_EXCEPT; \
+  template void TaggedSend \
+  ( const T* buf, int count, int to, int tag, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Send( const T* buf, int count, int to, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void TaggedSend( T b, int to, int tag, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Send( T b, int to, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void TaggedISend \
+  ( const T* buf, int count, int to, int tag, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ISend \
+  ( const T* buf, int count, int to, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void TaggedISend \
+  ( T buf, int to, int tag, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ISend( T buf, int to, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void TaggedISSend \
+  ( const T* buf, int count, int to, int tag, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ISSend \
+  ( const T* buf, int count, int to, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void TaggedISSend \
+  ( T b, int to, int tag, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT; \
+  template void TaggedRecv \
+  ( T* buf, int count, int from, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT; \
+  template void Recv( T* buf, int count, int from, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T TaggedRecv<T>( int from, int tag, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT; \
+  template void TaggedIRecv \
+  ( T* buf, int count, int from, int tag, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void IRecv \
+  ( T* buf, int count, int from, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T TaggedIRecv<T> \
+  ( int from, int tag, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT; \
+  template T IRecv<T>( int from, Comm comm, Request& request ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void TaggedSendRecv \
   ( const T* sbuf, int sc, int to,   int stag, \
-          T* rbuf, int rc, int from, int rtag, Comm comm ); \
+          T* rbuf, int rc, int from, int rtag, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void SendRecv \
   ( const T* sbuf, int sc, int to, \
-          T* rbuf, int rc, int from, Comm comm ); \
+          T* rbuf, int rc, int from, Comm comm ) EL_NO_RELEASE_EXCEPT; \
   template T TaggedSendRecv \
   ( T sb, int to, int stag, int from, int rtag, Comm comm ); \
-  template T SendRecv( T sb, int to, int from, Comm comm ); \
+  template T SendRecv( T sb, int to, int from, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void TaggedSendRecv \
-  ( T* buf, int count, int to, int stag, int from, int rtag, Comm comm ); \
+  ( T* buf, int count, int to, int stag, int from, int rtag, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void SendRecv \
-  ( T* buf, int count, int to, int from, Comm comm ); \
-  template void Broadcast( T* buf, int count, int root, Comm comm ); \
-  template void Broadcast( T& b, int root, Comm comm ); \
-  template void IBroadcast( T* buf, int count, int root, Comm comm, Request& request ); \
-  template void IBroadcast( T& b, int root, Comm comm, Request& request ); \
-  template void Gather( const T* sbuf, int sc, T* rbuf, int rc, int root, Comm comm ); \
+  ( T* buf, int count, int to, int from, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Broadcast( T* buf, int count, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Broadcast( T& b, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void IBroadcast \
+  ( T* buf, int count, int root, Comm comm, Request& request ); \
+  template void IBroadcast \
+  ( T& b, int root, Comm comm, Request& request ); \
+  template void Gather \
+  ( const T* sbuf, int sc, T* rbuf, int rc, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void IGather \
   ( const T* sbuf, int sc, \
           T* rbuf, int rc, int root, Comm comm, Request& request ); \
   template void Gather \
   ( const T* sbuf, int sc, \
-          T* rbuf, const int* rcs, const int* rds, int root, Comm comm ); \
-  template void AllGather( const T* sbuf, int sc, T* rbuf, int rc, Comm comm ); \
+          T* rbuf, const int* rcs, const int* rds, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllGather( const T* sbuf, int sc, T* rbuf, int rc, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void AllGather \
   ( const T* sbuf, int sc, \
-          T* rbuf, const int* rcs, const int* rds, Comm comm ); \
+          T* rbuf, const int* rcs, const int* rds, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void Scatter \
   ( const T* sbuf, int sc, \
-          T* rbuf, int rc, int root, Comm comm ); \
-  template void Scatter( T* buf, int sc, int rc, int root, Comm comm ); \
+          T* rbuf, int rc, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Scatter( T* buf, int sc, int rc, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void AllToAll \
   ( const T* sbuf, int sc, \
-          T* rbuf, int rc, Comm comm ); \
+          T* rbuf, int rc, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void AllToAll \
   ( const T* sbuf, const int* scs, const int* sds, \
-          T* rbuf, const int* rcs, const int* rds, Comm comm ); \
+          T* rbuf, const int* rcs, const int* rds, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
   template std::vector<T> AllToAll \
   ( const std::vector<T>& sendBuf, \
     const std::vector<int>& sendCounts, \
     const std::vector<int>& sendOffs, \
-    mpi::Comm comm ); \
-  template void Reduce( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm ); \
-  template void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm ); \
-  template T Reduce( T sb, Op op, int root, Comm comm ); \
-  template T Reduce( T sb, int root, Comm comm ); \
-  template void Reduce( T* buf, int count, Op op, int root, Comm comm ); \
-  template void Reduce( T* buf, int count, int root, Comm comm ); \
-  template void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm ); \
-  template void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm ); \
-  template T AllReduce( T sb, Op op, Comm comm ); \
-  template T AllReduce( T sb, Comm comm ); \
-  template void AllReduce( T* buf, int count, Op op, Comm comm ); \
-  template void AllReduce( T* buf, int count, Comm comm ); \
-  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Op op, Comm comm ); \
-  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm ); \
-  template T ReduceScatter( T sb, Op op, Comm comm ); \
-  template T ReduceScatter( T sb, Comm comm ); \
-  template void ReduceScatter( T* buf, int rc, Op op, Comm comm ); \
-  template void ReduceScatter( T* buf, int rc, Comm comm ); \
-  template void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm ); \
-  template void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm ); \
-  template void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm ); \
-  template void Scan( const T* sbuf, T* rbuf, int count, Comm comm ); \
-  template T Scan( T sb, Op op, Comm comm ); \
-  template T Scan( T sb, Comm comm ); \
-  template void Scan( T* buf, int count, Op op, Comm comm ); \
-  template void Scan( T* buf, int count, Comm comm );
+    mpi::Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Reduce \
+  ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Reduce \
+  ( const T* sbuf, T* rbuf, int count, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T Reduce( T sb, Op op, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T Reduce( T sb, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Reduce( T* buf, int count, Op op, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Reduce( T* buf, int count, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllReduce \
+  ( const T* sbuf, T* rbuf, int count, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T AllReduce( T sb, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T AllReduce( T sb, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllReduce( T* buf, int count, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllReduce( T* buf, int count, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T ReduceScatter( T sb, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T ReduceScatter( T sb, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ReduceScatter( T* buf, int rc, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ReduceScatter( T* buf, int rc, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ReduceScatter \
+  ( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void ReduceScatter \
+  ( const T* sbuf, T* rbuf, const int* rcs, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Scan( const T* sbuf, T* rbuf, int count, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T Scan( T sb, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template T Scan( T sb, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Scan( T* buf, int count, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Scan( T* buf, int count, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT;
 
 MPI_PROTO(byte)
 MPI_PROTO(int)
@@ -2262,7 +2440,7 @@ MPI_PROTO(Entry<Complex<Quad>>)
     const vector<int>& sendCounts, const vector<int>& sendDispls, \
           vector<T>& recvBuffer, \
     const vector<int>& recvCounts, const vector<int>& recvDispls, \
-          mpi::Comm comm );
+          mpi::Comm comm ) EL_NO_RELEASE_EXCEPT;
 #include "El/macros/Instantiate.h"
 
 } // namespace mpi

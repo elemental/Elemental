@@ -32,8 +32,10 @@ namespace direct {
 template<typename Real>
 void AugmentedKKT
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& x, const Matrix<Real>& z,
-        Matrix<Real>& J, bool onlyLower )
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
+        Matrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int m = A.Height();
@@ -53,9 +55,11 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& x,    const AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& JPre, bool onlyLower )
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Real>& z,
+        ElementalMatrix<Real>& JPre, 
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int m = A.Height();
@@ -79,46 +83,66 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& x,       const Matrix<Real>& z,
-        SparseMatrix<Real>& J, bool onlyLower )
+        Real gamma,
+        Real delta,
+  const Matrix<Real>& x,
+  const Matrix<Real>& z,
+        SparseMatrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Zeros( Q, n, n );
-    qp::direct::AugmentedKKT( Q, A, x, z, J, onlyLower );
+    qp::direct::AugmentedKKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
 
 template<typename Real>
 void AugmentedKKT
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& x,     const DistMultiVec<Real>& z,
-        DistSparseMatrix<Real>& J, bool onlyLower )
+        Real gamma,
+        Real delta,
+  const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J,
+  bool onlyLower )
 {
     DEBUG_ONLY(CSE cse("lp::direct::AugmentedKKT"))
     const Int n = A.Width();
     DistSparseMatrix<Real> Q(A.Comm());
     Zeros( Q, n, n );
-    qp::direct::AugmentedKKT( Q, A, x, z, J, onlyLower );
+    qp::direct::AugmentedKKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
 
 #define PROTO(Real) \
   template void AugmentedKKT \
   ( const Matrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
-    Matrix<Real>& J, bool onlyLower ); \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+          Matrix<Real>& J, \
+    bool onlyLower ); \
   template void AugmentedKKT \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& x, const AbstractDistMatrix<Real>& z, \
-    AbstractDistMatrix<Real>& J, bool onlyLower ); \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Real>& z, \
+          ElementalMatrix<Real>& J, \
+    bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& x, const Matrix<Real>& z, \
-    SparseMatrix<Real>& J, bool onlyLower ); \
+          Real gamma, \
+          Real delta, \
+    const Matrix<Real>& x, \
+    const Matrix<Real>& z, \
+          SparseMatrix<Real>& J, \
+    bool onlyLower ); \
   template void AugmentedKKT \
   ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& x, const DistMultiVec<Real>& z, \
-    DistSparseMatrix<Real>& J, bool onlyLower );
+          Real gamma, \
+          Real delta, \
+    const DistMultiVec<Real>& x, \
+    const DistMultiVec<Real>& z, \
+          DistSparseMatrix<Real>& J, \
+    bool onlyLower );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

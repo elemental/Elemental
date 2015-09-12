@@ -23,26 +23,33 @@ void ConeBroadcast
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
+    Real* xBuf = x.Buffer();
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     for( Int i=0; i<height; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
-        if( i != firstInd )
-            LogicError("Inconsistency in orders and firstInds");
+        const Int order = orderBuf[i];
+        const Int firstInd = firstIndBuf[i];
+        DEBUG_ONLY(
+          if( i != firstInd )
+              LogicError("Inconsistency in orders and firstInds");
+        )
 
-        const Real x0 = x.Get(i,0);
+        const Real x0 = xBuf[i]; 
         for( Int j=i+1; j<i+order; ++j )
-            x.Set( j, 0, x0 );
+            xBuf[j] = x0;
 
         i += order;
     }
 }
 
+// TODO: Use lower-level access
 template<typename Real>
 void ConeBroadcast
-(       AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+(       ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ConeBroadcast"))
@@ -155,13 +162,18 @@ void ConeBroadcast
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
     const int commSize = mpi::Size(comm);
-    const int localHeight = x.LocalHeight();
+    const Int localHeight = x.LocalHeight();
+    const Int firstLocalRow = x.FirstLocalRow();
 
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
+
+    Real* xBuf = x.Matrix().Buffer();
+    const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     // TODO: Find a better strategy
     // A short-circuited ring algorithm would likely be significantly faster
@@ -173,12 +185,12 @@ void ConeBroadcast
     Int numRemoteUpdates = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i == firstInd )
         {
             for( Int k=1; k<order; ++k )
@@ -186,21 +198,21 @@ void ConeBroadcast
                     ++numRemoteUpdates;
         }
         else
-            x.SetLocal( iLoc, 0, 0 );
+            xBuf[iLoc] = 0;
     }
     // Queue and process the remote updates
     // ------------------------------------
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i == firstInd )
             for( Int k=1; k<order; ++k )
-                x.QueueUpdate( i+k, 0, x.GetLocal(iLoc,0) );
+                x.QueueUpdate( i+k, 0, xBuf[iLoc] );
     }
     x.ProcessQueues();
 
@@ -209,13 +221,14 @@ void ConeBroadcast
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
     vector<Entry<Real>> sendData;
+    // TODO: Count and reserve
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int i = iLoc + firstLocalRow;
+        const Int order = orderBuf[iLoc];
+        const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
-            sendData.push_back( Entry<Real>{i,order,x.GetLocal(iLoc,0)} );
+            sendData.push_back( Entry<Real>{i,order,xBuf[iLoc]} );
     }
     const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
@@ -233,10 +246,10 @@ void ConeBroadcast
         const Real x0 = recvData[largeCone].value;
 
         // Unpack the root entry
-        const Int iFirst = x.FirstLocalRow();
-        const Int iLast = iFirst + x.LocalHeight();
+        const Int iFirst = firstLocalRow;
+        const Int iLast = iFirst + localHeight;
         for( Int j=Max(iFirst,i+1); j<Min(iLast,i+order); ++j )
-            x.SetLocal( j-iFirst, 0, x0 );
+            xBuf[j-iFirst] = x0;
     }
 }
 
@@ -246,9 +259,9 @@ void ConeBroadcast
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void ConeBroadcast \
-  (       AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
+  (       ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void ConeBroadcast \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

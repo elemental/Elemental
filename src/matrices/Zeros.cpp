@@ -27,14 +27,6 @@ void Zeros( AbstractDistMatrix<T>& A, Int m, Int n )
 }
 
 template<typename T>
-void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n )
-{
-    DEBUG_ONLY(CSE cse("Zeros"))
-    A.Resize( m, n );
-    Zero( A );
-}
-
-template<typename T>
 void Zeros( SparseMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CSE cse("Zeros"))
@@ -61,7 +53,6 @@ void Zeros( DistMultiVec<T>& A, Int m, Int n )
 #define PROTO(T) \
   template void Zeros( Matrix<T>& A, Int m, Int n ); \
   template void Zeros( AbstractDistMatrix<T>& A, Int m, Int n ); \
-  template void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n ); \
   template void Zeros( SparseMatrix<T>& A, Int m, Int n ); \
   template void Zeros( DistSparseMatrix<T>& A, Int m, Int n ); \
   template void Zeros( DistMultiVec<T>& A, Int m, Int n );

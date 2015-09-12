@@ -31,9 +31,9 @@ void SOCIdentity
 
 template<typename Real>
 void SOCIdentity
-(       AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre )
+(       ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre )
 {
     DEBUG_ONLY(CSE cse("SOCIdentity"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
@@ -94,9 +94,9 @@ void SOCIdentity
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SOCIdentity \
-  (       AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds ); \
+  (       ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds ); \
   template void SOCIdentity \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

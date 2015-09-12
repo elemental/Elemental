@@ -29,7 +29,7 @@ void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 }
 
 template<typename T>
-void Trtrmm( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate )
+void Trtrmm( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(
         CSE cse("Trtrmm");
@@ -49,7 +49,7 @@ void Trtrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate )
 #define PROTO(T) \
   template void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate ); \
   template void Trtrmm \
-  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate ); \
+  ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate ); \
   template void Trtrmm \
   ( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate );
 

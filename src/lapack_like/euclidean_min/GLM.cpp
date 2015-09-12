@@ -108,8 +108,10 @@ void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 
 template<typename F> 
 void Overwrite
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
-  AbstractDistMatrix<F>& DPre, AbstractDistMatrix<F>& YPre )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre, 
+  ElementalMatrix<F>& DPre,
+  ElementalMatrix<F>& YPre )
 {
     DEBUG_ONLY(CSE cse("glm::Overwrite"))
 
@@ -175,9 +177,11 @@ void Overwrite
 
 template<typename F> 
 void GLM
-( const Matrix<F>& A, const Matrix<F>& B, 
+( const Matrix<F>& A,
+  const Matrix<F>& B, 
   const Matrix<F>& D, 
-        Matrix<F>& X, Matrix<F>& Y )
+        Matrix<F>& X,
+        Matrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("GLM"))
     Matrix<F> ACopy( A ), BCopy( B );
@@ -187,9 +191,11 @@ void GLM
 
 template<typename F> 
 void GLM
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& D, 
-        AbstractDistMatrix<F>& X,       AbstractDistMatrix<F>& Y )
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& D, 
+        ElementalMatrix<F>& X,
+        ElementalMatrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("GLM"))
     DistMatrix<F> ACopy( A ), BCopy( B );
@@ -199,13 +205,21 @@ void GLM
 
 template<typename F>
 void GLM
-( const SparseMatrix<F>& A, const SparseMatrix<F>& B,
+( const SparseMatrix<F>& A,
+  const SparseMatrix<F>& B,
   const Matrix<F>& D,
-        Matrix<F>& X,             Matrix<F>& Y, 
+        Matrix<F>& X,
+        Matrix<F>& Y, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("GLM"))
     typedef Base<F> Real;
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
@@ -273,14 +287,14 @@ void GLM
         J.QueueUpdate( e+m+n, e+m+n, -ctrl.alpha );
     J.ProcessQueues();
 
-    // Add the a priori regularization
-    // ===============================
+    // Add the temporary, a priori regularization
+    // ==========================================
     Matrix<Real> reg;
     Zeros( reg, m+n+k, 1 );
     for( Int i=0; i<m; ++i )
-        reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+        reg.Set( i, 0, gammaTmp*gammaTmp );
     for( Int i=m; i<m+n+k; ++i )
-        reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+        reg.Set( i, 0, -deltaTmp*deltaTmp );
     SparseMatrix<F> JOrig;
     JOrig = J;
     UpdateRealPartOfDiagonal( J, Real(1), reg );
@@ -295,18 +309,9 @@ void GLM
     ldl::Front<F> JFront( J, map, info );
     LDL( info, JFront );
 
-    // Successively solve each of the numRHS linear systems
-    // ====================================================
-    Matrix<F> u;
-    Zeros( u, m+n+k, 1 );
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto g = G( ALL, IR(j) );
-        u = g;
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
-        g = u;
-    }
+    // Solve the linear systems
+    // ========================
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
@@ -320,13 +325,21 @@ void GLM
 
 template<typename F>
 void GLM
-( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B,
+( const DistSparseMatrix<F>& A,
+  const DistSparseMatrix<F>& B,
   const DistMultiVec<F>& D,
-        DistMultiVec<F>& X,           DistMultiVec<F>& Y,
+        DistMultiVec<F>& X,
+        DistMultiVec<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("GLM"))
     typedef Base<F> Real;
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
@@ -467,9 +480,9 @@ void GLM
     {
         const Int i = reg.GlobalRow(iLoc);
         if( i < m )
-            reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+            reg.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
         else
-            reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+            reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
     }
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
@@ -485,20 +498,9 @@ void GLM
     ldl::DistFront<F> JFront( J, map, rootSep, info );
     LDL( info, JFront );
 
-    // Successively solve each of the numRHS linear systems
-    // ====================================================
-    DistMultiVec<F> u(comm);
-    Zeros( u, m+n+k, 1 );
-    auto& GLoc = G.Matrix();
-    auto& uLoc = u.Matrix();
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto gLoc = GLoc( ALL, IR(j) );
-        Copy( gLoc, uLoc );
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
-        Copy( uLoc, gLoc );
-    }
+    // Solve the linear systems
+    // ========================
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
@@ -514,25 +516,35 @@ void GLM
   template void glm::Overwrite \
   ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y ); \
   template void glm::Overwrite \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<F>& D, AbstractDistMatrix<F>& Y ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
+    ElementalMatrix<F>& D, \
+    ElementalMatrix<F>& Y ); \
   template void GLM \
-  ( const Matrix<F>& A, const Matrix<F>& B, \
+  ( const Matrix<F>& A, \
+    const Matrix<F>& B, \
     const Matrix<F>& D, \
-          Matrix<F>& X,       Matrix<F>& Y ); \
+          Matrix<F>& X, \
+          Matrix<F>& Y ); \
   template void GLM \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& D, \
-          AbstractDistMatrix<F>& X, AbstractDistMatrix<F>& Y ); \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+    const ElementalMatrix<F>& D, \
+          ElementalMatrix<F>& X, \
+          ElementalMatrix<F>& Y ); \
   template void GLM \
-  ( const SparseMatrix<F>& A, const SparseMatrix<F>& B, \
+  ( const SparseMatrix<F>& A, \
+    const SparseMatrix<F>& B, \
     const Matrix<F>& D, \
-          Matrix<F>& X,             Matrix<F>& Y, \
+          Matrix<F>& X, \
+          Matrix<F>& Y, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void GLM \
-  ( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B, \
+  ( const DistSparseMatrix<F>& A, \
+    const DistSparseMatrix<F>& B, \
     const DistMultiVec<F>& D, \
-          DistMultiVec<F>& X,           DistMultiVec<F>& Y, \
+          DistMultiVec<F>& X, \
+          DistMultiVec<F>& Y, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

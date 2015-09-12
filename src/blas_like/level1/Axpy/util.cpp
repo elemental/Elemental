@@ -28,7 +28,7 @@ void InterleaveMatrixUpdate
 
 template<typename T>
 void UpdateWithLocalData
-( T alpha, const AbstractDistMatrix<T>& A, DistMatrix<T,STAR,STAR>& B )
+( T alpha, const ElementalMatrix<T>& A, DistMatrix<T,STAR,STAR>& B )
 {
     DEBUG_ONLY(CSE cse("axpy::util::UpdateWithLocalData"))
     axpy::util::InterleaveMatrixUpdate
@@ -45,7 +45,7 @@ void UpdateWithLocalData
     const T* A, Int colStrideA, Int rowStrideA, \
           T* B, Int colStrideB, Int rowStrideB ); \
   template void UpdateWithLocalData \
-  ( T alpha, const AbstractDistMatrix<T>& A, DistMatrix<T,STAR,STAR>& B );
+  ( T alpha, const ElementalMatrix<T>& A, DistMatrix<T,STAR,STAR>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

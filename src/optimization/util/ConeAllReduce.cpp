@@ -63,9 +63,9 @@ void ConeAllReduce
 
 template<typename Real>
 void ConeAllReduce
-(       AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Int>& ordersPre, 
-  const AbstractDistMatrix<Int>& firstIndsPre,
+(       ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& firstIndsPre,
   mpi::Op op,
   Int cutoff )
 {
@@ -473,9 +473,9 @@ void ConeAllReduce
     const Matrix<Int>& firstInds, \
     mpi::Op op ); \
   template void ConeAllReduce \
-  (       AbstractDistMatrix<Real>& x, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
+  (       ElementalMatrix<Real>& x, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
     mpi::Op op, Int cutoff ); \
   template void ConeAllReduce \
   (       DistMultiVec<Real>& x, \

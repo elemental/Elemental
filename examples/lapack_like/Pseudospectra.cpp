@@ -267,8 +267,8 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.imgDispFreq = imgDispFreq;
         psCtrl.snapCtrl.imgFormat = imgFormat;
         psCtrl.snapCtrl.numFormat = numFormat;
-        psCtrl.snapCtrl.imgBase = matName+"-"+imgBase;
-        psCtrl.snapCtrl.numBase = matName+"-"+numBase;
+        psCtrl.snapCtrl.imgBase = matName+"_"+imgBase;
+        psCtrl.snapCtrl.numBase = matName+"_"+numBase;
         psCtrl.snapCtrl.itCounts = itCounts;
 
         // Visualize the pseudospectra by evaluating ||inv(A-sigma I)||_2 

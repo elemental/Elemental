@@ -38,25 +38,7 @@ void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
 }
 
 template<typename T>
-void MakeUniform( AbstractBlockDistMatrix<T>& A, T center, Base<T> radius )
-{
-    DEBUG_ONLY(CSE cse("MakeUniform"))
-    if( A.RedundantRank() == 0 )
-        MakeUniform( A.Matrix(), center, radius );
-    Broadcast( A, A.RedundantComm(), 0 );
-}
-
-template<typename T>
 void Uniform( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
-{
-    DEBUG_ONLY(CSE cse("Uniform"))
-    A.Resize( m, n );
-    MakeUniform( A, center, radius );
-}
-
-template<typename T>
-void Uniform
-( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
     DEBUG_ONLY(CSE cse("Uniform"))
     A.Resize( m, n );
@@ -87,15 +69,11 @@ void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
   ( Matrix<T>& A, T center, Base<T> radius ); \
   template void MakeUniform \
   ( AbstractDistMatrix<T>& A, T center, Base<T> radius ); \
-  template void MakeUniform \
-  ( AbstractBlockDistMatrix<T>& A, T center, Base<T> radius ); \
   template void MakeUniform( DistMultiVec<T>& A, T center, Base<T> radius ); \
   template void Uniform \
   ( Matrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
   template void Uniform \
   ( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
-  template void Uniform \
-  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
   template void Uniform \
   ( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius );
 

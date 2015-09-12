@@ -52,19 +52,9 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     Matrix<Real> s;
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl); 
@@ -72,14 +62,14 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& A, 
-  const AbstractDistMatrix<Real>& b, 
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Int>& orders,
-  const AbstractDistMatrix<Int>& firstInds,
-        AbstractDistMatrix<Real>& x, 
-        AbstractDistMatrix<Real>& y, 
-        AbstractDistMatrix<Real>& z, 
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& c,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+        ElementalMatrix<Real>& x, 
+        ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z, 
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
@@ -93,19 +83,9 @@ void Mehrotra
     DistMatrix<Real> h(grid);
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     DistMatrix<Real> s(grid);
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
@@ -133,19 +113,9 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     Matrix<Real> s;
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
@@ -174,19 +144,9 @@ void Mehrotra
     DistMultiVec<Real> h(comm);
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl;
+    MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
-    affineCtrl.minTol = ctrl.minTol;
-    affineCtrl.targetTol = ctrl.targetTol;
-    affineCtrl.maxIts = ctrl.maxIts;
-    affineCtrl.maxStepRatio = ctrl.maxStepRatio;
-    affineCtrl.qsdCtrl = ctrl.qsdCtrl;
-    affineCtrl.outerEquil = ctrl.outerEquil;
-    affineCtrl.innerEquil = ctrl.innerEquil;
-    affineCtrl.basisSize = ctrl.basisSize;
-    affineCtrl.print = ctrl.print;
-    affineCtrl.time = ctrl.time;
 
     DistMultiVec<Real> s(comm);
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
@@ -204,14 +164,14 @@ void Mehrotra
           Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
+          ElementalMatrix<Real>& x, \
+          ElementalMatrix<Real>& y, \
+          ElementalMatrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \

@@ -78,7 +78,7 @@ void SolveAfter
 template<typename F> 
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::SolveAfter");
@@ -107,8 +107,8 @@ void SolveAfter
 template<typename F> 
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p, 
-        AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p, 
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
         CSE cse("cholesky::SolveAfter");

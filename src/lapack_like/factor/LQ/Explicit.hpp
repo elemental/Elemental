@@ -29,7 +29,7 @@ void ExplicitTriang( Matrix<F>& A )
 }
 
 template<typename F>
-void ExplicitTriang( AbstractDistMatrix<F>& A )
+void ExplicitTriang( ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
     const Grid& g = A.Grid();
@@ -60,7 +60,7 @@ void ExplicitUnitary( Matrix<F>& A )
 }
 
 template<typename F>
-void ExplicitUnitary( AbstractDistMatrix<F>& APre )
+void ExplicitUnitary( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
     const Grid& g = APre.Grid();
@@ -103,7 +103,7 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
 }
 
 template<typename F>
-void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
+void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("lq::Explicit"))
     const Grid& g = APre.Grid();

@@ -39,7 +39,9 @@ void MultiplyCSR
         for( Int i=0; i<m; ++i )
         {
             T sum = 0;
-            for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            const Int eStart = rowOffsets[i];
+            const Int eStop = rowOffsets[i+1];
+            for( Int e=eStart; e<eStop; ++e )
                 sum += values[e]*x[colIndices[e]];         
             y[i] = alpha*sum + beta*y[i];
         }
@@ -52,14 +54,22 @@ void MultiplyCSR
         if( conj )
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+            }
         }
         else
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*values[e]*x[i];         
+            }
         }
     }
 #endif
@@ -82,7 +92,9 @@ void MultiplyCSR<Int>
         for( Int i=0; i<m; ++i )
         {
             Int sum = 0;
-            for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            const Int eStart = rowOffsets[i];
+            const Int eStop = rowOffsets[i+1];
+            for( Int e=eStart; e<eStop; ++e )
                 sum += values[e]*x[colIndices[e]];         
             y[i] = alpha*sum + beta*y[i];
         }
@@ -95,14 +107,22 @@ void MultiplyCSR<Int>
         if( conj )
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+            }
         }
         else
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*values[e]*x[i];         
+            }
         }
     }
 }
@@ -125,7 +145,9 @@ void MultiplyCSR<Quad>
         for( Int i=0; i<m; ++i )
         {
             Quad sum = 0;
-            for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            const Int eStart = rowOffsets[i];
+            const Int eStop = rowOffsets[i+1];
+            for( Int e=eStart; e<eStop; ++e )
                 sum += values[e]*x[colIndices[e]];         
             y[i] = alpha*sum + beta*y[i];
         }
@@ -138,14 +160,22 @@ void MultiplyCSR<Quad>
         if( conj )
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+            }
         }
         else
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*values[e]*x[i];         
+            }
         }
     }
 }
@@ -167,7 +197,9 @@ void MultiplyCSR<Complex<Quad>>
         for( Int i=0; i<m; ++i )
         {
             Complex<Quad> sum = 0;
-            for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            const Int eStart = rowOffsets[i];
+            const Int eStop = rowOffsets[i+1];
+            for( Int e=eStart; e<eStop; ++e )
                 sum += values[e]*x[colIndices[e]];         
             y[i] = alpha*sum + beta*y[i];
         }
@@ -180,14 +212,22 @@ void MultiplyCSR<Complex<Quad>>
         if( conj )
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+            }
         }
         else
         {
             for( Int i=0; i<m; ++i )
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*values[e]*x[i];         
+            }
         }
     }
 }
@@ -220,7 +260,9 @@ void MultiplyCSR
             for( Int k=0; k<numRHS; ++k )
             {
                 T sum = 0;
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     sum += values[e]*X[colIndices[e]+k*ldX];
                 Y[i+k*ldY] = alpha*sum + beta*Y[i+k*ldY];
             }
@@ -236,7 +278,9 @@ void MultiplyCSR
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
@@ -248,7 +292,9 @@ void MultiplyCSR
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
@@ -286,7 +332,9 @@ void MultiplyCSRInterX
             for( Int k=0; k<numRHS; ++k )
             {
                 T sum = 0;
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     sum += values[e]*X[colIndices[e]*numRHS+k];
                 Y[i+k*ldY] = alpha*sum + beta*Y[i+k*ldY];
             }
@@ -302,7 +350,9 @@ void MultiplyCSRInterX
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
@@ -314,7 +364,9 @@ void MultiplyCSRInterX
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
@@ -352,7 +404,9 @@ void MultiplyCSRInterY
             for( Int k=0; k<numRHS; ++k )
             {
                 T sum = 0;
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     sum += values[e]*X[colIndices[e]+k*ldX];
                 Y[i*numRHS+k] = alpha*sum + beta*Y[i*numRHS+k];
             }
@@ -368,7 +422,9 @@ void MultiplyCSRInterY
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
@@ -380,7 +436,9 @@ void MultiplyCSRInterY
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
@@ -418,7 +476,9 @@ void MultiplyCSRInter
             for( Int k=0; k<numRHS; ++k )
             {
                 T sum = 0;
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                     sum += values[e]*X[colIndices[e]*numRHS+k];
                 Y[i*numRHS+k] = alpha*sum + beta*Y[i*numRHS+k];
             }
@@ -434,7 +494,9 @@ void MultiplyCSRInter
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
@@ -446,7 +508,9 @@ void MultiplyCSRInter
         {
             for( Int i=0; i<m; ++i )
             {
-                for( Int e=rowOffsets[i]; e<rowOffsets[i+1]; ++e )
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
@@ -482,8 +546,11 @@ void Multiply
 template<typename T>
 void Multiply
 ( Orientation orientation, 
-  T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
-  T beta,                                      DistMultiVec<T>& Y )
+        T alpha, 
+  const DistSparseMatrix<T>& A,
+  const DistMultiVec<T>& X,
+        T beta,
+        DistMultiVec<T>& Y )
 {
     DEBUG_ONLY(
       CSE cse("Multiply");
@@ -493,9 +560,17 @@ void Multiply
           !mpi::Congruent( X.Comm(), Y.Comm() ) )
           LogicError("Communicators did not match");
     )
+
+    const bool time = false;
+
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
     // TODO: Use sequential implementation if commSize = 1?
+
+    Timer totalTimer, timer;
+    if( time && commRank == 0 )
+        totalTimer.Start();
 
     // Y := beta Y
     Y *= beta;
@@ -545,6 +620,8 @@ void Multiply
           recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
      
         // Perform the local multiply-accumulate, y := alpha A x + y
+        if( time && commRank == 0 )
+            timer.Start();
         MultiplyCSRInterX
         ( NORMAL, A.LocalHeight(), meta.numRecvInds, b,
           alpha, A.LockedOffsetBuffer(), 
@@ -552,6 +629,8 @@ void Multiply
                  A.LockedValueBuffer(),
                  recvVals.data(), 
           T(1),  Y.Matrix().Buffer(), Y.Matrix().LDim() );
+        if( time && commRank == 0 )
+            Output("  MultiplyCSRInterX time: ",timer.Stop());
     }
     else
     {
@@ -561,6 +640,8 @@ void Multiply
             LogicError("The height of A must match the height of X");
 
         // Form and pack the updates to Y
+        if( time && commRank == 0 )
+            timer.Start();
         vector<T> sendVals( meta.numRecvInds*b, 0 );
         MultiplyCSRInterY
         ( orientation, A.LocalHeight(), meta.numRecvInds, b,
@@ -569,6 +650,8 @@ void Multiply
                  A.LockedValueBuffer(),
                  X.LockedMatrix().LockedBuffer(), X.LockedMatrix().LDim(),
           T(1),  sendVals.data() );
+        if( time && commRank == 0 )
+            Output("  MultiplyCSRInterY time: ",timer.Stop());
 
         // Inject the updates to Y into the network
         const Int numRecvInds = meta.sendInds.size();
@@ -589,17 +672,25 @@ void Multiply
                 YBuffer[iLoc+t*ldY] += recvVals[s*b+t];
         }
     }
+    if( time && commRank == 0 )
+        Output("Multiply total time: ",totalTimer.Stop());
 }
 
 #define PROTO(T) \
     template void Multiply \
     ( Orientation orientation, \
-      T alpha, const SparseMatrix<T>& A, const Matrix<T>& X, \
-      T beta,                                  Matrix<T>& Y ); \
+            T alpha, \
+      const SparseMatrix<T>& A, \
+      const Matrix<T>& X, \
+            T beta, \
+            Matrix<T>& Y ); \
     template void Multiply \
     ( Orientation orientation, \
-      T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X, \
-      T beta,                                      DistMultiVec<T>& Y );
+            T alpha, \
+      const DistSparseMatrix<T>& A, \
+      const DistMultiVec<T>& X, \
+            T beta, \
+            DistMultiVec<T>& Y );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

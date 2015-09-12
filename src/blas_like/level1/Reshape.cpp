@@ -64,73 +64,20 @@ void Reshape
 
     B.SetGrid( g ); 
     Zeros( B, mNew, nNew );
-    mpi::Comm comm = g.ViewingComm();
-    const int commSize = mpi::Size( comm );  
-
-    // TODO: Intelligently pick the redundant rank to pack from?
-
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);    
-    if( A.RedundantRank() == 0 )
+    
+    B.Reserve( mLocal*nLocal );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
         {
-            const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            {
-                const Int i = A.GlobalRow(iLoc);
-                const Int iNew = (i+j*m) % mNew;
-                const Int jNew = (i+j*m) / mNew;
-                const int owner = 
-                  g.VCToViewing(
-                    g.CoordsToVC
-                    ( B.ColDist(), B.RowDist(), 
-                      B.Owner(iNew,jNew), B.Root() ) 
-                  );
-                ++sendCounts[owner];
-            }
+            const Int i = A.GlobalRow(iLoc);
+            const Int iNew = (i+j*m) % mNew;
+            const Int jNew = (i+j*m) / mNew;
+            B.QueueUpdate( iNew, jNew, A.GetLocal(iLoc,jLoc) );
         }
     }
-
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    if( A.RedundantRank() == 0 )
-    {
-        auto offs = sendOffs;
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            {
-                const Int i = A.GlobalRow(iLoc);
-                const Int iNew = (i+j*m) % mNew;
-                const Int jNew = (i+j*m) / mNew;
-                const int owner = 
-                  g.VCToViewing(
-                    g.CoordsToVC
-                    ( B.ColDist(), B.RowDist(), 
-                      B.Owner(iNew,jNew), B.Root() ) 
-                  );
-                const T value = A.GetLocal(iLoc,jLoc);
-                sendBuf[offs[owner]++] = 
-                  Entry<T>{ Int(iNew), Int(jNew), value };
-            }
-        }
-    }
-
-    // Exchange and unpack the data
-    // ============================
-    auto recvBuf = mpi::AllToAll(sendBuf,sendCounts,sendOffs,comm);
-    for( auto& entry : recvBuf )
-        B.Set( entry );
-
-    // Broadcast from the assigned member of the redundant rank team
-    // =============================================================
-    Broadcast( B, B.RedundantComm(), 0 );
+    B.ProcessQueues();
 }
 
 template<typename T>
@@ -191,45 +138,18 @@ void Reshape
         ("Reshape from ",m," x ",n," to ",mNew," x ",nNew,
          " did not preserve the total number of entries");
 
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    B.SetComm( comm );
+    B.SetComm( A.Comm() );
     Zeros( B, mNew, nNew );
 
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);
+    B.Reserve( numEntries );
     for( Int e=0; e<numEntries; ++e )
     {
         const Int i = A.Row(e);
         const Int j = A.Col(e);
-        const Int iNew = (i+j*m) % mNew;
-        ++sendCounts[ B.RowOwner(iNew) ];
-    }
-
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    auto offs = sendOffs;
-    vector<Entry<T>> sendBuf(totalSend);
-    for( Int e=0; e<numEntries; ++e )
-    {
-        const Int i = A.Row(e);
-        const Int j = A.Col(e);
-        const T value = A.Value(e);
         const Int iNew = (i+j*m) % mNew;
         const Int jNew = (i+j*m) / mNew;
-        const int owner = B.RowOwner( iNew );
-        sendBuf[offs[owner]++] = Entry<T>{ iNew, jNew, value };
+        B.QueueUpdate( iNew, jNew, A.Value(e) );
     }
-    
-    // Exchange and unpack the data
-    // ============================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    B.Reserve( recvBuf.size() );
-    for( auto& entry : recvBuf )
-        B.QueueUpdate( entry );
     B.ProcessQueues();
 }
 

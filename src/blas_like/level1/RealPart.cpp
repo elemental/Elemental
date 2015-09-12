@@ -24,7 +24,7 @@ void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
 
 template<typename T>
 void RealPart
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal )
+( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal )
 { 
     auto realPart = []( T alpha ) { return RealPart(alpha); };
     function<Base<T>(T)> realLambda( realPart );
@@ -33,7 +33,7 @@ void RealPart
 
 template<typename T>
 void RealPart
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<Base<T>>& AReal )
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<Base<T>>& AReal )
 { 
     auto realPart = []( T alpha ) { return RealPart(alpha); };
     function<Base<T>(T)> realLambda( realPart );
@@ -43,10 +43,10 @@ void RealPart
 #define PROTO(T) \
   template void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal ); \
   template void RealPart \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal ); \
   template void RealPart \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<Base<T>>& AReal );
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<Base<T>>& AReal );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -28,8 +28,8 @@ void SkewHermitianEig
 
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const AbstractDistMatrix<F>& G,
-  AbstractDistMatrix<Base<F>>& wImag, SortType sort,
+( UpperOrLower uplo, const ElementalMatrix<F>& G,
+  ElementalMatrix<Base<F>>& wImag, SortType sort,
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
@@ -58,8 +58,8 @@ void SkewHermitianEig
 
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const AbstractDistMatrix<F>& G,
-  AbstractDistMatrix<Base<F>>& wImag, AbstractDistMatrix<Complex<Base<F>>>& Z,
+( UpperOrLower uplo, const ElementalMatrix<F>& G,
+  ElementalMatrix<Base<F>>& wImag, ElementalMatrix<Complex<Base<F>>>& Z,
   SortType sort,
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
@@ -78,8 +78,8 @@ void SkewHermitianEig
     const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& G, \
-    AbstractDistMatrix<Base<F>>& wImag, SortType sort, \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& G, \
+    ElementalMatrix<Base<F>>& wImag, SortType sort, \
     const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
@@ -88,9 +88,9 @@ void SkewHermitianEig
     const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& G, \
-    AbstractDistMatrix<Base<F>>& wImag, \
-    AbstractDistMatrix<Complex<Base<F>>>& Z, \
+  ( UpperOrLower uplo, const ElementalMatrix<F>& G, \
+    ElementalMatrix<Base<F>>& wImag, \
+    ElementalMatrix<Complex<Base<F>>>& Z, \
     SortType sort, const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl );
 

@@ -49,7 +49,7 @@ inline Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
 
 template<typename F>
 inline Base<F> MinAbsNonzero
-( const AbstractDistMatrix<F>& A, Base<F> upperBound )
+( const ElementalMatrix<F>& A, Base<F> upperBound )
 {
     DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;

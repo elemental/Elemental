@@ -256,7 +256,7 @@ if(NOT WIN32)
           "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
       else()
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-          set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O2 -g -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
         else()
           set(${LANG}_FLAGS "-O2 -g" CACHE STRING
             "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
@@ -358,8 +358,8 @@ if(EL_BUILT_BLIS_LAPACK)
   endif()
 endif()
 
-# Parallel Multiple Relatively Robust Representations
-# ---------------------------------------------------
+# Elemental's mod's of Parallel Multiple Relatively Robust Representations
+# ------------------------------------------------------------------------
 add_subdirectory(external/pmrrr)
 if(EL_BUILT_SCALAPACK)
   add_dependencies(pmrrr project_scalapack)
@@ -371,6 +371,11 @@ else()
     add_dependencies(pmrrr project_openblas)
   endif()
 endif()
+
+# Elemental's modifications of (a subset of) SuiteSparse
+# ------------------------------------------------------
+add_subdirectory(external/suite_sparse)
+include_directories(external/suite_sparse/include)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
@@ -431,7 +436,8 @@ endif()
 if(EL_BUILT_PARMETIS)
   add_dependencies(El project_parmetis)
 endif()
-set(LINK_LIBS pmrrr ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+set(LINK_LIBS pmrrr ElSuiteSparse
+  ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
 endif()
@@ -611,7 +617,8 @@ include(CPack)
 # =====
 # Create ElConfig.cmake for find_package.
 # Add all targets to the build-tree export set
-export(TARGETS El pmrrr FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
+export(TARGETS El pmrrr ElSuiteSparse
+  FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)

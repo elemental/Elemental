@@ -13,13 +13,13 @@ namespace copy {
 
 // (U,V) |-> (Collect(U),V)
 template<typename T>
-void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ) 
+void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ) 
 {
     DEBUG_ONLY(
-        CSE cse("copy::ColAllGather");
-        if( B.ColDist() != Collect(A.ColDist()) ||
-            B.RowDist() != A.RowDist() )
-            LogicError("Incompatible distributions");
+      CSE cse("copy::ColAllGather");
+      if( B.ColDist() != Collect(A.ColDist()) ||
+          B.RowDist() != A.RowDist() )
+          LogicError("Incompatible distributions");
     )
     AssertSameGrids( A, B );
 
@@ -198,7 +198,7 @@ void ColAllGather( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 
 template<typename T>
 void ColAllGather
-( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B ) 
+( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::ColAllGather"))
     AssertSameGrids( A, B );
@@ -207,9 +207,9 @@ void ColAllGather
 
 #define PROTO(T) \
   template void ColAllGather \
-  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void ColAllGather \
-  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+  ( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

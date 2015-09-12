@@ -38,7 +38,7 @@ void SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 template<typename F> 
 void SolveAfter
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
         CSE cse("lu::SolveAfter");
@@ -90,8 +90,8 @@ void SolveAfter
 
 template<typename F> 
 void SolveAfter
-( Orientation orientation, const AbstractDistMatrix<F>& A, 
-  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B )
+( Orientation orientation, const ElementalMatrix<F>& A, 
+  const ElementalMatrix<Int>& p, ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
         CSE cse("lu::SolveAfter");
@@ -153,9 +153,9 @@ void SolveAfter
 
 template<typename F> 
 void SolveAfter
-( Orientation orientation, const AbstractDistMatrix<F>& A, 
-  const AbstractDistMatrix<Int>& p, const AbstractDistMatrix<Int>& q,
-        AbstractDistMatrix<F>& B )
+( Orientation orientation, const ElementalMatrix<F>& A, 
+  const ElementalMatrix<Int>& p, const ElementalMatrix<Int>& q,
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
         CSE cse("lu::SolveAfter");

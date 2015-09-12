@@ -76,7 +76,7 @@ template<typename F>
 inline void
 UVar5
 ( UnitOrNonUnit diag, 
-  AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& UPre )
+  ElementalMatrix<F>& APre, const ElementalMatrix<F>& UPre )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::UVar5");

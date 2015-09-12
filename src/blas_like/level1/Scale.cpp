@@ -17,13 +17,21 @@ void Scale( S alphaS, Matrix<T>& A )
     const T alpha = T(alphaS);
     if( alpha != T(1) )
     {
+        T* ABuf = A.Buffer();
+        const Int ALDim = A.LDim();
+        const Int height = A.Height();
+        const Int width = A.Width();
         if( alpha == T(0) )
-            for( Int j=0; j<A.Width(); ++j )
-                for( Int i=0; i<A.Height(); ++i )
-                    A.Set(i,j,0);
+        {
+            for( Int j=0; j<width; ++j )
+                for( Int i=0; i<height; ++i )
+                    ABuf[i+j*ALDim] = 0;
+        }
         else
-            for( Int j=0; j<A.Width(); ++j )
-                blas::Scal( A.Height(), alpha, A.Buffer(0,j), 1 );
+        {
+            for( Int j=0; j<width; ++j )
+                blas::Scal( height, alpha, &ABuf[j*ALDim], 1 );
+        }
     }
 }
 
@@ -44,17 +52,26 @@ void Scale( S alphaS, Matrix<Real>& AReal, Matrix<Real>& AImag )
         }
         else
         {
-            Matrix<Real> aReal, aImag, aRealCopy, aImagCopy;
+            const Real alphaReal=alpha.real(), alphaImag=alpha.imag();
+            vector<Real> aRealCopy(m);
+            Real* ARealBuf = AReal.Buffer();
+            Real* AImagBuf = AImag.Buffer();
+            const Int ARealLDim = AReal.LDim();
+            const Int AImagLDim = AImag.LDim();
             for( Int j=0; j<n; ++j )
             {
-                aReal = View( aReal, 0, j, m, 1 );
-                aImag = View( aImag, 0, j, m, 1 );
-                aRealCopy = aReal;
-                aImagCopy = aImag;
-                Scale( alpha.real(), aReal     );
-                Axpy( -alpha.imag(), aImagCopy, aReal );
-                Scale( alpha.real(), aImag     );
-                Axpy(  alpha.imag(), aRealCopy, aImag );
+                for( Int i=0; i<m; ++i )
+                    aRealCopy[i] = ARealBuf[i+j*ARealLDim];
+
+                blas::Scal( m, alphaReal, &ARealBuf[j*ARealLDim], 1 );
+                blas::Axpy
+                ( m, -alphaImag, &AImagBuf[j*AImagLDim], 1, 
+                                 &ARealBuf[j*ARealLDim], 1 );
+
+                blas::Scal( m, alphaReal, &AImagBuf[j*AImagLDim], 1 );
+                blas::Axpy
+                ( m,  alphaImag, aRealCopy.data(),       1, 
+                                 &AImagBuf[j*AImagLDim], 1 );
             }
         }
     }
@@ -70,15 +87,6 @@ void Scale( S alpha, AbstractDistMatrix<Real>& AReal,
 { Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
 
 template<typename T,typename S>
-void Scale( S alpha, AbstractBlockDistMatrix<T>& A )
-{ Scale( alpha, A.Matrix() ); }
-
-template<typename Real,typename S>
-void Scale( S alpha, AbstractBlockDistMatrix<Real>& AReal, 
-                     AbstractBlockDistMatrix<Real>& AImag )
-{ Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
-
-template<typename T,typename S>
 void Scale( S alpha, SparseMatrix<T>& A )
 {
     if( alpha == S(0) )
@@ -90,10 +98,11 @@ void Scale( S alpha, SparseMatrix<T>& A )
     }
     else if( alpha != S(1) )
     {
+        T alphaT = alpha; 
         T* valueBuf = A.ValueBuffer();
         const Int numEntries = A.NumEntries();
         for( Int k=0; k<numEntries; ++k )
-            valueBuf[k] *= alpha;
+            valueBuf[k] *= alphaT;
     }
 }
 
@@ -109,10 +118,11 @@ void Scale( S alpha, DistSparseMatrix<T>& A )
     }
     else if( alpha != S(1) )
     {
+        T alphaT = alpha;
         T* valueBuf = A.ValueBuffer();
         const Int numLocalEntries = A.NumLocalEntries();
         for( Int k=0; k<numLocalEntries; ++k )
-            valueBuf[k] *= alpha;
+            valueBuf[k] *= alphaT;
     }
 }
 
@@ -123,7 +133,6 @@ void Scale( S alpha, DistMultiVec<T>& A )
 #define PROTO_TYPES(T,S) \
   template void Scale( S alpha, Matrix<T>& A ); \
   template void Scale( S alpha, AbstractDistMatrix<T>& A ); \
-  template void Scale( S alpha, AbstractBlockDistMatrix<T>& A ); \
   template void Scale( S alpha, SparseMatrix<T>& A ); \
   template void Scale( S alpha, DistSparseMatrix<T>& A ); \
   template void Scale( S alpha, DistMultiVec<T>& A );
@@ -152,16 +161,7 @@ void Scale( S alpha, DistMultiVec<T>& A )
                    AbstractDistMatrix<Base<T>>& AImag ); \
   template void Scale \
   ( T alpha, AbstractDistMatrix<Base<T>>& AReal, \
-             AbstractDistMatrix<Base<T>>& AImag ); \
-  template void Scale \
-  ( Int alpha, AbstractBlockDistMatrix<Base<T>>& AReal, \
-               AbstractBlockDistMatrix<Base<T>>& AImag ); \
-  template void Scale \
-  ( Base<T> alpha, AbstractBlockDistMatrix<Base<T>>& AReal, \
-                   AbstractBlockDistMatrix<Base<T>>& AImag ); \
-  template void Scale \
-  ( T alpha, AbstractBlockDistMatrix<Base<T>>& AReal, \
-             AbstractBlockDistMatrix<Base<T>>& AImag );
+             AbstractDistMatrix<Base<T>>& AImag );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

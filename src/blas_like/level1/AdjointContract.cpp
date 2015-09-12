@@ -11,8 +11,7 @@
 namespace El {
 
 template<typename T>
-void AdjointContract
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+void AdjointContract( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AdjointContract"))
     TransposeContract( A, B, true );
@@ -20,8 +19,8 @@ void AdjointContract
 
 template<typename T>
 void AdjointContract
-( const AbstractBlockDistMatrix<T>& A, 
-        AbstractBlockDistMatrix<T>& B )
+( const BlockCyclicMatrix<T>& A, 
+        BlockCyclicMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AdjointContract"))
     TransposeContract( A, B, true );
@@ -29,11 +28,11 @@ void AdjointContract
 
 #define PROTO(T) \
   template void AdjointContract \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B ); \
   template void AdjointContract \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<T>& B );
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

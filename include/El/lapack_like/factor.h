@@ -359,22 +359,17 @@ EL_EXPORT ElError ElMultiplyAfterLDLPivDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z dSub, ElConstDistMatrix_i p, 
   ElDistMatrix_z B, bool conjugate );
 
-/* Regularized Quasi-semidefinite LDL^H factorizations
-   =================================================== */
-
+/* Solve a linear system via a regularized factorization
+   ===================================================== */
 typedef enum
 {
-  EL_REG_REFINE_FGMRES,
-  EL_REG_REFINE_LGMRES,
-  EL_REG_REFINE_IR,
-  EL_REG_REFINE_IR_MOD
-} ElRegQSDRefineAlg;
+  EL_REG_SOLVE_FGMRES,
+  EL_REG_SOLVE_LGMRES
+} ElRegSolveAlg;
 
 typedef struct
 {
-  float regPrimal;
-  float regDual;
-  ElRegQSDRefineAlg alg;
+  ElRegSolveAlg alg;
   float relTol;
   float relTolRefine;
   ElInt maxIts;
@@ -382,14 +377,12 @@ typedef struct
   ElInt restart;
   bool progress;
   bool time;
-} ElRegQSDCtrl_s;
-EL_EXPORT ElError ElRegQSDCtrlDefault_s( ElRegQSDCtrl_s* ctrl );
+} ElRegSolveCtrl_s;
+EL_EXPORT ElError ElRegSolveCtrlDefault_s( ElRegSolveCtrl_s* ctrl );
 
 typedef struct
 {
-  double regPrimal;
-  double regDual;
-  ElRegQSDRefineAlg alg;
+  ElRegSolveAlg alg;
   double relTol;
   double relTolRefine;
   ElInt maxIts;
@@ -397,8 +390,8 @@ typedef struct
   ElInt restart;
   bool progress;
   bool time;
-} ElRegQSDCtrl_d;
-EL_EXPORT ElError ElRegQSDCtrlDefault_d( ElRegQSDCtrl_d* ctrl );
+} ElRegSolveCtrl_d;
+EL_EXPORT ElError ElRegSolveCtrlDefault_d( ElRegSolveCtrl_d* ctrl );
 
 /* TODO: Wrappers for regularized factorizations and solves */
 

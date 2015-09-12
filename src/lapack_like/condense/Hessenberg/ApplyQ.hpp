@@ -39,8 +39,8 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, 
-        AbstractDistMatrix<F>& B )
+  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("hessenberg::ApplyQ"))
     const bool normal = (orientation==NORMAL);

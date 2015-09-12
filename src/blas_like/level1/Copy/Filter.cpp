@@ -33,8 +33,8 @@ void Filter
 
 template<typename T,Dist U,Dist V>
 void Filter
-( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A,
-        BlockDistMatrix<T,        U,           V   >& B )
+( const DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK_CYCLIC>& A,
+        DistMatrix<T,        U,           V   ,BLOCK_CYCLIC>& B )
 {
     DEBUG_ONLY(CSE cse("copy::Filter"))
     LogicError("This routine is not yet written");
@@ -45,8 +45,8 @@ void Filter
   ( const DistMatrix<T,Collect<U>(),Collect<V>()>& A, \
           DistMatrix<T,        U,           V   >& B ); \
   template void Filter \
-  ( const BlockDistMatrix<T,Collect<U>(),Collect<V>()>& A, \
-          BlockDistMatrix<T,        U,           V   >& B );
+  ( const DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK_CYCLIC>& A, \
+          DistMatrix<T,        U,           V   ,BLOCK_CYCLIC>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

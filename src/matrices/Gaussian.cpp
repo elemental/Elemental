@@ -29,15 +29,6 @@ void MakeGaussian( AbstractDistMatrix<F>& A, F mean, Base<F> stddev )
 }
 
 template<typename F>
-void MakeGaussian( AbstractBlockDistMatrix<F>& A, F mean, Base<F> stddev )
-{
-    DEBUG_ONLY(CSE cse("MakeGaussian"))
-    if( A.RedundantRank() == 0 )
-        MakeGaussian( A.Matrix(), mean, stddev );
-    Broadcast( A, A.RedundantComm(), 0 );
-}
-
-template<typename F>
 void MakeGaussian( DistMultiVec<F>& A, F mean, Base<F> stddev )
 {
     DEBUG_ONLY(CSE cse("MakeGaussian"))
@@ -64,15 +55,6 @@ void Gaussian
 
 template<typename F>
 void Gaussian
-( AbstractBlockDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
-{
-    DEBUG_ONLY(CSE cse("Gaussian"))
-    A.Resize( m, n );
-    MakeGaussian( A, mean, stddev );
-}
-
-template<typename F>
-void Gaussian
 ( DistMultiVec<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
     DEBUG_ONLY(CSE cse("Gaussian"))
@@ -86,15 +68,11 @@ void Gaussian
   template void MakeGaussian \
   ( AbstractDistMatrix<F>& A, F mean, Base<F> stddev ); \
   template void MakeGaussian \
-  ( AbstractBlockDistMatrix<F>& A, F mean, Base<F> stddev ); \
-  template void MakeGaussian \
   ( DistMultiVec<F>& A, F mean, Base<F> stddev ); \
   template void Gaussian \
   ( Matrix<F>& A, Int m, Int n, F mean, Base<F> stddev ); \
   template void Gaussian \
   ( AbstractDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev ); \
-  template void Gaussian \
-  ( AbstractBlockDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev ); \
   template void Gaussian \
   ( DistMultiVec<F>& A, Int m, Int n, F mean, Base<F> stddev );
 

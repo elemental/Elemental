@@ -70,36 +70,6 @@ void CauchyLike
     IndexDependentFill( A, function<F1(Int,Int)>(cauchyFill) );
 }
 
-template<typename F1,typename F2>
-void CauchyLike
-( AbstractBlockDistMatrix<F1>& A,
-  const vector<F2>& r, const vector<F2>& s, 
-  const vector<F2>& x, const vector<F2>& y )
-{
-    DEBUG_ONLY(CSE cse("CauchyLike"))
-    const Int m = r.size();
-    const Int n = s.size();
-    if( x.size() != (Unsigned)m )
-        LogicError("x vector was the wrong length");
-    if( y.size() != (Unsigned)n )
-        LogicError("y vector was the wrong length");
-    A.Resize( m, n );
-
-    auto cauchyFill =
-      [&]( Int i, Int j ) -> F1
-      {
-        DEBUG_ONLY(
-          // TODO: Use tolerance instead?
-          if( x[i] == y[j] )
-              LogicError
-              ( "x[", i, "] = y[", j, "] (", x[i],
-                ") is not allowed for Cauchy matrices" );
-        )
-        return F1(r[i]*s[j]/x[i]-y[j]);
-      };
-    IndexDependentFill( A, function<F1(Int,Int)>(cauchyFill) );
-}
-
 #define PROTO_TYPES(F1,F2) \
   template void CauchyLike \
   ( Matrix<F1>& A, \
@@ -107,10 +77,6 @@ void CauchyLike
     const vector<F2>& x, const vector<F2>& y ); \
   template void CauchyLike \
   ( AbstractDistMatrix<F1>& A, \
-    const vector<F2>& r, const vector<F2>& s, \
-    const vector<F2>& x, const vector<F2>& y ); \
-  template void CauchyLike \
-  ( AbstractBlockDistMatrix<F1>& A, \
     const vector<F2>& r, const vector<F2>& s, \
     const vector<F2>& x, const vector<F2>& y );
 

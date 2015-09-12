@@ -68,8 +68,10 @@ namespace lse {
 
 template<typename F> 
 void Overwrite
-( Matrix<F>& A, Matrix<F>& B, 
-  Matrix<F>& C, Matrix<F>& D, 
+( Matrix<F>& A,
+  Matrix<F>& B, 
+  Matrix<F>& C,
+  Matrix<F>& D, 
   Matrix<F>& X, bool computeResidual )
 {
     DEBUG_ONLY(CSE cse("lse::Overwrite"))
@@ -155,9 +157,11 @@ void Overwrite
 
 template<typename F> 
 void Overwrite
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre, 
-  AbstractDistMatrix<F>& CPre, AbstractDistMatrix<F>& DPre, 
-  AbstractDistMatrix<F>& XPre, bool computeResidual )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre, 
+  ElementalMatrix<F>& CPre,
+  ElementalMatrix<F>& DPre, 
+  ElementalMatrix<F>& XPre, bool computeResidual )
 {
     DEBUG_ONLY(CSE cse("lse::Overwrite"))
 
@@ -255,8 +259,10 @@ void Overwrite
 
 template<typename F> 
 void LSE
-( const Matrix<F>& A, const Matrix<F>& B, 
-  const Matrix<F>& C, const Matrix<F>& D, 
+( const Matrix<F>& A,
+  const Matrix<F>& B, 
+  const Matrix<F>& C,
+  const Matrix<F>& D, 
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LSE"))
@@ -266,9 +272,11 @@ void LSE
 
 template<typename F> 
 void LSE
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, 
-  const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, 
-        AbstractDistMatrix<F>& X )
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B, 
+  const ElementalMatrix<F>& C,
+  const ElementalMatrix<F>& D, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("LSE"))
     DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
@@ -277,13 +285,21 @@ void LSE
 
 template<typename F> 
 void LSE
-( const SparseMatrix<F>& A, const SparseMatrix<F>& B, 
-  const Matrix<F>& C,       const Matrix<F>& D, 
+( const SparseMatrix<F>& A,
+  const SparseMatrix<F>& B, 
+  const Matrix<F>& C,
+  const Matrix<F>& D, 
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LSE"))
     typedef Base<F> Real;
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Height();
@@ -353,9 +369,9 @@ void LSE
     Matrix<Real> reg;
     Zeros( reg, n+m+k, 1 );
     for( Int i=0; i<n; ++i )
-        reg.Set( i, 0, ctrl.qsdCtrl.regPrimal );
+        reg.Set( i, 0, gammaTmp*gammaTmp );
     for( Int i=n; i<n+m+k; ++i )
-        reg.Set( i, 0, -ctrl.qsdCtrl.regDual );
+        reg.Set( i, 0, -deltaTmp*deltaTmp );
     SparseMatrix<F> JOrig;
     JOrig = J;
     UpdateRealPartOfDiagonal( J, Real(1), reg );
@@ -370,18 +386,9 @@ void LSE
     ldl::Front<F> JFront( J, map, info );
     LDL( info, JFront );    
 
-    // Successively solve each of the numRHS linear systems
-    // ====================================================
-    Matrix<F> u;
-    Zeros( u, n+m+k, 1 );
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto g = G( ALL, IR(j) );
-        u = g;
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
-        g = u;
-    }
+    // Solve the linear systems
+    // ========================
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
@@ -391,13 +398,21 @@ void LSE
 
 template<typename F> 
 void LSE
-( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B, 
-  const DistMultiVec<F>& C,     const DistMultiVec<F>& D, 
+( const DistSparseMatrix<F>& A,
+  const DistSparseMatrix<F>& B, 
+  const DistMultiVec<F>& C,
+  const DistMultiVec<F>& D, 
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LSE"))
     typedef Base<F> Real;
+
+    // TODO: Expose as control parameters
+    const Real eps = Epsilon<Real>();
+    const Real gammaTmp = Pow(eps,Real(0.25));
+    const Real deltaTmp = Pow(eps,Real(0.25));
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Height();
@@ -554,9 +569,9 @@ void LSE
     {
         const Int i = reg.GlobalRow(iLoc);
         if( i < n )
-            reg.SetLocal( iLoc, 0, ctrl.qsdCtrl.regPrimal );
+            reg.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
         else
-            reg.SetLocal( iLoc, 0, -ctrl.qsdCtrl.regDual );
+            reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
     }
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
@@ -572,20 +587,9 @@ void LSE
     ldl::DistFront<F> JFront( J, map, rootSep, info );
     LDL( info, JFront );    
 
-    // Successively solve each of the numRHS linear systems
-    // ====================================================
-    DistMultiVec<F> u(comm);
-    Zeros( u, n+m+k, 1 );
-    auto& GLoc = G.Matrix();
-    auto& uLoc = u.Matrix();
-    for( Int j=0; j<numRHS; ++j )
-    {
-        auto gLoc = GLoc( ALL, IR(j) );
-        uLoc = gLoc;
-        reg_qsd_ldl::SolveAfter
-        ( JOrig, reg, invMap, info, JFront, u, ctrl.qsdCtrl );
-        gLoc = uLoc;
-    }
+    // Solve the linear systems
+    // ========================
+    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
@@ -595,29 +599,41 @@ void LSE
 
 #define PROTO(F) \
   template void lse::Overwrite \
-  ( Matrix<F>& A, Matrix<F>& B, \
-    Matrix<F>& C, Matrix<F>& D, \
+  ( Matrix<F>& A, \
+    Matrix<F>& B, \
+    Matrix<F>& C, \
+    Matrix<F>& D, \
     Matrix<F>& X, bool computeResidual ); \
   template void lse::Overwrite \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<F>& C, AbstractDistMatrix<F>& D, \
-    AbstractDistMatrix<F>& X, bool computeResidual ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
+    ElementalMatrix<F>& C, \
+    ElementalMatrix<F>& D, \
+    ElementalMatrix<F>& X, bool computeResidual ); \
   template void LSE \
-  ( const Matrix<F>& A, const Matrix<F>& B, \
-    const Matrix<F>& C, const Matrix<F>& D, \
+  ( const Matrix<F>& A, \
+    const Matrix<F>& B, \
+    const Matrix<F>& C, \
+    const Matrix<F>& D, \
           Matrix<F>& X ); \
   template void LSE \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B, \
-    const AbstractDistMatrix<F>& C, const AbstractDistMatrix<F>& D, \
-          AbstractDistMatrix<F>& X ); \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+    const ElementalMatrix<F>& C, \
+    const ElementalMatrix<F>& D, \
+          ElementalMatrix<F>& X ); \
   template void LSE \
-  ( const SparseMatrix<F>& A, const SparseMatrix<F>& B, \
-    const Matrix<F>& C,       const Matrix<F>& D, \
+  ( const SparseMatrix<F>& A, \
+    const SparseMatrix<F>& B, \
+    const Matrix<F>& C, \
+    const Matrix<F>& D, \
           Matrix<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void LSE \
-  ( const DistSparseMatrix<F>& A, const DistSparseMatrix<F>& B, \
-    const DistMultiVec<F>& C,     const DistMultiVec<F>& D, \
+  ( const DistSparseMatrix<F>& A, \
+    const DistSparseMatrix<F>& B, \
+    const DistMultiVec<F>& C, \
+    const DistMultiVec<F>& D, \
           DistMultiVec<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 

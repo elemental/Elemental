@@ -91,19 +91,19 @@ void TransposeAxpy
 
 template<typename T,typename S>
 void TransposeAxpy
-( S alphaS, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B,
+( S alphaS, const ElementalMatrix<T>& A, ElementalMatrix<T>& B,
   bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("TransposeAxpy");
-        AssertSameGrids( A, B );
-        if( A.Height() != B.Width() || A.Width() != B.Height() )
-            LogicError("A and B must have transposed dimensions");
+      CSE cse("TransposeAxpy");
+      AssertSameGrids( A, B );
+      if( A.Height() != B.Width() || A.Width() != B.Height() )
+          LogicError("A and B must have transposed dimensions");
     )
     const T alpha = T(alphaS);
 
-    const DistData ADistData = A.DistData();
-    const DistData BDistData = B.DistData();
+    const ElementalData ADistData = A.DistData();
+    const ElementalData BDistData = B.DistData();
     if( ADistData.colDist == BDistData.rowDist &&
         ADistData.rowDist == BDistData.colDist &&
         ADistData.colAlign==BDistData.rowAlign &&
@@ -113,7 +113,7 @@ void TransposeAxpy
     }
     else
     {
-        unique_ptr<AbstractDistMatrix<T>>
+        unique_ptr<ElementalMatrix<T>>
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignRowsWith( B.DistData() );
         C->AlignColsWith( B.DistData() );
@@ -146,7 +146,7 @@ void TransposeAxpy
   template void TransposeAxpy \
   ( S alpha, const Matrix<T>& A, Matrix<T>& B, bool conjugate ); \
   template void TransposeAxpy \
-  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, \
+  ( S alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B, \
     bool conjugate ); \
   template void TransposeAxpy \
   ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate ); \

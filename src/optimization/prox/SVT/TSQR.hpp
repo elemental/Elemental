@@ -16,7 +16,7 @@ namespace svt {
 // Singular-value soft-thresholding based on TSQR
 
 template<typename F>
-Int TSQR( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
+Int TSQR( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CSE cse("SVT"))
 

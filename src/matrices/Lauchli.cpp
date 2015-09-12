@@ -25,13 +25,13 @@ void Lauchli( Matrix<T>& A, Int n, T mu )
 }
 
 template<typename T>
-void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
+void Lauchli( ElementalMatrix<T>& A, Int n, T mu )
 {
     DEBUG_ONLY(CSE cse("Lauchli"))
     Zeros( A, n+1, n );
 
     // Set the first row to all ones
-    unique_ptr<AbstractDistMatrix<T>> a0( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<T>> a0( A.Construct(A.Grid(),A.Root()) );
     View( *a0, A, IR(0), ALL );
     Fill( *a0, T(1) );
 
@@ -41,7 +41,7 @@ void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
 
 #define PROTO(T) \
   template void Lauchli( Matrix<T>& A, Int n, T mu ); \
-  template void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu );
+  template void Lauchli( ElementalMatrix<T>& A, Int n, T mu );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

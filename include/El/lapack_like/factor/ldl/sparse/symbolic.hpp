@@ -23,17 +23,17 @@
 #ifndef EL_FACTOR_LDL_SPARSE_SYMBOLIC_HPP
 #define EL_FACTOR_LDL_SPARSE_SYMBOLIC_HPP
 
+#include "ElSuiteSparse/amd.h"
+
 #include "./symbolic/Separator.hpp"
-#include "./symbolic/Node.hpp"
 #include "./symbolic/NodeInfo.hpp"
 
 namespace El {
 namespace ldl {
 
-Int Analysis( const Node& rootNode, NodeInfo& rootInfo, Int myOff=0 );
+Int Analysis( NodeInfo& rootInfo, Int myOff=0 );
 void Analysis
-( const DistNode& rootNode, DistNodeInfo& rootInfo,
-  bool storeFactRecvInds=true );
+( DistNodeInfo& rootInfo, bool storeFactRecvInds=true );
 
 void GetChildGridDims
 ( const DistNodeInfo& info, vector<int>& gridHeights, vector<int>& gridWidths );
@@ -57,14 +57,14 @@ void NaturalNestedDissection
         vector<Int>& map,
         Separator& rootSep,
         NodeInfo& info,
-        Int cutoff=128 );
+        Int cutoff );
 void NaturalNestedDissection
 ( Int nx, Int ny, Int nz,
   const DistGraph& graph,
         DistMap& map,
         DistSeparator& rootSep,
         DistNodeInfo& info,
-        Int cutoff=128,
+        Int cutoff,
         bool storeFactRecvInds=false );
 
 void BuildMap( const Separator& rootSep, vector<Int>& map );

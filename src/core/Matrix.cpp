@@ -91,7 +91,7 @@ Matrix<T>::Matrix( const Matrix<T>& A )
 }
 
 template<typename T>
-Matrix<T>::Matrix( Matrix<T>&& A ) EL_NOEXCEPT
+Matrix<T>::Matrix( Matrix<T>&& A ) EL_NO_EXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), ldim_(A.ldim_),
   data_(nullptr), memory_(std::move(A.memory_))
@@ -262,28 +262,28 @@ const Matrix<T>& Matrix<T>::operator-=( const Matrix<T>& A )
 // =============
 
 template<typename T>
-Int Matrix<T>::Height() const { return height_; }
+Int Matrix<T>::Height() const EL_NO_EXCEPT { return height_; }
 
 template<typename T>
-Int Matrix<T>::Width() const { return width_; }
+Int Matrix<T>::Width() const EL_NO_EXCEPT { return width_; }
 
 template<typename T>
-Int Matrix<T>::LDim() const { return ldim_; }
+Int Matrix<T>::LDim() const EL_NO_EXCEPT { return ldim_; }
 
 template<typename T>
-Int Matrix<T>::MemorySize() const { return memory_.Size(); }
+Int Matrix<T>::MemorySize() const EL_NO_EXCEPT { return memory_.Size(); }
 
 template<typename T>
-Int Matrix<T>::DiagonalLength( Int offset ) const
+Int Matrix<T>::DiagonalLength( Int offset ) const EL_NO_EXCEPT
 { return El::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
-T* Matrix<T>::Buffer()
+T* Matrix<T>::Buffer() EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
-        CSE cse("Matrix::Buffer");
-        if( Locked() )
-            LogicError("Cannot return non-const buffer of locked Matrix");
+      CSE cse("Matrix::Buffer");
+      if( Locked() )
+          LogicError("Cannot return non-const buffer of locked Matrix");
     )
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
@@ -291,7 +291,7 @@ T* Matrix<T>::Buffer()
 }
 
 template<typename T>
-T* Matrix<T>::Buffer( Int i, Int j )
+T* Matrix<T>::Buffer( Int i, Int j ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Buffer");
@@ -306,10 +306,10 @@ T* Matrix<T>::Buffer( Int i, Int j )
 }
 
 template<typename T>
-const T* Matrix<T>::LockedBuffer() const { return data_; }
+const T* Matrix<T>::LockedBuffer() const EL_NO_EXCEPT { return data_; }
 
 template<typename T>
-const T* Matrix<T>::LockedBuffer( Int i, Int j ) const
+const T* Matrix<T>::LockedBuffer( Int i, Int j ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("Matrix::LockedBuffer"))
     if( i == END ) i = height_ - 1;
@@ -318,19 +318,23 @@ const T* Matrix<T>::LockedBuffer( Int i, Int j ) const
 }
 
 template<typename T>
-bool Matrix<T>::Viewing() const { return IsViewing( viewType_ ); }
+bool Matrix<T>::Viewing() const EL_NO_EXCEPT
+{ return IsViewing( viewType_ ); }
 
 template<typename T>
-bool Matrix<T>::FixedSize() const { return IsFixedSize( viewType_ ); }
+bool Matrix<T>::FixedSize() const EL_NO_EXCEPT
+{ return IsFixedSize( viewType_ ); }
 
 template<typename T>
-bool Matrix<T>::Locked() const { return IsLocked( viewType_ ); }
+bool Matrix<T>::Locked() const EL_NO_EXCEPT
+{ return IsLocked( viewType_ ); }
 
 // Single-entry manipulation
 // =========================
 
 template<typename T>
 T Matrix<T>::Get( Int i, Int j ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Get");
@@ -341,6 +345,7 @@ T Matrix<T>::Get( Int i, Int j ) const
 
 template<typename T>
 Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::GetRealPart");
@@ -351,6 +356,7 @@ Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
 
 template<typename T>
 Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::GetImagPart");
@@ -361,6 +367,7 @@ Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
 
 template<typename T>
 void Matrix<T>::Set( Int i, Int j, T alpha ) 
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Set");
@@ -373,10 +380,12 @@ void Matrix<T>::Set( Int i, Int j, T alpha )
 
 template<typename T>
 void Matrix<T>::Set( const Entry<T>& entry )
+EL_NO_RELEASE_EXCEPT
 { Set( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::SetRealPart");
@@ -389,10 +398,12 @@ void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
 
 template<typename T>
 void Matrix<T>::SetRealPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { SetRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::SetImagPart");
@@ -406,10 +417,12 @@ void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
 
 template<typename T>
 void Matrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { SetImagPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::Update( Int i, Int j, T alpha ) 
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Update");
@@ -422,10 +435,12 @@ void Matrix<T>::Update( Int i, Int j, T alpha )
 
 template<typename T>
 void Matrix<T>::Update( const Entry<T>& entry )
+EL_NO_RELEASE_EXCEPT
 { Update( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::UpdateRealPart");
@@ -438,10 +453,12 @@ void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 
 template<typename T>
 void Matrix<T>::UpdateRealPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { UpdateRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::UpdateImagPart");
@@ -455,10 +472,12 @@ void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
 
 template<typename T>
 void Matrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+EL_NO_RELEASE_EXCEPT
 { UpdateImagPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
 void Matrix<T>::MakeReal( Int i, Int j )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::MakeReal");
@@ -471,6 +490,7 @@ void Matrix<T>::MakeReal( Int i, Int j )
 
 template<typename T>
 void Matrix<T>::Conjugate( Int i, Int j )
+EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Conjugate");
@@ -514,7 +534,6 @@ void Matrix<T>::Empty_()
 template<typename T>
 void Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
 {
-    memory_.Empty();
     height_ = height;
     width_ = width;
     ldim_ = ldim;
@@ -526,7 +545,6 @@ template<typename T>
 void Matrix<T>::LockedAttach_
 ( Int height, Int width, const T* buffer, Int ldim )
 {
-    memory_.Empty();
     height_ = height;
     width_ = width;
     ldim_ = ldim;
@@ -537,7 +555,6 @@ void Matrix<T>::LockedAttach_
 template<typename T>
 void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 {
-    memory_.Empty();
     height_ = height;
     width_ = width;
     ldim_ = ldim;
@@ -549,6 +566,7 @@ void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 // ===========================================================
 template<typename T>
 const T& Matrix<T>::Get_( Int i, Int j ) const 
+EL_NO_RELEASE_EXCEPT
 { 
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
@@ -557,6 +575,7 @@ const T& Matrix<T>::Get_( Int i, Int j ) const
 
 template<typename T>
 T& Matrix<T>::Set_( Int i, Int j ) 
+EL_NO_RELEASE_EXCEPT
 {
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;

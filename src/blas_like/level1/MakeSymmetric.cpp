@@ -53,7 +53,7 @@ void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 
 template<typename T>
 void MakeSymmetric
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate )
+( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("MakeSymmetric"))
     if( A.Height() != A.Width() )
@@ -63,8 +63,7 @@ void MakeSymmetric
     if( conjugate )
         MakeDiagonalReal(A);
 
-    unique_ptr<AbstractDistMatrix<T>> 
-      ATrans( A.Construct(A.Grid(),A.Root()) );
+    unique_ptr<ElementalMatrix<T>> ATrans( A.Construct(A.Grid(),A.Root()) );
     Transpose( A, *ATrans, conjugate );
     if( uplo == LOWER )
         AxpyTrapezoid( UPPER, T(1), *ATrans, A, 1 );
@@ -81,14 +80,29 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 
     MakeTrapezoidal( uplo, A );
 
+    const Int m = A.Height();
     const Int numEntries = A.NumEntries();
     const Int* sBuf = A.LockedSourceBuffer();
     const Int* tBuf = A.LockedTargetBuffer();
     T* vBuf = A.ValueBuffer();
-    if( conjugate && IsComplex<T>::val )
-        for( Int k=0; k<numEntries; ++k )
-            if( sBuf[k] == tBuf[k] ) 
-                vBuf[k] = RealPart(vBuf[k]);
+
+    // Iterate over the diagonal entries
+    Int numDiagonal = 0;
+    for( Int i=0; i<m; ++i )
+    {
+        const Int e = A.Offset( i, i );
+        if( e < numEntries && sBuf[e] == i && tBuf[e] == i )
+        {
+            ++numDiagonal;
+            if( conjugate && IsComplex<T>::val )
+                vBuf[e] = RealPart(vBuf[e]);
+        }
+    }
+
+    A.Reserve( numEntries + (numEntries-numDiagonal) );
+    sBuf = A.LockedSourceBuffer();
+    tBuf = A.LockedTargetBuffer();
+    vBuf = A.ValueBuffer();
 
     if( uplo == LOWER )
     {
@@ -186,7 +200,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
   template void MakeSymmetric \
   ( UpperOrLower uplo, Matrix<T>& A, bool conjugate ); \
   template void MakeSymmetric \
-  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate ); \
+  ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate ); \
   template void MakeSymmetric \
   ( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate ); \
   template void MakeSymmetric \

@@ -139,13 +139,13 @@ LT
 
         if( vert )
         {
-            x0 = View( x, ind0, ALL );
-            x1 = View( x, ind1, ALL );
+            View( x0, x, ind0, ALL );
+            View( x1, x, ind1, ALL );
         }
         else
         {
-            x0 = View( x, ALL, ind0 );
-            x1 = View( x, ALL, ind1 );
+            View( x0, x, ALL, ind0 );
+            View( x1, x, ALL, ind1 );
         }
 
         quasitrsv::LTUnb( TRANSPOSE, L11, x1, checkIfSingular );
@@ -164,7 +164,7 @@ template<typename F>
 inline void
 LT
 ( Orientation orientation, 
-  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre,
+  const ElementalMatrix<F>& LPre, ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(

@@ -18,15 +18,15 @@ template<typename T>
 void Merge1x2( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR );
 template<typename T>
 void Merge1x2
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& BL, AbstractDistMatrix<T>& BR );
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& BL, ElementalMatrix<T>& BR );
 
 template<typename T>
 void LockedMerge1x2( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR );
 template<typename T>
 void LockedMerge1x2
-(       AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& BL, const AbstractDistMatrix<T>& BR );
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& BL, const ElementalMatrix<T>& BR );
 
 // Return by value
 // ^^^^^^^^^^^^^^^
@@ -47,16 +47,16 @@ template<typename T>
 void Merge2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB );
 template<typename T>
 void Merge2x1
-( AbstractDistMatrix<T>& A, 
-  AbstractDistMatrix<T>& BT, AbstractDistMatrix<T>& BB );
+( ElementalMatrix<T>& A, 
+  ElementalMatrix<T>& BT, ElementalMatrix<T>& BB );
 
 template<typename T>
 void LockedMerge2x1( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB );
 template<typename T>
 void LockedMerge2x1
-(       AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& BT,
-  const AbstractDistMatrix<T>& BB );
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& BT,
+  const ElementalMatrix<T>& BB );
 
 // Return by value
 // ^^^^^^^^^^^^^^^
@@ -80,9 +80,9 @@ void Merge2x2
   Matrix<T>& BBL, Matrix<T>& BBR );
 template<typename T>
 void Merge2x2
-( AbstractDistMatrix<T>& A,
-  AbstractDistMatrix<T>& BTL, AbstractDistMatrix<T>& BTR,
-  AbstractDistMatrix<T>& BBL, AbstractDistMatrix<T>& BBR );
+( ElementalMatrix<T>& A,
+  ElementalMatrix<T>& BTL, ElementalMatrix<T>& BTR,
+  ElementalMatrix<T>& BBL, ElementalMatrix<T>& BBR );
 
 template<typename T>
 void LockedMerge2x2
@@ -91,9 +91,9 @@ void LockedMerge2x2
   const Matrix<T>& BBL, const Matrix<T>& BBR );
 template<typename T>
 void LockedMerge2x2
-(       AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& BTL, const AbstractDistMatrix<T>& BTR,
-  const AbstractDistMatrix<T>& BBL, const AbstractDistMatrix<T>& BBR );
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& BTL, const ElementalMatrix<T>& BTR,
+  const ElementalMatrix<T>& BBL, const ElementalMatrix<T>& BBR );
 
 // Return by value
 // ^^^^^^^^^^^^^^^

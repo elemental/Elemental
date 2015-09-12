@@ -153,12 +153,15 @@ Real ChooseStepLength
 
 template<typename Real>
 Real MaxStepInSOC
-( const Matrix<Real>& x, const Matrix<Real>& y, 
-  const Matrix<Int>& orders, const Matrix<Int>& firstInds,
+( const Matrix<Real>& x,
+  const Matrix<Real>& y, 
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
   Real upperBound )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
     typedef Promote<Real> PReal;
+    const Int height = x.Height();
 
     Matrix<PReal> xProm, yProm;
     Copy( x, xProm );
@@ -172,20 +175,29 @@ Real MaxStepInSOC
     SOCReflect( Ry, orders, firstInds );
     SOCDots( xProm, Ry, xTRys, orders, firstInds );
 
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+    const PReal* xBuf = xProm.LockedBuffer();
+    const PReal* yBuf = yProm.LockedBuffer();
+    const PReal* xDetBuf = xDets.LockedBuffer();
+    const PReal* yDetBuf = yDets.LockedBuffer();
+    const PReal* xTRyBuf = xTRys.LockedBuffer();
+
     PReal alpha = upperBound;
-    const Int height = x.Height();
     for( Int i=0; i<height; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
-        if( i != firstInd )
-            LogicError("Inconsistency in orders and firstInds");
+        const Int order = orderBuf[i];
+        const Int firstInd = firstIndBuf[i];
+        DEBUG_ONLY(
+          if( i != firstInd )
+              LogicError("Inconsistency in orders and firstInds");
+        )
 
-        const PReal x0 = xProm.Get(i,0);
-        const PReal y0 = yProm.Get(i,0);
-        const PReal xDet = xDets.Get(i,0);
-        const PReal yDet = yDets.Get(i,0);
-        const PReal xTRy = xTRys.Get(i,0);
+        const PReal x0 = xBuf[i];
+        const PReal y0 = yBuf[i];
+        const PReal xDet = xDetBuf[i];
+        const PReal yDet = yDetBuf[i];
+        const PReal xTRy = xTRyBuf[i];
 
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
 
@@ -196,10 +208,10 @@ Real MaxStepInSOC
 
 template<typename Real>
 Real MaxStepInSOC
-( const AbstractDistMatrix<Real>& xPre, 
-  const AbstractDistMatrix<Real>& yPre, 
-  const AbstractDistMatrix<Int>& ordersPre,
-  const AbstractDistMatrix<Int>& firstIndsPre,
+( const ElementalMatrix<Real>& xPre, 
+  const ElementalMatrix<Real>& yPre, 
+  const ElementalMatrix<Int>& ordersPre,
+  const ElementalMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("MaxStepInSOC"))
@@ -226,19 +238,26 @@ Real MaxStepInSOC
     SOCReflect( Ry, orders, firstInds );
     SOCDots( x, Ry, xTRys, orders, firstInds, cutoff );
 
-    PReal alpha = upperBound;
     const Int localHeight = x.LocalHeight();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+    const PReal* xBuf = x.LockedBuffer();
+    const PReal* yBuf = y.LockedBuffer();
+    const PReal* xDetBuf = xDets.LockedBuffer();
+    const PReal* yDetBuf = yDets.LockedBuffer();
+    const PReal* xTRyBuf = xTRys.LockedBuffer();
+
+    PReal alpha = upperBound;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i != firstInds.GetLocal(iLoc,0) )
+        if( i != firstIndBuf[iLoc] )
             continue;
 
-        const PReal x0 = x.GetLocal(iLoc,0);
-        const PReal y0 = y.GetLocal(iLoc,0);
-        const PReal xDet = xDets.GetLocal(iLoc,0);
-        const PReal yDet = yDets.GetLocal(iLoc,0);
-        const PReal xTRy = xTRys.GetLocal(iLoc,0);
+        const PReal x0 = xBuf[iLoc];
+        const PReal y0 = yBuf[iLoc];
+        const PReal xDet = xDetBuf[iLoc];
+        const PReal yDet = yDetBuf[iLoc];
+        const PReal xTRy = xTRyBuf[iLoc];
         
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
@@ -269,19 +288,28 @@ Real MaxStepInSOC
     SOCReflect( Ry, orders, firstInds );
     SOCDots( xProm, Ry, xTRys, orders, firstInds, cutoff );
 
-    PReal alpha = upperBound;
     const Int localHeight = xProm.LocalHeight();
+    const Int firstLocalRow = xProm.FirstLocalRow();
+
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
+    const PReal* xBuf = xProm.LockedMatrix().LockedBuffer();
+    const PReal* yBuf = yProm.LockedMatrix().LockedBuffer();
+    const PReal* xDetBuf = xDets.LockedMatrix().LockedBuffer();
+    const PReal* yDetBuf = yDets.LockedMatrix().LockedBuffer();
+    const PReal* xTRyBuf = xTRys.LockedMatrix().LockedBuffer();
+
+    PReal alpha = upperBound;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = xProm.GlobalRow(iLoc);
-        if( i != firstInds.GetLocal(iLoc,0) )
+        const Int i = iLoc + firstLocalRow;
+        if( i != firstIndBuf[iLoc] )
             continue;
-        
-        const PReal x0 = xProm.GetLocal(iLoc,0);
-        const PReal y0 = yProm.GetLocal(iLoc,0);
-        const PReal xDet = xDets.GetLocal(iLoc,0);
-        const PReal yDet = yDets.GetLocal(iLoc,0);
-        const PReal xTRy = xTRys.GetLocal(iLoc,0);
+
+        const PReal x0 = xBuf[iLoc];
+        const PReal y0 = yBuf[iLoc];
+        const PReal xDet = xDetBuf[iLoc];
+        const PReal yDet = yDetBuf[iLoc];
+        const PReal xTRy = xTRyBuf[iLoc];
 
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
@@ -290,14 +318,16 @@ Real MaxStepInSOC
 
 #define PROTO(Real) \
   template Real MaxStepInSOC \
-  ( const Matrix<Real>& s,     const Matrix<Real>& ds, \
-    const Matrix<Int>& orders, const Matrix<Int>& firstInds, \
+  ( const Matrix<Real>& s, \
+    const Matrix<Real>& ds, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
     Real upperBound ); \
   template Real MaxStepInSOC \
-  ( const AbstractDistMatrix<Real>& s, \
-    const AbstractDistMatrix<Real>& ds, \
-    const AbstractDistMatrix<Int>& orders, \
-    const AbstractDistMatrix<Int>& firstInds, \
+  ( const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& ds, \
+    const ElementalMatrix<Int>& orders, \
+    const ElementalMatrix<Int>& firstInds, \
     Real upperBound, Int cutoff ); \
   template Real MaxStepInSOC \
   ( const DistMultiVec<Real>& s, \

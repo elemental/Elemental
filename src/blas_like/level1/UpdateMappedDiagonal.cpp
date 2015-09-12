@@ -19,44 +19,57 @@ void UpdateMappedDiagonal
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
     const S* dBuf = d.LockedBuffer();
-    T* buffer = A.Buffer();
-    const Int ldim = A.LDim();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
     EL_PARALLEL_FOR
     for( Int k=0; k<diagLength; ++k )
     {
         const Int i = iStart + k;
         const Int j = jStart + k;
-        func( buffer[i+j*ldim], dBuf[k] );
+        func( ABuf[i+j*ALDim], dBuf[k] );
     }
 }
 
 template<typename T,typename S>
 void UpdateMappedDiagonal
 ( SparseMatrix<T>& A, const Matrix<S>& d, 
-  function<void(T&,S)> func, Int offset )
+  function<void(T&,S)> func, Int offset, bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
-
-    const Int numUpdates = d.Height();
-    if( !A.FrozenSparsity() )
-        A.Reserve( A.NumEntries() + numUpdates );
-
-    for( Int k=0; k<numUpdates; ++k )
+    const Int iStart = Max(-offset,0);
+    const Int jStart = Max( offset,0);
+    const Int diagLength = d.Height();
+    const S* dBuf = d.LockedBuffer();
+    if( diagExists || A.FrozenSparsity() )
     {
-        const Int i = ( offset >= 0 ? k        : k-offset );
-        const Int j = ( offset >= 0 ? k+offset : k        );
-
-        T alpha = 0;
-        func( alpha, d.Get(Min(i,j),0) );
-        A.QueueUpdate( i, j, alpha );
+        T* valBuf = A.ValueBuffer();
+        for( Int k=0; k<diagLength; ++k )
+        {
+            const Int i = iStart + k;
+            const Int j = jStart + k;
+            const Int e = A.Offset( i, j );
+            func( valBuf[e], dBuf[Min(i,j)]); 
+        }
     }
+    else
+    {
+        A.Reserve( A.NumEntries() + diagLength );
+        for( Int k=0; k<diagLength; ++k )
+        {
+            const Int i = iStart + k;
+            const Int j = jStart + k;
 
-    A.ProcessQueues();
+            T alpha = 0;
+            func( alpha, dBuf[Min(i,j)] );
+            A.QueueUpdate( i, j, alpha );
+        }
+        A.ProcessQueues();
+    }
 }
 
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
-( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& dPre, 
+( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& dPre, 
   function<void(T&,S)> func, Int offset )
 { 
     DEBUG_ONLY(
@@ -101,31 +114,41 @@ void UpdateMappedDiagonal
 template<typename T,typename S>
 void UpdateMappedDiagonal
 ( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, 
-  function<void(T&,S)> func, Int offset )
+  function<void(T&,S)> func, Int offset, bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
     if( offset != 0 )
         LogicError("Offset assumed to be zero for distributed sparse matrices");
 
-    if( !A.FrozenSparsity() )
-        A.Reserve( A.NumLocalEntries() + d.LocalHeight() );
-
-    const Int localHeight = d.LocalHeight();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    const Int localHeight = A.LocalHeight();
+    const S* dBuf = d.LockedMatrix().LockedBuffer();
+    if( diagExists || A.FrozenSparsity() )
     {
-        const Int i = A.GlobalRow(iLoc);
-
-        T alpha = 0;
-        func( alpha, d.GetLocal(iLoc,0) );
-        A.QueueLocalUpdate( iLoc, i, alpha );
+        T* valBuf = A.ValueBuffer();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            const Int e = A.Offset( iLoc, i );
+            func( valBuf[e], dBuf[iLoc] );
+        }
     }
-
-    A.ProcessLocalQueues(); 
+    else
+    {
+        A.Reserve( A.NumLocalEntries() + localHeight );
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            T alpha = 0;
+            func( alpha, dBuf[iLoc] );
+            A.QueueLocalUpdate( iLoc, i, alpha );
+        }
+        A.ProcessLocalQueues(); 
+    }
 }
 
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void UpdateMappedDiagonal \
-  ( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d, \
+  ( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& d, \
     function<void(T&,S)> func, Int offset );
 
 #define PROTO_TYPES(S,T) \
@@ -134,10 +157,10 @@ void UpdateMappedDiagonal
     Int offset ); \
   template void UpdateMappedDiagonal \
   ( SparseMatrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, \
-    Int offset ); \
+    Int offset, bool diagExists ); \
   template void UpdateMappedDiagonal \
   ( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, \
-    function<void(T&,S)> func, Int offset ); \
+    function<void(T&,S)> func, Int offset, bool diagExists ); \
   PROTO_DIST_TYPES(S,T,CIRC,CIRC) \
   PROTO_DIST_TYPES(S,T,MC,  MR  ) \
   PROTO_DIST_TYPES(S,T,MC,  STAR) \

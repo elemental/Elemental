@@ -24,17 +24,9 @@ void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n )
     ThreeValued( A, m, n, 1. );
 }
 
-template<typename T>
-void Bernoulli( AbstractBlockDistMatrix<T>& A, Int m, Int n )
-{
-    DEBUG_ONLY(CSE cse("Bernoulli"))
-    ThreeValued( A, m, n, 1. );
-}
-
 #define PROTO(T) \
   template void Bernoulli( Matrix<T>& A, Int m, Int n ); \
-  template void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n ); \
-  template void Bernoulli( AbstractBlockDistMatrix<T>& A, Int m, Int n );
+  template void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

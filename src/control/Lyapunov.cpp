@@ -22,11 +22,11 @@ void Lyapunov
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("Lyapunov");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( C.Height() != A.Height() || C.Width() != A.Height() )
-            LogicError("C must conform with A");
+      CSE cse("Lyapunov");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( C.Height() != A.Height() || C.Width() != A.Height() )
+          LogicError("C must conform with A");
     )
     const Int m = A.Height();
     Matrix<F> W, WTL, WTR,
@@ -43,16 +43,17 @@ void Lyapunov
 
 template<typename F>
 void Lyapunov
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C, 
-        AbstractDistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
+( const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& C, 
+        ElementalMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("Sylvester");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( C.Height() != A.Height() || C.Width() != A.Height() )
-            LogicError("C must conform with A");
-        AssertSameGrids( A, C );
+      CSE cse("Sylvester");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( C.Height() != A.Height() || C.Width() != A.Height() )
+          LogicError("C must conform with A");
+      AssertSameGrids( A, C );
     )
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -70,11 +71,15 @@ void Lyapunov
 
 #define PROTO(F) \
   template void Lyapunov \
-  ( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X, \
+  ( const Matrix<F>& A, \
+    const Matrix<F>& C, \
+          Matrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
   template void Lyapunov \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C, \
-          AbstractDistMatrix<F>& X, SignCtrl<Base<F>> ctrl );
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& C, \
+          ElementalMatrix<F>& X, \
+    SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

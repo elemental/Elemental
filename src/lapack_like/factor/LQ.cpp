@@ -26,8 +26,8 @@ void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 void LQ
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
-  AbstractDistMatrix<Base<F>>& d )
+( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(CSE cse("LQ"))
     lq::Householder( A, t, d );
@@ -40,16 +40,16 @@ void LQ
 #define PROTO(F) \
   template void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void LQ \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& t, ElementalMatrix<Base<F>>& d ); \
   template void lq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
     const Matrix<Base<F>>& d, Matrix<F>& B ); \
   template void lq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
-    const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B ); \
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& B ); \
   template void lq::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
@@ -57,16 +57,16 @@ void LQ
           Matrix<F>& X ); \
   template void lq::SolveAfter \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
-    const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B, \
-          AbstractDistMatrix<F>& X ); \
+    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& B, \
+          ElementalMatrix<F>& X ); \
   template void lq::Explicit( Matrix<F>& L, Matrix<F>& A ); \
   template void lq::Explicit \
-  ( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A ); \
+  ( ElementalMatrix<F>& L, ElementalMatrix<F>& A ); \
   template void lq::ExplicitTriang( Matrix<F>& A ); \
-  template void lq::ExplicitTriang( AbstractDistMatrix<F>& A ); \
+  template void lq::ExplicitTriang( ElementalMatrix<F>& A ); \
   template void lq::ExplicitUnitary( Matrix<F>& A ); \
-  template void lq::ExplicitUnitary( AbstractDistMatrix<F>& A );
+  template void lq::ExplicitUnitary( ElementalMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

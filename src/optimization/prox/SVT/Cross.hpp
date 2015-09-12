@@ -37,7 +37,7 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
 }
 
 template<typename F>
-Int Cross( AbstractDistMatrix<F>& APre, Base<F> tau, bool relative )
+Int Cross( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CSE cse("svt::Cross"))
 

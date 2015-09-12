@@ -28,7 +28,7 @@ T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 }
 
 template<typename T> 
-T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
+T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
@@ -81,7 +81,7 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 #define PROTO(T) \
   template T Dotu( const Matrix<T>& A, const Matrix<T>& B ); \
   template T Dotu \
-  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
+  ( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B ); \
   template T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 #define EL_ENABLE_QUAD

@@ -43,53 +43,61 @@ void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 }
 
 template<typename T,typename S>
-void ShiftDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
-{
-    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
-    const Int height = A.Height();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        const Int i = j-offset;
-        if( i >= 0 && i < height && A.IsLocalRow(i) )
-        {
-            const Int iLoc = A.LocalRow(i);
-            A.UpdateLocal( iLoc, jLoc, alpha );
-        }
-    }
-}
-
-template<typename T,typename S>
-void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset )
+void ShiftDiagonal
+( SparseMatrix<T>& A, S alphaPre, Int offset, bool existingDiag )
 {
     DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int m = A.Height();
     const Int n = A.Width();
-    A.Reserve( A.Capacity()+m );
-    for( Int i=0; i<m; ++i )
-    { 
-        if( i+offset >= 0 && i+offset < n )
-            A.QueueUpdate( i, i+offset, T(alpha) );
+    const T alpha = T(alphaPre);
+    if( existingDiag )
+    {
+        T* valBuf = A.ValueBuffer();
+        for( Int i=Max(0,-offset); i<Min(m,n-offset); ++i )
+        {
+            const Int e = A.Offset( i, i+offset );
+            valBuf[e] += alpha;
+        } 
     }
-    A.ProcessQueues();
+    else
+    {
+        const Int diagLength = Min(m,n-offset) - Max(0,-offset);
+        A.Reserve( A.Capacity()+diagLength );
+        for( Int i=Max(0,-offset); i<Min(m,n-offset); ++i )
+            A.QueueUpdate( i, i+offset, alpha );
+        A.ProcessQueues();
+    }
 }
 
 template<typename T,typename S>
-void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset )
+void ShiftDiagonal
+( DistSparseMatrix<T>& A, S alphaPre, Int offset, bool existingDiag )
 {
     DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int mLocal = A.LocalHeight();
-    const Int firstLocalRow = A.FirstLocalRow();
     const Int n = A.Width();
-    A.Reserve( A.Capacity()+mLocal );
-    for( Int iLocal=0; iLocal<mLocal; ++iLocal )
+    const T alpha = T(alphaPre);
+    if( existingDiag ) 
     {
-        const Int i = iLocal+firstLocalRow;
-        if( i+offset >= 0 && i+offset < n )
-            A.QueueLocalUpdate( iLocal, i+offset, alpha );
+        T* valBuf = A.ValueBuffer();
+        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            const Int e = A.Offset( iLoc, i+offset );
+            valBuf[e] += alpha;
+        } 
     }
-    A.ProcessLocalQueues();
+    else
+    {
+        A.Reserve( A.Capacity()+mLocal );
+        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            if( i+offset >= 0 && i+offset < n )
+                A.QueueLocalUpdate( iLoc, i+offset, alpha );
+        }
+        A.ProcessLocalQueues();
+    }
 }
 
 #define PROTO_TYPES(T,S) \
@@ -97,9 +105,9 @@ void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset )
   template void ShiftDiagonal \
   ( AbstractDistMatrix<T>& A, S alpha, Int offset ); \
   template void ShiftDiagonal \
-  ( AbstractBlockDistMatrix<T>& A, S alpha, Int offset ); \
-  template void ShiftDiagonal( SparseMatrix<T>& A, S alpha, Int offset ); \
-  template void ShiftDiagonal( DistSparseMatrix<T>& A, S alpha, Int offset ); 
+  ( SparseMatrix<T>& A, S alpha, Int offset, bool existingDiag ); \
+  template void ShiftDiagonal \
+  ( DistSparseMatrix<T>& A, S alpha, Int offset, bool existingDiag ); 
 
 #define PROTO_SAME(T) PROTO_TYPES(T,T) \
 

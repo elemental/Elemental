@@ -8,19 +8,21 @@
 #
 import El, math
 
-n = 5000
+#n = 1000
+#r = 30
+n = 3000
 r = 50
-gamma = 1.
-display = True
+#n = 7500
+#r = 60
+gamma = 0.1
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
 # Create a positive diagonal for the covariance
 def CreateDiag(height):
   d = El.DistMultiVec()
-  El.Ones( d, height, 1 ) 
-  #El.Uniform( d, height, 1, 2, 1 )
-
+  El.Uniform( d, height, 1, 0.45, 0.45 )
   return d
 
 # Create the factor model (for now, make it dense)
@@ -51,6 +53,7 @@ def CreateExpected(height):
   #  i = c.GlobalRow(iLoc)
   #  c.SetLocal(iLoc,0,1.+1./i)
   El.Gaussian( c, height, 1 )
+  El.EntrywiseMap( c, lambda alpha : abs(alpha) )
 
   return c
 
@@ -62,11 +65,29 @@ if display:
   El.Display( F, "F" )
   El.Display( c, "c" )
 
+ctrl = El.SOCPAffineCtrl_d()
+ctrl.mehrotraCtrl.progress = False
+ctrl.mehrotraCtrl.time = False
+ctrl.mehrotraCtrl.solveCtrl.progress = False
+ctrl.mehrotraCtrl.solveCtrl.time = False
+
+# Solve *with* resolving the regularization
+ctrl.mehrotraCtrl.resolveReg = True
 startLOP = El.mpi.Time()
-x = El.LongOnlyPortfolio(d,F,c,gamma)
+x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
 if worldRank == 0:
-  print "LOP time:", endLOP-startLOP, "seconds"
+  print "LOP time (resolve reg. w/ equil):", endLOP-startLOP, "seconds"
+if display:
+  El.Display( x, "x" )
+
+# Solve without resolving the regularization
+ctrl.mehrotraCtrl.resolveReg = False
+startLOP = El.mpi.Time()
+x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
+endLOP = El.mpi.Time()
+if worldRank == 0:
+  print "LOP time (no resolve reg. w/ equil):", endLOP-startLOP, "seconds"
 if display:
   El.Display( x, "x" )
 

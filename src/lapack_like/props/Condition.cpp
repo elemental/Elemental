@@ -39,7 +39,7 @@ Base<F> Condition( const Matrix<F>& A, NormType type )
 }
 
 template<typename F> 
-Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type )
+Base<F> Condition( const ElementalMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CSE cse("Condition"))
     Base<F> norm = 0;
@@ -68,7 +68,7 @@ Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type )
 
 #define PROTO(F) \
   template Base<F> Condition( const Matrix<F>& A, NormType type ); \
-  template Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type );
+  template Base<F> Condition( const ElementalMatrix<F>& A, NormType type );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

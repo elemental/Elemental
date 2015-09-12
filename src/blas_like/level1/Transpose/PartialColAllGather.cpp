@@ -14,16 +14,16 @@ namespace transpose {
 // (U,V) |-> (V,Partial(U))
 template<typename T>
 void PartialColAllGather
-( const AbstractDistMatrix<T>& A, 
-        AbstractDistMatrix<T>& B, bool conjugate )
+( const ElementalMatrix<T>& A, 
+        ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::PartialColAllGather");
-        if( B.ColDist() != A.RowDist() || 
-            B.RowDist() != Partial(A.ColDist()) )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::PartialColAllGather");
+      if( B.ColDist() != A.RowDist() || 
+          B.RowDist() != Partial(A.ColDist()) )
+          LogicError("Incompatible distributions");
     )
-    unique_ptr<AbstractDistMatrix<T>>
+    unique_ptr<ElementalMatrix<T>>
       ATrans( A.ConstructTranspose(B.Grid(),B.Root()) );
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
@@ -33,16 +33,16 @@ void PartialColAllGather
 
 template<typename T>
 void PartialColAllGather
-( const AbstractBlockDistMatrix<T>& A, 
-        AbstractBlockDistMatrix<T>& B, bool conjugate )
+( const BlockCyclicMatrix<T>& A, 
+        BlockCyclicMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("transpose::PartialColAllGather");
-        if( B.ColDist() != A.RowDist() || 
-            B.RowDist() != Partial(A.ColDist()) )
-            LogicError("Incompatible distributions");
+      CSE cse("transpose::PartialColAllGather");
+      if( B.ColDist() != A.RowDist() || 
+          B.RowDist() != Partial(A.ColDist()) )
+          LogicError("Incompatible distributions");
     )
-    unique_ptr<AbstractBlockDistMatrix<T>>
+    unique_ptr<BlockCyclicMatrix<T>>
       ATrans( A.ConstructTranspose(B.Grid(),B.Root()) );
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
@@ -52,11 +52,11 @@ void PartialColAllGather
 
 #define PROTO(T) \
   template void PartialColAllGather \
-  ( const AbstractDistMatrix<T>& A, \
-          AbstractDistMatrix<T>& B, bool conjugate ); \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, bool conjugate ); \
   template void PartialColAllGather \
-  ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<T>& B, bool conjugate );
+  ( const BlockCyclicMatrix<T>& A, \
+          BlockCyclicMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

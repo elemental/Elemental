@@ -25,9 +25,9 @@ namespace El {
 
 template<typename Real>
 void TV
-( const AbstractDistMatrix<Real>& b, 
+( const ElementalMatrix<Real>& b, 
         Real lambda,
-        AbstractDistMatrix<Real>& x,
+        ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("TV"))
@@ -204,9 +204,9 @@ void TV
 
 #define PROTO(Real) \
   template void TV \
-  ( const AbstractDistMatrix<Real>& b, \
+  ( const ElementalMatrix<Real>& b, \
           Real lambda, \
-          AbstractDistMatrix<Real>& x, \
+          ElementalMatrix<Real>& x, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void TV \
   ( const Matrix<Real>& b, \

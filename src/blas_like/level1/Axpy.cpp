@@ -61,15 +61,18 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
         LogicError("X and Y must have the same dimensions");
     const T alpha = T(alphaS);
     const Int numEntries = X.NumEntries();
+    const T* XValBuf = X.LockedValueBuffer();
+    const Int* XRowBuf = X.LockedSourceBuffer();
+    const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
         Y.Reserve( Y.NumEntries()+numEntries );
     for( Int k=0; k<numEntries; ++k ) 
-        Y.QueueUpdate( X.Row(k), X.Col(k), alpha*X.Value(k) );
+        Y.QueueUpdate( XRowBuf[k], XColBuf[k], alpha*XValBuf[k] );
     Y.ProcessQueues();
 }
 
 template<typename T,typename S>
-void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
+void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 {
     DEBUG_ONLY(
       CSE cse("Axpy");
@@ -77,8 +80,8 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
     )
     const T alpha = T(alphaS);
 
-    const DistData XDistData = X.DistData();
-    const DistData YDistData = Y.DistData();
+    const ElementalData XDistData = X.DistData();
+    const ElementalData YDistData = Y.DistData();
 
     if( XDistData == YDistData )
     {
@@ -86,7 +89,32 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
     }
     else
     {
-        unique_ptr<AbstractDistMatrix<T>> 
+        unique_ptr<ElementalMatrix<T>> XCopy( Y.Construct(Y.Grid(),Y.Root()) );
+        XCopy->AlignWith( YDistData );
+        Copy( X, *XCopy );
+        Axpy( alpha, XCopy->LockedMatrix(), Y.Matrix() );
+    }
+}
+
+template<typename T,typename S>
+void Axpy( S alphaS, const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y )
+{
+    DEBUG_ONLY(
+      CSE cse("Axpy");
+      AssertSameGrids( X, Y );
+    )
+    const T alpha = T(alphaS);
+
+    const BlockCyclicData XDistData = X.DistData();
+    const BlockCyclicData YDistData = Y.DistData();
+
+    if( XDistData == YDistData )
+    {
+        Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
+    }
+    else
+    {
+        unique_ptr<BlockCyclicMatrix<T>>
           XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
@@ -105,11 +133,14 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     const T alpha = T(alphaS);
     const Int numLocalEntries = X.NumLocalEntries();
     const Int firstLocalRow = X.FirstLocalRow();
+    const T* XValBuf = X.LockedValueBuffer();
+    const Int* XRowBuf = X.LockedSourceBuffer();
+    const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
         Y.Reserve( Y.NumLocalEntries()+numLocalEntries );
     for( Int k=0; k<numLocalEntries; ++k ) 
         Y.QueueLocalUpdate
-        ( X.Row(k)-firstLocalRow, X.Col(k), alpha*X.Value(k) );
+        ( XRowBuf[k]-firstLocalRow, XColBuf[k], alpha*XValBuf[k] );
     Y.ProcessLocalQueues();
 }
 
@@ -131,7 +162,9 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
 #define PROTO_TYPES(T,S) \
   template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
-  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  ( S alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
+  template void Axpy \
+  ( S alpha, const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B ); \
   template void Axpy \
   ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Axpy \

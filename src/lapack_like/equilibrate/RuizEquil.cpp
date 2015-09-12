@@ -33,9 +33,9 @@ void RuizEquil
 
 template<typename F>
 void RuizEquil
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<Base<F>>& dRowPre, 
-  AbstractDistMatrix<Base<F>>& dColPre,
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<Base<F>>& dRowPre, 
+  ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("RuizEquil"))
@@ -180,11 +180,11 @@ void StackedRuizEquil
 
 template<typename F>
 void StackedRuizEquil
-( AbstractDistMatrix<F>& APre, 
-  AbstractDistMatrix<F>& BPre,
-  AbstractDistMatrix<Base<F>>& dRowAPre, 
-  AbstractDistMatrix<Base<F>>& dRowBPre,
-  AbstractDistMatrix<Base<F>>& dColPre,
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& BPre,
+  ElementalMatrix<Base<F>>& dRowAPre, 
+  ElementalMatrix<Base<F>>& dRowBPre,
+  ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("StackedRuizEquil"))
@@ -368,9 +368,9 @@ void StackedRuizEquil
     Matrix<Base<F>>& dCol, \
     bool progress ); \
   template void RuizEquil \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& dRow, \
-    AbstractDistMatrix<Base<F>>& dCol, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& dRow, \
+    ElementalMatrix<Base<F>>& dCol, \
     bool progress ); \
   template void RuizEquil \
   ( SparseMatrix<F>& A, \
@@ -390,11 +390,11 @@ void StackedRuizEquil
     Matrix<Base<F>>& dCol, \
     bool progress ); \
   template void StackedRuizEquil \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<Base<F>>& dRowA, \
-    AbstractDistMatrix<Base<F>>& dRowB, \
-    AbstractDistMatrix<Base<F>>& dCol, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
+    ElementalMatrix<Base<F>>& dRowA, \
+    ElementalMatrix<Base<F>>& dRowB, \
+    ElementalMatrix<Base<F>>& dCol, \
     bool progress ); \
   template void StackedRuizEquil \
   ( SparseMatrix<F>& A, \
