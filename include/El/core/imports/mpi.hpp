@@ -167,6 +167,7 @@ void Excl
 void Difference
 ( Group parent, Group subset, Group& complement ) EL_NO_RELEASE_EXCEPT;
 void Free( Group& group ) EL_NO_RELEASE_EXCEPT;
+bool Congruent( Group group1, Group group2 ) EL_NO_RELEASE_EXCEPT;
 int Translate
 ( Group origGroup, int origRank, Group newGroup ) EL_NO_RELEASE_EXCEPT;
 int Translate
