@@ -81,6 +81,8 @@ public:
 
     static int FindFactor( int p ) EL_NO_EXCEPT;
 
+    friend bool GridCompare( const Grid & g1, const Grid & g2 );
+
 private:
     bool haveViewers_;
     int height_, size_, gcd_;
@@ -130,6 +132,92 @@ inline void AssertSameGrids( const Grid& g1, const Grid& g2, Args&... args )
     if( g1 != g2 )
         LogicError("Grids did not match");
     AssertSameGrids( g2, args... );
+}
+
+inline bool GridCompare
+( const Grid & g1, const Grid & g2 )
+{
+    // haveViewers_
+    if( g1.HaveViewers() != g2.HaveViewers() )
+        return false;
+
+    // height_
+    if( g1.Height() != g2.Height() )
+        return false;
+
+    // size_
+    if( g1.Size() != g2.Size() )
+        return false;
+
+    // gcd_
+    if( g1.GCD() != g2.GCD() )
+        return false;
+
+    // order_
+    if( g1.Order() != g2.Order() )
+        return false;
+
+    // diagsAndRanks_
+    if( g1.diagsAndRanks_.size() != g2.diagsAndRanks_.size() )
+        return false;
+    size_t sizei = g1.diagsAndRanks_.size();
+    for( size_t i=0; i<sizei; ++i )
+        if( g1.diagsAndRanks_[i] != g2.diagsAndRanks_[i] )
+            return false;
+
+    // viewingComm_
+    if( Congruent( g1.ViewingComm(), g2.ViewingComm() ) )
+        return false;
+
+    // viewingGroup_
+    if( Congruent( g1.viewingGroup_, g2.viewingGroup_ ) )
+        return false;
+
+    // vcToViewing_
+    if( g1.vcToViewing_.size() != g2.vcToViewing_.size() )
+        return false;
+    sizei = g1.vcToViewing_.size();
+    for( size_t i=0; i<sizei; ++i )
+        if( g1.vcToViewing_[i] != g2.vcToViewing_[i] )
+            return false;
+
+    // owningComm_
+    if( Congruent( g1.OwningComm(), g2.OwningComm() ) )
+        return false;
+
+    // owningGroup_
+    if( Congruent( g1.OwningGroup(), g2.OwningGroup() ) )
+        return false;
+
+    // cartComm_
+    if( Congruent( g1.cartComm_, g2.cartComm_ ) )
+        return false;
+
+    // mcComm_
+    if( Congruent( g1.MCComm(), g2.MCComm() ) )
+        return false;
+
+    // mrComm_
+    if( Congruent( g1.MRComm(), g2.MRComm() ) )
+        return false;
+
+    // mdComm_
+    if( Congruent( g1.MDComm(), g2.MDComm() ) )
+        return false;
+
+    // mdPerpComm_
+    if( Congruent( g1.MDPerpComm(), g2.MDPerpComm() ) )
+        return false;
+
+    // vcComm_
+    if( Congruent( g1.VCComm(), g2.VCComm() ) )
+        return false;
+
+    // vrComm_
+    if( Congruent( g1.VRComm(), g2.VRComm() ) )
+        return false;
+
+    return true;
 }
 
 } // namespace El
