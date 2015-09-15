@@ -38,7 +38,7 @@ ElementalMatrix<T>::Resize( Int height, Int width )
 {
     DEBUG_ONLY(
       CSE cse("EM::Resize");
-      AssertNotLocked();
+      this->AssertNotLocked();
       if( this->Viewing() && (height > this->height_ || width > this->width_) )
           LogicError("Tried to increase the size of a view");
     )
@@ -56,7 +56,7 @@ ElementalMatrix<T>::Resize( Int height, Int width, Int ldim )
 {
     DEBUG_ONLY(
       CSE cse("EM::Resize");
-      AssertNotLocked();
+      this->AssertNotLocked();
       if( this->Viewing() && 
           (height > this->height_ || width > this->width_ || 
            ldim > this->matrix_.LDim()) )
