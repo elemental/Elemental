@@ -292,6 +292,14 @@ void Free( Group& group ) EL_NO_RELEASE_EXCEPT
     SafeMpi( MPI_Group_free( &group.group ) );
 }
 
+bool Congruent( Group group1, Group group2 ) EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Congruent"))
+    int result;
+    SafeMpi( MPI_Group_compare( group1.group, group2.group, &result ) );
+    return ( result == MPI_IDENT );
+}
+
 // Rank translations
 // =================
 
