@@ -551,7 +551,7 @@ bool ElementalMatrix<T>::DiagonalAlignedWith
 ( const El::ElementalData& d, Int offset ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("EM::DiagonalAlignedWith"))
-    if( Grid() != *d.grid )
+    if( this->Grid() != *d.grid )
         return false;
 
     const Int diagRoot = DiagonalRoot(offset);
@@ -573,7 +573,7 @@ template<typename T>
 int ElementalMatrix<T>::DiagonalRoot( Int offset ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("EM::DiagonalRoot"))
-    const auto& grid = Grid();
+    const auto& grid = this->Grid();
 
     if( this->ColDist() == MC && this->RowDist() == MR )
     {
@@ -619,7 +619,7 @@ template<typename T>
 int ElementalMatrix<T>::DiagonalAlign( Int offset ) const EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("EM::DiagonalAlign"))
-    const auto& grid = Grid();
+    const auto& grid = this->Grid();
 
     if( this->ColDist() == MC && this->RowDist() == MR )
     {
