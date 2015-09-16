@@ -212,12 +212,6 @@ private:
       function<V(U)> func );
 
     template<typename U> friend class SparseMatrix;
-    template<typename U> friend struct ldl::DistFront;
-
-    template<typename U> friend void Syrk
-    ( Orientation orientation, 
-      U alpha, const DistSparseMatrix<U>& A, 
-      U beta,        DistSparseMatrix<U>& C, bool conjugate );
 };
 
 } // namespace El

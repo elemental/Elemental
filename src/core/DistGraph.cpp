@@ -120,9 +120,8 @@ void DistGraph::Empty( bool clearMemory )
 {
     numSources_ = 0;
     numTargets_ = 0;
-    firstLocalSource_ = 0;
     numLocalSources_ = 0;
-    blocksize_ = 0;
+    blocksize_ = 1;
     locallyConsistent_ = true;
     frozenSparsity_ = false;
     if( clearMemory )
@@ -152,20 +151,19 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 
     numSources_ = numSources;
     numTargets_ = numTargets;
-    blocksize_ = numSources/commSize_;
-    firstLocalSource_ = commRank_*blocksize_;
-    if( commRank_ < commSize_-1 )
-        numLocalSources_ = blocksize_;
-    else
-        numLocalSources_ = numSources - (commSize_-1)*blocksize_;
 
-    sources_.resize( 0 );
-    targets_.resize( 0 );
+    blocksize_ = numSources / commSize_;
+    if( blocksize_*commSize_ < numSources || numSources == 0 )
+        ++blocksize_;
+
+    numLocalSources_ = Min(blocksize_,numSources-blocksize_*commRank_);
 
     localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )
         localSourceOffsets_[e] = 0;
 
+    sources_.resize( 0 );
+    targets_.resize( 0 );
     locallyConsistent_ = true;
 }
 
@@ -173,12 +171,11 @@ void DistGraph::Resize( Int numSources, Int numTargets )
 // -----------------------
 void DistGraph::InitializeLocalData()
 {
-    blocksize_ = numSources_/commSize_;
-    firstLocalSource_ = commRank_*blocksize_;
-    if( commRank_ < commSize_-1 )
-        numLocalSources_ = blocksize_;
-    else
-        numLocalSources_ = numSources_ - (commSize_-1)*blocksize_;
+    blocksize_ = numSources_ / commSize_;
+    if( blocksize_*commSize_ < numSources_ || numSources_ == 0 )
+        ++blocksize_;
+
+    numLocalSources_ = Min(blocksize_,numSources_-blocksize_*commRank_);
 
     localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )
@@ -257,10 +254,11 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(CSE cse("DistGraph::QueueConnection"))
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    if( source < firstLocalSource_ || 
-        source >= firstLocalSource_+numLocalSources_ )
+    const Int firstLocalSource = blocksize_*commRank_;
+    if( source < firstLocalSource || 
+        source >= firstLocalSource+numLocalSources_ )
     {
-        QueueLocalConnection( source-firstLocalSource_, target );
+        QueueLocalConnection( source-firstLocalSource, target );
     }
     else if( !passive )
     {
@@ -290,7 +288,8 @@ EL_NO_RELEASE_EXCEPT
     )
     if( !FrozenSparsity() )
     {
-        sources_.push_back( firstLocalSource_+localSource );
+        const Int firstLocalSource = blocksize_*commRank_;
+        sources_.push_back( firstLocalSource+localSource );
         targets_.push_back( target );
         locallyConsistent_ = false;
     }
@@ -303,10 +302,11 @@ EL_NO_RELEASE_EXCEPT
     // TODO: Use FrozenSparsity()
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    if( source < firstLocalSource_ || 
-        source >= firstLocalSource_+numLocalSources_ )
+    const Int firstLocalSource = blocksize_*commRank_;
+    if( source < firstLocalSource || 
+        source >= firstLocalSource+numLocalSources_ )
     {
-        QueueLocalDisconnection( source-firstLocalSource_, target );
+        QueueLocalDisconnection( source-firstLocalSource, target );
     }
     else if( !passive )
     {
@@ -332,8 +332,9 @@ EL_NO_RELEASE_EXCEPT
     )
     if( !FrozenSparsity() )
     {
+        const Int firstLocalSource = blocksize_*commRank_;
         markedForRemoval_.insert
-        ( pair<Int,Int>(firstLocalSource_+localSource,target) );
+        ( pair<Int,Int>(firstLocalSource+localSource,target) );
         locallyConsistent_ = false;
     }
     // else throw error?
@@ -481,7 +482,7 @@ Int DistGraph::NumSources() const EL_NO_EXCEPT
 Int DistGraph::NumTargets() const EL_NO_EXCEPT
 { return numTargets_; }
 Int DistGraph::FirstLocalSource() const EL_NO_EXCEPT
-{ return firstLocalSource_; }
+{ return blocksize_*commRank_; }
 Int DistGraph::NumLocalSources() const EL_NO_EXCEPT
 { return numLocalSources_; }
 
@@ -504,8 +505,7 @@ Int DistGraph::Blocksize() const EL_NO_EXCEPT
 int DistGraph::SourceOwner( Int source ) const EL_NO_RELEASE_EXCEPT
 { 
     if( source == END ) source = numSources_ - 1;
-    // TODO: Get rid of RowToProcess...
-    return RowToProcess( source, blocksize_, commSize_ ); 
+    return source / blocksize_;
 }
 
 Int DistGraph::GlobalSource( Int sLoc ) const EL_NO_RELEASE_EXCEPT
@@ -645,7 +645,7 @@ void DistGraph::ComputeSourceOffsets()
 {
     DEBUG_ONLY(CSE cse("DistGraph::ComputeSourceOffsets"))
     Int sourceOffset = 0;
-    Int prevSource = firstLocalSource_-1;
+    Int prevSource = blocksize_*commRank_-1;
     localSourceOffsets_.resize( numLocalSources_+1 );
     const Int numLocalEdges = NumLocalEdges();
     const Int* sourceBuf = LockedSourceBuffer();
@@ -656,14 +656,8 @@ void DistGraph::ComputeSourceOffsets()
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
-        if( source < firstLocalSource_ || 
-            source >= firstLocalSource_+numLocalSources_ )
-            Output("source=",source,", firstLocalSource=",firstLocalSource_,", numLocalSources=",numLocalSources_);
         for( ; prevSource<source; ++prevSource )
-        {
             localSourceOffsets_[sourceOffset++] = e;
-            //Output("sourceOffset=",sourceOffset,", numLocalSources_=",numLocalSources_,", firstLocalSource_=",firstLocalSource_,", prevSource=",prevSource,", source=",source,", numSources=",NumSources(),", numTargets=",NumTargets());
-        }
     }
     for( ; sourceOffset<=numLocalSources_; ++sourceOffset )
         localSourceOffsets_[sourceOffset] = numLocalEdges;

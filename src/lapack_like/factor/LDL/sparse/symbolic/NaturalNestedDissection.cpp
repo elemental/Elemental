@@ -61,32 +61,15 @@ NaturalNestedDissectionRecursion
         // Technically, SuiteSparse expects column-major storage, but since
         // the matrix is structurally symmetric, it's okay to pass in the 
         // row-major representation
-        vector<Int> amdPerm(numSources);
-        if( sizeof(int) == sizeof(Int) )
-        {
-            double* control = nullptr;
-            double* info = nullptr;
-            const int amdStatus =
-              El_amd_order
-              ( numSources, subOffsets.data(), subTargets.data(),
-                amdPerm.data(), control, info );
-            if( amdStatus != EL_AMD_OK )
-                RuntimeError("AMD status was ",amdStatus);
-        }
-        else
-        {
-            double* control = nullptr;
-            double* info = nullptr;
-            // TODO: Convert to and from Int
-            // HERE
-            const int amdStatus =
-              El_amd_order
-              ( numSources, subOffsets.data(), subTargets.data(),
-                amdPerm.data(), control, info );
-            if( amdStatus != EL_AMD_OK )
-                RuntimeError("AMD status was ",amdStatus);
-
-        }
+        vector<int> amdPerm(numSources);
+        double* control = nullptr;
+        double* info = nullptr;
+        const int amdStatus =
+          El_amd_order
+          ( numSources, subOffsets.data(), subTargets.data(), amdPerm.data(),
+            control, info );
+        if( amdStatus != EL_AMD_OK )
+            RuntimeError("AMD status was ",amdStatus);
 
         // Compute the symbolic factorization of this leaf node using the
         // reordering just computed

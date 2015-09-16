@@ -674,7 +674,7 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
         for( ; off<numRecvInds; ++off )
         {
             const Int j = uniqueCols[off].value;
-            const Int q = RowToProcess( j, vecBlocksize, commSize );
+            const int q = j / vecBlocksize;
             while( qPrev != q )
             {
                 meta.recvSizes[qPrev] = off - lastOff;

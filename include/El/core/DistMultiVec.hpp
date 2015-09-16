@@ -111,9 +111,7 @@ private:
     // Calling MPI_Comm_size within an inner loop is apparently a bad idea
     int commSize_;
     int commRank_;
-
     Int blocksize_;
-    Int firstLocalRow_;
 
     El::Matrix<T> multiVec_;
 

@@ -419,9 +419,12 @@ void BuildChildrenFromPerm
 }
 
 void BuildChildFromPerm
-( const DistGraph& graph, const DistMap& perm,
-  Int leftChildSize, Int rightChildSize,
-  bool& onLeft, DistGraph& child )
+( const DistGraph& graph,
+  const DistMap& perm,
+        Int leftChildSize,
+        Int rightChildSize,
+        bool& onLeft,
+        DistGraph& child )
 {
     DEBUG_ONLY(CSE cse("BuildChildFromPerm"))
     const Int numTargets = graph.NumTargets();
@@ -446,8 +449,14 @@ void BuildChildFromPerm
     const int rightTeamOff = ( smallOnLeft ? smallTeamSize : 0 );
     onLeft = ( inSmallTeam == smallOnLeft );
 
-    const Int leftTeamBlocksize = leftChildSize / leftTeamSize;
-    const Int rightTeamBlocksize = rightChildSize / rightTeamSize;
+    // TODO: Generalize to 2D distributions?
+    Int leftTeamBlocksize = leftChildSize / leftTeamSize;
+    if( leftTeamBlocksize*leftTeamSize < leftChildSize )
+        ++leftTeamBlocksize;
+    // TODO: Generalize to 2D distributions?
+    Int rightTeamBlocksize = rightChildSize / rightTeamSize;
+    if( rightTeamBlocksize*rightTeamSize < rightChildSize )
+        ++rightTeamBlocksize;
 
     // Count how many rows we must send to each process 
     vector<int> rowSendSizes( commSize, 0 );
@@ -456,15 +465,12 @@ void BuildChildFromPerm
         const Int i = perm.GetLocal(s);
         if( i < leftChildSize )
         {
-            const int q = leftTeamOff + 
-                RowToProcess( i, leftTeamBlocksize, leftTeamSize );
+            const int q = leftTeamOff + i / leftTeamBlocksize;
             ++rowSendSizes[q];
         }
         else if( i < leftChildSize+rightChildSize )
         {
-            const int q = rightTeamOff +
-                RowToProcess
-                ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
+            const int q = rightTeamOff + (i-leftChildSize) / rightTeamBlocksize;
             ++rowSendSizes[q];
         }
     }
@@ -488,17 +494,14 @@ void BuildChildFromPerm
         const Int i = perm.GetLocal(s);
         if( i < leftChildSize )
         {
-            const int q = leftTeamOff + 
-                RowToProcess( i, leftTeamBlocksize, leftTeamSize );
+            const int q = leftTeamOff + i / leftTeamBlocksize;
             rowSendInds[offs[q]] = i;
             rowSendLengths[offs[q]] = graph.NumConnections( s );
             ++offs[q];
         }
         else if( i < leftChildSize+rightChildSize )
         {
-            const int q = rightTeamOff + 
-                RowToProcess
-                ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
+            const int q = rightTeamOff + (i-leftChildSize) / rightTeamBlocksize;
             rowSendInds[offs[q]] = i;
             rowSendLengths[offs[q]] = graph.NumConnections( s );
             ++offs[q];
@@ -555,8 +558,7 @@ void BuildChildFromPerm
         const Int i = perm.GetLocal(s);
         if( i < leftChildSize )
         {
-            const int q = leftTeamOff + 
-                RowToProcess( i, leftTeamBlocksize, leftTeamSize );
+            const int q = leftTeamOff + i / leftTeamBlocksize;
 
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );
@@ -565,9 +567,7 @@ void BuildChildFromPerm
         }
         else if( i < leftChildSize+rightChildSize )
         {
-            const int q = rightTeamOff + 
-                RowToProcess
-                ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
+            const int q = rightTeamOff + (i-leftChildSize) / rightTeamBlocksize;
                
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );

@@ -138,7 +138,7 @@ private:
     int commRank_;
 
     Int blocksize_;
-    Int firstLocalSource_, numLocalSources_;
+    Int numLocalSources_;
 
     bool frozenSparsity_ = false;
     vector<Int> sources_, targets_;
@@ -158,18 +158,7 @@ private:
     friend void Copy( const DistGraph& A, Graph& B );
     friend void Copy( const DistGraph& A, DistGraph& B );
 
-    template<typename U,typename V>
-    friend void EntrywiseMap
-    ( const DistSparseMatrix<U>& A, DistSparseMatrix<V>& B, 
-      function<V(U)> func );
-
     template<typename F> friend class DistSparseMatrix;
-    template<typename F> friend struct ldl::DistFront;
-
-    template<typename U> friend void Syrk
-    ( Orientation orientation,
-      U alpha, const DistSparseMatrix<U>& A,
-      U beta,        DistSparseMatrix<U>& C, bool conjugate );
 };
 
 } // namespace El

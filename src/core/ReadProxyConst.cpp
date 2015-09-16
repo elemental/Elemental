@@ -14,15 +14,15 @@ namespace El {
 // ==========
 
 template<typename T,typename S>
-shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A )
+shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A )
 {
     if( std::is_same<S,T>::value )
     {
-        auto ACast = reinterpret_cast<Matrix<T>*>(A);
-        return shared_ptr<Matrix<T>>
+        auto ACast = reinterpret_cast<const Matrix<T>*>(A);
+        return shared_ptr<const Matrix<T>>
                ( ACast, []( const Matrix<T>* B ) { } );
     }
-    else 
+    else
     {
         auto AShared = make_shared<Matrix<T>>();
         Copy( *A, *AShared );
@@ -34,13 +34,13 @@ shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A )
 // ===========
 
 template<typename T,Dist U,Dist V,typename S>
-shared_ptr<DistMatrix<T,U,V>> 
-ReadProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
+shared_ptr<const DistMatrix<T,U,V>> 
+ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
     if( std::is_same<S,T>::value )
     {
-        DM* ACast = dynamic_cast<DM*>(A);
+        const DM* ACast = dynamic_cast<const DM*>(A);
 
         const bool haveDist = (ACast != nullptr);
         const bool haveColAlign = haveDist && 
@@ -51,18 +51,7 @@ ReadProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
             (!ctrl.rootConstrain || A->Root() == ctrl.root);
 
         if( haveColAlign && haveRowAlign && haveRoot )
-        {
-            // Constrain the proxy to have the forced alignemnts.
-            // This is somewhat tricky since a subsequent write could otherwise
-            // change the alignment.
-            if( ctrl.colConstrain )
-                A->AlignCols( ctrl.colAlign );
-            if( ctrl.rowConstrain )
-                A->AlignRows( ctrl.rowAlign );
-            if( ctrl.rootConstrain )
-                A->SetRoot( ctrl.root );
-            return shared_ptr<DM>( ACast, []( const DM* B ) { } );
-        }
+            return shared_ptr<const DM>( ACast, []( const DM* B ) { } );
     }
 
     auto AShared = make_shared<DM>( A->Grid() );
@@ -77,11 +66,11 @@ ReadProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
 }
 
 #define CONVERT_DIST(S,T,U,V) \
-  template shared_ptr<DistMatrix<T,U,V>> \
-  ReadProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl );
+  template shared_ptr<const DistMatrix<T,U,V>> \
+  ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl );
 
 #define CONVERT(S,T) \
-  template shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A ); \
+  template shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A ); \
   CONVERT_DIST(S,T,CIRC,CIRC) \
   CONVERT_DIST(S,T,MC,  MR  ) \
   CONVERT_DIST(S,T,MC,  STAR) \

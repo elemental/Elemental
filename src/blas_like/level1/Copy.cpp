@@ -154,7 +154,8 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
                 for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    B.QueueUpdate( i, j, T(A.GetLocal(iLoc,jLoc)) );
+                    B.QueueUpdate
+                    ( i, j, Caster<S,T>::Cast(A.GetLocal(iLoc,jLoc)) );
                 }
             }
         }
@@ -363,7 +364,7 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
     
     Zeros( B, m, n );
     for( Int e=0; e<numEntries; ++e )
-        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = T(AValBuf[e]);
+        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = Caster<S,T>::Cast(AValBuf[e]);
 }
 
 template<typename T>
@@ -390,7 +391,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     Zeros( B, m, n );
     B.Reserve( numEntries );
     for( Int e=0; e<numEntries; ++e )
-        B.QueueUpdate( A.Row(e), A.Col(e), T(A.Value(e)) );
+        B.QueueUpdate( A.Row(e), A.Col(e), Caster<S,T>::Cast(A.Value(e)) );
     B.ProcessQueues();
 }
 

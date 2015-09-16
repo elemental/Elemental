@@ -49,27 +49,13 @@ void DistMap::Translate( vector<Int>& localInds ) const
     {
         const Int numLocalInds = localInds.size();
         origOwners.resize( numLocalInds );
-        if( blocksize_ > 0 )
+        for( Int s=0; s<numLocalInds; ++s )
         {
-            for( Int s=0; s<numLocalInds; ++s )
-            {
-                const Int i = localInds[s];
-                if( i < numSources_ )
-                    origOwners[s] = std::min(i/blocksize_,commSize_-1);
-                else
-                    origOwners[s] = -1;
-            }
-        }
-        else
-        {
-            for( Int s=0; s<numLocalInds; ++s )
-            {
-                const Int i = localInds[s];
-                if( i < numSources_ )
-                    origOwners[s] = commSize_-1;
-                else
-                    origOwners[s] = -1;
-            }
+            const Int i = localInds[s];
+            if( i < numSources_ )
+                origOwners[s] = i / blocksize_;
+            else
+                origOwners[s] = -1;
         }
     }
     Translate( localInds, origOwners );
@@ -120,7 +106,7 @@ void DistMap::Translate
     for( int s=0; s<numFulfills; ++s )
     {
         const Int i = fulfills[s];
-        const Int iLocal = i - firstLocalSource_;
+        const Int iLocal = i - blocksize_*commRank_;
         DEBUG_ONLY(
           if( iLocal < 0 || iLocal >= (Int)map_.size() )
               LogicError
@@ -167,12 +153,12 @@ Int DistMap::NumSources() const { return numSources_; }
 
 void DistMap::InitializeLocalData()
 {
-    blocksize_ = numSources_/commSize_;
-    firstLocalSource_ = blocksize_*commRank_;
+    blocksize_ = numSources_ / commSize_;
+    if( blocksize_*commSize_ < numSources_ || numSources_ == 0 )
+        ++blocksize_;
+
     const Int numLocalSources =
-        ( commRank_<commSize_-1 ?
-          blocksize_ :
-          numSources_ - (commSize_-1)*blocksize_ );
+      Min(blocksize_,numSources_-blocksize_*commRank_);
     map_.resize( numLocalSources );
 }
 
@@ -198,12 +184,11 @@ mpi::Comm DistMap::Comm() const { return comm_; }
 
 Int DistMap::Blocksize() const { return blocksize_; }
 
-Int DistMap::FirstLocalSource() const { return firstLocalSource_; }
+Int DistMap::FirstLocalSource() const { return blocksize_*commRank_; }
 
 Int DistMap::NumLocalSources() const { return map_.size(); }
 
-int DistMap::RowOwner( Int i ) const 
-{ return RowToProcess( i, blocksize_, commSize_ ); }
+int DistMap::RowOwner( Int i ) const { return i / blocksize_; }
 
 Int DistMap::GetLocal( Int localSource ) const
 { 
@@ -234,19 +219,19 @@ const Int* DistMap::Buffer() const { return map_.data(); }
 void DistMap::Empty()
 {
     numSources_ = 0;
-    blocksize_ = 0;
-    firstLocalSource_ = 0;
+    blocksize_ = 1;
     SwapClear( map_ );
 }
 
 void DistMap::Resize( Int numSources )
 {
     numSources_ = numSources;
-    blocksize_ = numSources/commSize_;
-    firstLocalSource_ = commRank_*blocksize_;
-    const Int numLocalSources = 
-        ( commRank_<commSize_-1 ? blocksize_
-                                : numSources-blocksize_*(commSize_-1) );
+    blocksize_ = numSources / commSize_;
+    if( blocksize_*commSize_ < numSources_ || numSources_ == 0 )
+        ++blocksize_;
+
+    const Int numLocalSources =
+      Min(blocksize_,numSources_-blocksize_*commRank_);
     map_.resize( numLocalSources );
 }
 
