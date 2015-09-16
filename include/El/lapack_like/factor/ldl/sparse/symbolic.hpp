@@ -38,6 +38,13 @@ void Analysis
 void GetChildGridDims
 ( const DistNodeInfo& info, vector<int>& gridHeights, vector<int>& gridWidths );
 
+void AMDOrder
+( const vector<Int>& subOffsets,
+  const vector<Int>& subTargets,
+        vector<Int>& amdPerm,
+        double* control=nullptr,
+        double* info=nullptr );
+
 void NestedDissection
 ( const Graph& graph,
         vector<Int>& map,
