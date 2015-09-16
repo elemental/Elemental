@@ -156,7 +156,7 @@ void DistGraph::Resize( Int numSources, Int numTargets )
     if( blocksize_*commSize_ < numSources || numSources == 0 )
         ++blocksize_;
 
-    numLocalSources_ = Min(blocksize_,numSources-blocksize_*commRank_);
+    numLocalSources_ = Min(blocksize_,Max(numSources-blocksize_*commRank_,0));
 
     localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )
@@ -175,7 +175,7 @@ void DistGraph::InitializeLocalData()
     if( blocksize_*commSize_ < numSources_ || numSources_ == 0 )
         ++blocksize_;
 
-    numLocalSources_ = Min(blocksize_,numSources_-blocksize_*commRank_);
+    numLocalSources_ = Min(blocksize_,Max(numSources_-blocksize_*commRank_,0));
 
     localSourceOffsets_.resize( numLocalSources_+1 );
     for( Int e=0; e<=numLocalSources_; ++e )

@@ -82,7 +82,7 @@ void DistMultiVec<T>::InitializeLocalData()
     blocksize_ = height_ / commSize_;
     if( blocksize_*commSize_ < height_ || height_ == 0 )
         ++blocksize_;
-    const Int localHeight = Min(blocksize_,height_-blocksize_*commRank_);
+    const Int localHeight = Min(blocksize_,Max(0,height_-blocksize_*commRank_));
     multiVec_.Resize( localHeight, width_ );
 }
 

@@ -668,7 +668,10 @@ DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
     meta.recvSizes.clear();
     meta.recvSizes.resize( commSize, 0 );
     meta.recvOffs.resize( commSize );
-    const Int vecBlocksize = Width() / commSize;
+    Int vecBlocksize = Width() / commSize;
+    if( vecBlocksize*commSize < Width() || Width() == 0 ) 
+        ++vecBlocksize;
+
     {
         Int off=0, lastOff=0, qPrev=0;
         for( ; off<numRecvInds; ++off )

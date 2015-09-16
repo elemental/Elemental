@@ -187,27 +187,32 @@ Int Bisect
 
         // Set up the global xAdj vector
         vector<idx_t> globalXAdj;
-        // Set up the first commSize*blocksize entries
         if( commRank == 0 )
             globalXAdj.resize( numSources+1 );
-        mpi::Gather
-        ( xAdj.data(), blocksize, globalXAdj.data(), blocksize, 0, comm );
+        // For now, simply loop over the processes for the receives
         if( commRank == 0 )
-            for( int q=1; q<commSize; ++q )
-                for( Int j=0; j<blocksize; ++j )
-                    globalXAdj[q*blocksize+j] += edgeOffs[q];
-        // Fix the remaining entries
-        const Int numRemaining = numSources - commSize*blocksize;
-        if( commRank == commSize-1 )
-            mpi::Send( &xAdj[blocksize], numRemaining, 0, comm );
-        if( commRank == 0 )
+            for( Int j=0; j<numLocalSources; ++j )
+                globalXAdj[j] = xAdj[j];    
+        for( int q=1; q<commSize; ++q )
         {
-            mpi::Recv
-            ( &globalXAdj[commSize*blocksize], numRemaining, commSize-1, comm );
-            for( Int j=0; j<numRemaining; ++j )
-                globalXAdj[commSize*blocksize+j] += edgeOffs[commSize-1];
-            globalXAdj[numSources] = numEdges;
+            const Int thisLocalSize =
+              Min(blocksize,Max(numSources-q*blocksize,0));
+            if( thisLocalSize == 0 )
+                break;
+
+            if( commRank == q )
+            {
+                mpi::Send( xAdj.data(), numLocalSources, 0, comm );
+            }
+            else if( commRank == 0 )
+            {
+                mpi::Recv( &globalXAdj[q*blocksize], thisLocalSize, q, comm );
+                for( Int j=0; j<thisLocalSize; ++j )
+                    globalXAdj[q*blocksize+j] += edgeOffs[q];
+            }
         }
+        if( commRank == 0 )
+            globalXAdj[numSources] = numEdges;
 
         vector<Int> seqPerm;
         if( commRank == 0 )
@@ -255,17 +260,22 @@ Int Bisect
         perm.SetComm( comm );
         perm.Resize( numSources );
 
-        // Distribute the first commSize*blocksize values of the permutation
-        mpi::Scatter
-        ( seqPerm.data(), blocksize, perm.Buffer(), blocksize, 0, comm );
-
-        // Make sure the last process gets the straggling entries
+        // For now, loop over the processes to send the data
         if( commRank == 0 )
-            mpi::Send
-            ( &seqPerm[commSize*blocksize], numRemaining, commSize-1, comm );
-        if( commRank == commSize-1 )
-            mpi::Recv
-            ( perm.Buffer()+blocksize, numLocalSources-blocksize, 0, comm );
+            for( Int j=0; j<numLocalSources; ++j )
+                perm.SetLocal(j,seqPerm[j]);
+        for( int q=1; q<commSize; ++q )
+        {
+            const Int thisLocalSize =
+              Min(blocksize,Max(numSources-q*blocksize,0));
+            if( thisLocalSize == 0 )
+                break;
+
+            if( commRank == 0 )
+                mpi::Send( &seqPerm[q*blocksize], thisLocalSize, q, comm );
+            else if( commRank == q )
+                mpi::Recv( perm.Buffer(), thisLocalSize, 0, comm );
+        }
 
         // Broadcast the sizes information from the root
         mpi::Broadcast( (byte*)sizes.data(), 3*sizeof(idx_t), 0, comm );

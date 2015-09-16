@@ -158,7 +158,7 @@ void DistMap::InitializeLocalData()
         ++blocksize_;
 
     const Int numLocalSources =
-      Min(blocksize_,numSources_-blocksize_*commRank_);
+      Min(blocksize_,Max(numSources_-blocksize_*commRank_,0));
     map_.resize( numLocalSources );
 }
 
@@ -231,7 +231,7 @@ void DistMap::Resize( Int numSources )
         ++blocksize_;
 
     const Int numLocalSources =
-      Min(blocksize_,numSources_-blocksize_*commRank_);
+      Min(blocksize_,Max(numSources_-blocksize_*commRank_,0));
     map_.resize( numLocalSources );
 }
 
