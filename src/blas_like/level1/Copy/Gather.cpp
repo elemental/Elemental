@@ -79,8 +79,8 @@ void Gather
 
 template<typename T>
 void Gather
-( const BlockCyclicMatrix<T>& A,
-        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B )
+( const BlockMatrix<T>& A,
+        DistMatrix<T,CIRC,CIRC,BLOCK>& B )
 {
     DEBUG_ONLY(CSE cse("copy::Gather"))
     AssertSameGrids( A, B );
@@ -169,8 +169,8 @@ void Gather
   ( const ElementalMatrix<T>& A, \
           DistMatrix<T,CIRC,CIRC>& B ); \
   template void Gather \
-  ( const BlockCyclicMatrix<T>& A, \
-          DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B );
+  ( const BlockMatrix<T>& A, \
+          DistMatrix<T,CIRC,CIRC,BLOCK>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

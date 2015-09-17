@@ -26,44 +26,44 @@ class DistMultiVec;
 
 #include "./DistMatrix/Abstract.hpp"
 
-#include "./DistMatrix/Elemental.hpp"
-#include "./DistMatrix/Elemental/CIRC_CIRC.hpp"
-#include "./DistMatrix/Elemental/MC_MR.hpp"
-#include "./DistMatrix/Elemental/MC_STAR.hpp"
-#include "./DistMatrix/Elemental/MD_STAR.hpp"
-#include "./DistMatrix/Elemental/MR_MC.hpp"
-#include "./DistMatrix/Elemental/MR_STAR.hpp"
-#include "./DistMatrix/Elemental/STAR_MC.hpp"
-#include "./DistMatrix/Elemental/STAR_MD.hpp"
-#include "./DistMatrix/Elemental/STAR_MR.hpp"
-#include "./DistMatrix/Elemental/STAR_STAR.hpp"
-#include "./DistMatrix/Elemental/STAR_VC.hpp"
-#include "./DistMatrix/Elemental/STAR_VR.hpp"
-#include "./DistMatrix/Elemental/VC_STAR.hpp"
-#include "./DistMatrix/Elemental/VR_STAR.hpp"
+#include "./DistMatrix/Element.hpp"
+#include "./DistMatrix/Element/CIRC_CIRC.hpp"
+#include "./DistMatrix/Element/MC_MR.hpp"
+#include "./DistMatrix/Element/MC_STAR.hpp"
+#include "./DistMatrix/Element/MD_STAR.hpp"
+#include "./DistMatrix/Element/MR_MC.hpp"
+#include "./DistMatrix/Element/MR_STAR.hpp"
+#include "./DistMatrix/Element/STAR_MC.hpp"
+#include "./DistMatrix/Element/STAR_MD.hpp"
+#include "./DistMatrix/Element/STAR_MR.hpp"
+#include "./DistMatrix/Element/STAR_STAR.hpp"
+#include "./DistMatrix/Element/STAR_VC.hpp"
+#include "./DistMatrix/Element/STAR_VR.hpp"
+#include "./DistMatrix/Element/VC_STAR.hpp"
+#include "./DistMatrix/Element/VR_STAR.hpp"
 
-#include "./DistMatrix/BlockCyclic.hpp"
-#include "./DistMatrix/BlockCyclic/CIRC_CIRC.hpp"
-#include "./DistMatrix/BlockCyclic/MC_MR.hpp"
-#include "./DistMatrix/BlockCyclic/MC_STAR.hpp"
-#include "./DistMatrix/BlockCyclic/MD_STAR.hpp"
-#include "./DistMatrix/BlockCyclic/MR_MC.hpp"
-#include "./DistMatrix/BlockCyclic/MR_STAR.hpp"
-#include "./DistMatrix/BlockCyclic/STAR_MC.hpp"
-#include "./DistMatrix/BlockCyclic/STAR_MD.hpp"
-#include "./DistMatrix/BlockCyclic/STAR_MR.hpp"
-#include "./DistMatrix/BlockCyclic/STAR_STAR.hpp"
-#include "./DistMatrix/BlockCyclic/STAR_VC.hpp"
-#include "./DistMatrix/BlockCyclic/STAR_VR.hpp"
-#include "./DistMatrix/BlockCyclic/VC_STAR.hpp"
-#include "./DistMatrix/BlockCyclic/VR_STAR.hpp"
+#include "./DistMatrix/Block.hpp"
+#include "./DistMatrix/Block/CIRC_CIRC.hpp"
+#include "./DistMatrix/Block/MC_MR.hpp"
+#include "./DistMatrix/Block/MC_STAR.hpp"
+#include "./DistMatrix/Block/MD_STAR.hpp"
+#include "./DistMatrix/Block/MR_MC.hpp"
+#include "./DistMatrix/Block/MR_STAR.hpp"
+#include "./DistMatrix/Block/STAR_MC.hpp"
+#include "./DistMatrix/Block/STAR_MD.hpp"
+#include "./DistMatrix/Block/STAR_MR.hpp"
+#include "./DistMatrix/Block/STAR_STAR.hpp"
+#include "./DistMatrix/Block/STAR_VC.hpp"
+#include "./DistMatrix/Block/STAR_VR.hpp"
+#include "./DistMatrix/Block/VC_STAR.hpp"
+#include "./DistMatrix/Block/VR_STAR.hpp"
 
 namespace El {
 
 #ifdef EL_HAVE_SCALAPACK
 template<typename T>
 inline typename blacs::Desc
-FillDesc( const DistMatrix<T,MC,MR,BLOCK_CYCLIC>& A, int context )
+FillDesc( const DistMatrix<T,MC,MR,BLOCK>& A, int context )
 {
     if( A.ColCut() != 0 || A.RowCut() != 0 )
         LogicError("Cannot produce a meaningful descriptor if nonzero cut");

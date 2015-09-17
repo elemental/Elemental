@@ -104,8 +104,8 @@ void PartialRowAllGather
 
 template<typename T>
 void PartialRowAllGather
-( const BlockCyclicMatrix<T>& A, 
-        BlockCyclicMatrix<T>& B ) 
+( const BlockMatrix<T>& A, 
+        BlockMatrix<T>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::PartialRowAllGather"))
     AssertSameGrids( A, B );
@@ -116,7 +116,7 @@ void PartialRowAllGather
   template void PartialRowAllGather \
   ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void PartialRowAllGather \
-  ( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
+  ( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

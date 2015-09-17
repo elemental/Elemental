@@ -95,11 +95,11 @@ inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
     return A;
 }
 
-// BlockCyclicMatrix
+// BlockMatrix
 // -----------------
 
 template<typename T>
-inline void View( BlockCyclicMatrix<T>& A, ElementalMatrix<T>& B )
+inline void View( BlockMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -112,7 +112,7 @@ inline void View( BlockCyclicMatrix<T>& A, ElementalMatrix<T>& B )
 
 template<typename T>
 inline void LockedView
-( BlockCyclicMatrix<T>& A, const ElementalMatrix<T>& B )
+( BlockMatrix<T>& A, const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -124,7 +124,7 @@ inline void LockedView
 }
 
 template<typename T>
-inline void View( ElementalMatrix<T>& A, BlockCyclicMatrix<T>& B )
+inline void View( ElementalMatrix<T>& A, BlockMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -140,7 +140,7 @@ inline void View( ElementalMatrix<T>& A, BlockCyclicMatrix<T>& B )
 
 template<typename T>
 inline void LockedView
-( ElementalMatrix<T>& A, const BlockCyclicMatrix<T>& B )
+( ElementalMatrix<T>& A, const BlockMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -388,12 +388,12 @@ inline DistMatrix<T,U,V> LockedView
     return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
 }
 
-// BlockCyclicMatrix
+// BlockMatrix
 // -----------------
 
 template<typename T>
 inline void View
-( BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B,
+( BlockMatrix<T>& A, BlockMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
@@ -401,12 +401,12 @@ inline void View
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
-    LogicError("Views of BlockCyclicMatrix are not yet supported");
+    LogicError("Views of BlockMatrix are not yet supported");
 }
 
 template<typename T>
 inline void LockedView
-( BlockCyclicMatrix<T>& A, const BlockCyclicMatrix<T>& B,
+( BlockMatrix<T>& A, const BlockMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
@@ -414,12 +414,12 @@ inline void LockedView
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
-    LogicError("Views of BlockCyclicMatrix are not yet supported");
+    LogicError("Views of BlockMatrix are not yet supported");
 }
 
 template<typename T>
 inline void View
-( BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B, 
+( BlockMatrix<T>& A, BlockMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
@@ -431,7 +431,7 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( BlockCyclicMatrix<T>& A, const BlockCyclicMatrix<T>& B, 
+( BlockMatrix<T>& A, const BlockMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
@@ -445,26 +445,26 @@ inline void LockedView
 // ^^^^^^^^^^^^^^^
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK_CYCLIC> View
-( DistMatrix<T,U,V,BLOCK_CYCLIC>& B, Int i, Int j, Int height, Int width )
+inline DistMatrix<T,U,V,BLOCK> View
+( DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width )
 {
-    DistMatrix<T,U,V,BLOCK_CYCLIC> A(B.Grid());
+    DistMatrix<T,U,V,BLOCK> A(B.Grid());
     View( A, B, i, j, height, width );
     return A;
 }
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK_CYCLIC> LockedView
-( const DistMatrix<T,U,V,BLOCK_CYCLIC>& B, Int i, Int j, Int height, Int width )
+inline DistMatrix<T,U,V,BLOCK> LockedView
+( const DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width )
 {
-    DistMatrix<T,U,V,BLOCK_CYCLIC> A(B.Grid());
+    DistMatrix<T,U,V,BLOCK> A(B.Grid());
     LockedView( A, B, i, j, height, width );
     return A;
 }
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK_CYCLIC> View
-( DistMatrix<T,U,V,BLOCK_CYCLIC>& B, Range<Int> I, Range<Int> J )
+inline DistMatrix<T,U,V,BLOCK> View
+( DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
         I.end = B.Height();
@@ -474,8 +474,8 @@ inline DistMatrix<T,U,V,BLOCK_CYCLIC> View
 }
  
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK_CYCLIC> LockedView
-( const DistMatrix<T,U,V,BLOCK_CYCLIC>& B, Range<Int> I, Range<Int> J )
+inline DistMatrix<T,U,V,BLOCK> LockedView
+( const DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
         I.end = B.Height();

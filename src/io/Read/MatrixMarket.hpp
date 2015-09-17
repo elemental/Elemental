@@ -236,10 +236,10 @@ MatrixMarket( ElementalMatrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-MatrixMarket( BlockCyclicMatrix<T>& A, const string filename )
+MatrixMarket( BlockMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::MatrixMarket"))
-    DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A.Grid() );
+    DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
     {
         MatrixMarket( A_CIRC_CIRC.Matrix(), filename );

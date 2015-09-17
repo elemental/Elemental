@@ -198,7 +198,7 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 
 template<typename T>
 void ColAllGather
-( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B ) 
+( const BlockMatrix<T>& A, BlockMatrix<T>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::ColAllGather"))
     AssertSameGrids( A, B );
@@ -209,7 +209,7 @@ void ColAllGather
   template void ColAllGather \
   ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void ColAllGather \
-  ( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
+  ( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -66,7 +66,7 @@ void Spy( const ElementalMatrix<T>& A, string title, Base<T> tol )
 }
 
 template<typename T>
-void Spy( const BlockCyclicMatrix<T>& A, string title, Base<T> tol )
+void Spy( const BlockMatrix<T>& A, string title, Base<T> tol )
 {
     DEBUG_ONLY(CSE cse("Spy"))
 #ifdef EL_HAVE_QT5
@@ -79,7 +79,7 @@ void Spy( const BlockCyclicMatrix<T>& A, string title, Base<T> tol )
     }
     else
     {
-        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A );
+        DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Spy( A_CIRC_CIRC.Matrix(), title, tol );
     }
@@ -93,7 +93,7 @@ void Spy( const BlockCyclicMatrix<T>& A, string title, Base<T> tol )
   template void Spy \
   ( const ElementalMatrix<T>& A, string title, Base<T> tol ); \
   template void Spy \
-  ( const BlockCyclicMatrix<T>& A, string title, Base<T> tol ); 
+  ( const BlockMatrix<T>& A, string title, Base<T> tol ); 
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

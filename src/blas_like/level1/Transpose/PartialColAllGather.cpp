@@ -33,8 +33,8 @@ void PartialColAllGather
 
 template<typename T>
 void PartialColAllGather
-( const BlockCyclicMatrix<T>& A, 
-        BlockCyclicMatrix<T>& B, bool conjugate )
+( const BlockMatrix<T>& A, 
+        BlockMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("transpose::PartialColAllGather");
@@ -42,7 +42,7 @@ void PartialColAllGather
           B.RowDist() != Partial(A.ColDist()) )
           LogicError("Incompatible distributions");
     )
-    unique_ptr<BlockCyclicMatrix<T>>
+    unique_ptr<BlockMatrix<T>>
       ATrans( A.ConstructTranspose(B.Grid(),B.Root()) );
     ATrans->AlignWith( A );
     ATrans->Resize( A.Width(), A.Height() );
@@ -55,8 +55,8 @@ void PartialColAllGather
   ( const ElementalMatrix<T>& A, \
           ElementalMatrix<T>& B, bool conjugate ); \
   template void PartialColAllGather \
-  ( const BlockCyclicMatrix<T>& A, \
-          BlockCyclicMatrix<T>& B, bool conjugate );
+  ( const BlockMatrix<T>& A, \
+          BlockMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

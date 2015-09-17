@@ -258,7 +258,7 @@ void Schur
   bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A,
+( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
   bool fullTriangle=false,
   const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
@@ -274,9 +274,9 @@ void Schur
   const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A,
+( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
-  DistMatrix<F,MC,MR,BLOCK_CYCLIC>& Q,
+  DistMatrix<F,MC,MR,BLOCK>& Q,
   bool fullTriangle=true, 
   const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 

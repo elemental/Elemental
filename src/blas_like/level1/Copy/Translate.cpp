@@ -117,8 +117,8 @@ void Translate
 
 template<typename T,Dist U,Dist V>
 void Translate
-( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A,
-        DistMatrix<T,U,V,BLOCK_CYCLIC>& B ) 
+( const DistMatrix<T,U,V,BLOCK>& A,
+        DistMatrix<T,U,V,BLOCK>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::Translate"))
     const Int height = A.Height();
@@ -228,8 +228,8 @@ void Translate
   ( const DistMatrix<T,U,V>& A, \
           DistMatrix<T,U,V>& B ); \
   template void Translate \
-  ( const DistMatrix<T,U,V,BLOCK_CYCLIC>& A, \
-          DistMatrix<T,U,V,BLOCK_CYCLIC>& B );
+  ( const DistMatrix<T,U,V,BLOCK>& A, \
+          DistMatrix<T,U,V,BLOCK>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

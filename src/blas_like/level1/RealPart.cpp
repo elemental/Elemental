@@ -33,7 +33,7 @@ void RealPart
 
 template<typename T>
 void RealPart
-( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<Base<T>>& AReal )
+( const BlockMatrix<T>& A, BlockMatrix<Base<T>>& AReal )
 { 
     auto realPart = []( T alpha ) { return RealPart(alpha); };
     function<Base<T>(T)> realLambda( realPart );
@@ -45,8 +45,8 @@ void RealPart
   template void RealPart \
   ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal ); \
   template void RealPart \
-  ( const BlockCyclicMatrix<T>& A, \
-          BlockCyclicMatrix<Base<T>>& AReal );
+  ( const BlockMatrix<T>& A, \
+          BlockMatrix<Base<T>>& AReal );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

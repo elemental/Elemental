@@ -112,7 +112,7 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, 
+( const BlockMatrix<S>& A, BlockMatrix<T>& B, 
   function<T(S)> func )
 { 
     if( A.DistData().colDist == B.DistData().colDist &&
@@ -128,7 +128,7 @@ void EntrywiseMap
         #define GUARD(CDIST,RDIST) \
           B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
         #define PAYLOAD(CDIST,RDIST) \
-          DistMatrix<S,CDIST,RDIST,BLOCK_CYCLIC> AProx(B.Grid()); \
+          DistMatrix<S,CDIST,RDIST,BLOCK> AProx(B.Grid()); \
           AProx.AlignWith( B.DistData() ); \
           Copy( A, AProx ); \
           EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
@@ -177,7 +177,7 @@ void EntrywiseMap
   ( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, \
     function<T(S)> func ); \
   template void EntrywiseMap \
-  ( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, \
+  ( const BlockMatrix<S>& A, BlockMatrix<T>& B, \
     function<T(S)> func ); \
   template void EntrywiseMap \
   ( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, \

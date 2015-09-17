@@ -455,8 +455,8 @@ void AxpyContract
 template<typename T>
 void AxpyContract
 ( T alpha,
-  const BlockCyclicMatrix<T>& A,
-        BlockCyclicMatrix<T>& B )
+  const BlockMatrix<T>& A,
+        BlockMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AxpyContract"))
     AssertSameGrids( A, B );
@@ -470,8 +470,8 @@ void AxpyContract
           ElementalMatrix<T>& B ); \
   template void AxpyContract \
   ( T alpha, \
-    const BlockCyclicMatrix<T>& A, \
-          BlockCyclicMatrix<T>& B );
+    const BlockMatrix<T>& A, \
+          BlockMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

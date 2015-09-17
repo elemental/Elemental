@@ -48,8 +48,8 @@ void TransposeAxpyContract
 
 template<typename T>
 void TransposeAxpyContract
-( T alpha, const BlockCyclicMatrix<T>& A, 
-                 BlockCyclicMatrix<T>& B, bool conjugate )
+( T alpha, const BlockMatrix<T>& A, 
+                 BlockMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeAxpyContract"))
     LogicError("Not yet implemented");
@@ -60,8 +60,8 @@ void TransposeAxpyContract
   ( T alpha, const ElementalMatrix<T>& A, \
                    ElementalMatrix<T>& B, bool conjugate ); \
   template void TransposeAxpyContract \
-  ( T alpha, const BlockCyclicMatrix<T>& A, \
-                   BlockCyclicMatrix<T>& B, bool conjugate );
+  ( T alpha, const BlockMatrix<T>& A, \
+                   BlockMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

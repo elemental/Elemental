@@ -21,8 +21,8 @@ void AdjointAxpyContract
 
 template<typename T>
 void AdjointAxpyContract
-( T alpha, const BlockCyclicMatrix<T>& A, 
-                 BlockCyclicMatrix<T>& B )
+( T alpha, const BlockMatrix<T>& A, 
+                 BlockMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AdjointAxpyContract"))
     TransposeAxpyContract( alpha, A, B, true );
@@ -33,8 +33,8 @@ void AdjointAxpyContract
   ( T alpha, const ElementalMatrix<T>& A, \
                    ElementalMatrix<T>& B ); \
   template void AdjointAxpyContract \
-  ( T alpha, const BlockCyclicMatrix<T>& A, \
-                   BlockCyclicMatrix<T>& B );
+  ( T alpha, const BlockMatrix<T>& A, \
+                   BlockMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

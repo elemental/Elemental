@@ -43,8 +43,8 @@ void TransposeContract
 
 template<typename T>
 void TransposeContract
-( const BlockCyclicMatrix<T>& A,
-        BlockCyclicMatrix<T>& B, bool conjugate )
+( const BlockMatrix<T>& A,
+        BlockMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeContract"))
     const Dist U = B.ColDist();
@@ -55,7 +55,7 @@ void TransposeContract
     }
     else
     {
-        unique_ptr<BlockCyclicMatrix<T>> 
+        unique_ptr<BlockMatrix<T>> 
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, true );
@@ -77,8 +77,8 @@ void TransposeContract
   ( const ElementalMatrix<T>& A, \
           ElementalMatrix<T>& B, bool conjugate ); \
   template void TransposeContract \
-  ( const BlockCyclicMatrix<T>& A, \
-          BlockCyclicMatrix<T>& B, bool conjugate );
+  ( const BlockMatrix<T>& A, \
+          BlockMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
