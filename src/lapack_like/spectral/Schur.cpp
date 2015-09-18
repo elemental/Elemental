@@ -81,7 +81,7 @@ void Schur
 
 template<typename F>
 void Schur
-( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A, ElementalMatrix<Complex<Base<F>>>& w, 
+( DistMatrix<F,MC,MR,BLOCK>& A, ElementalMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
@@ -110,9 +110,9 @@ void Schur
 
 template<typename F>
 void Schur
-( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A,
+( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
-  DistMatrix<F,MC,MR,BLOCK_CYCLIC>& Q,
+  DistMatrix<F,MC,MR,BLOCK>& Q,
   bool fullTriangle, const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
@@ -131,7 +131,7 @@ void Schur
   ( ElementalMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w, \
     bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
   template void Schur \
-  ( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A, \
+  ( DistMatrix<F,MC,MR,BLOCK>& A, \
     ElementalMatrix<Complex<Base<F>>>& w, \
     bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
   template void Schur \
@@ -142,9 +142,9 @@ void Schur
     ElementalMatrix<F>& Q, bool fullTriangle, \
     const SchurCtrl<Base<F>> ctrl ); \
   template void Schur \
-  ( DistMatrix<F,MC,MR,BLOCK_CYCLIC>& A, \
+  ( DistMatrix<F,MC,MR,BLOCK>& A, \
     ElementalMatrix<Complex<Base<F>>>& w, \
-    DistMatrix<F,MC,MR,BLOCK_CYCLIC>& Q, \
+    DistMatrix<F,MC,MR,BLOCK>& Q, \
     bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
   template void schur::CheckRealSchur \
   ( const Matrix<F>& U, bool standardForm ); \

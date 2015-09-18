@@ -26,7 +26,7 @@ void Adjoint( const Matrix<T>& A, Matrix<T>& B );
 template<typename T>
 void Adjoint( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
-void Adjoint( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
+void Adjoint( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 template<typename T>
 void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B );
 template<typename T>
@@ -40,8 +40,8 @@ void AdjointContract
         ElementalMatrix<T>& B );
 template<typename T>
 void AdjointContract
-( const BlockCyclicMatrix<T>& A,
-        BlockCyclicMatrix<T>& B );
+( const BlockMatrix<T>& A,
+        BlockMatrix<T>& B );
 
 // AdjointAxpy
 // ===========
@@ -56,7 +56,7 @@ void AdjointAxpy
 ( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
 template<typename T,typename S>
 void AdjointAxpy
-( S alpha, const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y );
+( S alpha, const BlockMatrix<T>& X, BlockMatrix<T>& Y );
 template<typename T,typename S>
 void AdjointAxpy
 ( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
@@ -69,8 +69,8 @@ void AdjointAxpyContract
                  ElementalMatrix<T>& B );
 template<typename T>
 void AdjointAxpyContract
-( T alpha, const BlockCyclicMatrix<T>& A,
-                 BlockCyclicMatrix<T>& B );
+( T alpha, const BlockMatrix<T>& A,
+                 BlockMatrix<T>& B );
 
 // AllReduce
 // =========
@@ -88,7 +88,7 @@ void Axpy( S alpha, const Matrix<T>& X, Matrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
 template<typename T,typename S>
-void Axpy( S alpha, const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y );
+void Axpy( S alpha, const BlockMatrix<T>& X, BlockMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 template<typename T,typename S>
@@ -119,7 +119,7 @@ void AxpyContract
 ( T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void AxpyContract
-( T alpha, const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
+( T alpha, const BlockMatrix<T>& A, BlockMatrix<T>& B );
 
 // AxpyTrapezoid
 // =============
@@ -133,7 +133,7 @@ void AxpyTrapezoid
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha,
-  const BlockCyclicMatrix<T>& X, BlockCyclicMatrix<T>& Y, Int offset=0 );
+  const BlockMatrix<T>& X, BlockMatrix<T>& Y, Int offset=0 );
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha, 
@@ -432,7 +432,7 @@ void ConjugateSubmatrix
 template<typename T>
 void Contract( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
-void Contract( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
+void Contract( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 
 // Copy
 // ====
@@ -446,22 +446,22 @@ void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B );
 template<typename S,typename T>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 template<typename S,typename T>
-void Copy( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B );
+void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B );
 
 template<typename T>
 void CopyFromRoot
-( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,ELEMENTAL>& B,
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B,
   bool includingViewers=false );
 template<typename T>
-void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC,ELEMENTAL>& B,
+void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B,
   bool includingViewers=false );
 
 template<typename T>
 void CopyFromRoot
-( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B,
+( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK>& B,
   bool includingViewers=false );
 template<typename T>
-void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC>& B,
+void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC,BLOCK>& B,
   bool includingViewers=false );
 
 void Copy( const Graph& A, Graph& B );
@@ -768,7 +768,7 @@ void EntrywiseMap
   function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
-( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, 
+( const BlockMatrix<S>& A, BlockMatrix<T>& B, 
   function<T(S)> func );
 template<typename S,typename T>
 void EntrywiseMap
@@ -1021,7 +1021,7 @@ void IndexDependentMap
   function<T(Int,Int,S)> func );
 template<typename S,typename T>
 void IndexDependentMap
-( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B,
+( const BlockMatrix<S>& A, BlockMatrix<T>& B,
   function<T(Int,Int,S)> func );
 
 // Kronecker product
@@ -1540,7 +1540,7 @@ void Transpose
   bool conjugate=false );
 template<typename T>
 void Transpose
-( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B,
+( const BlockMatrix<T>& A, BlockMatrix<T>& B,
   bool conjugate=false );
 template<typename T>
 void Transpose
@@ -1557,8 +1557,8 @@ void TransposeContract
         ElementalMatrix<T>& B, bool conjugate=false );
 template<typename T>
 void TransposeContract
-( const BlockCyclicMatrix<T>& A, 
-        BlockCyclicMatrix<T>& B, bool conjugate=false );
+( const BlockMatrix<T>& A, 
+        BlockMatrix<T>& B, bool conjugate=false );
 
 // TransposeAxpy
 // =============
@@ -1585,8 +1585,8 @@ void TransposeAxpyContract
                  ElementalMatrix<T>& B, bool conjugate=false );
 template<typename T>
 void TransposeAxpyContract
-( T alpha, const BlockCyclicMatrix<T>& A, 
-                 BlockCyclicMatrix<T>& B, bool conjugate=false );
+( T alpha, const BlockMatrix<T>& A, 
+                 BlockMatrix<T>& B, bool conjugate=false );
 
 // UpdateDiagonal
 // ==============

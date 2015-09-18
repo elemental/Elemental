@@ -169,9 +169,8 @@ typedef enum
 
 typedef enum
 {
-    EL_ELEMENTAL,
-    EL_BLOCK_CYCLIC,
-    EL_BLOCK_NONCYCLIC
+    EL_ELEMENT,
+    EL_BLOCK
 } ElDistWrap;
 
 typedef enum 

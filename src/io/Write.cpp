@@ -64,7 +64,7 @@ void Write
 
 template<typename T>
 void Write
-( const BlockCyclicMatrix<T>& A, 
+( const BlockMatrix<T>& A, 
   string basename, FileFormat format, string title )
 {
     DEBUG_ONLY(CSE cse("Write"))
@@ -75,7 +75,7 @@ void Write
     }
     else
     {
-        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A );
+        DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Write( A_CIRC_CIRC.LockedMatrix(), basename, format, title );
     }
@@ -89,7 +89,7 @@ void Write
   ( const ElementalMatrix<T>& A, \
     string basename, FileFormat format, string title ); \
   template void Write \
-  ( const BlockCyclicMatrix<T>& A, \
+  ( const BlockMatrix<T>& A, \
     string basename, FileFormat format, string title );
 
 #define EL_ENABLE_QUAD

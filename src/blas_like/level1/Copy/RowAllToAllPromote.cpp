@@ -105,8 +105,8 @@ void RowAllToAllPromote
 
 template<typename T,Dist U,Dist V>
 void RowAllToAllPromote
-( const DistMatrix<T,                U,             V   ,BLOCK_CYCLIC>& A,
-        DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK_CYCLIC>& B )
+( const DistMatrix<T,                U,             V   ,BLOCK>& A,
+        DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK>& B )
 {
     DEBUG_ONLY(CSE cse("copy::RowAllToAllPromote"))
     AssertSameGrids( A, B );
@@ -118,8 +118,8 @@ void RowAllToAllPromote
   ( const DistMatrix<T,                U,             V   >& A, \
           DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& B ); \
   template void RowAllToAllPromote \
-  ( const DistMatrix<T,                U,             V   ,BLOCK_CYCLIC>& A, \
-          DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK_CYCLIC>& B );
+  ( const DistMatrix<T,                U,             V   ,BLOCK>& A, \
+          DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

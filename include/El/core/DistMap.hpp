@@ -74,7 +74,6 @@ private:
     int commRank_;
 
     Int blocksize_;
-    Int firstLocalSource_;
 
     vector<Int> map_;
 

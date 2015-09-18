@@ -169,7 +169,8 @@ void SOCDots
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+        Int cutoff )
 {
     DEBUG_ONLY(CSE cse("SOCDots"))
 

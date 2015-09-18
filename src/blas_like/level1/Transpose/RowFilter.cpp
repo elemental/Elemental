@@ -41,8 +41,8 @@ void RowFilter
 
 template<typename T>
 void RowFilter
-( const BlockCyclicMatrix<T>& A, 
-        BlockCyclicMatrix<T>& B, bool conjugate )
+( const BlockMatrix<T>& A, 
+        BlockMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("transpose::RowFilter");
@@ -50,7 +50,7 @@ void RowFilter
           A.RowDist() != B.ColDist() )
           LogicError("Incompatible distributions");
     )
-    unique_ptr<BlockCyclicMatrix<T>>
+    unique_ptr<BlockMatrix<T>>
         AFilt( B.ConstructTranspose(B.Grid(),B.Root()) );    
     if( B.ColConstrained() )
         AFilt->AlignRowsWith( B, true );
@@ -71,8 +71,8 @@ void RowFilter
   ( const ElementalMatrix<T>& A, \
           ElementalMatrix<T>& B, bool conjugate ); \
   template void RowFilter \
-  ( const BlockCyclicMatrix<T>& A, \
-          BlockCyclicMatrix<T>& B, bool conjugate );
+  ( const BlockMatrix<T>& A, \
+          BlockMatrix<T>& B, bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

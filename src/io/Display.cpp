@@ -111,7 +111,7 @@ void Display( const ElementalMatrix<T>& A, string title )
 }
 
 template<typename T>
-void Display( const BlockCyclicMatrix<T>& A, string title )
+void Display( const BlockMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -121,7 +121,7 @@ void Display( const BlockCyclicMatrix<T>& A, string title )
     }
     else
     {
-        DistMatrix<T,CIRC,CIRC,BLOCK_CYCLIC> A_CIRC_CIRC( A );
+        DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Display( A_CIRC_CIRC.Matrix(), title );
     }
@@ -346,7 +346,7 @@ void DisplayLocal
   template void Display \
   ( const ElementalMatrix<T>& A, string title ); \
   template void Display \
-  ( const BlockCyclicMatrix<T>& A, string title ); \
+  ( const BlockMatrix<T>& A, string title ); \
   template void Display( const DistMultiVec<T>& X, string title ); \
   template void Display \
   ( const SparseMatrix<T>& A, string title ); \

@@ -81,7 +81,7 @@ void RowFilter
 
 template<typename T>
 void RowFilter
-( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B )
+( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("copy::RowFilter"))
     AssertSameGrids( A, B );
@@ -92,7 +92,7 @@ void RowFilter
   template void RowFilter \
   ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void RowFilter \
-  ( const BlockCyclicMatrix<T>& A, BlockCyclicMatrix<T>& B );
+  ( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

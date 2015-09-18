@@ -284,16 +284,6 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full );
 Int Find( const vector<Int>& sortedInds, Int index );
 Int Find( const vector<Int>& sortedInds, Int index, const string& msg );
 
-// TODO: Move this somewhere else or make it obsolete
-inline Int
-RowToProcess( Int i, Int blocksize, Int commSize ) EL_NO_EXCEPT
-{
-    if( blocksize > 0 )
-        return std::min( i/blocksize, commSize-1 );
-    else
-        return commSize-1;
-}
-
 template<typename F>
 void UpdateScaledSquare
 ( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;

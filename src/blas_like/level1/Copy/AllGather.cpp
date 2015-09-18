@@ -81,8 +81,8 @@ void AllGather
 
 template<typename T,Dist U,Dist V>
 void AllGather
-( const DistMatrix<T,        U,           V   ,BLOCK_CYCLIC>& A, 
-        DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK_CYCLIC>& B ) 
+( const DistMatrix<T,        U,           V   ,BLOCK>& A, 
+        DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::AllGather"))
     AssertSameGrids( A, B );
@@ -94,8 +94,8 @@ void AllGather
   ( const DistMatrix<T,        U,           V   >& A, \
           DistMatrix<T,Collect<U>(),Collect<V>()>& B ); \
   template void AllGather \
-  ( const DistMatrix<T,        U,           V   ,BLOCK_CYCLIC>& A, \
-          DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK_CYCLIC>& B );
+  ( const DistMatrix<T,        U,           V   ,BLOCK>& A, \
+          DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

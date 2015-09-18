@@ -19,8 +19,8 @@ void AdjointContract( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 
 template<typename T>
 void AdjointContract
-( const BlockCyclicMatrix<T>& A, 
-        BlockCyclicMatrix<T>& B )
+( const BlockMatrix<T>& A, 
+        BlockMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("AdjointContract"))
     TransposeContract( A, B, true );
@@ -31,8 +31,8 @@ void AdjointContract
   ( const ElementalMatrix<T>& A, \
           ElementalMatrix<T>& B ); \
   template void AdjointContract \
-  ( const BlockCyclicMatrix<T>& A, \
-          BlockCyclicMatrix<T>& B );
+  ( const BlockMatrix<T>& A, \
+          BlockMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

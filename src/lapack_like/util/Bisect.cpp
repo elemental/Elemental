@@ -187,27 +187,32 @@ Int Bisect
 
         // Set up the global xAdj vector
         vector<idx_t> globalXAdj;
-        // Set up the first commSize*blocksize entries
         if( commRank == 0 )
             globalXAdj.resize( numSources+1 );
-        mpi::Gather
-        ( xAdj.data(), blocksize, globalXAdj.data(), blocksize, 0, comm );
+        // For now, simply loop over the processes for the receives
         if( commRank == 0 )
-            for( int q=1; q<commSize; ++q )
-                for( Int j=0; j<blocksize; ++j )
-                    globalXAdj[q*blocksize+j] += edgeOffs[q];
-        // Fix the remaining entries
-        const Int numRemaining = numSources - commSize*blocksize;
-        if( commRank == commSize-1 )
-            mpi::Send( &xAdj[blocksize], numRemaining, 0, comm );
-        if( commRank == 0 )
+            for( Int j=0; j<numLocalSources; ++j )
+                globalXAdj[j] = xAdj[j];    
+        for( int q=1; q<commSize; ++q )
         {
-            mpi::Recv
-            ( &globalXAdj[commSize*blocksize], numRemaining, commSize-1, comm );
-            for( Int j=0; j<numRemaining; ++j )
-                globalXAdj[commSize*blocksize+j] += edgeOffs[commSize-1];
-            globalXAdj[numSources] = numEdges;
+            const Int thisLocalSize =
+              Min(blocksize,Max(numSources-q*blocksize,0));
+            if( thisLocalSize == 0 )
+                break;
+
+            if( commRank == q )
+            {
+                mpi::Send( xAdj.data(), numLocalSources, 0, comm );
+            }
+            else if( commRank == 0 )
+            {
+                mpi::Recv( &globalXAdj[q*blocksize], thisLocalSize, q, comm );
+                for( Int j=0; j<thisLocalSize; ++j )
+                    globalXAdj[q*blocksize+j] += edgeOffs[q];
+            }
         }
+        if( commRank == 0 )
+            globalXAdj[numSources] = numEdges;
 
         vector<Int> seqPerm;
         if( commRank == 0 )
@@ -255,17 +260,22 @@ Int Bisect
         perm.SetComm( comm );
         perm.Resize( numSources );
 
-        // Distribute the first commSize*blocksize values of the permutation
-        mpi::Scatter
-        ( seqPerm.data(), blocksize, perm.Buffer(), blocksize, 0, comm );
-
-        // Make sure the last process gets the straggling entries
+        // For now, loop over the processes to send the data
         if( commRank == 0 )
-            mpi::Send
-            ( &seqPerm[commSize*blocksize], numRemaining, commSize-1, comm );
-        if( commRank == commSize-1 )
-            mpi::Recv
-            ( perm.Buffer()+blocksize, numLocalSources-blocksize, 0, comm );
+            for( Int j=0; j<numLocalSources; ++j )
+                perm.SetLocal(j,seqPerm[j]);
+        for( int q=1; q<commSize; ++q )
+        {
+            const Int thisLocalSize =
+              Min(blocksize,Max(numSources-q*blocksize,0));
+            if( thisLocalSize == 0 )
+                break;
+
+            if( commRank == 0 )
+                mpi::Send( &seqPerm[q*blocksize], thisLocalSize, q, comm );
+            else if( commRank == q )
+                mpi::Recv( perm.Buffer(), thisLocalSize, 0, comm );
+        }
 
         // Broadcast the sizes information from the root
         mpi::Broadcast( (byte*)sizes.data(), 3*sizeof(idx_t), 0, comm );
@@ -419,9 +429,12 @@ void BuildChildrenFromPerm
 }
 
 void BuildChildFromPerm
-( const DistGraph& graph, const DistMap& perm,
-  Int leftChildSize, Int rightChildSize,
-  bool& onLeft, DistGraph& child )
+( const DistGraph& graph,
+  const DistMap& perm,
+        Int leftChildSize,
+        Int rightChildSize,
+        bool& onLeft,
+        DistGraph& child )
 {
     DEBUG_ONLY(CSE cse("BuildChildFromPerm"))
     const Int numTargets = graph.NumTargets();
@@ -446,8 +459,14 @@ void BuildChildFromPerm
     const int rightTeamOff = ( smallOnLeft ? smallTeamSize : 0 );
     onLeft = ( inSmallTeam == smallOnLeft );
 
-    const Int leftTeamBlocksize = leftChildSize / leftTeamSize;
-    const Int rightTeamBlocksize = rightChildSize / rightTeamSize;
+    // TODO: Generalize to 2D distributions?
+    Int leftTeamBlocksize = leftChildSize / leftTeamSize;
+    if( leftTeamBlocksize*leftTeamSize < leftChildSize )
+        ++leftTeamBlocksize;
+    // TODO: Generalize to 2D distributions?
+    Int rightTeamBlocksize = rightChildSize / rightTeamSize;
+    if( rightTeamBlocksize*rightTeamSize < rightChildSize )
+        ++rightTeamBlocksize;
 
     // Count how many rows we must send to each process 
     vector<int> rowSendSizes( commSize, 0 );
@@ -456,15 +475,12 @@ void BuildChildFromPerm
         const Int i = perm.GetLocal(s);
         if( i < leftChildSize )
         {
-            const int q = leftTeamOff + 
-                RowToProcess( i, leftTeamBlocksize, leftTeamSize );
+            const int q = leftTeamOff + i / leftTeamBlocksize;
             ++rowSendSizes[q];
         }
         else if( i < leftChildSize+rightChildSize )
         {
-            const int q = rightTeamOff +
-                RowToProcess
-                ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
+            const int q = rightTeamOff + (i-leftChildSize) / rightTeamBlocksize;
             ++rowSendSizes[q];
         }
     }
@@ -488,17 +504,14 @@ void BuildChildFromPerm
         const Int i = perm.GetLocal(s);
         if( i < leftChildSize )
         {
-            const int q = leftTeamOff + 
-                RowToProcess( i, leftTeamBlocksize, leftTeamSize );
+            const int q = leftTeamOff + i / leftTeamBlocksize;
             rowSendInds[offs[q]] = i;
             rowSendLengths[offs[q]] = graph.NumConnections( s );
             ++offs[q];
         }
         else if( i < leftChildSize+rightChildSize )
         {
-            const int q = rightTeamOff + 
-                RowToProcess
-                ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
+            const int q = rightTeamOff + (i-leftChildSize) / rightTeamBlocksize;
             rowSendInds[offs[q]] = i;
             rowSendLengths[offs[q]] = graph.NumConnections( s );
             ++offs[q];
@@ -555,8 +568,7 @@ void BuildChildFromPerm
         const Int i = perm.GetLocal(s);
         if( i < leftChildSize )
         {
-            const int q = leftTeamOff + 
-                RowToProcess( i, leftTeamBlocksize, leftTeamSize );
+            const int q = leftTeamOff + i / leftTeamBlocksize;
 
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );
@@ -565,9 +577,7 @@ void BuildChildFromPerm
         }
         else if( i < leftChildSize+rightChildSize )
         {
-            const int q = rightTeamOff + 
-                RowToProcess
-                ( i-leftChildSize, rightTeamBlocksize, rightTeamSize );
+            const int q = rightTeamOff + (i-leftChildSize) / rightTeamBlocksize;
                
             const Int numConnections = graph.NumConnections( s );
             const Int localEdgeOff = graph.SourceOffset( s );

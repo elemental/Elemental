@@ -14,6 +14,46 @@
 namespace El {
 namespace ldl {
 
+void AMDOrder
+( const vector<Int>& subOffsets,
+  const vector<Int>& subTargets, 
+        vector<Int>& amdPerm,
+        double* control,
+        double* info )
+{
+    DEBUG_ONLY(CSE cse("ldl::AMDOrder"))
+    const Int numSources = subOffsets.size()-1;
+    const Int numEdges = subTargets.size();
+#ifdef EL_USE_64BIT_INTS
+    vector<int> subOffsets_int( numSources+1 ),
+                subTargets_int( numEdges ),
+                amdPerm_int( numSources );
+    for( Int j=0; j<numSources+1; ++j )
+        subOffsets_int[j] = int(subOffsets[j]);
+    for( Int j=0; j<numEdges; ++j )
+        subTargets_int[j] = int(subTargets[j]);
+    const int amdStatus = 
+      El_amd_order
+      ( int(numSources),
+        subOffsets_int.data(), subTargets_int.data(),
+        amdPerm_int.data(),
+        control, info );
+    if( amdStatus != EL_AMD_OK )
+        RuntimeError("AMD status was ",amdStatus);
+    amdPerm.resize( numSources );
+    for( Int j=0; j<numSources; ++j )
+        amdPerm[j] = Int(amdPerm_int[j]);
+#else
+    amdPerm.resize( numSources );
+    const int amdStatus = 
+      El_amd_order
+      ( numSources, subOffsets.data(), subTargets.data(), amdPerm.data(),
+        control, info );
+    if( amdStatus != EL_AMD_OK )
+        RuntimeError("AMD status was ",amdStatus);
+#endif
+}
+
 inline void
 NestedDissectionRecursion
 ( const Graph& graph, 
@@ -36,7 +76,7 @@ NestedDissectionRecursion
         for( Int e=0; e<numEdges; ++e )
             if( targetBuf[e] < numSources )
                 ++numValidEdges;
-        vector<int> subOffsets(numSources+1), subTargets(Max(numValidEdges,1));
+        vector<Int> subOffsets(numSources+1), subTargets(Max(numValidEdges,1));
         Int sourceOff = 0;
         Int validCounter = 0;
         Int prevSource = -1;
@@ -58,18 +98,8 @@ NestedDissectionRecursion
         // Technically, SuiteSparse expects column-major storage, but since
         // the matrix is structurally symmetric, it's okay to pass in the 
         // row-major representation
-        vector<int> amdPerm(numSources);
-        double* control = nullptr;
-        double* info = nullptr;
-        const int amdStatus = 
-          El_amd_order
-          ( numSources, subOffsets.data(), subTargets.data(), amdPerm.data(), 
-            control, info );
-        if( amdStatus != EL_AMD_OK )
-            RuntimeError("AMD status was ",amdStatus);
-
-        // NOTE: This currently breaks if int != Int. El_amd_order should be
-        //       switched over to supporting Int
+        vector<Int> amdPerm;
+        AMDOrder( subOffsets, subTargets, amdPerm );
 
         // Compute the symbolic factorization of this leaf node using the
         // reordering just computed
@@ -77,26 +107,10 @@ NestedDissectionRecursion
         node.LParents.resize( numSources );
         vector<Int> LNnz( numSources ), Flag( numSources ), 
                     amdPermInv( numSources );
-        // This can be simplified once the AMD routine is templated
-        if( sizeof(int) == sizeof(Int) )
-        {
-            suite_sparse::ldl::Symbolic 
-            ( numSources, subOffsets.data(), subTargets.data(), 
-              node.LOffsets.data(), node.LParents.data(), LNnz.data(),
-              Flag.data(), amdPerm.data(), amdPermInv.data() );
-        }
-        else
-        {
-            vector<int> LOffsets_int(numSources+1), LParents_int(numSources);
-            suite_sparse::ldl::Symbolic 
-            ( numSources, subOffsets.data(), subTargets.data(), 
-              LOffsets_int.data(), LParents_int.data(), LNnz.data(),
-              Flag.data(), amdPerm.data(), amdPermInv.data() );
-            for( Int i=0; i<numSources+1; ++i )
-                node.LOffsets[i] = LOffsets_int[i];
-            for( Int i=0; i<numSources; ++i )
-                node.LParents[i] = LParents_int[i];
-        }
+        suite_sparse::ldl::Symbolic 
+        ( numSources, subOffsets.data(), subTargets.data(), 
+          node.LOffsets.data(), node.LParents.data(), LNnz.data(),
+          Flag.data(), amdPerm.data(), amdPermInv.data() );
 
         // Fill in this node of the local separator tree
         sep.off = off;

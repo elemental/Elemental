@@ -229,9 +229,8 @@ typedef Dist Distribution;
 
 namespace DistWrapNS {
 enum DistWrap {
-    ELEMENTAL,
-    BLOCK_CYCLIC,
-    BLOCK_NONCYCLIC
+    ELEMENT,
+    BLOCK
 };
 }
 using namespace DistWrapNS;

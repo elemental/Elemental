@@ -149,9 +149,9 @@ template<typename T=double> class Matrix;
 template<typename T=double> class AbstractDistMatrix;
 
 template<typename T=double> class ElementalMatrix;
-template<typename T=double> class BlockCyclicMatrix;
+template<typename T=double> class BlockMatrix;
 
-template<typename T=double,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENTAL>
+template<typename T=double,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENT>
 class DistMatrix;
 
 } // namespace El

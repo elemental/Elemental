@@ -72,20 +72,17 @@ void DistMultiVec<T>::Empty()
 {
     height_ = 0;
     width_ = 0;
-    blocksize_ = 0;
-    firstLocalRow_ = 0;
+    blocksize_ = 1;
     multiVec_.Empty();
 }
 
 template<typename T>
 void DistMultiVec<T>::InitializeLocalData()
 {
-    blocksize_ = height_/commSize_;
-    firstLocalRow_ = commRank_*blocksize_;
-    const Int localHeight =
-        ( commRank_<commSize_-1 ?
-          blocksize_ :
-          height_ - (commSize_-1)*blocksize_ );
+    blocksize_ = height_ / commSize_;
+    if( blocksize_*commSize_ < height_ || height_ == 0 )
+        ++blocksize_;
+    const Int localHeight = Min(blocksize_,Max(0,height_-blocksize_*commRank_));
     multiVec_.Resize( localHeight, width_ );
 }
 
@@ -190,7 +187,7 @@ Int DistMultiVec<T>::Width() const EL_NO_EXCEPT
 { return multiVec_.Width(); }
 template<typename T>
 Int DistMultiVec<T>::FirstLocalRow() const EL_NO_EXCEPT
-{ return firstLocalRow_; }
+{ return blocksize_*commRank_; }
 template<typename T>
 Int DistMultiVec<T>::LocalHeight() const EL_NO_EXCEPT
 { return multiVec_.Height(); }
@@ -213,7 +210,7 @@ template<typename T>
 int DistMultiVec<T>::RowOwner( Int i ) const EL_NO_EXCEPT
 { 
     if( i == END ) i = height_ - 1;
-    return RowToProcess( i, blocksize_, commSize_ ); 
+    return i / blocksize_;
 }
 
 template<typename T>

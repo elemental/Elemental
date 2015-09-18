@@ -75,7 +75,7 @@ void IndexDependentMap
 
 template<typename S,typename T>
 void IndexDependentMap
-( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, 
+( const BlockMatrix<S>& A, BlockMatrix<T>& B, 
   function<T(Int,Int,S)> func )
 {
     DEBUG_ONLY(CSE cse("IndexDependentMap"))
@@ -107,7 +107,7 @@ void IndexDependentMap
   ( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, \
     function<T(Int,Int,S)> func ); \
   template void IndexDependentMap \
-  ( const BlockCyclicMatrix<S>& A, BlockCyclicMatrix<T>& B, \
+  ( const BlockMatrix<S>& A, BlockMatrix<T>& B, \
     function<T(Int,Int,S)> func );
 
 #define PROTO_INT(T) \
