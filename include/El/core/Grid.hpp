@@ -166,11 +166,11 @@ inline bool GridCompare
             return false;
 
     // viewingComm_
-    if( Congruent( g1.ViewingComm(), g2.ViewingComm() ) )
+    if( !Congruent( g1.ViewingComm(), g2.ViewingComm() ) )
         return false;
 
     // viewingGroup_
-    if( Congruent( g1.viewingGroup_, g2.viewingGroup_ ) )
+    if( !Congruent( g1.viewingGroup_, g2.viewingGroup_ ) )
         return false;
 
     // vcToViewing_
@@ -182,39 +182,39 @@ inline bool GridCompare
             return false;
 
     // owningComm_
-    if( Congruent( g1.OwningComm(), g2.OwningComm() ) )
+    if( !Congruent( g1.OwningComm(), g2.OwningComm() ) )
         return false;
 
     // owningGroup_
-    if( Congruent( g1.OwningGroup(), g2.OwningGroup() ) )
+    if( !Congruent( g1.OwningGroup(), g2.OwningGroup() ) )
         return false;
 
     // cartComm_
-    if( Congruent( g1.cartComm_, g2.cartComm_ ) )
+    if( !Congruent( g1.cartComm_, g2.cartComm_ ) )
         return false;
 
     // mcComm_
-    if( Congruent( g1.MCComm(), g2.MCComm() ) )
+    if( !Congruent( g1.MCComm(), g2.MCComm() ) )
         return false;
 
     // mrComm_
-    if( Congruent( g1.MRComm(), g2.MRComm() ) )
+    if( !Congruent( g1.MRComm(), g2.MRComm() ) )
         return false;
 
     // mdComm_
-    if( Congruent( g1.MDComm(), g2.MDComm() ) )
+    if( !Congruent( g1.MDComm(), g2.MDComm() ) )
         return false;
 
     // mdPerpComm_
-    if( Congruent( g1.MDPerpComm(), g2.MDPerpComm() ) )
+    if( !Congruent( g1.MDPerpComm(), g2.MDPerpComm() ) )
         return false;
 
     // vcComm_
-    if( Congruent( g1.VCComm(), g2.VCComm() ) )
+    if( !Congruent( g1.VCComm(), g2.VCComm() ) )
         return false;
 
     // vrComm_
-    if( Congruent( g1.VRComm(), g2.VRComm() ) )
+    if( !Congruent( g1.VRComm(), g2.VRComm() ) )
         return false;
 
     return true;
