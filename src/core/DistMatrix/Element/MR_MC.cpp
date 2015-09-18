@@ -173,10 +173,15 @@ DM& DM::operator=( const ElementalMatrix<T>& A )
 // =============
 template<typename T>
 mpi::Comm DM::DistComm() const EL_NO_EXCEPT { return this->grid_->VRComm(); }
+
 template<typename T>
-mpi::Comm DM::CrossComm() const EL_NO_EXCEPT { return mpi::COMM_SELF; }
+mpi::Comm DM::CrossComm() const EL_NO_EXCEPT
+{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+
 template<typename T>
-mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT { return mpi::COMM_SELF; }
+mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
+{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+
 template<typename T>
 mpi::Comm DM::ColComm() const EL_NO_EXCEPT { return this->grid_->MRComm(); }
 template<typename T>

@@ -160,19 +160,19 @@ BDM& BDM::operator=( const BlockMatrix<T>& A )
 
 template<typename T>
 mpi::Comm BDM::DistComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
+{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 template<typename T>
 mpi::Comm BDM::CrossComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
+{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 template<typename T>
 mpi::Comm BDM::RedundantComm() const EL_NO_EXCEPT
 { return this->grid_->VCComm(); }
 template<typename T>
 mpi::Comm BDM::ColComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
+{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 template<typename T>
 mpi::Comm BDM::RowComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
+{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 int BDM::ColStride() const EL_NO_EXCEPT
