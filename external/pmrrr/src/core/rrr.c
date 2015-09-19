@@ -46,6 +46,10 @@
 #include "pmrrr/rrr.h"
 #include "pmrrr/global.h"
 
+#ifndef DISABLE_PTHREADS
+# include <errno.h>
+#endif
+
 int PMR_rrr_init_lock(rrr_t *RRR)
 {
 #ifndef DISABLE_PTHREADS
@@ -68,6 +72,16 @@ int PMR_rrr_lock(rrr_t *RRR)
 {
 #ifndef DISABLE_PTHREADS
   int info = pthread_mutex_lock(&RRR->mutex);
+  if( info == EINVAL )
+    fprintf(stderr,"pthread_mutex_lock returned EINVAL\n");
+  else if( info == EAGAIN )
+    fprintf(stderr,"pthread_mutex_lock returned EAGAIN\n");
+  else if( info == EDEADLK )
+    fprintf(stderr,"pthread_mutex_lock returned EDEADLK\n");
+  else if( info == EPERM )
+    fprintf(stderr,"pthread_mutex_lock returned EPERM\n");
+  else
+    fprintf(stderr,"pthread_mutex_lock returned %d\n",info);
   assert(info == 0);
   return info;
 #else
@@ -79,6 +93,16 @@ int PMR_rrr_unlock(rrr_t *RRR)
 {
 #ifndef DISABLE_PTHREADS
   int info = pthread_mutex_unlock(&RRR->mutex);
+  if( info == EINVAL )
+    fprintf(stderr,"pthread_mutex_unlock returned EINVAL\n");
+  else if( info == EAGAIN )
+    fprintf(stderr,"pthread_mutex_unlock returned EAGAIN\n");
+  else if( info == EDEADLK )
+    fprintf(stderr,"pthread_mutex_unlock returned EDEADLK\n");
+  else if( info == EPERM )
+    fprintf(stderr,"pthread_mutex_unlock returned EPERM\n");
+  else
+    fprintf(stderr,"pthread_mutex_unlock returned %d\n",info);
   assert(info == 0);
   return info;
 #else

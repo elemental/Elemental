@@ -46,6 +46,10 @@
 #include "pmrrr/global.h"
 #include "pmrrr/queue.h"
 
+#ifndef DISABLE_PTHREADS
+# include <errno.h>
+#endif
+
 int PMR_queue_init_lock(queue_t *queue)
 {
 #ifndef DISABLE_PTHREADS
@@ -77,6 +81,16 @@ int PMR_queue_lock(queue_t *queue)
 #ifndef DISABLE_PTHREADS
  #ifdef NOSPINLOCKS
   int info = pthread_mutex_lock(&queue->lock);
+  if( info == EINVAL )
+    fprintf(stderr,"pthread_mutex_lock returned EINVAL\n");
+  else if( info == EAGAIN )
+    fprintf(stderr,"pthread_mutex_lock returned EAGAIN\n");
+  else if( info == EDEADLK )
+    fprintf(stderr,"pthread_mutex_lock returned EDEADLK\n");
+  else if( info == EPERM )
+    fprintf(stderr,"pthread_mutex_lock returned EPERM\n");
+  else
+    fprintf(stderr,"pthread_mutex_lock returned %d\n",info);
  #else
   int info = pthread_spin_lock(&queue->lock);
  #endif
@@ -92,6 +106,16 @@ int PMR_queue_unlock(queue_t *queue)
 #ifndef DISABLE_PTHREADS
  #ifdef NOSPINLOCKS
   int info = pthread_mutex_unlock(&queue->lock);
+  if( info == EINVAL )
+    fprintf(stderr,"pthread_mutex_unlock returned EINVAL\n");
+  else if( info == EAGAIN )
+    fprintf(stderr,"pthread_mutex_unlock returned EAGAIN\n");
+  else if( info == EDEADLK )
+    fprintf(stderr,"pthread_mutex_unlock returned EDEADLK\n");
+  else if( info == EPERM )
+    fprintf(stderr,"pthread_mutex_unlock returned EPERM\n");
+  else
+    fprintf(stderr,"pthread_mutex_unlock returned %d\n",info);
  #else
   int info = pthread_spin_unlock(&queue->lock);
  #endif
