@@ -177,7 +177,7 @@ mpi::Comm DM::CrossComm() const EL_NO_EXCEPT
 
 template<typename T>
 mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
-{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 mpi::Comm DM::ColComm() const EL_NO_EXCEPT
@@ -185,7 +185,7 @@ mpi::Comm DM::ColComm() const EL_NO_EXCEPT
 
 template<typename T>
 mpi::Comm DM::RowComm() const EL_NO_EXCEPT
-{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 int DM::ColStride() const EL_NO_EXCEPT { return this->grid_->LCM(); }

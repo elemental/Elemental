@@ -295,7 +295,7 @@ void Initialize( int& argc, char**& argv )
         const Int provided = 
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
-        const Int commRank = mpi::Rank( mpi::COMM_WORLD );
+        const int commRank = mpi::Rank( mpi::COMM_WORLD );
         if( provided != mpi::THREAD_MULTIPLE && commRank == 0 )
         {
             cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."

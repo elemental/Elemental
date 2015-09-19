@@ -142,7 +142,7 @@ inline void ADMM
     typedef Base<F> Real;
     const Int m = M.Height();
     const Int n = M.Width();
-    const Int commRank = mpi::Rank( M.Grid().Comm() );
+    const int commRank = mpi::Rank( M.Grid().Comm() );
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
     const Base<F> tau = 
@@ -384,7 +384,7 @@ inline void ALM
     typedef Base<F> Real;
     const Int m = M.Height();
     const Int n = M.Width();
-    const Int commRank = mpi::Rank( M.Grid().Comm() );
+    const int commRank = mpi::Rank( M.Grid().Comm() );
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
     const Base<F> tau = 

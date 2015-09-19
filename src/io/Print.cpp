@@ -71,7 +71,7 @@ template<typename T>
 void Print( const DistMultiVec<T>& X, string title, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print [DistMultiVec]"))
-    const Int commRank = mpi::Rank( X.Comm() );
+    const int commRank = mpi::Rank( X.Comm() );
     if( commRank == 0 )
     {
         Matrix<T> XLoc;
