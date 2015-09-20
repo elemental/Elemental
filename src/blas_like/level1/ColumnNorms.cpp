@@ -46,9 +46,10 @@ void ColumnMaxNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F,Dist U,Dist V,DistWrap wrap>
 void ColumnTwoNorms
-( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
+( const DistMatrix<F,U,V,wrap>& A,
+        DistMatrix<Base<F>,V,STAR,wrap>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
     const Int n = A.Width();
@@ -72,9 +73,10 @@ void ColumnTwoNorms
         normBuf[jLoc] = Sqrt(normBuf[jLoc]);
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F,Dist U,Dist V,DistWrap wrap>
 void ColumnMaxNorms
-( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
+( const DistMatrix<F,U,V,wrap>& A,
+        DistMatrix<Base<F>,V,STAR,wrap>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnMaxNorms"))
     const Int n = A.Width();
@@ -82,68 +84,6 @@ void ColumnMaxNorms
     norms.Resize( n, 1 );
     ColumnMaxNorms( A.LockedMatrix(), norms.Matrix() );
     AllReduce( norms.Matrix(), A.ColComm(), mpi::MAX );
-}
-
-template<typename F>
-void ColumnTwoNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
-{
-    DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
-    typedef Base<F> Real;
-    const Int localHeight = X.LocalHeight();
-    const Int width = X.Width();
-    const F* XBuf = X.LockedMatrix().LockedBuffer();
-    const Int XLDim = X.LockedMatrix().LDim();
-    mpi::Comm comm = X.Comm();
-
-    norms.Resize( width, 1 );
-    Real* normBuf = norms.Buffer();
-
-    vector<Real> localScales( width ),
-                 localScaledSquares( width );
-    for( Int j=0; j<width; ++j )
-    {
-        Real localScale = 0;
-        Real localScaledSquare = 1;
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            UpdateScaledSquare
-            ( XBuf[iLoc+j*XLDim], localScale, localScaledSquare );
-
-        localScales[j] = localScale;
-        localScaledSquares[j] = localScaledSquare;
-    }
-
-    // Find the maximum relative scales
-    vector<Real> scales( width );
-    mpi::AllReduce( localScales.data(), scales.data(), width, mpi::MAX, comm );
-
-    // Equilibrate the local scaled sums
-    for( Int j=0; j<width; ++j )
-    {
-        const Real scale = scales[j];
-        if( scale != 0 )
-        {
-            // Equilibrate our local scaled sum to the maximum scale
-            Real relScale = localScales[j]/scale;
-            localScaledSquares[j] *= relScale*relScale;
-        }
-        else
-            localScaledSquares[j] = 0;
-    }
-
-    // Combine the local contributions
-    vector<Real> scaledSquares( width );
-    mpi::AllReduce
-    ( localScaledSquares.data(), scaledSquares.data(), width, mpi::SUM, comm );
-    for( Int j=0; j<width; ++j )
-        normBuf[j] = scales[j]*Sqrt(scaledSquares[j]);
-}
-
-template<typename F>
-void ColumnMaxNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
-{
-    DEBUG_ONLY(CSE cse("ColumnMaxNorms"))
-    ColumnMaxNorms( X.LockedMatrix(), norms );
-    AllReduce( norms, X.Comm(), mpi::MAX );
 }
 
 template<typename F>
@@ -205,7 +145,8 @@ void ColumnMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 
 template<typename F>
 void ColumnTwoNorms
-( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
+( const DistSparseMatrix<F>& A,
+        DistMatrix<Base<F>,VC,STAR,BLOCK>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
     typedef Base<F> Real;
@@ -219,6 +160,7 @@ void ColumnTwoNorms
 
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
+    norms.AlignCols( A.Blocksize(), 0, 0, true );
     Zeros( norms, A.Width(), 1 );
     A.InitializeMultMeta();
     const auto& meta = A.multMeta;
@@ -242,12 +184,11 @@ void ColumnTwoNorms
 
     // Form the sums of squares of the columns
     // ---------------------------------------
-    const Int firstLocalRow = norms.FirstLocalRow();
     Real* normBuf = norms.Matrix().Buffer();
     for( Int s=0; s<numRecvInds; ++s )
     {
         const Int i = meta.sendInds[s];
-        const Int iLoc = i - firstLocalRow;
+        const Int iLoc = norms.LocalRow(i);
         normBuf[iLoc] += recvVals[s];
     }
     
@@ -260,7 +201,8 @@ void ColumnTwoNorms
 
 template<typename F>
 void ColumnMaxNorms
-( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
+( const DistSparseMatrix<F>& A,
+        DistMatrix<Base<F>,VC,STAR,BLOCK>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnMaxNorms"))
     typedef Base<F> Real;
@@ -274,6 +216,7 @@ void ColumnMaxNorms
 
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
+    norms.AlignCols( A.Blocksize(), 0, 0, true );
     Zeros( norms, A.Width(), 1 );
     A.InitializeMultMeta();
     const auto& meta = A.multMeta;
@@ -298,12 +241,11 @@ void ColumnMaxNorms
 
     // Form the maxima over all the values received
     // --------------------------------------------
-    const Int firstLocalRow = norms.FirstLocalRow();
     Real* normBuf = norms.Matrix().Buffer();
     for( Int s=0; s<numRecvInds; ++s )
     {
         const Int i = meta.sendInds[s];
-        const Int iLoc = i - firstLocalRow;
+        const Int iLoc = norms.LocalRow(i);
         normBuf[iLoc] = Max(normBuf[iLoc],recvVals[s]);
     }
 }
@@ -312,9 +254,11 @@ void ColumnMaxNorms
 // ===============================================================
 template<typename Real>
 void ColumnTwoNorms
-( const Matrix<Real>& XReal, const Matrix<Real>& XImag, Matrix<Real>& norms )
+( const Matrix<Real>& XReal,
+  const Matrix<Real>& XImag,
+        Matrix<Real>& norms )
 {
-    DEBUG_ONLY(CSE cse("pspec::ColumnTwoNorms"))
+    DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
     const Int m = XReal.Height();
     const Int n = XReal.Width();
     const Real* XRealBuf = XReal.LockedBuffer();
@@ -332,14 +276,16 @@ void ColumnTwoNorms
     }
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real,Dist U,Dist V,DistWrap wrap>
 void ColumnTwoNorms
-( const DistMatrix<Real,U,V>& XReal,
-  const DistMatrix<Real,U,V>& XImag, DistMatrix<Real,V,STAR>& norms )
+( const DistMatrix<Real,U,V,wrap>& XReal,
+  const DistMatrix<Real,U,V,wrap>& XImag,
+        DistMatrix<Real,V,STAR,wrap>& norms )
 {
-    DEBUG_ONLY(CSE cse("pspec::ColumnTwoNorms"))
-    if( XReal.RowAlign() != norms.ColAlign() )
-        LogicError("Invalid norms alignment");
+    DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
+    if( XReal.RowAlign() != XImag.RowAlign() )
+        LogicError("Invalid XReal and XImag alignments");
+    norms.AlignWith( XReal );
     const Int n = XReal.Width();
     const Int mLocal = XReal.LocalHeight();
     const Int nLocal = XReal.LocalWidth();
@@ -364,20 +310,19 @@ void ColumnTwoNorms
         normBuf[jLoc] = Sqrt(normBuf[jLoc]);
 }
 
-template<typename Real>
-void ColumnTwoNorms
-( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
-        Matrix<Real>& norms )
-{
-    DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
-    LogicError("This routine not yet written");
-}
-
 #define PROTO_DIST(F,U,V) \
   template void ColumnTwoNorms \
-  ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms ); \
+  ( const DistMatrix<F,U,V>& X, \
+          DistMatrix<Base<F>,V,STAR>& norms ); \
+  template void ColumnTwoNorms \
+  ( const DistMatrix<F,U,V,BLOCK>& X, \
+          DistMatrix<Base<F>,V,STAR,BLOCK>& norms ); \
   template void ColumnMaxNorms \
-  ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
+  ( const DistMatrix<F,U,V>& X, \
+          DistMatrix<Base<F>,V,STAR>& norms ); \
+  template void ColumnMaxNorms \
+  ( const DistMatrix<F,U,V,BLOCK>& X, \
+          DistMatrix<Base<F>,V,STAR,BLOCK>& norms );
 
 #define PROTO(F) \
   template void ColumnTwoNorms \
@@ -389,13 +334,9 @@ void ColumnTwoNorms
   template void ColumnMaxNorms \
   ( const SparseMatrix<F>& A, Matrix<Base<F>>& norms ); \
   template void ColumnTwoNorms \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms ); \
+  ( const DistSparseMatrix<F>& A, DistMatrix<Base<F>,VC,STAR,BLOCK>& norms ); \
   template void ColumnMaxNorms \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms ); \
-  template void ColumnTwoNorms \
-  ( const DistMultiVec<F>& X, Matrix<Base<F>>& norms ); \
-  template void ColumnMaxNorms \
-  ( const DistMultiVec<F>& X, Matrix<Base<F>>& norms ); \
+  ( const DistSparseMatrix<F>& A, DistMatrix<Base<F>,VC,STAR,BLOCK>& norms ); \
   PROTO_DIST(F,MC,  MR  ) \
   PROTO_DIST(F,MC,  STAR) \
   PROTO_DIST(F,MD,  STAR) \
@@ -412,17 +353,20 @@ void ColumnTwoNorms
 
 #define PROTO_REAL_DIST(Real,U,V) \
   template void ColumnTwoNorms \
-  ( const DistMatrix<Real,U,V>& XReal, const DistMatrix<Real,U,V>& XImag, \
-    DistMatrix<Real,V,STAR>& norms );
+  ( const DistMatrix<Real,U,V>& XReal, \
+    const DistMatrix<Real,U,V>& XImag, \
+          DistMatrix<Real,V,STAR>& norms ); \
+  template void ColumnTwoNorms \
+  ( const DistMatrix<Real,U,V,BLOCK>& XReal, \
+    const DistMatrix<Real,U,V,BLOCK>& XImag, \
+          DistMatrix<Real,V,STAR,BLOCK>& norms );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
   template void ColumnTwoNorms \
-  ( const Matrix<Real>& XReal, const Matrix<Real>& XImag, \
-    Matrix<Real>& norms ); \
-  template void ColumnTwoNorms \
-  ( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, \
-    Matrix<Real>& norms ); \
+  ( const Matrix<Real>& XReal, \
+    const Matrix<Real>& XImag, \
+          Matrix<Real>& norms ); \
   PROTO_REAL_DIST(Real,MC,  MR  ) \
   PROTO_REAL_DIST(Real,MC,  STAR) \
   PROTO_REAL_DIST(Real,MD,  STAR) \

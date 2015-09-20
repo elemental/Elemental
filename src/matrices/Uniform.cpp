@@ -45,37 +45,15 @@ void Uniform( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
     MakeUniform( A, center, radius );
 }
 
-template<typename T>
-void MakeUniform( DistMultiVec<T>& X, T center, Base<T> radius )
-{
-    DEBUG_ONLY(CSE cse("MakeUniform"))
-    const int localHeight = X.LocalHeight();
-    const int width = X.Width();
-    for( int j=0; j<width; ++j )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            X.SetLocal( iLocal, j, SampleBall(center,radius) );
-}
-
-template<typename T>
-void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
-{
-    DEBUG_ONLY(CSE cse("Uniform"))
-    A.Resize( m, n );
-    MakeUniform( A, center, radius );
-}
-
 #define PROTO(T) \
   template void MakeUniform \
   ( Matrix<T>& A, T center, Base<T> radius ); \
   template void MakeUniform \
   ( AbstractDistMatrix<T>& A, T center, Base<T> radius ); \
-  template void MakeUniform( DistMultiVec<T>& A, T center, Base<T> radius ); \
   template void Uniform \
   ( Matrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
   template void Uniform \
-  ( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
-  template void Uniform \
-  ( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius );
+  ( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

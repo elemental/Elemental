@@ -27,14 +27,6 @@ void Ones( AbstractDistMatrix<T>& A, Int m, Int n )
 }
 
 template<typename T>
-void Ones( DistMultiVec<T>& A, Int m, Int n )
-{
-    DEBUG_ONLY(CSE cse("Ones"))
-    A.Resize( m, n );
-    Fill( A, T(1) );
-}
-
-template<typename T>
 void Ones( SparseMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CSE cse("Ones"))
@@ -53,7 +45,6 @@ void Ones( DistSparseMatrix<T>& A, Int m, Int n )
 #define PROTO(T) \
   template void Ones( Matrix<T>& A, Int m, Int n ); \
   template void Ones( AbstractDistMatrix<T>& A, Int m, Int n ); \
-  template void Ones( DistMultiVec<T>& A, Int m, Int n ); \
   template void Ones( SparseMatrix<T>& A, Int m, Int n ); \
   template void Ones( DistSparseMatrix<T>& A, Int m, Int n );
 

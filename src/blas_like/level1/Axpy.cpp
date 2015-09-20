@@ -144,21 +144,6 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     Y.ProcessLocalQueues();
 }
 
-template<typename T,typename S>
-void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
-{
-    DEBUG_ONLY(
-      CSE cse("Axpy");
-      if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
-          LogicError("X and Y must have congruent communicators");
-      if( X.Height() != Y.Height() )
-          LogicError("X and Y must be the same height");
-      if( X.Width() != Y.Width() )
-          LogicError("X and Y must be the same width");
-    )
-    Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
-}
-
 #define PROTO_TYPES(T,S) \
   template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
@@ -168,8 +153,7 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
   template void Axpy \
   ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Axpy \
-  ( S alpha, const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
-  template void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
+  ( S alpha, const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

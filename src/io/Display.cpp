@@ -127,23 +127,6 @@ void Display( const BlockMatrix<T>& A, string title )
     }
 }
 
-template<typename T>
-void Display( const DistMultiVec<T>& X, string title )
-{
-    DEBUG_ONLY(CSE cse("Display [DistMultiVec]"))
-    const int commRank = mpi::Rank( X.Comm() );
-    if( commRank == 0 )
-    {
-        Matrix<T> XLoc;
-        CopyFromRoot( X, XLoc );
-        Display( XLoc, title );
-    }
-    else
-    {
-        CopyFromNonRoot( X, 0 );
-    }
-}
-
 void Display( const Graph& graph, string title )
 {
     DEBUG_ONLY(CSE cse("Display [Graph]"))
@@ -347,7 +330,6 @@ void DisplayLocal
   ( const ElementalMatrix<T>& A, string title ); \
   template void Display \
   ( const BlockMatrix<T>& A, string title ); \
-  template void Display( const DistMultiVec<T>& X, string title ); \
   template void Display \
   ( const SparseMatrix<T>& A, string title ); \
   template void Display \

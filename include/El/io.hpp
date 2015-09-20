@@ -86,8 +86,6 @@ void Display( const ElementalMatrix<T>& A, string title="DistMatrix" );
 template<typename T>
 void Display
 ( const BlockMatrix<T>& A, string title="BlockDistMatrix" );
-template<typename T>
-void Display( const DistMultiVec<T>& X, string title="DistMultiVec" );
 
 // Graphs and sparse matrices
 // --------------------------
@@ -121,11 +119,7 @@ void Print
 ( const ElementalMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
 template<typename T>
 void Print
-( const BlockMatrix<T>& A, string title="BlockDistMatrix",
-  ostream& os=cout );
-template<typename T>
-void Print
-( const DistMultiVec<T>& X, string title="DistMultiVec", ostream& os=cout );
+( const BlockMatrix<T>& A, string title="BlockDistMatrix", ostream& os=cout );
 
 // Graphs and sparse matrices
 // --------------------------

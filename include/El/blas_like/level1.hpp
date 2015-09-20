@@ -90,8 +90,6 @@ void Axpy( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const BlockMatrix<T>& X, BlockMatrix<T>& Y );
 template<typename T,typename S>
-void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
-template<typename T,typename S>
 void Axpy( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
@@ -161,33 +159,30 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
 template<typename F>
 void ColumnTwoNorms
 ( const Matrix<F>& X, Matrix<Base<F>>& norms );
-template<typename F,Dist U,Dist V>
+template<typename F,Dist U,Dist V,DistWrap wrap>
 void ColumnTwoNorms
-( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
-template<typename F>
-void ColumnTwoNorms
-( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
+( const DistMatrix<F,U,V,wrap>& X,
+        DistMatrix<Base<F>,V,STAR,wrap>& norms );
 template<typename F>
 void ColumnTwoNorms
 ( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F>
 void ColumnTwoNorms
-( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+( const DistSparseMatrix<F>& X,
+        DistMatrix<Base<F>,VC,STAR,BLOCK>& norms );
 
 // Separated complex data
 // ^^^^^^^^^^^^^^^^^^^^^^
 template<typename Real>
 void ColumnTwoNorms
-( const Matrix<Real>& XReal, const Matrix<Real>& XImag, 
-  Matrix<Real>& norms );
-template<typename Real,Dist U,Dist V>
+( const Matrix<Real>& XReal,
+  const Matrix<Real>& XImag, 
+        Matrix<Real>& norms );
+template<typename Real,Dist U,Dist V,DistWrap wrap>
 void ColumnTwoNorms
-( const DistMatrix<Real,U,V>& XReal, const DistMatrix<Real,U,V>& XImag, 
-  DistMatrix<Real,V,STAR>& norms );
-template<typename Real>
-void ColumnTwoNorms
-( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
-  Matrix<Real>& norms );
+( const DistMatrix<Real,U,V,wrap>& XReal,
+  const DistMatrix<Real,U,V,wrap>& XImag, 
+        DistMatrix<Real,V,STAR,wrap>& norms );
 
 // Max norms
 // ---------
@@ -196,16 +191,15 @@ void ColumnMaxNorms
 ( const Matrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F,Dist U,Dist V>
 void ColumnMaxNorms
-( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms );
-template<typename F>
-void ColumnMaxNorms
-( const DistMultiVec<F>& X, Matrix<Base<F>>& norms );
+( const DistMatrix<F,U,V>& X,
+        DistMatrix<Base<F>,V,STAR>& norms );
 template<typename F>
 void ColumnMaxNorms
 ( const SparseMatrix<F>& X, Matrix<Base<F>>& norms );
 template<typename F>
 void ColumnMaxNorms
-( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& norms );
+( const DistSparseMatrix<F>& X,
+        DistMatrix<Base<F>,VC,STAR,BLOCK>& norms );
 
 // Column minimum absolute values
 // ==============================
@@ -214,34 +208,26 @@ void ColumnMaxNorms
 template<typename F>
 void ColumnMinAbs
 ( const Matrix<F>& X, Matrix<Base<F>>& mins );
-template<typename F,Dist U,Dist V>
+template<typename F,Dist U,Dist V,DistWrap wrap>
 void ColumnMinAbs
-( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& mins );
-template<typename F>
-void ColumnMinAbs
-( const DistMultiVec<F>& X, Matrix<Base<F>>& mins );
+( const DistMatrix<F,U,V,wrap>& X, DistMatrix<Base<F>,V,STAR,wrap>& mins );
 template<typename F>
 void ColumnMinAbs
 ( const SparseMatrix<F>& X, Matrix<Base<F>>& mins );
 template<typename F>
 void ColumnMinAbs
-( const DistSparseMatrix<F>& X, DistMultiVec<Base<F>>& mins );
+( const DistSparseMatrix<F>& X, DistMatrix<Base<F>,V,STAR,BLOCK>& mins );
 
 template<typename F>
 void ColumnMinAbsNonzero
 ( const Matrix<F>& X, 
   const Matrix<Base<F>>& upperBounds,
         Matrix<Base<F>>& mins );
-template<typename F,Dist U,Dist V>
+template<typename F,Dist U,Dist V,DistWrap wrap>
 void ColumnMinAbsNonzero
-( const DistMatrix<F,U,V>& X, 
-  const DistMatrix<Base<F>,V,STAR>& upperBounds,
-        DistMatrix<Base<F>,V,STAR>& mins );
-template<typename F>
-void ColumnMinAbsNonzero
-( const DistMultiVec<F>& X, 
-  const Matrix<Base<F>>& upperBounds,
-        Matrix<Base<F>>& mins );
+( const DistMatrix<F,U,V,wrap>& X, 
+  const DistMatrix<Base<F>,V,STAR,wrap>& upperBounds,
+        DistMatrix<Base<F>,V,STAR,wrap>& mins );
 template<typename F>
 void ColumnMinAbsNonzero
 ( const SparseMatrix<F>& X, 
@@ -250,8 +236,10 @@ void ColumnMinAbsNonzero
 template<typename F>
 void ColumnMinAbsNonzero
 ( const DistSparseMatrix<F>& X, 
-  const DistMultiVec<Base<F>>& upperBounds,
-        DistMultiVec<Base<F>>& mins );
+  const DistMatrix<Base<F>,VC,STAR,BLOCK>& upperBounds,
+        DistMatrix<Base<F>,VC,STAR,BLOCK>& mins );
+
+// LEFT OFF HERE
 
 // Row norms
 // =========
@@ -1682,8 +1670,6 @@ template<typename T>
 void Zero( SparseMatrix<T>& A, bool clearMemory=true );
 template<typename T>
 void Zero( DistSparseMatrix<T>& A, bool clearMemory=true );
-template<typename T>
-void Zero( DistMultiVec<T>& A );
 
 } // namespace El
 

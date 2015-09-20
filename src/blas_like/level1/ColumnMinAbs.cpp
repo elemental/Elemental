@@ -51,9 +51,10 @@ void ColumnMinAbsNonzero
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F,Dist U,Dist V,DistWrap wrap>
 void ColumnMinAbs
-( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& mins )
+( const DistMatrix<F,U,V,wrap>& A,
+        DistMatrix<Base<F>,V,STAR,wrap>& mins )
 {
     DEBUG_ONLY(CSE cse("ColumnMinAbs"))
     const Int n = A.Width();
@@ -63,40 +64,22 @@ void ColumnMinAbs
     AllReduce( mins.Matrix(), A.ColComm(), mpi::MIN );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F,Dist U,Dist V,DistWrap wrap>
 void ColumnMinAbsNonzero
-( const DistMatrix<F,U,V>& A, 
-  const DistMatrix<Base<F>,V,STAR>& upperBounds,
-        DistMatrix<Base<F>,V,STAR>& mins )
+( const DistMatrix<F,U,V,wrap>& A, 
+  const DistMatrix<Base<F>,V,STAR,wrap>& upperBounds,
+        DistMatrix<Base<F>,V,STAR,wrap>& mins )
 {
     DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
     if( upperBounds.ColAlign() != A.RowAlign() )
         LogicError("upperBounds was not properly aligned");
+    // TODO: Ensure blocksizes are compatible too? via 'AlignedWith'?
     const Int n = A.Width();
     mins.AlignWith( A );
     mins.Resize( n, 1 );
     ColumnMinAbsNonzero
     ( A.LockedMatrix(), upperBounds.LockedMatrix(), mins.Matrix() );
     AllReduce( mins.Matrix(), A.ColComm(), mpi::MIN );
-}
-
-template<typename F>
-void ColumnMinAbs( const DistMultiVec<F>& X, Matrix<Base<F>>& mins )
-{
-    DEBUG_ONLY(CSE cse("ColumnMinAbs"))
-    ColumnMinAbs( X.LockedMatrix(), mins );
-    AllReduce( mins, X.Comm(), mpi::MIN );
-}
-
-template<typename F>
-void ColumnMinAbsNonzero
-( const DistMultiVec<F>& X, 
-  const Matrix<Base<F>>& upperBounds, 
-        Matrix<Base<F>>& mins )
-{
-    DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
-    ColumnMinAbsNonzero( X.LockedMatrix(), upperBounds, mins );
-    AllReduce( mins, X.Comm(), mpi::MIN );
 }
 
 template<typename F>
@@ -169,7 +152,8 @@ void ColumnMinAbsNonzero
 
 template<typename F>
 void ColumnMinAbs
-( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins )
+( const DistSparseMatrix<F>& A,
+        DistMatrix<Base<F>,VC,STAR,BLOCK>& mins )
 {
     DEBUG_ONLY(CSE cse("ColumnMinAbs"))
     typedef Base<F> Real;
@@ -183,6 +167,7 @@ void ColumnMinAbs
 
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
+    mins.AlignWith( A );
     Zeros( mins, A.Width(), 1 );
     Fill( mins, std::numeric_limits<Real>::max() );
     A.InitializeMultMeta();
@@ -225,8 +210,8 @@ void ColumnMinAbs
 template<typename F>
 void ColumnMinAbsNonzero
 ( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& upperBounds,
-        DistMultiVec<Base<F>>& mins )
+  const DistMatrix<Base<F>,VC,STAR,BLOCK>& upperBounds,
+        DistMatrix<Base<F>,VC,STAR,BLOCK>& mins )
 {
     DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
     typedef Base<F> Real;

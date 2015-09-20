@@ -67,23 +67,6 @@ void Print
     }
 }
 
-template<typename T>
-void Print( const DistMultiVec<T>& X, string title, ostream& os )
-{
-    DEBUG_ONLY(CSE cse("Print [DistMultiVec]"))
-    const int commRank = mpi::Rank( X.Comm() );
-    if( commRank == 0 )
-    {
-        Matrix<T> XLoc;
-        CopyFromRoot( X, XLoc );
-        Print( XLoc, title, os ); 
-    }
-    else
-    {
-        CopyFromNonRoot( X, 0 );
-    }
-}
-
 void Print( const Graph& graph, string msg, ostream& os )
 {
     DEBUG_ONLY(CSE cse("Print [Graph]"))
@@ -188,8 +171,6 @@ void Print( const vector<T>& x, string title, ostream& os )
   template void Print \
   ( const BlockMatrix<T>& A, \
     string title, ostream& os ); \
-  template void Print \
-  ( const DistMultiVec<T>& X, string title, ostream& os ); \
   template void Print \
   ( const SparseMatrix<T>& A, string title, ostream& os ); \
   template void Print \

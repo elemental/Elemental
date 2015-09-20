@@ -75,7 +75,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d );
 template<typename S,typename T>
 void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d );
 template<typename S,typename T>
-void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d );
+void Diagonal( DistSparseMatrix<S>& D, const AbstractDistMatrix<T>& d );
 
 // Druinsky-Toledo matrices
 // ========================
@@ -487,8 +487,6 @@ void Ones( Matrix<T>& A, Int m, Int n );
 template<typename T>
 void Ones( AbstractDistMatrix<T>& A, Int m, Int n );
 template<typename T>
-void Ones( DistMultiVec<T>& A, Int m, Int n );
-template<typename T>
 void Ones( SparseMatrix<T>& A, Int m, Int n );
 template<typename T>
 void Ones( DistSparseMatrix<T>& A, Int m, Int n );
@@ -620,8 +618,6 @@ template<typename T>
 void Zeros( SparseMatrix<T>& A, Int m, Int n );
 template<typename T>
 void Zeros( DistSparseMatrix<T>& A, Int m, Int n );
-template<typename T>
-void Zeros( DistMultiVec<T>& A, Int m, Int n );
 
 // Random
 // ######
@@ -639,17 +635,12 @@ template<typename F>
 void MakeGaussian( Matrix<F>& A, F mean=0, Base<F> stddev=1 );
 template<typename F>
 void MakeGaussian( AbstractDistMatrix<F>& A, F mean=0, Base<F> stddev=1 );
-template<typename F>
-void MakeGaussian( DistMultiVec<F>& A, F mean=0, Base<F> stddev=1 );
 
 template<typename F>
 void Gaussian( Matrix<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
 template<typename F>
 void Gaussian
 ( AbstractDistMatrix<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
-template<typename F>
-void Gaussian
-( DistMultiVec<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
 
 // Haar
 // ====
@@ -703,16 +694,12 @@ template<typename T>
 void MakeUniform( Matrix<T>& A, T center=0, Base<T> radius=1 );
 template<typename T>
 void MakeUniform( AbstractDistMatrix<T>& A, T center=0, Base<T> radius=1 );
-template<typename T>
-void MakeUniform( DistMultiVec<T>& X, T center=0, Base<T> radius=1 );
 
 template<typename T>
 void Uniform( Matrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
 template<typename T>
 void Uniform
 ( AbstractDistMatrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
-template<typename T>
-void Uniform( DistMultiVec<T>& X, Int m, Int n, T center=0, Base<T> radius=1 );
 
 // Uniform Helmholtz Green's
 // =========================

@@ -48,19 +48,11 @@ void Zero( DistSparseMatrix<T>& A, bool clearMemory )
     A.Resize( m, n );
 }
 
-template<typename T>
-void Zero( DistMultiVec<T>& X )
-{
-    DEBUG_ONLY(CSE cse("Zero"))
-    Zero( X.Matrix() );
-}
-
 #define PROTO(T) \
   template void Zero( Matrix<T>& A ); \
   template void Zero( AbstractDistMatrix<T>& A ); \
   template void Zero( SparseMatrix<T>& A, bool clearMemory ); \
-  template void Zero( DistSparseMatrix<T>& A, bool clearMemory ); \
-  template void Zero( DistMultiVec<T>& A );
+  template void Zero( DistSparseMatrix<T>& A, bool clearMemory );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
