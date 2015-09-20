@@ -131,7 +131,7 @@ template<typename T>
 void Display( const DistMultiVec<T>& X, string title )
 {
     DEBUG_ONLY(CSE cse("Display [DistMultiVec]"))
-    const Int commRank = mpi::Rank( X.Comm() );
+    const int commRank = mpi::Rank( X.Comm() );
     if( commRank == 0 )
     {
         Matrix<T> XLoc;

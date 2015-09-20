@@ -634,7 +634,7 @@ inline Int RegularizedSolveAfterNoPromoteSingle
           LogicError("Expected a single right-hand side");
     )
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
     Timer timer;
 
     DistMultiVec<F> bOrig(comm);
@@ -791,7 +791,7 @@ inline Int RegularizedSolveAfterNoPromoteSingle
           LogicError("Expected a single right-hand side");
     )
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
     Timer timer;
 
     DistMultiVec<F> bOrig(comm);
@@ -971,7 +971,7 @@ inline Int RegularizedSolveAfterPromoteSingle
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
     Timer timer;
 
     DistMultiVec<PF> bProm(comm), bOrigProm(comm);
@@ -1141,7 +1141,7 @@ inline Int RegularizedSolveAfterPromoteSingle
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
     Timer timer, iterTimer;
 
     DistMultiVec<PF> bProm(comm), bOrigProm(comm);
@@ -1893,7 +1893,7 @@ inline Int LGMRESSolveAfterSingle
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
 
     // x := 0
     // ======
@@ -2169,7 +2169,7 @@ inline Int LGMRESSolveAfterSingle
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
 
     // x := 0
     // ======
@@ -3052,7 +3052,7 @@ inline Int FGMRESSolveAfterSingle
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
     Timer iterTimer, timer;
 
     // x := 0
@@ -3405,7 +3405,7 @@ inline Int FGMRESSolveAfterSingle
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
-    const Int commRank = mpi::Rank(comm);
+    const int commRank = mpi::Rank(comm);
     Timer iterTimer, timer;
 
     // x := 0

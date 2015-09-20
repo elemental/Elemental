@@ -74,9 +74,7 @@ inline void ReportException( const exception& e, ostream& os )
         if( string(e.what()) != "" )
         {
             os << "Process " << mpi::WorldRank() << " caught error message:\n"
-               << e.what() 
-               << " (with castExcept.what()=" << castExcept.what() << ")" 
-               << endl;
+               << e.what() << endl;
         }
         DEBUG_ONLY(DumpCallStack(os))
         mpi::Abort( mpi::COMM_WORLD, 1 );
@@ -156,8 +154,8 @@ inline void
 EnsureConsistent( T alpha, mpi::Comm comm, string name )
 {
     string tag = ( name=="" ? "" : name+" " );
-    const Int commSize = mpi::Size( comm );
-    const Int commRank = mpi::Rank( comm );
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
     vector<T> a(commSize);
     mpi::Gather( &alpha, 1, a.data(), 1, 0, comm );
     if( commRank == 0 ) 

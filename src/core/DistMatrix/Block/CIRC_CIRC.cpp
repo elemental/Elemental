@@ -42,11 +42,11 @@ BDM& BDM::operator=( const BDM& A )
 
 template<typename T>
 mpi::Comm BDM::DistComm() const EL_NO_EXCEPT
-{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 mpi::Comm BDM::RedundantComm() const EL_NO_EXCEPT
-{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 mpi::Comm BDM::CrossComm() const EL_NO_EXCEPT
@@ -54,11 +54,11 @@ mpi::Comm BDM::CrossComm() const EL_NO_EXCEPT
 
 template<typename T>
 mpi::Comm BDM::ColComm() const EL_NO_EXCEPT
-{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 mpi::Comm BDM::RowComm() const EL_NO_EXCEPT
-{ return ( this->Participating() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 int BDM::ColStride() const EL_NO_EXCEPT { return 1; }
