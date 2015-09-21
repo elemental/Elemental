@@ -240,6 +240,8 @@ DEBUG_ONLY(
 
     template<typename... Args>
     void LogFileCout( Args... args );
+
+    void LogFileClose();
 #endif
 
 void ReportException( const exception& e, ostream& os=cerr );
