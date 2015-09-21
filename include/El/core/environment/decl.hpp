@@ -239,7 +239,12 @@ DEBUG_ONLY(
     void LogFileCoutStr( std::string str );
 
     template<typename... Args>
-    void LogFileCout( Args... args );
+    inline void LogFileCout( Args... args )
+    {
+        std::ostringstream str;
+        BuildStream( str, args... );
+        LogFileCoutStr( str.str() );
+    }
 
     void LogFileClose();
 #endif

@@ -544,14 +544,6 @@ DEBUG_ONLY(
     void LogFileCoutStr( std::string str )
     { ::logFile << str << std::endl; }
 
-    template<typename... Args>
-    void LogFileCout( Args... args )
-    {
-        std::ostringstream str;
-        BuildStream( str, args... );
-        LogFileCoutStr( str.str() );
-    }
-
     void LogFileClose() { ::logFile.close(); }
 #endif
 // LogFile DEBUG_ONLY
