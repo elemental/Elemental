@@ -231,6 +231,22 @@ DEBUG_ONLY(
     typedef CallStackEntry CSE;
 )
 
+#ifndef EL_RELEASE
+    void BuildStream( std::ostringstream& os );
+
+    template<typename T, typename... Args>
+    void BuildStream( std::ostringstream& os, T item, Args... args );
+
+    void LogFileOpen( char* filename );
+
+    std::ostream & LogFileOS();
+
+    void LogFileCoutStr( std::string str );
+
+    template<typename... Args>
+    void LogFileCout( Args... args );
+#endif
+
 void ReportException( const exception& e, ostream& os=cerr );
 
 void ComplainIfDebug();

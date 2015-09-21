@@ -31,6 +31,9 @@ std::mt19937 generator;
 // Debugging
 DEBUG_ONLY(std::stack<string> callStack)
 
+// LogFile in Debugging
+DEBUG_ONLY(std::ofstream logFile)
+
 // Output/logging
 Int indentLevel=0;
 Int spacesPerIndent=2;
@@ -363,6 +366,12 @@ void Initialize( int& argc, char**& argv )
     const long seed = (secs<<16) | (rank & 0xFFFF);
     ::generator.seed( seed );
     srand( seed );
+
+    DEBUG_ONLY(
+        char sbuf[50];
+        sprintf(sbuf,"El-Proc%03d.log",rank);
+        LogFileOpen(sbuf);
+    )
 }
 
 void Finalize()
@@ -411,6 +420,8 @@ void Finalize()
         while( ! ::blocksizeStack.empty() )
             ::blocksizeStack.pop();
     }
+
+    DEBUG_ONLY(LogFileClose())
 }
 
 Args& GetArgs()
@@ -514,6 +525,41 @@ DEBUG_ONLY(
     }
 
 ) // DEBUG_ONLY
+
+// LogFile Debug only
+#ifndef EL_RELEASE
+    void BuildStream( std::ostringstream& os ) { }
+
+    template<typename T, typename... Args>
+    void BuildStream( std::ostringstream& os, T item, Args... args )
+    {
+        os << item;
+        BuildStream( os, args... );
+    }
+
+    void LogFileOpen( char* filename )
+    {
+        if( ::logFile.is_open() )
+            LogFileClose();
+        ::logFile.open(filename);
+    }
+
+    std::ostream & LogFileOS() { return ::logFile; }
+
+    void LogFileCoutStr( std::string str )
+    { ::logFile << str << std::endl; }
+
+    template<typename... Args>
+    void LogFileCout( Args... args )
+    {
+        std::ostringstream str;
+        BuildStream( str, args... );
+        LogFileCoutStr( str.str() );
+    }
+
+    void LogFileClose() { ::logFile.close(); }
+#endif
+// LogFile DEBUG_ONLY
 
 Int PushIndent() { return ::indentLevel++; }
 Int PopIndent() { return ::indentLevel--; }
