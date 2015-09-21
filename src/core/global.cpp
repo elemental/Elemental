@@ -31,8 +31,10 @@ std::mt19937 generator;
 // Debugging
 DEBUG_ONLY(std::stack<string> callStack)
 
+#ifndef EL_RELEASE
 // LogFile in Debugging
-DEBUG_ONLY(std::ofstream logFile)
+std::ofstream logFile;
+#endif
 
 // Output/logging
 Int indentLevel=0;
@@ -367,11 +369,11 @@ void Initialize( int& argc, char**& argv )
     ::generator.seed( seed );
     srand( seed );
 
-    DEBUG_ONLY(
+#ifndef EL_RELEASE
         char sbuf[50];
         sprintf(sbuf,"El-Proc%03d.log",rank);
         LogFileOpen(sbuf);
-    )
+#endif
 }
 
 void Finalize()
@@ -421,7 +423,9 @@ void Finalize()
             ::blocksizeStack.pop();
     }
 
-    DEBUG_ONLY(LogFileClose())
+#ifndef EL_RELEASE
+    LogFileClose();
+#endif
 }
 
 Args& GetArgs()
@@ -528,15 +532,6 @@ DEBUG_ONLY(
 
 // LogFile Debug only
 #ifndef EL_RELEASE
-    void BuildStream( std::ostringstream& os ) { }
-
-    template<typename T, typename... Args>
-    void BuildStream( std::ostringstream& os, T item, Args... args )
-    {
-        os << item;
-        BuildStream( os, args... );
-    }
-
     void LogFileOpen( char* filename )
     {
         if( ::logFile.is_open() )

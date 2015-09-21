@@ -232,11 +232,6 @@ DEBUG_ONLY(
 )
 
 #ifndef EL_RELEASE
-    void BuildStream( std::ostringstream& os );
-
-    template<typename T, typename... Args>
-    void BuildStream( std::ostringstream& os, T item, Args... args );
-
     void LogFileOpen( char* filename );
 
     std::ostream & LogFileOS();
