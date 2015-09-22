@@ -188,16 +188,65 @@ ElementalMatrix<T>::AlignRows( int rowAlign, bool constrain )
 
 template<typename T>
 void
-ElementalMatrix<T>::FreeAlignments() 
+ElementalMatrix<T>::AlignWith
+( const El::DistData& data, bool constrain, bool allowMismatch )
 { 
-    if( !this->Viewing() )
-    {
-        this->colConstrained_ = false;
-        this->rowConstrained_ = false;
-        this->rootConstrained_ = false;
-    }
-    else
-        LogicError("Cannot free alignments of views");
+    DEBUG_ONLY(CSE cse("EM::AlignWith"))
+    this->AlignColsWith( data, constrain, allowMismatch );
+    this->AlignRowsWith( data, constrain, allowMismatch );
+}
+
+template<typename T>
+void
+ElementalMatrix<T>::AlignColsWith
+( const El::DistData& data, bool constrain, bool allowMismatch )
+{
+    DEBUG_ONLY(CSE cse("EM::AlignColsWith"))
+    if( data.blockHeight != 1 || data.colCut != 0 )
+        LogicError("Tried to align elemental matrix with non-trivial block");
+
+    this->SetGrid( *data.grid );
+    this->SetRoot( data.root );
+    if( data.colDist == this->ColDist() || 
+        data.colDist == this->PartialColDist() )
+        this->AlignCols( data.colAlign, constrain );
+    else if( data.rowDist == this->ColDist() ||
+             data.rowDist == this->PartialColDist() )
+        this->AlignCols( data.rowAlign, constrain );
+    else if( data.colDist == this->PartialUnionColDist() )
+        this->AlignCols( data.colAlign % this->ColStride(), constrain );
+    else if( data.rowDist == this->PartialUnionColDist() )
+        this->AlignCols( data.rowAlign % this->ColStride(), constrain );
+    else if( this->ColDist() != this->CollectedColDist() && 
+             data.colDist    != this->CollectedColDist() && 
+             data.rowDist    != this->CollectedColDist() && !allowMismatch )
+        LogicError("Nonsensical alignment");
+}
+
+template<typename T>
+void ElementalMatrix<T>::AlignRowsWith
+( const El::DistData& data, bool constrain, bool allowMismatch )
+{
+    DEBUG_ONLY(CSE cse("EM::AlignRowsWith"))
+    if( data.blockWidth != 1 || data.rowCut != 0 )
+        LogicError("Tried to align elemental matrix with non-trivial block");
+
+    this->SetGrid( *data.grid );
+    this->SetRoot( data.root );
+    if( data.colDist == this->RowDist() || 
+        data.colDist == this->PartialRowDist() )
+        this->AlignRows( data.colAlign, constrain );
+    else if( data.rowDist == this->RowDist() || 
+             data.rowDist == this->PartialRowDist() )
+        this->AlignRows( data.rowAlign, constrain );
+    else if( data.colDist == this->PartialUnionRowDist() )
+        this->AlignRows( data.colAlign % this->RowStride(), constrain );
+    else if( data.rowDist == this->PartialUnionRowDist() )
+        this->AlignRows( data.rowAlign % this->RowStride(), constrain );
+    else if( this->RowDist() != this->CollectedRowDist() && 
+             data.colDist    != this->CollectedRowDist() && 
+             data.rowDist    != this->CollectedRowDist() && !allowMismatch )
+        LogicError("Nonsensical alignment");
 }
 
 template<typename T>
@@ -546,6 +595,33 @@ Int ElementalMatrix<T>::GlobalCol( Int jLoc ) const EL_NO_EXCEPT
 
 // Diagonal manipulation
 // =====================
+template<typename T>
+bool ElementalMatrix<T>::DiagonalAlignedWith
+( const El::DistData& d, Int offset ) const EL_NO_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("EM::DiagonalAlignedWith"))
+    if( this->Grid() != *d.grid )
+        return false;
+
+    if( d.blockHeight != 1 || d.blockWidth != 1 ||
+        d.colCut != 0 || d.rowCut != 0 )
+        return false;
+
+    const Int diagRoot = DiagonalRoot(offset);
+    if( diagRoot != d.root )
+        return false;
+
+    const int diagAlign = DiagonalAlign(offset);
+    const Dist UDiag = DiagCol( this->ColDist(), this->RowDist() ); 
+    const Dist VDiag = DiagRow( this->ColDist(), this->RowDist() );
+    if( d.colDist == UDiag && d.rowDist == VDiag )
+        return d.colAlign == diagAlign;
+    else if( d.colDist == VDiag && d.rowDist == UDiag )
+        return d.rowAlign == diagAlign;
+    else
+        return false;
+}
+
 template<typename T>
 bool ElementalMatrix<T>::DiagonalAlignedWith
 ( const El::ElementalData& d, Int offset ) const EL_NO_EXCEPT

@@ -867,121 +867,12 @@ void DistFront<F>::Unpack
     A.SetComm( comm );
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
+
+    const Int numLocalEntries = NumLocalEntries();
+    A.Reserve( numLocalEntries, numLocalEntries ); 
     
-    // Compute the metadata for sending the entries of the frontal tree
-    // ================================================================
-    // TODO: Avoid metadata redundancy within each row of a front
-    vector<int> sendSizes(commSize,0);
-    function<void(const Separator&,
-                  const NodeInfo&,
-                  const Front<F>&)> localCount =
-      [&]( const Separator& sep, const NodeInfo& node, 
-           const Front<F>& front )
-      {
-        const Int numChildren = sep.children.size();
-        for( Int c=0; c<numChildren; ++c )
-            localCount
-            ( *sep.children[c], *node.children[c], *front.children[c] );
-
-        if( front.sparseLeaf )
-        {
-            LogicError("DistFront::Unpack doesn't yet supported sparse leaves");
-        }
-        else
-        {
-            for( Int s=0; s<node.size; ++s )
-            {
-                const int q = A.RowOwner(node.off+s);
-                sendSizes[q] += s+1;
-            }
-        }
-
-        const Int structSize = node.lowerStruct.size();
-        for( Int s=0; s<structSize; ++s ) 
-        {
-            const int q = A.RowOwner(node.lowerStruct[s]);
-            sendSizes[q] += node.size;
-        }
-      };
-    function<void(const DistSeparator&,
-                  const DistNodeInfo&,
-                  const DistFront<F>&)> count =  
-      [&]( const DistSeparator& sep, const DistNodeInfo& node,
-           const DistFront<F>& front )
-      {
-        if( sep.duplicate != nullptr )
-        {
-            localCount( *sep.duplicate, *node.duplicate, *front.duplicate );
-            return;
-        }
-        count( *sep.child, *node.child, *front.child );
-
-        if( FrontIs1D(front.type) )
-        {
-            const Int frontHeight = front.L1D.Height();
-            auto FTL = front.L1D( IR(0,node.size), IR(0,node.size) );
-            auto FBL = front.L1D( IR(node.size,frontHeight), IR(0,node.size) );
-            
-            const Int localWidth = FTL.LocalWidth(); 
-            const Int topLocalHeight = FTL.LocalHeight();
-            const Int botLocalHeight = FBL.LocalHeight();
-
-            for( Int sLoc=0; sLoc<topLocalHeight; ++sLoc )
-            {
-                const Int s = FTL.GlobalRow(sLoc);
-                const Int i = node.off + s;
-                const int q = A.RowOwner(i);
-                for( Int tLoc=0; tLoc<localWidth; ++tLoc )
-                    if( FTL.GlobalCol(tLoc) <= s )
-                        ++sendSizes[q];
-            }
-
-            for( Int sLoc=0; sLoc<botLocalHeight; ++sLoc )
-            {
-                const Int s = FBL.GlobalRow(sLoc);
-                const Int i = node.lowerStruct[s];
-                const int q = A.RowOwner(i);
-                for( Int tLoc=0; tLoc<localWidth; ++tLoc )
-                    ++sendSizes[q];
-            }
-        }
-        else
-        {
-            const Int frontHeight = front.L2D.Height();
-            auto FTL = front.L2D( IR(0,node.size), IR(0,node.size) );
-            auto FBL = front.L2D( IR(node.size,frontHeight), IR(0,node.size) );
-
-            const Int localWidth = FTL.LocalWidth(); 
-            const Int topLocalHeight = FTL.LocalHeight();
-            const Int botLocalHeight = FBL.LocalHeight();
-
-            for( Int sLoc=0; sLoc<topLocalHeight; ++sLoc )
-            {
-                const Int s = FTL.GlobalRow(sLoc);
-                const int q = A.RowOwner(node.off+s);
-                for( Int tLoc=0; tLoc<localWidth; ++tLoc )
-                    if( FTL.GlobalCol(tLoc) <= s )
-                        ++sendSizes[q];
-            }
-
-            for( Int sLoc=0; sLoc<botLocalHeight; ++sLoc )
-            {
-                const Int s = FBL.GlobalRow(sLoc);
-                const Int i = node.lowerStruct[s];
-                const int q = A.RowOwner(i);
-                for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                    ++sendSizes[q];
-            }
-        }
-      };
-    count( rootSep, rootInfo, *this );
-
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    vector<Entry<F>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    // Queue the updates
+    // =================
     function<void(const Separator&,
                   const NodeInfo&,
                   const Front<F>&)> localPack =
@@ -993,33 +884,42 @@ void DistFront<F>::Unpack
             localPack
             ( *sep.children[c], *node.children[c], *front.children[c] );
 
+        const Int structSize = node.lowerStruct.size();
         if( front.sparseLeaf )
         {
-            LogicError("Sparse leaves are not yet supported");
+            const Int numEntries = front.LSparse.NumEntries();
+            for( Int e=0; e<numEntries; ++e )
+                A.QueueUpdate
+                ( front.LSparse.Row(e)+node.off, 
+                  front.LSparse.Col(e)+node.off,
+                  front.LSparse.Value(e), false );
+
+            for( Int s=0; s<structSize; ++s ) 
+            {
+                const Int i = node.lowerStruct[s];
+                const int q = A.RowOwner(i);
+                for( Int t=0; t<node.size; ++t )
+                    A.QueueUpdate
+                    ( i, t+node.off, front.LDense.Get(s,t), false );
+            }
         }
         else
         {
             for( Int s=0; s<node.size; ++s )
             {
                 const Int i = node.off + s;
-                const int q = A.RowOwner(i);
                 for( Int t=0; t<=s; ++t ) 
-                {
-                    F value = front.LDense.Get(s,t);
-                    sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
-                }
+                    A.QueueUpdate
+                    ( i, t+node.off, front.LDense.Get(s,t), false );
             }
-        }
 
-        const Int structSize = node.lowerStruct.size();
-        for( Int s=0; s<structSize; ++s ) 
-        {
-            const Int i = node.lowerStruct[s];
-            const int q = A.RowOwner(i);
-            for( Int t=0; t<node.size; ++t )
+            for( Int s=0; s<structSize; ++s ) 
             {
-                F value = front.LDense.Get(node.size+s,t);
-                sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
+                const Int i = node.lowerStruct[s];
+                const int q = A.RowOwner(i);
+                for( Int t=0; t<node.size; ++t )
+                    A.QueueUpdate
+                    ( i, t+node.off, front.LDense.Get(node.size+s,t), false );
             }
         }
       };
@@ -1055,10 +955,8 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                    {
-                        F value = FTL.GetLocal(sLoc,tLoc);
-                        sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
-                    }
+                        A.QueueUpdate
+                        ( i, t+node.off, FTL.GetLocal(sLoc,tLoc), false );
                 }
             }
 
@@ -1070,8 +968,8 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     Int t = FBL.GlobalCol(tLoc);
-                    F value = FBL.GetLocal(sLoc,tLoc);
-                    sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
+                    A.QueueUpdate
+                    ( i, t+node.off, FBL.GetLocal(sLoc,tLoc), false );
                 }
             }
         }
@@ -1094,10 +992,8 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                    {
-                        F value = FTL.GetLocal(sLoc,tLoc);
-                        sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
-                    }
+                        A.QueueUpdate
+                        ( i, t+node.off, FTL.GetLocal(sLoc,tLoc), false );
                 }
             }
 
@@ -1109,20 +1005,14 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     Int t = FBL.GlobalCol(tLoc);
-                    F value = FBL.GetLocal(sLoc,tLoc);
-                    sendBuf[offs[q]++] = Entry<F>{ i, node.off+t, value };
+                    A.QueueUpdate
+                    ( i, t+node.off, FBL.GetLocal(sLoc,tLoc), false );
                 }
             }
         }
       };
     pack( rootSep, rootInfo, *this );
 
-    // Exchange and unpack
-    // ===================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
-    A.Reserve( recvBuf.size() );
-    for( auto& entry : recvBuf )
-        A.QueueUpdate( entry );
     A.ProcessQueues();
 }
 

@@ -137,10 +137,7 @@ template<typename T>
 DM DM::operator()( Range<Int> I, Range<Int> J )
 {
     DEBUG_ONLY(CSE cse("DM( ind, ind )"))
-    if( this->Locked() )
-        return LockedView( *this, I, J );
-    else
-        return View( *this, I, J );
+    return View( *this, I, J );
 }
 
 template<typename T>

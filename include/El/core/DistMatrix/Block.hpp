@@ -12,36 +12,6 @@
 
 namespace El {
 
-struct BlockData
-{
-    Dist colDist, rowDist;
-    Int blockHeight, blockWidth;
-    int colAlign, rowAlign;
-    Int colCut, rowCut;
-    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
-    const Grid* grid;
-
-    BlockData() { }
-
-    template<typename T>
-    BlockData( const BlockMatrix<T>& A )
-    : colDist(A.ColDist()), rowDist(A.RowDist()),
-      blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
-      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
-      colCut(A.ColCut()), rowCut(A.RowCut()),
-      root(A.Root()), grid(&A.Grid())
-    { }
-};
-inline bool operator==( const BlockData& A, const BlockData& B )
-{ return A.colDist     == B.colDist &&
-         A.rowDist     == B.rowDist &&
-         A.blockHeight == B.blockHeight &&
-         A.blockWidth  == B.blockWidth &&
-         A.colAlign    == B.colAlign &&
-         A.rowAlign    == B.rowAlign &&
-         A.root        == B.root &&
-         A.grid        == B.grid; }
-
 template<typename T> 
 class BlockMatrix : public AbstractDistMatrix<T>
 {
@@ -83,10 +53,17 @@ public:
     ( Int blockHeight, int colAlign, Int colCut=0, bool constrain=true );
     void AlignRows
     ( Int blockWidth, int rowAlign, Int rowCut=0, bool constrain=true );
-    void FreeAlignments();
-    void AlignWith( const El::BlockData& data, bool constrain=true );
-    void AlignColsWith( const El::BlockData& data, bool constrain=true );
-    void AlignRowsWith( const El::BlockData& data, bool constrain=true );
+
+    void AlignWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) override;
+    void AlignColsWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) override;
+    void AlignRowsWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) override;
+
     // TODO: The interface for these routines could be improved
     void AlignAndResize
     ( Int blockHeight, Int blockWidth, 
@@ -142,14 +119,14 @@ public:
     // Basic queries
     // =============
     DistWrap Wrap() const override EL_NO_EXCEPT { return BLOCK; }
-    virtual El::BlockData DistData() const = 0;
+    virtual El::DistData DistData() const = 0;
 
     // Distribution information
     // ------------------------
-    Int BlockHeight() const EL_NO_EXCEPT;
-    Int BlockWidth()  const EL_NO_EXCEPT;
-    Int ColCut()      const EL_NO_EXCEPT;
-    Int RowCut()      const EL_NO_EXCEPT;
+    Int BlockHeight() const override EL_NO_EXCEPT;
+    Int BlockWidth()  const override EL_NO_EXCEPT;
+    Int ColCut()      const override EL_NO_EXCEPT;
+    Int RowCut()      const override EL_NO_EXCEPT;
 
     int RowOwner( Int i )       const override EL_NO_EXCEPT;
     int ColOwner( Int j )       const override EL_NO_EXCEPT;
@@ -161,9 +138,9 @@ public:
     // Diagonal manipulation
     // =====================
     bool DiagonalAlignedWith
-    ( const El::BlockData& d, Int offset=0 ) const;
-    int DiagonalRoot( Int offset=0 ) const;
-    int DiagonalAlign( Int offset=0 ) const;
+    ( const El::DistData& d, Int offset=0 ) const override;
+    int DiagonalRoot( Int offset=0 ) const override;
+    int DiagonalAlign( Int offset=0 ) const override;
 
 protected:
     // Member variables
