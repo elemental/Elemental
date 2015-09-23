@@ -136,7 +136,7 @@ public:
     // Diagonal manipulation
     // =====================
     bool DiagonalAlignedWith
-    ( const El::DistData& d, Int offset=0 ) const EL_NO_EXCEPT;
+    ( const El::DistData& d, Int offset=0 ) const override EL_NO_EXCEPT;
     bool DiagonalAlignedWith
     ( const El::ElementalData& d, Int offset=0 ) const EL_NO_EXCEPT;
     int DiagonalRoot( Int offset=0 ) const override EL_NO_EXCEPT;
