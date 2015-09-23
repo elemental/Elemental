@@ -18,9 +18,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        const Int m = Input("--m","matrix height",200);
-        const Int n = Input("--n","matrix width",200);
-        const Int k = Input("--k","rank of approximation",10);
+        const Int m = Input("--m","matrix height",50);
+        const Int n = Input("--n","matrix width",50);
+        const Int k = Input("--k","rank of approximation",3);
         const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
@@ -39,8 +39,16 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
+
+        NNLSCtrl<Real> ctrl;
+        ctrl.approach = NNLS_QP;
+        ctrl.qpCtrl.mehrotraCtrl.print = true;
+        ctrl.qpCtrl.mehrotraCtrl.time = true;
+        ctrl.socpCtrl.mehrotraCtrl.print = true;
+        ctrl.socpCtrl.mehrotraCtrl.time = true;
+
         DistMatrix<Real> Y;
-        NMF( A, X, Y );
+        NMF( A, X, Y, ctrl );
 
         if( print )
         {
