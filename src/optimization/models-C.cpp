@@ -134,6 +134,22 @@ ElError ElNNLSCtrlDefault_d( ElNNLSCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
+/* Non-negative Matrix factorization
+   ================================= */
+ElError ElNMFCtrlDefault_s( ElNMFCtrl_s* ctrl )
+{
+    ElNNLSCtrlDefault_s( &ctrl->nnlsCtrl );
+    ctrl->maxIter = 20;
+    return EL_SUCCESS;
+}
+
+ElError ElNMFCtrlDefault_d( ElNMFCtrl_d* ctrl )
+{
+    ElNNLSCtrlDefault_d( &ctrl->nnlsCtrl );
+    ctrl->maxIter = 20;
+    return EL_SUCCESS;
+}
+
 /* Robust Principal Component Analysis
    =================================== */
 ElError ElRPCACtrlDefault_s( ElRPCACtrl_s* ctrl )
@@ -686,13 +702,13 @@ ElError ElSVMCtrlDefault_d( ElSVMCtrl_d* ctrl )
   ElError ElNMFX_ ## SIG \
   ( ElConstMatrix_ ## SIG A, \
     ElMatrix_ ## SIG X, ElMatrix_ ## SIG Y, \
-    ElNNLSCtrl_ ## SIG ctrl ) \
+    ElNMFCtrl_ ## SIG ctrl ) \
   { EL_TRY( NMF( *CReflect(A), *CReflect(X), *CReflect(Y), \
       CReflect(ctrl) ) ) } \
   ElError ElNMFXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, \
     ElDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y, \
-    ElNNLSCtrl_ ## SIG ctrl ) \
+    ElNMFCtrl_ ## SIG ctrl ) \
   { EL_TRY( NMF( *CReflect(A), *CReflect(X), *CReflect(Y), \
       CReflect(ctrl) ) ) } \
   /* Robust least squares

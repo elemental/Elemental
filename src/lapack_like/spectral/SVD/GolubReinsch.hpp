@@ -18,7 +18,8 @@ namespace svd {
 template<typename F>
 inline void
 GolubReinsch
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
@@ -101,7 +102,8 @@ GolubReinsch
 template<typename F>
 inline void
 GolubReinschFlame
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
@@ -188,7 +190,8 @@ GolubReinschFlame
 template<>
 inline void
 GolubReinsch
-( ElementalMatrix<double>& A, ElementalMatrix<double>& s, 
+( ElementalMatrix<double>& A,
+  ElementalMatrix<double>& s, 
   ElementalMatrix<double>& V )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
@@ -198,7 +201,8 @@ GolubReinsch
 template<>
 inline void
 GolubReinsch
-( ElementalMatrix<Complex<double>>& A, ElementalMatrix<double>& s, 
+( ElementalMatrix<Complex<double>>& A,
+  ElementalMatrix<double>& s, 
   ElementalMatrix<Complex<double>>& V )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))

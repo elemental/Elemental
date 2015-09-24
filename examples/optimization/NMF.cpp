@@ -21,6 +21,7 @@ main( int argc, char* argv[] )
         const Int m = Input("--m","matrix height",50);
         const Int n = Input("--n","matrix width",50);
         const Int k = Input("--k","rank of approximation",3);
+        const Int maxIter = Input("--maxIter","max. iterations",20);
         const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
@@ -40,12 +41,13 @@ main( int argc, char* argv[] )
             Display( A, "A" );
 
 
-        NNLSCtrl<Real> ctrl;
-        ctrl.approach = NNLS_QP;
-        ctrl.qpCtrl.mehrotraCtrl.print = true;
-        ctrl.qpCtrl.mehrotraCtrl.time = true;
-        ctrl.socpCtrl.mehrotraCtrl.print = true;
-        ctrl.socpCtrl.mehrotraCtrl.time = true;
+        NMFCtrl<Real> ctrl;
+        ctrl.nnlsCtrl.approach = NNLS_QP;
+        ctrl.nnlsCtrl.qpCtrl.mehrotraCtrl.print = false;
+        ctrl.nnlsCtrl.qpCtrl.mehrotraCtrl.time = false;
+        ctrl.nnlsCtrl.socpCtrl.mehrotraCtrl.print = false;
+        ctrl.nnlsCtrl.socpCtrl.mehrotraCtrl.time = false;
+        ctrl.maxIter = maxIter;
 
         DistMatrix<Real> Y;
         NMF( A, X, Y, ctrl );

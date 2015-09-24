@@ -384,15 +384,23 @@ void RNNLS
 // Non-negative matrix factorization
 // =================================
 template<typename Real>
+struct NMFCtrl {
+  NNLSCtrl<Real> nnlsCtrl;
+  Int maxIter=20;
+};
+
+template<typename Real>
 void NMF
 ( const Matrix<Real>& A, 
-        Matrix<Real>& X, Matrix<Real>& Y,
-  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
+        Matrix<Real>& X,
+        Matrix<Real>& Y,
+  const NMFCtrl<Real>& ctrl=NMFCtrl<Real>() );
 template<typename Real>
 void NMF
 ( const ElementalMatrix<Real>& A, 
-        ElementalMatrix<Real>& X, ElementalMatrix<Real>& Y,
-  const NNLSCtrl<Real>& ctrl=NNLSCtrl<Real>() );
+        ElementalMatrix<Real>& X,
+        ElementalMatrix<Real>& Y,
+  const NMFCtrl<Real>& ctrl=NMFCtrl<Real>() );
 // TODO: Sparse versions
 
 // Basis pursuit denoising (BPDN), a.k.a.,

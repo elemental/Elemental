@@ -2303,6 +2303,40 @@ inline NNLSCtrl<double> CReflect( ElNNLSCtrl_d ctrlC )
     return ctrl;
 }
 
+// Non-negative Matrix Factorization
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+inline ElNMFCtrl_s CReflect( const NMFCtrl<float>& ctrl )
+{
+    ElNMFCtrl_s ctrlC;
+    ctrlC.nnlsCtrl = CReflect(ctrl.nnlsCtrl);
+    ctrlC.maxIter = ctrl.maxIter;
+    return ctrlC;
+}
+
+inline ElNMFCtrl_d CReflect( const NMFCtrl<double>& ctrl )
+{
+    ElNMFCtrl_d ctrlC;
+    ctrlC.nnlsCtrl = CReflect(ctrl.nnlsCtrl);
+    ctrlC.maxIter = ctrl.maxIter;
+    return ctrlC;
+}
+
+inline NMFCtrl<float> CReflect( ElNMFCtrl_s ctrlC )
+{
+    NMFCtrl<float> ctrl;
+    ctrl.nnlsCtrl = CReflect(ctrlC.nnlsCtrl);
+    ctrl.maxIter = ctrlC.maxIter;
+    return ctrl;
+}
+
+inline NMFCtrl<double> CReflect( ElNMFCtrl_d ctrlC )
+{
+    NMFCtrl<double> ctrl;
+    ctrl.nnlsCtrl = CReflect(ctrlC.nnlsCtrl);
+    ctrl.maxIter = ctrlC.maxIter;
+    return ctrl;
+}
+
 // Robust Principal Component Analysis
 // """""""""""""""""""""""""""""""""""
 
