@@ -629,8 +629,8 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
@@ -677,8 +677,8 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
@@ -725,8 +725,8 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
@@ -773,8 +773,8 @@ void LocalTrrk
 {
     using namespace trrk;
     DEBUG_ONLY(
-        CSE cse("LocalTrrk");
-        CheckInput( A, B, C );
+      CSE cse("LocalTrrk");
+      CheckInput( A, B, C );
     )
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
