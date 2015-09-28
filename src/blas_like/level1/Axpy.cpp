@@ -105,8 +105,8 @@ void Axpy( S alphaS, const BlockMatrix<T>& X, BlockMatrix<T>& Y )
     )
     const T alpha = T(alphaS);
 
-    const BlockData XDistData = X.DistData();
-    const BlockData YDistData = Y.DistData();
+    const DistData XDistData = X.DistData();
+    const DistData YDistData = Y.DistData();
 
     if( XDistData == YDistData )
     {

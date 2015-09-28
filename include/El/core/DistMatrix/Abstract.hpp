@@ -12,6 +12,9 @@
 
 namespace El {
 
+struct DistData;
+struct ElementalData;
+
 template<typename T> 
 class AbstractDistMatrix
 {
@@ -32,6 +35,18 @@ public:
     virtual void Empty();
     void EmptyData();
     void SetGrid( const El::Grid& grid );
+
+    virtual void AlignWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) = 0;
+    virtual void AlignColsWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) = 0;
+    virtual void AlignRowsWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) = 0;
+    virtual void FreeAlignments();
+
     virtual void Resize( Int height, Int width ) = 0;
     virtual void Resize( Int height, Int width, Int ldim ) = 0;
 
@@ -77,6 +92,11 @@ public:
     // Distribution information
     // ------------------------
     const El::Grid& Grid() const EL_NO_EXCEPT;
+
+    virtual Int BlockHeight() const EL_NO_EXCEPT = 0;
+    virtual Int BlockWidth()  const EL_NO_EXCEPT = 0;
+    virtual Int ColCut()      const EL_NO_EXCEPT = 0;
+    virtual Int RowCut()      const EL_NO_EXCEPT = 0;
 
     int  ColAlign()        const EL_NO_EXCEPT;
     int  RowAlign()        const EL_NO_EXCEPT;
@@ -149,9 +169,6 @@ public:
     virtual int CrossSize()             const EL_NO_EXCEPT= 0;
     virtual int RedundantSize()         const EL_NO_EXCEPT= 0;
 
-    virtual int DiagonalRoot( Int offset=0 ) const EL_NO_EXCEPT = 0;
-    virtual int DiagonalAlign( Int offset=0 ) const EL_NO_EXCEPT = 0;
-
     // Single-entry manipulation
     // =========================
 
@@ -218,6 +235,13 @@ public:
     void MakeLocalReal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
     void ConjugateLocal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
 
+    // Diagonal manipulation
+    // =====================
+    virtual bool DiagonalAlignedWith
+    ( const El::DistData& d, Int offset=0 ) const = 0;
+    virtual int DiagonalRoot( Int offset=0 ) const EL_NO_EXCEPT = 0;
+    virtual int DiagonalAlign( Int offset=0 ) const EL_NO_EXCEPT = 0;
+
     // Assertions
     // ==========
     void ComplainIfReal() const;
@@ -268,6 +292,60 @@ private:
 
     template<typename S,Dist J,Dist K,DistWrap wrap> friend class DistMatrix;
 };
+
+struct DistData
+{
+    Dist colDist, rowDist;
+    Int blockHeight, blockWidth;
+    int colAlign, rowAlign;
+    Int colCut, rowCut;
+    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
+    const Grid* grid;
+
+    DistData() { }
+
+    template<typename T>
+    DistData( const BlockMatrix<T>& A )
+    : colDist(A.ColDist()), rowDist(A.RowDist()),
+      blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
+      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
+      colCut(A.ColCut()), rowCut(A.RowCut()),
+      root(A.Root()), grid(&A.Grid())
+    { }
+};
+inline bool operator==( const DistData& A, const DistData& B )
+{ return A.colDist     == B.colDist &&
+         A.rowDist     == B.rowDist &&
+         A.blockHeight == B.blockHeight &&
+         A.blockWidth  == B.blockWidth &&
+         A.colAlign    == B.colAlign &&
+         A.rowAlign    == B.rowAlign &&
+         A.root        == B.root &&
+         A.grid        == B.grid; }
+
+struct ElementalData
+{
+    Dist colDist, rowDist;
+    int colAlign, rowAlign;
+    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
+    const Grid* grid;
+
+    ElementalData() { }
+
+    template<typename T>
+    ElementalData( const ElementalMatrix<T>& A )
+    : colDist(A.ColDist()), rowDist(A.RowDist()),
+      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
+      root(A.Root()), grid(&A.Grid())
+    { }
+};
+inline bool operator==( const ElementalData& A, const ElementalData& B )
+{ return A.colDist  == B.colDist &&
+         A.rowDist  == B.rowDist &&
+         A.colAlign == B.colAlign &&
+         A.rowAlign == B.rowAlign &&
+         A.root     == B.root &&
+         A.grid     == B.grid; }
 
 } // namespace El
 

@@ -313,11 +313,11 @@ void BlockMatrix<T>::AlignRows
 
 template<typename T>
 void BlockMatrix<T>::AlignWith
-( const El::BlockData& data, bool constrain )
+( const El::DistData& data, bool constrain, bool allowMismatch )
 { 
     DEBUG_ONLY(CSE cse("BCM::AlignWith"))
-    this->AlignColsWith( data, constrain );
-    this->AlignRowsWith( data, constrain );
+    this->AlignColsWith( data, constrain, allowMismatch );
+    this->AlignRowsWith( data, constrain, allowMismatch );
 }
 
 template<typename T>
@@ -571,7 +571,7 @@ Int BlockMatrix<T>::GlobalCol( Int jLoc ) const EL_NO_EXCEPT
 // =====================
 template<typename T>
 bool BlockMatrix<T>::DiagonalAlignedWith
-( const El::BlockData& d, Int offset ) const
+( const El::DistData& d, Int offset ) const
 {
     DEBUG_ONLY(CSE cse("BCM::DiagonalAlignedWith"))
     // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
@@ -598,7 +598,7 @@ int BlockMatrix<T>::DiagonalAlign( Int offset ) const
 
 template<typename T>
 void BlockMatrix<T>::AlignColsWith
-( const El::BlockData& data, bool constrain )
+( const El::DistData& data, bool constrain, bool allowMismatch )
 {
     DEBUG_ONLY(CSE cse("BCM::AlignColsWith"))
     this->SetGrid( *data.grid );
@@ -619,17 +619,15 @@ void BlockMatrix<T>::AlignColsWith
         AlignCols
         ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut,
           constrain );
-    DEBUG_ONLY(
-      else if( this->ColDist() != this->CollectedColDist() && 
-               data.colDist    != this->CollectedColDist() && 
-               data.rowDist    != this->CollectedColDist() )
-          LogicError("Nonsensical alignment");
-    )
+    else if( this->ColDist() != this->CollectedColDist() && 
+             data.colDist    != this->CollectedColDist() && 
+             data.rowDist    != this->CollectedColDist() && !allowMismatch )
+        LogicError("Nonsensical alignment");
 }
 
 template<typename T>
 void BlockMatrix<T>::AlignRowsWith
-( const El::BlockData& data, bool constrain )
+( const El::DistData& data, bool constrain, bool allowMismatch )
 {
     DEBUG_ONLY(CSE cse("BCM::AlignRowsWith"))
     this->SetGrid( *data.grid );
@@ -650,12 +648,10 @@ void BlockMatrix<T>::AlignRowsWith
         this->AlignRows
         ( data.blockWidth, data.rowAlign % this->RowStride(), data.rowCut,
           constrain );
-    DEBUG_ONLY(
-      else if( this->RowDist() != this->CollectedRowDist() && 
-               data.colDist    != this->CollectedRowDist() && 
-               data.rowDist    != this->CollectedRowDist() )
-          LogicError("Nonsensical alignment");
-    )
+    else if( this->RowDist() != this->CollectedRowDist() && 
+             data.colDist    != this->CollectedRowDist() && 
+             data.rowDist    != this->CollectedRowDist() && !allowMismatch )
+        LogicError("Nonsensical alignment");
 }
 
 // Private section

@@ -411,34 +411,49 @@ template<typename F>
 void SVD( Matrix<F>& A, Matrix<Base<F>>& s );
 template<typename F>
 void SVD
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
-void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s );
+void HermitianSVD
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<Base<F>>& s );
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s );
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s );
 
 // Compute the full SVD
 // --------------------
 template<typename F>
 void SVD
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V, 
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
-  Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V );
+  Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& U,
+  Matrix<F>& V );
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, ElementalMatrix<F>& U, 
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s,
+  ElementalMatrix<F>& U, 
   ElementalMatrix<F>& V );
 
 // Lanczos
@@ -451,21 +466,29 @@ void HermitianSVD
 
 template<typename F>
 void Lanczos
-( const SparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
+( const SparseMatrix<F>& A,
+        Matrix<Base<F>>& T,
+        Int basisSize=20 );
 template<typename F>
 void Lanczos
-( const DistSparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
+( const DistSparseMatrix<F>& A,
+        Matrix<Base<F>>& T,
+        Int basisSize=20 );
 
 template<typename F>
 Base<F> LanczosDecomp
-( const SparseMatrix<F>& A, Matrix<F>& V,
-        Matrix<Base<F>>& T, Matrix<F>& v,
-  Int basisSize=15 );
+( const SparseMatrix<F>& A,
+        Matrix<F>& V,
+        Matrix<Base<F>>& T,
+        Matrix<F>& v,
+        Int basisSize=15 );
 template<typename F>
 Base<F> LanczosDecomp
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& V,
-        Matrix<Base<F>>& T,     DistMultiVec<F>& v,
-  Int basisSize=15 );
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& V,
+        Matrix<Base<F>>& T,
+        DistMultiVec<F>& v,
+        Int basisSize=15 );
 
 // Product Lanczos
 // ===============
@@ -477,21 +500,29 @@ Base<F> LanczosDecomp
 
 template<typename F>
 void ProductLanczos
-( const SparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
+( const SparseMatrix<F>& A,
+        Matrix<Base<F>>& T,
+        Int basisSize=20 );
 template<typename F>
 void ProductLanczos
-( const DistSparseMatrix<F>& A, Matrix<Base<F>>& T, Int basisSize=20 );
+( const DistSparseMatrix<F>& A,
+        Matrix<Base<F>>& T,
+        Int basisSize=20 );
 
 template<typename F>
 Base<F> ProductLanczosDecomp
-( const SparseMatrix<F>& A, Matrix<F>& V,
-        Matrix<Base<F>>& T, Matrix<F>& v,
-  Int basisSize=15 );
+( const SparseMatrix<F>& A,
+        Matrix<F>& V,
+        Matrix<Base<F>>& T,
+        Matrix<F>& v,
+        Int basisSize=15 );
 template<typename F>
 Base<F> ProductLanczosDecomp
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& V,
-        Matrix<Base<F>>& T,     DistMultiVec<F>& v,
-  Int basisSize=15 );
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& V,
+        Matrix<Base<F>>& T,
+        DistMultiVec<F>& v,
+        Int basisSize=15 );
 
 // Extremal singular value estimates
 // =================================

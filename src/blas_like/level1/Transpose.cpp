@@ -156,12 +156,13 @@ void Transpose
 
 template<typename T>
 void Transpose
-( const BlockMatrix<T>& A, BlockMatrix<T>& B, 
+( const BlockMatrix<T>& A,
+        BlockMatrix<T>& B, 
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    const BlockData AData = A.DistData();
-    const BlockData BData = B.DistData();
+    const DistData AData = A.DistData();
+    const DistData BData = B.DistData();
     if( AData.colDist == BData.rowDist &&
         AData.rowDist == BData.colDist &&
         ((AData.colAlign    == BData.rowAlign && 

@@ -22,7 +22,11 @@ template<typename T>
 inline void View( Matrix<T>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("View"))
-    A.Attach( B.Height(), B.Width(), B.Buffer(), B.LDim() );
+    if( B.Locked() )
+        A.LockedAttach
+        ( B.Height(), B.Width(), B.LockedBuffer(), B.LDim() );
+    else
+        A.Attach( B.Height(), B.Width(), B.Buffer(), B.LDim() );
 }
 
 template<typename T>
@@ -58,9 +62,14 @@ inline void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B )
       CSE cse("View");
       AssertSameDist( A.DistData(), B.DistData() );
     )
-    A.Attach
-    ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
-      B.Buffer(), B.LDim(), B.Root() );
+    if( B.Locked() )
+        A.LockedAttach
+        ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
+          B.LockedBuffer(), B.LDim(), B.Root() );
+    else
+        A.Attach
+        ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
+          B.Buffer(), B.LDim(), B.Root() );
 }
 
 template<typename T>
@@ -105,9 +114,16 @@ inline void View( BlockMatrix<T>& A, ElementalMatrix<T>& B )
       CSE cse("View");
       AssertSameDist( A.DistData(), B.DistData() );
     )
-    A.Attach
-    ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
-      B.Buffer(), B.LDim(), B.Root() );
+    if( B.Locked() )
+        A.LockedAttach
+        ( B.Height(), B.Width(), B.Grid(), 
+          1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
+          B.LockedBuffer(), B.LDim(), B.Root() );
+    else
+        A.Attach
+        ( B.Height(), B.Width(), B.Grid(), 
+          1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
+          B.Buffer(), B.LDim(), B.Root() );
 }
 
 template<typename T>
@@ -132,10 +148,15 @@ inline void View( ElementalMatrix<T>& A, BlockMatrix<T>& B )
     )
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
-                    "instead of 1x1");
-    A.Attach
-    ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
-      B.Buffer(), B.LDim(), B.Root() );
+                    " instead of 1x1");
+    if( B.Locked() )
+        A.LockedAttach
+        ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
+          B.LockedBuffer(), B.LDim(), B.Root() );
+    else
+        A.Attach
+        ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
+          B.Buffer(), B.LDim(), B.Root() );
 }
 
 template<typename T>
@@ -148,7 +169,7 @@ inline void LockedView
     )
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
-                    "instead of 1x1");
+                    " instead of 1x1");
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
       B.LockedBuffer(), B.LDim(), B.Root() );
@@ -177,7 +198,10 @@ inline void View
            i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
            " Matrix");
     )
-    A.Attach( height, width, B.Buffer(i,j), B.LDim() );
+    if( B.Locked() )
+        A.LockedAttach( height, width, B.LockedBuffer(i,j), B.LDim() );
+    else
+        A.Attach( height, width, B.Buffer(i,j), B.LDim() );
 }
 
 template<typename T>
@@ -283,14 +307,25 @@ inline void View
     {
         const Int iLoc = Length( i, B.ColShift(), B.ColStride() );
         const Int jLoc = Length( j, B.RowShift(), B.RowStride() );
-        A.Attach
-        ( height, width, B.Grid(), colAlign, rowAlign, 
-          B.Buffer(iLoc,jLoc), B.LDim(), B.Root() );
+        if( B.Locked() )
+            A.LockedAttach
+            ( height, width, B.Grid(), colAlign, rowAlign, 
+              B.LockedBuffer(iLoc,jLoc), B.LDim(), B.Root() );
+        else
+            A.Attach
+            ( height, width, B.Grid(), colAlign, rowAlign, 
+              B.Buffer(iLoc,jLoc), B.LDim(), B.Root() );
     }
     else
     {
-        A.Attach
-        ( height, width, B.Grid(), colAlign, rowAlign, 0, B.LDim(), B.Root() );
+        if( B.Locked() )
+            A.LockedAttach
+            ( height, width, B.Grid(),
+              colAlign, rowAlign, 0, B.LDim(), B.Root() );
+        else
+            A.Attach
+            ( height, width, B.Grid(),
+              colAlign, rowAlign, 0, B.LDim(), B.Root() );
     }
 }
 

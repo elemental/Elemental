@@ -18,16 +18,18 @@ namespace svd {
 template<typename F>
 inline void
 ChanUpper
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre, double heightRatio=1.5 )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  double heightRatio=1.5 )
 {
     DEBUG_ONLY(
-        CSE cse("svd::ChanUpper");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Height() < APre.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( heightRatio <= 1.0 )
-            LogicError("Nonsensical switchpoint for SVD");
+      CSE cse("svd::ChanUpper");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Height() < APre.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( heightRatio <= 1.0 )
+          LogicError("Nonsensical switchpoint for SVD");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr; 
@@ -59,14 +61,15 @@ ChanUpper
 template<typename F>
 inline void
 ChanUpper
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(
-        CSE cse("svd::ChanUpper");    
-        AssertSameGrids( APre, s );
-        if( heightRatio <= 1.0 )
-            LogicError("Nonsensical switchpoint");
+      CSE cse("svd::ChanUpper");    
+      AssertSameGrids( APre, s );
+      if( heightRatio <= 1.0 )
+          LogicError("Nonsensical switchpoint");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -91,14 +94,16 @@ ChanUpper
 template<typename F>
 inline void
 Chan
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre, double heightRatio=1.5 )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  double heightRatio=1.5 )
 {
     DEBUG_ONLY(
-        CSE cse("svd::Chan");
-        AssertSameGrids( APre, s, VPre );
-        if( heightRatio <= 1.0 )
-            LogicError("Nonsensical switchpoint for SVD");
+      CSE cse("svd::Chan");
+      AssertSameGrids( APre, s, VPre );
+      if( heightRatio <= 1.0 )
+          LogicError("Nonsensical switchpoint for SVD");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -136,7 +141,8 @@ Chan
 template<typename F>
 inline void
 Chan
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))

@@ -47,6 +47,7 @@ int main( int argc, char* argv[] )
         const Int nbFact = Input("--nbFact","factorization blocksize",96);
         const Int nbSolve = Input("--nbSolve","solve blocksize",96);
         const Int cutoff = Input("--cutoff","cutoff for nested dissection",128);
+        const bool unpack = Input("--unpack","unpack frontal matrix?",true);
         const bool print = Input("--print","print matrix?",false);
         const bool display = Input("--display","display matrix?",false);
         ProcessInput();
@@ -139,13 +140,16 @@ int main( int argc, char* argv[] )
             cout << buildStop-buildStart << " seconds" << endl;
 
         // Unpack the ldl::DistFront into a sparse matrix
-        DistSparseMatrix<double> APerm;
-        front.Unpack( APerm, sep, info );
-        MakeSymmetric( LOWER, APerm );
-        if( print )
-            Print( APerm, "APerm" );
-        if( display )
-            Display( APerm, "APerm" );
+        if( unpack )
+        {
+            DistSparseMatrix<double> APerm;
+            front.Unpack( APerm, sep, info );
+            MakeSymmetric( LOWER, APerm );
+            if( print )
+                Print( APerm, "APerm" );
+            if( display )
+                Display( APerm, "APerm" );
+        }
 
         // Memory usage before factorization
         const Int localEntriesBefore = front.NumLocalEntries();

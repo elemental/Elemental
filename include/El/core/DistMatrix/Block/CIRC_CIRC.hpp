@@ -90,7 +90,7 @@ public:
 
     // Basic queries
     // =============
-    El::BlockData DistData() const override;
+    El::DistData DistData() const override;
 
     Dist ColDist()             const override EL_NO_EXCEPT;
     Dist RowDist()             const override EL_NO_EXCEPT;

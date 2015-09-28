@@ -137,8 +137,10 @@ void Gather
             const Int rowShift = shifts[2*q+1];
             const Int colStride = A.ColStride();
             const Int rowStride = A.RowStride();
-            const Int localHeight = Length( height, colShift, colStride );
-            const Int localWidth = Length( width, rowShift, rowStride );
+            const Int localHeight =
+              BlockedLength( height, colShift, mb, colCut, colStride );
+            const Int localWidth = 
+              BlockedLength( width, rowShift, nb, rowCut, rowStride );
             const T* data = &recvBuf[recvOffsets[q]];
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {

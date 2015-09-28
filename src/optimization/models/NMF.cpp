@@ -17,19 +17,18 @@ template<typename Real>
 void NMF
 ( const Matrix<Real>& A, 
         Matrix<Real>& X, Matrix<Real>& Y,
-  const NNLSCtrl<Real>& ctrl )
+  const NMFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NMF"))
 
     Matrix<Real> AAdj, XAdj, YAdj;
     Adjoint( A, AAdj );
 
-    const Int maxIter = 20;
-    for( Int iter=0; iter<maxIter; ++iter )
+    for( Int iter=0; iter<ctrl.maxIter; ++iter )
     {
-        NNLS( X, A, YAdj, ctrl );
+        NNLS( X, A, YAdj, ctrl.nnlsCtrl );
         Adjoint( YAdj, Y );
-        NNLS( Y, AAdj, XAdj, ctrl );
+        NNLS( Y, AAdj, XAdj, ctrl.nnlsCtrl );
         Adjoint( XAdj, X );
     }
 }
@@ -39,7 +38,7 @@ void NMF
 ( const ElementalMatrix<Real>& APre, 
         ElementalMatrix<Real>& XPre, 
         ElementalMatrix<Real>& YPre,
-  const NNLSCtrl<Real>& ctrl )
+  const NMFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NMF"))
 
@@ -50,12 +49,11 @@ void NMF
     DistMatrix<Real> AAdj(A.Grid()), XAdj(A.Grid()), YAdj(A.Grid());
     Adjoint( A, AAdj );
 
-    const Int maxIter = 20;
-    for( Int iter=0; iter<maxIter; ++iter )
+    for( Int iter=0; iter<ctrl.maxIter; ++iter )
     {
-        NNLS( X, A, YAdj, ctrl );
+        NNLS( X, A, YAdj, ctrl.nnlsCtrl );
         Adjoint( YAdj, Y );
-        NNLS( Y, AAdj, XAdj, ctrl );
+        NNLS( Y, AAdj, XAdj, ctrl.nnlsCtrl );
         Adjoint( XAdj, X );
     }
 }
@@ -65,12 +63,12 @@ void NMF
   ( const Matrix<Real>& A, \
           Matrix<Real>& X, \
           Matrix<Real>& Y, \
-    const NNLSCtrl<Real>& ctrl ); \
+    const NMFCtrl<Real>& ctrl ); \
   template void NMF \
   ( const ElementalMatrix<Real>& A, \
           ElementalMatrix<Real>& X, \
           ElementalMatrix<Real>& Y, \
-    const NNLSCtrl<Real>& ctrl );
+    const NMFCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

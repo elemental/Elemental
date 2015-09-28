@@ -820,6 +820,18 @@ def NNLS(A,b,ctrl=None):
 
 # Non-negative matrix factorization
 # =================================
+lib.ElNMFCtrlDefault_s.argtypes = \
+lib.ElNMFCtrlDefault_d.argtypes = \
+  [c_void_p]
+class NMFCtrl_s(ctypes.Structure):
+  _fields_ = [("nnlsCtrl",NNLSCtrl_s),("maxIter",iType)]
+  def __init__(self):
+    lib.ElNMFCtrlDefault_s(pointer(self))
+class NMFCtrl_d(ctypes.Structure):
+  _fields_ = [("nnlsCtrl",NNLSCtrl_d),("maxIter",iType)]
+  def __init__(self):
+    lib.ElNMFCtrlDefault_d(pointer(self))
+
 lib.ElNMF_s.argtypes = \
 lib.ElNMF_d.argtypes = \
 lib.ElNMFDist_s.argtypes = \
@@ -827,10 +839,10 @@ lib.ElNMFDist_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 lib.ElNMFX_s.argtypes = \
 lib.ElNMFXDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,NNLSCtrl_s]
+  [c_void_p,c_void_p,c_void_p,NMFCtrl_s]
 lib.ElNMFX_d.argtypes = \
 lib.ElNMFXDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,NNLSCtrl_d]
+  [c_void_p,c_void_p,c_void_p,NMFCtrl_d]
 
 def NMF(A,ctrl=None):
   args = [A.obj,X.obj,Y.obj]

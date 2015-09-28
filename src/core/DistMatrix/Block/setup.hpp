@@ -178,7 +178,7 @@ template<Dist U,Dist V>
 BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CSE cse("BDM = DM[U,V]"))
-    DistMatrix<T,U,V,BLOCK> ABlock(A.Grid());
+    DistMatrix<T,U,V,BLOCK> ABlock(A.Grid(),1,1);
     LockedView( ABlock, A );
     *this = ABlock;
     return *this;
@@ -226,7 +226,7 @@ const BDM& BDM::operator-=( const BCM& A )
 // =================
 
 template<typename T>
-El::BlockData BDM::DistData() const { return El::BlockData(*this); }
+El::DistData BDM::DistData() const { return El::DistData(*this); }
 
 template<typename T>
 Dist BDM::ColDist() const EL_NO_EXCEPT { return COLDIST; }

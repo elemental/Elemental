@@ -17,14 +17,17 @@ namespace svd {
 
 template<typename F>
 inline void TallAbsoluteThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V,
+  Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallAbsoluteThresholded");
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallAbsoluteThresholded");
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -67,28 +70,25 @@ inline void TallAbsoluteThresholded
     Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
     // Set each column of A to be the corresponding normalized column of Y
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of A and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
     A = Y;
-    for( Int j=0; j<k; ++j )
-    {
-        const Real sigma = s.Get( j, 0 );
-        for( Int i=0; i<m; ++i )
-            A.Set( i, j, A.Get(i,j)/sigma );
-    }
+    Matrix<Base<F>> colNorms;
+    ColumnTwoNorms( A, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
 }
 
 template<typename F>
 inline void TallRelativeThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V,
+  Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallRelativeThresholded");
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallRelativeThresholded");
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -122,22 +122,19 @@ inline void TallRelativeThresholded
     Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
     // Set each column of A to be the corresponding normalized column of Y
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of A and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
     A = Y;
-    for( Int j=0; j<k; ++j )
-    {
-        const Real sigma = s.Get( j, 0 );
-        for( Int i=0; i<m; ++i )
-            A.Set( i, j, A.Get(i,j)/sigma );
-    }
+    Matrix<Base<F>> colNorms;
+    ColumnTwoNorms( A, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
 }
 
 template<typename F>
 inline void TallThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
-  Base<F> tol, bool relative )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V, 
+  Base<F> tol,
+  bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
@@ -149,16 +146,18 @@ inline void TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre, Base<F> tol )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallAbsoluteThresholded");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Height() < APre.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallAbsoluteThresholded");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Height() < APre.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;    
@@ -208,38 +207,27 @@ TallAbsoluteThresholded
     Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
     // Set each column of A to be the corresponding normalized column of Y
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of A and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
     A = Y;
-    {
-        DistMatrix<Real,MR,STAR> s_MR_STAR(g);
-        s_MR_STAR.AlignWith( A.DistData() );
-        s_MR_STAR = s;
-        const Int localWidth = A.LocalWidth();
-        const Int localHeight = A.LocalHeight();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc)/sigma );
-        }
-    }
+    DistMatrix<Real,MR,STAR> colNorms(g);
+    ColumnTwoNorms( A, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
 }
 
 template<typename F>
 inline void
 TallRelativeThresholded
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre, Base<F> relTol )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallRelativeThresholded");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Height() < APre.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallRelativeThresholded");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Height() < APre.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -278,29 +266,19 @@ TallRelativeThresholded
     Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
     // Set each column of A to be the corresponding normalized column of Y
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of A and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
     A = Y;
-    {
-        DistMatrix<Real,MR,STAR> s_MR_STAR(g);
-        s_MR_STAR.AlignWith( A.DistData() );
-        s_MR_STAR = s_STAR_STAR;
-        const Int localWidth = A.LocalWidth();
-        const Int localHeight = A.LocalHeight();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc)/sigma );
-        }
-    }
+    DistMatrix<Real,MR,STAR> colNorms(g);
+    ColumnTwoNorms( A, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
 }
 
 template<typename F>
 inline void TallThresholded
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V, Base<F> tol, bool relative )
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V,
+  Base<F> tol,
+  bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
@@ -312,16 +290,18 @@ inline void TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( DistMatrix<F,VC,STAR>& A, ElementalMatrix<Base<F>>& sPre, 
-  ElementalMatrix<F>& VPre, Base<F> tol )
+( DistMatrix<F,VC,STAR>& A,
+  ElementalMatrix<Base<F>>& sPre, 
+  ElementalMatrix<F>& VPre,
+  Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallAbsoluteThresholded");
-        AssertSameGrids( A, sPre, VPre );
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallAbsoluteThresholded");
+      AssertSameGrids( A, sPre, VPre );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
@@ -374,34 +354,27 @@ TallAbsoluteThresholded
     LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of A and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
     A = Y;
-    {
-        const Int localHeight = A.LocalHeight();
-        for( Int j=0; j<k; ++j )
-        {
-            const Real sigma = s.GetLocal( j, 0 );
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, A.GetLocal(iLoc,j)/sigma );
-        }
-    }
+    DistMatrix<Real,STAR,STAR> colNorms(g);
+    ColumnTwoNorms( A, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
 }
 
 template<typename F>
 inline void
 TallRelativeThresholded
-( DistMatrix<F,VC,STAR>& A, ElementalMatrix<Base<F>>& sPre, 
-  ElementalMatrix<F>& VPre, Base<F> relTol )
+( DistMatrix<F,VC,STAR>& A,
+  ElementalMatrix<Base<F>>& sPre, 
+  ElementalMatrix<F>& VPre,
+  Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::TallRelativeThresholded");
-        AssertSameGrids( A, sPre, VPre );
-        if( A.Height() < A.Width() )
-            LogicError("A must be at least as tall as it is wide");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::TallRelativeThresholded");
+      AssertSameGrids( A, sPre, VPre );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
@@ -444,25 +417,19 @@ TallRelativeThresholded
     LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of A and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
     A = Y;
-    {
-        const Int localHeight = A.LocalHeight();
-        for( Int j=0; j<k; ++j )
-        {
-            const Real sigma = s.GetLocal( j, 0 );
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, A.GetLocal(iLoc,j)/sigma );
-        }
-    }
+    DistMatrix<Real,STAR,STAR> colNorms(g);
+    ColumnTwoNorms( A, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
 }
 
 template<typename F>
 void TallThresholded
-( DistMatrix<F,VC,STAR>& A, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V, Base<F> tol, bool relative )
+( DistMatrix<F,VC,STAR>& A,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V,
+  Base<F> tol,
+  bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::TallThresholded"))
     if( relative )
@@ -474,14 +441,17 @@ void TallThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V,
+  Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideAbsoluteThresholded");
-        if( A.Width() < A.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideAbsoluteThresholded");
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -523,30 +493,28 @@ WideAbsoluteThresholded
     // (Sigma V) := A^H U
     Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Divide each column of (Sigma V) by sigma
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of V and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
-    for( Int j=0; j<k; ++j )
-    {
-        const Real sigma = s.Get( j, 0 );
-        for( Int i=0; i<n; ++i )
-            V.Set( i, j, V.Get(i,j)/sigma );
-    }
+    // Normalize each column of Sigma V
+    Matrix<Base<F>> colNorms;
+    ColumnTwoNorms( V, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+
     A = U;
 }
 
 template<typename F>
 inline void
 WideRelativeThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V,
+  Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideThresholded");
-        if( A.Width() < A.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideThresholded");
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -579,23 +547,21 @@ WideRelativeThresholded
     // (Sigma V) := A^H U
     Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Divide each column of (Sigma V) by sigma
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of V and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
-    for( Int j=0; j<k; ++j )
-    {
-        const Real sigma = s.Get( j, 0 );
-        for( Int i=0; i<n; ++i )
-            V.Set( i, j, V.Get(i,j)/sigma );
-    }
+    // Normalize each column of Sigma V
+    Matrix<Base<F>> colNorms;
+    ColumnTwoNorms( V, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+
     A = U;
 }
 
 template<typename F>
 inline void WideThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
-  Base<F> tol, bool relative )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V, 
+  Base<F> tol,
+  bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::WideThresholded"))
     if( relative )
@@ -607,15 +573,17 @@ inline void WideThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre, Base<F> tol )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  Base<F> tol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideAbsoluteThresholded");
-        if( APre.Width() < APre.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( tol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideAbsoluteThresholded");
+      if( APre.Width() < APre.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -665,39 +633,29 @@ WideAbsoluteThresholded
     // (Sigma V) := A^H U
     Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Divide each column of (Sigma V) by sigma
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of V and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
-    {
-        DistMatrix<Real,MR,STAR> s_MR_STAR( g );
-        s_MR_STAR.AlignWith( V.DistData() );
-        s_MR_STAR = s;
-        const Int localWidth = V.LocalWidth();
-        const Int localHeight = V.LocalHeight();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                V.SetLocal( iLoc, jLoc, V.GetLocal(iLoc,jLoc)/sigma );
-        }
-    }
+    // Normalize each column of Sigma V
+    DistMatrix<Real,MR,STAR> colNorms(g);
+    ColumnTwoNorms( V, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+
     A = U;
 }
 
 template<typename F>
 inline void
 WideRelativeThresholded
-( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre, Base<F> relTol )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  Base<F> relTol )
 {
     DEBUG_ONLY(
-        CSE cse("svd::WideRelativeThresholded");
-        AssertSameGrids( APre, s, VPre );
-        if( APre.Width() < APre.Height() )
-            LogicError("A must be at least as wide as it is tall");
-        if( relTol < 0 )
-            LogicError("negative threshold does not make sense");
+      CSE cse("svd::WideRelativeThresholded");
+      AssertSameGrids( APre, s, VPre );
+      if( APre.Width() < APre.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -735,30 +693,21 @@ WideRelativeThresholded
     // (Sigma V) := A^H U
     Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Divide each column of (Sigma V) by sigma
-    // NOTE: A (potentially better) alternative would be to compute the norm of
-    //       each column of V and normalize via it, as it might vary slightly
-    //       from the corresponding computed singular value.
-    {
-        DistMatrix<Real,MR,STAR> s_MR_STAR( g );
-        s_MR_STAR.AlignWith( V.DistData() );
-        s_MR_STAR = s_STAR_STAR;
-        const Int localWidth = V.LocalWidth();
-        const Int localHeight = V.LocalHeight();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                V.SetLocal( iLoc, jLoc, V.GetLocal(iLoc,jLoc)/sigma );
-        }
-    }
+    // Normalize each column of Sigma V
+    DistMatrix<Real,MR,STAR> colNorms(g);
+    ColumnTwoNorms( V, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+
     A = U;
 }
 
 template<typename F>
 inline void WideThresholded
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V, Base<F> tol, bool relative )
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V,
+  Base<F> tol,
+  bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::WideThresholded"))
     if( relative )
@@ -772,8 +721,11 @@ inline void WideThresholded
 
 template<typename F>
 void Thresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
-  Base<F> tol, bool relative )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V, 
+  Base<F> tol,
+  bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )
@@ -784,8 +736,11 @@ void Thresholded
 
 template<typename F>
 void Thresholded
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V, Base<F> tol, bool relative )
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V,
+  Base<F> tol,
+  bool relative )
 {
     DEBUG_ONLY(CSE cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )

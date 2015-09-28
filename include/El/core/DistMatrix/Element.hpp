@@ -12,30 +12,6 @@
 
 namespace El {
 
-struct ElementalData
-{
-    Dist colDist, rowDist;
-    int colAlign, rowAlign;
-    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
-    const Grid* grid;
-
-    ElementalData() { }
-
-    template<typename T>
-    ElementalData( const ElementalMatrix<T>& A )
-    : colDist(A.ColDist()), rowDist(A.RowDist()),
-      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
-      root(A.Root()), grid(&A.Grid())
-    { }
-};
-inline bool operator==( const ElementalData& A, const ElementalData& B )
-{ return A.colDist  == B.colDist &&
-         A.rowDist  == B.rowDist &&
-         A.colAlign == B.colAlign &&
-         A.rowAlign == B.rowAlign &&
-         A.root     == B.root &&
-         A.grid     == B.grid; }
-
 template<typename T> 
 class ElementalMatrix : public AbstractDistMatrix<T>
 {
@@ -72,7 +48,17 @@ public:
     void Align( int colAlign, int rowAlign, bool constrain=true );
     void AlignCols( int colAlign, bool constrain=true );
     void AlignRows( int rowAlign, bool constrain=true );
-    void FreeAlignments();
+
+    void AlignWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) override;
+    void AlignColsWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) override;
+    void AlignRowsWith
+    ( const El::DistData& data,
+      bool constrain=true, bool allowMismatch=false ) override;
+
     void AlignWith
     ( const El::ElementalData& data,
       bool constrain=true, bool allowMismatch=false );
@@ -82,6 +68,7 @@ public:
     void AlignRowsWith
     ( const El::ElementalData& data,
       bool constrain=true, bool allowMismatch=false );
+
     void AlignAndResize
     ( int colAlign, int rowAlign, Int height, Int width, 
       bool force=false, bool constrain=true );
@@ -117,6 +104,7 @@ public:
     // Copy
     // ----
     const type& operator=( const type& A );
+    // TODO: Eliminate this routine
     const type& operator=( const DistMultiVec<T>& A );
 
     // Addition/subtraction
@@ -133,6 +121,11 @@ public:
     DistWrap Wrap() const override EL_NO_EXCEPT { return ELEMENT; }
     virtual El::ElementalData DistData() const = 0;
 
+    Int BlockHeight() const override EL_NO_EXCEPT { return 1; }
+    Int BlockWidth()  const override EL_NO_EXCEPT { return 1; }
+    Int ColCut()      const override EL_NO_EXCEPT { return 0; }
+    Int RowCut()      const override EL_NO_EXCEPT { return 0; }
+
     int  RowOwner( Int i )       const override EL_NO_EXCEPT;
     int  ColOwner( Int j )       const override EL_NO_EXCEPT;
     Int  LocalRowOffset( Int i ) const override EL_NO_EXCEPT;
@@ -142,6 +135,8 @@ public:
 
     // Diagonal manipulation
     // =====================
+    bool DiagonalAlignedWith
+    ( const El::DistData& d, Int offset=0 ) const override EL_NO_EXCEPT;
     bool DiagonalAlignedWith
     ( const El::ElementalData& d, Int offset=0 ) const EL_NO_EXCEPT;
     int DiagonalRoot( Int offset=0 ) const override EL_NO_EXCEPT;

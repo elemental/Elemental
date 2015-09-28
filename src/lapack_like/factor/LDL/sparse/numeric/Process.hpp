@@ -36,6 +36,7 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
     auto& FBR = front.workDense;
     FBR.Empty();
     Zeros( FBR, updateSize, updateSize );
+
     if( front.sparseLeaf )
     {
         front.type = factorType;
@@ -43,6 +44,10 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
         const Int n = front.LDense.Width();
         const Int numEntries = info.LOffsets.back();
         const Int numSources = info.LOffsets.size()-1;
+
+        // TODO: Add support for pivoting here
+        if( PivotedFactorization(factorType) )
+            Zeros( front.subdiag, n-1, 1 );
 
         Zeros( front.LSparse, numSources, numSources );
         front.LSparse.ForceNumEntries( numEntries );
@@ -84,8 +89,6 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
           (const Int*)nullptr,
           front.isHermitian );
         front.LSparse.ForceConsistency();
-
-        front.workSparse.Empty();
 
         // Solve against L_{TL}^T from the right
         bool onLeft = false;

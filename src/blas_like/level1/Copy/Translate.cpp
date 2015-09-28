@@ -133,9 +133,11 @@ void Translate
     B.SetGrid( A.Grid() );
     if( !B.RootConstrained() )
         B.SetRoot( root, false );
-    if( !B.ColConstrained() )
+    // TODO: Clarify under what conditions blocksizes are modified
+    //       (perhaps via a BlockSizeConstrained() function?)
+    if( !B.ColConstrained() && B.BlockHeight() == blockHeight )
         B.AlignCols( blockHeight, colAlign, colCut, false );
-    if( !B.RowConstrained() )
+    if( !B.RowConstrained() && B.BlockWidth() == blockWidth )
         B.AlignRows( blockWidth, rowAlign, rowCut, false );
     B.Resize( height, width );
     const bool aligned =

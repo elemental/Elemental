@@ -82,6 +82,20 @@ AbstractDistMatrix<T>::SetGrid( const El::Grid& grid )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::FreeAlignments() 
+{ 
+    if( !Viewing() )
+    {
+        colConstrained_ = false;
+        rowConstrained_ = false;
+        rootConstrained_ = false;
+    }
+    else
+        LogicError("Cannot free alignments of views");
+}
+
+template<typename T>
+void
 AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
 {
     DEBUG_ONLY(CSE cse("ADM::MakeSizeConsistent"))

@@ -1584,8 +1584,6 @@ Matrix<Int> QuasiTriangularSpectralPortrait
            ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
 }
 
-// LEFT OFF HERE for cout -> Output conversion
-
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralPortrait
 ( const Matrix<Real>& U,
@@ -1597,7 +1595,7 @@ Matrix<Int> QuasiTriangularSpectralPortrait
   PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CSE cse("QuasiTriangularSpectralPortrait"))
- 
+
     const auto w = schur::QuasiTriangEig( U );
     const Real radius = MaxNorm( w );
     const Real oneNorm = OneNorm( U );
@@ -1611,21 +1609,21 @@ Matrix<Int> QuasiTriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress )
-            cout << "Setting width to " << width 
-                 << " based on the spectral radius, " << radius << endl;
+            Output
+            ("Setting width to ",width," based on spectral radius, ",radius);
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress )
-            cout << "Setting width to " << width 
-                 << " based on the one norm, " << oneNorm << endl;
+            Output
+            ("Setting width to ",width," based on one-norm, ",oneNorm);
     }
     Complex<Real> center(0,0);
 
@@ -1637,6 +1635,8 @@ Matrix<Int> QuasiTriangularSpectralPortrait
            ( U, Q, invNormMap, center, width, width, realSize, imagSize, 
              psCtrl );
 }
+
+// LEFT OFF HERE for cout -> Output conversion
 
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
@@ -1651,6 +1651,7 @@ Matrix<Int> HessenbergSpectralPortrait
     typedef Base<F> Real;
     const Real infNorm = InfinityNorm( H );
     const Real oneNorm = OneNorm( H );
+
     Real width;
     if( oneNorm == Real(0) )
     {
@@ -1690,6 +1691,7 @@ Matrix<Int> HessenbergSpectralPortrait
     typedef Base<F> Real;
     const Real infNorm = InfinityNorm( H );
     const Real oneNorm = OneNorm( H );
+
     Real width;
     if( oneNorm == Real(0) )
     {
@@ -1953,6 +1955,7 @@ DistMatrix<Int> HessenbergSpectralPortrait
     typedef Base<F> Real;
     const Real oneNorm = OneNorm( H );
     const Real infNorm = InfinityNorm( H );
+
     Real width;
     if( oneNorm == Real(0) )
     {
@@ -1992,6 +1995,7 @@ DistMatrix<Int> HessenbergSpectralPortrait
     typedef Base<F> Real;
     const Real oneNorm = OneNorm( H );
     const Real infNorm = InfinityNorm( H );
+
     Real width;
     if( oneNorm == Real(0) )
     {
