@@ -93,9 +93,21 @@ QR
 
     // Run the QR algorithm in block form
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
+
+#define FORCE_WANTZ_TRUE 1
+#if FORCE_WANTZ_TRUE
+    DistMatrix<F,MC,MR,BLOCK> Z(n,n,A.Grid(),A.BlockHeight(),A.BlockWidth());
+    Identity( Z, n, n );
+    bool multiplyZ=true;
+    scalapack::HessenbergSchur
+    ( n, A.Buffer(), desca.data(),
+      w_STAR_STAR.Buffer(), Z.Buffer(), desca.data(),
+      fullTriangle, multiplyZ, ctrl.distAED );
+#else
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, 
       ctrl.distAED );
+#endif
     Copy( w_STAR_STAR, w );
 
     blacs::FreeGrid( context );
@@ -199,7 +211,8 @@ QR
 template<typename F>
 inline void
 QR
-( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& w, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
@@ -233,9 +246,22 @@ QR
         LogicError("Grid col did not match BLACS");
     blacs::Desc desca = FillDesc( ABlock, context );
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
+
+#define FORCE_WANTZ_TRUE 1
+#if FORCE_WANTZ_TRUE
+    DistMatrix<F,MC,MR,BLOCK> Z(n,n,A.Grid(),mb,nb);
+    Identity( Z, n, n );
+    bool multiplyZ=true;
+    scalapack::HessenbergSchur
+    ( n, ABlock.Buffer(), desca.data(),
+      w_STAR_STAR.Buffer(), Z.Buffer(), desca.data(),
+      fullTriangle, multiplyZ, ctrl.distAED );
+#else
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
       fullTriangle, ctrl.distAED );
+#endif
+
     A = ABlock;
     Copy( w_STAR_STAR, w );
 
@@ -257,8 +283,11 @@ QR
 template<typename F>
 inline void
 QR
-( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& w, 
-  ElementalMatrix<F>& QPre, bool fullTriangle, const HessQRCtrl& ctrl )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Complex<Base<F>>>& w, 
+  ElementalMatrix<F>& QPre,
+  bool fullTriangle,
+  const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;

@@ -626,25 +626,37 @@ struct SpectralBox
 // said square cells
 template<typename F>
 Matrix<Int> SpectralPortrait
-( const Matrix<F>& A, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& A,
+        Matrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> SpectralPortrait
-( const ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralPortrait
-( const Matrix<F>& U, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& U,
+        Matrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> TriangularSpectralPortrait
-( const ElementalMatrix<F>& U, ElementalMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralPortrait
