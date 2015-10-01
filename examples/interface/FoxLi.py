@@ -20,7 +20,7 @@ portrait, box = El.SpectralPortrait(A,realRes,imagRes)
 El.DisplayPortrait(portrait,box,"spectral portrait of Fox-Li/Landau matrix")
 
 # Display its singular values
-s = El.SVD(A)
+s = El.SingularValues(A)
 El.EntrywiseMap(s,math.log10)
 El.Display(s,"log10(svd(A))")
 

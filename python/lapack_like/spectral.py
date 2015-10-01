@@ -817,6 +817,25 @@ def Schur(A,fullTriangle=True,vectors=False):
 # Singular value decomposition
 # ============================
 
+class SVDCtrl_s(ctypes.Structure):
+  _fields_ = [("seqQR",bType),
+              ("valChanRatio",dType),
+              ("fullChanRatio",dType),
+              ("thesholded",bType),
+              ("relative",bType),
+              ("tol",sType)]
+  def __init__(self):
+    lib.ElSVDCtrlDefault_s(pointer(self))
+class SVDCtrl_d(ctypes.Structure):
+  _fields_ = [("seqQR",bType),
+              ("valChanRatio",dType),
+              ("fullChanRatio",dType),
+              ("thesholded",bType),
+              ("relative",bType),
+              ("tol",dType)]
+  def __init__(self):
+    lib.ElSVDCtrlDefault_d(pointer(self))
+
 lib.ElSVD_s.argtypes = \
 lib.ElSVD_d.argtypes = \
 lib.ElSVD_c.argtypes = \
@@ -826,6 +845,17 @@ lib.ElSVDDist_d.argtypes = \
 lib.ElSVDDist_c.argtypes = \
 lib.ElSVDDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p]
+
+lib.ElSVDX_s.argtypes = \
+lib.ElSVDX_c.argtypes = \
+lib.ElSVDXDist_s.argtypes = \
+lib.ElSVDXDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,SVDCtrl_s]
+lib.ElSVDX_d.argtypes = \
+lib.ElSVDX_z.argtypes = \
+lib.ElSVDXDist_d.argtypes = \
+lib.ElSVDXDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,SVDCtrl_d]
 
 lib.ElSingularValues_s.argtypes = \
 lib.ElSingularValues_d.argtypes = \
@@ -837,45 +867,82 @@ lib.ElSingularValuesDist_c.argtypes = \
 lib.ElSingularValuesDist_z.argtypes = \
   [c_void_p,c_void_p]
 
-def SVD(A,vectors=False):
+lib.ElSingularValuesDist_s.argtypes = \
+lib.ElSingularValuesDist_c.argtypes = \
+  [c_void_p,c_void_p,SVDCtrl_s]
+lib.ElSingularValuesDist_d.argtypes = \
+lib.ElSingularValuesDist_z.argtypes = \
+  [c_void_p,c_void_p,SVDCtrl_d]
+
+def SingularValues(A,ctrl=None):
   if type(A) is Matrix:
     s = Matrix(Base(A.tag))
-    if vectors:
-      V = Matrix(A.tag)
-      args = [A.obj,s.obj,V.obj]
-      if   A.tag == sTag: lib.ElSVD_s(*args)
-      elif A.tag == dTag: lib.ElSVD_d(*args)
-      elif A.tag == cTag: lib.ElSVD_c(*args)
-      elif A.tag == zTag: lib.ElSVD_z(*args)
-      else: DataExcept()
-      return s, V
-    else:
-      args = [A.obj,s.obj]
-      if   A.tag == sTag: lib.ElSingularValues_s(*args)
-      elif A.tag == dTag: lib.ElSingularValues_d(*args)
-      elif A.tag == cTag: lib.ElSingularValues_c(*args)
-      elif A.tag == zTag: lib.ElSingularValues_z(*args)
-      else: DataExcept()
-      return s
+    args = [A.obj,s.obj]
+    if   A.tag == sTag: lib.ElSingularValues_s(*args)
+    elif A.tag == dTag: lib.ElSingularValues_d(*args)
+    elif A.tag == cTag: lib.ElSingularValues_c(*args)
+    elif A.tag == zTag: lib.ElSingularValues_z(*args)
+    else: DataExcept()
+    return s
   elif type(A) is DistMatrix:
     s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
-    if vectors:
-      V = DistMatrix(A.tag,MC,MR,A.Grid())
-      args = [A.obj,s.obj,V.obj]
-      if   A.tag == sTag: lib.ElSVDDist_s(*args)
-      elif A.tag == dTag: lib.ElSVDDist_d(*args)
-      elif A.tag == cTag: lib.ElSVDDist_c(*args)
-      elif A.tag == zTag: lib.ElSVDDist_z(*args)
-      else: DataExcept()
-      return s, V
-    else:
-      args = [A.obj,s.obj]
-      if   A.tag == sTag: lib.ElSingularValuesDist_s(*args)
-      elif A.tag == dTag: lib.ElSingularValuesDist_d(*args)
-      elif A.tag == cTag: lib.ElSingularValuesDist_c(*args)
-      elif A.tag == zTag: lib.ElSingularValuesDist_z(*args)
-      else: DataExcept()
-      return s
+    args = [A.obj,s.obj]
+    argsCtrl = [A.obj,s.obj,ctrl]
+    if   A.tag == sTag:
+      if ctrl == None: lib.ElSingularValuesDist_s(*args)
+      else:            lib.ElSingularValuesXDist_s(*argsCtrl)
+    elif A.tag == dTag:
+      if ctrl == None: lib.ElSingularValuesDist_d(*args)
+      else:            lib.ElSingularValuesXDist_d(*argsCtrl)
+    elif A.tag == cTag:
+      if ctrl == None: lib.ElSingularValuesDist_c(*args)
+      else:            lib.ElSingularValuesXDist_c(*argsCtrl)
+    elif A.tag == zTag:
+      if ctrl == None: lib.ElSingularValuesDist_z(*args)
+      else:            lib.ElSingularValuesXDist_z(*argsCtrl)
+    else: DataExcept()
+    return s
+  else: TypeExcept()
+
+def SVD(A,ctrl=None):
+  if type(A) is Matrix:
+    s = Matrix(Base(A.tag))
+    V = Matrix(A.tag)
+    args = [A.obj,s.obj,V.obj]
+    argsCtrl = [A.obj,s.obj,V.obj,ctrl]
+    if   A.tag == sTag:
+      if ctrl==None: lib.ElSVD_s(*args)
+      else:          lib.ElSVDX_s(*argsCtrl)
+    elif A.tag == dTag:
+      if ctrl==None: lib.ElSVD_d(*args)
+      else:          lib.ElSVDX_d(*argsCtrl)
+    elif A.tag == cTag:
+      if ctrl==None: lib.ElSVD_c(*args)
+      else:          lib.ElSVDX_c(*argsCtrl)
+    elif A.tag == zTag:
+      if ctrl==None: lib.ElSVD_z(*args)
+      else:          lib.ElSVDX_z(*argsCtrl)
+    else: DataExcept()
+    return s, V
+  elif type(A) is DistMatrix:
+    s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
+    V = DistMatrix(A.tag,MC,MR,A.Grid())
+    args = [A.obj,s.obj,V.obj]
+    argsCtrl = [A.obj,s.obj,V.obj,ctrl]
+    if   A.tag == sTag:
+      if ctrl==None: lib.ElSVDDist_s(*args)
+      else:          lib.ElSVDXDist_s(*argsCtrl)
+    elif A.tag == dTag: 
+      if ctrl==None: lib.ElSVDDist_d(*args)
+      else:          lib.ElSVDXDist_d(*argsCtrl)
+    elif A.tag == cTag:
+      if ctrl==None: lib.ElSVDDist_c(*args)
+      else:          lib.ElSVDXDist_c(*argsCtrl)
+    elif A.tag == zTag: 
+      if ctrl==None: lib.ElSVDDist_z(*args)
+      else:          lib.ElSVDXDist_z(*argsCtrl)
+    else: DataExcept()
+    return s, V
   else: TypeExcept()
 
 # Product Lanczos
