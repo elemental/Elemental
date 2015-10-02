@@ -491,6 +491,12 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ElError ElSingularValuesDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
   { EL_TRY( SVD( *CReflect(A), *CReflect(s) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElSingularValuesXDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
+    ElSVDCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( SVD( *CReflect(A), *CReflect(s), CReflect(ctrl) ) ) } \
   /* Compute the full SVD
      -------------------- */ \
   ElError ElSVD_ ## SIG \
@@ -500,6 +506,16 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
     ElDistMatrix_ ## SIG V ) \
   { EL_TRY( SVD( *CReflect(A), *CReflect(s), *CReflect(V) ) ) } \
+  /* Expert versions
+     ^^^^^^^^^^^^^^^ */ \
+  ElError ElSVDX_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, ElMatrix_ ## SIG V, \
+    ElSVDCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY(SVD( *CReflect(A), *CReflect(s), *CReflect(V), CReflect(ctrl) )) } \
+  ElError ElSVDXDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
+    ElDistMatrix_ ## SIG V, ElSVDCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY(SVD( *CReflect(A), *CReflect(s), *CReflect(V), CReflect(ctrl) )) } \
   /* Hermitian Singular Value Decomposition
      ====================================== */ \
   /* Compute the singular values

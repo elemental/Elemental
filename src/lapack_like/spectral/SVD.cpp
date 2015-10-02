@@ -78,17 +78,45 @@ void SVD
     svd::Chan( A, s, ctrl.valChanRatio );
 }
 
+template<typename F>
+void SVD( DistMatrix<F,MC,MR,BLOCK>& A, Matrix<Base<F>>& s )
+{
+    DEBUG_ONLY(CSE cse("SVD"))
+#ifdef EL_HAVE_SCALAPACK
+    const int bhandle = blacs::Handle( A.DistComm().comm );
+    const int context = 
+        blacs::GridInit
+        ( bhandle, A.Grid().Order()==COLUMN_MAJOR,
+          A.ColStride(), A.RowStride() );
+    auto descA = FillDesc( A, context );
+    int m = A.Height();
+    int n = A.Width();
+    s.Resize( Min(m,n), 1 );
+    scalapack::SingularValues( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
+#else
+    LogicError("ScaLAPACK support was not enabled");
+#endif
+}
+
 #define PROTO(F) \
   template void SVD( Matrix<F>& A, Matrix<Base<F>>& s ); \
   template void SVD \
-  ( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& s, \
     const SVDCtrl<Base<F>>& ctrl ); \
   template void SVD \
-  ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, \
+  ( DistMatrix<F,MC,MR,BLOCK>& A, \
+    Matrix<Base<F>>& s ); \
+  template void SVD \
+  ( Matrix<F>& A, \
+    Matrix<Base<F>>& s, \
+    Matrix<F>& V, \
     const SVDCtrl<Base<F>>& ctrl ); \
   template void SVD \
-  ( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, \
-    ElementalMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl );
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& s, \
+    ElementalMatrix<F>& V, \
+    const SVDCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
