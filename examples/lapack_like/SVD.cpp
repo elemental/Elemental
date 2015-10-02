@@ -51,6 +51,18 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("  SingularValues time: ",timer.Stop());
 
+#ifdef EL_HAVE_SCALAPACK
+        DistMatrix<C,MC,MR,BLOCK> ABlock( A );
+        Matrix<Real> sBlock;
+        if( commRank == 0 )
+            timer.Start();
+        SVD( ABlock, sBlock );
+        if( commRank == 0 )
+            Output("  ScaLAPACK SingularValues time: ",timer.Stop());
+        if( commRank == 0 && print )
+            Print( sBlock, "s from ScaLAPACK" ); 
+#endif
+
         if( testDecomp )
         {
             // Compute the SVD of A 

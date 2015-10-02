@@ -33,6 +33,50 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* desca );
 // Spectral analysis
 // =================
 
+// SVD
+// ---
+void SingularValues
+( int m, int n,
+  float* A, const int* descA,
+  float* s );
+void SingularValues
+( int m, int n,
+  double* A, const int* descA,
+  double* s );
+void SingularValues
+( int m, int n,
+  scomplex* A, const int* descA,
+  float* s );
+void SingularValues
+( int m, int n,
+  dcomplex* A, const int* descA,
+  double* s );
+
+void SVD
+( char jobU, char jobVH, int m, int n,
+  float* A, const int* descA,
+  float* s,
+  float* U, const int* descU,
+  float* VH, const int* descVH );
+void SVD
+( char jobU, char jobVH, int m, int n,
+  double* A, const int* descA,
+  double* s,
+  double* U, const int* descU,
+  double* VH, const int* descVH );
+void SVD
+( char jobU, char jobVH, int m, int n,
+  scomplex* A, const int* descA,
+  float* s,
+  scomplex* U, const int* descU,
+  scomplex* VH, const int* descVH );
+void SVD
+( char jobU, char jobVH, int m, int n,
+  dcomplex* A, const int* descA,
+  double* s,
+  dcomplex* U, const int* descU,
+  dcomplex* VH, const int* descVH );
+
 // Hermitian eigenvalue problems
 // -----------------------------
 

@@ -36,6 +36,95 @@ void EL_SCALAPACK(pzpotrf)
 // Spectral analysis
 // =================
 
+// SVD
+// ---
+void EL_SCALAPACK(psgesvd)
+( const char* jobU,
+  const char* jobVH,
+  const int* m,
+  const int* n,
+  float* A,
+  const int* iA,
+  const int* jA,
+  const int* descA,
+  float* S,
+  float* U,
+  const int* iU,
+  const int* jU,
+  const int* descU,
+  float* VH,
+  const int* iVH,
+  const int* jVH,
+  const int* descVH,
+  float* work,
+  const int* lwork,
+  int* info );
+void EL_SCALAPACK(pdgesvd)
+( const char* jobU,
+  const char* jobVH,
+  const int* m,
+  const int* n,
+  double* A,
+  const int* iA,
+  const int* jA,
+  const int* descA,
+  double* S,
+  double* U,
+  const int* iU,
+  const int* jU,
+  const int* descU,
+  double* VH,
+  const int* iVH,
+  const int* jVH,
+  const int* descVH,
+  double* work,
+  const int* lwork,
+  int* info );
+void EL_SCALAPACK(pcgesvd)
+( const char* jobU,
+  const char* jobVH,
+  const int* m,
+  const int* n,
+  scomplex* A,
+  const int* iA,
+  const int* jA,
+  const int* descA,
+  float* S,
+  scomplex* U,
+  const int* iU,
+  const int* jU,
+  const int* descU,
+  scomplex* VH,
+  const int* iVH,
+  const int* jVH,
+  const int* descVH,
+  scomplex* work,
+  const int* lwork,
+  float* rwork,
+  int* info );
+void EL_SCALAPACK(pzgesvd)
+( const char* jobU,
+  const char* jobVH,
+  const int* m,
+  const int* n,
+  dcomplex* A,
+  const int* iA,
+  const int* jA,
+  const int* descA,
+  double* S,
+  dcomplex* U,
+  const int* iU,
+  const int* jU,
+  const int* descU,
+  dcomplex* VH,
+  const int* iVH,
+  const int* jVH,
+  const int* descVH,
+  dcomplex* work,
+  const int* lwork,
+  double* rwork,
+  int* info );
+
 // Reduction of a Hermitian positive-definite EVP to standard form
 // ---------------------------------------------------------------
 void EL_SCALAPACK(pssyngst)
@@ -185,6 +274,120 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 
 // Spectral analysis
 // =================
+
+// SVD
+// ---
+
+// Singular values
+// ^^^^^^^^^^^^^^^
+void SingularValues( int m, int n, float* A, const int* descA, float* s )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+    float* U=nullptr;
+    float* VH=nullptr;
+
+    const char jobU='N', jobVH='N';
+    float dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(psgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    vector<float> work(lwork);
+    EL_SCALAPACK(psgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      work.data(), &lwork, &info );
+}
+
+void SingularValues( int m, int n, double* A, const int* descA, double* s )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+    double* U=nullptr;
+    double* VH=nullptr;
+
+    const char jobU='N', jobVH='N';
+    double dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(pdgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    vector<double> work(lwork);
+    EL_SCALAPACK(pdgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      work.data(), &lwork, &info );
+}
+
+void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+    scomplex* U=nullptr;
+    scomplex* VH=nullptr;
+
+    const int maxDim = Max(m,n);
+    vector<float> rwork(1+4*maxDim);
+
+    const char jobU='N', jobVH='N';
+    scomplex dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(pcgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork, rwork.data(), &info );
+
+    lwork = dummyWork.real();
+    vector<scomplex> work(lwork);
+    EL_SCALAPACK(pcgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      work.data(), &lwork, rwork.data(), &info );
+}
+
+void SingularValues( int m, int n, dcomplex* A, const int* descA, double* s )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+    dcomplex* U=nullptr;
+    dcomplex* VH=nullptr;
+
+    const int maxDim = Max(m,n);
+    vector<double> rwork(1+4*maxDim);
+
+    const char jobU='N', jobVH='N';
+    dcomplex dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(pzgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork, rwork.data(), &info );
+
+    lwork = dummyWork.real();
+    vector<dcomplex> work(lwork);
+    EL_SCALAPACK(pzgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      work.data(), &lwork, rwork.data(), &info );
+}
+
+// Values and vectors
+// ^^^^^^^^^^^^^^^^^^
 
 // Hermitian eigenvalue problems
 // -----------------------------

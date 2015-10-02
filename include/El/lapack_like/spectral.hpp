@@ -414,6 +414,10 @@ void SVD
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( DistMatrix<F,MC,MR,BLOCK>& A,
+  Matrix<Base<F>>& s );
 
 template<typename F>
 void HermitianSVD
