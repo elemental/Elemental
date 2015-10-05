@@ -33,7 +33,9 @@ public:
     // Assignment and reconfiguration
     // ==============================
     virtual void Empty();
+    virtual void SoftEmpty();
     void EmptyData();
+    void SoftEmptyData();
     void SetGrid( const El::Grid& grid );
 
     virtual void AlignWith

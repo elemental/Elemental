@@ -61,9 +61,35 @@ AbstractDistMatrix<T>::Empty()
 
 template<typename T>
 void
+AbstractDistMatrix<T>::SoftEmpty()
+{
+    matrix_.Resize( 0, 0 );
+    viewType_ = OWNER;
+    height_ = 0;
+    width_ = 0;
+    colAlign_ = 0;
+    rowAlign_ = 0;
+    colConstrained_ = false;
+    rowConstrained_ = false;
+    rootConstrained_ = false;
+    SetShifts();
+}
+
+template<typename T>
+void
 AbstractDistMatrix<T>::EmptyData()
 {
     matrix_.Empty_();
+    viewType_ = OWNER;
+    height_ = 0;
+    width_ = 0;
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::SoftEmptyData()
+{
+    matrix_.Resize( 0, 0 );
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
@@ -76,7 +102,7 @@ AbstractDistMatrix<T>::SetGrid( const El::Grid& grid )
     if( grid_ != &grid )
     {
         grid_ = &grid; 
-        Empty();
+        SoftEmpty();
     }
 }
 
@@ -136,7 +162,7 @@ AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
           LogicError("Invalid root");
     )
     if( root != root_ )
-        Empty();
+        SoftEmpty();
     root_ = root;
     if( constrain )
         rootConstrained_ = true;
