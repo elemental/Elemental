@@ -125,15 +125,15 @@ public:
     // NOTE: These are all clearly equivalent to composing mpi::Rank
     //       with ColComm(), RowComm(), etc., but it is not clear that
     //       they should be removed just yet.
-    int ColRank()             const EL_NO_RELEASE_EXCEPT;
-    int RowRank()             const EL_NO_RELEASE_EXCEPT;
-    int PartialColRank()      const EL_NO_RELEASE_EXCEPT;
-    int PartialRowRank()      const EL_NO_RELEASE_EXCEPT;
-    int PartialUnionColRank() const EL_NO_RELEASE_EXCEPT;
-    int PartialUnionRowRank() const EL_NO_RELEASE_EXCEPT;
-    int DistRank()            const EL_NO_RELEASE_EXCEPT;
-    int CrossRank()           const EL_NO_RELEASE_EXCEPT;
-    int RedundantRank()       const EL_NO_RELEASE_EXCEPT;
+    virtual int ColRank()             const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int RowRank()             const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int PartialColRank()      const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int PartialRowRank()      const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int PartialUnionColRank() const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int PartialUnionRowRank() const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int DistRank()            const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int CrossRank()           const EL_NO_RELEASE_EXCEPT = 0;
+    virtual int RedundantRank()       const EL_NO_RELEASE_EXCEPT = 0;
 
     virtual Dist     ColDist()             const EL_NO_EXCEPT = 0;
     virtual Dist     RowDist()             const EL_NO_EXCEPT = 0;
@@ -147,27 +147,23 @@ public:
 
     virtual mpi::Comm ColComm()             const EL_NO_EXCEPT = 0;
     virtual mpi::Comm RowComm()             const EL_NO_EXCEPT = 0;
-    virtual mpi::Comm PartialColComm()      const EL_NO_EXCEPT;
-    virtual mpi::Comm PartialRowComm()      const EL_NO_EXCEPT;
-    virtual mpi::Comm PartialUnionColComm() const EL_NO_EXCEPT;
-    virtual mpi::Comm PartialUnionRowComm() const EL_NO_EXCEPT;
+    virtual mpi::Comm PartialColComm()      const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm PartialRowComm()      const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm PartialUnionColComm() const EL_NO_EXCEPT = 0;
+    virtual mpi::Comm PartialUnionRowComm() const EL_NO_EXCEPT = 0;
     virtual mpi::Comm DistComm()            const EL_NO_EXCEPT = 0;
     virtual mpi::Comm CrossComm()           const EL_NO_EXCEPT = 0;
     virtual mpi::Comm RedundantComm()       const EL_NO_EXCEPT = 0;
 
-    // NOTE: While these would be equivalent to composing mpi::Size
-    //       with ColComm(), RowComm(), etc., for processes *within*
-    //       the communicator, this composition is incorrect for 
-    //       processes *outside* of the communicator
-    virtual int ColStride()             const EL_NO_EXCEPT= 0;
-    virtual int RowStride()             const EL_NO_EXCEPT= 0;
-    virtual int PartialColStride()      const EL_NO_EXCEPT;
-    virtual int PartialRowStride()      const EL_NO_EXCEPT;
-    virtual int PartialUnionColStride() const EL_NO_EXCEPT;
-    virtual int PartialUnionRowStride() const EL_NO_EXCEPT;
-    virtual int DistSize()              const EL_NO_EXCEPT= 0;
-    virtual int CrossSize()             const EL_NO_EXCEPT= 0;
-    virtual int RedundantSize()         const EL_NO_EXCEPT= 0;
+    virtual int ColStride()             const EL_NO_EXCEPT = 0;
+    virtual int RowStride()             const EL_NO_EXCEPT = 0;
+    virtual int PartialColStride()      const EL_NO_EXCEPT = 0;
+    virtual int PartialRowStride()      const EL_NO_EXCEPT = 0;
+    virtual int PartialUnionColStride() const EL_NO_EXCEPT = 0;
+    virtual int PartialUnionRowStride() const EL_NO_EXCEPT = 0;
+    virtual int DistSize()              const EL_NO_EXCEPT = 0;
+    virtual int CrossSize()             const EL_NO_EXCEPT = 0;
+    virtual int RedundantSize()         const EL_NO_EXCEPT = 0;
 
     // Single-entry manipulation
     // =========================

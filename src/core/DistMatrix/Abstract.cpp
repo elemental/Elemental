@@ -321,65 +321,6 @@ bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
 { return IsLocalRow(i) && IsLocalCol(j); }
 
 template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialColComm() const EL_NO_EXCEPT
-{ return ColComm(); }
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialRowComm() const EL_NO_EXCEPT
-{ return RowComm(); }
-
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionColComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionRowComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialColStride() const EL_NO_EXCEPT
-{ return ColStride(); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialRowStride() const EL_NO_EXCEPT
-{ return RowStride(); }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColStride() const EL_NO_EXCEPT
-{ return 1; }
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowStride() const EL_NO_EXCEPT
-{ return 1; }
-
-template<typename T>
-int AbstractDistMatrix<T>::ColRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(ColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::RowRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(RowComm()); }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialColRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialRowRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialRowComm()); }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialUnionColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialUnionRowComm()); }
-
-template<typename T>
-int AbstractDistMatrix<T>::DistRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(DistComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::CrossRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(CrossComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::RedundantRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(RedundantComm()); }
-
-template<typename T>
 int AbstractDistMatrix<T>::Root() const EL_NO_EXCEPT { return root_; }
 
 // Single-entry manipulation

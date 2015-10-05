@@ -37,12 +37,18 @@ public:
     // Distribution-based interface
     int MCRank() const EL_NO_RELEASE_EXCEPT;
     int MRRank() const EL_NO_RELEASE_EXCEPT;
+    int MDRank() const EL_NO_RELEASE_EXCEPT;
+    int MDPerpRank() const EL_NO_RELEASE_EXCEPT;
     int VCRank() const EL_NO_RELEASE_EXCEPT;
     int VRRank() const EL_NO_RELEASE_EXCEPT;
+
     int MCSize() const EL_NO_EXCEPT;
     int MRSize() const EL_NO_EXCEPT;
+    int MDSize() const EL_NO_EXCEPT;
+    int MDPerpSize() const EL_NO_EXCEPT;
     int VCSize() const EL_NO_EXCEPT;
     int VRSize() const EL_NO_EXCEPT;
+
     mpi::Comm MCComm() const EL_NO_EXCEPT;
     mpi::Comm MRComm() const EL_NO_EXCEPT;
     mpi::Comm VCComm() const EL_NO_EXCEPT;
@@ -100,6 +106,9 @@ private:
               mcComm_, mrComm_,
               mdComm_, mdPerpComm_,
               vcComm_, vrComm_;
+    int mcRank_, mrRank_,
+        mdRank_, mdPerpRank_,
+        vcRank_, vrRank_;
 
     void SetUpGrid();
 

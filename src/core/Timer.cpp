@@ -17,8 +17,8 @@ Timer::Timer( const string& name )
 void Timer::Start()
 {
     DEBUG_ONLY(
-        if( running_ )
-            LogicError("Forgot to stop timer before restarting.");
+      if( running_ )
+          LogicError("Forgot to stop timer before restarting.");
     )
     lastTime_ = Clock::now();
     running_ = true;
@@ -27,8 +27,8 @@ void Timer::Start()
 double Timer::Stop()
 {
     DEBUG_ONLY(
-        if( !running_ )
-            LogicError("Tried to stop a timer before starting it.");
+      if( !running_ )
+          LogicError("Tried to stop a timer before starting it.");
     )
     lastPartialTime_ = Partial();
     running_ = false;

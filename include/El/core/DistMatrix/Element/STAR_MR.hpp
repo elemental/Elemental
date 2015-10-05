@@ -106,17 +106,35 @@ public:
     Dist CollectedColDist()    const EL_NO_EXCEPT override;
     Dist CollectedRowDist()    const EL_NO_EXCEPT override;
 
-    mpi::Comm DistComm()      const EL_NO_EXCEPT override;
-    mpi::Comm CrossComm()     const EL_NO_EXCEPT override;
-    mpi::Comm RedundantComm() const EL_NO_EXCEPT override;
-    mpi::Comm ColComm()       const EL_NO_EXCEPT override;
-    mpi::Comm RowComm()       const EL_NO_EXCEPT override;
+    mpi::Comm DistComm()            const EL_NO_EXCEPT override;
+    mpi::Comm CrossComm()           const EL_NO_EXCEPT override;
+    mpi::Comm RedundantComm()       const EL_NO_EXCEPT override;
+    mpi::Comm ColComm()             const EL_NO_EXCEPT override;
+    mpi::Comm RowComm()             const EL_NO_EXCEPT override;
+    mpi::Comm PartialColComm()      const EL_NO_EXCEPT override;
+    mpi::Comm PartialRowComm()      const EL_NO_EXCEPT override;
+    mpi::Comm PartialUnionColComm() const EL_NO_EXCEPT override;
+    mpi::Comm PartialUnionRowComm() const EL_NO_EXCEPT override;
 
-    int RowStride()     const EL_NO_EXCEPT override;
-    int ColStride()     const EL_NO_EXCEPT override;
-    int DistSize()      const EL_NO_EXCEPT override;
-    int CrossSize()     const EL_NO_EXCEPT override;
-    int RedundantSize() const EL_NO_EXCEPT override;
+    int DistSize()              const EL_NO_EXCEPT override;
+    int CrossSize()             const EL_NO_EXCEPT override;
+    int RedundantSize()         const EL_NO_EXCEPT override;
+    int ColStride()             const EL_NO_EXCEPT override;
+    int RowStride()             const EL_NO_EXCEPT override;
+    int PartialColStride()      const EL_NO_EXCEPT override;
+    int PartialRowStride()      const EL_NO_EXCEPT override;
+    int PartialUnionColStride() const EL_NO_EXCEPT override;
+    int PartialUnionRowStride() const EL_NO_EXCEPT override;
+
+    int DistRank()            const EL_NO_EXCEPT override;
+    int CrossRank()           const EL_NO_EXCEPT override;
+    int RedundantRank()       const EL_NO_EXCEPT override;
+    int ColRank()             const EL_NO_EXCEPT override;
+    int RowRank()             const EL_NO_EXCEPT override;
+    int PartialColRank()      const EL_NO_EXCEPT override;
+    int PartialRowRank()      const EL_NO_EXCEPT override;
+    int PartialUnionColRank() const EL_NO_EXCEPT override;
+    int PartialUnionRowRank() const EL_NO_EXCEPT override;
 
 private:
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;

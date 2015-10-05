@@ -209,9 +209,22 @@ mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
 template<typename T>
 mpi::Comm DM::ColComm() const EL_NO_EXCEPT
 { return this->grid_->MRComm(); }
-
 template<typename T>
 mpi::Comm DM::RowComm() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+
+template<typename T>
+mpi::Comm DM::PartialColComm() const EL_NO_EXCEPT
+{ return this->ColComm(); }
+template<typename T>
+mpi::Comm DM::PartialRowComm() const EL_NO_EXCEPT
+{ return this->RowComm(); }
+
+template<typename T>
+mpi::Comm DM::PartialUnionColComm() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+template<typename T>
+mpi::Comm DM::PartialUnionRowComm() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
@@ -224,6 +237,37 @@ template<typename T>
 int DM::CrossSize() const EL_NO_EXCEPT { return 1; }
 template<typename T>
 int DM::RedundantSize() const EL_NO_EXCEPT { return this->grid_->MCSize(); }
+template<typename T>
+int DM::PartialColStride() const EL_NO_EXCEPT { return this->ColStride(); }
+template<typename T>
+int DM::PartialRowStride() const EL_NO_EXCEPT { return this->RowStride(); }
+template<typename T>
+int DM::PartialUnionColStride() const EL_NO_EXCEPT { return 1; }
+template<typename T>
+int DM::PartialUnionRowStride() const EL_NO_EXCEPT { return 1; }
+
+template<typename T>
+int DM::ColRank() const EL_NO_EXCEPT { return this->grid_->MRRank(); }
+template<typename T>
+int DM::RowRank() const EL_NO_EXCEPT 
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int DM::DistRank() const EL_NO_EXCEPT { return this->grid_->MRRank(); }
+template<typename T>
+int DM::CrossRank() const EL_NO_EXCEPT 
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int DM::RedundantRank() const EL_NO_EXCEPT { return this->grid_->MCRank(); }
+template<typename T>
+int DM::PartialColRank() const EL_NO_EXCEPT { return this->ColRank(); }
+template<typename T>
+int DM::PartialRowRank() const EL_NO_EXCEPT { return this->RowRank(); }
+template<typename T>
+int DM::PartialUnionColRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int DM::PartialUnionRowRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

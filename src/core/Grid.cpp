@@ -102,14 +102,14 @@ void Grid::SetUpGrid()
         remainingDims[0] = ( colMajor ? true  : false );
         remainingDims[1] = ( colMajor ? false : true  );
         mpi::CartSub( cartComm_, remainingDims, mrComm_ );
-        const int mcRank = mpi::Rank( mcComm_ );
-        const int mrRank = mpi::Rank( mrComm_ );
+        mcRank_ = mpi::Rank( mcComm_ );
+        mrRank_ = mpi::Rank( mrComm_ );
 
         // Set up the VectorCol and VectorRow communicators
-        const int vcRank = mcRank + height_*mrRank;
-        const int vrRank = mrRank + width*mcRank;
-        mpi::Split( cartComm_, 0, vcRank, vcComm_ );
-        mpi::Split( cartComm_, 0, vrRank, vrComm_ );
+        vcRank_ = mcRank_ + height_*mrRank_;
+        vrRank_ = mrRank_ + width*mcRank_;
+        mpi::Split( cartComm_, 0, vcRank_, vcComm_ );
+        mpi::Split( cartComm_, 0, vrRank_, vrComm_ );
 
         // Set up the map from the VC group to the viewingGroup_ ranks.
         mpi::Group vcGroup;
@@ -124,15 +124,15 @@ void Grid::SetUpGrid()
         // Compute which diagonal we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
         vector<int> myDiagAndRank(2);
-        myDiagAndRank[0] = Mod(mrRank-mcRank,gcd_);
+        myDiagAndRank[0] = mdPerpRank_ = Mod(mrRank_-mcRank_,gcd_);
         int diagRank = 0;
         int row = 0;
         int col = myDiagAndRank[0];
         for( int j=0; j<lcm; ++j )
         {
-            if( row == mcRank && col == mrRank )
+            if( row == mcRank_ && col == mrRank_ )
             {
-                myDiagAndRank[1] = diagRank;
+                myDiagAndRank[1] = mdRank_ = diagRank;
                 break;
             }
             else
@@ -146,8 +146,8 @@ void Grid::SetUpGrid()
         ( myDiagAndRank.data(),  2, 
           diagsAndRanks_.data(), 2, vcComm_ );
 
-        mpi::Split( cartComm_, Diag(),     DiagRank(), mdComm_     );
-        mpi::Split( cartComm_, DiagRank(), Diag(),     mdPerpComm_ );
+        mpi::Split( cartComm_, mdPerpRank_, mdRank_,     mdComm_     );
+        mpi::Split( cartComm_, mdRank_,     mdPerpRank_, mdPerpComm_ );
 
         DEBUG_ONLY(
           mpi::ErrorHandlerSet( mcComm_,     mpi::ERRORS_RETURN );
@@ -162,10 +162,18 @@ void Grid::SetUpGrid()
     {
         mcComm_     = mpi::COMM_NULL;
         mrComm_     = mpi::COMM_NULL;
-        vcComm_     = mpi::COMM_NULL;
-        vrComm_     = mpi::COMM_NULL;
         mdComm_     = mpi::COMM_NULL; 
         mdPerpComm_ = mpi::COMM_NULL;
+        vcComm_     = mpi::COMM_NULL;
+        vrComm_     = mpi::COMM_NULL;
+
+        mcRank_     = mpi::UNDEFINED;
+        mrRank_     = mpi::UNDEFINED;
+        mdRank_     = mpi::UNDEFINED;
+        mdPerpRank_ = mpi::UNDEFINED;
+        vcRank_     = mpi::UNDEFINED;
+        vrRank_     = mpi::UNDEFINED;
+
         // diags and ranks are implicitly set to undefined
     }
     // Translate the rank of the root process of the owningGroup so that we can
@@ -197,29 +205,33 @@ Grid::~Grid()
     }
 }
 
-int Grid::MCRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(mcComm_); }
-int Grid::MRRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(mrComm_); }
-int Grid::VCRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(vcComm_); }
-int Grid::VRRank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(vrComm_); }
+int Grid::MCRank()     const EL_NO_RELEASE_EXCEPT { return mcRank_; }
+int Grid::MRRank()     const EL_NO_RELEASE_EXCEPT { return mrRank_; }
+int Grid::MDRank()     const EL_NO_RELEASE_EXCEPT { return mdRank_; }
+int Grid::MDPerpRank() const EL_NO_RELEASE_EXCEPT { return mdPerpRank_; }
+int Grid::VCRank()     const EL_NO_RELEASE_EXCEPT { return vcRank_; }
+int Grid::VRRank()     const EL_NO_RELEASE_EXCEPT { return vrRank_; }
 
-int Grid::MCSize() const EL_NO_EXCEPT { return height_;       }
-int Grid::MRSize() const EL_NO_EXCEPT { return size_/height_; }
-int Grid::VCSize() const EL_NO_EXCEPT { return size_;         }
-int Grid::VRSize() const EL_NO_EXCEPT { return size_;         }
+int Grid::MCSize()     const EL_NO_EXCEPT { return height_;       }
+int Grid::MRSize()     const EL_NO_EXCEPT { return size_/height_; }
+int Grid::MDSize()     const EL_NO_EXCEPT { return size_/gcd_;    }
+int Grid::MDPerpSize() const EL_NO_EXCEPT { return gcd_;          }
+int Grid::VCSize()     const EL_NO_EXCEPT { return size_;         }
+int Grid::VRSize()     const EL_NO_EXCEPT { return size_;         }
 
 mpi::Comm Grid::MCComm()     const EL_NO_EXCEPT { return mcComm_;     }
 mpi::Comm Grid::MRComm()     const EL_NO_EXCEPT { return mrComm_;     }
-mpi::Comm Grid::VCComm()     const EL_NO_EXCEPT { return vcComm_;     }
-mpi::Comm Grid::VRComm()     const EL_NO_EXCEPT { return vrComm_;     }
 mpi::Comm Grid::MDComm()     const EL_NO_EXCEPT { return mdComm_;     }
 mpi::Comm Grid::MDPerpComm() const EL_NO_EXCEPT { return mdPerpComm_; }
+mpi::Comm Grid::VCComm()     const EL_NO_EXCEPT { return vcComm_;     }
+mpi::Comm Grid::VRComm()     const EL_NO_EXCEPT { return vrComm_;     }
 
 // Provided for simplicity, but redundant
 // ======================================
 int Grid::Height() const EL_NO_EXCEPT { return MCSize(); }
 int Grid::Width()  const EL_NO_EXCEPT { return MRSize(); }
 int Grid::Size()   const EL_NO_EXCEPT { return VCSize(); }
-int Grid::Rank() const EL_NO_RELEASE_EXCEPT { return OwningRank(); }
+int Grid::Rank()   const EL_NO_RELEASE_EXCEPT { return OwningRank(); }
 
 GridOrder Grid::Order() const EL_NO_EXCEPT { return order_; }
 
