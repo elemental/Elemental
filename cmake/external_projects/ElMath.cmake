@@ -54,69 +54,72 @@ endif()
 
 # Check for MKL
 # ^^^^^^^^^^^^^
-if(EL_HYBRID)
-  set(MKL_LIBS "-mkl=parallel")
-  message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
-  set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
-  El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL)
-  El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL)
-  El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV)
-  if((EL_HAVE_DPOTRF_MKL OR EL_HAVE_DPOTRF_POST_MKL) AND EL_HAVE_MKL_DCSRMV)
-    set(EL_HAVE_MKL TRUE)
-  endif()
-  unset(CMAKE_REQUIRED_FLAGS)
-else()
-  set(MKL_LIBS "-mkl=cluster")
-  message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
-  set(CMAKE_REQUIRED_FLAGS "${MKL_LIBS} ${MPI_C_COMPILE_FLAGS}")
-  set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
-  set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
-  set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
-  El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL_CLUSTER)
-  El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL_CLUSTER)
-  El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV_CLUSTER)
-  if((EL_HAVE_DPOTRF_MKL_CLUSTER OR EL_HAVE_DPOTRF_POST_MKL_CLUSTER) 
-     AND EL_HAVE_MKL_DCSRMV_CLUSTER)
-    set(EL_HAVE_MKL TRUE)
-  endif()
-  unset(CMAKE_REQUIRED_FLAGS)
-  unset(CMAKE_REQUIRED_LINKER_FLAGS)
-  unset(CMAKE_REQUIRED_INCLUDES)
-  unset(CMAKE_REQUIRED_LIBRARIES)
-
-  if(NOT EL_HAVE_MKL)
-    # NOTE: There is a bug in MKL such that, if the following line is used,
-    #       there is sometimes an error of the form
-    #
-    #   Intel MKL FATAL ERROR: Cannot load libmkl_avx2.so or libmkl_def.so.
-    #
-    #        when running the executable. Should this occur, manually specify
-    #
-    #   MATH_LIBS="-L/path/to/mkl/libs -lmkl_rt"
-    #
-    #        e.g.,
-    #
-    #   MATH_LIBS="-L/opt/intel/mkl/lib/intel64 -lmkl_rt"
-    #       
-    set(MKL_LIBS "-mkl=sequential")
+if(NOT EL_DISABLE_MKL)
+  if(EL_HYBRID)
+    set(MKL_LIBS "-mkl=parallel")
     message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
     set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
-    El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL_SEQ)
-    El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL_SEQ)
-    El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV_SEQ)
-    if((EL_HAVE_DPOTRF_MKL_SEQ OR EL_HAVE_DPOTRF_POST_MKL_SEQ) 
-       AND EL_HAVE_MKL_DCSRMV_SEQ)
-      set(EL_HAVE_MKL TRUE)
+    El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL)
+    El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL)
+    El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV)
+    if((EL_HAVE_DPOTRF_MKL OR EL_HAVE_DPOTRF_POST_MKL) AND EL_HAVE_MKL_DCSRMV)
+      set(EL_FOUND_MKL TRUE)
     endif()
     unset(CMAKE_REQUIRED_FLAGS)
+  else()
+    set(MKL_LIBS "-mkl=cluster")
+    message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
+    set(CMAKE_REQUIRED_FLAGS "${MKL_LIBS} ${MPI_C_COMPILE_FLAGS}")
+    set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+    set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
+    set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
+    El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL_CLUSTER)
+    El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL_CLUSTER)
+    El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV_CLUSTER)
+    if((EL_HAVE_DPOTRF_MKL_CLUSTER OR EL_HAVE_DPOTRF_POST_MKL_CLUSTER) 
+       AND EL_HAVE_MKL_DCSRMV_CLUSTER)
+      set(EL_FOUND_MKL TRUE)
+    endif()
+    unset(CMAKE_REQUIRED_FLAGS)
+    unset(CMAKE_REQUIRED_LINKER_FLAGS)
+    unset(CMAKE_REQUIRED_INCLUDES)
+    unset(CMAKE_REQUIRED_LIBRARIES)
+
+    if(NOT EL_FOUND_MKL)
+      # NOTE: There is a bug in MKL such that, if the following line is used,
+      #       there is sometimes an error of the form
+      #
+      #   Intel MKL FATAL ERROR: Cannot load libmkl_avx2.so or libmkl_def.so.
+      #
+      #        when running the executable. Should this occur, manually specify
+      #
+      #   MATH_LIBS="-L/path/to/mkl/libs -lmkl_rt"
+      #
+      #        e.g.,
+      #
+      #   MATH_LIBS="-L/opt/intel/mkl/lib/intel64 -lmkl_rt"
+      #       
+      set(MKL_LIBS "-mkl=sequential")
+      message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
+      set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
+      El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL_SEQ)
+      El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST_MKL_SEQ)
+      El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV_SEQ)
+      if((EL_HAVE_DPOTRF_MKL_SEQ OR EL_HAVE_DPOTRF_POST_MKL_SEQ) 
+         AND EL_HAVE_MKL_DCSRMV_SEQ)
+        set(EL_FOUND_MKL TRUE)
+      endif()
+      unset(CMAKE_REQUIRED_FLAGS)
+    endif()
   endif()
 endif()
-if(EL_HAVE_MKL AND NOT MATH_LIBS_AT_CONFIG 
-               AND NOT EL_DISABLE_MKL
-               AND NOT EL_PREFER_APPLE_MATH 
-               AND NOT EL_PREFER_OPENBLAS 
-               AND NOT EL_PREFER_BLIS_LAPACK)
+if(EL_FOUND_MKL AND NOT MATH_LIBS_AT_CONFIG 
+                AND NOT EL_DISABLE_MKL
+                AND NOT EL_PREFER_APPLE_MATH 
+                AND NOT EL_PREFER_OPENBLAS 
+                AND NOT EL_PREFER_BLIS_LAPACK)
   set(MATH_LIBS_AT_CONFIG ${MKL_LIBS}) 
+  set(EL_HAVE_MKL TRUE)
   message(STATUS "Using Intel MKL via ${MKL_LIBS}")
 endif()
 
