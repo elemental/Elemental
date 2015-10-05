@@ -66,7 +66,7 @@ static int refine_to_highrac
 (proc_t*, char*, double*, double*,in_t*, int*, val_t*, tol_t*);
 
 static int cmp(const void*, const void*);
-
+static int cmpb(const void*, const void*);
 
 /* 
  * Computation of eigenvalues and eigenvectors of a symmetric
@@ -349,6 +349,19 @@ int pmrrr
       im++;
     }
   }
+  
+  sort_struct_t *sort_array = (sort_struct_t*)malloc(im*sizeof(sort_struct_t));
+  for (j=0; j<im; j++) {
+    sort_array[j].lambda = W[j];
+    sort_array[j].local_ind = Windex[j];
+    sort_array[j].block_ind = 0;
+    sort_array[j].ind = Zindex[j];
+  }
+  qsort(sort_array, im, sizeof(sort_struct_t), cmpb);
+  for (j=0; j<im; j++) {
+    W[j] = sort_array[j].lambda;
+    Windex[j] = sort_array[j].local_ind;
+  }
 
   clean_up(comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
 	   isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,
@@ -360,6 +373,19 @@ int pmrrr
 
   return 0;
 } /* end pmrrr */
+
+static int cmpb(const void *a1, const void *a2)
+{
+  sort_struct_t *arg1, *arg2;
+  
+  arg1 = (sort_struct_t*) a1;
+  arg2 = (sort_struct_t*) a2;
+  
+  if (arg1->ind < arg2->ind)
+    return -1;
+  else
+    return 1;
+}
 
 /*
  * Free's on allocated memory of pmrrr routine
