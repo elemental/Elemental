@@ -596,7 +596,7 @@ EL_NO_RELEASE_EXCEPT
     double numEdges = mpi::AllReduce( numLocalEdges, comm_ );
     double maxLocalEdges = mpi::AllReduce( numLocalEdges, mpi::MAX, comm_ );
     double commSize = commSize_;
-    return (maxLocalEdges*commSize)/numEdges;
+    return (Max(maxLocalEdges,1)*commSize)/Max(numEdges,1);
 }
 
 Int* DistGraph::SourceBuffer() EL_NO_EXCEPT
