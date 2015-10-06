@@ -55,7 +55,9 @@ void PartialColAllGather
 
     const Int maxLocalHeight = MaxLength(height,A.ColStride());
     const Int portionSize = mpi::Pad( maxLocalHeight*width );
-    vector<T> buffer( (colStrideUnion+1)*portionSize );
+    //vector<T> buffer( (colStrideUnion+1)*portionSize );
+    vector<T> buffer;
+    buffer.reserve( (colStrideUnion+1)*portionSize );
     T* firstBuf = &buffer[0];
     T* secondBuf = &buffer[portionSize];
 

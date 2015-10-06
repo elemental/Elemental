@@ -63,7 +63,8 @@ void Translate
         const Int pkgSize = mpi::Pad( maxHeight*maxWidth );
         vector<T> buffer;
         if( crossRank == root || crossRank == B.Root() )
-            buffer.resize( pkgSize ); 
+            //buffer.resize( pkgSize ); 
+            buffer.reserve( pkgSize );
 
         const Int colAlignB = B.ColAlign();
         const Int rowAlignB = B.RowAlign();
@@ -188,7 +189,10 @@ void Translate
         vector<int> sendOffs, recvOffs;
         const Int totalSend = Scan( sendCounts, sendOffs );
         const Int totalRecv = Scan( recvCounts, recvOffs );
-        vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+        //vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+        vector<T> sendBuf, recvBuf;
+        sendBuf.reserve( totalSend );
+        recvBuf.reserve( totalRecv );
 
         // Pack the send data
         auto offs = sendOffs;

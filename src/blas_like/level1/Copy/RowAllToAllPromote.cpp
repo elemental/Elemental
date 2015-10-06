@@ -38,7 +38,9 @@ void RowAllToAllPromote
     const Int maxLocalHeight = MaxLength(height,rowStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-    vector<T> buffer( 2*rowStrideUnion*portionSize );
+    //vector<T> buffer( 2*rowStrideUnion*portionSize );
+    vector<T> buffer;
+    buffer.reserve( 2*rowStrideUnion*portionSize );
     T* firstBuf  = &buffer[0];
     T* secondBuf = &buffer[rowStrideUnion*portionSize];
 

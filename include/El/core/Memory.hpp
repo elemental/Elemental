@@ -16,6 +16,7 @@ template<typename G>
 class Memory
 {
     size_t size_;
+    G* rawBuffer_;
     G* buffer_;
 public:
     Memory();

@@ -54,7 +54,9 @@ void ColFilter( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         const Int localWidthA = A.LocalWidth();
         const Int sendSize = localHeight*localWidthA;
         const Int recvSize = localHeight*localWidth;
-        vector<T> buffer( sendSize+recvSize );
+        //vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer;
+        buffer.reserve( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
 

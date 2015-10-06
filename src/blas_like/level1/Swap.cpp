@@ -143,7 +143,9 @@ void RowSwap( ElementalMatrix<T>& A, Int to, Int from )
     }
     else if( aToRow->ColShift() == 0 )
     {
-        vector<T> buf( nLocal );
+        //vector<T> buf( nLocal );
+        vector<T> buf;
+        buf.reserve( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = aToRow->GetLocal(0,jLoc);
         mpi::SendRecv
@@ -154,7 +156,9 @@ void RowSwap( ElementalMatrix<T>& A, Int to, Int from )
     }
     else if( aFromRow->ColShift() == 0 )
     {
-        vector<T> buf( nLocal );
+        //vector<T> buf( nLocal );
+        vector<T> buf;
+        buf.reserve( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = aFromRow->GetLocal(0,jLoc);
         mpi::SendRecv

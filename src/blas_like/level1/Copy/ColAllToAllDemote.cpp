@@ -42,7 +42,9 @@ void ColAllToAllDemote
     const Int maxLocalWidth = MaxLength(width,colStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-    vector<T> buffer( 2*colStrideUnion*portionSize );
+    //vector<T> buffer( 2*colStrideUnion*portionSize );
+    vector<T> buffer;
+    buffer.reserve( 2*colStrideUnion*portionSize );
     T* firstBuf  = &buffer[0];
     T* secondBuf = &buffer[colStrideUnion*portionSize];
 

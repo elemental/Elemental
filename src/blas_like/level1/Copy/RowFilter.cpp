@@ -56,7 +56,9 @@ void RowFilter
         const Int sendSize = localHeightA*localWidth;
         const Int recvSize = localHeight *localWidth;
 
-        vector<T> buffer( sendSize+recvSize );
+        //vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer;
+        buffer.reserve( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
 

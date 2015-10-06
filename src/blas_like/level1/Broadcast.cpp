@@ -28,7 +28,9 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
     }
     else
     {
-        vector<T> buf( localSize );
+        //vector<T> buf( localSize );
+        vector<T> buf;
+        buf.reserve( localSize );
 
         // Pack
         if( mpi::Rank(comm) == rank )

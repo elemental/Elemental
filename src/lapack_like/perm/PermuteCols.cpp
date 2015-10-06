@@ -16,11 +16,11 @@ void PermuteCols
 {
     const Int b = perm.Height();
     DEBUG_ONLY(
-        CSE cse("PermuteCols");
-        if( A.Width() < b || b != invPerm.Height() )
-            LogicError
-            ("perm and invPerm must be vectors of equal length that are not "
-             "wider than A.");
+      CSE cse("PermuteCols");
+      if( A.Width() < b || b != invPerm.Height() )
+          LogicError
+          ("perm and invPerm must be vectors of equal length that are not "
+           "wider than A.");
     )
     const Int m = A.Height();
     const Int n = A.Width();
@@ -92,7 +92,9 @@ void PermuteCols( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
     // Fill vectors with the send data
     auto offsets = meta.sendDispls;
     const int totalSend = meta.TotalSend();
-    vector<T> sendData( mpi::Pad(totalSend) );
+    //vector<T> sendData( mpi::Pad(totalSend) );
+    vector<T> sendData;
+    sendData.reserve( mpi::Pad(totalSend) );
     const int numSends = meta.sendIdx.size();
     for( int send=0; send<numSends; ++send )
     {
@@ -105,7 +107,9 @@ void PermuteCols( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
 
     // Communicate all pivot rows
     const int totalRecv = meta.TotalRecv();
-    vector<T> recvData( mpi::Pad(totalRecv) );
+    //vector<T> recvData( mpi::Pad(totalRecv) );
+    vector<T> recvData;
+    recvData.reserve( mpi::Pad(totalRecv) );
     mpi::AllToAll
     ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
       recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(), 

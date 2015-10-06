@@ -32,8 +32,8 @@ void PartialRowAllGather
         return;
 
     DEBUG_ONLY(
-        if( A.LocalHeight() != height )
-            LogicError("This routine assumes columns are not distributed");
+      if( A.LocalHeight() != height )
+          LogicError("This routine assumes columns are not distributed");
     )
     const Int rowStride = A.RowStride();
     const Int rowStrideUnion = A.PartialUnionRowStride();
@@ -43,7 +43,9 @@ void PartialRowAllGather
 
     const Int maxLocalWidth = MaxLength(width,rowStride);
     const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    vector<T> buffer( (rowStrideUnion+1)*portionSize );
+    //vector<T> buffer( (rowStrideUnion+1)*portionSize );
+    vector<T> buffer;
+    buffer.reserve( (rowStrideUnion+1)*portionSize );
     T* firstBuf = &buffer[0];
     T* secondBuf = &buffer[portionSize];
 

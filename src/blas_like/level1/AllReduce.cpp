@@ -23,7 +23,9 @@ void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
     }
     else
     {
-        vector<T> buf( size );
+        //vector<T> buf( size );
+        vector<T> buf;
+        buf.reserve( size );
 
         // Pack
         copy::util::InterleaveMatrix
@@ -57,7 +59,9 @@ void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
     }
     else
     {
-        vector<T> buf( localSize );
+        //vector<T> buf( localSize );
+        vector<T> buf;
+        buf.reserve( localSize );
 
         // Pack
         copy::util::InterleaveMatrix

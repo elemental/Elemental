@@ -26,17 +26,17 @@ void UPanSquare
     const Int n = A.Height();
     const Int nW = W.Width();
     DEBUG_ONLY(
-        CSE cse("herm_tridiag::UPanSquare");
-        AssertSameGrids( A, W, t );
-        if( n != A.Width() )
-            LogicError("A must be square.");
-        if( n != W.Height() )
-            LogicError( "A and W must be the same height.");
-        if( n <= nW )
-            LogicError("W must be a column panel.");
-        if( t.Height() != nW || t.Width() != 1 )
-            LogicError
-            ("t must be a column vector of the same length as W's width.");
+      CSE cse("herm_tridiag::UPanSquare");
+      AssertSameGrids( A, W, t );
+      if( n != A.Width() )
+          LogicError("A must be square.");
+      if( n != W.Height() )
+          LogicError( "A and W must be the same height.");
+      if( n <= nW )
+          LogicError("W must be a column panel.");
+      if( t.Height() != nW || t.Width() != 1 )
+          LogicError
+          ("t must be a column vector of the same length as W's width.");
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -64,7 +64,10 @@ void UPanSquare
     e.AlignCols( expandedABR.DiagonalAlign(1) );
     e.Resize( nW, 1 );
 
-    vector<F> w01LastBuffer(n/r+1);
+    //vector<F> w01LastBuffer(n/r+1);
+    vector<F> w01LastBuffer;
+    w01LastBuffer.reserve( n/r+1 );
+
     DistMatrix<F> w01Last(g);
     DistMatrix<F,MC,STAR> a01_MC_STAR(g), p01_MC_STAR(g),
                           a01Last_MC_STAR(g), w01Last_MC_STAR(g);
@@ -154,7 +157,10 @@ void UPanSquare
         if( firstIteration )
         {
             const Int a01LocalHeight = a01.LocalHeight();
-            vector<F> rowBroadcastBuffer(a01LocalHeight+1);
+            //vector<F> rowBroadcastBuffer(a01LocalHeight+1);
+            vector<F> rowBroadcastBuffer;
+            rowBroadcastBuffer.reserve( a01LocalHeight+1 );
+
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a01 and tau
@@ -203,8 +209,11 @@ void UPanSquare
         {
             const Int a01LocalHeight = a01.LocalHeight();
             const Int w01LastLocalHeight = aT1.LocalHeight();
-            vector<F> 
-                rowBroadcastBuffer(a01LocalHeight+w01LastLocalHeight+1);
+            //vector<F> 
+            //    rowBroadcastBuffer(a01LocalHeight+w01LastLocalHeight+1);
+            vector<F> rowBroadcastBuffer;
+            rowBroadcastBuffer.reserve( a01LocalHeight+w01LastLocalHeight+1 );
+
             if( thisIsMyCol ) 
             {
                 // Pack the broadcast buffer with a01, w01Last, and tau
@@ -265,7 +274,10 @@ void UPanSquare
             {
                 const Int sendSize = A00.LocalHeight()+ATL.LocalHeight();
                 const Int recvSize = A00.LocalWidth()+ATL.LocalWidth();
-                vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
+                //vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
+                vector<F> sendBuffer, recvBuffer;
+                sendBuffer.reserve( sendSize );
+                recvBuffer.reserve( recvSize );
 
                 // Pack the send buffer
                 MemCopy
@@ -345,8 +357,12 @@ void UPanSquare
             const Int x21LocalHeight = x21_MR_STAR.LocalHeight();
             const Int y21LocalHeight = y21_MR_STAR.LocalHeight();
             const Int reduceSize = x21LocalHeight+y21LocalHeight;
-            vector<F> colSumSendBuffer(reduceSize),
-                      colSumRecvBuffer(reduceSize);
+            //vector<F> colSumSendBuffer(reduceSize),
+            //          colSumRecvBuffer(reduceSize);
+            vector<F> colSumSendBuffer, colSumRecvBuffer;
+            colSumSendBuffer.reserve( reduceSize );
+            colSumRecvBuffer.reserve( reduceSize );
+
             MemCopy
             ( colSumSendBuffer.data(), x21_MR_STAR.Buffer(), x21LocalHeight );
             MemCopy
@@ -382,7 +398,10 @@ void UPanSquare
             // Pairwise exchange with the transpose process
             const Int sendSize = A00.LocalWidth();
             const Int recvSize = A00.LocalHeight();
-            vector<F> recvBuffer(recvSize);
+            //vector<F> recvBuffer(recvSize);
+            vector<F> recvBuffer;
+            recvBuffer.reserve( recvSize );
+
             mpi::SendRecv
             ( q01_MR_STAR.Buffer(), sendSize, transposeRank,
               recvBuffer.data(),    recvSize, transposeRank, g.VCComm() );
@@ -402,7 +421,10 @@ void UPanSquare
             const Int nextProcessRow = (alpha11.ColAlign()+r-1) % r;
             const Int nextProcessCol = (alpha11.RowAlign()+r-1) % r;
 
-            vector<F> reduceToOneRecvBuffer(a01LocalHeight);
+            //vector<F> reduceToOneRecvBuffer(a01LocalHeight);
+            vector<F> reduceToOneRecvBuffer;
+            reduceToOneRecvBuffer.reserve( a01LocalHeight );
+
             mpi::Reduce
             ( p01_MC_STAR.Buffer(), reduceToOneRecvBuffer.data(),
               a01LocalHeight, nextProcessCol, g.RowComm() );
@@ -440,7 +462,10 @@ void UPanSquare
             const Int a01LocalHeight = a01.LocalHeight();
 
             // AllReduce sum p01[MC,* ] over process rows
-            vector<F> allReduceRecvBuffer(a01LocalHeight);
+            //vector<F> allReduceRecvBuffer(a01LocalHeight);
+            vector<F> allReduceRecvBuffer;
+            allReduceRecvBuffer.reserve( a01LocalHeight );
+
             mpi::AllReduce
             ( p01_MC_STAR.Buffer(), allReduceRecvBuffer.data(), 
               a01LocalHeight, g.RowComm() );

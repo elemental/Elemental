@@ -14,7 +14,7 @@ namespace herm_tridiag {
 
 // TODO: Fuse Trmvs
 // TODO: Custom kernel for W22 update
-// TODO: Reuse a small number of preallocated vectors
+// TODO: Reuse a small number of preallocated vectors for buffers
 
 template<typename F>
 void LPanSquare
@@ -30,21 +30,21 @@ void LPanSquare
     const Int n = A.Height();
     const Int nW = W.Width();
     DEBUG_ONLY(
-        CSE cse("herm_tridiag::LPanSquare");
-        AssertSameGrids( A, W, t );
-        if( n != A.Width() )
-            LogicError("A must be square");
-        if( n != W.Height() )
-            LogicError("A and W must be the same height");
-        if( n <= nW )
-            LogicError("W must be a column panel");
-        if( W.ColAlign() != A.ColAlign() || W.RowAlign() != A.RowAlign() )
-            LogicError("W and A must be aligned");
-        if( t.Height() != nW || t.Width() != 1 )
-            LogicError
-            ("t must be a column vector of the same length as W's width");
-        if( !A.DiagonalAlignedWith(t,-1) )
-            LogicError("t is not aligned with A's subdiagonal");
+      CSE cse("herm_tridiag::LPanSquare");
+      AssertSameGrids( A, W, t );
+      if( n != A.Width() )
+          LogicError("A must be square");
+      if( n != W.Height() )
+          LogicError("A and W must be the same height");
+      if( n <= nW )
+          LogicError("W must be a column panel");
+      if( W.ColAlign() != A.ColAlign() || W.RowAlign() != A.RowAlign() )
+          LogicError("W and A must be aligned");
+      if( t.Height() != nW || t.Width() != 1 )
+          LogicError
+          ("t must be a column vector of the same length as W's width");
+      if( !A.DiagonalAlignedWith(t,-1) )
+          LogicError("t is not aligned with A's subdiagonal");
     )
     typedef Base<F> Real;
     // Find the process holding our transposed data
@@ -61,7 +61,10 @@ void LPanSquare
     e.AlignCols( A.DiagonalAlign(-1) );
     e.Resize( nW, 1 );
 
-    vector<F> w21LastBuffer(A.Height()/r+1);
+    //vector<F> w21LastBuffer(A.Height()/r+1);
+    vector<F> w21LastBuffer;
+    w21LastBuffer.reserve( A.Height()/r+1 );
+
     DistMatrix<F> w21Last(g);
     DistMatrix<F,MC,STAR> a21_MC_STAR(g), p21_MC_STAR(g), 
                           a21Last_MC_STAR(g), w21Last_MC_STAR(g);
@@ -149,7 +152,10 @@ void LPanSquare
         if( k == 0 )
         {
             const Int a21LocalHeight = a21.LocalHeight();
-            vector<F> rowBroadcastBuffer(a21LocalHeight+1);
+            //vector<F> rowBroadcastBuffer(a21LocalHeight+1);
+            vector<F> rowBroadcastBuffer;
+            rowBroadcastBuffer.reserve( a21LocalHeight+1 );
+
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a21 and tau
@@ -197,8 +203,10 @@ void LPanSquare
         {
             const Int a21LocalHeight = a21.LocalHeight();
             const Int w21LastLocalHeight = aB1.LocalHeight();
-            vector<F> 
-                rowBroadcastBuffer(a21LocalHeight+w21LastLocalHeight+1);
+            //vector<F> 
+            //    rowBroadcastBuffer(a21LocalHeight+w21LastLocalHeight+1);
+            vector<F> rowBroadcastBuffer;
+            rowBroadcastBuffer.reserve( a21LocalHeight+w21LastLocalHeight+1 );
             if( thisIsMyCol ) 
             {
                 // Pack the broadcast buffer with a21, w21Last, and tau
@@ -263,7 +271,10 @@ void LPanSquare
             {
                 const Int sendSize = A22.LocalHeight()+ABR.LocalHeight();
                 const Int recvSize = A22.LocalWidth()+ABR.LocalWidth();
-                vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
+                //vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
+                vector<F> sendBuffer, recvBuffer;
+                sendBuffer.reserve( sendSize );
+                recvBuffer.reserve( recvSize );
 
                 // Pack the send buffer
                 MemCopy
@@ -347,8 +358,11 @@ void LPanSquare
         // Combine the AllReduce column summations of x01[MR,* ], y01[MR,* ]
         {
             const Int x01LocalHeight = x01_MR_STAR.LocalHeight();
-            vector<F> colSumSendBuffer(2*x01LocalHeight),
-                      colSumRecvBuffer(2*x01LocalHeight);
+            //vector<F> colSumSendBuffer(2*x01LocalHeight),
+            //          colSumRecvBuffer(2*x01LocalHeight);
+            vector<F> colSumSendBuffer, colSumRecvBuffer;
+            colSumSendBuffer.reserve( 2*x01LocalHeight );
+            colSumRecvBuffer.reserve( 2*x01LocalHeight );
             MemCopy
             ( colSumSendBuffer.data(), 
               x01_MR_STAR.Buffer(), x01LocalHeight );
@@ -385,7 +399,9 @@ void LPanSquare
             // Pairwise exchange with the transpose process
             const Int sendSize = A22.LocalWidth();
             const Int recvSize = A22.LocalHeight();
-            vector<F> recvBuffer(recvSize);
+            //vector<F> recvBuffer(recvSize);
+            vector<F> recvBuffer;
+            recvBuffer.reserve( recvSize );
             mpi::SendRecv
             ( q21_MR_STAR.Buffer(), sendSize, transposeRank, 
               recvBuffer.data(),    recvSize, transposeRank, 
@@ -405,7 +421,9 @@ void LPanSquare
             const Int nextProcessRow = (alpha11.ColAlign()+1) % r;
             const Int nextProcessCol = (alpha11.RowAlign()+1) % r;
 
-            vector<F> reduceToOneRecvBuffer(a21LocalHeight);
+            //vector<F> reduceToOneRecvBuffer(a21LocalHeight);
+            vector<F> reduceToOneRecvBuffer;
+            reduceToOneRecvBuffer.reserve( a21LocalHeight );
             mpi::Reduce
             ( p21_MC_STAR.Buffer(), reduceToOneRecvBuffer.data(),
               a21LocalHeight, nextProcessCol, g.RowComm() );
@@ -443,7 +461,9 @@ void LPanSquare
             const Int a21LocalHeight = a21.LocalHeight();
 
             // AllReduce sum p21[MC,* ] over process rows
-            vector<F> allReduceRecvBuffer(a21LocalHeight);
+            //vector<F> allReduceRecvBuffer(a21LocalHeight);
+            vector<F> allReduceRecvBuffer;
+            allReduceRecvBuffer.reserve( a21LocalHeight );
             mpi::AllReduce
             ( p21_MC_STAR.Buffer(), allReduceRecvBuffer.data(),
               a21LocalHeight, g.RowComm() );

@@ -44,7 +44,10 @@ void Gather
         recvCounts.resize( crossSize );
     mpi::Gather( &totalSend, 1, recvCounts.data(), 1, B.Root(), B.CrossComm() );
     int totalRecv = Scan( recvCounts, recvOffsets );
-    vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    //vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    vector<T> sendBuf, recvBuf;
+    sendBuf.reserve( totalSend );
+    recvBuf.reserve( totalRecv );
     if( !irrelevant )
         copy::util::InterleaveMatrix
         ( A.LocalHeight(), A.LocalWidth(),
@@ -110,7 +113,10 @@ void Gather
         recvCounts.resize( crossSize );
     mpi::Gather( &totalSend, 1, recvCounts.data(), 1, B.Root(), B.CrossComm() );
     int totalRecv = Scan( recvCounts, recvOffsets );
-    vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    //vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    vector<T> sendBuf, recvBuf;
+    sendBuf.reserve( totalSend );
+    recvBuf.reserve( totalRecv );
     if( !irrelevant )
         copy::util::InterleaveMatrix
         ( A.LocalHeight(), A.LocalWidth(),

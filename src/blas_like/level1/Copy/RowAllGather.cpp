@@ -45,7 +45,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 const Int maxLocalWidth = MaxLength(width,rowStride);
 
                 const Int portionSize = mpi::Pad( localHeight*maxLocalWidth );
-                vector<T> buffer( (rowStride+1)*portionSize );
+                //vector<T> buffer( (rowStride+1)*portionSize );
+                vector<T> buffer;
+                buffer.reserve( (rowStride+1)*portionSize );
                 T* sendBuf = &buffer[0];
                 T* recvBuf = &buffer[portionSize];
 
@@ -97,7 +99,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 const Int maxLocalWidth = MaxLength(width,rowStride);
 
                 const Int portionSize = mpi::Pad(maxLocalHeight*maxLocalWidth);
-                vector<T> buffer( (rowStride+1)*portionSize );
+                //vector<T> buffer( (rowStride+1)*portionSize );
+                vector<T> buffer;
+                buffer.reserve( (rowStride+1)*portionSize );
                 T* firstBuf = &buffer[0];
                 T* secondBuf = &buffer[portionSize];
 
@@ -130,7 +134,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         // Pack from the root
         const Int localHeight = B.LocalHeight();
         const Int localWidth = B.LocalWidth();
-        vector<T> buf( localHeight*localWidth );
+        //vector<T> buf( localHeight*localWidth );
+        vector<T> buf;
+        buf.reserve( localHeight*localWidth );
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( localHeight, localWidth,

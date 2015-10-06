@@ -66,7 +66,9 @@ void PartialColFilter
         const Int localHeightSend = Length( height, sendColShift, colStride );
         const Int sendSize = localHeightSend*width;
         const Int recvSize = localHeight    *width;
-        vector<T> buffer( sendSize+recvSize );
+        //vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer;
+        buffer.reserve( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack

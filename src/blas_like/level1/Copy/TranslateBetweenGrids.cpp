@@ -96,7 +96,9 @@ void TranslateBetweenGrids
         requiredMemory += maxSendSize;
     if( inBGrid )
         requiredMemory += maxSendSize;
-    vector<T> auxBuf( requiredMemory );
+    //vector<T> auxBuf( requiredMemory );
+    vector<T> auxBuf;
+    auxBuf.reserve( requiredMemory );
     Int offset = 0;
     T* sendBuf = &auxBuf[offset];
     if( inAGrid )
@@ -230,7 +232,9 @@ void TranslateBetweenGrids
         requiredMemory += height*width;
     if( B.Participating() )
         requiredMemory += height*width;
-    vector<T> buffer( requiredMemory );
+    //vector<T> buffer( requiredMemory );
+    vector<T> buffer;
+    buffer.reserve( requiredMemory );
     Int offset = 0;
     T* sendBuf = &buffer[offset];
     if( rankA == 0 ) 
