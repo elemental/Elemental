@@ -54,7 +54,18 @@ endif()
 
 # Check for MKL
 # ^^^^^^^^^^^^^
-if(NOT EL_DISABLE_MKL)
+if(MATH_LIBS)
+  set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
+  El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV)
+  if(EL_HAVE_MKL_DCSRMV)
+    set(EL_HAVE_MKL TRUE)
+    message(STATUS "Using Intel MKL via ${MATH_LIBS}")
+  endif()
+  unset(CMAKE_REQUIRED_LIBRARIES)
+elseif(NOT EL_DISABLE_MKL AND
+       NOT EL_PREFER_OPENBLAS AND
+       NOT EL_PREFER_APPLE_MATH AND
+       NOT EL_PREFER_BLIS_LAPACK)
   if(EL_HYBRID)
     set(MKL_LIBS "-mkl=parallel")
     message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
@@ -112,15 +123,11 @@ if(NOT EL_DISABLE_MKL)
       unset(CMAKE_REQUIRED_FLAGS)
     endif()
   endif()
-endif()
-if(EL_FOUND_MKL AND NOT MATH_LIBS_AT_CONFIG 
-                AND NOT EL_DISABLE_MKL
-                AND NOT EL_PREFER_APPLE_MATH 
-                AND NOT EL_PREFER_OPENBLAS 
-                AND NOT EL_PREFER_BLIS_LAPACK)
-  set(MATH_LIBS_AT_CONFIG ${MKL_LIBS}) 
-  set(EL_HAVE_MKL TRUE)
-  message(STATUS "Using Intel MKL via ${MKL_LIBS}")
+  if(EL_FOUND_MKL)
+    set(MATH_LIBS_AT_CONFIG ${MKL_LIBS}) 
+    set(EL_HAVE_MKL TRUE)
+    message(STATUS "Using Intel MKL via ${MKL_LIBS}")
+  endif()
 endif()
 
 if(APPLE)

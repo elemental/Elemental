@@ -199,6 +199,13 @@ public:
     void QueueUpdate( Int i, Int j, T value ) EL_NO_RELEASE_EXCEPT;
     void ProcessQueues();
 
+    // Batch extraction of remote entries
+    // ----------------------------------
+    void ReservePulls( Int numPulls ) const;
+    void QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    void ProcessPullQueue( T* pullBuf ) const;
+    void ProcessPullQueue( vector<T>& pullBuf ) const;
+
     // Local entry manipulation
     // ------------------------
     // NOTE: Clearly each of the following routines could instead be performed
@@ -271,6 +278,10 @@ protected:
     // Remote updates
     // --------------
     vector<Entry<T>> remoteUpdates_;
+    // NOTE: Using ValueInt<Int> is somewhat of a hack; it would be nice to 
+    //       have a pair of integers as its own data structure that does not
+    //       require separate MPI wrappers from ValueInt<Int>
+    mutable vector<ValueInt<Int>> remotePulls_;
 
     // Protected constructors
     // ======================

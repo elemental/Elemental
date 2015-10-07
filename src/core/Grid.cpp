@@ -63,6 +63,9 @@ void Grid::SetUpGrid()
     if( size_ % height_ != 0 )
         LogicError
         ("Grid height, ",height_,", does not evenly divide grid size, ",size_);
+    owningRank_ = mpi::Rank( owningGroup_ );
+    viewingRank_ = mpi::Rank( viewingComm_ );
+    inGrid_ = ( owningRank_ != mpi::UNDEFINED );
 
     const int width = size_ / height_;
     gcd_ = El::GCD( height_, width );
@@ -270,13 +273,10 @@ int Grid::GCD() const EL_NO_EXCEPT { return gcd_; }
 int Grid::LCM() const EL_NO_EXCEPT { return size_/gcd_; }
 
 bool Grid::HaveViewers() const EL_NO_EXCEPT { return haveViewers_; }
-bool Grid::InGrid() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(owningGroup_) != mpi::UNDEFINED; }
+bool Grid::InGrid() const EL_NO_RELEASE_EXCEPT { return inGrid_; }
 
-int Grid::OwningRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(owningGroup_); }
-int Grid::ViewingRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(viewingComm_); }
+int Grid::OwningRank() const EL_NO_RELEASE_EXCEPT { return owningRank_; }
+int Grid::ViewingRank() const EL_NO_RELEASE_EXCEPT { return viewingRank_; }
 
 int Grid::VCToVR( int vcRank ) const EL_NO_EXCEPT
 {

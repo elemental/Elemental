@@ -116,13 +116,13 @@ void Free( Datatype& type ) EL_NO_RELEASE_EXCEPT
 int WorldRank() EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WorldRank"))
-    return Rank( mpi::COMM_WORLD ); 
+    return Rank( COMM_WORLD ); 
 }
 
 int WorldSize() EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WorldSize"))
-    return Size( mpi::COMM_WORLD );
+    return Size( COMM_WORLD );
 }
 
 int Rank( Comm comm ) EL_NO_RELEASE_EXCEPT
@@ -134,7 +134,7 @@ int Rank( Comm comm ) EL_NO_RELEASE_EXCEPT
         SafeMpi( MPI_Comm_rank( comm.comm, &rank ) );
         return rank;
     }
-    else return mpi::UNDEFINED;
+    else return UNDEFINED;
 }
 
 int Size( Comm comm ) EL_NO_RELEASE_EXCEPT
@@ -146,7 +146,7 @@ int Size( Comm comm ) EL_NO_RELEASE_EXCEPT
         SafeMpi( MPI_Comm_size( comm.comm, &size ) );
         return size;
     } 
-    else return mpi::UNDEFINED;
+    else return UNDEFINED;
 }
 
 void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm )
@@ -617,7 +617,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void Recv( T* buf, int count, int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ TaggedRecv( buf, count, from, mpi::ANY_TAG, comm ); }
+{ TaggedRecv( buf, count, from, ANY_TAG, comm ); }
 
 template<typename T>
 T TaggedRecv( int from, int tag, Comm comm )
@@ -627,7 +627,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T Recv( int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ return TaggedRecv<T>( from, mpi::ANY_TAG, comm ); }
+{ return TaggedRecv<T>( from, ANY_TAG, comm ); }
 
 template<typename Real>
 void TaggedIRecv
@@ -660,7 +660,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void IRecv( T* buf, int count, int from, Comm comm, Request& request )
 EL_NO_RELEASE_EXCEPT
-{ TaggedIRecv( buf, count, from, mpi::ANY_TAG, comm, request ); }
+{ TaggedIRecv( buf, count, from, ANY_TAG, comm, request ); }
 
 template<typename T>
 T TaggedIRecv( int from, int tag, Comm comm, Request& request )
@@ -670,7 +670,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T IRecv( int from, Comm comm, Request& request )
 EL_NO_RELEASE_EXCEPT
-{ return TaggedIRecv<T>( from, mpi::ANY_TAG, comm, request ); }
+{ return TaggedIRecv<T>( from, ANY_TAG, comm, request ); }
 
 template<typename Real>
 void TaggedSendRecv
@@ -716,7 +716,7 @@ void SendRecv
 ( const T* sbuf, int sc, int to, 
         T* rbuf, int rc, int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ TaggedSendRecv( sbuf, sc, to, 0, rbuf, rc, from, mpi::ANY_TAG, comm ); }
+{ TaggedSendRecv( sbuf, sc, to, 0, rbuf, rc, from, ANY_TAG, comm ); }
 
 template<typename T>
 T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
@@ -730,7 +730,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T SendRecv( T sb, int to, int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ return TaggedSendRecv( sb, to, 0, from, mpi::ANY_TAG, comm ); }
+{ return TaggedSendRecv( sb, to, 0, from, ANY_TAG, comm ); }
 
 template<typename Real>
 void TaggedSendRecv
@@ -768,13 +768,15 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void SendRecv( T* buf, int count, int to, int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ TaggedSendRecv( buf, count, to, 0, from, mpi::ANY_TAG, comm ); }
+{ TaggedSendRecv( buf, count, to, 0, from, ANY_TAG, comm ); }
 
 template<typename Real>
 void Broadcast( Real* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Broadcast"))
+    if( Size(comm) == 1 )
+        return;
     SafeMpi( MPI_Bcast( buf, count, TypeMap<Real>(), root, comm.comm ) );
 }
 
@@ -783,6 +785,8 @@ void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Broadcast"))
+    if( Size(comm) == 1 )
+        return;
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi( MPI_Bcast( buf, 2*count, TypeMap<Real>(), root, comm.comm ) );
 #else
@@ -1185,7 +1189,9 @@ EL_NO_RELEASE_EXCEPT
             MPI_IN_PLACE, 2*rc, TypeMap<Real>(), root, comm.comm ) );
 # else
         const int commSize = Size( comm );
-        vector<Complex<Real>> sendBuf( sc*commSize );
+        //vector<Complex<Real>> sendBuf( sc*commSize );
+        vector<Complex<Real>> sendBuf;
+        sendBuf.reserve( sc*commSize );
         MemCopy( sendBuf.data(), buf, sc*commSize );
         SafeMpi
         ( MPI_Scatter
@@ -1200,7 +1206,9 @@ EL_NO_RELEASE_EXCEPT
             MPI_IN_PLACE, rc, TypeMap<Complex<Real>>(), root, comm.comm ) );
 # else
         const int commSize = Size( comm );
-        vector<Complex<Real>> sendBuf( sc*commSize );
+        //vector<Complex<Real>> sendBuf( sc*commSize );
+        vector<Complex<Real>> sendBuf;
+        sendBuf.reserve( sc*commSize );
         MemCopy( sendBuf.data(), buf, sc*commSize );
         SafeMpi
         ( MPI_Scatter
@@ -1318,20 +1326,20 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<typename T>
-std::vector<T> AllToAll
-( const std::vector<T>& sendBuf,
-  const std::vector<int>& sendCounts, 
-  const std::vector<int>& sendOffs,
-  mpi::Comm comm )
+vector<T> AllToAll
+( const vector<T>& sendBuf,
+  const vector<int>& sendCounts, 
+  const vector<int>& sendOffs,
+  Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
-    const int commSize = mpi::Size( comm ); 
-    std::vector<int> recvCounts(commSize);
-    mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm ); 
-    std::vector<int> recvOffs;
+    const int commSize = Size( comm ); 
+    vector<int> recvCounts(commSize);
+    AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm ); 
+    vector<int> recvOffs;
     const int totalRecv = El::Scan( recvCounts, recvOffs );
-    std::vector<T> recvBuf(totalRecv);
-    mpi::AllToAll
+    vector<T> recvBuf(totalRecv);
+    AllToAll
     ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
       recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     return recvBuf;
@@ -1343,23 +1351,23 @@ void Reduce
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
-    if( count != 0 )
-    {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Real>().op; 
-        else if( op == MAX )
-            opC = MaxOp<Real>().op;
-        else if( op == MIN )
-            opC = MinOp<Real>().op;
-        else
-            opC = op.op;
+    if( count == 0 )
+        return;
 
-        SafeMpi
-        ( MPI_Reduce
-          ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(),
-            opC, root, comm.comm ) );
-    }
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<Real>().op; 
+    else if( op == MAX )
+        opC = MaxOp<Real>().op;
+    else if( op == MIN )
+        opC = MinOp<Real>().op;
+    else
+        opC = op.op;
+
+    SafeMpi
+    ( MPI_Reduce
+      ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(),
+        opC, root, comm.comm ) );
 }
 
 template<typename Real>
@@ -1369,43 +1377,43 @@ void Reduce
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
-    if( count != 0 )
-    {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Complex<Real>>().op; 
-        else
-            opC = op.op;
+    if( count == 0 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<Complex<Real>>().op; 
+    else
+        opC = op.op;
 
 #ifdef EL_AVOID_COMPLEX_MPI
-        if( op == SUM )
-        {
-            SafeMpi
-            ( MPI_Reduce
-              ( const_cast<Complex<Real>*>(sbuf),
-                rbuf, 2*count, TypeMap<Real>(), opC, 
-                root, comm.comm ) );
-        }
-        else
-        {
-            SafeMpi
-            ( MPI_Reduce
-              ( const_cast<Complex<Real>*>(sbuf),
-                rbuf, count, TypeMap<Complex<Real>>(), opC, root, comm.comm ) );
-        }
-#else
+    if( op == SUM )
+    {
         SafeMpi
         ( MPI_Reduce
-          ( const_cast<Complex<Real>*>(sbuf), 
-            rbuf, count, TypeMap<Complex<Real>>(), opC, root, comm.comm ) );
-#endif
+          ( const_cast<Complex<Real>*>(sbuf),
+            rbuf, 2*count, TypeMap<Real>(), opC, 
+            root, comm.comm ) );
     }
+    else
+    {
+        SafeMpi
+        ( MPI_Reduce
+          ( const_cast<Complex<Real>*>(sbuf),
+            rbuf, count, TypeMap<Complex<Real>>(), opC, root, comm.comm ) );
+    }
+#else
+    SafeMpi
+    ( MPI_Reduce
+      ( const_cast<Complex<Real>*>(sbuf), 
+        rbuf, count, TypeMap<Complex<Real>>(), opC, root, comm.comm ) );
+#endif
 }
 
 template<typename T>
 void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ Reduce( sbuf, rbuf, count, mpi::SUM, root, comm ); }
+{ Reduce( sbuf, rbuf, count, SUM, root, comm ); }
 
 template<typename T>
 T Reduce( T sb, Op op, int root, Comm comm )
@@ -1421,7 +1429,7 @@ T Reduce( T sb, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { 
     T rb;
-    Reduce( &sb, &rb, 1, mpi::SUM, root, comm );
+    Reduce( &sb, &rb, 1, SUM, root, comm );
     return rb;
 }
 
@@ -1430,40 +1438,40 @@ void Reduce( Real* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
-    if( count != 0 )
-    {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Real>().op; 
-        else if( op == MAX )
-            opC = MaxOp<Real>().op;
-        else if( op == MIN )
-            opC = MinOp<Real>().op;
-        else
-            opC = op.op;
+    if( count == 0 || Size(comm) == 1 )
+        return;
 
-        const int commRank = Rank( comm );
-        if( commRank == root )
-        {
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<Real>().op; 
+    else if( op == MAX )
+        opC = MaxOp<Real>().op;
+    else if( op == MIN )
+        opC = MinOp<Real>().op;
+    else
+        opC = op.op;
+
+    const int commRank = Rank( comm );
+    if( commRank == root )
+    {
 #ifdef EL_HAVE_MPI_IN_PLACE
-            SafeMpi
-            ( MPI_Reduce
-              ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, root, 
-                comm.comm ) );
+        SafeMpi
+        ( MPI_Reduce
+          ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, root, 
+            comm.comm ) );
 #else
-            vector<Real> sendBuf( count );
-            MemCopy( sendBuf.data(), buf, count );
-            SafeMpi
-            ( MPI_Reduce
-              ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, root, 
-                comm.comm ) );
+        vector<Real> sendBuf( count );
+        MemCopy( sendBuf.data(), buf, count );
+        SafeMpi
+        ( MPI_Reduce
+          ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, root, 
+            comm.comm ) );
 #endif
-        }
-        else
-            SafeMpi
-            ( MPI_Reduce
-              ( buf, 0, count, TypeMap<Real>(), opC, root, comm.comm ) );
     }
+    else
+        SafeMpi
+        ( MPI_Reduce
+          ( buf, 0, count, TypeMap<Real>(), opC, root, comm.comm ) );
 }
 
 template<typename Real>
@@ -1471,6 +1479,8 @@ void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Reduce"))
+    if( Size(comm) == 1 )
+        return;
     if( count != 0 )
     {
         MPI_Op opC;
@@ -1491,7 +1501,9 @@ EL_NO_RELEASE_EXCEPT
                   ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, 
                     root, comm.comm ) );
 # else
-                vector<Complex<Real>> sendBuf( count );
+                //vector<Complex<Real>> sendBuf( count );
+                vector<Complex<Real>> sendBuf;
+                sendBuf.reserve( count );
                 MemCopy( sendBuf.data(), buf, count );
                 SafeMpi
                 ( MPI_Reduce
@@ -1514,7 +1526,9 @@ EL_NO_RELEASE_EXCEPT
                   ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                     root, comm.comm ) );
 # else
-                vector<Complex<Real>> sendBuf( count );
+                //vector<Complex<Real>> sendBuf( count );
+                vector<Complex<Real>> sendBuf;
+                sendBuf.reserve( count );
                 MemCopy( sendBuf.data(), buf, count );
                 SafeMpi
                 ( MPI_Reduce
@@ -1537,7 +1551,9 @@ EL_NO_RELEASE_EXCEPT
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 root, comm.comm ) );
 # else
-            vector<Complex<Real>> sendBuf( count );
+            //vector<Complex<Real>> sendBuf( count );
+            vector<Complex<Real>> sendBuf;
+            sendBuf.reserve( count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Reduce
@@ -1557,7 +1573,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void Reduce( T* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ Reduce( buf, count, mpi::SUM, root, comm ); }
+{ Reduce( buf, count, SUM, root, comm ); }
 
 template<typename Real>
 void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
@@ -1624,7 +1640,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ AllReduce( sbuf, rbuf, count, mpi::SUM, comm ); }
+{ AllReduce( sbuf, rbuf, count, SUM, comm ); }
 
 template<typename T>
 T AllReduce( T sb, Op op, Comm comm )
@@ -1634,37 +1650,37 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T AllReduce( T sb, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ return AllReduce( sb, mpi::SUM, comm ); }
+{ return AllReduce( sb, SUM, comm ); }
 
 template<typename Real>
 void AllReduce( Real* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllReduce"))
-    if( count != 0 )
-    {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Real>().op; 
-        else if( op == MAX )
-            opC = MaxOp<Real>().op;
-        else if( op == MIN )
-            opC = MinOp<Real>().op;
-        else
-            opC = op.op;
+    if( count == 0 || Size(comm) == 1 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<Real>().op; 
+    else if( op == MAX )
+        opC = MaxOp<Real>().op;
+    else if( op == MIN )
+        opC = MinOp<Real>().op;
+    else
+        opC = op.op;
 
 #ifdef EL_HAVE_MPI_IN_PLACE
-        SafeMpi
-        ( MPI_Allreduce
-          ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
+    SafeMpi
+    ( MPI_Allreduce
+      ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
 #else
-        vector<Real> sendBuf( count );
-        MemCopy( sendBuf.data(), buf, count );
-        SafeMpi
-        ( MPI_Allreduce
-          ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, comm.comm ) );
+    vector<Real> sendBuf( count );
+    MemCopy( sendBuf.data(), buf, count );
+    SafeMpi
+    ( MPI_Allreduce
+      ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, comm.comm ) );
 #endif
-    }
 }
 
 template<typename Real>
@@ -1672,68 +1688,74 @@ void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::AllReduce"))
-    if( count != 0 )
-    {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Complex<Real>>().op; 
-        else
-            opC = op.op;
+    if( count == 0 || Size(comm) == 1 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<Complex<Real>>().op; 
+    else
+        opC = op.op;
 
 #ifdef EL_AVOID_COMPLEX_MPI
-        if( op == SUM )
-        {
-# ifdef EL_HAVE_MPI_IN_PLACE
-            SafeMpi
-            ( MPI_Allreduce
-              ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
-# else
-            vector<Complex<Real>> sendBuf( count );
-            MemCopy( sendBuf.data(), buf, count );
-            SafeMpi
-            ( MPI_Allreduce
-              ( sendBuf.data(), buf, 2*count, TypeMap<Real>(), opC, 
-                comm.comm ) );
-# endif
-        }
-        else
-        {
-# ifdef EL_HAVE_MPI_IN_PLACE
-            SafeMpi
-            ( MPI_Allreduce
-              ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), 
-                opC, comm.comm ) );
-# else
-            vector<Complex<Real>> sendBuf( count );
-            MemCopy( sendBuf.data(), buf, count );
-            SafeMpi
-            ( MPI_Allreduce
-              ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), 
-                opC, comm.comm ) );
-# endif
-        }
-#else
+    if( op == SUM )
+    {
 # ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Allreduce
-          ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
-            comm.comm ) );
+          ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
 # else
-        vector<Complex<Real>> sendBuf( count );
+        //vector<Complex<Real>> sendBuf( count );
+        vector<Complex<Real>> sendBuf;
+        sendBuf.reserve( count );
         MemCopy( sendBuf.data(), buf, count );
         SafeMpi
         ( MPI_Allreduce
-          ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
+          ( sendBuf.data(), buf, 2*count, TypeMap<Real>(), opC, 
             comm.comm ) );
 # endif
-#endif
     }
+    else
+    {
+# ifdef EL_HAVE_MPI_IN_PLACE
+        SafeMpi
+        ( MPI_Allreduce
+          ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), 
+            opC, comm.comm ) );
+# else
+        //vector<Complex<Real>> sendBuf( count );
+        vector<Complex<Real>> sendBuf;
+        sendBuf.reserve( count );
+        MemCopy( sendBuf.data(), buf, count );
+        SafeMpi
+        ( MPI_Allreduce
+          ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), 
+            opC, comm.comm ) );
+# endif
+    }
+#else
+# ifdef EL_HAVE_MPI_IN_PLACE
+    SafeMpi
+    ( MPI_Allreduce
+      ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+        comm.comm ) );
+# else
+    //vector<Complex<Real>> sendBuf( count );
+    vector<Complex<Real>> sendBuf;
+    sendBuf.reserve( count );
+    MemCopy( sendBuf.data(), buf, count );
+    SafeMpi
+    ( MPI_Allreduce
+      ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
+        comm.comm ) );
+# endif
+#endif
 }
 
 template<typename T>
 void AllReduce( T* buf, int count, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ AllReduce( buf, count, mpi::SUM, comm ); }
+{ AllReduce( buf, count, SUM, comm ); }
 
 template<typename Real>
 void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
@@ -1802,7 +1824,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ ReduceScatter( sbuf, rbuf, rc, mpi::SUM, comm ); }
+{ ReduceScatter( sbuf, rbuf, rc, SUM, comm ); }
 
 template<typename T>
 T ReduceScatter( T sb, Op op, Comm comm )
@@ -1812,13 +1834,16 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T ReduceScatter( T sb, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ return ReduceScatter( sb, mpi::SUM, comm ); }
+{ return ReduceScatter( sb, SUM, comm ); }
 
 template<typename Real>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
+    if( Size(comm) == 1 )
+        return;
+
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
@@ -1860,6 +1885,9 @@ void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
+    if( Size(comm) == 1 )
+        return;
+
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
@@ -1879,7 +1907,9 @@ EL_NO_RELEASE_EXCEPT
       ( MPI_IN_PLACE, buf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
 #  else 
     const int commSize = Size( comm );
-    vector<Complex<Real>> sendBuf( rc*commSize );
+    //vector<Complex<Real>> sendBuf( rc*commSize );
+    vector<Complex<Real>> sendBuf;
+    sendBuf.reserve( rc*commSize );
     MemCopy( sendBuf.data(), buf, rc*commSize );
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -1892,7 +1922,9 @@ EL_NO_RELEASE_EXCEPT
       ( MPI_IN_PLACE, buf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
 #  else
     const int commSize = Size( comm );
-    vector<Complex<Real>> sendBuf( rc*commSize );
+    //vector<Complex<Real>> sendBuf( rc*commSize );
+    vector<Complex<Real>> sendBuf;
+    sendBuf.reserve( rc*commSize );
     MemCopy( sendBuf.data(), buf, rc*commSize );
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -1909,7 +1941,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void ReduceScatter( T* buf, int rc, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ ReduceScatter( buf, rc, mpi::SUM, comm ); }
+{ ReduceScatter( buf, rc, SUM, comm ); }
 
 template<typename Real>
 void ReduceScatter
@@ -1979,16 +2011,16 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ ReduceScatter( sbuf, rbuf, rcs, mpi::SUM, comm ); }
+{ ReduceScatter( sbuf, rbuf, rcs, SUM, comm ); }
 
 void VerifySendsAndRecvs
 ( const vector<int>& sendCounts,
-  const vector<int>& recvCounts, mpi::Comm comm )
+  const vector<int>& recvCounts, Comm comm )
 {
     DEBUG_ONLY(CSE cse("mpi::VerifySendsAndRecvs"))
-    const int commSize = mpi::Size( comm );
+    const int commSize = Size( comm );
     vector<int> actualRecvCounts(commSize);
-    mpi::AllToAll
+    AllToAll
     ( sendCounts.data(),       1,
       actualRecvCounts.data(), 1, comm );
     for( int q=0; q<commSize; ++q )
@@ -2064,7 +2096,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void Scan( const T* sbuf, T* rbuf, int count, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ Scan( sbuf, rbuf, count, mpi::SUM, comm ); }
+{ Scan( sbuf, rbuf, count, SUM, comm ); }
 
 template<typename T>
 T Scan( T sb, Op op, Comm comm )
@@ -2080,7 +2112,7 @@ T Scan( T sb, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { 
     T rb;
-    Scan( &sb, &rb, 1, mpi::SUM, comm );
+    Scan( &sb, &rb, 1, SUM, comm );
     return rb;
 }
 
@@ -2136,7 +2168,9 @@ EL_NO_RELEASE_EXCEPT
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
 # else
-            vector<Complex<Real>> sendBuf( count );
+            //vector<Complex<Real>> sendBuf( count );
+            vector<Complex<Real>> sendBuf;
+            sendBuf.reserve( count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Scan
@@ -2152,7 +2186,9 @@ EL_NO_RELEASE_EXCEPT
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 comm.comm ) );
 # else
-            vector<Complex<Real>> sendBuf( count );
+            //vector<Complex<Real>> sendBuf( count );
+            vector<Complex<Real>> sendBuf;
+            sendBuf.reserve( count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Scan
@@ -2167,7 +2203,9 @@ EL_NO_RELEASE_EXCEPT
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
             comm.comm ) );
 # else
-        vector<Complex<Real>> sendBuf( count );
+        //vector<Complex<Real>> sendBuf( count );
+        vector<Complex<Real>> sendBuf;
+        sendBuf.reserve( count );
         MemCopy( sendBuf.data(), buf, count );
         SafeMpi
         ( MPI_Scan
@@ -2181,19 +2219,21 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void Scan( T* buf, int count, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ Scan( buf, count, mpi::SUM, comm ); }
+{ Scan( buf, count, SUM, comm ); }
 
 template<typename T>
 void SparseAllToAll
 ( const vector<T>& sendBuffer,
-  const vector<int>& sendCounts, const vector<int>& sendDispls,
+  const vector<int>& sendCounts,
+  const vector<int>& sendDispls,
         vector<T>& recvBuffer,
-  const vector<int>& recvCounts, const vector<int>& recvDispls,
-        mpi::Comm comm )
+  const vector<int>& recvCounts,
+  const vector<int>& recvDispls,
+        Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
 #ifdef EL_USE_CUSTOM_ALLTOALLV
-    const int commSize = mpi::Size( comm );
+    const int commSize = Size( comm );
     int numSends=0,numRecvs=0;
     for( int q=0; q<commSize; ++q )
     {
@@ -2202,32 +2242,30 @@ EL_NO_RELEASE_EXCEPT
         if( recvCounts[q] != 0 )
             ++numRecvs;
     }
-    vector<mpi::Status> statuses(numSends+numRecvs);
-    vector<mpi::Request> requests(numSends+numRecvs);
+    vector<Status> statuses(numSends+numRecvs);
+    vector<Request> requests(numSends+numRecvs);
     int rCount=0;
     for( int q=0; q<commSize; ++q )
     {
         int count = recvCounts[q];
         int displ = recvDispls[q];
         if( count != 0 )
-            mpi::IRecv
-            ( &recvBuffer[displ], count, q, comm, requests[rCount++] );
+            IRecv( &recvBuffer[displ], count, q, comm, requests[rCount++] );
     }
 #ifdef EL_BARRIER_IN_ALLTOALLV
     // This should help ensure that recvs are posted before the sends
-    mpi::Barrier( comm );
+    Barrier( comm );
 #endif
     for( int q=0; q<commSize; ++q )
     {
         int count = sendCounts[q];
         int displ = sendDispls[q];
         if( count != 0 )
-            mpi::ISend
-            ( &sendBuffer[displ], count, q, comm, requests[rCount++] );
+            ISend( &sendBuffer[displ], count, q, comm, requests[rCount++] );
     }
-    mpi::WaitAll( numSends+numRecvs, requests.data(), statuses.data() );
+    WaitAll( numSends+numRecvs, requests.data(), statuses.data() );
 #else
-    mpi::AllToAll
+    AllToAll
     ( sendBuffer.data(), sendCounts.data(), sendDispls.data(),
       recvBuffer.data(), recvCounts.data(), recvDispls.data(), comm );
 #endif
@@ -2335,11 +2373,11 @@ EL_NO_RELEASE_EXCEPT
   ( const T* sbuf, const int* scs, const int* sds, \
           T* rbuf, const int* rcs, const int* rds, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template std::vector<T> AllToAll \
-  ( const std::vector<T>& sendBuf, \
-    const std::vector<int>& sendCounts, \
-    const std::vector<int>& sendOffs, \
-    mpi::Comm comm ) \
+  template vector<T> AllToAll \
+  ( const vector<T>& sendBuf, \
+    const vector<int>& sendCounts, \
+    const vector<int>& sendOffs, \
+    Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
   template void Reduce \
   ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm ) \
@@ -2445,10 +2483,12 @@ MPI_PROTO(Entry<Complex<Quad>>)
 #define PROTO(T) \
   template void SparseAllToAll \
   ( const vector<T>& sendBuffer, \
-    const vector<int>& sendCounts, const vector<int>& sendDispls, \
+    const vector<int>& sendCounts, \
+    const vector<int>& sendDispls, \
           vector<T>& recvBuffer, \
-    const vector<int>& recvCounts, const vector<int>& recvDispls, \
-          mpi::Comm comm ) EL_NO_RELEASE_EXCEPT;
+    const vector<int>& recvCounts, \
+    const vector<int>& recvDispls, \
+          Comm comm ) EL_NO_RELEASE_EXCEPT;
 #include "El/macros/Instantiate.h"
 
 } // namespace mpi

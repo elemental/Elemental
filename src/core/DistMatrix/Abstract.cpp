@@ -614,6 +614,91 @@ void AbstractDistMatrix<T>::ProcessQueues()
         Update( entry );
 }
 
+template<typename T>
+void AbstractDistMatrix<T>::ReservePulls( Int numPulls ) const
+{ 
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ReservePulls"))
+    remotePulls_.reserve( numPulls ); 
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueuePull"))
+    remotePulls_.push_back( ValueInt<Int>{i,j} );
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
+    const auto& g = Grid();
+    mpi::Comm comm = g.ViewingComm();
+    const int commSize = mpi::Size( comm );
+
+    // Compute the metadata
+    // ====================
+    vector<int> recvCounts(commSize,0);
+    for( const auto& valueInt : remotePulls_ )
+    {
+        const Int i = valueInt.value;
+        const Int j = valueInt.index;
+        const int owner = 
+          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
+        ++recvCounts[owner];
+    }
+    vector<int> recvOffs;
+    const int totalRecv = Scan( recvCounts, recvOffs );
+    vector<int> sendCounts(commSize);
+    mpi::AllToAll( recvCounts.data(), 1, sendCounts.data(), 1, comm );
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+
+    auto offs = recvOffs;
+    vector<ValueInt<Int>> recvCoords(totalRecv);
+    for( const auto& valueInt : remotePulls_ )
+    {
+        const Int i = valueInt.value;
+        const Int j = valueInt.index;
+        const int owner = 
+          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
+        recvCoords[offs[owner]++] = valueInt;
+    }
+    SwapClear( remotePulls_ );
+    vector<ValueInt<Int>> sendCoords(totalSend);
+    mpi::AllToAll
+    ( recvCoords.data(), recvCounts.data(), recvOffs.data(),
+      sendCoords.data(), sendCounts.data(), sendOffs.data(), comm );
+
+    // Pack the data
+    // =============
+    vector<T> sendBuf;
+    sendBuf.reserve( totalSend );
+    for( Int k=0; k<totalSend; ++k )
+    {
+        const Int i = sendCoords[k].index;
+        const Int j = sendCoords[k].value;
+
+        const Int iLoc = LocalRow( i );
+        const Int jLoc = LocalCol( j );
+        sendBuf[k] = GetLocal( iLoc, jLoc );
+    }
+
+    // Exchange and unpack the data
+    // ============================
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      pullBuf,        recvCounts.data(), recvOffs.data(), comm );
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::ProcessPullQueue( vector<T>& pullVec ) const
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
+    pullVec.resize( remotePulls_.size() );
+    ProcessPullQueue( pullVec.data() );
+}
+
 // Local entry manipulation
 // ------------------------
 

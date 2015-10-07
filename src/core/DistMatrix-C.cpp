@@ -59,9 +59,15 @@ extern "C" {
   /* void Empty() */ \
   ElError ElDistMatrixEmpty_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->Empty() ) } \
+  /* void SoftEmpty() */ \
+  ElError ElDistMatrixSoftEmpty_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( CReflect(A)->SoftEmpty() ) } \
   /* void EmptyData() */ \
   ElError ElDistMatrixEmptyData_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->EmptyData() ) } \
+  /* void SoftEmptyData() */ \
+  ElError ElDistMatrixSoftEmptyData_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( CReflect(A)->SoftEmptyData() ) } \
   /* void SetGrid( const Grid& g ) */ \
   ElError ElDistMatrixSetGrid_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElConstGrid grid ) \
@@ -436,6 +442,18 @@ extern "C" {
   /* void ProcessQueues() */ \
   ElError ElDistMatrixProcessQueues_ ## SIG( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( CReflect(A)->ProcessQueues() ) } \
+  /* void ReservePulls( Int numPulls ) const */ \
+  ElError ElDistMatrixReservePulls_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElInt numPulls ) \
+  { EL_TRY( CReflect(A)->ReservePulls( numPulls ) ) } \
+  /* void QueuePull( Int i, Int j ) const */ \
+  ElError ElDistMatrixQueuePull_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElInt i, ElInt j ) \
+  { EL_TRY( CReflect(A)->QueuePull( i, j ) ) } \
+  /* void ProcessPullQueue( T* pullBuf ) const */ \
+  ElError ElDistMatrixProcessPullQueue_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, CREFLECT(T)* pullBuf ) \
+  { EL_TRY( CReflect(A)->ProcessPullQueue( CReflect(pullBuf) ) ) } \
   /* T GetLocal( Int iLoc, Int jLoc ) const */ \
   ElError ElDistMatrixGetLocal_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElInt iLoc, ElInt jLoc, CREFLECT(T)* val ) \

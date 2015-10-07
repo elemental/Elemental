@@ -90,23 +90,25 @@ public:
 private:
     bool haveViewers_;
     int height_, size_, gcd_;
+    bool inGrid_;
     GridOrder order_;
-    vector<int> diagsAndRanks_;
 
-    mpi::Comm viewingComm_; // all processes that create the grid
-    mpi::Group viewingGroup_;
+    vector<int> diagsAndRanks_;
     vector<int> vcToViewing_;
 
-    // Create a communicator for our owning team
-    mpi::Comm owningComm_;
-    mpi::Group owningGroup_;
+    mpi::Group viewingGroup_,
+               owningGroup_;
 
-    // These will only be valid if we are in the grid
-    mpi::Comm cartComm_,  // the processes that are in the grid
+    mpi::Comm viewingComm_,
+              owningComm_,
+              cartComm_, 
               mcComm_, mrComm_,
               mdComm_, mdPerpComm_,
               vcComm_, vrComm_;
-    int mcRank_, mrRank_,
+
+    int viewingRank_,
+        owningRank_,
+        mcRank_, mrRank_,
         mdRank_, mdPerpRank_,
         vcRank_, vrRank_;
 

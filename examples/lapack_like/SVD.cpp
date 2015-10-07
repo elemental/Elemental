@@ -23,7 +23,7 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
-        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int nb = Input("--nb","algorithmic blocksize",32);
         const bool testDecomp = Input("--testDecomp","test full SVD?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();

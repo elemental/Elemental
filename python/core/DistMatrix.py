@@ -77,8 +77,25 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixEmpty_z(*args)
     else: DataExcept()
 
-  # Resize the matrix to 0 x 0 and delete the underlying buffer
-  # -----------------------------------------------------------
+  # Reset the matrix to the default (empty) state, but don't free memory
+  # --------------------------------------------------------------------
+  lib.ElDistMatrixSoftEmpty_i.argtypes = \
+  lib.ElDistMatrixSoftEmpty_s.argtypes = \
+  lib.ElDistMatrixSoftEmpty_d.argtypes = \
+  lib.ElDistMatrixSoftEmpty_c.argtypes = \
+  lib.ElDistMatrixSoftEmpty_z.argtypes = \
+    [c_void_p]
+  def SoftEmpty(self):
+    args = [self.obj]
+    if   self.tag == iTag: lib.ElDistMatrixSoftEmpty_i(*args)
+    elif self.tag == sTag: lib.ElDistMatrixSoftEmpty_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixSoftEmpty_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixSoftEmpty_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixSoftEmpty_z(*args)
+    else: DataExcept()
+
+  # Resize the matrix to 0 x 0, demand ownership, and delete underlying buffer
+  # --------------------------------------------------------------------------
   lib.ElDistMatrixEmptyData_i.argtypes = \
   lib.ElDistMatrixEmptyData_s.argtypes = \
   lib.ElDistMatrixEmptyData_d.argtypes = \
@@ -92,6 +109,23 @@ class DistMatrix(object):
     elif self.tag == dTag: lib.ElDistMatrixEmptyData_d(*args)
     elif self.tag == cTag: lib.ElDistMatrixEmptyData_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixEmptyData_z(*args)
+    else: DataExcept()
+
+  # Resize the matrix to 0 x 0 and demand ownership
+  # -----------------------------------------------
+  lib.ElDistMatrixSoftEmptyData_i.argtypes = \
+  lib.ElDistMatrixSoftEmptyData_s.argtypes = \
+  lib.ElDistMatrixSoftEmptyData_d.argtypes = \
+  lib.ElDistMatrixSoftEmptyData_c.argtypes = \
+  lib.ElDistMatrixSoftEmptyData_z.argtypes = \
+    [c_void_p]
+  def SoftEmptyData(self):
+    args = [self.obj]
+    if   self.tag == iTag: lib.ElDistMatrixSoftEmptyData_i(*args)
+    elif self.tag == sTag: lib.ElDistMatrixSoftEmptyData_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixSoftEmptyData_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixSoftEmptyData_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixSoftEmptyData_z(*args)
     else: DataExcept()
 
   # Specify the process grid of the matrix (if different, resize to 0x0)
@@ -1680,6 +1714,50 @@ class DistMatrix(object):
     elif self.tag == dTag: lib.ElDistMatrixProcessQueues_d(*args)
     elif self.tag == cTag: lib.ElDistMatrixProcessQueues_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixProcessQueues_z(*args)
+    else: DataExcept()
+
+  lib.ElDistMatrixReservePulls_i.argtypes = \
+  lib.ElDistMatrixReservePulls_s.argtypes = \
+  lib.ElDistMatrixReservePulls_d.argtypes = \
+  lib.ElDistMatrixReservePulls_c.argtypes = \
+  lib.ElDistMatrixReservePulls_z.argtypes = \
+    [c_void_p,iType]
+  def ReservePulls(self,numPulls):
+    args = [self.obj,numPulls]
+    if   self.tag == iTag: lib.ElDistMatrixReservePulls_i(*args)
+    elif self.tag == sTag: lib.ElDistMatrixReservePulls_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixReservePulls_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixReservePulls_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixReservePulls_z(*args)
+    else: DataExcept()
+
+  lib.ElDistMatrixQueuePull_i.argtypes = \
+  lib.ElDistMatrixQueuePull_s.argtypes = \
+  lib.ElDistMatrixQueuePull_d.argtypes = \
+  lib.ElDistMatrixQueuePull_c.argtypes = \
+  lib.ElDistMatrixQueuePull_z.argtypes = \
+    [c_void_p,iType,iType]
+  def QueuePull(self,i,j):
+    args = [self.obj,i,j]
+    if   self.tag == iTag: lib.ElDistMatrixQueuePull_i(*args)
+    elif self.tag == sTag: lib.ElDistMatrixQueuePull_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixQueuePull_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixQueuePull_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixQueuePull_z(*args)
+    else: DataExcept()
+
+  lib.ElDistMatrixProcessPullQueue_i.argtypes = [c_void_p,POINTER(iType)]
+  lib.ElDistMatrixProcessPullQueue_s.argtypes = [c_void_p,POINTER(sType)]
+  lib.ElDistMatrixProcessPullQueue_d.argtypes = [c_void_p,POINTER(dType)]
+  lib.ElDistMatrixProcessPullQueue_c.argtypes = [c_void_p,POINTER(cType)]
+  lib.ElDistMatrixProcessPullQueue_z.argtypes = [c_void_p,POINTER(zType)]
+  def ProcessPullQueue(self,buf):
+    args = [self.obj,buf]
+    if   self.tag == iTag: lib.ElDistMatrixProcessPullQueue_i(*args)
+    elif self.tag == sTag: lib.ElDistMatrixProcessPullQueue_s(*args)
+    elif self.tag == dTag: lib.ElDistMatrixProcessPullQueue_d(*args)
+    elif self.tag == cTag: lib.ElDistMatrixProcessPullQueue_c(*args)
+    elif self.tag == zTag: lib.ElDistMatrixProcessPullQueue_z(*args)
     else: DataExcept()
 
   def GetLocal(self,iLoc,jLoc): 

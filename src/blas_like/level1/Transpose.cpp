@@ -75,6 +75,17 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( n, m );
+#ifdef EL_HAVE_MKL
+    Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+    mkl::omatcopy 
+    ( orient, m, n, T(1), A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
+#elif defined(EL_HAVE_OPENBLAS)
+    // NOTE: If the user specified MATH_LIBS, and MATH_LIBS contains OpenBLAS,
+    //       it may be necessary to also specify -D EL_HAVE_OPENBLAS
+    Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+    openblas::omatcopy 
+    ( orient, m, n, T(1), A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
+#else
     // TODO: Optimize this routine
     const T* ABuf = A.LockedBuffer();
           T* BBuf = B.Buffer();
@@ -93,6 +104,7 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
           ABuf, 1,   ldA,
           BBuf, ldB, 1 );
     }
+#endif
 }
 
 template<typename T>

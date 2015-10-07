@@ -40,6 +40,36 @@ void mkl_zcsrmv
   const BlasInt* pntrb, const BlasInt* pntre,
   const dcomplex* x, const dcomplex* beta, dcomplex* y );
 
+void mkl_somatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  float alpha, const float* A, size_t lda,
+                     float* B, size_t ldb );
+void mkl_domatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  double alpha, const double* A, size_t lda,
+                      double* B, size_t ldb );
+void mkl_comatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  scomplex alpha, const scomplex* A, size_t lda,
+                        scomplex* B, size_t ldb );
+void mkl_zomatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  dcomplex alpha, const dcomplex* A, size_t lda,
+                        dcomplex* B, size_t ldb );
+
+void mkl_simatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  float alpha, float* A, size_t lda, size_t ldb );
+void mkl_dimatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  double alpha, double* A, size_t lda, size_t ldb );
+void mkl_cimatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  scomplex alpha, scomplex* A, size_t lda, size_t ldb );
+void mkl_zimatcopy
+( char ordering, char trans, size_t rows, size_t cols, 
+  dcomplex alpha, dcomplex* A, size_t lda, size_t ldb );
+
 } // extern "C"
 
 namespace El {
@@ -108,6 +138,130 @@ void csrmv
     mkl_zcsrmv
     ( &transA, &m, &k, &alpha, matDescrA, val, indx, pntrb, pntre,
       x, &beta, y );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, const Int* A, BlasInt lda,
+                   Int* B, BlasInt ldb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = A[i+j*lda];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = Conj(A[i+j*lda]);
+    }
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda,
+                     float* B, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_somatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), B, size_t(ldb) );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda,
+                      double* B, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_domatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), B, size_t(ldb) );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda,
+                        scomplex* B, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_comatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), B, size_t(ldb) );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda,
+                        dcomplex* B, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_zomatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), B, size_t(ldb) );
+}
+
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, Int* A, BlasInt lda, BlasInt ldb )
+{
+    LogicError("Integer MKL imatcopy not yet supported");
+}
+
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  float alpha, float* A, BlasInt lda, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_simatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), size_t(ldb) );
+}
+
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  double alpha, double* A, BlasInt lda, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_dimatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), size_t(ldb) );
+}
+
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  scomplex alpha, scomplex* A, BlasInt lda, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_cimatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), size_t(ldb) );
+}
+
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_zimatcopy
+    ( ordering, trans, size_t(m), size_t(n),
+      alpha, A, size_t(lda), size_t(ldb) );
 }
 
 } // namespace mkl
