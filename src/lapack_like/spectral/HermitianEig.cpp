@@ -131,8 +131,10 @@ bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, 
-  Matrix<Base<F>>& w, SortType sort,
+( UpperOrLower uplo,
+  Matrix<F>& A, 
+  Matrix<Base<F>>& w,
+  SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -179,8 +181,10 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w, SortType sort,
+( UpperOrLower uplo,
+  DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<Base<F>,STAR,STAR>& w,
+  SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -229,8 +233,10 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& w, SortType sort, 
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& w,
+  SortType sort, 
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -306,8 +312,12 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z, 
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<Base<F>>& w,
+  Matrix<F>& Z, 
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianEig"))
@@ -365,9 +375,12 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, 
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( UpperOrLower uplo,
+  DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<Base<F>,STAR,STAR>& w,
+  DistMatrix<F,STAR,STAR>& Z, 
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianEig"))
@@ -427,9 +440,12 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& ZPre,
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& w,
+  ElementalMatrix<F>& ZPre,
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianEig"))
@@ -622,49 +638,74 @@ void HermitianEig
 
 #define EIGVAL_PROTO(F) \
   template void HermitianEig\
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, SortType sort, \
+  ( UpperOrLower uplo, \
+    DistMatrix<F,STAR,STAR>& A,\
+    DistMatrix<Base<F>,STAR,STAR>& w, \
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
     ElementalMatrix<Base<F>>& w, SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl );
 #define EIGPAIR_PROTO(F) \
   template void HermitianEig\
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,\
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
+    Matrix<F>& Z,\
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,\
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
+  ( UpperOrLower uplo, \
+    DistMatrix<F,STAR,STAR>& A,\
+    DistMatrix<Base<F>,STAR,STAR>& w, \
+    DistMatrix<F,STAR,STAR>& Z,\
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& Z, SortType sort, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, \
+    ElementalMatrix<F>& Z, \
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl );
 
 // Spectral Divide and Conquer
 #define SDC_PROTO(F) \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
     const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, const HermitianSDCCtrl<Base<F>> ctrl ); \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, \
+    const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
-    Matrix<F>& Q, const HermitianSDCCtrl<Base<F>> ctrl ); \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
+    Matrix<F>& Q, \
+    const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& Q, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, \
+    ElementalMatrix<F>& Q, \
     const HermitianSDCCtrl<Base<F>> ctrl );
 
 #define PROTO(F) \

@@ -45,10 +45,10 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CSE cse("[VR,STAR] = [STAR,MR]"))
-    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( A );
-    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( *A_MC_MR );
-    A_MC_MR.reset(); 
-    *this = *A_VC_STAR;
+    DistMatrix<T> A_MC_MR( A );
+    DistMatrix<T,VC,STAR> A_VC_STAR( A_MC_MR );
+    A_MC_MR.Empty(); 
+    *this = A_VC_STAR;
     return *this;
 }
 
@@ -118,10 +118,10 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(CSE cse("[VR,STAR] = [STAR,VR]"))
-    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( A );
-    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( *A_MC_MR );
-    A_MC_MR.reset(); 
-    *this = *A_VC_STAR;
+    DistMatrix<T> A_MC_MR( A );
+    DistMatrix<T,VC,STAR> A_VC_STAR( A_MC_MR );
+    A_MC_MR.Empty(); 
+    *this = A_VC_STAR;
     return *this;
 }
 

@@ -88,10 +88,10 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,MC]"))
-    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC,BLOCK>>( A );
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR,BLOCK>>( *A_MR_MC );
-    A_MR_MC.reset();
-    *this = *A_VR_STAR;
+    DistMatrix<T,MR,MC,BLOCK> A_MR_MC( A );
+    DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A_MR_MC );
+    A_MR_MC.Empty();
+    *this = A_VR_STAR;
     return *this;
 }
 
@@ -107,10 +107,10 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[VC,STAR] = [STAR,VC]"))
-    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC,BLOCK>>( A );
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR,BLOCK>>( *A_MR_MC );
-    A_MR_MC.reset(); 
-    *this = *A_VR_STAR;
+    DistMatrix<T,MR,MC,BLOCK> A_MR_MC( A );
+    DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A_MR_MC );
+    A_MR_MC.Empty(); 
+    *this = A_VR_STAR;
     return *this;
 }
 

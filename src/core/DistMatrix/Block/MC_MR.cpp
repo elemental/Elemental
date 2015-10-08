@@ -77,13 +77,12 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,STAR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MC,MR] = [MR,STAR]"))
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR,BLOCK>>( A );
-    auto A_VC_STAR = 
-      MakeUnique<DistMatrix<T,VC,STAR,BLOCK>>( this->Grid() );
-    A_VC_STAR->AlignWith( *this );
-    *A_VC_STAR = *A_VR_STAR;
-    A_VR_STAR.reset();
-    *this = *A_VC_STAR;
+    DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A );
+    DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR( this->Grid() );
+    A_VC_STAR.AlignWith( *this );
+    A_VC_STAR = A_VR_STAR;
+    A_VR_STAR.Empty();
+    *this = A_VC_STAR;
     return *this;
 }
 
@@ -91,13 +90,12 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MC,MR] = [STAR,MC]"))
-    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC,BLOCK>>( A );
-    auto A_STAR_VR =
-      MakeUnique<DistMatrix<T,STAR,VR,BLOCK>>( this->Grid() );
-    A_STAR_VR->AlignWith( *this );
-    *A_STAR_VR = *A_STAR_VC;
-    A_STAR_VC.reset(); 
-    *this = *A_STAR_VR;
+    DistMatrix<T,STAR,VC,BLOCK> A_STAR_VC( A );
+    DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR( this->Grid() );
+    A_STAR_VR.AlignWith( *this );
+    A_STAR_VR = A_STAR_VC;
+    A_STAR_VC.Empty(); 
+    *this = A_STAR_VR;
     return *this;
 }
 

@@ -56,7 +56,9 @@ void Sort
     const Int k = Z.Width();
     const Grid& g = Z.Grid();
     DistMatrix<F,VC,STAR> Z_VC_STAR( Z );
-    DistMatrix<F,VC,STAR> ZPerm_VC_STAR( n, k, g );
+    DistMatrix<F,VC,STAR> ZPerm_VC_STAR(g);
+    ZPerm_VC_STAR.AlignWith( Z_VC_STAR );
+    ZPerm_VC_STAR.Resize( n, k );
     const Int nLocal = Z_VC_STAR.LocalHeight();
     for( Int j=0; j<k; ++j )
     {

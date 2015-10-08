@@ -63,7 +63,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SoftEmpty()
 {
-    matrix_.Resize( 0, 0 );
+    matrix_.Resize_( 0, 0 );
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
@@ -89,7 +89,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SoftEmptyData()
 {
-    matrix_.Resize( 0, 0 );
+    matrix_.Resize_( 0, 0 );
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;

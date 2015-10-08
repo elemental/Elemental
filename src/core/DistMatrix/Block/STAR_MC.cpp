@@ -25,14 +25,13 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MC,MR,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MC] = [MC,MR]"))
-    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR,BLOCK>>( A );
-    auto A_STAR_VC =
-      MakeUnique<DistMatrix<T,STAR,VC,BLOCK>>( this->Grid() );
-    A_STAR_VC->AlignRowsWith(*this);
-    *A_STAR_VC = *A_STAR_VR;
-    A_STAR_VR.reset(); 
+    DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR( A );
+    DistMatrix<T,STAR,VC,BLOCK> A_STAR_VC( this->Grid() );
+    A_STAR_VC.AlignRowsWith(*this);
+    A_STAR_VC = A_STAR_VR;
+    A_STAR_VR.Empty(); 
 
-    *this = *A_STAR_VC;
+    *this = A_STAR_VC;
     return *this;
 }
 
@@ -40,17 +39,16 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MC,STAR,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MC] = [MC,STAR]"))
-    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR,BLOCK>>( A );
-    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR,BLOCK>>( *A_MC_MR );
-    A_MC_MR.reset();
+    DistMatrix<T,MC,MR,BLOCK> A_MC_MR( A );
+    DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR( A_MC_MR );
+    A_MC_MR.Empty();
 
-    auto A_STAR_VC =
-      MakeUnique<DistMatrix<T,STAR,VC,BLOCK>>( this->Grid() );
-    A_STAR_VC->AlignRowsWith(*this);
-    *A_STAR_VC = *A_STAR_VR;
-    A_STAR_VR.reset();
+    DistMatrix<T,STAR,VC,BLOCK> A_STAR_VC( this->Grid() );
+    A_STAR_VC.AlignRowsWith(*this);
+    A_STAR_VC = A_STAR_VR;
+    A_STAR_VR.Empty();
 
-    *this = *A_STAR_VC;
+    *this = A_STAR_VC;
     return *this;
 }
 
@@ -111,13 +109,13 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,VC,STAR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[STAR,MC] = [VC,STAR]"))
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR,BLOCK>>( A );
-    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC,BLOCK>>( this->Grid() );
-    A_MR_MC->AlignRowsWith(*this);
-    *A_MR_MC = *A_VR_STAR;
-    A_VR_STAR.reset();
+    DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A );
+    DistMatrix<T,MR,MC,BLOCK> A_MR_MC( this->Grid() );
+    A_MR_MC.AlignRowsWith(*this);
+    A_MR_MC = A_VR_STAR;
+    A_VR_STAR.Empty();
 
-    *this = *A_MR_MC;
+    *this = A_MR_MC;
     return *this;
 }
 
