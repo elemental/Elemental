@@ -172,9 +172,7 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_somatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), B, size_t(ldb) );
+    mkl_somatcopy( ordering, trans, m, n, alpha, A, lda, B, ldb );
 }
 
 void omatcopy
@@ -184,9 +182,7 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_domatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), B, size_t(ldb) );
+    mkl_domatcopy( ordering, trans, m, n, alpha, A, lda, B, ldb );
 }
 
 void omatcopy
@@ -196,9 +192,7 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_comatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), B, size_t(ldb) );
+    mkl_comatcopy( ordering, trans, m, n, alpha, A, lda, B, ldb );
 }
 
 void omatcopy
@@ -208,9 +202,7 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_zomatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), B, size_t(ldb) );
+    mkl_zomatcopy( ordering, trans, m, n, alpha, A, lda, B, ldb );
 }
 
 void imatcopy
@@ -226,9 +218,7 @@ void imatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_simatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), size_t(ldb) );
+    mkl_simatcopy( ordering, trans, m, n, alpha, A, lda, ldb );
 }
 
 void imatcopy
@@ -237,9 +227,7 @@ void imatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_dimatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), size_t(ldb) );
+    mkl_dimatcopy( ordering, trans, m, n, alpha, A, lda, ldb );
 }
 
 void imatcopy
@@ -248,9 +236,7 @@ void imatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_cimatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), size_t(ldb) );
+    mkl_cimatcopy( ordering, trans, m, n, alpha, A, lda, ldb );
 }
 
 void imatcopy
@@ -259,9 +245,7 @@ void imatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_zimatcopy
-    ( ordering, trans, size_t(m), size_t(n),
-      alpha, A, size_t(lda), size_t(ldb) );
+    mkl_zimatcopy( ordering, trans, m, n, alpha, A, lda, ldb );
 }
 
 } // namespace mkl

@@ -48,12 +48,12 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
     DEBUG_ONLY(CSE cse("[MR,MC] = [MC,STAR]"))
-    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( A );
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( this->Grid() );
-    A_VR_STAR->AlignColsWith(*this);
-    *A_VR_STAR = *A_VC_STAR;
-    A_VC_STAR.reset();
-    *this = *A_VR_STAR;
+    DistMatrix<T,VC,STAR> A_VC_STAR( A );
+    DistMatrix<T,VR,STAR> A_VR_STAR( this->Grid() );
+    A_VR_STAR.AlignColsWith(*this);
+    A_VR_STAR = A_VC_STAR;
+    A_VC_STAR.Empty();
+    *this = A_VR_STAR;
     return *this;
 }
 
@@ -61,12 +61,12 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CSE cse("[MR,MC] = [STAR,MR]"))
-    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( A );
-    auto A_STAR_VC = MakeUnique<DistMatrix<T,STAR,VC>>( this->Grid() );
-    A_STAR_VC->AlignRowsWith(*this);
-    *A_STAR_VC = *A_STAR_VR;
-    A_STAR_VR.reset();
-    *this = *A_STAR_VC;
+    DistMatrix<T,STAR,VR> A_STAR_VR( A );
+    DistMatrix<T,STAR,VC> A_STAR_VC( this->Grid() );
+    A_STAR_VC.AlignRowsWith(*this);
+    A_STAR_VC = A_STAR_VR;
+    A_STAR_VR.Empty();
+    *this = A_STAR_VC;
     return *this;
 }
 

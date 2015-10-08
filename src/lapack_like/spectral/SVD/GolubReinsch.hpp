@@ -18,21 +18,16 @@ namespace svd {
 template<typename F>
 inline void
 GolubReinsch
-( ElementalMatrix<F>& APre,
+( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre )
+  DistMatrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
-
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
-
 
     // Bidiagonalize A
     const Grid& g = A.Grid();
@@ -98,19 +93,28 @@ GolubReinsch
     Copy( d_STAR_STAR, s );
 }
 
-#ifdef EL_HAVE_FLA_BSVD
 template<typename F>
 inline void
-GolubReinschFlame
+GolubReinsch
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
-
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    GolubReinsch( A, s, V );
+}
 
+#ifdef EL_HAVE_FLA_BSVD
+template<typename F>
+inline void
+GolubReinschFlame
+( DistMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  DistMatrix<F>& V )
+{
+    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -187,6 +191,19 @@ GolubReinschFlame
     Copy( d_STAR_STAR, s );
 }
 
+template<typename F>
+inline void
+GolubReinschFlame
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre )
+{
+    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    GolubReinschFlame( A, s, V );
+}
+
 template<>
 inline void
 GolubReinsch
@@ -212,13 +229,9 @@ GolubReinsch
 
 template<typename F>
 inline void
-GolubReinsch( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s )
+GolubReinsch( DistMatrix<F>& A, ElementalMatrix<Base<F>>& s )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -248,6 +261,16 @@ GolubReinsch( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s )
 
     // Copy out the appropriate subset of the singular values
     Copy( d_STAR_STAR, s );
+}
+
+template<typename F>
+inline void
+GolubReinsch( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s )
+{
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
+    auto& A = *APtr;
+    GolubReinsch( A, s );
 }
 
 } // namespace svd

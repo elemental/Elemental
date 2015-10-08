@@ -15,7 +15,7 @@
 # define EL_RUNNING_ON_VALGRIND 0
 #endif
 
-#define EL_MEMORY_MALLOC
+//#define EL_MEMORY_MALLOC
 namespace {
 
 template<typename G>
@@ -33,10 +33,10 @@ static void Delete( G*& ptr )
 {
 #ifdef EL_MEMORY_MALLOC
     free( ptr );
-    ptr = nullptr;
 #else
     delete[] ptr;
 #endif
+    ptr = nullptr;
 }
 
 } // anonymous namespace
@@ -128,8 +128,8 @@ template<typename G>
 void Memory<G>::Empty()
 {
     Delete( rawBuffer_ );
-    size_ = 0;
     buffer_ = nullptr;
+    size_ = 0;
 }
 
 #define PROTO(T) template class Memory<T>;

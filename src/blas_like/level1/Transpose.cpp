@@ -112,8 +112,8 @@ void Transpose
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    const ElementalData AData = A.DistData();
-    const ElementalData BData = B.DistData();
+    const auto AData = A.DistData();
+    const auto BData = B.DistData();
 
     // NOTE: The following are ordered in terms of increasing cost
     if( AData.colDist == BData.rowDist &&
@@ -173,8 +173,8 @@ void Transpose
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    const DistData AData = A.DistData();
-    const DistData BData = B.DistData();
+    const auto AData = A.DistData();
+    const auto BData = B.DistData();
     if( AData.colDist == BData.rowDist &&
         AData.rowDist == BData.colDist &&
         ((AData.colAlign    == BData.rowAlign && 

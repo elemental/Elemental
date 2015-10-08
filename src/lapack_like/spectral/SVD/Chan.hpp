@@ -18,23 +18,19 @@ namespace svd {
 template<typename F>
 inline void
 ChanUpper
-( ElementalMatrix<F>& APre,
+( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
+  DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
     DEBUG_ONLY(
       CSE cse("svd::ChanUpper");
-      AssertSameGrids( APre, s, VPre );
-      if( APre.Height() < APre.Width() )
+      AssertSameGrids( A, s, V );
+      if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( heightRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr; 
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
-
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -63,18 +59,28 @@ inline void
 ChanUpper
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  double heightRatio=1.5 )
+{
+    DEBUG_ONLY(CSE cse("svd::ChanUpper"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr; 
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    ChanUpper( A, s, V, heightRatio );
+}
+
+template<typename F>
+inline void
+ChanUpper
+( DistMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(
       CSE cse("svd::ChanUpper");    
-      AssertSameGrids( APre, s );
+      AssertSameGrids( A, s );
       if( heightRatio <= 1.0 )
           LogicError("Nonsensical switchpoint");
     )
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
     if( A.Height() >= heightRatio*A.Width() )
     {
         qr::ExplicitTriang( A );
@@ -86,6 +92,19 @@ ChanUpper
     }
 }
 
+template<typename F>
+inline void
+ChanUpper
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  double heightRatio=1.2 )
+{
+    DEBUG_ONLY(CSE cse("svd::ChanUpper"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
+    auto& A = *APtr;
+    ChanUpper( A, s, heightRatio );
+}
+
 //----------------------------------------------------------------------------//
 // Grab the full SVD of the general matrix A, A = U diag(s) V^H using Chan's  //
 // algorithm. On exit, A is overwritten with U.                               //
@@ -94,21 +113,17 @@ ChanUpper
 template<typename F>
 inline void
 Chan
-( ElementalMatrix<F>& APre,
+( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
+  DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
     DEBUG_ONLY(
       CSE cse("svd::Chan");
-      AssertSameGrids( APre, s, VPre );
+      AssertSameGrids( A, s, V );
       if( heightRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
-
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );
@@ -134,6 +149,20 @@ Chan
         s *= 1/scale;
 }
 
+template<typename F>
+inline void
+Chan
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  double heightRatio=1.5 )
+{
+    DEBUG_ONLY(CSE cse("svd::Chan"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    Chan( A, s, V, heightRatio );
+}
+
 //----------------------------------------------------------------------------//
 // Grab the singular values of the general matrix A.                          //
 //----------------------------------------------------------------------------//
@@ -141,14 +170,11 @@ Chan
 template<typename F>
 inline void
 Chan
-( ElementalMatrix<F>& APre,
+( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
 
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
@@ -174,6 +200,19 @@ Chan
     // Rescale the singular values if necessary
     if( needRescaling )
         s *= 1/scale;
+}
+
+template<typename F>
+inline void
+Chan
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  double heightRatio=1.2 )
+{
+    DEBUG_ONLY(CSE cse("svd::Chan"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
+    auto& A = *APtr;
+    Chan( A, s, heightRatio );
 }
 
 } // namespace svd

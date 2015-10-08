@@ -1129,8 +1129,10 @@ void BidiagQRAlg
     const BlasInt numColsC=0, ldC=1;
     vector<float> work( 4*n );
     EL_LAPACK(sbdsqr)
-    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC,
+      d, e,
+      VTrans, &ldVT, U, &ldU, C, &ldC,
+      work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1150,8 +1152,10 @@ void BidiagQRAlg
     const BlasInt numColsC=0, ldC=1;
     vector<double> work( 4*n );
     EL_LAPACK(dbdsqr)
-    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC,
+      d, e, 
+      VTrans, &ldVT, U, &ldU, C, &ldC,
+      work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1160,7 +1164,9 @@ void BidiagQRAlg
 
 void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
-  float* d, float* e, scomplex* VH, BlasInt ldVH, scomplex* U, BlasInt ldU )
+  float* d, float* e,
+  scomplex* VH, BlasInt ldVH,
+  scomplex* U,  BlasInt ldU )
 {
     DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -1169,10 +1175,16 @@ void BidiagQRAlg
     BlasInt info;
     scomplex* C=0;
     const BlasInt numColsC=0, ldC=1;
-    vector<float> work( 4*n );
+    vector<float> realWork;
+    if( numColsVH == 0 && numRowsU == 0 && numColsC == 0 )
+        realWork.resize( 2*n );
+    else
+        realWork.resize( Max(1,4*n-4) );
     EL_LAPACK(cbdsqr)
-    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC,
+      d, e,
+      VH, &ldVH, U, &ldU, C, &ldC,
+      realWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1181,7 +1193,9 @@ void BidiagQRAlg
 
 void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
-  double* d, double* e, dcomplex* VH, BlasInt ldVH, dcomplex* U, BlasInt ldU )
+  double* d, double* e,
+  dcomplex* VH, BlasInt ldVH,
+  dcomplex* U,  BlasInt ldU )
 {
     DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -1190,10 +1204,16 @@ void BidiagQRAlg
     BlasInt info;
     dcomplex* C=0;
     const BlasInt numColsC=0, ldC=1;
-    vector<double> work( 4*n );
+    vector<double> realWork;
+    if( numColsVH == 0 && numRowsU == 0 && numColsC == 0 )
+        realWork.resize( 2*n );
+    else
+        realWork.resize( Max(1,4*n-4) );
     EL_LAPACK(zbdsqr)
-    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC,
+      d, e,
+      VH, &ldVH, U, &ldU, C, &ldC,
+      realWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
