@@ -60,6 +60,31 @@ namespace openblas {
 
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, const Int* A, BlasInt lda,
+                   Int* B, BlasInt ldb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = A[i+j*lda];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = Conj(A[i+j*lda]);
+    }
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, const float* A, BlasInt lda,
                      float* B, BlasInt ldb )
 {
@@ -96,6 +121,13 @@ void omatcopy
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(zomatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, B, &ldb );
+}
+
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, Int* A, BlasInt lda, BlasInt ldb )
+{
+    LogicError("Integer MKL imatcopy not yet supported");
 }
 
 void imatcopy
