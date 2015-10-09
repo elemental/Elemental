@@ -676,8 +676,8 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
     sendBuf.reserve( totalSend );
     for( Int k=0; k<totalSend; ++k )
     {
-        const Int i = sendCoords[k].index;
-        const Int j = sendCoords[k].value;
+        const Int i = sendCoords[k].value;
+        const Int j = sendCoords[k].index;
 
         const Int iLoc = LocalRow( i );
         const Int jLoc = LocalCol( j );
