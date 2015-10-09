@@ -664,7 +664,6 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
           g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
         recvCoords[offs[owner]++] = valueInt;
     }
-    SwapClear( remotePulls_ );
     vector<ValueInt<Int>> sendCoords(totalSend);
     mpi::AllToAll
     ( recvCoords.data(), recvCounts.data(), recvOffs.data(),
@@ -686,9 +685,22 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
 
     // Exchange and unpack the data
     // ============================
+    vector<T> recvBuf;
+    recvBuf.reserve( totalRecv );
     mpi::AllToAll
     ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-      pullBuf,        recvCounts.data(), recvOffs.data(), comm );
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    Int k = 0;
+    offs = recvOffs;
+    for( const auto& valueInt : remotePulls_ )
+    {
+        const Int i = valueInt.value;
+        const Int j = valueInt.index;
+        const int owner = 
+          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
+        pullBuf[k++] = recvBuf[offs[owner]++];
+    }
+    SwapClear( remotePulls_ );
 }
 
 template<typename T>
