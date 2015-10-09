@@ -41,6 +41,12 @@ void Scatter
     if( target == mpi::UNDEFINED )
         return;
 
+    if( B.DistSize() == 1 )
+    {
+        Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
+
     vector<T> buffer;
     T* recvBuf=0; // some compilers (falsely) warn otherwise
     if( A.CrossRank() == root )

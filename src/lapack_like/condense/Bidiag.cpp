@@ -27,7 +27,8 @@ void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 template<typename F> 
 void Bidiag
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ )
+  ElementalMatrix<F>& tP,
+  ElementalMatrix<F>& tQ )
 {
     DEBUG_ONLY(CSE cse("Bidiag"))
     if( A.Height() >= A.Width() )
@@ -70,15 +71,11 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
 
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& PPre, ElementalMatrix<F>& QPre )
+( DistMatrix<F>& A,
+  DistMatrix<F>& P,
+  DistMatrix<F>& Q )
 {
     DEBUG_ONLY(CSE cse("bidiag::Explicit"))
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
-    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
-
     DistMatrix<F,MD,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
@@ -103,6 +100,19 @@ void Explicit
         MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
     }
+}
+
+template<typename F>
+void Explicit
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& PPre,
+  ElementalMatrix<F>& QPre )
+{
+    DEBUG_ONLY(CSE cse("bidiag::Explicit"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
+    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
+    Explicit( A, P, Q );
 }
 
 template<typename F>

@@ -18,12 +18,21 @@ namespace El {
 // Return the packed reduction to bidiagonal form
 // ----------------------------------------------
 template<typename F>
-void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ );
+void Bidiag
+( Matrix<F>& A,
+  Matrix<F>& tP,
+  Matrix<F>& tQ );
 
 template<typename F>
 void Bidiag
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ );
+  ElementalMatrix<F>& tP,
+  ElementalMatrix<F>& tQ );
+template<typename F>
+void Bidiag
+( ElementalMatrix<F>& A, 
+  ElementalMatrix<F>& tP,
+  ElementalMatrix<F>& tQ );
 
 namespace bidiag {
 
@@ -31,11 +40,18 @@ namespace bidiag {
 template<typename F>
 void Explicit
 ( Matrix<F>& A, 
-  Matrix<F>& P, Matrix<F>& Q );
+  Matrix<F>& P,
+  Matrix<F>& Q );
 template<typename F>
 void Explicit
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& P, ElementalMatrix<F>& Q );
+  ElementalMatrix<F>& P,
+  ElementalMatrix<F>& Q );
+template<typename F>
+void Explicit
+( DistMatrix<F>& A, 
+  DistMatrix<F>& P,
+  DistMatrix<F>& Q );
 
 // Only return the condensed bidiagonal matrix
 template<typename F>
@@ -46,21 +62,27 @@ void ExplicitCondensed( ElementalMatrix<F>& A );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B );
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+        Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& B );
 
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B );
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+        Matrix<F>& B );
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& B );
 
 } // namespace bidiag

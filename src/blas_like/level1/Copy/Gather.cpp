@@ -18,6 +18,13 @@ void Gather
 {
     DEBUG_ONLY(CSE cse("copy::Gather"))
     AssertSameGrids( A, B );
+    if( A.DistSize() == 1 && A.CrossSize() == 1 )
+    {
+        B.Resize( A.Height(), A.Width() );
+        if( B.CrossRank() == B.Root() )
+            Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
 
     const Int height = A.Height();
     const Int width = A.Width();
@@ -87,6 +94,13 @@ void Gather
 {
     DEBUG_ONLY(CSE cse("copy::Gather"))
     AssertSameGrids( A, B );
+    if( A.DistSize() == 1 && A.CrossSize() == 1 )
+    {
+        B.Resize( A.Height(), A.Width() );
+        if( B.CrossRank() == B.Root() )
+            Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
 
     const Int height = A.Height();
     const Int width = A.Width();

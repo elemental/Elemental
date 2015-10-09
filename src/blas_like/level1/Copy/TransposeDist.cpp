@@ -27,7 +27,11 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
     const Int rowStrideA = A.RowStride();
     const Int distSize = A.DistSize();
 
-    if( A.Width() == 1 )
+    if( A.DistSize() == 1 && B.DistSize() == 1 ) 
+    {
+        Copy( A.LockedMatrix(), B.Matrix() );
+    }
+    else if( A.Width() == 1 )
     {
         const Int height = A.Height();
         const Int maxLocalHeight = MaxLength(height,distSize);
@@ -180,30 +184,26 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
     {
         if( A.Height() >= A.Width() )
         {
-            auto A_ProdDistA = 
-                MakeUnique<DistMatrix<T,ProductDist<U,V>(),
-                                        ProductDistPartner<U,V>()>>( A );
-            auto A_ProdDistB = 
-                MakeUnique<DistMatrix<T,ProductDist<V,U>(),
-                                        ProductDistPartner<V,U>()>>( g );
-            A_ProdDistB->AlignColsWith( B );
-            *A_ProdDistB = *A_ProdDistA;
-            A_ProdDistA.reset();
-            B = *A_ProdDistB;
+            DistMatrix<T,ProductDist<U,V>(),ProductDistPartner<U,V>()>
+              A_ProdDistA( A );
+            DistMatrix<T,ProductDist<V,U>(),ProductDistPartner<V,U>()>
+              A_ProdDistB( g );
+            A_ProdDistB.AlignColsWith( B );
+            A_ProdDistB = A_ProdDistA;
+            A_ProdDistA.Empty();
+            B = A_ProdDistB;
         }
         else
         {
-            auto A_ProdDistB = 
-                MakeUnique<DistMatrix<T,ProductDistPartner<V,U>(),
-                                        ProductDist<V,U>()>>( A );
-            auto A_ProdDistA = 
-                MakeUnique<DistMatrix<T,ProductDistPartner<U,V>(),
-                                        ProductDist<U,V>()>>( g );
+            DistMatrix<T,ProductDistPartner<V,U>(),ProductDist<V,U>()>
+                A_ProdDistB( A );
+            DistMatrix<T,ProductDistPartner<U,V>(),ProductDist<U,V>()>
+                A_ProdDistA( g );
 
-            A_ProdDistA->AlignRowsWith( B );
-            *A_ProdDistA = *A_ProdDistB;
-            A_ProdDistB.reset();
-            B = *A_ProdDistA;
+            A_ProdDistA.AlignRowsWith( B );
+            A_ProdDistA = A_ProdDistB;
+            A_ProdDistB.Empty();
+            B = A_ProdDistA;
         }
     }
 }

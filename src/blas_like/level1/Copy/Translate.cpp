@@ -45,7 +45,7 @@ void Translate
     const bool aligned = colAlign == B.ColAlign() && rowAlign == B.RowAlign();
     if( aligned && root == B.Root() )
     {
-        B.Matrix() = A.LockedMatrix();
+        Copy( A.LockedMatrix(), B.Matrix() );
     }
     else
     {
@@ -216,6 +216,8 @@ void Translate
 
         // Unpack the received data
         offs = recvOffs;
+        T* BBuf = B.Buffer(); 
+        const Int BLDim = B.LDim();
         for( Int jLoc=0; jLoc<nLocalB; ++jLoc )
         {
             const Int j = B.GlobalCol(jLoc);
@@ -223,7 +225,7 @@ void Translate
             {
                 const Int i = B.GlobalRow(iLoc);
                 const int owner = A.Owner(i,j);
-                B.SetLocal( iLoc, jLoc, recvBuf[offs[owner]++] );
+                BBuf[iLoc+jLoc*BLDim] = recvBuf[offs[owner]++];
             }
         }
     }

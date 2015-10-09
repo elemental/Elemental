@@ -84,19 +84,14 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 template<typename F> 
 inline void
 U
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre,
-  ElementalMatrix<F>& tQPre )
+( DistMatrix<F>& A, 
+  DistMatrix<F,STAR,STAR>& tP,
+  DistMatrix<F,STAR,STAR>& tQ )
 {
     DEBUG_ONLY(
       CSE cse("bidiag::U");
-      AssertSameGrids( APre, tPPre, tQPre );
+      AssertSameGrids( A, tP, tQ );
     )
-
-    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
-    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
-    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
-
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
@@ -170,6 +165,20 @@ U
             bidiag::UUnb( ABR, tP1, tQ1 );
         }
     }
+}
+
+template<typename F> 
+inline void
+U
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& tPPre,
+  ElementalMatrix<F>& tQPre )
+{
+    DEBUG_ONLY(CSE cse("bidiag::U"))
+    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
+    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
+    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
+    U( A, tP, tQ );
 }
 
 } // namespace bidiag

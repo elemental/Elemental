@@ -42,34 +42,41 @@ void ColAllToAllDemote
     const Int maxLocalWidth = MaxLength(width,colStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-    //vector<T> buffer( 2*colStrideUnion*portionSize );
-    vector<T> buffer;
-    buffer.reserve( 2*colStrideUnion*portionSize );
-    T* firstBuf  = &buffer[0];
-    T* secondBuf = &buffer[colStrideUnion*portionSize];
-
     if( colDiff == 0 )
     {
-        // Pack            
-        util::PartialColStridedPack
-        ( height, localWidthA,
-          colAlign, colStride, 
-          colStrideUnion, colStridePart, colRankPart,
-          colShiftA,
-          A.LockedBuffer(), A.LDim(),
-          firstBuf,         portionSize );
+        if( B.PartialUnionColStride() == 1 )
+        {
+            Copy( A.LockedMatrix(), B.Matrix() );
+        }
+        else
+        {
+            //vector<T> buffer( 2*colStrideUnion*portionSize );
+            vector<T> buffer;
+            buffer.reserve( 2*colStrideUnion*portionSize );
+            T* firstBuf  = &buffer[0];
+            T* secondBuf = &buffer[colStrideUnion*portionSize];
 
-        // Simultaneously Scatter in columns and Gather in rows
-        mpi::AllToAll
-        ( firstBuf,  portionSize,
-          secondBuf, portionSize, B.PartialUnionColComm() );
+            // Pack            
+            util::PartialColStridedPack
+            ( height, localWidthA,
+              colAlign, colStride, 
+              colStrideUnion, colStridePart, colRankPart,
+              colShiftA,
+              A.LockedBuffer(), A.LDim(),
+              firstBuf,         portionSize );
 
-        // Unpack
-        util::RowStridedUnpack
-        ( localHeightB, width,
-          rowAlignA, colStrideUnion,
-          secondBuf, portionSize,
-          B.Buffer(), B.LDim() );
+            // Simultaneously Scatter in columns and Gather in rows
+            mpi::AllToAll
+            ( firstBuf,  portionSize,
+              secondBuf, portionSize, B.PartialUnionColComm() );
+
+            // Unpack
+            util::RowStridedUnpack
+            ( localHeightB, width,
+              rowAlignA, colStrideUnion,
+              secondBuf, portionSize,
+              B.Buffer(), B.LDim() );
+        }
     }
     else
     {
@@ -79,6 +86,12 @@ void ColAllToAllDemote
 #endif
         const Int sendColRankPart = Mod( colRankPart+colDiff, colStridePart );
         const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
+
+        //vector<T> buffer( 2*colStrideUnion*portionSize );
+        vector<T> buffer;
+        buffer.reserve( 2*colStrideUnion*portionSize );
+        T* firstBuf  = &buffer[0];
+        T* secondBuf = &buffer[colStrideUnion*portionSize];
 
         // Pack
         util::PartialColStridedPack

@@ -24,6 +24,7 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",32);
+        const bool testSeq = Input("--testSeq","test sequential SVD?",false);
         const bool testDecomp = Input("--testDecomp","test full SVD?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -34,8 +35,18 @@ main( int argc, char* argv[] )
         const int commRank = mpi::WorldRank();
         Timer timer;
 
+        if( testSeq && commRank == 0 )
+        {
+            timer.Start();
+            Matrix<Real> sSeq;
+            Matrix<C> ASeq; 
+            Uniform( ASeq, m, n );
+            SVD( ASeq, sSeq );
+            Output("Sequential SingularValues: ",timer.Stop());
+        }
+
         Grid g( mpi::COMM_WORLD );
-        if( mpi::WorldRank() == 0 )
+        if( commRank == 0 )
             cout << "Grid is " << g.Height() << " x " << g.Width() << endl;
         DistMatrix<C> A(g);
         Uniform( A, m, n );
@@ -96,7 +107,7 @@ main( int argc, char* argv[] )
             const Real scaledResidual =
               frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
 
-            if( mpi::WorldRank() == 0 )
+            if( commRank == 0 )
             {
                 Output("|| A ||_max   = ",maxNormOfA);
                 Output("|| A ||_2     = ",twoNormOfA);

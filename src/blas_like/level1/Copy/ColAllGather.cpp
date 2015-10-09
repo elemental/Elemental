@@ -40,7 +40,11 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         const Int rowDiff = B.RowAlign()-A.RowAlign();
         if( rowDiff == 0 )
         {
-            if( height == 1 )
+            if( A.ColStride() == 1 )
+            {
+                Copy( A.LockedMatrix(), B.Matrix() );
+            }
+            else if( height == 1 )
             {
                 const Int localWidthB = B.LocalWidth();
                 //vector<T> bcastBuf(localWidthB);

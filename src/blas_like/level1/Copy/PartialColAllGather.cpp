@@ -55,33 +55,41 @@ void PartialColAllGather
 
     const Int maxLocalHeight = MaxLength(height,A.ColStride());
     const Int portionSize = mpi::Pad( maxLocalHeight*width );
-    //vector<T> buffer( (colStrideUnion+1)*portionSize );
-    vector<T> buffer;
-    buffer.reserve( (colStrideUnion+1)*portionSize );
-    T* firstBuf = &buffer[0];
-    T* secondBuf = &buffer[portionSize];
 
     if( colDiff == 0 )
     {
-        // Pack
-        util::InterleaveMatrix
-        ( A.LocalHeight(), width,
-          A.LockedBuffer(), 1, A.LDim(),
-          firstBuf,         1, A.LocalHeight() );
+        if( A.PartialColStride() == 1 )
+        {
+            Copy( A.LockedMatrix(), B.Matrix() );
+        }
+        else
+        {
+            //vector<T> buffer( (colStrideUnion+1)*portionSize );
+            vector<T> buffer;
+            buffer.reserve( (colStrideUnion+1)*portionSize );
+            T* firstBuf = &buffer[0];
+            T* secondBuf = &buffer[portionSize];
 
-        // Communicate
-        mpi::AllGather
-        ( firstBuf, portionSize, secondBuf, portionSize,
-          A.PartialUnionColComm() );
+            // Pack
+            util::InterleaveMatrix
+            ( A.LocalHeight(), width,
+              A.LockedBuffer(), 1, A.LDim(),
+              firstBuf,         1, A.LocalHeight() );
 
-        // Unpack
-        util::PartialColStridedUnpack
-        ( height, width,
-          A.ColAlign(), A.ColStride(),
-          colStrideUnion, colStridePart, A.PartialColRank(),
-          B.ColShift(), 
-          secondBuf, portionSize,
-          B.Buffer(), B.LDim() );
+            // Communicate
+            mpi::AllGather
+            ( firstBuf, portionSize, secondBuf, portionSize,
+              A.PartialUnionColComm() );
+
+            // Unpack
+            util::PartialColStridedUnpack
+            ( height, width,
+              A.ColAlign(), A.ColStride(),
+              colStrideUnion, colStridePart, A.PartialColRank(),
+              B.ColShift(), 
+              secondBuf, portionSize,
+              B.Buffer(), B.LDim() );
+        }
     }
     else
     {
@@ -89,6 +97,12 @@ void PartialColAllGather
         if( A.Grid().Rank() == 0 )
             cerr << "Unaligned PartialColAllGather" << endl;
 #endif
+        //vector<T> buffer( (colStrideUnion+1)*portionSize );
+        vector<T> buffer;
+        buffer.reserve( (colStrideUnion+1)*portionSize );
+        T* firstBuf = &buffer[0];
+        T* secondBuf = &buffer[portionSize];
+
         // Perform a SendRecv to match the row alignments
         util::InterleaveMatrix
         ( A.LocalHeight(), width,

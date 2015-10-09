@@ -31,7 +31,7 @@ void Exchange
     B.Resize( A.Height(), A.Width() );
     if( myRank == sendRank )
     {
-        B.Matrix() = A.LockedMatrix();
+        Copy( A.LockedMatrix(), B.Matrix() );
         return;
     }
 

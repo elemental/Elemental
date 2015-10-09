@@ -31,7 +31,11 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         const Int colDiff = B.ColAlign() - A.ColAlign();
         if( colDiff == 0 )
         {
-            if( width == 1 )
+            if( A.RowStride() == 1 )
+            {
+                Copy( A.LockedMatrix(), B.Matrix() );
+            }
+            else if( width == 1 )
             {
                 if( A.RowRank() == A.RowAlign() )
                     B.Matrix() = A.LockedMatrix();
