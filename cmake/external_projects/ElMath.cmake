@@ -45,6 +45,13 @@ set(MATH_PATHS /usr/lib
 # immediately before calling out to the nested CMake ScaLAPACK build.
 # There is currently a bug when ScaLAPACK is built on Macs.
 
+if(EL_BLAS_SUFFIX AND NOT EL_BLAS_SUFFIX STREQUAL _)
+  set(CUSTOM_BLAS_SUFFIX TRUE)
+endif()
+if(EL_LAPACK_SUFFIX AND NOT EL_LAPACK_SUFFIX STREQUAL _)
+  set(CUSTOM_LAPACK_SUFFIX TRUE)
+endif()
+
 # Test for pre-built libraries
 # ----------------------------
 if(MATH_LIBS)
@@ -185,8 +192,13 @@ if(NOT EL_DISABLE_SCALAPACK)
   # --------------------------
   include(external_projects/ElMath/ScaLAPACK)
   if(EL_HAVE_SCALAPACK)
-    set(MATH_LIBS ${SCALAPACK_LIBS})
-    set(MATH_LIBS_AT_CONFIG ${SCALAPACK_LIBS_AT_CONFIG})
+    if(CUSTOM_BLAS_SUFFIX OR CUSTOM_LAPACK_SUFFIX)
+      set(MATH_LIBS ${MATH_LIBS} ${SCALAPACK_LIBS})
+      set(MATH_LIBS_AT_CONFIG ${MATH_LIBS_AT_CONFIG} ${SCALAPACK_LIBS_AT_CONFIG})
+    else()
+      set(MATH_LIBS ${SCALAPACK_LIBS})
+      set(MATH_LIBS_AT_CONFIG ${SCALAPACK_LIBS_AT_CONFIG})
+    endif()
   endif()
 endif()
 if(MATH_LIBS_AT_CONFIG AND NOT MATH_LIBS)
@@ -275,9 +287,6 @@ if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
       message(FATAL_ERROR "Could not determine BLAS format.")
     endif()
   endif()
-  if(NOT EL_BLAS_SUFFIX AND NOT EL_BLAS_SUFFIX STREQUAL _)
-    set(CUSTOM_BLAS_SUFFIX TRUE)
-  endif()
   # Check LAPACK
   # ------------
   if(EL_LAPACK_SUFFIX)
@@ -297,9 +306,6 @@ if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
     else()
       message(FATAL_ERROR "Could not determine LAPACK format.")
     endif()
-  endif()
-  if(NOT EL_LAPACK_SUFFIX AND NOT EL_LAPACK_SUFFIX STREQUAL _)
-    set(CUSTOM_LAPACK_SUFFIX TRUE)
   endif()
   # Ensure that we have a relatively new version of LAPACK
   El_check_function_exists(dsyevr${EL_LAPACK_SUFFIX} EL_HAVE_DSYEVR)
