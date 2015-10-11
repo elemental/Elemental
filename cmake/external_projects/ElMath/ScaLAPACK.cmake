@@ -163,7 +163,16 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
   set(SCALAPACK_SOURCE_DIR ${PROJECT_BINARY_DIR}/download/scalapack/source)
   set(SCALAPACK_BINARY_DIR ${PROJECT_BINARY_DIR}/download/scalapack/build)
 
-  if(MATH_LIBS_AT_CONFIG)
+  if(CUSTOM_BLAS_SUFFIX AND NOT CUSTOM_LAPACK_SUFFIX)
+    message(FATAL_ERROR 
+      "Attempted custom BLAS but not custom LAPACK ScaLAPACK build")
+  endif()
+  if(NOT CUSTOM_BLAS_SUFFIX AND CUSTOM_LAPACK_SUFFIX)
+    message(FATAL_ERROR 
+      "Attempted custom LAPACK but not custom BLAS ScaLAPACK build")
+  endif()
+  if(MATH_LIBS_AT_CONFIG AND 
+     NOT CUSTOM_BLAS_SUFFIX AND NOT CUSTOM_LAPACK_SUFFIX)
     set(LAPACK_COMMAND -D LAPACK_LIBRARIES=${MATH_LIBS_AT_CONFIG})
   else()
     if((EL_DISABLE_OPENBLAS OR EL_PREFER_BLIS_LAPACK) 
@@ -251,7 +260,8 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
 
   # Attempt to reproduce the build preferences for the ScaLAPACK CMake config
   # (which should not have happened yet...)
-  if(MATH_LIBS_AT_CONFIG)
+  if(MATH_LIBS_AT_CONFIG AND 
+     NOT CUSTOM_BLAS_SUFFIX AND NOT CUSTOM_LAPACK_SUFFIX)
     set(SCALAPACK_LIBS ${SCALAPACK_BASE} ${MATH_LIBS_AT_CONFIG})
     set(SCALAPACK_LIBS_AT_CONFIG ${MATH_LIBS_AT_CONFIG})
   else()

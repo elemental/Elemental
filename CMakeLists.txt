@@ -93,7 +93,7 @@ option(EL_EXPERIMENTAL "Build experimental code" OFF)
 option(EL_USE_64BIT_INTS "Use 64-bit integers for El indexing" OFF)
 option(EL_USE_64BIT_BLAS_INTS "Use 64-bit integers for BLAS/LAPACK" OFF)
 if(EL_USE_64BIT_BLAS_INTS)
-    set(EL_USE_64BIT_INTS ON)
+  set(EL_USE_64BIT_INTS ON)
 endif()
 
 option(EL_DISABLE_MKL "Do not use MKL even if installed?" OFF)
