@@ -92,6 +92,18 @@ main( int argc, char* argv[] )
                 Print( s, "s" );
             }
 
+#ifdef EL_HAVE_SCALAPACK
+            ABlock = A;
+            DistMatrix<C,MC,MR,BLOCK> UBlock(g), VHBlock(g);
+            if( commRank == 0 )
+                timer.Start();
+            SVD( ABlock, sBlock, UBlock, VHBlock );
+            if( commRank == 0 )
+                Output("  ScaLAPACK SVD time: ",timer.Stop());
+            if( commRank == 0 && print )
+                Print( sBlock, "s from ScaLAPACK" ); 
+#endif
+
             // Compare the singular values from both methods
             sOnly -= s;
             const Real singValDiff = FrobeniusNorm( sOnly );

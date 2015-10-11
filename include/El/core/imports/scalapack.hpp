@@ -53,25 +53,25 @@ void SingularValues
   double* s );
 
 void SVD
-( char jobU, char jobVH, int m, int n,
+( int m, int n,
   float* A, const int* descA,
   float* s,
   float* U, const int* descU,
   float* VH, const int* descVH );
 void SVD
-( char jobU, char jobVH, int m, int n,
+( int m, int n,
   double* A, const int* descA,
   double* s,
   double* U, const int* descU,
   double* VH, const int* descVH );
 void SVD
-( char jobU, char jobVH, int m, int n,
+( int m, int n,
   scomplex* A, const int* descA,
   float* s,
   scomplex* U, const int* descU,
   scomplex* VH, const int* descVH );
 void SVD
-( char jobU, char jobVH, int m, int n,
+( int m, int n,
   dcomplex* A, const int* descA,
   double* s,
   dcomplex* U, const int* descU,

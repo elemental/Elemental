@@ -42,38 +42,61 @@ void csrmv
 // NOTE: This is a filler routine not provided by MKL
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt lda, Int* B, BlasInt ldb );  
+  Int alpha, const Int* A, BlasInt lda, Int* B, BlasInt ldb );
 
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  float alpha, const float* A, BlasInt lda, float* B, BlasInt ldb );  
+  float alpha, const float* A, BlasInt lda, float* B, BlasInt ldb );
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  double alpha, const double* A, BlasInt lda, double* B, BlasInt ldb );  
+  double alpha, const double* A, BlasInt lda, double* B, BlasInt ldb );
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* A, BlasInt lda, scomplex* B, BlasInt ldb );  
+  scomplex alpha, const scomplex* A, BlasInt lda, scomplex* B, BlasInt ldb );
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );  
+  dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );
+
+// NOTE: This is a filler routine not provided by MKL
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, const Int* A, BlasInt lda, BlasInt stridea,
+                   Int* B, BlasInt ldb, BlasInt strideb );
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda, BlasInt stridea,
+                     float* B, BlasInt ldb, BlasInt strideb );
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda, BlasInt stridea,
+                      double* B, BlasInt ldb, BlasInt strideb );
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda, BlasInt stridea,
+                        scomplex* B, BlasInt ldb, BlasInt strideb );
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, BlasInt stridea,
+                        dcomplex* B, BlasInt ldb, BlasInt strideb );
 
 // NOTE: This is a filler routine not provided by MKL
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, Int* A, BlasInt lda, BlasInt ldb );  
+  Int alpha, Int* A, BlasInt lda, BlasInt ldb );
 
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  float alpha, float* A, BlasInt lda, BlasInt ldb );  
+  float alpha, float* A, BlasInt lda, BlasInt ldb );
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  double alpha, double* A, BlasInt lda, BlasInt ldb );  
+  double alpha, double* A, BlasInt lda, BlasInt ldb );
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  scomplex alpha, scomplex* A, BlasInt lda, BlasInt ldb );  
+  scomplex alpha, scomplex* A, BlasInt lda, BlasInt ldb );
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb );  
+  dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb );
 
 } // namespace mkl
 } // namespace El

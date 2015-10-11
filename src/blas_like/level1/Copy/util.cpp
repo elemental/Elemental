@@ -24,11 +24,17 @@ void InterleaveMatrix
     }
     else
     {
-        // TODO: Add support for MKL's omatcopy2
+#ifdef EL_HAVE_MKL
+        mkl::omatcopy
+        ( NORMAL, height, width, T(1),
+          A, rowStrideA, colStrideA,
+          B, rowStrideB, colStrideB );
+#else
         for( Int j=0; j<width; ++j )
             StridedMemCopy
             ( &B[j*rowStrideB], colStrideB,
               &A[j*rowStrideA], colStrideA, height );
+#endif
     }
 }
 

@@ -57,6 +57,23 @@ void mkl_zomatcopy
   dcomplex alpha, const dcomplex* A, size_t lda,
                         dcomplex* B, size_t ldb );
 
+void mkl_somatcopy2
+( char ordering, char trans, size_t rows, size_t cols,
+  float alpha, const float* A, size_t lda, size_t stridea,
+                     float* B, size_t ldb, size_t strideb );
+void mkl_domatcopy2
+( char ordering, char trans, size_t rows, size_t cols,
+  double alpha, const double* A, size_t lda, size_t stridea,
+                      double* B, size_t ldb, size_t strideb );
+void mkl_comatcopy2
+( char ordering, char trans, size_t rows, size_t cols,
+  scomplex alpha, const scomplex* A, size_t lda, size_t stridea,
+                        scomplex* B, size_t ldb, size_t strideb );
+void mkl_zomatcopy2
+( char ordering, char trans, size_t rows, size_t cols,
+  dcomplex alpha, const dcomplex* A, size_t lda, size_t stridea,
+                        dcomplex* B, size_t ldb, size_t strideb );
+
 void mkl_simatcopy
 ( char ordering, char trans, size_t rows, size_t cols, 
   float alpha, float* A, size_t lda, size_t ldb );
@@ -203,6 +220,75 @@ void omatcopy
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     mkl_zomatcopy( ordering, trans, m, n, alpha, A, lda, B, ldb );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, const Int* A, BlasInt lda, BlasInt stridea,
+                   Int* B, BlasInt ldb, BlasInt strideb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i*strideb+j*ldb] = A[i*stridea+j*lda];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*ldb] = A[i*stridea+j*lda];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*ldb] = Conj(A[i*stridea+j*lda]);
+    }
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  float alpha, const float* A, BlasInt lda, BlasInt stridea,
+                     float* B, BlasInt ldb, BlasInt strideb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_somatcopy2
+    ( ordering, trans, m, n, alpha, A, lda, stridea, B, ldb, strideb );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  double alpha, const double* A, BlasInt lda, BlasInt stridea,
+                      double* B, BlasInt ldb, BlasInt strideb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_domatcopy2
+    ( ordering, trans, m, n, alpha, A, lda, stridea, B, ldb, strideb );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  scomplex alpha, const scomplex* A, BlasInt lda, BlasInt stridea,
+                        scomplex* B, BlasInt ldb, BlasInt strideb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_comatcopy2
+    ( ordering, trans, m, n, alpha, A, lda, stridea, B, ldb, strideb );
+}
+
+void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  dcomplex alpha, const dcomplex* A, BlasInt lda, BlasInt stridea,
+                        dcomplex* B, BlasInt ldb, BlasInt strideb )
+{
+    char ordering = 'C';
+    char trans = OrientationToChar( orientation );
+    mkl_zomatcopy2
+    ( ordering, trans, m, n, alpha, A, lda, stridea, B, ldb, strideb );
 }
 
 void imatcopy

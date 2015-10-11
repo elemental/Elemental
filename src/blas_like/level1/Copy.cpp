@@ -18,13 +18,9 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
     const Int width = A.Width();
     B.Resize( height, width ); 
 
-    const Int ALDim = A.LDim();
-    const Int BLDim = B.LDim();
-    const T* ABuf = A.LockedBuffer();
-    T* BBuf = B.Buffer();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-        MemCopy( &BBuf[j*BLDim], &ABuf[j*ALDim], height );
+    lapack::Copy
+    ( 'F', A.Height(), A.Width(),
+      A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
 template<typename S,typename T>
