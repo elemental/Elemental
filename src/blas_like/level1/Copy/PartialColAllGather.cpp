@@ -58,7 +58,7 @@ void PartialColAllGather
 
     if( colDiff == 0 )
     {
-        if( A.PartialColStride() == 1 )
+        if( A.PartialUnionColStride() == 1 )
         {
             Copy( A.LockedMatrix(), B.Matrix() );
         }
