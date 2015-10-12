@@ -189,11 +189,44 @@ void LinearSolve( const Matrix<F>& A, Matrix<F>& B )
 
 template<typename F> 
 void LinearSolve
-( const ElementalMatrix<F>& A, ElementalMatrix<F>& B )
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("LinearSolve"))
     DistMatrix<F> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
+}
+
+template<typename F>
+void LinearSolve
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    DEBUG_ONLY(CSE cse("LinearSolve"))
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    const int m = A.Height();
+    const int n = B.Width();
+    const int mb = A.BlockHeight();
+    const int mLocal = A.LocalHeight();
+
+    auto ACopy = A;
+    vector<int> ipiv(mLocal+mb);
+
+    const int bHandle = blacs::Handle( A.DistComm().comm );
+    const int context = 
+        blacs::GridInit
+        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
+          A.ColStride(), A.RowStride() );
+    auto descA = FillDesc( A, context );
+    auto descB = FillDesc( B, context );
+
+    scalapack::LinearSolve
+    ( m, n,
+      ACopy.Buffer(), descA.data(),
+      ipiv.data(),
+      B.Buffer(), descB.data() );
+#endif
 }
 
 template<typename F>
@@ -225,7 +258,11 @@ void LinearSolve
   ( ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
   template void LinearSolve( const Matrix<F>& A, Matrix<F>& B ); \
   template void LinearSolve \
-  ( const ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
+  ( const ElementalMatrix<F>& A, \
+          ElementalMatrix<F>& B ); \
+  template void LinearSolve \
+  ( const DistMatrix<F,MC,MR,BLOCK>& A, \
+          DistMatrix<F,MC,MR,BLOCK>& B ); \
   template void LinearSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \

@@ -59,6 +59,7 @@ QR
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
+    AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
     const int bhandle = blacs::Handle( A.DistComm().comm );
@@ -113,8 +114,6 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
     blacs::Exit();
-#else
-    LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );
@@ -135,6 +134,7 @@ QR
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
+    AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
     const int bhandle = blacs::Handle( A.DistComm().comm );
@@ -195,8 +195,6 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
     blacs::Exit();
-#else
-    LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );
@@ -216,6 +214,7 @@ QR
   bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
+    AssertScaLAPACKSupport();
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 #ifdef EL_HAVE_SCALAPACK
@@ -268,8 +267,6 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
     blacs::Exit();
-#else
-    LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );
@@ -290,6 +287,7 @@ QR
   const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
+    AssertScaLAPACKSupport();
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
 #ifdef EL_HAVE_SCALAPACK
@@ -345,8 +343,6 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
     blacs::Exit();
-#else
-    LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );

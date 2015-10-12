@@ -10,8 +10,8 @@
 using namespace El;
 
 const Int m=300, n=300;  // run SVD on m x n matrix
-typedef double R;        // real datatype is `R'
-typedef Complex<R> C;    // complex datatype `C'
+typedef double Real;     // real datatype is `Real'
+typedef Complex<Real> C; // complex datatype `C'
 
 int
 main( int argc, char* argv[] )
@@ -21,21 +21,21 @@ main( int argc, char* argv[] )
     Uniform( A, m, n );
 
     DistMatrix<C> U, V;
-    DistMatrix<R,VR,STAR> s;
+    DistMatrix<Real,VR,STAR> s;
     U = A;
     SVD( U, s, V );
-    const R twoNormOfA = MaxNorm( s );
+    const Real twoNormA = MaxNorm( s );
 
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
-    const R frobNormOfE = FrobeniusNorm( A );
-    const R eps = lapack::MachineEpsilon<R>();
-    const R scaledResidual = frobNormOfE / (Max(m,n)*eps*twoNormOfA);
+    const Real frobNormE = FrobeniusNorm( A );
+    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
     if( mpi::WorldRank() == 0 )
     {
-        cout << "||A||_2 = " << twoNormOfA << "\n"
-             << "||A - U Sigma V^H||_F / (max(m,n) eps ||A||_2) = " 
-             << scaledResidual << "\n" << endl;
+        Output("||A||_2 = ",twoNormA);
+        Output
+        ("||A - U Sigma V^H||_F / (max(m,n) eps ||A||_2) = ",scaledResidual);
     }
 
     Finalize();

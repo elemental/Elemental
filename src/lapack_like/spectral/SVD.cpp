@@ -82,10 +82,11 @@ template<typename F>
 void SVD( DistMatrix<F,MC,MR,BLOCK>& A, Matrix<Base<F>>& s )
 {
     DEBUG_ONLY(CSE cse("SVD"))
+    AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
-    int m = A.Height();
-    int n = A.Width();
-    int k = Min(m,n);
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = Min(m,n);
 
     const int bhandle = blacs::Handle( A.DistComm().comm );
     const int context = 
@@ -96,8 +97,6 @@ void SVD( DistMatrix<F,MC,MR,BLOCK>& A, Matrix<Base<F>>& s )
 
     s.Resize( k, 1 );
     scalapack::SingularValues( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
-#else
-    LogicError("ScaLAPACK support was not enabled");
 #endif
 }
 
@@ -109,10 +108,11 @@ void SVD
   DistMatrix<F,MC,MR,BLOCK>& VH )
 {
     DEBUG_ONLY(CSE cse("SVD"))
+    AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
-    int m = A.Height();
-    int n = A.Width();
-    int k = Min(m,n);
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = Min(m,n);
     Zeros( U, m, k );
     Zeros( VH, k, n );
 
@@ -129,8 +129,6 @@ void SVD
     scalapack::SVD
     ( m, n, A.Buffer(), descA.data(),
       s.Buffer(), U.Buffer(), descU.data(), VH.Buffer(), descVH.data() ); 
-#else
-    LogicError("ScaLAPACK support was not enabled");
 #endif
 }
 

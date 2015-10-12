@@ -23,14 +23,22 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
-        const Int nb = Input("--nb","algorithmic blocksize",32);
+        const Int blocksize = Input("--blocksize","algorithmic blocksize",32);
+#ifdef EL_HAVE_SCALAPACK
+        const Int mb = Input("--mb","block height",32);
+        const Int nb = Input("--nb","block width",32);
+#endif
         const bool testSeq = Input("--testSeq","test sequential SVD?",false);
         const bool testDecomp = Input("--testDecomp","test full SVD?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
-        SetBlocksize( nb );
+        SetBlocksize( blocksize );
+#ifdef EL_HAVE_SCALAPACK
+        SetDefaultBlockHeight( mb );
+        SetDefaultBlockWidth( nb );
+#endif
 
         const int commRank = mpi::WorldRank();
         Timer timer;
