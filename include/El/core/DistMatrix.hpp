@@ -68,8 +68,9 @@ FillDesc( const DistMatrix<T,MC,MR,BLOCK>& A, int context )
     if( A.ColCut() != 0 || A.RowCut() != 0 )
         LogicError("Cannot produce a meaningful descriptor if nonzero cut");
     typename blacs::Desc desc =
-        { 1, context, A.Height(), A.Width(), A.BlockHeight(), A.BlockWidth(),
-          A.ColAlign(), A.RowAlign(), A.LDim() };
+        { 1, context, int(A.Height()), int(A.Width()),
+          int(A.BlockHeight()), int(A.BlockWidth()),
+          A.ColAlign(), A.RowAlign(), int(A.LDim()) };
     return desc;
 }
 #endif
