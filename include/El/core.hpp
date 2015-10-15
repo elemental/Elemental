@@ -91,8 +91,16 @@
 
 #if defined(EL_BUILT_BLIS_LAPACK) || defined(EL_BUILT_OPENBLAS)
 
-# define EL_BLAS(name) FC_GLOBAL(name,name)
-# define EL_LAPACK(name) FC_GLOBAL(name,name)
+# ifdef EL_HAVE_BLAS_SUFFIX
+#  define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
+# else
+#  define EL_BLAS(name) FC_GLOBAL(name,name)
+# endif
+# ifdef EL_HAVE_LAPACK_SUFFIX
+#  define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
+# else
+#  define EL_LAPACK(name) FC_GLOBAL(name,name)
+# endif
 
 #else
 
