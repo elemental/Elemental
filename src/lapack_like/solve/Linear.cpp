@@ -19,7 +19,8 @@ template<typename F>
 void Panel
 ( DistMatrix<F,  STAR,STAR>& A11,
   DistMatrix<F,  MC,  STAR>& A21,
-  DistMatrix<Int,STAR,STAR>& p1 );
+  DistMatrix<Int,STAR,STAR>& p1,
+  vector<F>& pivotBuffer );
 
 } // namespace lu
 
@@ -96,6 +97,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     const bool BAligned = ( B.ColShift() == A.ColShift() );
     DistMatrix<F,MC,STAR> A21_MC_STAR_B(g);
 
+    vector<F> pivotBuffer;
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
@@ -113,7 +115,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
 
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR, pivotBuffer );
         PivotsToPartialPermutation( p1Piv_STAR_STAR, p1, p1Inv );
         PermuteRows( AB2, p1, p1Inv );
         PermuteRows( BB,  p1, p1Inv );
@@ -226,6 +228,10 @@ void LinearSolve
       ACopy.Buffer(), descA.data(),
       ipiv.data(),
       B.Buffer(), descB.data() );
+
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
 #endif
 }
 

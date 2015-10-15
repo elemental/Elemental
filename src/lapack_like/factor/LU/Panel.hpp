@@ -60,10 +60,16 @@ template<typename F>
 void Panel
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
-  DistMatrix<Int,STAR,STAR>& pivots )
+  DistMatrix<Int,STAR,STAR>& pivots,
+  vector<F>& pivotBuffer )
 {
     typedef Base<F> Real;
     const Int n = A.Width();
+    const Int BLocHeight = B.LocalHeight();
+    F* ABuf = A.Buffer();
+    F* BBuf = B.Buffer();
+    const Int ALDim = A.LDim();
+    const Int BLDim = B.LDim();
     DEBUG_ONLY(
       CSE cse("lu::Panel");
       AssertSameGrids( A, B, pivots );
@@ -71,15 +77,13 @@ void Panel
           LogicError("A and B must be the same width");
     )
 
-    // For packing rows of data for pivoting
-    vector<F> pivotBuffer( n );
-
     pivots.Resize( n, 1 );
+    pivotBuffer.resize( n );
     for( Int k=0; k<n; ++k )
     {
         const Range<Int> ind1( k ), ind2( k+1, END );
+        const Int a21Height = n-k-1;
 
-        auto alpha11 = A( ind1, ind1 );
         auto a12     = A( ind1, ind2 );
         auto a21     = A( ind2, ind1 );
         auto A22     = A( ind2, ind2 );
@@ -89,20 +93,20 @@ void Panel
 
         // Store the index/value of the local pivot candidate
         ValueInt<Real> localPivot;
-        localPivot.value = FastAbs(alpha11.GetLocal(0,0));
+        localPivot.value = FastAbs(ABuf[k+k*ALDim]);
         localPivot.index = k;
-        for( Int i=0; i<a21.Height(); ++i )
+        for( Int i=0; i<a21Height; ++i )
         {
-            const Real value = FastAbs(a21.GetLocal(i,0));
+            const Real value = FastAbs(ABuf[(i+k+1)+k*ALDim]);
             if( value > localPivot.value )
             {
                 localPivot.value = value;
                 localPivot.index = k + i + 1;
             }
         }
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<BLocHeight; ++iLoc )
         {
-            const Real value = FastAbs(b1.GetLocal(iLoc,0));
+            const Real value = FastAbs(BBuf[iLoc+k*BLDim]);
             if( value > localPivot.value )
             {
                 localPivot.value = value;
@@ -121,10 +125,10 @@ void Panel
         {
             // Pack pivot into temporary
             for( Int j=0; j<n; ++j )
-                pivotBuffer[j] = A.GetLocal( iPiv, j );
+                pivotBuffer[j] = ABuf[iPiv+j*ALDim];
             // Replace pivot with current
             for( Int j=0; j<n; ++j )
-                A.SetLocal( iPiv, j, A.GetLocal(k,j) );
+                ABuf[iPiv+j*ALDim] = ABuf[k+j*ALDim];
         }
         else
         {
@@ -136,19 +140,19 @@ void Panel
             {
                 const Int iLoc = B.LocalRow(relIndex);
                 for( Int j=0; j<n; ++j )
-                    pivotBuffer[j] = B.GetLocal( iLoc, j );
+                    pivotBuffer[j] = BBuf[iLoc+j*BLDim];
                 for( Int j=0; j<n; ++j )
-                    B.SetLocal( iLoc, j, A.GetLocal(k,j) );
+                    BBuf[iLoc+j*BLDim] = ABuf[k+j*ALDim];
             }
             // The owning row broadcasts within process columns
             mpi::Broadcast( pivotBuffer.data(), n, ownerRow, B.ColComm() );
         }
         // Overwrite the current row with the pivot row
         for( Int j=0; j<n; ++j )
-            A.SetLocal( k, j, pivotBuffer[j] );
+            ABuf[k+j*ALDim] = pivotBuffer[j];
 
         // Now we can perform the update of the current panel
-        const F alpha = alpha11.GetLocal(0,0);
+        const F alpha = ABuf[k+k*ALDim];
         if( alpha == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha;

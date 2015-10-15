@@ -42,7 +42,8 @@ int main( int argc, char* argv[] )
         if( gridHeight == 0 )
             gridHeight = Grid::FindFactor( commSize );
         Grid grid( comm, gridHeight );
-        Output("Grid is: ",grid.Height()," x ",grid.Width());
+        if( commRank == 0 )
+            Output("Grid is: ",grid.Height()," x ",grid.Width());
 
         // Set up random A and B, then make the copies X := B
         Timer timer;
@@ -109,8 +110,7 @@ int main( int argc, char* argv[] )
                     Output("||A X - B||_oo = ",RInfNorm);
                 }
                 Output
-                ("||A X - B||_oo / (||A||_oo ||X||_oo eps n) = ",
-                 infResidual,"\n");
+                ("||A X - B||_oo / (||A||_oo ||X||_oo eps n) = ",infResidual);
             }
 
             // Compute the relevant one norms and a relative residual
@@ -130,8 +130,7 @@ int main( int argc, char* argv[] )
                     Output("||A X - B||_1 = ",ROneNorm);
                 }
                 Output
-                ("||A X - B||_1 / (||A||_1 ||X||_1 eps n) = ",
-                 oneResidual,"\n");
+                ("||A X - B||_1 / (||A||_1 ||X||_1 eps n) = ",oneResidual,"\n");
             }
         }
     }

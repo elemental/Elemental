@@ -88,15 +88,19 @@ void SVD( DistMatrix<F,MC,MR,BLOCK>& A, Matrix<Base<F>>& s )
     const int n = A.Width();
     const int k = Min(m,n);
 
-    const int bhandle = blacs::Handle( A.DistComm().comm );
+    const int bHandle = blacs::Handle( A.DistComm().comm );
     const int context = 
         blacs::GridInit
-        ( bhandle, A.Grid().Order()==COLUMN_MAJOR,
+        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
           A.ColStride(), A.RowStride() );
     auto descA = FillDesc( A, context );
 
     s.Resize( k, 1 );
     scalapack::SingularValues( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
+
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
 #endif
 }
 
@@ -116,10 +120,10 @@ void SVD
     Zeros( U, m, k );
     Zeros( VH, k, n );
 
-    const int bhandle = blacs::Handle( A.DistComm().comm );
+    const int bHandle = blacs::Handle( A.DistComm().comm );
     const int context = 
         blacs::GridInit
-        ( bhandle, A.Grid().Order()==COLUMN_MAJOR,
+        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
           A.ColStride(), A.RowStride() );
     auto descA = FillDesc( A, context );
     auto descU = FillDesc( U, context );
@@ -129,6 +133,10 @@ void SVD
     scalapack::SVD
     ( m, n, A.Buffer(), descA.data(),
       s.Buffer(), U.Buffer(), descU.data(), VH.Buffer(), descVH.data() ); 
+
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
 #endif
 }
 

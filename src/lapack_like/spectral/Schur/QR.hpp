@@ -62,10 +62,10 @@ QR
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
-    const int bhandle = blacs::Handle( A.DistComm().comm );
+    const int bHandle = blacs::Handle( A.DistComm().comm );
     const int context =
         blacs::GridInit
-        ( bhandle, A.Grid().Order()==COLUMN_MAJOR, 
+        ( bHandle, A.Grid().Order()==COLUMN_MAJOR, 
           A.ColStride(), A.RowStride() );
     if( A.ColStride() != blacs::GridHeight(context) )
         LogicError("Grid height did not match BLACS");
@@ -111,9 +111,9 @@ QR
 #endif
     Copy( w_STAR_STAR, w );
 
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
     blacs::FreeGrid( context );
-    blacs::FreeHandle( bhandle );
-    blacs::Exit();
+    blacs::FreeHandle( bHandle );
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );
@@ -137,10 +137,10 @@ QR
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
-    const int bhandle = blacs::Handle( A.DistComm().comm );
+    const int bHandle = blacs::Handle( A.DistComm().comm );
     const int context =
         blacs::GridInit
-        ( bhandle, A.Grid().Order()==COLUMN_MAJOR, 
+        ( bHandle, A.Grid().Order()==COLUMN_MAJOR, 
           A.ColStride(), A.RowStride() );
     Q.AlignWith( A );
     Q.Resize( n, n, A.LDim() );
@@ -192,9 +192,9 @@ QR
       Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAED );
     Copy( w_STAR_STAR, w );
 
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
     blacs::FreeGrid( context );
-    blacs::FreeHandle( bhandle );
-    blacs::Exit();
+    blacs::FreeHandle( bHandle );
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );
@@ -230,10 +230,10 @@ QR
     const Int nb = ctrl.blockWidth;
     DistMatrix<F,MC,MR,BLOCK> ABlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
-    const int bhandle = blacs::Handle( ABlock.DistComm().comm );
+    const int bHandle = blacs::Handle( ABlock.DistComm().comm );
     const int context =
         blacs::GridInit
-        ( bhandle, ABlock.Grid().Order()==COLUMN_MAJOR,
+        ( bHandle, ABlock.Grid().Order()==COLUMN_MAJOR,
           ABlock.ColStride(), ABlock.RowStride() );
     if( ABlock.ColStride() != blacs::GridHeight(context) )
         LogicError("Grid height did not match BLACS");
@@ -264,9 +264,9 @@ QR
     A = ABlock;
     Copy( w_STAR_STAR, w );
 
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
     blacs::FreeGrid( context );
-    blacs::FreeHandle( bhandle );
-    blacs::Exit();
+    blacs::FreeHandle( bHandle );
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );
@@ -309,10 +309,10 @@ QR
       QBlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
     QBlock = Q;
-    const int bhandle = blacs::Handle( ABlock.DistComm().comm );
+    const int bHandle = blacs::Handle( ABlock.DistComm().comm );
     const int context =
         blacs::GridInit
-        ( bhandle, ABlock.Grid().Order()==COLUMN_MAJOR, 
+        ( bHandle, ABlock.Grid().Order()==COLUMN_MAJOR, 
           ABlock.ColStride(), ABlock.RowStride() );
     if( ABlock.ColStride() != blacs::GridHeight(context) || 
         QBlock.ColStride() != blacs::GridHeight(context) )
@@ -340,9 +340,9 @@ QR
     Q = QBlock;
     Copy( w_STAR_STAR, w );
 
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
     blacs::FreeGrid( context );
-    blacs::FreeHandle( bhandle );
-    blacs::Exit();
+    blacs::FreeHandle( bHandle );
 #endif
     if( IsComplex<F>::val )
         MakeTrapezoidal( UPPER, A );
