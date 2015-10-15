@@ -1136,16 +1136,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth =
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
@@ -1211,16 +1211,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth = 
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
@@ -1358,16 +1358,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth =
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
@@ -1437,16 +1437,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth =
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);

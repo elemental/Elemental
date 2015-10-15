@@ -8,89 +8,17 @@
 */
 #include "El.hpp"
 #ifdef EL_HAVE_MKL
+#include "mkl.h"
 
 using El::BlasInt;
 using El::scomplex;
 using El::dcomplex;
 
-extern "C" {
-
-void mkl_scsrmv
-( const char* transA, const BlasInt* m, const BlasInt* k, 
-  const float* alpha, const char* matDescrA,
-  const float* val, const BlasInt* indx, 
-  const BlasInt* pntrb, const BlasInt* pntre,
-  const float* x, const float* beta, float* y );
-void mkl_dcsrmv
-( const char* transA, const BlasInt* m, const BlasInt* k, 
-  const double* alpha, const char* matDescrA,
-  const double* val, const BlasInt* indx, 
-  const BlasInt* pntrb, const BlasInt* pntre,
-  const double* x, const double* beta, double* y );
-void mkl_ccsrmv
-( const char* transA, const BlasInt* m, const BlasInt* k, 
-  const scomplex* alpha, const char* matDescrA,
-  const scomplex* val, const BlasInt* indx, 
-  const BlasInt* pntrb, const BlasInt* pntre,
-  const scomplex* x, const scomplex* beta, scomplex* y );
-void mkl_zcsrmv
-( const char* transA, const BlasInt* m, const BlasInt* k, 
-  const dcomplex* alpha, const char* matDescrA,
-  const dcomplex* val, const BlasInt* indx, 
-  const BlasInt* pntrb, const BlasInt* pntre,
-  const dcomplex* x, const dcomplex* beta, dcomplex* y );
-
-void mkl_somatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  float alpha, const float* A, size_t lda,
-                     float* B, size_t ldb );
-void mkl_domatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  double alpha, const double* A, size_t lda,
-                      double* B, size_t ldb );
-void mkl_comatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  scomplex alpha, const scomplex* A, size_t lda,
-                        scomplex* B, size_t ldb );
-void mkl_zomatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  dcomplex alpha, const dcomplex* A, size_t lda,
-                        dcomplex* B, size_t ldb );
-
-void mkl_somatcopy2
-( char ordering, char trans, size_t rows, size_t cols,
-  float alpha, const float* A, size_t lda, size_t stridea,
-                     float* B, size_t ldb, size_t strideb );
-void mkl_domatcopy2
-( char ordering, char trans, size_t rows, size_t cols,
-  double alpha, const double* A, size_t lda, size_t stridea,
-                      double* B, size_t ldb, size_t strideb );
-void mkl_comatcopy2
-( char ordering, char trans, size_t rows, size_t cols,
-  scomplex alpha, const scomplex* A, size_t lda, size_t stridea,
-                        scomplex* B, size_t ldb, size_t strideb );
-void mkl_zomatcopy2
-( char ordering, char trans, size_t rows, size_t cols,
-  dcomplex alpha, const dcomplex* A, size_t lda, size_t stridea,
-                        dcomplex* B, size_t ldb, size_t strideb );
-
-void mkl_simatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  float alpha, float* A, size_t lda, size_t ldb );
-void mkl_dimatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  double alpha, double* A, size_t lda, size_t ldb );
-void mkl_cimatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  scomplex alpha, scomplex* A, size_t lda, size_t ldb );
-void mkl_zimatcopy
-( char ordering, char trans, size_t rows, size_t cols, 
-  dcomplex alpha, dcomplex* A, size_t lda, size_t ldb );
-
-} // extern "C"
-
 namespace El {
 namespace mkl {
+
+// TODO: Ensure that BlasInt is compatible with MKL_INT in the following
+//       routines
 
 // NOTE: For the usual Elemental sparse format, we can simply set 
 //           ptre = ptrb+1
@@ -139,8 +67,14 @@ void csrmv
     DEBUG_ONLY(CSE cse("mkl::csrmv"))
     char transA = OrientationToChar( orientation );
     mkl_ccsrmv
-    ( &transA, &m, &k, &alpha, matDescrA, val, indx, pntrb, pntre,
-      x, &beta, y );
+    ( &transA, &m, &k, 
+      reinterpret_cast<const MKL_Complex8*>(&alpha),
+      matDescrA,
+      reinterpret_cast<const MKL_Complex8*>(val),
+      indx, pntrb, pntre,
+      reinterpret_cast<const MKL_Complex8*>(x),
+      reinterpret_cast<const MKL_Complex8*>(&beta),
+      reinterpret_cast<      MKL_Complex8*>(y) );
 }
 
 void csrmv
@@ -153,8 +87,14 @@ void csrmv
     DEBUG_ONLY(CSE cse("mkl::csrmv"))
     char transA = OrientationToChar( orientation );
     mkl_zcsrmv
-    ( &transA, &m, &k, &alpha, matDescrA, val, indx, pntrb, pntre,
-      x, &beta, y );
+    ( &transA, &m, &k,
+      reinterpret_cast<const MKL_Complex16*>(&alpha),
+      matDescrA,
+      reinterpret_cast<const MKL_Complex16*>(val),
+      indx, pntrb, pntre,
+      reinterpret_cast<const MKL_Complex16*>(x),
+      reinterpret_cast<const MKL_Complex16*>(&beta),
+      reinterpret_cast<      MKL_Complex16*>(y) );
 }
 
 void omatcopy
@@ -209,7 +149,13 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_comatcopy( ordering, trans, m, n, alpha, A, lda, B, ldb );
+    MKL_Complex8 alphaMKL;
+    alphaMKL.real = alpha.real();
+    alphaMKL.imag = alpha.imag();
+    mkl_comatcopy
+    ( ordering, trans, m, n, alphaMKL,
+      reinterpret_cast<const MKL_Complex8*>(A), lda,
+      reinterpret_cast<      MKL_Complex8*>(B), ldb );
 }
 
 void omatcopy
@@ -219,7 +165,13 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_zomatcopy( ordering, trans, m, n, alpha, A, lda, B, ldb );
+    MKL_Complex16 alphaMKL;
+    alphaMKL.real = alpha.real();
+    alphaMKL.imag = alpha.imag();
+    mkl_zomatcopy
+    ( ordering, trans, m, n, alphaMKL,
+      reinterpret_cast<const MKL_Complex16*>(A), lda,
+      reinterpret_cast<      MKL_Complex16*>(B), ldb );
 }
 
 void omatcopy
@@ -276,8 +228,13 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
+    MKL_Complex8 alphaMKL;
+    alphaMKL.real = alpha.real();
+    alphaMKL.imag = alpha.imag();
     mkl_comatcopy2
-    ( ordering, trans, m, n, alpha, A, lda, stridea, B, ldb, strideb );
+    ( ordering, trans, m, n, alphaMKL,
+      reinterpret_cast<const MKL_Complex8*>(A), lda, stridea,
+      reinterpret_cast<      MKL_Complex8*>(B), ldb, strideb );
 }
 
 void omatcopy
@@ -287,8 +244,13 @@ void omatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
+    MKL_Complex16 alphaMKL;
+    alphaMKL.real = alpha.real();
+    alphaMKL.imag = alpha.imag();
     mkl_zomatcopy2
-    ( ordering, trans, m, n, alpha, A, lda, stridea, B, ldb, strideb );
+    ( ordering, trans, m, n, alphaMKL,
+      reinterpret_cast<const MKL_Complex16*>(A), lda, stridea,
+      reinterpret_cast<      MKL_Complex16*>(B), ldb, strideb );
 }
 
 void imatcopy
@@ -322,7 +284,12 @@ void imatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_cimatcopy( ordering, trans, m, n, alpha, A, lda, ldb );
+    MKL_Complex8 alphaMKL;
+    alphaMKL.real = alpha.real();
+    alphaMKL.imag = alpha.imag();
+    mkl_cimatcopy
+    ( ordering, trans, m, n, alphaMKL,
+      reinterpret_cast<MKL_Complex8*>(A), lda, ldb );
 }
 
 void imatcopy
@@ -331,7 +298,12 @@ void imatcopy
 {
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
-    mkl_zimatcopy( ordering, trans, m, n, alpha, A, lda, ldb );
+    MKL_Complex16 alphaMKL;
+    alphaMKL.real = alpha.real();
+    alphaMKL.imag = alpha.imag();
+    mkl_zimatcopy
+    ( ordering, trans, m, n, alphaMKL,
+      reinterpret_cast<MKL_Complex16*>(A), lda, ldb );
 }
 
 } // namespace mkl

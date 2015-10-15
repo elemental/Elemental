@@ -45,8 +45,8 @@ void PartialColAllGather
         return;
 
     DEBUG_ONLY(
-        if( A.LocalWidth() != A.Width() )
-            LogicError("This routine assumes rows are not distributed");
+      if( A.LocalWidth() != A.Width() )
+          LogicError("This routine assumes rows are not distributed");
     )
 
     const Int colStrideUnion = A.PartialUnionColStride();
