@@ -134,6 +134,7 @@ elseif(NOT EL_DISABLE_MKL AND
     set(MATH_LIBS_AT_CONFIG ${MKL_LIBS}) 
     set(EL_HAVE_MKL TRUE)
     message(STATUS "Using Intel MKL via ${MKL_LIBS}")
+    message(WARNING "If you receive an MKL Fatal Error when running your application, this is due to a bug in MKL that can be avoided by reconfiguring with MATH_LIBS containing an explicit link line for MKL, e.g., MATH_LIBS=\"-L/opt/mkl/lib/intel64 -lmkl_rt\"")
   endif()
 endif()
 
