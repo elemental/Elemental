@@ -11,7 +11,11 @@
 namespace El {
 
 template<typename T>
-void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+void Geru
+( T alpha,
+  const Matrix<T>& x,
+  const Matrix<T>& y,
+        Matrix<T>& A )
 {
     DEBUG_ONLY(
       CSE cse("Geru");
@@ -34,9 +38,10 @@ void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 
 template<typename T>
 void Geru
-( T alpha, const ElementalMatrix<T>& x, 
-           const ElementalMatrix<T>& y,
-                 ElementalMatrix<T>& APre )
+( T alpha,
+  const ElementalMatrix<T>& x, 
+  const ElementalMatrix<T>& y,
+        ElementalMatrix<T>& APre )
 {
     DEBUG_ONLY(
       CSE cse("Geru");
@@ -121,10 +126,15 @@ void Geru
 
 #define PROTO(T) \
   template void Geru \
-  ( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
+  ( T alpha, \
+    const Matrix<T>& x, \
+    const Matrix<T>& y, \
+          Matrix<T>& A ); \
   template void Geru \
-  ( T alpha, const ElementalMatrix<T>& x, const ElementalMatrix<T>& y, \
-                   ElementalMatrix<T>& A );
+  ( T alpha, \
+    const ElementalMatrix<T>& x, \
+    const ElementalMatrix<T>& y, \
+          ElementalMatrix<T>& A );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

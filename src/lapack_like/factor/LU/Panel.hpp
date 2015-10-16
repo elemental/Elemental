@@ -84,12 +84,12 @@ void Panel
         const Range<Int> ind1( k ), ind2( k+1, END );
         const Int a21Height = n-k-1;
 
-        auto a12     = A( ind1, ind2 );
-        auto a21     = A( ind2, ind1 );
-        auto A22     = A( ind2, ind2 );
+        auto a12 = A( ind1, ind2 );
+        auto a21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
 
-        auto b1      = B( ALL, ind1 );
-        auto B2      = B( ALL, ind2 );
+        auto b1 = B( ALL, ind1 );
+        auto B2 = B( ALL, ind2 );
 
         // Store the index/value of the local pivot candidate
         ValueInt<Real> localPivot;

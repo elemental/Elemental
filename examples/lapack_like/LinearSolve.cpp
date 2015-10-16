@@ -21,7 +21,9 @@ int main( int argc, char* argv[] )
         const Int n = Input("--size","size of matrix",100);
         const Int numRhs = Input("--numRhs","# of right-hand sides",1); 
         const Int blocksize = Input("--blocksize","algorithmic blocksize",64);
+        const Int numTests = Input("--numTests","number of tests",3);
 #ifdef EL_HAVE_SCALAPACK
+        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true); 
         const Int mb = Input("--mb","block height",32);
         const Int nb = Input("--nb","block width",32);
 #endif
@@ -48,7 +50,7 @@ int main( int argc, char* argv[] )
         // Set up random A and B, then make the copies X := B
         Timer timer;
         DistMatrix<double> A(grid), B(grid), X(grid);
-        for( Int test=0; test<3; ++test )
+        for( Int test=0; test<numTests; ++test )
         {
             Uniform( A, n, n );
             Uniform( B, n, numRhs );
@@ -60,18 +62,21 @@ int main( int argc, char* argv[] )
             }
 
 #ifdef EL_HAVE_SCALAPACK
-            if( commRank == 0 )
+            if( scalapack )
             {
-                cout << "Starting ScaLAPACK linear solve...";
-                cout.flush();
+                if( commRank == 0 )
+                {
+                    cout << "Starting ScaLAPACK linear solve...";
+                    cout.flush();
+                }
+                DistMatrix<double,MC,MR,BLOCK> ABlock( A ), BBlock( B );
+                mpi::Barrier( comm );
+                if( commRank == 0 )
+                    timer.Start();
+                LinearSolve( ABlock, BBlock );
+                if( commRank == 0 )
+                    Output(timer.Stop()," seconds");
             }
-            DistMatrix<double,MC,MR,BLOCK> ABlock( A ), BBlock( B );
-            mpi::Barrier( comm );
-            if( commRank == 0 )
-                timer.Start();
-            LinearSolve( ABlock, BBlock );
-            if( commRank == 0 )
-                Output(timer.Stop()," seconds");
 #endif
 
             // Perform the LU factorization and simultaneous solve

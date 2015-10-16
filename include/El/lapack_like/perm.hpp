@@ -202,7 +202,13 @@ void PivotsToPartialPermutation
 void PivotsToPartialPermutation
 ( const ElementalMatrix<Int>& pivots,
         ElementalMatrix<Int>& p,
-        ElementalMatrix<Int>& pInv, Int offset=0 );
+        ElementalMatrix<Int>& pInv,
+  Int offset=0 );
+void PivotsToPartialPermutation
+( const DistMatrix<Int,STAR,STAR>& pivots,
+        ElementalMatrix<Int>& p,
+        ElementalMatrix<Int>& pInv,
+  Int offset=0 );
 
 // Convert a pivot sequence to a permutation vector
 // ================================================

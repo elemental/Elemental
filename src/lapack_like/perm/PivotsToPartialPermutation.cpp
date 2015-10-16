@@ -11,13 +11,15 @@
 namespace El {
 
 void PivotsToPartialPermutation
-( const Matrix<Int>& pivots, Matrix<Int>& p, Matrix<Int>& pInv, 
+( const Matrix<Int>& pivots,
+        Matrix<Int>& p,
+        Matrix<Int>& pInv, 
   Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("PivotsToPartialPermutation");
-        if( pivots.Width() != 1 )
-            LogicError("pivots must be a column vector");
+      CSE cse("PivotsToPartialPermutation");
+      if( pivots.Width() != 1 )
+          LogicError("pivots must be a column vector");
     )
 
     const Int b = pivots.Height();
@@ -58,14 +60,15 @@ void PivotsToPartialPermutation
 }
 
 void PivotsToPartialPermutation
-( const ElementalMatrix<Int>& pivots, 
+( const DistMatrix<Int,STAR,STAR>& pivots, 
         ElementalMatrix<Int>& p, 
-        ElementalMatrix<Int>& pInv, Int offset )
+        ElementalMatrix<Int>& pInv,
+  Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("PivotsToPartialPermutation");
-        if( pivots.Width() != 1 )
-            LogicError("pivots must be a column vector");
+      CSE cse("PivotsToPartialPermutation");
+      if( pivots.Width() != 1 )
+          LogicError("pivots must be a column vector");
     )
 
     const Int b = pivots.Height();
@@ -80,10 +83,10 @@ void PivotsToPartialPermutation
 
     for( Int i=0; i<b; ++i ) 
     {
-        Int k = pivots.Get(i,0) - offset;
+        Int k = pivots.GetLocal(i,0) - offset;
         for( Int j=i-1; j>=0; --j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivots.GetLocal(j,0)-offset;
             if( k == relSwap )
                 k = j;
             else if( k == j )
@@ -98,7 +101,7 @@ void PivotsToPartialPermutation
         Int k = i;
         for( Int j=0; j<Min(k+1,b); ++j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivots.GetLocal(j,0)-offset;
             if( k == relSwap )
                 k = j; 
             else if( k == j )
@@ -106,6 +109,18 @@ void PivotsToPartialPermutation
         }
         pInv.Set( i, 0, k );
     }
+}
+
+void PivotsToPartialPermutation
+( const ElementalMatrix<Int>& pivotsPre,
+        ElementalMatrix<Int>& p, 
+        ElementalMatrix<Int>& pInv,
+  Int offset )
+{
+    DEBUG_ONLY(CSE cse("PivotsToPartialPermutation"))
+    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
+    auto& pivots = *pivotsPtr;
+    PivotsToPartialPermutation( pivots, p, pInv, offset );
 }
 
 } // namespace El

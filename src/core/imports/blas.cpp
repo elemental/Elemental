@@ -967,9 +967,10 @@ void Ger
 template<typename T>
 void Geru
 ( BlasInt m, BlasInt n,
-  T alpha, const T* x, BlasInt incx, 
-           const T* y, BlasInt incy,
-                 T* A, BlasInt lda )
+  T alpha,
+  const T* x, BlasInt incx, 
+  const T* y, BlasInt incy,
+        T* A, BlasInt lda )
 {
     for( BlasInt j=0; j<n; ++j )
         for( BlasInt i=0; i<m; ++i )
@@ -977,48 +978,55 @@ void Geru
 }
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Int alpha, const Int* x, BlasInt incx, 
-             const Int* y, BlasInt incy, 
-                   Int* A, BlasInt lda );
+  Int alpha,
+  const Int* x, BlasInt incx, 
+  const Int* y, BlasInt incy, 
+        Int* A, BlasInt lda );
 #ifdef EL_HAVE_QUAD
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Quad alpha, const Quad* x, BlasInt incx, 
-              const Quad* y, BlasInt incy, 
-                    Quad* A, BlasInt lda );
+  Quad alpha,
+  const Quad* x, BlasInt incx, 
+  const Quad* y, BlasInt incy, 
+        Quad* A, BlasInt lda );
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Complex<Quad> alpha, const Complex<Quad>* x, BlasInt incx, 
-                       const Complex<Quad>* y, BlasInt incy, 
-                             Complex<Quad>* A, BlasInt lda );
+  Complex<Quad> alpha,
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>* y, BlasInt incy, 
+        Complex<Quad>* A, BlasInt lda );
 #endif
 
 void Geru
 ( BlasInt m, BlasInt n,
-  float alpha, const float* x, BlasInt incx, 
-               const float* y, BlasInt incy,
-                     float* A, BlasInt lda )
+  float alpha,
+  const float* x, BlasInt incx, 
+  const float* y, BlasInt incy,
+        float* A, BlasInt lda )
 { EL_BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Geru
 ( BlasInt m, BlasInt n,
-  double alpha, const double* x, BlasInt incx, 
-                const double* y, BlasInt incy,
-                      double* A, BlasInt lda )
+  double alpha,
+  const double* x, BlasInt incx, 
+  const double* y, BlasInt incy,
+        double* A, BlasInt lda )
 { EL_BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Geru
 ( BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* x, BlasInt incx, 
-                  const scomplex* y, BlasInt incy,
-                        scomplex* A, BlasInt lda )
+  scomplex alpha,
+  const scomplex* x, BlasInt incx, 
+  const scomplex* y, BlasInt incy,
+        scomplex* A, BlasInt lda )
 { EL_BLAS(cgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Geru
 ( BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* x, BlasInt incx, 
-                  const dcomplex* y, BlasInt incy,
-                        dcomplex* A, BlasInt lda )
+  dcomplex alpha,
+  const dcomplex* x, BlasInt incx, 
+  const dcomplex* y, BlasInt incy,
+        dcomplex* A, BlasInt lda )
 { EL_BLAS(zgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 // TODO: Introduce some sort of blocking
