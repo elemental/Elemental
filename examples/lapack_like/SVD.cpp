@@ -25,9 +25,12 @@ main( int argc, char* argv[] )
         const Int n = Input("--width","width of matrix",100);
         const Int blocksize = Input("--blocksize","algorithmic blocksize",32);
 #ifdef EL_HAVE_SCALAPACK
+        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
+#else
+        const bool scalapack = false;
+#endif
         const Int mb = Input("--mb","block height",32);
         const Int nb = Input("--nb","block width",32);
-#endif
         const bool testSeq = Input("--testSeq","test sequential SVD?",false);
         const bool testDecomp = Input("--testDecomp","test full SVD?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -35,10 +38,8 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         SetBlocksize( blocksize );
-#ifdef EL_HAVE_SCALAPACK
         SetDefaultBlockHeight( mb );
         SetDefaultBlockWidth( nb );
-#endif
 
         const int commRank = mpi::WorldRank();
         Timer timer;
@@ -70,17 +71,18 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("  SingularValues time: ",timer.Stop());
 
-#ifdef EL_HAVE_SCALAPACK
-        DistMatrix<C,MC,MR,BLOCK> ABlock( A );
-        Matrix<Real> sBlock;
-        if( commRank == 0 )
-            timer.Start();
-        SVD( ABlock, sBlock );
-        if( commRank == 0 )
-            Output("  ScaLAPACK SingularValues time: ",timer.Stop());
-        if( commRank == 0 && print )
-            Print( sBlock, "s from ScaLAPACK" ); 
-#endif
+        if( scalapack )
+        {
+            DistMatrix<C,MC,MR,BLOCK> ABlock( A );
+            Matrix<Real> sBlock;
+            if( commRank == 0 )
+                timer.Start();
+            SVD( ABlock, sBlock );
+            if( commRank == 0 )
+                Output("  ScaLAPACK SingularValues time: ",timer.Stop());
+            if( commRank == 0 && print )
+                Print( sBlock, "s from ScaLAPACK" ); 
+        }
 
         if( testDecomp )
         {
@@ -100,17 +102,19 @@ main( int argc, char* argv[] )
                 Print( s, "s" );
             }
 
-#ifdef EL_HAVE_SCALAPACK
-            ABlock = A;
-            DistMatrix<C,MC,MR,BLOCK> UBlock(g), VHBlock(g);
-            if( commRank == 0 )
-                timer.Start();
-            SVD( ABlock, sBlock, UBlock, VHBlock );
-            if( commRank == 0 )
-                Output("  ScaLAPACK SVD time: ",timer.Stop());
-            if( commRank == 0 && print )
-                Print( sBlock, "s from ScaLAPACK" ); 
-#endif
+            if( scalapack )
+            {
+                DistMatrix<C,MC,MR,BLOCK> ABlock( A );
+                DistMatrix<C,MC,MR,BLOCK> UBlock(g), VHBlock(g);
+                Matrix<Real> sBlock;
+                if( commRank == 0 )
+                    timer.Start();
+                SVD( ABlock, sBlock, UBlock, VHBlock );
+                if( commRank == 0 )
+                    Output("  ScaLAPACK SVD time: ",timer.Stop());
+                if( commRank == 0 && print )
+                    Print( sBlock, "s from ScaLAPACK" ); 
+            }
 
             // Compare the singular values from both methods
             sOnly -= s;

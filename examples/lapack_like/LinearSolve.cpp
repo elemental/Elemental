@@ -24,9 +24,11 @@ int main( int argc, char* argv[] )
         const Int numTests = Input("--numTests","number of tests",3);
 #ifdef EL_HAVE_SCALAPACK
         const bool scalapack = Input("--scalapack","test ScaLAPACK?",true); 
+#else
+        const bool scalapack = false;
+#endif
         const Int mb = Input("--mb","block height",32);
         const Int nb = Input("--nb","block width",32);
-#endif
         Int gridHeight = Input("--gridHeight","grid height",0);
         const bool details = Input("--details","print norm details?",false);
         const bool print = Input("--print","print matrices?",false);
@@ -34,10 +36,8 @@ int main( int argc, char* argv[] )
         PrintInputReport();
 
         SetBlocksize( blocksize );
-#ifdef EL_HAVE_SCALAPACK
         SetDefaultBlockHeight( mb ); 
         SetDefaultBlockWidth( nb );
-#endif
 
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid
@@ -61,7 +61,6 @@ int main( int argc, char* argv[] )
                 Print( B, "B" );
             }
 
-#ifdef EL_HAVE_SCALAPACK
             if( scalapack )
             {
                 if( commRank == 0 )
@@ -77,7 +76,6 @@ int main( int argc, char* argv[] )
                 if( commRank == 0 )
                     Output(timer.Stop()," seconds");
             }
-#endif
 
             // Perform the LU factorization and simultaneous solve
             if( commRank == 0 )
