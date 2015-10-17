@@ -2344,9 +2344,9 @@ lib.ElBernoulliDist_s.argtypes = \
 lib.ElBernoulliDist_d.argtypes = \
 lib.ElBernoulliDist_c.argtypes = \
 lib.ElBernoulliDist_z.argtypes = \
-  [c_void_p,iType,iType]
-def Bernoulli(A,m,n):
-  args = [A.obj,m,n]
+  [c_void_p,iType,iType,dType]
+def Bernoulli(A,m,n,p=0.5):
+  args = [A.obj,m,n,p]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElBernoulli_i(*args)
     elif A.tag == sTag: lib.ElBernoulli_s(*args)
@@ -2416,6 +2416,37 @@ def NormalUniformSpectrum(A,n,centerPre=0,radius=1):
   elif type(A) is DistMatrix:
     if   A.tag == cTag: lib.ElNormalUniformSpectrumDist_c(*args)
     elif A.tag == zTag: lib.ElNormalUniformSpectrumDist_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
+# Rademacher
+# ----------
+lib.ElRademacher_i.argtypes = \
+lib.ElRademacher_s.argtypes = \
+lib.ElRademacher_d.argtypes = \
+lib.ElRademacher_c.argtypes = \
+lib.ElRademacher_z.argtypes = \
+lib.ElRademacherDist_i.argtypes = \
+lib.ElRademacherDist_s.argtypes = \
+lib.ElRademacherDist_d.argtypes = \
+lib.ElRademacherDist_c.argtypes = \
+lib.ElRademacherDist_z.argtypes = \
+  [c_void_p,iType,iType]
+def Rademacher(A,m,n):
+  args = [A.obj,m,n]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElRademacher_i(*args)
+    elif A.tag == sTag: lib.ElRademacher_s(*args)
+    elif A.tag == dTag: lib.ElRademacher_d(*args)
+    elif A.tag == cTag: lib.ElRademacher_c(*args)
+    elif A.tag == zTag: lib.ElRademacher_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElRademacherDist_i(*args)
+    elif A.tag == sTag: lib.ElRademacherDist_s(*args)
+    elif A.tag == dTag: lib.ElRademacherDist_d(*args)
+    elif A.tag == cTag: lib.ElRademacherDist_c(*args)
+    elif A.tag == zTag: lib.ElRademacherDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

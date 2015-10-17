@@ -1244,17 +1244,22 @@ EL_EXPORT ElError ElZerosDistMultiVec_z( ElDistMultiVec_z A, ElInt m, ElInt n );
 
 /* Bernoulli
    ========= */
-EL_EXPORT ElError ElBernoulli_i( ElMatrix_i A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulli_s( ElMatrix_s A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulli_d( ElMatrix_d A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulli_c( ElMatrix_c A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulli_z( ElMatrix_z A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulli_i( ElMatrix_i A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulli_s( ElMatrix_s A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulli_d( ElMatrix_d A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulli_c( ElMatrix_c A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulli_z( ElMatrix_z A, ElInt m, ElInt n, double p );
 
-EL_EXPORT ElError ElBernoulliDist_i( ElDistMatrix_i A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulliDist_s( ElDistMatrix_s A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulliDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulliDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
-EL_EXPORT ElError ElBernoulliDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
+EL_EXPORT ElError ElBernoulliDist_i
+( ElDistMatrix_i A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulliDist_s
+( ElDistMatrix_s A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulliDist_d
+( ElDistMatrix_d A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulliDist_c
+( ElDistMatrix_c A, ElInt m, ElInt n, double p );
+EL_EXPORT ElError ElBernoulliDist_z
+( ElDistMatrix_z A, ElInt m, ElInt n, double p );
 
 /* Gaussian
    ======== */
@@ -1374,6 +1379,20 @@ EL_EXPORT ElError ElNormalUniformSpectrumDist_c
 ( ElDistMatrix_c A, ElInt n, complex_float center, float radius );
 EL_EXPORT ElError ElNormalUniformSpectrumDist_z
 ( ElDistMatrix_z A, ElInt n, complex_double center, double radius );
+
+/* Rademacher 
+   ========== */
+EL_EXPORT ElError ElRademacher_i( ElMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacher_s( ElMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacher_d( ElMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacher_c( ElMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacher_z( ElMatrix_z A, ElInt m, ElInt n );
+
+EL_EXPORT ElError ElRademacherDist_i( ElDistMatrix_i A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacherDist_s( ElDistMatrix_s A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacherDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacherDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
+EL_EXPORT ElError ElRademacherDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
 
 /* Three-valued
    ============ */
