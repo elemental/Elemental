@@ -15,13 +15,13 @@ namespace El {
 struct DistData;
 struct ElementalData;
 
-template<typename T> 
+template<typename scalarType> 
 class AbstractDistMatrix
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> type;
+    typedef AbstractDistMatrix<scalarType> type;
 
     // Constructors and destructors
     // ============================
@@ -65,7 +65,7 @@ public:
 
     // Rescaling
     // ---------
-    const type& operator*=( T alpha );
+    const type& operator*=( scalarType alpha );
 
     // Basic queries
     // =============
@@ -80,16 +80,20 @@ public:
 
     // Local matrix information
     // ------------------------
-          Int            LocalHeight()                      const EL_NO_EXCEPT;
-          Int            LocalWidth()                       const EL_NO_EXCEPT;
-          Int            LDim()                             const EL_NO_EXCEPT;
-          El::Matrix<T>& Matrix()                                 EL_NO_EXCEPT;
-    const El::Matrix<T>& LockedMatrix()                     const EL_NO_EXCEPT;
-          size_t         AllocatedMemory()                  const EL_NO_EXCEPT;
-          T*             Buffer() EL_NO_RELEASE_EXCEPT;
-          T*             Buffer( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
-    const T*             LockedBuffer()                     const EL_NO_EXCEPT;
-    const T*             LockedBuffer( Int iLoc, Int jLoc ) const EL_NO_EXCEPT;
+          Int         LocalHeight() const EL_NO_EXCEPT;
+          Int         LocalWidth()  const EL_NO_EXCEPT;
+          Int         LDim()        const EL_NO_EXCEPT;
+
+          size_t      AllocatedMemory() const EL_NO_EXCEPT;
+
+          scalarType* Buffer()                     EL_NO_RELEASE_EXCEPT;
+          scalarType* Buffer( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
+
+    const scalarType* LockedBuffer()                     const EL_NO_EXCEPT;
+    const scalarType* LockedBuffer( Int iLoc, Int jLoc ) const EL_NO_EXCEPT;
+
+          El::Matrix<scalarType>& Matrix()             EL_NO_EXCEPT;
+    const El::Matrix<scalarType>& LockedMatrix() const EL_NO_EXCEPT;
 
     // Distribution information
     // ------------------------
@@ -174,37 +178,54 @@ public:
     // -------------------------
     // NOTE: Local entry manipulation is often much faster and should be
     //       preferred in most circumstances where performance matters.
-    T       Get( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    Base<T> GetRealPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    Base<T> GetImagPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    void    Set( Int i, Int j, T alpha ) EL_NO_RELEASE_EXCEPT;
-    void    Set( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
-    void    SetRealPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    SetImagPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    SetRealPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
-    void    SetImagPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
-    void    Update( Int i, Int j, T alpha ) EL_NO_RELEASE_EXCEPT;
-    void    Update( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateRealPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateImagPart( Int i, Int j, Base<T> alpha ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateRealPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
-    void    UpdateImagPart( const Entry<Base<T>>& entry ) EL_NO_RELEASE_EXCEPT;
-    void    MakeReal( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
-    void    Conjugate( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
+
+    scalarType Get( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+
+    Base<scalarType> GetRealPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Base<scalarType> GetImagPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+
+    void Set( Int i, Int j, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
+    void Set( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
+
+    void SetRealPart
+    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+    void SetImagPart
+    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+
+    void SetRealPart
+    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void SetImagPart
+    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+
+    void Update( Int i, Int j, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
+    void Update( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
+
+    void UpdateRealPart
+    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+    void UpdateImagPart
+    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+
+    void UpdateRealPart
+    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void UpdateImagPart
+    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+
+    void MakeReal( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
+    void Conjugate( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
 
     // Batch updating of remote entries
     // ---------------------------------
     void Reserve( Int numRemoteEntries );
-    void QueueUpdate( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
-    void QueueUpdate( Int i, Int j, T value ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( Int i, Int j, scalarType value ) EL_NO_RELEASE_EXCEPT;
     void ProcessQueues();
 
     // Batch extraction of remote entries
     // ----------------------------------
     void ReservePulls( Int numPulls ) const;
     void QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    void ProcessPullQueue( T* pullBuf ) const;
-    void ProcessPullQueue( vector<T>& pullBuf ) const;
+    void ProcessPullQueue( scalarType* pullBuf ) const;
+    void ProcessPullQueue( vector<scalarType>& pullBuf ) const;
 
     // Local entry manipulation
     // ------------------------
@@ -212,31 +233,42 @@ public:
     //       via composing [Locked]Matrix() with the corresponding local
     //       routine, but a large amount of code might need to change if 
     //       these were removed.
-    T       GetLocal( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
-    Base<T> GetLocalRealPart( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
-    Base<T> GetLocalImagPart( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
 
-    void SetLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
-    void SetLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+    scalarType GetLocal( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
+
+    Base<scalarType> GetLocalRealPart
+    ( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
+    Base<scalarType> GetLocalImagPart
+    ( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
+
+    void SetLocal( Int iLoc, Int jLoc, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
+    void SetLocal( const Entry<scalarType>& localEntry ) EL_NO_RELEASE_EXCEPT;
+
+    void SetLocalRealPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
     EL_NO_RELEASE_EXCEPT;
-    void SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
-    EL_NO_RELEASE_EXCEPT;
-    void SetLocalRealPart( const Entry<Base<T>>& localEntry )
-    EL_NO_RELEASE_EXCEPT;
-    void SetLocalImagPart( const Entry<Base<T>>& localEntry )
+    void SetLocalImagPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
     EL_NO_RELEASE_EXCEPT;
 
-    void UpdateLocal( Int iLoc, Int jLoc, T alpha ) EL_NO_RELEASE_EXCEPT;
-    void UpdateLocal( const Entry<T>& localEntry ) EL_NO_RELEASE_EXCEPT;
-    void UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+    void SetLocalRealPart( const Entry<Base<scalarType>>& localEntry )
     EL_NO_RELEASE_EXCEPT;
-    void UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+    void SetLocalImagPart( const Entry<Base<scalarType>>& localEntry )
     EL_NO_RELEASE_EXCEPT;
-    void UpdateLocalRealPart( const Entry<Base<T>>& localEntry )
+
+    void UpdateLocal
+    ( Int iLoc, Int jLoc, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
+    void UpdateLocal
+    ( const Entry<scalarType>& localEntry ) EL_NO_RELEASE_EXCEPT;
+
+    void UpdateLocalRealPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
     EL_NO_RELEASE_EXCEPT;
-    void UpdateLocalImagPart( const Entry<Base<T>>& localEntry )
+    void UpdateLocalImagPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
     EL_NO_RELEASE_EXCEPT;
+
+    void UpdateLocalRealPart( const Entry<Base<scalarType>>& localEntry )
+    EL_NO_RELEASE_EXCEPT;
+    void UpdateLocalImagPart( const Entry<Base<scalarType>>& localEntry )
+    EL_NO_RELEASE_EXCEPT;
+
     void MakeLocalReal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
     void ConjugateLocal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
 
@@ -272,12 +304,12 @@ protected:
     // -----------------------------------
     ViewType viewType_=OWNER;
     Int height_=0, width_=0;
-    El::Matrix<T> matrix_=El::Matrix<T>(0,0,true);
+    El::Matrix<scalarType> matrix_=El::Matrix<scalarType>(0,0,true);
     const El::Grid* grid_;
 
     // Remote updates
     // --------------
-    vector<Entry<T>> remoteUpdates_;
+    vector<Entry<scalarType>> remoteUpdates_;
     // NOTE: Using ValueInt<Int> is somewhat of a hack; it would be nice to 
     //       have a pair of integers as its own data structure that does not
     //       require separate MPI wrappers from ValueInt<Int>
@@ -313,8 +345,8 @@ struct DistData
 
     DistData() { }
 
-    template<typename T>
-    DistData( const BlockMatrix<T>& A )
+    template<typename scalarType>
+    DistData( const BlockMatrix<scalarType>& A )
     : colDist(A.ColDist()), rowDist(A.RowDist()),
       blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
       colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
@@ -341,8 +373,8 @@ struct ElementalData
 
     ElementalData() { }
 
-    template<typename T>
-    ElementalData( const ElementalMatrix<T>& A )
+    template<typename scalarType>
+    ElementalData( const ElementalMatrix<scalarType>& A )
     : colDist(A.ColDist()), rowDist(A.RowDist()),
       colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
       root(A.Root()), grid(&A.Grid())

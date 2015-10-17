@@ -19,7 +19,7 @@ inline void AssertSameDist( const DistTypeA& distA, const DistTypeB& distB )
         RuntimeError("Matrices must have the same distribution");
 }
 
-template<typename T>
+template<typename scalarType>
 class DistMultiVec;
 
 } // namespace El
@@ -61,9 +61,9 @@ class DistMultiVec;
 namespace El {
 
 #ifdef EL_HAVE_SCALAPACK
-template<typename T>
+template<typename scalarType>
 inline typename blacs::Desc
-FillDesc( const DistMatrix<T,MC,MR,BLOCK>& A, int context )
+FillDesc( const DistMatrix<scalarType,MC,MR,BLOCK>& A, int context )
 {
     if( A.ColCut() != 0 || A.RowCut() != 0 )
         LogicError("Cannot produce a meaningful descriptor if nonzero cut");
@@ -75,8 +75,8 @@ FillDesc( const DistMatrix<T,MC,MR,BLOCK>& A, int context )
 }
 #endif
 
-template<typename T>
-inline void AssertSameGrids( const AbstractDistMatrix<T>& A ) { }
+template<typename scalarType>
+inline void AssertSameGrids( const AbstractDistMatrix<scalarType>& A ) { }
 
 template<typename T1,typename T2>
 inline void AssertSameGrids
@@ -96,20 +96,22 @@ inline void AssertSameGrids
     AssertSameGrids( A2, args... );
 }
 
-template<typename T>
-inline void AssertSameDists( const AbstractDistMatrix<T>& A ) { }
+template<typename scalarType>
+inline void AssertSameDists( const AbstractDistMatrix<scalarType>& A ) { }
 
-template<typename T>
+template<typename scalarType>
 inline void AssertSameDists
-( const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2 ) 
+( const AbstractDistMatrix<scalarType>& A1,
+  const AbstractDistMatrix<scalarType>& A2 ) 
 {
     if( A1.ColDist() != A2.ColDist() || A1.RowDist() != A2.RowDist() )
         LogicError("Distributions did not match");
 }
 
-template<typename T,typename... Args>
+template<typename scalarType,typename... Args>
 inline void AssertSameDists
-( const AbstractDistMatrix<T>& A1, const AbstractDistMatrix<T>& A2,
+( const AbstractDistMatrix<scalarType>& A1,
+  const AbstractDistMatrix<scalarType>& A2,
   Args&... args ) 
 {
     if( A1.ColDist() != A2.ColDist() || A1.RowDist() != A2.RowDist() )
