@@ -56,45 +56,24 @@ void Copy
 template<typename T>
 void Copy( BlasInt n, const T* x, BlasInt incx, T* y, BlasInt incy );
 
-float    Dot
-( BlasInt n, const float   * x, BlasInt incx, const float   * y, BlasInt incy );
-double   Dot
-( BlasInt n, const double  * x, BlasInt incx, const double  * y, BlasInt incy );
-scomplex Dot
-( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
-dcomplex Dot
-( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
 template<typename T>
 T Dot( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy );
-
-float    Dotc
-( BlasInt n, const float   * x, BlasInt incx, const float   * y, BlasInt incy );
-double   Dotc
+double Dot
 ( BlasInt n, const double  * x, BlasInt incx, const double  * y, BlasInt incy );
-scomplex Dotc
-( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
-dcomplex Dotc
-( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
+
 template<typename T>
 T Dotc( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy );
-
-float    Dotu
-( BlasInt n, const float   * x, BlasInt incx, const float   * y, BlasInt incy );
-double   Dotu
+double Dotc
 ( BlasInt n, const double  * x, BlasInt incx, const double  * y, BlasInt incy );
-scomplex Dotu
-( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
-dcomplex Dotu
-( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
+
 template<typename T>
 T Dotu( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy );
+double Dotu
+( BlasInt n, const double  * x, BlasInt incx, const double  * y, BlasInt incy );
 
 template<typename F>
 Base<F> Nrm2( BlasInt n, const F* x, BlasInt incx );
-
-float  Nrm2( BlasInt n, const float   * x, BlasInt incx );
 double Nrm2( BlasInt n, const double  * x, BlasInt incx );
-float  Nrm2( BlasInt n, const scomplex* x, BlasInt incx );
 double Nrm2( BlasInt n, const dcomplex* x, BlasInt incx );
 
 float Givens
@@ -121,18 +100,19 @@ void Rot
 
 template<typename T> 
 void Scal( BlasInt n, T alpha,         T*  x, BlasInt incx );
-template<typename T> 
-void Scal( BlasInt n, T alpha, Complex<T>* x, BlasInt incx );
 void Scal( BlasInt n, float    alpha, float   * x, BlasInt incx );
 void Scal( BlasInt n, double   alpha, double  * x, BlasInt incx );
 void Scal( BlasInt n, scomplex alpha, scomplex* x, BlasInt incx );
 void Scal( BlasInt n, dcomplex alpha, dcomplex* x, BlasInt incx );
 
+template<typename T> 
+void Scal( BlasInt n, T alpha, Complex<T>* x, BlasInt incx );
+
 // NOTE: Nrm1 is not the official name but is consistent with Nrm2
-float  Nrm1( BlasInt n, const float   * x, BlasInt incx );
+template<typename F>
+Base<F> Nrm1( BlasInt n, const F* x, BlasInt incx );
 double Nrm1( BlasInt n, const double  * x, BlasInt incx );
-float  Nrm1( BlasInt n, const scomplex* x, BlasInt incx );
-double Nrm1( BlasInt n, const dcomplex* x, BlasInt incx );
+double Nrm1( BlasInt n, const Complex<double>* x, BlasInt incx );
 
 void Swap( BlasInt n, float   * x, BlasInt incx, float   * y, BlasInt incy );
 void Swap( BlasInt n, double  * x, BlasInt incx, double  * y, BlasInt incy );
