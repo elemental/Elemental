@@ -416,18 +416,28 @@ Real SafeNorm( Real alpha, Real beta )
     UpdateScaledSquare( beta, scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
+template float SafeNorm( float alpha, float beta );
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( Quad alpha, Quad beta );
 #endif
 
-float SafeNorm( float alpha, float beta )
-{ return EL_LAPACK(slapy2)( &alpha, &beta ); }
-
 double SafeNorm( double alpha, double beta )
 { return EL_LAPACK(dlapy2)( &alpha, &beta ); }
 
-float SafeNorm( float alpha, float beta, float gamma )
-{ return EL_LAPACK(slapy3)( &alpha, &beta, &gamma ); }
+template<typename Real>
+Real SafeNorm( Real alpha, Real beta, Real gamma )
+{
+    Real scale = 0;
+    Real scaledSquare = 1;
+    UpdateScaledSquare( alpha, scale, scaledSquare );
+    UpdateScaledSquare( beta, scale, scaledSquare );
+    UpdateScaledSquare( gamma, scale, scaledSquare );
+    return scale*Sqrt(scaledSquare);
+}
+template float SafeNorm( float alpha, float beta, float gamma );
+#ifdef EL_HAVE_QUAD
+template Quad SafeNorm( Quad alpha, Quad beta, Quad gamma );
+#endif
 
 double SafeNorm( double alpha, double beta, double gamma )
 { return EL_LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
