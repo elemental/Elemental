@@ -604,7 +604,7 @@ struct PseudospecCtrl
     SchurCtrl<Real> schurCtrl;
 
     // Convergence and deflation criteria
-    Int maxIts=200;
+    Int maxIts=50;
     Real tol=1e-6;
     bool deflate=true;
 

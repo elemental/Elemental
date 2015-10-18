@@ -202,7 +202,7 @@ ElError ElPseudospecCtrlDefault_s( ElPseudospecCtrl_s* ctrl )
     ctrl->forceComplexSchur = false;
     ctrl->forceComplexPs = false;
     ElSchurCtrlDefault_s( &ctrl->schurCtrl );
-    ctrl->maxIts = 200;
+    ctrl->maxIts = 50;
     ctrl->tol = 1e-6f;
     ctrl->deflate = true;
     ctrl->arnoldi = true;
@@ -227,7 +227,7 @@ ElError ElPseudospecCtrlDefault_d( ElPseudospecCtrl_d* ctrl )
     ctrl->forceComplexSchur = false;
     ctrl->forceComplexPs = false;
     ElSchurCtrlDefault_d( &ctrl->schurCtrl );
-    ctrl->maxIts = 200;
+    ctrl->maxIts = 50;
     ctrl->tol = 1e-6;
     ctrl->deflate = true;
     ctrl->arnoldi = true;
