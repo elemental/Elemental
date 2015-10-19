@@ -27,6 +27,8 @@ int main( int argc, char* argv[] )
 #else
         const bool scalapack = false;
 #endif
+        const bool elemental = Input("--elemental","test Elemental?",true);
+        const bool error = Input("--error","test Elemental error?",true);
         const Int mb = Input("--mb","block height",32);
         const Int nb = Input("--nb","block width",32);
         Int gridHeight = Input("--gridHeight","grid height",0);
@@ -50,6 +52,7 @@ int main( int argc, char* argv[] )
         // Set up random A and B, then make the copies X := B
         Timer timer;
         DistMatrix<double> A(grid), B(grid), X(grid);
+
         for( Int test=0; test<numTests; ++test )
         {
             Uniform( A, n, n );
@@ -75,65 +78,77 @@ int main( int argc, char* argv[] )
                 LinearSolve( ABlock, BBlock );
                 if( commRank == 0 )
                     Output(timer.Stop()," seconds");
+                if( error && !elemental )
+                    X = BBlock;
             }
 
             // Perform the LU factorization and simultaneous solve
-            if( commRank == 0 )
+            if( elemental )
             {
-                cout << "Starting linear solve...";
-                cout.flush();
-            }
-            mpi::Barrier( comm );
-            if( commRank == 0 )
-                timer.Start();
-            LinearSolve( A, X );
-            mpi::Barrier( comm );
-            if( commRank == 0 )
-                Output(timer.Stop()," seconds");
-
-            // Form R := A X - B
-            DistMatrix<> R( B );
-            Gemm( NORMAL, NORMAL, 1., A, X, -1., R );
-
-            // Compute the relevant infinity norms and a relative residual
-            const double epsilon = lapack::MachineEpsilon();
-            const double AInfNorm = InfinityNorm( A );
-            const double BInfNorm = InfinityNorm( B );
-            const double XInfNorm = InfinityNorm( X );
-            const double RInfNorm = InfinityNorm( R );
-            const double infResidual = RInfNorm / (AInfNorm*XInfNorm*epsilon*n);
-            if( commRank == 0 )
-            {
-                if( details )
+                if( commRank == 0 )
                 {
-                    Output("");
-                    Output("||A||_oo       = ",AInfNorm);    
-                    Output("||B||_oo       = ",BInfNorm);
-                    Output("||X||_oo       = ",XInfNorm);
-                    Output("||A X - B||_oo = ",RInfNorm);
+                    cout << "Starting Elemental linear solve...";
+                    cout.flush();
                 }
-                Output
-                ("||A X - B||_oo / (||A||_oo ||X||_oo eps n) = ",infResidual);
+                mpi::Barrier( comm );
+                if( commRank == 0 )
+                    timer.Start();
+                LinearSolve( A, X );
+                mpi::Barrier( comm );
+                if( commRank == 0 )
+                    Output(timer.Stop()," seconds");
             }
 
-            // Compute the relevant one norms and a relative residual
-            const double AOneNorm = OneNorm( A );
-            const double BOneNorm = OneNorm( B );
-            const double XOneNorm = OneNorm( X );
-            const double ROneNorm = OneNorm( R );
-            const double oneResidual = ROneNorm / (AOneNorm*XOneNorm*epsilon*n);
-            if( commRank == 0 )
-            {
-                if( details )
+            if( error && (elemental || scalapack) )
+            { 
+                // Form R := A X - B
+                DistMatrix<> R( B );
+                Gemm( NORMAL, NORMAL, 1., A, X, -1., R );
+
+                // Compute infinity norms and a relative residual
+                const double epsilon = lapack::MachineEpsilon();
+                const double AInfNorm = InfinityNorm( A );
+                const double BInfNorm = InfinityNorm( B );
+                const double XInfNorm = InfinityNorm( X );
+                const double RInfNorm = InfinityNorm( R );
+                const double infResidual = RInfNorm / 
+                  (AInfNorm*XInfNorm*epsilon*n);
+                if( commRank == 0 )
                 {
-                    Output("");
-                    Output("||A||_1       = ",AOneNorm);    
-                    Output("||B||_1       = ",BOneNorm);
-                    Output("||X||_1       = ",XOneNorm);
-                    Output("||A X - B||_1 = ",ROneNorm);
+                    if( details )
+                    {
+                        Output("");
+                        Output("||A||_oo       = ",AInfNorm);    
+                        Output("||B||_oo       = ",BInfNorm);
+                        Output("||X||_oo       = ",XInfNorm);
+                        Output("||A X - B||_oo = ",RInfNorm);
+                    }
+                    Output
+                    ("||A X - B||_oo / (||A||_oo ||X||_oo eps n) = ",
+                     infResidual);
                 }
-                Output
-                ("||A X - B||_1 / (||A||_1 ||X||_1 eps n) = ",oneResidual,"\n");
+
+                // Compute one norms and a relative residual
+                const double AOneNorm = OneNorm( A );
+                const double BOneNorm = OneNorm( B );
+                const double XOneNorm = OneNorm( X );
+                const double ROneNorm = OneNorm( R );
+                const double oneResidual = ROneNorm / 
+                  (AOneNorm*XOneNorm*epsilon*n);
+                if( commRank == 0 )
+                {
+                    if( details )
+                    {
+                        Output("");
+                        Output("||A||_1       = ",AOneNorm);    
+                        Output("||B||_1       = ",BOneNorm);
+                        Output("||X||_1       = ",XOneNorm);
+                        Output("||A X - B||_1 = ",ROneNorm);
+                    }
+                    Output
+                    ("||A X - B||_1 / (||A||_1 ||X||_1 eps n) = ",
+                     oneResidual,"\n");
+                }
             }
         }
     }

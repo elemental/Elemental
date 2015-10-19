@@ -45,15 +45,19 @@ void Gemv
     const char transChar = OrientationToChar( orientation );
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = ( transChar == 'N' ? n : m );
+    const Int xDim = ( transChar == 'N' ? n : m );
+    const Int yDim = ( transChar == 'N' ? m : n );
     const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const Int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    if( k != 0 )
+    if( xDim != 0 )
     {
-        blas::Gemv
-        ( transChar, m, n,
-          alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx,
-          beta,  y.Buffer(), incy );
+        if( yDim != 0 )
+        {
+            blas::Gemv
+            ( transChar, m, n,
+              alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx,
+              beta,  y.Buffer(), incy );
+        }
     }
     else
     {

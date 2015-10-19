@@ -60,6 +60,15 @@ float  EL_BLAS(scnrm2)
 double EL_BLAS(dznrm2)
 ( const BlasInt* n, const dcomplex* x, const BlasInt* incx );
 
+BlasInt EL_LAPACK(isamax)
+( const BlasInt* n, const float* x, const BlasInt* incx );
+BlasInt EL_LAPACK(idamax)
+( const BlasInt* n, const double* x, const BlasInt* incx );
+BlasInt EL_LAPACK(icamax)
+( const BlasInt* n, const scomplex* x, const BlasInt* incx );
+BlasInt EL_LAPACK(izamax)
+( const BlasInt* n, const dcomplex* x, const BlasInt* incx );
+
 // Apply a Givens rotation to a pair of vectors
 void EL_BLAS(srot)
 ( const BlasInt* n, float* x, const BlasInt* incx, 
@@ -676,6 +685,48 @@ double Nrm2( BlasInt n, const double* x, BlasInt incx )
 { return EL_BLAS(dnrm2)( &n, x, &incx ); }
 double Nrm2( BlasInt n, const dcomplex* x, BlasInt incx )
 { return EL_BLAS(dznrm2)( &n, x, &incx ); }
+
+template<typename F>
+BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx )
+{
+    typedef Base<F> Real;
+    Real maxAbsVal = -1;
+    Real maxAbsInd = -1;
+    for( BlasInt i=0; i<n; ++i ) 
+    {
+        const Real absVal = Abs(x[i*incx]);
+        if( absVal > maxAbsVal )
+        {
+            maxAbsVal = absVal;
+            maxAbsInd = i;
+        }
+    } 
+}
+#ifdef EL_HAVE_QUAD
+template BlasInt MaxInd( BlasInt n, const Int* x, BlasInt incx );
+template BlasInt MaxInd( BlasInt n, const Quad* x, BlasInt incx );
+template BlasInt MaxInd( BlasInt n, const Complex<Quad>* x, BlasInt incx );
+#endif
+
+BlasInt MaxInd( BlasInt n, const float* x, BlasInt incx )
+{
+    return EL_LAPACK(isamax)( &n, x, &incx ) - 1;
+}
+
+BlasInt MaxInd( BlasInt n, const double* x, BlasInt incx )
+{
+    return EL_LAPACK(idamax)( &n, x, &incx ) - 1;
+}
+
+BlasInt MaxInd( BlasInt n, const scomplex* x, BlasInt incx )
+{
+    return EL_LAPACK(icamax)( &n, x, &incx ) - 1;
+}
+
+BlasInt MaxInd( BlasInt n, const dcomplex* x, BlasInt incx )
+{
+    return EL_LAPACK(izamax)( &n, x, &incx ) - 1;
+}
 
 float Givens
 ( float alpha, float beta, float* c, float* s )

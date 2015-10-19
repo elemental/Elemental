@@ -152,7 +152,8 @@ template<> Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 
 // Return the sum of the absolute values of the real and imaginary components
 // --------------------------------------------------------------------------
-template<typename F> Base<F> FastAbs( const F& alpha ) EL_NO_EXCEPT;
+template<typename Real> Real FastAbs( const Real& alpha ) EL_NO_EXCEPT;
+template<typename Real> Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
 
 // Return the sign of a real element
 // ---------------------------------

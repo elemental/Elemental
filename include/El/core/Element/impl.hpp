@@ -174,8 +174,12 @@ inline Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT
 }
 #endif
 
-template<typename F>
-inline Base<F> FastAbs( const F& alpha ) EL_NO_EXCEPT
+template<typename Real>
+inline Real FastAbs( const Real& alpha ) EL_NO_EXCEPT
+{ return Abs(alpha); }
+
+template<typename Real>
+inline Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
 
 template<typename Real>

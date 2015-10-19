@@ -20,7 +20,7 @@ void Panel
 ( DistMatrix<F,  STAR,STAR>& A11,
   DistMatrix<F,  MC,  STAR>& A21,
   DistMatrix<Int,STAR,STAR>& p1,
-  vector<F>& pivotBuffer );
+  vector<F>& pivotBuf );
 
 } // namespace lu
 
@@ -97,7 +97,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     const bool BAligned = ( B.ColShift() == A.ColShift() );
     DistMatrix<F,MC,STAR> A21_MC_STAR_B(g);
 
-    vector<F> pivotBuffer;
+    vector<F> panelBuf, pivotBuf;
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
@@ -111,11 +111,17 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         auto B2  = B( ind2, ALL  );
         auto BB  = B( indB, ALL  );
 
+        const Int A21Height = A21.Height();
+        const Int A21LocHeight = A21.LocalHeight();
+        const Int panelLDim = nb+A21LocHeight;
+        panelBuf.reserve( panelLDim*nb );
+        A11_STAR_STAR.Attach
+        ( nb, nb, g, 0, 0, &panelBuf[0], panelLDim, 0 );
+        A21_MC_STAR.Attach
+        ( A21Height, nb, g, A21.ColAlign(), 0, &panelBuf[nb], panelLDim, 0 );
         A11_STAR_STAR = A11;
-        A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
-
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR, pivotBuffer );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR, pivotBuf );
         PivotsToPartialPermutation( p1Piv_STAR_STAR, p1, p1Inv );
         PermuteRows( AB2, p1, p1Inv );
         PermuteRows( BB,  p1, p1Inv );
@@ -168,15 +174,29 @@ void Overwrite
 ( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("lin_solve::Overwrite"))
-    // Perform Gaussian elimination
 
-    // NOTE: Since only the upper triangle of the factorization is formed,
-    //       we could usually get away with A only being a Write proxy.
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
-    RowEchelon( A, B );
-    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+    Timer timer; 
+    const int commRank = A.Grid().Rank();
+    const bool useFullLU = true; 
+
+    if( useFullLU )
+    {
+        DistMatrix<Int,VC,STAR> p(A.Grid());
+        if( commRank == 0 ) timer.Start();
+        LU( A, p );
+        if( commRank == 0 ) Output("LU time: ",timer.Stop());
+        if( commRank == 0 ) timer.Start();
+        lu::SolveAfter( NORMAL, A, p, B );
+        if( commRank == 0 ) Output("SolveAfter time: ",timer.Stop());
+    }
+    else
+    {
+        RowEchelon( A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+    }
 }
 
 } // namespace lin_solve

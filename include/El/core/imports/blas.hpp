@@ -76,6 +76,13 @@ Base<F> Nrm2( BlasInt n, const F* x, BlasInt incx );
 double Nrm2( BlasInt n, const double  * x, BlasInt incx );
 double Nrm2( BlasInt n, const dcomplex* x, BlasInt incx );
 
+template<typename F>
+BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx );
+BlasInt MaxInd( BlasInt n, const float* x, BlasInt incx );
+BlasInt MaxInd( BlasInt n, const double* x, BlasInt incx );
+BlasInt MaxInd( BlasInt n, const scomplex* x, BlasInt incx );
+BlasInt MaxInd( BlasInt n, const dcomplex* x, BlasInt incx );
+
 float Givens
 ( float alpha, float beta, float* c, float* s );
 double Givens

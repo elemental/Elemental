@@ -185,7 +185,7 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
         pBuf[iLoc] = p.GlobalRow(iLoc);
 
     DistMatrix<Int,VC,STAR> p1(g), p1Inv(g);
-    vector<F> pivotBuffer;
+    vector<F> panelBuf, pivotBuf;
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -200,11 +200,18 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
 
         auto AB  = A( indB, ALL );
 
-        A21_MC_STAR.AlignWith( A22 );
-        A21_MC_STAR = A21;
+        const Int A21Height = A21.Height();
+        const Int A21LocHeight = A21.LocalHeight();
+        const Int panelLDim = nb+A21LocHeight;
+        panelBuf.reserve( panelLDim*nb );
+        A11_STAR_STAR.Attach
+        ( nb, nb, g, 0, 0, &panelBuf[0], panelLDim, 0 );
+        A21_MC_STAR.Attach
+        ( A21Height, nb, g, A21.ColAlign(), 0, &panelBuf[nb], panelLDim, 0 );
         A11_STAR_STAR = A11;
+        A21_MC_STAR = A21;
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR, pivotBuf );
 
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR, pivotBuffer );
         PivotsToPartialPermutation( p1Piv_STAR_STAR, p1, p1Inv );
         PermuteRows( AB, p1, p1Inv );
 
@@ -267,7 +274,7 @@ void LU
   ( DistMatrix<F,  STAR,STAR>& A11, \
     DistMatrix<F,  MC,  STAR>& A21, \
     DistMatrix<Int,STAR,STAR>& p1, \
-    vector<F>& pivotBuffer ); \
+    vector<F>& pivotBuf ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
