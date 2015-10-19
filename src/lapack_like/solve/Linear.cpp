@@ -185,12 +185,8 @@ void Overwrite
     if( useFullLU )
     {
         DistMatrix<Int,VC,STAR> p(A.Grid());
-        if( commRank == 0 ) timer.Start();
         LU( A, p );
-        if( commRank == 0 ) Output("LU time: ",timer.Stop());
-        if( commRank == 0 ) timer.Start();
         lu::SolveAfter( NORMAL, A, p, B );
-        if( commRank == 0 ) Output("SolveAfter time: ",timer.Stop());
     }
     else
     {
