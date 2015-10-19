@@ -82,6 +82,7 @@ EL_NO_EXCEPT
 {
     const Quad* inData  = static_cast<const Quad*>(inVoid);
           Quad* outData = static_cast<      Quad*>(outVoid);
+    const int length = *lengthPtr;
     for( int j=0; j<length; ++j )
     {
         if( inData[j] < outData[j] )
