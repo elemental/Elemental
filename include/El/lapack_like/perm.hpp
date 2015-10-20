@@ -57,8 +57,10 @@ struct PermutationMeta
     { }
 
     PermutationMeta
-    ( const ElementalMatrix<Int>& p,
-      const ElementalMatrix<Int>& pInv );
+    ( const DistMatrix<Int,STAR,STAR>& p,
+      const DistMatrix<Int,STAR,STAR>& pInv,
+            Int permAlign,
+            mpi::Comm permComm );
 };
 
 // Apply column pivots

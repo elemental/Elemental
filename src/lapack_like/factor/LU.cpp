@@ -164,15 +164,21 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
       AssertSameGrids( APre, pPre );
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto pPtr = WriteProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
+    auto& A = *APtr;
+
+    ProxyCtrl ctrl;
+    ctrl.colAlign = A.ColAlign();
+    ctrl.colConstrain = true;
+    auto pPtr = WriteProxy<Int,MC,STAR>( &pPre, ctrl );
+    auto& p = *pPtr;
 
     const Grid& g = A.Grid();
     DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,  MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
-    DistMatrix<Int,STAR,STAR> p1Piv_STAR_STAR(g);
+    DistMatrix<Int,STAR,STAR> p1Piv(g), p1(g), p1Inv(g);
 
     // Initialize the permutation to the identity
     const Int m = A.Height();
@@ -184,7 +190,6 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
     for( Int iLoc=0; iLoc<pLocHeight; ++iLoc )
         pBuf[iLoc] = p.GlobalRow(iLoc);
 
-    DistMatrix<Int,VC,STAR> p1(g), p1Inv(g);
     vector<F> panelBuf, pivotBuf;
 
     const Int bsize = Blocksize();
@@ -210,14 +215,15 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
         ( A21Height, nb, g, A21.ColAlign(), 0, &panelBuf[nb], panelLDim, 0 );
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR, pivotBuf );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv, pivotBuf );
 
-        PivotsToPartialPermutation( p1Piv_STAR_STAR, p1, p1Inv );
-        PermuteRows( AB, p1, p1Inv );
+        PivotsToPartialPermutation( p1Piv, p1, p1Inv );
+        PermutationMeta permMeta( p1, p1Inv, AB.ColAlign(), AB.ColComm() );
+        PermuteRows( AB, permMeta );
 
         // Update the preimage of the permutation
         auto pB = p( indB, ALL );
-        PermuteRows( pB, p1, p1Inv );
+        PermuteRows( pB, permMeta );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)

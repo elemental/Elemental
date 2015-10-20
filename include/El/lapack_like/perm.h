@@ -30,7 +30,11 @@ typedef struct
 } ElPermutationMeta;
 
 EL_EXPORT ElError ElPermutationMetaSet
-( const ElDistMatrix_i p, const ElDistMatrix_i pInv, ElPermutationMeta* meta );
+( const ElDistMatrix_i p,
+  const ElDistMatrix_i pInv,
+        ElInt permAlign,
+        MPI_Comm comm,
+        ElPermutationMeta* meta );
 EL_EXPORT ElError ElPermutationMetaClear( const ElPermutationMeta* meta );
 
 EL_EXPORT ElError ElPermutationMetaTotalSend

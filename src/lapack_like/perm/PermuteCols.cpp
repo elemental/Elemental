@@ -12,7 +12,9 @@ namespace El {
 
 template<typename T> 
 void PermuteCols
-( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm )
+(       Matrix<T>& A,
+  const Matrix<Int>& perm,
+  const Matrix<Int>& invPerm )
 {
     const Int b = perm.Height();
     DEBUG_ONLY(
@@ -27,31 +29,39 @@ void PermuteCols
     if( m == 0 || n == 0 )
         return;
 
-    // TODO: Optimize this routine
-
     // Make a copy of the first b columns
     auto AColPanView = A( IR(0,m), IR(0,b) );
     auto AColPanCopy( AColPanView );
 
     // Make a copy of the preimage columns
     Matrix<T> APreimageCopy( m, b );
+
+    const Int* permBuf = perm.LockedBuffer();
+    const Int* invPermBuf = invPerm.LockedBuffer();
+          T* ABuf = A.Buffer();
+          T* APreBuf = APreimageCopy.Buffer();
+          T* AColPanBuf = AColPanCopy.Buffer();
+    const Int ALDim = A.LDim();
+    const Int APreLDim = APreimageCopy.LDim();
+    const Int AColPanLDim = AColPanCopy.LDim();
+
     for( Int j=0; j<b; ++j )
     {
-        const Int jPre = perm.Get(j,0);
+        const Int jPre = permBuf[j];
         if( jPre >= b )
-            MemCopy( APreimageCopy.Buffer(0,j), A.LockedBuffer(0,jPre), m );
+            MemCopy( &APreBuf[j*APreLDim], &ABuf[jPre*ALDim], m );
     }
 
     // Apply the permutations
     for( Int j=0; j<b; ++j )
     {
-        const Int jPre = perm.Get(j,0);
-        const Int jPost = invPerm.Get(j,0);
+        const Int jPre = permBuf[j];
+        const Int jPost = invPermBuf[j];
         // Move row[j] into row[jPost]
-        MemCopy( A.Buffer(0,jPost), AColPanCopy.LockedBuffer(0,j), m );
+        MemCopy( &ABuf[jPost*ALDim], &AColPanBuf[j*AColPanLDim], m );
         // Move row[jPre] into row[j]
         if( jPre >= b )
-            MemCopy( A.Buffer(0,j), APreimageCopy.LockedBuffer(0,j), m );
+            MemCopy( &ABuf[j*ALDim], &APreBuf[j*APreLDim], m );
     }
 }
 
@@ -77,14 +87,17 @@ template<typename T>
 void PermuteCols( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
 {
     DEBUG_ONLY(
-        CSE cse("PermuteCols");
-        if( A.RowComm() != oldMeta.comm )
-            LogicError("Invalid communicator in metadata");
-        if( A.RowAlign() != oldMeta.align )
-            LogicError("Invalid alignment in metadata");
+      CSE cse("PermuteCols");
+      if( A.RowComm() != oldMeta.comm )
+          LogicError("Invalid communicator in metadata");
+      if( A.RowAlign() != oldMeta.align )
+          LogicError("Invalid alignment in metadata");
     )
     if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
+
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
 
     const Int localHeight = A.LocalHeight();
     PermutationMeta meta = oldMeta;
@@ -100,8 +113,7 @@ void PermuteCols( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
     {
         const int jLoc = meta.sendIdx[send];
         const int rank = meta.sendRanks[send];
-        MemCopy
-        ( &sendData[offsets[rank]], A.LockedBuffer(0,jLoc), localHeight );
+        MemCopy( &sendData[offsets[rank]], &ABuf[jLoc*ALDim], localHeight );
         offsets[rank] += localHeight;
     }
 
@@ -122,89 +134,78 @@ void PermuteCols( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
     {
         const int jLoc = meta.recvIdx[recv];
         const int rank = meta.recvRanks[recv];
-        MemCopy
-        ( A.Buffer(0,jLoc), &recvData[offsets[rank]], localHeight );
+        MemCopy( &ABuf[jLoc*ALDim], &recvData[offsets[rank]], localHeight );
         offsets[rank] += localHeight;
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void PermuteCols
-( DistMatrix<T,U,V>& A, 
+(       ElementalMatrix<T>& A, 
   const ElementalMatrix<Int>& permPre, 
   const ElementalMatrix<Int>& invPermPre )
 {
     DEBUG_ONLY(CSE cse("PermuteCols"))
 
-    ProxyCtrl ctrl;
-    ctrl.rootConstrain = true;
-    ctrl.colConstrain = true;
-    ctrl.root = A.Root();
-    ctrl.colAlign = A.RowAlign();
-
-    auto permPtr    = ReadProxy<Int,V,Collect<U>()>( &permPre,    ctrl );
-    auto invPermPtr = ReadProxy<Int,V,Collect<U>()>( &invPermPre, ctrl );
+    auto permPtr    = ReadProxy<Int,STAR,STAR>( &permPre );
+    auto invPermPtr = ReadProxy<Int,STAR,STAR>( &invPermPre );
 
     if( A.Participating() )
     {
-        PermutationMeta meta( *permPtr, *invPermPtr );
+        PermutationMeta meta
+        ( *permPtr, *invPermPtr, A.RowAlign(), A.RowComm() );
         PermuteCols( A, meta );
     }
 }
 
 template<typename T>
 void PermuteCols
-( ElementalMatrix<T>& APre,
-  const ElementalMatrix<Int>& perm,
-  const ElementalMatrix<Int>& invPerm )
-{
-    DEBUG_ONLY(CSE cse("PermuteCols"))
-    const Dist U = APre.ColDist();
-    const Dist V = APre.RowDist();
-    #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& A = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(APre); \
-        PermuteCols( A, perm, invPerm );
-    #include "El/macros/GuardAndPayload.h"
-}
-
-template<typename T>
-void PermuteCols
-( ElementalMatrix<T>& A, const ElementalMatrix<Int>& perm )
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<Int>& perm )
 {
     DEBUG_ONLY(CSE cse("PermuteCols"))
     const Grid& g = A.Grid();
-    DistMatrix<Int,VC,STAR> invPerm(g);
+    DistMatrix<Int,STAR,STAR> invPerm(g);
     InvertPermutation( perm, invPerm );
     PermuteCols( A, perm, invPerm );
 }
 
 template<typename T>
 void InversePermuteCols
-( ElementalMatrix<T>& A, const ElementalMatrix<Int>& invPerm )
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<Int>& invPerm )
 {
     DEBUG_ONLY(CSE cse("InversePermuteCols"))
     const Grid& g = A.Grid();
-    DistMatrix<Int,VC,STAR> perm(g);
+    DistMatrix<Int,STAR,STAR> perm(g);
     InvertPermutation( invPerm, perm );
     PermuteCols( A, perm, invPerm );
 }
 
 #define PROTO(T) \
-  template void PermuteCols( Matrix<T>& A, const Matrix<Int>& perm ); \
   template void PermuteCols \
-  ( ElementalMatrix<T>& A, const ElementalMatrix<Int>& perm ); \
-  template void InversePermuteCols( Matrix<T>& A, const Matrix<Int>& perm ); \
+  (       Matrix<T>& A, \
+    const Matrix<Int>& perm ); \
+  template void PermuteCols \
+  (       ElementalMatrix<T>& A, \
+    const ElementalMatrix<Int>& perm ); \
   template void InversePermuteCols \
-  ( ElementalMatrix<T>& A, const ElementalMatrix<Int>& perm ); \
+  (       Matrix<T>& A, \
+    const Matrix<Int>& perm ); \
+  template void InversePermuteCols \
+  (       ElementalMatrix<T>& A, \
+    const ElementalMatrix<Int>& perm ); \
   template void PermuteCols \
-  ( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm ); \
+  (       Matrix<T>& A, \
+    const Matrix<Int>& perm, \
+    const Matrix<Int>& invPerm ); \
   template void PermuteCols \
-  ( ElementalMatrix<T>& A, \
+  (       ElementalMatrix<T>& A, \
     const ElementalMatrix<Int>& perm, \
     const ElementalMatrix<Int>& invPerm ); \
   template void PermuteCols \
-  ( ElementalMatrix<T>& A, const PermutationMeta& oldMeta );
+  (       ElementalMatrix<T>& A, \
+    const PermutationMeta& oldMeta );
 
 #include "El/macros/Instantiate.h"
 

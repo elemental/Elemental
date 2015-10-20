@@ -23,8 +23,11 @@ void PivotsToPartialPermutation
     )
 
     const Int b = pivots.Height();
+    const Int* pivotsBuf = pivots.LockedBuffer();
     p.Resize( b, 1 );
     pInv.Resize( b, 1 );
+    Int* pBuf = p.Buffer();
+    Int* pInvBuf = pInv.Buffer();
  
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
@@ -32,30 +35,31 @@ void PivotsToPartialPermutation
 
     for( Int i=0; i<b; ++i ) 
     {
-        Int k = pivots.Get(i,0) - offset;
+        Int k = pivotsBuf[i] - offset;
         for( Int j=i-1; j>=0; --j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j;
             else if( k == j )
                 k = relSwap;
         }
-        p.Set( i, 0, k );
+        pBuf[i] = k;
     }
 
     for( Int i=0; i<b; ++i )
     {
         Int k = i;
+        // TODO: Double-check that the upper-bound should change
         for( Int j=0; j<Min(k+1,b); ++j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j; 
             else if( k == j )
                 k = relSwap;
         }
-        pInv.Set( i, 0, k );
+        pInvBuf[i] = k;
     }
 }
 
@@ -76,6 +80,8 @@ void PivotsToPartialPermutation
     pInv.SetGrid( pivots.Grid() );
     pInv.Resize( b, 1 );
     p.Resize( b, 1 );
+
+    const Int* pivotsBuf = pivots.LockedBuffer();
  
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
@@ -83,10 +89,10 @@ void PivotsToPartialPermutation
 
     for( Int i=0; i<b; ++i ) 
     {
-        Int k = pivots.GetLocal(i,0) - offset;
+        Int k = pivotsBuf[i] - offset;
         for( Int j=i-1; j>=0; --j )
         {
-            const Int relSwap = pivots.GetLocal(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j;
             else if( k == j )
@@ -101,7 +107,7 @@ void PivotsToPartialPermutation
         Int k = i;
         for( Int j=0; j<Min(k+1,b); ++j )
         {
-            const Int relSwap = pivots.GetLocal(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j; 
             else if( k == j )

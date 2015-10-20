@@ -13,10 +13,14 @@ using namespace El;
 extern "C" {
 
 ElError ElPermutationMetaSet
-( const ElDistMatrix_i p, const ElDistMatrix_i pInv, ElPermutationMeta* meta )
+( const ElDistMatrix_i p,
+  const ElDistMatrix_i pInv,
+        ElInt permAlign,
+        MPI_Comm comm,
+        ElPermutationMeta* meta )
 {
     EL_TRY( 
-      PermutationMeta metaCpp( *CReflect(p), *CReflect(pInv) );
+      PermutationMeta metaCpp( *CReflect(p), *CReflect(pInv), permAlign, comm );
       *meta = CReflect(metaCpp);
     )
 }

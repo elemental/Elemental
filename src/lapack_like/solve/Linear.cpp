@@ -89,9 +89,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g), B1_STAR_VR(g);
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g), B1_STAR_MR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
-    DistMatrix<Int,STAR,STAR> p1Piv_STAR_STAR(g);
-
-    DistMatrix<Int,VC,STAR> p1(g), p1Inv(g);
+    DistMatrix<Int,STAR,STAR> p1Piv(g), p1(g), p1Inv(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
@@ -121,10 +119,14 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         ( A21Height, nb, g, A21.ColAlign(), 0, &panelBuf[nb], panelLDim, 0 );
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR, pivotBuf );
-        PivotsToPartialPermutation( p1Piv_STAR_STAR, p1, p1Inv );
-        PermuteRows( AB2, p1, p1Inv );
-        PermuteRows( BB,  p1, p1Inv );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv, pivotBuf );
+        PivotsToPartialPermutation( p1Piv, p1, p1Inv );
+        PermutationMeta permMeta( p1, p1Inv, AB2.ColAlign(), AB2.ColComm() );
+        PermuteRows( AB2, permMeta );
+        if( BAligned )
+            PermuteRows( BB, permMeta );
+        else
+            PermuteRows( BB, p1, p1Inv );
 
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;

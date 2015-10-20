@@ -247,6 +247,7 @@ inline void FrontIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
+    // TODO TODO TODO TODO TODO...
     PermuteRows( XT, p );
 
     FrontVanillaLowerForwardSolve( L, X, singleL11AllGather );
@@ -338,6 +339,7 @@ inline void FrontIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
+    // TODO TODO TODO TODO TODO...
     PermuteRows( XT, p );
 
     FrontVanillaLowerForwardSolve( L, X );
@@ -398,6 +400,7 @@ inline void FrontFastIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
+    // TODO TODO TODO TODO TODO...
     PermuteRows( XT, p );
 
     FrontFastLowerForwardSolve( L, X );
@@ -472,6 +475,7 @@ inline void FrontFastIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
+    // TODO TODO TODO TODO TODO...
     PermuteRows( XT, p );
 
     FrontFastLowerForwardSolve( L, X );
@@ -524,6 +528,7 @@ inline void FrontFastIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
+    // TODO TODO TODO TODO TODO...
     PermuteRows( XT, p );
 
     FrontFastLowerForwardSolve( L, X );
