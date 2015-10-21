@@ -16,6 +16,7 @@ namespace lu {
 template<typename F>
 void Panel( Matrix<F>& A, Matrix<Int>& pivots )
 {
+    const Int m = A.Height(); 
     const Int n = A.Width();
     F* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
@@ -28,15 +29,15 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
 
     for( Int k=0; k<n; ++k )
     {
-        const Int ind2Size = n - (k+1);
+        const Int ind2HorzSize = n - (k+1);
+        const Int ind2VertSize = m - (k+1);
         const F* a12Buf = &ABuf[ k    + (k+1)*ALDim];
         const F* aB1Buf = &ABuf[ k    +  k   *ALDim];
               F* a21Buf = &ABuf[(k+1) +  k   *ALDim];
               F* A22Buf = &ABuf[(k+1) + (k+1)*ALDim];
 
         // Find the index and value of the pivot candidate
-        const Int maxInd = blas::MaxInd( ind2Size+1, aB1Buf, 1 );
-        const Int maxAbs = Abs(aB1Buf[maxInd]);
+        const Int maxInd = blas::MaxInd( ind2VertSize+1, aB1Buf, 1 );
         const Int iPiv = maxInd + k;
         pivots.Set( k, 0, iPiv );
 
@@ -49,9 +50,10 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
         if( alpha == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha;
-        blas::Scal( ind2Size, alpha11Inv, a21Buf, 1 );
+        blas::Scal( ind2VertSize, alpha11Inv, a21Buf, 1 );
         blas::Geru
-        ( ind2Size, ind2Size, F(-1), a21Buf, 1, a12Buf, ALDim, A22Buf, ALDim );
+        ( ind2VertSize, ind2HorzSize,
+          F(-1), a21Buf, 1, a12Buf, ALDim, A22Buf, ALDim );
     }
 }
 
