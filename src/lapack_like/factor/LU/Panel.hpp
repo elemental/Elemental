@@ -60,6 +60,8 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
 // NOTE: It is assumed that the local buffers of A[*,*] and B[MC,*] can be
 //       verticially stacked, so that the top-left local entry of B is 
 //       the n'th local entry of A[*,*]'s local buffer.
+//       Also, on entry, it is only required that process row 0 has the correct
+//       data for A.
 template<typename F>
 void Panel
 ( DistMatrix<F,  STAR,STAR>& A, 
@@ -74,7 +76,7 @@ void Panel
     F* BBuf = B.Buffer();
     const Int ALDim = A.LDim();
     const Int BLDim = B.LDim();
-    mpi::Comm BColComm = B.ColComm();
+    mpi::Comm colComm = B.ColComm();
     mpi::Op maxLocOp = mpi::MaxLocOp<Real>();
     DEBUG_ONLY(
       CSE cse("lu::Panel");
@@ -96,28 +98,20 @@ void Panel
               F* A22Buf = &ABuf[(k+1) + (k+1)*ALDim];
 
         // Store the index/value of the local pivot candidate
-        const Int aB1LocalInd =
-          blas::MaxInd( ind2Size+1+BLocHeight, aB1Buf, 1 ); 
-        const Real aB1LocalVal = Abs(aB1Buf[aB1LocalInd]);
+        Int aB1LocalInd = blas::MaxInd( ind2Size+1+BLocHeight, aB1Buf, 1 ); 
         ValueInt<Real> localPivot;
-        localPivot.value = aB1LocalVal;
+        localPivot.value = Abs(aB1Buf[aB1LocalInd]);
         if( aB1LocalInd+k < n )
-        {
             localPivot.index = aB1LocalInd + k;
-        }
         else
-        {
-            const Int b1LocalInd = aB1LocalInd-(n-k);
-            localPivot.index = B.GlobalRow(b1LocalInd) + n;
-        }
+            localPivot.index = B.GlobalRow(aB1LocalInd-(n-k)) + n;
 
         // Compute and store the location of the new pivot
-        const auto pivot = mpi::AllReduce( localPivot, maxLocOp, BColComm );
+        const auto pivot = mpi::AllReduce( localPivot, maxLocOp, colComm );
         const Int iPiv = pivot.index;
         pivots.SetLocal( k, 0, iPiv );
 
         // Perform the pivot within this panel
-        // TODO: Add more special cases? E.g., if there is only one process?
         if( iPiv < n )
         {
             blas::Swap( n, &ABuf[iPiv], ALDim, &ABuf[k], ALDim );
@@ -137,7 +131,7 @@ void Panel
                     BBuf[iLoc+j*BLDim] = ABuf[k+j*ALDim];
             }
             // The owning row broadcasts within process columns
-            mpi::Broadcast( pivotBuffer.data(), n, ownerRow, BColComm );
+            mpi::Broadcast( pivotBuffer.data(), n, ownerRow, colComm );
             // Overwrite the current row with the pivot row
             for( Int j=0; j<n; ++j )
                 ABuf[k+j*ALDim] = pivotBuffer[j];

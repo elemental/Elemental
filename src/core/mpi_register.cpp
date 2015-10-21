@@ -482,8 +482,13 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     // A value and an integer
     // ----------------------
     mpi::CreateValueIntType<Int>();
+#ifdef EL_USE_64BIT_INTS
     mpi::CreateValueIntType<float>();
     mpi::CreateValueIntType<double>();
+#else
+    ::floatIntType = MPI_FLOAT_INT;
+    ::doubleIntType = MPI_DOUBLE_INT;
+#endif
 #ifdef EL_HAVE_QUAD
     mpi::CreateValueIntType<Quad>();
 #endif
@@ -520,10 +525,17 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     // -----------------------------------
     Create( (UserFunction*)MaxLocFunc<Int>,    true, ::maxLocIntOp    );
     Create( (UserFunction*)MinLocFunc<Int>,    true, ::minLocIntOp    );
+#ifdef EL_USE_64BIT_INTS
     Create( (UserFunction*)MaxLocFunc<float>,  true, ::maxLocFloatOp  );
     Create( (UserFunction*)MinLocFunc<float>,  true, ::minLocFloatOp  );
     Create( (UserFunction*)MaxLocFunc<double>, true, ::maxLocDoubleOp );
     Create( (UserFunction*)MinLocFunc<double>, true, ::minLocDoubleOp );
+#else
+    ::maxLocFloatOp = MAXLOC; 
+    ::minLocFloatOp = MINLOC;
+    ::maxLocDoubleOp = MAXLOC;
+    ::minLocDoubleOp = MINLOC;
+#endif
 #ifdef EL_HAVE_QUAD
     Create( (UserFunction*)MaxLocFunc<Quad>,   true, ::maxLocQuadOp   );
     Create( (UserFunction*)MinLocFunc<Quad>,   true, ::minLocQuadOp   );
@@ -552,8 +564,10 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #endif
 
     Free( ValueIntType<Int>() );
+#ifdef EL_USE_64BIT_INTS
     Free( ValueIntType<float>() );
     Free( ValueIntType<double>() );
+#endif
 #ifdef EL_HAVE_QUAD
     Free( ValueIntType<Quad>() );
 #endif
@@ -585,30 +599,26 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #endif
 
     Free( ::maxLocIntOp );
+    Free( ::minLocIntOp );
+#ifdef EL_USE_64BIT_INTS
     Free( ::maxLocFloatOp );
+    Free( ::minLocFloatOp );
     Free( ::maxLocDoubleOp );
+    Free( ::minLocDoubleOp );
+#endif
 #ifdef EL_HAVE_QUAD
     Free( ::maxLocQuadOp );
-#endif
-
-    Free( ::maxLocPairIntOp );
-    Free( ::maxLocPairFloatOp );
-    Free( ::maxLocPairDoubleOp );
-#ifdef EL_HAVE_QUAD
-    Free( ::maxLocPairQuadOp );
-#endif
-
-    Free( ::minLocIntOp );
-    Free( ::minLocFloatOp );
-    Free( ::minLocDoubleOp );
-#ifdef EL_HAVE_QUAD
     Free( ::minLocQuadOp );
 #endif
 
+    Free( ::maxLocPairIntOp );
     Free( ::minLocPairIntOp );
+    Free( ::maxLocPairFloatOp );
     Free( ::minLocPairFloatOp );
+    Free( ::maxLocPairDoubleOp );
     Free( ::minLocPairDoubleOp );
 #ifdef EL_HAVE_QUAD
+    Free( ::maxLocPairQuadOp );
     Free( ::minLocPairQuadOp );
 #endif
 }
