@@ -88,6 +88,8 @@ void omatcopy
   float alpha, const float* A, BlasInt lda,
                      float* B, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(somatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, B, &ldb );
@@ -98,6 +100,8 @@ void omatcopy
   double alpha, const double* A, BlasInt lda,
                       double* B, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(domatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, B, &ldb );
@@ -108,6 +112,8 @@ void omatcopy
   scomplex alpha, const scomplex* A, BlasInt lda,
                         scomplex* B, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(comatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, B, &ldb );
@@ -118,6 +124,8 @@ void omatcopy
   dcomplex alpha, const dcomplex* A, BlasInt lda,
                         dcomplex* B, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(zomatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, B, &ldb );
@@ -134,6 +142,8 @@ void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, float* A, BlasInt lda, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(simatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, &ldb );
@@ -143,6 +153,8 @@ void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   double alpha, double* A, BlasInt lda, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(dimatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, &ldb );
@@ -152,6 +164,8 @@ void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   scomplex alpha, scomplex* A, BlasInt lda, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(cimatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, &ldb );
@@ -161,6 +175,8 @@ void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb )
 {
+    if( m < 1 || n < 1 )
+        return;
     char ordering = 'C';
     char trans = OrientationToChar( orientation );
     EL_BLAS(zimatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, &ldb );
