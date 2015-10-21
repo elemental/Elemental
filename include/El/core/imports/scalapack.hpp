@@ -117,23 +117,19 @@ void SVD
 void HermitianEig
 ( char uplo, int n,
   float* A, const int* desca,
-  float* w, 
-  float abstol=0 );
+  float* w );
 void HermitianEig
 ( char uplo, int n,
   double* A, const int* desca,
-  double* w, 
-  double abstol=0 );
+  double* w );
 void HermitianEig
 ( char uplo, int n,
   scomplex* A, const int* desca,
-  float* w, 
-  float abstol=0 );
+  float* w );
 void HermitianEig
 ( char uplo, int n,
   dcomplex* A, const int* desca,
-  double* w, 
-  double abstol=0 );
+  double* w );
 
 // Floating-point range
 // """"""""""""""""""""
@@ -141,22 +137,22 @@ int HermitianEig
 ( char uplo, int n,
   float* A, const int* desca,
   float* w,
-  float vl, float vu, float abstol=0 );
+  float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
   double* A, const int* desca,
   double* w,
-  double vl, double vu, double abstol=0 );
+  double vl, double vu );
 int HermitianEig
 ( char uplo, int n,
   scomplex* A, const int* desca,
   float* w,
-  float vl, float vu, float abstol=0 );
+  float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
   dcomplex* A, const int* desca,
   double* w,
-  double vl, double vu, double abstol=0 );
+  double vl, double vu );
 
 // Index range
 // """""""""""
@@ -164,22 +160,22 @@ void HermitianEig
 ( char uplo, int n,
   float* A, const int* desca,
   float* w,
-  int il, int iu, float abstol=0 );
+  int il, int iu );
 void HermitianEig
 ( char uplo, int n,
   double* A, const int* desca,
   double* w,
-  int il, int iu, double abstol=0 );
+  int il, int iu );
 void HermitianEig
 ( char uplo, int n,
   scomplex* A, const int* desca,
   float* w,
-  int il, int iu, float abstol=0 );
+  int il, int iu );
 void HermitianEig
 ( char uplo, int n,
   dcomplex* A, const int* desca,
   double* w,
-  int il, int iu, double abstol=0 );
+  int il, int iu );
 
 // Compute eigenpairs
 // ^^^^^^^^^^^^^^^^^^
@@ -190,26 +186,22 @@ void HermitianEig
 ( char uplo, int n,
   float* A, const int* desca,
   float* w, 
-  float* Z, const int* descz,
-  float abstol=0 );
+  float* Z, const int* descz );
 void HermitianEig
 ( char uplo, int n,
   double* A, const int* desca,
   double* w, 
-  double* Z, const int* descz,
-  double abstol=0 );
+  double* Z, const int* descz );
 void HermitianEig
 ( char uplo, int n,
   scomplex* A, const int* desca,
   float* w, 
-  scomplex* Z, const int* descz,
-  float abstol=0 );
+  scomplex* Z, const int* descz );
 void HermitianEig
 ( char uplo, int n,
   dcomplex* A, const int* desca,
   double* w, 
-  dcomplex* Z, const int* descz,
-  double abstol=0 );
+  dcomplex* Z, const int* descz );
 
 // Floating-point range
 // """"""""""""""""""""
@@ -218,25 +210,25 @@ int HermitianEig
   float* A, const int* desca,
   float* w, 
   float* Z, const int* descz,
-  float vl, float vu, float abstol=0 );
+  float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
   double* A, const int* desca,
   double* w, 
   double* Z, const int* descz,
-  double vl, double vu, double abstol=0 );
+  double vl, double vu );
 int HermitianEig
 ( char uplo, int n,
   scomplex* A, const int* desca,
   float* w, 
   scomplex* Z, const int* descz,
-  float vl, float vu, float abstol=0 );
+  float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
   dcomplex* A, const int* desca,
   double* w, 
   dcomplex* Z, const int* descz,
-  double vl, double vu, double abstol=0 );
+  double vl, double vu );
 
 // Index range
 // """""""""""
@@ -245,25 +237,25 @@ void HermitianEig
   float* A, const int* desca,
   float* w, 
   float* Z, const int* descz,
-  int il, int iu, float abstol=0 );
+  int il, int iu );
 void HermitianEig
 ( char uplo, int n,
   double* A, const int* desca,
   double* w, 
   double* Z, const int* descz,
-  int il, int iu, double abstol=0 );
+  int il, int iu );
 void HermitianEig
 ( char uplo, int n,
   scomplex* A, const int* desca,
   float* w, 
   scomplex* Z, const int* descz,
-  int il, int iu, float abstol=0 );
+  int il, int iu );
 void HermitianEig
 ( char uplo, int n,
   dcomplex* A, const int* desca,
   double* w, 
   dcomplex* Z, const int* descz,
-  int il, int iu, double abstol=0 );
+  int il, int iu );
 
 // Reduction of a generalized HPD EVP to standard form
 // ---------------------------------------------------

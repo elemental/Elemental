@@ -75,7 +75,7 @@ QR
         LogicError("Grid row did not match BLACS");
     if( A.RowRank() != blacs::GridCol(context) )
         LogicError("Grid col did not match BLACS");
-    auto desca = FillDesc( A, context );
+    auto descA = FillDesc( A, context );
 
     // Reduce the matrix to upper-Hessenberg form in an elemental form
     DistMatrix<F> AElem( A );
@@ -101,12 +101,12 @@ QR
     Identity( Z, n, n );
     bool multiplyZ=true;
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), desca.data(),
-      w_STAR_STAR.Buffer(), Z.Buffer(), desca.data(),
+    ( n, A.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(), Z.Buffer(), descA.data(),
       fullTriangle, multiplyZ, ctrl.distAED );
 #else
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, 
+    ( n, A.Buffer(), descA.data(), w_STAR_STAR.Buffer(), fullTriangle, 
       ctrl.distAED );
 #endif
     Copy( w_STAR_STAR, w );
@@ -156,8 +156,8 @@ QR
     if( A.RowRank() != blacs::GridCol(context) || 
         Q.RowRank() != blacs::GridCol(context) )
         LogicError("Grid col did not match BLACS");
-    auto desca = FillDesc( A, context );
-    auto descq = FillDesc( Q, context );
+    auto descA = FillDesc( A, context );
+    auto descQ = FillDesc( Q, context );
 
     // Reduce A to upper-Hessenberg form in an element-wise distribution
     // and form the explicit reflector matrix
@@ -188,8 +188,8 @@ QR
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAED );
+    ( n, A.Buffer(), descA.data(), w_STAR_STAR.Buffer(), 
+      Q.Buffer(), descQ.data(), fullTriangle, multiplyQ, ctrl.distAED );
     Copy( w_STAR_STAR, w );
 
     // TODO: Cache context, handle, and exit BLACS during El::Finalize()
@@ -243,7 +243,7 @@ QR
         LogicError("Grid row did not match BLACS");
     if( ABlock.RowRank() != blacs::GridCol(context) )
         LogicError("Grid col did not match BLACS");
-    blacs::Desc desca = FillDesc( ABlock, context );
+    blacs::Desc descA = FillDesc( ABlock, context );
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
 
 #define FORCE_WANTZ_TRUE 1
@@ -252,12 +252,12 @@ QR
     Identity( Z, n, n );
     bool multiplyZ=true;
     scalapack::HessenbergSchur
-    ( n, ABlock.Buffer(), desca.data(),
-      w_STAR_STAR.Buffer(), Z.Buffer(), desca.data(),
+    ( n, ABlock.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(), Z.Buffer(), descA.data(),
       fullTriangle, multiplyZ, ctrl.distAED );
 #else
     scalapack::HessenbergSchur
-    ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
+    ( n, ABlock.Buffer(), descA.data(), w_STAR_STAR.Buffer(), 
       fullTriangle, ctrl.distAED );
 #endif
 
@@ -326,16 +326,16 @@ QR
     if( ABlock.RowRank() != blacs::GridCol(context) || 
         QBlock.RowRank() != blacs::GridCol(context) )
         LogicError("Grid col did not match BLACS");
-    auto desca = FillDesc( ABlock, context );
-    auto descq = FillDesc( QBlock, context );
+    auto descA = FillDesc( ABlock, context );
+    auto descQ = FillDesc( QBlock, context );
 
     // Compute the Schur decomposition in block form, multiplying the 
     // accumulated Householder reflectors from the right
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
-    ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAED );
+    ( n, ABlock.Buffer(), descA.data(), w_STAR_STAR.Buffer(), 
+      QBlock.Buffer(), descQ.data(), fullTriangle, multiplyQ, ctrl.distAED );
     A = ABlock;
     Q = QBlock;
     Copy( w_STAR_STAR, w );

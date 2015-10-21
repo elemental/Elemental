@@ -15,7 +15,10 @@ namespace El {
 
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const Matrix<F>& G, Matrix<Base<F>>& wImag, SortType sort, 
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag,
+        SortType sort, 
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
@@ -28,8 +31,10 @@ void SkewHermitianEig
 
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const ElementalMatrix<F>& G,
-  ElementalMatrix<Base<F>>& wImag, SortType sort,
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& G,
+        ElementalMatrix<Base<F>>& wImag,
+        SortType sort,
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
@@ -44,8 +49,11 @@ void SkewHermitianEig
 // ==================
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const Matrix<F>& G, Matrix<Base<F>>& wImag, 
-  Matrix<Complex<Base<F>>>& Z, SortType sort, 
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag, 
+        Matrix<Complex<Base<F>>>& Z,
+        SortType sort, 
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
@@ -58,9 +66,11 @@ void SkewHermitianEig
 
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const ElementalMatrix<F>& G,
-  ElementalMatrix<Base<F>>& wImag, ElementalMatrix<Complex<Base<F>>>& Z,
-  SortType sort,
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& G,
+        ElementalMatrix<Base<F>>& wImag,
+        ElementalMatrix<Complex<Base<F>>>& Z,
+        SortType sort,
   const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
@@ -73,25 +83,34 @@ void SkewHermitianEig
 
 #define PROTO(F) \
   template void SkewHermitianEig \
-  ( UpperOrLower uplo, const Matrix<F>& G, \
-    Matrix<Base<F>>& wImag, SortType sort, \
+  ( UpperOrLower uplo, \
+    const Matrix<F>& G, \
+          Matrix<Base<F>>& wImag, \
+          SortType sort, \
     const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& G, \
-    ElementalMatrix<Base<F>>& wImag, SortType sort, \
+  ( UpperOrLower uplo, \
+    const ElementalMatrix<F>& G, \
+          ElementalMatrix<Base<F>>& wImag, \
+          SortType sort, \
     const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
-  ( UpperOrLower uplo, const Matrix<F>& G, \
-    Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z, SortType sort, \
+  ( UpperOrLower uplo, \
+    const Matrix<F>& G, \
+          Matrix<Base<F>>& wImag, \
+          Matrix<Complex<Base<F>>>& Z, \
+          SortType sort, \
     const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template void SkewHermitianEig \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& G, \
-    ElementalMatrix<Base<F>>& wImag, \
-    ElementalMatrix<Complex<Base<F>>>& Z, \
-    SortType sort, const HermitianEigSubset<Base<F>>& subset, \
+  ( UpperOrLower uplo, \
+    const ElementalMatrix<F>& G, \
+          ElementalMatrix<Base<F>>& wImag, \
+          ElementalMatrix<Complex<Base<F>>>& Z, \
+          SortType sort, \
+    const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl );
 
 #define EL_NO_INT_PROTO

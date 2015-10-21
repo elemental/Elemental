@@ -307,6 +307,63 @@ void HermitianEig
         w *= 1/scale;
 }
 
+template<typename F>
+void HermitianEig
+( UpperOrLower uplo,
+  DistMatrix<F,MC,MR,BLOCK>& A,
+  Matrix<Base<F>>& w,
+  const HermitianEigSubset<Base<F>> subset )
+{
+    DEBUG_ONLY(CSE cse("HermitianEig"))
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+
+    if( subset.indexSubset && subset.rangeSubset )
+        LogicError("Cannot mix index and range subsets");
+    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
+        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
+    {
+        w.Resize(0,1);
+        return;
+    }
+
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    const Int n = A.Height();
+    w.Resize( n, 1 );
+
+    const int bHandle = blacs::Handle( A.DistComm().comm );
+    const int context =
+        blacs::GridInit
+        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
+          A.ColStride(), A.RowStride() );
+    if( A.ColStride() != blacs::GridHeight(context) )
+        LogicError("Grid height did not match BLACS");
+    if( A.RowStride() != blacs::GridWidth(context) )
+        LogicError("Grid width did not match BLACS");
+    if( A.ColRank() != blacs::GridRow(context) )
+        LogicError("Grid row did not match BLACS");
+    if( A.RowRank() != blacs::GridCol(context) )
+        LogicError("Grid col did not match BLACS");
+    auto descA = FillDesc( A, context );
+    
+    const char uploChar = UpperOrLowerToChar( uplo );
+    if( subset.rangeSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else if( subset.indexSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else
+    {
+        scalapack::HermitianEig
+        ( uploChar, n, A.Buffer(), descA.data(), w.Buffer() );
+    }
+#endif
+}
+
 // Compute eigenpairs
 // ==================
 
@@ -636,6 +693,68 @@ void HermitianEig
     }
 }
 
+template<typename F>
+void HermitianEig
+( UpperOrLower uplo,
+  DistMatrix<F,MC,MR,BLOCK>& A,
+  Matrix<Base<F>>& w,
+  DistMatrix<F,MC,MR,BLOCK>& Z,
+  const HermitianEigSubset<Base<F>> subset )
+{
+    DEBUG_ONLY(CSE cse("HermitianEig"))
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+
+    const Int n = A.Height();
+    if( subset.indexSubset && subset.rangeSubset )
+        LogicError("Cannot mix index and range subsets");
+    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
+        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
+    {
+        w.Resize(0,1);
+        Z.Resize(n,0);
+        return;
+    }
+
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    w.Resize( n, 1 );
+    Z.SetGrid( A.Grid() );
+    Z.AlignWith( A );
+    Z.Resize( n, n );
+
+    const int bHandle = blacs::Handle( A.DistComm().comm );
+    const int context =
+        blacs::GridInit
+        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
+          A.ColStride(), A.RowStride() );
+    if( A.ColStride() != blacs::GridHeight(context) )
+        LogicError("Grid height did not match BLACS");
+    if( A.RowStride() != blacs::GridWidth(context) )
+        LogicError("Grid width did not match BLACS");
+    if( A.ColRank() != blacs::GridRow(context) )
+        LogicError("Grid row did not match BLACS");
+    if( A.RowRank() != blacs::GridCol(context) )
+        LogicError("Grid col did not match BLACS");
+    auto descA = FillDesc( A, context );
+    auto descZ = FillDesc( Z, context );
+    
+    const char uploChar = UpperOrLowerToChar( uplo );
+    if( subset.rangeSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else if( subset.indexSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else
+    {
+        LogicError("This option is not yet supported" );
+    }
+#endif
+}
+
 #define EIGVAL_PROTO(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, \
@@ -654,9 +773,16 @@ void HermitianEig
   template void HermitianEig\
   ( UpperOrLower uplo, \
     ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, SortType sort, \
+    ElementalMatrix<Base<F>>& w, \
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<F>& ctrl );
+    const HermitianEigCtrl<F>& ctrl ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, \
+    DistMatrix<F,MC,MR,BLOCK>& A, \
+    Matrix<Base<F>>& w, \
+    const HermitianEigSubset<Base<F>> subset );
+
 #define EIGPAIR_PROTO(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, \
@@ -681,7 +807,13 @@ void HermitianEig
     ElementalMatrix<F>& Z, \
     SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<F>& ctrl );
+    const HermitianEigCtrl<F>& ctrl ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, \
+    DistMatrix<F,MC,MR,BLOCK>& A, \
+    Matrix<Base<F>>& w, \
+    DistMatrix<F,MC,MR,BLOCK>& Z, \
+    const HermitianEigSubset<Base<F>> subset );
 
 // Spectral Divide and Conquer
 #define SDC_PROTO(F) \

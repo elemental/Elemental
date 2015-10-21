@@ -684,6 +684,12 @@ void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
       &dummyWork, &lwork,
       rwork.data(),
       &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
 
     // Actual call
     lwork = dummyWork.real();
@@ -723,6 +729,12 @@ void SingularValues( int m, int n, dcomplex* A, const int* descA, double* s )
       &dummyWork, &lwork,
       rwork.data(),
       &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
 
     // Actual call
     lwork = dummyWork.real();
@@ -760,8 +772,8 @@ void SVD
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
       s,
-      U, &iU, &jU, descA,
-      VH, &iVH, &jVH, descA,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       &dummyWork, &lwork,
       &info );
 
@@ -772,8 +784,8 @@ void SVD
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
       s,
-      U, &iU, &jU, descA,
-      VH, &iVH, &jVH, descA,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       work.data(), &lwork,
       &info );
     if( info != 0 )
@@ -798,8 +810,8 @@ void SVD
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
       s,
-      U, &iU, &jU, descA,
-      VH, &iVH, &jVH, descA,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       &dummyWork, &lwork,
       &info );
 
@@ -810,8 +822,8 @@ void SVD
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
       s,
-      U, &iU, &jU, descA,
-      VH, &iVH, &jVH, descA,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       work.data(), &lwork,
       &info );
     if( info != 0 )
@@ -837,21 +849,34 @@ void SVD
     EL_SCALAPACK(pcgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       &dummyWork, &lwork, rwork.data(), &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
 
     lwork = dummyWork.real();
     vector<scomplex> work(lwork);
     EL_SCALAPACK(pcgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       work.data(), &lwork, rwork.data(), &info );
 }
 
 void SVD
-( int m, int n, dcomplex* A, const int* descA,
-  double* s, dcomplex* U, const int* descU, dcomplex* VH, const int* descVH )
+( int m, int n,
+  dcomplex* A, const int* descA,
+  double* s,
+  dcomplex* U, const int* descU,
+  dcomplex* VH, const int* descVH )
 {
     DEBUG_ONLY(CSE cse("scalapack::SVD"))
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
@@ -865,15 +890,25 @@ void SVD
     EL_SCALAPACK(pzgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       &dummyWork, &lwork, rwork.data(), &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
 
     lwork = dummyWork.real();
     vector<dcomplex> work(lwork);
     EL_SCALAPACK(pzgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       work.data(), &lwork, rwork.data(), &info );
 }
 
@@ -925,14 +960,18 @@ void TwoSidedTrsm
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<float> work( workSize );
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pssyngst exited with info=",info);
 }
@@ -946,14 +985,18 @@ void TwoSidedTrsm
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<double> work( workSize );
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pdsyngst exited with info=",info);
 }
@@ -968,14 +1011,18 @@ void TwoSidedTrsm
     float scale;
     scomplex dummyWork;
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<scomplex> work( workSize );
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pchengst exited with info=",info);
 }
@@ -990,14 +1037,18 @@ void TwoSidedTrsm
     double scale;
     dcomplex dummyWork;
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<dcomplex> work( workSize );
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pzhengst exited with info=",info);
 }
@@ -1013,14 +1064,18 @@ void TwoSidedTrmm
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<float> work( workSize );
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pssyngst exited with info=",info);
 }
@@ -1034,14 +1089,18 @@ void TwoSidedTrmm
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<double> work( workSize );
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pdsyngst exited with info=",info);
 }
@@ -1056,14 +1115,18 @@ void TwoSidedTrmm
     float scale;
     scomplex dummyWork;
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<scomplex> work( workSize );
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pchengst exited with info=",info);
 }
@@ -1078,14 +1141,18 @@ void TwoSidedTrmm
     double scale;
     dcomplex dummyWork;
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<dcomplex> work( workSize );
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pzhengst exited with info=",info);
 }
