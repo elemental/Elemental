@@ -145,89 +145,27 @@ void Translate
         blockHeight == B.BlockHeight() && blockWidth == B.BlockWidth() &&
         colAlign    == B.ColAlign()    && rowAlign   == B.RowAlign() &&
         colCut      == B.ColCut()      && rowCut     == B.RowCut();
-    if( aligned && root == B.Root() )
+    if( A.Grid().Size() == 1 || (aligned && root == B.Root()) )
     {
-        B.Matrix() = A.LockedMatrix();
+        Copy( A.LockedMatrix(), B.Matrix() );
     }
     else
     {
-        // TODO: Implement this in a more efficient manner, perhaps through
-        //       many rounds of point-to-point communication
-        // TODO: Turn this into a general routine for redistributing
-        //       between any matrix distributions supported by Elemental.
-        //       The key addition is mpi::Translate.
-        const Int distSize = B.DistSize();
-        const Int mLocal = A.LocalHeight();
-        const Int nLocal = A.LocalWidth();
-        const Int mLocalB = B.LocalHeight();
-        const Int nLocalB = B.LocalWidth();
-
-        // Determine how much data our process sends and recvs from every 
-        // other process
-        vector<int> sendCounts(distSize,0), recvCounts(distSize,0);
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        // TODO: Break into smaller pieces to avoid excessive memory usage?
+        Zeros( B, height, width );
+        B.Reserve( localHeight*localWidth );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
             {
                 const Int i = A.GlobalRow(iLoc);
-                ++sendCounts[ B.Owner(i,j) ];
+                B.QueueUpdate( i, j, A.GetLocal(iLoc,jLoc) );
             }
-        }
-        for( Int jLoc=0; jLoc<nLocalB; ++jLoc )
-        {
-            const Int j = B.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
-            {
-                const Int i = B.GlobalRow(iLoc);
-                ++recvCounts[ A.Owner(i,j) ];
-            }
-        }
-
-        // Translate the send/recv counts into displacements and allocate
-        // the send and recv buffers
-        vector<int> sendOffs, recvOffs;
-        const Int totalSend = Scan( sendCounts, sendOffs );
-        const Int totalRecv = Scan( recvCounts, recvOffs );
-        //vector<T> sendBuf(totalSend), recvBuf(totalRecv);
-        vector<T> sendBuf, recvBuf;
-        sendBuf.reserve( totalSend );
-        recvBuf.reserve( totalRecv );
-
-        // Pack the send data
-        auto offs = sendOffs;
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            {
-                const Int i = A.GlobalRow(iLoc);
-                const int owner = B.Owner(i,j);
-                sendBuf[offs[owner]++] = A.GetLocal(iLoc,jLoc);
-            }
-        }
-
-        // Perform the all-to-all communication
-        mpi::AllToAll
-        ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(),
-          A.DistComm() );
-        SwapClear( sendBuf );
-
-        // Unpack the received data
-        offs = recvOffs;
-        T* BBuf = B.Buffer(); 
-        const Int BLDim = B.LDim();
-        for( Int jLoc=0; jLoc<nLocalB; ++jLoc )
-        {
-            const Int j = B.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
-            {
-                const Int i = B.GlobalRow(iLoc);
-                const int owner = A.Owner(i,j);
-                BBuf[iLoc+jLoc*BLDim] = recvBuf[offs[owner]++];
-            }
-        }
+        }    
+        B.ProcessQueues();
     }
 }
 
