@@ -441,65 +441,87 @@ void LU( DistMatrix<F,STAR,STAR>& A );
 // LU with partial pivoting
 // ------------------------
 template<typename F>
-void LU( Matrix<F>& A, Matrix<Int>& p );
+void LU( Matrix<F>& A, Matrix<Int>& rowPiv );
 template<typename F>
-void LU( ElementalMatrix<F>& A, ElementalMatrix<Int>& p );
+void LU( ElementalMatrix<F>& A, ElementalMatrix<Int>& rowPiv );
 
 // LU with full pivoting
 // ---------------------
 template<typename F>
-void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q );
+void LU
+( Matrix<F>& A,
+  Matrix<Int>& rowPiv,
+  Matrix<Int>& colPiv );
 template<typename F>
 void LU
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<Int>& p, ElementalMatrix<Int>& q );
+  ElementalMatrix<Int>& rowPiv,
+  ElementalMatrix<Int>& colPiv );
 
 // Rank-one modification of a partially-pivoted LU factorization
 // -------------------------------------------------------------
 template<typename F>
 void LUMod
-( Matrix<F>& A, Matrix<Int>& p,
-  const Matrix<F>& u, const Matrix<F>& v, bool conjugate=true,
+(       Matrix<F>& A,
+        Matrix<Int>& rowPerm,
+  const Matrix<F>& u,
+  const Matrix<F>& v,
+  bool conjugate=true,
   Base<F> tau=0.1 );
 template<typename F>
 void LUMod
-( ElementalMatrix<F>& A, ElementalMatrix<Int>& p,
-  const ElementalMatrix<F>& u, const ElementalMatrix<F>& v, 
-  bool conjugate=true, Base<F> tau=0.1 );
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<Int>& rowPerm,
+  const ElementalMatrix<F>& u,
+  const ElementalMatrix<F>& v, 
+  bool conjugate=true,
+  Base<F> tau=0.1 );
 
 namespace lu {
 
 // Solve linear systems using an implicit unpivoted LU factorization
 // -----------------------------------------------------------------
 template<typename F>
-void SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B );
+void SolveAfter
+( Orientation orientation,
+  const Matrix<F>& A,
+        Matrix<F>& B );
 template<typename F>
 void SolveAfter
 ( Orientation orientation, 
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B );
 
 // Solve linear systems using an implicit partially-pivoted LU factorization
 // -------------------------------------------------------------------------
 template<typename F>
 void SolveAfter
-( Orientation orientation, const Matrix<F>& A,
-  const Matrix<Int>& p, Matrix<F>& B );
+( Orientation orientation,
+  const Matrix<F>& A,
+  const Matrix<Int>& rowPiv,
+        Matrix<F>& B );
 template<typename F>
 void SolveAfter
-( Orientation orientation, const ElementalMatrix<F>& A,
-  const ElementalMatrix<Int>& p, ElementalMatrix<F>& B );
+( Orientation orientation,
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<Int>& rowPiv,
+        ElementalMatrix<F>& B );
 
 // Solve linear systems using an implicit fully-pivoted LU factorization
 // ---------------------------------------------------------------------
 template<typename F>
 void SolveAfter
-( Orientation orientation, const Matrix<F>& A,
-  const Matrix<Int>& p, const Matrix<Int>& q,
+( Orientation orientation,
+  const Matrix<F>& A,
+  const Matrix<Int>& rowPiv,
+  const Matrix<Int>& colPiv,
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
-( Orientation orientation, const ElementalMatrix<F>& A,
-  const ElementalMatrix<Int>& p, const ElementalMatrix<Int>& q,
+( Orientation orientation,
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<Int>& rowPiv,
+  const ElementalMatrix<Int>& colPiv,
         ElementalMatrix<F>& B );
 
 } // namespace lu
@@ -510,10 +532,14 @@ void SolveAfter
 // Overwrite A with both L and the scaled Householder vectors
 // ----------------------------------------------------------
 template<typename F>
-void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
+void LQ
+( Matrix<F>& A,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d );
 template<typename F>
 void LQ
-( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& t, 
   ElementalMatrix<Base<F>>& d );
 
 namespace lq {
@@ -523,27 +549,35 @@ namespace lq {
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t,
-  const Matrix<Base<F>>& d, Matrix<F>& B );
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d,
+        Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t,
-  const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& B );
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d,
+        ElementalMatrix<F>& B );
 
 // Solve a linear system with the implicit representations of L and Q 
 // ------------------------------------------------------------------
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t,
-  const Matrix<Base<F>>& d, const Matrix<F>& B,
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& B,
         Matrix<F>& X );
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t,
-  const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& B,
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& t,
+  const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& B,
         ElementalMatrix<F>& X );
 
 // Overwrite A with L

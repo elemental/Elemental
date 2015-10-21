@@ -115,14 +115,10 @@ void Panel
         pivots.SetLocal( k, 0, iPiv );
 
         // Perform the pivot within this panel
+        // TODO: Add more special cases? E.g., if there is only one process?
         if( iPiv < n )
         {
-            // Pack pivot into temporary
-            for( Int j=0; j<n; ++j )
-                pivotBuffer[j] = ABuf[iPiv+j*ALDim];
-            // Replace pivot with current
-            for( Int j=0; j<n; ++j )
-                ABuf[iPiv+j*ALDim] = ABuf[k+j*ALDim];
+            blas::Swap( n, &ABuf[iPiv], ALDim, &ABuf[k], ALDim );
         }
         else
         {
@@ -140,10 +136,10 @@ void Panel
             }
             // The owning row broadcasts within process columns
             mpi::Broadcast( pivotBuffer.data(), n, ownerRow, BColComm );
+            // Overwrite the current row with the pivot row
+            for( Int j=0; j<n; ++j )
+                ABuf[k+j*ALDim] = pivotBuffer[j];
         }
-        // Overwrite the current row with the pivot row
-        for( Int j=0; j<n; ++j )
-            ABuf[k+j*ALDim] = pivotBuffer[j];
 
         // Now we can perform the update of the current panel
         const F alpha = aB1Buf[0];

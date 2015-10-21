@@ -72,10 +72,13 @@ template<typename F>
 void LocalInverse( DistMatrix<F,STAR,STAR>& A );
 namespace inverse {
 template<typename F>
-void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p );
+void AfterLUPartialPiv
+(       Matrix<F>& A,
+  const Matrix<Int>& rowPiv );
 template<typename F>
 void AfterLUPartialPiv
-( ElementalMatrix<F>& A, const ElementalMatrix<Int>& p );
+(       ElementalMatrix<F>& A,
+  const ElementalMatrix<Int>& rowPiv );
 } // namespace inverse
 
 template<typename F>

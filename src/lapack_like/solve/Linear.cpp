@@ -36,7 +36,6 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
     )
 
     Matrix<Int> p1Piv;
-    Matrix<Int> p1, p1Inv;
 
     const Int mA = A.Height();
     const Int nA = A.Width();
@@ -51,14 +50,15 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
         auto A12 = A( ind1, ind2 );
         auto A21 = A( ind2, ind1 );
         auto A22 = A( ind2, ind2 ); 
+        auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
         auto B1  = B( ind1, ALL );
         auto B2  = B( ind2, ALL );
         auto BB  = B( indB, ALL );
 
-        lu::Panel( AB2, p1Piv );
-        PivotsToPartialPermutation( p1Piv, p1, p1Inv ); 
-        PermuteRows( BB, p1, p1Inv );
+        lu::Panel( AB1, p1Piv );
+        ApplyRowPivots( AB2, p1Piv );
+        ApplyRowPivots( BB, p1Piv );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, B1 );
@@ -89,7 +89,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g), B1_STAR_VR(g);
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g), B1_STAR_MR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
-    DistMatrix<Int,STAR,STAR> p1Piv(g), p1(g), p1Inv(g);
+    DistMatrix<Int,STAR,STAR> p1Piv(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
@@ -120,13 +120,8 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
         lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv, pivotBuf );
-        PivotsToPartialPermutation( p1Piv, p1, p1Inv );
-        PermutationMeta permMeta( p1, p1Inv, AB2.ColAlign(), AB2.ColComm() );
-        PermuteRows( AB2, permMeta );
-        if( BAligned )
-            PermuteRows( BB, permMeta );
-        else
-            PermuteRows( BB, p1, p1Inv );
+        ApplyRowPivots( AB2, p1Piv );
+        ApplyRowPivots( BB, p1Piv );
 
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;
@@ -186,9 +181,9 @@ void Overwrite
 
     if( useFullLU )
     {
-        DistMatrix<Int,VC,STAR> p(A.Grid());
-        LU( A, p );
-        lu::SolveAfter( NORMAL, A, p, B );
+        DistMatrix<Int,STAR,STAR> rowPiv(A.Grid());
+        LU( A, rowPiv );
+        lu::SolveAfter( NORMAL, A, rowPiv, B );
     }
     else
     {

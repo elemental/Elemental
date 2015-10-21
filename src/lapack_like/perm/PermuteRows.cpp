@@ -34,24 +34,25 @@ void PermuteRows
 
     // Make a copy of the first b rows
     auto ARowPanView = A( IR(0,b), IR(0,n) );
-    auto ARowPanCopy( ARowPanView );
+    Matrix<T> ARowPanTrans;
+    Transpose( ARowPanView, ARowPanTrans );
 
     // Make a copy of the preimage rows
-    Matrix<T> APreimageCopy( b, n );
+    Matrix<T> APreimageTrans( n, b );
 
     T* ABuf = A.Buffer();
-    T* APreBuf = APreimageCopy.Buffer(); 
-    T* ARowPanBuf = ARowPanCopy.Buffer();
+    T* APreBuf = APreimageTrans.Buffer(); 
+    T* ARowPanBuf = ARowPanTrans.Buffer();
     const Int ALDim = A.LDim();
-    const Int APreLDim = APreimageCopy.LDim();
-    const Int ARowPanLDim = ARowPanCopy.LDim();
+    const Int APreLDim = APreimageTrans.LDim();
+    const Int ARowPanLDim = ARowPanTrans.LDim();
 
     for( Int i=0; i<b; ++i ) 
     {
         const Int iPre = permBuf[i];
         if( iPre >= b )
             for( Int j=0; j<n; ++j )
-                APreBuf[i+j*APreLDim] = ABuf[iPre+j*ALDim];
+                APreBuf[j+i*APreLDim] = ABuf[iPre+j*ALDim];
     }
 
     // Apply the permutations
@@ -61,12 +62,12 @@ void PermuteRows
         const Int iPost = invPermBuf[i];
         // Move row[i] into row[image[i]]
         for( Int j=0; j<n; ++j )
-            ABuf[iPost+j*ALDim] = ARowPanBuf[i+j*ARowPanLDim];
+            ABuf[iPost+j*ALDim] = ARowPanBuf[j+i*ARowPanLDim];
         if( iPre >= b )
         {
             // Move row[preimage[i]] into row[i]
             for( Int j=0; j<n; ++j )
-                ABuf[i+j*ALDim] = APreBuf[i+j*APreLDim];
+                ABuf[i+j*ALDim] = APreBuf[j+i*APreLDim];
         }
     }
 }

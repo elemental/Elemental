@@ -67,9 +67,9 @@ PanelFull
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::pivot::PanelFull");
-        if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
-            LogicError("A, X, and Y are not properly aligned");
+      CSE cse("cholesky::pivot::PanelFull");
+      if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
+          LogicError("A, X, and Y are not properly aligned");
     )
     // Form updated diagonal
     auto d = GetDiagonal(A);
@@ -104,9 +104,9 @@ inline void
 LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LUnblockedPivoted");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("cholesky::LUnblockedPivoted");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
 
@@ -151,10 +151,10 @@ LUnblockedPivoted
 ( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LUnblockedPivoted");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        AssertSameGrids( APre, p );
+      CSE cse("cholesky::LUnblockedPivoted");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      AssertSameGrids( APre, p );
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -209,10 +209,10 @@ LPanelPivoted
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
-        if( A.Width() != n )
-            LogicError("A must be square");
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("permutation vector is the wrong size");
+      if( A.Width() != n )
+          LogicError("A must be square");
+      if( p.Height() != n || p.Width() != 1 )
+          LogicError("permutation vector is the wrong size");
     )
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
@@ -272,10 +272,10 @@ LPanelPivoted
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
-        if( A.Width() != n )
-            LogicError("A must be square");
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("permutation vector is the wrong size");
+      if( A.Width() != n )
+          LogicError("A must be square");
+      if( p.Height() != n || p.Width() != 1 )
+          LogicError("permutation vector is the wrong size");
     )
     X.AlignWith( A );
     Y.AlignWith( A );
@@ -333,9 +333,9 @@ inline void
 LVar3( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LVar3");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("cholesky::LVar3");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
 
@@ -370,10 +370,10 @@ inline void
 LVar3( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LVar3");
-        AssertSameGrids( APre, pPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
+      CSE cse("cholesky::LVar3");
+      AssertSameGrids( APre, pPre );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
