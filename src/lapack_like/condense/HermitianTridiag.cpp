@@ -29,7 +29,9 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 
 template<typename F> 
 void HermitianTridiag
-( UpperOrLower uplo, ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre,
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& tPre,
   const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianTridiag"))
@@ -126,10 +128,10 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
         MakeTrapezoidal( UPPER, A, -1 );
 }
 
-
 template<typename F>
 void ExplicitCondensed
-( UpperOrLower uplo, ElementalMatrix<F>& A, 
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A, 
   const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_tridiag::ExplicitCondensed"))
@@ -145,21 +147,33 @@ void ExplicitCondensed
 
 #define PROTO(F) \
   template void HermitianTridiag \
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t ); \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<F>& t ); \
   template void HermitianTridiag \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& t, \
     const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ExplicitCondensed \
   ( UpperOrLower uplo, Matrix<F>& A ); \
   template void herm_tridiag::ExplicitCondensed \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
     const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ApplyQ \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
+  ( LeftOrRight side, \
+    UpperOrLower uplo, \
+    Orientation orientation, \
+    const Matrix<F>& A, \
+    const Matrix<F>& t, \
+          Matrix<F>& B ); \
   template void herm_tridiag::ApplyQ \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+  ( LeftOrRight side, \
+    UpperOrLower uplo, \
+    Orientation orientation, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& t, \
           ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO

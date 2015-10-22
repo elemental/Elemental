@@ -154,29 +154,43 @@ void ExplicitCondensed( ElementalMatrix<F>& A )
 } // namespace bidiag
 
 #define PROTO(F) \
-  template void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ ); \
+  template void Bidiag \
+  ( Matrix<F>& A, \
+    Matrix<F>& tP, \
+    Matrix<F>& tQ ); \
   template void Bidiag \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ ); \
-  template void bidiag::Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q ); \
+    ElementalMatrix<F>& tP, \
+    ElementalMatrix<F>& tQ ); \
+  template void bidiag::Explicit \
+  ( Matrix<F>& A, \
+    Matrix<F>& P, \
+    Matrix<F>& Q ); \
   template void bidiag::Explicit \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& P, ElementalMatrix<F>& Q ); \
+    ElementalMatrix<F>& P, \
+    ElementalMatrix<F>& Q ); \
   template void bidiag::ExplicitCondensed( Matrix<F>& A ); \
   template void bidiag::ExplicitCondensed( ElementalMatrix<F>& A ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& t, \
+          Matrix<F>& B ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& t, \
           ElementalMatrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& t, \
+          Matrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& t, \
           ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO

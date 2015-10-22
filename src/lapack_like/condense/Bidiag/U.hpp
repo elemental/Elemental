@@ -106,6 +106,11 @@ U
     const Int tQHeight = n;
     tP.Resize( tPHeight, 1 );
     tQ.Resize( tQHeight, 1 );
+    if( g.Size() == 1 )
+    {
+        U( A.Matrix(), tP.Matrix(), tQ.Matrix() );
+        return;
+    }
 
     DistMatrix<F> X(g), Y(g);
     DistMatrix<F,MC,STAR> X21_MC_STAR(g);
