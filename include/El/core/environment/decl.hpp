@@ -48,6 +48,7 @@ bool Using64BitInt();
 bool Using64BitBlasInt();
 
 // For initializing and finalizing Elemental
+void Initialize();
 void Initialize( int& argc, char**& argv );
 void Finalize();
 bool Initialized();

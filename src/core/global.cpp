@@ -273,6 +273,13 @@ void UpdateMaxImagWindowVal( double maxVal )
 bool Initialized()
 { return ::numElemInits > 0; }
 
+void Initialize()
+{
+    int argc=0;
+    char** argv=NULL;
+    Initialize( argc, argv );
+}
+
 void Initialize( int& argc, char**& argv )
 {
     if( ::numElemInits > 0 )
