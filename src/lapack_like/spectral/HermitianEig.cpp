@@ -750,7 +750,11 @@ void HermitianEig
     }
     else
     {
-        LogicError("This option is not yet supported" );
+        scalapack::HermitianEig
+        ( uploChar, n,
+          A.Buffer(), descA.data(),
+          w.Buffer(),
+          Z.Buffer(), descZ.data() );
     }
 #endif
 }

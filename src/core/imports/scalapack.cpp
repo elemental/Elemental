@@ -586,6 +586,214 @@ void HermitianEig
         RuntimeError("pzheevr exited with info=",info);
 }
 
+// All eigenpairs
+// ^^^^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n,
+  float* A, const int* descA,
+  float* w,
+  float* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, liWork,
+        info;
+    float vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    float dummyWork;
+    lWork = liWork = -1;
+    EL_SCALAPACK(pssyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork;
+    liWork = dummyIWork;
+    vector<float> work(lWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pssyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pssyevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n,
+  double* A, const int* descA,
+  double* w,
+  double* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, liWork,
+        info;
+    double vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    double dummyWork;
+    lWork = liWork = -1;
+    EL_SCALAPACK(pdsyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork;
+    liWork = dummyIWork;
+    vector<double> work(lWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pdsyevr)    
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pdsyevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n,
+  scomplex* A, const int* descA,
+  float* w,
+  scomplex* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, lrWork, liWork,
+        info;
+    float vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    scomplex dummyWork;
+    float dummyRWork;
+    lWork = lrWork = liWork = -1;
+    EL_SCALAPACK(pcheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyRWork, &lrWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork.real();
+    lrWork = dummyRWork;
+    liWork = dummyIWork;
+    vector<scomplex> work(lWork);
+    vector<float> rWork(lrWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pcheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      rWork.data(), &lrWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pcheevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n,
+  dcomplex* A, const int* descA,
+  double* w,
+  dcomplex* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, lrWork, liWork,
+        info;
+    double vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    dcomplex dummyWork;
+    double dummyRWork;
+    lWork = lrWork = liWork = -1;
+    EL_SCALAPACK(pzheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyRWork, &lrWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork.real();
+    lrWork = dummyRWork;
+    liWork = dummyIWork;
+    vector<dcomplex> work(lWork);
+    vector<double> rWork(lrWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pzheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      rWork.data(), &lrWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pzheevr exited with info=",info);
+}
+
 // SVD
 // ---
 
