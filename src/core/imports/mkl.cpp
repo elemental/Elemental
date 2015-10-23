@@ -271,8 +271,8 @@ void omatcopy
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Quad alpha,
-  const Int* A, BlasInt lda,
-        Int* B, BlasInt ldb )
+  const Quad* A, BlasInt lda,
+        Quad* B, BlasInt ldb )
 {
     if( orientation == NORMAL )
     {
@@ -297,8 +297,8 @@ void omatcopy
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Complex<Quad> alpha,
-  const Int* A, BlasInt lda,
-        Int* B, BlasInt ldb )
+  const Complex<Quad>* A, BlasInt lda,
+        Complex<Quad>* B, BlasInt ldb )
 {
     if( orientation == NORMAL )
     {
