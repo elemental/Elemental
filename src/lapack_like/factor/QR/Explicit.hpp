@@ -50,7 +50,8 @@ void ExplicitTriang( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 }
 
 template<typename F>
-void ExplicitUnitary( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
+void ExplicitUnitary
+( Matrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
     Matrix<F> t;
@@ -63,13 +64,24 @@ void ExplicitUnitary( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
     else
         QR( A, t, d );
 
-    A.Resize( A.Height(), t.Height() );
-    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
-    DiagonalScale( RIGHT, NORMAL, d, A );
+    if( thinQR ) 
+    {
+        A.Resize( A.Height(), t.Height() );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+        DiagonalScale( RIGHT, NORMAL, d, A );
+    }
+    else
+    {
+        auto ACopy = A;
+        // TODO: Use an extension of ExpandPackedReflectors to make this faster
+        Identity( A, A.Height(), A.Height() );
+        qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
+    }
 }
 
 template<typename F>
-void ExplicitUnitary( ElementalMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
+void ExplicitUnitary
+( ElementalMatrix<F>& APre, bool thinQR, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
 
@@ -87,13 +99,27 @@ void ExplicitUnitary( ElementalMatrix<F>& APre, const QRCtrl<Base<F>>& ctrl )
     else
         QR( A, t, d );
 
-    A.Resize( A.Height(), t.Height() );
-    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
-    DiagonalScale( RIGHT, NORMAL, d, A );
+    if( thinQR )
+    {
+        A.Resize( A.Height(), t.Height() );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+        DiagonalScale( RIGHT, NORMAL, d, A );
+    }
+    else
+    {
+        auto ACopy = A;
+        // TODO: Use an extension of ExpandPackedReflectors to make this faster
+        Identity( A, A.Height(), A.Height() );
+        qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
+    }
 }
 
 template<typename F>
-void Explicit( Matrix<F>& A, Matrix<F>& R, const QRCtrl<Base<F>>& ctrl )
+void Explicit
+( Matrix<F>& A,
+  Matrix<F>& R,
+  bool thinQR,
+  const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
     Matrix<F> t;
@@ -114,14 +140,26 @@ void Explicit( Matrix<F>& A, Matrix<F>& R, const QRCtrl<Base<F>>& ctrl )
     R = AT;
     MakeTrapezoidal( UPPER, R );
 
-    A.Resize( m, numIts );
-    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
-    DiagonalScale( RIGHT, NORMAL, d, A );
+    if( thinQR )
+    {
+        A.Resize( m, numIts );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+        DiagonalScale( RIGHT, NORMAL, d, A );
+    }
+    else
+    {
+        auto ACopy = A;
+        // TODO: Use an extension of ExpandPackedReflectors to make this faster
+        Identity( A, A.Height(), A.Height() );
+        qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
+    }
 }
 
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& R, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& R, 
+  bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
@@ -148,14 +186,28 @@ void Explicit
     Copy( AT, R );
     MakeTrapezoidal( UPPER, R );
 
-    A.Resize( m, numIts );
-    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
-    DiagonalScale( RIGHT, NORMAL, d, A );
+    if( thinQR )
+    {
+        A.Resize( m, numIts );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+        DiagonalScale( RIGHT, NORMAL, d, A );
+    }
+    else
+    {
+        auto ACopy = A;
+        // TODO: Use an extension of ExpandPackedReflectors to make this faster
+        Identity( A, A.Height(), A.Height() );
+        qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
+    }
 }
 
 template<typename F>
 void Explicit
-( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
+( Matrix<F>& A,
+  Matrix<F>& R,
+  Matrix<Int>& P,
+  bool thinQR,
+  const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
     Matrix<F> t;
@@ -171,17 +223,30 @@ void Explicit
     R = AT;
     MakeTrapezoidal( UPPER, R );
 
-    A.Resize( m, numIts );
-    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
-    DiagonalScale( RIGHT, NORMAL, d, A );
+    if( thinQR )
+    {
+        A.Resize( m, numIts );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+        DiagonalScale( RIGHT, NORMAL, d, A );
+    }
+    else
+    {
+        auto ACopy = A;
+        // TODO: Use an extension of ExpandPackedReflectors to make this faster
+        Identity( A, A.Height(), A.Height() );
+        qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
+    }
 
     ExplicitPermutation( p, P );
 } 
 
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& R, 
-  ElementalMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& R, 
+  ElementalMatrix<Int>& P,
+  bool thinQR,
+  const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
 
@@ -202,9 +267,19 @@ void Explicit
     Copy( AT, R );
     MakeTrapezoidal( UPPER, R );
 
-    A.Resize( m, numIts );
-    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
-    DiagonalScale( RIGHT, NORMAL, d, A );
+    if( thinQR )
+    {
+        A.Resize( m, numIts );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+        DiagonalScale( RIGHT, NORMAL, d, A );
+    }
+    else
+    {
+        auto ACopy = A;
+        // TODO: Use an extension of ExpandPackedReflectors to make this faster
+        Identity( A, A.Height(), A.Height() );
+        qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
+    }
 
     ExplicitPermutation( p, P );
 }

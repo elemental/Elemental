@@ -36,11 +36,13 @@ main( int argc, char* argv[] )
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the QR decomposition of A, but do not overwrite A
-        DistMatrix<C> Q( A ), R;
+        DistMatrix<C> Q( A ), QFull( A ), R;
         qr::Explicit( Q, R );
+        qr::Explicit( QFull, R, false );
         if( print )
         {
             Print( Q, "Q" );
+            Print( QFull, "QFull" );
             Print( R, "R" );
         }
 

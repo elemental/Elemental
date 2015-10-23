@@ -19,7 +19,10 @@
 namespace El {
 
 template<typename F> 
-void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
+void QR
+( Matrix<F>& A,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d )
 {
     DEBUG_ONLY(CSE cse("QR"))
     qr::Householder( A, t, d );
@@ -27,7 +30,8 @@ void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 void QR
-( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& t, 
   ElementalMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(CSE cse("QR"))
@@ -39,8 +43,11 @@ void QR
 
 template<typename F> 
 void QR
-( Matrix<F>& A, Matrix<F>& t, 
-  Matrix<Base<F>>& d, Matrix<Int>& p, const QRCtrl<Base<F>>& ctrl )
+( Matrix<F>& A,
+  Matrix<F>& t, 
+  Matrix<Base<F>>& d,
+  Matrix<Int>& p,
+  const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
     qr::BusingerGolub( A, t, d, p, ctrl );
@@ -48,8 +55,10 @@ void QR
 
 template<typename F> 
 void QR
-( ElementalMatrix<F>& A, ElementalMatrix<F>& t, 
-  ElementalMatrix<Base<F>>& d, ElementalMatrix<Int>& p,
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d,
+  ElementalMatrix<Int>& p,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
@@ -57,63 +66,94 @@ void QR
 }
 
 #define PROTO(F) \
-  template void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void QR \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& t, \
+  ( Matrix<F>& A, \
+    Matrix<F>& t, \
+    Matrix<Base<F>>& d ); \
+  template void QR \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& t, \
     ElementalMatrix<Base<F>>& d ); \
   template void QR \
-  ( Matrix<F>& A, Matrix<F>& t, \
-    Matrix<Base<F>>& d, Matrix<Int>& p, \
+  ( Matrix<F>& A, \
+    Matrix<F>& t, \
+    Matrix<Base<F>>& d, \
+    Matrix<Int>& p, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void QR \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& t, \
-    ElementalMatrix<Base<F>>& d, ElementalMatrix<Int>& p, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& t, \
+    ElementalMatrix<Base<F>>& d, \
+    ElementalMatrix<Int>& p, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
   ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
   ( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitUnitary \
-  ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
+  ( Matrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitUnitary \
-  ( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
+  ( ElementalMatrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( Matrix<F>& A, Matrix<F>& R, \
+  ( Matrix<F>& A, \
+    Matrix<F>& R, \
+    bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& R, \
+    bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( Matrix<F>& A, Matrix<F>& R, \
-    Matrix<Int>& P, const QRCtrl<Base<F>>& ctrl ); \
+  ( Matrix<F>& A, \
+    Matrix<F>& R, \
+    Matrix<Int>& P, \
+    bool thinQR, \
+    const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R, \
-    ElementalMatrix<Int>& P, const QRCtrl<Base<F>>& ctrl ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& R, \
+    ElementalMatrix<Int>& P, \
+    bool thinQR, \
+    const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ApplyQ \
-  ( LeftOrRight side, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& t, \
-    const Matrix<Base<F>>& d, Matrix<F>& B ); \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const Matrix<F>& A, \
+    const Matrix<F>& t, \
+    const Matrix<Base<F>>& d, \
+          Matrix<F>& B ); \
   template void qr::ApplyQ \
-  ( LeftOrRight side, Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
-    const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& B ); \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& t, \
+    const ElementalMatrix<Base<F>>& d, \
+          ElementalMatrix<F>& B ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& t, \
-    const Matrix<Base<F>>& d, const Matrix<F>& B, \
+    const Matrix<F>& A, \
+    const Matrix<F>& t, \
+    const Matrix<Base<F>>& d, \
+    const Matrix<F>& B, \
           Matrix<F>& X ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
-    const ElementalMatrix<F      >& A, const ElementalMatrix<F>& t, \
-    const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& B, \
-          ElementalMatrix<F      >& X ); \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& t, \
+    const ElementalMatrix<Base<F>>& d, \
+    const ElementalMatrix<F>& B, \
+          ElementalMatrix<F>& X ); \
   template void qr::Cholesky \
-  ( Matrix<F>& A, Matrix<F>& R ); \
+  ( Matrix<F>& A, \
+    Matrix<F>& R ); \
   template void qr::Cholesky \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& R ); \
   template qr::TreeData<F> qr::TS( const ElementalMatrix<F>& A ); \
   template void qr::ExplicitTS \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& R ); \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& R ); \
   template Matrix<F>& qr::ts::RootQR \
   ( const ElementalMatrix<F>& A, TreeData<F>& treeData ); \
   template const Matrix<F>& qr::ts::RootQR \

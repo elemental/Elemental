@@ -34,14 +34,18 @@ namespace expand_packed_reflectors {
 
 template<typename F>
 inline void
-LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
+LV
+( Conjugation conjugation,
+  Int offset,
+        Matrix<F>& H,
+  const Matrix<F>& t )
 {
     DEBUG_ONLY(
-        CSE cse("expand_packed_reflectors::LV");
-        if( offset > 0 || offset < -H.Height() )
-            LogicError("Transforms out of bounds");
-        if( t.Height() != H.DiagonalLength( offset ) )
-            LogicError("t must be the same length as H's offset diag");
+      CSE cse("expand_packed_reflectors::LV");
+      if( offset > 0 || offset < -H.Height() )
+          LogicError("Transforms out of bounds");
+      if( t.Height() != H.DiagonalLength( offset ) )
+          LogicError("t must be the same length as H's offset diag");
     )
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
@@ -116,16 +120,18 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
 template<typename F>
 inline void
 LV
-( Conjugation conjugation, Int offset, 
-  ElementalMatrix<F>& HPre, const ElementalMatrix<F>& tPre )
+( Conjugation conjugation,
+  Int offset, 
+        ElementalMatrix<F>& HPre,
+  const ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(
-        CSE cse("expand_packed_reflectors::LV");
-        AssertSameGrids( HPre, tPre );
-        if( offset > 0 || offset < -HPre.Height() )
-            LogicError("Transforms out of bounds");
-        if( tPre.Height() != HPre.DiagonalLength( offset ) )
-            LogicError("t must be the same length as H's offset diag");
+      CSE cse("expand_packed_reflectors::LV");
+      AssertSameGrids( HPre, tPre );
+      if( offset > 0 || offset < -HPre.Height() )
+          LogicError("Transforms out of bounds");
+      if( tPre.Height() != HPre.DiagonalLength( offset ) )
+          LogicError("t must be the same length as H's offset diag");
     )
 
     auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
