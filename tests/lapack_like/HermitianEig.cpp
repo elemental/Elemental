@@ -76,7 +76,7 @@ void TestHermitianEig
     if( print )
         Print( A, "A" );
 
-    if( scalapack )
+    if( scalapack && U == MC && V == MR )
     {
         if( onlyEigvals )
         {
