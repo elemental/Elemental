@@ -228,11 +228,8 @@ void LinearSolve
     auto ACopy = A;
     vector<int> ipiv(mLocal+mb);
 
-    const int bHandle = blacs::Handle( A.DistComm().comm );
-    const int context = 
-        blacs::GridInit
-        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
-          A.ColStride(), A.RowStride() );
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
     auto descA = FillDesc( A, context );
     auto descB = FillDesc( B, context );
 

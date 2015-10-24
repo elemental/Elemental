@@ -62,19 +62,8 @@ QR
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
-    const int bHandle = blacs::Handle( A.DistComm().comm );
-    const int context =
-        blacs::GridInit
-        ( bHandle, A.Grid().Order()==COLUMN_MAJOR, 
-          A.ColStride(), A.RowStride() );
-    if( A.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( A.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( A.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( A.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
     auto descA = FillDesc( A, context );
 
     // Reduce the matrix to upper-Hessenberg form in an elemental form
@@ -83,14 +72,6 @@ QR
     Hessenberg( UPPER, AElem, t );
     MakeTrapezoidal( UPPER, AElem, -1 );
     A = AElem;
-    if( A.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( A.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( A.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( A.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
 
     // Run the QR algorithm in block form
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
@@ -101,13 +82,17 @@ QR
     Identity( Z, n, n );
     bool multiplyZ=true;
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), descA.data(),
-      w_STAR_STAR.Buffer(), Z.Buffer(), descA.data(),
+    ( n,
+      A.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(),
+      Z.Buffer(), descA.data(),
       fullTriangle, multiplyZ, ctrl.distAED );
 #else
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), descA.data(), w_STAR_STAR.Buffer(), fullTriangle, 
-      ctrl.distAED );
+    ( n,
+      A.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(),
+      fullTriangle, ctrl.distAED );
 #endif
     Copy( w_STAR_STAR, w );
 
@@ -137,25 +122,10 @@ QR
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
-    const int bHandle = blacs::Handle( A.DistComm().comm );
-    const int context =
-        blacs::GridInit
-        ( bHandle, A.Grid().Order()==COLUMN_MAJOR, 
-          A.ColStride(), A.RowStride() );
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
     Q.AlignWith( A );
     Q.Resize( n, n, A.LDim() );
-    if( A.ColStride() != blacs::GridHeight(context) || 
-        Q.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( A.RowStride() != blacs::GridWidth(context) || 
-        Q.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( A.ColRank() != blacs::GridRow(context) ||
-        Q.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( A.RowRank() != blacs::GridCol(context) || 
-        Q.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
     auto descA = FillDesc( A, context );
     auto descQ = FillDesc( Q, context );
 
@@ -170,26 +140,17 @@ QR
     MakeTrapezoidal( UPPER, AElem, -1 );
     A = AElem;
     Q = QElem;
-    if( A.ColStride() != blacs::GridHeight(context) || 
-        Q.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( A.RowStride() != blacs::GridWidth(context) || 
-        Q.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( A.ColRank() != blacs::GridRow(context) ||
-        Q.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( A.RowRank() != blacs::GridCol(context) || 
-        Q.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
     
     // Compute the Schur decomposition in block form, multiplying the 
     // accumulated Householder reflectors from the right
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), descA.data(), w_STAR_STAR.Buffer(), 
-      Q.Buffer(), descQ.data(), fullTriangle, multiplyQ, ctrl.distAED );
+    ( n,
+      A.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(), 
+      Q.Buffer(), descQ.data(),
+      fullTriangle, multiplyQ, ctrl.distAED );
     Copy( w_STAR_STAR, w );
 
     // TODO: Cache context, handle, and exit BLACS during El::Finalize()
@@ -230,19 +191,8 @@ QR
     const Int nb = ctrl.blockWidth;
     DistMatrix<F,MC,MR,BLOCK> ABlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
-    const int bHandle = blacs::Handle( ABlock.DistComm().comm );
-    const int context =
-        blacs::GridInit
-        ( bHandle, ABlock.Grid().Order()==COLUMN_MAJOR,
-          ABlock.ColStride(), ABlock.RowStride() );
-    if( ABlock.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( ABlock.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( ABlock.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( ABlock.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
+    const int bHandle = blacs::Handle( ABlock );
+    const int context = blacs::GridInit( bHandle, ABlock );
     blacs::Desc descA = FillDesc( ABlock, context );
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
 
@@ -250,14 +200,19 @@ QR
 #if FORCE_WANTZ_TRUE
     DistMatrix<F,MC,MR,BLOCK> Z(n,n,A.Grid(),mb,nb);
     Identity( Z, n, n );
+    blacs::Desc descZ = FillDesc( Z, context );
     bool multiplyZ=true;
     scalapack::HessenbergSchur
-    ( n, ABlock.Buffer(), descA.data(),
-      w_STAR_STAR.Buffer(), Z.Buffer(), descA.data(),
+    ( n,
+      ABlock.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(),
+      Z.Buffer(), descZ.data(),
       fullTriangle, multiplyZ, ctrl.distAED );
 #else
     scalapack::HessenbergSchur
-    ( n, ABlock.Buffer(), descA.data(), w_STAR_STAR.Buffer(), 
+    ( n, 
+      ABlock.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(), 
       fullTriangle, ctrl.distAED );
 #endif
 
@@ -309,23 +264,8 @@ QR
       QBlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
     QBlock = Q;
-    const int bHandle = blacs::Handle( ABlock.DistComm().comm );
-    const int context =
-        blacs::GridInit
-        ( bHandle, ABlock.Grid().Order()==COLUMN_MAJOR, 
-          ABlock.ColStride(), ABlock.RowStride() );
-    if( ABlock.ColStride() != blacs::GridHeight(context) || 
-        QBlock.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( ABlock.RowStride() != blacs::GridWidth(context) || 
-        QBlock.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( ABlock.ColRank() != blacs::GridRow(context) ||
-        QBlock.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( ABlock.RowRank() != blacs::GridCol(context) || 
-        QBlock.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
+    const int bHandle = blacs::Handle( ABlock );
+    const int context = blacs::GridInit( bHandle, ABlock );
     auto descA = FillDesc( ABlock, context );
     auto descQ = FillDesc( QBlock, context );
 
@@ -334,8 +274,11 @@ QR
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
-    ( n, ABlock.Buffer(), descA.data(), w_STAR_STAR.Buffer(), 
-      QBlock.Buffer(), descQ.data(), fullTriangle, multiplyQ, ctrl.distAED );
+    ( n,
+      ABlock.Buffer(), descA.data(),
+      w_STAR_STAR.Buffer(), 
+      QBlock.Buffer(), descQ.data(),
+      fullTriangle, multiplyQ, ctrl.distAED );
     A = ABlock;
     Q = QBlock;
     Copy( w_STAR_STAR, w );

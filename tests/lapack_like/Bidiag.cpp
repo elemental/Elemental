@@ -25,7 +25,7 @@ void TestCorrectness
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
     if( g.Rank() == 0 )
-        cout << "Testing error..." << endl;
+        Output("Testing error...");
 
     // Grab the diagonal and superdiagonal of the bidiagonal matrix
     auto d = GetDiagonal( A, 0 );
@@ -90,10 +90,10 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
     {
-        cout << "    ||A||_oo = " << infNormAOrig << "\n"
-             << "    ||A||_F  = " << frobNormAOrig << "\n"
-             << "    ||B - Q^H A P||_oo = " << infNormError << "\n"
-             << "    ||B - Q^H A P||_F  = " << frobNormError << endl;
+        Output("    ||A||_oo = ",infNormAOrig);
+        Output("    ||A||_F  = ",frobNormAOrig);
+        Output("    ||B - Q^H A P||_oo = ",infNormError);
+        Output("    ||B - Q^H A P||_F  = ",frobNormError);
     }
 }
 
@@ -108,13 +108,8 @@ void TestBidiag
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
+            Output("  Making copy of original matrix");
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
     }
     if( print )
         Print( A, "A" );
@@ -122,10 +117,7 @@ void TestBidiag
         Display( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting bidiagonalization...";
-        cout.flush();
-    }
+        Output("  Starting bidiagonalization");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     Bidiag( A, tP, tQ );
@@ -133,10 +125,7 @@ void TestBidiag
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds." << std::endl;
-    }
+        Output("  Time = ",runTime," seconds.");
     if( print )
     {
         Print( A, "A after Bidiag" );
@@ -183,11 +172,11 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( commRank == 0 )
-            cout << "Double-precision:" << endl;
+            Output("Double-precision:");
         TestBidiag<double>( m, n, g, testCorrectness, print, display );
 
         if( commRank == 0 )
-            cout << "Double-precision complex:" << endl;
+            Output("Double-precision complex:");
         TestBidiag<Complex<double>>( m, n, g, testCorrectness, print, display );
     }
     catch( exception& e ) { ReportException(e); }

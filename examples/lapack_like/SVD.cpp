@@ -26,11 +26,14 @@ main( int argc, char* argv[] )
         const Int blocksize = Input("--blocksize","algorithmic blocksize",32);
 #ifdef EL_HAVE_SCALAPACK
         const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
-#else
-        const bool scalapack = false;
-#endif
         const Int mb = Input("--mb","block height",32);
         const Int nb = Input("--nb","block width",32);
+#else
+        const bool scalapack = false;
+        const Int mb = 32;
+        const Int nb = 32;
+#endif
+
         const bool testSeq = Input("--testSeq","test sequential SVD?",false);
         const bool testDecomp = Input("--testDecomp","test full SVD?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -56,7 +59,7 @@ main( int argc, char* argv[] )
 
         Grid g( mpi::COMM_WORLD );
         if( commRank == 0 )
-            cout << "Grid is " << g.Height() << " x " << g.Width() << endl;
+            Output("Grid is ",g.Height()," x ",g.Width());
         DistMatrix<C> A(g);
         Uniform( A, m, n );
         if( print )

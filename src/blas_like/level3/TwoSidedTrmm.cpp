@@ -16,7 +16,9 @@ namespace El {
 
 template<typename T> 
 void TwoSidedTrmm
-( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& B )
+( UpperOrLower uplo, UnitOrNonUnit diag,
+        Matrix<T>& A,
+  const Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("TwoSidedTrmm"))
     if( uplo == LOWER )
@@ -28,7 +30,8 @@ void TwoSidedTrmm
 template<typename T> 
 void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-  ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
+        ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("TwoSidedTrmm"))
     if( uplo == LOWER )
@@ -40,19 +43,53 @@ void TwoSidedTrmm
 template<typename T>
 void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
-  DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B )
+        DistMatrix<T,STAR,STAR>& A,
+  const DistMatrix<T,STAR,STAR>& B )
 { TwoSidedTrmm( uplo, diag, A.Matrix(), B.LockedMatrix() ); }
+
+template<typename T>
+void TwoSidedTrmm
+( UpperOrLower uplo, UnitOrNonUnit diag,
+        DistMatrix<T,MC,MR,BLOCK>& A,
+  const DistMatrix<T,MC,MR,BLOCK>& B )
+{
+    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    if( diag == UNIT )
+        LogicError("ScaLAPACK does not support unit-diagonal two-sided TRMM");
+    // NOTE: ScaLAPACK additionally assumes that the diagonal of the triangular
+    //       matrix is real and positive.
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    const Int n = A.Height();
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
+    auto descA = FillDesc( A, context );
+    auto descB = FillDesc( B, context );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    scalapack::TwoSidedTrmm
+    ( uploChar, n, A.Buffer(), descA.data(), B.LockedBuffer(), descB.data() );
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
+#endif
+}
 
 #define PROTO(T) \
   template void TwoSidedTrmm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    Matrix<T>& A, const Matrix<T>& B ); \
+          Matrix<T>& A, \
+    const Matrix<T>& B ); \
   template void TwoSidedTrmm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    ElementalMatrix<T>& A, const ElementalMatrix<T>& B ); \
+          ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& B ); \
   template void TwoSidedTrmm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B );
+          DistMatrix<T,STAR,STAR>& A, \
+    const DistMatrix<T,STAR,STAR>& B ); \
+  template void TwoSidedTrmm \
+  ( UpperOrLower uplo, UnitOrNonUnit diag, \
+          DistMatrix<T,MC,MR,BLOCK>& A, \
+    const DistMatrix<T,MC,MR,BLOCK>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

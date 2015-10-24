@@ -189,6 +189,35 @@ void AssertConforming2x2
   const BlockMatrix<T>& ABL, 
   const BlockMatrix<T>& ABR );
 
+#ifdef EL_HAVE_SCALAPACK
+namespace blacs {
+
+template<typename T>
+inline int Handle( const BlockMatrix<T>& A )
+{ return Handle( A.DistComm().comm ); }
+
+template<typename T>
+inline int GridInit( int bHandle, const BlockMatrix<T>& A )
+{
+    const int context =
+      GridInit
+      ( bHandle, A.Grid().Order()==COLUMN_MAJOR, A.ColStride(), A.RowStride() );
+    DEBUG_ONLY(
+      if( A.ColStride() != GridHeight(context) )
+          LogicError("Grid height did not match BLACS");
+      if( A.RowStride() != GridWidth(context) )
+          LogicError("Grid width did not match BLACS");
+      if( A.ColRank() != GridRow(context) )
+          LogicError("Grid row did not match BLACS");
+      if( A.RowRank() != GridCol(context) )
+          LogicError("Grid col did not match BLACS");
+    )
+    return context;
+}
+
+} // namespace blacs
+#endif
+
 } // namespace El
 
 #endif // ifndef EL_DISTMATRIX_BLOCK_HPP

@@ -332,19 +332,8 @@ void HermitianEig
     const Int n = A.Height();
     w.Resize( n, 1 );
 
-    const int bHandle = blacs::Handle( A.DistComm().comm );
-    const int context =
-        blacs::GridInit
-        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
-          A.ColStride(), A.RowStride() );
-    if( A.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( A.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( A.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( A.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
     auto descA = FillDesc( A, context );
     
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -723,19 +712,8 @@ void HermitianEig
     Z.AlignWith( A );
     Z.Resize( n, n );
 
-    const int bHandle = blacs::Handle( A.DistComm().comm );
-    const int context =
-        blacs::GridInit
-        ( bHandle, A.Grid().Order()==COLUMN_MAJOR,
-          A.ColStride(), A.RowStride() );
-    if( A.ColStride() != blacs::GridHeight(context) )
-        LogicError("Grid height did not match BLACS");
-    if( A.RowStride() != blacs::GridWidth(context) )
-        LogicError("Grid width did not match BLACS");
-    if( A.ColRank() != blacs::GridRow(context) )
-        LogicError("Grid row did not match BLACS");
-    if( A.RowRank() != blacs::GridCol(context) )
-        LogicError("Grid col did not match BLACS");
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
     auto descA = FillDesc( A, context );
     auto descZ = FillDesc( Z, context );
     

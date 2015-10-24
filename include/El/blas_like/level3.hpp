@@ -480,6 +480,10 @@ void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
   ElementalMatrix<T>& A, const ElementalMatrix<T>& B );
 template<typename T>
+void TwoSidedTrmm
+( UpperOrLower uplo, UnitOrNonUnit diag,
+  DistMatrix<T,MC,MR,BLOCK>& A, const DistMatrix<T,MC,MR,BLOCK>& B );
+template<typename T>
 void LocalTwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
   DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B );
@@ -494,6 +498,10 @@ template<typename F>
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
   ElementalMatrix<F>& A, const ElementalMatrix<F>& B );
+template<typename F>
+void TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag,
+  DistMatrix<F,MC,MR,BLOCK>& A, const DistMatrix<F,MC,MR,BLOCK>& B );
 template<typename F>
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag,

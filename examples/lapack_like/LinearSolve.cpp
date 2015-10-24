@@ -67,10 +67,7 @@ int main( int argc, char* argv[] )
             if( scalapack )
             {
                 if( commRank == 0 )
-                {
-                    cout << "Starting ScaLAPACK linear solve...";
-                    cout.flush();
-                }
+                    Output("Starting ScaLAPACK linear solve");
                 DistMatrix<double,MC,MR,BLOCK> ABlock( A ), BBlock( B );
                 mpi::Barrier( comm );
                 if( commRank == 0 )
@@ -86,10 +83,7 @@ int main( int argc, char* argv[] )
             if( elemental )
             {
                 if( commRank == 0 )
-                {
-                    cout << "Starting Elemental linear solve...";
-                    cout.flush();
-                }
+                    Output("Starting Elemental linear solve");
                 mpi::Barrier( comm );
                 if( commRank == 0 )
                     timer.Start();
