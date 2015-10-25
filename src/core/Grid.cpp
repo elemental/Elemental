@@ -311,13 +311,13 @@ int Grid::CoordsToVC
     else if( (colDist == MC && rowDist == STAR) || 
              (rowDist == MC && colDist == STAR) )
     {
-        return distRank + redundantRank*Width();
+        return distRank + redundantRank*Height();
     }
     else if( (colDist == MD && rowDist == STAR) ||
              (rowDist == MD && colDist == STAR) )
     {
-        const int row =         DiagRank()  % Height();
-        const int col = (Diag()+DiagRank()) % Width();
+        const int row = distRank % Height();
+        const int col = (crossRank+distRank) % Width();
         return row + col*Height();
     }
     else if( colDist == MR && rowDist == MC )
@@ -327,7 +327,7 @@ int Grid::CoordsToVC
     else if( (colDist == MR && rowDist == STAR) ||
              (rowDist == MR && colDist == STAR) )
     {
-        return redundantRank + distRank*Width();
+        return redundantRank + distRank*Height();
     }
     else if( colDist == STAR && rowDist == STAR )
     {

@@ -31,6 +31,7 @@ void Scatter
         // Broadcast over the redundant communicator and use mpi::Translate
         // rank to determine whether a process is the root of the broadcast.
         GeneralPurpose( A, B ); 
+        return;
     }
 
     const Int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
