@@ -28,6 +28,8 @@ void Adjoint( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 template<typename T>
 void Adjoint( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 template<typename T>
+void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+template<typename T>
 void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B );
 template<typename T>
 void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
@@ -145,9 +147,10 @@ void AxpyTrapezoid
 
 // Broadcast
 // =========
-// TODO: Matrix<T> version?
 template<typename T>
-void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank=0 );
+void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank=0 );
+template<typename T>
+void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank=0 );
 
 // Column norms
 // ============
@@ -444,9 +447,9 @@ void Copy( const Matrix<S>& A, Matrix<T>& B );
 template<typename S,typename T>
 void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B );
 template<typename S,typename T>
-void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
-template<typename S,typename T>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B );
+template<typename S,typename T>
+void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 
 template<typename T>
 void CopyFromRoot
@@ -1533,21 +1536,35 @@ void ShiftDiagonal
 // Transpose
 // =========
 template<typename T>
-void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false );
-template<typename T>
 void Transpose
-( const ElementalMatrix<T>& A, ElementalMatrix<T>& B,
+( const Matrix<T>& A,
+        Matrix<T>& B,
   bool conjugate=false );
 template<typename T>
 void Transpose
-( const BlockMatrix<T>& A, BlockMatrix<T>& B,
+( const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B,
   bool conjugate=false );
 template<typename T>
 void Transpose
-( const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate=false );
+( const BlockMatrix<T>& A,
+        BlockMatrix<T>& B,
+  bool conjugate=false );
 template<typename T>
 void Transpose
-( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate=false );
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B,
+  bool conjugate=false );
+template<typename T>
+void Transpose
+( const SparseMatrix<T>& A,
+        SparseMatrix<T>& B,
+  bool conjugate=false );
+template<typename T>
+void Transpose
+( const DistSparseMatrix<T>& A,
+        DistSparseMatrix<T>& B,
+  bool conjugate=false );
 
 // TransposeContract
 // =================
