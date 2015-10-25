@@ -45,7 +45,7 @@ void Write
 
 template<typename T>
 void Write
-( const ElementalMatrix<T>& A, 
+( const AbstractDistMatrix<T>& A, 
   string basename, FileFormat format, string title )
 {
     DEBUG_ONLY(CSE cse("Write"))
@@ -62,34 +62,12 @@ void Write
     }
 }
 
-template<typename T>
-void Write
-( const BlockMatrix<T>& A, 
-  string basename, FileFormat format, string title )
-{
-    DEBUG_ONLY(CSE cse("Write"))
-    if( A.ColStride() == 1 && A.RowStride() == 1 )
-    {
-        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
-            Write( A.LockedMatrix(), basename, format, title );
-    }
-    else
-    {
-        DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A );
-        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-            Write( A_CIRC_CIRC.LockedMatrix(), basename, format, title );
-    }
-}
-
 #define PROTO(T) \
   template void Write \
   ( const Matrix<T>& A, \
     string basename, FileFormat format, string title ); \
   template void Write \
-  ( const ElementalMatrix<T>& A, \
-    string basename, FileFormat format, string title ); \
-  template void Write \
-  ( const BlockMatrix<T>& A, \
+  ( const AbstractDistMatrix<T>& A, \
     string basename, FileFormat format, string title );
 
 #define EL_ENABLE_QUAD

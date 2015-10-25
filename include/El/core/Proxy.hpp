@@ -27,6 +27,8 @@ struct ProxyCtrl
 
 // TODO: Detailed description of the allowed (S,T) pairings
 
+// TODO: Allow elemental and block-cyclic matrices to interact through proxies
+
 // Read proxy
 // ==========
 

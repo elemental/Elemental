@@ -220,26 +220,11 @@ MatrixMarket( Matrix<T>& A, const string filename )
 
 template<typename T>
 inline void
-MatrixMarket( ElementalMatrix<T>& A, const string filename )
+MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 {
     DEBUG_ONLY(CSE cse("read::MatrixMarket"))
+    // TODO: Use a WriteProxy instead
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
-    if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-    {
-        MatrixMarket( A_CIRC_CIRC.Matrix(), filename );
-        A_CIRC_CIRC.Resize
-        ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
-    }
-    A_CIRC_CIRC.MakeSizeConsistent();
-    Copy( A_CIRC_CIRC, A );
-}
-
-template<typename T>
-inline void
-MatrixMarket( BlockMatrix<T>& A, const string filename )
-{
-    DEBUG_ONLY(CSE cse("read::MatrixMarket"))
-    DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
     {
         MatrixMarket( A_CIRC_CIRC.Matrix(), filename );
