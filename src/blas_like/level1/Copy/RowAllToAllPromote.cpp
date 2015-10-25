@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -22,7 +23,7 @@ void RowAllToAllPromote
     const Int height = A.Height();
     const Int width = A.Width();
     B.AlignRowsAndResize
-    ( A.RowAlign()%B.RowStride(), height, width, false, false );
+    ( Mod(A.RowAlign(),B.RowStride()), height, width, false, false );
     if( !B.Participating() )
         return;
 
@@ -32,7 +33,7 @@ void RowAllToAllPromote
     const Int rowStridePart = A.PartialRowStride();
     const Int rowStrideUnion = A.PartialUnionRowStride();
     const Int rowRankPart = A.PartialRowRank();
-    const Int rowDiff = B.RowAlign() - (rowAlign%rowStridePart);
+    const Int rowDiff = B.RowAlign() - Mod(rowAlign,rowStridePart);
 
     const Int maxLocalWidth = MaxLength(width,rowStride);
     const Int maxLocalHeight = MaxLength(height,rowStrideUnion);
@@ -125,7 +126,8 @@ void RowAllToAllPromote
 {
     DEBUG_ONLY(CSE cse("copy::RowAllToAllPromote"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO_DIST(T,U,V) \

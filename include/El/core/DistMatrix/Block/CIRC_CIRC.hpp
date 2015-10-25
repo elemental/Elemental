@@ -30,12 +30,15 @@ public:
 
     // Create a 0 x 0 distributed matrix with default (and unpinned) block size
     DistMatrix( const El::Grid& g=DefaultGrid(), int root=0 );
+
     // Create a 0 x 0 distributed matrix with fixed block size
     DistMatrix
     ( const El::Grid& g, Int blockHeight, Int blockWidth, int root=0 );
+
     // Create a height x width distributed matrix with default block size
     DistMatrix
     ( Int height, Int width, const El::Grid& g=DefaultGrid(), int root=0 );
+
     // Create a height x width distributed matrix with fixed block size
     DistMatrix
     ( Int height, Int width, const El::Grid& g,
@@ -43,13 +46,16 @@ public:
 
     // Create a copy of distributed matrix A (redistributing if necessary)
     DistMatrix( const type& A );
+    DistMatrix( const absType& A );
     DistMatrix( const blockCyclicType& A );
-    template<Dist U,Dist V>
-    DistMatrix( const DistMatrix<T,U,V,BLOCK>& A );
-    template<Dist U,Dist V>
-    DistMatrix( const DistMatrix<T,U,V,ELEMENT>& A );
+    template<Dist colDist,Dist rowDist>
+    DistMatrix( const DistMatrix<T,colDist,rowDist,BLOCK>& A );
+    template<Dist colDist,Dist rowDist>
+    DistMatrix( const DistMatrix<T,colDist,rowDist,ELEMENT>& A );
+
     // Move constructor
     DistMatrix( type&& A ) EL_NO_EXCEPT;
+
     // Destructor
     ~DistMatrix();
 
@@ -70,10 +76,11 @@ public:
 
     // Make a copy
     // -----------
-    template<Dist U,Dist V>
-    type& operator=( const DistMatrix<T,U,V,ELEMENT>& A );
     type& operator=( const type& A );
+    type& operator=( const absType& A );
     type& operator=( const blockCyclicType& A );
+    template<Dist colDist,Dist rowDist>
+    type& operator=( const DistMatrix<T,colDist,rowDist,ELEMENT>& A );
 
     // Move assignment
     // ---------------

@@ -17,11 +17,15 @@ namespace El {
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
+  T alpha, const Matrix<T>& A,
+           const Matrix<T>& x,
+  T beta,        Matrix<T>& y );
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& x, Matrix<T>& y );
+  T alpha, const Matrix<T>& A,
+           const Matrix<T>& x,
+                 Matrix<T>& y );
 template<typename T>
 void Gemv
 ( Orientation orientation,
@@ -34,6 +38,18 @@ void Gemv
   T alpha, const ElementalMatrix<T>& A,
            const ElementalMatrix<T>& x,
                  ElementalMatrix<T>& y );
+template<typename T>
+void Gemv
+( Orientation orientation,
+  T alpha, const DistMatrix<T,MC,MR,BLOCK>& A,
+           const DistMatrix<T,MC,MR,BLOCK>& x,
+  T beta,        DistMatrix<T,MC,MR,BLOCK>& y );
+template<typename T>
+void Gemv
+( Orientation orientation,
+  T alpha, const DistMatrix<T,MC,MR,BLOCK>& A,
+           const DistMatrix<T,MC,MR,BLOCK>& x,
+                 DistMatrix<T,MC,MR,BLOCK>& y );
 template<typename T>
 void LocalGemv
 ( Orientation orientation,

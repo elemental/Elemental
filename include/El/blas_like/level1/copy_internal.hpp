@@ -15,6 +15,11 @@ namespace El {
 namespace copy {
 
 template<typename T>
+void GeneralPurpose
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B );
+
+template<typename T>
 void Exchange
 ( const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B,

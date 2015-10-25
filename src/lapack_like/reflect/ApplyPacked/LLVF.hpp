@@ -37,9 +37,9 @@ LLVF
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::LLVF");
-        if( H.Height() != A.Height() )
-            LogicError("A and H must be the same height");
+      CSE cse("apply_packed_reflectors::LLVF");
+      if( H.Height() != A.Height() )
+          LogicError("A and H must be the same height");
     )
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
@@ -84,10 +84,10 @@ LLVF
         ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::LLVF");
-        if( HPre.Height() != APre.Height() )
-            LogicError("A and H must be the same height");
-        AssertSameGrids( HPre, tPre, APre );
+      CSE cse("apply_packed_reflectors::LLVF");
+      if( HPre.Height() != APre.Height() )
+          LogicError("A and H must be the same height");
+      AssertSameGrids( HPre, tPre, APre );
     )
 
     auto HPtr = ReadProxy<F,MC,MR>( &HPre );      auto& H = *HPtr;
@@ -97,8 +97,8 @@ LLVF
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != diagLength )
-            LogicError("t must be the same length as H's offset diag.");
+      if( t.Height() != diagLength )
+          LogicError("t must be the same length as H's offset diag.");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanCopy(g);

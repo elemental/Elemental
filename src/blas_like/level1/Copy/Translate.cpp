@@ -151,21 +151,7 @@ void Translate
     }
     else
     {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        // TODO: Break into smaller pieces to avoid excessive memory usage?
-        Zeros( B, height, width );
-        B.Reserve( localHeight*localWidth );
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
-            {
-                const Int i = A.GlobalRow(iLoc);
-                B.QueueUpdate( i, j, A.GetLocal(iLoc,jLoc) );
-            }
-        }    
-        B.ProcessQueues();
+        GeneralPurpose( A, B );
     }
 }
 

@@ -71,7 +71,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation, 
   const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& tPre, 
+  const ElementalMatrix<F>& t, 
   const ElementalMatrix<Base<F>>& d,
         ElementalMatrix<F>& BPre )
 {
@@ -86,14 +86,6 @@ void ApplyQ
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
-
-    ProxyCtrl tCtrl;
-    tCtrl.rootConstrain = true;
-    tCtrl.colConstrain = true;
-    tCtrl.root = A.DiagonalRoot();
-    tCtrl.colAlign = A.DiagonalAlign();
-    auto tPtr = ReadProxy<F,MD,STAR>( &tPre, tCtrl );
-    auto& t = *tPtr;
 
     const Int m = B.Height();
     const Int n = B.Width();

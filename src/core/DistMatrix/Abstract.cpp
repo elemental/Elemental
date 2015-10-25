@@ -556,7 +556,10 @@ void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueueUpdate"))
-    if( IsLocal(entry.i,entry.j) )
+    // NOTE: We cannot always simply locally update since it can (and has)
+    //       lead to the processors in the same redundant communicator having
+    //       different results after ProcessQueues()
+    if( RedundantSize() == 1 && IsLocal(entry.i,entry.j) )
         Update( entry );
     else
         remoteUpdates_.push_back( entry );
@@ -610,6 +613,7 @@ void AbstractDistMatrix<T>::ProcessQueues()
     mpi::Broadcast( recvBufSize, 0, RedundantComm() );
     recvBuf.resize( recvBufSize );
     mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
+    // TODO: Make this loop faster
     for( const auto& entry : recvBuf )
         Update( entry );
 }

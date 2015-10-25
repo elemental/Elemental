@@ -24,7 +24,7 @@ void TestCorrectness
     const Int minDim = std::min(m,n);
 
     if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of Q..." << endl;
+        Output("  Testing orthogonality of Q");
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<F> Z(g);
@@ -38,18 +38,18 @@ void TestCorrectness
     Identity( X, minDim, minDim );
     X -= ZUpper;
 
-    Real oneNormOfError = OneNorm( X );
-    Real infNormOfError = InfinityNorm( X );
-    Real frobNormOfError = FrobeniusNorm( X );
+    Real oneNormError = OneNorm( X );
+    Real infNormError = InfinityNorm( X );
+    Real frobNormError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
-        cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
-             << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+        Output("    ||Q^H Q - I||_1  = ",oneNormError);
+        Output("    ||Q^H Q - I||_oo = ",infNormError);
+        Output("    ||Q^H Q - I||_F  = ",frobNormError);
     }
 
     if( g.Rank() == 0 )
-        cout << "  Testing if A = QR..." << endl;
+        Output("  Testing if A = QR");
 
     // Form Q R
     auto U( A );
@@ -59,20 +59,20 @@ void TestCorrectness
     // Form Q R - A
     U -= AOrig;
     
-    const Real oneNormOfA = OneNorm( AOrig );
-    const Real infNormOfA = InfinityNorm( AOrig );
-    const Real frobNormOfA = FrobeniusNorm( AOrig );
-    oneNormOfError = OneNorm( U );
-    infNormOfError = InfinityNorm( U );
-    frobNormOfError = FrobeniusNorm( U );
+    const Real oneNormA = OneNorm( AOrig );
+    const Real infNormA = InfinityNorm( AOrig );
+    const Real frobNormA = FrobeniusNorm( AOrig );
+    oneNormError = OneNorm( U );
+    infNormError = InfinityNorm( U );
+    frobNormError = FrobeniusNorm( U );
     if( g.Rank() == 0 )
     {
-        cout << "    ||A||_1       = " << oneNormOfA << "\n"
-             << "    ||A||_oo      = " << infNormOfA << "\n"
-             << "    ||A||_F       = " << frobNormOfA << "\n"
-             << "    ||A - QR||_1  = " << oneNormOfError << "\n"
-             << "    ||A - QR||_oo = " << infNormOfError << "\n"
-             << "    ||A - QR||_F  = " << frobNormOfError << endl;
+        Output("    ||A||_1       = ",oneNormA);
+        Output("    ||A||_oo      = ",infNormA);
+        Output("    ||A||_F       = ",frobNormA);
+        Output("    ||A - QR||_1  = ",oneNormError);
+        Output("    ||A - QR||_oo = ",infNormError);
+        Output("    ||A - QR||_F  = ",frobNormError);
     }
 }
 
@@ -85,24 +85,12 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
 
     Uniform( A, m, n );
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting QR factorization...";
-        cout.flush();
-    }
+        Output("  Starting QR factorization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     QR( A, t, d );
@@ -113,11 +101,7 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
     if( print )
     {
         Print( A, "A after factorization" );
@@ -156,14 +140,14 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test QR" << endl;
+            Output("Will test QR");
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestQR<double>( testCorrectness, print, m, n, g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestQR<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }

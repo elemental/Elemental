@@ -128,7 +128,7 @@ BDM& BDM::operator=( const BDM& A )
     }
     else
     {
-        LogicError("This option is not yet written");
+        copy::GeneralPurpose( A, *this );
     }
     return *this;
 }
@@ -137,7 +137,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,STAR] = [CIRC,CIRC]"))
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 

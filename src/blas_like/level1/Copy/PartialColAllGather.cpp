@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -40,7 +41,7 @@ void PartialColAllGather
     }
 #endif
     B.AlignColsAndResize
-    ( A.ColAlign()%B.ColStride(), height, width, false, false );
+    ( Mod(A.ColAlign(),B.ColStride()), height, width, false, false );
     if( !A.Participating() )
         return;
 
@@ -51,7 +52,7 @@ void PartialColAllGather
 
     const Int colStrideUnion = A.PartialUnionColStride();
     const Int colStridePart = A.PartialColStride();
-    const Int colDiff = B.ColAlign() - (A.ColAlign()%colStridePart);
+    const Int colDiff = B.ColAlign() - Mod(A.ColAlign(),colStridePart);
 
     const Int maxLocalHeight = MaxLength(height,A.ColStride());
     const Int portionSize = mpi::Pad( maxLocalHeight*width );
@@ -137,7 +138,8 @@ void PartialColAllGather
 {
     DEBUG_ONLY(CSE cse("copy::PartialColAllGather"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO_DIST(T,U,V) \

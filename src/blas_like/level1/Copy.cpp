@@ -137,7 +137,6 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
     }
     else 
     {
-        B.SetGrid( A.Grid() );
         Zeros( B, A.Height(), A.Width() );
         if( A.RedundantRank() == 0 )
         {

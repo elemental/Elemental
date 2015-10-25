@@ -118,11 +118,7 @@ template<typename T>
 void Print( const Matrix<T>& A, string title="Matrix", ostream& os=cout );
 template<typename T>
 void Print
-( const ElementalMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
-template<typename T>
-void Print
-( const BlockMatrix<T>& A, string title="BlockDistMatrix",
-  ostream& os=cout );
+( const AbstractDistMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
 template<typename T>
 void Print
 ( const DistMultiVec<T>& X, string title="DistMultiVec", ostream& os=cout );

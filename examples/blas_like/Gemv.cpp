@@ -18,15 +18,31 @@ int
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::Rank( comm );
 
     try 
     {
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
+        const Int blocksize = Input("--blocksize","algorithmic blocksize",96);
+#ifdef EL_HAVE_SCALAPACK
+        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
+        const Int mb = Input("--mb","block height",32);
+        const Int nb = Input("--nb","block width",32);
+#else
+        const bool scalapack = false;
+        const Int mb = 32;
+        const Int nb = 32;
+#endif
         const bool adjoint = Input("--adjoint","apply adjoint?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+
+        SetBlocksize( blocksize );
+        SetDefaultBlockHeight( mb );
+        SetDefaultBlockWidth( nb );
 
         const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
 
@@ -54,8 +70,26 @@ main( int argc, char* argv[] )
             Print( y, "y" );
         }
 
+        if( scalapack )
+        {
+            DistMatrix<C,MC,MR,BLOCK> ABlock( A ), xBlock( x ), yBlock( y );
+            Output("Starting ScaLAPACK Gemv");
+            mpi::Barrier( comm );
+            const double gemvStart = mpi::Time();
+            Gemv( orientation, C(3), A, x, C(4), y );
+            const double gemvRun = mpi::Time() - gemvStart;
+            if( commRank == 0 )
+                Output("  Time: ",gemvRun);
+        }
+
         // Run the matrix-vector product
+        mpi::Barrier( comm );
+        Output("Starting Gemv");
+        const double gemvStart = mpi::Time();
         Gemv( orientation, C(3), A, x, C(4), y );
+        const double gemvRun = mpi::Time() - gemvStart;
+        if( commRank == 0 )
+            Output("  Time: ",gemvRun);
 
         if( print )
         {

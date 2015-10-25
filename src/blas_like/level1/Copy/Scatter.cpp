@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -24,12 +25,13 @@ void Scatter
     const Int colStride = B.ColStride();
     const Int rowStride = B.RowStride();
     B.Resize( m, n );
-    if( B.CrossSize() != 1 )
-        LogicError("Non-trivial cross teams not yet supported");
-    // TODO: Broadcast over the redundant communicator and use mpi::Translate
-    //       rank to determine whether a process is the root of the broadcast
-    if( B.RedundantSize() != 1 )
-        LogicError("Non-trivial redundant teams not yet supported");
+    if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
+    {
+        // TODO:
+        // Broadcast over the redundant communicator and use mpi::Translate
+        // rank to determine whether a process is the root of the broadcast.
+        GeneralPurpose( A, B ); 
+    }
 
     const Int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
     const Int recvSize = pkgSize;
@@ -94,7 +96,8 @@ void Scatter
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 // TODO: Find a way to combine this with the above
@@ -142,7 +145,8 @@ void Scatter
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO(T) \

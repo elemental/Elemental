@@ -25,9 +25,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MC,MR,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[MD,STAR] = [MC,MR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -35,9 +34,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MC,STAR,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[MD,STAR] = [MC,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -45,9 +43,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,MR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -63,9 +60,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MD,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,MD]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -73,9 +69,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,MC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [MR,MC]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -83,9 +78,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,STAR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [MR,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -93,9 +87,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,MC]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -103,9 +96,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,VC,STAR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [VC,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -113,9 +105,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,VC]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -123,9 +114,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,VR,STAR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [VR,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -133,9 +123,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,VR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -151,9 +140,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[MD,STAR] = [CIRC,CIRC]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
