@@ -9,10 +9,13 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
-Int SOCDegree( const Matrix<Int>& firstInds )
+// TODO: Lower-level access
+
+Int Degree( const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCDegree"))
+    DEBUG_ONLY(CSE cse("soc::Degree"))
     const Int height = firstInds.Height();
     Int degree = 0;
     for( Int i=0; i<height; ++i )
@@ -21,9 +24,9 @@ Int SOCDegree( const Matrix<Int>& firstInds )
     return degree;
 }
 
-Int SOCDegree( const ElementalMatrix<Int>& firstIndsPre )
+Int Degree( const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("SOCDegree"))
+    DEBUG_ONLY(CSE cse("soc::Degree"))
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
     auto& firstInds = *firstIndsPtr;
 
@@ -38,9 +41,9 @@ Int SOCDegree( const ElementalMatrix<Int>& firstIndsPre )
     return mpi::AllReduce( localDegree, firstInds.DistComm() );
 }
 
-Int SOCDegree( const DistMultiVec<Int>& firstInds )
+Int Degree( const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCDegree"))
+    DEBUG_ONLY(CSE cse("soc::Degree"))
     Int localDegree = 0;
     const Int localHeight = firstInds.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -52,4 +55,5 @@ Int SOCDegree( const DistMultiVec<Int>& firstInds )
     return mpi::AllReduce( localDegree, firstInds.Comm() );
 }
 
+} // namespace soc
 } // namespace El

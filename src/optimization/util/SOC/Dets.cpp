@@ -9,29 +9,30 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 template<typename Real>
-void SOCDets
+void Dets
 ( const Matrix<Real>& x, 
         Matrix<Real>& d,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCDets"))
+    DEBUG_ONLY(CSE cse("soc::Dets"))
     auto Rx = x;
-    SOCReflect( Rx, orders, firstInds );
-    SOCDots( x, Rx, d, orders, firstInds );
+    soc::Reflect( Rx, orders, firstInds );
+    soc::Dots( x, Rx, d, orders, firstInds );
 }
 
 template<typename Real>
-void SOCDets
+void Dets
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& dPre,
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCDets"))
+    DEBUG_ONLY(CSE cse("soc::Dets"))
     AssertSameGrids( xPre, dPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -48,35 +49,35 @@ void SOCDets
     auto& firstInds = *firstIndsPtr;
 
     auto Rx = x;
-    SOCReflect( Rx, orders, firstInds );
-    SOCDots( x, Rx, d, orders, firstInds, cutoff );
+    soc::Reflect( Rx, orders, firstInds );
+    soc::Dots( x, Rx, d, orders, firstInds, cutoff );
 }
 
 template<typename Real>
-void SOCDets
+void Dets
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& d,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCDets"))
+    DEBUG_ONLY(CSE cse("soc::Dets"))
     auto Rx = x;
-    SOCReflect( Rx, orders, firstInds );
-    SOCDots( x, Rx, d, orders, firstInds, cutoff );
+    soc::Reflect( Rx, orders, firstInds );
+    soc::Dots( x, Rx, d, orders, firstInds, cutoff );
 }
 
 #define PROTO(Real) \
-  template void SOCDets \
+  template void Dets \
   ( const Matrix<Real>& x, \
           Matrix<Real>& d, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCDets \
+  template void Dets \
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& d, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCDets \
+  template void Dets \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& d, \
     const DistMultiVec<Int>& orders, \
@@ -87,4 +88,5 @@ void SOCDets
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

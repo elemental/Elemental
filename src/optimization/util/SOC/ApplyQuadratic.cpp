@@ -9,32 +9,33 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 // Q_x y = (2 x x^T - det(x) R) y = 2 (x^T y) x - det(x) (R y)
 
 template<typename Real>
-void SOCApplyQuadratic
+void ApplyQuadratic
 ( const Matrix<Real>& x, 
   const Matrix<Real>& y,
         Matrix<Real>& z,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
 
     // detRy := det(x) R y
     Matrix<Real> d;
-    SOCDets( x, d, orders, firstInds );
-    ConeBroadcast( d, orders, firstInds );
+    soc::Dets( x, d, orders, firstInds );
+    cone::Broadcast( d, orders, firstInds );
     auto Ry = y;
-    SOCReflect( Ry, orders, firstInds );
+    soc::Reflect( Ry, orders, firstInds );
     Matrix<Real> detRy;
     Hadamard( d, Ry, detRy );
 
     // z := 2 (x^T y) x
     Matrix<Real> xTy;
-    SOCDots( x, y, xTy, orders, firstInds );
-    ConeBroadcast( xTy, orders, firstInds );
+    soc::Dots( x, y, xTy, orders, firstInds );
+    cone::Broadcast( xTy, orders, firstInds );
     Hadamard( xTy, x, z );
     z *= 2;
 
@@ -43,7 +44,7 @@ void SOCApplyQuadratic
 }
 
 template<typename Real>
-void SOCApplyQuadratic
+void ApplyQuadratic
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre,
         ElementalMatrix<Real>& zPre,
@@ -51,7 +52,7 @@ void SOCApplyQuadratic
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -71,17 +72,17 @@ void SOCApplyQuadratic
 
     // detRy := det(x) R y
     DistMatrix<Real,VC,STAR> d(x.Grid());
-    SOCDets( x, d, orders, firstInds, cutoff );
-    ConeBroadcast( d, orders, firstInds, cutoff );
+    soc::Dets( x, d, orders, firstInds, cutoff );
+    cone::Broadcast( d, orders, firstInds, cutoff );
     auto Ry = y;
-    SOCReflect( Ry, orders, firstInds );
+    soc::Reflect( Ry, orders, firstInds );
     DistMatrix<Real,VC,STAR> detRy(x.Grid());
     Hadamard( d, Ry, detRy );
 
     // z := 2 (x^T y) x
     DistMatrix<Real,VC,STAR> xTy(x.Grid());
-    SOCDots( x, y, xTy, orders, firstInds, cutoff );
-    ConeBroadcast( xTy, orders, firstInds, cutoff );
+    soc::Dots( x, y, xTy, orders, firstInds, cutoff );
+    cone::Broadcast( xTy, orders, firstInds, cutoff );
     Hadamard( xTy, x, z );
     z *= 2;
 
@@ -90,28 +91,28 @@ void SOCApplyQuadratic
 }
 
 template<typename Real>
-void SOCApplyQuadratic
+void ApplyQuadratic
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
 
     // detRy := det(x) R y
     DistMultiVec<Real> d(x.Comm()); 
-    SOCDets( x, d, orders, firstInds, cutoff );
-    ConeBroadcast( d, orders, firstInds, cutoff );
+    soc::Dets( x, d, orders, firstInds, cutoff );
+    cone::Broadcast( d, orders, firstInds, cutoff );
     auto Ry = y;
-    SOCReflect( Ry, orders, firstInds );
+    soc::Reflect( Ry, orders, firstInds );
     DistMultiVec<Real> detRy(x.Comm());
     Hadamard( d, Ry, detRy );
 
     // z := 2 (x^T y) x
     DistMultiVec<Real> xTy(x.Comm());
-    SOCDots( x, y, xTy, orders, firstInds, cutoff );
-    ConeBroadcast( xTy, orders, firstInds, cutoff );
+    soc::Dots( x, y, xTy, orders, firstInds, cutoff );
+    cone::Broadcast( xTy, orders, firstInds, cutoff );
     Hadamard( xTy, x, z );
     z *= 2;
 
@@ -120,78 +121,78 @@ void SOCApplyQuadratic
 }
 
 template<typename Real>
-void SOCApplyQuadratic
+void ApplyQuadratic
 ( const Matrix<Real>& x,
         Matrix<Real>& y,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
     // TODO?: Optimize
     Matrix<Real> z; 
-    SOCApplyQuadratic( x, y, z, orders, firstInds );
+    soc::ApplyQuadratic( x, y, z, orders, firstInds );
     y = z;
 }
 
 template<typename Real>
-void SOCApplyQuadratic
+void ApplyQuadratic
 ( const ElementalMatrix<Real>& x,
         ElementalMatrix<Real>& y,
   const ElementalMatrix<Int>& orders,
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
     // TODO?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid()); 
-    SOCApplyQuadratic( x, y, z, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
     y = z;
 }
 
 template<typename Real>
-void SOCApplyQuadratic
+void ApplyQuadratic
 ( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApplyQuadratic"))
+    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
     // TODO?: Optimize 
     DistMultiVec<Real> z(x.Comm());
-    SOCApplyQuadratic( x, y, z, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
     y = z;
 }
 
 #define PROTO(Real) \
-  template void SOCApplyQuadratic \
+  template void ApplyQuadratic \
   ( const Matrix<Real>& x, \
     const Matrix<Real>& y, \
           Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCApplyQuadratic \
+  template void ApplyQuadratic \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Real>& y, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCApplyQuadratic \
+  template void ApplyQuadratic \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff ); \
-  template void SOCApplyQuadratic \
+  template void ApplyQuadratic \
   ( const Matrix<Real>& x, \
           Matrix<Real>& y, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCApplyQuadratic \
+  template void ApplyQuadratic \
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& y, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCApplyQuadratic \
+  template void ApplyQuadratic \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
     const DistMultiVec<Int>& orders, \
@@ -202,4 +203,5 @@ void SOCApplyQuadratic
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

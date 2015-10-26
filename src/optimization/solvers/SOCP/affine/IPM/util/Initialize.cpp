@@ -165,25 +165,25 @@ void Initialize
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds );
+        const Real alphaPrimal = -soc::MinEig( s, orders, firstInds );
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized s was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaDual = -SOCMinEig( z, orders, firstInds );
+        const Real alphaDual = -soc::MinEig( z, orders, firstInds );
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
         if( alphaPrimal >= -gammaPrimal )
-            SOCShift( s, alphaPrimal+1, orders, firstInds );
+            soc::Shift( s, alphaPrimal+1, orders, firstInds );
         if( alphaDual >= -gammaDual )
-            SOCShift( z, alphaDual+1, orders, firstInds );
+            soc::Shift( z, alphaDual+1, orders, firstInds );
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal );
-        ForceIntoSOC( z, orders, firstInds, 1+gammaDual );
+        soc::PushInto( s, orders, firstInds, 1+gammaPrimal );
+        soc::PushInto( z, orders, firstInds, 1+gammaDual );
     }
 }
 
@@ -288,25 +288,25 @@ void Initialize
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds, cutoff );
+        const Real alphaPrimal = -soc::MinEig( s, orders, firstInds, cutoff );
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized s was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaDual = -SOCMinEig( z, orders, firstInds, cutoff );
+        const Real alphaDual = -soc::MinEig( z, orders, firstInds, cutoff );
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
         if( alphaPrimal >= -gammaPrimal )
-            SOCShift( s, alphaPrimal+1, orders, firstInds );
+            soc::Shift( s, alphaPrimal+1, orders, firstInds );
         if( alphaDual >= -gammaDual )
-            SOCShift( z, alphaDual+1, orders, firstInds );
+            soc::Shift( z, alphaDual+1, orders, firstInds );
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal, cutoff );
-        ForceIntoSOC( z, orders, firstInds, 1+gammaDual, cutoff );
+        soc::PushInto( s, orders, firstInds, 1+gammaPrimal, cutoff );
+        soc::PushInto( z, orders, firstInds, 1+gammaDual, cutoff );
     }
 }
 
@@ -445,25 +445,25 @@ void Initialize
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds );
+        const Real alphaPrimal = -soc::MinEig( s, orders, firstInds );
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized s was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaDual = -SOCMinEig( z, orders, firstInds );
+        const Real alphaDual = -soc::MinEig( z, orders, firstInds );
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
         if( alphaPrimal >= -gammaPrimal )
-            SOCShift( s, alphaPrimal+1, orders, firstInds );
+            soc::Shift( s, alphaPrimal+1, orders, firstInds );
         if( alphaDual >= -gammaDual )
-            SOCShift( z, alphaDual+1, orders, firstInds );
+            soc::Shift( z, alphaDual+1, orders, firstInds );
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal );
-        ForceIntoSOC( z, orders, firstInds, 1+gammaDual );
+        soc::PushInto( s, orders, firstInds, 1+gammaPrimal );
+        soc::PushInto( z, orders, firstInds, 1+gammaDual );
     }
 }
 
@@ -606,25 +606,26 @@ void Initialize
     {
         // alpha_p := min { alpha : s + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaPrimal = -SOCMinEig( s, orders, firstInds, cutoffPar );
+        const Real alphaPrimal =
+          -soc::MinEig( s, orders, firstInds, cutoffPar );
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized s was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const Real alphaDual = -SOCMinEig( z, orders, firstInds, cutoffPar );
+        const Real alphaDual = -soc::MinEig( z, orders, firstInds, cutoffPar );
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
         if( alphaPrimal >= -gammaPrimal )
-            SOCShift( s, alphaPrimal+1, orders, firstInds );
+            soc::Shift( s, alphaPrimal+1, orders, firstInds );
         if( alphaDual >= -gammaDual )
-            SOCShift( z, alphaDual+1, orders, firstInds );
+            soc::Shift( z, alphaDual+1, orders, firstInds );
     }
     else
     {
-        ForceIntoSOC( s, orders, firstInds, 1+gammaPrimal, cutoffPar );
-        ForceIntoSOC( z, orders, firstInds, 1+gammaPrimal, cutoffPar );
+        soc::PushInto( s, orders, firstInds, 1+gammaPrimal, cutoffPar );
+        soc::PushInto( z, orders, firstInds, 1+gammaPrimal, cutoffPar );
     }
 }
 

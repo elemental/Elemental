@@ -68,11 +68,11 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = SOCDegree( firstInds );
+    const Int degree = soc::Degree( firstInds );
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.outerEquil )
     {
-        ConeGeomEquil
+        cone::GeomEquil
         ( A, G, dRowA, dRowG, dCol, orders, firstInds, ctrl.print );
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -130,9 +130,9 @@ void Mehrotra
         // Ensure that s and z are in the cone
         // ===================================
         const Real minDist = eps;
-        ForceIntoSOC( s, orders, firstInds, minDist );
-        ForceIntoSOC( z, orders, firstInds, minDist );
-        SOCNesterovTodd( s, z, w, orders, firstInds ); 
+        soc::PushInto( s, orders, firstInds, minDist );
+        soc::PushInto( z, orders, firstInds, minDist );
+        soc::NesterovTodd( s, z, w, orders, firstInds ); 
 
         // Check for convergence
         // =====================
@@ -205,14 +205,14 @@ void Mehrotra
           Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
-            ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
-            SOCNesterovTodd( s, z, w, orders, firstInds );
+            soc::PushPairInto( s, z, w, orders, firstInds, wMaxNormLimit );
+            soc::NesterovTodd( s, z, w, orders, firstInds );
             wMaxNorm = MaxNorm(w);
         }
-        SOCSquareRoot( w, wRoot, orders, firstInds );
-        SOCInverse( wRoot, wRootInv, orders, firstInds );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
-        SOCInverse( l, lInv, orders, firstInds );
+        soc::SquareRoot( w, wRoot, orders, firstInds );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds );
+        soc::Inverse( l, lInv, orders, firstInds );
         const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
@@ -243,8 +243,8 @@ void Mehrotra
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds,
           dxAff, dyAff, dzAff, dsAff );
-        SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
-        SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
+        soc::ApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
+        soc::ApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
@@ -281,10 +281,8 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = 
-          MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
-        Real alphaAffDual = 
-          MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
+        Real alphaAffPri = soc::MaxStep(s,dsAff,orders,firstInds,Real(1));
+        Real alphaAffDual = soc::MaxStep(z,dzAff,orders,firstInds,Real(1));
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -311,9 +309,9 @@ void Mehrotra
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
-            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
-            SOCShift( rmu, -sigma*mu, orders, firstInds );
-            SOCApply( lInv, rmu, orders, firstInds );
+            soc::Apply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds );
             rmu += l;
         }
         else
@@ -344,9 +342,9 @@ void Mehrotra
         // Update the current estimates
         // ============================
         Real alphaPri = 
-          MaxStepInSOC( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
+          soc::MaxStep( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
         Real alphaDual = 
-          MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
+          soc::MaxStep( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -440,7 +438,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = SOCDegree( firstInds );
+    const Int degree = soc::Degree( firstInds );
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
@@ -499,9 +497,9 @@ void Mehrotra
         // Ensure that s and z are in the cone
         // ===================================
         const Real minDist = eps;
-        ForceIntoSOC( s, orders, firstInds, minDist, cutoffPar );
-        ForceIntoSOC( z, orders, firstInds, minDist, cutoffPar );
-        SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
+        soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
+        soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
 
         // Check for convergence
         // =====================
@@ -574,15 +572,15 @@ void Mehrotra
           Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
-            ForcePairIntoSOC
+            soc::PushPairInto
             ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
-            SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+            soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
             wMaxNorm = MaxNorm(w);
         }
-        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
-        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
-        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
+        soc::SquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        soc::Inverse( l, lInv, orders, firstInds, cutoffPar );
         const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
@@ -614,9 +612,9 @@ void Mehrotra
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds,
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
-        SOCApplyQuadratic
+        soc::ApplyQuadratic
         ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic
+        soc::ApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
         if( ctrl.checkResiduals && ctrl.print )
@@ -656,9 +654,9 @@ void Mehrotra
         // Compute a centrality parameter
         // ==============================
         Real alphaAffPri = 
-          MaxStepInSOC( s, dsAff, orders, firstInds, Real(1), cutoffPar );
+          soc::MaxStep( s, dsAff, orders, firstInds, Real(1), cutoffPar );
         Real alphaAffDual = 
-          MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
+          soc::MaxStep( z, dzAff, orders, firstInds, Real(1), cutoffPar );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
@@ -685,10 +683,10 @@ void Mehrotra
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
-            SOCApply
+            soc::Apply
             ( dsAffScaled, dzAffScaled, rmu, orders, firstInds, cutoffPar );
-            SOCShift( rmu, -sigma*mu, orders, firstInds );
-            SOCApply( lInv, rmu, orders, firstInds, cutoffPar );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds, cutoffPar );
             rmu += l;
         }
         else
@@ -720,10 +718,10 @@ void Mehrotra
         // Update the current estimates
         // ============================
         Real alphaPri = 
-          MaxStepInSOC
+          soc::MaxStep
           ( s, ds, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         Real alphaDual = 
-          MaxStepInSOC
+          soc::MaxStep
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
@@ -798,11 +796,11 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = SOCDegree( firstInds );
+    const Int degree = soc::Degree( firstInds );
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.outerEquil )
     {
-        ConeRuizEquil
+        cone::RuizEquil
         ( A, G, dRowA, dRowG, dCol, orders, firstInds, ctrl.print );
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
@@ -851,7 +849,7 @@ void Mehrotra
       origToSparseOrders,    sparseToOrigOrders,
       origToSparseFirstInds, sparseToOrigFirstInds,
       sparseOrders,          sparseFirstInds;
-    SOCEmbeddingMaps
+    soc::EmbeddingMaps
     ( orders, firstInds,
       sparseOrders, sparseFirstInds,
       origToSparseOrders, origToSparseFirstInds,
@@ -922,9 +920,9 @@ void Mehrotra
         // Ensure that s and z are in the cone
         // ===================================
         const Real minDist = eps;
-        ForceIntoSOC( s, orders, firstInds, minDist );
-        ForceIntoSOC( z, orders, firstInds, minDist );
-        SOCNesterovTodd( s, z, w, orders, firstInds );
+        soc::PushInto( s, orders, firstInds, minDist );
+        soc::PushInto( z, orders, firstInds, minDist );
+        soc::NesterovTodd( s, z, w, orders, firstInds );
 
         // Check for convergence
         // =====================
@@ -998,14 +996,14 @@ void Mehrotra
           Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
         if( wMaxNorm > wMaxNormLimit )
         {
-            ForcePairIntoSOC( s, z, w, orders, firstInds, wMaxNormLimit );
-            SOCNesterovTodd( s, z, w, orders, firstInds );
+            soc::PushPairInto( s, z, w, orders, firstInds, wMaxNormLimit );
+            soc::NesterovTodd( s, z, w, orders, firstInds );
             wMaxNorm = MaxNorm(w);
         }
-        SOCSquareRoot( w, wRoot, orders, firstInds );
-        SOCInverse( wRoot, wRootInv, orders, firstInds );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds );
-        SOCInverse( l, lInv, orders, firstInds );
+        soc::SquareRoot( w, wRoot, orders, firstInds );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds );
+        soc::Inverse( l, lInv, orders, firstInds );
         const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
@@ -1066,8 +1064,8 @@ void Mehrotra
           sparseOrders, sparseFirstInds,
           sparseToOrigOrders, sparseToOrigFirstInds,
           dxAff, dyAff, dzAff, dsAff );
-        SOCApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
-        SOCApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
+        soc::ApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
+        soc::ApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
@@ -1106,9 +1104,9 @@ void Mehrotra
         // Compute a centrality parameter
         // ==============================
         Real alphaAffPri = 
-          MaxStepInSOC( s, dsAff, orders, firstInds, Real(1) );
+          soc::MaxStep( s, dsAff, orders, firstInds, Real(1) );
         Real alphaAffDual = 
-          MaxStepInSOC( z, dzAff, orders, firstInds, Real(1) );
+          soc::MaxStep( z, dzAff, orders, firstInds, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -1135,9 +1133,9 @@ void Mehrotra
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
-            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
-            SOCShift( rmu, -sigma*mu, orders, firstInds );
-            SOCApply( lInv, rmu, orders, firstInds );
+            soc::Apply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds );
             rmu += l;
         }
         else
@@ -1183,9 +1181,9 @@ void Mehrotra
         // Update the current estimates
         // ============================
         Real alphaPri = 
-          MaxStepInSOC( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
+          soc::MaxStep( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
         Real alphaDual = 
-          MaxStepInSOC( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
+          soc::MaxStep( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -1261,7 +1259,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = SOCDegree( firstInds );
+    const Int degree = soc::Degree( firstInds );
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer, iterTimer;
@@ -1271,10 +1269,10 @@ void Mehrotra
     {
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        ConeRuizEquil
+        cone::RuizEquil
         ( A, G, dRowA, dRowG, dCol, orders, firstInds, cutoffPar, ctrl.print );
         if( commRank == 0 && ctrl.time )
-            Output("ConeRuizEquil: ",timer.Stop()," secs");
+            Output("cone::RuizEquil: ",timer.Stop()," secs");
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
@@ -1334,7 +1332,7 @@ void Mehrotra
       origToSparseOrders(comm),    sparseToOrigOrders(comm),
       origToSparseFirstInds(comm), sparseToOrigFirstInds(comm), 
       sparseOrders(comm), sparseFirstInds(comm);
-    SOCEmbeddingMaps
+    soc::EmbeddingMaps
     ( orders, firstInds,
       sparseOrders, sparseFirstInds,
       origToSparseOrders, origToSparseFirstInds,
@@ -1430,9 +1428,9 @@ void Mehrotra
         // ===================================
         // TODO: Let this be a function of the relative error, etc.
         const Real minDist = eps;
-        ForceIntoSOC( s, orders, firstInds, minDist, cutoffPar );
-        ForceIntoSOC( z, orders, firstInds, minDist, cutoffPar );
-        SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
+        soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
+        soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
 
         // Check for convergence
         // =====================
@@ -1513,17 +1511,17 @@ void Mehrotra
             if( ctrl.print && commRank == 0 )
                 Output
                 ("|| w ||_max = ",wMaxNorm," was larger than ",wMaxNormLimit);
-            ForcePairIntoSOC
+            soc::PushPairInto
             ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
-            SOCNesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+            soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
             wMaxNorm = MaxNorm(w);
             if( ctrl.print && commRank == 0 )
                 Output("New || w ||_max = ",wMaxNorm);
         }
-        SOCSquareRoot( w, wRoot, orders, firstInds, cutoffPar );
-        SOCInverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
-        SOCInverse( l, lInv, orders, firstInds, cutoffPar );
+        soc::SquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        soc::Inverse( l, lInv, orders, firstInds, cutoffPar );
         const Real mu = Dot(s,z) / degree;
 
         // r_mu := l
@@ -1617,9 +1615,9 @@ void Mehrotra
           sparseOrders, sparseFirstInds,
           sparseToOrigOrders, sparseToOrigFirstInds,
           dxAff, dyAff, dzAff, dsAff, cutoffPar );
-        SOCApplyQuadratic
+        soc::ApplyQuadratic
         ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
-        SOCApplyQuadratic
+        soc::ApplyQuadratic
         ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
         if( ctrl.checkResiduals && ctrl.print )
@@ -1671,9 +1669,9 @@ void Mehrotra
         if( ctrl.time && commRank == 0 )
             timer.Start();
         Real alphaAffPri = 
-          MaxStepInSOC( s, dsAff, orders, firstInds, Real(1), cutoffPar );
+          soc::MaxStep( s, dsAff, orders, firstInds, Real(1), cutoffPar );
         Real alphaAffDual = 
-          MaxStepInSOC( z, dzAff, orders, firstInds, Real(1), cutoffPar );
+          soc::MaxStep( z, dzAff, orders, firstInds, Real(1), cutoffPar );
         if( ctrl.time && commRank == 0 )
             Output("Affine line search: ",timer.Stop()," secs");
         if( ctrl.forceSameStep )
@@ -1704,9 +1702,9 @@ void Mehrotra
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
             // --------------------------------------------------------------
-            SOCApply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
-            SOCShift( rmu, -sigma*mu, orders, firstInds );
-            SOCApply( lInv, rmu, orders, firstInds );
+            soc::Apply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds );
             rmu += l;
         }
         else
@@ -1765,10 +1763,10 @@ void Mehrotra
         if( ctrl.time && commRank == 0 )
             timer.Start();
         Real alphaPri = 
-          MaxStepInSOC
+          soc::MaxStep
           ( s, ds, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         Real alphaDual = 
-          MaxStepInSOC
+          soc::MaxStep
           ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         if( ctrl.time && commRank == 0 )
             Output("Combined line search: ",timer.Stop()," secs");

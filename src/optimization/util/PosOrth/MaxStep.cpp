@@ -9,18 +9,24 @@
 #include "El.hpp"
 
 namespace El {
+namespace pos_orth {
 
 template<typename Real>
-Real MaxStepInPositiveCone
-( const Matrix<Real>& s, const Matrix<Real>& ds, Real upperBound )
+Real MaxStep
+( const Matrix<Real>& s,
+  const Matrix<Real>& ds,
+        Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
+    DEBUG_ONLY(CSE cse("pos_orth::MaxStep"))
     const Int k = s.Height();
+    const Real* sBuf = s.LockedBuffer();
+    const Real* dsBuf = ds.LockedBuffer();
+
     Real alpha = upperBound;
     for( Int i=0; i<k; ++i )
     {
-        const Real si = s.Get(i,0);
-        const Real dsi = ds.Get(i,0);
+        const Real si = sBuf[i];
+        const Real dsi = dsBuf[i];
         if( dsi < Real(0) )
             alpha = Min(alpha,-si/dsi);
     }
@@ -28,11 +34,12 @@ Real MaxStepInPositiveCone
 }
 
 template<typename Real>
-Real MaxStepInPositiveCone
+Real MaxStep
 ( const ElementalMatrix<Real>& sPre, 
-  const ElementalMatrix<Real>& dsPre, Real upperBound )
+  const ElementalMatrix<Real>& dsPre,
+  Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
+    DEBUG_ONLY(CSE cse("pos_orth::MaxStep"))
 
     // TODO: Decide if more general intermediate distributions should be
     //       supported.
@@ -47,14 +54,17 @@ Real MaxStepInPositiveCone
     auto dsPtr = ReadProxy<Real,MC,MR>(&dsPre,control);
     auto& ds = *dsPtr;
 
+    const Real* sBuf = s.LockedBuffer();
+    const Real* dsBuf = ds.LockedBuffer();
+
     Real alpha = upperBound;
     if( s.IsLocalCol(0) )
     {
         const Int kLocal = s.LocalHeight();
         for( Int iLoc=0; iLoc<kLocal; ++iLoc )
         {
-            const Real si = s.GetLocal(iLoc,0);
-            const Real dsi = ds.GetLocal(iLoc,0);
+            const Real si = sBuf[iLoc];
+            const Real dsi = dsBuf[iLoc];
             if( dsi < Real(0) )
                 alpha = Min(alpha,-si/dsi);
         }
@@ -63,16 +73,21 @@ Real MaxStepInPositiveCone
 }
 
 template<typename Real>
-Real MaxStepInPositiveCone
-( const DistMultiVec<Real>& s, const DistMultiVec<Real>& ds, Real upperBound )
+Real MaxStep
+( const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& ds,
+  Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("MaxStepInPositiveCone"))
-    Real alpha = upperBound;
+    DEBUG_ONLY(CSE cse("pos_orth::MaxStep"))
     const Int kLocal = s.LocalHeight();
+    const Real* sBuf = s.LockedMatrix().LockedBuffer();
+    const Real* dsBuf = ds.LockedMatrix().LockedBuffer();
+
+    Real alpha = upperBound;
     for( Int iLoc=0; iLoc<kLocal; ++iLoc )
     {
-        const Real si = s.GetLocal(iLoc,0);
-        const Real dsi = ds.GetLocal(iLoc,0);
+        const Real si = sBuf[iLoc];
+        const Real dsi = dsBuf[iLoc];
         if( dsi < Real(0) )
             alpha = Min(alpha,-si/dsi);
     }
@@ -80,17 +95,22 @@ Real MaxStepInPositiveCone
 }
 
 #define PROTO(Real) \
-  template Real MaxStepInPositiveCone \
-  ( const Matrix<Real>& s, const Matrix<Real>& ds, Real upperBound ); \
-  template Real MaxStepInPositiveCone \
+  template Real MaxStep \
+  ( const Matrix<Real>& s, \
+    const Matrix<Real>& ds, \
+    Real upperBound ); \
+  template Real MaxStep \
   ( const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& ds, Real upperBound ); \
-  template Real MaxStepInPositiveCone \
+    const ElementalMatrix<Real>& ds, \
+    Real upperBound ); \
+  template Real MaxStep \
   ( const DistMultiVec<Real>& s, \
-    const DistMultiVec<Real>& ds, Real upperBound );
+    const DistMultiVec<Real>& ds, \
+    Real upperBound );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace pos_orth
 } // namespace El

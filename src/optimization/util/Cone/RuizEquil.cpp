@@ -20,8 +20,10 @@ inline Real DampScaling( Real alpha )
         return Max(alpha,tol);
 }
 
+namespace cone {
+
 template<typename F>
-void ConeRuizEquil
+void RuizEquil
 (       Matrix<F>& A, 
         Matrix<F>& B, 
         Matrix<Base<F>>& dRowA, 
@@ -31,12 +33,12 @@ void ConeRuizEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeRuizEquil"))
+    DEBUG_ONLY(CSE cse("cone::RuizEquil"))
     LogicError("This routine is not yet written");
 }
 
 template<typename F>
-void ConeRuizEquil
+void RuizEquil
 (       ElementalMatrix<F>& APre, 
         ElementalMatrix<F>& BPre,
         ElementalMatrix<Base<F>>& dRowAPre, 
@@ -47,7 +49,7 @@ void ConeRuizEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeRuizEquil"))
+    DEBUG_ONLY(CSE cse("cone::RuizEquil"))
     typedef Base<F> Real;
 
     ProxyCtrl control;
@@ -104,7 +106,7 @@ void ConeRuizEquil
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         RowMaxNorms( B, rowScale );
-        ConeAllReduce( rowScale, orders, firstInds, mpi::MAX, cutoff );
+        cone::AllReduce( rowScale, orders, firstInds, mpi::MAX, cutoff );
         EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScale, B );
@@ -113,7 +115,7 @@ void ConeRuizEquil
 }
 
 template<typename F>
-void ConeRuizEquil
+void RuizEquil
 (       SparseMatrix<F>& A, 
         SparseMatrix<F>& B,
         Matrix<Base<F>>& dRowA, 
@@ -123,7 +125,7 @@ void ConeRuizEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeRuizEquil"))
+    DEBUG_ONLY(CSE cse("cone::RuizEquil"))
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -160,7 +162,7 @@ void ConeRuizEquil
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         RowMaxNorms( B, scales );
-        ConeAllReduce( scales, orders, firstInds, mpi::MAX );
+        cone::AllReduce( scales, orders, firstInds, mpi::MAX );
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
@@ -169,7 +171,7 @@ void ConeRuizEquil
 }
 
 template<typename F>
-void ConeRuizEquil
+void RuizEquil
 (       DistSparseMatrix<F>& A, 
         DistSparseMatrix<F>& B,
         DistMultiVec<Base<F>>& dRowA, 
@@ -180,7 +182,7 @@ void ConeRuizEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeRuizEquil"))
+    DEBUG_ONLY(CSE cse("cone::RuizEquil"))
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -205,9 +207,13 @@ void ConeRuizEquil
         // -------------------
         ColumnMaxNorms( A, scales );
         ColumnMaxNorms( B, maxAbsValsB );
-        for( Int j=0; j<n; ++j )
-            scales.Set
-            ( j, 0, Max(scales.Get(j,0),maxAbsValsB.Get(j,0)) );
+
+        Real* scaleBuf = scales.Matrix().Buffer();
+        const Real* maxAbsValBuf = maxAbsValsB.LockedMatrix().LockedBuffer();
+        const Int nLoc = scales.LocalHeight();
+        for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+            scaleBuf[jLoc] = Max(scaleBuf[jLoc],maxAbsValBuf[jLoc]);
+
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -221,7 +227,7 @@ void ConeRuizEquil
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         RowMaxNorms( B, scales );
-        ConeAllReduce( scales, orders, firstInds, mpi::MAX, cutoff );
+        cone::AllReduce( scales, orders, firstInds, mpi::MAX, cutoff );
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
@@ -230,7 +236,7 @@ void ConeRuizEquil
 }
 
 #define PROTO(F) \
-  template void ConeRuizEquil \
+  template void RuizEquil \
   (       Matrix<F>& A, \
           Matrix<F>& B, \
           Matrix<Base<F>>& dRowA, \
@@ -239,7 +245,7 @@ void ConeRuizEquil
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     bool progress ); \
-  template void ConeRuizEquil \
+  template void RuizEquil \
   (       ElementalMatrix<F>& A, \
           ElementalMatrix<F>& B, \
           ElementalMatrix<Base<F>>& dRowA, \
@@ -248,7 +254,7 @@ void ConeRuizEquil
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, \
     Int cutoff, bool progress ); \
-  template void ConeRuizEquil \
+  template void RuizEquil \
   (       SparseMatrix<F>& A, \
           SparseMatrix<F>& B, \
           Matrix<Base<F>>& dRowA, \
@@ -257,7 +263,7 @@ void ConeRuizEquil
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     bool progress ); \
-  template void ConeRuizEquil \
+  template void RuizEquil \
   (       DistSparseMatrix<F>& A, \
           DistSparseMatrix<F>& B, \
           DistMultiVec<Base<F>>& dRowA, \
@@ -270,4 +276,5 @@ void ConeRuizEquil
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace cone
 } // namespace El

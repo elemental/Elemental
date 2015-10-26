@@ -9,23 +9,24 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 // x o y = [ x^T y; x0 y1 + y0 x1 ]
 
 template<typename Real>
-void SOCApply
+void Apply
 ( const Matrix<Real>& x, 
   const Matrix<Real>& y,
         Matrix<Real>& z,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCApply"))
-    SOCDots( x, y, z, orders, firstInds );
+    DEBUG_ONLY(CSE cse("soc::Apply"))
+    soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
-    ConeBroadcast( xRoots, orders, firstInds );
-    ConeBroadcast( yRoots, orders, firstInds );
+    cone::Broadcast( xRoots, orders, firstInds );
+    cone::Broadcast( yRoots, orders, firstInds );
 
     const Int height = x.Height();
     const Real* xBuf     = x.LockedBuffer();
@@ -41,7 +42,7 @@ void SOCApply
 }
 
 template<typename Real>
-void SOCApply
+void Apply
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre,
         ElementalMatrix<Real>& zPre,
@@ -49,7 +50,7 @@ void SOCApply
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApply"))
+    DEBUG_ONLY(CSE cse("soc::Apply"))
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -67,11 +68,11 @@ void SOCApply
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
-    SOCDots( x, y, z, orders, firstInds );
+    soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
-    ConeBroadcast( xRoots, orders, firstInds );
-    ConeBroadcast( yRoots, orders, firstInds );
+    cone::Broadcast( xRoots, orders, firstInds );
+    cone::Broadcast( yRoots, orders, firstInds );
 
     const Int localHeight = x.LocalHeight();
     const Real* xBuf     = x.LockedBuffer();
@@ -91,19 +92,19 @@ void SOCApply
 }
 
 template<typename Real>
-void SOCApply
+void Apply
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApply"))
-    SOCDots( x, y, z, orders, firstInds );
+    DEBUG_ONLY(CSE cse("soc::Apply"))
+    soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
-    ConeBroadcast( xRoots, orders, firstInds );
-    ConeBroadcast( yRoots, orders, firstInds );
+    cone::Broadcast( xRoots, orders, firstInds );
+    cone::Broadcast( yRoots, orders, firstInds );
 
     const Int firstLocalRow = x.FirstLocalRow();
     const Int localHeight = x.LocalHeight();
@@ -124,78 +125,78 @@ void SOCApply
 }
 
 template<typename Real>
-void SOCApply
+void Apply
 ( const Matrix<Real>& x, 
         Matrix<Real>& y,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCApply"))
+    DEBUG_ONLY(CSE cse("soc::Apply"))
     // TODO?: Optimize
     Matrix<Real> z;
-    SOCApply( x, y, z, orders, firstInds );
+    soc::Apply( x, y, z, orders, firstInds );
     y = z;
 }
 
 template<typename Real>
-void SOCApply
+void Apply
 ( const ElementalMatrix<Real>& x, 
         ElementalMatrix<Real>& y,
   const ElementalMatrix<Int>& orders, 
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApply"))
+    DEBUG_ONLY(CSE cse("soc::Apply"))
     // TODO?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid());
-    SOCApply( x, y, z, orders, firstInds, cutoff );
+    soc::Apply( x, y, z, orders, firstInds, cutoff );
     y = z;
 }
 
 template<typename Real>
-void SOCApply
+void Apply
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCApply"))
+    DEBUG_ONLY(CSE cse("soc::Apply"))
     // TODO?: Optimize
     DistMultiVec<Real> z(x.Comm());
-    SOCApply( x, y, z, orders, firstInds, cutoff );
+    soc::Apply( x, y, z, orders, firstInds, cutoff );
     y = z;
 }
 
 #define PROTO(Real) \
-  template void SOCApply \
+  template void Apply \
   ( const Matrix<Real>& x, \
     const Matrix<Real>& y, \
           Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCApply \
+  template void Apply \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Real>& y, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCApply \
+  template void Apply \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff ); \
-  template void SOCApply \
+  template void Apply \
   ( const Matrix<Real>& x, \
           Matrix<Real>& y, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCApply \
+  template void Apply \
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& y, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCApply \
+  template void Apply \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
     const DistMultiVec<Int>& orders, \
@@ -205,4 +206,5 @@ void SOCApply
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

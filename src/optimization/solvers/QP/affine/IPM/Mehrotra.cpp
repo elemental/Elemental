@@ -132,8 +132,8 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = NumNonPositive( s );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int sNumNonPos = pos_orth::NumOutside( s );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -266,8 +266,8 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -310,8 +310,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -483,8 +483,8 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = NumNonPositive( s );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int sNumNonPos = pos_orth::NumOutside( s );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -628,8 +628,8 @@ void Mehrotra
  
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
@@ -689,8 +689,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -852,8 +852,8 @@ void Mehrotra
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = NumNonPositive( s );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int sNumNonPos = pos_orth::NumOutside( s );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -862,7 +862,7 @@ void Mehrotra
         // Compute the duality measure and scaling point
         // =============================================
         const Real mu = Dot(s,z) / k;
-        PositiveNesterovTodd( s, z, w );
+        pos_orth::NesterovTodd( s, z, w );
         const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
@@ -1015,8 +1015,8 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -1079,8 +1079,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -1287,8 +1287,8 @@ void Mehrotra
 
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = NumNonPositive( s );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int sNumNonPos = pos_orth::NumOutside( s );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -1297,7 +1297,7 @@ void Mehrotra
         // Compute the duality measure and scaling point
         // =============================================
         const Real mu = Dot(s,z) / k;
-        PositiveNesterovTodd( s, z, w );
+        pos_orth::NesterovTodd( s, z, w );
         const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
@@ -1471,8 +1471,8 @@ void Mehrotra
 
         // Compute a centrality parameter using Mehrotra's formula
         // =======================================================
-        Real alphaAffPri = MaxStepInPositiveCone( s, dsAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
@@ -1539,8 +1539,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )

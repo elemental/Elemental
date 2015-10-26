@@ -9,18 +9,21 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Lower-level access
 
 template<typename Real>
-void ForceIntoSOC
+void PushInto
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds,
   Real minDist )
 {
-    DEBUG_ONLY(CSE cse("ForceIntoSOC"))
+    DEBUG_ONLY(CSE cse("soc::PushInto"))
 
     Matrix<Real> d;
-    SOCLowerNorms( x, d, orders, firstInds );
+    soc::LowerNorms( x, d, orders, firstInds );
 
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
@@ -34,13 +37,13 @@ void ForceIntoSOC
 }
 
 template<typename Real>
-void ForceIntoSOC
+void PushInto
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Real minDist, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ForceIntoSOC"))
+    DEBUG_ONLY(CSE cse("soc::PushInto"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -55,7 +58,7 @@ void ForceIntoSOC
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> d(x.Grid());
-    SOCLowerNorms( x, d, orders, firstInds, cutoff );
+    soc::LowerNorms( x, d, orders, firstInds, cutoff );
 
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -69,16 +72,16 @@ void ForceIntoSOC
 }
 
 template<typename Real>
-void ForceIntoSOC
+void PushInto
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, 
   Real minDist, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ForceIntoSOC"))
+    DEBUG_ONLY(CSE cse("soc::PushInto"))
 
     DistMultiVec<Real> d(x.Comm());
-    SOCLowerNorms( x, d, orders, firstInds, cutoff );
+    soc::LowerNorms( x, d, orders, firstInds, cutoff );
 
     const int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -92,17 +95,17 @@ void ForceIntoSOC
 }
 
 #define PROTO(Real) \
-  template void ForceIntoSOC \
+  template void PushInto \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     Real minDist ); \
-  template void ForceIntoSOC \
+  template void PushInto \
   (       ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, \
     Real minDist, Int cutoff ); \
-  template void ForceIntoSOC \
+  template void PushInto \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
@@ -112,4 +115,5 @@ void ForceIntoSOC
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

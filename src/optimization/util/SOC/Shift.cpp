@@ -9,13 +9,18 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Lower-level access
 
 template<typename Real>
-void SOCShift
-(       Matrix<Real>& x, Real shift,
-  const Matrix<Int>& orders, const Matrix<Int>& firstInds )
+void Shift
+(       Matrix<Real>& x,
+        Real shift,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCShift"))
+    DEBUG_ONLY(CSE cse("soc::Shift"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -28,12 +33,13 @@ void SOCShift
 }
 
 template<typename Real>
-void SOCShift
-(       ElementalMatrix<Real>& xPre, Real shift,
+void Shift
+(       ElementalMatrix<Real>& xPre,
+        Real shift,
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("SOCShift"))
+    DEBUG_ONLY(CSE cse("soc::Shift"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -60,12 +66,13 @@ void SOCShift
 }
 
 template<typename Real>
-void SOCShift
-(       DistMultiVec<Real>& x, Real shift,
+void Shift
+(       DistMultiVec<Real>& x,
+        Real shift,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCShift"))
+    DEBUG_ONLY(CSE cse("soc::Shift"))
 
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
@@ -80,15 +87,15 @@ void SOCShift
 }
 
 #define PROTO(Real) \
-  template void SOCShift \
+  template void Shift \
   (       Matrix<Real>& x, Real shift, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCShift \
+  template void Shift \
   (       ElementalMatrix<Real>& x, Real shift, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds ); \
-  template void SOCShift \
+  template void Shift \
   (       DistMultiVec<Real>& x, Real shift, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds );
@@ -97,4 +104,5 @@ void SOCShift
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

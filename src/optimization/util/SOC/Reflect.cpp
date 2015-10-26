@@ -9,14 +9,15 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 template<typename Real>
-void SOCReflect
+void Reflect
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("soc::Reflect"))
 
     const Int height = x.Height();
 
@@ -36,12 +37,12 @@ void SOCReflect
 }
 
 template<typename Real>
-void SOCReflect
+void Reflect
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("soc::Reflect"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -73,12 +74,12 @@ void SOCReflect
 }
 
 template<typename Real>
-void SOCReflect
+void Reflect
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCReflect"))
+    DEBUG_ONLY(CSE cse("soc::Reflect"))
 
     DEBUG_ONLY(
       const Int height = x.Height();
@@ -99,15 +100,15 @@ void SOCReflect
 }
 
 #define PROTO(Real) \
-  template void SOCReflect \
+  template void Reflect \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCReflect \
+  template void Reflect \
   (       ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds ); \
-  template void SOCReflect \
+  template void Reflect \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds );
@@ -117,4 +118,5 @@ void SOCReflect
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

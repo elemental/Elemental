@@ -9,14 +9,15 @@
 #include "El.hpp"
 
 namespace El {
+namespace cone {
 
 template<typename Real>
-void ConeBroadcast
+void Broadcast
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("ConeBroadcast"))
+    DEBUG_ONLY(CSE cse("cone::Broadcast"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -44,15 +45,14 @@ void ConeBroadcast
     }
 }
 
-// TODO: Use lower-level access
 template<typename Real>
-void ConeBroadcast
+void Broadcast
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ConeBroadcast"))
+    DEBUG_ONLY(CSE cse("cone::Broadcast"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -76,6 +76,10 @@ void ConeBroadcast
     mpi::Comm comm = x.DistComm();
     const int commSize = mpi::Size(comm);
 
+    Real* xBuf = x.Buffer();
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     // Perform an mpi::AllToAll to scatter all of the cone roots of
     // order less than or equal to the cutoff 
     // TODO: Find a better strategy
@@ -89,11 +93,11 @@ void ConeBroadcast
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i == firstInd )
         {
             for( Int k=1; k<order; ++k )
@@ -101,21 +105,21 @@ void ConeBroadcast
                     ++numRemoteUpdates;
         }
         else
-            x.SetLocal( iLoc, 0, 0 );
+            xBuf[iLoc] = 0;
     }
     // Queue and process the remote updates
     // ------------------------------------
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i == firstInd )
             for( Int k=1; k<order; ++k )
-                x.QueueUpdate( i+k, 0, x.GetLocal(iLoc,0) );
+                x.QueueUpdate( i+k, 0, xBuf[iLoc] );
     }
     x.ProcessQueues();
 
@@ -127,10 +131,10 @@ void ConeBroadcast
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
+        const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
-            sendData.push_back( Entry<Real>{i,order,x.GetLocal(iLoc,0)} );
+            sendData.push_back( Entry<Real>{i,order,xBuf[iLoc]} );
     }
     const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
@@ -152,12 +156,12 @@ void ConeBroadcast
 }
 
 template<typename Real>
-void ConeBroadcast
+void Broadcast
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ConeBroadcast"))
+    DEBUG_ONLY(CSE cse("cone::Broadcast"))
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
@@ -254,15 +258,15 @@ void ConeBroadcast
 }
 
 #define PROTO(Real) \
-  template void ConeBroadcast \
+  template void Broadcast \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void ConeBroadcast \
+  template void Broadcast \
   (       ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void ConeBroadcast \
+  template void Broadcast \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );
@@ -272,4 +276,5 @@ void ConeBroadcast
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace cone
 } // namespace El

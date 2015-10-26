@@ -9,6 +9,7 @@
 #include "El.hpp"
 
 namespace El {
+namespace pos_orth {
 
 // Find the Nesterov-Todd scaling point w such that 
 //
@@ -17,25 +18,29 @@ namespace El {
 // which implies that w_i = sqrt(s_i/z_i).
 
 template<typename Real>
-void PositiveNesterovTodd
+void NesterovTodd
 ( const Matrix<Real>& s, 
   const Matrix<Real>& z,
         Matrix<Real>& w )
 {
-    DEBUG_ONLY(CSE cse("PositiveNesterovTodd"))
+    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
     const Int k = s.Height();
     w.Resize( k, 1 );
+    const Real* sBuf = s.LockedBuffer();
+    const Real* zBuf = z.LockedBuffer();
+          Real* wBuf = w.Buffer();
+
     for( Int i=0; i<k; ++i )
-        w.Set( i, 0, Sqrt(s.Get(i,0)/z.Get(i,0)) );
+        wBuf[i] = Sqrt(sBuf[i]/zBuf[i]);
 }
 
 template<typename Real>
-void PositiveNesterovTodd
+void NesterovTodd
 ( const ElementalMatrix<Real>& sPre, 
   const ElementalMatrix<Real>& zPre,
         ElementalMatrix<Real>& wPre )
 {
-    DEBUG_ONLY(CSE cse("PositiveNesterovTodd"))
+    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
@@ -48,34 +53,42 @@ void PositiveNesterovTodd
 
     w.Resize( s.Height(), 1 );
     const Int localHeight = w.LocalHeight();
+    const Real* sBuf = s.LockedBuffer();
+    const Real* zBuf = z.LockedBuffer();
+          Real* wBuf = w.Buffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        w.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0)) );
+        wBuf[iLoc] = Sqrt(sBuf[iLoc]/zBuf[iLoc]);
 }
 
 template<typename Real>
-void PositiveNesterovTodd
+void NesterovTodd
 ( const DistMultiVec<Real>& s, 
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w )
 {
-    DEBUG_ONLY(CSE cse("PositiveNesterovTodd"))
+    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
     w.SetComm( s.Comm() );
     w.Resize( s.Height(), 1 );
+    const Real* sBuf = s.LockedMatrix().LockedBuffer();
+    const Real* zBuf = z.LockedMatrix().LockedBuffer();
+          Real* wBuf = w.Matrix().Buffer();
+
     const Int localHeight = w.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        w.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0)) );
+        wBuf[iLoc] = Sqrt(sBuf[iLoc]/zBuf[iLoc]);
 }
 
 #define PROTO(Real) \
-  template void PositiveNesterovTodd \
+  template void NesterovTodd \
   ( const Matrix<Real>& s, \
     const Matrix<Real>& z, \
           Matrix<Real>& w ); \
-  template void PositiveNesterovTodd \
+  template void NesterovTodd \
   ( const ElementalMatrix<Real>& s, \
     const ElementalMatrix<Real>& z, \
           ElementalMatrix<Real>& w ); \
-  template void PositiveNesterovTodd \
+  template void NesterovTodd \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \
           DistMultiVec<Real>& w );
@@ -84,4 +97,5 @@ void PositiveNesterovTodd
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace pos_orth
 } // namespace El

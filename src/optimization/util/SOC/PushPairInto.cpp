@@ -9,6 +9,9 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Lower-level access
 
 // NOTE: It would be possible to recompute the Nesterov-Todd scaling only for
 //       the (almost certainly small) number of modified subcones, but this 
@@ -16,7 +19,7 @@ namespace El {
 //       rare and comparatively inexpensive operation.
 
 template<typename Real>
-void ForcePairIntoSOC
+void PushPairInto
 (       Matrix<Real>& s, 
         Matrix<Real>& z,
   const Matrix<Real>& w,
@@ -24,11 +27,11 @@ void ForcePairIntoSOC
   const Matrix<Int>& firstInds,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("ForcePairIntoSOC"))
+    DEBUG_ONLY(CSE cse("soc::PushPairInto"))
 
     Matrix<Real> sLower, zLower;
-    SOCLowerNorms( s, sLower, orders, firstInds );
-    SOCLowerNorms( z, zLower, orders, firstInds );
+    soc::LowerNorms( s, sLower, orders, firstInds );
+    soc::LowerNorms( z, zLower, orders, firstInds );
 
     const Int height = s.Height();
     for( Int i=0; i<height; ++i )
@@ -45,7 +48,7 @@ void ForcePairIntoSOC
 }
 
 template<typename Real>
-void ForcePairIntoSOC
+void PushPairInto
 (       ElementalMatrix<Real>& sPre, 
         ElementalMatrix<Real>& zPre,
   const ElementalMatrix<Real>& wPre,
@@ -53,7 +56,7 @@ void ForcePairIntoSOC
   const ElementalMatrix<Int>& firstIndsPre,
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ForcePairIntoSOC"))
+    DEBUG_ONLY(CSE cse("soc::PushPairInto"))
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -72,8 +75,8 @@ void ForcePairIntoSOC
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> sLower(s.Grid()), zLower(z.Grid());
-    SOCLowerNorms( s, sLower, orders, firstInds, cutoff );
-    SOCLowerNorms( z, zLower, orders, firstInds, cutoff );
+    soc::LowerNorms( s, sLower, orders, firstInds, cutoff );
+    soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 
     const Int localHeight = s.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -90,7 +93,7 @@ void ForcePairIntoSOC
 }
 
 template<typename Real>
-void ForcePairIntoSOC
+void PushPairInto
 (       DistMultiVec<Real>& s, 
         DistMultiVec<Real>& z,
   const DistMultiVec<Real>& w,
@@ -98,11 +101,11 @@ void ForcePairIntoSOC
   const DistMultiVec<Int>& firstInds, 
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ForcePairIntoSOC"))
+    DEBUG_ONLY(CSE cse("soc::PushPairInto"))
 
     DistMultiVec<Real> sLower(s.Comm()), zLower(z.Comm());
-    SOCLowerNorms( s, sLower, orders, firstInds, cutoff );
-    SOCLowerNorms( z, zLower, orders, firstInds, cutoff );
+    soc::LowerNorms( s, sLower, orders, firstInds, cutoff );
+    soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 
     const int localHeight = s.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -119,21 +122,21 @@ void ForcePairIntoSOC
 }
 
 #define PROTO(Real) \
-  template void ForcePairIntoSOC \
+  template void PushPairInto \
   (       Matrix<Real>& s, \
           Matrix<Real>& z, \
     const Matrix<Real>& w, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     Real wMaxNormLimit ); \
-  template void ForcePairIntoSOC \
+  template void PushPairInto \
   (       ElementalMatrix<Real>& s, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Real>& w, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, \
     Real wMaxNormLimit, Int cutoff ); \
-  template void ForcePairIntoSOC \
+  template void PushPairInto \
   (       DistMultiVec<Real>& s, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Real>& w, \
@@ -145,4 +148,5 @@ void ForcePairIntoSOC
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

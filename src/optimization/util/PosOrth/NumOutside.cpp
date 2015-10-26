@@ -9,42 +9,47 @@
 #include "El.hpp"
 
 namespace El {
+namespace pos_orth {
 
 template<typename Real>
-Int NumNonPositive( const Matrix<Real>& A )
+Int NumOutside( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("NumNonPositive"))
-    Int numNonPos = 0;
+    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
     const Int height = A.Height();
     const Int width = A.Width();
+    const Real* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    Int numNonPos = 0;
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            if( A.Get(i,j) <= Real(0) )
+            if( ABuf[i+j*ALDim] <= Real(0) )
                 ++numNonPos;
     return numNonPos;
 }
 
 template<typename Real>
-Int NumNonPositive( const SparseMatrix<Real>& A )
+Int NumOutside( const SparseMatrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("NumNonPositive"))
-    Int numNonPos = 0;
+    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
     const Int numEntries = A.NumEntries();
+    const Real* valBuf = A.LockedValueBuffer();
+
+    Int numNonPos = 0;
     for( Int k=0; k<numEntries; ++k )
-        if( A.Value(k) <= Real(0) )
+        if( valBuf[k] <= Real(0) )
             ++numNonPos;
     return numNonPos;
 }
 
-
 template<typename Real>
-Int NumNonPositive( const AbstractDistMatrix<Real>& A )
+Int NumOutside( const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("NumNonPositive"))
+    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
     Int numNonPos = 0;
     if( A.Participating() )
     {
-        const Int numLocalNonPos = NumNonPositive( A.LockedMatrix() );
+        const Int numLocalNonPos = NumOutside( A.LockedMatrix() );
         numNonPos = mpi::AllReduce( numLocalNonPos, A.DistComm() );
     }
     mpi::Broadcast( numNonPos, A.Root(), A.CrossComm() );
@@ -52,45 +57,48 @@ Int NumNonPositive( const AbstractDistMatrix<Real>& A )
 }
 
 template<typename Real>
-Int NumNonPositive( const DistSparseMatrix<Real>& A )
+Int NumOutside( const DistSparseMatrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("NumNonPositive"))
+    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
+    const Int numLocalEntries = A.NumLocalEntries(); 
+    const Real* valBuf = A.LockedValueBuffer();
 
     Int numLocalNonPos = 0;
-    const Int numLocalEntries = A.NumLocalEntries(); 
     for( Int k=0; k<numLocalEntries; ++k )
-        if( A.Value(k) <= Real(0) )
+        if( valBuf[k] <= Real(0) )
             ++numLocalNonPos;
 
     return mpi::AllReduce( numLocalNonPos, A.Comm() );
 }
 
 template<typename Real>
-Int NumNonPositive( const DistMultiVec<Real>& A )
+Int NumOutside( const DistMultiVec<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("NumNonPositive"))
-
-    Int numLocalNonPos = 0;
+    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
     const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
+    const Real* ABuf = A.LockedMatrix().LockedBuffer();
+    const Int ALDim = A.LockedMatrix().LDim();
+
+    Int numLocalNonPos = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         for( Int j=0; j<width; ++j )
-            if( A.GetLocal(iLoc,j) <= Real(0) )
+            if( ABuf[iLoc+j*ALDim] <= Real(0) )
                 ++numLocalNonPos;
 
     return mpi::AllReduce( numLocalNonPos, A.Comm() );
 }
 
-
 #define PROTO(Real) \
-  template Int NumNonPositive( const Matrix<Real>& A ); \
-  template Int NumNonPositive( const SparseMatrix<Real>& A ); \
-  template Int NumNonPositive( const AbstractDistMatrix<Real>& A ); \
-  template Int NumNonPositive( const DistSparseMatrix<Real>& A ); \
-  template Int NumNonPositive( const DistMultiVec<Real>& A );
+  template Int NumOutside( const Matrix<Real>& A ); \
+  template Int NumOutside( const SparseMatrix<Real>& A ); \
+  template Int NumOutside( const AbstractDistMatrix<Real>& A ); \
+  template Int NumOutside( const DistSparseMatrix<Real>& A ); \
+  template Int NumOutside( const DistMultiVec<Real>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace pos_orth
 } // namespace El

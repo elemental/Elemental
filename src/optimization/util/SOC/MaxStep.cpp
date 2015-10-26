@@ -9,6 +9,7 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 // Given x within a Second-Order Cone and an arbitrary search direction y in 
 // R^n, find the maximum value of alpha* in [0,upperBound] such that 
@@ -152,14 +153,14 @@ Real ChooseStepLength
 } // anonymous namespace
 
 template<typename Real>
-Real MaxStepInSOC
+Real MaxStep
 ( const Matrix<Real>& x,
   const Matrix<Real>& y, 
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("MaxStepInSOC"))
+    DEBUG_ONLY(CSE cse("soc::MaxStep"))
     typedef Promote<Real> PReal;
     const Int height = x.Height();
 
@@ -168,12 +169,12 @@ Real MaxStepInSOC
     Copy( y, yProm );
 
     Matrix<PReal> xDets, yDets, xTRys, maxSteps;
-    SOCDets( xProm, xDets, orders, firstInds );
-    SOCDets( yProm, yDets, orders, firstInds );
+    soc::Dets( xProm, xDets, orders, firstInds );
+    soc::Dets( yProm, yDets, orders, firstInds );
 
     auto Ry = yProm;
-    SOCReflect( Ry, orders, firstInds );
-    SOCDots( xProm, Ry, xTRys, orders, firstInds );
+    soc::Reflect( Ry, orders, firstInds );
+    soc::Dots( xProm, Ry, xTRys, orders, firstInds );
 
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
@@ -207,14 +208,14 @@ Real MaxStepInSOC
 }
 
 template<typename Real>
-Real MaxStepInSOC
+Real MaxStep
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre, 
   const ElementalMatrix<Int>& ordersPre,
   const ElementalMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("MaxStepInSOC"))
+    DEBUG_ONLY(CSE cse("soc::MaxStep"))
     typedef Promote<Real> PReal;
 
     ProxyCtrl control;
@@ -231,12 +232,12 @@ Real MaxStepInSOC
 
     const Grid& g = x.Grid();
     DistMatrix<PReal,VC,STAR> xDets(g), yDets(g), xTRys(g);
-    SOCDets( x, xDets, orders, firstInds, cutoff );
-    SOCDets( y, yDets, orders, firstInds, cutoff );
+    soc::Dets( x, xDets, orders, firstInds, cutoff );
+    soc::Dets( y, yDets, orders, firstInds, cutoff );
 
     auto Ry = y;
-    SOCReflect( Ry, orders, firstInds );
-    SOCDots( x, Ry, xTRys, orders, firstInds, cutoff );
+    soc::Reflect( Ry, orders, firstInds );
+    soc::Dots( x, Ry, xTRys, orders, firstInds, cutoff );
 
     const Int localHeight = x.LocalHeight();
     const Int* firstIndBuf = firstInds.LockedBuffer();
@@ -266,14 +267,14 @@ Real MaxStepInSOC
 }
 
 template<typename Real>
-Real MaxStepInSOC
+Real MaxStep
 ( const DistMultiVec<Real>& x,     
   const DistMultiVec<Real>& y, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("MaxStepInSOC"))
+    DEBUG_ONLY(CSE cse("soc::MaxStep"))
     typedef Promote<Real> PReal;
     mpi::Comm comm = x.Comm();
 
@@ -281,12 +282,12 @@ Real MaxStepInSOC
                         xDets(comm), yDets(comm), xTRys(comm), maxSteps(comm);
     Copy( x, xProm );
     Copy( y, yProm );
-    SOCDets( xProm, xDets, orders, firstInds, cutoff );
-    SOCDets( yProm, yDets, orders, firstInds, cutoff );
+    soc::Dets( xProm, xDets, orders, firstInds, cutoff );
+    soc::Dets( yProm, yDets, orders, firstInds, cutoff );
 
     auto Ry = yProm;
-    SOCReflect( Ry, orders, firstInds );
-    SOCDots( xProm, Ry, xTRys, orders, firstInds, cutoff );
+    soc::Reflect( Ry, orders, firstInds );
+    soc::Dots( xProm, Ry, xTRys, orders, firstInds, cutoff );
 
     const Int localHeight = xProm.LocalHeight();
     const Int firstLocalRow = xProm.FirstLocalRow();
@@ -317,19 +318,19 @@ Real MaxStepInSOC
 }
 
 #define PROTO(Real) \
-  template Real MaxStepInSOC \
+  template Real MaxStep \
   ( const Matrix<Real>& s, \
     const Matrix<Real>& ds, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     Real upperBound ); \
-  template Real MaxStepInSOC \
+  template Real MaxStep \
   ( const ElementalMatrix<Real>& s, \
     const ElementalMatrix<Real>& ds, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, \
     Real upperBound, Int cutoff ); \
-  template Real MaxStepInSOC \
+  template Real MaxStep \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& ds, \
     const DistMultiVec<Int>& orders, \
@@ -340,4 +341,5 @@ Real MaxStepInSOC
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

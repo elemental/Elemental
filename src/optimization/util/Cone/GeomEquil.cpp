@@ -8,7 +8,7 @@
 */
 #include "El.hpp"
 // TODO: Consider making MinAbsNonzero global
-#include "../../lapack_like/equilibrate/Util.hpp"
+#include "../../../lapack_like/equilibrate/Util.hpp"
 
 // The following are extensions to cones of the routine
 // 'StackedGeomEquil'
@@ -25,8 +25,10 @@ inline Real DampScaling( Real alpha )
         return Max(alpha,tol);
 }
 
+namespace cone {
+
 template<typename F>
-void ConeGeomEquil
+void GeomEquil
 (       Matrix<F>& A, 
         Matrix<F>& B, 
         Matrix<Base<F>>& dRowA, 
@@ -36,12 +38,13 @@ void ConeGeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeGeomEquil"))
+    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
     LogicError("This routine is not yet written");
 }
 
+// TODO: Use lower-level access
 template<typename F>
-void ConeGeomEquil
+void GeomEquil
 (       ElementalMatrix<F>& APre, 
         ElementalMatrix<F>& BPre,
         ElementalMatrix<Base<F>>& dRowAPre, 
@@ -52,7 +55,7 @@ void ConeGeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeGeomEquil"))
+    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
     typedef Base<F> Real;
 
     ProxyCtrl control;
@@ -123,7 +126,7 @@ void ConeGeomEquil
 
         // TODO: Get rid of GeometricRowScaling since we need intrusive change
         GeometricRowScaling( B, rowScaleB );
-        ConeAllReduce( rowScaleB, orders, firstInds, mpi::MAX, cutoff );
+        cone::AllReduce( rowScaleB, orders, firstInds, mpi::MAX, cutoff );
         EntrywiseMap( rowScaleB, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
@@ -149,12 +152,12 @@ void ConeGeomEquil
     ColumnMaxNorms( A, colScale );
     ColumnMaxNorms( B, colScaleB );
     const Int nLocal = A.LocalWidth();
+          Real* colScaleBuf = colScale.Buffer();
+    const Real* colScaleBBuf = colScaleB.LockedBuffer();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        Real maxScale = 
-            Max(colScale.GetLocal(jLoc,0),colScaleB.GetLocal(jLoc,0));
-        maxScale = DampScaling<Real>(maxScale); 
-        colScale.SetLocal(jLoc,0,maxScale);
+        Real maxScale = Max(colScaleBuf[jLoc],colScaleBBuf[jLoc]);
+        colScaleBuf[jLoc] = DampScaling<Real>(maxScale);
     }
     DiagonalScale( LEFT, NORMAL, colScale, dCol );
     DiagonalSolve( RIGHT, NORMAL, colScale, A );
@@ -162,7 +165,7 @@ void ConeGeomEquil
 }
 
 template<typename F>
-void ConeGeomEquil
+void GeomEquil
 (       SparseMatrix<F>& A, 
         SparseMatrix<F>& B,
         Matrix<Base<F>>& dRowA, 
@@ -172,7 +175,7 @@ void ConeGeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeGeomEquil"))
+    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -203,6 +206,9 @@ void ConeGeomEquil
     const Real sqrtDamp = Sqrt(damp);
     Matrix<Real> rowScaleA(mA,1), rowScaleB(mB,1), colScale(n,1),
                  maxAbsValsA, maxAbsValsB, minAbsValsA, minAbsValsB;
+    Real* colScaleBuf = colScale.Buffer();
+    Real* rowScaleABuf = rowScaleA.Buffer();
+    Real* rowScaleBBuf = rowScaleB.Buffer();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -210,21 +216,33 @@ void ConeGeomEquil
         // ---------------------------------
         ColumnMaxNorms( A, maxAbsValsA );
         ColumnMaxNorms( B, maxAbsValsB );
-        for( Int j=0; j<n; ++j )
-            maxAbsValsA.Set
-            ( j, 0, Max(maxAbsValsA.Get(j,0),maxAbsValsB.Get(j,0)) );
+        {
+                  Real* maxAbsValsABuf = maxAbsValsA.Buffer();
+            const Real* maxAbsValsBBuf = maxAbsValsB.LockedBuffer();
+            for( Int j=0; j<n; ++j )
+                maxAbsValsABuf[j] = Max(maxAbsValsABuf[j],maxAbsValsBBuf[j]);
+        }
+
         ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         ColumnMinAbsNonzero( B, maxAbsValsA, minAbsValsB );
-        for( Int j=0; j<n; ++j )
-            minAbsValsA.Set
-            ( j, 0, Min(minAbsValsA.Get(j,0),minAbsValsB.Get(j,0)) );
-        for( Int j=0; j<n; ++j )
         {
-            const Real maxAbs = maxAbsValsA.Get(j,0);
-            const Real minAbs = minAbsValsA.Get(j,0);
-            const Real propScale = Sqrt(minAbs*maxAbs);
-            const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            colScale.Set(j,0,scale);
+                  Real* minAbsValsABuf = minAbsValsA.Buffer();
+            const Real* minAbsValsBBuf = minAbsValsB.LockedBuffer();
+            for( Int j=0; j<n; ++j )
+                minAbsValsABuf[j] = Min(minAbsValsABuf[j],minAbsValsBBuf[j]);
+        }
+
+        {
+            const Real* maxAbsValsABuf = maxAbsValsA.Buffer();
+            const Real* minAbsValsABuf = minAbsValsA.Buffer();
+            for( Int j=0; j<n; ++j )
+            {
+                const Real maxAbs = maxAbsValsABuf[j];
+                const Real minAbs = minAbsValsABuf[j];
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                colScaleBuf[j] = scale;
+            }
         }
         EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
@@ -235,29 +253,37 @@ void ConeGeomEquil
         // ------------------------------ 
         RowMaxNorms( A, maxAbsValsA );
         RowMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
-        for( Int i=0; i<mA; ++i )
         {
-            const Real maxAbs = maxAbsValsA.Get(i,0);
-            const Real minAbs = minAbsValsA.Get(i,0);
-            const Real propScale = Sqrt(minAbs*maxAbs);
-            const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            rowScaleA.Set( i, 0, scale );
+            const Real* maxAbsValsABuf = maxAbsValsA.LockedBuffer();
+            const Real* minAbsValsABuf = minAbsValsA.LockedBuffer();
+            for( Int i=0; i<mA; ++i )
+            {
+                const Real maxAbs = maxAbsValsABuf[i];
+                const Real minAbs = minAbsValsABuf[i];
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                rowScaleABuf[i] = scale;
+            }
         }
         EntrywiseMap( rowScaleA, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
         RowMaxNorms( B, maxAbsValsB );
-        ConeAllReduce( maxAbsValsB, orders, firstInds, mpi::MAX );
+        cone::AllReduce( maxAbsValsB, orders, firstInds, mpi::MAX );
         ColumnMinAbsNonzero( B, maxAbsValsB, minAbsValsB );
-        ConeAllReduce( minAbsValsB, orders, firstInds, mpi::MIN );
-        for( Int i=0; i<mB; ++i )
+        cone::AllReduce( minAbsValsB, orders, firstInds, mpi::MIN );
         {
-            const Real maxAbs = maxAbsValsB.Get(i,0);
-            const Real minAbs = minAbsValsB.Get(i,0);
-            const Real propScale = Sqrt(minAbs*maxAbs);
-            const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            rowScaleB.Set( i, 0, scale );
+            const Real* maxAbsValsBBuf = maxAbsValsB.LockedBuffer();
+            const Real* minAbsValsBBuf = minAbsValsB.LockedBuffer();
+            for( Int i=0; i<mB; ++i )
+            {
+                const Real maxAbs = maxAbsValsBBuf[i];
+                const Real minAbs = minAbsValsBBuf[i];
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                rowScaleBBuf[i] = scale;
+            }
         }
         EntrywiseMap( rowScaleB, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
@@ -282,6 +308,7 @@ void ConeGeomEquil
 
     // Scale each row so that its maximum entry is 1 or 0
     F* valBufA = A.ValueBuffer();
+    Real* dRowABuf = dRowA.Buffer();
     for( Int i=0; i<mA; ++i )
     {
         const Int offset = A.RowOffset(i);
@@ -290,30 +317,33 @@ void ConeGeomEquil
         // Compute the maximum value in this row
         Real maxRowAbs = 0;
         for( Int e=offset; e<offset+numConnect; ++e )
-            maxRowAbs = Max(maxRowAbs,Abs(A.Value(e)));
+            maxRowAbs = Max(maxRowAbs,Abs(valBufA[e]));
 
         if( maxRowAbs > Real(0) )
         {
-            dRowA.Set(i,0, maxRowAbs*dRowA.Get(i,0) );
+            dRowABuf[i] = maxRowAbs*dRowABuf[i];
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBufA[e] /= maxRowAbs;
         }
     }
     // Scale the rows of B such that the maximum entry in each cone is 1 or 0
     RowMaxNorms( B, maxAbsValsB );
-    ConeAllReduce( maxAbsValsB, orders, firstInds, mpi::MAX );
-    for( Int i=0; i<mB; ++i )
+    cone::AllReduce( maxAbsValsB, orders, firstInds, mpi::MAX );
     {
-        const Real maxAbs = maxAbsValsB.Get(i,0);
-        if( maxAbs == Real(0) )
-            maxAbsValsB.Set(i,0,1);
+        Real* maxAbsValsBBuf = maxAbsValsB.Buffer();
+        for( Int i=0; i<mB; ++i )
+        {
+            const Real maxAbs = maxAbsValsBBuf[i];
+            if( maxAbs == Real(0) )
+                maxAbsValsBBuf[i] = 1;
+        }
     }
     DiagonalScale( LEFT, NORMAL, maxAbsValsB, dRowB );
     DiagonalSolve( LEFT, NORMAL, maxAbsValsB, B );
 }
 
 template<typename F>
-void ConeGeomEquil
+void GeomEquil
 (       DistSparseMatrix<F>& A, 
         DistSparseMatrix<F>& B,
         DistMultiVec<Base<F>>& dRowA, 
@@ -324,7 +354,7 @@ void ConeGeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("ConeGeomEquil"))
+    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -369,23 +399,32 @@ void ConeGeomEquil
         ColumnMaxNorms( A, maxAbsValsA );
         ColumnMaxNorms( B, maxAbsValsB );
         const Int localWidth = maxAbsValsA.LocalHeight();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            maxAbsValsA.SetLocal
-            ( jLoc, 0, Max(maxAbsValsA.GetLocal(jLoc,0),
-                           maxAbsValsB.GetLocal(jLoc,0)) );
+        {
+            auto maxAbsValsABuf = maxAbsValsA.Matrix().Buffer();
+            auto maxAbsValsBBuf = maxAbsValsB.LockedMatrix().LockedBuffer();
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                maxAbsValsABuf[jLoc] =
+                  Max(maxAbsValsABuf[jLoc],maxAbsValsBBuf[jLoc]);
+        }
         ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         ColumnMinAbsNonzero( B, maxAbsValsA, minAbsValsB );
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            minAbsValsA.SetLocal
-            ( jLoc, 0, Min(minAbsValsA.GetLocal(jLoc,0),
-                           minAbsValsB.GetLocal(jLoc,0)) );
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Real maxAbs = maxAbsValsA.GetLocal(jLoc,0);
-            const Real minAbs = minAbsValsA.GetLocal(jLoc,0);
-            const Real propScale = Sqrt(minAbs*maxAbs);
-            const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            scales.SetLocal( jLoc, 0, scale );
+            auto minAbsValsABuf = minAbsValsA.Matrix().Buffer();
+            auto minAbsValsBBuf = minAbsValsB.LockedMatrix().LockedBuffer();
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                minAbsValsABuf[jLoc] =
+                  Min(minAbsValsABuf[jLoc],minAbsValsBBuf[jLoc]);
+
+            auto scalesBuf = scales.Matrix().Buffer();
+            auto maxAbsValsABuf = maxAbsValsA.LockedMatrix().LockedBuffer();
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            {
+                const Real maxAbs = maxAbsValsABuf[jLoc];
+                const Real minAbs = minAbsValsABuf[jLoc];
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                const Real scale = Max(propScale,sqrtDamp*maxAbs);
+                scalesBuf[jLoc] = scale;
+            }
         }
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
@@ -398,13 +437,17 @@ void ConeGeomEquil
         RowMaxNorms( A, maxAbsValsA );
         ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         const Int localHeightA = maxAbsValsA.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
         {
-            const Real maxAbs = maxAbsValsA.GetLocal(iLoc,0);
-            const Real minAbs = minAbsValsA.GetLocal(iLoc,0);
-            const Real propScale = Sqrt(minAbs*maxAbs);
-            const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            scales.SetLocal( iLoc, 0, scale );
+            auto minAbsValsABuf = minAbsValsA.LockedMatrix().LockedBuffer();
+            auto maxAbsValsABuf = maxAbsValsA.LockedMatrix().LockedBuffer();
+            auto scalesBuf = scales.Matrix().Buffer();
+            for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
+            {
+                const Real maxAbs = maxAbsValsABuf[iLoc];
+                const Real minAbs = minAbsValsABuf[iLoc];
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                scalesBuf[iLoc] = Max(propScale,sqrtDamp*maxAbs);
+            }
         }
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowA );
@@ -412,17 +455,21 @@ void ConeGeomEquil
 
         scales.Resize( mB, 1 );
         RowMaxNorms( B, maxAbsValsB );
-        ConeAllReduce( maxAbsValsB, orders, firstInds, mpi::MAX, cutoff );
+        cone::AllReduce( maxAbsValsB, orders, firstInds, mpi::MAX, cutoff );
         ColumnMinAbsNonzero( B, maxAbsValsB, minAbsValsB );
-        ConeAllReduce( minAbsValsB, orders, firstInds, mpi::MIN, cutoff );
+        cone::AllReduce( minAbsValsB, orders, firstInds, mpi::MIN, cutoff );
         const Int localHeightB = maxAbsValsB.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeightB; ++iLoc )
         {
-            const Real maxAbs = maxAbsValsB.GetLocal(iLoc,0);
-            const Real minAbs = minAbsValsB.GetLocal(iLoc,0);
-            const Real propScale = Sqrt(minAbs*maxAbs);
-            const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            scales.SetLocal( iLoc, 0, scale );
+            auto minAbsValsBBuf = minAbsValsB.LockedMatrix().LockedBuffer();
+            auto maxAbsValsBBuf = maxAbsValsB.LockedMatrix().LockedBuffer();
+            auto scalesBuf = scales.Matrix().Buffer();
+            for( Int iLoc=0; iLoc<localHeightB; ++iLoc )
+            {
+                const Real maxAbs = maxAbsValsBBuf[iLoc];
+                const Real minAbs = minAbsValsBBuf[iLoc];
+                const Real propScale = Sqrt(minAbs*maxAbs);
+                scalesBuf[iLoc] = Max(propScale,sqrtDamp*maxAbs);
+            }
         }
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
@@ -448,6 +495,7 @@ void ConeGeomEquil
     // Scale each row of A so that its maximum entry is 1 or 0
     F* valBufA = A.ValueBuffer();
     const Int localHeightA = A.LocalHeight();
+    Real* dRowABuf = dRowA.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
     {
         const Int offset = A.RowOffset(iLoc);
@@ -456,31 +504,32 @@ void ConeGeomEquil
         // Compute the maximum value in this row
         Real maxRowAbs = 0;
         for( Int e=offset; e<offset+numConnect; ++e )
-            maxRowAbs = Max(maxRowAbs,Abs(A.Value(e)));
+            maxRowAbs = Max(maxRowAbs,Abs(valBufA[e]));
 
         if( maxRowAbs > Real(0) )
         {
-            dRowA.SetLocal(iLoc,0, maxRowAbs*dRowA.GetLocal(iLoc,0) );
+            dRowABuf[iLoc] *= maxRowAbs;
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBufA[e] /= maxRowAbs;
         }
     }
     // Scale the rows of B such that the maximum entry in each cone is 1 or 0
     RowMaxNorms( B, maxAbsValsB );
-    ConeAllReduce( maxAbsValsB, orders, firstInds, mpi::MAX, cutoff );
+    cone::AllReduce( maxAbsValsB, orders, firstInds, mpi::MAX, cutoff );
     const Int localHeightB = B.LocalHeight();
+    auto maxAbsValsBBuf = maxAbsValsB.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeightB; ++iLoc )
     {
-        const Real maxAbs = maxAbsValsB.GetLocal(iLoc,0);
+        const Real maxAbs = maxAbsValsBBuf[iLoc];
         if( maxAbs == Real(0) )
-            maxAbsValsB.SetLocal(iLoc,0,1);
+            maxAbsValsBBuf[iLoc] = 1;
     }
     DiagonalScale( LEFT, NORMAL, maxAbsValsB, dRowB );
     DiagonalSolve( LEFT, NORMAL, maxAbsValsB, B );
 }
 
 #define PROTO(F) \
-  template void ConeGeomEquil \
+  template void GeomEquil \
   (       Matrix<F>& A, \
           Matrix<F>& B, \
           Matrix<Base<F>>& dRowA, \
@@ -489,7 +538,7 @@ void ConeGeomEquil
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     bool progress ); \
-  template void ConeGeomEquil \
+  template void GeomEquil \
   (       ElementalMatrix<F>& A, \
           ElementalMatrix<F>& B, \
           ElementalMatrix<Base<F>>& dRowA, \
@@ -498,7 +547,7 @@ void ConeGeomEquil
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, \
     Int cutoff, bool progress ); \
-  template void ConeGeomEquil \
+  template void GeomEquil \
   (       SparseMatrix<F>& A, \
           SparseMatrix<F>& B, \
           Matrix<Base<F>>& dRowA, \
@@ -507,7 +556,7 @@ void ConeGeomEquil
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     bool progress ); \
-  template void ConeGeomEquil \
+  template void GeomEquil \
   (       DistSparseMatrix<F>& A, \
           DistSparseMatrix<F>& B, \
           DistMultiVec<Base<F>>& dRowA, \
@@ -520,4 +569,5 @@ void ConeGeomEquil
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace cone
 } // namespace El

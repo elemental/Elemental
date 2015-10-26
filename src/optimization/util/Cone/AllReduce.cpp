@@ -23,53 +23,59 @@ function<Real(Real,Real)> OpToReduce( mpi::Op op )
     else if( op == mpi::MIN )
         reduce = []( Real alpha, Real beta ) { return Min(alpha,beta); };
     else
-        LogicError("Unsupported ConeAllReduce operation");
+        LogicError("Unsupported cone::AllReduce operation");
     return reduce;
 }
 
 } // anonymous namespace
 
+namespace cone {
+
 template<typename Real>
-void ConeAllReduce
+void AllReduce
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds,
         mpi::Op op )
 {
-    DEBUG_ONLY(CSE cse("ConeAllReduce"))
+    DEBUG_ONLY(CSE cse("cone::AllReduce"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
+          Real* xBuf = x.Buffer();
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     auto reduce = OpToReduce<Real>( op );
     for( Int i=0; i<height; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
+        const Int order = orderBuf[i];
+        const Int firstInd = firstIndBuf[i];
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
-        Real coneRes = x.Get(i,0);
+        Real coneRes = xBuf[i];
         for( Int j=i+1; j<i+order; ++j )
-            coneRes = reduce(coneRes,x.Get(j,0));
+            coneRes = reduce(coneRes,xBuf[j]);
         for( Int j=i; j<i+order; ++j )
-            x.Set(j,0,coneRes);
+            xBuf[j] = coneRes;
 
         i += order;
     }
 }
 
 template<typename Real>
-void ConeAllReduce
+void AllReduce
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   mpi::Op op,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ConeAllReduce"))
+    DEBUG_ONLY(CSE cse("cone::AllReduce"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -95,6 +101,10 @@ void ConeAllReduce
     mpi::Comm comm = x.DistComm();
     const int commSize = mpi::Size(comm);
 
+          Real* xBuf = x.Buffer();
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     // Perform an mpi::AllToAll to scatter all of the cone roots of
     // order less than or equal to the cutoff 
     // TODO: Find a better strategy
@@ -115,11 +125,11 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
@@ -140,16 +150,16 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
                 // TODO: Don't pack if we also own the root
-                sendBuf[offs[owner]++] = x.GetLocal(iLoc,0);
+                sendBuf[offs[owner]++] = xBuf[iLoc];
             }
         }
 
@@ -168,21 +178,21 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
-                Real coneRes = x.GetLocal(iLoc,0);
+                Real coneRes = xBuf[iLoc];
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
                     // TODO: Pull locally if locally owned
                     coneRes = reduce(coneRes,recvBuf[offs[owner]++]);
                 }
-                x.SetLocal(iLoc,0,coneRes);
+                xBuf[iLoc] = coneRes;
             }
         }
     }
@@ -196,11 +206,11 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
                 for( Int k=1; k<order; ++k )
@@ -208,21 +218,21 @@ void ConeAllReduce
                         ++numRemoteUpdates;
             }
             else
-                x.SetLocal( iLoc, 0, 0 );
+                xBuf[iLoc] = 0;
         }
         // Queue and process the remote updates
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
                 for( Int k=1; k<order; ++k )
-                    x.QueueUpdate( i+k, 0, x.GetLocal(iLoc,0) );
+                    x.QueueUpdate( i+k, 0, xBuf[iLoc] );
         }
         x.ProcessQueues();
     }
@@ -235,8 +245,8 @@ void ConeAllReduce
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
+        const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
         {
             sendData.push_back( i );
@@ -257,28 +267,29 @@ void ConeAllReduce
         const Int i = recvData[2*largeCone+0];
         const Int order = recvData[2*largeCone+1];
         auto xCone = x( IR(i,i+order), ALL );
+        Real* xConeBuf = xCone.Buffer();
 
         // Compute our local result in this cone
         Real localConeRes = 0;
         const Int xConeLocalHeight = xCone.LocalHeight();
         for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
-            localConeRes = reduce(localConeRes,xCone.GetLocal(iLoc,0));
+            localConeRes = reduce(localConeRes,xConeBuf[iLoc]);
 
         // Compute the maximum for this cone
         const Real coneRes = mpi::AllReduce( localConeRes, op, x.DistComm() );
         for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
-            xCone.SetLocal(iLoc,0,coneRes);
+            xConeBuf[iLoc] = coneRes;
     }
 }
 
 template<typename Real>
-void ConeAllReduce
+void AllReduce
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, 
   mpi::Op op, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ConeAllReduce"))
+    DEBUG_ONLY(CSE cse("cone::AllReduce"))
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
@@ -292,6 +303,10 @@ void ConeAllReduce
         LogicError("orders and firstInds should be of the same height as x");
 
     auto reduce = OpToReduce<Real>( op );
+
+          Real* xBuf = x.Matrix().Buffer();
+    const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     // TODO: Find a better strategy
     // A short-circuited ring algorithm would likely be significantly faster
@@ -311,11 +326,11 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
@@ -335,16 +350,16 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
                 // TODO: Don't pack if we also own the root
-                sendBuf[offs[owner]++] = x.GetLocal(iLoc,0);
+                sendBuf[offs[owner]++] = xBuf[iLoc];
             }
         }
 
@@ -363,21 +378,21 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
-                Real coneRes = x.GetLocal(iLoc,0);
+                Real coneRes = xBuf[iLoc];
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
                     // TODO: Pull locally if locally owned
                     coneRes = reduce(coneRes,recvBuf[offs[owner]++]);
                 }
-                x.SetLocal(iLoc,0,coneRes);
+                xBuf[iLoc] = coneRes;
             }
         }
     }
@@ -391,11 +406,11 @@ void ConeAllReduce
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
                 for( Int k=1; k<order; ++k )
@@ -403,21 +418,21 @@ void ConeAllReduce
                         ++numRemoteUpdates;
             }
             else
-                x.SetLocal( iLoc, 0, 0 );
+                xBuf[iLoc] = 0;
         }
         // Queue and process the remote updates
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = x.GlobalRow(iLoc);
-            const Int order = orders.GetLocal(iLoc,0);
+            const Int order = orderBuf[iLoc];
             if( order > cutoff )
                 continue;
 
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
                 for( Int k=1; k<order; ++k )
-                    x.QueueUpdate( i+k, 0, x.GetLocal(iLoc,0) );
+                    x.QueueUpdate( i+k, 0, xBuf[iLoc] );
         }
         x.ProcessQueues();
     }
@@ -430,8 +445,8 @@ void ConeAllReduce
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
+        const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
         {
             sendData.push_back( i );
@@ -457,27 +472,27 @@ void ConeAllReduce
         const Int iFirst = x.FirstLocalRow();
         const Int iLast = iFirst + x.LocalHeight();
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
-            localConeRes = reduce(localConeRes,x.GetLocal(j-iFirst,0));
+            localConeRes = reduce(localConeRes,xBuf[j-iFirst]);
 
         // Compute the maximum for this cone
         const Real coneRes = mpi::AllReduce( localConeRes, op, x.Comm() );
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
-            x.SetLocal(j-iFirst,0,coneRes);
+            xBuf[j-iFirst] = coneRes;
     }
 }
 
 #define PROTO(Real) \
-  template void ConeAllReduce \
+  template void AllReduce \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     mpi::Op op ); \
-  template void ConeAllReduce \
+  template void AllReduce \
   (       ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, \
     mpi::Op op, Int cutoff ); \
-  template void ConeAllReduce \
+  template void AllReduce \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
@@ -488,4 +503,5 @@ void ConeAllReduce
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace cone
 } // namespace El

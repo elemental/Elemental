@@ -9,22 +9,25 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Lower-level access
 
 // sqrt(x) = [ eta_0; x_1/(2 eta_0) ],
 // where eta_0 = sqrt(x_0 + sqrt(det(x))) / sqrt(2).
 
 template<typename Real>
-void SOCSquareRoot
+void SquareRoot
 ( const Matrix<Real>& x, 
         Matrix<Real>& xRoot,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCSquareRoot"))
+    DEBUG_ONLY(CSE cse("soc::SquareRoot"))
 
     Matrix<Real> d;
-    SOCDets( x, d, orders, firstInds );
-    ConeBroadcast( d, orders, firstInds );
+    soc::Dets( x, d, orders, firstInds );
+    cone::Broadcast( d, orders, firstInds );
 
     const Int height = x.Height();
     Zeros( xRoot, height, 1 );
@@ -45,14 +48,14 @@ void SOCSquareRoot
 }
 
 template<typename Real>
-void SOCSquareRoot
+void SquareRoot
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& xRootPre,
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCSquareRoot"))
+    DEBUG_ONLY(CSE cse("soc::SquareRoot"))
     AssertSameGrids( xPre, xRootPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -69,11 +72,11 @@ void SOCSquareRoot
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> d(x.Grid());
-    SOCDets( x, d, orders, firstInds );
-    ConeBroadcast( d, orders, firstInds );
+    soc::Dets( x, d, orders, firstInds );
+    cone::Broadcast( d, orders, firstInds );
 
     auto roots = x;
-    ConeBroadcast( roots, orders, firstInds );
+    cone::Broadcast( roots, orders, firstInds );
 
     const Int localHeight = x.LocalHeight();
     xRoot.SetGrid( x.Grid() );
@@ -92,20 +95,20 @@ void SOCSquareRoot
 }
 
 template<typename Real>
-void SOCSquareRoot
+void SquareRoot
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& xRoot,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCSquareRoot"))
+    DEBUG_ONLY(CSE cse("soc::SquareRoot"))
 
     DistMultiVec<Real> d(x.Comm());
-    SOCDets( x, d, orders, firstInds );
-    ConeBroadcast( d, orders, firstInds );
+    soc::Dets( x, d, orders, firstInds );
+    cone::Broadcast( d, orders, firstInds );
 
     auto roots = x;
-    ConeBroadcast( roots, orders, firstInds );
+    cone::Broadcast( roots, orders, firstInds );
 
     const Int localHeight = x.LocalHeight();
     xRoot.SetComm( x.Comm() );
@@ -124,17 +127,17 @@ void SOCSquareRoot
 }
 
 #define PROTO(Real) \
-  template void SOCSquareRoot \
+  template void SquareRoot \
   ( const Matrix<Real>& x, \
           Matrix<Real>& xRoot, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCSquareRoot \
+  template void SquareRoot \
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& xRoot, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCSquareRoot \
+  template void SquareRoot \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& xRoot, \
     const DistMultiVec<Int>& orders, \
@@ -145,4 +148,5 @@ void SOCSquareRoot
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

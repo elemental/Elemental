@@ -9,16 +9,19 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Lower-level access
 
 template<typename Real>
-void SOCMaxEig
+void MaxEig
 ( const Matrix<Real>& x, 
         Matrix<Real>& maxEigs,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCMaxEig"))
-    SOCLowerNorms( x, maxEigs, orders, firstInds );
+    DEBUG_ONLY(CSE cse("soc::MaxEig"))
+    soc::LowerNorms( x, maxEigs, orders, firstInds );
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
         if( i == firstInds.Get(i,0) ) 
@@ -26,14 +29,14 @@ void SOCMaxEig
 }
 
 template<typename Real>
-void SOCMaxEig
+void MaxEig
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& maxEigsPre,
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCMaxEig"))
+    DEBUG_ONLY(CSE cse("soc::MaxEig"))
     AssertSameGrids( xPre, maxEigsPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -56,7 +59,7 @@ void SOCMaxEig
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    SOCLowerNorms( x, maxEigs, orders, firstInds, cutoff );
+    soc::LowerNorms( x, maxEigs, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( maxEigs.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
             maxEigs.SetLocal
@@ -64,13 +67,13 @@ void SOCMaxEig
 }
 
 template<typename Real>
-void SOCMaxEig
+void MaxEig
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& maxEigs,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCMaxEig"))
+    DEBUG_ONLY(CSE cse("soc::MaxEig"))
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
@@ -78,7 +81,7 @@ void SOCMaxEig
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    SOCLowerNorms( x, maxEigs, orders, firstInds, cutoff );
+    soc::LowerNorms( x, maxEigs, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( maxEigs.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
             maxEigs.SetLocal
@@ -86,14 +89,14 @@ void SOCMaxEig
 }
 
 template<typename Real>
-Real SOCMaxEig
+Real MaxEig
 ( const Matrix<Real>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCMaxEig"))
+    DEBUG_ONLY(CSE cse("soc::MaxEig"))
     Matrix<Real> maxEigs;
-    SOCMaxEig( x, maxEigs, orders, firstInds );
+    soc::MaxEig( x, maxEigs, orders, firstInds );
 
     Real maxEig = std::numeric_limits<Real>::min();
     const Int height = x.Height();
@@ -104,13 +107,13 @@ Real SOCMaxEig
 }
 
 template<typename Real>
-Real SOCMaxEig
+Real MaxEig
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCMaxEig"))
+    DEBUG_ONLY(CSE cse("soc::MaxEig"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -125,7 +128,7 @@ Real SOCMaxEig
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> maxEigs(x.Grid());
-    SOCMaxEig( x, maxEigs, orders, firstInds, cutoff );
+    soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 
     const Int localHeight = x.LocalHeight();
     Real maxEigLocal = std::numeric_limits<Real>::min();
@@ -136,15 +139,15 @@ Real SOCMaxEig
 }
 
 template<typename Real>
-Real SOCMaxEig
+Real MaxEig
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCMaxEig"))
+    DEBUG_ONLY(CSE cse("soc::MaxEig"))
     DistMultiVec<Real> maxEigs(x.Comm());
-    SOCMaxEig( x, maxEigs, orders, firstInds, cutoff );
+    soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 
     const Int localHeight = x.LocalHeight();
     Real maxEigLocal = std::numeric_limits<Real>::min();
@@ -155,30 +158,30 @@ Real SOCMaxEig
 }
 
 #define PROTO(Real) \
-  template void SOCMaxEig \
+  template void MaxEig \
   ( const Matrix<Real>& x, \
           Matrix<Real>& maxEigs, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCMaxEig \
+  template void MaxEig \
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& maxEigs, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCMaxEig \
+  template void MaxEig \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& maxEigs, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff ); \
-  template Real SOCMaxEig \
+  template Real MaxEig \
   ( const Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template Real SOCMaxEig \
+  template Real MaxEig \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template Real SOCMaxEig \
+  template Real MaxEig \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );
@@ -187,4 +190,5 @@ Real SOCMaxEig
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

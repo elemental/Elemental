@@ -9,6 +9,7 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 // Find the Nesterov-Todd scaling point w such that 
 //
@@ -38,23 +39,23 @@ void ClassicalNT
     Copy( z, zProm );
 
     Matrix<PReal> sRoot;
-    SOCSquareRoot( sProm, sRoot, orders, firstInds );
+    soc::SquareRoot( sProm, sRoot, orders, firstInds );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
     Matrix<PReal> a;
-    SOCApplyQuadratic( sRoot, zProm, a, orders, firstInds );
+    soc::ApplyQuadratic( sRoot, zProm, a, orders, firstInds );
 
     // a := inv(sqrt(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
     Matrix<PReal> b; 
-    SOCSquareRoot( a, b, orders, firstInds );
-    SOCInverse( b, a, orders, firstInds );
+    soc::SquareRoot( a, b, orders, firstInds );
+    soc::Inverse( b, a, orders, firstInds );
 
     // w := Q_{sqrt(s)}(a)
     // -------------------
     Matrix<PReal> wProm;
-    SOCApplyQuadratic( sRoot, a, wProm, orders, firstInds );
+    soc::ApplyQuadratic( sRoot, a, wProm, orders, firstInds );
     Copy( wProm, w );
 }
 
@@ -87,22 +88,22 @@ void ClassicalNT
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<PReal,VC,STAR> sRoot(s.Grid());
-    SOCSquareRoot( s, sRoot, orders, firstInds, cutoff );
+    soc::SquareRoot( s, sRoot, orders, firstInds, cutoff );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
     DistMatrix<PReal,VC,STAR> a(z.Grid());
-    SOCApplyQuadratic( sRoot, z, a, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( sRoot, z, a, orders, firstInds, cutoff );
 
     // a := inv(sqrt(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
     DistMatrix<PReal,VC,STAR> b(z.Grid()); 
-    SOCSquareRoot( a, b, orders, firstInds, cutoff );
-    SOCInverse( b, a, orders, firstInds, cutoff );
+    soc::SquareRoot( a, b, orders, firstInds, cutoff );
+    soc::Inverse( b, a, orders, firstInds, cutoff );
 
     // w := Q_{sqrt(s)}(a)
     // -------------------
-    SOCApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
 }
 
 template<typename Real>
@@ -122,23 +123,23 @@ void ClassicalNT
     Copy( z, zProm );
 
     DistMultiVec<PReal> sRoot(comm);
-    SOCSquareRoot( sProm, sRoot, orders, firstInds, cutoff );
+    soc::SquareRoot( sProm, sRoot, orders, firstInds, cutoff );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
     DistMultiVec<PReal> a(comm);
-    SOCApplyQuadratic( sRoot, zProm, a, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( sRoot, zProm, a, orders, firstInds, cutoff );
 
     // a := inv(sqrt(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
     DistMultiVec<PReal> b(comm); 
-    SOCSquareRoot( a, b, orders, firstInds, cutoff );
-    SOCInverse( b, a, orders, firstInds, cutoff );
+    soc::SquareRoot( a, b, orders, firstInds, cutoff );
+    soc::Inverse( b, a, orders, firstInds, cutoff );
 
     // w := Q_{sqrt(s)}(a)
     // -------------------
     DistMultiVec<PReal> wProm(comm);
-    SOCApplyQuadratic( sRoot, a, wProm, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( sRoot, a, wProm, orders, firstInds, cutoff );
     Copy( wProm, w );
 }
 
@@ -166,10 +167,10 @@ void VandenbergheNT
     // Normalize with respect to the Jordan determinant
     // ================================================
     Matrix<PReal> sDets, zDets;
-    SOCDets( sProm, sDets, orders, firstInds );
-    SOCDets( zProm, zDets, orders, firstInds );
-    ConeBroadcast( sDets, orders, firstInds );
-    ConeBroadcast( zDets, orders, firstInds );
+    soc::Dets( sProm, sDets, orders, firstInds );
+    soc::Dets( zProm, zDets, orders, firstInds );
+    cone::Broadcast( sDets, orders, firstInds );
+    cone::Broadcast( zDets, orders, firstInds );
     for( Int i=0; i<n; ++i )
     {
         sProm.Set( i, 0, sProm.Get(i,0)/Sqrt(sDets.Get(i,0)) );
@@ -179,15 +180,15 @@ void VandenbergheNT
     // Compute the 'gamma' coefficients
     // ================================
     Matrix<PReal> gammas;
-    SOCDots( zProm, sProm, gammas, orders, firstInds );
-    ConeBroadcast( gammas, orders, firstInds );
+    soc::Dots( zProm, sProm, gammas, orders, firstInds );
+    cone::Broadcast( gammas, orders, firstInds );
     for( Int i=0; i<n; ++i )
         gammas.Set( i, 0, Sqrt((PReal(1)+gammas.Get(i,0))/PReal(2)) );
 
     // Compute the normalized scaling point
     // ====================================
     auto wProm = zProm;
-    SOCReflect( wProm, orders, firstInds );
+    soc::Reflect( wProm, orders, firstInds );
     wProm += sProm;
     DiagonalSolve( LEFT, NORMAL, gammas, wProm );
     wProm *= PReal(1)/PReal(2);
@@ -237,10 +238,10 @@ void VandenbergheNT
     // ================================================
     const Int nLocal = s.LocalHeight();
     DistMatrix<PReal,VC,STAR> sDets(grid), zDets(grid);
-    SOCDets( s, sDets, orders, firstInds, cutoff );
-    SOCDets( z, zDets, orders, firstInds, cutoff );
-    ConeBroadcast( sDets, orders, firstInds, cutoff );
-    ConeBroadcast( zDets, orders, firstInds, cutoff );
+    soc::Dets( s, sDets, orders, firstInds, cutoff );
+    soc::Dets( z, zDets, orders, firstInds, cutoff );
+    cone::Broadcast( sDets, orders, firstInds, cutoff );
+    cone::Broadcast( zDets, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
         s.SetLocal
@@ -252,8 +253,8 @@ void VandenbergheNT
     // Compute the 'gamma' coefficients
     // ================================
     DistMatrix<PReal,VC,STAR> gammas(grid);
-    SOCDots( z, s, gammas, orders, firstInds, cutoff );
-    ConeBroadcast( gammas, orders, firstInds, cutoff );
+    soc::Dots( z, s, gammas, orders, firstInds, cutoff );
+    cone::Broadcast( gammas, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         gammas.SetLocal
         ( iLoc, 0, Sqrt((PReal(1)+gammas.GetLocal(iLoc,0))/PReal(2)) );
@@ -261,7 +262,7 @@ void VandenbergheNT
     // Compute the normalized scaling point
     // ====================================
     w = z;
-    SOCReflect( w, orders, firstInds );
+    soc::Reflect( w, orders, firstInds );
     w += s;
     DiagonalSolve( LEFT, NORMAL, gammas, w );
     w *= PReal(1)/PReal(2);
@@ -297,10 +298,10 @@ void VandenbergheNT
     // ================================================
     const Int nLocal = sProm.LocalHeight();
     DistMultiVec<PReal> sDets(comm), zDets(comm);
-    SOCDets( sProm, sDets, orders, firstInds, cutoff );
-    SOCDets( zProm, zDets, orders, firstInds, cutoff );
-    ConeBroadcast( sDets, orders, firstInds, cutoff );
-    ConeBroadcast( zDets, orders, firstInds, cutoff );
+    soc::Dets( sProm, sDets, orders, firstInds, cutoff );
+    soc::Dets( zProm, zDets, orders, firstInds, cutoff );
+    cone::Broadcast( sDets, orders, firstInds, cutoff );
+    cone::Broadcast( zDets, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
         sProm.SetLocal
@@ -312,8 +313,8 @@ void VandenbergheNT
     // Compute the 'gamma' coefficients
     // ================================
     DistMultiVec<PReal> gammas(comm);
-    SOCDots( zProm, sProm, gammas, orders, firstInds, cutoff );
-    ConeBroadcast( gammas, orders, firstInds, cutoff );
+    soc::Dots( zProm, sProm, gammas, orders, firstInds, cutoff );
+    cone::Broadcast( gammas, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         gammas.SetLocal
         ( iLoc, 0, Sqrt((PReal(1)+gammas.GetLocal(iLoc,0))/PReal(2)) );
@@ -321,7 +322,7 @@ void VandenbergheNT
     // Compute the normalized scaling point
     // ====================================
     auto wProm = zProm;
-    SOCReflect( wProm, orders, firstInds );
+    soc::Reflect( wProm, orders, firstInds );
     wProm += sProm;
     DiagonalSolve( LEFT, NORMAL, gammas, wProm );
     wProm *= PReal(1)/PReal(2);
@@ -341,14 +342,14 @@ void VandenbergheNT
 } // anonymous namespace
 
 template<typename Real>
-void SOCNesterovTodd
+void NesterovTodd
 ( const Matrix<Real>& s, 
   const Matrix<Real>& z,
         Matrix<Real>& w,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
+    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds );
@@ -357,7 +358,7 @@ void SOCNesterovTodd
 }
 
 template<typename Real>
-void SOCNesterovTodd
+void NesterovTodd
 ( const ElementalMatrix<Real>& s, 
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& w,
@@ -365,7 +366,7 @@ void SOCNesterovTodd
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
+    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );
@@ -374,14 +375,14 @@ void SOCNesterovTodd
 }
 
 template<typename Real>
-void SOCNesterovTodd
+void NesterovTodd
 ( const DistMultiVec<Real>& s, 
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCNesterovTodd"))
+    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );
@@ -390,19 +391,19 @@ void SOCNesterovTodd
 }
 
 #define PROTO(Real) \
-  template void SOCNesterovTodd \
+  template void NesterovTodd \
   ( const Matrix<Real>& s, \
     const Matrix<Real>& z, \
           Matrix<Real>& w, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCNesterovTodd \
+  template void NesterovTodd \
   ( const ElementalMatrix<Real>& s, \
     const ElementalMatrix<Real>& z, \
           ElementalMatrix<Real>& w, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCNesterovTodd \
+  template void NesterovTodd \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \
           DistMultiVec<Real>& w, \
@@ -413,4 +414,5 @@ void SOCNesterovTodd
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

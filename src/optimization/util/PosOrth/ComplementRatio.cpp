@@ -9,32 +9,37 @@
 #include "El.hpp"
 
 namespace El {
+namespace pos_orth {
 
 // Compute Max( s o z ) / Min( s o z ) to determine if we need to recenter
 
 template<typename Real>
-Real PosComplementRatio
-( const Matrix<Real>& s, const Matrix<Real>& z )
+Real ComplementRatio
+( const Matrix<Real>& s,
+  const Matrix<Real>& z )
 {
-    DEBUG_ONLY(CSE cse("PosComplementRatio"))
+    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
     const Int k = s.Height();
+    const Real* sBuf = s.LockedBuffer();
+    const Real* zBuf = z.LockedBuffer();
 
     Real maxProd = 0;
     for( Int i=0; i<k; ++i )
-        maxProd = Max( s.Get(i,0)*z.Get(i,0), maxProd );
+        maxProd = Max( sBuf[i]*zBuf[i], maxProd );
 
     Real minProd = maxProd;
     for( Int i=0; i<k; ++i )
-        minProd = Min( s.Get(i,0)*z.Get(i,0), minProd );
+        minProd = Min( sBuf[i]*zBuf[i], minProd );
 
     return maxProd/minProd;
 }
 
 template<typename Real>
-Real PosComplementRatio
-( const ElementalMatrix<Real>& sPre, const ElementalMatrix<Real>& zPre )
+Real ComplementRatio
+( const ElementalMatrix<Real>& sPre,
+  const ElementalMatrix<Real>& zPre )
 {
-    DEBUG_ONLY(CSE cse("PosComplementRatio"))
+    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
@@ -44,50 +49,59 @@ Real PosComplementRatio
     auto& z = *zPtr;
 
     const Int localHeight = s.LocalHeight();
+    const Real* sBuf = s.LockedBuffer();
+    const Real* zBuf = z.LockedBuffer();
 
     Real maxLocProd = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        maxLocProd = Max( s.GetLocal(iLoc,0)*z.GetLocal(iLoc,0), maxLocProd );
+        maxLocProd = Max( sBuf[iLoc]*zBuf[iLoc], maxLocProd );
     const Real maxProd = mpi::AllReduce( maxLocProd, mpi::MAX, s.DistComm() );
     
     Real minLocProd = maxProd;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        minLocProd = Min( s.GetLocal(iLoc,0)*z.GetLocal(iLoc,0), minLocProd );
+        minLocProd = Min( sBuf[iLoc]*zBuf[iLoc], minLocProd );
     const Real minProd = mpi::AllReduce( minLocProd, mpi::MIN, s.DistComm() );
 
     return maxProd/minProd;
 }
 
 template<typename Real>
-Real PosComplementRatio
-( const DistMultiVec<Real>& s, const DistMultiVec<Real>& z )
+Real ComplementRatio
+( const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& z )
 {
-    DEBUG_ONLY(CSE cse("PosComplementRatio"))
+    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
     const Int localHeight = s.LocalHeight();
+    const Real* sBuf = s.LockedMatrix().LockedBuffer();
+    const Real* zBuf = z.LockedMatrix().LockedBuffer();
 
     Real maxLocProd = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        maxLocProd = Max( s.GetLocal(iLoc,0)*z.GetLocal(iLoc,0), maxLocProd );
+        maxLocProd = Max( sBuf[iLoc]*zBuf[iLoc], maxLocProd );
     const Real maxProd = mpi::AllReduce( maxLocProd, mpi::MAX, s.Comm() );
     
     Real minLocProd = maxProd;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        minLocProd = Min( s.GetLocal(iLoc,0)*z.GetLocal(iLoc,0), minLocProd );
+        minLocProd = Min( sBuf[iLoc]*zBuf[iLoc], minLocProd );
     const Real minProd = mpi::AllReduce( minLocProd, mpi::MIN, s.Comm() );
 
     return maxProd/minProd;
 }
 
 #define PROTO(Real) \
-  template Real PosComplementRatio \
-  ( const Matrix<Real>& s, const Matrix<Real>& z ); \
-  template Real PosComplementRatio \
-  ( const ElementalMatrix<Real>& s, const ElementalMatrix<Real>& z ); \
-  template Real PosComplementRatio \
-  ( const DistMultiVec<Real>& s, const DistMultiVec<Real>& z );
+  template Real ComplementRatio \
+  ( const Matrix<Real>& s, \
+    const Matrix<Real>& z ); \
+  template Real ComplementRatio \
+  ( const ElementalMatrix<Real>& s, \
+    const ElementalMatrix<Real>& z ); \
+  template Real ComplementRatio \
+  ( const DistMultiVec<Real>& s, \
+    const DistMultiVec<Real>& z );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace pos_orth
 } // namespace El

@@ -9,15 +9,18 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Lower-level access
 
 template<typename Real>
-void SOCLowerNorms
+void LowerNorms
 ( const Matrix<Real>& x, 
         Matrix<Real>& lowerNorms,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCLowerNorms"))
+    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
@@ -29,21 +32,21 @@ void SOCLowerNorms
         if( i == firstInds.Get(i,0) )
             xLower.Set( i, 0, Real(0) );
 
-    SOCDots( xLower, xLower, lowerNorms, orders, firstInds );
+    soc::Dots( xLower, xLower, lowerNorms, orders, firstInds );
     for( Int i=0; i<height; ++i )
         if( i == firstInds.Get(i,0) )
             lowerNorms.Set( i, 0, Sqrt(lowerNorms.Get(i,0)) );
 }
 
 template<typename Real>
-void SOCLowerNorms
+void LowerNorms
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& lowerNormsPre,
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCLowerNorms"))
+    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
     AssertSameGrids( xPre, lowerNormsPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -71,20 +74,20 @@ void SOCLowerNorms
         if( xLower.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
             xLower.SetLocal( iLoc, 0, Real(0) );
 
-    SOCDots( xLower, xLower, lowerNorms, orders, firstInds, cutoff );
+    soc::Dots( xLower, xLower, lowerNorms, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( lowerNorms.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )    
             lowerNorms.SetLocal( iLoc, 0, Sqrt(lowerNorms.GetLocal(iLoc,0)) );
 }
 
 template<typename Real>
-void SOCLowerNorms
+void LowerNorms
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& lowerNorms,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCLowerNorms"))
+    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
@@ -97,24 +100,24 @@ void SOCLowerNorms
         if( xLower.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
             xLower.SetLocal( iLoc, 0, Real(0) );
 
-    SOCDots( xLower, xLower, lowerNorms, orders, firstInds, cutoff );
+    soc::Dots( xLower, xLower, lowerNorms, orders, firstInds, cutoff );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( lowerNorms.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
             lowerNorms.SetLocal( iLoc, 0, Sqrt(lowerNorms.GetLocal(iLoc,0)) );
 }
 
 #define PROTO(Real) \
-  template void SOCLowerNorms \
+  template void LowerNorms \
   ( const Matrix<Real>& x, \
           Matrix<Real>& lowerNorms, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCLowerNorms \
+  template void LowerNorms \
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& lowerNorms, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCLowerNorms \
+  template void LowerNorms \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& lowerNorms, \
     const DistMultiVec<Int>& orders, \
@@ -124,4 +127,5 @@ void SOCLowerNorms
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

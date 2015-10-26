@@ -9,8 +9,9 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
-void SOCEmbeddingMaps
+void EmbeddingMaps
 ( const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
         Matrix<Int>& sparseOrders,
@@ -21,6 +22,7 @@ void SOCEmbeddingMaps
         Matrix<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
+    DEBUG_ONLY(CSE cse("soc::EmbeddingMaps"))
     const Int k = orders.Height();
 
     // Form the metadata for the original index domain
@@ -78,7 +80,7 @@ void SOCEmbeddingMaps
     }
 }
 
-void SOCEmbeddingMaps
+void EmbeddingMaps
 ( const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
         DistMultiVec<Int>& sparseOrders,
@@ -89,6 +91,7 @@ void SOCEmbeddingMaps
         DistMultiVec<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
+    DEBUG_ONLY(CSE cse("soc::EmbeddingMaps"))
     const Int k = orders.Height();
     mpi::Comm comm = orders.Comm();
     const int commSize = mpi::Size( comm );
@@ -279,4 +282,5 @@ void SOCEmbeddingMaps
     sparseToOrigFirstInds.ProcessQueues();
 }
 
+} // namespace soc
 } // namespace El

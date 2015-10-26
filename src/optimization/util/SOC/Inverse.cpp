@@ -9,39 +9,40 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 // inv(x) = (R x) / det(x)
 
 template<typename Real>
-void SOCInverse
+void Inverse
 ( const Matrix<Real>& x, 
         Matrix<Real>& xInv,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCInverse"))
+    DEBUG_ONLY(CSE cse("soc::Inverse"))
 
     Matrix<Real> dInv;
-    SOCDets( x, dInv, orders, firstInds );
-    ConeBroadcast( dInv, orders, firstInds );
+    soc::Dets( x, dInv, orders, firstInds );
+    cone::Broadcast( dInv, orders, firstInds );
     auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
     EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
 
     auto Rx = x;
-    SOCReflect( Rx, orders, firstInds );
+    soc::Reflect( Rx, orders, firstInds );
 
     Hadamard( dInv, Rx, xInv ); 
 }
 
 template<typename Real>
-void SOCInverse
+void Inverse
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& xInvPre,
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCInverse"))
+    DEBUG_ONLY(CSE cse("soc::Inverse"))
     AssertSameGrids( xPre, xInvPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -58,50 +59,50 @@ void SOCInverse
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> dInv(x.Grid()); 
-    SOCDets( x, dInv, orders, firstInds, cutoff );
-    ConeBroadcast( dInv, orders, firstInds );
+    soc::Dets( x, dInv, orders, firstInds, cutoff );
+    cone::Broadcast( dInv, orders, firstInds );
     auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
     EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
 
     auto Rx = x;
-    SOCReflect( Rx, orders, firstInds );
+    soc::Reflect( Rx, orders, firstInds );
 
     Hadamard( dInv, Rx, xInv );
 }
 
 template<typename Real>
-void SOCInverse
+void Inverse
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& xInv,
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCInverse"))
+    DEBUG_ONLY(CSE cse("soc::Inverse"))
 
     DistMultiVec<Real> dInv(x.Comm());
-    SOCDets( x, dInv, orders, firstInds, cutoff );
-    ConeBroadcast( dInv, orders, firstInds );
+    soc::Dets( x, dInv, orders, firstInds, cutoff );
+    cone::Broadcast( dInv, orders, firstInds );
     auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
     EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
 
     auto Rx = x;
-    SOCReflect( Rx, orders, firstInds );
+    soc::Reflect( Rx, orders, firstInds );
 
     Hadamard( dInv, Rx, xInv );
 }
 
 #define PROTO(Real) \
-  template void SOCInverse \
+  template void Inverse \
   ( const Matrix<Real>& x, \
           Matrix<Real>& xInv, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCInverse \
+  template void Inverse \
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& xInv, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCInverse \
+  template void Inverse \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& xInv, \
     const DistMultiVec<Int>& orders, \
@@ -112,4 +113,5 @@ void SOCInverse
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

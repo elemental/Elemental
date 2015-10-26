@@ -9,13 +9,16 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Use lower-level access
 
 template<typename Real>
-void SOCIdentity
+void Identity
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCIdentity"))
+    DEBUG_ONLY(CSE cse("soc::Identity"))
     const Int height = orders.Height();
     if( firstInds.Height() != height || 
         firstInds.Width() != 1 || orders.Width() != 1 )
@@ -30,12 +33,12 @@ void SOCIdentity
 }
 
 template<typename Real>
-void SOCIdentity
+void Identity
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("SOCIdentity"))
+    DEBUG_ONLY(CSE cse("soc::Identity"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -65,12 +68,12 @@ void SOCIdentity
 }
 
 template<typename Real>
-void SOCIdentity
+void Identity
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCIdentity"))
+    DEBUG_ONLY(CSE cse("soc::Identity"))
 
     const Int height = orders.Height();
     if( firstInds.Height() != height ||
@@ -89,15 +92,15 @@ void SOCIdentity
 }
 
 #define PROTO(Real) \
-  template void SOCIdentity \
+  template void Identity \
   (       Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCIdentity \
+  template void Identity \
   (       ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds ); \
-  template void SOCIdentity \
+  template void Identity \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds );
@@ -106,4 +109,5 @@ void SOCIdentity
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

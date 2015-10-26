@@ -9,20 +9,23 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
+
+// TODO: Use lower-level access
 
 // Members of second-order cones are stored contiguously within the column
 // vector x, with the corresponding order of the cone each member belongs to
 // stored in the same index of 'order', and the first index of the cone 
 // being listed in the same index of 'firstInd'.
 template<typename Real>
-void SOCDots
+void Dots
 ( const Matrix<Real>& x, 
   const Matrix<Real>& y,
         Matrix<Real>& z,
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("SOCDots"))
+    DEBUG_ONLY(CSE cse("soc::Dots"))
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -50,7 +53,7 @@ void SOCDots
 
 // TODO: An alternate, trivial implementation to benchmark against
 template<typename Real>
-void SOCDots
+void Dots
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre,
         ElementalMatrix<Real>& zPre,
@@ -58,7 +61,7 @@ void SOCDots
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCDots"))
+    DEBUG_ONLY(CSE cse("soc::Dots"))
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -164,7 +167,7 @@ void SOCDots
 
 // TODO: An alternate, trivial implementation to benchmark against
 template<typename Real>
-void SOCDots
+void Dots
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
@@ -172,7 +175,7 @@ void SOCDots
   const DistMultiVec<Int>& firstInds,
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("SOCDots"))
+    DEBUG_ONLY(CSE cse("soc::Dots"))
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
@@ -287,19 +290,19 @@ void SOCDots
 }
 
 #define PROTO(Real) \
-  template void SOCDots \
+  template void Dots \
   ( const Matrix<Real>& x, \
     const Matrix<Real>& y, \
           Matrix<Real>& z, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template void SOCDots \
+  template void Dots \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Real>& y, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template void SOCDots \
+  template void Dots \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
@@ -311,4 +314,5 @@ void SOCDots
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

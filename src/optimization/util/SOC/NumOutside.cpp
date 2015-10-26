@@ -9,19 +9,20 @@
 #include "El.hpp"
 
 namespace El {
+namespace soc {
 
 // Members of second-order cones are stored contiguously within the column
 // vector x, with the corresponding order of the cone each member belongs to
 // stored in the same index of 'order', and the first index of the cone 
 // being listed in the same index of 'firstInd'.
 template<typename Real>
-Int NumNonSOC
+Int NumOutside
 ( const Matrix<Real>& x, 
   const Matrix<Int>& orders, const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("NumNonSOC"))
+    DEBUG_ONLY(CSE cse("soc::NumOutside"))
     Matrix<Real> d;
-    SOCDets( x, d, orders, firstInds );
+    soc::Dets( x, d, orders, firstInds );
 
     Int numNonSO = 0;
     const Int height = x.Height();
@@ -40,13 +41,13 @@ Int NumNonSOC
 }
 
 template<typename Real>
-Int NumNonSOC
+Int NumOutside
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NumNonSOC"))
+    DEBUG_ONLY(CSE cse("soc::NumOutside"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ProxyCtrl ctrl;
@@ -61,7 +62,7 @@ Int NumNonSOC
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> d(x.Grid());
-    SOCDets( x, d, orders, firstInds, cutoff );
+    soc::Dets( x, d, orders, firstInds, cutoff );
 
     Int numLocalNonSOC = 0;
     const Int localHeight = x.LocalHeight();
@@ -75,15 +76,15 @@ Int NumNonSOC
 }
 
 template<typename Real>
-Int NumNonSOC
+Int NumOutside
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NumNonSOC"))
+    DEBUG_ONLY(CSE cse("soc::NumOutside"))
 
     DistMultiVec<Real> d(x.Comm());
-    SOCDets( x, d, orders, firstInds, cutoff );
+    soc::Dets( x, d, orders, firstInds, cutoff );
 
     Int numLocalNonSOC = 0;
     const int localHeight = x.LocalHeight();
@@ -97,15 +98,15 @@ Int NumNonSOC
 }
 
 #define PROTO(Real) \
-  template Int NumNonSOC \
+  template Int NumOutside \
   ( const Matrix<Real>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
-  template Int NumNonSOC \
+  template Int NumOutside \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
-  template Int NumNonSOC \
+  template Int NumOutside \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );
@@ -114,4 +115,5 @@ Int NumNonSOC
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace soc
 } // namespace El

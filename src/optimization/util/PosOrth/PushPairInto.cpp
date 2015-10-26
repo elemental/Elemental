@@ -9,15 +9,16 @@
 #include "El.hpp"
 
 namespace El {
+namespace pos_orth {
 
 template<typename Real>
-void ForcePairIntoPosOrth
+void PushPairInto
 (       Matrix<Real>& s, 
         Matrix<Real>& z,
   const Matrix<Real>& w,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("ForcePairIntoPosOrth"))
+    DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
     const Int height = s.Height();
     const Real maxMod = Pow(Epsilon<Real>(),Real(0.5));
     for( Int i=0; i<height; ++i )
@@ -31,13 +32,13 @@ void ForcePairIntoPosOrth
 }
 
 template<typename Real>
-void ForcePairIntoPosOrth
+void PushPairInto
 (       ElementalMatrix<Real>& sPre, 
         ElementalMatrix<Real>& zPre,
   const ElementalMatrix<Real>& wPre,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("ForcePairIntoPosOrth"))
+    DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
     AssertSameGrids( sPre, zPre, wPre );
     const Real maxMod = Pow(Epsilon<Real>(),Real(0.5));
 
@@ -53,48 +54,52 @@ void ForcePairIntoPosOrth
     auto& w = *wPtr;
 
     const Int localHeight = s.LocalHeight();
+    const Real* wBuf = w.LockedBuffer();
+    Real* zBuf = z.Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        if( w.GetLocal(iLoc,0) > wMaxNormLimit )
+        if( wBuf[iLoc] > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            z.UpdateLocal( iLoc, 0, Min(Real(1)/wMaxNormLimit,maxMod) );
+            zBuf[iLoc] += Min(Real(1)/wMaxNormLimit,maxMod);
         }
     }
 }
 
 template<typename Real>
-void ForcePairIntoPosOrth
+void PushPairInto
 (       DistMultiVec<Real>& s, 
         DistMultiVec<Real>& z,
   const DistMultiVec<Real>& w,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("ForcePairIntoPosOrth"))
+    DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
     const Real maxMod = Pow(Epsilon<Real>(),Real(0.5));
     const int localHeight = s.LocalHeight();
+    const Real* wBuf = w.LockedMatrix().LockedBuffer();
+    Real* zBuf = z.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        if( w.GetLocal(iLoc,0) > wMaxNormLimit )
+        if( wBuf[iLoc] > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            z.UpdateLocal( iLoc, 0, Min(Real(1)/wMaxNormLimit,maxMod) );
+            zBuf[iLoc] += Min(Real(1)/wMaxNormLimit,maxMod);
         }
     }
 }
 
 #define PROTO(Real) \
-  template void ForcePairIntoPosOrth \
+  template void PushPairInto \
   (       Matrix<Real>& s, \
           Matrix<Real>& z, \
     const Matrix<Real>& w, \
     Real wMaxNormLimit ); \
-  template void ForcePairIntoPosOrth \
+  template void PushPairInto \
   (       ElementalMatrix<Real>& s, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Real>& w, \
     Real wMaxNormLimit ); \
-  template void ForcePairIntoPosOrth \
+  template void PushPairInto \
   (       DistMultiVec<Real>& s, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Real>& w, \
@@ -104,4 +109,5 @@ void ForcePairIntoPosOrth
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
+} // namespace pos_orth
 } // namespace El
