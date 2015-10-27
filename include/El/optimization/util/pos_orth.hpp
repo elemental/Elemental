@@ -13,6 +13,21 @@
 namespace El {
 namespace pos_orth {
 
+// Compute the complementarity ratio
+// =================================
+template<typename Real>
+Real ComplementRatio
+( const Matrix<Real>& s,
+  const Matrix<Real>& z );
+template<typename Real>
+Real ComplementRatio
+( const ElementalMatrix<Real>& s,
+  const ElementalMatrix<Real>& z );
+template<typename Real>
+Real ComplementRatio
+( const DistMultiVec<Real>& s,
+  const DistMultiVec<Real>& z );
+
 // Maximum step
 // ============
 template<typename Real>
@@ -43,21 +58,6 @@ template<typename Real>
 Int NumOutside( const DistSparseMatrix<Real>& A );
 template<typename Real>
 Int NumOutside( const DistMultiVec<Real>& A );
-
-// Compute the complementarity ratio
-// =================================
-template<typename Real>
-Real ComplementRatio
-( const Matrix<Real>& s,
-  const Matrix<Real>& z );
-template<typename Real>
-Real ComplementRatio
-( const ElementalMatrix<Real>& s,
-  const ElementalMatrix<Real>& z );
-template<typename Real>
-Real ComplementRatio
-( const DistMultiVec<Real>& s,
-  const DistMultiVec<Real>& z );
 
 // Compute a Nesterov-Todd point
 // =============================

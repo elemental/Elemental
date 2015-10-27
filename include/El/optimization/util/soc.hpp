@@ -13,300 +13,7 @@
 namespace El {
 namespace soc {
 
-// Degree
-// ======
-Int Degree( const Matrix<Int>& firstInds );
-Int Degree( const ElementalMatrix<Int>& firstInds );
-Int Degree( const DistMultiVec<Int>& firstInds );
-
-// Identity
-// ========
-template<typename Real>
-void Identity
-(       Matrix<Real>& e, 
-  const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void Identity
-(       ElementalMatrix<Real>& e, 
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds );
-template<typename Real>
-void Identity
-(       DistMultiVec<Real>& e, 
-  const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds );
-
-// Dot products of sequences of second-order cones
-// ===============================================
-template<typename Real>
-void Dots
-( const Matrix<Real>& x, 
-  const Matrix<Real>& y, 
-        Matrix<Real>& z,
-  const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void Dots
-( const ElementalMatrix<Real>& x, 
-  const ElementalMatrix<Real>& y, 
-        ElementalMatrix<Real>& z,
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-void Dots
-( const DistMultiVec<Real>& x, 
-  const DistMultiVec<Real>& y, 
-        DistMultiVec<Real>& z,
-  const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-// Reflect
-// =======
-template<typename Real>
-void Reflect
-(       Matrix<Real>& x,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void Reflect
-(       ElementalMatrix<Real>& x,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds );
-template<typename Real>
-void Reflect
-(       DistMultiVec<Real>& x,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds );
-
-// Shift
-// =====
-// Add a multiple of the identity of the product cone
-template<typename Real>
-void Shift
-(       Matrix<Real>& x, Real shift,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void Shift
-(       ElementalMatrix<Real>& x, Real shift,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds );
-template<typename Real>
-void Shift
-(       DistMultiVec<Real>& x, Real shift,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds );
-
-// Determinants
-// ============
-template<typename Real>
-void Dets
-( const Matrix<Real>& x,
-        Matrix<Real>& d,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void Dets
-( const ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& d,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-void Dets
-( const DistMultiVec<Real>& x,
-        DistMultiVec<Real>& d,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-// Lower norms
-// ===========
-template<typename Real>
-void LowerNorms
-( const Matrix<Real>& x,
-        Matrix<Real>& lowerNorms,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void LowerNorms
-( const ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& lowerNorms,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-void LowerNorms
-( const DistMultiVec<Real>& x,
-        DistMultiVec<Real>& lowerNorms,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-// Min eigenvalues
-// ===============
-template<typename Real>
-void MinEig
-( const Matrix<Real>& x,
-        Matrix<Real>& minEigs,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void MinEig
-( const ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& minEigs,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-void MinEig
-( const DistMultiVec<Real>& x,
-        DistMultiVec<Real>& minEigs,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-template<typename Real>
-Real MinEig
-( const Matrix<Real>& x,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-Real MinEig
-( const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-Real MinEig
-( const DistMultiVec<Real>& x,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-// Max eigenvalues
-// ===============
-template<typename Real>
-void MaxEig
-( const Matrix<Real>& x,
-        Matrix<Real>& maxEigs,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-void MaxEig
-( const ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& maxEigs,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-void MaxEig
-( const DistMultiVec<Real>& x,
-        DistMultiVec<Real>& maxEigs,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
-template<typename Real>
-Real MaxEig
-( const Matrix<Real>& x,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds );
-template<typename Real>
-Real MaxEig
-( const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
-Real MaxEig
-( const DistMultiVec<Real>& x,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
-
 // TODO: SOC eigenvectors?
-
-// Embedding maps
-// ==============
-void EmbeddingMaps
-( const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-        Matrix<Int>& sparseOrders,
-        Matrix<Int>& sparseFirstInds,
-        Matrix<Int>& origToSparseOrders,
-        Matrix<Int>& origToSparseFirstInds,
-        Matrix<Int>& sparseToOrigOrders,
-        Matrix<Int>& sparseToOrigFirstInds,
-  Int cutoffSparse );
-void EmbeddingMaps
-( const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-        DistMultiVec<Int>& sparseOrders,
-        DistMultiVec<Int>& sparseFirstInds,
-        DistMultiVec<Int>& origToSparseOrders,
-        DistMultiVec<Int>& origToSparseFirstInds,
-        DistMultiVec<Int>& sparseToOrigOrders,
-        DistMultiVec<Int>& sparseToOrigFirstInds,
-  Int cutoffSparse );
-
-// Push into SOC
-// ==============
-template<typename Real>
-void PushInto
-(       Matrix<Real>& x,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  Real minDist=0 );
-template<typename Real>
-void PushInto
-(       ElementalMatrix<Real>& x,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-  Real minDist=0, Int cutoff=1000 );
-template<typename Real>
-void PushInto
-(       DistMultiVec<Real>& x,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-  Real minDist=0, Int cutoff=1000 );
-
-// Push pair into SOC
-// ==================
-template<typename Real>
-void PushPairInto
-(       Matrix<Real>& s,
-        Matrix<Real>& z,
-  const Matrix<Real>& w,
-  const Matrix<Int>& orders,
-  const Matrix<Int>& firstInds,
-  Real wMaxNormLimit );
-template<typename Real>
-void PushPairInto
-(       ElementalMatrix<Real>& s,
-        ElementalMatrix<Real>& z,
-  const ElementalMatrix<Real>& w,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-  Real wMaxNormLimit, Int cutoff=1000 );
-template<typename Real>
-void PushPairInto
-(       DistMultiVec<Real>& s,
-        DistMultiVec<Real>& z,
-  const DistMultiVec<Real>& w,
-  const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds,
-  Real wMaxNormLimit, Int cutoff=1000 );
-
-// Number of non-SOC members
-// =========================
-// Return the number of negative determinants
-template<typename Real>
-Int NumOutside
-( const Matrix<Real>& x, 
-  const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds );
-template<typename Real>
-Int NumOutside
-( const ElementalMatrix<Real>& x, 
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds,
-  Int cutoff=1000 );
-template<typename Real>
-Int NumOutside
-( const DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds,
-  Int cutoff=1000 );
 
 // Apply an SOC vector as a linear operator
 // ========================================
@@ -404,6 +111,102 @@ void ApplyQuadratic
   const DistMultiVec<Int>& firstInds,
   Int cutoff=1000 );
 
+// Degree
+// ======
+Int Degree( const Matrix<Int>& firstInds );
+Int Degree( const ElementalMatrix<Int>& firstInds );
+Int Degree( const DistMultiVec<Int>& firstInds );
+
+// Determinants
+// ============
+template<typename Real>
+void Dets
+( const Matrix<Real>& x,
+        Matrix<Real>& d,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void Dets
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& d,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+  Int cutoff=1000 );
+template<typename Real>
+void Dets
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& d,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff=1000 );
+
+// Dot products of sequences of second-order cones
+// ===============================================
+template<typename Real>
+void Dots
+( const Matrix<Real>& x, 
+  const Matrix<Real>& y, 
+        Matrix<Real>& z,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void Dots
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& y, 
+        ElementalMatrix<Real>& z,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds,
+  Int cutoff=1000 );
+template<typename Real>
+void Dots
+( const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& z,
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff=1000 );
+
+// Embedding maps
+// ==============
+void EmbeddingMaps
+( const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+        Matrix<Int>& sparseOrders,
+        Matrix<Int>& sparseFirstInds,
+        Matrix<Int>& origToSparseOrders,
+        Matrix<Int>& origToSparseFirstInds,
+        Matrix<Int>& sparseToOrigOrders,
+        Matrix<Int>& sparseToOrigFirstInds,
+  Int cutoffSparse );
+void EmbeddingMaps
+( const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+        DistMultiVec<Int>& sparseOrders,
+        DistMultiVec<Int>& sparseFirstInds,
+        DistMultiVec<Int>& origToSparseOrders,
+        DistMultiVec<Int>& origToSparseFirstInds,
+        DistMultiVec<Int>& sparseToOrigOrders,
+        DistMultiVec<Int>& sparseToOrigFirstInds,
+  Int cutoffSparse );
+
+// Identity
+// ========
+template<typename Real>
+void Identity
+(       Matrix<Real>& e, 
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void Identity
+(       ElementalMatrix<Real>& e, 
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds );
+template<typename Real>
+void Identity
+(       DistMultiVec<Real>& e, 
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds );
+
 // Compute the inverse in the product SOC Jordan algebra
 // =====================================================
 template<typename Real>
@@ -427,28 +230,128 @@ void Inverse
   const DistMultiVec<Int>& firstInds,
   Int cutoff=1000 );
 
-// Compute the square-root in the product SOC Jordan algebra
-// =========================================================
+// Lower norms
+// ===========
 template<typename Real>
-void SquareRoot
+void LowerNorms
 ( const Matrix<Real>& x,
-        Matrix<Real>& xRoot,
+        Matrix<Real>& lowerNorms,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds );
 template<typename Real>
-void SquareRoot
+void LowerNorms
 ( const ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& xRoot,
+        ElementalMatrix<Real>& lowerNorms,
   const ElementalMatrix<Int>& orders,
   const ElementalMatrix<Int>& firstInds,
   Int cutoff=1000 );
 template<typename Real>
-void SquareRoot
+void LowerNorms
 ( const DistMultiVec<Real>& x,
-        DistMultiVec<Real>& xRoot,
+        DistMultiVec<Real>& lowerNorms,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff=1000 );
+
+// Max eigenvalues
+// ===============
+template<typename Real>
+void MaxEig
+( const Matrix<Real>& x,
+        Matrix<Real>& maxEigs,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void MaxEig
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& maxEigs,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void MaxEig
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& maxEigs,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+template<typename Real>
+Real MaxEig
+( const Matrix<Real>& x,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+Real MaxEig
+( const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+Real MaxEig
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+// Maximum step in a product of second-order cones
+// ===============================================
+template<typename Real>
+Real MaxStep
+( const Matrix<Real>& x, 
+  const Matrix<Real>& y,
+  const Matrix<Int>& orders, 
+  const Matrix<Int>& firstInds,
+  Real upperBound=std::numeric_limits<Real>::max() );
+template<typename Real>
+Real MaxStep
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Real>& y,
+  const ElementalMatrix<Int>& orders, 
+  const ElementalMatrix<Int>& firstInds,
+  Real upperBound=std::numeric_limits<Real>::max(),
+  Int cutoff=1000 );
+template<typename Real>
+Real MaxStep
+( const DistMultiVec<Real>& x, 
+  const DistMultiVec<Real>& y,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Real upperBound=std::numeric_limits<Real>::max(),
+  Int cutoff=1000 );
+
+// Min eigenvalues
+// ===============
+template<typename Real>
+void MinEig
+( const Matrix<Real>& x,
+        Matrix<Real>& minEigs,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void MinEig
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& minEigs,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+void MinEig
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& minEigs,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
+
+template<typename Real>
+Real MinEig
+( const Matrix<Real>& x,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+Real MinEig
+( const ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Real>
+Real MinEig
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 // Compute an SOC Nesterov-Todd point
 // ==================================
@@ -478,30 +381,136 @@ void NesterovTodd
   const DistMultiVec<Int>& firstInds,
   Int cutoff=1000 );
 
-// Maximum step in a product of second-order cones
-// ===============================================
+// Number of non-SOC members
+// =========================
+// Return the number of negative determinants
 template<typename Real>
-Real MaxStep
+Int NumOutside
 ( const Matrix<Real>& x, 
-  const Matrix<Real>& y,
   const Matrix<Int>& orders, 
-  const Matrix<Int>& firstInds,
-  Real upperBound=std::numeric_limits<Real>::max() );
+  const Matrix<Int>& firstInds );
 template<typename Real>
-Real MaxStep
+Int NumOutside
 ( const ElementalMatrix<Real>& x, 
-  const ElementalMatrix<Real>& y,
   const ElementalMatrix<Int>& orders, 
   const ElementalMatrix<Int>& firstInds,
-  Real upperBound=std::numeric_limits<Real>::max(),
   Int cutoff=1000 );
 template<typename Real>
-Real MaxStep
+Int NumOutside
 ( const DistMultiVec<Real>& x, 
-  const DistMultiVec<Real>& y,
+  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff=1000 );
+
+// Push into SOC
+// ==============
+template<typename Real>
+void PushInto
+(       Matrix<Real>& x,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  Real minDist=0 );
+template<typename Real>
+void PushInto
+(       ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+  Real minDist=0, Int cutoff=1000 );
+template<typename Real>
+void PushInto
+(       DistMultiVec<Real>& x,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-  Real upperBound=std::numeric_limits<Real>::max(),
+  Real minDist=0, Int cutoff=1000 );
+
+// Push pair into SOC
+// ==================
+template<typename Real>
+void PushPairInto
+(       Matrix<Real>& s,
+        Matrix<Real>& z,
+  const Matrix<Real>& w,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
+  Real wMaxNormLimit );
+template<typename Real>
+void PushPairInto
+(       ElementalMatrix<Real>& s,
+        ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& w,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+  Real wMaxNormLimit, Int cutoff=1000 );
+template<typename Real>
+void PushPairInto
+(       DistMultiVec<Real>& s,
+        DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& w,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
+  Real wMaxNormLimit, Int cutoff=1000 );
+
+// Reflect
+// =======
+template<typename Real>
+void Reflect
+(       Matrix<Real>& x,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void Reflect
+(       ElementalMatrix<Real>& x,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds );
+template<typename Real>
+void Reflect
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds );
+
+// Shift
+// =====
+// Add a multiple of the identity of the product cone
+template<typename Real>
+void Shift
+(       Matrix<Real>& x,
+        Real shift,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void Shift
+(       ElementalMatrix<Real>& x,
+        Real shift,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds );
+template<typename Real>
+void Shift
+(       DistMultiVec<Real>& x,
+        Real shift,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds );
+
+// Compute the square-root in the product SOC Jordan algebra
+// =========================================================
+template<typename Real>
+void SquareRoot
+( const Matrix<Real>& x,
+        Matrix<Real>& xRoot,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds );
+template<typename Real>
+void SquareRoot
+( const ElementalMatrix<Real>& x,
+        ElementalMatrix<Real>& xRoot,
+  const ElementalMatrix<Int>& orders,
+  const ElementalMatrix<Int>& firstInds,
+  Int cutoff=1000 );
+template<typename Real>
+void SquareRoot
+( const DistMultiVec<Real>& x,
+        DistMultiVec<Real>& xRoot,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
   Int cutoff=1000 );
 
 } // namespace soc
