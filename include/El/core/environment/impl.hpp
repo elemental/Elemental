@@ -12,37 +12,6 @@
 
 namespace El {
 
-inline void Args::HandleVersion( ostream& os ) const
-{
-    string version = "--version";
-    char** arg = std::find( argv_, argv_+argc_, version );
-    const bool foundVersion = ( arg != argv_+argc_ );
-    if( foundVersion )
-    {
-        if( mpi::WorldRank() == 0 )
-            PrintVersion();
-        throw ArgException();
-    }
-}
-
-inline void Args::HandleBuild( ostream& os ) const
-{
-    string build = "--build";
-    char** arg = std::find( argv_, argv_+argc_, build );
-    const bool foundBuild = ( arg != argv_+argc_ );
-    if( foundBuild )
-    {
-        if( mpi::WorldRank() == 0 )
-        {
-            PrintVersion();
-            PrintConfig();
-            PrintCCompilerInfo();
-            PrintCxxCompilerInfo();
-        }
-        throw ArgException();
-    }
-}
-
 template<typename T>
 inline T
 Input( string name, string desc )
@@ -60,39 +29,6 @@ ProcessInput()
 inline void
 PrintInputReport()
 { GetArgs().PrintReport(); }
-
-inline void ReportException( const exception& e, ostream& os )
-{
-    try {
-        const ArgException& argExcept = dynamic_cast<const ArgException&>(e);
-        if( string(argExcept.what()) != "" ) 
-            os << argExcept.what() << endl;
-        DEBUG_ONLY(DumpCallStack(os))
-    } 
-    catch( exception& castExcept ) 
-    { 
-        if( string(e.what()) != "" )
-        {
-            os << "Process " << mpi::WorldRank() << " caught error message:\n"
-               << e.what() << endl;
-        }
-        DEBUG_ONLY(DumpCallStack(os))
-        mpi::Abort( mpi::COMM_WORLD, 1 );
-    }
-}
-
-inline void ComplainIfDebug()
-{
-    DEBUG_ONLY(
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" 
-                 << endl;
-        }
-    )
-}
 
 template<typename T>
 inline void 

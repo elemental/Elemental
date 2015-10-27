@@ -484,6 +484,80 @@ void SetDefaultBlockWidth( Int nb )
 std::mt19937& Generator()
 { return ::generator; }
 
+void Args::HandleVersion( ostream& os ) const
+{
+    string version = "--version";
+    char** arg = std::find( argv_, argv_+argc_, version );
+    const bool foundVersion = ( arg != argv_+argc_ );
+    if( foundVersion )
+    {
+        if( mpi::WorldRank() == 0 )
+            PrintVersion();
+        throw ArgException();
+    }
+}
+
+void Args::HandleBuild( ostream& os ) const
+{
+    string build = "--build";
+    char** arg = std::find( argv_, argv_+argc_, build );
+    const bool foundBuild = ( arg != argv_+argc_ );
+    if( foundBuild )
+    {
+        if( mpi::WorldRank() == 0 )
+        {
+            PrintVersion();
+            PrintConfig();
+            PrintCCompilerInfo();
+            PrintCxxCompilerInfo();
+        }
+        throw ArgException();
+    }
+}
+
+void ReportException( const exception& e, ostream& os )
+{
+    try
+    {
+        const ArgException& argExcept = dynamic_cast<const ArgException&>(e);
+        if( string(argExcept.what()) != "" )
+            os << argExcept.what() << endl;
+        DEBUG_ONLY(DumpCallStack(os))
+    }
+    catch( UnrecoverableException& recovExcept )
+    {
+        if( string(e.what()) != "" )
+        {
+            os << "Process " << mpi::WorldRank() 
+               << " caught an unrecoverable exception with message:\n"
+               << e.what() << endl;
+        }
+        DEBUG_ONLY(DumpCallStack(os))
+    }
+    catch( exception& castExcept ) 
+    { 
+        if( string(e.what()) != "" )
+        {
+            os << "Process " << mpi::WorldRank() << " caught error message:\n"
+               << e.what() << endl;
+        }
+        DEBUG_ONLY(DumpCallStack(os))
+        mpi::Abort( mpi::COMM_WORLD, 1 );
+    }
+}
+
+void ComplainIfDebug()
+{
+    DEBUG_ONLY(
+        if( mpi::WorldRank() == 0 )
+        {
+            Output("=======================================================");
+            Output(" In debug mode! Do not expect competitive performance! ");
+            Output("=======================================================");
+        }
+    )
+}
+
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 DEBUG_ONLY(
 

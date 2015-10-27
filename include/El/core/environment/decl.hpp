@@ -145,6 +145,22 @@ inline void BuildStream( ostringstream& os, T item, Args... args )
     BuildStream( os, args... );
 }
 
+class UnrecoverableException : public std::runtime_error
+{
+public:
+    UnrecoverableException( const char* msg="Unrecoverable exception" )
+    : std::runtime_error( msg ) { }
+};
+
+template<typename... Args>
+inline void UnrecoverableError( Args... args )
+{
+    ostringstream os;
+    BuildStream( os, args... );
+    os << endl;
+    UnrecoverableException( os.str() );
+}
+
 template<typename... Args>
 inline void LogicError( Args... args )
 {
@@ -160,7 +176,7 @@ inline void RuntimeError( Args... args )
     ostringstream os;
     BuildStream( os, args... );
     os << endl;
-    throw std::logic_error( os.str().c_str() );
+    throw std::runtime_error( os.str().c_str() );
 }
 
 // This is the only place that Elemental is currently using duck-typing.
