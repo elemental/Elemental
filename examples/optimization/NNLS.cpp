@@ -49,14 +49,14 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
+        const Real center = 1;
+        const Real radius = 1;
+
         DistMatrix<Real> A, B;
-        Uniform( A, m, n );
-        Uniform( B, m, k );
+        Uniform( A, m, n, center, radius );
+        Uniform( B, m, k, center, radius );
         if( print )
-        {
             Print( A, "A" );
-            Print( B, "B" );
-        }
         if( display )
             Display( A, "A" );
 
@@ -79,13 +79,21 @@ main( int argc, char* argv[] )
         DistMatrix<Real> X;
         NNLS( A, B, X );
         if( print )
+        {
+            Print( B, "B" );
             Print( X, "X" );
+        }
+        if( display )
+        {
+            Display( B, "B" );
+            Display( X, "X" );
+        }
 
-        const double BNorm = FrobeniusNorm( B );
-        Gemm( NORMAL, NORMAL, Real(-1), A, X, Real(1), B );
-        const double ENorm = FrobeniusNorm( B );
+        const double ANorm = FrobeniusNorm( A );
+        Gemm( NORMAL, TRANSPOSE, Real(-1), B, X, Real(1), A );
+        const double ENorm = FrobeniusNorm( A );
         if( mpi::WorldRank() == 0 )
-            cout << "|| B - A X ||_2 / || B ||_2 = " << ENorm/BNorm << endl;
+            cout << "|| A - B X' ||_2 / || A ||_2 = " << ENorm/ANorm << endl;
     }
     catch( exception& e ) { ReportException(e); }
 

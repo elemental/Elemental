@@ -11,8 +11,6 @@
 namespace El {
 namespace soc {
 
-// TODO: Lower-level access
-
 template<typename Real>
 void MaxEig
 ( const Matrix<Real>& x, 
@@ -22,22 +20,27 @@ void MaxEig
 {
     DEBUG_ONLY(CSE cse("soc::MaxEig"))
     soc::LowerNorms( x, maxEigs, orders, firstInds );
+
+          Real* maxEigBuf = maxEigs.Buffer();
+    const Real* xBuf = x.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds.Get(i,0) ) 
-            maxEigs.Set( i, 0, x.Get(i,0)+maxEigs.Get(i,0) );
+        if( i == firstIndBuf[i] ) 
+            maxEigBuf[i] = xBuf[i]+maxEigBuf[i];
 }
 
 template<typename Real>
 void MaxEig
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& maxEigsPre,
-  const ElementalMatrix<Int>& ordersPre, 
+  const ElementalMatrix<Int>& orders, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::MaxEig"))
-    AssertSameGrids( xPre, maxEigsPre, ordersPre, firstIndsPre );
+    AssertSameGrids( xPre, maxEigsPre, orders, firstIndsPre );
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -45,25 +48,29 @@ void MaxEig
 
     auto xPtr         = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
     auto maxEigsPtr   = WriteProxy<Real,VC,STAR>(&maxEigsPre,ctrl);
-    auto ordersPtr    = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& x = *xPtr;
     auto& maxEigs = *maxEigsPtr;
-    auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
 
     soc::LowerNorms( x, maxEigs, orders, firstInds, cutoff );
+
+          Real* maxEigBuf = maxEigs.Buffer();
+    const Real* xBuf = x.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( maxEigs.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            maxEigs.SetLocal
-            ( iLoc, 0, x.GetLocal(iLoc,0)+maxEigs.GetLocal(iLoc,0) );
+        if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            maxEigBuf[iLoc] = xBuf[iLoc] + maxEigBuf[iLoc];
 }
 
 template<typename Real>
@@ -76,16 +83,22 @@ void MaxEig
     DEBUG_ONLY(CSE cse("soc::MaxEig"))
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
 
     soc::LowerNorms( x, maxEigs, orders, firstInds, cutoff );
+
+          Real* maxEigBuf = maxEigs.Matrix().Buffer();
+    const Real* xBuf = x.LockedMatrix().LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
+
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( maxEigs.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            maxEigs.SetLocal
-            ( iLoc, 0, x.GetLocal(iLoc,0)+maxEigs.GetLocal(iLoc,0) );
+        if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            maxEigBuf[iLoc] = xBuf[iLoc] + maxEigBuf[iLoc];
 }
 
 template<typename Real>
@@ -98,43 +111,45 @@ Real MaxEig
     Matrix<Real> maxEigs;
     soc::MaxEig( x, maxEigs, orders, firstInds );
 
+    const Real* maxEigBuf = maxEigs.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     Real maxEig = std::numeric_limits<Real>::min();
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds.Get(i,0) ) 
-            maxEig = Max(maxEigs.Get(i,0),maxEig);
+        if( i == firstIndBuf[i] ) 
+            maxEig = Max(maxEigBuf[i],maxEig);
     return maxEig;
 }
 
 template<typename Real>
 Real MaxEig
-( const ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Int>& ordersPre, 
+( const ElementalMatrix<Real>& x, 
+  const ElementalMatrix<Int>& orders,
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::MaxEig"))
-    AssertSameGrids( xPre, ordersPre, firstIndsPre );
+    AssertSameGrids( x, orders, firstIndsPre );
 
     ProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr         = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto ordersPtr    = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
     DistMatrix<Real,VC,STAR> maxEigs(x.Grid());
     soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 
+    const Real* maxEigBuf = maxEigs.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     const Int localHeight = x.LocalHeight();
     Real maxEigLocal = std::numeric_limits<Real>::min();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( maxEigs.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            maxEigLocal = Max(maxEigLocal,maxEigs.GetLocal(iLoc,0));
+        if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            maxEigLocal = Max(maxEigLocal,maxEigBuf[iLoc]);
     return mpi::AllReduce( maxEigLocal, mpi::MAX, x.DistComm() );
 }
 
@@ -149,11 +164,14 @@ Real MaxEig
     DistMultiVec<Real> maxEigs(x.Comm());
     soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 
+    const Real* maxEigBuf = maxEigs.LockedMatrix().LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
+
     const Int localHeight = x.LocalHeight();
     Real maxEigLocal = std::numeric_limits<Real>::min();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( maxEigs.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            maxEigLocal = Max(maxEigLocal,maxEigs.GetLocal(iLoc,0));
+        if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            maxEigLocal = Max(maxEigLocal,maxEigBuf[iLoc]);
     return mpi::AllReduce( maxEigLocal, mpi::MAX, x.Comm() );
 }
 

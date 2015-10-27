@@ -11,6 +11,8 @@
 namespace El {
 namespace soc {
 
+// TODO: Lower-level access
+
 void EmbeddingMaps
 ( const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,

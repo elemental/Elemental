@@ -11,8 +11,6 @@
 namespace El {
 namespace soc {
 
-// TODO: Lower-level access
-
 template<typename Real>
 void Shift
 (       Matrix<Real>& x,
@@ -22,14 +20,18 @@ void Shift
 {
     DEBUG_ONLY(CSE cse("soc::Shift"))
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
 
+    Real* xBuf = x.Buffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds.Get(i,0) )
-            x.Update( i, 0, shift );
+        if( i == firstIndBuf[i] )
+            xBuf[i] += shift;
 }
 
 template<typename Real>
@@ -54,15 +56,20 @@ void Shift
     auto& firstInds = *firstIndsPtr;
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
+
+    Real* xBuf = x.Buffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( x.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            x.UpdateLocal( iLoc, 0, shift );
+        if( x.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            xBuf[iLoc] += shift;
 }
 
 template<typename Real>
@@ -75,15 +82,20 @@ void Shift
     DEBUG_ONLY(CSE cse("soc::Shift"))
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
+    Real* xBuf = x.Matrix().Buffer();
 
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( x.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            x.UpdateLocal( iLoc, 0, shift );
+        if( x.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            xBuf[iLoc] += shift;
 }
 
 #define PROTO(Real) \

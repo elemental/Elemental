@@ -11,8 +11,6 @@
 namespace El {
 namespace soc {
 
-// TODO: Lower-level access
-
 template<typename Real>
 void LowerNorms
 ( const Matrix<Real>& x, 
@@ -22,20 +20,26 @@ void LowerNorms
 {
     DEBUG_ONLY(CSE cse("soc::LowerNorms"))
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     auto xLower = x;
+    Real* xLowerBuf = xLower.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds.Get(i,0) )
-            xLower.Set( i, 0, Real(0) );
+        if( i == firstIndBuf[i] )
+            xLowerBuf[i] = 0;
 
     soc::Dots( xLower, xLower, lowerNorms, orders, firstInds );
+    Real* lowerNormBuf = lowerNorms.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds.Get(i,0) )
-            lowerNorms.Set( i, 0, Sqrt(lowerNorms.Get(i,0)) );
+        if( i == firstIndBuf[i] )
+            lowerNormBuf[i] = Sqrt(lowerNormBuf[i]);
 }
 
 template<typename Real>
@@ -64,20 +68,26 @@ void LowerNorms
 
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     auto xLower = x;
+    Real* xLowerBuf = xLower.Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( xLower.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            xLower.SetLocal( iLoc, 0, Real(0) );
+        if( xLower.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            xLowerBuf[iLoc] = 0;
 
     soc::Dots( xLower, xLower, lowerNorms, orders, firstInds, cutoff );
+    Real* lowerNormBuf = lowerNorms.Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( lowerNorms.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )    
-            lowerNorms.SetLocal( iLoc, 0, Sqrt(lowerNorms.GetLocal(iLoc,0)) );
+        if( lowerNorms.GlobalRow(iLoc) == firstIndBuf[iLoc] )    
+            lowerNormBuf[iLoc] = Sqrt(lowerNormBuf[iLoc]);
 }
 
 template<typename Real>
@@ -90,20 +100,26 @@ void LowerNorms
     DEBUG_ONLY(CSE cse("soc::LowerNorms"))
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     auto xLower = x;
+    Real* xLowerBuf = xLower.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( xLower.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            xLower.SetLocal( iLoc, 0, Real(0) );
+        if( xLower.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            xLowerBuf[iLoc] = 0;
 
     soc::Dots( xLower, xLower, lowerNorms, orders, firstInds, cutoff );
+    Real* lowerNormBuf = lowerNorms.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( lowerNorms.GlobalRow(iLoc) == firstInds.GetLocal(iLoc,0) )
-            lowerNorms.SetLocal( iLoc, 0, Sqrt(lowerNorms.GetLocal(iLoc,0)) );
+        if( lowerNorms.GlobalRow(iLoc) == firstIndBuf[iLoc] )
+            lowerNormBuf[iLoc] = Sqrt(lowerNormBuf[iLoc]);
 }
 
 #define PROTO(Real) \

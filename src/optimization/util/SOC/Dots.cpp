@@ -11,8 +11,6 @@
 namespace El {
 namespace soc {
 
-// TODO: Use lower-level access
-
 // Members of second-order cones are stored contiguously within the column
 // vector x, with the corresponding order of the cone each member belongs to
 // stored in the same index of 'order', and the first index of the cone 
@@ -27,26 +25,32 @@ void Dots
 {
     DEBUG_ONLY(CSE cse("soc::Dots"))
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
-    if( y.Height() != x.Height() || y.Width() != x.Width() )
-        LogicError("x and y must be the same size");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+      if( y.Height() != x.Height() || y.Width() != x.Width() )
+          LogicError("x and y must be the same size");
+    )
     Zeros( z, x.Height(), x.Width() );
+
+    const Real* xBuf = x.LockedBuffer();
+    const Real* yBuf = y.LockedBuffer();
+          Real* zBuf = z.Buffer();
 
     for( Int i=0; i<height; )
     {
         const Int order = orders.Get(i,0);
         const Int firstInd = firstInds.Get(i,0);
-        if( i != firstInd )
-            LogicError("Inconsistency in orders and firstInds");
+        DEBUG_ONLY(
+          if( i != firstInd )
+              LogicError("Inconsistency in orders and firstInds");
+        )
 
         // Compute the inner-product between two SOC members and broadcast
         // the result over an equivalently-sized z_i
-        const Real dot = Dot( x(IR(i,i+order),ALL), y(IR(i,i+order),ALL) );
-        z.Set( i, 0, dot );
-
+        zBuf[i] = blas::Dot( order, &xBuf[i], 1, &yBuf[i], 1 );
         i += order;
     }
 }
@@ -80,12 +84,14 @@ void Dots
     auto& firstInds = *firstIndsPtr;
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
-    if( y.Height() != x.Height() || y.Width() != x.Width() )
-        LogicError("x and y must be the same size");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+      if( y.Height() != x.Height() || y.Width() != x.Width() )
+          LogicError("x and y must be the same size");
+    )
 
     z.SetGrid( x.Grid() );
     Zeros( z, x.Height(), x.Width() );
@@ -93,6 +99,12 @@ void Dots
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
     const int commSize = mpi::Size(comm);
+
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+    const Real* xBuf = x.LockedBuffer();
+    const Real* yBuf = y.LockedBuffer();
+          Real* zBuf = z.Buffer();
 
     // TODO: Find a better strategy
 
@@ -104,13 +116,13 @@ void Dots
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i == firstInd )
-            z.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) );
+            zBuf[iLoc] = xBuf[iLoc]*yBuf[iLoc];
         else if( !z.IsLocal(firstInd,0) )
             ++numRemoteUpdates;
     }
@@ -120,13 +132,13 @@ void Dots
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
         if( order > cutoff )
             continue;
 
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndBuf[iLoc];
         if( i != firstInd )
-            z.QueueUpdate( firstInd, 0, x.GetLocal(iLoc,0)*y.GetLocal(iLoc,0) );
+            z.QueueUpdate( firstInd, 0, xBuf[iLoc]*yBuf[iLoc] );
     }
     z.ProcessQueues();
 
@@ -138,8 +150,8 @@ void Dots
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Int order = orders.GetLocal(iLoc,0);
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
+        const Int order = orderBuf[iLoc];
+        const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
         {
             sendPairs.push_back( i );
@@ -184,12 +196,14 @@ void Dots
     const Int firstLocalRow = x.FirstLocalRow();
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
-        LogicError("x, orders, and firstInds should be column vectors");
-    if( orders.Height() != height || firstInds.Height() != height )
-        LogicError("orders and firstInds should be of the same height as x");
-    if( y.Height() != x.Height() || y.Width() != x.Width() )
-        LogicError("x and y must be the same size");
+    DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+          LogicError("x, orders, and firstInds should be column vectors");
+      if( orders.Height() != height || firstInds.Height() != height )
+          LogicError("orders and firstInds should be of the same height as x");
+      if( y.Height() != x.Height() || y.Width() != x.Width() )
+          LogicError("x and y must be the same size");
+    )
 
     z.SetComm( x.Comm() );
     Zeros( z, x.Height(), x.Width() );

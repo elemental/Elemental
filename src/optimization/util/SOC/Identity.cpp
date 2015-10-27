@@ -11,24 +11,28 @@
 namespace El {
 namespace soc {
 
-// TODO: Use lower-level access
-
 template<typename Real>
 void Identity
 (       Matrix<Real>& x, 
-  const Matrix<Int>& orders, const Matrix<Int>& firstInds )
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds )
 {
     DEBUG_ONLY(CSE cse("soc::Identity"))
     const Int height = orders.Height();
-    if( firstInds.Height() != height || 
-        firstInds.Width() != 1 || orders.Width() != 1 )
-        LogicError("orders and firstInds should vectors of the same height");
+    DEBUG_ONLY(
+      if( firstInds.Height() != height || 
+          firstInds.Width() != 1 || orders.Width() != 1 )
+          LogicError("orders and firstInds should vectors of the same height");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     Zeros( x, height, 1 );
+    Real* xBuf = x.Buffer();
     for( Int i=0; i<height; ++i )
     {
-        if( i == firstInds.Get(i,0) )
-            x.Set( i, 0, Real(1) );
+        if( i == firstIndBuf[i] )
+            xBuf[i] = 1;
     }
 }
 
@@ -53,17 +57,22 @@ void Identity
     auto& firstInds = *firstIndsPtr;
 
     const Int height = orders.Height();
-    if( firstInds.Height() != height || 
-        firstInds.Width() != 1 || orders.Width() != 1 )
-        LogicError("orders and firstInds should vectors of the same height");
+    DEBUG_ONLY(
+      if( firstInds.Height() != height || 
+          firstInds.Width() != 1 || orders.Width() != 1 )
+          LogicError("orders and firstInds should vectors of the same height");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     Zeros( x, height, 1 );
+    Real* xBuf = x.Buffer();
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, Real(1) );
+        if( i == firstIndBuf[iLoc] )
+            xBuf[iLoc] = 1;
     }
 }
 
@@ -76,18 +85,23 @@ void Identity
     DEBUG_ONLY(CSE cse("soc::Identity"))
 
     const Int height = orders.Height();
-    if( firstInds.Height() != height ||
-        firstInds.Width() != 1 || orders.Width() != 1 )
-        LogicError("orders and firstInds should vectors of the same height");
+    DEBUG_ONLY(
+      if( firstInds.Height() != height ||
+          firstInds.Width() != 1 || orders.Width() != 1 )
+          LogicError("orders and firstInds should vectors of the same height");
+    )
+
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     x.SetComm( orders.Comm() );
     Zeros( x, height, 1 );
+    Real* xBuf = x.Matrix().Buffer();
     const Int localHeight = x.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) )
-            x.SetLocal( iLoc, 0, Real(1) );
+        if( i == firstIndBuf[iLoc] )
+            xBuf[iLoc] = 1;
     }
 }
 

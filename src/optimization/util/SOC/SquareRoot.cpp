@@ -11,8 +11,6 @@
 namespace El {
 namespace soc {
 
-// TODO: Lower-level access
-
 // sqrt(x) = [ eta_0; x_1/(2 eta_0) ],
 // where eta_0 = sqrt(x_0 + sqrt(det(x))) / sqrt(2).
 
@@ -24,24 +22,31 @@ void SquareRoot
   const Matrix<Int>& firstInds )
 {
     DEBUG_ONLY(CSE cse("soc::SquareRoot"))
+    const Real* xBuf = x.LockedBuffer();
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     Matrix<Real> d;
     soc::Dets( x, d, orders, firstInds );
     cone::Broadcast( d, orders, firstInds );
+    const Real* dBuf = d.LockedBuffer();
 
     const Int height = x.Height();
     Zeros( xRoot, height, 1 );
+    Real* xRootBuf = xRoot.Buffer();
     for( Int i=0; i<height; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
-        if( i != firstInd )       
-            LogicError("Inconsistency in orders and firstInds");
+        const Int order = orderBuf[i];
+        const Int firstInd = firstIndBuf[i];
+        DEBUG_ONLY(
+          if( i != firstInd )       
+              LogicError("Inconsistency in orders and firstInds");
+        )
 
-        const Real eta0 = Sqrt(x.Get(i,0)+Sqrt(d.Get(i,0)))/Sqrt(Real(2));
-        xRoot.Set( i, 0, eta0 );
+        const Real eta0 = Sqrt(xBuf[i]+Sqrt(dBuf[i]))/Sqrt(Real(2));
+        xRootBuf[i] = eta0; 
         for( Int k=1; k<order; ++k )
-            xRoot.Set( i+k, 0, x.Get(i+k,0)/(2*eta0) );
+            xRootBuf[i+k] = xBuf[i+k]/(2*eta0);
 
         i += order;
     }
@@ -71,26 +76,33 @@ void SquareRoot
     auto& orders = *ordersPtr;
     auto& firstInds = *firstIndsPtr;
 
+    const Real* xBuf = x.LockedBuffer();
+    const Int* orderBuf = orders.LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedBuffer();
+
     DistMatrix<Real,VC,STAR> d(x.Grid());
     soc::Dets( x, d, orders, firstInds );
     cone::Broadcast( d, orders, firstInds );
+    const Real* dBuf = d.LockedBuffer();
 
     auto roots = x;
     cone::Broadcast( roots, orders, firstInds );
+    const Real* rootBuf = roots.LockedBuffer();
 
     const Int localHeight = x.LocalHeight();
     xRoot.SetGrid( x.Grid() );
     Zeros( xRoot, x.Height(), 1 );
+    Real* xRootBuf = xRoot.Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Real x0 = roots.GetLocal(iLoc,0);
-        const Real det = d.GetLocal(iLoc,0);
+        const Real x0 = rootBuf[iLoc];
+        const Real det = dBuf[iLoc];
         const Real eta0 = Sqrt(x0+Sqrt(det))/Sqrt(Real(2));
-        if( i == firstInds.GetLocal(iLoc,0) )
-            xRoot.SetLocal( iLoc, 0, eta0 );
+        if( i == firstIndBuf[iLoc] )
+            xRootBuf[iLoc] = eta0;
         else
-            xRoot.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)/(2*eta0) );
+            xRootBuf[iLoc] = xBuf[iLoc]/(2*eta0);
     }
 }
 
@@ -102,27 +114,33 @@ void SquareRoot
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::SquareRoot"))
+    const Real* xBuf = x.LockedMatrix().LockedBuffer();
+    const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
+    const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     DistMultiVec<Real> d(x.Comm());
     soc::Dets( x, d, orders, firstInds );
     cone::Broadcast( d, orders, firstInds );
+    const Real* dBuf = d.LockedMatrix().LockedBuffer();
 
     auto roots = x;
     cone::Broadcast( roots, orders, firstInds );
+    const Real* rootBuf = roots.LockedMatrix().LockedBuffer();
 
     const Int localHeight = x.LocalHeight();
     xRoot.SetComm( x.Comm() );
     Zeros( xRoot, x.Height(), 1 );
+    Real* xRootBuf = xRoot.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Real x0 = roots.GetLocal(iLoc,0);
-        const Real det = d.GetLocal(iLoc,0);
+        const Real x0 = rootBuf[iLoc];
+        const Real det = dBuf[iLoc];
         const Real eta0 = Sqrt(x0+Sqrt(det))/Sqrt(Real(2));
-        if( i == firstInds.GetLocal(iLoc,0) )
-            xRoot.SetLocal( iLoc, 0, eta0 );
+        if( i == firstIndBuf[iLoc] )
+            xRootBuf[iLoc] = eta0;
         else
-            xRoot.SetLocal( iLoc, 0, x.GetLocal(iLoc,0)/(2*eta0) );
+            xRootBuf[iLoc] = xBuf[iLoc]/(2*eta0);
     }
 }
 
