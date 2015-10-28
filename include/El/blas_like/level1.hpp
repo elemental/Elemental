@@ -92,6 +92,8 @@ void Axpy( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const BlockMatrix<T>& X, BlockMatrix<T>& Y );
 template<typename T,typename S>
+void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
@@ -888,81 +890,181 @@ void GetMappedDiagonal
 // GetSubgraph
 // ===========
 void GetSubgraph
-( const Graph& graph, Range<Int> I, Range<Int> J, Graph& subgraph );
+( const Graph& graph,
+        Range<Int> I,
+        Range<Int> J,
+        Graph& subgraph );
 void GetSubgraph
-( const DistGraph& graph, Range<Int> I, Range<Int> J, DistGraph& subgraph );
+( const Graph& graph,
+  const vector<Int>& I,
+        Range<Int> J,
+        Graph& subgraph );
+void GetSubgraph
+( const Graph& graph,
+        Range<Int> I,
+  const vector<Int>& J,       
+        Graph& subgraph );
+void GetSubgraph
+( const Graph& graph,
+  const vector<Int>& I,
+  const vector<Int>& J,       
+        Graph& subgraph );
 
-Graph GetSubgraph( const Graph& graph, Range<Int> I, Range<Int> J );
-DistGraph GetSubgraph( const DistGraph& graph, Range<Int> I, Range<Int> J );
+void GetSubgraph
+( const DistGraph& graph,
+        Range<Int> I,
+        Range<Int> J,
+        DistGraph& subgraph );
+void GetSubgraph
+( const DistGraph& graph,
+  const vector<Int>& I,
+        Range<Int> J,
+        DistGraph& subgraph );
+void GetSubgraph
+( const DistGraph& graph,
+        Range<Int> I,
+  const vector<Int>& J,       
+        DistGraph& subgraph );
+void GetSubgraph
+( const DistGraph& graph,
+  const vector<Int>& I,
+  const vector<Int>& J,       
+        DistGraph& subgraph );
 
 // GetSubmatrix
 // ============
-// TODO: Range<Int> versions of dense GetSubmatrix which simply construct
-//       a view followed by a copy
 
-// Contiguous
+// Return a view
 // ----------
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, Range<Int> I, Range<Int> J, Matrix<T>& ASub );
-template<typename T>
-Matrix<T> GetSubmatrix( const Matrix<T>& A, Range<Int> I, Range<Int> J );
+( const Matrix<T>& A,
+        Range<Int> I,
+        Range<Int> J,
+        Matrix<T>& ASub );
 
 template<typename T>
 void GetSubmatrix
-( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J, 
+( const ElementalMatrix<T>& A,
+        Range<Int> I,
+        Range<Int> J, 
         ElementalMatrix<T>& ASub );
-template<typename T>
-DistMatrix<T> GetSubmatrix
-( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J );
 
-template<typename T>
-void GetSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, 
-        SparseMatrix<T>& ASub );
-template<typename T>
-SparseMatrix<T> GetSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J );
-
-template<typename T>
-void GetSubmatrix
-( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
-        DistSparseMatrix<T>& ASub );
-template<typename T>
-DistSparseMatrix<T> GetSubmatrix
-( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J );
-
-template<typename T>
-void GetSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
-        DistMultiVec<T>& ASub );
-template<typename T>
-DistMultiVec<T> GetSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J );
 
 // Noncontiguous
 // -------------
 template<typename T>
 void GetSubmatrix
 ( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
+        Range<Int> I,
+  const vector<Int>& J, 
         Matrix<T>& ASub );
 template<typename T>
-Matrix<T> GetSubmatrix
+void GetSubmatrix
 ( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
+  const vector<Int>& I,
+  const Range<Int> J, 
+        Matrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const Matrix<T>& A, 
+  const vector<Int>& I,
+  const vector<Int>& J, 
+        Matrix<T>& ASub );
 
 template<typename T>
 void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
+        Range<Int> I,
+  const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub );
 template<typename T>
-DistMatrix<T> GetSubmatrix
-( const ElementalMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J );
+void GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const vector<Int>& I,
+        Range<Int> J, 
+        AbstractDistMatrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+  const vector<Int>& I,
+  const vector<Int>& J, 
+        AbstractDistMatrix<T>& ASub );
 
-// TODO: Sparse versions
+template<typename T>
+void GetSubmatrix
+( const SparseMatrix<T>& A,
+        Range<Int> I,
+        Range<Int> J, 
+        SparseMatrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const SparseMatrix<T>& A,
+        Range<Int> I,
+  const vector<Int>& J, 
+        SparseMatrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const SparseMatrix<T>& A,
+  const vector<Int>& I,
+        Range<Int> J, 
+        SparseMatrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const SparseMatrix<T>& A,
+  const vector<Int>& I,
+  const vector<Int>& J, 
+        SparseMatrix<T>& ASub );
+
+template<typename T>
+void GetSubmatrix
+( const DistSparseMatrix<T>& A,
+        Range<Int> I,
+        Range<Int> J,
+        DistSparseMatrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const DistSparseMatrix<T>& A,
+        Range<Int> I,
+  const vector<Int>& J, 
+        DistSparseMatrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const DistSparseMatrix<T>& A,
+  const vector<Int>& I,
+        Range<Int> J,
+        DistSparseMatrix<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const DistSparseMatrix<T>& A,
+  const vector<Int>& I,
+  const vector<Int>& J, 
+        DistSparseMatrix<T>& ASub );
+
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+        Range<Int> I,
+        Range<Int> J,
+        DistMultiVec<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+        Range<Int> I,
+  const vector<Int>& J, 
+        DistMultiVec<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+  const vector<Int>& I,
+        Range<Int> J,
+        DistMultiVec<T>& ASub );
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+  const vector<Int>& I,
+  const vector<Int>& J, 
+        DistMultiVec<T>& ASub );
 
 // Hadamard
 // ========

@@ -198,6 +198,38 @@ const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
     return LockedView( *this, I, J );
 }
 
+// Return a (potentially non-contiguous) subset of indices
+// -------------------------------------------------------
+template<typename T>
+Matrix<T> Matrix<T>::operator()
+( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    Matrix<T> ASub; 
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+Matrix<T> Matrix<T>::operator()
+( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    Matrix<T> ASub;
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+Matrix<T> Matrix<T>::operator()
+( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    Matrix<T> ASub;
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
 // Make a copy
 // -----------
 template<typename T>

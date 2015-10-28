@@ -76,6 +76,15 @@ public:
           Matrix<scalarType> operator()( Range<Int> I, Range<Int> J );
     const Matrix<scalarType> operator()( Range<Int> I, Range<Int> J ) const;
 
+    // Return a copy of (potentially non-contiguous) subset of indices
+    // ---------------------------------------------------------------
+    Matrix<scalarType>
+    operator()( Range<Int> I, const vector<Int>& J ) const;
+    Matrix<scalarType>
+    operator()( const vector<Int>& I, Range<Int> J ) const;
+    Matrix<scalarType>
+    operator()( const vector<Int>& I, const vector<Int>& J ) const;
+
     // Make a copy
     // -----------
     const Matrix<scalarType>& operator=( const Matrix<scalarType>& A );

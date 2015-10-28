@@ -14,6 +14,7 @@ namespace El {
 #define DM DistMatrix<T,COLDIST,ROWDIST>
 #define BDM DistMatrix<T,COLDIST,ROWDIST,BLOCK>
 #define BCM BlockMatrix<T>
+#define ADM AbstractDistMatrix<T>
 
 // Public section
 // ##############
@@ -198,6 +199,35 @@ const BDM BDM::operator()( Range<Int> I, Range<Int> J ) const
     return LockedView( *this, I, J );
 }
 
+// Non-contiguous
+// --------------
+template<typename T>
+BDM BDM::operator()( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( ind, vec ) const"))
+    BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+BDM BDM::operator()( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, ind ) const"))
+    BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+BDM BDM::operator()( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, vec ) const"))
+    BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
 // Copy
 // ----
 
@@ -269,9 +299,25 @@ const BDM& BDM::operator+=( const BCM& A )
 }
 
 template<typename T>
+const BDM& BDM::operator+=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("BDM += ADM&"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
 const BDM& BDM::operator-=( const BCM& A )
 {
     DEBUG_ONLY(CSE cse("BDM += BCM&"))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const BDM& BDM::operator-=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("BDM += ADM&"))
     Axpy( T(-1), A, *this );
     return *this;
 }

@@ -488,10 +488,30 @@ ElementalMatrix<T>::operator=( const ElementalMatrix<T>& A )
 
 template<typename T>
 const ElementalMatrix<T>&
+ElementalMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("EM::operator=(ADM&)"))
+    Copy( A, *this );
+    return *this;
+}
+
+template<typename T>
+const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const DistMultiVec<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(DMV&)"))
     Copy( A, *this );
+    return *this;
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const ElementalMatrix<T>&
+ElementalMatrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("EM::operator*="))
+    Scale( alpha, *this );
     return *this;
 }
 
@@ -508,7 +528,25 @@ ElementalMatrix<T>::operator+=( const ElementalMatrix<T>& A )
 
 template<typename T>
 const ElementalMatrix<T>&
+ElementalMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("EM::operator+="))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const ElementalMatrix<T>&
 ElementalMatrix<T>::operator-=( const ElementalMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("EM::operator-="))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const ElementalMatrix<T>&
+ElementalMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator-="))
     Axpy( T(-1), A, *this );

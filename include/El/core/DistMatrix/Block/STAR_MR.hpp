@@ -22,7 +22,7 @@ class DistMatrix<T,STAR,MR,BLOCK> : public BlockMatrix<T>
 {
 public:
     typedef AbstractDistMatrix<T> absType;
-    typedef BlockMatrix<T> blockCyclicType;
+    typedef BlockMatrix<T> blockType;
     typedef DistMatrix<T,STAR,MR,BLOCK> type;
 
     // Constructors and destructors
@@ -47,7 +47,7 @@ public:
     // Create a copy of distributed matrix A (redistributing if necessary)
     DistMatrix( const type& A );
     DistMatrix( const absType& A );
-    DistMatrix( const blockCyclicType& A );
+    DistMatrix( const blockType& A );
     template<Dist colDist,Dist rowDist>
     DistMatrix( const DistMatrix<T,colDist,rowDist,BLOCK>& A );
     template<Dist colDist,Dist rowDist>
@@ -69,15 +69,21 @@ public:
     // Operator overloading
     // ====================
 
-    // Return a view
-    // -------------
+    // Return a view of a contiguous submatrix
+    // ---------------------------------------
           type operator()( Range<Int> I, Range<Int> J );
     const type operator()( Range<Int> I, Range<Int> J ) const;
+
+    // Return a copy of a (generally non-contiguous) submatrix
+    // -------------------------------------------------------
+    type operator()( Range<Int> I, const vector<Int>& J ) const;
+    type operator()( const vector<Int>& I, Range<Int> J ) const;
+    type operator()( const vector<Int>& I, const vector<Int>& J ) const;
 
     // Make a copy
     // -----------
     type& operator=( const absType& A );
-    type& operator=( const blockCyclicType& A );
+    type& operator=( const blockType& A );
     type& operator=( const DistMatrix<T,MC,  MR  ,BLOCK>& A );
     type& operator=( const DistMatrix<T,MC,  STAR,BLOCK>& A );
     type& operator=( const DistMatrix<T,STAR,MR  ,BLOCK>& A );
@@ -105,8 +111,10 @@ public:
 
     // Addition/subtraction
     // --------------------
-    const type& operator+=( const blockCyclicType& A );
-    const type& operator-=( const blockCyclicType& A );
+    const type& operator+=( const blockType& A );
+    const type& operator+=( const absType& A );
+    const type& operator-=( const blockType& A );
+    const type& operator-=( const absType& A );
 
     // Basic queries
     // =============

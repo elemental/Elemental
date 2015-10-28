@@ -80,7 +80,33 @@ const Graph& Graph::operator=( const DistGraph& graph )
 Graph Graph::operator()( Range<Int> I, Range<Int> J ) const
 {
     DEBUG_ONLY(CSE cse("Graph::operator()"))
-    return GetSubgraph( *this, I, J );
+    Graph subGraph;
+    GetSubgraph( *this, I, J, subGraph );
+    return subGraph;
+}
+
+Graph Graph::operator()( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("Graph::operator()"))
+    Graph subGraph;
+    GetSubgraph( *this, I, J, subGraph );
+    return subGraph;
+}
+
+Graph Graph::operator()( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("Graph::operator()"))
+    Graph subGraph;
+    GetSubgraph( *this, I, J, subGraph );
+    return subGraph;
+}
+
+Graph Graph::operator()( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("Graph::operator()"))
+    Graph subGraph;
+    GetSubgraph( *this, I, J, subGraph );
+    return subGraph;
 }
 
 // Changing the graph size

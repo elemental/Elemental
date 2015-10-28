@@ -60,10 +60,16 @@ public:
     // Operator overloading
     // ====================
 
-    // Return a view
-    // -------------
+    // Return a view of a contiguous submatrix
+    // ---------------------------------------
           type operator()( Range<Int> I, Range<Int> J );
     const type operator()( Range<Int> I, Range<Int> J ) const;
+
+    // Return a copy of a (generally non-contiguous) submatrix
+    // -------------------------------------------------------
+    type operator()( Range<Int> I, const vector<Int>& J ) const;
+    type operator()( const vector<Int>& I, Range<Int> J ) const;
+    type operator()( const vector<Int>& I, const vector<Int>& J ) const;
 
     // Make a copy
     // -----------
@@ -97,11 +103,13 @@ public:
     // Addition/subtraction
     // --------------------
     const type& operator+=( const elemType& A );
+    const type& operator+=( const absType& A );
     const type& operator-=( const elemType& A );
+    const type& operator-=( const absType& A );
 
     // Basic queries
     // =============
-    El::ElementalData DistData() const override;
+    ElementalData DistData() const override;
 
     Dist ColDist()             const EL_NO_EXCEPT override;
     Dist RowDist()             const EL_NO_EXCEPT override;

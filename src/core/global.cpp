@@ -813,18 +813,9 @@ Int Find( const vector<Int>& sortedInds, Int index )
     auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
     DEBUG_ONLY(
       if( it == sortedInds.cend() )
+          LogicError("All indices were smaller");
+      if( *it != index )
           LogicError("Could not find index");
-    )
-    return it - sortedInds.cbegin();
-}
-
-Int Find( const vector<Int>& sortedInds, Int index, const string& msg )
-{
-    DEBUG_ONLY(CSE cse("Find"))
-    auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
-    DEBUG_ONLY(
-      if( it == sortedInds.cend() )
-          LogicError( msg );
     )
     return it - sortedInds.cbegin();
 }

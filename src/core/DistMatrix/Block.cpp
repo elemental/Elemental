@@ -62,6 +62,26 @@ BlockMatrix<T>::operator=( const BlockMatrix<T>& A )
     return *this;
 }
 
+template<typename T>
+const BlockMatrix<T>&
+BlockMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator=(ADM&)"))
+    Copy( A, *this );
+    return *this;
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const BlockMatrix<T>&
+BlockMatrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator*="))
+    Scale( alpha, *this );
+    return *this;
+}
+
 // Addition/subtraction
 // --------------------
 template<typename T>
@@ -75,7 +95,25 @@ BlockMatrix<T>::operator+=( const BlockMatrix<T>& A )
 
 template<typename T>
 const BlockMatrix<T>&
+BlockMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator+="))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const BlockMatrix<T>&
 BlockMatrix<T>::operator-=( const BlockMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator-="))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const BlockMatrix<T>&
+BlockMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("BCM::operator-="))
     Axpy( T(-1), A, *this );

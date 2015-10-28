@@ -107,11 +107,18 @@ public:
     // Copy
     // ----
     const type& operator=( const type& A );
+    const type& operator=( const absType& A );
+
+    // Rescaling
+    // ---------
+    const type& operator*=( T alpha );
 
     // Addition/subtraction
     // --------------------
     const type& operator+=( const type& A );
+    const type& operator+=( const absType& A );
     const type& operator-=( const type& A );
+    const type& operator-=( const absType& A );
 
     // Move assignment
     // ---------------

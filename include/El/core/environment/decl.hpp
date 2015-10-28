@@ -298,8 +298,8 @@ void RelativeIndices
 ( vector<Int>& relInds, const vector<Int>& sub, const vector<Int>& full );
 vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full );
 
+// Insists that the index can be found
 Int Find( const vector<Int>& sortedInds, Int index );
-Int Find( const vector<Int>& sortedInds, Int index, const string& msg );
 
 template<typename F>
 void UpdateScaledSquare

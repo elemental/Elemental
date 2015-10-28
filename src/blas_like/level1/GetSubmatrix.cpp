@@ -14,7 +14,9 @@ namespace El {
 // ==========
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, Range<Int> I, Range<Int> J, 
+( const Matrix<T>& A,
+        Range<Int> I,
+        Range<Int> J, 
         Matrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
@@ -23,18 +25,10 @@ void GetSubmatrix
 }
 
 template<typename T>
-Matrix<T> GetSubmatrix
-( const Matrix<T>& A, Range<Int> I, Range<Int> J )
-{
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    Matrix<T> ASub;
-    GetSubmatrix( A, I, J, ASub );
-    return ASub;
-}
-
-template<typename T>
 void GetSubmatrix
-( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J, 
+( const ElementalMatrix<T>& A,
+        Range<Int> I,
+        Range<Int> J, 
         ElementalMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
@@ -45,17 +39,10 @@ void GetSubmatrix
 }
 
 template<typename T>
-DistMatrix<T> GetSubmatrix
-( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J )
-{
-    DistMatrix<T> ASub( A.Grid() );
-    GetSubmatrix( A, I, J, ASub );
-    return ASub;
-}
-
-template<typename T>
 void GetSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+( const SparseMatrix<T>& A,
+        Range<Int> I,
+        Range<Int> J,
         SparseMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
@@ -65,15 +52,19 @@ void GetSubmatrix
     const Int nSub = J.end-J.beg;
     Zeros( ASub, mSub, nSub );
 
+    const Int* offsetBuf = A.LockedOffsetBuffer();
+    const Int* colBuf = A.LockedTargetBuffer();
+    const T* valBuf = A.LockedValueBuffer();
+
     // Reserve the number of nonzeros that live within the submatrix
     Int numNonzerosSub = 0;
     for( Int i=I.beg; i<I.end; ++i )
     {
-        const Int rowOff = A.RowOffset(i);
-        const Int numConn = A.NumConnections(i);
+        const Int rowOff = offsetBuf[i];
+        const Int numConn = offsetBuf[i+1] - offsetBuf[i];
         for( Int e=rowOff; e<rowOff+numConn; ++e )
         {
-            const Int j = A.Col(e);
+            const Int j = colBuf[e];
             if( j >= J.beg && j < J.end )
                 ++numNonzerosSub;
         }
@@ -83,30 +74,60 @@ void GetSubmatrix
     // Insert the nonzeros
     for( Int i=I.beg; i<I.end; ++i ) 
     {
-        const Int rowOff = A.RowOffset(i);
-        const Int numConn = A.NumConnections(i);
+        const Int rowOff = offsetBuf[i];
+        const Int numConn = offsetBuf[i+1] - offsetBuf[i];
         for( Int e=rowOff; e<rowOff+numConn; ++e )
         {
-            const Int j = A.Col(e);
+            const Int j = colBuf[e];
             if( j >= J.beg && j < J.end )
-                ASub.QueueUpdate( i-I.beg, j-J.beg, A.Value(e) );
+                ASub.QueueUpdate( i-I.beg, j-J.beg, valBuf[e] );
         }
     }
     ASub.ProcessQueues();
 }
 
 template<typename T>
-SparseMatrix<T> GetSubmatrix
-( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+void GetSubmatrix
+( const SparseMatrix<T>& A,
+        Range<Int> I,
+  const vector<Int>& J,
+        SparseMatrix<T>& ASub )
 {
-    SparseMatrix<T> ASub;
-    GetSubmatrix( A, I, J, ASub );
-    return ASub;
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
 }
 
 template<typename T>
 void GetSubmatrix
-( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J,
+( const SparseMatrix<T>& A,
+  const vector<Int>& I,
+        Range<Int> J,
+        SparseMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+template<typename T>
+void GetSubmatrix
+( const SparseMatrix<T>& A,
+  const vector<Int>& I,
+  const vector<Int>& J,
+        SparseMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+// TODO: Use lower-level access
+template<typename T>
+void GetSubmatrix
+( const DistSparseMatrix<T>& A,
+        Range<Int> I,
+        Range<Int> J,
         DistSparseMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
@@ -145,17 +166,46 @@ void GetSubmatrix
 }
 
 template<typename T>
-DistSparseMatrix<T> GetSubmatrix
-( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J )
+void GetSubmatrix
+( const DistSparseMatrix<T>& A,
+        Range<Int> I,
+  const vector<Int>& J,
+        DistSparseMatrix<T>& ASub )
 {
-    DistSparseMatrix<T> ASub(A.Comm());
-    GetSubmatrix( A, I, J, ASub );
-    return ASub;
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
 }
 
 template<typename T>
 void GetSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J,
+( const DistSparseMatrix<T>& A,
+  const vector<Int>& I,
+        Range<Int> J,
+        DistSparseMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+template<typename T>
+void GetSubmatrix
+( const DistSparseMatrix<T>& A,
+  const vector<Int>& I,
+  const vector<Int>& J,
+        DistSparseMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+        Range<Int> I,
+        Range<Int> J,
         DistMultiVec<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
@@ -168,12 +218,13 @@ void GetSubmatrix
     ASub.SetComm( A.Comm() );
     Zeros( ASub, mSub, nSub );
     
+    const T* ABuf = A.LockedMatrix().LockedBuffer();
+    const Int ALDim = A.LockedMatrix().LDim();
+
     // If no communication is necessary, take the easy and fast approach
     if( mSub == A.Height() )
     {
-        for( Int j=J.beg; j<J.end; ++j )
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                ASub.SetLocal( iLoc, j-J.beg, A.GetLocal(iLoc,j) );
+        Copy( A.LockedMatrix(), ASub.Matrix() );
         return;
     }
 
@@ -200,67 +251,222 @@ void GetSubmatrix
         else if( i >= I.beg )
         {
             for( Int j=J.beg; j<J.end; ++j )
-                ASub.QueueUpdate( i-I.beg, j-J.beg, A.GetLocal(iLoc,j) );
+                ASub.QueueUpdate( i-I.beg, j-J.beg, ABuf[iLoc+j*ALDim] );
+        }
+    }
+    ASub.ProcessQueues();
+}
+
+// Non-contiguous
+// ==============
+template<typename T>
+void GetSubmatrix
+( const Matrix<T>& A, 
+  const Range<Int> I,
+  const vector<Int>& J, 
+        Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.size();
+    ASub.Resize( mSub, nSub );
+
+    T* ASubBuf = ASub.Buffer();
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+    const Int ASubLDim = ASub.LDim();
+
+    for( Int jSub=0; jSub<nSub; ++jSub )
+    {
+        const Int j = J[jSub];
+        MemCopy( &ASubBuf[jSub*ASubLDim], &ABuf[j*ALDim], mSub );
+    }
+}
+
+template<typename T>
+void GetSubmatrix
+( const Matrix<T>& A, 
+  const vector<Int>& I,
+  const Range<Int> J, 
+        Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    const Int mSub = I.size();
+    const Int nSub = J.end-J.beg;
+    ASub.Resize( mSub, nSub );
+
+    T* ASubBuf = ASub.Buffer();
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+    const Int ASubLDim = ASub.LDim();
+
+    for( Int jSub=0; jSub<nSub; ++jSub )
+    {
+        const Int j = J.beg + jSub;
+        for( Int iSub=0; iSub<mSub; ++iSub )
+        {
+            const Int i = I[iSub];
+            ASubBuf[iSub+jSub*ASubLDim] = ABuf[i+j*ALDim];
+        }
+    }
+}
+
+template<typename T>
+void GetSubmatrix
+( const Matrix<T>& A, 
+  const vector<Int>& I,
+  const vector<Int>& J, 
+        Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    const Int mSub = I.size();
+    const Int nSub = J.size();
+    ASub.Resize( mSub, nSub );
+
+    T* ASubBuf = ASub.Buffer();
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+    const Int ASubLDim = ASub.LDim();
+
+    for( Int jSub=0; jSub<nSub; ++jSub )
+    {
+        const Int j = J[jSub];
+        for( Int iSub=0; iSub<mSub; ++iSub )
+        {
+            const Int i = I[iSub];
+            ASubBuf[iSub+jSub*ASubLDim] = ABuf[i+j*ALDim];
+        }
+    }
+}
+
+template<typename T>
+void GetSubmatrix
+( const AbstractDistMatrix<T>& A, 
+        Range<Int> I,
+  const vector<Int>& J, 
+        AbstractDistMatrix<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    const Int mSub = I.end-I.beg;
+    const Int nSub = J.size();
+    const Grid& g = A.Grid();
+    ASub.SetGrid( g ); 
+    Zeros( ASub, mSub, nSub );
+
+    // TODO: Intelligently pick the redundant rank to pack from?
+
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    // Count the number of updates
+    // ===========================
+    Int numUpdates = 0;
+    if( A.RedundantRank() == 0 )
+        for( Int i=I.beg; i<I.end; ++i )
+            if( A.IsLocalRow(i) )
+                for( auto& j : J )
+                    if( A.IsLocalCol(j) )
+                        ++numUpdates;
+
+    // Queue and process the updates
+    // =============================
+    ASub.Reserve( numUpdates );
+    if( A.RedundantRank() == 0 )
+    {
+        for( Int iSub=0; iSub<mSub; ++iSub )
+        {
+            const Int i = I.beg + iSub;
+            if( A.IsLocalRow(i) )
+            {
+                const Int iLoc = A.LocalRow(i);
+                for( Int jSub=0; jSub<nSub; ++jSub )
+                {
+                    const Int j = J[jSub];
+                    if( A.IsLocalCol(j) )
+                    {
+                        const Int jLoc = A.LocalCol(j);
+                        ASub.QueueUpdate( iSub, jSub, ABuf[iLoc+jLoc*ALDim] );
+                    }
+                }
+            }
         }
     }
     ASub.ProcessQueues();
 }
 
 template<typename T>
-DistMultiVec<T> GetSubmatrix
-( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J )
-{
-    DistMultiVec<T> ASub(A.Comm());
-    GetSubmatrix( A, I, J, ASub );
-    return ASub;
-}
-
-// Noncontiguous
-// =============
-template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
-        Matrix<T>& ASub )
+( const AbstractDistMatrix<T>& A, 
+  const vector<Int>& I,
+        Range<Int> J, 
+        AbstractDistMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    const Int m = I.size();
-    const Int n = J.size();
+    const Int mSub = I.size();
+    const Int nSub = J.end-J.beg;
+    const Grid& g = A.Grid();
+    ASub.SetGrid( g ); 
+    Zeros( ASub, mSub, nSub );
 
-    Zeros( ASub, m, n );
-    for( Int jSub=0; jSub<n; ++jSub )
+    // TODO: Intelligently pick the redundant rank to pack from?
+
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    // Count the number of updates
+    // ===========================
+    Int numUpdates = 0;
+    if( A.RedundantRank() == 0 )
+        for( auto& i : I )
+            if( A.IsLocalRow(i) )
+                for( Int j=J.beg; j<J.end; ++j )
+                    if( A.IsLocalCol(j) )
+                        ++numUpdates;
+
+    // Queue and process the updates
+    // =============================
+    ASub.Reserve( numUpdates );
+    if( A.RedundantRank() == 0 )
     {
-        const Int j = J[jSub];
-        for( Int iSub=0; iSub<m; ++iSub )
+        for( size_t iSub=0; iSub<I.size(); ++iSub )
         {
             const Int i = I[iSub];
-            ASub.Set( iSub, jSub, A.Get(i,j) );
+            if( A.IsLocalRow(i) )
+            {
+                const Int iLoc = A.LocalRow(i);
+                for( Int jSub=0; jSub<nSub; ++jSub )
+                {
+                    const Int j = J.beg + jSub;
+                    if( A.IsLocalCol(j) )
+                    {
+                        const Int jLoc = A.LocalCol(j);
+                        ASub.QueueUpdate( iSub, jSub, ABuf[iLoc+jLoc*ALDim] );
+                    }
+                }
+            }
         }
     }
-}
-
-template<typename T>
-Matrix<T> GetSubmatrix
-( const Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
-{
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
-    Matrix<T> ASub;
-    GetSubmatrix( A, I, J, ASub );
-    return ASub;
+    ASub.ProcessQueues();
 }
 
 template<typename T>
 void GetSubmatrix
 ( const AbstractDistMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J, 
+  const vector<Int>& I,
+  const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub )
 {
     DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    const Int mSub = I.size();
+    const Int nSub = J.size();
     const Grid& g = A.Grid();
     ASub.SetGrid( g ); 
-    Zeros( ASub, I.size(), J.size() );
+    Zeros( ASub, mSub, nSub );
 
     // TODO: Intelligently pick the redundant rank to pack from?
+
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
 
     // Count the number of updates
     // ===========================
@@ -277,20 +483,19 @@ void GetSubmatrix
     ASub.Reserve( numUpdates );
     if( A.RedundantRank() == 0 )
     {
-        for( size_t iSub=0; iSub<I.size(); ++iSub )
+        for( size_t iSub=0; iSub<mSub; ++iSub )
         {
             const Int i = I[iSub];
             if( A.IsLocalRow(i) )
             {
                 const Int iLoc = A.LocalRow(i);
-                for( size_t jSub=0; jSub<J.size(); ++jSub )
+                for( size_t jSub=0; jSub<nSub; ++jSub )
                 {
                     const Int j = J[jSub];
                     if( A.IsLocalCol(j) )
                     {
                         const Int jLoc = A.LocalCol(j);
-                        const T value = A.GetLocal(iLoc,jLoc);
-                        ASub.QueueUpdate( iSub, jSub, value );
+                        ASub.QueueUpdate( iSub, jSub, ABuf[iLoc+jLoc*ALDim] );
                     }
                 }
             }
@@ -300,57 +505,144 @@ void GetSubmatrix
 }
 
 template<typename T>
-DistMatrix<T> GetSubmatrix
-( const ElementalMatrix<T>& A, 
-  const vector<Int>& I, const vector<Int>& J )
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+        Range<Int> I,
+  const vector<Int>& J,
+        DistMultiVec<T>& ASub )
 {
-    DistMatrix<T> ASub( A.Grid() );
-    GetSubmatrix( A, I, J, ASub );
-    return ASub;
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+  const vector<Int>& I,
+        Range<Int> J,
+        DistMultiVec<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+template<typename T>
+void GetSubmatrix
+( const DistMultiVec<T>& A,
+  const vector<Int>& I,
+  const vector<Int>& J,
+        DistMultiVec<T>& ASub )
+{
+    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
 }
 
 #define PROTO(T) \
-  /* Contiguous */ \
+  /* Views */ \
   template void GetSubmatrix \
-  ( const Matrix<T>& A, Range<Int> I, Range<Int> J, \
+  ( const Matrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
           Matrix<T>& ASub ); \
-  template Matrix<T> GetSubmatrix \
-  ( const Matrix<T>& A, Range<Int> I, Range<Int> J ); \
   template void GetSubmatrix \
-  ( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J, \
+  ( const ElementalMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
           ElementalMatrix<T>& ASub ); \
-  template DistMatrix<T> GetSubmatrix \
-  ( const ElementalMatrix<T>& A, Range<Int> I, Range<Int> J ); \
-  template void GetSubmatrix \
-  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
-          SparseMatrix<T>& ASub ); \
-  template SparseMatrix<T> GetSubmatrix \
-  ( const SparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
-  template void GetSubmatrix \
-  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J, \
-          DistSparseMatrix<T>& ASub ); \
-  template DistSparseMatrix<T> GetSubmatrix \
-  ( const DistSparseMatrix<T>& A, Range<Int> I, Range<Int> J ); \
-  template void GetSubmatrix \
-  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J, \
-          DistMultiVec<T>& ASub ); \
-  template DistMultiVec<T> GetSubmatrix \
-  ( const DistMultiVec<T>& A, Range<Int> I, Range<Int> J ); \
-  /* Noncontiguous */ \
+  /* Copies */ \
   template void GetSubmatrix \
   ( const Matrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J, \
+          Range<Int> I, \
+    const vector<Int>& J, \
           Matrix<T>& ASub ); \
-  template Matrix<T> GetSubmatrix \
+  template void GetSubmatrix \
   ( const Matrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J ); \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          Matrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          Matrix<T>& ASub ); \
   template void GetSubmatrix \
   ( const AbstractDistMatrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J, \
+          Range<Int> I, \
+    const vector<Int>& J, \
           AbstractDistMatrix<T>& ASub ); \
-  template DistMatrix<T> GetSubmatrix \
-  ( const ElementalMatrix<T>& A, \
-    const vector<Int>& I, const vector<Int>& J );
+  template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          AbstractDistMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          AbstractDistMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          SparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          SparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          DistSparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          DistSparseMatrix<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          DistMultiVec<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          DistMultiVec<T>& ASub );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

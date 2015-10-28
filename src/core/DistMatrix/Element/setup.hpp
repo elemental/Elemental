@@ -17,6 +17,7 @@ namespace El {
 
 #define DM DistMatrix<T,COLDIST,ROWDIST>
 #define EM ElementalMatrix<T>
+#define ADM AbstractDistMatrix<T>
 
 // Public section
 // ##############
@@ -179,6 +180,35 @@ const DM DM::operator()( Range<Int> I, Range<Int> J ) const
     return LockedView( *this, I, J );
 }
 
+// Non-contiguous
+// --------------
+template<typename T>
+DM DM::operator()( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( ind, vec ) const"))
+    DM ASub( this->Grid() );
+    GetSubmatrix( *this, I, J, ASub ); 
+    return ASub;
+}
+
+template<typename T>
+DM DM::operator()( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, ind ) const"))
+    DM ASub( this->Grid() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DM DM::operator()( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, vec ) const"))
+    DM ASub( this->Grid() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
 // Copy
 // ----
 template<typename T>
@@ -271,9 +301,25 @@ const DM& DM::operator+=( const EM& A )
 }
 
 template<typename T>
+const DM& DM::operator+=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("DM += ADM&"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
 const DM& DM::operator-=( const EM& A )
 {
     DEBUG_ONLY(CSE cse("DM -= DM&"))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const DM& DM::operator-=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("DM -= ADM&"))
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -282,7 +328,7 @@ const DM& DM::operator-=( const EM& A )
 // =================
 
 template<typename T>
-El::ElementalData DM::DistData() const { return El::ElementalData(*this); }
+ElementalData DM::DistData() const { return ElementalData(*this); }
 
 template<typename T>
 Dist DM::ColDist() const EL_NO_EXCEPT { return COLDIST; }

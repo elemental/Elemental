@@ -180,7 +180,39 @@ SparseMatrix<T>
 SparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
     DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
-    return GetSubmatrix( *this, I, J );
+    SparseMatrix<T> ASub;
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+SparseMatrix<T>
+SparseMatrix<T>::operator()( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    SparseMatrix<T> ASub;
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+SparseMatrix<T>
+SparseMatrix<T>::operator()( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    SparseMatrix<T> ASub;
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+SparseMatrix<T>
+SparseMatrix<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    SparseMatrix<T> ASub;
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
 }
 
 // Rescaling
