@@ -141,7 +141,7 @@ ElementalMatrix<T>::Align( int colAlign, int rowAlign, bool constrain )
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->Empty();
+        this->SoftEmpty();
     if( constrain )
     {
         this->colConstrained_ = true;
@@ -162,7 +162,7 @@ ElementalMatrix<T>::AlignCols( int colAlign, bool constrain )
           LogicError("Tried to realign a view");
     )
     if( this->colAlign_ != colAlign )
-        this->EmptyData();
+        this->SoftEmptyData();
     if( constrain )
         this->colConstrained_ = true;
     this->colAlign_ = colAlign;
@@ -179,7 +179,7 @@ ElementalMatrix<T>::AlignRows( int rowAlign, bool constrain )
           LogicError("Tried to realign a view");
     )
     if( this->rowAlign_ != rowAlign )
-        this->EmptyData();
+        this->SoftEmptyData();
     if( constrain )
         this->rowConstrained_ = true;
     this->rowAlign_ = rowAlign;
@@ -488,10 +488,30 @@ ElementalMatrix<T>::operator=( const ElementalMatrix<T>& A )
 
 template<typename T>
 const ElementalMatrix<T>&
+ElementalMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("EM::operator=(ADM&)"))
+    Copy( A, *this );
+    return *this;
+}
+
+template<typename T>
+const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const DistMultiVec<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(DMV&)"))
     Copy( A, *this );
+    return *this;
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const ElementalMatrix<T>&
+ElementalMatrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("EM::operator*="))
+    Scale( alpha, *this );
     return *this;
 }
 
@@ -508,7 +528,25 @@ ElementalMatrix<T>::operator+=( const ElementalMatrix<T>& A )
 
 template<typename T>
 const ElementalMatrix<T>&
+ElementalMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("EM::operator+="))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const ElementalMatrix<T>&
 ElementalMatrix<T>::operator-=( const ElementalMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("EM::operator-="))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const ElementalMatrix<T>&
+ElementalMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator-="))
     Axpy( T(-1), A, *this );

@@ -18,6 +18,13 @@ void Gather
 {
     DEBUG_ONLY(CSE cse("copy::Gather"))
     AssertSameGrids( A, B );
+    if( A.DistSize() == 1 && A.CrossSize() == 1 )
+    {
+        B.Resize( A.Height(), A.Width() );
+        if( B.CrossRank() == B.Root() )
+            Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
 
     const Int height = A.Height();
     const Int width = A.Width();
@@ -44,7 +51,10 @@ void Gather
         recvCounts.resize( crossSize );
     mpi::Gather( &totalSend, 1, recvCounts.data(), 1, B.Root(), B.CrossComm() );
     int totalRecv = Scan( recvCounts, recvOffsets );
-    vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    //vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    vector<T> sendBuf, recvBuf;
+    sendBuf.reserve( totalSend );
+    recvBuf.reserve( totalRecv );
     if( !irrelevant )
         copy::util::InterleaveMatrix
         ( A.LocalHeight(), A.LocalWidth(),
@@ -84,6 +94,13 @@ void Gather
 {
     DEBUG_ONLY(CSE cse("copy::Gather"))
     AssertSameGrids( A, B );
+    if( A.DistSize() == 1 && A.CrossSize() == 1 )
+    {
+        B.Resize( A.Height(), A.Width() );
+        if( B.CrossRank() == B.Root() )
+            Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
 
     const Int height = A.Height();
     const Int width = A.Width();
@@ -110,7 +127,10 @@ void Gather
         recvCounts.resize( crossSize );
     mpi::Gather( &totalSend, 1, recvCounts.data(), 1, B.Root(), B.CrossComm() );
     int totalRecv = Scan( recvCounts, recvOffsets );
-    vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    //vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+    vector<T> sendBuf, recvBuf;
+    sendBuf.reserve( totalSend );
+    recvBuf.reserve( totalRecv );
     if( !irrelevant )
         copy::util::InterleaveMatrix
         ( A.LocalHeight(), A.LocalWidth(),

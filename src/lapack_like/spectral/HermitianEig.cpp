@@ -131,8 +131,10 @@ bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, 
-  Matrix<Base<F>>& w, SortType sort,
+( UpperOrLower uplo,
+  Matrix<F>& A, 
+  Matrix<Base<F>>& w,
+  SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -179,8 +181,10 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w, SortType sort,
+( UpperOrLower uplo,
+  DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<Base<F>,STAR,STAR>& w,
+  SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -229,8 +233,10 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& w, SortType sort, 
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& w,
+  SortType sort, 
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -301,13 +307,63 @@ void HermitianEig
         w *= 1/scale;
 }
 
+template<typename F>
+void HermitianEig
+( UpperOrLower uplo,
+  DistMatrix<F,MC,MR,BLOCK>& A,
+  Matrix<Base<F>>& w,
+  const HermitianEigSubset<Base<F>> subset )
+{
+    DEBUG_ONLY(CSE cse("HermitianEig"))
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+
+    if( subset.indexSubset && subset.rangeSubset )
+        LogicError("Cannot mix index and range subsets");
+    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
+        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
+    {
+        w.Resize(0,1);
+        return;
+    }
+
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    const Int n = A.Height();
+    w.Resize( n, 1 );
+
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
+    auto descA = FillDesc( A, context );
+    
+    const char uploChar = UpperOrLowerToChar( uplo );
+    if( subset.rangeSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else if( subset.indexSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else
+    {
+        scalapack::HermitianEig
+        ( uploChar, n, A.Buffer(), descA.data(), w.Buffer() );
+    }
+#endif
+}
+
 // Compute eigenpairs
 // ==================
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z, 
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<Base<F>>& w,
+  Matrix<F>& Z, 
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianEig"))
@@ -365,9 +421,12 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, 
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( UpperOrLower uplo,
+  DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<Base<F>,STAR,STAR>& w,
+  DistMatrix<F,STAR,STAR>& Z, 
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianEig"))
@@ -427,9 +486,12 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& ZPre,
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& w,
+  ElementalMatrix<F>& ZPre,
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(CSE cse("HermitianEig"))
@@ -620,51 +682,144 @@ void HermitianEig
     }
 }
 
+template<typename F>
+void HermitianEig
+( UpperOrLower uplo,
+  DistMatrix<F,MC,MR,BLOCK>& A,
+  Matrix<Base<F>>& w,
+  DistMatrix<F,MC,MR,BLOCK>& Z,
+  const HermitianEigSubset<Base<F>> subset )
+{
+    DEBUG_ONLY(CSE cse("HermitianEig"))
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+
+    const Int n = A.Height();
+    if( subset.indexSubset && subset.rangeSubset )
+        LogicError("Cannot mix index and range subsets");
+    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
+        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
+    {
+        w.Resize(0,1);
+        Z.Resize(n,0);
+        return;
+    }
+
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    w.Resize( n, 1 );
+    Z.SetGrid( A.Grid() );
+    Z.AlignWith( A );
+    Z.Resize( n, n );
+
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
+    auto descA = FillDesc( A, context );
+    auto descZ = FillDesc( Z, context );
+    
+    const char uploChar = UpperOrLowerToChar( uplo );
+    if( subset.rangeSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else if( subset.indexSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else
+    {
+        scalapack::HermitianEig
+        ( uploChar, n,
+          A.Buffer(), descA.data(),
+          w.Buffer(),
+          Z.Buffer(), descZ.data() );
+    }
+#endif
+}
+
 #define EIGVAL_PROTO(F) \
   template void HermitianEig\
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, SortType sort, \
+  ( UpperOrLower uplo, \
+    DistMatrix<F,STAR,STAR>& A,\
+    DistMatrix<Base<F>,STAR,STAR>& w, \
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianEig\
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, SortType sort, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, \
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<F>& ctrl );
+    const HermitianEigCtrl<F>& ctrl ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, \
+    DistMatrix<F,MC,MR,BLOCK>& A, \
+    Matrix<Base<F>>& w, \
+    const HermitianEigSubset<Base<F>> subset );
+
 #define EIGPAIR_PROTO(F) \
   template void HermitianEig\
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,\
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<F>& ctrl ); \
-  template void HermitianEig\
-  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,\
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<F>& ctrl ); \
-  template void HermitianEig\
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& Z, SortType sort, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
+    Matrix<F>& Z,\
+    SortType sort, \
     const HermitianEigSubset<Base<F>> subset, \
-    const HermitianEigCtrl<F>& ctrl );
+    const HermitianEigCtrl<F>& ctrl ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, \
+    DistMatrix<F,STAR,STAR>& A,\
+    DistMatrix<Base<F>,STAR,STAR>& w, \
+    DistMatrix<F,STAR,STAR>& Z,\
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
+    const HermitianEigCtrl<F>& ctrl ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, \
+    ElementalMatrix<F>& Z, \
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
+    const HermitianEigCtrl<F>& ctrl ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, \
+    DistMatrix<F,MC,MR,BLOCK>& A, \
+    Matrix<Base<F>>& w, \
+    DistMatrix<F,MC,MR,BLOCK>& Z, \
+    const HermitianEigSubset<Base<F>> subset );
 
 // Spectral Divide and Conquer
 #define SDC_PROTO(F) \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
     const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, const HermitianSDCCtrl<Base<F>> ctrl ); \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, \
+    const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
-    Matrix<F>& Q, const HermitianSDCCtrl<Base<F>> ctrl ); \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<Base<F>>& w, \
+    Matrix<F>& Q, \
+    const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& Q, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& w, \
+    ElementalMatrix<F>& Q, \
     const HermitianSDCCtrl<Base<F>> ctrl );
 
 #define PROTO(F) \

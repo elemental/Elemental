@@ -27,7 +27,8 @@ void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 template<typename F> 
 void Bidiag
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ )
+  ElementalMatrix<F>& tP,
+  ElementalMatrix<F>& tQ )
 {
     DEBUG_ONLY(CSE cse("Bidiag"))
     if( A.Height() >= A.Width() )
@@ -70,15 +71,11 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
 
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& PPre, ElementalMatrix<F>& QPre )
+( DistMatrix<F>& A,
+  DistMatrix<F>& P,
+  DistMatrix<F>& Q )
 {
     DEBUG_ONLY(CSE cse("bidiag::Explicit"))
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
-    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
-
     DistMatrix<F,MD,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
@@ -103,6 +100,19 @@ void Explicit
         MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
     }
+}
+
+template<typename F>
+void Explicit
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& PPre,
+  ElementalMatrix<F>& QPre )
+{
+    DEBUG_ONLY(CSE cse("bidiag::Explicit"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
+    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
+    Explicit( A, P, Q );
 }
 
 template<typename F>
@@ -144,29 +154,43 @@ void ExplicitCondensed( ElementalMatrix<F>& A )
 } // namespace bidiag
 
 #define PROTO(F) \
-  template void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ ); \
+  template void Bidiag \
+  ( Matrix<F>& A, \
+    Matrix<F>& tP, \
+    Matrix<F>& tQ ); \
   template void Bidiag \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& tP, ElementalMatrix<F>& tQ ); \
-  template void bidiag::Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q ); \
+    ElementalMatrix<F>& tP, \
+    ElementalMatrix<F>& tQ ); \
+  template void bidiag::Explicit \
+  ( Matrix<F>& A, \
+    Matrix<F>& P, \
+    Matrix<F>& Q ); \
   template void bidiag::Explicit \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& P, ElementalMatrix<F>& Q ); \
+    ElementalMatrix<F>& P, \
+    ElementalMatrix<F>& Q ); \
   template void bidiag::ExplicitCondensed( Matrix<F>& A ); \
   template void bidiag::ExplicitCondensed( ElementalMatrix<F>& A ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& t, \
+          Matrix<F>& B ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& t, \
           ElementalMatrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& t, \
+          Matrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& t, \
           ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO

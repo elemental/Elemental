@@ -416,18 +416,28 @@ Real SafeNorm( Real alpha, Real beta )
     UpdateScaledSquare( beta, scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
+template float SafeNorm( float alpha, float beta );
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( Quad alpha, Quad beta );
 #endif
 
-float SafeNorm( float alpha, float beta )
-{ return EL_LAPACK(slapy2)( &alpha, &beta ); }
-
 double SafeNorm( double alpha, double beta )
 { return EL_LAPACK(dlapy2)( &alpha, &beta ); }
 
-float SafeNorm( float alpha, float beta, float gamma )
-{ return EL_LAPACK(slapy3)( &alpha, &beta, &gamma ); }
+template<typename Real>
+Real SafeNorm( Real alpha, Real beta, Real gamma )
+{
+    Real scale = 0;
+    Real scaledSquare = 1;
+    UpdateScaledSquare( alpha, scale, scaledSquare );
+    UpdateScaledSquare( beta, scale, scaledSquare );
+    UpdateScaledSquare( gamma, scale, scaledSquare );
+    return scale*Sqrt(scaledSquare);
+}
+template float SafeNorm( float alpha, float beta, float gamma );
+#ifdef EL_HAVE_QUAD
+template Quad SafeNorm( Quad alpha, Quad beta, Quad gamma );
+#endif
 
 double SafeNorm( double alpha, double beta, double gamma )
 { return EL_LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
@@ -1129,8 +1139,10 @@ void BidiagQRAlg
     const BlasInt numColsC=0, ldC=1;
     vector<float> work( 4*n );
     EL_LAPACK(sbdsqr)
-    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC,
+      d, e,
+      VTrans, &ldVT, U, &ldU, C, &ldC,
+      work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1150,8 +1162,10 @@ void BidiagQRAlg
     const BlasInt numColsC=0, ldC=1;
     vector<double> work( 4*n );
     EL_LAPACK(dbdsqr)
-    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC,
+      d, e, 
+      VTrans, &ldVT, U, &ldU, C, &ldC,
+      work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1160,7 +1174,9 @@ void BidiagQRAlg
 
 void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
-  float* d, float* e, scomplex* VH, BlasInt ldVH, scomplex* U, BlasInt ldU )
+  float* d, float* e,
+  scomplex* VH, BlasInt ldVH,
+  scomplex* U,  BlasInt ldU )
 {
     DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -1169,10 +1185,16 @@ void BidiagQRAlg
     BlasInt info;
     scomplex* C=0;
     const BlasInt numColsC=0, ldC=1;
-    vector<float> work( 4*n );
+    vector<float> realWork;
+    if( numColsVH == 0 && numRowsU == 0 && numColsC == 0 )
+        realWork.resize( 2*n );
+    else
+        realWork.resize( Max(1,4*n-4) );
     EL_LAPACK(cbdsqr)
-    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC,
+      d, e,
+      VH, &ldVH, U, &ldU, C, &ldC,
+      realWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1181,7 +1203,9 @@ void BidiagQRAlg
 
 void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
-  double* d, double* e, dcomplex* VH, BlasInt ldVH, dcomplex* U, BlasInt ldU )
+  double* d, double* e,
+  dcomplex* VH, BlasInt ldVH,
+  dcomplex* U,  BlasInt ldU )
 {
     DEBUG_ONLY(CSE cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -1190,10 +1214,16 @@ void BidiagQRAlg
     BlasInt info;
     dcomplex* C=0;
     const BlasInt numColsC=0, ldC=1;
-    vector<double> work( 4*n );
+    vector<double> realWork;
+    if( numColsVH == 0 && numRowsU == 0 && numColsC == 0 )
+        realWork.resize( 2*n );
+    else
+        realWork.resize( Max(1,4*n-4) );
     EL_LAPACK(zbdsqr)
-    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
-      U, &ldU, C, &ldC, work.data(), &info );
+    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC,
+      d, e,
+      VH, &ldVH, U, &ldU, C, &ldC,
+      realWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )

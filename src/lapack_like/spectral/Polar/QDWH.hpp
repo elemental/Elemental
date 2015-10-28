@@ -87,7 +87,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             QT = A;
             QT *= Sqrt(c);
             MakeIdentity( QB );
-            qr::ExplicitUnitary( Q, qrCtrl );
+            qr::ExplicitUnitary( Q, true, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -232,7 +232,7 @@ QDWHInner
             QT = A;
             QT *= Sqrt(c);
             MakeIdentity( QB );
-            qr::ExplicitUnitary( Q, qrCtrl );
+            qr::ExplicitUnitary( Q, true, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -386,7 +386,7 @@ QDWHInner
             QT = A;
             QT *= Sqrt(c);
             MakeIdentity( QB );
-            qr::ExplicitUnitary( Q, qrCtrl );
+            qr::ExplicitUnitary( Q, true, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -529,7 +529,7 @@ QDWHInner
             QT = A;
             QT *= Sqrt(c);
             MakeIdentity( QB );
-            qr::ExplicitUnitary( Q, qrCtrl );
+            qr::ExplicitUnitary( Q, true, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else

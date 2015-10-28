@@ -11,25 +11,22 @@
 namespace El {
 
 PermutationMeta::PermutationMeta
-( const ElementalMatrix<Int>& perm,
-  const ElementalMatrix<Int>& invPerm )
+( const DistMatrix<Int,STAR,STAR>& perm,
+  const DistMatrix<Int,STAR,STAR>& invPerm,
+        Int permAlign,
+        mpi::Comm permComm )
 {
     DEBUG_ONLY(
-        CSE cse("PermutationMeta::PermutationMeta");
-        AssertSameGrids( perm, invPerm );
-        if( perm.ColDist() != invPerm.ColDist() )
-            LogicError("perm and invPerm must have the same column dist");
-        if( perm.RowDist() != invPerm.RowDist() )
-            LogicError("perm and invPerm must have the same row dist");
-        if( perm.ColAlign() != invPerm.ColAlign() )
-            LogicError("perm and invPerm must align");
-        if( perm.RowDist() != Collect( perm.ColDist() ) )
-            LogicError("permutations must have column distributions");
+      CSE cse("PermutationMeta::PermutationMeta");
+      AssertSameGrids( perm, invPerm );
     )
-    comm = perm.ColComm();
-    align = perm.ColAlign();
+    comm = permComm;
+    align = permAlign;
+    const Int permStride = mpi::Size( permComm );
+    const Int permShift = Shift( mpi::Rank(permComm), permAlign, permStride );
     const Int b = perm.Height();
-    const Int stride = perm.ColStride();
+    const Int* permBuf = perm.LockedBuffer();
+    const Int* invPermBuf = invPerm.LockedBuffer();
 
     // Form the metadata
     //
@@ -42,45 +39,53 @@ PermutationMeta::PermutationMeta
     // fact that indices pulled in from [b,n) are stuck in [0,b) due to the
     // fact that the i'th pivot exchanges index i with some index k >= i.
     // 
-    sendCounts.resize( stride, 0 );
-    recvCounts.resize( stride, 0 );
+    sendCounts.resize( permStride, 0 );
+    recvCounts.resize( permStride, 0 );
+    sendIdx.reserve( b );
+    recvIdx.reserve( b );
+    sendRanks.reserve( b );
+    recvRanks.reserve( b );
 
+    sendIdx.resize( 0 );
+    recvIdx.resize( 0 );
+    sendRanks.resize( 0 );
+    recvRanks.resize( 0 );
     for( Int i=0; i<b; ++i )
     {
-        const Int preVal = perm.Get(i,0);
-        const Int postVal = invPerm.Get(i,0);        
+        const Int preVal = permBuf[i];
+        const Int postVal = invPermBuf[i];        
 
         // Handle sends 
-        if( invPerm.IsLocalRow(i) )
+        if( Mod(i,permStride) == permShift )
         {
-            const Int iLoc = invPerm.LocalRow( i );
-            const Int sendTo = invPerm.RowOwner( postVal );
+            const Int iLoc = (i-permShift) / permStride;
+            const Int sendTo = Mod(postVal+permAlign,permStride);
             sendIdx.push_back( iLoc );
             sendRanks.push_back( sendTo );
             ++sendCounts[sendTo];
         }
-        if( preVal >= b && invPerm.IsLocalRow(preVal) )
+        if( preVal >= b && Mod(preVal,permStride) == permShift )
         {
-            const Int iLoc = invPerm.LocalRow( preVal );
-            const Int sendTo = invPerm.RowOwner( i) ;
+            const Int iLoc = (preVal-permShift) / permStride;
+            const Int sendTo = Mod(i+permAlign,permStride);
             sendIdx.push_back( iLoc );
             sendRanks.push_back( sendTo );
             ++sendCounts[sendTo];
         }
 
         // Handle recvs
-        if( invPerm.IsLocalRow(postVal) )
+        if( Mod(postVal,permStride) == permShift )
         {
-            const Int iLoc = invPerm.LocalRow( postVal );
-            const Int recvFrom = invPerm.RowOwner( i );
+            const Int iLoc = (postVal-permShift) / permStride;
+            const Int recvFrom = Mod(i+permAlign,permStride);
             recvIdx.push_back( iLoc );
             recvRanks.push_back( recvFrom );
             ++recvCounts[recvFrom];
         }
-        if( preVal >= b && invPerm.IsLocalRow(i) )
+        if( preVal >= b && Mod(i,permStride) == permShift )
         {
-            const Int iLoc = invPerm.LocalRow( i );
-            const Int recvFrom = invPerm.RowOwner( preVal );
+            const Int iLoc = (i-permShift) / permStride;
+            const Int recvFrom = Mod(preVal+permAlign,permStride);
             recvIdx.push_back( iLoc );
             recvRanks.push_back( recvFrom );
             ++recvCounts[recvFrom];
@@ -88,21 +93,13 @@ PermutationMeta::PermutationMeta
     }
 
     // Construct the send and recv displacements from the counts
-    sendDispls.resize( stride );
-    recvDispls.resize( stride );
-    Int totalSend=0, totalRecv=0;
-    for( Int i=0; i<stride; ++i )
-    {
-        sendDispls[i] = totalSend;
-        recvDispls[i] = totalRecv;
-        totalSend += sendCounts[i];
-        totalRecv += recvCounts[i];
-    }
+    const Int totalSend = Scan( sendCounts, sendDispls );
+    const Int totalRecv = Scan( recvCounts, recvDispls );
     DEBUG_ONLY(
-        if( totalSend != totalRecv )
-            LogicError
-            ("Send and recv counts do not match: send=",totalSend,", recv=",
-             totalRecv);
+      if( totalSend != totalRecv )
+          LogicError
+          ("Send and recv counts do not match: send=",totalSend,", recv=",
+           totalRecv);
     )
 }
 

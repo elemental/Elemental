@@ -69,7 +69,7 @@ if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
   # home directory). Alternatively, if you do NOT define PYTHON_SITE_PACKAGES 
   # and instead define INSTALL_PYTHON_INTO_USER_SITE=ON, Elemental will
   # install its Python interface into site.USER_SITE in your home directory.
-  option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" TRUE)
+  option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" OFF)
 
   set(Python_ADDITIONAL_VERSIONS 2.7)
   include(FindPythonInterp) #Check for Python version
@@ -93,7 +93,7 @@ option(EL_EXPERIMENTAL "Build experimental code" OFF)
 option(EL_USE_64BIT_INTS "Use 64-bit integers for El indexing" OFF)
 option(EL_USE_64BIT_BLAS_INTS "Use 64-bit integers for BLAS/LAPACK" OFF)
 if(EL_USE_64BIT_BLAS_INTS)
-    set(EL_USE_64BIT_INTS ON)
+  set(EL_USE_64BIT_INTS ON)
 endif()
 
 option(EL_DISABLE_MKL "Do not use MKL even if installed?" OFF)
@@ -107,13 +107,7 @@ option(EL_DISABLE_OPENBLAS "Avoid OpenBLAS" OFF)
 option(EL_PREFER_OPENBLAS "Prefer OpenBLAS over alternatives?" OFF)
 option(EL_BUILD_OPENBLAS "Avoid search for OpenBLAS and instead build?" OFF)
 
-if(EL_USE_64BIT_INTS)
-  # The ScaLAPACK build currently does not have a way of ensuring compatibility
-  # with 64-bit integers
-  option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" ON)
-else()
-  option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" OFF)
-endif()
+option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" OFF)
 option(EL_BUILD_SCALAPACK "Avoid search for ScaLAPACK and instead build?" OFF)
 
 # By default, a search is performed for ParMETIS via find_package, and, if this

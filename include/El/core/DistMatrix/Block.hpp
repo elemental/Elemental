@@ -38,6 +38,7 @@ public:
     // Assignment and reconfiguration
     // ==============================
     void Empty() override;
+    void SoftEmpty() override;
     void Resize( Int height, Int width ) override;
     void Resize( Int height, Int width, Int ldim ) override;
 
@@ -106,11 +107,18 @@ public:
     // Copy
     // ----
     const type& operator=( const type& A );
+    const type& operator=( const absType& A );
+
+    // Rescaling
+    // ---------
+    const type& operator*=( T alpha );
 
     // Addition/subtraction
     // --------------------
     const type& operator+=( const type& A );
+    const type& operator+=( const absType& A );
     const type& operator-=( const type& A );
+    const type& operator-=( const absType& A );
 
     // Move assignment
     // ---------------
@@ -187,6 +195,35 @@ void AssertConforming2x2
   const BlockMatrix<T>& ATR,
   const BlockMatrix<T>& ABL, 
   const BlockMatrix<T>& ABR );
+
+#ifdef EL_HAVE_SCALAPACK
+namespace blacs {
+
+template<typename T>
+inline int Handle( const BlockMatrix<T>& A )
+{ return Handle( A.DistComm().comm ); }
+
+template<typename T>
+inline int GridInit( int bHandle, const BlockMatrix<T>& A )
+{
+    const int context =
+      GridInit
+      ( bHandle, A.Grid().Order()==COLUMN_MAJOR, A.ColStride(), A.RowStride() );
+    DEBUG_ONLY(
+      if( A.ColStride() != GridHeight(context) )
+          LogicError("Grid height did not match BLACS");
+      if( A.RowStride() != GridWidth(context) )
+          LogicError("Grid width did not match BLACS");
+      if( A.ColRank() != GridRow(context) )
+          LogicError("Grid row did not match BLACS");
+      if( A.RowRank() != GridCol(context) )
+          LogicError("Grid col did not match BLACS");
+    )
+    return context;
+}
+
+} // namespace blacs
+#endif
 
 } // namespace El
 

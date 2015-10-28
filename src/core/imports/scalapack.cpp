@@ -21,107 +21,153 @@ extern "C" {
 // Cholesky
 // --------
 void EL_SCALAPACK(pspotrf)
-( const char* uplo, const int* n, float* A, const int* iA, const int* jA,
-  const int* descA, int* info );
+( const char* uplo, const int* n,
+  float* A, const int* iA, const int* jA, const int* descA,
+  int* info );
 void EL_SCALAPACK(pdpotrf)
-( const char* uplo, const int* n, double* A, const int* iA, const int* jA,
-  const int* descA, int* info );
+( const char* uplo, const int* n,
+  double* A, const int* iA, const int* jA, const int* descA,
+  int* info );
 void EL_SCALAPACK(pcpotrf)
-( const char* uplo, const int* n, scomplex* A, const int* iA, const int* jA,
-  const int* descA, int* info );
+( const char* uplo, const int* n,
+  scomplex* A, const int* iA, const int* jA, const int* descA,
+  int* info );
 void EL_SCALAPACK(pzpotrf)
-( const char* uplo, const int* n, dcomplex* A, const int* iA, const int* jA,
-  const int* descA, int* info );
+( const char* uplo, const int* n,
+  dcomplex* A, const int* iA, const int* jA, const int* descA,
+  int* info );
+
+// Solvers
+// =======
+
+// General linear solver
+// ---------------------
+void EL_SCALAPACK(psgesv)
+( const int* n, const int* numRhs,
+  float* A, const int* iA, const int* jA, const int* descA,
+  int* ipiv,
+  float* B, const int* iB, const int* jB, const int* descB,
+  int* info );
+void EL_SCALAPACK(pdgesv)
+( const int* n, const int* numRhs,
+  double* A, const int* iA, const int* jA, const int* descA,
+  int* ipiv,
+  double* B, const int* iB, const int* jB, const int* descB,
+  int* info );
+void EL_SCALAPACK(pcgesv)
+( const int* n, const int* numRhs,
+  scomplex* A, const int* iA, const int* jA, const int* descA,
+  int* ipiv,
+  scomplex* B, const int* iB, const int* jB, const int* descB,
+  int* info );
+void EL_SCALAPACK(pzgesv)
+( const int* n, const int* numRhs,
+  dcomplex* A, const int* iA, const int* jA, const int* descA,
+  int* ipiv,
+  dcomplex* B, const int* iB, const int* jB, const int* descB,
+  int* info );
 
 // Spectral analysis
 // =================
 
+// Hermitian Eig
+// -------------
+
+// MRRR
+// ^^^^
+void EL_SCALAPACK(pssyevr)
+( const char* jobZ, const char* range, const char* uplo,
+  const int* n,
+  float* A, const int* iA, const int* jA, const int* descA,
+  const float* vl, const float* vu,
+  const int* il, const int* iu,
+  int* numCompEigVals,
+  int* numCompEigVecs,
+  float* w,
+  float* Z, const int* iZ, const int* jZ, const int* descZ,
+  float* work, const int* lwork,
+  int* iWork, const int* liWork,
+  int* info );
+void EL_SCALAPACK(pdsyevr)
+( const char* jobZ, const char* range, const char* uplo,
+  const int* n,
+  double* A, const int* iA, const int* jA, const int* descA,
+  const double* vl, const double* vu,
+  const int* il, const int* iu,
+  int* numCompEigVals,
+  int* numCompEigVecs,
+  double* w,
+  double* Z, const int* iZ, const int* jZ, const int* descZ,
+  double* work, const int* lwork,
+  int* iWork, const int* liWork,
+  int* info );
+void EL_SCALAPACK(pcheevr)
+( const char* jobZ, const char* range, const char* uplo,
+  const int* n,
+  scomplex* A, const int* iA, const int* jA, const int* descA,
+  const float* vl, const float* vu,
+  const int* il, const int* iu,
+  int* numCompEigVals,
+  int* numCompEigVecs,
+  float* w,
+  scomplex* Z, const int* iZ, const int* jZ, const int* descZ,
+  scomplex* work, const int* lwork,
+  float* realWork, const int* lrWork,
+  int* iWork, const int* liWork,
+  int* info );
+void EL_SCALAPACK(pzheevr)
+( const char* jobZ, const char* range, const char* uplo,
+  const int* n,
+  dcomplex* A, const int* iA, const int* jA, const int* descA,
+  const double* vl, const double* vu,
+  const int* il, const int* iu,
+  int* numCompEigVals,
+  int* numCompEigVecs,
+  double* w,
+  dcomplex* Z, const int* iZ, const int* jZ, const int* descZ,
+  dcomplex* work, const int* lwork,
+  double* realWork, const int* lrWork,
+  int* iWork, const int* liWork,
+  int* info );
+
 // SVD
 // ---
 void EL_SCALAPACK(psgesvd)
-( const char* jobU,
-  const char* jobVH,
-  const int* m,
-  const int* n,
-  float* A,
-  const int* iA,
-  const int* jA,
-  const int* descA,
+( const char* jobU, const char* jobVH,
+  const int* m, const int* n,
+  float* A, const int* iA, const int* jA, const int* descA,
   float* S,
-  float* U,
-  const int* iU,
-  const int* jU,
-  const int* descU,
-  float* VH,
-  const int* iVH,
-  const int* jVH,
-  const int* descVH,
-  float* work,
-  const int* lwork,
+  float* U, const int* iU, const int* jU, const int* descU,
+  float* VH, const int* iVH, const int* jVH, const int* descVH,
+  float* work, const int* lwork,
   int* info );
 void EL_SCALAPACK(pdgesvd)
-( const char* jobU,
-  const char* jobVH,
-  const int* m,
-  const int* n,
-  double* A,
-  const int* iA,
-  const int* jA,
-  const int* descA,
+( const char* jobU, const char* jobVH,
+  const int* m, const int* n,
+  double* A, const int* iA, const int* jA, const int* descA,
   double* S,
-  double* U,
-  const int* iU,
-  const int* jU,
-  const int* descU,
-  double* VH,
-  const int* iVH,
-  const int* jVH,
-  const int* descVH,
-  double* work,
-  const int* lwork,
+  double* U, const int* iU, const int* jU, const int* descU,
+  double* VH, const int* iVH, const int* jVH, const int* descVH,
+  double* work, const int* lwork,
   int* info );
 void EL_SCALAPACK(pcgesvd)
-( const char* jobU,
-  const char* jobVH,
-  const int* m,
-  const int* n,
-  scomplex* A,
-  const int* iA,
-  const int* jA,
-  const int* descA,
+( const char* jobU, const char* jobVH,
+  const int* m, const int* n,
+  scomplex* A, const int* iA, const int* jA, const int* descA,
   float* S,
-  scomplex* U,
-  const int* iU,
-  const int* jU,
-  const int* descU,
-  scomplex* VH,
-  const int* iVH,
-  const int* jVH,
-  const int* descVH,
-  scomplex* work,
-  const int* lwork,
+  scomplex* U, const int* iU, const int* jU, const int* descU,
+  scomplex* VH, const int* iVH, const int* jVH, const int* descVH,
+  scomplex* work, const int* lwork,
   float* rwork,
   int* info );
 void EL_SCALAPACK(pzgesvd)
-( const char* jobU,
-  const char* jobVH,
-  const int* m,
-  const int* n,
-  dcomplex* A,
-  const int* iA,
-  const int* jA,
-  const int* descA,
+( const char* jobU, const char* jobVH,
+  const int* m, const int* n,
+  dcomplex* A, const int* iA, const int* jA, const int* descA,
   double* S,
-  dcomplex* U,
-  const int* iU,
-  const int* jU,
-  const int* descU,
-  dcomplex* VH,
-  const int* iVH,
-  const int* jVH,
-  const int* descVH,
-  dcomplex* work,
-  const int* lwork,
+  dcomplex* U, const int* iU, const int* jU, const int* descU,
+  dcomplex* VH, const int* iVH, const int* jVH, const int* descVH,
+  dcomplex* work, const int* lwork,
   double* rwork,
   int* info );
 
@@ -272,8 +318,481 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
         RuntimeError("pzpotrf returned with info=",info);
 }
 
+// Solvers
+// =======
+
+// General linear solver
+// ---------------------
+
+void LinearSolve
+( int n, int numRhs,
+  float* A, const int* descA,
+  int* ipiv,
+  float* B, const int* descB )
+{
+    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    int iA=1, jA=1, iB=1, jB=1, info;
+    EL_SCALAPACK(psgesv)
+    ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
+    if( info != 0 )
+        RuntimeError("psgesv returned with info=",info);
+}
+
+void LinearSolve
+( int n, int numRhs,
+  double* A, const int* descA,
+  int* ipiv,
+  double* B, const int* descB )
+{
+    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    int iA=1, jA=1, iB=1, jB=1, info;
+    EL_SCALAPACK(pdgesv)
+    ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
+    if( info != 0 )
+        RuntimeError("psgesv returned with info=",info);
+}
+
+void LinearSolve
+( int n, int numRhs,
+  scomplex* A, const int* descA,
+  int* ipiv,
+  scomplex* B, const int* descB )
+{
+    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    int iA=1, jA=1, iB=1, jB=1, info;
+    EL_SCALAPACK(pcgesv)
+    ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
+    if( info != 0 )
+        RuntimeError("psgesv returned with info=",info);
+}
+
+void LinearSolve
+( int n, int numRhs,
+  dcomplex* A, const int* descA,
+  int* ipiv,
+  dcomplex* B, const int* descB )
+{
+    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    int iA=1, jA=1, iB=1, jB=1, info;
+    EL_SCALAPACK(pzgesv)
+    ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
+    if( info != 0 )
+        RuntimeError("psgesv returned with info=",info);
+}
+
 // Spectral analysis
 // =================
+
+// Hermitian Eig
+// -------------
+
+// All eigenvalues
+// ^^^^^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, const int* descA, float* w )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='N', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, liWork,
+        info;
+    float vL, vU;
+    float* Z=nullptr;
+
+    // Workspace query
+    int dummyIWork;
+    float dummyWork;
+    lWork = liWork = -1;
+    EL_SCALAPACK(pssyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      &dummyWork, &lWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork;
+    liWork = dummyIWork;
+    vector<float> work(lWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pssyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      work.data(), &lWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pssyevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n, double* A, const int* descA, double* w )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='N', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, liWork,
+        info;
+    double vL, vU;
+    double* Z=nullptr;
+
+    // Workspace query
+    int dummyIWork;
+    double dummyWork;
+    lWork = liWork = -1;
+    EL_SCALAPACK(pdsyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      &dummyWork, &lWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork;
+    liWork = dummyIWork;
+    vector<double> work(lWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pdsyevr)    
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      work.data(), &lWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pdsyevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n, scomplex* A, const int* descA, float* w )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='N', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, lrWork, liWork,
+        info;
+    float vL, vU;
+    scomplex* Z=nullptr;
+
+    // Workspace query
+    int dummyIWork;
+    scomplex dummyWork;
+    float dummyRWork;
+    lWork = lrWork = liWork = -1;
+    EL_SCALAPACK(pcheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      &dummyWork, &lWork,
+      &dummyRWork, &lrWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork.real();
+    lrWork = dummyRWork;
+    liWork = dummyIWork;
+    vector<scomplex> work(lWork);
+    vector<float> rWork(lrWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pcheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      work.data(), &lWork,
+      rWork.data(), &lrWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pcheevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n, dcomplex* A, const int* descA, double* w )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='N', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, lrWork, liWork,
+        info;
+    double vL, vU;
+    dcomplex* Z=nullptr;
+
+    // Workspace query
+    int dummyIWork;
+    dcomplex dummyWork;
+    double dummyRWork;
+    lWork = lrWork = liWork = -1;
+    EL_SCALAPACK(pzheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      &dummyWork, &lWork,
+      &dummyRWork, &lrWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork.real();
+    lrWork = dummyRWork;
+    liWork = dummyIWork;
+    vector<dcomplex> work(lWork);
+    vector<double> rWork(lrWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pzheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descA,
+      work.data(), &lWork,
+      rWork.data(), &lrWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pzheevr exited with info=",info);
+}
+
+// All eigenpairs
+// ^^^^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n,
+  float* A, const int* descA,
+  float* w,
+  float* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, liWork,
+        info;
+    float vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    float dummyWork;
+    lWork = liWork = -1;
+    EL_SCALAPACK(pssyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork;
+    liWork = dummyIWork;
+    vector<float> work(lWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pssyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pssyevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n,
+  double* A, const int* descA,
+  double* w,
+  double* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, liWork,
+        info;
+    double vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    double dummyWork;
+    lWork = liWork = -1;
+    EL_SCALAPACK(pdsyevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork;
+    liWork = dummyIWork;
+    vector<double> work(lWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pdsyevr)    
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pdsyevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n,
+  scomplex* A, const int* descA,
+  float* w,
+  scomplex* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, lrWork, liWork,
+        info;
+    float vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    scomplex dummyWork;
+    float dummyRWork;
+    lWork = lrWork = liWork = -1;
+    EL_SCALAPACK(pcheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyRWork, &lrWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork.real();
+    lrWork = dummyRWork;
+    liWork = dummyIWork;
+    vector<scomplex> work(lWork);
+    vector<float> rWork(lrWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pcheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      rWork.data(), &lrWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pcheevr exited with info=",info);
+}
+
+void HermitianEig
+( char uplo, int n,
+  dcomplex* A, const int* descA,
+  double* w,
+  dcomplex* Z, const int* descZ )
+{
+    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    char jobZ='V', range='A';
+    int iA=1, jA=1, iZ=1, jZ=1,
+        iL, iU,
+        numCompEigVals, numCompEigVecs,
+        lWork, lrWork, liWork,
+        info;
+    double vL, vU;
+
+    // Workspace query
+    int dummyIWork;
+    dcomplex dummyWork;
+    double dummyRWork;
+    lWork = lrWork = liWork = -1;
+    EL_SCALAPACK(pzheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      &dummyWork, &lWork,
+      &dummyRWork, &lrWork,
+      &dummyIWork, &liWork,
+      &info );
+
+    // Actual call
+    lWork = dummyWork.real();
+    lrWork = dummyRWork;
+    liWork = dummyIWork;
+    vector<dcomplex> work(lWork);
+    vector<double> rWork(lrWork);
+    vector<int> iWork(liWork);
+    EL_SCALAPACK(pzheevr)
+    ( &jobZ, &range, &uplo, &n,
+      A, &iA, &jA, descA,
+      &vL, &vU, &iL, &iU,
+      &numCompEigVals, &numCompEigVecs,
+      w,
+      Z, &iZ, &jZ, descZ,
+      work.data(), &lWork,
+      rWork.data(), &lrWork,
+      iWork.data(), &liWork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pzheevr exited with info=",info);
+}
 
 // SVD
 // ---
@@ -283,56 +802,77 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 void SingularValues( int m, int n, float* A, const int* descA, float* s )
 {
     DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     float* U=nullptr;
     float* VH=nullptr;
 
-    const char jobU='N', jobVH='N';
+    // Workspace query
     float dummyWork;
     int lwork=-1;
     EL_SCALAPACK(psgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
-      &dummyWork, &lwork, &info );
+      s,
+      U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork,
+      &info );
 
+    // Actual call
     lwork = dummyWork;
     vector<float> work(lwork);
     EL_SCALAPACK(psgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
-      work.data(), &lwork, &info );
+      s,
+      U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      work.data(), &lwork,
+      &info );
+    if( info != 0 )
+        RuntimeError("psgesvd exited with info=",info);
 }
 
 void SingularValues( int m, int n, double* A, const int* descA, double* s )
 {
     DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     double* U=nullptr;
     double* VH=nullptr;
 
-    const char jobU='N', jobVH='N';
+    // Workspace query
     double dummyWork;
     int lwork=-1;
     EL_SCALAPACK(pdgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
-      &dummyWork, &lwork, &info );
+      s,
+      U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork,
+      &info );
 
+    // Actual call
     lwork = dummyWork;
     vector<double> work(lwork);
     EL_SCALAPACK(pdgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
-      work.data(), &lwork, &info );
+      s,
+      U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      work.data(), &lwork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pdgesvd exited with info=",info);
 }
 
 void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
 {
     DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     scomplex* U=nullptr;
     scomplex* VH=nullptr;
@@ -340,27 +880,44 @@ void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
     const int maxDim = Max(m,n);
     vector<float> rwork(1+4*maxDim);
 
-    const char jobU='N', jobVH='N';
+    // Workspace query
     scomplex dummyWork;
     int lwork=-1;
     EL_SCALAPACK(pcgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
-      &dummyWork, &lwork, rwork.data(), &info );
+      s,
+      U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork,
+      rwork.data(),
+      &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
 
+    // Actual call
     lwork = dummyWork.real();
     vector<scomplex> work(lwork);
     EL_SCALAPACK(pcgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
-      work.data(), &lwork, rwork.data(), &info );
+      s, U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      work.data(), &lwork,
+      rwork.data(),
+      &info );
+    if( info != 0 )
+        RuntimeError("pcgesvd exited with info=",info);
 }
 
 void SingularValues( int m, int n, dcomplex* A, const int* descA, double* s )
 {
     DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     dcomplex* U=nullptr;
     dcomplex* VH=nullptr;
@@ -368,26 +925,200 @@ void SingularValues( int m, int n, dcomplex* A, const int* descA, double* s )
     const int maxDim = Max(m,n);
     vector<double> rwork(1+4*maxDim);
 
-    const char jobU='N', jobVH='N';
+    // Workspace query
     dcomplex dummyWork;
     int lwork=-1;
     EL_SCALAPACK(pzgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      s,
+      U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      &dummyWork, &lwork,
+      rwork.data(),
+      &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
+
+    // Actual call
+    lwork = dummyWork.real();
+    vector<dcomplex> work(lwork);
+    EL_SCALAPACK(pzgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descA,
+      VH, &iVH, &jVH, descA,
+      work.data(), &lwork,
+      rwork.data(),
+      &info );
+    if( info != 0 )
+        RuntimeError("pzgesvd exited with info=",info);
+}
+
+// Values and vectors
+// ^^^^^^^^^^^^^^^^^^
+void SVD
+( int m, int n,
+  float* A, const int* descA,
+  float* s,
+  float* U, const int* descU,
+  float* VH, const int* descVH )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+
+    // Workspace query
+    const char jobU='V', jobVH='V';
+    float dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(psgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
+      &dummyWork, &lwork,
+      &info );
+
+    // Actual call
+    lwork = dummyWork;
+    vector<float> work(lwork);
+    EL_SCALAPACK(psgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
+      work.data(), &lwork,
+      &info );
+    if( info != 0 )
+        RuntimeError("psgesvd exited with info=",info);
+}
+
+void SVD
+( int m, int n,
+  double* A, const int* descA,
+  double* s,
+  double* U, const int* descU,
+  double* VH, const int* descVH )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+
+    // Workspace query
+    const char jobU='V', jobVH='V';
+    double dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(pdgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
+      &dummyWork, &lwork,
+      &info );
+
+    // Actual call
+    lwork = dummyWork;
+    vector<double> work(lwork);
+    EL_SCALAPACK(pdgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
+      work.data(), &lwork,
+      &info );
+    if( info != 0 )
+        RuntimeError("pdgesvd exited with info=",info);
+}
+
+void SVD
+( int m, int n,
+  scomplex* A, const int* descA,
+  float* s,
+  scomplex* U, const int* descU,
+  scomplex* VH, const int* descVH )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+
+    const int maxDim = Max(m,n);
+    vector<float> rwork(1+4*maxDim);
+
+    const char jobU='V', jobVH='V';
+    scomplex dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(pcgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       &dummyWork, &lwork, rwork.data(), &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
+
+    lwork = dummyWork.real();
+    vector<scomplex> work(lwork);
+    EL_SCALAPACK(pcgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
+      work.data(), &lwork, rwork.data(), &info );
+}
+
+void SVD
+( int m, int n,
+  dcomplex* A, const int* descA,
+  double* s,
+  dcomplex* U, const int* descU,
+  dcomplex* VH, const int* descVH )
+{
+    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
+
+    const int maxDim = Max(m,n);
+    vector<double> rwork(1+4*maxDim);
+
+    const char jobU='V', jobVH='V';
+    dcomplex dummyWork;
+    int lwork=-1;
+    EL_SCALAPACK(pzgesvd)
+    ( &jobU, &jobVH, &m, &n,
+      A, &iA, &jA, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
+      &dummyWork, &lwork, rwork.data(), &info );
+    if( int(rwork[0]) > int(rwork.size()) )
+    {
+        if( mpi::WorldRank() == 0 )
+            Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
+        rwork.resize( int(rwork[0]) );
+    }
 
     lwork = dummyWork.real();
     vector<dcomplex> work(lwork);
     EL_SCALAPACK(pzgesvd)
     ( &jobU, &jobVH, &m, &n,
       A, &iA, &jA, descA,
-      s, U, &iU, &jU, descA, VH, &iVH, &jVH, descA,
+      s,
+      U, &iU, &jU, descU,
+      VH, &iVH, &jVH, descVH,
       work.data(), &lwork, rwork.data(), &info );
 }
-
-// Values and vectors
-// ^^^^^^^^^^^^^^^^^^
 
 // Hermitian eigenvalue problems
 // -----------------------------
@@ -437,14 +1168,18 @@ void TwoSidedTrsm
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<float> work( workSize );
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pssyngst exited with info=",info);
 }
@@ -458,14 +1193,18 @@ void TwoSidedTrsm
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<double> work( workSize );
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pdsyngst exited with info=",info);
 }
@@ -480,14 +1219,18 @@ void TwoSidedTrsm
     float scale;
     scomplex dummyWork;
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<scomplex> work( workSize );
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pchengst exited with info=",info);
 }
@@ -502,14 +1245,18 @@ void TwoSidedTrsm
     double scale;
     dcomplex dummyWork;
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<dcomplex> work( workSize );
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pzhengst exited with info=",info);
 }
@@ -525,14 +1272,18 @@ void TwoSidedTrmm
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<float> work( workSize );
     EL_SCALAPACK(pssyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pssyngst exited with info=",info);
 }
@@ -546,14 +1297,18 @@ void TwoSidedTrmm
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     vector<double> work( workSize );
     EL_SCALAPACK(pdsyngst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pdsyngst exited with info=",info);
 }
@@ -568,14 +1323,18 @@ void TwoSidedTrmm
     float scale;
     scomplex dummyWork;
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<scomplex> work( workSize );
     EL_SCALAPACK(pchengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pchengst exited with info=",info);
 }
@@ -590,14 +1349,18 @@ void TwoSidedTrmm
     double scale;
     dcomplex dummyWork;
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     vector<dcomplex> work( workSize );
     EL_SCALAPACK(pzhengst)
-    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &workSize, &info );
+    ( &typeB, &uplo, &n,
+      A, &iA, &jA, descA,
+      B, &iB, &jB, descB,
+      &scale, work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pzhengst exited with info=",info);
 }
@@ -648,16 +1411,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth =
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
@@ -723,16 +1486,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth = 
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
@@ -870,16 +1633,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth =
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
@@ -949,16 +1712,16 @@ void HessenbergSchur
         // that the workspace is at least 
         //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
 
-        const Int context  = descH[1];
-        const Int mb       = descH[4];
-        const Int nb       = descH[5];
-        const Int rowAlign = descH[7];
-        const Int ldH      = descH[8];
-        const Int ldQ      = descQ[8];
+        const int context  = descH[1];
+        const int mb       = descH[4];
+        const int nb       = descH[5];
+        const int rowAlign = descH[7];
+        const int ldH      = descH[8];
+        const int ldQ      = descQ[8];
 
-        const Int rowCut = 0;
-        const Int rowRank = blacs::GridCol( context );
-        const Int rowStride = blacs::GridWidth( context );
+        const int rowCut = 0;
+        const int rowRank = blacs::GridCol( context );
+        const int rowStride = blacs::GridWidth( context );
 
         const Int localWidth =
             BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);

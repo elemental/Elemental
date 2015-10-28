@@ -400,12 +400,47 @@ DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 // --------------------------
 template<typename T>
 DistSparseMatrix<T>
-DistSparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+DistSparseMatrix<T>::operator()
+( Range<Int> I, Range<Int> J ) const
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::operator()"))
-    return GetSubmatrix( *this, I, J );
-}   
+    DistSparseMatrix<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
 
+template<typename T>
+DistSparseMatrix<T>
+DistSparseMatrix<T>::operator()
+( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator()"))
+    DistSparseMatrix<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistSparseMatrix<T>
+DistSparseMatrix<T>::operator()
+( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator()"))
+    DistSparseMatrix<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistSparseMatrix<T>
+DistSparseMatrix<T>::operator()
+( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::operator()"))
+    DistSparseMatrix<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
 
 // Rescaling
 // ---------

@@ -75,6 +75,17 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( n, m );
+#ifdef EL_HAVE_MKL
+    Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+    mkl::omatcopy 
+    ( orient, m, n, T(1), A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
+#elif defined(EL_HAVE_OPENBLAS)
+    // NOTE: If the user specified MATH_LIBS, and MATH_LIBS contains OpenBLAS,
+    //       it may be necessary to also specify -D EL_HAVE_OPENBLAS
+    Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+    openblas::omatcopy 
+    ( orient, m, n, T(1), A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
+#else
     // TODO: Optimize this routine
     const T* ABuf = A.LockedBuffer();
           T* BBuf = B.Buffer();
@@ -93,6 +104,7 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
           ABuf, 1,   ldA,
           BBuf, ldB, 1 );
     }
+#endif
 }
 
 template<typename T>
@@ -100,8 +112,8 @@ void Transpose
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    const ElementalData AData = A.DistData();
-    const ElementalData BData = B.DistData();
+    const auto AData = A.DistData();
+    const auto BData = B.DistData();
 
     // NOTE: The following are ordered in terms of increasing cost
     if( AData.colDist == BData.rowDist &&
@@ -161,8 +173,8 @@ void Transpose
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    const DistData AData = A.DistData();
-    const DistData BData = B.DistData();
+    const auto AData = A.DistData();
+    const auto BData = B.DistData();
     if( AData.colDist == BData.rowDist &&
         AData.rowDist == BData.colDist &&
         ((AData.colAlign    == BData.rowAlign && 
@@ -221,6 +233,47 @@ void Transpose
 
 template<typename T>
 void Transpose
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B, 
+  bool conjugate )
+{
+    DEBUG_ONLY(CSE cse("Transpose"))
+    if( A.Wrap() == ELEMENT && B.Wrap() == ELEMENT )
+    {
+        const auto& ACast = dynamic_cast<const ElementalMatrix<T>&>(A);
+              auto& BCast = dynamic_cast<      ElementalMatrix<T>&>(B);
+        Transpose( ACast, BCast, conjugate );
+    }
+    else if( A.Wrap() == BLOCK  && B.Wrap() == BLOCK )
+    {
+        const auto& ACast = dynamic_cast<const BlockMatrix<T>&>(A);
+              auto& BCast = dynamic_cast<      BlockMatrix<T>&>(B);
+        Transpose( ACast, BCast, conjugate );
+    }
+    else if( A.Wrap() == ELEMENT ) // && B.Wrap() == BLOCK
+    {
+        auto& BCast = dynamic_cast<BlockMatrix<T>&>(B);
+        unique_ptr<BlockMatrix<T>> 
+            C( BCast.ConstructTranspose(A.Grid(),A.Root()) );
+        C->AlignWith( BCast );
+        Copy( A, *C );
+        BCast.Resize( A.Width(), A.Height() );
+        Transpose( C->LockedMatrix(), BCast.Matrix(), conjugate );
+    }
+    else  // A.Wrap() == BLOCK && B.Wrap() == ELEMENT
+    {
+        auto& BCast = dynamic_cast<ElementalMatrix<T>&>(B);
+        unique_ptr<ElementalMatrix<T>> 
+            C( BCast.ConstructTranspose(A.Grid(),A.Root()) );
+        C->AlignWith( BCast );
+        Copy( A, *C );
+        BCast.Resize( A.Width(), A.Height() );
+        Transpose( C->LockedMatrix(), BCast.Matrix(), conjugate );
+    } 
+}
+
+template<typename T>
+void Transpose
 ( const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
@@ -239,19 +292,30 @@ void Transpose
 }
 
 #define PROTO(T) \
-  template void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate ); \
+  template void Transpose \
+  ( const Matrix<T>& A, \
+          Matrix<T>& B, \
+    bool conjugate ); \
   template void Transpose \
   ( const ElementalMatrix<T>& A, \
-          ElementalMatrix<T>& B, bool conjugate ); \
+          ElementalMatrix<T>& B, \
+    bool conjugate ); \
   template void Transpose \
   ( const BlockMatrix<T>& A, \
-          BlockMatrix<T>& B, bool conjugate ); \
+          BlockMatrix<T>& B, \
+    bool conjugate ); \
+  template void Transpose \
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<T>& B, \
+    bool conjugate ); \
   template void Transpose \
   ( const SparseMatrix<T>& A, \
-          SparseMatrix<T>& B, bool conjugate ); \
+          SparseMatrix<T>& B, \
+    bool conjugate ); \
   template void Transpose \
   ( const DistSparseMatrix<T>& A, \
-          DistSparseMatrix<T>& B, bool conjugate );
+          DistSparseMatrix<T>& B, \
+    bool conjugate );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

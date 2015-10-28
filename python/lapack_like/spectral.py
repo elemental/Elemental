@@ -836,27 +836,6 @@ class SVDCtrl_d(ctypes.Structure):
   def __init__(self):
     lib.ElSVDCtrlDefault_d(pointer(self))
 
-lib.ElSVD_s.argtypes = \
-lib.ElSVD_d.argtypes = \
-lib.ElSVD_c.argtypes = \
-lib.ElSVD_z.argtypes = \
-lib.ElSVDDist_s.argtypes = \
-lib.ElSVDDist_d.argtypes = \
-lib.ElSVDDist_c.argtypes = \
-lib.ElSVDDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p]
-
-lib.ElSVDX_s.argtypes = \
-lib.ElSVDX_c.argtypes = \
-lib.ElSVDXDist_s.argtypes = \
-lib.ElSVDXDist_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,SVDCtrl_s]
-lib.ElSVDX_d.argtypes = \
-lib.ElSVDX_z.argtypes = \
-lib.ElSVDXDist_d.argtypes = \
-lib.ElSVDXDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,SVDCtrl_d]
-
 lib.ElSingularValues_s.argtypes = \
 lib.ElSingularValues_d.argtypes = \
 lib.ElSingularValues_c.argtypes = \
@@ -867,11 +846,11 @@ lib.ElSingularValuesDist_c.argtypes = \
 lib.ElSingularValuesDist_z.argtypes = \
   [c_void_p,c_void_p]
 
-lib.ElSingularValuesDist_s.argtypes = \
-lib.ElSingularValuesDist_c.argtypes = \
+lib.ElSingularValuesXDist_s.argtypes = \
+lib.ElSingularValuesXDist_c.argtypes = \
   [c_void_p,c_void_p,SVDCtrl_s]
-lib.ElSingularValuesDist_d.argtypes = \
-lib.ElSingularValuesDist_z.argtypes = \
+lib.ElSingularValuesXDist_d.argtypes = \
+lib.ElSingularValuesXDist_z.argtypes = \
   [c_void_p,c_void_p,SVDCtrl_d]
 
 def SingularValues(A,ctrl=None):
@@ -903,6 +882,27 @@ def SingularValues(A,ctrl=None):
     else: DataExcept()
     return s
   else: TypeExcept()
+
+lib.ElSVD_s.argtypes = \
+lib.ElSVD_d.argtypes = \
+lib.ElSVD_c.argtypes = \
+lib.ElSVD_z.argtypes = \
+lib.ElSVDDist_s.argtypes = \
+lib.ElSVDDist_d.argtypes = \
+lib.ElSVDDist_c.argtypes = \
+lib.ElSVDDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+lib.ElSVDX_s.argtypes = \
+lib.ElSVDX_c.argtypes = \
+lib.ElSVDXDist_s.argtypes = \
+lib.ElSVDXDist_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,SVDCtrl_s]
+lib.ElSVDX_d.argtypes = \
+lib.ElSVDX_z.argtypes = \
+lib.ElSVDXDist_d.argtypes = \
+lib.ElSVDXDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,SVDCtrl_d]
 
 def SVD(A,ctrl=None):
   if type(A) is Matrix:

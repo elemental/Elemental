@@ -15,21 +15,47 @@
 # define EL_RUNNING_ON_VALGRIND 0
 #endif
 
+//#define EL_MEMORY_MALLOC
+namespace {
+
+template<typename G>
+static G* New( size_t size )
+{
+#ifdef EL_MEMORY_MALLOC
+    return (G*)malloc(size*sizeof(G));
+#else
+    return new G[size];
+#endif
+}
+
+template<typename G>
+static void Delete( G*& ptr )
+{
+#ifdef EL_MEMORY_MALLOC
+    free( ptr );
+#else
+    delete[] ptr;
+#endif
+    ptr = nullptr;
+}
+
+} // anonymous namespace
+
 namespace El {
 
 template<typename G>
 Memory<G>::Memory()
-: size_(0), buffer_(nullptr)
+: size_(0), rawBuffer_(nullptr), buffer_(nullptr)
 { }
 
 template<typename G>
 Memory<G>::Memory( size_t size )
-: size_(0), buffer_(nullptr)
+: size_(0), rawBuffer_(nullptr), buffer_(nullptr)
 { Require( size ); }
 
 template<typename G>
 Memory<G>::Memory( Memory<G>&& mem )
-: size_(mem.size_), buffer_(nullptr)
+: size_(mem.size_), rawBuffer_(nullptr), buffer_(nullptr)
 { ShallowSwap(mem); }
 
 template<typename G>
@@ -40,11 +66,15 @@ template<typename G>
 void Memory<G>::ShallowSwap( Memory<G>& mem )
 {
     std::swap(size_,mem.size_);
+    std::swap(rawBuffer_,mem.rawBuffer_);
     std::swap(buffer_,mem.buffer_);
 }
 
 template<typename G>
-Memory<G>::~Memory() { delete[] buffer_; }
+Memory<G>::~Memory() 
+{ 
+    Delete( rawBuffer_ );
+}
 
 template<typename G>
 G* Memory<G>::Buffer() const EL_NO_EXCEPT { return buffer_; }
@@ -57,15 +87,22 @@ G* Memory<G>::Require( size_t size )
 {
     if( size > size_ )
     {
-        delete[] buffer_;
+        Delete( rawBuffer_ );
+
 #ifndef EL_RELEASE
         try {
 #endif
-            buffer_ = new G[size];
+
+            // TODO: Optionally overallocate to force alignment of buffer_
+            rawBuffer_ = New<G>( size );
+            buffer_ = rawBuffer_;
+
+            size_ = size;
 #ifndef EL_RELEASE
         } 
         catch( std::bad_alloc& e )
         {
+            size_ = 0;
             ostringstream os;
             os << "Failed to allocate " << size*sizeof(G) 
                << " bytes on process " << mpi::WorldRank() << endl;
@@ -73,7 +110,6 @@ G* Memory<G>::Require( size_t size )
             throw e;
         }
 #endif
-        size_ = size;
 #ifdef EL_ZERO_INIT
         MemZero( buffer_, size_ );
 #elif defined(EL_HAVE_VALGRIND)
@@ -91,13 +127,12 @@ void Memory<G>::Release()
 template<typename G>
 void Memory<G>::Empty()
 {
-    delete[] buffer_;
-    size_ = 0;
+    Delete( rawBuffer_ );
     buffer_ = nullptr;
+    size_ = 0;
 }
 
-#define PROTO(T) \
-  template class Memory<T>;
+#define PROTO(T) template class Memory<T>;
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

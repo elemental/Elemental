@@ -60,6 +60,15 @@ float  EL_BLAS(scnrm2)
 double EL_BLAS(dznrm2)
 ( const BlasInt* n, const dcomplex* x, const BlasInt* incx );
 
+BlasInt EL_LAPACK(isamax)
+( const BlasInt* n, const float* x, const BlasInt* incx );
+BlasInt EL_LAPACK(idamax)
+( const BlasInt* n, const double* x, const BlasInt* incx );
+BlasInt EL_LAPACK(icamax)
+( const BlasInt* n, const scomplex* x, const BlasInt* incx );
+BlasInt EL_LAPACK(izamax)
+( const BlasInt* n, const dcomplex* x, const BlasInt* incx );
+
 // Apply a Givens rotation to a pair of vectors
 void EL_BLAS(srot)
 ( const BlasInt* n, float* x, const BlasInt* incx, 
@@ -605,6 +614,12 @@ T Dot( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy )
 }
 template Int Dot
 ( BlasInt n, const Int* x, BlasInt incx, const Int* y, BlasInt incy );
+template float Dot
+( BlasInt n, const float* x, BlasInt incx, const float* y, BlasInt incy );
+template scomplex Dot
+( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
+template dcomplex Dot
+( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
 #ifdef EL_HAVE_QUAD
 template Quad Dot
 ( BlasInt n, const Quad* x, BlasInt incx, 
@@ -614,28 +629,11 @@ template Complex<Quad> Dot
              const Complex<Quad>* y, BlasInt incy );
 #endif
 
-float Dot
-( BlasInt n, const float* x, BlasInt incx, const float* y, BlasInt incy )
-{ return EL_BLAS(sdot)( &n, x, &incx, y, &incy ); }
+// NOTE: I am under the impression that it is generally unsafe to return 
+//       anything except a double-precision float to C from Fortran
 double Dot
 ( BlasInt n, const double* x, BlasInt incx, const double* y, BlasInt incy )
 { return EL_BLAS(ddot)( &n, x, &incx, y, &incy ); }
-scomplex Dot
-( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy )
-{ 
-    scomplex alpha = 0;
-    for( BlasInt i=0; i<n; ++i ) 
-        alpha += Conj(x[i*incx])*y[i*incy];
-    return alpha;
-}
-dcomplex Dot
-( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy )
-{
-    dcomplex alpha = 0;
-    for( BlasInt i=0; i<n; ++i ) 
-        alpha += Conj(x[i*incx])*y[i*incy];
-    return alpha;
-}
 
 template<typename T>
 T Dotu( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy )
@@ -646,8 +644,13 @@ T Dotu( BlasInt n, const T* x, BlasInt incx, const T* y, BlasInt incy )
     return alpha;
 }
 template Int Dotu
-( BlasInt n, const Int* x, BlasInt incx, 
-             const Int* y, BlasInt incy );
+( BlasInt n, const Int* x, BlasInt incx, const Int* y, BlasInt incy );
+template float Dotu
+( BlasInt n, const float* x, BlasInt incx, const float* y, BlasInt incy );
+template scomplex Dotu
+( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy );
+template dcomplex Dotu
+( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy );
 #ifdef EL_HAVE_QUAD
 template Quad Dotu
 ( BlasInt n, const Quad* x, BlasInt incx, 
@@ -657,28 +660,9 @@ template Complex<Quad> Dotu
              const Complex<Quad>* y, BlasInt incy );
 #endif
 
-float Dotu
-( BlasInt n, const float* x, BlasInt incx, const float* y, BlasInt incy )
-{ return EL_BLAS(sdot)( &n, x, &incx, y, &incy ); }
 double Dotu
 ( BlasInt n, const double* x, BlasInt incx, const double* y, BlasInt incy )
 { return EL_BLAS(ddot)( &n, x, &incx, y, &incy ); }
-scomplex Dotu
-( BlasInt n, const scomplex* x, BlasInt incx, const scomplex* y, BlasInt incy )
-{
-    scomplex alpha = 0;
-    for( BlasInt i=0; i<n; ++i ) 
-        alpha += x[i*incx]*y[i*incy];
-    return alpha;
-}
-dcomplex Dotu
-( BlasInt n, const dcomplex* x, BlasInt incx, const dcomplex* y, BlasInt incy )
-{
-    dcomplex alpha = 0;
-    for( BlasInt i=0; i<n; ++i ) 
-        alpha += x[i*incx]*y[i*incy];
-    return alpha;
-}
 
 template<typename F>
 Base<F> Nrm2( BlasInt n, const F* x, BlasInt incx )
@@ -690,19 +674,59 @@ Base<F> Nrm2( BlasInt n, const F* x, BlasInt incx )
         UpdateScaledSquare( x[i*incx], scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
+template float Nrm2( BlasInt n, const float* x, BlasInt incx );
+template float Nrm2( BlasInt n, const scomplex* x, BlasInt incx );
 #ifdef EL_HAVE_QUAD
 template Quad Nrm2( BlasInt n, const Quad* x, BlasInt incx );
 template Quad Nrm2( BlasInt n, const Complex<Quad>* x, BlasInt incx );
 #endif
 
-float Nrm2( BlasInt n, const float* x, BlasInt incx )
-{ return EL_BLAS(snrm2)( &n, x, &incx ); }
 double Nrm2( BlasInt n, const double* x, BlasInt incx )
 { return EL_BLAS(dnrm2)( &n, x, &incx ); }
-float Nrm2( BlasInt n, const scomplex* x, BlasInt incx )
-{ return EL_BLAS(scnrm2)( &n, x, &incx ); }
 double Nrm2( BlasInt n, const dcomplex* x, BlasInt incx )
 { return EL_BLAS(dznrm2)( &n, x, &incx ); }
+
+template<typename F>
+BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx )
+{
+    typedef Base<F> Real;
+    Real maxAbsVal = -1;
+    Real maxAbsInd = -1;
+    for( BlasInt i=0; i<n; ++i ) 
+    {
+        const Real absVal = Abs(x[i*incx]);
+        if( absVal > maxAbsVal )
+        {
+            maxAbsVal = absVal;
+            maxAbsInd = i;
+        }
+    } 
+}
+#ifdef EL_HAVE_QUAD
+template BlasInt MaxInd( BlasInt n, const Int* x, BlasInt incx );
+template BlasInt MaxInd( BlasInt n, const Quad* x, BlasInt incx );
+template BlasInt MaxInd( BlasInt n, const Complex<Quad>* x, BlasInt incx );
+#endif
+
+BlasInt MaxInd( BlasInt n, const float* x, BlasInt incx )
+{
+    return EL_LAPACK(isamax)( &n, x, &incx ) - 1;
+}
+
+BlasInt MaxInd( BlasInt n, const double* x, BlasInt incx )
+{
+    return EL_LAPACK(idamax)( &n, x, &incx ) - 1;
+}
+
+BlasInt MaxInd( BlasInt n, const scomplex* x, BlasInt incx )
+{
+    return EL_LAPACK(icamax)( &n, x, &incx ) - 1;
+}
+
+BlasInt MaxInd( BlasInt n, const dcomplex* x, BlasInt incx )
+{
+    return EL_LAPACK(izamax)( &n, x, &incx ) - 1;
+}
 
 float Givens
 ( float alpha, float beta, float* c, float* s )
@@ -772,12 +796,23 @@ void Scal( BlasInt n, dcomplex alpha, dcomplex* x, BlasInt incx )
 { EL_BLAS(zscal)( &n, &alpha, x, &incx ); }
 
 // NOTE: 'nrm1' is not the official name but is consistent with 'nrm2'
-float Nrm1( BlasInt n, const float* x, BlasInt incx )
-{ return EL_BLAS(sasum)( &n, x, &incx ); }
+template<typename F>
+Base<F> Nrm1( BlasInt n, const F* x, BlasInt incx )
+{
+    Base<F> sum=0;
+    for( BlasInt i=0; i<n; ++i )
+        sum += Abs(x[i*incx]);
+    return sum;
+}
+template float Nrm1( BlasInt n, const float* x, BlasInt incx );
+template float Nrm1( BlasInt n, const scomplex* x, BlasInt incx );
+#ifdef EL_HAVE_QUAD
+template Quad Nrm1( BlasInt n, const Quad* x, BlasInt incx );
+template Quad Nrm1( BlasInt n, const Complex<Quad>* x, BlasInt incx );
+#endif
+
 double Nrm1( BlasInt n, const double* x, BlasInt incx )
 { return EL_BLAS(dasum)( &n, x, &incx ); }
-float Nrm1( BlasInt n, const scomplex* x, BlasInt incx )
-{ return EL_LAPACK(scsum1)( &n, x, &incx ); }
 double Nrm1( BlasInt n, const dcomplex* x, BlasInt incx )
 { return EL_LAPACK(dzsum1)( &n, x, &incx ); }
 
@@ -967,9 +1002,10 @@ void Ger
 template<typename T>
 void Geru
 ( BlasInt m, BlasInt n,
-  T alpha, const T* x, BlasInt incx, 
-           const T* y, BlasInt incy,
-                 T* A, BlasInt lda )
+  T alpha,
+  const T* x, BlasInt incx, 
+  const T* y, BlasInt incy,
+        T* A, BlasInt lda )
 {
     for( BlasInt j=0; j<n; ++j )
         for( BlasInt i=0; i<m; ++i )
@@ -977,48 +1013,55 @@ void Geru
 }
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Int alpha, const Int* x, BlasInt incx, 
-             const Int* y, BlasInt incy, 
-                   Int* A, BlasInt lda );
+  Int alpha,
+  const Int* x, BlasInt incx, 
+  const Int* y, BlasInt incy, 
+        Int* A, BlasInt lda );
 #ifdef EL_HAVE_QUAD
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Quad alpha, const Quad* x, BlasInt incx, 
-              const Quad* y, BlasInt incy, 
-                    Quad* A, BlasInt lda );
+  Quad alpha,
+  const Quad* x, BlasInt incx, 
+  const Quad* y, BlasInt incy, 
+        Quad* A, BlasInt lda );
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Complex<Quad> alpha, const Complex<Quad>* x, BlasInt incx, 
-                       const Complex<Quad>* y, BlasInt incy, 
-                             Complex<Quad>* A, BlasInt lda );
+  Complex<Quad> alpha,
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>* y, BlasInt incy, 
+        Complex<Quad>* A, BlasInt lda );
 #endif
 
 void Geru
 ( BlasInt m, BlasInt n,
-  float alpha, const float* x, BlasInt incx, 
-               const float* y, BlasInt incy,
-                     float* A, BlasInt lda )
+  float alpha,
+  const float* x, BlasInt incx, 
+  const float* y, BlasInt incy,
+        float* A, BlasInt lda )
 { EL_BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Geru
 ( BlasInt m, BlasInt n,
-  double alpha, const double* x, BlasInt incx, 
-                const double* y, BlasInt incy,
-                      double* A, BlasInt lda )
+  double alpha,
+  const double* x, BlasInt incx, 
+  const double* y, BlasInt incy,
+        double* A, BlasInt lda )
 { EL_BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Geru
 ( BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* x, BlasInt incx, 
-                  const scomplex* y, BlasInt incy,
-                        scomplex* A, BlasInt lda )
+  scomplex alpha,
+  const scomplex* x, BlasInt incx, 
+  const scomplex* y, BlasInt incy,
+        scomplex* A, BlasInt lda )
 { EL_BLAS(cgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 void Geru
 ( BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* x, BlasInt incx, 
-                  const dcomplex* y, BlasInt incy,
-                        dcomplex* A, BlasInt lda )
+  dcomplex alpha,
+  const dcomplex* x, BlasInt incx, 
+  const dcomplex* y, BlasInt incy,
+        dcomplex* A, BlasInt lda )
 { EL_BLAS(zgeru)( &m, &n, &alpha, x, &incx, y, &incy, A, &lda ); }
 
 // TODO: Introduce some sort of blocking

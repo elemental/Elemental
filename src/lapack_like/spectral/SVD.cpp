@@ -19,7 +19,10 @@ namespace El {
 
 template<typename F>
 void SVD
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
     if( ctrl.thresholded )
@@ -37,8 +40,10 @@ void SVD
 
 template<typename F>
 void SVD
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
     if( ctrl.thresholded )
@@ -70,7 +75,8 @@ void SVD( Matrix<F>& A, Matrix<Base<F>>& s )
 
 template<typename F>
 void SVD
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& s, 
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
@@ -82,24 +88,65 @@ template<typename F>
 void SVD( DistMatrix<F,MC,MR,BLOCK>& A, Matrix<Base<F>>& s )
 {
     DEBUG_ONLY(CSE cse("SVD"))
+    AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
-    const int bhandle = blacs::Handle( A.DistComm().comm );
-    const int context = 
-        blacs::GridInit
-        ( bhandle, A.Grid().Order()==COLUMN_MAJOR,
-          A.ColStride(), A.RowStride() );
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = Min(m,n);
+
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
     auto descA = FillDesc( A, context );
-    int m = A.Height();
-    int n = A.Width();
-    s.Resize( Min(m,n), 1 );
+
+    s.Resize( k, 1 );
     scalapack::SingularValues( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
-#else
-    LogicError("ScaLAPACK support was not enabled");
+
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
+#endif
+}
+
+template<typename F>
+void SVD
+( DistMatrix<F,MC,MR,BLOCK>& A,
+  Matrix<Base<F>>& s,
+  DistMatrix<F,MC,MR,BLOCK>& U,
+  DistMatrix<F,MC,MR,BLOCK>& VH )
+{
+    DEBUG_ONLY(CSE cse("SVD"))
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = Min(m,n);
+    Zeros( U, m, k );
+    Zeros( VH, k, n );
+
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
+    auto descA = FillDesc( A, context );
+    auto descU = FillDesc( U, context );
+    auto descVH = FillDesc( VH, context );
+
+    s.Resize( k, 1 );
+    scalapack::SVD
+    ( m, n,
+      A.Buffer(), descA.data(),
+      s.Buffer(),
+      U.Buffer(), descU.data(),
+      VH.Buffer(), descVH.data() ); 
+
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
 #endif
 }
 
 #define PROTO(F) \
-  template void SVD( Matrix<F>& A, Matrix<Base<F>>& s ); \
+  template void SVD \
+  ( Matrix<F>& A, \
+    Matrix<Base<F>>& s ); \
   template void SVD \
   ( ElementalMatrix<F>& A, \
     ElementalMatrix<Base<F>>& s, \
@@ -116,7 +163,12 @@ void SVD( DistMatrix<F,MC,MR,BLOCK>& A, Matrix<Base<F>>& s )
   ( ElementalMatrix<F>& A, \
     ElementalMatrix<Base<F>>& s, \
     ElementalMatrix<F>& V, \
-    const SVDCtrl<Base<F>>& ctrl );
+    const SVDCtrl<Base<F>>& ctrl ); \
+  template void SVD \
+  ( DistMatrix<F,MC,MR,BLOCK>& A, \
+    Matrix<Base<F>>& s, \
+    DistMatrix<F,MC,MR,BLOCK>& U, \
+    DistMatrix<F,MC,MR,BLOCK>& VH );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

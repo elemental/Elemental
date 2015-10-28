@@ -31,7 +31,7 @@ void Exchange
     B.Resize( A.Height(), A.Width() );
     if( myRank == sendRank )
     {
-        B.Matrix() = A.LockedMatrix();
+        Copy( A.LockedMatrix(), B.Matrix() );
         return;
     }
 
@@ -54,7 +54,9 @@ void Exchange
     else if( contigB )
     {
         // Pack A's data
-        vector<T> buf( sendSize );
+        //vector<T> buf( sendSize );
+        vector<T> buf;
+        buf.reserve( sendSize );
         copy::util::InterleaveMatrix
         ( localHeightA, localWidthA,
           A.LockedBuffer(), 1, A.LDim(),
@@ -68,7 +70,9 @@ void Exchange
     else if( contigA )
     {
         // Exchange with the partner
-        vector<T> buf( recvSize );
+        //vector<T> buf( recvSize );
+        vector<T> buf;
+        buf.reserve( recvSize );
         mpi::SendRecv
         ( A.LockedBuffer(), sendSize, sendRank,
           buf.data(),       recvSize, recvRank, comm );
@@ -82,14 +86,18 @@ void Exchange
     else
     {
         // Pack A's data
-        vector<T> sendBuf( sendSize );
+        //vector<T> sendBuf( sendSize );
+        vector<T> sendBuf;
+        sendBuf.reserve( sendSize );
         copy::util::InterleaveMatrix
         ( localHeightA, localWidthA,
           A.LockedBuffer(), 1, A.LDim(),
           sendBuf.data(),   1, localHeightA );
 
         // Exchange with the partner
-        vector<T> recvBuf( recvSize );
+        //vector<T> recvBuf( recvSize );
+        vector<T> recvBuf;
+        recvBuf.reserve( recvSize );
         mpi::SendRecv
         ( sendBuf.data(), sendSize, sendRank,
           recvBuf.data(), recvSize, recvRank, comm );

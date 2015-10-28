@@ -45,7 +45,14 @@ public:
 
     // Make a copy of a submatrix
     // --------------------------
-    DistMultiVec<T> operator()( Range<Int> I, Range<Int> J ) const;
+    DistMultiVec<T> operator()
+    ( Range<Int> I, Range<Int> J ) const;
+    DistMultiVec<T> operator()
+    ( Range<Int> I, const vector<Int>& J ) const;
+    DistMultiVec<T> operator()
+    ( const vector<Int>& I, Range<Int> J ) const;
+    DistMultiVec<T> operator()
+    ( const vector<Int>& I, const vector<Int>& J ) const;
    
     // Assignment
     // ----------

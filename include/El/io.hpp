@@ -82,10 +82,7 @@ void Display( const Matrix<Real>& A, string title="Matrix" );
 template<typename Real>
 void Display( const Matrix<Complex<Real>>& A, string title="Matrix" );
 template<typename T>
-void Display( const ElementalMatrix<T>& A, string title="DistMatrix" );
-template<typename T>
-void Display
-( const BlockMatrix<T>& A, string title="BlockDistMatrix" );
+void Display( const AbstractDistMatrix<T>& A, string title="DistMatrix" );
 template<typename T>
 void Display( const DistMultiVec<T>& X, string title="DistMultiVec" );
 
@@ -118,11 +115,7 @@ template<typename T>
 void Print( const Matrix<T>& A, string title="Matrix", ostream& os=cout );
 template<typename T>
 void Print
-( const ElementalMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
-template<typename T>
-void Print
-( const BlockMatrix<T>& A, string title="BlockDistMatrix",
-  ostream& os=cout );
+( const AbstractDistMatrix<T>& A, string title="DistMatrix", ostream& os=cout );
 template<typename T>
 void Print
 ( const DistMultiVec<T>& X, string title="DistMultiVec", ostream& os=cout );
@@ -158,11 +151,7 @@ template<typename T>
 void Read( Matrix<T>& A, const string filename, FileFormat format=AUTO );
 template<typename T>
 void Read
-( ElementalMatrix<T>& A, 
-  const string filename, FileFormat format=AUTO, bool sequential=false );
-template<typename T>
-void Read
-( BlockMatrix<T>& A, 
+( AbstractDistMatrix<T>& A, 
   const string filename, FileFormat format=AUTO, bool sequential=false );
 
 // Spy
@@ -171,11 +160,7 @@ template<typename T>
 void Spy( const Matrix<T>& A, string title="Matrix", Base<T> tol=0 );
 template<typename T>
 void Spy
-( const ElementalMatrix<T>& A, string title="DistMatrix", Base<T> tol=0 );
-template<typename T>
-void Spy
-( const BlockMatrix<T>& A,
-  string title="BlockDistMatrix", Base<T> tol=0 );
+( const AbstractDistMatrix<T>& A, string title="DistMatrix", Base<T> tol=0 );
 
 // Write
 // =====
@@ -185,11 +170,7 @@ void Write
   string title="" );
 template<typename T>
 void Write
-( const ElementalMatrix<T>& A, string basename="DistMatrix",
-  FileFormat format=BINARY, string title="" );
-template<typename T>
-void Write
-( const BlockMatrix<T>& A, string basename="BlockDistMatrix",
+( const AbstractDistMatrix<T>& A, string basename="DistMatrix",
   FileFormat format=BINARY, string title="" );
 
 } // namespace El

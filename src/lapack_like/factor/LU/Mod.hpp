@@ -29,8 +29,12 @@ namespace El {
 
 template<typename F>
 void LUMod
-( Matrix<F>& A, Matrix<Int>& p, 
-  const Matrix<F>& u, const Matrix<F>& v, bool conjugate, Base<F> tau )
+( Matrix<F>& A,
+  Matrix<Int>& p, 
+  const Matrix<F>& u,
+  const Matrix<F>& v,
+  bool conjugate,
+  Base<F> tau )
 {
     DEBUG_ONLY(CSE cse("LUMod"))
     typedef Base<F> Real;
@@ -272,9 +276,12 @@ void LUMod
 
 template<typename F>
 void LUMod
-( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p, 
-  const ElementalMatrix<F>& u, const ElementalMatrix<F>& v, 
-  bool conjugate, Base<F> tau )
+(       ElementalMatrix<F>& APre,
+        ElementalMatrix<Int>& p, 
+  const ElementalMatrix<F>& u,
+  const ElementalMatrix<F>& v, 
+  bool conjugate,
+  Base<F> tau )
 {
     DEBUG_ONLY(CSE cse("LUMod"))
     const Grid& g = APre.Grid();

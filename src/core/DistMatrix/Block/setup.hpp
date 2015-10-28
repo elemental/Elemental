@@ -14,6 +14,7 @@ namespace El {
 #define DM DistMatrix<T,COLDIST,ROWDIST>
 #define BDM DistMatrix<T,COLDIST,ROWDIST,BLOCK>
 #define BCM BlockMatrix<T>
+#define ADM AbstractDistMatrix<T>
 
 // Public section
 // ##############
@@ -90,6 +91,34 @@ BDM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
         *this = A;
     else
         LogicError("Tried to construct block DistMatrix with itself");
+}
+
+template<typename T>
+BDM::DistMatrix( const AbstractDistMatrix<T>& A )
+: BCM(A.Grid())
+{
+    DEBUG_ONLY(CSE cse("BDM(ADM)"))
+    if( COLDIST == CIRC && ROWDIST == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts();
+    if( A.Wrap() == ELEMENT )
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = \
+            dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+          *this = ACast;
+        #include "El/macros/GuardAndPayload.h"
+    }
+    else
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = \
+            dynamic_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+          *this = ACast;
+        #include "El/macros/GuardAndPayload.h"
+    }
 }
 
 template<typename T>
@@ -170,17 +199,72 @@ const BDM BDM::operator()( Range<Int> I, Range<Int> J ) const
     return LockedView( *this, I, J );
 }
 
+// Non-contiguous
+// --------------
+template<typename T>
+BDM BDM::operator()( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( ind, vec ) const"))
+    BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+BDM BDM::operator()( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, ind ) const"))
+    BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+BDM BDM::operator()( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, vec ) const"))
+    BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
 // Copy
 // ----
+
+template<typename T>
+BDM& BDM::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("BDM = ADM"))
+    if( A.Wrap() == ELEMENT )
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = \
+            dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+          *this = ACast;
+        #include "El/macros/GuardAndPayload.h"
+    }
+    else
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = \
+            dynamic_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+          *this = ACast;
+        #include "El/macros/GuardAndPayload.h"
+    }
+    return *this;
+}
 
 template<typename T>
 template<Dist U,Dist V>
 BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CSE cse("BDM = DM[U,V]"))
-    DistMatrix<T,U,V,BLOCK> ABlock(A.Grid(),1,1);
-    LockedView( ABlock, A );
-    *this = ABlock;
+    // TODO: Use either AllGather or Gather if the distribution of this matrix
+    //       is respectively either (STAR,STAR) or (CIRC,CIRC)
+    // TODO: Specially handle cases where the block size is 1 x 1
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -215,9 +299,25 @@ const BDM& BDM::operator+=( const BCM& A )
 }
 
 template<typename T>
+const BDM& BDM::operator+=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("BDM += ADM&"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
 const BDM& BDM::operator-=( const BCM& A )
 {
     DEBUG_ONLY(CSE cse("BDM += BCM&"))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const BDM& BDM::operator-=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("BDM += ADM&"))
     Axpy( T(-1), A, *this );
     return *this;
 }

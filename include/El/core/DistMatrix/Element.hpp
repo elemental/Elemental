@@ -60,13 +60,13 @@ public:
       bool constrain=true, bool allowMismatch=false ) override;
 
     void AlignWith
-    ( const El::ElementalData& data,
+    ( const ElementalData& data,
       bool constrain=true, bool allowMismatch=false );
     void AlignColsWith
-    ( const El::ElementalData& data,
+    ( const ElementalData& data,
       bool constrain=true, bool allowMismatch=false );
     void AlignRowsWith
-    ( const El::ElementalData& data,
+    ( const ElementalData& data,
       bool constrain=true, bool allowMismatch=false );
 
     void AlignAndResize
@@ -104,13 +104,20 @@ public:
     // Copy
     // ----
     const type& operator=( const type& A );
+    const type& operator=( const absType& A );
     // TODO: Eliminate this routine
     const type& operator=( const DistMultiVec<T>& A );
+
+    // Rescaling
+    // ---------
+    const type& operator*=( T alpha );
 
     // Addition/subtraction
     // --------------------
     const type& operator+=( const type& A );
+    const type& operator+=( const absType& A );
     const type& operator-=( const type& A );
+    const type& operator-=( const absType& A );
 
     // Move assignment
     // ---------------
@@ -119,7 +126,7 @@ public:
     // Basic queries
     // =============
     DistWrap Wrap() const override EL_NO_EXCEPT { return ELEMENT; }
-    virtual El::ElementalData DistData() const = 0;
+    virtual ElementalData DistData() const = 0;
 
     Int BlockHeight() const override EL_NO_EXCEPT { return 1; }
     Int BlockWidth()  const override EL_NO_EXCEPT { return 1; }
@@ -138,7 +145,7 @@ public:
     bool DiagonalAlignedWith
     ( const El::DistData& d, Int offset=0 ) const override EL_NO_EXCEPT;
     bool DiagonalAlignedWith
-    ( const El::ElementalData& d, Int offset=0 ) const EL_NO_EXCEPT;
+    ( const ElementalData& d, Int offset=0 ) const EL_NO_EXCEPT;
     int DiagonalRoot( Int offset=0 ) const override EL_NO_EXCEPT;
     int DiagonalAlign( Int offset=0 ) const override EL_NO_EXCEPT;
 

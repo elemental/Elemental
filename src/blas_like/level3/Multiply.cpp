@@ -602,7 +602,9 @@ void Multiply
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         const Int firstLocalRow = X.FirstLocalRow();
-        vector<T> sendVals( numSendInds*b );
+        //vector<T> sendVals( numSendInds*b );
+        vector<T> sendVals;
+        sendVals.reserve( numSendInds*b );
         const T* XBuffer = X.LockedMatrix().LockedBuffer();
         const Int ldX = X.LockedMatrix().LDim();
         for( Int s=0; s<numSendInds; ++s )
@@ -655,7 +657,9 @@ void Multiply
 
         // Inject the updates to Y into the network
         const Int numRecvInds = meta.sendInds.size();
-        vector<T> recvVals( numRecvInds*b );
+        //vector<T> recvVals( numRecvInds*b );
+        vector<T> recvVals;
+        recvVals.reserve( numRecvInds*b );
         mpi::AllToAll
         ( sendVals.data(), recvSizes.data(), recvOffs.data(),
           recvVals.data(), sendSizes.data(), sendOffs.data(), comm );

@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -56,7 +57,9 @@ void RowFilter
         const Int sendSize = localHeightA*localWidth;
         const Int recvSize = localHeight *localWidth;
 
-        vector<T> buffer( sendSize+recvSize );
+        //vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer;
+        buffer.reserve( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
 
@@ -85,7 +88,8 @@ void RowFilter
 {
     DEBUG_ONLY(CSE cse("copy::RowFilter"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO(T) \

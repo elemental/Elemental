@@ -163,12 +163,12 @@ UPan
   DistMatrix<F>& X, 
   DistMatrix<F>& Y,
   DistMatrix<F,MC,  STAR>& AL_MC_STAR,
-  DistMatrix<F,STAR,MR  >& AT_STAR_MR )
+  DistMatrix<F,MR,  STAR>& BL_MR_STAR )
 {
     const Int nX = X.Width();
     DEBUG_ONLY(
       CSE cse("bidiag::UPan");
-      AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, AT_STAR_MR );
+      AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, BL_MR_STAR );
       if( A.ColAlign() != X.ColAlign() || 
           A.RowAlign() != X.RowAlign() )
           LogicError("A and X must be aligned");
@@ -243,8 +243,8 @@ UPan
         auto y12 = Y( ind1, ind2 );
         auto YT2 = Y( indT, ind2 );
 
-        auto a12_STAR_MR = AT_STAR_MR( ind1, ind2 );
         auto aB1_MC_STAR = AL_MC_STAR( indB, ind1 );
+        auto a12Trans_MR_STAR = BL_MR_STAR( ind2, ind1 );
 
         auto delta1   = d( ind1, ALL );
         auto epsilon1 = e( ind1, ALL );
@@ -361,20 +361,20 @@ UPan
         // x21 := tauP (A22 - A2L YT2 - X20 conj(A02)) a12^T
         //      = tauP (A22 a12^T - A2L (YT2 a12^T) - X20 (conj(A02) a12^T))
         // -----------------------------------------------------------------
-        a12_STAR_MR = a12;
+        Transpose( a12, a12Trans_MR_STAR );
 
         // z21[MC,* ] := A22[MC,MR] a12^T[MR,* ]
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         z21_MC_STAR.AlignWith( A22 );
         Zeros( z21_MC_STAR, A22.Height(), 1 );
-        LocalGemv( NORMAL, F(1), A22, a12_STAR_MR, F(0), z21_MC_STAR );
+        LocalGemv( NORMAL, F(1), A22, a12Trans_MR_STAR, F(0), z21_MC_STAR );
        
         // z21[MC,* ] -= A2L[MC,MR] (YT2 a12^T)[MR,* ]
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // zT1[MC,* ] := YT2[MC,MR] a12^T[MR,* ]
         zT1_MC_STAR.AlignWith( YT2 );
         Zeros( zT1_MC_STAR, YT2.Height(), 1 );
-        LocalGemv( NORMAL, F(1), YT2, a12_STAR_MR, F(0), zT1_MC_STAR );
+        LocalGemv( NORMAL, F(1), YT2, a12Trans_MR_STAR, F(0), zT1_MC_STAR );
         El::AllReduce( zT1_MC_STAR, YT2.RowComm() );
         // Redistribute and perform local Gemv 
         zT1_MR_STAR.AlignWith( A2L );
@@ -386,10 +386,10 @@ UPan
         // z01[MC,* ] := conj(A02[MC,MR] a12^H[MR,* ])
         z01_MC_STAR.AlignWith( A02 ); 
         Zeros( z01_MC_STAR, A02.Height(), 1 );
-        Conjugate( a12_STAR_MR );
-        LocalGemv( NORMAL, F(1), A02, a12_STAR_MR, F(0), z01_MC_STAR );
+        Conjugate( a12Trans_MR_STAR );
+        LocalGemv( NORMAL, F(1), A02, a12Trans_MR_STAR, F(0), z01_MC_STAR );
         El::AllReduce( z01_MC_STAR, A02.RowComm() );
-        Conjugate( a12_STAR_MR );
+        Conjugate( a12Trans_MR_STAR );
         Conjugate( z01_MC_STAR );
         // Redistribute and perform local Gemv
         z01_MR_STAR.AlignWith( X20 );

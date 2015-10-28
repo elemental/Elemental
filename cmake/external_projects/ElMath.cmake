@@ -45,6 +45,13 @@ set(MATH_PATHS /usr/lib
 # immediately before calling out to the nested CMake ScaLAPACK build.
 # There is currently a bug when ScaLAPACK is built on Macs.
 
+if(EL_BLAS_SUFFIX AND NOT EL_BLAS_SUFFIX STREQUAL _)
+  set(CUSTOM_BLAS_SUFFIX TRUE)
+endif()
+if(EL_LAPACK_SUFFIX AND NOT EL_LAPACK_SUFFIX STREQUAL _)
+  set(CUSTOM_LAPACK_SUFFIX TRUE)
+endif()
+
 # Test for pre-built libraries
 # ----------------------------
 if(MATH_LIBS)
@@ -54,7 +61,18 @@ endif()
 
 # Check for MKL
 # ^^^^^^^^^^^^^
-if(NOT EL_DISABLE_MKL)
+if(MATH_LIBS)
+  set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
+  El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV)
+  if(EL_HAVE_MKL_DCSRMV)
+    set(EL_HAVE_MKL TRUE)
+    message(STATUS "Using Intel MKL via ${MATH_LIBS}")
+  endif()
+  unset(CMAKE_REQUIRED_LIBRARIES)
+elseif(NOT EL_DISABLE_MKL AND
+       NOT EL_PREFER_OPENBLAS AND
+       NOT EL_PREFER_APPLE_MATH AND
+       NOT EL_PREFER_BLIS_LAPACK)
   if(EL_HYBRID)
     set(MKL_LIBS "-mkl=parallel")
     message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
@@ -112,15 +130,12 @@ if(NOT EL_DISABLE_MKL)
       unset(CMAKE_REQUIRED_FLAGS)
     endif()
   endif()
-endif()
-if(EL_FOUND_MKL AND NOT MATH_LIBS_AT_CONFIG 
-                AND NOT EL_DISABLE_MKL
-                AND NOT EL_PREFER_APPLE_MATH 
-                AND NOT EL_PREFER_OPENBLAS 
-                AND NOT EL_PREFER_BLIS_LAPACK)
-  set(MATH_LIBS_AT_CONFIG ${MKL_LIBS}) 
-  set(EL_HAVE_MKL TRUE)
-  message(STATUS "Using Intel MKL via ${MKL_LIBS}")
+  if(EL_FOUND_MKL)
+    set(MATH_LIBS_AT_CONFIG ${MKL_LIBS}) 
+    set(EL_HAVE_MKL TRUE)
+    message(STATUS "Using Intel MKL via ${MKL_LIBS}")
+    message(WARNING "If you receive an MKL Fatal Error when running your application, this is due to a bug in MKL that can be avoided by reconfiguring with MATH_LIBS containing an explicit link line for MKL, e.g., MATH_LIBS=\"-L/opt/mkl/lib/intel64 -lmkl_rt\"")
+  endif()
 endif()
 
 if(APPLE)
@@ -178,8 +193,13 @@ if(NOT EL_DISABLE_SCALAPACK)
   # --------------------------
   include(external_projects/ElMath/ScaLAPACK)
   if(EL_HAVE_SCALAPACK)
-    set(MATH_LIBS ${SCALAPACK_LIBS})
-    set(MATH_LIBS_AT_CONFIG ${SCALAPACK_LIBS_AT_CONFIG})
+    if(CUSTOM_BLAS_SUFFIX OR CUSTOM_LAPACK_SUFFIX)
+      set(MATH_LIBS ${MATH_LIBS} ${SCALAPACK_LIBS})
+      set(MATH_LIBS_AT_CONFIG ${MATH_LIBS_AT_CONFIG} ${SCALAPACK_LIBS_AT_CONFIG})
+    else()
+      set(MATH_LIBS ${SCALAPACK_LIBS})
+      set(MATH_LIBS_AT_CONFIG ${SCALAPACK_LIBS_AT_CONFIG})
+    endif()
   endif()
 endif()
 if(MATH_LIBS_AT_CONFIG AND NOT MATH_LIBS)
@@ -239,6 +259,13 @@ if(NOT MATH_LIBS)
   endif()
 endif()
 
+if(EL_BLAS_SUFFIX)
+  set(EL_HAVE_BLAS_SUFFIX TRUE)
+endif()
+if(EL_LAPACK_SUFFIX)
+  set(EL_HAVE_LAPACK_SUFFIX TRUE)
+endif()
+
 # Check/predict the BLAS and LAPACK underscore conventions
 # ========================================================
 if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
@@ -255,7 +282,6 @@ if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
     if(NOT EL_HAVE_DAXPY_SUFFIX)
       message(FATAL_ERROR "daxpy${EL_BLAS_SUFFIX} was not detected")
     endif()
-    set(EL_HAVE_BLAS_SUFFIX TRUE)
   else()
     El_check_function_exists(daxpy  EL_HAVE_DAXPY)
     El_check_function_exists(daxpy_ EL_HAVE_DAXPY_POST)
@@ -275,7 +301,6 @@ if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
     if(NOT EL_HAVE_DPOTRF_SUFFIX)
       message(FATAL_ERROR "dpotrf${EL_LAPACK_SUFFIX} was not detected")
     endif()
-    set(EL_HAVE_LAPACK_SUFFIX TRUE)
   else()
     El_check_function_exists(dpotrf  EL_HAVE_DPOTRF)
     El_check_function_exists(dpotrf_ EL_HAVE_DPOTRF_POST)

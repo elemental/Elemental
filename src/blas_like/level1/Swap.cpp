@@ -117,9 +117,9 @@ void RowSwap( Matrix<T>& A, Int to, Int from )
     if( to == from )
         return;
     const Int n = A.Width();
-    auto aToRow = A( IR(to,to+1), IR(0,n) );
-    auto aFromRow = A( IR(from,from+1), IR(0,n) );
-    Swap( NORMAL, aToRow, aFromRow );
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+    blas::Swap( n, &ABuf[to], ALDim, &ABuf[from], ALDim );
 }
 
 template<typename T>
@@ -132,36 +132,48 @@ void RowSwap( ElementalMatrix<T>& A, Int to, Int from )
         return;
     const Int n = A.Width();
     const Int nLocal = A.LocalWidth();
-    unique_ptr<ElementalMatrix<T>> aToRow( A.Construct(A.Grid(),A.Root()) );
-    unique_ptr<ElementalMatrix<T>> aFromRow( A.Construct(A.Grid(),A.Root()) );
-    View( *aToRow, A, IR(to,to+1), IR(0,n) );
-    View( *aFromRow, A, IR(from,from+1), IR(0,n) );
-    if( aToRow->ColAlign() == aFromRow->ColAlign() )
+    const Int colAlign = A.ColAlign();
+    const Int colShift = A.ColShift();
+    const Int colStride = A.ColStride();
+    const Int toMod = Mod(to,colStride);
+    const Int fromMod = Mod(from,colStride);
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+
+    if( toMod == fromMod )
     {
-        if( aToRow->ColShift() == 0 )
-            Swap( NORMAL, aToRow->Matrix(), aFromRow->Matrix() );
+        if( toMod == colShift )
+        {
+            const Int iLocTo = (to-colShift) / colStride;
+            const Int iLocFrom = (from-colShift) / colStride;
+            blas::Swap( nLocal, &ABuf[iLocTo], ALDim, &ABuf[iLocFrom], ALDim ); 
+        }
     }
-    else if( aToRow->ColShift() == 0 )
+    else if( toMod == colShift )
     {
-        vector<T> buf( nLocal );
+        const Int iLocTo = (to-colShift) / colStride;
+        const int fromOwner = Mod(from+colAlign,colStride);
+        //vector<T> buf( nLocal );
+        vector<T> buf;
+        buf.reserve( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            buf[jLoc] = aToRow->GetLocal(0,jLoc);
-        mpi::SendRecv
-        ( buf.data(), nLocal, 
-          aFromRow->ColAlign(), aFromRow->ColAlign(), A.ColComm() );
+            buf[jLoc] = ABuf[iLocTo+jLoc*ALDim];
+        mpi::SendRecv( buf.data(), nLocal, fromOwner, fromOwner, A.ColComm() );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            aToRow->SetLocal(0,jLoc,buf[jLoc]);
+            ABuf[iLocTo+jLoc*ALDim] = buf[jLoc];
     }
-    else if( aFromRow->ColShift() == 0 )
+    else if( fromMod == colShift )
     {
-        vector<T> buf( nLocal );
+        const Int iLocFrom = (from-colShift) / colStride;
+        const int toOwner = Mod(to+colAlign,colStride);
+        //vector<T> buf( nLocal );
+        vector<T> buf;
+        buf.reserve( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            buf[jLoc] = aFromRow->GetLocal(0,jLoc);
-        mpi::SendRecv
-        ( buf.data(), nLocal, 
-          aToRow->ColAlign(), aToRow->ColAlign(), A.ColComm() );
+            buf[jLoc] = ABuf[iLocFrom+jLoc*ALDim];
+        mpi::SendRecv( buf.data(), nLocal, toOwner, toOwner, A.ColComm() );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            aFromRow->SetLocal(0,jLoc,buf[jLoc]);
+            ABuf[iLocFrom+jLoc*ALDim] = buf[jLoc];
     }
 }
 
@@ -172,9 +184,9 @@ void ColSwap( Matrix<T>& A, Int to, Int from )
     if( to == from )
         return;
     const Int m = A.Height();
-    auto aToCol = A( IR(0,m), IR(to,to+1) );
-    auto aFromCol = A( IR(0,m), IR(from,from+1) );
-    Swap( NORMAL, aToCol, aFromCol );
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+    blas::Swap( m, &ABuf[to*ALDim], 1, &ABuf[from*ALDim], 1 );
 }
 
 template<typename T>
@@ -187,26 +199,35 @@ void ColSwap( ElementalMatrix<T>& A, Int to, Int from )
         return;
     const Int m = A.Height();
     const Int mLocal = A.LocalHeight();
-    unique_ptr<ElementalMatrix<T>> aToCol( A.Construct(A.Grid(),A.Root()) );
-    unique_ptr<ElementalMatrix<T>> aFromCol( A.Construct(A.Grid(),A.Root()) );
-    View( *aToCol, A, IR(0,m), IR(to,to+1) );
-    View( *aFromCol, A, IR(0,m), IR(from,from+1) );
-    if( aToCol->RowAlign() == aFromCol->RowAlign() )
+    const Int rowAlign = A.RowAlign();
+    const Int rowShift = A.RowShift();
+    const Int rowStride = A.RowStride();
+    const Int toMod = Mod(to,rowStride);
+    const Int fromMod = Mod(from,rowStride);
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+
+    if( toMod == fromMod )
     {
-        if( aToCol->RowShift() == 0 )
-            Swap( NORMAL, aToCol->Matrix(), aFromCol->Matrix() );
+        const Int jLocTo = (to-rowShift) / rowStride;
+        const Int jLocFrom = (from-rowShift) / rowStride;
+        if( toMod == rowShift )
+            blas::Swap
+            ( mLocal, &ABuf[jLocTo*ALDim], 1, &ABuf[jLocFrom*ALDim], 1 );
     }
-    else if( aToCol->RowShift() == 0 )
+    else if( toMod == rowShift )
     {
+        const Int jLocTo = (to-rowShift) / rowStride;
+        const int fromOwner = Mod(from+rowAlign,rowStride);
         mpi::SendRecv
-        ( aToCol->Buffer(), mLocal, 
-          aFromCol->RowAlign(), aFromCol->RowAlign(), A.RowComm() );
+        ( &ABuf[jLocTo*ALDim], mLocal, fromOwner, fromOwner, A.RowComm() );
     }
-    else if( aFromCol->RowShift() == 0 )
+    else if( fromMod == rowShift )
     {
+        const Int jLocFrom = (from-rowShift) / rowStride;
+        const int toOwner = Mod(to+rowAlign,rowStride);
         mpi::SendRecv
-        ( aFromCol->Buffer(), mLocal, 
-          aToCol->RowAlign(), aToCol->RowAlign(), A.RowComm() );
+        ( &ABuf[jLocFrom*ALDim], mLocal, toOwner, toOwner, A.RowComm() );
     }
 }
 
@@ -215,9 +236,9 @@ void SymmetricSwap
 ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("SymmetricSwap");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("SymmetricSwap");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( to == from )
     {

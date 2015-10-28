@@ -36,17 +36,17 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
+void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& piv )
 {
     DEBUG_ONLY(
-        CSE cse("Cholesky");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Cholesky");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::LVar3( A, piv );
     else
-        cholesky::UVar3( A, p );
+        cholesky::UVar3( A, piv );
 }
 
 template<typename F>
@@ -75,13 +75,13 @@ void Cholesky( UpperOrLower uplo, ElementalMatrix<F>& A )
 
 template<typename F> 
 void Cholesky
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& p )
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& piv )
 {
     DEBUG_ONLY(CSE cse("Cholesky"))
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::LVar3( A, piv );
     else
-        cholesky::UVar3( A, p );
+        cholesky::UVar3( A, piv );
 }
 
 template<typename F>
@@ -174,28 +174,35 @@ void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
   ( UpperOrLower uplo, ElementalMatrix<F>& A ); \
   template void ReverseCholesky \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
-  template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p ); \
+  template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& piv ); \
   template void Cholesky \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& p ); \
+  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& piv ); \
   template void CholeskyMod \
   ( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V ); \
   template void CholeskyMod \
-  ( UpperOrLower uplo, ElementalMatrix<F>& T, \
-    Base<F> alpha, ElementalMatrix<F>& V ); \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& T, \
+    Base<F> alpha, \
+    ElementalMatrix<F>& V ); \
   template void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A ); \
   template void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& A ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const Matrix<F>& A, Matrix<F>& B ); \
+    const Matrix<F>& A, \
+          Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
+    const ElementalMatrix<F>& A, \
+          ElementalMatrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B ); \
+    const Matrix<F>& A, \
+    const Matrix<Int>& piv, \
+          Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<Int>& piv, \
           ElementalMatrix<F>& B ); 
 
 #define EL_NO_INT_PROTO

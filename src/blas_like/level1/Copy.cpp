@@ -18,13 +18,9 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
     const Int width = A.Width();
     B.Resize( height, width ); 
 
-    const Int ALDim = A.LDim();
-    const Int BLDim = B.LDim();
-    const T* ABuf = A.LockedBuffer();
-    T* BBuf = B.Buffer();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-        MemCopy( &BBuf[j*BLDim], &ABuf[j*ALDim], height );
+    lapack::Copy
+    ( 'F', A.Height(), A.Width(),
+      A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
 template<typename S,typename T>
@@ -141,7 +137,6 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
     }
     else 
     {
-        B.SetGrid( A.Grid() );
         Zeros( B, A.Height(), A.Width() );
         if( A.RedundantRank() == 0 )
         {
@@ -534,7 +529,9 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     vector<int> entryOffs;
     const int numEntries = Scan( entrySizes, entryOffs );
 
-    vector<T> recvBuf( numEntries );
+    //vector<T> recvBuf( numEntries );
+    vector<T> recvBuf;
+    recvBuf.reserve( numEntries );
 
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
@@ -546,7 +543,9 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     }
     else
     {
-        vector<T> sendBuf( numLocalEntries );
+        //vector<T> sendBuf( numLocalEntries );
+        vector<T> sendBuf;
+        sendBuf.reserve( numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
@@ -594,7 +593,9 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     }
     else
     {
-        vector<T> sendBuf( numLocalEntries );
+        //vector<T> sendBuf( numLocalEntries );
+        vector<T> sendBuf;
+        sendBuf.reserve( numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);

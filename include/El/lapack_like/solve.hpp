@@ -21,6 +21,9 @@ template<typename F>
 void LinearSolve( const Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void LinearSolve( const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+template<typename F>
+void LinearSolve
+( const DistMatrix<F,MC,MR,BLOCK>& A, DistMatrix<F,MC,MR,BLOCK>& B );
 
 template<typename F>
 void LinearSolve

@@ -143,8 +143,40 @@ DistMultiVec<T>
 DistMultiVec<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::operator()"))
-    return GetSubmatrix( *this, I, J );
-}   
+    DistMultiVec<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistMultiVec<T>
+DistMultiVec<T>::operator()( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator()"))
+    DistMultiVec<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistMultiVec<T>
+DistMultiVec<T>::operator()( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator()"))
+    DistMultiVec<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistMultiVec<T>
+DistMultiVec<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DistMultiVec::operator()"))
+    DistMultiVec<T> ASub(this->Comm());
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
 
 // Rescaling
 // ---------

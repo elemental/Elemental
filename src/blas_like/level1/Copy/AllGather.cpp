@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -26,40 +27,51 @@ void AllGather
 
     if( A.Participating() )
     {
-        const Int colStride = A.ColStride();
-        const Int rowStride = A.RowStride();
-        const Int distStride = colStride*rowStride;
-        const Int maxLocalHeight = MaxLength(height,colStride);
-        const Int maxLocalWidth = MaxLength(width,rowStride);
-        const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
-        vector<T> buf( (distStride+1)*portionSize );
-        T* sendBuf = &buf[0];
-        T* recvBuf = &buf[portionSize];
+        if( A.DistSize() == 1 )
+        {
+            Copy( A.LockedMatrix(), B.Matrix() );
+        }
+        else
+        {
+            const Int colStride = A.ColStride();
+            const Int rowStride = A.RowStride();
+            const Int distStride = colStride*rowStride;
+            const Int maxLocalHeight = MaxLength(height,colStride);
+            const Int maxLocalWidth = MaxLength(width,rowStride);
+            const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
+            //vector<T> buf( (distStride+1)*portionSize );
+            vector<T> buf;
+            buf.reserve( (distStride+1)*portionSize );
+            T* sendBuf = &buf[0];
+            T* recvBuf = &buf[portionSize];
 
-        // Pack
-        util::InterleaveMatrix
-        ( A.LocalHeight(), A.LocalWidth(),
-          A.LockedBuffer(), 1, A.LDim(),
-          sendBuf,          1, A.LocalHeight() );
+            // Pack
+            util::InterleaveMatrix
+            ( A.LocalHeight(), A.LocalWidth(),
+              A.LockedBuffer(), 1, A.LDim(),
+              sendBuf,          1, A.LocalHeight() );
 
-        // Communicate
-        mpi::AllGather
-        ( sendBuf, portionSize, recvBuf, portionSize, A.DistComm() );
+            // Communicate
+            mpi::AllGather
+            ( sendBuf, portionSize, recvBuf, portionSize, A.DistComm() );
 
-        // Unpack
-        util::StridedUnpack
-        ( height, width,
-          A.ColAlign(), colStride,
-          A.RowAlign(), rowStride,
-          recvBuf, portionSize,
-          B.Buffer(), B.LDim() );
+            // Unpack
+            util::StridedUnpack
+            ( height, width,
+              A.ColAlign(), colStride,
+              A.RowAlign(), rowStride,
+              recvBuf, portionSize,
+              B.Buffer(), B.LDim() );
+        }
     }
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
     {
         // Pack from the root
         const Int BLocalHeight = B.LocalHeight();
         const Int BLocalWidth = B.LocalWidth();
-        vector<T> buf(BLocalHeight*BLocalWidth);
+        //vector<T> buf(BLocalHeight*BLocalWidth);
+        vector<T> buf;
+        buf.reserve( BLocalHeight*BLocalWidth );
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( BLocalHeight, BLocalWidth,
@@ -86,7 +98,8 @@ void AllGather
 {
     DEBUG_ONLY(CSE cse("copy::AllGather"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO_DIST(T,U,V) \

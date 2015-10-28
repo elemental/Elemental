@@ -15,15 +15,19 @@ namespace El {
 
 template<typename F>
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort,
+( Pencil pencil,
+  UpperOrLower uplo, 
+  Matrix<F>& A,
+  Matrix<F>& B,
+  Matrix<Base<F>>& w,
+  SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("HermitianGenDefEig");
-        if( A.Height() != A.Width() || B.Height() != B.Width() )
-            LogicError("Hermitian matrices must be square.");
+      CSE cse("HermitianGenDefEig");
+      if( A.Height() != A.Width() || B.Height() != B.Width() )
+          LogicError("Hermitian matrices must be square.");
     )
 
     Cholesky( uplo, B );
@@ -36,17 +40,20 @@ void HermitianGenDefEig
 
 template<typename F>
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo, 
-  ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre,
-  ElementalMatrix<Base<F>>& w, SortType sort,
+( Pencil pencil,
+  UpperOrLower uplo, 
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre,
+  ElementalMatrix<Base<F>>& w,
+  SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("HermitianGenDefEig");
-        AssertSameGrids( APre, BPre, w );
-        if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
-            LogicError("Hermitian matrices must be square.");
+      CSE cse("HermitianGenDefEig");
+      AssertSameGrids( APre, BPre, w );
+      if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
+          LogicError("Hermitian matrices must be square.");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
@@ -65,15 +72,20 @@ void HermitianGenDefEig
 
 template<typename F> 
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( Pencil pencil,
+  UpperOrLower uplo, 
+  Matrix<F>& A,
+  Matrix<F>& B,
+  Matrix<Base<F>>& w,
+  Matrix<F>& X,
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("HermitianGenDefEig");
-        if( A.Height() != A.Width() || B.Height() != B.Width() )
-            LogicError("Hermitian matrices must be square.");
+      CSE cse("HermitianGenDefEig");
+      if( A.Height() != A.Width() || B.Height() != B.Width() )
+          LogicError("Hermitian matrices must be square.");
     )
 
     Cholesky( uplo, B );
@@ -96,10 +108,14 @@ void HermitianGenDefEig
 
 template<typename F> 
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo, 
-  ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre,
-  ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& XPre,
-  SortType sort, const HermitianEigSubset<Base<F>> subset,
+( Pencil pencil,
+  UpperOrLower uplo, 
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre,
+  ElementalMatrix<Base<F>>& w,
+  ElementalMatrix<F>& XPre,
+  SortType sort,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
@@ -133,27 +149,42 @@ void HermitianGenDefEig
 
 #define PROTO(F) \
   template void HermitianGenDefEig \
-  ( Pencil pencil, UpperOrLower uplo, \
-    Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, \
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
+  ( Pencil pencil, \
+    UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<F>& B, \
+    Matrix<Base<F>>& w, \
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianGenDefEig \
-  ( Pencil pencil, UpperOrLower uplo, \
-    ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+  ( Pencil pencil, \
+    UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
     ElementalMatrix<Base<F>>& w, \
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianGenDefEig \
-  ( Pencil pencil, UpperOrLower uplo, \
-    Matrix<F>& A, Matrix<F>& B, \
-    Matrix<Base<F>>& w, Matrix<F>& X, \
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
+  ( Pencil pencil, \
+    UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<F>& B, \
+    Matrix<Base<F>>& w, \
+    Matrix<F>& X, \
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
   template void HermitianGenDefEig \
-  ( Pencil pencil, UpperOrLower uplo, \
-    ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
-    ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& X, \
-    SortType sort, const HermitianEigSubset<Base<F>> subset, \
+  ( Pencil pencil, \
+    UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
+    ElementalMatrix<Base<F>>& w, \
+    ElementalMatrix<F>& X, \
+    SortType sort, \
+    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO

@@ -14,10 +14,12 @@ extern "C" {
 
 #define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Bernoulli */ \
-  ElError ElBernoulli_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
-  { EL_TRY( Bernoulli( *CReflect(A), m, n ) ) } \
-  ElError ElBernoulliDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
-  { EL_TRY( Bernoulli( *CReflect(A), m, n ) ) } \
+  ElError ElBernoulli_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, double p ) \
+  { EL_TRY( Bernoulli( *CReflect(A), m, n, p ) ) } \
+  ElError ElBernoulliDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, double p ) \
+  { EL_TRY( Bernoulli( *CReflect(A), m, n, p ) ) } \
   /* Circulant */ \
   ElError ElCirculant_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt aSize, CREFLECT(T)* aBuf ) \
@@ -180,6 +182,12 @@ extern "C" {
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
   ElError ElRedhefferDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Redheffer( *CReflect(A), n ) ) } \
+  /* Rademacher */ \
+  ElError ElRademacher_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Rademacher( *CReflect(A), m, n ) ) } \
+  ElError ElRademacherDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Rademacher( *CReflect(A), m, n ) ) } \
   /* Three-valued */ \
   ElError ElThreeValued_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, double p ) \

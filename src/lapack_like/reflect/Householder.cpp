@@ -42,9 +42,9 @@ template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("LeftReflector");
-        if( x.Height() != 1 && x.Width() != 1 )
-            LogicError("x must be a vector");
+      CSE cse("LeftReflector");
+      if( x.Height() != 1 && x.Width() != 1 )
+          LogicError("x must be a vector");
     )
     typedef Base<F> Real;
 
@@ -113,14 +113,14 @@ template<typename F>
 F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("LeftReflector");
-        AssertSameGrids( chi, x );
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
-        if( x.Width() != 1 )
-            LogicError("x must be a column vector");
-        if( chi.Root() != x.Root() )
-            LogicError("Roots must be the same");
+      CSE cse("LeftReflector");
+      AssertSameGrids( chi, x );
+      if( chi.Height() != 1 || chi.Width() != 1 )
+          LogicError("chi must be a scalar");
+      if( x.Width() != 1 )
+          LogicError("x must be a column vector");
+      if( chi.Root() != x.Root() )
+          LogicError("Roots must be the same");
     )
     F tau;
     if( x.CrossRank() == x.Root() )
@@ -137,9 +137,9 @@ template<typename F>
 F LeftReflector( F& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("LeftReflector");
-        if( x.Width() != 1 )
-            LogicError("x must be a column vector");
+      CSE cse("LeftReflector");
+      if( x.Width() != 1 )
+          LogicError("x must be a column vector");
     )
     F tau;
     if( x.CrossRank() == x.Root() )
@@ -164,11 +164,11 @@ template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("RightReflector");
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
-        if( x.Height() != 1 && x.Width() != 1 )
-            LogicError("x must be a vector");
+      CSE cse("RightReflector");
+      if( chi.Height() != 1 || chi.Width() != 1 )
+          LogicError("chi must be a scalar");
+      if( x.Height() != 1 && x.Width() != 1 )
+          LogicError("x must be a vector");
     )
     const F tau = LeftReflector( chi, x );
     // There is no need to conjugate chi, it should be real now
@@ -180,9 +180,9 @@ template<typename F>
 F RightReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("RightReflector");
-        if( x.Height() != 1 && x.Width() != 1 )
-            LogicError("x must be a vector");
+      CSE cse("RightReflector");
+      if( x.Height() != 1 && x.Width() != 1 )
+          LogicError("x must be a vector");
     )
     const F tau = LeftReflector( chi, x );
     // There is no need to conjugate chi, it should be real now
@@ -194,14 +194,14 @@ template<typename F>
 F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("RightReflector");
-        AssertSameGrids( chi, x );
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
-        if( x.Height() != 1 )
-            LogicError("x must be a row vector");
-        if( chi.Root() != x.Root() )
-            LogicError("Roots must be the same");
+      CSE cse("RightReflector");
+      AssertSameGrids( chi, x );
+      if( chi.Height() != 1 || chi.Width() != 1 )
+          LogicError("chi must be a scalar");
+      if( x.Height() != 1 )
+          LogicError("x must be a row vector");
+      if( chi.Root() != x.Root() )
+          LogicError("Roots must be the same");
     )
     F tau;
     if( x.CrossRank() == x.Root() )
@@ -218,9 +218,9 @@ template<typename F>
 F RightReflector( F& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("RightReflector");
-        if( x.Height() != 1 )
-            LogicError("x must be a row vector");
+      CSE cse("RightReflector");
+      if( x.Height() != 1 )
+          LogicError("x must be a row vector");
     )
     F tau;
     if( x.CrossRank() == x.Root() )

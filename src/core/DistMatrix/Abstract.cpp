@@ -61,9 +61,35 @@ AbstractDistMatrix<T>::Empty()
 
 template<typename T>
 void
+AbstractDistMatrix<T>::SoftEmpty()
+{
+    matrix_.Resize_( 0, 0 );
+    viewType_ = OWNER;
+    height_ = 0;
+    width_ = 0;
+    colAlign_ = 0;
+    rowAlign_ = 0;
+    colConstrained_ = false;
+    rowConstrained_ = false;
+    rootConstrained_ = false;
+    SetShifts();
+}
+
+template<typename T>
+void
 AbstractDistMatrix<T>::EmptyData()
 {
     matrix_.Empty_();
+    viewType_ = OWNER;
+    height_ = 0;
+    width_ = 0;
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::SoftEmptyData()
+{
+    matrix_.Resize_( 0, 0 );
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
@@ -76,7 +102,7 @@ AbstractDistMatrix<T>::SetGrid( const El::Grid& grid )
     if( grid_ != &grid )
     {
         grid_ = &grid; 
-        Empty();
+        SoftEmpty();
     }
 }
 
@@ -136,7 +162,7 @@ AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
           LogicError("Invalid root");
     )
     if( root != root_ )
-        Empty();
+        SoftEmpty();
     root_ = root;
     if( constrain )
         rootConstrained_ = true;
@@ -319,65 +345,6 @@ bool AbstractDistMatrix<T>::IsLocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
 template<typename T>
 bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
 { return IsLocalRow(i) && IsLocalCol(j); }
-
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialColComm() const EL_NO_EXCEPT
-{ return ColComm(); }
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialRowComm() const EL_NO_EXCEPT
-{ return RowComm(); }
-
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionColComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
-template<typename T>
-mpi::Comm AbstractDistMatrix<T>::PartialUnionRowComm() const EL_NO_EXCEPT
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialColStride() const EL_NO_EXCEPT
-{ return ColStride(); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialRowStride() const EL_NO_EXCEPT
-{ return RowStride(); }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColStride() const EL_NO_EXCEPT
-{ return 1; }
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowStride() const EL_NO_EXCEPT
-{ return 1; }
-
-template<typename T>
-int AbstractDistMatrix<T>::ColRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(ColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::RowRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(RowComm()); }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialColRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialRowRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialRowComm()); }
-
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionColRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialUnionColComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::PartialUnionRowRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(PartialUnionRowComm()); }
-
-template<typename T>
-int AbstractDistMatrix<T>::DistRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(DistComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::CrossRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(CrossComm()); }
-template<typename T>
-int AbstractDistMatrix<T>::RedundantRank() const EL_NO_RELEASE_EXCEPT
-{ return mpi::Rank(RedundantComm()); }
 
 template<typename T>
 int AbstractDistMatrix<T>::Root() const EL_NO_EXCEPT { return root_; }
@@ -589,7 +556,10 @@ void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueueUpdate"))
-    if( IsLocal(entry.i,entry.j) )
+    // NOTE: We cannot always simply locally update since it can (and has)
+    //       lead to the processors in the same redundant communicator having
+    //       different results after ProcessQueues()
+    if( RedundantSize() == 1 && IsLocal(entry.i,entry.j) )
         Update( entry );
     else
         remoteUpdates_.push_back( entry );
@@ -643,8 +613,106 @@ void AbstractDistMatrix<T>::ProcessQueues()
     mpi::Broadcast( recvBufSize, 0, RedundantComm() );
     recvBuf.resize( recvBufSize );
     mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
+    // TODO: Make this loop faster
     for( const auto& entry : recvBuf )
         Update( entry );
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::ReservePulls( Int numPulls ) const
+{ 
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ReservePulls"))
+    remotePulls_.reserve( numPulls ); 
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueuePull"))
+    remotePulls_.push_back( ValueInt<Int>{i,j} );
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
+    const auto& g = Grid();
+    mpi::Comm comm = g.ViewingComm();
+    const int commSize = mpi::Size( comm );
+
+    // Compute the metadata
+    // ====================
+    vector<int> recvCounts(commSize,0);
+    for( const auto& valueInt : remotePulls_ )
+    {
+        const Int i = valueInt.value;
+        const Int j = valueInt.index;
+        const int owner = 
+          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
+        ++recvCounts[owner];
+    }
+    vector<int> recvOffs;
+    const int totalRecv = Scan( recvCounts, recvOffs );
+    vector<int> sendCounts(commSize);
+    mpi::AllToAll( recvCounts.data(), 1, sendCounts.data(), 1, comm );
+    vector<int> sendOffs;
+    const int totalSend = Scan( sendCounts, sendOffs );
+
+    auto offs = recvOffs;
+    vector<ValueInt<Int>> recvCoords(totalRecv);
+    for( const auto& valueInt : remotePulls_ )
+    {
+        const Int i = valueInt.value;
+        const Int j = valueInt.index;
+        const int owner = 
+          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
+        recvCoords[offs[owner]++] = valueInt;
+    }
+    vector<ValueInt<Int>> sendCoords(totalSend);
+    mpi::AllToAll
+    ( recvCoords.data(), recvCounts.data(), recvOffs.data(),
+      sendCoords.data(), sendCounts.data(), sendOffs.data(), comm );
+
+    // Pack the data
+    // =============
+    vector<T> sendBuf;
+    sendBuf.reserve( totalSend );
+    for( Int k=0; k<totalSend; ++k )
+    {
+        const Int i = sendCoords[k].value;
+        const Int j = sendCoords[k].index;
+
+        const Int iLoc = LocalRow( i );
+        const Int jLoc = LocalCol( j );
+        sendBuf[k] = GetLocal( iLoc, jLoc );
+    }
+
+    // Exchange and unpack the data
+    // ============================
+    vector<T> recvBuf;
+    recvBuf.reserve( totalRecv );
+    mpi::AllToAll
+    ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
+      recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+    Int k = 0;
+    offs = recvOffs;
+    for( const auto& valueInt : remotePulls_ )
+    {
+        const Int i = valueInt.value;
+        const Int j = valueInt.index;
+        const int owner = 
+          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
+        pullBuf[k++] = recvBuf[offs[owner]++];
+    }
+    SwapClear( remotePulls_ );
+}
+
+template<typename T>
+void AbstractDistMatrix<T>::ProcessPullQueue( vector<T>& pullVec ) const
+{
+    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
+    pullVec.resize( remotePulls_.size() );
+    ProcessPullQueue( pullVec.data() );
 }
 
 // Local entry manipulation

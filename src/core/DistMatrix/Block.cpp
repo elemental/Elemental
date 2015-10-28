@@ -62,6 +62,26 @@ BlockMatrix<T>::operator=( const BlockMatrix<T>& A )
     return *this;
 }
 
+template<typename T>
+const BlockMatrix<T>&
+BlockMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator=(ADM&)"))
+    Copy( A, *this );
+    return *this;
+}
+
+// Rescaling
+// ---------
+template<typename T>
+const BlockMatrix<T>&
+BlockMatrix<T>::operator*=( T alpha )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator*="))
+    Scale( alpha, *this );
+    return *this;
+}
+
 // Addition/subtraction
 // --------------------
 template<typename T>
@@ -75,7 +95,25 @@ BlockMatrix<T>::operator+=( const BlockMatrix<T>& A )
 
 template<typename T>
 const BlockMatrix<T>&
+BlockMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator+="))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const BlockMatrix<T>&
 BlockMatrix<T>::operator-=( const BlockMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("BCM::operator-="))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const BlockMatrix<T>&
+BlockMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("BCM::operator-="))
     Axpy( T(-1), A, *this );
@@ -123,6 +161,24 @@ template<typename T>
 void BlockMatrix<T>::Empty()
 {
     this->matrix_.Empty_();
+    this->viewType_ = OWNER;
+    this->height_ = 0;
+    this->width_ = 0;
+    this->blockHeight_ = 0;
+    this->blockWidth_ = 0;
+    this->colAlign_ = 0;
+    this->rowAlign_ = 0;
+    this->colCut_ = 0;
+    this->rowCut_ = 0;
+    this->colConstrained_ = false;
+    this->rowConstrained_ = false;
+    this->rootConstrained_ = false;
+}
+
+template<typename T>
+void BlockMatrix<T>::SoftEmpty()
+{
+    this->matrix_.Resize( 0, 0 );
     this->viewType_ = OWNER;
     this->height_ = 0;
     this->width_ = 0;
@@ -250,7 +306,7 @@ void BlockMatrix<T>::Align
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->Empty();
+        this->SoftEmpty();
     if( constrain )
     {
         this->colConstrained_ = true;
@@ -279,7 +335,7 @@ void BlockMatrix<T>::AlignCols
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->EmptyData();
+        this->SoftEmptyData();
     if( constrain )
         this->colConstrained_ = true;
     this->blockHeight_ = blockHeight;
@@ -302,7 +358,7 @@ void BlockMatrix<T>::AlignRows
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->EmptyData();
+        this->SoftEmptyData();
     if( constrain )
         this->rowConstrained_ = true;
     this->blockWidth_ = blockWidth;

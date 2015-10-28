@@ -125,7 +125,14 @@ public:
 
     // Make a copy of a submatrix
     // --------------------------
-    DistSparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
+    DistSparseMatrix<T> operator()
+    ( Range<Int> I, Range<Int> J ) const;
+    DistSparseMatrix<T> operator()
+    ( Range<Int> I, const vector<Int>& J ) const;
+    DistSparseMatrix<T> operator()
+    ( const vector<Int>& I, Range<Int> J ) const;
+    DistSparseMatrix<T> operator()
+    ( const vector<Int>& I, const vector<Int>& J ) const;
 
     // Rescaling
     // ---------

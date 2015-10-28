@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -54,7 +55,9 @@ void ColFilter( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         const Int localWidthA = A.LocalWidth();
         const Int sendSize = localHeight*localWidthA;
         const Int recvSize = localHeight*localWidth;
-        vector<T> buffer( sendSize+recvSize );
+        //vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer;
+        buffer.reserve( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
 
@@ -83,7 +86,8 @@ void ColFilter
 {
     DEBUG_ONLY(CSE cse("copy::ColFilter"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO(T) \

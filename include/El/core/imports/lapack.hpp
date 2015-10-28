@@ -87,10 +87,10 @@ void Copy
 
 template<typename Real>
 Real SafeNorm( Real alpha, Real beta );
-
-float SafeNorm( float alpha, float beta );
 double SafeNorm( double alpha, double beta );
-float SafeNorm( float alpha, float beta, float gamma );
+
+template<typename Real>
+Real SafeNorm( Real alpha, Real beta, Real gamma );
 double SafeNorm( double alpha, double beta, double gamma );
 
 float SafeNorm( scomplex alpha, float beta );

@@ -33,6 +33,14 @@ void Adjoint
 }
 
 template<typename T>
+void Adjoint
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CSE cse("Adjoint"))
+    Transpose( A, B, true );
+}
+
+template<typename T>
 void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Adjoint"))
@@ -47,13 +55,18 @@ void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 }
 
 #define PROTO(T) \
-  template void Adjoint( const Matrix<T>& A, Matrix<T>& B ); \
+  template void Adjoint \
+  ( const Matrix<T>& A, Matrix<T>& B ); \
   template void Adjoint \
   ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void Adjoint \
   ( const BlockMatrix<T>& A, BlockMatrix<T>& B ); \
-  template void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
-  template void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
+  template void Adjoint \
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  template void Adjoint \
+  ( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
+  template void Adjoint \
+  ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

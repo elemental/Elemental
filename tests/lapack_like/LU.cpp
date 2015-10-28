@@ -14,8 +14,8 @@ template<typename F,Dist UPerm>
 void TestCorrectness
 ( const DistMatrix<F>& AOrig,
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& p,
-  const DistMatrix<Int,UPerm,STAR>& q,
+  const DistMatrix<Int,UPerm,STAR>& rowPiv,
+  const DistMatrix<Int,UPerm,STAR>& colPiv,
   Int pivoting, bool print )
 {
     typedef Base<F> Real;
@@ -32,9 +32,9 @@ void TestCorrectness
     if( pivoting == 0 )
         lu::SolveAfter( NORMAL, A, Y );
     else if( pivoting == 1 )
-        lu::SolveAfter( NORMAL, A, p, Y );
+        lu::SolveAfter( NORMAL, A, rowPiv, Y );
     else
-        lu::SolveAfter( NORMAL, A, p, q, Y );
+        lu::SolveAfter( NORMAL, A, rowPiv, colPiv, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const Real oneNormOfX = OneNorm( X );
@@ -68,7 +68,7 @@ void TestLU
   bool testCorrectness, bool forceGrowth, bool print )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> p(g), q(g);
+    DistMatrix<Int,UPerm,STAR> rowPiv(g), colPiv(g);
 
     if( forceGrowth )
         GEPPGrowth( A, m );
@@ -99,9 +99,9 @@ void TestLU
     if( pivoting == 0 )
         LU( A );
     else if( pivoting == 1 )
-        LU( A, p );
+        LU( A, rowPiv );
     else if( pivoting == 2 )
-        LU( A, p, q );
+        LU( A, rowPiv, colPiv );
 
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -118,21 +118,27 @@ void TestLU
         Print( A, "A after factorization" );
         if( pivoting >= 1 )
         {
-            Print( p, "p after factorization");
             DistMatrix<Int> P(g);
+            DistMatrix<Int,STAR,STAR> p(g);
+            Print( rowPiv, "rowPiv after factorization" );
+            PivotsToPermutation( rowPiv, p );
+            Print( p, "p after factorization");
             ExplicitPermutation( p, P );
             Print( P, "P" );
         }
         if( pivoting == 2 )
         {
-            Print( q, "q after factorization");
             DistMatrix<Int> Q(g);
+            DistMatrix<Int,STAR,STAR> q(g);
+            Print( colPiv, "colPiv after factorization" );
+            PivotsToPermutation( colPiv, q );
+            Print( q, "q after factorization");
             ExplicitPermutation( q, Q );
             Print( Q, "Q" );
         }
     }
     if( testCorrectness )
-        TestCorrectness( AOrig, A, p, q, pivoting, print );
+        TestCorrectness( AOrig, A, rowPiv, colPiv, pivoting, print );
 }
 
 int 
@@ -179,11 +185,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestLU<double,VC>( m, g, pivot, testCorrectness, forceGrowth, print );
+        TestLU<double,STAR>( m, g, pivot, testCorrectness, forceGrowth, print );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestLU<Complex<double>,VC>
+        TestLU<Complex<double>,STAR>
         ( m, g, pivot, testCorrectness, forceGrowth, print );
     }
     catch( exception& e ) { ReportException(e); }

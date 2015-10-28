@@ -63,12 +63,13 @@ namespace mpi {
 
 #ifdef EL_HAVE_QUAD
 static void
-MaxQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+MaxQuad( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Quad* inData = static_cast<Quad*>(inVoid);
-    Quad* outData = static_cast<Quad*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const Quad* inData  = static_cast<const Quad*>(inVoid);
+          Quad* outData = static_cast<      Quad*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
     {
         if( inData[j] > outData[j] )
             outData[j] = inData[j];
@@ -76,12 +77,13 @@ EL_NO_EXCEPT
 }
 
 static void
-MinQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+MinQuad( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Quad* inData = static_cast<Quad*>(inVoid);
-    Quad* outData = static_cast<Quad*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const Quad* inData  = static_cast<const Quad*>(inVoid);
+          Quad* outData = static_cast<      Quad*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
     {
         if( inData[j] < outData[j] )
             outData[j] = inData[j];
@@ -89,34 +91,38 @@ EL_NO_EXCEPT
 }
 
 static void
-SumQuad( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+SumQuad( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Quad* inData = static_cast<Quad*>(inVoid);
-    Quad* outData = static_cast<Quad*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const Quad* inData  = static_cast<const Quad*>(inVoid);
+          Quad* outData = static_cast<      Quad*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
         outData[j] += inData[j];
 }
 
 static void
-SumQuadComplex( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+SumQuadComplex
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Complex<Quad>* inData = static_cast<Complex<Quad>*>(inVoid);
-    Complex<Quad>* outData = static_cast<Complex<Quad>*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const Complex<Quad>* inData  = static_cast<const Complex<Quad>*>(inVoid);
+          Complex<Quad>* outData = static_cast<      Complex<Quad>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
         outData[j] += inData[j];
 }
 #endif 
 
 template<typename T>
 static void
-MaxLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+MaxLocFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
-    ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const ValueInt<T>* inData  = static_cast<const ValueInt<T>*>(inVoid);
+          ValueInt<T>* outData = static_cast<      ValueInt<T>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
     {
         const T inVal = inData[j].value;
         const T outVal = outData[j].value;
@@ -143,15 +149,17 @@ EL_NO_EXCEPT;
 
 template<typename T>
 static void
-MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+MaxLocPairFunc
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const Entry<T>* inData = static_cast<Entry<T>*>(inVoid);
-    Entry<T>* outData = static_cast<Entry<T>*>(outVoid);
-    for( int k=0; k<*length; ++k )
+    const Entry<T>* inData  = static_cast<const Entry<T>*>(inVoid);
+          Entry<T>* outData = static_cast<      Entry<T>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int k=0; k<length; ++k )
     {
-        const Entry<T>& in = inData[k];
-        Entry<T>& out = outData[k];
+        const Entry<T>& in  = inData[k];
+              Entry<T>& out = outData[k];
         bool inIndLess = ( in.i < out.i || (in.i == out.i && in.j < out.j) );
         if( in.value > out.value || (in.value == out.value && inIndLess) )
             out = in;
@@ -174,12 +182,13 @@ EL_NO_EXCEPT;
 
 template<typename T>
 static void
-MinLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+MinLocFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
-    ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
-    for( int j=0; j<*length; ++j )
+    const ValueInt<T>* inData  = static_cast<const ValueInt<T>*>(inVoid);
+          ValueInt<T>* outData = static_cast<      ValueInt<T>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
     {
         const T inVal = inData[j].value;
         const T outVal = outData[j].value;
@@ -206,12 +215,14 @@ EL_NO_EXCEPT;
 
 template<typename T>
 static void
-MinLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+MinLocPairFunc
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const Entry<T>* inData = static_cast<Entry<T>*>(inVoid);
-    Entry<T>* outData = static_cast<Entry<T>*>(outVoid);
-    for( int k=0; k<*length; ++k )
+    const Entry<T>* inData  = static_cast<const Entry<T>*>(inVoid);
+          Entry<T>* outData = static_cast<      Entry<T>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int k=0; k<length; ++k )
     {
         const Entry<T>& in = inData[k];
         Entry<T>& out = outData[k];
@@ -471,8 +482,13 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     // A value and an integer
     // ----------------------
     mpi::CreateValueIntType<Int>();
+#ifdef EL_USE_64BIT_INTS
     mpi::CreateValueIntType<float>();
     mpi::CreateValueIntType<double>();
+#else
+    ::floatIntType = MPI_FLOAT_INT;
+    ::doubleIntType = MPI_DOUBLE_INT;
+#endif
 #ifdef EL_HAVE_QUAD
     mpi::CreateValueIntType<Quad>();
 #endif
@@ -509,10 +525,17 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     // -----------------------------------
     Create( (UserFunction*)MaxLocFunc<Int>,    true, ::maxLocIntOp    );
     Create( (UserFunction*)MinLocFunc<Int>,    true, ::minLocIntOp    );
+#ifdef EL_USE_64BIT_INTS
     Create( (UserFunction*)MaxLocFunc<float>,  true, ::maxLocFloatOp  );
     Create( (UserFunction*)MinLocFunc<float>,  true, ::minLocFloatOp  );
     Create( (UserFunction*)MaxLocFunc<double>, true, ::maxLocDoubleOp );
     Create( (UserFunction*)MinLocFunc<double>, true, ::minLocDoubleOp );
+#else
+    ::maxLocFloatOp = MAXLOC; 
+    ::minLocFloatOp = MINLOC;
+    ::maxLocDoubleOp = MAXLOC;
+    ::minLocDoubleOp = MINLOC;
+#endif
 #ifdef EL_HAVE_QUAD
     Create( (UserFunction*)MaxLocFunc<Quad>,   true, ::maxLocQuadOp   );
     Create( (UserFunction*)MinLocFunc<Quad>,   true, ::minLocQuadOp   );
@@ -541,8 +564,10 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #endif
 
     Free( ValueIntType<Int>() );
+#ifdef EL_USE_64BIT_INTS
     Free( ValueIntType<float>() );
     Free( ValueIntType<double>() );
+#endif
 #ifdef EL_HAVE_QUAD
     Free( ValueIntType<Quad>() );
 #endif
@@ -574,30 +599,26 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #endif
 
     Free( ::maxLocIntOp );
+    Free( ::minLocIntOp );
+#ifdef EL_USE_64BIT_INTS
     Free( ::maxLocFloatOp );
+    Free( ::minLocFloatOp );
     Free( ::maxLocDoubleOp );
+    Free( ::minLocDoubleOp );
+#endif
 #ifdef EL_HAVE_QUAD
     Free( ::maxLocQuadOp );
-#endif
-
-    Free( ::maxLocPairIntOp );
-    Free( ::maxLocPairFloatOp );
-    Free( ::maxLocPairDoubleOp );
-#ifdef EL_HAVE_QUAD
-    Free( ::maxLocPairQuadOp );
-#endif
-
-    Free( ::minLocIntOp );
-    Free( ::minLocFloatOp );
-    Free( ::minLocDoubleOp );
-#ifdef EL_HAVE_QUAD
     Free( ::minLocQuadOp );
 #endif
 
+    Free( ::maxLocPairIntOp );
     Free( ::minLocPairIntOp );
+    Free( ::maxLocPairFloatOp );
     Free( ::minLocPairFloatOp );
+    Free( ::maxLocPairDoubleOp );
     Free( ::minLocPairDoubleOp );
 #ifdef EL_HAVE_QUAD
+    Free( ::maxLocPairQuadOp );
     Free( ::minLocPairQuadOp );
 #endif
 }

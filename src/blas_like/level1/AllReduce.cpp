@@ -14,6 +14,8 @@ template<typename T>
 void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
     DEBUG_ONLY(CSE cse("AllReduce"))
+    if( mpi::Size(comm) == 1 )
+        return;
     const Int height = A.Height();
     const Int width = A.Width();
     const Int size = height*width;
@@ -23,7 +25,9 @@ void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
     }
     else
     {
-        vector<T> buf( size );
+        //vector<T> buf( size );
+        vector<T> buf;
+        buf.reserve( size );
 
         // Pack
         copy::util::InterleaveMatrix
@@ -45,6 +49,8 @@ template<typename T>
 void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
     DEBUG_ONLY(CSE cse("AllReduce"))
+    if( mpi::Size(comm) == 1 )
+        return;
     if( !A.Participating() )
         return;
 
@@ -57,7 +63,9 @@ void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
     }
     else
     {
-        vector<T> buf( localSize );
+        //vector<T> buf( localSize );
+        vector<T> buf;
+        buf.reserve( localSize );
 
         // Pack
         copy::util::InterleaveMatrix

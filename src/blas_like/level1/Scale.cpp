@@ -15,22 +15,31 @@ void Scale( S alphaS, Matrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("Scale"))
     const T alpha = T(alphaS);
-    if( alpha != T(1) )
+
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+    const Int height = A.Height();
+    const Int width = A.Width();
+
+    // TODO: Use imatcopy if MKL or OpenBLAS is detected
+
+    if( alpha == T(0) )
     {
-        T* ABuf = A.Buffer();
-        const Int ALDim = A.LDim();
-        const Int height = A.Height();
-        const Int width = A.Width();
-        if( alpha == T(0) )
-        {
-            for( Int j=0; j<width; ++j )
-                for( Int i=0; i<height; ++i )
-                    ABuf[i+j*ALDim] = 0;
-        }
-        else
+        for( Int j=0; j<width; ++j )
+            for( Int i=0; i<height; ++i )
+                ABuf[i+j*ALDim] = 0;
+    }
+    else if( alpha != T(1) )
+    {
+        if( height >= width )
         {
             for( Int j=0; j<width; ++j )
                 blas::Scal( height, alpha, &ABuf[j*ALDim], 1 );
+        }
+        else
+        {
+            for( Int i=0; i<height; ++i )
+                blas::Scal( width, alpha, &ABuf[i], ALDim );
         }
     }
 }

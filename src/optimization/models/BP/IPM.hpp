@@ -234,7 +234,7 @@ void SOCPIPM
     }
 
     Matrix<Real> c;
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
 
     // \hat A := A E
     // =============
@@ -278,7 +278,7 @@ void SOCPIPM
     }
 
     Matrix<Real> c;
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
 
     // \hat A := A E
     // =============
@@ -326,7 +326,7 @@ void SOCPIPM
     }
 
     DistMatrix<Real> c(grid);
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
 
     // \hat A := A E
     DistMatrix<Real> AHat(grid);
@@ -386,7 +386,7 @@ void SOCPIPM
     }
 
     DistMultiVec<Real> c(comm);
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
     
     // \hat A := A E
     // =============
@@ -456,7 +456,7 @@ void SOCPIPM
     }
 
     Matrix<Real> c;
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
 
     // \hat A := |  Real(A) E_R - Imag(A) E_I |
     //           |  Imag(A) E_R + Real(A) E_I |
@@ -525,7 +525,7 @@ void SOCPIPM
     }
 
     Matrix<Real> c;
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
 
     // \hat A := |  Real(A) E_R - Imag(A) E_I |
     //           |  Imag(A) E_R + Real(A) E_I |
@@ -598,7 +598,7 @@ void SOCPIPM
     }
 
     DistMatrix<Real> c(grid);
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
 
     // \hat A := |  Real(A) E_R - Imag(A) E_I |
     //           |  Imag(A) E_R + Real(A) E_I |
@@ -681,7 +681,7 @@ void SOCPIPM
     }
 
     DistMultiVec<Real> c(comm);
-    SOCIdentity( c, orders, firstInds );
+    soc::Identity( c, orders, firstInds );
     
     // \hat A := |  Real(A) E_R - Imag(A) E_I |
     //           |  Imag(A) E_R + Real(A) E_I |

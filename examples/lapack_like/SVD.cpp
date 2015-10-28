@@ -23,20 +23,43 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
-        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int blocksize = Input("--blocksize","algorithmic blocksize",32);
+#ifdef EL_HAVE_SCALAPACK
+        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
+        const Int mb = Input("--mb","block height",32);
+        const Int nb = Input("--nb","block width",32);
+#else
+        const bool scalapack = false;
+        const Int mb = 32;
+        const Int nb = 32;
+#endif
+
+        const bool testSeq = Input("--testSeq","test sequential SVD?",false);
         const bool testDecomp = Input("--testDecomp","test full SVD?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
-        SetBlocksize( nb );
+        SetBlocksize( blocksize );
+        SetDefaultBlockHeight( mb );
+        SetDefaultBlockWidth( nb );
 
         const int commRank = mpi::WorldRank();
         Timer timer;
 
+        if( testSeq && commRank == 0 )
+        {
+            timer.Start();
+            Matrix<Real> sSeq;
+            Matrix<C> ASeq; 
+            Uniform( ASeq, m, n );
+            SVD( ASeq, sSeq );
+            Output("Sequential SingularValues: ",timer.Stop());
+        }
+
         Grid g( mpi::COMM_WORLD );
-        if( mpi::WorldRank() == 0 )
-            cout << "Grid is " << g.Height() << " x " << g.Width() << endl;
+        if( commRank == 0 )
+            Output("Grid is ",g.Height()," x ",g.Width());
         DistMatrix<C> A(g);
         Uniform( A, m, n );
         if( print )
@@ -51,17 +74,18 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("  SingularValues time: ",timer.Stop());
 
-#ifdef EL_HAVE_SCALAPACK
-        DistMatrix<C,MC,MR,BLOCK> ABlock( A );
-        Matrix<Real> sBlock;
-        if( commRank == 0 )
-            timer.Start();
-        SVD( ABlock, sBlock );
-        if( commRank == 0 )
-            Output("  ScaLAPACK SingularValues time: ",timer.Stop());
-        if( commRank == 0 && print )
-            Print( sBlock, "s from ScaLAPACK" ); 
-#endif
+        if( scalapack )
+        {
+            DistMatrix<C,MC,MR,BLOCK> ABlock( A );
+            Matrix<Real> sBlock;
+            if( commRank == 0 )
+                timer.Start();
+            SVD( ABlock, sBlock );
+            if( commRank == 0 )
+                Output("  ScaLAPACK SingularValues time: ",timer.Stop());
+            if( commRank == 0 && print )
+                Print( sBlock, "s from ScaLAPACK" ); 
+        }
 
         if( testDecomp )
         {
@@ -81,6 +105,20 @@ main( int argc, char* argv[] )
                 Print( s, "s" );
             }
 
+            if( scalapack )
+            {
+                DistMatrix<C,MC,MR,BLOCK> ABlock( A );
+                DistMatrix<C,MC,MR,BLOCK> UBlock(g), VHBlock(g);
+                Matrix<Real> sBlock;
+                if( commRank == 0 )
+                    timer.Start();
+                SVD( ABlock, sBlock, UBlock, VHBlock );
+                if( commRank == 0 )
+                    Output("  ScaLAPACK SVD time: ",timer.Stop());
+                if( commRank == 0 && print )
+                    Print( sBlock, "s from ScaLAPACK" ); 
+            }
+
             // Compare the singular values from both methods
             sOnly -= s;
             const Real singValDiff = FrobeniusNorm( sOnly );
@@ -96,7 +134,7 @@ main( int argc, char* argv[] )
             const Real scaledResidual =
               frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
 
-            if( mpi::WorldRank() == 0 )
+            if( commRank == 0 )
             {
                 Output("|| A ||_max   = ",maxNormOfA);
                 Output("|| A ||_2     = ",twoNormOfA);

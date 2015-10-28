@@ -26,17 +26,17 @@ void UPan
     const Int n = A.Height();
     const Int nW = W.Width();
     DEBUG_ONLY(
-        CSE cse("herm_tridiag::UPan");
-        AssertSameGrids( A, W, t );
-        if( n != A.Width() )
-            LogicError("A must be square.");
-        if( n != W.Height() )
-            LogicError( "A and W must be the same height.");
-        if( n <= nW )
-            LogicError("W must be a column panel.");
-        if( t.Height() != nW || t.Width() != 1 )
-            LogicError
-            ("t must be a column vector of the same length as W's width.");
+      CSE cse("herm_tridiag::UPan");
+      AssertSameGrids( A, W, t );
+      if( n != A.Width() )
+          LogicError("A must be square.");
+      if( n != W.Height() )
+          LogicError( "A and W must be the same height.");
+      if( n <= nW )
+          LogicError("W must be a column panel.");
+      if( t.Height() != nW || t.Width() != 1 )
+          LogicError
+          ("t must be a column vector of the same length as W's width.");
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -52,7 +52,10 @@ void UPan
     e.AlignCols( expandedABR.DiagonalAlign(1) );
     e.Resize( nW, 1 );
 
-    vector<F> w01LastBuffer(n/r+1);
+    //vector<F> w01LastBuffer(n/r+1);
+    vector<F> w01LastBuffer;
+    w01LastBuffer.reserve( n/r+1 );
+
     DistMatrix<F> w01Last(g);
     DistMatrix<F,MC,STAR> a01_MC_STAR(g), p01_MC_STAR(g),
                           a01Last_MC_STAR(g), w01Last_MC_STAR(g);
@@ -137,7 +140,10 @@ void UPan
         if( firstIteration )
         {
             const Int a01LocalHeight = a01.LocalHeight();
-            vector<F> rowBroadcastBuffer(a01LocalHeight+1);
+            //vector<F> rowBroadcastBuffer(a01LocalHeight+1);
+            vector<F> rowBroadcastBuffer;
+            rowBroadcastBuffer.reserve( a01LocalHeight+1 );
+
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a01 and tau
@@ -171,8 +177,11 @@ void UPan
         {
             const Int a01LocalHeight = a01.LocalHeight();
             const Int w01LastLocalHeight = aT1.LocalHeight();
-            vector<F> 
-                rowBroadcastBuffer(a01LocalHeight+w01LastLocalHeight+1);
+            //vector<F> 
+            //    rowBroadcastBuffer(a01LocalHeight+w01LastLocalHeight+1);
+            vector<F> rowBroadcastBuffer;
+            rowBroadcastBuffer.reserve( a01LocalHeight+w01LastLocalHeight+1 );
+
             if( thisIsMyCol ) 
             {
                 // Pack the broadcast buffer with a01, w01Last, and tau
@@ -240,7 +249,9 @@ void UPan
             const Int recvRankRM = 
                 (recvRankCM/r)+c*(recvRankCM%r);
 
-            vector<F> transposeBuffer( (r+1)*portionSize );
+            //vector<F> transposeBuffer( (r+1)*portionSize );
+            vector<F> transposeBuffer;
+            transposeBuffer.reserve( (r+1)*portionSize );
             F* sendBuf = &transposeBuffer[0];
             F* recvBuf = &transposeBuffer[r*portionSize];
 
@@ -356,8 +367,12 @@ void UPan
             const Int y21LocalHeight = y21_MR_STAR.LocalHeight();
             const Int q01LocalHeight = q01_MR_STAR.LocalHeight();
             const Int reduceSize = x21LocalHeight+y21LocalHeight+q01LocalHeight;
-            vector<F> colSumSendBuffer(reduceSize),
-                      colSumRecvBuffer(reduceSize);
+            //vector<F> colSumSendBuffer(reduceSize),
+            //          colSumRecvBuffer(reduceSize);
+            vector<F> colSumSendBuffer, colSumRecvBuffer;
+            colSumSendBuffer.reserve( reduceSize );
+            colSumRecvBuffer.reserve( reduceSize );
+
             MemCopy
             ( colSumSendBuffer.data(), x21_MR_STAR.Buffer(), x21LocalHeight );
             MemCopy
@@ -389,8 +404,11 @@ void UPan
             // combine the Reduce to one of p01[MC,* ] with the redistribution 
             // of q01[MR,* ] -> q01[MC,MR] to the next process column.
             const Int localHeight = p01_MC_STAR.LocalHeight();
-            vector<F> reduceToOneSendBuffer(2*localHeight),
-                      reduceToOneRecvBuffer(2*localHeight);
+            //vector<F> reduceToOneSendBuffer(2*localHeight),
+            //          reduceToOneRecvBuffer(2*localHeight);
+            vector<F> reduceToOneSendBuffer, reduceToOneRecvBuffer;
+            reduceToOneSendBuffer.reserve( 2*localHeight );
+            reduceToOneRecvBuffer.reserve( 2*localHeight );
 
             // Pack p01[MC,* ]
             MemCopy
@@ -493,8 +511,11 @@ void UPan
             // w01[MC,* ] and w01[MR,* ] so that we may place them into W[MC,* ]
             // and W[MR,* ]
             const Int localHeight = p01_MC_STAR.LocalHeight();
-            vector<F> allReduceSendBuffer(2*localHeight),
-                      allReduceRecvBuffer(2*localHeight);
+            //vector<F> allReduceSendBuffer(2*localHeight),
+            //          allReduceRecvBuffer(2*localHeight);
+            vector<F> allReduceSendBuffer, allReduceRecvBuffer;
+            allReduceSendBuffer.reserve( 2*localHeight );
+            allReduceRecvBuffer.reserve( 2*localHeight );
 
             // Pack p01[MC,* ]
             MemCopy

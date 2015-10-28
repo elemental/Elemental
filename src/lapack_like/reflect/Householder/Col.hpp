@@ -22,11 +22,11 @@ template<typename F>
 F Col( F& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("reflector::Col");
-        if( x.Width() != 1 )
-            LogicError("x must be a column vector");
-        if( x.RowRank() != x.RowAlign() )
-            LogicError("Reflecting from incorrect process");
+      CSE cse("reflector::Col");
+      if( x.Width() != 1 )
+          LogicError("x must be a column vector");
+      if( x.RowRank() != x.RowAlign() )
+          LogicError("Reflecting from incorrect process");
     )
     typedef Base<F> Real;
     mpi::Comm colComm = x.ColComm();
@@ -90,9 +90,9 @@ template<typename F>
 F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("reflector::Col");
-        if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
-            LogicError("Reflecting from incorrect process");
+      CSE cse("reflector::Col");
+      if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
+          LogicError("Reflecting from incorrect process");
     )
     F alpha;
     if( chi.IsLocal(0,0) )

@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -31,7 +32,11 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         const Int colDiff = B.ColAlign() - A.ColAlign();
         if( colDiff == 0 )
         {
-            if( width == 1 )
+            if( A.RowStride() == 1 )
+            {
+                Copy( A.LockedMatrix(), B.Matrix() );
+            }
+            else if( width == 1 )
             {
                 if( A.RowRank() == A.RowAlign() )
                     B.Matrix() = A.LockedMatrix();
@@ -45,7 +50,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 const Int maxLocalWidth = MaxLength(width,rowStride);
 
                 const Int portionSize = mpi::Pad( localHeight*maxLocalWidth );
-                vector<T> buffer( (rowStride+1)*portionSize );
+                //vector<T> buffer( (rowStride+1)*portionSize );
+                vector<T> buffer;
+                buffer.reserve( (rowStride+1)*portionSize );
                 T* sendBuf = &buffer[0];
                 T* recvBuf = &buffer[portionSize];
 
@@ -97,7 +104,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 const Int maxLocalWidth = MaxLength(width,rowStride);
 
                 const Int portionSize = mpi::Pad(maxLocalHeight*maxLocalWidth);
-                vector<T> buffer( (rowStride+1)*portionSize );
+                //vector<T> buffer( (rowStride+1)*portionSize );
+                vector<T> buffer;
+                buffer.reserve( (rowStride+1)*portionSize );
                 T* firstBuf = &buffer[0];
                 T* secondBuf = &buffer[portionSize];
 
@@ -130,7 +139,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         // Pack from the root
         const Int localHeight = B.LocalHeight();
         const Int localWidth = B.LocalWidth();
-        vector<T> buf( localHeight*localWidth );
+        //vector<T> buf( localHeight*localWidth );
+        vector<T> buf;
+        buf.reserve( localHeight*localWidth );
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( localHeight, localWidth,
@@ -156,7 +167,8 @@ void RowAllGather
 {
     DEBUG_ONLY(CSE cse("copy::RowAllGather"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO(T) \

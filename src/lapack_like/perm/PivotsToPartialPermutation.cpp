@@ -11,18 +11,23 @@
 namespace El {
 
 void PivotsToPartialPermutation
-( const Matrix<Int>& pivots, Matrix<Int>& p, Matrix<Int>& pInv, 
+( const Matrix<Int>& pivots,
+        Matrix<Int>& p,
+        Matrix<Int>& pInv, 
   Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("PivotsToPartialPermutation");
-        if( pivots.Width() != 1 )
-            LogicError("pivots must be a column vector");
+      CSE cse("PivotsToPartialPermutation");
+      if( pivots.Width() != 1 )
+          LogicError("pivots must be a column vector");
     )
 
     const Int b = pivots.Height();
+    const Int* pivotsBuf = pivots.LockedBuffer();
     p.Resize( b, 1 );
     pInv.Resize( b, 1 );
+    Int* pBuf = p.Buffer();
+    Int* pInvBuf = pInv.Buffer();
  
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
@@ -30,42 +35,44 @@ void PivotsToPartialPermutation
 
     for( Int i=0; i<b; ++i ) 
     {
-        Int k = pivots.Get(i,0) - offset;
+        Int k = pivotsBuf[i] - offset;
         for( Int j=i-1; j>=0; --j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j;
             else if( k == j )
                 k = relSwap;
         }
-        p.Set( i, 0, k );
+        pBuf[i] = k;
     }
 
     for( Int i=0; i<b; ++i )
     {
         Int k = i;
+        // TODO: Double-check that the upper-bound should change
         for( Int j=0; j<Min(k+1,b); ++j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j; 
             else if( k == j )
                 k = relSwap;
         }
-        pInv.Set( i, 0, k );
+        pInvBuf[i] = k;
     }
 }
 
 void PivotsToPartialPermutation
-( const ElementalMatrix<Int>& pivots, 
+( const DistMatrix<Int,STAR,STAR>& pivots, 
         ElementalMatrix<Int>& p, 
-        ElementalMatrix<Int>& pInv, Int offset )
+        ElementalMatrix<Int>& pInv,
+  Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("PivotsToPartialPermutation");
-        if( pivots.Width() != 1 )
-            LogicError("pivots must be a column vector");
+      CSE cse("PivotsToPartialPermutation");
+      if( pivots.Width() != 1 )
+          LogicError("pivots must be a column vector");
     )
 
     const Int b = pivots.Height();
@@ -73,6 +80,8 @@ void PivotsToPartialPermutation
     pInv.SetGrid( pivots.Grid() );
     pInv.Resize( b, 1 );
     p.Resize( b, 1 );
+
+    const Int* pivotsBuf = pivots.LockedBuffer();
  
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
@@ -80,10 +89,10 @@ void PivotsToPartialPermutation
 
     for( Int i=0; i<b; ++i ) 
     {
-        Int k = pivots.Get(i,0) - offset;
+        Int k = pivotsBuf[i] - offset;
         for( Int j=i-1; j>=0; --j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j;
             else if( k == j )
@@ -98,7 +107,7 @@ void PivotsToPartialPermutation
         Int k = i;
         for( Int j=0; j<Min(k+1,b); ++j )
         {
-            const Int relSwap = pivots.Get(j,0)-offset;
+            const Int relSwap = pivotsBuf[j] - offset;
             if( k == relSwap )
                 k = j; 
             else if( k == j )
@@ -106,6 +115,18 @@ void PivotsToPartialPermutation
         }
         pInv.Set( i, 0, k );
     }
+}
+
+void PivotsToPartialPermutation
+( const ElementalMatrix<Int>& pivotsPre,
+        ElementalMatrix<Int>& p, 
+        ElementalMatrix<Int>& pInv,
+  Int offset )
+{
+    DEBUG_ONLY(CSE cse("PivotsToPartialPermutation"))
+    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
+    auto& pivots = *pivotsPtr;
+    PivotsToPartialPermutation( pivots, p, pInv, offset );
 }
 
 } // namespace El

@@ -73,7 +73,14 @@ public:
 
     // Make a copy of a submatrix
     // --------------------------
-    SparseMatrix<T> operator()( Range<Int> I, Range<Int> J ) const;
+    SparseMatrix<T> operator()
+    ( Range<Int> I, Range<Int> J ) const;
+    SparseMatrix<T> operator()
+    ( Range<Int> I, const vector<Int>& J ) const;
+    SparseMatrix<T> operator()
+    ( const vector<Int>& I, Range<Int> J ) const;
+    SparseMatrix<T> operator()
+    ( const vector<Int>& I, const vector<Int>& J ) const;
 
     // Rescaling
     // ---------

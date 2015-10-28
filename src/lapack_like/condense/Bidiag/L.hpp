@@ -25,11 +25,11 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-        if( m > n )
-            LogicError("A must be at least as wide as it is tall");
-        // Are these requirements necessary?!?
-        if( tP.Viewing() || tQ.Viewing() )
-            LogicError("tP and tQ must not be views");
+      if( m > n )
+          LogicError("A must be at least as wide as it is tall");
+      // Are these requirements necessary?!?
+      if( tP.Viewing() || tQ.Viewing() )
+          LogicError("tP and tQ must not be views");
     )
     const Int tPHeight = m;
     const Int tQHeight = Max(m-1,0);
@@ -89,32 +89,33 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 template<typename F> 
 inline void
 L
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre, ElementalMatrix<F>& tQPre )
+( DistMatrix<F>& A, 
+  DistMatrix<F,STAR,STAR>& tP,
+  DistMatrix<F,STAR,STAR>& tQ )
 {
     DEBUG_ONLY(
-        CSE cse("bidiag::U");
-        AssertSameGrids( APre, tPPre, tQPre );
+      CSE cse("bidiag::L");
+      AssertSameGrids( A, tP, tQ );
     )
-
-    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
-    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
-    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
-
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-        if( m > n )
-            LogicError("A must be at least as wide as it is tall");
-        // Are these requirements necessary?!?
-        if( tP.Viewing() || tQ.Viewing() )
-            LogicError("tP and tQ must not be views");
+      if( m > n )
+          LogicError("A must be at least as wide as it is tall");
+      // Are these requirements necessary?!?
+      if( tP.Viewing() || tQ.Viewing() )
+          LogicError("tP and tQ must not be views");
     )
     const Grid& g = A.Grid();
     const Int tPHeight = m;
     const Int tQHeight = Max(m-1,0);
     tP.Resize( tPHeight, 1 );
     tQ.Resize( tQHeight, 1 );
+    if( g.Size() == 1 )
+    {
+        L( A.Matrix(), tP.Matrix(), tQ.Matrix() );
+        return;
+    }
 
     DistMatrix<F> X(g), Y(g);
     DistMatrix<F,MC,STAR> X21_MC_STAR(g);
@@ -173,6 +174,20 @@ L
             bidiag::LUnb( ABR, tP1, tQ1 );
         }
     }
+}
+
+template<typename F> 
+inline void
+L
+( ElementalMatrix<F>& APre, 
+  ElementalMatrix<F>& tPPre,
+  ElementalMatrix<F>& tQPre )
+{
+    DEBUG_ONLY(CSE cse("bidiag::L"))
+    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
+    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
+    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
+    L( A, tP, tQ );
 }
 
 } // namespace bidiag

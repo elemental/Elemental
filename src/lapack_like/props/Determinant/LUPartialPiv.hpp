@@ -15,29 +15,29 @@ namespace det {
 
 template<typename F>
 SafeProduct<F> AfterLUPartialPiv
-( const Matrix<F>& A, const Matrix<Int>& p )
+( const Matrix<F>& A, const Matrix<Int>& rowPiv )
 {
     DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    if( A.Height() != p.Height() )
+    if( A.Height() != rowPiv.Height() )
         LogicError("Permutation vector is incorrect length");
 
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     Matrix<F> d;
     GetDiagonal( A, d );
-    const R scale(n);
+    const Real scale(n);
     SafeProduct<F> det( n );
     for( Int i=0; i<n; ++i )
     {
         const F delta = d.Get(i,0);
-        R alpha = Abs(delta);
+        Real alpha = Abs(delta);
         det.rho *= delta/alpha;
         det.kappa += Log(alpha)/scale;
     }
-    const bool isOdd = PermutationParity( p );
+    const bool isOdd = PivotParity( rowPiv );
     if( isOdd )
         det.rho = -det.rho;
 
@@ -53,9 +53,9 @@ inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
     SafeProduct<F> det( A.Height() );
     try 
     {
-        Matrix<Int> p;
-        El::LU( A, p ); 
-        det = det::AfterLUPartialPiv( A, p );
+        Matrix<Int> rowPiv;
+        El::LU( A, rowPiv ); 
+        det = det::AfterLUPartialPiv( A, rowPiv );
     } 
     catch( SingularMatrixException& e )
     {
@@ -67,33 +67,37 @@ inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
 
 template<typename F> 
 SafeProduct<F> AfterLUPartialPiv
-( const ElementalMatrix<F>& APre, const ElementalMatrix<Int>& pPre )
+( const ElementalMatrix<F>& APre,
+  const ElementalMatrix<Int>& rowPivPre )
 {
     DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    AssertSameGrids( APre, pPre );
-    if( APre.Height() != pPre.Height() )
-        LogicError("Permutation vector is incorrect length");
+    AssertSameGrids( APre, rowPivPre );
+    if( APre.Height() != rowPivPre.Height() )
+        LogicError("Row pivot vector is incorrect length");
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );              auto& A = *APtr;
-    auto pPtr = ReadProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
+    auto APtr = ReadProxy<F,MC,MR>( &APre );
+    auto& A = *APtr;
 
-    typedef Base<F> R;
+    auto rowPivPtr = ReadProxy<Int,STAR,STAR>( &rowPivPre );
+    auto& rowPiv = *rowPivPtr;
+
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
     auto d = GetDiagonal(A);
     F localRho = 1;
-    R localKappa = 0; 
+    Real localKappa = 0; 
     if( d.Participating() )
     {
-        const R scale(n);
+        const Real scale(n);
         const Int nLocalDiag = d.LocalHeight();
         for( Int iLoc=0; iLoc<nLocalDiag; ++iLoc )
         {
             const F delta = d.GetLocal(iLoc,0);
-            R alpha = Abs(delta);
+            Real alpha = Abs(delta);
             localRho *= delta/alpha;
             localKappa += Log(alpha)/scale;
         }
@@ -102,7 +106,7 @@ SafeProduct<F> AfterLUPartialPiv
     det.rho = mpi::AllReduce( localRho, mpi::PROD, g.VCComm() );
     det.kappa = mpi::AllReduce( localKappa, mpi::SUM, g.VCComm() );
 
-    const bool isOdd = PermutationParity( p );
+    const bool isOdd = PivotParity( rowPiv );
     if( isOdd )
         det.rho = -det.rho;
 
@@ -123,9 +127,9 @@ LUPartialPiv( ElementalMatrix<F>& APre )
     SafeProduct<F> det( A.Height() );
     try 
     {
-        DistMatrix<Int,VC,STAR> p( A.Grid() );
-        El::LU( A, p );
-        det = det::AfterLUPartialPiv( A, p );
+        DistMatrix<Int,STAR,STAR> rowPiv( A.Grid() );
+        El::LU( A, rowPiv );
+        det = det::AfterLUPartialPiv( A, rowPiv );
     }
     catch( SingularMatrixException& e ) 
     {

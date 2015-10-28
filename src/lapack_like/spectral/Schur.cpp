@@ -96,11 +96,7 @@ void Schur
   const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
-#ifdef EL_HAVE_SCALAPACK
     schur::QR( A, w, fullTriangle, ctrl.qrCtrl );
-#else
-    LogicError("Block distributed Schur currently requires ScaLAPACK support");
-#endif
 }
 
 template<typename F>
@@ -131,11 +127,7 @@ void Schur
   const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
-#ifdef EL_HAVE_SCALAPACK
     schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl );
-#else
-    LogicError("Block distributed Schur currently requires ScaLAPACK support");
-#endif
 }
 
 #define PROTO(F) \

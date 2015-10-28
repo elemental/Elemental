@@ -95,7 +95,8 @@ template<typename Real>
 inline void Helper
 ( const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre, SortType sort,
+        ElementalMatrix<Real>& wPre,
+        SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     ProxyCtrl wCtrl;

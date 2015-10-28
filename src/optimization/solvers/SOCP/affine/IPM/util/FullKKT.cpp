@@ -188,7 +188,7 @@ void KKT
     const Int k = G.Height();
 
     Matrix<Real> wDets;
-    SOCDets( w, wDets, orders, firstInds );
+    soc::Dets( w, wDets, orders, firstInds );
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
@@ -260,8 +260,8 @@ void KKT
     auto& J = *JPtr;
 
     DistMatrix<Real,VC,STAR> wDets(g);
-    SOCDets( w, wDets, orders, firstInds, cutoffPar );
-    ConeBroadcast( wDets, orders, firstInds, cutoffPar );
+    soc::Dets( w, wDets, orders, firstInds, cutoffPar );
+    cone::Broadcast( wDets, orders, firstInds, cutoffPar );
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
@@ -283,7 +283,7 @@ void KKT
 
     // Jzz := -W^2
     // ===========
-    // TODO: Create SOCExplicitQuadratic?
+    // TODO: Create soc::ExplicitQuadratic?
     DistMatrix<Int,MC,STAR> orders_MC_STAR(g), firstInds_MC_STAR(g);
     DistMatrix<Real,MC,STAR> w_MC_STAR(g);
     DistMatrix<Real,MR,STAR> w_MR_STAR(g);
@@ -354,10 +354,10 @@ void KKT
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
     Matrix<Real> wDets, wLowers;
-    SOCDets( w, wDets, orders, firstInds );
-    SOCLowerNorms( w, wLowers, orders, firstInds );
-    ConeBroadcast( wDets, orders, firstInds );
-    ConeBroadcast( wLowers, orders, firstInds );
+    soc::Dets( w, wDets, orders, firstInds );
+    soc::LowerNorms( w, wLowers, orders, firstInds );
+    cone::Broadcast( wDets, orders, firstInds );
+    cone::Broadcast( wLowers, orders, firstInds );
 
     Zeros( J, n+m+kSparse, n+m+kSparse );
     if( onlyLower )
@@ -823,10 +823,10 @@ void FinishKKT
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
     Matrix<Real> wDets, wLowers;
-    SOCDets( w, wDets, orders, firstInds );
-    SOCLowerNorms( w, wLowers, orders, firstInds );
-    ConeBroadcast( wDets, orders, firstInds );
-    ConeBroadcast( wLowers, orders, firstInds );
+    soc::Dets( w, wDets, orders, firstInds );
+    soc::LowerNorms( w, wLowers, orders, firstInds );
+    cone::Broadcast( wDets, orders, firstInds );
+    cone::Broadcast( wLowers, orders, firstInds );
 
     Zeros( J, n+m+kSparse, n+m+kSparse );
     if( onlyLower )
@@ -1073,10 +1073,10 @@ void KKT
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
     DistMultiVec<Real> wDets(comm), wLowers(comm);
-    SOCDets( w, wDets, orders, firstInds, cutoffPar );
-    SOCLowerNorms( w, wLowers, orders, firstInds, cutoffPar );
-    ConeBroadcast( wDets, orders, firstInds, cutoffPar );
-    ConeBroadcast( wLowers, orders, firstInds, cutoffPar );
+    soc::Dets( w, wDets, orders, firstInds, cutoffPar );
+    soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
+    cone::Broadcast( wDets, orders, firstInds, cutoffPar );
+    cone::Broadcast( wLowers, orders, firstInds, cutoffPar );
 
     // Gather all of each non-sparsified member cone that we own a piece of
     // --------------------------------------------------------------------
@@ -1728,10 +1728,10 @@ void FinishKKT
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
     DistMultiVec<Real> wDets(comm), wLowers(comm);
-    SOCDets( w, wDets, orders, firstInds, cutoffPar );
-    SOCLowerNorms( w, wLowers, orders, firstInds, cutoffPar );
-    ConeBroadcast( wDets, orders, firstInds, cutoffPar );
-    ConeBroadcast( wLowers, orders, firstInds, cutoffPar );
+    soc::Dets( w, wDets, orders, firstInds, cutoffPar );
+    soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
+    cone::Broadcast( wDets, orders, firstInds, cutoffPar );
+    cone::Broadcast( wLowers, orders, firstInds, cutoffPar );
 
     // Gather all of each non-sparsified member cone that we own a piece of
     // --------------------------------------------------------------------
@@ -2101,7 +2101,7 @@ void KKTRHS
 
     auto dz = d(IR(n+m,n+m+k),ALL);
     dz = rmu;
-    SOCApplyQuadratic( wRoot, dz, orders, firstInds );
+    soc::ApplyQuadratic( wRoot, dz, orders, firstInds );
     dz -= rh;
 }
 
@@ -2138,7 +2138,7 @@ void KKTRHS
 
     auto dz = d(zInd,ALL);
     dz = rmu;
-    SOCApplyQuadratic( wRoot, dz, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( wRoot, dz, orders, firstInds, cutoff );
     dz -= rh;
 }
 
@@ -2161,7 +2161,7 @@ void KKTRHS
     Zeros( d, n+m+kSparse, 1 );
 
     Matrix<Real> W_rmu;
-    SOCApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds );
+    soc::ApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds );
 
     auto dx = d( IR(0,n),             ALL );
     auto dy = d( IR(n,n+m),           ALL );
@@ -2201,7 +2201,7 @@ void KKTRHS
     Zeros( d, n+m+kSparse, 1 );
 
     DistMultiVec<Real> W_rmu( rc.Comm() );
-    SOCApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds, cutoffPar );
+    soc::ApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds, cutoffPar );
 
     Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
     d.Reserve( numEntries );
@@ -2248,9 +2248,9 @@ void ExpandSolution
     // ds := - W^T ( rmu + W dz )
     // ==========================
     ds = dz;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds );
     ds += rmu;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds );
     ds *= -1;
 }
 
@@ -2274,9 +2274,9 @@ void ExpandSolution
     // ds := - W^T ( rmu + W dz )
     // ==========================
     ds = dz;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
     ds += rmu;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds, cutoff );
     ds *= -1;
 }
 
@@ -2326,9 +2326,9 @@ void ExpandSolution
     // ds := - W^T ( rmu + W dz )
     // ==========================
     ds = dz;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds );
     ds += rmu;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds );
     ds *= -1;
 }
 
@@ -2393,9 +2393,9 @@ void ExpandSolution
     // ds := - W^T ( rmu + W dz )
     // ==========================
     ds = dz;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoffPar );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds, cutoffPar );
     ds += rmu;
-    SOCApplyQuadratic( wRoot, ds, orders, firstInds, cutoffPar );
+    soc::ApplyQuadratic( wRoot, ds, orders, firstInds, cutoffPar );
     ds *= -1;
 }
 

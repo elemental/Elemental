@@ -94,7 +94,7 @@ void Display( const Matrix<Complex<Real>>& A, string title )
 }
 
 template<typename T>
-void Display( const ElementalMatrix<T>& A, string title )
+void Display( const AbstractDistMatrix<T>& A, string title )
 {
     DEBUG_ONLY(CSE cse("Display"))
     if( A.ColStride() == 1 && A.RowStride() == 1 )
@@ -105,23 +105,6 @@ void Display( const ElementalMatrix<T>& A, string title )
     else
     {
         DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
-        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-            Display( A_CIRC_CIRC.Matrix(), title );
-    }
-}
-
-template<typename T>
-void Display( const BlockMatrix<T>& A, string title )
-{
-    DEBUG_ONLY(CSE cse("Display"))
-    if( A.ColStride() == 1 && A.RowStride() == 1 )
-    {
-        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
-            Display( A.LockedMatrix(), title );
-    }
-    else
-    {
-        DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Display( A_CIRC_CIRC.Matrix(), title );
     }
@@ -343,15 +326,10 @@ void DisplayLocal
 
 #define PROTO(T) \
   template void Display( const Matrix<T>& A, string title ); \
-  template void Display \
-  ( const ElementalMatrix<T>& A, string title ); \
-  template void Display \
-  ( const BlockMatrix<T>& A, string title ); \
+  template void Display( const AbstractDistMatrix<T>& A, string title ); \
   template void Display( const DistMultiVec<T>& X, string title ); \
-  template void Display \
-  ( const SparseMatrix<T>& A, string title ); \
-  template void Display \
-  ( const DistSparseMatrix<T>& A, string title );
+  template void Display( const SparseMatrix<T>& A, string title ); \
+  template void Display( const DistSparseMatrix<T>& A, string title );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

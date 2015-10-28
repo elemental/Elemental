@@ -278,6 +278,13 @@ void UpdateMaxImagWindowVal( double maxVal )
 bool Initialized()
 { return ::numElemInits > 0; }
 
+void Initialize()
+{
+    int argc=0;
+    char** argv=NULL;
+    Initialize( argc, argv );
+}
+
 void Initialize( int& argc, char**& argv )
 {
     if( ::numElemInits > 0 )
@@ -491,6 +498,80 @@ void SetDefaultBlockWidth( Int nb )
 
 std::mt19937& Generator()
 { return ::generator; }
+
+void Args::HandleVersion( ostream& os ) const
+{
+    string version = "--version";
+    char** arg = std::find( argv_, argv_+argc_, version );
+    const bool foundVersion = ( arg != argv_+argc_ );
+    if( foundVersion )
+    {
+        if( mpi::WorldRank() == 0 )
+            PrintVersion();
+        throw ArgException();
+    }
+}
+
+void Args::HandleBuild( ostream& os ) const
+{
+    string build = "--build";
+    char** arg = std::find( argv_, argv_+argc_, build );
+    const bool foundBuild = ( arg != argv_+argc_ );
+    if( foundBuild )
+    {
+        if( mpi::WorldRank() == 0 )
+        {
+            PrintVersion();
+            PrintConfig();
+            PrintCCompilerInfo();
+            PrintCxxCompilerInfo();
+        }
+        throw ArgException();
+    }
+}
+
+void ReportException( const exception& e, ostream& os )
+{
+    try
+    {
+        const ArgException& argExcept = dynamic_cast<const ArgException&>(e);
+        if( string(argExcept.what()) != "" )
+            os << argExcept.what() << endl;
+        DEBUG_ONLY(DumpCallStack(os))
+    }
+    catch( UnrecoverableException& recovExcept )
+    {
+        if( string(e.what()) != "" )
+        {
+            os << "Process " << mpi::WorldRank() 
+               << " caught an unrecoverable exception with message:\n"
+               << e.what() << endl;
+        }
+        DEBUG_ONLY(DumpCallStack(os))
+    }
+    catch( exception& castExcept ) 
+    { 
+        if( string(e.what()) != "" )
+        {
+            os << "Process " << mpi::WorldRank() << " caught error message:\n"
+               << e.what() << endl;
+        }
+        DEBUG_ONLY(DumpCallStack(os))
+        mpi::Abort( mpi::COMM_WORLD, 1 );
+    }
+}
+
+void ComplainIfDebug()
+{
+    DEBUG_ONLY(
+        if( mpi::WorldRank() == 0 )
+        {
+            Output("=======================================================");
+            Output(" In debug mode! Do not expect competitive performance! ");
+            Output("=======================================================");
+        }
+    )
+}
 
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 DEBUG_ONLY(
@@ -765,18 +846,9 @@ Int Find( const vector<Int>& sortedInds, Int index )
     auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
     DEBUG_ONLY(
       if( it == sortedInds.cend() )
+          LogicError("All indices were smaller");
+      if( *it != index )
           LogicError("Could not find index");
-    )
-    return it - sortedInds.cbegin();
-}
-
-Int Find( const vector<Int>& sortedInds, Int index, const string& msg )
-{
-    DEBUG_ONLY(CSE cse("Find"))
-    auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
-    DEBUG_ONLY(
-      if( it == sortedInds.cend() )
-          LogicError( msg );
     )
     return it - sortedInds.cbegin();
 }

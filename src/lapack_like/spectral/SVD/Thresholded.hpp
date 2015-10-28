@@ -146,23 +146,19 @@ inline void TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( ElementalMatrix<F>& APre,
+( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
+  DistMatrix<F>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallAbsoluteThresholded");
-      AssertSameGrids( APre, s, VPre );
-      if( APre.Height() < APre.Width() )
+      AssertSameGrids( A, s, V );
+      if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;    
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
-
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -215,24 +211,34 @@ TallAbsoluteThresholded
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallAbsoluteThresholded
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
+  Base<F> tol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;    
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    TallAbsoluteThresholded( A, s, V, tol );
+}
+
+template<typename F>
+inline void
+TallRelativeThresholded
+( DistMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  DistMatrix<F>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallRelativeThresholded");
-      AssertSameGrids( APre, s, VPre );
-      if( APre.Height() < APre.Width() )
+      AssertSameGrids( A, s, V );
+      if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
-
     const Int n = A.Width();
 
     // C := A^H A
@@ -273,6 +279,20 @@ TallRelativeThresholded
 }
 
 template<typename F>
+inline void
+TallRelativeThresholded
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  Base<F> relTol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    TallRelativeThresholded( A, s, V, relTol );
+}
+
+template<typename F>
 inline void TallThresholded
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
@@ -291,22 +311,18 @@ template<typename F>
 inline void
 TallAbsoluteThresholded
 ( DistMatrix<F,VC,STAR>& A,
-  ElementalMatrix<Base<F>>& sPre, 
-  ElementalMatrix<F>& VPre,
+  DistMatrix<Base<F>,STAR,STAR>& s, 
+  DistMatrix<F,STAR,STAR>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallAbsoluteThresholded");
-      AssertSameGrids( A, sPre, VPre );
+      AssertSameGrids( A, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-
-    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
-    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
-
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -362,24 +378,34 @@ TallAbsoluteThresholded
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallAbsoluteThresholded
 ( DistMatrix<F,VC,STAR>& A,
   ElementalMatrix<Base<F>>& sPre, 
   ElementalMatrix<F>& VPre,
+  Base<F> tol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
+    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
+    TallAbsoluteThresholded( A, s, V, tol );
+}
+
+template<typename F>
+inline void
+TallRelativeThresholded
+( DistMatrix<F,VC,STAR>& A,
+  DistMatrix<Base<F>,STAR,STAR>& s, 
+  DistMatrix<F,STAR,STAR>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallRelativeThresholded");
-      AssertSameGrids( A, sPre, VPre );
+      AssertSameGrids( A, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-
-    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
-    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
-
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -421,6 +447,20 @@ TallRelativeThresholded
     DistMatrix<Real,STAR,STAR> colNorms(g);
     ColumnTwoNorms( A, colNorms );
     DiagonalSolve( RIGHT, NORMAL, colNorms, A );
+}
+
+template<typename F>
+inline void
+TallRelativeThresholded
+( DistMatrix<F,VC,STAR>& A,
+  ElementalMatrix<Base<F>>& sPre, 
+  ElementalMatrix<F>& VPre,
+  Base<F> relTol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
+    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
+    TallRelativeThresholded( A, s, V, relTol );
 }
 
 template<typename F>
@@ -573,22 +613,18 @@ inline void WideThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( ElementalMatrix<F>& APre,
+( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
+  DistMatrix<F>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
       CSE cse("svd::WideAbsoluteThresholded");
-      if( APre.Width() < APre.Height() )
+      if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
-
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -643,24 +679,34 @@ WideAbsoluteThresholded
 
 template<typename F>
 inline void
-WideRelativeThresholded
+WideAbsoluteThresholded
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
+  Base<F> tol )
+{
+    DEBUG_ONLY(CSE cse("svd::WideAbsoluteThresholded"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    WideAbsoluteThresholded( A, s, V, tol );
+}
+
+template<typename F>
+inline void
+WideRelativeThresholded
+( DistMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s, 
+  DistMatrix<F>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
       CSE cse("svd::WideRelativeThresholded");
-      AssertSameGrids( APre, s, VPre );
-      if( APre.Width() < APre.Height() )
+      AssertSameGrids( A, s, V );
+      if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
-
     const Int m = A.Height();
 
     // C := A A^H
@@ -699,6 +745,20 @@ WideRelativeThresholded
     DiagonalSolve( RIGHT, NORMAL, colNorms, V );
 
     A = U;
+}
+
+template<typename F>
+inline void
+WideRelativeThresholded
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& s, 
+  ElementalMatrix<F>& VPre,
+  Base<F> relTol )
+{
+    DEBUG_ONLY(CSE cse("svd::WideRelativeThresholded"))
+    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    WideRelativeThresholded( A, s, V, relTol );
 }
 
 template<typename F>

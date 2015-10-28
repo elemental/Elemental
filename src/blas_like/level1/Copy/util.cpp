@@ -18,17 +18,23 @@ void InterleaveMatrix
   const T* A, Int colStrideA, Int rowStrideA,
         T* B, Int colStrideB, Int rowStrideB )
 {
-    // TODO: Add OpenMP parallelization and/or optimize
     if( colStrideA == 1 && colStrideB == 1 )
     {
         lapack::Copy( 'F', height, width, A, rowStrideA, B, rowStrideB );
     }
     else
     {
+#ifdef EL_HAVE_MKL
+        mkl::omatcopy
+        ( NORMAL, height, width, T(1),
+          A, rowStrideA, colStrideA,
+          B, rowStrideB, colStrideB );
+#else
         for( Int j=0; j<width; ++j )
             StridedMemCopy
             ( &B[j*rowStrideB], colStrideB,
               &A[j*rowStrideA], colStrideA, height );
+#endif
     }
 }
 

@@ -34,12 +34,14 @@ template<typename F>
 inline void
 LLVB
 ( Conjugation conjugation, Int offset, 
-  const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
+  const Matrix<F>& H,
+  const Matrix<F>& t,
+        Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::LLVB");
-        if( H.Height() != A.Height() )
-            LogicError("H and A must have the same height");
+      CSE cse("apply_packed_reflectors::LLVB");
+      if( H.Height() != A.Height() )
+          LogicError("H and A must have the same height");
     )
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
@@ -81,14 +83,15 @@ template<typename F>
 inline void
 LLVB
 ( Conjugation conjugation, Int offset, 
-  const ElementalMatrix<F>& HPre, const ElementalMatrix<F>& tPre, 
+  const ElementalMatrix<F>& HPre,
+  const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::LLVB");
-        if( HPre.Height() != APre.Height() )
-            LogicError("H and A must have the same height");
-        AssertSameGrids( HPre, tPre, APre );
+      CSE cse("apply_packed_reflectors::LLVB");
+      if( HPre.Height() != APre.Height() )
+          LogicError("H and A must have the same height");
+      AssertSameGrids( HPre, tPre, APre );
     )
 
     auto HPtr = ReadProxy<F,MC,MR>( &HPre );      auto& H = *HPtr;
@@ -98,8 +101,8 @@ LLVB
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != diagLength )
-            LogicError("t must be the same length as H's offset diag");
+      if( t.Height() != diagLength )
+          LogicError("t must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanCopy(g);

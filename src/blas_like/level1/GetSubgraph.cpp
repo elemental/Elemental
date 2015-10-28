@@ -11,8 +11,11 @@
 namespace El {
 
 // TODO: Avoid sorting since the ordering can easily be preserved
+
 void GetSubgraph
-( const Graph& graph, Range<Int> I, Range<Int> J,
+( const Graph& graph,
+        Range<Int> I,
+        Range<Int> J,
         Graph& subgraph )
 {
     DEBUG_ONLY(CSE cse("GetSubgraph"))
@@ -58,15 +61,43 @@ void GetSubgraph
     subgraph.ProcessQueues();
 }
 
-Graph GetSubgraph( const Graph& graph, Range<Int> I, Range<Int> J )
+void GetSubgraph
+( const Graph& graph,
+        Range<Int> I,
+  const vector<Int>& J,
+        Graph& subgraph )
 {
-    Graph subgraph;
-    GetSubgraph( graph, I, J, subgraph );
-    return subgraph;
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
 }
 
 void GetSubgraph
-( const DistGraph& graph, Range<Int> I, Range<Int> J,
+( const Graph& graph,
+  const vector<Int>& I,
+        Range<Int> J,
+        Graph& subgraph )
+{
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+void GetSubgraph
+( const Graph& graph,
+  const vector<Int>& I,
+  const vector<Int>& J,
+        Graph& subgraph )
+{
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+void GetSubgraph
+( const DistGraph& graph,
+        Range<Int> I,
+        Range<Int> J,
         DistGraph& subgraph )
 {
     DEBUG_ONLY(CSE cse("GetSubgraph"))
@@ -133,11 +164,37 @@ void GetSubgraph
     subgraph.ProcessQueues();
 }
 
-DistGraph GetSubgraph( const DistGraph& graph, Range<Int> I, Range<Int> J )
+void GetSubgraph
+( const DistGraph& graph,
+        Range<Int> I,
+  const vector<Int>& J,
+        DistGraph& subgraph )
 {
-    DistGraph subgraph(graph.Comm());
-    GetSubgraph( graph, I, J, subgraph );
-    return subgraph;
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+void GetSubgraph
+( const DistGraph& graph,
+  const vector<Int>& I,
+        Range<Int> J,
+        DistGraph& subgraph )
+{
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
+}
+
+void GetSubgraph
+( const DistGraph& graph,
+  const vector<Int>& I,
+  const vector<Int>& J,
+        DistGraph& subgraph )
+{
+    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    // TODO: Decide how to handle unsorted I and J with duplicates
+    LogicError("This routine is not yet written");
 }
 
 } // namespace El

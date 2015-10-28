@@ -18,9 +18,9 @@ template<typename F>
 void U( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(
-        CSE cse("herm_tridiag::U");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("herm_tridiag::U");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
     if( n == 0 )
@@ -56,16 +56,19 @@ void U( Matrix<F>& A, Matrix<F>& t )
     }
 }
 
+// TODO: If there is only a single MPI process, fall down to the sequential
+//       implementation.
 template<typename F>
 void U
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre,
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& tPre,
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("herm_tridiag::U");
-        AssertSameGrids( APre, tPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
+      CSE cse("herm_tridiag::U");
+      AssertSameGrids( APre, tPre );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;

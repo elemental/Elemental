@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -24,12 +25,14 @@ void Scatter
     const Int colStride = B.ColStride();
     const Int rowStride = B.RowStride();
     B.Resize( m, n );
-    if( B.CrossSize() != 1 )
-        LogicError("Non-trivial cross teams not yet supported");
-    // TODO: Broadcast over the redundant communicator and use mpi::Translate
-    //       rank to determine whether a process is the root of the broadcast
-    if( B.RedundantSize() != 1 )
-        LogicError("Non-trivial redundant teams not yet supported");
+    if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
+    {
+        // TODO:
+        // Broadcast over the redundant communicator and use mpi::Translate
+        // rank to determine whether a process is the root of the broadcast.
+        GeneralPurpose( A, B ); 
+        return;
+    }
 
     const Int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
     const Int recvSize = pkgSize;
@@ -41,11 +44,18 @@ void Scatter
     if( target == mpi::UNDEFINED )
         return;
 
+    if( B.DistSize() == 1 )
+    {
+        Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
+
     vector<T> buffer;
     T* recvBuf=0; // some compilers (falsely) warn otherwise
     if( A.CrossRank() == root )
     {
-        buffer.resize( sendSize+recvSize );
+        //buffer.resize( sendSize+recvSize );
+        buffer.reserve( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         recvBuf    = &buffer[sendSize];
 
@@ -63,7 +73,8 @@ void Scatter
     }
     else
     {
-        buffer.resize( recvSize );
+        //buffer.resize( recvSize );
+        buffer.reserve( recvSize );
         recvBuf = &buffer[0];
 
         // Perform the receiving portion of the scatter from the non-root
@@ -86,7 +97,8 @@ void Scatter
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 // TODO: Find a way to combine this with the above
@@ -105,7 +117,9 @@ void Scatter
     if( B.Participating() )
     {
         const Int pkgSize = mpi::Pad( height*width );
-        vector<T> buffer( pkgSize );
+        //vector<T> buffer( pkgSize );
+        vector<T> buffer;
+        buffer.reserve( pkgSize );
 
         // Pack            
         if( A.Participating() )
@@ -132,7 +146,8 @@ void Scatter
 {
     DEBUG_ONLY(CSE cse("copy::Scatter"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO(T) \

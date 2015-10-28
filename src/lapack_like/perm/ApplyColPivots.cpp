@@ -11,14 +11,17 @@
 namespace El {
 
 template<typename T>
-void ApplyColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
+void ApplyColPivots
+(       Matrix<T>& A,
+  const Matrix<Int>& pivots,
+        Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("ApplyColPivots");
-        if( pivots.Width() != 1 )
-            LogicError("pivots must be a column vector");
-        if( pivots.Height() > A.Width() )
-            LogicError("pivots cannot be longer than width of A");
+      CSE cse("ApplyColPivots");
+      if( pivots.Width() != 1 )
+          LogicError("pivots must be a column vector");
+      if( pivots.Height() > A.Width() )
+          LogicError("pivots cannot be longer than width of A");
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -26,30 +29,26 @@ void ApplyColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
         return;
 
     const Int numPivots = pivots.Height();
+    const Int* pivotBuf = pivots.LockedBuffer();
     for( Int j=0; j<numPivots; ++j )
     {
-        const Int k = pivots.Get(j,0)-offset;
-        T* Aj = A.Buffer(0,j);
-        T* Ak = A.Buffer(0,k);
-        for( Int i=0; i<height; ++i )
-        {
-            T temp = Aj[i];
-            Aj[i] = Ak[i];
-            Ak[i] = temp;
-        }
+        const Int k = pivotBuf[j] - offset;
+        ColSwap( A, j, k );
     }
 }
 
 template<typename T>
 void ApplyInverseColPivots
-( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
+(       Matrix<T>& A,
+  const Matrix<Int>& pivots,
+        Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("ApplyInverseColPivots");
-        if( pivots.Width() != 1 )
-            LogicError("pivots must be a column vector");
-        if( pivots.Height() > A.Width() )
-            LogicError("pivots cannot be larger than width of A");
+      CSE cse("ApplyInverseColPivots");
+      if( pivots.Width() != 1 )
+          LogicError("pivots must be a column vector");
+      if( pivots.Height() > A.Width() )
+          LogicError("pivots cannot be larger than width of A");
     )
     const Int height = A.Height();
     const Int width = A.Width();
@@ -57,69 +56,69 @@ void ApplyInverseColPivots
         return;
 
     const Int numPivots = pivots.Height();
+    const Int* pivotBuf = pivots.LockedBuffer();
     for( Int j=numPivots-1; j>=0; --j )
     {
-        const Int k = pivots.Get(j,0)-offset;
-        T* Aj = A.Buffer(0,j);
-        T* Ak = A.Buffer(0,k);
-        for( Int i=0; i<height; ++i )
-        {
-            T temp = Aj[i];
-            Aj[i] = Ak[i];
-            Ak[i] = temp;
-        }
+        const Int k = pivotBuf[j] - offset;
+        ColSwap( A, j, k );
     }
 }
 
 template<typename T>
 void ApplyColPivots
-( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, Int offset )
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<Int>& pivotsPre,
+        Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyColPivots"))
-    DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
-                            invPerm(pivots.Grid());
-    if( pivots.Height() == A.Width() )
+    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
+    auto& pivots = *pivotsPtr;
+
+    const Int numPivots = pivots.Height();
+    const Int* pivotsBuf = pivots.LockedBuffer();
+    for( Int j=0; j<numPivots; ++j )
     {
-        PivotsToInversePermutation( pivots, invPerm, offset );
-        InvertPermutation( invPerm, perm );
+        const Int k = pivotsBuf[j] - offset;
+        ColSwap( A, j, k );
     }
-    else
-    {
-        PivotsToPartialPermutation( pivots, perm, invPerm, offset );
-    }
-    PermuteCols( A, perm, invPerm );
 }
 
 template<typename T>
 void ApplyInverseColPivots
-( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, Int offset )
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<Int>& pivotsPre,
+        Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyInverseColPivots"))
-    DistMatrix<Int,VC,STAR> perm(pivots.Grid()),
-                            invPerm(pivots.Grid());
-    if( pivots.Height() == A.Width() )
+    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
+    auto& pivots = *pivotsPtr;
+
+    const Int numPivots = pivots.Height();
+    const Int* pivotsBuf = pivots.LockedBuffer();
+    for( Int j=numPivots-1; j>=0; --j )
     {
-        PivotsToInversePermutation( pivots, invPerm, offset );
-        InvertPermutation( invPerm, perm );
+        const Int k = pivotsBuf[j] - offset;
+        ColSwap( A, j, k );
     }
-    else
-    {
-        PivotsToPartialPermutation( pivots, perm, invPerm, offset );
-    }
-    PermuteCols( A, invPerm, perm );
 }
 
 #define PROTO(T) \
   template void ApplyColPivots \
-  ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
-  template void ApplyColPivots \
-  ( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, \
+  (       Matrix<T>& A, \
+    const Matrix<Int>& pivots, \
     Int offset ); \
+  template void ApplyColPivots \
+  (       ElementalMatrix<T>& A, \
+    const ElementalMatrix<Int>& pivots, \
+          Int offset ); \
   template void ApplyInverseColPivots \
-  ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
+  (       Matrix<T>& A, \
+    const Matrix<Int>& pivots, \
+          Int offset ); \
   template void ApplyInverseColPivots \
-  ( ElementalMatrix<T>& A, const ElementalMatrix<Int>& pivots, \
-    Int offset );
+  (       ElementalMatrix<T>& A, \
+    const ElementalMatrix<Int>& pivots, \
+          Int offset );
 
 #include "El/macros/Instantiate.h"
 

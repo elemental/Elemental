@@ -7,26 +7,36 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
 
-// TODO: Generalize to more distributions
 template<typename T,Dist U,Dist V>
 void TranslateBetweenGrids
-( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ) 
+( const DistMatrix<T,U,V>& A,
+        DistMatrix<T,U,V>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids"))
-    LogicError("General TranslateBetweenGrids not yet supported");
+    GeneralPurpose( A, B );
 }
 
+// TODO: Compare against copy::GeneralPurpose
 template<typename T>
 void TranslateBetweenGrids
-( const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B ) 
+( const DistMatrix<T,MC,MR>& A,
+        DistMatrix<T,MC,MR>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids [MC,MR]"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int mLocA = A.LocalHeight();
+    const Int nLocA = A.LocalWidth();
+    B.Resize( m, n );
+    mpi::Comm viewingCommA = A.Grid().ViewingComm();
+    mpi::Comm viewingCommB = B.Grid().ViewingComm();
+    mpi::Group owningGroupA = A.Grid().OwningGroup();
 
-    B.Resize( A.Height(), A.Width() );
     // Just need to ensure that each viewing comm contains the other team's
     // owning comm. Congruence is too strong.
 
@@ -34,8 +44,12 @@ void TranslateBetweenGrids
     // needs to send to.
     const Int colStride = B.ColStride();
     const Int rowStride = B.RowStride();
+    const Int colShift = B.ColShift();
+    const Int rowShift = B.RowShift();
     const Int colRank = B.ColRank();
     const Int rowRank = B.RowRank();
+    const Int colRankA = A.ColRank();
+    const Int rowRankA = A.RowRank();
     const Int colStrideA = A.ColStride();
     const Int rowStrideA = A.RowStride();
     const Int colGCD = GCD( colStride, colStrideA );
@@ -56,8 +70,7 @@ void TranslateBetweenGrids
         return;
 
     const Int maxSendSize =
-        (A.Height()/(colStrideA*numColSends)+1) *
-        (A.Width()/(rowStrideA*numRowSends)+1);
+      (m/(colStrideA*numColSends)+1) * (n/(rowStrideA*numRowSends)+1);
 
     // Translate the ranks from A's VC communicator to B's viewing so that
     // we can match send/recv communicators. Since A's VC communicator is not
@@ -85,8 +98,7 @@ void TranslateBetweenGrids
                 ranks[i+j*colStrideA] = j+i*rowStrideA;
     }
     mpi::Translate
-    ( A.Grid().OwningGroup(), sizeA, &ranks[0],
-      B.Grid().ViewingComm(), &rankMap[0] );
+    ( owningGroupA, sizeA, ranks.data(), viewingCommB, rankMap.data() );
 
     // Have each member of A's grid individually send to all numRow x numCol
     // processes in order, while the members of this grid receive from all
@@ -96,7 +108,9 @@ void TranslateBetweenGrids
         requiredMemory += maxSendSize;
     if( inBGrid )
         requiredMemory += maxSendSize;
-    vector<T> auxBuf( requiredMemory );
+    //vector<T> auxBuf( requiredMemory );
+    vector<T> auxBuf;
+    auxBuf.reserve( requiredMemory );
     Int offset = 0;
     T* sendBuf = &auxBuf[offset];
     if( inAGrid )
@@ -105,13 +119,12 @@ void TranslateBetweenGrids
 
     Int recvRow = 0; // avoid compiler warnings...
     if( inAGrid )
-        recvRow = Mod(Mod(A.ColRank()-colAlignA,colStrideA)+colAlign,colStride);
+        recvRow = Mod(Mod(colRankA-colAlignA,colStrideA)+colAlign,colStride);
     for( Int colSend=0; colSend<numColSends; ++colSend )
     {
         Int recvCol = 0; // avoid compiler warnings...
         if( inAGrid )
-            recvCol=Mod(Mod(A.RowRank()-rowAlignA,rowStrideA)+rowAlign,
-                        rowStride);
+            recvCol=Mod(Mod(rowRankA-rowAlignA,rowStrideA)+rowAlign,rowStride);
         for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
         {
             mpi::Request sendRequest;
@@ -119,8 +132,8 @@ void TranslateBetweenGrids
             if( inAGrid )
             {
                 // Pack the data
-                Int sendHeight = Length(A.LocalHeight(),colSend,numColSends);
-                Int sendWidth = Length(A.LocalWidth(),rowSend,numRowSends);
+                Int sendHeight = Length(mLocA,colSend,numColSends);
+                Int sendWidth = Length(nLocA,rowSend,numRowSends);
                 copy::util::InterleaveMatrix
                 ( sendHeight, sendWidth,
                   A.LockedBuffer(colSend,rowSend),
@@ -131,29 +144,26 @@ void TranslateBetweenGrids
                 const Int recvViewingRank = B.Grid().VCToViewing( recvVCRank );
                 mpi::ISend
                 ( sendBuf, sendHeight*sendWidth, recvViewingRank,
-                  B.Grid().ViewingComm(), sendRequest );
+                  viewingCommB, sendRequest );
             }
             // Perform this round of recv's
             if( inBGrid )
             {
                 const Int sendColOffset = colAlignA;
                 const Int recvColOffset =
-                    (colSend*colStrideA+colAlign) % colStride;
+                  Mod(colSend*colStrideA+colAlign,colStride);
                 const Int sendRowOffset = rowAlignA;
                 const Int recvRowOffset =
-                    (rowSend*rowStrideA+rowAlign) % rowStride;
-
-                const Int firstSendRow =
-                    Mod( Mod(colRank-recvColOffset,colStride)+sendColOffset,
-                         colStrideA );
-                const Int firstSendCol =
-                    Mod( Mod(rowRank-recvRowOffset,rowStride)+sendRowOffset,
-                         rowStrideA );
+                  Mod(rowSend*rowStrideA+rowAlign,rowStride);
 
                 const Int colShift = Mod( colRank-recvColOffset, colStride );
                 const Int rowShift = Mod( rowRank-recvRowOffset, rowStride );
-                const Int numColRecvs = Length( colStrideA, colShift, colStride );
-                const Int numRowRecvs = Length( rowStrideA, rowShift, rowStride );
+
+                const Int firstSendRow = Mod(colShift+sendColOffset,colStrideA);
+                const Int firstSendCol = Mod(rowShift+sendRowOffset,rowStrideA);
+
+                const Int numColRecvs = Length(colStrideA,colShift,colStride);
+                const Int numRowRecvs = Length(rowStrideA,rowShift,rowStride);
 
                 // Recv data
                 // For now, simply receive sequentially. Until we switch to
@@ -162,21 +172,27 @@ void TranslateBetweenGrids
                 Int sendRow = firstSendRow;
                 for( Int colRecv=0; colRecv<numColRecvs; ++colRecv )
                 {
-                    const Int sendColShift = Shift( sendRow, colAlignA, colStrideA ) + colSend*colStrideA;
-                    const Int sendHeight = Length( A.Height(), sendColShift, colLCM );
-                    const Int localColOffset = (sendColShift-B.ColShift()) / colStride;
+                    const Int sendColShift =
+                      Shift( sendRow, colAlignA, colStrideA ) + 
+                      colSend*colStrideA;
+                    const Int sendHeight = Length( m, sendColShift, colLCM );
+                    const Int localColOffset = 
+                      (sendColShift-colShift) / colStride;
 
                     Int sendCol = firstSendCol;
                     for( Int rowRecv=0; rowRecv<numRowRecvs; ++rowRecv )
                     {
-                        const Int sendRowShift = Shift( sendCol, rowAlignA, rowStrideA ) + rowSend*rowStrideA;
-                        const Int sendWidth = Length( A.Width(), sendRowShift, rowLCM );
-                        const Int localRowOffset = (sendRowShift-B.RowShift()) / rowStride;
+                        const Int sendRowShift =
+                          Shift( sendCol, rowAlignA, rowStrideA ) +
+                          rowSend*rowStrideA;
+                        const Int sendWidth = Length( n, sendRowShift, rowLCM );
+                        const Int localRowOffset =
+                          (sendRowShift-rowShift) / rowStride;
 
                         const Int sendVCRank = sendRow+sendCol*colStrideA;
                         mpi::Recv
                         ( recvBuf, sendHeight*sendWidth, rankMap[sendVCRank],
-                          B.Grid().ViewingComm() );
+                          viewingCommB );
 
                         // Unpack the data
                         copy::util::InterleaveMatrix
@@ -186,27 +202,28 @@ void TranslateBetweenGrids
                           colLCM/colStride, (rowLCM/rowStride)*B.LDim() );
 
                         // Set up the next send col
-                        sendCol = (sendCol + rowStride) % rowStrideA;
+                        sendCol = Mod(sendCol+rowStride,rowStrideA);
                     }
                     // Set up the next send row
-                    sendRow = (sendRow + colStride) % colStrideA;
+                    sendRow = Mod(sendRow+colStride,colStrideA);
                 }
             }
             // Ensure that this round of non-blocking sends completes
             if( inAGrid )
             {
                 mpi::Wait( sendRequest );
-                recvCol = (recvCol + rowStrideA) % rowStride;
+                recvCol = Mod(recvCol+rowStrideA,rowStride);
             }
         }
         if( inAGrid )
-            recvRow = (recvRow + colStrideA) % colStride;
+            recvRow = Mod(recvRow+colStrideA,colStride);
     }
 }
 
 template<typename T>
 void TranslateBetweenGrids
-( const DistMatrix<T,STAR,STAR>& A, DistMatrix<T,STAR,STAR>& B ) 
+( const DistMatrix<T,STAR,STAR>& A,
+        DistMatrix<T,STAR,STAR>& B ) 
 {
     DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids [STAR,STAR]"))
     const Int height = A.Height();
@@ -230,7 +247,9 @@ void TranslateBetweenGrids
         requiredMemory += height*width;
     if( B.Participating() )
         requiredMemory += height*width;
-    vector<T> buffer( requiredMemory );
+    //vector<T> buffer( requiredMemory );
+    vector<T> buffer;
+    buffer.reserve( requiredMemory );
     Int offset = 0;
     T* sendBuf = &buffer[offset];
     if( rankA == 0 ) 
@@ -279,7 +298,8 @@ void TranslateBetweenGrids
 
 #define PROTO_DIST(T,U,V) \
   template void TranslateBetweenGrids \
-  ( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+  ( const DistMatrix<T,U,V>& A, \
+          DistMatrix<T,U,V>& B );
 
 #define PROTO(T) \
   PROTO_DIST(T,CIRC,CIRC) \

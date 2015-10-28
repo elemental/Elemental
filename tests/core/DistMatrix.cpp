@@ -20,27 +20,22 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     const Int commRank = g.Rank();
     const Int height = B.Height();
     const Int width = B.Width();
-    DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
-    DistMatrix<T,STAR,STAR> B_STAR_STAR(g);
 
     if( commRank == 0 )
-    {
-        std::cout << "Testing [" << DistToString(AColDist) << ","
-                                 << DistToString(ARowDist) << "]"
-                  << " <- ["     << DistToString(BColDist) << ","
-                                 << DistToString(BRowDist) << "]...";
-        std::cout.flush();
-    }
+        Output
+        ("Testing [",DistToString(AColDist),",",DistToString(ARowDist),"]",
+         " <- [",DistToString(BColDist),",",DistToString(BRowDist),"]");
     Int colAlign = SampleUniform<Int>(0,A.ColStride());
     Int rowAlign = SampleUniform<Int>(0,A.RowStride());
     mpi::Broadcast( colAlign, 0, g.Comm() );
     mpi::Broadcast( rowAlign, 0, g.Comm() );
     A.Align( colAlign, rowAlign );
     A = B;
+    if( A.Height() != B.Height() || A.Width() != B.Width() )
+        LogicError
+        ("A ~ ",A.Height()," x ",A.Width(),", B ~ ",B.Height()," x ",B.Width());
 
-    A_STAR_STAR = A;
-    B_STAR_STAR = B;
-
+    DistMatrix<T,STAR,STAR> A_STAR_STAR(A), B_STAR_STAR(B);
     Int myErrorFlag = 0;
     for( Int j=0; j<width; ++j )
     {
@@ -62,12 +57,12 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     if( summedErrorFlag == 0 )
     {
         if( commRank == 0 )
-            std::cout << "PASSED" << std::endl;
+            Output("PASSED");
     }
     else
     {
         if( commRank == 0 )
-            std::cout << "FAILED" << std::endl;
+            Output("FAILED");
         if( print )
             Print( A, "A" );
         if( print ) 
@@ -86,35 +81,75 @@ void CheckAll( Int m, Int n, const Grid& g, bool print )
     A.Align( colAlign, rowAlign );
     Uniform( A, m, n );
 
-    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC(g);
-    DistMatrix<T,MC,  MR  > A_MC_MR(g);
-    DistMatrix<T,MC,  STAR> A_MC_STAR(g);
-    DistMatrix<T,MD,  STAR> A_MD_STAR(g);
-    DistMatrix<T,MR,  MC  > A_MR_MC(g);
-    DistMatrix<T,MR,  STAR> A_MR_STAR(g);
-    DistMatrix<T,STAR,MC  > A_STAR_MC(g);
-    DistMatrix<T,STAR,MD  > A_STAR_MD(g);
-    DistMatrix<T,STAR,MR  > A_STAR_MR(g);
-    DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
-    DistMatrix<T,STAR,VC  > A_STAR_VC(g);
-    DistMatrix<T,STAR,VR  > A_STAR_VR(g);
-    DistMatrix<T,VC,  STAR> A_VC_STAR(g);
-    DistMatrix<T,VR,  STAR> A_VR_STAR(g);
+    {
+      DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC(g);
+      Check( A_CIRC_CIRC, A, print );
+    }
 
-    Check( A_CIRC_CIRC, A, print );
-    Check( A_MC_MR,     A, print );
-    Check( A_MC_STAR,   A, print );
-    Check( A_MD_STAR,   A, print );
-    Check( A_MR_MC,     A, print );
-    Check( A_MR_STAR,   A, print );
-    Check( A_STAR_MC,   A, print );
-    Check( A_STAR_MD,   A, print );
-    Check( A_STAR_MR,   A, print );
-    Check( A_STAR_STAR, A, print );
-    Check( A_STAR_VC,   A, print );
-    Check( A_STAR_VR,   A, print );
-    Check( A_VC_STAR,   A, print );
-    Check( A_VR_STAR,   A, print );
+    {
+      DistMatrix<T,MC,MR> A_MC_MR(g);
+      Check( A_MC_MR, A, print );
+    }
+
+    {
+      DistMatrix<T,MC,STAR> A_MC_STAR(g);
+      Check( A_MC_STAR, A, print );
+    }
+
+    {
+      DistMatrix<T,MD,STAR> A_MD_STAR(g);
+      Check( A_MD_STAR, A, print );
+    }
+
+    {
+      DistMatrix<T,MR,MC> A_MR_MC(g);
+      Check( A_MR_MC, A, print );
+    }
+
+    {
+      DistMatrix<T,MR,STAR> A_MR_STAR(g);
+      Check( A_MR_STAR, A, print );
+    }
+
+    {
+      DistMatrix<T,STAR,MC> A_STAR_MC(g);
+      Check( A_STAR_MC, A, print );
+    }
+
+    {
+      DistMatrix<T,STAR,MD> A_STAR_MD(g);
+      Check( A_STAR_MD, A, print );
+    }
+
+    {
+      DistMatrix<T,STAR,MR> A_STAR_MR(g);
+      Check( A_STAR_MR, A, print );
+    }
+
+    {
+      DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
+      Check( A_STAR_STAR, A, print );
+    }
+
+    {
+      DistMatrix<T,STAR,VC> A_STAR_VC(g);
+      Check( A_STAR_VC, A, print );
+    }
+
+    {
+      DistMatrix<T,STAR,VR> A_STAR_VR(g);
+      Check( A_STAR_VR, A, print );
+    }
+
+    {
+      DistMatrix<T,VC,STAR> A_VC_STAR(g);
+      Check( A_VC_STAR, A, print );
+    }
+
+    {
+      DistMatrix<T,VR,STAR> A_VR_STAR(g);
+      Check( A_VR_STAR, A, print );
+    }
 }
 
 template<typename T>
@@ -162,34 +197,34 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
 
         if( commRank == 0 )
-            std::cout << "Testing with integers:" << std::endl;
+            Output("Testing with integers:");
         DistMatrixTest<Int>( m, n, g, print );
 
         if( commRank == 0 )
-            std::cout << "Testing with floats:" << std::endl;
+            Output("Testing with floats:");
         DistMatrixTest<float>( m, n, g, print );
 
         if( commRank == 0 )
-            std::cout << "Testing with doubles:" << std::endl;
+            Output("Testing with doubles:");
         DistMatrixTest<double>( m, n, g, print );
 
 #ifdef EL_HAVE_QUAD
         if( commRank == 0 )
-            std::cout << "Testing with quads:" << std::endl;
+            Output("Testing with quads:");
         DistMatrixTest<Quad>( m, n, g, print );
 #endif
 
         if( commRank == 0 )
-            std::cout << "Testing with single-precision complex:" << std::endl;
+            Output("Testing with single-precision complex:");
         DistMatrixTest<Complex<float>>( m, n, g, print );
         
         if( commRank == 0 )
-            std::cout << "Testing with double-precision complex:" << std::endl;
+            Output("Testing with double-precision complex:");
         DistMatrixTest<Complex<double>>( m, n, g, print );
 
 #ifdef EL_HAVE_QUAD
         if( commRank == 0 )
-            std::cout << "Testing with quad-precision complex:" << std::endl;
+            Output("Testing with quad-precision complex:");
         DistMatrixTest<Complex<Quad>>( m, n, g, print );
 #endif
     }

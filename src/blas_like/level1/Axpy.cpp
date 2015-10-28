@@ -123,6 +123,49 @@ void Axpy( S alphaS, const BlockMatrix<T>& X, BlockMatrix<T>& Y )
 }
 
 template<typename T,typename S>
+void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
+{
+    DEBUG_ONLY(
+      CSE cse("Axpy");
+      AssertSameGrids( X, Y );
+    )
+    const T alpha = T(alphaS);
+
+    if( X.Wrap() == ELEMENT && Y.Wrap() == ELEMENT )
+    {
+        const auto& XCast = dynamic_cast<const ElementalMatrix<T>&>(X);
+              auto& YCast = dynamic_cast<      ElementalMatrix<T>&>(Y);
+        Axpy( alpha, XCast, YCast );
+    }
+    else if( X.Wrap() == BLOCK && Y.Wrap() == BLOCK )
+    {
+        const auto& XCast = dynamic_cast<const BlockMatrix<T>&>(X);
+              auto& YCast = dynamic_cast<      BlockMatrix<T>&>(Y);
+        Axpy( alpha, XCast, YCast );
+    }
+    else if( X.Wrap() == ELEMENT )
+    {
+        const auto& XCast = dynamic_cast<const ElementalMatrix<T>&>(X);
+              auto& YCast = dynamic_cast<      BlockMatrix<T>&>(Y);
+        unique_ptr<BlockMatrix<T>>
+          XCopy( YCast.Construct(Y.Grid(),Y.Root()) );
+        XCopy->AlignWith( YCast.DistData() );
+        Copy( XCast, *XCopy );
+        Axpy( alpha, XCopy->LockedMatrix(), Y.Matrix() );
+    }
+    else
+    {
+        const auto& XCast = dynamic_cast<const BlockMatrix<T>&>(X);
+              auto& YCast = dynamic_cast<      ElementalMatrix<T>&>(Y);
+        unique_ptr<ElementalMatrix<T>>
+          XCopy( YCast.Construct(Y.Grid(),Y.Root()) );
+        XCopy->AlignWith( YCast.DistData() );
+        Copy( XCast, *XCopy );
+        Axpy( alpha, XCopy->LockedMatrix(), Y.Matrix() );
+    }
+}
+
+template<typename T,typename S>
 void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 {
     DEBUG_ONLY(CSE cse("Axpy"))
@@ -165,6 +208,8 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
   ( S alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   template void Axpy \
   ( S alpha, const BlockMatrix<T>& A, BlockMatrix<T>& B ); \
+  template void Axpy \
+  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
   template void Axpy \
   ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
   template void Axpy \

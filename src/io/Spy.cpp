@@ -43,7 +43,7 @@ void Spy( const Matrix<T>& A, string title, Base<T> tol )
 }
 
 template<typename T>
-void Spy( const ElementalMatrix<T>& A, string title, Base<T> tol )
+void Spy( const AbstractDistMatrix<T>& A, string title, Base<T> tol )
 {
     DEBUG_ONLY(CSE cse("Spy"))
 #ifdef EL_HAVE_QT5
@@ -65,35 +65,10 @@ void Spy( const ElementalMatrix<T>& A, string title, Base<T> tol )
 #endif // ifdef EL_HAVE_QT5
 }
 
-template<typename T>
-void Spy( const BlockMatrix<T>& A, string title, Base<T> tol )
-{
-    DEBUG_ONLY(CSE cse("Spy"))
-#ifdef EL_HAVE_QT5
-    if( GuiDisabled() )
-        LogicError("GUI was disabled");
-    if( A.ColStride() == 1 && A.RowStride() == 1 )
-    {
-        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
-            Spy( A.LockedMatrix(), title, tol );
-    }
-    else
-    {
-        DistMatrix<T,CIRC,CIRC,BLOCK> A_CIRC_CIRC( A );
-        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-            Spy( A_CIRC_CIRC.Matrix(), title, tol );
-    }
-#else
-    LogicError("Qt5 not available");
-#endif // ifdef EL_HAVE_QT5
-}
-
 #define PROTO(T) \
   template void Spy ( const Matrix<T>& A, string title, Base<T> tol ); \
   template void Spy \
-  ( const ElementalMatrix<T>& A, string title, Base<T> tol ); \
-  template void Spy \
-  ( const BlockMatrix<T>& A, string title, Base<T> tol ); 
+  ( const AbstractDistMatrix<T>& A, string title, Base<T> tol );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

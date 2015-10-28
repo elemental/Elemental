@@ -11,22 +11,44 @@
 namespace El {
 
 template<typename T>
-void Bernoulli( Matrix<T>& A, Int m, Int n )
+void Bernoulli( Matrix<T>& A, Int m, Int n, double p )
 { 
     DEBUG_ONLY(CSE cse("Bernoulli"))
-    ThreeValued( A, m, n, 1. );
+    if( p < 0. || p > 1. )
+        LogicError
+        ("Invalid choice of parameter p for Bernoulli distribution: ",p);
+    A.Resize( m, n );
+    const double q = 1-p;
+    auto doubleCoin = [=]() -> T
+    {
+        const double alpha = SampleUniform<double>(0,1);
+        if( alpha <= q ) return T(0); 
+        else             return T(1);
+    };
+    EntrywiseFill( A, function<T()>(doubleCoin) );
 }
 
 template<typename T>
-void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n )
+void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n, double p )
 {
     DEBUG_ONLY(CSE cse("Bernoulli"))
-    ThreeValued( A, m, n, 1. );
+    if( p < 0. || p > 1. )
+        LogicError
+        ("Invalid choice of parameter p for Bernoulli distribution: ",p);
+    A.Resize( m, n );
+    const double q = 1-p;
+    auto doubleCoin = [=]() -> T
+    {
+        const double alpha = SampleUniform<double>(0,1);
+        if( alpha <= q ) return T(0); 
+        else             return T(1);
+    };
+    EntrywiseFill( A, function<T()>(doubleCoin) );
 }
 
 #define PROTO(T) \
-  template void Bernoulli( Matrix<T>& A, Int m, Int n ); \
-  template void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n );
+  template void Bernoulli( Matrix<T>& A, Int m, Int n, double p ); \
+  template void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n, double p );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

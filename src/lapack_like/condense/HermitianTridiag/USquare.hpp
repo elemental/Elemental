@@ -16,14 +16,15 @@ namespace herm_tridiag {
 
 template<typename F> 
 void USquare
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre,
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& tPre,
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("herm_tridiag::USquare");
-        AssertSameGrids( APre, tPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
+      CSE cse("herm_tridiag::USquare");
+      AssertSameGrids( APre, tPre );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;

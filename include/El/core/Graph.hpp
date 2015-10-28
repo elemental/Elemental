@@ -46,9 +46,12 @@ public:
     const Graph& operator=( const DistGraph& graph );
     // TODO: Move assignment
 
-    // Make a copy of a contiguous subgraph
-    // ------------------------------------
+    // Make a copy of a subgraph
+    // -------------------------
     Graph operator()( Range<Int> I, Range<Int> J ) const;
+    Graph operator()( Range<Int> I, const vector<Int>& J ) const;
+    Graph operator()( const vector<Int>& I, Range<Int> J ) const;
+    Graph operator()( const vector<Int>& I, const vector<Int>& J ) const;
 
     // Change the size of the graph
     // ----------------------------

@@ -28,7 +28,8 @@ void TestCorrectness
     DistMatrix<F> X(g);
     Uniform( X, n, 100 );
     auto Y( X );
-    lu::SolveAfter( NORMAL, A, p, Y );
+    PermuteRows( Y, p );
+    lu::SolveAfter( NORMAL, A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const Real oneNormOfX = OneNorm( X );
@@ -62,7 +63,7 @@ void TestLUMod
   bool testCorrectness, bool print, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> p(g);
+    DistMatrix<Int,UPerm,STAR> rowPiv(g), p(g);
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -87,7 +88,7 @@ void TestLUMod
         }
         mpi::Barrier( g.Comm() );
         const double startTime = mpi::Time();
-        LU( A, p );
+        LU( A, rowPiv );
         mpi::Barrier( g.Comm() );
         const double runTime = mpi::Time() - startTime;
         const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -97,6 +98,7 @@ void TestLUMod
                  << gFlops << endl;
     }
 
+    PivotsToPermutation( rowPiv, p );
     if( print )
     {
         Print( A, "A after original factorization" );

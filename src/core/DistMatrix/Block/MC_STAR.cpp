@@ -52,9 +52,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MD,STAR,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[MC,STAR] = [MD,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -62,9 +61,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MD,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,MD]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR,BLOCK> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -72,13 +70,12 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,MC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MC,STAR] = [MR,MC]"))
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR,BLOCK>>( A );
-    auto A_VC_STAR =
-      MakeUnique<DistMatrix<T,VC,STAR,BLOCK>>( this->Grid() );
-    A_VC_STAR->AlignColsWith(*this);
-    *A_VC_STAR = *A_VR_STAR;
-    A_VR_STAR.reset(); 
-    *this = *A_VC_STAR;
+    DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A );
+    DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR( this->Grid() );
+    A_VC_STAR.AlignColsWith(*this);
+    A_VC_STAR = A_VR_STAR;
+    A_VR_STAR.Empty(); 
+    *this = A_VC_STAR;
     return *this;
 }
 
@@ -86,13 +83,12 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,STAR,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MC,STAR] = [MR,STAR]"))
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR,BLOCK>>( A );
-    auto A_VC_STAR =
-      MakeUnique<DistMatrix<T,VC,STAR,BLOCK>>( this->Grid() );
-    A_VC_STAR->AlignColsWith(*this);
-    *A_VC_STAR = *A_VR_STAR;
-    A_VR_STAR.reset();
-    *this = *A_VC_STAR;
+    DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A );
+    DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR( this->Grid() );
+    A_VC_STAR.AlignColsWith(*this);
+    A_VC_STAR = A_VR_STAR;
+    A_VR_STAR.Empty();
+    *this = A_VC_STAR;
     return *this;
 }
 
@@ -100,17 +96,16 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,MC]"))
-    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC,BLOCK>>( A );
-    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR,BLOCK>>( *A_MR_MC );
-    A_MR_MC.reset();
+    DistMatrix<T,MR,MC,BLOCK> A_MR_MC( A );
+    DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A_MR_MC );
+    A_MR_MC.Empty();
 
-    auto A_VC_STAR =
-      MakeUnique<DistMatrix<T,VC,STAR,BLOCK>>( this->Grid() );
-    A_VC_STAR->AlignColsWith(*this);
-    *A_VC_STAR = *A_VR_STAR;
-    A_VR_STAR.reset(); 
+    DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR( this->Grid() );
+    A_VC_STAR.AlignColsWith(*this);
+    A_VC_STAR = A_VR_STAR;
+    A_VR_STAR.Empty(); 
 
-    *this = *A_VC_STAR;
+    *this = A_VC_STAR;
     return *this;
 }
 
@@ -126,12 +121,12 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VC,BLOCK>& A )
 { 
     DEBUG_ONLY(CSE cse("[MC,STAR] = [STAR,VC]"))
-    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR,BLOCK>>( A );
-    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR,BLOCK>>( this->Grid() );
-    A_MC_MR->AlignColsWith(*this);
-    *A_MC_MR = *A_STAR_VR;
-    A_STAR_VR.reset();
-    *this = *A_MC_MR;
+    DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR( A );
+    DistMatrix<T,MC,  MR,BLOCK> A_MC_MR( this->Grid() );
+    A_MC_MR.AlignColsWith(*this);
+    A_MC_MR = A_STAR_VR;
+    A_STAR_VR.Empty();
+    *this = A_MC_MR;
     return *this;
 }
 
@@ -169,7 +164,8 @@ template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("[MC,STAR] = [CIRC,CIRC]"))
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -193,34 +189,77 @@ BDM& BDM::operator=( const BlockMatrix<T>& A )
 template<typename T>
 mpi::Comm BDM::DistComm() const EL_NO_EXCEPT
 { return this->grid_->MCComm(); }
+
 template<typename T>
 mpi::Comm BDM::RedundantComm() const EL_NO_EXCEPT
 { return this->grid_->MRComm(); }
+
 template<typename T>
 mpi::Comm BDM::CrossComm() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+
 template<typename T>
 mpi::Comm BDM::ColComm() const EL_NO_EXCEPT
 { return this->grid_->MCComm(); }
+
 template<typename T>
 mpi::Comm BDM::RowComm() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
-int BDM::ColStride() const EL_NO_EXCEPT
-{ return this->grid_->MCSize(); }
+mpi::Comm BDM::PartialColComm() const EL_NO_EXCEPT
+{ return this->ColComm(); }
 template<typename T>
-int BDM::RowStride() const EL_NO_EXCEPT
-{ return 1; }
+mpi::Comm BDM::PartialRowComm() const EL_NO_EXCEPT
+{ return this->RowComm(); }
 template<typename T>
-int BDM::DistSize() const EL_NO_EXCEPT
-{ return this->grid_->MCSize(); }
+mpi::Comm BDM::PartialUnionColComm() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 template<typename T>
-int BDM::CrossSize() const EL_NO_EXCEPT
-{ return 1; }
+mpi::Comm BDM::PartialUnionRowComm() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+
 template<typename T>
-int BDM::RedundantSize() const EL_NO_EXCEPT
-{ return this->grid_->MRSize(); }
+int BDM::ColStride() const EL_NO_EXCEPT { return this->grid_->MCSize(); }
+template<typename T>
+int BDM::RowStride() const EL_NO_EXCEPT { return 1; }
+template<typename T>
+int BDM::DistSize() const EL_NO_EXCEPT { return this->grid_->MCSize(); }
+template<typename T>
+int BDM::CrossSize() const EL_NO_EXCEPT { return 1; }
+template<typename T>
+int BDM::RedundantSize() const EL_NO_EXCEPT { return this->grid_->MRSize(); }
+template<typename T>
+int BDM::PartialColStride() const EL_NO_EXCEPT { return this->ColStride(); }
+template<typename T>
+int BDM::PartialRowStride() const EL_NO_EXCEPT { return this->RowStride(); }
+template<typename T>
+int BDM::PartialUnionColStride() const EL_NO_EXCEPT { return 1; }
+template<typename T>
+int BDM::PartialUnionRowStride() const EL_NO_EXCEPT { return 1; }
+
+template<typename T>
+int BDM::ColRank() const EL_NO_EXCEPT { return this->grid_->MCRank(); }
+template<typename T>
+int BDM::RowRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int BDM::DistRank() const EL_NO_EXCEPT { return this->grid_->MCRank(); }
+template<typename T>
+int BDM::CrossRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int BDM::RedundantRank() const EL_NO_EXCEPT { return this->grid_->MRRank(); }
+template<typename T>
+int BDM::PartialColRank() const EL_NO_EXCEPT { return this->ColRank(); }
+template<typename T>
+int BDM::PartialRowRank() const EL_NO_EXCEPT { return this->RowRank(); }
+template<typename T>
+int BDM::PartialUnionColRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int BDM::PartialUnionRowRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

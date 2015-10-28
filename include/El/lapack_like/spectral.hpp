@@ -47,42 +47,70 @@ struct HermitianEigCtrl
 // -------------------
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort=ASCENDING,
+(       UpperOrLower uplo,
+        Matrix<F>& A,
+        Matrix<Base<F>>& w,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w, SortType sort=ASCENDING,
+(       UpperOrLower uplo,
+        DistMatrix<F,STAR,STAR>& A,
+        DistMatrix<Base<F>,STAR,STAR>& w,
+        SortType sort=ASCENDING,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& w,
-  SortType sort=ASCENDING,
+(       UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& w,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
+template<typename F>
+void HermitianEig
+(       UpperOrLower uplo,
+        DistMatrix<F,MC,MR,BLOCK>& A,
+        Matrix<Base<F>>& w,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>() );
 
 // Compute eigenpairs
 // ------------------
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
-  SortType sort=ASCENDING,
+(       UpperOrLower uplo,
+        Matrix<F>& A,
+        Matrix<Base<F>>& w,
+        Matrix<F>& Z,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,
-  SortType sort=ASCENDING,
+(       UpperOrLower uplo,
+        DistMatrix<F,STAR,STAR>& A,
+        DistMatrix<Base<F>,STAR,STAR>& w,
+        DistMatrix<F,STAR,STAR>& Z,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& w, 
-  ElementalMatrix<F>& Z, SortType sort=ASCENDING,
+(       UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& w, 
+        ElementalMatrix<F>& Z,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
+template<typename F>
+void HermitianEig
+(       UpperOrLower uplo,
+        DistMatrix<F,MC,MR,BLOCK>& A,
+        Matrix<Base<F>>& w,
+        DistMatrix<F,MC,MR,BLOCK>& Z,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>() );
 
 // Hermitian generalized definite eigenvalue solvers
 // =================================================
@@ -100,32 +128,46 @@ using namespace PencilNS;
 // -------------------
 template<typename F>
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort=ASCENDING,
+(       Pencil pencil,
+        UpperOrLower uplo, 
+        Matrix<F>& A,
+        Matrix<F>& B,
+        Matrix<Base<F>>& w,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B,
-  ElementalMatrix<Base<F>>& w, SortType sort=ASCENDING,
+(       Pencil pencil,
+        UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B,
+        ElementalMatrix<Base<F>>& w,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 // Compute eigenpairs
 // ------------------
 template<typename F>
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo,
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
-  SortType sort=ASCENDING,
+(       Pencil pencil,
+        UpperOrLower uplo,
+        Matrix<F>& A,
+        Matrix<F>& B,
+        Matrix<Base<F>>& w,
+        Matrix<F>& X,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
 void HermitianGenDefEig
-( Pencil pencil, UpperOrLower uplo,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B,
-  ElementalMatrix<Base<F>>& w, ElementalMatrix<F>& X,
-  SortType sort=ASCENDING,
+(       Pencil pencil,
+        UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B,
+        ElementalMatrix<Base<F>>& w,
+        ElementalMatrix<F>& X,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
@@ -444,6 +486,12 @@ void SVD
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( DistMatrix<F,MC,MR,BLOCK>& A,
+  Matrix<Base<F>>& s,
+  DistMatrix<F,MC,MR,BLOCK>& U,
+  DistMatrix<F,MC,MR,BLOCK>& VH );
 
 template<typename F>
 void HermitianSVD
@@ -598,7 +646,7 @@ struct PseudospecCtrl
     SchurCtrl<Real> schurCtrl;
 
     // Convergence and deflation criteria
-    Int maxIts=200;
+    Int maxIts=50;
     Real tol=1e-6;
     bool deflate=true;
 

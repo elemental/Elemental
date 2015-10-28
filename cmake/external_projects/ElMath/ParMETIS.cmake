@@ -7,6 +7,7 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 include(ExternalProject)
+include(ElCheckFunctionExists)
 include(ElLibraryName)
 
 set(USE_FOUND_PARMETIS FALSE)
@@ -15,14 +16,21 @@ if(NOT EL_BUILD_PARMETIS)
   find_package(ParMETIS)
   if(PARMETIS_FOUND)
     include(CheckFunctionExists)
-    set(CMAKE_REQUIRED_LIBRARIES ${PARMETIS_LIBRARIES})
-    check_function_exists(ParMETIS_ComputeVertexSeparator 
+    set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
+    set(CMAKE_REQUIRED_LINKER_FLAGS
+      "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+    set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
+    set(CMAKE_REQUIRED_LIBRARIES ${PARMETIS_LIBRARIES} ${MPI_C_LIBRARIES})
+    El_check_function_exists(ParMETIS_ComputeVertexSeparator 
       HAVE_PARMETIS_VERTEXSEP)
     if(HAVE_PARMETIS_VERTEXSEP)
       set(USE_FOUND_PARMETIS TRUE)
     else()
       message(WARNING "ParMETIS was found, but the custom add-on ParMETIS_ComputeVertexSeparator was not, so a custom version of the library must be built")
     endif()
+    unset(CMAKE_REQUIRED_FLAGS)
+    unset(CMAKE_REQUIRED_LINKER_FLAGS)
+    unset(CMAKE_REQUIRED_INCLUDES)
     unset(CMAKE_REQUIRED_LIBRARIES)
   endif()
 endif()

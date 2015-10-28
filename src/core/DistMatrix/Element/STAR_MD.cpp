@@ -27,9 +27,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [MC,MR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -37,9 +36,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [MC,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -47,9 +45,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,MR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -57,9 +54,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [MD,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -67,9 +63,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [MR,MC]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -77,9 +72,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [MR,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -87,9 +81,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,MC]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -97,9 +90,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [VC,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -107,9 +99,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,VC]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -117,9 +108,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [VR,STAR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -127,9 +117,8 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
     DEBUG_ONLY(CSE cse("[STAR,MD] = [STAR,VR]"))
-    // TODO: More efficient implementation?
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-    *this = A_STAR_STAR;
+    // TODO: More efficient implementation
+    copy::GeneralPurpose( A, *this );
     return *this;
 }
 
@@ -170,11 +159,9 @@ DM& DM::operator=( const ElementalMatrix<T>& A )
 template<typename T>
 mpi::Comm DM::DistComm() const EL_NO_EXCEPT
 { return this->grid_->MDComm(); }
-
 template<typename T>
 mpi::Comm DM::CrossComm() const EL_NO_EXCEPT
 { return this->grid_->MDPerpComm(); }
-
 template<typename T>
 mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
@@ -182,10 +169,23 @@ mpi::Comm DM::RedundantComm() const EL_NO_EXCEPT
 template<typename T>
 mpi::Comm DM::ColComm() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
-
 template<typename T>
 mpi::Comm DM::RowComm() const EL_NO_EXCEPT
 { return this->grid_->MDComm(); }
+
+template<typename T>
+mpi::Comm DM::PartialColComm() const EL_NO_EXCEPT
+{ return this->ColComm(); }
+template<typename T>
+mpi::Comm DM::PartialRowComm() const EL_NO_EXCEPT
+{ return this->RowComm(); }
+
+template<typename T>
+mpi::Comm DM::PartialUnionColComm() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
+template<typename T>
+mpi::Comm DM::PartialUnionRowComm() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 
 template<typename T>
 int DM::ColStride() const EL_NO_EXCEPT { return 1; }
@@ -197,6 +197,45 @@ template<typename T>
 int DM::CrossSize() const EL_NO_EXCEPT { return this->grid_->GCD(); }
 template<typename T>
 int DM::RedundantSize() const EL_NO_EXCEPT { return 1; }
+template<typename T>
+int DM::PartialColStride() const EL_NO_EXCEPT { return this->ColStride(); }
+template<typename T>
+int DM::PartialRowStride() const EL_NO_EXCEPT { return this->RowStride(); }
+template<typename T>
+int DM::PartialUnionColStride() const EL_NO_EXCEPT { return 1; }
+template<typename T>
+int DM::PartialUnionRowStride() const EL_NO_EXCEPT { return 1; }
+
+template<typename T>
+int DM::DistRank() const EL_NO_EXCEPT
+{ return this->grid_->MDRank(); }
+template<typename T>
+int DM::CrossRank() const EL_NO_EXCEPT
+{ return this->grid_->MDPerpRank(); }
+template<typename T>
+int DM::RedundantRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+
+template<typename T>
+int DM::ColRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int DM::RowRank() const EL_NO_EXCEPT
+{ return this->grid_->MDRank(); }
+
+template<typename T>
+int DM::PartialColRank() const EL_NO_EXCEPT
+{ return this->ColRank(); }
+template<typename T>
+int DM::PartialRowRank() const EL_NO_EXCEPT
+{ return this->RowRank(); }
+
+template<typename T>
+int DM::PartialUnionColRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
+template<typename T>
+int DM::PartialUnionRowRank() const EL_NO_EXCEPT
+{ return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

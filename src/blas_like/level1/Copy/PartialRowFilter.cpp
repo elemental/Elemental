@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -66,7 +67,9 @@ void PartialRowFilter
         const Int localWidthSend = Length( width, sendRowShift, rowStride );
         const Int sendSize = height*localWidthSend;
         const Int recvSize = height*localWidth;
-        vector<T> buffer( sendSize+recvSize );
+        //vector<T> buffer( sendSize+recvSize );
+        vector<T> buffer;
+        buffer.reserve( sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack
@@ -94,7 +97,8 @@ void PartialRowFilter
 {
     DEBUG_ONLY(CSE cse("copy::PartialRowFilter"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO(T) \

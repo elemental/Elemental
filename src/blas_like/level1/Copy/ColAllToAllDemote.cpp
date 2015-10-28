@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 namespace copy {
@@ -32,7 +33,7 @@ void ColAllToAllDemote
     const Int colStridePart = B.PartialColStride();
     const Int colStrideUnion = B.PartialUnionColStride();
     const Int colRankPart = B.PartialColRank();
-    const Int colDiff = (colAlign%colStridePart) - A.ColAlign();
+    const Int colDiff = Mod(colAlign,colStridePart) - A.ColAlign();
 
     const Int colShiftA = A.ColShift();
 
@@ -42,32 +43,41 @@ void ColAllToAllDemote
     const Int maxLocalWidth = MaxLength(width,colStrideUnion);
     const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-    vector<T> buffer( 2*colStrideUnion*portionSize );
-    T* firstBuf  = &buffer[0];
-    T* secondBuf = &buffer[colStrideUnion*portionSize];
-
     if( colDiff == 0 )
     {
-        // Pack            
-        util::PartialColStridedPack
-        ( height, localWidthA,
-          colAlign, colStride, 
-          colStrideUnion, colStridePart, colRankPart,
-          colShiftA,
-          A.LockedBuffer(), A.LDim(),
-          firstBuf,         portionSize );
+        if( B.PartialUnionColStride() == 1 )
+        {
+            Copy( A.LockedMatrix(), B.Matrix() );
+        }
+        else
+        {
+            //vector<T> buffer( 2*colStrideUnion*portionSize );
+            vector<T> buffer;
+            buffer.reserve( 2*colStrideUnion*portionSize );
+            T* firstBuf  = &buffer[0];
+            T* secondBuf = &buffer[colStrideUnion*portionSize];
 
-        // Simultaneously Scatter in columns and Gather in rows
-        mpi::AllToAll
-        ( firstBuf,  portionSize,
-          secondBuf, portionSize, B.PartialUnionColComm() );
+            // Pack            
+            util::PartialColStridedPack
+            ( height, localWidthA,
+              colAlign, colStride, 
+              colStrideUnion, colStridePart, colRankPart,
+              colShiftA,
+              A.LockedBuffer(), A.LDim(),
+              firstBuf,         portionSize );
 
-        // Unpack
-        util::RowStridedUnpack
-        ( localHeightB, width,
-          rowAlignA, colStrideUnion,
-          secondBuf, portionSize,
-          B.Buffer(), B.LDim() );
+            // Simultaneously Scatter in columns and Gather in rows
+            mpi::AllToAll
+            ( firstBuf,  portionSize,
+              secondBuf, portionSize, B.PartialUnionColComm() );
+
+            // Unpack
+            util::RowStridedUnpack
+            ( localHeightB, width,
+              rowAlignA, colStrideUnion,
+              secondBuf, portionSize,
+              B.Buffer(), B.LDim() );
+        }
     }
     else
     {
@@ -77,6 +87,12 @@ void ColAllToAllDemote
 #endif
         const Int sendColRankPart = Mod( colRankPart+colDiff, colStridePart );
         const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
+
+        //vector<T> buffer( 2*colStrideUnion*portionSize );
+        vector<T> buffer;
+        buffer.reserve( 2*colStrideUnion*portionSize );
+        T* firstBuf  = &buffer[0];
+        T* secondBuf = &buffer[colStrideUnion*portionSize];
 
         // Pack
         util::PartialColStridedPack
@@ -114,7 +130,8 @@ void ColAllToAllDemote
 {
     DEBUG_ONLY(CSE cse("copy::ColAllToAllDemote"))
     AssertSameGrids( A, B );
-    LogicError("This routine is not yet written");
+    // TODO: More efficient implementation
+    GeneralPurpose( A, B );
 }
 
 #define PROTO_DIST(T,U,V) \

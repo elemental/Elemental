@@ -11,10 +11,52 @@
 namespace El {
 
 template<typename T>
-void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
+void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank )
 {
     DEBUG_ONLY(CSE cse("Broadcast"))
-    if( mpi::Size(comm) == 1 )
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    if( commSize == 1 )
+        return;
+
+    const Int height = A.Height();
+    const Int width = A.Width();
+    const Int size = height*width;
+    if( height == A.LDim() )
+    {
+        mpi::Broadcast( A.Buffer(), size, rank, comm );
+    }
+    else
+    {
+        //vector<T> buf( size );
+        vector<T> buf;
+        buf.reserve( size );
+
+        // Pack
+        if( commRank == rank )
+            copy::util::InterleaveMatrix
+            ( height, width,
+              A.LockedBuffer(), 1, A.LDim(),
+              buf.data(),       1, height );
+
+        mpi::Broadcast( buf.data(), size, rank, comm );
+
+        // Unpack
+        if( commRank != rank )
+            copy::util::InterleaveMatrix
+            ( height,        width,
+              buf.data(), 1, height,
+              A.Buffer(), 1, A.LDim() );
+    }
+}
+
+template<typename T>
+void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank )
+{
+    DEBUG_ONLY(CSE cse("Broadcast"))
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    if( commSize == 1 )
         return;
     if( !A.Participating() )
         return;
@@ -28,10 +70,12 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
     }
     else
     {
-        vector<T> buf( localSize );
+        //vector<T> buf( localSize );
+        vector<T> buf;
+        buf.reserve( localSize );
 
         // Pack
-        if( mpi::Rank(comm) == rank )
+        if( commRank == rank )
             copy::util::InterleaveMatrix
             ( localHeight, localWidth,
               A.LockedBuffer(), 1, A.LDim(),
@@ -40,7 +84,7 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
         mpi::Broadcast( buf.data(), localSize, rank, comm );
 
         // Unpack
-        if( mpi::Rank(comm) != rank )
+        if( commRank != rank )
             copy::util::InterleaveMatrix
             ( localHeight, localWidth,
               buf.data(), 1, localHeight,
@@ -49,8 +93,8 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank )
 }
 
 #define PROTO(T) \
-  template void Broadcast \
-  ( AbstractDistMatrix<T>& A, mpi::Comm comm, Int rank );
+  template void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank ); \
+  template void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

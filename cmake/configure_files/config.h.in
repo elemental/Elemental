@@ -44,20 +44,26 @@
 
 /* Math libraries */
 #define EL_MATH_LIBS "@MATH_LIBS@"
+
 #cmakedefine EL_BUILT_BLIS_LAPACK
+#cmakedefine EL_HAVE_OPENBLAS
 #cmakedefine EL_BUILT_OPENBLAS
-#if !defined(EL_BUILT_BLIS_LAPACK) && !defined(EL_BUILT_OPENBLAS)
- #cmakedefine EL_HAVE_BLAS_SUFFIX
- #cmakedefine EL_HAVE_LAPACK_SUFFIX
- #define EL_BLAS_SUFFIX @EL_BLAS_SUFFIX@
- #define EL_LAPACK_SUFFIX @EL_LAPACK_SUFFIX@
+#cmakedefine EL_HAVE_BLAS_SUFFIX
+#cmakedefine EL_HAVE_LAPACK_SUFFIX
+#ifdef EL_HAVE_BLAS_SUFFIX
+# define EL_BLAS_SUFFIX @EL_BLAS_SUFFIX@
 #endif
+#ifdef EL_HAVE_LAPACK_SUFFIX
+# define EL_LAPACK_SUFFIX @EL_LAPACK_SUFFIX@
+#endif
+
 #cmakedefine EL_HAVE_SCALAPACK
 #cmakedefine EL_BUILT_SCALAPACK
-#ifndef EL_BUILT_SCALAPACK
- #cmakedefine EL_HAVE_SCALAPACK_SUFFIX
+#cmakedefine EL_HAVE_SCALAPACK_SUFFIX
+#ifdef EL_HAVE_SCALAPACK_SUFFIX
  #define EL_SCALAPACK_SUFFIX @EL_SCALAPACK_SUFFIX@
 #endif
+
 #cmakedefine EL_HAVE_FLA_BSVD
 #cmakedefine EL_HAVE_QUAD
 #cmakedefine EL_HAVE_QUADMATH

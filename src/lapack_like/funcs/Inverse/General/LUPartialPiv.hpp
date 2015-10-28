@@ -21,12 +21,12 @@ namespace inverse {
 //     inv(A) = inv(U) inv(L) P.
 
 template<typename F> 
-void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
+void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& rowPiv )
 {
     DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != p.Height() )
+    if( A.Height() != rowPiv.Height() )
         LogicError("Pivot vector is incorrect length");
 
     TriangularInverse( UPPER, NON_UNIT, A );
@@ -63,7 +63,7 @@ void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
     }
 
     // inv(A) := inv(A) P
-    InversePermuteCols( A, p );
+    ApplyInverseColPivots( A, rowPiv );
 }
 
 template<typename F> 
@@ -73,14 +73,15 @@ LUPartialPiv( Matrix<F>& A )
     DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    Matrix<Int> p;
-    El::LU( A, p );
-    inverse::AfterLUPartialPiv( A, p );
+    Matrix<Int> rowPiv;
+    El::LU( A, rowPiv );
+    inverse::AfterLUPartialPiv( A, rowPiv );
 }
 
 template<typename F> 
 void AfterLUPartialPiv
-( ElementalMatrix<F>& APre, const ElementalMatrix<Int>& p )
+(       ElementalMatrix<F>& APre,
+  const ElementalMatrix<Int>& rowPiv )
 {
     DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
 
@@ -89,9 +90,9 @@ void AfterLUPartialPiv
 
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != p.Height() )
+    if( A.Height() != rowPiv.Height() )
         LogicError("Pivot vector is incorrect length");
-    AssertSameGrids( A, p );
+    AssertSameGrids( A, rowPiv );
 
     TriangularInverse( UPPER, NON_UNIT, A );
 
@@ -143,7 +144,7 @@ void AfterLUPartialPiv
     }
 
     // inv(A) := inv(A) P
-    InversePermuteCols( A, p );
+    ApplyInverseColPivots( A, rowPiv );
 }
 
 template<typename F> 
@@ -154,9 +155,9 @@ LUPartialPiv( ElementalMatrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();
-    DistMatrix<Int,VC,STAR> p( g );
-    El::LU( A, p );
-    inverse::AfterLUPartialPiv( A, p );
+    DistMatrix<Int,STAR,STAR> rowPiv( g );
+    El::LU( A, rowPiv );
+    inverse::AfterLUPartialPiv( A, rowPiv );
 }
 
 } // namespace inverse

@@ -629,9 +629,9 @@ void Zeros( DistMultiVec<T>& A, Int m, Int n );
 // Bernoulli
 // =========
 template<typename T>
-void Bernoulli( Matrix<T>& A, Int m, Int n );
+void Bernoulli( Matrix<T>& A, Int m, Int n, double p=0.5 );
 template<typename T>
-void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n );
+void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n, double p=0.5 );
 
 // Gaussian
 // ========
@@ -688,6 +688,13 @@ template<typename Real>
 void NormalUniformSpectrum
 ( ElementalMatrix<Complex<Real>>& A, Int n,
   Complex<Real> center=0, Real radius=1 );
+
+// Rademacher
+// ==========
+template<typename T>
+void Rademacher( Matrix<T>& A, Int m, Int n );
+template<typename T>
+void Rademacher( AbstractDistMatrix<T>& A, Int m, Int n );
 
 // Three-valued
 // ============

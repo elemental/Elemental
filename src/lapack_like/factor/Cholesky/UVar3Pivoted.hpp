@@ -20,9 +20,9 @@ inline void
 UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::UUnblockedPivoted");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("cholesky::UUnblockedPivoted");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
 
@@ -69,10 +69,10 @@ inline void
 UUnblockedPivoted( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::UUnblockedPivoted");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        AssertSameGrids( APre, p );
+      CSE cse("cholesky::UUnblockedPivoted");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      AssertSameGrids( APre, p );
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
@@ -123,17 +123,21 @@ UUnblockedPivoted( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p )
 template<typename F>
 inline void
 UPanelPivoted
-( Matrix<F>& AFull, Matrix<Int>& p, 
-  Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off )
+( Matrix<F>& AFull,
+  Matrix<Int>& p, 
+  Matrix<F>& X,
+  Matrix<F>& Y,
+  Int bsize,
+  Int off )
 {
     DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
-        if( A.Width() != n )
-            LogicError("A must be square");
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("permutation vector is the wrong size");
+      if( A.Width() != n )
+          LogicError("A must be square");
+      if( p.Height() != n || p.Width() != 1 )
+          LogicError("permutation vector is the wrong size");
     )
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
@@ -186,17 +190,21 @@ UPanelPivoted
 template<typename F>
 inline void
 UPanelPivoted
-( DistMatrix<F>& AFull, ElementalMatrix<Int>& p, 
-  DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
+( DistMatrix<F>& AFull,
+  ElementalMatrix<Int>& p, 
+  DistMatrix<F,MC,STAR>& X,
+  DistMatrix<F,MR,STAR>& Y,
+  Int bsize,
+  Int off )
 {
     DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
-        if( A.Width() != n )
-            LogicError("A must be square");
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("pivot vector is the wrong size");
+      if( A.Width() != n )
+          LogicError("A must be square");
+      if( p.Height() != n || p.Width() != 1 )
+          LogicError("pivot vector is the wrong size");
     )
     X.AlignWith( A );
     Y.AlignWith( A );
@@ -254,9 +262,9 @@ inline void
 UVar3( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::UVar3");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("cholesky::UVar3");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
 
@@ -292,9 +300,9 @@ inline void
 UVar3( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::UVar3");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
+      CSE cse("cholesky::UVar3");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
     )
 
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;

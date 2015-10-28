@@ -48,6 +48,7 @@ bool Using64BitInt();
 bool Using64BitBlasInt();
 
 // For initializing and finalizing Elemental
+void Initialize();
 void Initialize( int& argc, char**& argv );
 void Finalize();
 bool Initialized();
@@ -144,6 +145,22 @@ inline void BuildStream( ostringstream& os, T item, Args... args )
     BuildStream( os, args... );
 }
 
+class UnrecoverableException : public std::runtime_error
+{
+public:
+    UnrecoverableException( const char* msg="Unrecoverable exception" )
+    : std::runtime_error( msg ) { }
+};
+
+template<typename... Args>
+inline void UnrecoverableError( Args... args )
+{
+    ostringstream os;
+    BuildStream( os, args... );
+    os << endl;
+    UnrecoverableException( os.str() );
+}
+
 template<typename... Args>
 inline void LogicError( Args... args )
 {
@@ -159,7 +176,7 @@ inline void RuntimeError( Args... args )
     ostringstream os;
     BuildStream( os, args... );
     os << endl;
-    throw std::logic_error( os.str().c_str() );
+    throw std::runtime_error( os.str().c_str() );
 }
 
 // This is the only place that Elemental is currently using duck-typing.
@@ -299,8 +316,8 @@ void RelativeIndices
 ( vector<Int>& relInds, const vector<Int>& sub, const vector<Int>& full );
 vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full );
 
+// Insists that the index can be found
 Int Find( const vector<Int>& sortedInds, Int index );
-Int Find( const vector<Int>& sortedInds, Int index, const string& msg );
 
 template<typename F>
 void UpdateScaledSquare

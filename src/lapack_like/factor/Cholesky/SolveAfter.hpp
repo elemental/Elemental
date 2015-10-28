@@ -15,14 +15,16 @@ namespace cholesky {
 
 template<typename F> 
 void SolveAfter
-( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
+( UpperOrLower uplo, Orientation orientation,
+  const Matrix<F>& A,
+        Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::SolveAfter");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CSE cse("cholesky::SolveAfter");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
     if( orientation == TRANSPOSE )
         Conjugate( B );
@@ -43,16 +45,18 @@ void SolveAfter
 template<typename F> 
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B )
+  const Matrix<F>& A,
+  const Matrix<Int>& p,
+        Matrix<F>& B )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::SolveAfter");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( p.Height() != A.Height() )
-            LogicError("Permutation vector is wrong size");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CSE cse("cholesky::SolveAfter");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( p.Height() != A.Height() )
+          LogicError("Permutation vector is wrong size");
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
     Matrix<Int> pInv;
     InvertPermutation( p, pInv );
@@ -78,15 +82,16 @@ void SolveAfter
 template<typename F> 
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B )
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::SolveAfter");
-        AssertSameGrids( A, B );
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CSE cse("cholesky::SolveAfter");
+      AssertSameGrids( A, B );
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
     if( orientation == TRANSPOSE )
         Conjugate( B );
@@ -107,18 +112,19 @@ void SolveAfter
 template<typename F> 
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
-  const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<Int>& p, 
         ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::SolveAfter");
-        AssertSameGrids( A, B );
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( A.Height() != p.Height() )
-            LogicError("Permutation vector is wrong height");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CSE cse("cholesky::SolveAfter");
+      AssertSameGrids( A, B );
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( A.Height() != p.Height() )
+          LogicError("Permutation vector is wrong height");
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
     DistMatrix<Int,VC,STAR> pInv(p.Grid());
     InvertPermutation( p, pInv );

@@ -136,8 +136,8 @@ void Mehrotra
     {
         // Ensure that x and z are in the cone
         // ===================================
-        const Int xNumNonPos = NumNonPositive( x );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int xNumNonPos = pos_orth::NumOutside( x );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (xNumNonPos," entries of x were nonpositive and ",
@@ -146,7 +146,7 @@ void Mehrotra
         // Compute the barrier parameter
         // =============================
         Real mu = Dot(x,z) / degree;
-        const Real compRatio = PosComplementRatio( x, z );
+        const Real compRatio = pos_orth::ComplementRatio( x, z );
         mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
@@ -316,8 +316,8 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( x, dxAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -411,8 +411,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( x, dx, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -599,8 +599,8 @@ void Mehrotra
     {
         // Ensure that x and z are in the cone
         // ===================================
-        const Int xNumNonPos = NumNonPositive( x );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int xNumNonPos = pos_orth::NumOutside( x );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (xNumNonPos," entries of x were nonpositive and ",
@@ -609,7 +609,7 @@ void Mehrotra
         // Compute the barrier parameter
         // =============================
         Real mu = Dot(x,z) / degree;
-        const Real compRatio = PosComplementRatio( x, z );
+        const Real compRatio = pos_orth::ComplementRatio( x, z );
         mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
@@ -781,8 +781,8 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( x, dxAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
@@ -876,8 +876,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( x, dx, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -1096,8 +1096,8 @@ void Mehrotra
     {
         // Ensure that x and z are in the cone
         // ===================================
-        const Int xNumNonPos = NumNonPositive( x );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int xNumNonPos = pos_orth::NumOutside( x );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (xNumNonPos," entries of x were nonpositive and ",
@@ -1131,13 +1131,13 @@ void Mehrotra
 
         // Compute the scaling point
         // =========================
-        PositiveNesterovTodd( x, z, w );
+        pos_orth::NesterovTodd( x, z, w );
         const Real wMaxNorm = MaxNorm( w );
 
         // Compute the barrier parameter
         // =============================
         Real mu = Dot(x,z) / degree;
-        const Real compRatio = PosComplementRatio( x, z );
+        const Real compRatio = pos_orth::ComplementRatio( x, z );
         mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
@@ -1318,8 +1318,8 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( x, dxAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -1428,8 +1428,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( x, dx, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -1675,8 +1675,8 @@ void Mehrotra
     {
         // Ensure that x and z are in the cone
         // ===================================
-        const Int xNumNonPos = NumNonPositive( x );
-        const Int zNumNonPos = NumNonPositive( z );
+        const Int xNumNonPos = pos_orth::NumOutside( x );
+        const Int zNumNonPos = pos_orth::NumOutside( z );
         if( xNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (xNumNonPos," entries of x were nonpositive and ",
@@ -1685,11 +1685,11 @@ void Mehrotra
         // Compute the barrier parameter
         // =============================
         Real mu = Dot(x,z) / degree;
-        const Real compRatio = PosComplementRatio( x, z );
+        const Real compRatio = pos_orth::ComplementRatio( x, z );
         mu = ( compRatio > balanceTol ? muOld : Min(mu,muOld) );
         muOld = mu;
 
-        PositiveNesterovTodd( x, z, w );
+        pos_orth::NesterovTodd( x, z, w );
         const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
@@ -1956,8 +1956,8 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = MaxStepInPositiveCone( x, dxAff, Real(1) );
-        Real alphaAffDual = MaxStepInPositiveCone( z, dzAff, Real(1) );
+        Real alphaAffPri = pos_orth::MaxStep( x, dxAff, Real(1) );
+        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
@@ -2076,8 +2076,8 @@ void Mehrotra
 
         // Update the current estimates
         // ============================
-        Real alphaPri = MaxStepInPositiveCone( x, dx, 1/ctrl.maxStepRatio );
-        Real alphaDual = MaxStepInPositiveCone( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri = pos_orth::MaxStep( x, dx, 1/ctrl.maxStepRatio );
+        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )

@@ -15,20 +15,18 @@ namespace lu {
 
 template<typename F>
 inline void
-Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
+Full
+( Matrix<F>& A,
+  Matrix<Int>& rowPiv,
+  Matrix<Int>& colPiv )
 {
     DEBUG_ONLY(CSE cse("lu::Full"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
 
-    // Initialize the permutations P and Q
-    p.Resize( m, 1 );
-    for( Int i=0; i<m; ++i )
-        p.Set( i, 0, i );
-    q.Resize( n, 1 );
-    for( Int j=0; j<n; ++j )
-        q.Set( j, 0, j );
+    rowPiv.Resize( minDim, 1 );
+    colPiv.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -39,12 +37,11 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
+        rowPiv.Set( k, 0, iPiv );
+        colPiv.Set( k, 0, jPiv );
 
         RowSwap( A, k, iPiv );
-        RowSwap( p, k, iPiv );
-
         ColSwap( A, k, jPiv );
-        RowSwap( q, k, jPiv );
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
@@ -63,11 +60,12 @@ template<typename F>
 inline void
 Full
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<Int>& p, ElementalMatrix<Int>& q )
+  ElementalMatrix<Int>& rowPiv,
+  ElementalMatrix<Int>& colPiv )
 {
     DEBUG_ONLY(
-        CSE cse("lu::Full");
-        AssertSameGrids( APre, p, q );
+      CSE cse("lu::Full");
+      AssertSameGrids( APre, rowPiv, colPiv );
     )
     const Int m = APre.Height();
     const Int n = APre.Width();
@@ -76,15 +74,8 @@ Full
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
-    // Initialize the permutations P and Q
-    p.Resize( m, 1 );
-    q.Resize( n, 1 );
-    if( p.IsLocalCol(0) )
-        for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
-            p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
-    if( q.IsLocalCol(0) )
-        for( Int jLoc=0; jLoc<q.LocalHeight(); ++jLoc )
-            q.SetLocal( jLoc, 0, q.GlobalRow(jLoc) );
+    rowPiv.Resize( minDim, 1 );
+    colPiv.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -95,12 +86,11 @@ Full
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
+        rowPiv.Set( k, 0, iPiv );
+        colPiv.Set( k, 0, jPiv );
 
         RowSwap( A, iPiv, k );
-        RowSwap( p, iPiv, k );
-
         ColSwap( A, jPiv, k );
-        RowSwap( q, jPiv, k );
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);

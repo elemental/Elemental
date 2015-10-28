@@ -17,6 +17,7 @@ namespace El {
 
 #define DM DistMatrix<T,COLDIST,ROWDIST>
 #define EM ElementalMatrix<T>
+#define ADM AbstractDistMatrix<T>
 
 // Public section
 // ##############
@@ -71,6 +72,38 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
         *this = A;
     else
         LogicError("Tried to construct DistMatrix with itself");
+}
+
+template<typename T>
+DM::DistMatrix( const AbstractDistMatrix<T>& A )
+: EM(A.Grid())
+{
+    DEBUG_ONLY(CSE cse("DM(ADM)"))
+    if( COLDIST == CIRC && ROWDIST == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts();
+
+    if( A.Wrap() == ELEMENT )
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+          if( COLDIST != CDIST || ROWDIST != RDIST || \
+              reinterpret_cast<const DM*>(&A) != this ) \
+              *this = ACast; \
+          else \
+              LogicError("Tried to construct DistMatrix with itself");
+        #include "El/macros/GuardAndPayload.h"     
+    }
+    else
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = \
+            dynamic_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+          *this = ACast;
+        #include "El/macros/GuardAndPayload.h"     
+    }
 }
 
 template<typename T>
@@ -147,6 +180,35 @@ const DM DM::operator()( Range<Int> I, Range<Int> J ) const
     return LockedView( *this, I, J );
 }
 
+// Non-contiguous
+// --------------
+template<typename T>
+DM DM::operator()( Range<Int> I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( ind, vec ) const"))
+    DM ASub( this->Grid() );
+    GetSubmatrix( *this, I, J, ASub ); 
+    return ASub;
+}
+
+template<typename T>
+DM DM::operator()( const vector<Int>& I, Range<Int> J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, ind ) const"))
+    DM ASub( this->Grid() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
+template<typename T>
+DM DM::operator()( const vector<Int>& I, const vector<Int>& J ) const
+{
+    DEBUG_ONLY(CSE cse("DM( vec, vec ) const"))
+    DM ASub( this->Grid() );
+    GetSubmatrix( *this, I, J, ASub );
+    return ASub;
+}
+
 // Copy
 // ----
 template<typename T>
@@ -158,15 +220,52 @@ DM& DM::operator=( const DM& A )
 }
 
 template<typename T>
+DM& DM::operator=( const AbstractDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CSE cse("DM = ADM"))
+    // TODO: Use either AllGather or Gather if the distribution of this matrix
+    //       is respectively either (STAR,STAR) or (CIRC,CIRC)
+    if( A.Wrap() == ELEMENT )
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+          *this = ACast;
+        #include "El/macros/GuardAndPayload.h"     
+    }
+    else
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+          auto& ACast = \
+            dynamic_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+          *this = ACast;
+        #include "El/macros/GuardAndPayload.h"     
+    }
+    return *this;
+}
+
+template<typename T>
 template<Dist U,Dist V>
 DM& DM::operator=( const DistMatrix<T,U,V,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("DM = BDM[U,V]"))
-    DistMatrix<T,COLDIST,ROWDIST,BLOCK> AElem(A.Grid(),1,1);
-    AElem = A;
-    DistMatrix<T,COLDIST,ROWDIST> AElemView(A.Grid());
-    LockedView( AElemView, AElem ); 
-    *this = AElemView;
+    // TODO: Use either AllGather or Gather if the distribution of this matrix
+    //       is respectively either (STAR,STAR) or (CIRC,CIRC)
+    const bool elemColCompat = ( A.BlockHeight() == 1 || A.ColStride() == 1 );
+    const bool elemRowCompat = ( A.BlockWidth() == 1 || A.RowStride() == 1 );
+    if( elemColCompat && elemRowCompat )
+    {
+        DistMatrix<T,U,V> AElemView(A.Grid());
+        AElemView.LockedAttach
+        ( A.Height(), A.Width(), A.Grid(),
+          A.ColAlign(), A.RowAlign(), A.LockedBuffer(), A.LDim(), A.Root() );
+        *this = AElemView;
+    }
+    else
+    {
+        copy::GeneralPurpose( A, *this );
+    }
     return *this;
 }
 
@@ -202,9 +301,25 @@ const DM& DM::operator+=( const EM& A )
 }
 
 template<typename T>
+const DM& DM::operator+=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("DM += ADM&"))
+    Axpy( T(1), A, *this );
+    return *this;
+}
+
+template<typename T>
 const DM& DM::operator-=( const EM& A )
 {
     DEBUG_ONLY(CSE cse("DM -= DM&"))
+    Axpy( T(-1), A, *this );
+    return *this;
+}
+
+template<typename T>
+const DM& DM::operator-=( const ADM& A )
+{
+    DEBUG_ONLY(CSE cse("DM -= ADM&"))
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -213,7 +328,7 @@ const DM& DM::operator-=( const EM& A )
 // =================
 
 template<typename T>
-El::ElementalData DM::DistData() const { return El::ElementalData(*this); }
+ElementalData DM::DistData() const { return ElementalData(*this); }
 
 template<typename T>
 Dist DM::ColDist() const EL_NO_EXCEPT { return COLDIST; }

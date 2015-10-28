@@ -15,9 +15,12 @@ namespace qr {
 
 template<typename F>
 void ApplyQ
-( LeftOrRight side, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, const Matrix<Base<F>>& d, 
-  Matrix<F>& B )
+( LeftOrRight side,
+  Orientation orientation, 
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d, 
+        Matrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -65,9 +68,12 @@ void ApplyQ
 
 template<typename F>
 void ApplyQ
-( LeftOrRight side, Orientation orientation, 
-  const ElementalMatrix<F>& APre, const ElementalMatrix<F>& tPre, 
-  const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& BPre )
+( LeftOrRight side,
+  Orientation orientation, 
+  const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& t, 
+  const ElementalMatrix<Base<F>>& d,
+        ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -80,14 +86,6 @@ void ApplyQ
 
     auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
-
-    ProxyCtrl tCtrl;
-    tCtrl.rootConstrain = true;
-    tCtrl.colConstrain = true;
-    tCtrl.root = A.DiagonalRoot();
-    tCtrl.colAlign = A.DiagonalAlign();
-    auto tPtr = ReadProxy<F,MD,STAR>( &tPre, tCtrl );
-    auto& t = *tPtr;
 
     const Int m = B.Height();
     const Int n = B.Width();

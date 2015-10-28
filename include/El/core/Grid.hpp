@@ -37,12 +37,18 @@ public:
     // Distribution-based interface
     int MCRank() const EL_NO_RELEASE_EXCEPT;
     int MRRank() const EL_NO_RELEASE_EXCEPT;
+    int MDRank() const EL_NO_RELEASE_EXCEPT;
+    int MDPerpRank() const EL_NO_RELEASE_EXCEPT;
     int VCRank() const EL_NO_RELEASE_EXCEPT;
     int VRRank() const EL_NO_RELEASE_EXCEPT;
+
     int MCSize() const EL_NO_EXCEPT;
     int MRSize() const EL_NO_EXCEPT;
+    int MDSize() const EL_NO_EXCEPT;
+    int MDPerpSize() const EL_NO_EXCEPT;
     int VCSize() const EL_NO_EXCEPT;
     int VRSize() const EL_NO_EXCEPT;
+
     mpi::Comm MCComm() const EL_NO_EXCEPT;
     mpi::Comm MRComm() const EL_NO_EXCEPT;
     mpi::Comm VCComm() const EL_NO_EXCEPT;
@@ -86,22 +92,27 @@ public:
 private:
     bool haveViewers_;
     int height_, size_, gcd_;
+    bool inGrid_;
     GridOrder order_;
-    vector<int> diagsAndRanks_;
 
-    mpi::Comm viewingComm_; // all processes that create the grid
-    mpi::Group viewingGroup_;
+    vector<int> diagsAndRanks_;
     vector<int> vcToViewing_;
 
-    // Create a communicator for our owning team
-    mpi::Comm owningComm_;
-    mpi::Group owningGroup_;
+    mpi::Group viewingGroup_,
+               owningGroup_;
 
-    // These will only be valid if we are in the grid
-    mpi::Comm cartComm_,  // the processes that are in the grid
+    mpi::Comm viewingComm_,
+              owningComm_,
+              cartComm_, 
               mcComm_, mrComm_,
               mdComm_, mdPerpComm_,
               vcComm_, vrComm_;
+
+    int viewingRank_,
+        owningRank_,
+        mcRank_, mrRank_,
+        mdRank_, mdPerpRank_,
+        vcRank_, vrRank_;
 
     void SetUpGrid();
 

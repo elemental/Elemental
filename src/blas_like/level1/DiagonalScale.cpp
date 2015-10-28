@@ -167,7 +167,9 @@ void DiagonalScale
 
         // Pack the send values 
         const Int numSendInds = meta.sendInds.size();
-        vector<T> sendVals( numSendInds );
+        //vector<T> sendVals( numSendInds );
+        vector<T> sendVals;
+        sendVals.reserve( numSendInds );
 
         for( Int s=0; s<numSendInds; ++s )
         {
@@ -177,7 +179,9 @@ void DiagonalScale
         }
 
         // Now send them
-        vector<T> recvVals( meta.numRecvInds );
+        //vector<T> recvVals( meta.numRecvInds );
+        vector<T> recvVals;
+        recvVals.reserve( meta.numRecvInds );
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
           recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
