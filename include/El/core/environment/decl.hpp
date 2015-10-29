@@ -158,7 +158,7 @@ inline void UnrecoverableError( Args... args )
     ostringstream os;
     BuildStream( os, args... );
     os << endl;
-    UnrecoverableException( os.str() );
+    UnrecoverableException( os.str().c_str() );
 }
 
 template<typename... Args>
