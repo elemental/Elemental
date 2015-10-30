@@ -51,17 +51,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
 
-find_path(METIS_INCLUDE_DIR metis.h
-  HINTS ${METIS_INCLUDE_DIR} ENV METIS_INCLUDE_DIR ${METIS_DIR} ENV METIS_DIR
-  PATH_SUFFIXES include
-  DOC "Directory where the METIS header files are located"
-)
+if(NOT METIS_INCLUDE_DIR)
+  find_path(METIS_INCLUDE_DIR metis.h
+    HINTS ${METIS_INCLUDE_DIR} ENV METIS_INCLUDE_DIR ${METIS_DIR} ENV METIS_DIR
+    PATH_SUFFIXES include
+    DOC "Directory where the METIS header files are located"
+  )
+endif()
 
-find_library(METIS_LIBRARY
-  NAMES metis metis${METIS_LIB_SUFFIX}
-  HINTS ${METIS_LIB_DIR} ENV METIS_LIB_DIR ${METIS_DIR} ENV METIS_DIR
-  PATH_SUFFIXES lib
-  DOC "Directory where the METIS library is located"
+if(METIS_LIBRARIES)
+  set(METIS_LIBRARY ${METIS_LIBRARIES})
+endif()
+if(NOT METIS_LIBRARY)
+  find_library(METIS_LIBRARY
+    NAMES metis metis${METIS_LIB_SUFFIX}
+    HINTS ${METIS_LIB_DIR} ENV METIS_LIB_DIR ${METIS_DIR} ENV METIS_DIR
+    PATH_SUFFIXES lib
+    DOC "Directory where the METIS library is located"
+  )
 )
 
 # Get METIS version
@@ -81,7 +88,7 @@ if(NOT METIS_VERSION_STRING AND METIS_INCLUDE_DIR AND EXISTS "${METIS_INCLUDE_DI
 endif()
 
 # Try compiling and running test program
-if (METIS_INCLUDE_DIR AND METIS_LIBRARY)
+if(METIS_INCLUDE_DIR AND METIS_LIBRARY)
 
   # Set flags for building test program
   set(CMAKE_REQUIRED_INCLUDES ${METIS_INCLUDE_DIR})
