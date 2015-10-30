@@ -104,6 +104,7 @@ public:
     // ---------------
     Int NumSources() const EL_NO_EXCEPT;
     Int NumTargets() const EL_NO_EXCEPT;
+    Int NumEdges() const EL_NO_EXCEPT;
     Int FirstLocalSource() const EL_NO_EXCEPT;
     Int NumLocalSources() const EL_NO_EXCEPT;
     Int NumLocalEdges() const EL_NO_EXCEPT;

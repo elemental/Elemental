@@ -44,9 +44,8 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         const Int recvRankB = 
             (recvRankA/colStrideA)+rowStrideA*(recvRankA%colStrideA);
 
-        //vector<T> buffer( (colStrideA+rowStrideA)*portionSize );
         vector<T> buffer;
-        buffer.reserve( (colStrideA+rowStrideA)*portionSize );
+        FastResize( buffer, (colStrideA+rowStrideA)*portionSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[colStrideA*portionSize];
 
@@ -119,9 +118,8 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         const Int recvRankA = 
             (recvRankB/rowStrideA)+colStrideA*(recvRankB%rowStrideA);
 
-        //vector<T> buffer( (colStrideA+rowStrideA)*portionSize );
         vector<T> buffer;
-        buffer.reserve( (colStrideA+rowStrideA)*portionSize );
+        FastResize( buffer, (colStrideA+rowStrideA)*portionSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[rowStrideA*portionSize];
 

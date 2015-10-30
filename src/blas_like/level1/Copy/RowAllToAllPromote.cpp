@@ -47,9 +47,8 @@ void RowAllToAllPromote
         }
         else
         {
-            //vector<T> buffer( 2*rowStrideUnion*portionSize );
             vector<T> buffer;
-            buffer.reserve( 2*rowStrideUnion*portionSize );
+            FastResize( buffer, 2*rowStrideUnion*portionSize );
             T* firstBuf  = &buffer[0];
             T* secondBuf = &buffer[rowStrideUnion*portionSize];
 
@@ -84,9 +83,8 @@ void RowAllToAllPromote
         const Int sendRowRankPart = Mod( rowRankPart+rowDiff, rowStridePart );
         const Int recvRowRankPart = Mod( rowRankPart-rowDiff, rowStridePart );
 
-        //vector<T> buffer( 2*rowStrideUnion*portionSize );
         vector<T> buffer;
-        buffer.reserve( 2*rowStrideUnion*portionSize );
+        FastResize( buffer, 2*rowStrideUnion*portionSize );
         T* firstBuf  = &buffer[0];
         T* secondBuf = &buffer[rowStrideUnion*portionSize];
 

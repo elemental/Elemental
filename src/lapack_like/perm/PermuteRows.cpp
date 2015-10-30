@@ -113,9 +113,8 @@ void PermuteRows( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
     // Fill vectors with the send data
     auto offsets = meta.sendDispls;
     const int totalSend = meta.TotalSend();
-    //vector<T> sendData( mpi::Pad(totalSend) );
     vector<T> sendData;
-    sendData.reserve( mpi::Pad(totalSend) );
+    FastResize( sendData, mpi::Pad(totalSend) );
     const int numSends = meta.sendIdx.size();
     for( int send=0; send<numSends; ++send )
     {
@@ -129,9 +128,8 @@ void PermuteRows( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
 
     // Communicate all pivot rows
     const int totalRecv = meta.TotalRecv();
-    //vector<T> recvData( mpi::Pad(totalRecv) );
     vector<T> recvData;
-    recvData.reserve( mpi::Pad(totalRecv) );
+    FastResize( recvData, mpi::Pad(totalRecv) );
     mpi::AllToAll
     ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
       recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(),

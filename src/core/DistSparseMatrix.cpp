@@ -483,6 +483,9 @@ Int DistSparseMatrix<T>::Height() const EL_NO_EXCEPT
 template<typename T>
 Int DistSparseMatrix<T>::Width() const EL_NO_EXCEPT
 { return distGraph_.NumTargets(); }
+template<typename T>
+Int DistSparseMatrix<T>::NumEntries() const EL_NO_EXCEPT
+{ return distGraph_.NumEdges(); }
 
 template<typename T>
 El::DistGraph& DistSparseMatrix<T>::DistGraph() EL_NO_EXCEPT

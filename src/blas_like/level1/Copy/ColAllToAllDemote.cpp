@@ -51,9 +51,8 @@ void ColAllToAllDemote
         }
         else
         {
-            //vector<T> buffer( 2*colStrideUnion*portionSize );
             vector<T> buffer;
-            buffer.reserve( 2*colStrideUnion*portionSize );
+            FastResize( buffer, 2*colStrideUnion*portionSize );
             T* firstBuf  = &buffer[0];
             T* secondBuf = &buffer[colStrideUnion*portionSize];
 
@@ -88,9 +87,8 @@ void ColAllToAllDemote
         const Int sendColRankPart = Mod( colRankPart+colDiff, colStridePart );
         const Int recvColRankPart = Mod( colRankPart-colDiff, colStridePart );
 
-        //vector<T> buffer( 2*colStrideUnion*portionSize );
         vector<T> buffer;
-        buffer.reserve( 2*colStrideUnion*portionSize );
+        FastResize( buffer, 2*colStrideUnion*portionSize );
         T* firstBuf  = &buffer[0];
         T* secondBuf = &buffer[colStrideUnion*portionSize];
 

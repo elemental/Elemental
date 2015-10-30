@@ -529,9 +529,8 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     vector<int> entryOffs;
     const int numEntries = Scan( entrySizes, entryOffs );
 
-    //vector<T> recvBuf( numEntries );
     vector<T> recvBuf;
-    recvBuf.reserve( numEntries );
+    FastResize( recvBuf, numEntries );
 
     const auto& XDistLoc = XDist.LockedMatrix();
     if( XDistLoc.Height() == XDistLoc.LDim() )
@@ -543,9 +542,8 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     }
     else
     {
-        //vector<T> sendBuf( numLocalEntries );
         vector<T> sendBuf;
-        sendBuf.reserve( numLocalEntries );
+        FastResize( sendBuf, numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
@@ -593,9 +591,8 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     }
     else
     {
-        //vector<T> sendBuf( numLocalEntries );
         vector<T> sendBuf;
-        sendBuf.reserve( numLocalEntries );
+        FastResize( sendBuf, numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);

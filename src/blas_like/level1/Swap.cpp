@@ -153,9 +153,8 @@ void RowSwap( ElementalMatrix<T>& A, Int to, Int from )
     {
         const Int iLocTo = (to-colShift) / colStride;
         const int fromOwner = Mod(from+colAlign,colStride);
-        //vector<T> buf( nLocal );
         vector<T> buf;
-        buf.reserve( nLocal );
+        FastResize( buf, nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = ABuf[iLocTo+jLoc*ALDim];
         mpi::SendRecv( buf.data(), nLocal, fromOwner, fromOwner, A.ColComm() );
@@ -166,9 +165,8 @@ void RowSwap( ElementalMatrix<T>& A, Int to, Int from )
     {
         const Int iLocFrom = (from-colShift) / colStride;
         const int toOwner = Mod(to+colAlign,colStride);
-        //vector<T> buf( nLocal );
         vector<T> buf;
-        buf.reserve( nLocal );
+        FastResize( buf, nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = ABuf[iLocFrom+jLoc*ALDim];
         mpi::SendRecv( buf.data(), nLocal, toOwner, toOwner, A.ColComm() );

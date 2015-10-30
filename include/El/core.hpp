@@ -32,6 +32,13 @@
 #include <type_traits>
 #include <vector>
 
+#if defined(EL_HAVE_VALGRIND)
+# include "valgrind.h"
+# define EL_RUNNING_ON_VALGRIND RUNNING_ON_VALGRIND
+#else
+# define EL_RUNNING_ON_VALGRIND 0
+#endif
+
 // The DEBUG_ONLY and RELEASE_ONLY macros are, to the best of my knowledge, 
 // the only preprocessor names defined by Elemental that is not namespaced 
 // with "EL". Given how frequently they are used, I will leave it as-is 

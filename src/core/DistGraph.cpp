@@ -508,6 +508,8 @@ Int DistGraph::NumSources() const EL_NO_EXCEPT
 { return numSources_; }
 Int DistGraph::NumTargets() const EL_NO_EXCEPT
 { return numTargets_; }
+Int DistGraph::NumEdges() const EL_NO_EXCEPT
+{ return mpi::AllReduce( NumLocalEdges(), Comm() ); }
 Int DistGraph::FirstLocalSource() const EL_NO_EXCEPT
 { return blocksize_*commRank_; }
 Int DistGraph::NumLocalSources() const EL_NO_EXCEPT
