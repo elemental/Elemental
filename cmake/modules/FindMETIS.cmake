@@ -69,7 +69,7 @@ if(NOT METIS_LIBRARY)
     PATH_SUFFIXES lib
     DOC "Directory where the METIS library is located"
   )
-)
+endif()
 
 # Get METIS version
 if(NOT METIS_VERSION_STRING AND METIS_INCLUDE_DIR AND EXISTS "${METIS_INCLUDE_DIR}/metis.h")

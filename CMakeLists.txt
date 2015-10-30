@@ -147,6 +147,9 @@ endif()
 option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
 mark_as_advanced(EL_ZERO_INIT)
 
+option(EL_DISABLE_VALGRIND "Prevent Elemental from looking for valgrind?" OFF)
+mark_as_advanced(EL_DISABLE_VALGRIND)
+
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
 option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
 mark_as_advanced(EL_USE_CUSTOM_ALLTOALLV EL_BARRIER_IN_ALLTOALLV)
@@ -332,11 +335,13 @@ endif()
 
 # Allow valgrind support if possible (if running valgrind, explicitly zero init)
 # ------------------------------------------------------------------------------
-include(FindValgrind)
-if(VALGRIND_FOUND)
-  message(STATUS "Appending ${VALGRIND_INCLUDE_DIR} for Valgrind headers")
-  include_directories(${VALGRIND_INCLUDE_DIR})
-  set(EL_HAVE_VALGRIND TRUE)
+if(NOT EL_DISABLE_VALGRIND)
+  include(FindValgrind)
+  if(VALGRIND_FOUND)
+    message(STATUS "Appending ${VALGRIND_INCLUDE_DIR} for Valgrind headers")
+    include_directories(${VALGRIND_INCLUDE_DIR})
+    set(EL_HAVE_VALGRIND TRUE)
+  endif()
 endif()
 
 # Import several external math libraries (e.g., BLAS/LAPACK/METIS/ParMETIS)
