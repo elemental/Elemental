@@ -64,8 +64,8 @@ void TranslateBetweenGrids
     const Int colAlignA = A.ColAlign();
     const Int rowAlignA = A.RowAlign();
 
-    const bool inBGrid = B.Grid().InGrid();
-    const bool inAGrid = A.Grid().InGrid();
+    const bool inBGrid = B.Participating();
+    const bool inAGrid = A.Participating();
     if( !inBGrid && !inAGrid )
         return;
 
