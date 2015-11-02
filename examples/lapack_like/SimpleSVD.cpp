@@ -16,7 +16,7 @@ typedef Complex<Real> C; // complex datatype `C'
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Initialize();
     DistMatrix<C> A;
     Uniform( A, m, n );
 

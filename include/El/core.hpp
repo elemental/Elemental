@@ -191,7 +191,6 @@ class DistMatrix;
 #include "El/core/flame_part/SlidePartition.hpp"
 #include "El/core/random/decl.hpp"
 #include "El/core/random/impl.hpp"
-#include "El/core/AxpyInterface.hpp"
 
 #include "El/core/Graph.hpp"
 // TODO: Sequential map

@@ -115,14 +115,11 @@ void Grid::SetUpGrid()
         mpi::Split( cartComm_, 0, vrRank_, vrComm_ );
 
         // Set up the map from the VC group to the viewingGroup_ ranks.
-        mpi::Group vcGroup;
-        mpi::CommGroup( vcComm_, vcGroup ); 
         vector<int> ranks(size_);
         for( int i=0; i<size_; ++i )
             ranks[i] = i;
         mpi::Translate
-        ( vcGroup, size_, ranks.data(), viewingGroup_,  vcToViewing_.data() );
-        mpi::Free( vcGroup );
+        ( vcComm_, size_, ranks.data(), viewingGroup_,  vcToViewing_.data() );
 
         // Compute which diagonal we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
