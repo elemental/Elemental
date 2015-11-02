@@ -157,8 +157,9 @@ void Graph::Resize( Int numSources, Int numTargets )
 // --------
 void Graph::Reserve( Int numEdges )
 { 
-    sources_.reserve( numEdges );
-    targets_.reserve( numEdges );
+    const Int currSize = sources_.size();
+    sources_.reserve( currSize+numEdges );
+    targets_.reserve( currSize+numEdges );
 }
 
 void Graph::Connect( Int source, Int target )

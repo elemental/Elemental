@@ -72,8 +72,9 @@ void SparseMatrix<T>::Resize( Int height, Int width )
 template<typename T>
 void SparseMatrix<T>::Reserve( Int numEntries )
 { 
+    const Int currSize = vals_.size();
     graph_.Reserve( numEntries );
-    vals_.reserve( numEntries );
+    vals_.reserve( currSize+numEntries );
 }
 
 template<typename T>

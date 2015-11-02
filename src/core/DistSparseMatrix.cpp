@@ -94,9 +94,12 @@ void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
 template<typename T>
 void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 { 
+    const Int currSize = vals_.size();
+    const Int currRemoteSize = remoteVals_.size();
+
     distGraph_.Reserve( numLocalEntries, numRemoteEntries );
-    vals_.reserve( numLocalEntries );
-    remoteVals_.reserve( numRemoteEntries );
+    vals_.reserve( currSize+numLocalEntries );
+    remoteVals_.reserve( currRemoteSize+numRemoteEntries );
 }
 
 template<typename T>
