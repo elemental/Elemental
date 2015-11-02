@@ -32,6 +32,13 @@
 #include <type_traits>
 #include <vector>
 
+#if defined(EL_HAVE_VALGRIND)
+# include "valgrind/valgrind.h"
+# define EL_RUNNING_ON_VALGRIND RUNNING_ON_VALGRIND
+#else
+# define EL_RUNNING_ON_VALGRIND 0
+#endif
+
 // The DEBUG_ONLY and RELEASE_ONLY macros are, to the best of my knowledge, 
 // the only preprocessor names defined by Elemental that is not namespaced 
 // with "EL". Given how frequently they are used, I will leave it as-is 
@@ -184,7 +191,6 @@ class DistMatrix;
 #include "El/core/flame_part/SlidePartition.hpp"
 #include "El/core/random/decl.hpp"
 #include "El/core/random/impl.hpp"
-#include "El/core/AxpyInterface.hpp"
 
 #include "El/core/Graph.hpp"
 // TODO: Sequential map

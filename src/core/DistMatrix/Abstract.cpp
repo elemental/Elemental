@@ -548,7 +548,8 @@ template<typename T>
 void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
 { 
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::Reserve"))
-    remoteUpdates_.reserve( numRemoteUpdates ); 
+    const Int currSize = remoteUpdates_.size();
+    remoteUpdates_.reserve( currSize + numRemoteUpdates ); 
 }
 
 template<typename T>
@@ -676,7 +677,7 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
     // Pack the data
     // =============
     vector<T> sendBuf;
-    sendBuf.reserve( totalSend );
+    FastResize( sendBuf, totalSend );
     for( Int k=0; k<totalSend; ++k )
     {
         const Int i = sendCoords[k].value;
@@ -690,7 +691,7 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
     // Exchange and unpack the data
     // ============================
     vector<T> recvBuf;
-    recvBuf.reserve( totalRecv );
+    FastResize( recvBuf, totalRecv );
     mpi::AllToAll
     ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
       recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );

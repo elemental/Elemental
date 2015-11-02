@@ -136,6 +136,23 @@ void MemZero( T* buffer, size_t numEntries );
 template<typename T>
 void SwapClear( T& x );
 
+// Reserve memory in a vector without zero-initializing the variables unless
+// valgrind is currently running
+template<typename T>
+inline void FastResize( vector<T>& v, Int numEntries )
+{
+#ifdef EL_ZERO_INIT
+    v.resize( numEntries, 0 );
+#elif defined(EL_HAVE_VALGRIND)
+    if( EL_RUNNING_ON_VALGRIND )
+        v.resize( numEntries, 0 );
+    else
+        v.reserve( numEntries );
+#else
+    v.reserve( numEntries );
+#endif
+}
+
 inline void BuildStream( ostringstream& os ) { }
 
 template<typename T,typename... Args>
@@ -158,7 +175,7 @@ inline void UnrecoverableError( Args... args )
     ostringstream os;
     BuildStream( os, args... );
     os << endl;
-    UnrecoverableException( os.str() );
+    UnrecoverableException( os.str().c_str() );
 }
 
 template<typename... Args>

@@ -67,9 +67,8 @@ void PartialRowFilter
         const Int localWidthSend = Length( width, sendRowShift, rowStride );
         const Int sendSize = height*localWidthSend;
         const Int recvSize = height*localWidth;
-        //vector<T> buffer( sendSize+recvSize );
         vector<T> buffer;
-        buffer.reserve( sendSize+recvSize );
+        FastResize( buffer, sendSize+recvSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[sendSize];
         // Pack

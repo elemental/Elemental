@@ -41,10 +41,10 @@ PermutationMeta::PermutationMeta
     // 
     sendCounts.resize( permStride, 0 );
     recvCounts.resize( permStride, 0 );
-    sendIdx.reserve( b );
-    recvIdx.reserve( b );
-    sendRanks.reserve( b );
-    recvRanks.reserve( b );
+    FastResize( sendIdx, b );
+    FastResize( recvIdx, b );
+    FastResize( sendRanks, b );
+    FastResize( recvRanks, b );
 
     sendIdx.resize( 0 );
     recvIdx.resize( 0 );

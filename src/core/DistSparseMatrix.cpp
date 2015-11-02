@@ -94,9 +94,12 @@ void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
 template<typename T>
 void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
 { 
+    const Int currSize = vals_.size();
+    const Int currRemoteSize = remoteVals_.size();
+
     distGraph_.Reserve( numLocalEntries, numRemoteEntries );
-    vals_.reserve( numLocalEntries );
-    remoteVals_.reserve( numRemoteEntries );
+    vals_.reserve( currSize+numLocalEntries );
+    remoteVals_.reserve( currRemoteSize+numRemoteEntries );
 }
 
 template<typename T>
@@ -483,6 +486,9 @@ Int DistSparseMatrix<T>::Height() const EL_NO_EXCEPT
 template<typename T>
 Int DistSparseMatrix<T>::Width() const EL_NO_EXCEPT
 { return distGraph_.NumTargets(); }
+template<typename T>
+Int DistSparseMatrix<T>::NumEntries() const EL_NO_EXCEPT
+{ return distGraph_.NumEdges(); }
 
 template<typename T>
 El::DistGraph& DistSparseMatrix<T>::DistGraph() EL_NO_EXCEPT

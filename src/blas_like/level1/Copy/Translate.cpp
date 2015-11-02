@@ -63,8 +63,7 @@ void Translate
         const Int pkgSize = mpi::Pad( maxHeight*maxWidth );
         vector<T> buffer;
         if( crossRank == root || crossRank == B.Root() )
-            //buffer.resize( pkgSize ); 
-            buffer.reserve( pkgSize );
+            FastResize( buffer, pkgSize );
 
         const Int colAlignB = B.ColAlign();
         const Int rowAlignB = B.RowAlign();

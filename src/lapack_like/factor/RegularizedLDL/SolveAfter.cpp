@@ -23,6 +23,7 @@ namespace reg_ldl {
 
 // TODO: Implement multi-RHS version of FGMRES
 
+// TODO: Start with batch version of RegularizedSolveAfter
 template<typename F>
 inline Int RegularizedSolveAfterNoPromoteSingle
 ( const SparseMatrix<F>& A, 
@@ -31,8 +32,10 @@ inline Int RegularizedSolveAfterNoPromoteSingle
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
@@ -131,8 +134,10 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     Int mostRefineIts = 0;
@@ -157,8 +162,10 @@ inline Int RegularizedSolveAfterNoPromoteSingle
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
@@ -263,8 +270,10 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     Int mostRefineIts = 0;
@@ -288,8 +297,10 @@ inline Int RegularizedSolveAfterPromoteSingle
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
@@ -403,8 +414,10 @@ inline Int RegularizedSolveAfterPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     Int mostRefineIts = 0;
@@ -429,8 +442,10 @@ inline Int RegularizedSolveAfterPromoteSingle
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
@@ -554,8 +569,10 @@ inline Int RegularizedSolveAfterPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     Int mostRefineIts = 0;
@@ -579,8 +596,10 @@ Int RegularizedSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol, Int maxRefineIts, 
-  bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
@@ -603,7 +622,10 @@ Int RegularizedSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
@@ -626,7 +648,10 @@ inline Int RegularizedSolveAfterNoPromoteSingle
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
@@ -731,7 +756,10 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     const Int m = B.Height();
@@ -764,7 +792,10 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     ldl::DistMultiVecNodeMeta meta;
@@ -783,7 +814,10 @@ inline Int RegularizedSolveAfterNoPromoteSingle
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
@@ -908,7 +942,10 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     const Int m = B.Height();
@@ -942,7 +979,10 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
     ldl::DistMultiVecNodeMeta meta;
@@ -960,7 +1000,10 @@ inline Int RegularizedSolveAfterPromoteSingle
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
@@ -1078,7 +1121,10 @@ inline Int RegularizedSolveAfterPromote
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     const Int m = B.Height();
@@ -1111,7 +1157,10 @@ inline Int RegularizedSolveAfterPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     ldl::DistMultiVecNodeMeta meta;
@@ -1130,7 +1179,10 @@ inline Int RegularizedSolveAfterPromoteSingle
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
@@ -1268,7 +1320,10 @@ inline Int RegularizedSolveAfterPromote
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     const Int m = B.Height();
@@ -1302,7 +1357,10 @@ inline Int RegularizedSolveAfterPromote
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
     ldl::DistMultiVecNodeMeta meta;
@@ -1320,7 +1378,10 @@ Int RegularizedSolveAfter
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
@@ -1342,7 +1403,10 @@ Int RegularizedSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
@@ -1361,7 +1425,10 @@ Int RegularizedSolveAfter
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
 #ifdef EL_HAVE_QUAD
@@ -1384,7 +1451,10 @@ Int RegularizedSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol, Int maxRefineIts, bool progress, bool time )
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
@@ -1401,8 +1471,12 @@ inline Int LGMRESSolveAfterSingle
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::LGMRESSolveAfterSingle");
@@ -1614,8 +1688,12 @@ Int LGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     Int mostRefineIts = 0;
@@ -1641,8 +1719,12 @@ inline Int LGMRESSolveAfterSingle
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& b,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::LGMRESSolveAfterSingle");
@@ -1855,8 +1937,12 @@ Int LGMRESSolveAfter
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     Int mostRefineIts = 0;
@@ -1882,8 +1968,12 @@ inline Int LGMRESSolveAfterSingle
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::LGMRESSolveAfterSingle");
@@ -2104,8 +2194,12 @@ Int LGMRESSolveAfter
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     const Int m = B.Height();
@@ -2138,8 +2232,12 @@ Int LGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
@@ -2158,8 +2256,12 @@ inline Int LGMRESSolveAfterSingle
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& b,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(
       CSE cse("reg_ldl::LGMRESSolveAfterSingle");
@@ -2381,8 +2483,12 @@ Int LGMRESSolveAfter
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     const Int m = B.Height();
@@ -2416,8 +2522,12 @@ Int LGMRESSolveAfter
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
         DistMultiVec<F>& B,
-  Base<F> relTol,       Int restart,      Int maxIts,
-  Base<F> relTolRefine, Int maxRefineIts, bool progress )
+  Base<F> relTol,
+  Int restart,
+  Int maxIts,
+  Base<F> relTolRefine,
+  Int maxRefineIts,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::LGMRESSolveAfter"))
     ldl::DistMultiVecNodeMeta meta;
@@ -3688,6 +3798,7 @@ Int FGMRESSolveAfter
     Int mostRefineIts = 0;
     DistMultiVec<F> u(comm);
     Zeros( u, m, 1 );
+    // TODO: Batch solve
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();
     for( Int j=0; j<n; ++j )

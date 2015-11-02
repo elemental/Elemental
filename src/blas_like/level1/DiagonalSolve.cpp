@@ -251,9 +251,8 @@ void DiagonalSolve
 
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
-        //vector<F> sendVals( numSendInds );
         vector<F> sendVals;
-        sendVals.reserve( numSendInds );
+        FastResize( sendVals, numSendInds );
         for( Int s=0; s<numSendInds; ++s )
         {
             const Int i = meta.sendInds[s];
@@ -262,9 +261,8 @@ void DiagonalSolve
         }
 
         // Now send them
-        //vector<F> recvVals( meta.numRecvInds );
         vector<F> recvVals;
-        recvVals.reserve( meta.numRecvInds );
+        FastResize( recvVals, meta.numRecvInds );
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
           recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 

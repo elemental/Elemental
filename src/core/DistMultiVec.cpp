@@ -359,7 +359,8 @@ template<typename T>
 void DistMultiVec<T>::Reserve( Int numRemoteEntries )
 {
     DEBUG_ONLY(CSE cse("DistMultiVec::Reserve"))
-    remoteUpdates_.reserve( numRemoteEntries );
+    const Int currSize = remoteUpdates_.size();
+    remoteUpdates_.reserve( currSize+numRemoteEntries );
 }
 
 template<typename T>

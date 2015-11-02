@@ -163,6 +163,7 @@ public:
     // ----------------------
     Int Height() const EL_NO_EXCEPT;
     Int Width() const EL_NO_EXCEPT;
+    Int NumEntries() const EL_NO_EXCEPT;
     El::DistGraph& DistGraph() EL_NO_EXCEPT;
     const El::DistGraph& LockedDistGraph() const EL_NO_EXCEPT;
     Int FirstLocalRow() const EL_NO_EXCEPT;

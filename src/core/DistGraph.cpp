@@ -234,10 +234,12 @@ void DistGraph::SetComm( mpi::Comm comm )
 // --------
 void DistGraph::Reserve( Int numLocalEdges, Int numRemoteEdges )
 { 
-    sources_.reserve( numLocalEdges );
-    targets_.reserve( numLocalEdges );
-    remoteSources_.reserve( numRemoteEdges );
-    remoteTargets_.reserve( numRemoteEdges );
+    const Int currSize = sources_.size();
+    const Int currRemoteSize = remoteSources_.size();
+    sources_.reserve( currSize+numLocalEdges );
+    targets_.reserve( currSize+numLocalEdges );
+    remoteSources_.reserve( currRemoteSize+numRemoteEdges );
+    remoteTargets_.reserve( currRemoteSize+numRemoteEdges );
 }
 
 void DistGraph::Connect( Int source, Int target )
@@ -508,6 +510,8 @@ Int DistGraph::NumSources() const EL_NO_EXCEPT
 { return numSources_; }
 Int DistGraph::NumTargets() const EL_NO_EXCEPT
 { return numTargets_; }
+Int DistGraph::NumEdges() const EL_NO_EXCEPT
+{ return mpi::AllReduce( NumLocalEdges(), Comm() ); }
 Int DistGraph::FirstLocalSource() const EL_NO_EXCEPT
 { return blocksize_*commRank_; }
 Int DistGraph::NumLocalSources() const EL_NO_EXCEPT

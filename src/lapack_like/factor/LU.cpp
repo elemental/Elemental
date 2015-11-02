@@ -193,7 +193,7 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& rowPivPre )
         const Int A21Height = A21.Height();
         const Int A21LocHeight = A21.LocalHeight();
         const Int panelLDim = nb+A21LocHeight;
-        panelBuf.reserve( panelLDim*nb );
+        FastResize( panelBuf, panelLDim*nb );
         A11_STAR_STAR.Attach
         ( nb, nb, g, 0, 0, &panelBuf[0], panelLDim, 0 );
         A21_MC_STAR.Attach

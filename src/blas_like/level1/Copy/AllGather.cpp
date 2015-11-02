@@ -39,9 +39,8 @@ void AllGather
             const Int maxLocalHeight = MaxLength(height,colStride);
             const Int maxLocalWidth = MaxLength(width,rowStride);
             const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
-            //vector<T> buf( (distStride+1)*portionSize );
             vector<T> buf;
-            buf.reserve( (distStride+1)*portionSize );
+            FastResize( buf, (distStride+1)*portionSize );
             T* sendBuf = &buf[0];
             T* recvBuf = &buf[portionSize];
 
@@ -69,9 +68,8 @@ void AllGather
         // Pack from the root
         const Int BLocalHeight = B.LocalHeight();
         const Int BLocalWidth = B.LocalWidth();
-        //vector<T> buf(BLocalHeight*BLocalWidth);
         vector<T> buf;
-        buf.reserve( BLocalHeight*BLocalWidth );
+        FastResize( buf, BLocalHeight*BLocalWidth );
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( BLocalHeight, BLocalWidth,

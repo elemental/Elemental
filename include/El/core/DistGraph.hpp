@@ -15,7 +15,7 @@
 namespace El {
 
 // Forward declare ldl::DistFront
-namespace ldl { template<typename F> class DistFront; }
+namespace ldl { template<typename F> struct DistFront; }
 
 // Use a simple 1d distribution where each process owns a fixed number of 
 // sources:
@@ -104,6 +104,7 @@ public:
     // ---------------
     Int NumSources() const EL_NO_EXCEPT;
     Int NumTargets() const EL_NO_EXCEPT;
+    Int NumEdges() const EL_NO_EXCEPT;
     Int FirstLocalSource() const EL_NO_EXCEPT;
     Int NumLocalSources() const EL_NO_EXCEPT;
     Int NumLocalEdges() const EL_NO_EXCEPT;

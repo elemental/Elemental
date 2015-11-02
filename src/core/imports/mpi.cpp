@@ -1189,9 +1189,8 @@ EL_NO_RELEASE_EXCEPT
             MPI_IN_PLACE, 2*rc, TypeMap<Real>(), root, comm.comm ) );
 # else
         const int commSize = Size( comm );
-        //vector<Complex<Real>> sendBuf( sc*commSize );
         vector<Complex<Real>> sendBuf;
-        sendBuf.reserve( sc*commSize );
+        FastResize( sendBuf, sc*commSize );
         MemCopy( sendBuf.data(), buf, sc*commSize );
         SafeMpi
         ( MPI_Scatter
@@ -1206,9 +1205,8 @@ EL_NO_RELEASE_EXCEPT
             MPI_IN_PLACE, rc, TypeMap<Complex<Real>>(), root, comm.comm ) );
 # else
         const int commSize = Size( comm );
-        //vector<Complex<Real>> sendBuf( sc*commSize );
         vector<Complex<Real>> sendBuf;
-        sendBuf.reserve( sc*commSize );
+        FastResize( sendBuf, sc*commSize );
         MemCopy( sendBuf.data(), buf, sc*commSize );
         SafeMpi
         ( MPI_Scatter
@@ -1501,9 +1499,8 @@ EL_NO_RELEASE_EXCEPT
                   ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, 
                     root, comm.comm ) );
 # else
-                //vector<Complex<Real>> sendBuf( count );
                 vector<Complex<Real>> sendBuf;
-                sendBuf.reserve( count );
+                FastResize( sendBuf, count );
                 MemCopy( sendBuf.data(), buf, count );
                 SafeMpi
                 ( MPI_Reduce
@@ -1526,9 +1523,8 @@ EL_NO_RELEASE_EXCEPT
                   ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                     root, comm.comm ) );
 # else
-                //vector<Complex<Real>> sendBuf( count );
                 vector<Complex<Real>> sendBuf;
-                sendBuf.reserve( count );
+                FastResize( sendBuf, count );
                 MemCopy( sendBuf.data(), buf, count );
                 SafeMpi
                 ( MPI_Reduce
@@ -1551,9 +1547,8 @@ EL_NO_RELEASE_EXCEPT
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 root, comm.comm ) );
 # else
-            //vector<Complex<Real>> sendBuf( count );
             vector<Complex<Real>> sendBuf;
-            sendBuf.reserve( count );
+            FastResize( sendBuf, count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Reduce
@@ -1705,9 +1700,8 @@ EL_NO_RELEASE_EXCEPT
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
 # else
-        //vector<Complex<Real>> sendBuf( count );
         vector<Complex<Real>> sendBuf;
-        sendBuf.reserve( count );
+        FastResize( sendBuf, count );
         MemCopy( sendBuf.data(), buf, count );
         SafeMpi
         ( MPI_Allreduce
@@ -1723,9 +1717,8 @@ EL_NO_RELEASE_EXCEPT
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), 
             opC, comm.comm ) );
 # else
-        //vector<Complex<Real>> sendBuf( count );
         vector<Complex<Real>> sendBuf;
-        sendBuf.reserve( count );
+        FastResize( sendBuf, count );
         MemCopy( sendBuf.data(), buf, count );
         SafeMpi
         ( MPI_Allreduce
@@ -1740,9 +1733,8 @@ EL_NO_RELEASE_EXCEPT
       ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
         comm.comm ) );
 # else
-    //vector<Complex<Real>> sendBuf( count );
     vector<Complex<Real>> sendBuf;
-    sendBuf.reserve( count );
+    FastResize( sendBuf, count );
     MemCopy( sendBuf.data(), buf, count );
     SafeMpi
     ( MPI_Allreduce
@@ -1907,9 +1899,8 @@ EL_NO_RELEASE_EXCEPT
       ( MPI_IN_PLACE, buf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
 #  else 
     const int commSize = Size( comm );
-    //vector<Complex<Real>> sendBuf( rc*commSize );
     vector<Complex<Real>> sendBuf;
-    sendBuf.reserve( rc*commSize );
+    FastResize( sendBuf, rc*commSize );
     MemCopy( sendBuf.data(), buf, rc*commSize );
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -1922,9 +1913,8 @@ EL_NO_RELEASE_EXCEPT
       ( MPI_IN_PLACE, buf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
 #  else
     const int commSize = Size( comm );
-    //vector<Complex<Real>> sendBuf( rc*commSize );
     vector<Complex<Real>> sendBuf;
-    sendBuf.reserve( rc*commSize );
+    FastResize( sendBuf, rc*commSize );
     MemCopy( sendBuf.data(), buf, rc*commSize );
     SafeMpi
     ( MPI_Reduce_scatter_block
@@ -2168,9 +2158,8 @@ EL_NO_RELEASE_EXCEPT
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
 # else
-            //vector<Complex<Real>> sendBuf( count );
             vector<Complex<Real>> sendBuf;
-            sendBuf.reserve( count );
+            FastResize( sendBuf, count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Scan
@@ -2186,9 +2175,8 @@ EL_NO_RELEASE_EXCEPT
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 comm.comm ) );
 # else
-            //vector<Complex<Real>> sendBuf( count );
             vector<Complex<Real>> sendBuf;
-            sendBuf.reserve( count );
+            FastResize( sendBuf, count );
             MemCopy( sendBuf.data(), buf, count );
             SafeMpi
             ( MPI_Scan
@@ -2203,9 +2191,8 @@ EL_NO_RELEASE_EXCEPT
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
             comm.comm ) );
 # else
-        //vector<Complex<Real>> sendBuf( count );
         vector<Complex<Real>> sendBuf;
-        sendBuf.reserve( count );
+        FastResize( sendBuf, count );
         MemCopy( sendBuf.data(), buf, count );
         SafeMpi
         ( MPI_Scan

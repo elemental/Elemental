@@ -54,8 +54,7 @@ void Scatter
     T* recvBuf=0; // some compilers (falsely) warn otherwise
     if( A.CrossRank() == root )
     {
-        //buffer.resize( sendSize+recvSize );
-        buffer.reserve( sendSize+recvSize );
+        FastResize( buffer, sendSize+recvSize );
         T* sendBuf = &buffer[0];
         recvBuf    = &buffer[sendSize];
 
@@ -73,8 +72,7 @@ void Scatter
     }
     else
     {
-        //buffer.resize( recvSize );
-        buffer.reserve( recvSize );
+        FastResize( buffer, recvSize );
         recvBuf = &buffer[0];
 
         // Perform the receiving portion of the scatter from the non-root
@@ -117,9 +115,8 @@ void Scatter
     if( B.Participating() )
     {
         const Int pkgSize = mpi::Pad( height*width );
-        //vector<T> buffer( pkgSize );
         vector<T> buffer;
-        buffer.reserve( pkgSize );
+        FastResize( buffer, pkgSize );
 
         // Pack            
         if( A.Participating() )

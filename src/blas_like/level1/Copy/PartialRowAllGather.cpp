@@ -53,9 +53,8 @@ void PartialRowAllGather
         }
         else
         {
-            //vector<T> buffer( (rowStrideUnion+1)*portionSize );
             vector<T> buffer;
-            buffer.reserve( (rowStrideUnion+1)*portionSize );
+            FastResize( buffer, (rowStrideUnion+1)*portionSize );
             T* firstBuf = &buffer[0];
             T* secondBuf = &buffer[portionSize];
    
@@ -86,9 +85,8 @@ void PartialRowAllGather
         if( A.Grid().Rank() == 0 )
             cerr << "Unaligned PartialRowAllGather" << endl;
 #endif
-        //vector<T> buffer( (rowStrideUnion+1)*portionSize );
         vector<T> buffer;
-        buffer.reserve( (rowStrideUnion+1)*portionSize );
+        FastResize( buffer, (rowStrideUnion+1)*portionSize );
         T* firstBuf = &buffer[0];
         T* secondBuf = &buffer[portionSize];
 

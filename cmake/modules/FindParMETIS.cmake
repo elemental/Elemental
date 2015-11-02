@@ -47,25 +47,37 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
 
-find_path(PARMETIS_INCLUDE_DIR parmetis.h
-  HINTS ${PARMETIS_INCLUDE_DIR} ENV PARMETIS_INCLUDE_DIR ${PARMETIS_DIR} ENV PARMETIS_DIR
-  PATH_SUFFIXES include
-  DOC "Directory where the ParMETIS header files are located"
-)
+if(NOT PARMETIS_INCLUDE_DIR)
+  find_path(PARMETIS_INCLUDE_DIR parmetis.h
+    HINTS ${PARMETIS_INCLUDE_DIR} ENV PARMETIS_INCLUDE_DIR ${PARMETIS_DIR} ENV PARMETIS_DIR
+    PATH_SUFFIXES include
+    DOC "Directory where the ParMETIS header files are located"
+  )
+endif()
 
-find_library(PARMETIS_LIBRARY
-  NAMES parmetis parmetis${PARMETIS_LIB_SUFFIX}
-  HINTS ${PARMETIS_LIB_DIR} ENV PARMETIS_LIB_DIR ${PARMETIS_DIR} ENV PARMETIS_DIR
-  PATH_SUFFIXES lib
-  DOC "Directory where the ParMETIS library is located"
-)
+if(PARMETIS_LIBRARIES)
+  set(PARMETIS_LIBRARY ${PARMETIS_LIBRARIES})
+endif()
+if(NOT PARMETIS_LIBRARY)
+  find_library(PARMETIS_LIBRARY
+    NAMES parmetis parmetis${PARMETIS_LIB_SUFFIX}
+    HINTS ${PARMETIS_LIB_DIR} ENV PARMETIS_LIB_DIR ${PARMETIS_DIR} ENV PARMETIS_DIR
+    PATH_SUFFIXES lib
+    DOC "Directory where the ParMETIS library is located"
+  )
+endif()
 
-find_library(METIS_LIBRARY
-  NAMES metis metis${PARMETIS_LIB_SUFFIX}
-  HINTS ${PARMETIS_LIB_DIR} ENV PARMETIS_LIB_DIR ${PARMETIS_DIR} ENV PARMETIS_DIR
-  PATH_SUFFIXES lib
-  DOC "Directory where the METIS library is located"
-)
+if(METIS_LIBRARIES)
+  set(METIS_LIBRARY ${METIS_LIBRARIES})
+endif()
+if(NOT METIS_LIBRARY)
+  find_library(METIS_LIBRARY
+    NAMES metis metis${PARMETIS_LIB_SUFFIX}
+    HINTS ${PARMETIS_LIB_DIR} ENV PARMETIS_LIB_DIR ${PARMETIS_DIR} ENV PARMETIS_DIR
+    PATH_SUFFIXES lib
+    DOC "Directory where the METIS library is located"
+  )
+endif()
 
 # Get ParMETIS version
 if(NOT PARMETIS_VERSION_STRING AND PARMETIS_INCLUDE_DIR AND EXISTS "${PARMETIS_INCLUDE_DIR}/parmetis.h")

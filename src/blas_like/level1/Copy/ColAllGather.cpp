@@ -48,9 +48,8 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
             else if( height == 1 )
             {
                 const Int localWidthB = B.LocalWidth();
-                //vector<T> bcastBuf(localWidthB);
                 vector<T> bcastBuf;
-                bcastBuf.reserve( localWidthB );
+                FastResize( bcastBuf, localWidthB );
 
                 if( A.ColRank() == A.ColAlign() )
                 {
@@ -76,9 +75,8 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 const Int localWidth = A.LocalWidth();
                 const Int portionSize = mpi::Pad( maxLocalHeight*localWidth );
 
-                //vector<T> buffer( (colStride+1)*portionSize );
                 vector<T> buffer;
-                buffer.reserve( (colStride+1)*portionSize );
+                FastResize( buffer, (colStride+1)*portionSize );
                 T* sendBuf = &buffer[0];
                 T* recvBuf = &buffer[portionSize];
 
@@ -117,8 +115,7 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 if( A.ColRank() == A.ColAlign() )
                 {
                     const Int localWidth = A.LocalWidth();
-                    //buffer.resize( localWidth+localWidthB );
-                    buffer.reserve( localWidth+localWidthB );
+                    FastResize( buffer, localWidth+localWidthB );
                     T* sendBuf = &buffer[0];
                     bcastBuf   = &buffer[localWidth];
 
@@ -133,8 +130,7 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 }
                 else
                 {
-                    //buffer.resize( localWidthB );
-                    buffer.reserve( localWidthB );
+                    FastResize( buffer, localWidthB );
                     bcastBuf = buffer.data();
                 }
 
@@ -154,9 +150,8 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 const Int portionSize =
                     mpi::Pad( maxLocalHeight*maxLocalWidth );
 
-                //vector<T> buffer( (colStride+1)*portionSize );
                 vector<T> buffer;
-                buffer.reserve( (colStride+1)*portionSize );
+                FastResize( buffer, (colStride+1)*portionSize );
                 T* firstBuf  = &buffer[0];
                 T* secondBuf = &buffer[portionSize];
 
@@ -189,9 +184,8 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         // Pack from the root
         const Int localHeight = B.LocalHeight();
         const Int localWidth = B.LocalWidth();
-        //vector<T> buf( localHeight*localWidth );
         vector<T> buf;
-        buf.reserve( localHeight*localWidth );
+        FastResize( buf, localHeight*localWidth );
         if( A.CrossRank() == A.Root() )
             util::InterleaveMatrix
             ( localHeight, localWidth,
