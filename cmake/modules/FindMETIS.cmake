@@ -95,8 +95,8 @@ if(METIS_INCLUDE_DIR AND METIS_LIBRARY)
   set(CMAKE_REQUIRED_LIBRARIES ${METIS_LIBRARY})
 
   # Build and run test program
-  include(CheckCXXSourceRuns)
-  check_cxx_source_runs("
+  include(CheckCSourceRuns)
+  check_c_source_runs("
 #define METIS_EXPORT
 #include \"metis.h\"
 int main( int argc, char* argv[] )
