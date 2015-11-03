@@ -30,7 +30,7 @@ DM::DistMatrix( const El::Grid& grid, int root )
 : EM(grid,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts(); 
 }
 
@@ -39,7 +39,7 @@ DM::DistMatrix( Int height, Int width, const El::Grid& grid, int root )
 : EM(grid,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts(); 
     this->Resize(height,width); 
 }
@@ -50,7 +50,7 @@ DM::DistMatrix( const DM& A )
 {
     DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -65,7 +65,7 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     if( COLDIST != U || ROWDIST != V ||
         reinterpret_cast<const DM*>(&A) != this )
@@ -80,7 +80,7 @@ DM::DistMatrix( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("DM(ADM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
 
     if( A.Wrap() == ELEMENT )
@@ -112,7 +112,7 @@ DM::DistMatrix( const ElementalMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("DM(EM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
@@ -133,7 +133,7 @@ DM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("DistMatrix::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     *this = A;
 }

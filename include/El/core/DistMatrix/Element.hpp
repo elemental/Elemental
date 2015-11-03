@@ -160,7 +160,9 @@ private:
     // =====================================
     void ShallowSwap( type& A );
 
-    template<typename S,Dist J,Dist K,DistWrap wrap> friend class DistMatrix;
+    template<typename S> friend class AbstractDistMatrix;
+    template<typename S> friend class ElementalMatrix;
+    template<typename S> friend class BlockMatrix;
 };
 
 template<typename T>

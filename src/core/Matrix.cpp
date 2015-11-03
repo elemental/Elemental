@@ -56,7 +56,7 @@ Matrix<T>::Matrix
 ( Int height, Int width, const T* buffer, Int ldim, bool fixed )
 : viewType_( fixed ? LOCKED_VIEW_FIXED: LOCKED_VIEW ),
   height_(height), width_(width), ldim_(ldim), 
-  data_(buffer)
+  data_(const_cast<T*>(buffer))
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Matrix");
@@ -317,9 +317,7 @@ T* Matrix<T>::Buffer() EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot return non-const buffer of locked Matrix");
     )
-    // NOTE: This const_cast has been carefully considered and should be safe
-    //       since the underlying data should be non-const if this is called.
-    return const_cast<T*>(data_);
+    return data_;
 }
 
 template<typename T>
@@ -332,9 +330,7 @@ T* Matrix<T>::Buffer( Int i, Int j ) EL_NO_RELEASE_EXCEPT
     )
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
-    // NOTE: This const_cast has been carefully considered and should be safe
-    //       since the underlying data should be non-const if this is called.
-    return &const_cast<T*>(data_)[i+j*ldim_];
+    return &data_[i+j*ldim_];
 }
 
 template<typename T>
@@ -360,6 +356,14 @@ bool Matrix<T>::FixedSize() const EL_NO_EXCEPT
 template<typename T>
 bool Matrix<T>::Locked() const EL_NO_EXCEPT
 { return IsLocked( viewType_ ); }
+
+template<typename T>
+void Matrix<T>::SetViewType( El::ViewType viewType ) EL_NO_EXCEPT
+{ viewType_ = viewType; }
+
+template<typename T>
+El::ViewType Matrix<T>::ViewType() const EL_NO_EXCEPT
+{ return viewType_; }
 
 // Single-entry manipulation
 // =========================
@@ -561,7 +565,7 @@ void Matrix<T>::Empty_( bool freeMemory )
     width_ = 0;
     ldim_ = 1;
     data_ = nullptr;
-    viewType_ = (ViewType)( viewType_ & ~LOCKED_VIEW );
+    viewType_ = (El::ViewType)( viewType_ & ~LOCKED_VIEW );
 }
 
 template<typename T>
@@ -571,7 +575,7 @@ void Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewType_ = (ViewType)( ( viewType_ & ~LOCKED_OWNER ) | VIEW );
+    viewType_ = (El::ViewType)( ( viewType_ & ~LOCKED_OWNER ) | VIEW );
 }
 
 template<typename T>
@@ -581,8 +585,8 @@ void Matrix<T>::LockedAttach_
     height_ = height;
     width_ = width;
     ldim_ = ldim;
-    data_ = buffer;
-    viewType_ = (ViewType)( viewType_ | VIEW );
+    data_ = const_cast<T*>(buffer);
+    viewType_ = (El::ViewType)( viewType_ | VIEW );
 }
 
 template<typename T>
@@ -592,7 +596,7 @@ void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewType_ = (ViewType)( viewType_ & ~LOCKED_VIEW );
+    viewType_ = (El::ViewType)( viewType_ & ~LOCKED_VIEW );
 }
 
 // Return a reference to a single entry without error-checking
@@ -612,9 +616,7 @@ EL_NO_RELEASE_EXCEPT
 {
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
-    // NOTE: This const_cast has been carefully considered and should be safe
-    //       since the underlying data should be non-const if this is called.
-    return (const_cast<T*>(data_))[i+j*ldim_];
+    return data_[i+j*ldim_];
 }
 
 // Assertions

@@ -27,7 +27,7 @@ BDM::DistMatrix( const El::Grid& g, int root )
 : BCM(g,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts(); 
 }
 
@@ -37,7 +37,7 @@ BDM::DistMatrix
 : BCM(g,blockHeight,blockWidth,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts(); 
 }
 
@@ -47,7 +47,7 @@ BDM::DistMatrix
 : BCM(g,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts(); this->Resize(height,width); 
 }
 
@@ -58,7 +58,7 @@ BDM::DistMatrix
 : BCM(g,blockHeight,blockWidth,root)
 { 
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts(); 
     this->Resize(height,width); 
 }
@@ -69,7 +69,7 @@ BDM::DistMatrix( const BDM& A )
 {
     DEBUG_ONLY(CSE cse("DistMatrix<T,U,V,BLOCK>::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -84,7 +84,7 @@ BDM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 {
     DEBUG_ONLY(CSE cse("DistMatrix<T,U,V,BLOCK>::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     if( COLDIST != U || ROWDIST != V ||
         reinterpret_cast<const BDM*>(&A) != this )
@@ -99,7 +99,7 @@ BDM::DistMatrix( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("BDM(ADM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     if( A.Wrap() == ELEMENT )
     {
@@ -127,7 +127,7 @@ BDM::DistMatrix( const BlockMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("BDM(BCM)"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
@@ -149,7 +149,7 @@ BDM::DistMatrix( const DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CSE cse("DistMatrix<T,U,V,BLOCK>::DistMatrix"))
     if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.viewType_ = OWNER;
+        this->matrix_.SetViewType( OWNER );
     this->SetShifts();
     *this = A;
 }

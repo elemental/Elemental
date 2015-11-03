@@ -118,6 +118,10 @@ public:
     bool Viewing()   const EL_NO_EXCEPT;
     bool FixedSize() const EL_NO_EXCEPT;
     bool Locked()    const EL_NO_EXCEPT;
+    // Advanced
+    // --------
+    void SetViewType( El::ViewType viewType ) EL_NO_EXCEPT;
+    El::ViewType ViewType() const EL_NO_EXCEPT;
 
     // Single-entry manipulation
     // =========================
@@ -153,10 +157,13 @@ public:
 private:
     // Member variables
     // ================
-    ViewType viewType_;
+    El::ViewType viewType_;
     Int height_, width_, ldim_;
-    const scalarType* data_;
+
     Memory<scalarType> memory_;
+    // Const-correctness is internally managed to avoid the need for storing
+    // two separate pointers with different 'const' attributes
+    scalarType* data_;
 
     // Exchange metadata with another matrix
     // =====================================
@@ -189,11 +196,10 @@ private:
    
     // Friend declarations
     // ===================
-    template <typename F> friend class Matrix;
-    template <typename F> friend class AbstractDistMatrix;
-    template <typename F> friend class ElementalMatrix;
-    template <typename F> friend class BlockMatrix;
-    template <typename F,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
+    template<typename S> friend class Matrix;
+    template<typename S> friend class AbstractDistMatrix;
+    template<typename S> friend class ElementalMatrix;
+    template<typename S> friend class BlockMatrix;
 };
 
 } // namespace El
