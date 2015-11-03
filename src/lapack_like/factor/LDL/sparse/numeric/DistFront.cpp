@@ -863,7 +863,6 @@ void DistFront<F>::Unpack
 {
     DEBUG_ONLY(CSE cse("DistFront::Unpack"))
     mpi::Comm comm = rootInfo.grid->Comm();
-    const int commSize = mpi::Size(comm);
     A.SetComm( comm );
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
@@ -897,7 +896,6 @@ void DistFront<F>::Unpack
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
-                const int q = A.RowOwner(i);
                 for( Int t=0; t<node.size; ++t )
                     A.QueueUpdate
                     ( i, t+node.off, front.LDense.Get(s,t), false );
@@ -916,7 +914,6 @@ void DistFront<F>::Unpack
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
-                const int q = A.RowOwner(i);
                 for( Int t=0; t<node.size; ++t )
                     A.QueueUpdate
                     ( i, t+node.off, front.LDense.Get(node.size+s,t), false );
@@ -950,7 +947,6 @@ void DistFront<F>::Unpack
             {
                 const Int s = FTL.GlobalRow(sLoc);
                 const Int i = node.off + s;
-                const int q = A.RowOwner(i);
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     const Int t = FTL.GlobalCol(tLoc);
@@ -964,7 +960,6 @@ void DistFront<F>::Unpack
             {
                 const Int s = FBL.GlobalRow(sLoc);
                 const Int i = node.lowerStruct[s];
-                const int q = A.RowOwner(i);
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     Int t = FBL.GlobalCol(tLoc);
@@ -987,7 +982,6 @@ void DistFront<F>::Unpack
             {
                 const Int s = FTL.GlobalRow(sLoc);
                 const Int i = node.off + s;
-                const int q = A.RowOwner(i);
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     const Int t = FTL.GlobalCol(tLoc);
@@ -1001,7 +995,6 @@ void DistFront<F>::Unpack
             {
                 const Int s = FBL.GlobalRow(sLoc);
                 const Int i = node.lowerStruct[s];
-                const int q = A.RowOwner(i);
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     Int t = FBL.GlobalCol(tLoc);

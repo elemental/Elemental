@@ -33,7 +33,6 @@ void TranslateBetweenGrids
     const Int mLocA = A.LocalHeight();
     const Int nLocA = A.LocalWidth();
     B.Resize( m, n );
-    mpi::Comm viewingCommA = A.Grid().ViewingComm();
     mpi::Comm viewingCommB = B.Grid().ViewingComm();
     mpi::Group owningGroupA = A.Grid().OwningGroup();
 
@@ -44,8 +43,8 @@ void TranslateBetweenGrids
     // needs to send to.
     const Int colStride = B.ColStride();
     const Int rowStride = B.RowStride();
-    const Int colShift = B.ColShift();
-    const Int rowShift = B.RowShift();
+    const Int colShiftB = B.ColShift();
+    const Int rowShiftB = B.RowShift();
     const Int colRank = B.ColRank();
     const Int rowRank = B.RowRank();
     const Int colRankA = A.ColRank();
@@ -59,10 +58,10 @@ void TranslateBetweenGrids
     const Int numColSends = colStride / colGCD;
     const Int numRowSends = rowStride / rowGCD;
 
-    const Int colAlign = B.ColAlign();
-    const Int rowAlign = B.RowAlign();
     const Int colAlignA = A.ColAlign();
     const Int rowAlignA = A.RowAlign();
+    const Int colAlignB = B.ColAlign();
+    const Int rowAlignB = B.RowAlign();
 
     const bool inBGrid = B.Participating();
     const bool inAGrid = A.Participating();
@@ -118,12 +117,12 @@ void TranslateBetweenGrids
 
     Int recvRow = 0; // avoid compiler warnings...
     if( inAGrid )
-        recvRow = Mod(Mod(colRankA-colAlignA,colStrideA)+colAlign,colStride);
+        recvRow = Mod(Mod(colRankA-colAlignA,colStrideA)+colAlignB,colStride);
     for( Int colSend=0; colSend<numColSends; ++colSend )
     {
         Int recvCol = 0; // avoid compiler warnings...
         if( inAGrid )
-            recvCol=Mod(Mod(rowRankA-rowAlignA,rowStrideA)+rowAlign,rowStride);
+            recvCol=Mod(Mod(rowRankA-rowAlignA,rowStrideA)+rowAlignB,rowStride);
         for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
         {
             mpi::Request sendRequest;
@@ -150,10 +149,10 @@ void TranslateBetweenGrids
             {
                 const Int sendColOffset = colAlignA;
                 const Int recvColOffset =
-                  Mod(colSend*colStrideA+colAlign,colStride);
+                  Mod(colSend*colStrideA+colAlignB,colStride);
                 const Int sendRowOffset = rowAlignA;
                 const Int recvRowOffset =
-                  Mod(rowSend*rowStrideA+rowAlign,rowStride);
+                  Mod(rowSend*rowStrideA+rowAlignB,rowStride);
 
                 const Int colShift = Mod( colRank-recvColOffset, colStride );
                 const Int rowShift = Mod( rowRank-recvRowOffset, rowStride );
@@ -176,7 +175,7 @@ void TranslateBetweenGrids
                       colSend*colStrideA;
                     const Int sendHeight = Length( m, sendColShift, colLCM );
                     const Int localColOffset = 
-                      (sendColShift-colShift) / colStride;
+                      (sendColShift-colShiftB) / colStride;
 
                     Int sendCol = firstSendCol;
                     for( Int rowRecv=0; rowRecv<numRowRecvs; ++rowRecv )
@@ -186,7 +185,7 @@ void TranslateBetweenGrids
                           rowSend*rowStrideA;
                         const Int sendWidth = Length( n, sendRowShift, rowLCM );
                         const Int localRowOffset =
-                          (sendRowShift-rowShift) / rowStride;
+                          (sendRowShift-rowShiftB) / rowStride;
 
                         const Int sendVCRank = sendRow+sendCol*colStrideA;
                         mpi::Recv

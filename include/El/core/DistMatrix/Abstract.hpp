@@ -289,6 +289,12 @@ public:
 protected:
     // Member variables
     // ================
+
+    // Global and local matrix information 
+    // -----------------------------------
+    ViewType viewType_=OWNER;
+    Int height_=0, width_=0;
+
     bool colConstrained_=false,
          rowConstrained_=false,
          rootConstrained_=false;
@@ -297,13 +303,9 @@ protected:
         colShift_=0,
         rowShift_=0;
     int root_=0;
-
-    // Global and local matrix information 
-    // -----------------------------------
-    ViewType viewType_=OWNER;
-    Int height_=0, width_=0;
-    El::Matrix<scalarType> matrix_=El::Matrix<scalarType>(0,0,true);
     const El::Grid* grid_;
+
+    El::Matrix<scalarType> matrix_=El::Matrix<scalarType>(0,0,true);
 
     // Remote updates
     // --------------

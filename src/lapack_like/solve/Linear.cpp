@@ -175,8 +175,6 @@ void Overwrite
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
-    Timer timer; 
-    const int commRank = A.Grid().Rank();
     const bool useFullLU = true; 
 
     if( useFullLU )
