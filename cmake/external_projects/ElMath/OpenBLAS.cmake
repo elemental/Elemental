@@ -52,7 +52,7 @@ else()
   set(GNU_ADDONS)
 endif()
 
-if(NOT EL_BUILD_OPENBLAS)
+if(NOT EL_FORCE_OPENBLAS_BUILD)
   message(STATUS "Searching for previously installed OpenBLAS+LAPACK")
   find_library(OpenBLAS NAMES openblas PATHS ${MATH_PATHS})
   if(OpenBLAS)

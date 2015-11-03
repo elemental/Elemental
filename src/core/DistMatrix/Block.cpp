@@ -158,27 +158,13 @@ BlockMatrix<T>::operator=( BlockMatrix<T>&& A )
 // ===============
 
 template<typename T>
-void BlockMatrix<T>::Empty()
+void BlockMatrix<T>::Empty( bool freeMemory )
 {
-    this->matrix_.Empty_();
-    this->viewType_ = OWNER;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->blockHeight_ = 0;
-    this->blockWidth_ = 0;
-    this->colAlign_ = 0;
-    this->rowAlign_ = 0;
-    this->colCut_ = 0;
-    this->rowCut_ = 0;
-    this->colConstrained_ = false;
-    this->rowConstrained_ = false;
-    this->rootConstrained_ = false;
-}
+    if( freeMemory )
+        this->matrix_.Empty_();
+    else
+        this->matrix_.Resize( 0, 0 );
 
-template<typename T>
-void BlockMatrix<T>::SoftEmpty()
-{
-    this->matrix_.Resize( 0, 0 );
     this->viewType_ = OWNER;
     this->height_ = 0;
     this->width_ = 0;
@@ -191,6 +177,8 @@ void BlockMatrix<T>::SoftEmpty()
     this->colConstrained_ = false;
     this->rowConstrained_ = false;
     this->rootConstrained_ = false;
+
+    SwapClear( this->remoteUpdates_ );
 }
 
 template<typename T>
@@ -306,7 +294,7 @@ void BlockMatrix<T>::Align
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->SoftEmpty();
+        this->Empty( false );
     if( constrain )
     {
         this->colConstrained_ = true;
@@ -335,7 +323,7 @@ void BlockMatrix<T>::AlignCols
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->SoftEmptyData();
+        this->EmptyData( false );
     if( constrain )
         this->colConstrained_ = true;
     this->blockHeight_ = blockHeight;
@@ -358,7 +346,7 @@ void BlockMatrix<T>::AlignRows
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->SoftEmptyData();
+        this->EmptyData( false );
     if( constrain )
         this->rowConstrained_ = true;
     this->blockWidth_ = blockWidth;

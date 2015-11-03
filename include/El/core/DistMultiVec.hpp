@@ -33,7 +33,7 @@ public:
 
     // Change the matrix size
     // ----------------------
-    void Empty();
+    void Empty( bool freeMemory=true );
     void Resize( Int height, Int width );
 
     // Change the distribution

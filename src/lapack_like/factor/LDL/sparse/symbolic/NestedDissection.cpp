@@ -23,8 +23,8 @@ void AMDOrder
 {
     DEBUG_ONLY(CSE cse("ldl::AMDOrder"))
     const Int numSources = subOffsets.size()-1;
-    const Int numEdges = subTargets.size();
 #ifdef EL_USE_64BIT_INTS
+    const Int numEdges = subTargets.size();
     vector<int> subOffsets_int( numSources+1 ),
                 subTargets_int( numEdges ),
                 amdPerm_int( numSources );

@@ -77,7 +77,6 @@ void SquareRoot
     auto& firstInds = *firstIndsPtr;
 
     const Real* xBuf = x.LockedBuffer();
-    const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
     DistMatrix<Real,VC,STAR> d(x.Grid());
@@ -115,7 +114,6 @@ void SquareRoot
 {
     DEBUG_ONLY(CSE cse("soc::SquareRoot"))
     const Real* xBuf = x.LockedMatrix().LockedBuffer();
-    const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     DistMultiVec<Real> d(x.Comm());

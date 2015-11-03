@@ -130,7 +130,6 @@ void RowSwap( ElementalMatrix<T>& A, Int to, Int from )
         return;
     if( !A.Participating() )
         return;
-    const Int n = A.Width();
     const Int nLocal = A.LocalWidth();
     const Int colAlign = A.ColAlign();
     const Int colShift = A.ColShift();
@@ -195,7 +194,6 @@ void ColSwap( ElementalMatrix<T>& A, Int to, Int from )
         return;
     if( !A.Participating() )
         return;
-    const Int m = A.Height();
     const Int mLocal = A.LocalHeight();
     const Int rowAlign = A.RowAlign();
     const Int rowShift = A.RowShift();

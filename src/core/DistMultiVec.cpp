@@ -68,12 +68,15 @@ DistMultiVec<T>::~DistMultiVec()
 // Change the size of the matrix
 // -----------------------------
 template<typename T>
-void DistMultiVec<T>::Empty()
+void DistMultiVec<T>::Empty( bool freeMemory )
 {
     height_ = 0;
     width_ = 0;
     blocksize_ = 1;
-    multiVec_.Empty();
+
+    multiVec_.Empty( freeMemory );
+
+    SwapClear( remoteUpdates_ );
 }
 
 template<typename T>
@@ -89,9 +92,14 @@ void DistMultiVec<T>::InitializeLocalData()
 template<typename T>
 void DistMultiVec<T>::Resize( Int height, Int width )
 {
+    if( height_ == height && width == width_ )
+        return;
+
     height_ = height;
     width_ = width;
     InitializeLocalData();
+
+    SwapClear( remoteUpdates_ );
 }
 
 // Change the distribution
@@ -111,7 +119,7 @@ void DistMultiVec<T>::SetComm( mpi::Comm comm )
     else
         mpi::Dup( comm, comm_ );
 
-    InitializeLocalData();
+    Resize( 0, 0 );
 }
 
 // Operator overloading

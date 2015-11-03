@@ -104,14 +104,14 @@ Matrix<T>::~Matrix() { }
 // ==============================
 
 template<typename T>
-void Matrix<T>::Empty()
+void Matrix<T>::Empty( bool freeMemory )
 {
     DEBUG_ONLY(
       CSE cse("Matrix::Empty()");
       if( FixedSize() )
           LogicError("Cannot empty a fixed-size matrix" );
     )
-    Empty_();
+    Empty_( freeMemory );
 }
 
 template<typename T>
@@ -553,9 +553,10 @@ void Matrix<T>::ShallowSwap( Matrix<T>& A )
 // ==================================
 
 template<typename T>
-void Matrix<T>::Empty_()
+void Matrix<T>::Empty_( bool freeMemory )
 {
-    memory_.Empty();
+    if( freeMemory )
+        memory_.Empty();
     height_ = 0;
     width_ = 0;
     ldim_ = 1;

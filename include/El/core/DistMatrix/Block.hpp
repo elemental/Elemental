@@ -37,8 +37,7 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
-    void Empty() override;
-    void SoftEmpty() override;
+    void Empty( bool freeMemory=true ) override;
     void Resize( Int height, Int width ) override;
     void Resize( Int height, Int width, Int ldim ) override;
 

@@ -69,37 +69,21 @@ EL_EXPORT ElError ElDistMatrixDestroy_d( ElConstDistMatrix_d A );
 EL_EXPORT ElError ElDistMatrixDestroy_c( ElConstDistMatrix_c A );
 EL_EXPORT ElError ElDistMatrixDestroy_z( ElConstDistMatrix_z A );
 
-/* void AbstractDistMatrix<T>::Empty()
-   ----------------------------------- */
-EL_EXPORT ElError ElDistMatrixEmpty_i( ElDistMatrix_i A );
-EL_EXPORT ElError ElDistMatrixEmpty_s( ElDistMatrix_s A );
-EL_EXPORT ElError ElDistMatrixEmpty_d( ElDistMatrix_d A );
-EL_EXPORT ElError ElDistMatrixEmpty_c( ElDistMatrix_c A );
-EL_EXPORT ElError ElDistMatrixEmpty_z( ElDistMatrix_z A );
+/* void AbstractDistMatrix<T>::Empty( bool freeMemory=true )
+   --------------------------------------------------------- */
+EL_EXPORT ElError ElDistMatrixEmpty_i( ElDistMatrix_i A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmpty_s( ElDistMatrix_s A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmpty_d( ElDistMatrix_d A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmpty_c( ElDistMatrix_c A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmpty_z( ElDistMatrix_z A, bool freeMemory );
 
-/* void AbstractDistMatrix<T>::SoftEmpty()
-   --------------------------------------- */
-EL_EXPORT ElError ElDistMatrixSoftEmpty_i( ElDistMatrix_i A );
-EL_EXPORT ElError ElDistMatrixSoftEmpty_s( ElDistMatrix_s A );
-EL_EXPORT ElError ElDistMatrixSoftEmpty_d( ElDistMatrix_d A );
-EL_EXPORT ElError ElDistMatrixSoftEmpty_c( ElDistMatrix_c A );
-EL_EXPORT ElError ElDistMatrixSoftEmpty_z( ElDistMatrix_z A );
-
-/* void AbstractDistMatrix<T>::EmptyData()
-   --------------------------------------- */
-EL_EXPORT ElError ElDistMatrixEmptyData_i( ElDistMatrix_i A );
-EL_EXPORT ElError ElDistMatrixEmptyData_s( ElDistMatrix_s A );
-EL_EXPORT ElError ElDistMatrixEmptyData_d( ElDistMatrix_d A );
-EL_EXPORT ElError ElDistMatrixEmptyData_c( ElDistMatrix_c A );
-EL_EXPORT ElError ElDistMatrixEmptyData_z( ElDistMatrix_z A );
-
-/* void AbstractDistMatrix<T>::SoftEmptyData()
-   ------------------------------------------- */
-EL_EXPORT ElError ElDistMatrixSoftEmptyData_i( ElDistMatrix_i A );
-EL_EXPORT ElError ElDistMatrixSoftEmptyData_s( ElDistMatrix_s A );
-EL_EXPORT ElError ElDistMatrixSoftEmptyData_d( ElDistMatrix_d A );
-EL_EXPORT ElError ElDistMatrixSoftEmptyData_c( ElDistMatrix_c A );
-EL_EXPORT ElError ElDistMatrixSoftEmptyData_z( ElDistMatrix_z A );
+/* void AbstractDistMatrix<T>::EmptyData( bool freeMemory=true )
+   ------------------------------------------------------------- */
+EL_EXPORT ElError ElDistMatrixEmptyData_i( ElDistMatrix_i A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmptyData_s( ElDistMatrix_s A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmptyData_d( ElDistMatrix_d A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmptyData_c( ElDistMatrix_c A, bool freeMemory );
+EL_EXPORT ElError ElDistMatrixEmptyData_z( ElDistMatrix_z A, bool freeMemory );
 
 /* void AbstractDistMatrix<T>::SetGrid( const Grid& g )
    ---------------------------------------------------- */

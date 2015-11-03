@@ -9,7 +9,7 @@
 include(ExternalProject)
 include(ElLibraryName)
 
-if(NOT EL_BUILD_METIS)
+if(NOT EL_FORCE_METIS_BUILD)
   message(STATUS "Searching for previously installed METIS")
   find_package(METIS)
 endif()

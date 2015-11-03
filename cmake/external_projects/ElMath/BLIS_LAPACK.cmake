@@ -31,7 +31,7 @@ else()
   set(GNU_ADDONS)
 endif()
 
-if(NOT EL_BUILD_BLIS_LAPACK)
+if(NOT EL_FORCE_BLIS_LAPACK_BUILD)
   message(STATUS "Searching for previously installed BLIS+LAPACK")
   # NOTE: The following tests will assume that liblapack is NOT sufficient
   #       by itself and must be supported with a valid BLAS library 
@@ -95,7 +95,7 @@ elseif(EL_HAVE_F90_INTERFACE AND NOT MSVC AND NOT EL_CONFIG_TIME_BLIS_LAPACK)
       -D CMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
       -D USE_OPTIMIZED_BLAS=ON
-      -D BUILD_BLIS=ON ${BLIS_ARCH_COMMAND}
+      -D FORCE_BLIS_BUILD=ON ${BLIS_ARCH_COMMAND}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
       -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}

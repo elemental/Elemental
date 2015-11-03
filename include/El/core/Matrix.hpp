@@ -55,7 +55,7 @@ public:
     // Assignment and reconfiguration
     // ==============================
 
-    void Empty();
+    void Empty( bool freeMemory=true );
     void Resize( Int height, Int width );
     void Resize( Int height, Int width, Int ldim );
 
@@ -164,7 +164,7 @@ private:
 
     // Reconfigure without error-checking
     // ==================================
-    void Empty_();
+    void Empty_( bool freeMemory=true );
     void Resize_( Int height, Int width );
     void Resize_( Int height, Int width, Int ldim );
 
