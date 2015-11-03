@@ -27,7 +27,7 @@ install:
   - git pull --recurse-submodules
   - sh travis/install-mpi.sh $MPI
   # - sudo pip install cpp-coveralls
-  - curl http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
+  - curl https://cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
   # - curl http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz | tar xz
   # - sudo make -j2 -C lcov-1.11/ install
   # - gem install coveralls-lcov
