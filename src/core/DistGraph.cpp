@@ -143,7 +143,8 @@ DistGraph DistGraph::operator()
 
 // Change the graph size
 // ---------------------
-void DistGraph::Empty( bool clearMemory )
+// TODO: Replace Empty/SoftEmpty in favor of this approach
+void DistGraph::Empty( bool freeMemory )
 {
     numSources_ = 0;
     numTargets_ = 0;
@@ -151,7 +152,7 @@ void DistGraph::Empty( bool clearMemory )
     blocksize_ = 1;
     locallyConsistent_ = true;
     frozenSparsity_ = false;
-    if( clearMemory )
+    if( freeMemory )
     {
         SwapClear( sources_ );
         SwapClear( targets_ );
@@ -164,6 +165,9 @@ void DistGraph::Empty( bool clearMemory )
     }
     localSourceOffsets_.resize( 1 );
     localSourceOffsets_[0] = 0;
+
+    SwapClear( remoteSources_ );
+    SwapClear( remoteTargets_ );
 }
 
 void DistGraph::Resize( Int numVertices ) 
@@ -179,23 +183,12 @@ void DistGraph::Resize( Int numSources, Int numTargets )
     numSources_ = numSources;
     numTargets_ = numTargets;
 
-    blocksize_ = numSources / commSize_;
-    if( blocksize_*commSize_ < numSources || numSources == 0 )
-        ++blocksize_;
+    InitializeLocalData();
 
-    numLocalSources_ = Min(blocksize_,Max(numSources-blocksize_*commRank_,0));
-
-    localSourceOffsets_.resize( numLocalSources_+1 );
-    for( Int e=0; e<=numLocalSources_; ++e )
-        localSourceOffsets_[e] = 0;
-
-    sources_.resize( 0 );
-    targets_.resize( 0 );
-    locallyConsistent_ = true;
+    SwapClear( remoteSources_ );
+    SwapClear( remoteTargets_ );
 }
 
-// Change the distribution
-// -----------------------
 void DistGraph::InitializeLocalData()
 {
     blocksize_ = numSources_ / commSize_;
@@ -213,6 +206,8 @@ void DistGraph::InitializeLocalData()
     locallyConsistent_ = true;
 }
 
+// Change the distribution
+// -----------------------
 void DistGraph::SetComm( mpi::Comm comm )
 {
     commSize_ = mpi::Size( comm );
@@ -227,7 +222,7 @@ void DistGraph::SetComm( mpi::Comm comm )
     else
         mpi::Dup( comm, comm_ );
 
-    InitializeLocalData();
+    Resize( 0, 0 );
 }
 
 // Assembly

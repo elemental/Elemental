@@ -141,7 +141,7 @@ ElementalMatrix<T>::Align( int colAlign, int rowAlign, bool constrain )
           LogicError("Tried to realign a view");
     )
     if( requireChange )
-        this->SoftEmpty();
+        this->Empty( false );
     if( constrain )
     {
         this->colConstrained_ = true;
@@ -162,7 +162,7 @@ ElementalMatrix<T>::AlignCols( int colAlign, bool constrain )
           LogicError("Tried to realign a view");
     )
     if( this->colAlign_ != colAlign )
-        this->SoftEmptyData();
+        this->EmptyData( false );
     if( constrain )
         this->colConstrained_ = true;
     this->colAlign_ = colAlign;
@@ -179,7 +179,7 @@ ElementalMatrix<T>::AlignRows( int rowAlign, bool constrain )
           LogicError("Tried to realign a view");
     )
     if( this->rowAlign_ != rowAlign )
-        this->SoftEmptyData();
+        this->EmptyData( false );
     if( constrain )
         this->rowConstrained_ = true;
     this->rowAlign_ = rowAlign;

@@ -32,10 +32,8 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
-    virtual void Empty();
-    virtual void SoftEmpty();
-    void EmptyData();
-    void SoftEmptyData();
+    virtual void Empty( bool freeMemory=true );
+    void EmptyData( bool freeMemory=true );
     void SetGrid( const El::Grid& grid );
 
     virtual void AlignWith
