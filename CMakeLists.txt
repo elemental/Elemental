@@ -101,25 +101,28 @@ option(EL_DISABLE_MKL_CSRMV "Avoid MKL's CSR mat-vec?" ON)
 
 option(EL_DISABLE_BLIS_LAPACK "Avoid BLIS+LAPACK" OFF)
 option(EL_PREFER_BLIS_LAPACK "Prefer BLIS+LAPACK over alternatives?" OFF)
-option(EL_BUILD_BLIS_LAPACK "Avoid search for BLIS and instead buiild?" OFF)
+option(EL_FORCE_BLIS_LAPACK_BUILD 
+  "Avoid search for BLIS and instead buiild?" OFF)
 
 option(EL_DISABLE_OPENBLAS "Avoid OpenBLAS" OFF)
 option(EL_PREFER_OPENBLAS "Prefer OpenBLAS over alternatives?" OFF)
-option(EL_BUILD_OPENBLAS "Avoid search for OpenBLAS and instead build?" OFF)
+option(EL_FORCE_OPENBLAS_BUILD
+  "Avoid search for OpenBLAS and instead build?" OFF)
 
 option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" OFF)
-option(EL_BUILD_SCALAPACK "Avoid search for ScaLAPACK and instead build?" OFF)
+option(EL_FORCE_SCALAPACK_BUILD
+  "Avoid search for ScaLAPACK and instead build?" OFF)
 
 # By default, a search is performed for ParMETIS via find_package, and, if this
 # search fails, ParMETIS is downloaded from the official location:
 #    http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz
-# If BUILD_PARMETIS is turned on, then no initial call to find_package is 
-# performed.
+# If EL_FORCE_PARMETIS_BUILD is turned on, then no initial call to
+# find_package is performed.
 #
 # Should you want to manually specify a ParMETIS installation, you can set the
 # variables PARMETIS_INCLUDE_DIRS and PARMETIS_LIBRARIES
 #
-option(EL_BUILD_PARMETIS "Build ParMETIS?" OFF)
+option(EL_FORCE_PARMETIS_BUILD "Force build of ParMETIS?" OFF)
 # ParMETIS cannot be commercially used without a license and so users interested
 # in using Elemental in commercial applications should disable ParMETIS
 option(EL_DISABLE_PARMETIS "Disable ParMETIS?" OFF)
@@ -127,12 +130,12 @@ option(EL_DISABLE_PARMETIS "Disable ParMETIS?" OFF)
 # If ParMETIS is disabled, a search is performed for METIS via find_package, 
 # and, if this search fails, METIS is cloned from the git repo 
 #     https://github.com/poulson/Metis.git.
-# If EL_BUILD_METIS is turned on, then no initial call to find_package is 
+# If EL_FORCE_METIS_BUILD is turned on, then no initial call to find_package is 
 # performed.
 #
 # Should you want to manually specify a METIS installation, you can set the
 # variables METIS_INCLUDE_DIRS and METIS_LIBRARIES
-option(EL_BUILD_METIS "Build METIS" OFF)
+option(EL_FORCE_METIS_BUILD "Force a build of METIS?" OFF)
 
 # Advanced options
 # ----------------
