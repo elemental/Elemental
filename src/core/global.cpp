@@ -376,11 +376,12 @@ void Initialize( int& argc, char**& argv )
     ::generator.seed( seed );
     srand( seed );
 
-#ifndef EL_RELEASE
-        char sbuf[50];
-        sprintf(sbuf,"El-Proc%03d.log",rank);
-        LogFileOpen(sbuf);
-#endif
+DEBUG_ONLY(
+        ostringstream fileOS;
+        fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
+               << rank << ".log";
+        OpenLog( fileOS.str().c_str() );
+)
 }
 
 void Finalize()
@@ -430,9 +431,7 @@ void Finalize()
             ::blocksizeStack.pop();
     }
 
-#ifndef EL_RELEASE
-    LogFileClose();
-#endif
+    DEBUG_ONLY( CloseLog() )
 }
 
 Args& GetArgs()
@@ -611,23 +610,23 @@ DEBUG_ONLY(
 
 ) // DEBUG_ONLY
 
-// LogFile Debug only
-#ifndef EL_RELEASE
-    void LogFileOpen( char* filename )
+// Log Debug only
+DEBUG_ONLY(
+
+    void OpenLog( const char* filename )
     {
         if( ::logFile.is_open() )
-            LogFileClose();
-        ::logFile.open(filename);
+            CloseLog();
+        ::logFile.open( filename );
     }
 
-    std::ostream & LogFileOS() { return ::logFile; }
+    std::ostream & LogOS() { return ::logFile; }
 
-    void LogFileCoutStr( std::string str )
-    { ::logFile << str << std::endl; }
+    void LogStr( std::string str ) { ::logFile << str << std::endl; }
 
-    void LogFileClose() { ::logFile.close(); }
-#endif
-// LogFile DEBUG_ONLY
+    void CloseLog() { ::logFile.close(); }
+)
+// Log DEBUG_ONLY
 
 Int PushIndent() { return ::indentLevel++; }
 Int PopIndent() { return ::indentLevel--; }

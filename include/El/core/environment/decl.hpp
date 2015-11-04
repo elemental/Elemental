@@ -265,23 +265,23 @@ DEBUG_ONLY(
     typedef CallStackEntry CSE;
 )
 
-#ifndef EL_RELEASE
-    void LogFileOpen( char* filename );
+DEBUG_ONLY(
+    void OpenLog( const char* filename );
 
-    std::ostream & LogFileOS();
+    std::ostream & LogOS();
 
-    void LogFileCoutStr( std::string str );
+    void LogStr( std::string str );
 
     template<typename... Args>
-    inline void LogFileCout( Args... args )
+    inline void Log( Args... args )
     {
         std::ostringstream str;
         BuildStream( str, args... );
-        LogFileCoutStr( str.str() );
+        LogStr( str.str() );
     }
 
-    void LogFileClose();
-#endif
+    void CloseLog();
+)
 
 void ReportException( const exception& e, ostream& os=cerr );
 
