@@ -24,7 +24,7 @@ if(METIS_FOUND)
   include_directories(${METIS_INCLUDE_DIRS})
   set(EL_HAVE_METIS TRUE)
 
-elseif(NOT PREVENT_METIS_DOWNLOAD)
+elseif(NOT EL_PREVENT_METIS_DOWNLOAD)
   if(NOT DEFINED METIS_URL)
     set(METIS_URL https://github.com/poulson/Metis.git)
   endif()

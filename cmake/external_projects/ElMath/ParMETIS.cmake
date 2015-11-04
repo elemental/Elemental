@@ -46,7 +46,7 @@ if(USE_FOUND_PARMETIS)
   set(EL_HAVE_METIS TRUE)
   set(EL_HAVE_PARMETIS TRUE)
 
-elseif(NOT PREVENT_PARMETIS_DOWNLOAD)
+elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
   if(NOT DEFINED PARMETIS_URL)
     set(PARMETIS_URL https://github.com/poulson/parmetis.git)
   endif()
