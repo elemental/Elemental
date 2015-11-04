@@ -18,7 +18,13 @@ if(METIS_FOUND)
   # find_package returns 'METIS_LIBRARIES' but METIS's CMakeLists.txt
   # returns 'METIS_LIBS'
   set(METIS_LIBS ${METIS_LIBRARIES})
-else()
+
+  set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${METIS_LIBS})
+  message(STATUS "Including ${METIS_INCLUDE_DIRS} for external METIS")
+  include_directories(${METIS_INCLUDE_DIRS})
+  set(EL_HAVE_METIS TRUE)
+
+elseif(NOT PREVENT_METIS_DOWNLOAD)
   if(NOT DEFINED METIS_URL)
     set(METIS_URL https://github.com/poulson/Metis.git)
   endif()
@@ -68,10 +74,11 @@ else()
 
   set(METIS_LIBS ${METIS_LIB})
   set(EL_BUILT_METIS TRUE)
+
+  set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${METIS_LIBS})
+  message(STATUS "Including ${METIS_INCLUDE_DIRS} for external METIS")
+  include_directories(${METIS_INCLUDE_DIRS})
+  set(EL_HAVE_METIS TRUE)
+else()
+  set(EL_HAVE_METIS FALSE)
 endif()
-
-set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${METIS_LIBS})
-
-message(STATUS "Including ${METIS_INCLUDE_DIRS} for external METIS")
-include_directories(${METIS_INCLUDE_DIRS})
-set(EL_HAVE_METIS TRUE)
