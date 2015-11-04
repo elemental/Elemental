@@ -362,6 +362,7 @@ int pmrrr
     W[j] = sort_array[j].lambda;
     Windex[j] = sort_array[j].local_ind;
   }
+  free(sort_array);
 
   clean_up(comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
 	   isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,

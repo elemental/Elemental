@@ -67,31 +67,14 @@ class DistMatrix(object):
   lib.ElDistMatrixEmpty_d.argtypes = \
   lib.ElDistMatrixEmpty_c.argtypes = \
   lib.ElDistMatrixEmpty_z.argtypes = \
-    [c_void_p]
-  def Empty(self):
-    args = [self.obj]
+    [c_void_p,bType]
+  def Empty(self,freeMemory=True):
+    args = [self.obj,freeMemory]
     if   self.tag == iTag: lib.ElDistMatrixEmpty_i(*args)
     elif self.tag == sTag: lib.ElDistMatrixEmpty_s(*args)
     elif self.tag == dTag: lib.ElDistMatrixEmpty_d(*args)
     elif self.tag == cTag: lib.ElDistMatrixEmpty_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixEmpty_z(*args)
-    else: DataExcept()
-
-  # Reset the matrix to the default (empty) state, but don't free memory
-  # --------------------------------------------------------------------
-  lib.ElDistMatrixSoftEmpty_i.argtypes = \
-  lib.ElDistMatrixSoftEmpty_s.argtypes = \
-  lib.ElDistMatrixSoftEmpty_d.argtypes = \
-  lib.ElDistMatrixSoftEmpty_c.argtypes = \
-  lib.ElDistMatrixSoftEmpty_z.argtypes = \
-    [c_void_p]
-  def SoftEmpty(self):
-    args = [self.obj]
-    if   self.tag == iTag: lib.ElDistMatrixSoftEmpty_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixSoftEmpty_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixSoftEmpty_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixSoftEmpty_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixSoftEmpty_z(*args)
     else: DataExcept()
 
   # Resize the matrix to 0 x 0, demand ownership, and delete underlying buffer
@@ -101,31 +84,14 @@ class DistMatrix(object):
   lib.ElDistMatrixEmptyData_d.argtypes = \
   lib.ElDistMatrixEmptyData_c.argtypes = \
   lib.ElDistMatrixEmptyData_z.argtypes = \
-    [c_void_p]
-  def EmptyData(self):
-    args = [self.obj]
+    [c_void_p,bType]
+  def EmptyData(self,freeMemory=True):
+    args = [self.obj,freeMemory]
     if   self.tag == iTag: lib.ElDistMatrixEmptyData_i(*args)
     elif self.tag == sTag: lib.ElDistMatrixEmptyData_s(*args)
     elif self.tag == dTag: lib.ElDistMatrixEmptyData_d(*args)
     elif self.tag == cTag: lib.ElDistMatrixEmptyData_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixEmptyData_z(*args)
-    else: DataExcept()
-
-  # Resize the matrix to 0 x 0 and demand ownership
-  # -----------------------------------------------
-  lib.ElDistMatrixSoftEmptyData_i.argtypes = \
-  lib.ElDistMatrixSoftEmptyData_s.argtypes = \
-  lib.ElDistMatrixSoftEmptyData_d.argtypes = \
-  lib.ElDistMatrixSoftEmptyData_c.argtypes = \
-  lib.ElDistMatrixSoftEmptyData_z.argtypes = \
-    [c_void_p]
-  def SoftEmptyData(self):
-    args = [self.obj]
-    if   self.tag == iTag: lib.ElDistMatrixSoftEmptyData_i(*args)
-    elif self.tag == sTag: lib.ElDistMatrixSoftEmptyData_s(*args)
-    elif self.tag == dTag: lib.ElDistMatrixSoftEmptyData_d(*args)
-    elif self.tag == cTag: lib.ElDistMatrixSoftEmptyData_c(*args)
-    elif self.tag == zTag: lib.ElDistMatrixSoftEmptyData_z(*args)
     else: DataExcept()
 
   # Specify the process grid of the matrix (if different, resize to 0x0)

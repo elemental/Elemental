@@ -91,7 +91,6 @@ inline void TallRelativeThresholded
           LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
-    const Int m = A.Height();
     const Int n = A.Width();
 
     // C := A^H A
@@ -115,7 +114,6 @@ inline void TallRelativeThresholded
         else
             s.Set( i, 0, sigma );
     }
-    const int k = s.Height();
 
     // Y := A V
     Matrix<F> Y;
@@ -558,7 +556,6 @@ WideRelativeThresholded
     )
     typedef Base<F> Real;
     const Int m = A.Height();
-    const Int n = A.Width();
 
     // C := A A^H
     Matrix<F> C;
@@ -582,7 +579,6 @@ WideRelativeThresholded
         else
             s.Set( i, 0, sigma );
     }
-    const Int k = s.Height();
 
     // (Sigma V) := A^H U
     Gemm( ADJOINT, NORMAL, F(1), A, U, V );

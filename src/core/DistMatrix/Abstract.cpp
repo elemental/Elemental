@@ -45,9 +45,9 @@ AbstractDistMatrix<T>::~AbstractDistMatrix() { }
 // ==============================
 template<typename T>
 void
-AbstractDistMatrix<T>::Empty()
+AbstractDistMatrix<T>::Empty( bool freeMemory )
 {
-    matrix_.Empty_();
+    matrix_.Empty_( freeMemory );
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
@@ -57,42 +57,19 @@ AbstractDistMatrix<T>::Empty()
     rowConstrained_ = false;
     rootConstrained_ = false;
     SetShifts();
+
+    SwapClear( remoteUpdates_ );
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::SoftEmpty()
+AbstractDistMatrix<T>::EmptyData( bool freeMemory )
 {
-    matrix_.Resize_( 0, 0 );
+    matrix_.Empty_( freeMemory );
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
-    colAlign_ = 0;
-    rowAlign_ = 0;
-    colConstrained_ = false;
-    rowConstrained_ = false;
-    rootConstrained_ = false;
-    SetShifts();
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::EmptyData()
-{
-    matrix_.Empty_();
-    viewType_ = OWNER;
-    height_ = 0;
-    width_ = 0;
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::SoftEmptyData()
-{
-    matrix_.Resize_( 0, 0 );
-    viewType_ = OWNER;
-    height_ = 0;
-    width_ = 0;
+    SwapClear( remoteUpdates_ );
 }
 
 template<typename T>
@@ -102,7 +79,7 @@ AbstractDistMatrix<T>::SetGrid( const El::Grid& grid )
     if( grid_ != &grid )
     {
         grid_ = &grid; 
-        SoftEmpty();
+        Empty(false);
     }
 }
 
@@ -162,7 +139,7 @@ AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
           LogicError("Invalid root");
     )
     if( root != root_ )
-        SoftEmpty();
+        Empty(false);
     root_ = root;
     if( constrain )
         rootConstrained_ = true;

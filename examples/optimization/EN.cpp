@@ -35,16 +35,23 @@ DistSparseMatrix<double> ConcatFD2D( Int n0, Int n1 )
 int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    const Int n0 = 50;
-    const Int n1 = 50;
-    const double lambda1 = 3;
-    const double lambda2 = 4;
-    const bool print = false;
-    
-    const int commRank = mpi::WorldRank();
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::Rank( comm );
 
     try
     {
+        const Int n0 = Input("--n0","height of 2D discretization",50);
+        const Int n1 = Input("--n1","width of 2D discretization",50);
+        const double lambda1 = Input("--lambda1","one-norm coefficient",3.);
+        const double lambda2 = Input("--lambda2","two-norm coefficient",4.);
+        const bool print = Input("--print","print matrices?",false);
+        const bool prog = Input("--prog","print progress info?",true);
+        const bool time = Input("--time","time each step of IPM?",true);
+        const bool solveProg = Input("--solveProg","solver progress?",true);
+        const bool solveTime = Input("--solveTime","solver timers?",true);
+        ProcessInput();
+        PrintInputReport();
+
         auto A = ConcatFD2D( n0, n1 );
         DistMultiVec<double> b;
         Gaussian( b, n0*n1, 1 );
@@ -55,14 +62,14 @@ int main( int argc, char* argv[] )
         }
         
         qp::affine::Ctrl<double> ctrl; 
-        //ctrl.mehrotraCtrl.print = true;
-        //ctrl.mehrotraCtrl.time = true;
-        //ctrl.mehrotraCtrl.solveCtrl.progress = true;
-        //ctrl.mehrotraCtrl.solveCtrl.time = true;
+        ctrl.mehrotraCtrl.print = prog;
+        ctrl.mehrotraCtrl.time = time;
+        ctrl.mehrotraCtrl.solveCtrl.progress = solveProg;
+        ctrl.mehrotraCtrl.solveCtrl.time = solveTime;
         
         DistMultiVec<double> x;
         Timer timer;
-        mpi::Barrier( mpi::COMM_WORLD );
+        mpi::Barrier( comm );
         if( commRank == 0 )
             timer.Start();
         EN( A, b, lambda1, lambda2, x, ctrl ); 

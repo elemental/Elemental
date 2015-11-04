@@ -57,17 +57,11 @@ extern "C" {
 
 #define DISTMATRIX_RECONFIG(SIG,SIGBASE,T) \
   /* void Empty() */ \
-  ElError ElDistMatrixEmpty_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( CReflect(A)->Empty() ) } \
-  /* void SoftEmpty() */ \
-  ElError ElDistMatrixSoftEmpty_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( CReflect(A)->SoftEmpty() ) } \
+  ElError ElDistMatrixEmpty_ ## SIG ( ElDistMatrix_ ## SIG A, bool freeMemory ) \
+  { EL_TRY( CReflect(A)->Empty(freeMemory) ) } \
   /* void EmptyData() */ \
-  ElError ElDistMatrixEmptyData_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( CReflect(A)->EmptyData() ) } \
-  /* void SoftEmptyData() */ \
-  ElError ElDistMatrixSoftEmptyData_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( CReflect(A)->SoftEmptyData() ) } \
+  ElError ElDistMatrixEmptyData_ ## SIG ( ElDistMatrix_ ## SIG A, bool freeMemory ) \
+  { EL_TRY( CReflect(A)->EmptyData(freeMemory) ) } \
   /* void SetGrid( const Grid& g ) */ \
   ElError ElDistMatrixSetGrid_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElConstGrid grid ) \
