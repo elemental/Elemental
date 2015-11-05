@@ -230,6 +230,10 @@ template<typename T>
 Base<T> InfinityNorm( const Matrix<T>& A );
 template<typename T>
 Base<T> InfinityNorm( const AbstractDistMatrix<T>& A );
+template<typename T>
+Base<T> InfinityNorm( const SparseMatrix<T>& A );
+template<typename T>
+Base<T> InfinityNorm( const DistSparseMatrix<T>& A );
 
 template<typename T>
 Base<T> HermitianInfinityNorm
@@ -343,6 +347,10 @@ template<typename T>
 Base<T> OneNorm( const Matrix<T>& A );
 template<typename T>
 Base<T> OneNorm( const AbstractDistMatrix<T>& A );
+template<typename T>
+Base<T> OneNorm( const SparseMatrix<T>& A );
+template<typename T>
+Base<T> OneNorm( const DistSparseMatrix<T>& A );
 
 template<typename T>
 Base<T> HermitianOneNorm( UpperOrLower uplo, const Matrix<T>& A );

@@ -14,15 +14,18 @@ template<typename F>
 Base<F> InfinityNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("InfinityNorm"))
-    typedef Base<F> R;
-    R maxRowSum = 0;
+    typedef Base<F> Real;
     const Int height = A.Height();
     const Int width = A.Width();
+    const F* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    Real maxRowSum = 0;
     for( Int i=0; i<height; ++i )
     {
-        R rowSum = 0;
+        Real rowSum = 0;
         for( Int j=0; j<width; ++j )
-            rowSum += Abs(A.Get(i,j));
+            rowSum += Abs(ABuf[i+j*ALDim]);
         maxRowSum = Max( maxRowSum, rowSum );
     }
     return maxRowSum;
@@ -48,17 +51,22 @@ Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
     DEBUG_ONLY(CSE cse("InfinityNorm"))
     // Compute the partial row sums defined by our local matrix, A[U,V]
     typedef Base<F> Real;
+
+
     Real norm;
     if( A.Participating() )
     {
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
+        const F* ABuf = A.LockedBuffer();
+        const Int ALDim = A.LDim();
+
         vector<Real> myPartialRowSums( localHeight );
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             myPartialRowSums[iLoc] = 0;
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                myPartialRowSums[iLoc] += Abs(A.GetLocal(iLoc,jLoc));
+                myPartialRowSums[iLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
         }
 
         // Sum our partial row sums to get the row sums over A[U,* ]
@@ -94,6 +102,54 @@ Base<F> SymmetricInfinityNorm
     return HermitianInfinityNorm( uplo, A );
 }
 
+template<typename F> 
+Base<F> InfinityNorm( const SparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CSE cse("InfinityNorm"))
+    typedef Base<F> Real;
+    const Int height = A.Height();
+    const F* valBuf = A.LockedValueBuffer();
+    const Int* offsetBuf = A.LockedOffsetBuffer();
+    const Int numEntries = A.NumEntries();
+
+    Real maxRowSum = 0;
+    for( Int i=0; i<height; ++i ) 
+    {
+        const Int thisOff = offsetBuf[i];
+        const Int nextOff = offsetBuf[i+1];
+        Real rowSum = 0;
+        for( Int k=thisOff; k<nextOff; ++k )
+            rowSum += Abs(valBuf[k]);
+        maxRowSum = Max(rowSum,maxRowSum);
+    }
+
+    return maxRowSum;
+}
+
+template<typename F> 
+Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CSE cse("InfinityNorm"))
+    typedef Base<F> Real;
+    const Int localHeight = A.LocalHeight();
+    const F* valBuf = A.LockedValueBuffer();
+    const Int* offsetBuf = A.LockedOffsetBuffer();
+    const Int numLocEntries = A.NumLocalEntries();
+
+    Real maxLocRowSum = 0;
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
+    {
+        const Int thisOff = offsetBuf[iLoc];
+        const Int nextOff = offsetBuf[iLoc+1];
+        Real rowSum = 0;
+        for( Int k=thisOff; k<nextOff; ++k )
+            rowSum += Abs(valBuf[k]);
+        maxLocRowSum = Max(rowSum,maxLocRowSum);
+    }
+
+    return mpi::AllReduce( maxLocRowSum, A.Comm() );
+}
+
 #define PROTO(T) \
   template Base<T> InfinityNorm( const Matrix<T>& A ); \
   template Base<T> InfinityNorm ( const AbstractDistMatrix<T>& A ); \
@@ -104,7 +160,9 @@ Base<F> SymmetricInfinityNorm
   template Base<T> SymmetricInfinityNorm \
   ( UpperOrLower uplo, const Matrix<T>& A ); \
   template Base<T> SymmetricInfinityNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); 
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template Base<T> InfinityNorm( const SparseMatrix<T>& A ); \
+  template Base<T> InfinityNorm( const DistSparseMatrix<T>& A );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

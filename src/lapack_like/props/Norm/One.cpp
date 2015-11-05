@@ -14,15 +14,18 @@ template<typename F>
 Base<F> OneNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("OneNorm"))
-    typedef Base<F> R;
-    R maxColSum = 0;
+    typedef Base<F> Real;
     const Int height = A.Height();
     const Int width = A.Width();
+    const F* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    Real maxColSum = 0;
     for( Int j=0; j<width; ++j )
     {
-        R colSum = 0;
+        Real colSum = 0;
         for( Int i=0; i<height; ++i )
-            colSum += Abs(A.Get(i,j));
+            colSum += Abs(ABuf[i+j*ALDim]);
         maxColSum = Max( maxColSum, colSum );
     }
     return maxColSum;
@@ -32,20 +35,24 @@ template<typename F>
 Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HermitianOneNorm"))
-    typedef Base<F> R;
-    if( A.Height() != A.Width() )
-        RuntimeError("Hermitian matrices must be square.");
-    R maxColSum = 0;
+    typedef Base<F> Real;
     const Int height = A.Height();
+    const F* ABuf = A.LockedBuffer();    
+    const Int ALDim = A.LDim();
+
+    if( height != A.Width() )
+        RuntimeError("Hermitian matrices must be square.");
+
+    Real maxColSum = 0;
     if( uplo == UPPER )
     {
         for( Int j=0; j<height; ++j )
         {
-            R colSum = 0;
+            Real colSum = 0;
             for( Int i=0; i<=j; ++i )
-                colSum += Abs(A.Get(i,j));
+                colSum += Abs(ABuf[i+j*ALDim]);
             for( Int i=j+1; i<height; ++i )
-                colSum += Abs(A.Get(j,i));
+                colSum += Abs(ABuf[j+i*ALDim]);
             maxColSum = Max( maxColSum, colSum );
         }
     }
@@ -53,11 +60,11 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
     {
         for( Int j=0; j<height; ++j )
         {
-            R colSum = 0;
+            Real colSum = 0;
             for( Int i=0; i<j; ++i )
-                colSum += Abs(A.Get(j,i));
+                colSum += Abs(ABuf[j+i*ALDim]);
             for( Int i=j; i<height; ++i )
-                colSum += Abs(A.Get(i,j));
+                colSum += Abs(ABuf[i+j*ALDim]);
             maxColSum = Max( maxColSum, colSum );
         }
     }
@@ -82,12 +89,15 @@ Base<F> OneNorm( const AbstractDistMatrix<F>& A )
         // Compute the partial column sums defined by our local matrix, A[U,V]
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
+        const F* ABuf = A.LockedBuffer();
+        const Int ALDim = A.LDim();
+
         vector<Real> myPartialColSums( localWidth );
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             myPartialColSums[jLoc] = 0;
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                myPartialColSums[jLoc] += Abs(A.GetLocal(iLoc,jLoc));
+                myPartialColSums[jLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
         }
 
         // Sum our partial column sums to get the column sums over A[* ,V]
@@ -111,7 +121,7 @@ template<typename F>
 Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HermitianOneNorm"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
     const Int height = A.Height();
@@ -120,23 +130,25 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     // by storing all of the column sums of the triangular matrix and the 
     // row sums of the strictly triangular matrix. We can then add them.
 
-    R maxColSum = 0;
+    Real maxColSum = 0;
     if( A.Participating() )
     {
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
+        const F* ABuf = A.LockedBuffer();
+        const Int ALDim = A.LDim();
+
         if( uplo == UPPER )
         {
-            vector<R> myPartialUpperColSums( localWidth ),
-                      myPartialStrictlyUpperRowSums( localHeight );
+            vector<Real> myPartialUpperColSums( localWidth ),
+                         myPartialStrictlyUpperRowSums( localHeight );
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const Int j = A.GlobalCol(jLoc);
                 const Int numUpperRows = A.LocalRowOffset(j+1);
                 myPartialUpperColSums[jLoc] = 0;
                 for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
-                    myPartialUpperColSums[jLoc] +=
-                        Abs(A.GetLocal(iLoc,jLoc));
+                    myPartialUpperColSums[jLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
             }
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
@@ -145,13 +157,13 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 myPartialStrictlyUpperRowSums[iLoc] = 0;
                 for( Int jLoc=numLowerCols; jLoc<localWidth; ++jLoc )
                     myPartialStrictlyUpperRowSums[iLoc] +=
-                        Abs(A.GetLocal(iLoc,jLoc));
+                      Abs(ABuf[iLoc+jLoc*ALDim]);
             }
 
             // Just place the sums into their appropriate places in a vector an 
             // AllReduce sum to get the results. This isn't optimal, but it 
             // should be good enough.
-            vector<R> partialColSums( height, 0 );
+            vector<Real> partialColSums( height, 0 );
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const Int j = A.GlobalCol(jLoc);
@@ -162,7 +174,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int i = A.GlobalRow(iLoc);
                 partialColSums[i] += myPartialStrictlyUpperRowSums[iLoc];
             }
-            vector<R> colSums( height );
+            vector<Real> colSums( height );
             mpi::AllReduce
             ( partialColSums.data(), colSums.data(), height, A.DistComm() );
 
@@ -172,15 +184,15 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
         }
         else
         {
-            vector<R> myPartialLowerColSums( localWidth ),
-                      myPartialStrictlyLowerRowSums( localHeight );
+            vector<Real> myPartialLowerColSums( localWidth ),
+                         myPartialStrictlyLowerRowSums( localHeight );
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const Int j = A.GlobalCol(jLoc);
                 const Int numStrictlyUpperRows = A.LocalRowOffset(j);
                 myPartialLowerColSums[jLoc] = 0;
                 for( Int iLoc=numStrictlyUpperRows; iLoc<localHeight; ++iLoc )
-                    myPartialLowerColSums[jLoc] += Abs(A.GetLocal(iLoc,jLoc));
+                    myPartialLowerColSums[jLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
             }
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
@@ -189,13 +201,13 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 myPartialStrictlyLowerRowSums[iLoc] = 0;
                 for( Int jLoc=0; jLoc<numStrictlyLowerCols; ++jLoc )
                     myPartialStrictlyLowerRowSums[iLoc] +=
-                        Abs(A.GetLocal(iLoc,jLoc));
+                      Abs(ABuf[iLoc+jLoc*ALDim]);
             }
 
             // Just place the sums into their appropriate places in a vector an 
             // AllReduce sum to get the results. This isn't optimal, but it 
             // should be good enough.
-            vector<R> partialColSums( height, 0 );
+            vector<Real> partialColSums( height, 0 );
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const Int j = A.GlobalCol(jLoc);
@@ -206,7 +218,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int i = A.GlobalRow(iLoc);
                 partialColSums[i] += myPartialStrictlyLowerRowSums[iLoc];
             }
-            vector<R> colSums( height );
+            vector<Real> colSums( height );
             mpi::AllReduce
             ( partialColSums.data(), colSums.data(), height, A.DistComm() );
 
@@ -226,6 +238,24 @@ Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     return HermitianOneNorm( uplo, A );
 }
 
+template<typename F>
+Base<F> OneNorm( const SparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CSE cse("OneNorm"))
+    SparseMatrix<F> ATrans;
+    Transpose( A, ATrans );
+    return InfinityNorm( ATrans );
+}
+
+template<typename F>
+Base<F> OneNorm( const DistSparseMatrix<F>& A )
+{
+    DEBUG_ONLY(CSE cse("OneNorm"))
+    DistSparseMatrix<F> ATrans(A.Comm());
+    Transpose( A, ATrans );
+    return InfinityNorm( ATrans );
+}
+
 #define PROTO(T) \
   template Base<T> OneNorm( const Matrix<T>& A ); \
   template Base<T> OneNorm ( const AbstractDistMatrix<T>& A ); \
@@ -236,7 +266,9 @@ Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
   template Base<T> SymmetricOneNorm \
   ( UpperOrLower uplo, const Matrix<T>& A ); \
   template Base<T> SymmetricOneNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
+  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
+  template Base<T> OneNorm( const SparseMatrix<T>& A ); \
+  template Base<T> OneNorm( const DistSparseMatrix<T>& A );
 
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"

@@ -445,6 +445,22 @@ EL_EXPORT ElError ElInfinityNormDist_s( ElConstDistMatrix_s A, float* norm );
 EL_EXPORT ElError ElInfinityNormDist_d( ElConstDistMatrix_d A, double* norm );
 EL_EXPORT ElError ElInfinityNormDist_c( ElConstDistMatrix_c A, float* norm );
 EL_EXPORT ElError ElInfinityNormDist_z( ElConstDistMatrix_z A, double* norm );
+EL_EXPORT ElError ElInfinityNormSparse_s
+( ElConstSparseMatrix_s A, float* norm );
+EL_EXPORT ElError ElInfinityNormSparse_d
+( ElConstSparseMatrix_d A, double* norm );
+EL_EXPORT ElError ElInfinityNormSparse_c
+( ElConstSparseMatrix_c A, float* norm );
+EL_EXPORT ElError ElInfinityNormSparse_z
+( ElConstSparseMatrix_z A, double* norm );
+EL_EXPORT ElError ElInfinityNormDistSparse_s
+( ElConstDistSparseMatrix_s A, float* norm );
+EL_EXPORT ElError ElInfinityNormDistSparse_d
+( ElConstDistSparseMatrix_d A, double* norm );
+EL_EXPORT ElError ElInfinityNormDistSparse_c
+( ElConstDistSparseMatrix_c A, float* norm );
+EL_EXPORT ElError ElInfinityNormDistSparse_z
+( ElConstDistSparseMatrix_z A, double* norm );
 
 EL_EXPORT ElError ElHermitianInfinityNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );
@@ -701,6 +717,18 @@ EL_EXPORT ElError ElOneNormDist_s( ElConstDistMatrix_s A, float* norm );
 EL_EXPORT ElError ElOneNormDist_d( ElConstDistMatrix_d A, double* norm );
 EL_EXPORT ElError ElOneNormDist_c( ElConstDistMatrix_c A, float* norm );
 EL_EXPORT ElError ElOneNormDist_z( ElConstDistMatrix_z A, double* norm );
+EL_EXPORT ElError ElOneNormSparse_s( ElConstSparseMatrix_s A, float* norm );
+EL_EXPORT ElError ElOneNormSparse_d( ElConstSparseMatrix_d A, double* norm );
+EL_EXPORT ElError ElOneNormSparse_c( ElConstSparseMatrix_c A, float* norm );
+EL_EXPORT ElError ElOneNormSparse_z( ElConstSparseMatrix_z A, double* norm );
+EL_EXPORT ElError ElOneNormDistSparse_s
+( ElConstDistSparseMatrix_s A, float* norm );
+EL_EXPORT ElError ElOneNormDistSparse_d
+( ElConstDistSparseMatrix_d A, double* norm );
+EL_EXPORT ElError ElOneNormDistSparse_c
+( ElConstDistSparseMatrix_c A, float* norm );
+EL_EXPORT ElError ElOneNormDistSparse_z
+( ElConstDistSparseMatrix_z A, double* norm );
 
 EL_EXPORT ElError ElHermitianOneNorm_c
 ( ElUpperOrLower uplo, ElConstMatrix_c A, float* norm );

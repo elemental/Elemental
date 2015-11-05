@@ -660,12 +660,20 @@ lib.ElInfinityNorm_s.argtypes = \
 lib.ElInfinityNorm_c.argtypes = \
 lib.ElInfinityNormDist_s.argtypes = \
 lib.ElInfinityNormDist_c.argtypes = \
+lib.ElInfinityNormSparse_s.argtypes = \
+lib.ElInfinityNormSparse_c.argtypes = \
+lib.ElInfinityNormDistSparse_s.argtypes = \
+lib.ElInfinityNormDistSparse_c.argtypes = \
   [c_void_p,POINTER(sType)]
 
 lib.ElInfinityNorm_d.argtypes = \
 lib.ElInfinityNorm_z.argtypes = \
 lib.ElInfinityNormDist_d.argtypes = \
 lib.ElInfinityNormDist_z.argtypes = \
+lib.ElInfinityNormSparse_d.argtypes = \
+lib.ElInfinityNormSparse_z.argtypes = \
+lib.ElInfinityNormDistSparse_d.argtypes = \
+lib.ElInfinityNormDistSparse_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
 def InfinityNorm(A):
@@ -682,6 +690,18 @@ def InfinityNorm(A):
     elif A.tag == dTag: lib.ElInfinityNormDist_d(*args)
     elif A.tag == cTag: lib.ElInfinityNormDist_c(*args)
     elif A.tag == zTag: lib.ElInfinityNormDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElInfinityNormSparse_s(*args)
+    elif A.tag == dTag: lib.ElInfinityNormSparse_d(*args)
+    elif A.tag == cTag: lib.ElInfinityNormSparse_c(*args)
+    elif A.tag == zTag: lib.ElInfinityNormSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElInfinityNormDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElInfinityNormDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElInfinityNormDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElInfinityNormDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm.value
@@ -1074,12 +1094,20 @@ lib.ElOneNorm_s.argtypes = \
 lib.ElOneNorm_c.argtypes = \
 lib.ElOneNormDist_s.argtypes = \
 lib.ElOneNormDist_c.argtypes = \
+lib.ElOneNormSparse_s.argtypes = \
+lib.ElOneNormSparse_c.argtypes = \
+lib.ElOneNormDistSparse_s.argtypes = \
+lib.ElOneNormDistSparse_c.argtypes = \
   [c_void_p,POINTER(sType)]
 
 lib.ElOneNorm_d.argtypes = \
 lib.ElOneNorm_z.argtypes = \
 lib.ElOneNormDist_d.argtypes = \
 lib.ElOneNormDist_z.argtypes = \
+lib.ElOneNormSparse_d.argtypes = \
+lib.ElOneNormSparse_z.argtypes = \
+lib.ElOneNormDistSparse_d.argtypes = \
+lib.ElOneNormDistSparse_z.argtypes = \
   [c_void_p,POINTER(dType)]
 
 def OneNorm(A):
@@ -1096,6 +1124,18 @@ def OneNorm(A):
     elif A.tag == dTag: lib.ElOneNormDist_d(*args)
     elif A.tag == cTag: lib.ElOneNormDist_c(*args)
     elif A.tag == zTag: lib.ElOneNormDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    if   A.tag == sTag: lib.ElOneNormSparse_s(*args)
+    elif A.tag == dTag: lib.ElOneNormSparse_d(*args)
+    elif A.tag == cTag: lib.ElOneNormSparse_c(*args)
+    elif A.tag == zTag: lib.ElOneNormSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    if   A.tag == sTag: lib.ElOneNormDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElOneNormDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElOneNormDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElOneNormDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
   return norm.value

@@ -249,6 +249,12 @@ extern "C" {
   ElError ElInfinityNormDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = InfinityNorm( *CReflect(A) ) ) } \
+  ElError ElInfinityNormSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = InfinityNorm( *CReflect(A) ) ) } \
+  ElError ElInfinityNormDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = InfinityNorm( *CReflect(A) ) ) } \
   ElError ElSymmetricInfinityNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = SymmetricInfinityNorm( CReflect(uplo), *CReflect(A) ) ) } \
@@ -305,6 +311,12 @@ extern "C" {
   ElError ElOneNorm_ ## SIG ( ElConstMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = OneNorm( *CReflect(A) ) ) } \
   ElError ElOneNormDist_ ## SIG ( ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = OneNorm( *CReflect(A) ) ) } \
+  ElError ElOneNormSparse_ ## SIG \
+  ( ElConstSparseMatrix_ ## SIG A, Base<F>* norm ) \
+  { EL_TRY( *norm = OneNorm( *CReflect(A) ) ) } \
+  ElError ElOneNormDistSparse_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = OneNorm( *CReflect(A) ) ) } \
   ElError ElSymmetricOneNorm_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* norm ) \
