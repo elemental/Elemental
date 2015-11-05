@@ -9,122 +9,174 @@
 #include "El.hpp"
 
 namespace El {
+
+template<typename F,class ApplyAType,class ApplyAInvType>
+inline Int IterativeRefinement
+( const ApplyAType& applyA,
+  const ApplyAInvType& applyAInv,
+        Matrix<F>& b,
+        Base<F> relTol,
+        Int maxRefineIts, 
+        bool progress )
+{
+    DEBUG_ONLY(
+      CSE cse("IterativeRefinement");
+      if( b.Width() != 1 )    
+          LogicError("Expected a single right-hand side");
+    )
+    auto bOrig = b;
+    const Base<F> bNorm = MaxNorm( b );
+
+    // Compute the initial guess
+    // =========================
+    auto x = b;
+    applyAInv( x );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        Matrix<F> dx, xCand, y;
+        applyA( x, y );
+        b -= y;
+        Base<F> errorNorm = MaxNorm( b );
+        if( progress )
+            Output("original rel error: ",errorNorm/bNorm);
+ 
+        while( true )
+        {
+            if( errorNorm/bNorm <= relTol )
+            {
+                if( progress )
+                    Output(errorNorm/bNorm," <= ",relTol);
+                break;
+            }
+
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            dx = b;
+            applyAInv( dx );
+            xCand = x;
+            xCand += dx;
+
+            // Check the new residual
+            // ----------------------
+            b = bOrig;
+            applyA( xCand, y );
+            b -= y;
+            auto newErrorNorm = MaxNorm( b );
+            if( progress )
+                Output("refined rel error: ",newErrorNorm/bNorm);
+
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                break;
+
+            errorNorm = newErrorNorm;
+            ++refineIt;
+            if( refineIt >= maxRefineIts )
+                break;
+        }
+    }
+    // Store the final result
+    // ======================
+    b = x;
+    return refineIt;
+}
+
+template<typename F,class ApplyAType,class ApplyAInvType>
+inline Int PromotedIterativeRefinement
+( const ApplyAType& applyA,
+  const ApplyAInvType& applyAInv,
+        Matrix<F>& b,
+        Base<F> relTol,
+        Int maxRefineIts, 
+        bool progress )
+{
+    DEBUG_ONLY(
+      CSE cse("PromotedIterativeRefinement");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
+    typedef Base<F> Real;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
+
+    Matrix<PF> bProm, bOrigProm;
+    Copy( b, bProm );
+    Copy( b, bOrigProm );
+    const PReal bNorm = MaxNorm( bOrigProm );
+
+    // Compute the initial guess
+    // =========================
+    applyAInv( b );
+    Matrix<PF> xProm;
+    Copy( b, xProm );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        Matrix<PF> dxProm, xCandProm, yProm;
+        applyA( xProm, yProm );
+        bProm -= yProm;
+        auto errorNorm = MaxNorm( bProm );
+        if( progress )
+            Output("original rel error: ",errorNorm/bNorm);
+ 
+        while( true )
+        {
+            if( errorNorm/bNorm <= relTol )
+            {
+                if( progress )
+                    Output(errorNorm/bNorm," <= ",relTol);
+                break;
+            }
+
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            Copy( bProm, b );
+            applyAInv( b );
+            Copy( b, dxProm );
+            xCandProm = xProm;
+            xCandProm += dxProm;
+
+            // Check the new residual
+            // ----------------------
+            applyA( xCandProm, yProm );
+            bProm = bOrigProm;
+            bProm -= yProm;
+            auto newErrorNorm = MaxNorm( bProm );
+            if( progress )
+                Output("refined rel error: ",newErrorNorm/bNorm);
+
+            if( newErrorNorm < errorNorm )
+                xProm = xCandProm;
+            else
+                break;
+
+            errorNorm = newErrorNorm;
+            ++refineIt;
+            if( refineIt >= maxRefineIts )
+                break;
+        }
+    }
+    // Store the final result
+    // ======================
+    Copy( xProm, b );
+    return refineIt;
+}
+
 namespace reg_ldl {
 
 // TODO: Switch to returning the relative residual of the refined solution
 
 // TODO: Do not accept iterative refinements which increase the residual norm
 
-// TODO: Introduce functors for applying linear operator and its approximate
-//       inverse to reduce redundancy between equilibrated and unequilibrated
-//       versions
-
 // TODO: Implement multi-RHS version of LGMRES
 
 // TODO: Implement multi-RHS version of FGMRES
 
 // TODO: Start with batch version of RegularizedSolveAfter
-template<typename F>
-inline Int RegularizedSolveAfterNoPromoteSingle
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap, 
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& b,
-  Base<F> relTol,
-  Int maxRefineIts, 
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
-      if( b.Width() != 1 )    
-          LogicError("Expected a single right-hand side");
-    )
-    auto bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
-    Timer timer;
-
-    // Compute the initial guess
-    // =========================
-    Matrix<F> x;
-    ldl::MatrixNode<F> xNodal( invMap, info, b );
-    if( time )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    xNodal.Push( invMap, info, x );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<F> dx, xCand, y;
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y );
-        if( time )
-            timer.Start();
-        Multiply( NORMAL, F(1), A, x, F(1), y );
-        if( time )
-            Output("  Multiply time: ",timer.Stop()," secs");
-        b -= y;
-        Base<F> errorNorm = MaxNorm( b );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
- 
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            xNodal.Pull( invMap, info, b );
-            if( time )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            xNodal.Push( invMap, info, dx );
-            xCand = x;
-            xCand += dx;
-
-            // Check the new residual
-            // ----------------------
-            b = bOrig;
-            y = xCand;
-            DiagonalScale( LEFT, NORMAL, reg, y );
-            if( time )
-                timer.Start();
-            Multiply( NORMAL, F(1), A, xCand, F(1), y );
-            if( time )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            b -= y;
-            auto newErrorNorm = MaxNorm( b );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    // Store the final result
-    // ======================
-    b = x;
-    return refineIt;
-}
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
@@ -134,131 +186,41 @@ inline Int RegularizedSolveAfterNoPromote
   const ldl::NodeInfo& info,
   const ldl::Front<F>& front, 
         Matrix<F>& B,
-  Base<F> relTol,
-  Int maxRefineIts, 
-  bool progress,
-  bool time )
+        Base<F> relTol,
+        Int maxRefineIts, 
+        bool progress,
+        bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const Matrix<F>& x, Matrix<F>& y )
+      {
+        y = x;
+        DiagonalScale( LEFT, NORMAL, reg, y ); 
+        Multiply( NORMAL, F(1), A, x, F(1), y );
+      };
+    auto applyAInv = 
+      [&]( Matrix<F>& y )
+      {
+        ldl::MatrixNode<F> yNodal( invMap, info, y );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y );
+      };
+
+    // TODO: Perform these in a batch instead
     Int mostRefineIts = 0;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
     {
         auto b = B( ALL, IR(j) );
         const Int refineIts = 
-          RegularizedSolveAfterNoPromoteSingle
-          (A,reg,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+          IterativeRefinement
+          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
     return mostRefineIts;
-}
-
-template<typename F>
-inline Int RegularizedSolveAfterNoPromoteSingle
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap,
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& b,
-  Base<F> relTol,
-  Int maxRefineIts, 
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
-      if( b.Width() != 1 )    
-          LogicError("Expected a single right-hand side");
-    )
-    auto bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
-    Timer timer;
-
-    // Compute the initial guess
-    // =========================
-    Matrix<F> x;
-    DiagonalSolve( LEFT, NORMAL, d, b );
-    ldl::MatrixNode<F> xNodal( invMap, info, b );
-    if( time )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    xNodal.Push( invMap, info, x );
-    DiagonalSolve( LEFT, NORMAL, d, x );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<F> dx, y, xCand;
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y );
-        if( time )
-            timer.Start();
-        Multiply( NORMAL, F(1), A, x, F(1), y );
-        if( time )
-            Output("  Multiply time: ",timer.Stop()," secs");
-        b = bOrig;
-        b -= y;
-        Base<F> errorNorm = MaxNorm( b );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
- 
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            DiagonalSolve( LEFT, NORMAL, d, b );
-            xNodal.Pull( invMap, info, b );
-            if( time )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            xNodal.Push( invMap, info, dx );
-            DiagonalSolve( LEFT, NORMAL, d, dx );
-            xCand = x;
-            xCand += dx;
-
-            // Check the new residual
-            // ----------------------
-            b = bOrig;
-            y = xCand;
-            DiagonalScale( LEFT, NORMAL, reg, y );
-            if( time )
-                timer.Start();
-            Multiply( NORMAL, F(1), A, xCand, F(1), y );
-            if( time )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            b -= y;
-            auto newErrorNorm = MaxNorm( b );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    // Store the final result
-    // ======================
-    b = x;
-    return refineIt;
 }
 
 template<typename F>
@@ -276,134 +238,37 @@ inline Int RegularizedSolveAfterNoPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
+
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const Matrix<F>& x, Matrix<F>& y )
+      {
+        y = x;
+        DiagonalScale( LEFT, NORMAL, reg, y ); 
+        Multiply( NORMAL, F(1), A, x, F(1), y );
+      };
+    auto applyAInv = 
+      [&]( Matrix<F>& y )
+      {
+        DiagonalSolve( LEFT, NORMAL, d, y );
+        ldl::MatrixNode<F> yNodal( invMap, info, y );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y );
+        DiagonalSolve( LEFT, NORMAL, d, y );
+      };
+
+    // TODO: Perform these in a batch instead
     Int mostRefineIts = 0;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
     {
         auto b = B( ALL, IR(j) );
-        const Int refineIts = 
-          RegularizedSolveAfterNoPromoteSingle
-          (A,reg,d,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+        const Int refineIts =
+          IterativeRefinement
+          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
     return mostRefineIts;
-}
-
-template<typename F>
-inline Int RegularizedSolveAfterPromoteSingle
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap, 
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& b,
-  Base<F> relTol,
-  Int maxRefineIts, 
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
-    Timer timer;
-
-    Matrix<PF> bProm, bOrigProm;
-    Copy( b, bProm );
-    Copy( b, bOrigProm );
-    const PReal bNorm = MaxNorm( bOrigProm );
-
-    Matrix<PReal> regProm;
-    Copy( reg, regProm );
-
-    // Compute the initial guess
-    // =========================
-    ldl::MatrixNode<F> xNodal( invMap, info, b );
-    if( time )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    xNodal.Push( invMap, info, b );
-    Matrix<PF> xProm;
-    Copy( b, xProm );
-
-    SparseMatrix<PF> AProm;
-    Copy( A, AProm );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<PF> dxProm, xCandProm, yProm;
-        yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        if( time )
-            timer.Start();
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        if( time )
-            Output("  Multiply time: ",timer.Stop()," secs");
-        bProm -= yProm;
-        auto errorNorm = MaxNorm( bProm );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
- 
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            Copy( bProm, b );
-            xNodal.Pull( invMap, info, b );
-            if( time )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            xNodal.Push( invMap, info, b );
-            Copy( b, dxProm );
-            xCandProm = xProm;
-            xCandProm += dxProm;
-
-            // Check the new residual
-            // ----------------------
-            bProm = bOrigProm;
-            yProm = xCandProm;
-            DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            if( time )
-                timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
-            if( time )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            bProm -= yProm;
-            auto newErrorNorm = MaxNorm( bProm );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                xProm = xCandProm;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    // Store the final result
-    // ======================
-    Copy( xProm, b );
-    return refineIt;
 }
 
 template<typename F>
@@ -420,144 +285,44 @@ inline Int RegularizedSolveAfterPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    typedef Base<F> Real; 
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
+
+    // TODO: Avoid reforming these each call
+    SparseMatrix<PF> AProm;
+    Copy( A, AProm );
+    Matrix<PReal> regProm;
+    Copy( reg, regProm );
+
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const Matrix<PF>& xProm, Matrix<PF>& yProm )
+      {
+        yProm = xProm; 
+        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+      }; 
+    auto applyAInv =  
+      [&]( Matrix<F>& y )
+      {
+        ldl::MatrixNode<F> yNodal( invMap, info, y );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y );
+      };
+
+    // TODO: Perform these in a batch instead
     Int mostRefineIts = 0;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
     {
         auto b = B( ALL, IR(j) );
-        const Int refineIts = 
-          RegularizedSolveAfterPromoteSingle
-          (A,reg,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+        const Int refineIts =
+          PrommotedIterativeRefinement
+          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
     return mostRefineIts;
-}
-
-template<typename F>
-inline Int RegularizedSolveAfterPromoteSingle
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d, 
-  const vector<Int>& invMap, 
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& b,
-  Base<F> relTol,
-  Int maxRefineIts, 
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
-    Timer timer;
-
-    Matrix<PF> bProm, bOrigProm;
-    Copy( b, bProm );
-    Copy( b, bOrigProm );
-    const PReal bNorm = MaxNorm( bOrigProm );
-
-    Matrix<PReal> dProm;
-    Copy( d, dProm );
-
-    Matrix<PReal> regProm;
-    Copy( reg, regProm );
-
-    // Compute the initial guess
-    // =========================
-    DiagonalSolve( LEFT, NORMAL, d, b );
-    ldl::MatrixNode<F> xNodal( invMap, info, b );
-    if( time )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    xNodal.Push( invMap, info, b );
-    DiagonalSolve( LEFT, NORMAL, d, b );
-
-    Matrix<PF> xProm;
-    Copy( b, xProm );
-
-    SparseMatrix<PF> AProm;
-    Copy( A, AProm );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<PF> dxProm, xCandProm, yProm;
-        yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        if( time )
-            timer.Start();
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        if( time )
-            Output("  Multiply time: ",timer.Stop()," secs");
-        bProm = bOrigProm;
-        bProm -= yProm;
-        auto errorNorm = MaxNorm( bProm );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
- 
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            Copy( bProm, b );
-            DiagonalSolve( LEFT, NORMAL, d, b );
-            xNodal.Pull( invMap, info, b );
-            if( time )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            xNodal.Push( invMap, info, b );
-            DiagonalSolve( LEFT, NORMAL, d, b );
-            Copy( b, dxProm );
-            xCandProm = xProm;
-            xCandProm += dxProm;
-
-            // Check the new residual
-            // ----------------------
-            bProm = bOrigProm;
-            yProm = xCandProm;
-            DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            if( time )
-                timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
-            if( time )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            bProm -= yProm;
-            auto newErrorNorm = MaxNorm( bProm );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                xProm = xCandProm;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    // Store the final result
-    // ======================
-    Copy( xProm, b );
-    return refineIt;
 }
 
 template<typename F>
@@ -575,14 +340,43 @@ inline Int RegularizedSolveAfterPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    typedef Base<F> Real;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
+
+    // TODO: Avoid reforming these each call
+    SparseMatrix<PF> AProm;
+    Copy( A, AProm );
+    Matrix<PReal> regProm;
+    Copy( reg, regProm );
+
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const Matrix<PF>& xProm, Matrix<PF>& yProm )
+      {
+        yProm = xProm; 
+        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+      }; 
+    auto applyAInv =  
+      [&]( Matrix<F>& y )
+      {
+        DiagonalSolve( LEFT, NORMAL, d, y );
+        ldl::MatrixNode<F> yNodal( invMap, info, y );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y );
+        DiagonalSolve( LEFT, NORMAL, d, y );
+      };
+
+    // TODO: Perform these in a batch instead
     Int mostRefineIts = 0;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
     {
         auto b = B( ALL, IR(j) );
-        const Int refineIts = 
-          RegularizedSolveAfterPromoteSingle
-          (A,reg,d,invMap,info,front,b,relTol,maxRefineIts,progress,time);
+        const Int refineIts =
+          PrommotedIterativeRefinement
+          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
     return mostRefineIts;
@@ -638,6 +432,8 @@ Int RegularizedSolveAfter
              B, relTol, maxRefineIts, progress, time );
 #endif
 }
+
+// NOTE: Left off HERE
 
 template<typename F>
 inline Int RegularizedSolveAfterNoPromoteSingle
@@ -1083,7 +879,6 @@ inline Int RegularizedSolveAfterPromoteSingle
 
             // Check the new residual
             // ----------------------
-            bProm = bOrigProm;
             yProm = xCandProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             if( time && commRank == 0 )
@@ -1091,6 +886,7 @@ inline Int RegularizedSolveAfterPromoteSingle
             Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
             if( time && commRank == 0 )
                 Output("  Multiply time: ",timer.Stop()," secs");
+            bProm = bOrigProm;
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
@@ -1280,7 +1076,6 @@ inline Int RegularizedSolveAfterPromoteSingle
 
             // Check the new residual
             // ----------------------
-            bProm = bOrigProm;
             yProm = xCandProm;
             DiagonalScale( LEFT, NORMAL, regProm, yProm );
             if( time && commRank == 0 )
@@ -1288,6 +1083,7 @@ inline Int RegularizedSolveAfterPromoteSingle
             Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
             if( time && commRank == 0 )
                 Output("  Multiply time: ",timer.Stop()," secs");
+            bProm = bOrigProm;
             bProm -= yProm;
             auto newErrorNorm = Nrm2( bProm );
             if( progress && commRank == 0 )
