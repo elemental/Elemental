@@ -143,6 +143,28 @@ inline void AssertSameGrids( const Grid& g1, const Grid& g2, Args&... args )
     AssertSameGrids( g2, args... );
 }
 
+inline bool GridCompare
+( const Grid & g1, const Grid & g2 )
+{
+    // height_
+    if( g1.Height() != g2.Height() )
+        return false;
+
+    // order_
+    if( g1.Order() != g2.Order() )
+        return false;
+
+    // viewingComm_
+    if( !Congruent( g1.ViewingComm(), g2.ViewingComm() ) )
+        return false;
+
+    // owningGroup_
+    if( !Congruent( g1.OwningGroup(), g2.OwningGroup() ) )
+        return false;
+
+    return true;
+}
+
 } // namespace El
 
 #endif // ifndef EL_GRID_HPP
