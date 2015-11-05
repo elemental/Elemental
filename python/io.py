@@ -137,101 +137,55 @@ lib.ElDisplayDistSparse_c.argtypes = \
 lib.ElDisplayDistSparse_z.argtypes = \
   [c_void_p,c_char_p]
 
-def Display(A,title='',tryPython=True):
-  if tryPython: 
-    if type(A) is Matrix:
-      try:  
-        import numpy as np
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
-        isInline = 'inline' in mpl.get_backend()
-        isVec = min(A.Height(),A.Width()) == 1
-        if A.tag == cTag or A.tag == zTag:
-          AReal = Matrix(Base(A.tag))
-          AImag = Matrix(Base(A.tag))
-          RealPart(A,AReal)
-          ImagPart(A,AImag)
-          fig, (ax1,ax2) = plt.subplots(1,2)
-          ax1.set_title('Real part')
-          ax2.set_title('Imag part')
-          if isVec:
-            ax1.plot(np.squeeze(AReal.ToNumPy()),'bo-')
-            ax2.plot(np.squeeze(AImag.ToNumPy()),'bo-')
-          else:
-            imReal = ax1.imshow(AReal.ToNumPy())
-            cBarReal = fig.colorbar(imReal,ax=ax1)
-            imImag = ax2.imshow(AImag.ToNumPy())
-            cBarImag = fig.colorbar(imImag,ax=ax2)
-          plt.suptitle(title)
-          plt.tight_layout()
-        else:
-          fig = plt.figure()
-          axis = fig.add_axes([0.1,0.1,0.8,0.8])
-          if isVec:
-            axis.plot(np.squeeze(A.ToNumPy()),'bo-')
-          else:
-            im = axis.imshow(A.ToNumPy())
-            fig.colorbar(im,ax=axis)
-          plt.title(title)
-        plt.draw()
-        if not isInline:
-            plt.show(block=False)
-        return
-      except: 
-        print 'Could not import matplotlib.pyplot'
-    elif type(A) is DistMatrix:
-      A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
-      Copy(A,A_CIRC_CIRC)
-      if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-        Display(A_CIRC_CIRC.Matrix(),title,True)
-      return
-    elif type(A) is DistMultiVec:
-      if mpi.Rank(A.Comm()) == 0:
-        ASeq = Matrix(A.tag)
-        CopyFromRoot(A,ASeq)
-        Display(ASeq,title,True)
-      else:
-        CopyFromNonRoot(A)
-      return
-    elif type(A) is Graph:
-      try:  
-        import matplotlib.pyplot as plt
-        import networkx as nx
-        numEdges = A.NumEdges() 
-        G = nx.DiGraph()
-        for edge in xrange(numEdges):
-          source = A.Source(edge)
-          target = A.Target(edge)
-          G.add_edge(source,target)
-        fig = plt.figure()
-        plt.title(title)
-        nx.draw(G)
-        plt.draw()
-        if not isInline:
-            plt.show(block=False)
-        return
-      except:
-        print 'Could not import networkx and matplotlib.pyplot'
-    elif type(A) is DistGraph:
-      if mpi.Rank(A.Comm()) == 0:
-        ASeq = Graph()
-        CopyFromRoot(A,ASeq)
-        Display(ASeq,title,True)
-      else:
-        CopyFromNonRoot(A)
-      return
-    elif type(A) is SparseMatrix:
-      ADense = Matrix(A.tag)
-      Copy(A,ADense)
-      Display(ADense,title,True)
-      return
-    elif type(A) is DistSparseMatrix:
-      grid = Grid(A.Comm())
-      ADense = DistMatrix(A.tag,MC,MR,grid)
-      Copy(A,ADense)
-      Display(ADense,title,True)
-      return
-  # Fall back to the built-in Display if we have not succeeded
+def DisplayPyPlot(A,title=''):
+  isInline = 'inline' in mpl.get_backend()
+  isVec = min(A.Height(),A.Width()) == 1
+  if A.tag == cTag or A.tag == zTag:
+    AReal = Matrix(Base(A.tag))
+    AImag = Matrix(Base(A.tag))
+    RealPart(A,AReal)
+    ImagPart(A,AImag)
+    fig, (ax1,ax2) = plt.subplots(1,2)
+    ax1.set_title('Real part')
+    ax2.set_title('Imag part')
+    if isVec:
+      ax1.plot(np.squeeze(AReal.ToNumPy()),'bo-')
+      ax2.plot(np.squeeze(AImag.ToNumPy()),'bo-')
+    else:
+      imReal = ax1.imshow(AReal.ToNumPy())
+      cBarReal = fig.colorbar(imReal,ax=ax1)
+      imImag = ax2.imshow(AImag.ToNumPy())
+      cBarImag = fig.colorbar(imImag,ax=ax2)
+    plt.suptitle(title)
+    plt.tight_layout()
+  else:
+    fig = plt.figure()
+    axis = fig.add_axes([0.1,0.1,0.8,0.8])
+    if isVec:
+      axis.plot(np.squeeze(A.ToNumPy()),'bo-')
+    else:
+      im = axis.imshow(A.ToNumPy())
+      fig.colorbar(im,ax=axis)
+    plt.title(title)
+  plt.draw()
+  if not isInline:
+    plt.show(block=False)
+
+def DisplayNetworkX(A,title=''):
+  numEdges = A.NumEdges() 
+  G = nx.DiGraph()
+  for edge in xrange(numEdges):
+    source = A.Source(edge)
+    target = A.Target(edge)
+    G.add_edge(source,target)
+  fig = plt.figure()
+  plt.title(title)
+  nx.draw(G)
+  plt.draw()
+  if not isInline:
+    plt.show(block=False)
+
+def DisplayCxx(A,title=''):
   args = [A.obj,title]
   numMsExtra = 200
   if type(A) is Matrix:
@@ -281,6 +235,53 @@ def Display(A,title='',tryPython=True):
     else: DataExcept()
     ProcessEvents(numMsExtra)
   else: TypeExcept()
+
+def Display(A,title='',tryPython=True):
+  if tryPython: 
+    if type(A) is Matrix:
+      if havePyPlot:
+        DisplayPyPlot(A,title)
+        return
+    elif type(A) is DistMatrix:
+      A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
+      Copy(A,A_CIRC_CIRC)
+      if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
+        Display(A_CIRC_CIRC.Matrix(),title,True)
+      return
+    elif type(A) is DistMultiVec:
+      if mpi.Rank(A.Comm()) == 0:
+        ASeq = Matrix(A.tag)
+        CopyFromRoot(A,ASeq)
+        Display(ASeq,title,True)
+      else:
+        CopyFromNonRoot(A)
+      return
+    elif type(A) is Graph:
+      if haveNetworkX:
+        DisplayNetworkX(A,title)
+        return
+    elif type(A) is DistGraph:
+      if mpi.Rank(A.Comm()) == 0:
+        ASeq = Graph()
+        CopyFromRoot(A,ASeq)
+        Display(ASeq,title,True)
+      else:
+        CopyFromNonRoot(A)
+      return
+    elif type(A) is SparseMatrix:
+      ADense = Matrix(A.tag)
+      Copy(A,ADense)
+      Display(ADense,title,True)
+      return
+    elif type(A) is DistSparseMatrix:
+      grid = Grid(A.Comm())
+      ADense = DistMatrix(A.tag,MC,MR,grid)
+      Copy(A,ADense)
+      Display(ADense,title,True)
+      return
+
+  # Fall back to the internal Display routine
+  DisplayCxx(A,title)
 
 lib.ElSpy_i.argtypes = \
 lib.ElSpyDist_i.argtypes = \
