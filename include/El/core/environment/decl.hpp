@@ -270,14 +270,12 @@ DEBUG_ONLY(
 
     std::ostream & LogOS();
 
-    void LogStr( std::string str );
-
     template<typename... Args>
     inline void Log( Args... args )
     {
         std::ostringstream str;
         BuildStream( str, args... );
-        LogStr( str.str() );
+        LogOS() << str.str() << std::endl;
     }
 
     void CloseLog();

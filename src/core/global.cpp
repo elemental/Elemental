@@ -31,10 +31,8 @@ std::mt19937 generator;
 // Debugging
 DEBUG_ONLY(std::stack<string> callStack)
 
-#ifndef EL_RELEASE
 // LogFile in Debugging
-std::ofstream logFile;
-#endif
+DEBUG_ONLY(std::ofstream logFile)
 
 // Output/logging
 Int indentLevel=0;
@@ -621,8 +619,6 @@ DEBUG_ONLY(
     }
 
     std::ostream & LogOS() { return ::logFile; }
-
-    void LogStr( std::string str ) { ::logFile << str << std::endl; }
 
     void CloseLog() { ::logFile.close(); }
 )
