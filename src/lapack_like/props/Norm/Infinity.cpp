@@ -147,7 +147,7 @@ Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
         maxLocRowSum = Max(rowSum,maxLocRowSum);
     }
 
-    return mpi::AllReduce( maxLocRowSum, A.Comm() );
+    return mpi::AllReduce( maxLocRowSum, mpi::MAX, A.Comm() );
 }
 
 #define PROTO(T) \
