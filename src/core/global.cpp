@@ -545,6 +545,7 @@ void ReportException( const exception& e, ostream& os )
                << e.what() << endl;
         }
         DEBUG_ONLY(DumpCallStack(os))
+        mpi::Abort( mpi::COMM_WORLD, 1 );
     }
     catch( exception& castExcept ) 
     { 
@@ -554,7 +555,6 @@ void ReportException( const exception& e, ostream& os )
                << e.what() << endl;
         }
         DEBUG_ONLY(DumpCallStack(os))
-        mpi::Abort( mpi::COMM_WORLD, 1 );
     }
 }
 
