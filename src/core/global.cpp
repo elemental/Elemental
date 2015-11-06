@@ -31,6 +31,9 @@ std::mt19937 generator;
 // Debugging
 DEBUG_ONLY(std::stack<string> callStack)
 
+// LogFile in Debugging
+DEBUG_ONLY(std::ofstream logFile)
+
 // Output/logging
 Int indentLevel=0;
 Int spacesPerIndent=2;
@@ -370,6 +373,13 @@ void Initialize( int& argc, char**& argv )
     const long seed = (secs<<16) | (rank & 0xFFFF);
     ::generator.seed( seed );
     srand( seed );
+
+DEBUG_ONLY(
+        ostringstream fileOS;
+        fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
+               << rank << ".log";
+        OpenLog( fileOS.str().c_str() );
+)
 }
 
 void Finalize()
@@ -418,6 +428,8 @@ void Finalize()
         while( ! ::blocksizeStack.empty() )
             ::blocksizeStack.pop();
     }
+
+    DEBUG_ONLY( CloseLog() )
 }
 
 Args& GetArgs()
@@ -595,6 +607,22 @@ DEBUG_ONLY(
     }
 
 ) // DEBUG_ONLY
+
+// Log Debug only
+DEBUG_ONLY(
+
+    void OpenLog( const char* filename )
+    {
+        if( ::logFile.is_open() )
+            CloseLog();
+        ::logFile.open( filename );
+    }
+
+    std::ostream & LogOS() { return ::logFile; }
+
+    void CloseLog() { ::logFile.close(); }
+)
+// Log DEBUG_ONLY
 
 Int PushIndent() { return ::indentLevel++; }
 Int PopIndent() { return ::indentLevel--; }

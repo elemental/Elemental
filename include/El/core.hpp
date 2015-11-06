@@ -31,6 +31,7 @@
 #include <random>
 #include <type_traits>
 #include <vector>
+#include <iomanip>
 
 #if defined(EL_HAVE_VALGRIND)
 # include "valgrind/valgrind.h"
