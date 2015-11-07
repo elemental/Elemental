@@ -39,31 +39,21 @@ inline Int RegularizedSolveAfterNoPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<F>& x, Matrix<F>& y )
+      [&]( const Matrix<F>& X, Matrix<F>& Y )
       {
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y ); 
-        Multiply( NORMAL, F(1), A, x, F(1), y );
+        Y = X;
+        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        Multiply( NORMAL, F(1), A, X, F(1), Y );
       };
     auto applyAInv = 
-      [&]( Matrix<F>& y )
+      [&]( Matrix<F>& Y )
       {
-        ldl::MatrixNode<F> yNodal( invMap, info, y );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y );
+        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y );
       };
 
-    // TODO: Perform these in a batch instead
-    Int mostRefineIts = 0;
-    const Int width = B.Width();
-    for( Int j=0; j<width; ++j )
-    {
-        auto b = B( ALL, IR(j) );
-        const Int refineIts = 
-          RefinedSolve( applyA, applyAInv, b, relTol, maxRefineIts, progress );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-    return mostRefineIts;
+    return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -84,33 +74,23 @@ inline Int RegularizedSolveAfterNoPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<F>& x, Matrix<F>& y )
+      [&]( const Matrix<F>& X, Matrix<F>& Y )
       {
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y ); 
-        Multiply( NORMAL, F(1), A, x, F(1), y );
+        Y = X;
+        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        Multiply( NORMAL, F(1), A, X, F(1), Y );
       };
     auto applyAInv = 
-      [&]( Matrix<F>& y )
+      [&]( Matrix<F>& Y )
       {
-        DiagonalSolve( LEFT, NORMAL, d, y );
-        ldl::MatrixNode<F> yNodal( invMap, info, y );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y );
-        DiagonalSolve( LEFT, NORMAL, d, y );
+        DiagonalSolve( LEFT, NORMAL, d, Y );
+        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y );
+        DiagonalSolve( LEFT, NORMAL, d, Y );
       };
 
-    // TODO: Perform these in a batch instead
-    Int mostRefineIts = 0;
-    const Int width = B.Width();
-    for( Int j=0; j<width; ++j )
-    {
-        auto b = B( ALL, IR(j) );
-        const Int refineIts =
-          RefinedSolve( applyA, applyAInv, b, relTol, maxRefineIts, progress );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-    return mostRefineIts;
+    return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -139,32 +119,22 @@ inline Int RegularizedSolveAfterPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<PF>& xProm, Matrix<PF>& yProm )
+      [&]( const Matrix<PF>& XProm, Matrix<PF>& YProm )
       {
-        yProm = xProm; 
-        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        YProm = XProm; 
+        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
       }; 
     auto applyAInv =  
-      [&]( Matrix<F>& y )
+      [&]( Matrix<F>& Y )
       {
-        ldl::MatrixNode<F> yNodal( invMap, info, y );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y );
+        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y );
       };
 
-    // TODO: Perform these in a batch instead
-    Int mostRefineIts = 0;
-    const Int width = B.Width();
-    for( Int j=0; j<width; ++j )
-    {
-        auto b = B( ALL, IR(j) );
-        const Int refineIts =
-          PrommotedRefinedSolve
-          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-    return mostRefineIts;
+    return PromotedRefinedSolve
+           ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -194,34 +164,24 @@ inline Int RegularizedSolveAfterPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<PF>& xProm, Matrix<PF>& yProm )
+      [&]( const Matrix<PF>& XProm, Matrix<PF>& YProm )
       {
-        yProm = xProm; 
-        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        YProm = XProm; 
+        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
       }; 
     auto applyAInv =  
-      [&]( Matrix<F>& y )
+      [&]( Matrix<F>& Y )
       {
-        DiagonalSolve( LEFT, NORMAL, d, y );
-        ldl::MatrixNode<F> yNodal( invMap, info, y );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y );
-        DiagonalSolve( LEFT, NORMAL, d, y );
+        DiagonalSolve( LEFT, NORMAL, d, Y );
+        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y );
+        DiagonalSolve( LEFT, NORMAL, d, Y );
       };
 
-    // TODO: Perform these in a batch instead
-    Int mostRefineIts = 0;
-    const Int width = B.Width();
-    for( Int j=0; j<width; ++j )
-    {
-        auto b = B( ALL, IR(j) );
-        const Int refineIts =
-          PrommotedRefinedSolve
-          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-    return mostRefineIts;
+    return PromotedRefinedSolve
+           ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -293,40 +253,23 @@ inline Int RegularizedSolveAfterNoPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+      [&]( const DistMultiVec<F>& X, DistMultiVec<F>& Y )
       {
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y ); 
-        Multiply( NORMAL, F(1), A, x, F(1), y );
+        Y = X;
+        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        Multiply( NORMAL, F(1), A, X, F(1), Y );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& y )
+      [&]( DistMultiVec<F>& Y )
       {
-        ldl::DistMultiVecNode<F> yNodal;
-        yNodal.Pull( invMap, info, y, meta );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y, meta );
+        // TODO: Switch to DistMatrixNode with large numbers of RHS
+        ldl::DistMultiVecNode<F> YNodal;
+        YNodal.Pull( invMap, info, Y, meta );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y, meta );
       };
 
-    // TODO: Perform these in a batch instead
-    const Int height = B.Height();
-    const Int width = B.Width();
-    Int mostRefineIts = 0;
-    DistMultiVec<F> u(B.Comm());
-    Zeros( u, height, 1 );
-    auto& BLoc = B.Matrix();
-    auto& uLoc = u.Matrix();
-    for( Int j=0; j<width; ++j )
-    {
-        auto bLoc = BLoc( ALL, IR(j) );
-        Copy( bLoc, uLoc );
-        const Int refineIts =
-          RefinedSolve( applyA, applyAInv, u, relTol, maxRefineIts, progress );
-        Copy( uLoc, bLoc );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-
-    return mostRefineIts;
+    return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -368,42 +311,25 @@ inline Int RegularizedSolveAfterNoPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+      [&]( const DistMultiVec<F>& X, DistMultiVec<F>& Y )
       {
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y ); 
-        Multiply( NORMAL, F(1), A, x, F(1), y );
+        Y = X;
+        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        Multiply( NORMAL, F(1), A, X, F(1), Y );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& y )
+      [&]( DistMultiVec<F>& Y )
       {
-        DiagonalSolve( LEFT, NORMAL, d, y );
-        ldl::DistMultiVecNode<F> yNodal;
-        yNodal.Pull( invMap, info, y, meta );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y, meta );
-        DiagonalSolve( LEFT, NORMAL, d, y );
+        // TODO: Switch to DistMatrixNode with large numbers of RHS
+        DiagonalSolve( LEFT, NORMAL, d, Y );
+        ldl::DistMultiVecNode<F> YNodal;
+        YNodal.Pull( invMap, info, Y, meta );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y, meta );
+        DiagonalSolve( LEFT, NORMAL, d, Y );
       };
 
-    // TODO: Perform these in a batch instead
-    const Int height = B.Height();
-    const Int width = B.Width();
-    Int mostRefineIts = 0;
-    DistMultiVec<F> u(B.Comm());
-    Zeros( u, height, 1 );
-    auto& BLoc = B.Matrix();
-    auto& uLoc = u.Matrix();
-    for( Int j=0; j<width; ++j )
-    {
-        auto bLoc = BLoc( ALL, IR(j) );
-        Copy( bLoc, uLoc );
-        const Int refineIts =
-          RefinedSolve( applyA, applyAInv, u, relTol, maxRefineIts, progress );
-        Copy( uLoc, bLoc );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-
-    return mostRefineIts;
+    return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -454,40 +380,23 @@ inline Int RegularizedSolveAfterPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<PF>& xProm, DistMultiVec<PF>& yProm )
+      [&]( const DistMultiVec<PF>& XProm, DistMultiVec<PF>& YProm )
       {
-        yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        YProm = XProm;
+        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& y )
+      [&]( DistMultiVec<F>& Y )
       {
-        ldl::DistMultiVecNode<F> yNodal( invMap, info, y, meta );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y, meta );
+        // TODO: Switch to DistMatrixNode for large numbers of RHS
+        ldl::DistMultiVecNode<F> YNodal( invMap, info, Y, meta );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y, meta );
       };
 
-    // TODO: Perform these in a batch instead
-    const Int height = B.Height();
-    const Int width = B.Width();
-    Int mostRefineIts = 0;
-    DistMultiVec<F> u(B.Comm());
-    Zeros( u, height, 1 );
-    auto& BLoc = B.Matrix();
-    auto& uLoc = u.Matrix();
-    for( Int j=0; j<width; ++j )
-    {
-        auto bLoc = BLoc( ALL, IR(j) );
-        Copy( bLoc, uLoc );
-        const Int refineIts =
-          PromotedRefinedSolve
-          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
-        Copy( uLoc, bLoc );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-
-    return mostRefineIts;
+    return PromotedRefinedSolve
+           ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
@@ -538,42 +447,24 @@ inline Int RegularizedSolveAfterPromote
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<PF>& xProm, DistMultiVec<PF>& yProm )
+      [&]( const DistMultiVec<PF>& XProm, DistMultiVec<PF>& YProm )
       {
-        yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+        YProm = XProm;
+        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& y )
+      [&]( DistMultiVec<F>& Y )
       {
-        DiagonalSolve( LEFT, NORMAL, d, y );
-        ldl::DistMultiVecNode<F> yNodal( invMap, info, y, meta );
-        ldl::SolveAfter( info, front, yNodal );
-        yNodal.Push( invMap, info, y, meta );
-        DiagonalSolve( LEFT, NORMAL, d, y );
+        DiagonalSolve( LEFT, NORMAL, d, Y );
+        ldl::DistMultiVecNode<F> YNodal( invMap, info, Y, meta );
+        ldl::SolveAfter( info, front, YNodal );
+        YNodal.Push( invMap, info, Y, meta );
+        DiagonalSolve( LEFT, NORMAL, d, Y );
       };
 
-    // TODO: Perform these in a batch instead
-    const Int height = B.Height();
-    const Int width = B.Width();
-    Int mostRefineIts = 0;
-    DistMultiVec<F> u(B.Comm());
-    Zeros( u, height, 1 );
-    auto& BLoc = B.Matrix();
-    auto& uLoc = u.Matrix();
-    for( Int j=0; j<width; ++j )
-    {
-        auto bLoc = BLoc( ALL, IR(j) );
-        Copy( bLoc, uLoc );
-        const Int refineIts =
-          PromotedRefinedSolve
-          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
-        Copy( uLoc, bLoc );
-        mostRefineIts = Max(mostRefineIts,refineIts);
-    }
-
-    return mostRefineIts;
+    return PromotedRefinedSolve
+           ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 template<typename F>
