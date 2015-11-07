@@ -10,323 +10,6 @@
 
 namespace El {
 
-template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int IterativeRefinement
-( const ApplyAType& applyA,
-  const ApplyAInvType& applyAInv,
-        Matrix<F>& b,
-        Base<F> relTol,
-        Int maxRefineIts, 
-        bool progress )
-{
-    DEBUG_ONLY(
-      CSE cse("IterativeRefinement");
-      if( b.Width() != 1 )    
-          LogicError("Expected a single right-hand side");
-    )
-    auto bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
-
-    // Compute the initial guess
-    // =========================
-    auto x = b;
-    applyAInv( x );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<F> dx, xCand, y;
-        applyA( x, y );
-        b -= y;
-        Base<F> errorNorm = MaxNorm( b );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
- 
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            dx = b;
-            applyAInv( dx );
-            xCand = x;
-            xCand += dx;
-
-            // Check the new residual
-            // ----------------------
-            b = bOrig;
-            applyA( xCand, y );
-            b -= y;
-            auto newErrorNorm = MaxNorm( b );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    // Store the final result
-    // ======================
-    b = x;
-    return refineIt;
-}
-
-template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedIterativeRefinement
-( const ApplyAType& applyA,
-  const ApplyAInvType& applyAInv,
-        Matrix<F>& b,
-        Base<F> relTol,
-        Int maxRefineIts, 
-        bool progress )
-{
-    DEBUG_ONLY(
-      CSE cse("PromotedIterativeRefinement");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
-
-    Matrix<PF> bProm, bOrigProm;
-    Copy( b, bProm );
-    Copy( b, bOrigProm );
-    const PReal bNorm = MaxNorm( bOrigProm );
-
-    // Compute the initial guess
-    // =========================
-    applyAInv( b );
-    Matrix<PF> xProm;
-    Copy( b, xProm );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        Matrix<PF> dxProm, xCandProm, yProm;
-        applyA( xProm, yProm );
-        bProm -= yProm;
-        auto errorNorm = MaxNorm( bProm );
-        if( progress )
-            Output("original rel error: ",errorNorm/bNorm);
- 
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            Copy( bProm, b );
-            applyAInv( b );
-            Copy( b, dxProm );
-            xCandProm = xProm;
-            xCandProm += dxProm;
-
-            // Check the new residual
-            // ----------------------
-            applyA( xCandProm, yProm );
-            bProm = bOrigProm;
-            bProm -= yProm;
-            auto newErrorNorm = MaxNorm( bProm );
-            if( progress )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                xProm = xCandProm;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    // Store the final result
-    // ======================
-    Copy( xProm, b );
-    return refineIt;
-}
-
-template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int IterativeRefinement
-( const ApplyAType& applyA,
-  const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& b,
-        Base<F> relTol,
-        Int maxRefineIts,
-        bool progress )
-{
-    DEBUG_ONLY(
-      CSE cse("IterativeRefinement");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
-
-    auto bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
-
-    // Compute the initial guess
-    // =========================
-    auto x = b;
-    applyAInv( x );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<F> dx(comm), xCand(comm), y(comm);
-        applyA( x, y );
-        b -= y;
-        Base<F> errorNorm = MaxNorm( b );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            dx = b;
-            applyAInv( dx );
-            xCand = x;
-            xCand += dx;
-
-            // Compute the new residual
-            // ------------------------
-            b = bOrig;
-            applyA( xCand, y );
-            b -= y;
-            Base<F> newErrorNorm = MaxNorm( b );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-        SetIndent( indent );
-    }
-    b = x;
-    return refineIt;
-}
-
-template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedIterativeRefinement
-( const ApplyAType& applyA,
-  const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& b,
-        Base<F> relTol,
-        Int maxRefineIts,
-        bool progress )
-{
-    DEBUG_ONLY(
-      CSE cse("PromotedIterativeRefinement");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
-
-    DistMultiVec<PF> bProm(comm), bOrigProm(comm);
-    Copy( b, bProm ); 
-    Copy( b, bOrigProm );
-    const auto bNorm = Nrm2( bProm );
-
-    // Compute the initial guess
-    // =========================
-    applyAInv( b );
-    DistMultiVec<PF> xProm(comm);
-    Copy( b, xProm );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
-        applyA( xProm, yProm );
-        bProm -= yProm;
-        auto errorNorm = Nrm2( bProm );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            Copy( bProm, b );
-            applyAInv( b );
-            Copy( b, dxProm );
-            xCandProm = xProm;
-            xCandProm += dxProm;
-
-            // Check the new residual
-            // ----------------------
-            applyA( xCandProm, yProm );
-            bProm = bOrigProm;
-            bProm -= yProm;
-            auto newErrorNorm = Nrm2( bProm );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                xProm = xCandProm;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-        SetIndent( indent );
-    }
-    Copy( xProm, b );
-    return refineIt;
-}
-
 namespace reg_ldl {
 
 // TODO: Switch to returning the relative residual of the refined solution
@@ -377,8 +60,7 @@ inline Int RegularizedSolveAfterNoPromote
     {
         auto b = B( ALL, IR(j) );
         const Int refineIts = 
-          IterativeRefinement
-          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
+          RefinedSolve( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
     return mostRefineIts;
@@ -425,8 +107,7 @@ inline Int RegularizedSolveAfterNoPromote
     {
         auto b = B( ALL, IR(j) );
         const Int refineIts =
-          IterativeRefinement
-          ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
+          RefinedSolve( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
     return mostRefineIts;
@@ -479,7 +160,7 @@ inline Int RegularizedSolveAfterPromote
     {
         auto b = B( ALL, IR(j) );
         const Int refineIts =
-          PrommotedIterativeRefinement
+          PrommotedRefinedSolve
           ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
@@ -536,7 +217,7 @@ inline Int RegularizedSolveAfterPromote
     {
         auto b = B( ALL, IR(j) );
         const Int refineIts =
-          PrommotedIterativeRefinement
+          PrommotedRefinedSolve
           ( applyA, applyAInv, b, relTol, maxRefineIts, progress );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
@@ -640,8 +321,7 @@ inline Int RegularizedSolveAfterNoPromote
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
         const Int refineIts =
-          IterativeRefinement
-          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
+          RefinedSolve( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
@@ -718,8 +398,7 @@ inline Int RegularizedSolveAfterNoPromote
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
         const Int refineIts =
-          IterativeRefinement
-          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
+          RefinedSolve( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
@@ -802,7 +481,7 @@ inline Int RegularizedSolveAfterPromote
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
         const Int refineIts =
-          PromotedIterativeRefinement
+          PromotedRefinedSolve
           ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);
@@ -888,7 +567,7 @@ inline Int RegularizedSolveAfterPromote
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
         const Int refineIts =
-          PromotedIterativeRefinement
+          PromotedRefinedSolve
           ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);

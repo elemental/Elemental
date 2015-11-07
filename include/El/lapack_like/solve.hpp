@@ -173,4 +173,6 @@ void MultiShiftHessSolve
 
 } // namespace El
 
+#include "./solve/Refined.hpp"
+
 #endif // ifndef EL_SOLVE_HPP
