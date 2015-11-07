@@ -115,7 +115,7 @@ void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d )
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
-        D.QueueUpdate( i, i, d.GetLocal(iLoc,0), false );
+        D.QueueUpdate( i, i, d.GetLocal(iLoc,0) );
     }
     D.ProcessQueues();
 }

@@ -303,7 +303,7 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower ) 
-            J.QueueUpdate( i, j, Q.Value(e), false );
+            J.QueueUpdate( i, j, Q.Value(e) );
     }
     // Pack A
     // ------
@@ -311,9 +311,9 @@ void KKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        J.QueueUpdate( i, j, A.Value(e), false );
+        J.QueueUpdate( i, j, A.Value(e) );
         if( !onlyLower ) 
-            J.QueueUpdate( j, i, A.Value(e), false );
+            J.QueueUpdate( j, i, A.Value(e) );
     }
     // Pack -inv(z) o x - beta^2*I
     // ---------------------------
@@ -321,7 +321,7 @@ void KKT
     {
         const Int i = m+n + x.GlobalRow(iLoc);
         const Real value = -x.GetLocal(iLoc,0)/z.GetLocal(iLoc,0)-beta*beta;
-        J.QueueUpdate( i+(n+m), i+(n+m), value, false );
+        J.QueueUpdate( i+(n+m), i+(n+m), value );
     }
     J.ProcessQueues();
     J.FreezeSparsity();

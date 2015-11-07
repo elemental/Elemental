@@ -160,7 +160,7 @@ void GetSubmatrix
         if( i >= I.end )
             break;
         else if( i >= I.beg && j >= J.beg && j < J.end )
-            ASub.QueueUpdate( i-I.beg, j-J.beg, A.Value(e), false );
+            ASub.QueueUpdate( i-I.beg, j-J.beg, A.Value(e) );
     }
     ASub.ProcessQueues();
 }

@@ -891,14 +891,13 @@ void DistFront<F>::Unpack
                 A.QueueUpdate
                 ( front.LSparse.Row(e)+node.off, 
                   front.LSparse.Col(e)+node.off,
-                  front.LSparse.Value(e), false );
+                  front.LSparse.Value(e) );
 
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
-                    A.QueueUpdate
-                    ( i, t+node.off, front.LDense.Get(s,t), false );
+                    A.QueueUpdate( i, t+node.off, front.LDense.Get(s,t) );
             }
         }
         else
@@ -907,8 +906,7 @@ void DistFront<F>::Unpack
             {
                 const Int i = node.off + s;
                 for( Int t=0; t<=s; ++t ) 
-                    A.QueueUpdate
-                    ( i, t+node.off, front.LDense.Get(s,t), false );
+                    A.QueueUpdate( i, t+node.off, front.LDense.Get(s,t) );
             }
 
             for( Int s=0; s<structSize; ++s ) 
@@ -916,7 +914,7 @@ void DistFront<F>::Unpack
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
                     A.QueueUpdate
-                    ( i, t+node.off, front.LDense.Get(node.size+s,t), false );
+                    ( i, t+node.off, front.LDense.Get(node.size+s,t) );
             }
         }
       };
@@ -951,8 +949,7 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                        A.QueueUpdate
-                        ( i, t+node.off, FTL.GetLocal(sLoc,tLoc), false );
+                        A.QueueUpdate( i, t+node.off, FTL.GetLocal(sLoc,tLoc) );
                 }
             }
 
@@ -963,8 +960,7 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     Int t = FBL.GlobalCol(tLoc);
-                    A.QueueUpdate
-                    ( i, t+node.off, FBL.GetLocal(sLoc,tLoc), false );
+                    A.QueueUpdate( i, t+node.off, FBL.GetLocal(sLoc,tLoc) );
                 }
             }
         }
@@ -986,8 +982,7 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                        A.QueueUpdate
-                        ( i, t+node.off, FTL.GetLocal(sLoc,tLoc), false );
+                        A.QueueUpdate( i, t+node.off, FTL.GetLocal(sLoc,tLoc) );
                 }
             }
 
@@ -998,8 +993,7 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     Int t = FBL.GlobalCol(tLoc);
-                    A.QueueUpdate
-                    ( i, t+node.off, FBL.GetLocal(sLoc,tLoc), false );
+                    A.QueueUpdate( i, t+node.off, FBL.GetLocal(sLoc,tLoc) );
                 }
             }
         }

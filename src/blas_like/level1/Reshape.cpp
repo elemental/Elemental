@@ -12,8 +12,10 @@ namespace El {
 
 template<typename T>
 void Reshape
-( Int mNew, Int nNew, 
-  const Matrix<T>& A, Matrix<T>& B )
+(       Int mNew,
+        Int nNew, 
+  const Matrix<T>& A,
+        Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Reshape"))
     const Int m = A.Height();
@@ -48,8 +50,10 @@ Matrix<T> Reshape( Int mNew, Int nNew, const Matrix<T>& A )
 //       the coordinates in A to the coordinates in B
 template<typename T>
 void Reshape
-( Int mNew, Int nNew, 
-  const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+(       Int mNew,
+        Int nNew, 
+  const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Reshape"))
     const Int m = A.Height();
@@ -90,7 +94,10 @@ DistMatrix<T> Reshape( Int mNew, Int nNew, const AbstractDistMatrix<T>& A )
 
 template<typename T>
 void Reshape
-( Int mNew, Int nNew, const SparseMatrix<T>& A, SparseMatrix<T>& B )
+(       Int mNew,
+        Int nNew,
+  const SparseMatrix<T>& A,
+        SparseMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Reshape"))
     const Int m = A.Height();
@@ -126,8 +133,10 @@ SparseMatrix<T> Reshape( Int mNew, Int nNew, const SparseMatrix<T>& A )
 
 template<typename T>
 void Reshape
-( Int mNew, Int nNew, 
-  const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
+(       Int mNew,
+        Int nNew, 
+  const DistSparseMatrix<T>& A,
+        DistSparseMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Reshape"))
     const Int m = A.Height();
@@ -163,20 +172,30 @@ DistSparseMatrix<T> Reshape( Int mNew, Int nNew, const DistSparseMatrix<T>& A )
 
 #define PROTO(T) \
   template void Reshape \
-  ( Int mNew, Int nNew, const Matrix<T>& A, Matrix<T>& B ); \
+  (       Int mNew, \
+          Int nNew, \
+    const Matrix<T>& A, \
+          Matrix<T>& B ); \
   template Matrix<T> Reshape( Int mNew, Int nNew, const Matrix<T>& A ); \
   template void Reshape \
-  ( Int mNew, Int nNew, \
-    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  (       Int mNew, \
+          Int nNew, \
+    const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<T>& B ); \
   template DistMatrix<T> Reshape \
   ( Int mNew, Int nNew, const AbstractDistMatrix<T>& A ); \
   template void Reshape \
-  ( Int mNew, Int nNew, const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
+  (       Int mNew, \
+          Int nNew, \
+    const SparseMatrix<T>& A, \
+          SparseMatrix<T>& B ); \
   template SparseMatrix<T> Reshape \
   ( Int mNew, Int nNew, const SparseMatrix<T>& A ); \
   template void Reshape \
-  ( Int mNew, Int nNew, \
-    const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
+  (       Int mNew, \
+          Int nNew, \
+    const DistSparseMatrix<T>& A, \
+          DistSparseMatrix<T>& B ); \
   template DistSparseMatrix<T> Reshape \
   ( Int mNew, Int nNew, const DistSparseMatrix<T>& A );
 

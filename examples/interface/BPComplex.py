@@ -30,20 +30,20 @@ def ConcatFD2D(N0,N1):
     x1 = s / N0
     sRel = s + N0*N1
 
-    A.QueueUpdate( s, s,    El.ComplexDouble(1,1) )
-    A.QueueUpdate( s, sRel, El.ComplexDouble(20,2) )
+    A.QueueUpdate( s, s,    El.ComplexDouble(1,1), passive=True )
+    A.QueueUpdate( s, sRel, El.ComplexDouble(20,2), passive=True )
     if x0 > 0:
-      A.QueueUpdate( s, s-1,    El.ComplexDouble(-1,3) )
-      A.QueueUpdate( s, sRel-1, El.ComplexDouble(-17,4) )
+      A.QueueUpdate( s, s-1,    El.ComplexDouble(-1,3), passive=True )
+      A.QueueUpdate( s, sRel-1, El.ComplexDouble(-17,4), passive=True )
     if x0+1 < N0:
-      A.QueueUpdate( s, s+1,    El.ComplexDouble(2,5) )
-      A.QueueUpdate( s, sRel+1, El.ComplexDouble(-20,6) )
+      A.QueueUpdate( s, s+1,    El.ComplexDouble(2,5), passive=True )
+      A.QueueUpdate( s, sRel+1, El.ComplexDouble(-20,6), passive=True )
     if x1 > 0:
-      A.QueueUpdate( s, s-N0,    El.ComplexDouble(-30,7) )
-      A.QueueUpdate( s, sRel-N0, El.ComplexDouble(-3,8) )
+      A.QueueUpdate( s, s-N0,    El.ComplexDouble(-30,7), passive=True )
+      A.QueueUpdate( s, sRel-N0, El.ComplexDouble(-3,8), passive=True )
     if x1+1 < N1:
-      A.QueueUpdate( s, s+N0,    El.ComplexDouble(4,9) )
-      A.QueueUpdate( s, sRel+N0, El.ComplexDouble(3,10) )
+      A.QueueUpdate( s, s+N0,    El.ComplexDouble(4,9), passive=True )
+      A.QueueUpdate( s, sRel+N0, El.ComplexDouble(3,10), passive=True )
 
   A.ProcessLocalQueues()
   return A

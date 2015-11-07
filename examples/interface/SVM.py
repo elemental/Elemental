@@ -35,31 +35,31 @@ def StackedFD2D(N0,N1):
     if s < N0*N1:
       x0 = s % N0
       x1 = s / N0
-      A.QueueUpdate( sLoc, s, 11 )
+      A.QueueUpdate( sLoc, s, 11, passive=True )
       if x0 > 0:
-        A.QueueUpdate( sLoc, s-1, -10 )
+        A.QueueUpdate( sLoc, s-1, -10, passive=True )
       if x0+1 < N0:
-        A.QueueUpdate( sLoc, s+1, 20 )
+        A.QueueUpdate( sLoc, s+1, 20, passive=True )
       if x1 > 0:
-        A.QueueUpdate( sLoc, s-N0, -30 )
+        A.QueueUpdate( sLoc, s-N0, -30, passive=True )
       if x1+1 < N1:
-        A.QueueUpdate( sLoc, s+N0, 40 )
+        A.QueueUpdate( sLoc, s+N0, 40, passive=True )
     else:
       sRel = s-N0*N1
       x0 = sRel % N0
       x1 = sRel / N0
-      A.QueueUpdate( sLoc, sRel, -20 )
+      A.QueueUpdate( sLoc, sRel, -20, passive=True )
       if x0 > 0:
-        A.QueueUpdate( sLoc, sRel-1, -1 )
+        A.QueueUpdate( sLoc, sRel-1, -1, passive=True )
       if x0+1 < N0:
-        A.QueueUpdate( sLoc, sRel+1, -2 )
+        A.QueueUpdate( sLoc, sRel+1, -2, passive=True )
       if x1 > 0:
-        A.QueueUpdate( sLoc, sRel-N0, -3 )
+        A.QueueUpdate( sLoc, sRel-N0, -3, passive=True )
       if x1+1 < N1:
-        A.QueueUpdate( sLoc, sRel+N0, 3 )
+        A.QueueUpdate( sLoc, sRel+N0, 3, passive=True )
 
     # The dense last column
-    A.QueueUpdate( sLoc, width-1, -10/height );
+    A.QueueUpdate( sLoc, width-1, -10/height, passive=True );
 
   A.ProcessQueues()
   return A

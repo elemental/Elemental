@@ -28,28 +28,28 @@ def RemoteStackedFD2D(N0,N1):
     if s < N0*N1:
       x0 = s % N0
       x1 = s / N0
-      A.QueueUpdate( s, s, 1, passive=False )
+      A.QueueUpdate( s, s, 1 )
       if x0 > 0:
-        A.QueueUpdate( s, s-1, -1, passive=False )
+        A.QueueUpdate( s, s-1, -1 )
       if x0+1 < N0:
-        A.QueueUpdate( s, s+1, 2, passive=False )
+        A.QueueUpdate( s, s+1, 2 )
       if x1 > 0:
-        A.QueueUpdate( s, s-N0, -3, passive=False )
+        A.QueueUpdate( s, s-N0, -3 )
       if x1+1 < N1:
-        A.QueueUpdate( s, s+N0, 4, passive=False )
+        A.QueueUpdate( s, s+N0, 4 )
     else:
       sRel = s-N0*N1
       x0 = sRel % N0
       x1 = sRel / N0
-      A.QueueUpdate( s, sRel, -2, passive=False )
+      A.QueueUpdate( s, sRel, -2 )
       if x0 > 0:
-        A.QueueUpdate( s, sRel-1, -1, passive=False )
+        A.QueueUpdate( s, sRel-1, -1 )
       if x0+1 < N0:
-        A.QueueUpdate( s, sRel+1, -2, passive=False )
+        A.QueueUpdate( s, sRel+1, -2 )
       if x1 > 0:
-        A.QueueUpdate( s, sRel-N0, -3, passive=False )
+        A.QueueUpdate( s, sRel-N0, -3 )
       if x1+1 < N1:
-        A.QueueUpdate( s, sRel+N0, 3, passive=False )
+        A.QueueUpdate( s, sRel+N0, 3 )
 
   A.ProcessQueues()
   return A

@@ -333,7 +333,7 @@ void RLS
         // Queue the remote updates
         // ------------------------
         for( Int e=0; e<numEntriesA; ++e )
-            G.QueueUpdate( A.Row(e)+1, A.Col(e)+2, A.Value(e), false );
+            G.QueueUpdate( A.Row(e)+1, A.Col(e)+2, A.Value(e) );
 
         G.ProcessQueues();
     }

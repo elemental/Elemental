@@ -178,7 +178,7 @@ class DistSparseMatrix(object):
     [c_void_p,iType,iType,cType,bType]
   lib.ElDistSparseMatrixQueueUpdate_z.argtypes = \
     [c_void_p,iType,iType,zType,bType]
-  def QueueUpdate(self,row,col,value,passive=True):
+  def QueueUpdate(self,row,col,value,passive=False):
     args = [self.obj,row,col,value,passive]
     if   self.tag == iTag: lib.ElDistSparseMatrixQueueUpdate_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixQueueUpdate_s(*args)
@@ -212,7 +212,7 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixQueueZero_c.argtypes = \
   lib.ElDistSparseMatrixQueueZero_z.argtypes = \
     [c_void_p,iType,iType,bType]
-  def QueueZero(self,row,col,passive=True):
+  def QueueZero(self,row,col,passive=False):
     args = [self.obj,row,col,passive]
     if   self.tag == iTag: lib.ElDistSparseMatrixQueueZero_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixQueueZero_s(*args)

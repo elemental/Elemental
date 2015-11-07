@@ -384,29 +384,16 @@ void GLM
     X *= F(1)/ctrl.alpha;
     DiagonalSolve( LEFT, NORMAL, dR, X );
     {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<X.LocalHeight(); ++iLoc )
-            sendCounts[ G.RowOwner(X.GlobalRow(iLoc)) ] += numRHS;
-        // Pack the data
-        // -------------
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        auto offs = sendOffs;
-        vector<Entry<F>> sendBuf(totalSend);
-        for( Int iLoc=0; iLoc<X.LocalHeight(); ++iLoc )
+        const Int XLocalHeight = X.LocalHeight();
+        const Int sendCount = XLocalHeight*numRHS;
+        G.Reserve( sendCount );
+        for( Int iLoc=0; iLoc<XLocalHeight; ++iLoc )
         {
             const Int i = X.GlobalRow(iLoc);
-            const int owner = G.RowOwner(i);
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{ i, j, X.GetLocal(iLoc,j) };
+                G.QueueUpdate( i, j, X.GetLocal(iLoc,j) );
         }
-        // Exchange and unpack the data
-        // ----------------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            G.Set( entry );
+        G.ProcessQueues();
     }
 
     // Form the augmented matrix
@@ -420,54 +407,32 @@ void GLM
     DistSparseMatrix<F> J(comm);
     Zeros( J, m+n+k, m+n+k );
     {
-        // Compute the metadata
-        // --------------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<numEntriesW; ++e )
-        {
-            ++sendCounts[ J.RowOwner(W.Row(e))   ];
-            ++sendCounts[ J.RowOwner(W.Col(e)+m) ];
-        }
-        // Pack the A and B data
-        // ---------------------
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        auto offs = sendOffs;
-        vector<Entry<F>> sendBuf(totalSend);
-        for( Int e=0; e<numEntriesW; ++e )
-        {
-            const Int i = W.Row(e);
-            const Int j = W.Col(e);
-            const F value = W.Value(e);
-            // Send this entry of W into its normal position
-            int owner = J.RowOwner(i);
-            sendBuf[offs[owner]++] = Entry<F>{i,j+m,value};
-            // Send this entry of W into its adjoint position
-            owner = J.RowOwner(j+m);
-            sendBuf[offs[owner]++] = Entry<F>{j+m,i,Conj(value)};
-        }
-        // Exchange and unpack the data
-        // ----------------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        // Count the total number of negative alpha updates
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        const Int JLocalHeight = J.LocalHeight();
+
         Int numNegAlphaUpdates = 0;
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);
             if( i >= m+n )
                 ++numNegAlphaUpdates;
         }
-        // Unpack
-        // ^^^^^^
-        J.Reserve( recvBuf.size() + numNegAlphaUpdates );
-        for( auto& entry : recvBuf )
-            J.QueueUpdate( entry );
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+
+        const Int numSend = 2*numEntriesW;
+        J.Reserve( numSend+numNegAlphaUpdates, numSend );
+
+        for( Int e=0; e<numEntriesW; ++e )
+        {
+            const Int i = W.Row(e);
+            const Int j = W.Col(e);
+            const F value = W.Value(e);
+            J.QueueUpdate( i, j+m, value );
+            J.QueueUpdate( j+m, i, Conj(value) );
+        }
+        for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);
             if( i >= m+n )
-                J.QueueUpdate( i, i, -ctrl.alpha );
+                J.QueueLocalUpdate( iLoc, i, -ctrl.alpha );
         }
         J.ProcessQueues();
     }
@@ -476,13 +441,14 @@ void GLM
     // ===============================
     DistMultiVec<Real> reg(comm);
     Zeros( reg, m+n+k, 1 );
-    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
+    const Int regLocalHeight = reg.LocalHeight();
+    for( Int iLoc=0; iLoc<regLocalHeight; ++iLoc )
     {
         const Int i = reg.GlobalRow(iLoc);
         if( i < m )
-            reg.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
+            reg.Set( i, 0, gammaTmp*gammaTmp );
         else
-            reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+            reg.Set( i, 0, -deltaTmp*deltaTmp );
     }
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;

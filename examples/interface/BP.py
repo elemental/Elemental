@@ -29,23 +29,23 @@ def ConcatFD2D(N0,N1):
     x1 = s / N0
     sRel = s + N0*N1
 
-    A.QueueUpdate( s, s,     11 )
-    A.QueueUpdate( s, sRel, -20 )
+    A.QueueUpdate( s, s,     11, passive=True )
+    A.QueueUpdate( s, sRel, -20, passive=True )
     if x0 > 0:
-      A.QueueUpdate( s, s-1,    -1  )
-      A.QueueUpdate( s, sRel-1, -17 )
+      A.QueueUpdate( s, s-1,    -1, passive=True  )
+      A.QueueUpdate( s, sRel-1, -17, passive=True )
     if x0+1 < N0:
-      A.QueueUpdate( s, s+1,     2  )
-      A.QueueUpdate( s, sRel+1, -20 )
+      A.QueueUpdate( s, s+1,     2, passive=True  )
+      A.QueueUpdate( s, sRel+1, -20, passive=True )
     if x1 > 0:
-      A.QueueUpdate( s, s-N0,    -30 )
-      A.QueueUpdate( s, sRel-N0, -3  )
+      A.QueueUpdate( s, s-N0,    -30, passive=True )
+      A.QueueUpdate( s, sRel-N0, -3, passive=True  )
     if x1+1 < N1:
-      A.QueueUpdate( s, s+N0,    4 )
-      A.QueueUpdate( s, sRel+N0, 3 )
+      A.QueueUpdate( s, s+N0,    4, passive=True )
+      A.QueueUpdate( s, sRel+N0, 3, passive=True )
 
     # The dense last column
-    #A.QueueUpdate( s, width-1, -10/height );
+    #A.QueueUpdate( s, width-1, -10/height, passive=True );
 
   A.ProcessLocalQueues()
   return A

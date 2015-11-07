@@ -75,11 +75,11 @@ public:
     bool FrozenSparsity() const EL_NO_EXCEPT;
 
     // For inserting/removing a sequence of edges and then forcing consistency
-    void QueueConnection( Int source, Int target, bool passive=true ) 
+    void QueueConnection( Int source, Int target, bool passive=false ) 
     EL_NO_RELEASE_EXCEPT;
     void QueueLocalConnection( Int localSource, Int target )
     EL_NO_RELEASE_EXCEPT; 
-    void QueueDisconnection( Int source, Int target, bool passive=true )
+    void QueueDisconnection( Int source, Int target, bool passive=false )
     EL_NO_RELEASE_EXCEPT;
     void QueueLocalDisconnection( Int localSource, Int target )
     EL_NO_RELEASE_EXCEPT;

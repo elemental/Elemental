@@ -355,7 +355,7 @@ void KKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            J.QueueUpdate( i, j, Q.Value(e), false );
+            J.QueueUpdate( i, j, Q.Value(e) );
     }
     // Pack A
     // ------
@@ -363,9 +363,9 @@ void KKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        J.QueueUpdate( i, j, A.Value(e), false );
+        J.QueueUpdate( i, j, A.Value(e) );
         if( !onlyLower )
-            J.QueueUpdate( j, i, A.Value(e), false );
+            J.QueueUpdate( j, i, A.Value(e) );
     }
     // Pack G
     // ------
@@ -373,9 +373,9 @@ void KKT
     {
         const Int i = G.Row(e) + n + m;
         const Int j = G.Col(e);
-        J.QueueUpdate( i, j, G.Value(e), false );
+        J.QueueUpdate( i, j, G.Value(e) );
         if( !onlyLower )
-            J.QueueUpdate( j, i, G.Value(e), false );
+            J.QueueUpdate( j, i, G.Value(e) );
     }
     // Pack -z <> s
     // ------------
@@ -383,7 +383,7 @@ void KKT
     {
         const Int i = m+n + s.GlobalRow(iLoc);
         const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
-        J.QueueUpdate( i, i, value, false );
+        J.QueueUpdate( i, i, value );
     }
     J.ProcessQueues();
 }
@@ -434,7 +434,7 @@ void StaticKKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            J.QueueUpdate( i, j, Q.Value(e), false );
+            J.QueueUpdate( i, j, Q.Value(e) );
     }
     // Pack A
     // ------
@@ -442,9 +442,9 @@ void StaticKKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        J.QueueUpdate( i, j, A.Value(e), false );
+        J.QueueUpdate( i, j, A.Value(e) );
         if( !onlyLower )
-            J.QueueUpdate( j, i, A.Value(e), false );
+            J.QueueUpdate( j, i, A.Value(e) );
     }
     // Pack G
     // ------
@@ -452,9 +452,9 @@ void StaticKKT
     {
         const Int i = G.Row(e) + n + m;
         const Int j = G.Col(e);
-        J.QueueUpdate( i, j, G.Value(e), false );
+        J.QueueUpdate( i, j, G.Value(e) );
         if( !onlyLower )
-            J.QueueUpdate( j, i, G.Value(e), false );
+            J.QueueUpdate( j, i, G.Value(e) );
     }
     // Add the regularization
     // ----------------------
@@ -487,7 +487,7 @@ void FinishKKT
     {
         const Int i = m+n + s.GlobalRow(iLoc);
         const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
-        J.QueueUpdate( i, i, value, false );
+        J.QueueUpdate( i, i, value );
     }
     J.ProcessQueues();
 }

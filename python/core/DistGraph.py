@@ -59,7 +59,7 @@ class DistGraph(object):
     lib.ElDistGraphDisconnectLocal(self.obj,localSource,target)
 
   lib.ElDistGraphQueueConnection.argtypes = [c_void_p,iType,iType,bType]
-  def QueueConnection(self,source,target,passive=True):
+  def QueueConnection(self,source,target,passive=False):
     lib.ElDistGraphQueueConnection(self.obj,source,target,passive)
 
   lib.ElDistGraphQueueLocalConnection.argtypes = [c_void_p,iType,iType]
@@ -67,7 +67,7 @@ class DistGraph(object):
     lib.ElDistGraphQueueLocalConnection(self.obj,localSource,target)
 
   lib.ElDistGraphQueueDisconnection.argtypes = [c_void_p,iType,iType,bType]
-  def QueueDisconnection(self,source,target,passive=True):
+  def QueueDisconnection(self,source,target,passive=False):
     lib.ElDistGraphQueueDisconnection(self.obj,source,target,passive)
 
   lib.ElDistGraphQueueLocalDisconnection.argtypes = [c_void_p,iType,iType]

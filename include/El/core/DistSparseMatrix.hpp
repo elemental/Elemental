@@ -98,11 +98,11 @@ public:
 
     // Batch updating and zeroing (recommended)
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    void QueueUpdate( const Entry<T>& entry, bool passive=true )
+    void QueueUpdate( const Entry<T>& entry, bool passive=false )
     EL_NO_RELEASE_EXCEPT;
-    void QueueUpdate( Int row, Int col, T value, bool passive=true )
+    void QueueUpdate( Int row, Int col, T value, bool passive=false )
     EL_NO_RELEASE_EXCEPT;
-    void QueueZero( Int row, Int col, bool passive=true )
+    void QueueZero( Int row, Int col, bool passive=false )
     EL_NO_RELEASE_EXCEPT;
 
     void QueueLocalUpdate( const Entry<T>& localEntry )

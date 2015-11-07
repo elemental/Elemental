@@ -339,7 +339,7 @@ void LongOnlyPortfolio
             for( Int iLoc=0; iLoc<dLocalHeight; ++iLoc )
             {
                 const Int i = d.GlobalRow(iLoc);
-                G.QueueUpdate( i+n+1, i, -Sqrt(d.GetLocal(iLoc,0)), false );
+                G.QueueUpdate( i+n+1, i, -Sqrt(d.GetLocal(iLoc,0)) );
             }
             const Int numEntriesF = F.NumLocalEntries(); 
             for( Int e=0; e<numEntriesF; ++e )
@@ -347,7 +347,7 @@ void LongOnlyPortfolio
                 const Int i = F.Row(e);
                 const Int j = F.Col(e);
                 const Real value = F.Value(e);
-                G.QueueUpdate( 2*n+2+j, i, -value, false );
+                G.QueueUpdate( 2*n+2+j, i, -value );
             }
             G.ProcessQueues();
         }

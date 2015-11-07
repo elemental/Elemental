@@ -196,9 +196,9 @@ void AugmentedKKT
     {
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
-        J.QueueUpdate( i, j, A.Value(e), false );
+        J.QueueUpdate( i, j, A.Value(e) );
         if( !onlyLower )
-            J.QueueUpdate( j, i, A.Value(e), false );
+            J.QueueUpdate( j, i, A.Value(e) );
     }
     // Pack x o inv(z) + gamma^2*I
     // ---------------------------
@@ -206,7 +206,7 @@ void AugmentedKKT
     {
         const Int i = x.GlobalRow(iLoc);
         const Real value = z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma;
-        J.QueueUpdate( i, i, value, false );
+        J.QueueUpdate( i, i, value );
     }
     // Pack Q
     // ------
@@ -215,7 +215,7 @@ void AugmentedKKT
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
         if( i >= j || !onlyLower )
-            J.QueueUpdate( i, j, Q.Value(e), false );
+            J.QueueUpdate( i, j, Q.Value(e) );
     }
     // Pack -delta^2*I
     // ---------------

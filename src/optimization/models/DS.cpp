@@ -498,9 +498,9 @@ void Var2
         const Int i = A.Row(e);
         const Int j = A.Col(e);
         const Real value = A.Value(e);
-        AHat.QueueUpdate( i,   j,     value, false );
-        AHat.QueueUpdate( i,   j+n,  -value, false );
-        AHat.QueueUpdate( j+m, i+2*n, value, false );
+        AHat.QueueUpdate( i,   j,     value );
+        AHat.QueueUpdate( i,   j+n,  -value );
+        AHat.QueueUpdate( j+m, i+2*n, value );
     }
     for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
     {

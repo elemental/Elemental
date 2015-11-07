@@ -11,7 +11,11 @@
 namespace El {
 
 template<typename T,typename S>
-void TransposeAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y, bool conjugate )
+void TransposeAxpy
+(       S alphaS,
+  const Matrix<T>& X,
+        Matrix<T>& Y,
+        bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeAxpy"))
     const T alpha = T(alphaS);
@@ -73,7 +77,10 @@ void TransposeAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y, bool conjugate )
 
 template<typename T,typename S>
 void TransposeAxpy
-( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y, bool conjugate )
+(       S alphaS,
+  const SparseMatrix<T>& X,
+        SparseMatrix<T>& Y,
+        bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeAxpy"))
     if( X.Height() != Y.Width() || X.Width() != Y.Height() )
@@ -91,8 +98,10 @@ void TransposeAxpy
 
 template<typename T,typename S>
 void TransposeAxpy
-( S alphaS, const ElementalMatrix<T>& A, ElementalMatrix<T>& B,
-  bool conjugate )
+(       S alphaS,
+  const ElementalMatrix<T>& A,
+        ElementalMatrix<T>& B,
+        bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("TransposeAxpy");
@@ -124,35 +133,49 @@ void TransposeAxpy
 
 template<typename T,typename S>
 void TransposeAxpy
-( S alphaS, const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B,
-  bool conjugate )
+(       S alphaS,
+  const DistSparseMatrix<T>& A,
+        DistSparseMatrix<T>& B,
+        bool conjugate )
 {
     DEBUG_ONLY(CSE cse("TransposeAxpy"))
     if( A.Height() != B.Width() || A.Width() != B.Height() )
         LogicError("A and B must have transposed dimensions");
     if( A.Comm() != B.Comm() )
         LogicError("A and B must have the same communicator");
+    
+    const Int numLocalEntries = A.NumLocalEntries();
 
     T alpha(alphaS);
-    B.Reserve( B.NumLocalEntries()+A.NumLocalEntries(), A.NumLocalEntries() );
-    for( Int e=0; e<A.NumLocalEntries(); ++e )
+    B.Reserve( B.NumLocalEntries()+numLocalEntries, numLocalEntries );
+    for( Int e=0; e<numLocalEntries; ++e )
         B.QueueUpdate
-        ( A.Col(e), A.Row(e), alpha*(conjugate ? Conj(A.Value(e)) : A.Value(e)),
-          false );
+        ( A.Col(e), A.Row(e),
+          alpha*(conjugate ? Conj(A.Value(e)) : A.Value(e)) );
     B.ProcessQueues();
 }
 
 #define PROTO_TYPES(T,S) \
   template void TransposeAxpy \
-  ( S alpha, const Matrix<T>& A, Matrix<T>& B, bool conjugate ); \
+  (       S alpha, \
+    const Matrix<T>& A, \
+          Matrix<T>& B, \
+          bool conjugate ); \
   template void TransposeAxpy \
-  ( S alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B, \
-    bool conjugate ); \
+  (       S alpha, \
+    const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, \
+          bool conjugate ); \
   template void TransposeAxpy \
-  ( S alpha, const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate ); \
+  (       S alpha, \
+    const SparseMatrix<T>& A, \
+          SparseMatrix<T>& B, \
+          bool conjugate ); \
   template void TransposeAxpy \
-  ( S alpha, const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, \
-    bool conjugate );
+  (       S alpha, \
+    const DistSparseMatrix<T>& A, \
+          DistSparseMatrix<T>& B, \
+          bool conjugate );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

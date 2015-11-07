@@ -65,7 +65,7 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
     const Int* XRowBuf = X.LockedSourceBuffer();
     const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
-        Y.Reserve( Y.NumEntries()+numEntries );
+        Y.Reserve( numEntries );
     for( Int k=0; k<numEntries; ++k ) 
         Y.QueueUpdate( XRowBuf[k], XColBuf[k], alpha*XValBuf[k] );
     Y.ProcessQueues();
@@ -180,7 +180,7 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     const Int* XRowBuf = X.LockedSourceBuffer();
     const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
-        Y.Reserve( Y.NumLocalEntries()+numLocalEntries );
+        Y.Reserve( numLocalEntries );
     for( Int k=0; k<numLocalEntries; ++k ) 
         Y.QueueLocalUpdate
         ( XRowBuf[k]-firstLocalRow, XColBuf[k], alpha*XValBuf[k] );

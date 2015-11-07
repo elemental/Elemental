@@ -374,82 +374,44 @@ void Equilibrated
     // ===========================================
     DistSparseMatrix<F> J(comm);
     Zeros( J, m+n, m+n );
-    // Count the number of local alpha updates
-    // ---------------------------------------
-    Int numAlphaUpdates = 0;
-    for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
     {
-        const Int i = J.GlobalRow(iLoc);
-        if( i < Max(m,n) )
-            ++numAlphaUpdates;
-        else
-            break;
-    }
-    const Int numLocalEntriesA = A.NumLocalEntries();
-    {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int e=0; e<numLocalEntriesA; ++e )
+        const Int JLocalHeight = J.LocalHeight();
+        const Int numLocalEntriesA = A.NumLocalEntries();
+        Int numAlphaUpdates = 0;
+        for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
         {
-            const Int i = A.Row(e);
-            const Int j = A.Col(e);
-            if( m >= n )
-            {
-                // Sending A
-                ++sendCounts[ J.RowOwner(i) ];
-                // Sending A^H
-                ++sendCounts[ J.RowOwner(j+m) ];
-            }
+            const Int i = J.GlobalRow(iLoc);
+            if( i < Max(m,n) )
+                ++numAlphaUpdates;
             else
-            {
-                // Sending A
-                ++sendCounts[ J.RowOwner(i+n) ];
-                // Sending A^H
-                ++sendCounts[ J.RowOwner(j) ];
-            }
+                break;
         }
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<F>> sendBuf(totalSend);
-        auto offs = sendOffs;
+        const Int numSend = 2*numLocalEntriesA;
+        J.Reserve( numSend+numAlphaUpdates, numSend );
         for( Int e=0; e<numLocalEntriesA; ++e )
         {
             const Int i = A.Row(e);
             const Int j = A.Col(e);
             const F value = A.Value(e);
-
             if( m >= n )
             {
-                // Sending A
-                sendBuf[offs[J.RowOwner(i)]++] = Entry<F>{i,j+m,value};
-                // Sending A^H
-                sendBuf[offs[J.RowOwner(j+m)]++] = Entry<F>{j+m,i,Conj(value)};
+                J.QueueUpdate( i, j+m, value ); 
+                J.QueueUpdate( j+m, i, Conj(value) );
             }
             else
             {
-                // Sending A
-                sendBuf[offs[J.RowOwner(i+n)]++] = Entry<F>{i+n,j,value};
-                // Sending A^H
-                sendBuf[offs[J.RowOwner(j)]++] = Entry<F>{j,i+n,Conj(value)};
+                J.QueueUpdate( i+n, j, value );
+                J.QueueUpdate( j, i+n, Conj(value) );
             }
         }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        J.Reserve( recvBuf.size()+numAlphaUpdates );
-        for( Int iLoc=0; iLoc<J.LocalHeight(); ++iLoc )
+        for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
         {
             const Int i = J.GlobalRow(iLoc);
             if( i < Max(m,n) )
-                J.QueueUpdate( i, i, alpha );
+                J.QueueLocalUpdate( iLoc, i, alpha );
             else
                 break;
         }
-        for( auto& entry : recvBuf )
-            J.QueueUpdate( entry );
         J.ProcessQueues();
     }
 
@@ -458,50 +420,24 @@ void Equilibrated
     DistMultiVec<F> D(comm);
     Zeros( D, m+n, numRHS );
     {
-        // Compute metadata
-        // ----------------
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
-        {
-            const Int i = B.GlobalRow(iLoc);
-            if( m >= n )
-                sendCounts[ D.RowOwner(i) ] += numRHS;
-            else
-                sendCounts[ D.RowOwner(i+n) ] += numRHS;
-        }
-        // Pack
-        // ----
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<F>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        const Int BLocalHeight = B.LocalHeight();
+        const Int numSend = BLocalHeight*numRHS;
+        D.Reserve( numSend );
+        for( Int iLoc=0; iLoc<BLocalHeight; ++iLoc )
         {
             const Int i = B.GlobalRow(iLoc);
             if( m >= n )
             {
-                int owner = D.RowOwner(i);
                 for( Int j=0; j<numRHS; ++j )
-                {
-                    const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]++] = Entry<F>{i,j,value};
-                }
+                    D.QueueUpdate( i, j, B.GetLocal(iLoc,j) );
             }
             else
             {
-                int owner = D.RowOwner(i+n);
                 for( Int j=0; j<numRHS; ++j )
-                {
-                    const F value = B.GetLocal(iLoc,j);
-                    sendBuf[offs[owner]++] = Entry<F>{i+n,j,value};
-                }
+                    D.QueueUpdate( i+n, j, B.GetLocal(iLoc,j) );
             }
         }
-        // Exchange and unpack
-        // -------------------
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            D.Update( entry );
+        D.ProcessQueues();
     }
 
     // Compute the regularized quasi-semidefinite fact of J
@@ -512,9 +448,9 @@ void Equilibrated
     {
         const Int i = reg.GlobalRow(iLoc);
         if( i < Max(m,n) )
-            reg.SetLocal( iLoc, 0, gammaTmp*gammaTmp );
+            reg.Set( i, 0, gammaTmp*gammaTmp );
         else
-            reg.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+            reg.Set( i, 0, -deltaTmp*deltaTmp );
     }
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;

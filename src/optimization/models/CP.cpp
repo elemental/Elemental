@@ -236,8 +236,8 @@ void CP
     G.Reserve( 2*A.NumLocalEntries()+G.LocalHeight(), 2*A.NumLocalEntries() );
     for( Int e=0; e<A.NumLocalEntries(); ++e )
     {
-        G.QueueUpdate( A.Row(e),   A.Col(e),  A.Value(e), false );
-        G.QueueUpdate( A.Row(e)+m, A.Col(e), -A.Value(e), false );
+        G.QueueUpdate( A.Row(e),   A.Col(e),  A.Value(e) );
+        G.QueueUpdate( A.Row(e)+m, A.Col(e), -A.Value(e) );
     }
     for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
         G.QueueLocalUpdate( iLoc, n, Real(-1) );

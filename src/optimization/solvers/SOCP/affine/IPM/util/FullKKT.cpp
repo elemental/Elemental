@@ -1086,6 +1086,9 @@ void KKT
     vector<Real> recvBuf;
     const Int wLocalHeight = w.LocalHeight();
     {
+        // TODO: Rewrite this using QueuePull!
+        // ===================================
+
         // Count the total number of entries of w to send to each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> sendCounts(commSize,0);
@@ -1192,7 +1195,7 @@ void KKT
         // ------------------
         J.Reserve( numRemoteEntries, numRemoteEntries );
         for( Int e=0; e<A.NumLocalEntries(); ++e )
-            J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e), false );
+            J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
         for( Int e=0; e<G.NumLocalEntries(); ++e )
         {
             const Int i = G.Row(e);
@@ -1200,7 +1203,7 @@ void KKT
             const Int firstInd = firstInds.GetLocal(iLoc,0);
             const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
             const Int iSparse = i + (sparseFirstInd-firstInd);
-            J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e), false );
+            J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
         Int lastFirstInd = -1;
         vector<Real> wBuf;
@@ -1237,18 +1240,16 @@ void KKT
                 // diag(det(w) R - 2 w w^T)
                 if( i == firstInd )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      +wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, +wDet-2*omega_i*omega_i );
                 else
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      -wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, -wDet-2*omega_i*omega_i );
 
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
                     ( n+m+iSparse, n+m+(j+sparseOff), 
-                      -2*omega_i*wBuf[j-firstInd], false );
+                      -2*omega_i*wBuf[j-firstInd] );
             }
             else
             {
@@ -1269,25 +1270,18 @@ void KKT
                     // -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
-                    J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0, false );
-                    J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet,        false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         -wDet*u0,     false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet,        false );
+                    J.QueueUpdate( coneOff,         coneOff,     -wDet*delta0 );
+                    J.QueueUpdate( coneOff+order,   coneOff+order,   -wDet );
+                    J.QueueUpdate( coneOff+order+1, coneOff,         -wDet*u0 );
+                    J.QueueUpdate( coneOff+order+1, coneOff+order+1,  wDet );
                 }
                 else
                 {
                     // Queue up an entry of D, u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
-                    J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse, -wDet,        false );
-                    J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,  vPsi*psiMap, false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse, -uPsi*psiMap, false );
+                    J.QueueUpdate( n+m+iSparse,     n+m+iSparse, -wDet );
+                    J.QueueUpdate( coneOff+order,   n+m+iSparse,  vPsi*psiMap );
+                    J.QueueUpdate( coneOff+order+1, n+m+iSparse, -uPsi*psiMap );
                 }
             }
         }
@@ -1331,8 +1325,8 @@ void KKT
         J.Reserve( numRemoteEntries, numRemoteEntries );
         for( Int e=0; e<A.NumLocalEntries(); ++e )
         {
-            J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e), false );
-            J.QueueUpdate( A.Col(e),   A.Row(e)+n, A.Value(e), false );
+            J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e) );
+            J.QueueUpdate( A.Col(e),   A.Row(e)+n, A.Value(e) );
         }
         for( Int e=0; e<G.NumLocalEntries(); ++e )
         {
@@ -1341,8 +1335,8 @@ void KKT
             const Int firstInd = firstInds.GetLocal(iLoc,0);
             const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
             const Int iSparse = i + (sparseFirstInd-firstInd);
-            J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e), false );
-            J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e), false );
+            J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
+            J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
         Int lastFirstInd = -1;
         vector<Real> wBuf;
@@ -1379,19 +1373,17 @@ void KKT
                 // diag(det(w) R - 2 w w^T)
                 if( i == firstInd )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      +wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, +wDet-2*omega_i*omega_i );
                 else
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      -wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, -wDet-2*omega_i*omega_i );
 
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<firstInd+order; ++j )
                     if( j != i )
                         J.QueueUpdate
                         ( n+m+iSparse, n+m+(j+sparseOff), 
-                          -2*omega_i*wBuf[j-firstInd], false );
+                          -2*omega_i*wBuf[j-firstInd] );
             }
             else
             {
@@ -1413,15 +1405,15 @@ void KKT
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
                     J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0, false );
+                    ( coneOff,         coneOff,         -wDet*delta0 );
                     J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet,        false );
+                    ( coneOff+order,   coneOff+order,   -wDet );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         -wDet*u0,     false );
+                    ( coneOff+order+1, coneOff,         -wDet*u0 );
                     J.QueueUpdate
-                    ( coneOff,         coneOff+order+1, -wDet*u0,     false );
+                    ( coneOff,         coneOff+order+1, -wDet*u0 );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet,        false );
+                    ( coneOff+order+1, coneOff+order+1,  wDet );
                 }
                 else
                 {
@@ -1429,15 +1421,15 @@ void KKT
                     // u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet,        false ); 
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet ); 
                     J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,      vPsi*psiMap, false );
+                    ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
                     J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order,    vPsi*psiMap, false );
+                    ( n+m+iSparse,     coneOff+order,    vPsi*psiMap );
                     J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse,     -uPsi*psiMap, false );
+                    ( coneOff+order+1, n+m+iSparse,     -uPsi*psiMap );
                     J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order+1, -uPsi*psiMap, false );
+                    ( n+m+iSparse,     coneOff+order+1, -uPsi*psiMap );
                 }
             }
         }
@@ -1524,7 +1516,7 @@ void StaticKKT
         }
 
         for( Int e=0; e<numEntriesA; ++e )
-            J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e), false );
+            J.QueueUpdate( n+A.Row(e), A.Col(e), A.Value(e) );
 
         for( Int e=0; e<numEntriesG; ++e )
         {
@@ -1533,7 +1525,7 @@ void StaticKKT
             const Int firstInd = firstInds.GetLocal(iLoc,0);
             const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
             const Int iSparse = i + (sparseFirstInd-firstInd);
-            J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e), false );
+            J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
 
         for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
@@ -1551,12 +1543,10 @@ void StaticKKT
             {
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
-                    J.QueueUpdate
-                    ( n+m+iSparse, n+m+(j+sparseOff), Real(0), false );
+                    J.QueueUpdate( n+m+iSparse, n+m+(j+sparseOff), Real(0) );
 
                 // diag(det(w) R - 2 w w^T)
-                J.QueueUpdate
-                ( n+m+iSparse, n+m+iSparse, -beta*beta, false );
+                J.QueueUpdate( n+m+iSparse, n+m+iSparse, -beta*beta );
             }
             else
             {
@@ -1566,23 +1556,20 @@ void StaticKKT
                     // Queue up an entry of D and u, and then the (scaled) 
                     // -1 and +1
                     J.QueueUpdate
-                    ( coneOff,         coneOff,       -beta*beta, false );
+                    ( coneOff,         coneOff,       -beta*beta );
                     J.QueueUpdate
-                    ( coneOff+order,   coneOff+order, -beta*beta, false );
+                    ( coneOff+order,   coneOff+order, -beta*beta );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         Real(0),   false );
+                    ( coneOff+order+1, coneOff,         Real(0) );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1, beta*beta, false );
+                    ( coneOff+order+1, coneOff+order+1, beta*beta );
                 }
                 else
                 {
                     // Queue up an entry of D, u, and v
-                    J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse, -beta*beta, false );
-                    J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,  Real(0),   false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse,  Real(0),   false );
+                    J.QueueUpdate( n+m+iSparse,     n+m+iSparse, -beta*beta );
+                    J.QueueUpdate( coneOff+order,   n+m+iSparse,  Real(0) );
+                    J.QueueUpdate( coneOff+order+1, n+m+iSparse,  Real(0) );
                 }
             }
         }
@@ -1630,8 +1617,8 @@ void StaticKKT
 
         for( Int e=0; e<numEntriesA; ++e )
         {
-            J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e), false );
-            J.QueueUpdate( A.Col(e),   A.Row(e)+n, A.Value(e), false );
+            J.QueueUpdate( A.Row(e)+n, A.Col(e),   A.Value(e) );
+            J.QueueUpdate( A.Col(e),   A.Row(e)+n, A.Value(e) );
         }
         for( Int e=0; e<numEntriesG; ++e )
         {
@@ -1640,8 +1627,8 @@ void StaticKKT
             const Int firstInd = firstInds.GetLocal(iLoc,0);
             const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
             const Int iSparse = i + (sparseFirstInd-firstInd);
-            J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e), false );
-            J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e), false );
+            J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
+            J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
 
         for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
@@ -1661,12 +1648,11 @@ void StaticKKT
                 {
                     if( j == i )
                         // diag(det(w) R - 2 w w^T)
-                        J.QueueUpdate
-                        ( n+m+iSparse, n+m+iSparse, -beta*beta, false );
+                        J.QueueUpdate( n+m+iSparse, n+m+iSparse, -beta*beta );
                     else
                         // offdiag(-2 w w^T)
                         J.QueueUpdate
-                        ( n+m+iSparse, n+m+(j+sparseOff), Real(0), false );
+                        ( n+m+iSparse, n+m+(j+sparseOff), Real(0) );
                 }
             }
             else
@@ -1677,29 +1663,24 @@ void StaticKKT
                     // Queue up an entry of D and u, and then the (scaled) 
                     // -1 and +1
                     J.QueueUpdate
-                    ( coneOff,         coneOff,       -beta*beta, false );
+                    ( coneOff,         coneOff,       -beta*beta );
                     J.QueueUpdate
-                    ( coneOff+order,   coneOff+order, -beta*beta, false );
+                    ( coneOff+order,   coneOff+order, -beta*beta );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         Real(0),   false );
+                    ( coneOff+order+1, coneOff,         Real(0) );
                     J.QueueUpdate
-                    ( coneOff, coneOff+order+1,         Real(0),   false );
+                    ( coneOff, coneOff+order+1,         Real(0) );
                     J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1, beta*beta, false );
+                    ( coneOff+order+1, coneOff+order+1, beta*beta );
                 }
                 else
                 {
                     // Queue up an entry of D, u, and v
-                    J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse, -beta*beta, false );
-                    J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,   Real(0), false );
-                    J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order, Real(0), false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse,     Real(0), false );
-                    J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order+1, Real(0), false );
+                    J.QueueUpdate( n+m+iSparse,     n+m+iSparse,  -beta*beta );
+                    J.QueueUpdate( coneOff+order,   n+m+iSparse,     Real(0) );
+                    J.QueueUpdate( n+m+iSparse,     coneOff+order,   Real(0) );
+                    J.QueueUpdate( coneOff+order+1, n+m+iSparse,     Real(0) );
+                    J.QueueUpdate( n+m+iSparse,     coneOff+order+1, Real(0) );
                 }
             }
         }
@@ -1741,6 +1722,9 @@ void FinishKKT
     vector<Real> recvBuf;
     const Int wLocalHeight = w.LocalHeight();
     {
+        // TODO: Reimplement this using the new QueuePull interface!
+        // =========================================================
+
         // Count the total number of entries of w to send to each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> sendCounts(commSize,0);
@@ -1880,18 +1864,16 @@ void FinishKKT
                 // diag(det(w) R - 2 w w^T)
                 if( i == firstInd )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      +wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, +wDet-2*omega_i*omega_i );
                 else
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      -wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, -wDet-2*omega_i*omega_i );
 
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
                     ( n+m+iSparse, n+m+(j+sparseOff), 
-                      -2*omega_i*wBuf[j-firstInd], false );
+                      -2*omega_i*wBuf[j-firstInd] );
             }
             else
             {
@@ -1912,25 +1894,18 @@ void FinishKKT
                     // -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
-                    J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0, false );
-                    J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet,        false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         -wDet*u0,     false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet,        false );
+                    J.QueueUpdate( coneOff,         coneOff,     -wDet*delta0 );
+                    J.QueueUpdate( coneOff+order,   coneOff+order,   -wDet );
+                    J.QueueUpdate( coneOff+order+1, coneOff,         -wDet*u0 );
+                    J.QueueUpdate( coneOff+order+1, coneOff+order+1,  wDet );
                 }
                 else
                 {
                     // Queue up an entry of D, u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
-                    J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse, -wDet,        false );
-                    J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,  vPsi*psiMap, false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse, -uPsi*psiMap, false );
+                    J.QueueUpdate( n+m+iSparse,     n+m+iSparse, -wDet );
+                    J.QueueUpdate( coneOff+order,   n+m+iSparse,  vPsi*psiMap );
+                    J.QueueUpdate( coneOff+order+1, n+m+iSparse, -uPsi*psiMap );
                 }
             }
         }
@@ -2008,19 +1983,17 @@ void FinishKKT
                 // diag(det(w) R - 2 w w^T)
                 if( i == firstInd )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      +wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, +wDet-2*omega_i*omega_i );
                 else
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, 
-                      -wDet-2*omega_i*omega_i, false );
+                    ( n+m+iSparse, n+m+iSparse, -wDet-2*omega_i*omega_i );
 
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<firstInd+order; ++j )
                     if( j != i )
                         J.QueueUpdate
                         ( n+m+iSparse, n+m+(j+sparseOff), 
-                          -2*omega_i*wBuf[j-firstInd], false );
+                          -2*omega_i*wBuf[j-firstInd] );
             }
             else
             {
@@ -2041,16 +2014,11 @@ void FinishKKT
                     // then the (scaled) -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
-                    J.QueueUpdate
-                    ( coneOff,         coneOff,         -wDet*delta0, false );
-                    J.QueueUpdate
-                    ( coneOff+order,   coneOff+order,   -wDet,        false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, coneOff,         -wDet*u0,     false );
-                    J.QueueUpdate
-                    ( coneOff,         coneOff+order+1, -wDet*u0,     false );
-                    J.QueueUpdate
-                    ( coneOff+order+1, coneOff+order+1,  wDet,        false );
+                    J.QueueUpdate( coneOff,         coneOff,     -wDet*delta0 );
+                    J.QueueUpdate( coneOff+order,   coneOff+order,   -wDet );
+                    J.QueueUpdate( coneOff+order+1, coneOff,         -wDet*u0 );
+                    J.QueueUpdate( coneOff,         coneOff+order+1, -wDet*u0 );
+                    J.QueueUpdate( coneOff+order+1, coneOff+order+1,  wDet );
                 }
                 else
                 {
@@ -2058,15 +2026,15 @@ void FinishKKT
                     // u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet,        false ); 
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet ); 
                     J.QueueUpdate
-                    ( coneOff+order,   n+m+iSparse,      vPsi*psiMap, false );
+                    ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
                     J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order,    vPsi*psiMap, false );
+                    ( n+m+iSparse,     coneOff+order,    vPsi*psiMap );
                     J.QueueUpdate
-                    ( coneOff+order+1, n+m+iSparse,     -uPsi*psiMap, false );
+                    ( coneOff+order+1, n+m+iSparse,     -uPsi*psiMap );
                     J.QueueUpdate
-                    ( n+m+iSparse,     coneOff+order+1, -uPsi*psiMap, false );
+                    ( n+m+iSparse,     coneOff+order+1, -uPsi*psiMap );
                 }
             }
         }

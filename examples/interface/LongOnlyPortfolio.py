@@ -8,12 +8,14 @@
 #
 import El, math
 
+#n = 500
+#r = 15
 #n = 1000
 #r = 30
-n = 3000
-r = 50
-#n = 7500
-#r = 60
+#n = 3000
+#r = 50
+n = 7500
+r = 60
 gamma = 0.1
 display = False
 worldRank = El.mpi.WorldRank()

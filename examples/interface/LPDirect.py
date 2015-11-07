@@ -27,17 +27,17 @@ def Rectang(height,width):
   for sLoc in xrange(localHeight):
     s = A.GlobalRow(sLoc)
     if s < width: 
-      A.QueueUpdate( s, s,        11 )
+      A.QueueUpdate( s, s,        11, passive=True )
     if s >= 1 and s-1 < width:
-      A.QueueUpdate( s, s-1,      -1 )
+      A.QueueUpdate( s, s-1,      -1, passive=True )
     if s+1 < width:
-      A.QueueUpdate( s, s+1,       2 )
+      A.QueueUpdate( s, s+1,       2, passive=True )
     if s >= height and s-height < width:
-      A.QueueUpdate( s, s-height, -3 )
+      A.QueueUpdate( s, s-height, -3, passive=True )
     if s+height < width: 
-      A.QueueUpdate( s, s+height,  4 )
+      A.QueueUpdate( s, s+height,  4, passive=True )
     # The dense last column
-    A.QueueUpdate( s, width-1, -5/height );
+    A.QueueUpdate( s, width-1, -5/height, passive=True );
 
   A.ProcessQueues()
   return A

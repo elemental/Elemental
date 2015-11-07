@@ -201,9 +201,9 @@ void Syrk
 
     ScaleTrapezoid( beta, uplo, C );
 
-    // Count the number of entries that we will send to each process
-    // =============================================================
-    vector<int> sendSizes(commSize,0);
+    // Count the number of entries that we will send
+    // =============================================
+    Int sendCount = 0;
     const Int localHeightA = A.LocalHeight();
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
@@ -212,22 +212,18 @@ void Syrk
         for( Int iConn=0; iConn<numConn; ++iConn )
         {
             const Int i = A.Col(offset+iConn);
-            const int owner = C.RowOwner(i);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
                 if( (uplo==LOWER && i>=j) || (uplo==UPPER && i<=j) )
-                    ++sendSizes[owner];
+                    ++sendCount;
             }
         }
     }
 
-    // Pack the send buffers
-    // ===================== 
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendSizes, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
+    // Apply the updates
+    // ================= 
+    C.Reserve( sendCount, sendCount );
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
         const Int offset = A.RowOffset(kLoc);
@@ -236,31 +232,20 @@ void Syrk
         {
             const Int i = A.Col(offset+iConn);
             const T A_ki = A.Value(offset+iConn);
-            const int owner = C.RowOwner(i);
             for( Int jConn=0; jConn<numConn; ++jConn )
             {
                 const Int j = A.Col(offset+jConn);
                 if( (uplo==LOWER && i>=j) || (uplo==UPPER && i<=j) )
                 {
                     const T A_kj = A.Value(offset+jConn);
-                    const Int s = offs[owner]++;
-                    sendBuf[s].i = i;
-                    sendBuf[s].j = j;
                     if( conjugate )
-                        sendBuf[s].value = T(alpha)*Conj(A_ki)*A_kj;
+                        C.QueueUpdate( i, j, T(alpha)*Conj(A_ki)*A_kj );
                     else
-                        sendBuf[s].value = T(alpha)*A_ki*A_kj;
+                        C.QueueUpdate( i, j, T(alpha)*A_ki*A_kj );
                 }
             }
         }
     }
-
-    // Receive and apply the updates
-    // =============================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendSizes, sendOffs, comm );
-    C.Reserve( C.NumLocalEntries() + recvBuf.size() );
-    for( auto& entry : recvBuf )
-        C.QueueUpdate( entry );
     C.ProcessQueues();
 }
 

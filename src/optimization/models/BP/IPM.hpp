@@ -696,10 +696,10 @@ void SOCPIPM
         const Int j = A.Col(e);
         const Real alphaReal = RealPart(A.Value(e));
         const Real alphaImag = ImagPart(A.Value(e));
-        AHat.QueueUpdate( i,   3*j+1,  alphaReal, false );
-        AHat.QueueUpdate( i,   3*j+2, -alphaImag, false );
-        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag, false );
-        AHat.QueueUpdate( i+m, 3*j+2,  alphaReal, false );
+        AHat.QueueUpdate( i,   3*j+1,  alphaReal );
+        AHat.QueueUpdate( i,   3*j+2, -alphaImag );
+        AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
+        AHat.QueueUpdate( i+m, 3*j+2,  alphaReal );
     }
     AHat.ProcessQueues();
 

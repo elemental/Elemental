@@ -148,8 +148,10 @@ void IPM
 
 template<typename Real>
 void IPM
-( const SparseMatrix<Real>& A, const Matrix<Real>& d, 
-        Real lambda,                 Matrix<Real>& x,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& d, 
+        Real lambda,
+        Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svm::IPM"))
@@ -215,8 +217,10 @@ void IPM
 
 template<typename Real>
 void IPM
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& d, 
-        Real lambda,                     DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& d, 
+        Real lambda,
+        DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svm::IPM"))
@@ -276,12 +280,12 @@ void IPM
         const Int j = A.Col(e);
         const Int iLoc = A.LocalRow(i);
         const Real value = -d.GetLocal(iLoc,0)*A.Value(e);
-        G.QueueUpdate( i, j, value, false );
+        G.QueueUpdate( i, j, value );
     }
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
-        G.QueueUpdate( i, n, -d.GetLocal(iLoc,0), false );
+        G.QueueUpdate( i, n, -d.GetLocal(iLoc,0) );
     }
     for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
     {

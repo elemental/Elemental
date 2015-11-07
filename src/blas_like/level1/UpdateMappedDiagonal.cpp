@@ -12,7 +12,10 @@ namespace El {
 
 template<typename T,typename S>
 void UpdateMappedDiagonal
-( Matrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, Int offset )
+(       Matrix<T>& A,
+  const Matrix<S>& d,
+        function<void(T&,S)> func,
+        Int offset )
 {
     DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
     const Int iStart = Max(-offset,0);
@@ -32,8 +35,11 @@ void UpdateMappedDiagonal
 
 template<typename T,typename S>
 void UpdateMappedDiagonal
-( SparseMatrix<T>& A, const Matrix<S>& d, 
-  function<void(T&,S)> func, Int offset, bool diagExists )
+(       SparseMatrix<T>& A,
+  const Matrix<S>& d, 
+        function<void(T&,S)> func,
+        Int offset,
+        bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
     const Int iStart = Max(-offset,0);
@@ -69,8 +75,10 @@ void UpdateMappedDiagonal
 
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& dPre, 
-  function<void(T&,S)> func, Int offset )
+(       DistMatrix<T,U,V>& A,
+  const ElementalMatrix<S>& dPre, 
+        function<void(T&,S)> func,
+        Int offset )
 { 
     DEBUG_ONLY(
       CSE cse("UpdateMappedDiagonal");
@@ -113,8 +121,11 @@ void UpdateMappedDiagonal
 
 template<typename T,typename S>
 void UpdateMappedDiagonal
-( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, 
-  function<void(T&,S)> func, Int offset, bool diagExists )
+(       DistSparseMatrix<T>& A,
+  const DistMultiVec<S>& d, 
+        function<void(T&,S)> func,
+        Int offset,
+        bool diagExists )
 {
     DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
     if( offset != 0 )
@@ -148,19 +159,29 @@ void UpdateMappedDiagonal
 
 #define PROTO_DIST_TYPES(S,T,U,V) \
   template void UpdateMappedDiagonal \
-  ( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& d, \
-    function<void(T&,S)> func, Int offset );
+  (       DistMatrix<T,U,V>& A, \
+    const ElementalMatrix<S>& d, \
+          function<void(T&,S)> func, \
+          Int offset );
 
 #define PROTO_TYPES(S,T) \
   template void UpdateMappedDiagonal \
-  ( Matrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, \
-    Int offset ); \
+  (       Matrix<T>& A, \
+    const Matrix<S>& d, \
+          function<void(T&,S)> func, \
+          Int offset ); \
   template void UpdateMappedDiagonal \
-  ( SparseMatrix<T>& A, const Matrix<S>& d, function<void(T&,S)> func, \
-    Int offset, bool diagExists ); \
+  (       SparseMatrix<T>& A, \
+    const Matrix<S>& d, \
+          function<void(T&,S)> func, \
+          Int offset, \
+          bool diagExists ); \
   template void UpdateMappedDiagonal \
-  ( DistSparseMatrix<T>& A, const DistMultiVec<S>& d, \
-    function<void(T&,S)> func, Int offset, bool diagExists ); \
+  (       DistSparseMatrix<T>& A, \
+    const DistMultiVec<S>& d, \
+          function<void(T&,S)> func, \
+          Int offset, \
+          bool diagExists ); \
   PROTO_DIST_TYPES(S,T,CIRC,CIRC) \
   PROTO_DIST_TYPES(S,T,MC,  MR  ) \
   PROTO_DIST_TYPES(S,T,MC,  STAR) \

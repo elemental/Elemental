@@ -27,7 +27,7 @@ A.ProcessQueues()
 G = El.DistSparseMatrix()
 G.Resize(1, 1)
 G.Reserve(1)
-G.QueueUpdate(0, 0, 1.)
+G.QueueUpdate(0, 0, 1., passive=True)
 G.ProcessLocalQueues()
 
 x = El.DistMultiVec()

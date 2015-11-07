@@ -62,7 +62,7 @@ void ShiftDiagonal
     else
     {
         const Int diagLength = Min(m,n-offset) - Max(0,-offset);
-        A.Reserve( A.Capacity()+diagLength );
+        A.Reserve( diagLength );
         for( Int i=Max(0,-offset); i<Min(m,n-offset); ++i )
             A.QueueUpdate( i, i+offset, alpha );
         A.ProcessQueues();
@@ -89,7 +89,7 @@ void ShiftDiagonal
     }
     else
     {
-        A.Reserve( A.Capacity()+mLocal );
+        A.Reserve( mLocal );
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);

@@ -70,10 +70,10 @@ if worldRank == 0:
   print "lambda1 =", lambda1, "lambda2 =", lambda2
 
 ctrl = El.QPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = False
-ctrl.mehrotraCtrl.time = False
-ctrl.mehrotraCtrl.solveCtrl.progress = False
-ctrl.mehrotraCtrl.solveCtrl.time = False
+ctrl.mehrotraCtrl.progress = True
+ctrl.mehrotraCtrl.time = True
+ctrl.mehrotraCtrl.solveCtrl.progress = True
+ctrl.mehrotraCtrl.solveCtrl.time = True
 
 # Solve *with* resolving the regularization
 ctrl.mehrotraCtrl.resolveReg = True
