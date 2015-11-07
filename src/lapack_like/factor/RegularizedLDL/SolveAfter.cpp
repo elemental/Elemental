@@ -166,6 +166,167 @@ inline Int PromotedIterativeRefinement
     return refineIt;
 }
 
+template<typename F,class ApplyAType,class ApplyAInvType>
+inline Int IterativeRefinement
+( const ApplyAType& applyA,
+  const ApplyAInvType& applyAInv,
+        DistMultiVec<F>& b,
+        Base<F> relTol,
+        Int maxRefineIts,
+        bool progress )
+{
+    DEBUG_ONLY(
+      CSE cse("IterativeRefinement");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
+    mpi::Comm comm = b.Comm();
+    const int commRank = mpi::Rank(comm);
+
+    auto bOrig = b;
+    const Base<F> bNorm = MaxNorm( b );
+
+    // Compute the initial guess
+    // =========================
+    auto x = b;
+    applyAInv( x );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        DistMultiVec<F> dx(comm), xCand(comm), y(comm);
+        applyA( x, y );
+        b -= y;
+        Base<F> errorNorm = MaxNorm( b );
+        if( progress && commRank == 0 )
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
+        while( true )
+        {
+            if( errorNorm/bNorm <= relTol )
+            {
+                if( progress && commRank == 0 )
+                    Output(errorNorm/bNorm," <= ",relTol);
+                break;
+            }
+
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            dx = b;
+            applyAInv( dx );
+            xCand = x;
+            xCand += dx;
+
+            // Compute the new residual
+            // ------------------------
+            b = bOrig;
+            applyA( xCand, y );
+            b -= y;
+            Base<F> newErrorNorm = MaxNorm( b );
+            if( progress && commRank == 0 )
+                Output("refined rel error: ",newErrorNorm/bNorm);
+
+            if( newErrorNorm < errorNorm )
+                x = xCand;
+            else
+                break;
+
+            errorNorm = newErrorNorm;
+            ++refineIt;
+            if( refineIt >= maxRefineIts )
+                break;
+        }
+        SetIndent( indent );
+    }
+    b = x;
+    return refineIt;
+}
+
+template<typename F,class ApplyAType,class ApplyAInvType>
+inline Int PromotedIterativeRefinement
+( const ApplyAType& applyA,
+  const ApplyAInvType& applyAInv,
+        DistMultiVec<F>& b,
+        Base<F> relTol,
+        Int maxRefineIts,
+        bool progress )
+{
+    DEBUG_ONLY(
+      CSE cse("PromotedIterativeRefinement");
+      if( b.Width() != 1 )
+          LogicError("Expected a single right-hand side");
+    )
+    typedef Base<F> Real;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
+    mpi::Comm comm = b.Comm();
+    const int commRank = mpi::Rank(comm);
+
+    DistMultiVec<PF> bProm(comm), bOrigProm(comm);
+    Copy( b, bProm ); 
+    Copy( b, bOrigProm );
+    const auto bNorm = Nrm2( bProm );
+
+    // Compute the initial guess
+    // =========================
+    applyAInv( b );
+    DistMultiVec<PF> xProm(comm);
+    Copy( b, xProm );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
+        applyA( xProm, yProm );
+        bProm -= yProm;
+        auto errorNorm = Nrm2( bProm );
+        if( progress && commRank == 0 )
+            Output("original rel error: ",errorNorm/bNorm);
+
+        const Int indent = PushIndent();
+        while( true )
+        {
+            if( errorNorm/bNorm <= relTol )
+            {
+                if( progress && commRank == 0 )
+                    Output(errorNorm/bNorm," <= ",relTol);
+                break;
+            }
+
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            Copy( bProm, b );
+            applyAInv( b );
+            Copy( b, dxProm );
+            xCandProm = xProm;
+            xCandProm += dxProm;
+
+            // Check the new residual
+            // ----------------------
+            applyA( xCandProm, yProm );
+            bProm = bOrigProm;
+            bProm -= yProm;
+            auto newErrorNorm = Nrm2( bProm );
+            if( progress && commRank == 0 )
+                Output("refined rel error: ",newErrorNorm/bNorm);
+
+            if( newErrorNorm < errorNorm )
+                xProm = xCandProm;
+            else
+                break;
+
+            errorNorm = newErrorNorm;
+            ++refineIt;
+            if( refineIt >= maxRefineIts )
+                break;
+        }
+        SetIndent( indent );
+    }
+    Copy( xProm, b );
+    return refineIt;
+}
+
 namespace reg_ldl {
 
 // TODO: Switch to returning the relative residual of the refined solution
@@ -433,116 +594,6 @@ Int RegularizedSolveAfter
 #endif
 }
 
-// NOTE: Left off HERE
-
-template<typename F>
-inline Int RegularizedSolveAfterNoPromoteSingle
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-        ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
-  Int maxRefineIts,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    Timer timer;
-
-    DistMultiVec<F> bOrig(comm);
-    bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
-
-    // Compute the initial guess
-    // =========================
-    DistMultiVec<F> x(comm);
-    ldl::DistMultiVecNode<F> xNodal;
-    xNodal.Pull( invMap, info, b, meta );
-    if( time && commRank == 0 )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time && commRank == 0 )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    xNodal.Push( invMap, info, x, meta );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<F> dx(comm), xCand(comm), y(comm);
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y );
-        if( time && commRank == 0 )
-            timer.Start();
-        Multiply( NORMAL, F(1), A, x, F(1), y );
-        if( time && commRank == 0 )
-            Output("  Multiply time: ",timer.Stop()," secs");
-        b -= y;
-        Base<F> errorNorm = MaxNorm( b );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            xNodal.Pull( invMap, info, b, meta );
-            if( time && commRank == 0 )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time && commRank == 0 )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            xNodal.Push( invMap, info, dx, meta );
-            xCand = x;
-            xCand += dx;
-
-            // Compute the new residual
-            // ------------------------
-            b = bOrig;
-            y = xCand;
-            DiagonalScale( LEFT, NORMAL, reg, y );
-            if( time && commRank == 0 )
-                timer.Start();
-            Multiply( NORMAL, F(1), A, xCand, F(1), y );
-            if( time && commRank == 0 )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            b -= y;
-            Base<F> newErrorNorm = MaxNorm( b );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-        SetIndent( indent );
-    }
-    b = x;
-    return refineIt;
-}
-
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
 ( const DistSparseMatrix<F>& A, 
@@ -558,25 +609,43 @@ inline Int RegularizedSolveAfterNoPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
-    const Int m = B.Height();
-    const Int n = B.Width();
-    mpi::Comm comm = A.Comm();
 
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+      {
+        y = x;
+        DiagonalScale( LEFT, NORMAL, reg, y ); 
+        Multiply( NORMAL, F(1), A, x, F(1), y );
+      };
+    auto applyAInv = 
+      [&]( DistMultiVec<F>& y )
+      {
+        ldl::DistMultiVecNode<F> yNodal;
+        yNodal.Pull( invMap, info, y, meta );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y, meta );
+      };
+
+    // TODO: Perform these in a batch instead
+    const Int height = B.Height();
+    const Int width = B.Width();
     Int mostRefineIts = 0;
-    DistMultiVec<F> u(comm);
-    Zeros( u, m, 1 );
+    DistMultiVec<F> u(B.Comm());
+    Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();
-    for( Int j=0; j<n; ++j )
+    for( Int j=0; j<width; ++j )
     {
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
-        const Int refineIts = RegularizedSolveAfterNoPromoteSingle
-          ( A, reg, invMap, info, front, u, meta,
-            relTol, maxRefineIts, progress, time );
+        const Int refineIts =
+          IterativeRefinement
+          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
+
     return mostRefineIts;
 }
 
@@ -601,138 +670,10 @@ inline Int RegularizedSolveAfterNoPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterNoPromoteSingle
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-        ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
-  Int maxRefineIts,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterNoPromoteSingle");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    Timer timer;
-
-    DistMultiVec<F> bOrig(comm);
-    bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
-
-    // Compute the initial guess
-    // =========================
-    DistMultiVec<F> x(comm);
-    DiagonalSolve( LEFT, NORMAL, d, b );
-    if( time && commRank == 0 )
-        timer.Start();
-    ldl::DistMultiVecNode<F> xNodal;
-    xNodal.Pull( invMap, info, b, meta );
-    if( time && commRank == 0 )
-        Output("  DistMultiVecNode pull: ",timer.Stop()," secs");
-    if( time && commRank == 0 )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time && commRank == 0 )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    if( time && commRank == 0 )
-        timer.Start();
-    xNodal.Push( invMap, info, x, meta );
-    if( time && commRank == 0 )
-        Output("  DistMultiVecNode push: ",timer.Stop()," secs");
-    DiagonalSolve( LEFT, NORMAL, d, x );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<F> dx(comm), xCand(comm), y(comm);
-        y = x;
-        DiagonalScale( LEFT, NORMAL, reg, y );
-        if( time && commRank == 0 )
-            timer.Start();
-        Multiply( NORMAL, F(1), A, x, F(1), y );
-        if( time && commRank == 0 )
-            Output("  Multiply time:",timer.Stop()," secs");
-        b = bOrig;
-        b -= y;
-        Base<F> errorNorm = MaxNorm( b );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            DiagonalSolve( LEFT, NORMAL, d, b );
-            if( time && commRank == 0 )
-                timer.Start();
-            xNodal.Pull( invMap, info, b, meta );
-            if( time && commRank == 0 )
-                Output("  DistMultiVecNode pull: ",timer.Stop()," secs");
-            if( time && commRank == 0 )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time && commRank == 0 )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            if( time && commRank == 0 )
-                timer.Start();
-            xNodal.Push( invMap, info, dx, meta );
-            if( time && commRank == 0 )
-                Output("  DistMultiVecNode push: ",timer.Stop()," secs");
-            DiagonalSolve( LEFT, NORMAL, d, dx );
-            xCand = x;
-            xCand += dx;
-
-            // Compute the new residual
-            // ------------------------
-            b = bOrig;
-            y = xCand;
-            DiagonalScale( LEFT, NORMAL, reg, y );
-            if( time && commRank == 0 )
-                timer.Start();
-            Multiply( NORMAL, F(1), A, xCand, F(1), y );
-            if( time && commRank == 0 )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            b -= y;
-            Base<F> newErrorNorm = MaxNorm( b );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                x = xCand;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    b = x;
-    return refineIt;
-}
-
-template<typename F>
 inline Int RegularizedSolveAfterNoPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
+  const DistMultiVec<Base<F>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
@@ -744,25 +685,45 @@ inline Int RegularizedSolveAfterNoPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterNoPromote"))
-    const Int m = B.Height();
-    const Int n = B.Width();
-    mpi::Comm comm = A.Comm();
 
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+      {
+        y = x;
+        DiagonalScale( LEFT, NORMAL, reg, y ); 
+        Multiply( NORMAL, F(1), A, x, F(1), y );
+      };
+    auto applyAInv = 
+      [&]( DistMultiVec<F>& y )
+      {
+        DiagonalSolve( LEFT, NORMAL, d, y );
+        ldl::DistMultiVecNode<F> yNodal;
+        yNodal.Pull( invMap, info, y, meta );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y, meta );
+        DiagonalSolve( LEFT, NORMAL, d, y );
+      };
+
+    // TODO: Perform these in a batch instead
+    const Int height = B.Height();
+    const Int width = B.Width();
     Int mostRefineIts = 0;
-    DistMultiVec<F> u(comm);
-    Zeros( u, m, 1 );
+    DistMultiVec<F> u(B.Comm());
+    Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();
-    for( Int j=0; j<n; ++j )
+    for( Int j=0; j<width; ++j )
     {
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
-        const Int refineIts = RegularizedSolveAfterNoPromoteSingle
-          ( A, reg, d, invMap, info, front, u, meta,
-            relTol, maxRefineIts, progress, time );
+        const Int refineIts =
+          IterativeRefinement
+          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
+
     return mostRefineIts;
 }
 
@@ -770,7 +731,7 @@ template<typename F>
 inline Int RegularizedSolveAfterNoPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
+  const DistMultiVec<Base<F>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
@@ -788,127 +749,6 @@ inline Int RegularizedSolveAfterNoPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromoteSingle
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-        ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
-  Int maxRefineIts,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    Timer timer;
-
-    DistMultiVec<PF> bProm(comm), bOrigProm(comm);
-    Copy( b, bProm ); 
-    Copy( b, bOrigProm );
-    const auto bNorm = Nrm2( bProm );
-
-    DistMultiVec<PReal> regProm(comm);
-    Copy( reg, regProm );
-
-    // Compute the initial guess
-    // =========================
-    ldl::DistMultiVecNode<F> xNodal;
-    xNodal.Pull( invMap, info, b, meta );
-    if( time && commRank == 0 )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time && commRank == 0 )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    xNodal.Push( invMap, info, b, meta );
-    DistMultiVec<PF> xProm(comm);
-    Copy( b, xProm );
-
-    DistSparseMatrix<PF> AProm(comm);
-    Copy( A, AProm );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
-        yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        if( time && commRank == 0 )
-            timer.Start();
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        if( time && commRank == 0 )
-            Output("  Multiply time: ",timer.Stop()," secs");
-        bProm -= yProm;
-        auto errorNorm = Nrm2( bProm );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        const Int indent = PushIndent();
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            Copy( bProm, b );
-            xNodal.Pull( invMap, info, b, meta );
-            if( time && commRank == 0 )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time && commRank == 0 )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            xNodal.Push( invMap, info, b, meta );
-            Copy( b, dxProm );
-            xCandProm = xProm;
-            xCandProm += dxProm;
-
-            // Check the new residual
-            // ----------------------
-            yProm = xCandProm;
-            DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            if( time && commRank == 0 )
-                timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
-            if( time && commRank == 0 )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            bProm = bOrigProm;
-            bProm -= yProm;
-            auto newErrorNorm = Nrm2( bProm );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                xProm = xCandProm;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-        SetIndent( indent );
-    }
-    Copy( xProm, b );
-    return refineIt;
-}
-
-template<typename F>
 inline Int RegularizedSolveAfterPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
@@ -923,25 +763,51 @@ inline Int RegularizedSolveAfterPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
-    const Int m = B.Height();
-    const Int n = B.Width();
-    mpi::Comm comm = A.Comm();
+    typedef Base<F> Real;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
 
+    // TODO: Perform these conversions less frequently at a higher level
+    DistSparseMatrix<PF> AProm(A.Comm());
+    Copy( A, AProm );
+    DistMultiVec<PReal> regProm(reg.Comm());
+    Copy( reg, regProm );
+
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const DistMultiVec<PF>& xProm, DistMultiVec<PF>& yProm )
+      {
+        yProm = xProm;
+        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+      };
+    auto applyAInv = 
+      [&]( DistMultiVec<F>& y )
+      {
+        ldl::DistMultiVecNode<F> yNodal( invMap, info, y, meta );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y, meta );
+      };
+
+    // TODO: Perform these in a batch instead
+    const Int height = B.Height();
+    const Int width = B.Width();
     Int mostRefineIts = 0;
-    DistMultiVec<F> u(comm);
-    Zeros( u, m, 1 );
+    DistMultiVec<F> u(B.Comm());
+    Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();
-    for( Int j=0; j<n; ++j )
+    for( Int j=0; j<width; ++j )
     {
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
-        const Int refineIts = RegularizedSolveAfterPromoteSingle
-          ( A, reg, invMap, info, front, u, meta,
-            relTol, maxRefineIts, progress, time );
+        const Int refineIts =
+          PromotedIterativeRefinement
+          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
+
     return mostRefineIts;
 }
 
@@ -966,151 +832,10 @@ inline Int RegularizedSolveAfterPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromoteSingle
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
-  const DistMap& invMap, 
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& b,
-        ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
-  Int maxRefineIts,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(
-      CSE cse("reg_ldl::RegularizedSolveAfterPromoteSingle");
-      if( b.Width() != 1 )
-          LogicError("Expected a single right-hand side");
-    )
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    Timer timer, iterTimer;
-
-    DistMultiVec<PF> bProm(comm), bOrigProm(comm);
-    Copy( b, bProm ); 
-    Copy( b, bOrigProm );
-    const auto bNorm = Nrm2( bProm );
-
-    DistMultiVec<PReal> dProm(comm);
-    Copy( d, dProm );
-
-    DistMultiVec<PReal> regProm(comm);
-    Copy( reg, regProm );
-
-    // Compute the initial guess
-    // =========================
-    DiagonalSolve( LEFT, NORMAL, d, b );
-    if( time && commRank == 0 )
-        timer.Start();
-    ldl::DistMultiVecNode<F> xNodal;
-    xNodal.Pull( invMap, info, b, meta );
-    if( time && commRank == 0 )
-        Output("  DistMultiVecNode pull: ",timer.Stop()," secs");
-    if( time && commRank == 0 )
-        timer.Start();
-    ldl::SolveAfter( info, front, xNodal );
-    if( time && commRank == 0 )
-        Output("  LDL apply time: ",timer.Stop()," secs");
-    if( time && commRank == 0 )
-        timer.Start();
-    xNodal.Push( invMap, info, b, meta );
-    if( time && commRank == 0 )
-        Output("  DistMultiVecNode push: ",timer.Stop()," secs");
-    DiagonalSolve( LEFT, NORMAL, d, b );
-
-    DistMultiVec<PF> xProm(comm);
-    Copy( b, xProm );
-
-    DistSparseMatrix<PF> AProm(comm);
-    Copy( A, AProm );
-
-    Int refineIt = 0;
-    if( maxRefineIts > 0 )
-    {
-        DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
-        yProm = xProm;
-        DiagonalScale( LEFT, NORMAL, regProm, yProm );
-        if( time && commRank == 0 )
-            timer.Start();
-        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
-        if( time && commRank == 0 )
-            Output("  Multiply time: ",timer.Stop()," secs");
-        bProm = bOrigProm;
-        bProm -= yProm;
-        auto errorNorm = Nrm2( bProm );
-        if( progress && commRank == 0 )
-            Output("original rel error: ",errorNorm/bNorm);
-
-        while( true )
-        {
-            if( errorNorm/bNorm <= relTol )
-            {
-                if( progress && commRank == 0 )
-                    Output(errorNorm/bNorm," <= ",relTol);
-                break;
-            }
-            if( time && commRank == 0 )
-                iterTimer.Start();
-
-            // Compute the proposed update to the solution
-            // -------------------------------------------
-            Copy( bProm, b );
-            DiagonalSolve( LEFT, NORMAL, d, b );
-            xNodal.Pull( invMap, info, b, meta );
-            if( time && commRank == 0 )
-                timer.Start();
-            ldl::SolveAfter( info, front, xNodal );
-            if( time && commRank == 0 )
-                Output("  LDL apply time: ",timer.Stop()," secs");
-            xNodal.Push( invMap, info, b, meta );
-            DiagonalSolve( LEFT, NORMAL, d, b );
-            Copy( b, dxProm );
-            xCandProm = xProm;
-            xCandProm += dxProm;
-
-            // Check the new residual
-            // ----------------------
-            yProm = xCandProm;
-            DiagonalScale( LEFT, NORMAL, regProm, yProm );
-            if( time && commRank == 0 )
-                timer.Start();
-            Multiply( NORMAL, PF(1), AProm, xCandProm, PF(1), yProm );
-            if( time && commRank == 0 )
-                Output("  Multiply time: ",timer.Stop()," secs");
-            bProm = bOrigProm;
-            bProm -= yProm;
-            auto newErrorNorm = Nrm2( bProm );
-            if( progress && commRank == 0 )
-                Output("refined rel error: ",newErrorNorm/bNorm);
-
-            if( newErrorNorm < errorNorm )
-                xProm = xCandProm;
-            else
-                break;
-
-            errorNorm = newErrorNorm;
-            ++refineIt;
-            if( time && commRank == 0 )
-                Output("Refine step time: ",iterTimer.Stop()," secs");
-            if( refineIt >= maxRefineIts )
-                break;
-        }
-    }
-    Copy( xProm, b );
-    return refineIt;
-}
-
-template<typename F>
 inline Int RegularizedSolveAfterPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
+  const DistMultiVec<Base<F>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
   const ldl::DistFront<F>& front, 
@@ -1122,25 +847,53 @@ inline Int RegularizedSolveAfterPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
-    const Int m = B.Height();
-    const Int n = B.Width();
-    mpi::Comm comm = A.Comm();
+    typedef Base<F> Real;
+    typedef Promote<Real> PReal;
+    typedef Promote<F> PF;
 
+    // TODO: Perform these conversions less frequently at a higher level
+    DistSparseMatrix<PF> AProm(A.Comm());
+    Copy( A, AProm );
+    DistMultiVec<PReal> regProm(reg.Comm());
+    Copy( reg, regProm );
+
+    // TODO: Use time in these lambdas
+    auto applyA =
+      [&]( const DistMultiVec<PF>& xProm, DistMultiVec<PF>& yProm )
+      {
+        yProm = xProm;
+        DiagonalScale( LEFT, NORMAL, regProm, yProm ); 
+        Multiply( NORMAL, PF(1), AProm, xProm, PF(1), yProm );
+      };
+    auto applyAInv = 
+      [&]( DistMultiVec<F>& y )
+      {
+        DiagonalSolve( LEFT, NORMAL, d, y );
+        ldl::DistMultiVecNode<F> yNodal( invMap, info, y, meta );
+        ldl::SolveAfter( info, front, yNodal );
+        yNodal.Push( invMap, info, y, meta );
+        DiagonalSolve( LEFT, NORMAL, d, y );
+      };
+
+    // TODO: Perform these in a batch instead
+    const Int height = B.Height();
+    const Int width = B.Width();
     Int mostRefineIts = 0;
-    DistMultiVec<F> u(comm);
-    Zeros( u, m, 1 );
+    DistMultiVec<F> u(B.Comm());
+    Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();
-    for( Int j=0; j<n; ++j )
+    for( Int j=0; j<width; ++j )
     {
         auto bLoc = BLoc( ALL, IR(j) );
         Copy( bLoc, uLoc );
-        const Int refineIts = RegularizedSolveAfterPromoteSingle
-          ( A, reg, d, invMap, info, front, u, meta,
-            relTol, maxRefineIts, progress, time );
+        const Int refineIts =
+          PromotedIterativeRefinement
+          ( applyA, applyAInv, u, relTol, maxRefineIts, progress );
         Copy( uLoc, bLoc );
         mostRefineIts = Max(mostRefineIts,refineIts);
     }
+
     return mostRefineIts;
 }
 
@@ -1258,6 +1011,8 @@ Int RegularizedSolveAfter
     ( A, reg, d, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
 }
+
+// LEFT OFF HERE
 
 template<typename F>
 inline Int LGMRESSolveAfterSingle
