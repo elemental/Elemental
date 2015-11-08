@@ -390,7 +390,8 @@ inline Int RegularizedSolveAfterPromote
       [&]( DistMultiVec<F>& Y )
       {
         // TODO: Switch to DistMatrixNode for large numbers of RHS
-        ldl::DistMultiVecNode<F> YNodal( invMap, info, Y, meta );
+        ldl::DistMultiVecNode<F> YNodal;
+        YNodal.Pull( invMap, info, Y, meta );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y, meta );
       };
@@ -457,7 +458,8 @@ inline Int RegularizedSolveAfterPromote
       [&]( DistMultiVec<F>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
-        ldl::DistMultiVecNode<F> YNodal( invMap, info, Y, meta );
+        ldl::DistMultiVecNode<F> YNodal;
+        YNodal.Pull( invMap, info, Y, meta );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y, meta );
         DiagonalSolve( LEFT, NORMAL, d, Y );
