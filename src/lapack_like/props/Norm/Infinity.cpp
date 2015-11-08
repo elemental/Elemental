@@ -110,7 +110,6 @@ Base<F> InfinityNorm( const SparseMatrix<F>& A )
     const Int height = A.Height();
     const F* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
-    const Int numEntries = A.NumEntries();
 
     Real maxRowSum = 0;
     for( Int i=0; i<height; ++i ) 
@@ -134,7 +133,6 @@ Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
     const Int localHeight = A.LocalHeight();
     const F* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
-    const Int numLocEntries = A.NumLocalEntries();
 
     Real maxLocRowSum = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
