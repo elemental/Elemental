@@ -373,13 +373,6 @@ void Initialize( int& argc, char**& argv )
     const long seed = (secs<<16) | (rank & 0xFFFF);
     ::generator.seed( seed );
     srand( seed );
-
-DEBUG_ONLY(
-        ostringstream fileOS;
-        fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
-               << rank << ".log";
-        OpenLog( fileOS.str().c_str() );
-)
 }
 
 void Finalize()
@@ -610,6 +603,10 @@ DEBUG_ONLY(
 
 // Log Debug only
 DEBUG_ONLY(
+    void OpenLog()
+    {
+        ostringstream os;
+    }
 
     void OpenLog( const char* filename )
     {
@@ -618,7 +615,17 @@ DEBUG_ONLY(
         ::logFile.open( filename );
     }
 
-    std::ostream & LogOS() { return ::logFile; }
+    std::ostream& LogOS()
+    {
+        if( !::logFile.is_open() )
+        {
+            ostringstream fileOS;
+            fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
+                   << mpi::WorldRank() << ".log";
+            ::logFile.open( fileOS.str().c_str() );
+        }
+        return ::logFile; 
+    }
 
     void CloseLog() { ::logFile.close(); }
 )

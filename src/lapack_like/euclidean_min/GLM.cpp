@@ -345,7 +345,6 @@ void GLM
     const Int k = B.Width();
     const Int numRHS = D.Width();
     mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
     // Rescale the rows of W := [ A, B ]

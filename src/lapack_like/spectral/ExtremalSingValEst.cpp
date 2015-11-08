@@ -41,15 +41,15 @@ ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
     DEBUG_ONLY(CSE cse("ExtremalSingValEst"))
     typedef Base<F> Real;
-    Matrix<Real> T;
+    Grid grid( A.Comm() );
+    DistMatrix<Real,STAR,STAR> T(grid);
     ProductLanczos( A, T, basisSize );
     const Int k = T.Height();
     if( k == 0 )
         return pair<Real,Real>(0,0);
 
-    Matrix<Real> d, dSub;
-    d = GetDiagonal( T );
-    dSub = GetDiagonal( T, -1 );
+    auto d = GetDiagonal( T.Matrix() );
+    auto dSub = GetDiagonal( T.Matrix(), -1 );
     
     Matrix<Real> w;
     HermitianTridiagEig( d, dSub, w, ASCENDING );
@@ -93,16 +93,16 @@ HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
     DEBUG_ONLY(CSE cse("HermitianExtremalSingValEst"))
     typedef Base<F> Real;
+    Grid grid( A.Comm() );
 
-    Matrix<Real> T;
+    DistMatrix<Real,STAR,STAR> T(grid);
     Lanczos( A, T, basisSize );
     const Int k = T.Height();
     if( k == 0 )
         return pair<Real,Real>(0,0);
 
-    Matrix<Real> d, dSub;
-    d = GetDiagonal( T );
-    dSub = GetDiagonal( T, -1 );
+    auto d = GetDiagonal( T.Matrix() );
+    auto dSub = GetDiagonal( T.Matrix(), -1 );
 
     Matrix<Real> w;
     HermitianTridiagEig( d, dSub, w );

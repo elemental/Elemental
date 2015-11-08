@@ -545,7 +545,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
     ElInt basisSize ) \
   { EL_TRY( ProductLanczos( *CReflect(A), *CReflect(T), basisSize ) ) } \
   ElError ElProductLanczosDistSparse_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, ElMatrix_ ## SIGBASE T, \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE T, \
     ElInt basisSize ) \
   { EL_TRY( ProductLanczos( *CReflect(A), *CReflect(T), basisSize ) ) } \
   ElError ElProductLanczosDecompSparse_ ## SIG \
@@ -557,7 +557,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
                       *CReflect(T), *CReflect(v), basisSize ) ) } \
   ElError ElProductLanczosDecompDistSparse_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElDistMultiVec_ ## SIG V, \
-    ElMatrix_ ## SIGBASE T,            ElDistMultiVec_ ## SIG v, \
+    ElDistMatrix_ ## SIGBASE T,        ElDistMultiVec_ ## SIG v, \
     Base<F>* beta, ElInt basisSize ) \
   { EL_TRY( *beta = ProductLanczosDecomp \
                     ( *CReflect(A), *CReflect(V), \

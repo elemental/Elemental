@@ -524,7 +524,7 @@ void Lanczos
 template<typename F>
 void Lanczos
 ( const DistSparseMatrix<F>& A,
-        Matrix<Base<F>>& T,
+        ElementalMatrix<Base<F>>& T,
         Int basisSize=20 );
 
 template<typename F>
@@ -538,7 +538,7 @@ template<typename F>
 Base<F> LanczosDecomp
 ( const DistSparseMatrix<F>& A,
         DistMultiVec<F>& V,
-        Matrix<Base<F>>& T,
+        ElementalMatrix<Base<F>>& T,
         DistMultiVec<F>& v,
         Int basisSize=15 );
 
@@ -558,7 +558,7 @@ void ProductLanczos
 template<typename F>
 void ProductLanczos
 ( const DistSparseMatrix<F>& A,
-        Matrix<Base<F>>& T,
+        ElementalMatrix<Base<F>>& T,
         Int basisSize=20 );
 
 template<typename F>
@@ -572,7 +572,7 @@ template<typename F>
 Base<F> ProductLanczosDecomp
 ( const DistSparseMatrix<F>& A,
         DistMultiVec<F>& V,
-        Matrix<Base<F>>& T,
+        ElementalMatrix<Base<F>>& T,
         DistMultiVec<F>& v,
         Int basisSize=15 );
 
@@ -958,5 +958,8 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 } // namespace El
+
+#include "./spectral/Lanczos.hpp"
+#include "./spectral/ProductLanczos.hpp"
 
 #endif // ifndef EL_SPECTRAL_HPP

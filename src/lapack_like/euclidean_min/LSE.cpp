@@ -418,7 +418,6 @@ void LSE
     const Int k = B.Height();
     const Int numRHS = C.Width();
     mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
 
     // Rescale W = [ A; B ]

@@ -958,15 +958,18 @@ lib.ElProductLanczosDistSparse_z.argtypes = \
   [c_void_p,c_void_p,iType]
 
 def ProductLanczos(A,basisSize=20):
-  T = Matrix(Base(A.tag))
-  args = [A.obj,T.obj,basisSize]
   if type(A) is SparseMatrix:
+    T = Matrix(Base(A.tag))
+    args = [A.obj,T.obj,basisSize]
     if   A.tag == sTag: lib.ElProductLanczosSparse_s(*args)
     elif A.tag == dTag: lib.ElProductLanczosSparse_d(*args)
     elif A.tag == cTag: lib.ElProductLanczosSparse_c(*args)
     elif A.tag == zTag: lib.ElProductLanczosSparse_z(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
+    grid = Grid(A.Comm())
+    T = DistMatrix(Base(A.tag),STAR,STAR,grid)
+    args = [A.obj,T.obj,basisSize]
     if   A.tag == sTag: lib.ElProductLanczosDistSparse_s(*args)
     elif A.tag == dTag: lib.ElProductLanczosDistSparse_d(*args)
     elif A.tag == cTag: lib.ElProductLanczosDistSparse_c(*args)
@@ -987,9 +990,9 @@ lib.ElProductLanczosDecompDistSparse_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,POINTER(dType),iType]
 
 def ProductLanczosDecomp(A,basisSize=20):
-  T = Matrix(Base(A.tag))
   beta = TagToType(Base(A.tag))()
   if type(A) is SparseMatrix:
+    T = Matrix(Base(A.tag))
     V = Matrix(A.tag)
     v = Matrix(A.tag)
     args = [A.obj,V.obj,T.obj,v.obj,pointer(beta),basisSize]
@@ -1000,6 +1003,8 @@ def ProductLanczosDecomp(A,basisSize=20):
     else: DataExcept()
     return V, T, v, beta.value
   elif type(A) is DistSparseMatrix:
+    grid = Grid(A.Comm())
+    T = DistMatrix(Base(A.tag),STAR,STAR,grid)
     V = DistMultiVec(A.tag,A.Comm())
     v = DistMultiVec(A.tag,A.Comm())
     args = [A.obj,V.obj,T.obj,v.obj,pointer(beta),basisSize]

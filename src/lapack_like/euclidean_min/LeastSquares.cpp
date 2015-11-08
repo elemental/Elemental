@@ -362,7 +362,6 @@ void Equilibrated
     const Real deltaTmp = Pow(eps,Real(0.25));
 
     mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
     Timer timer;
 

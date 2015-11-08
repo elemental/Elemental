@@ -893,13 +893,13 @@ EL_EXPORT ElError ElProductLanczosSparse_z
 ( ElConstSparseMatrix_z A, ElMatrix_d T, ElInt basisSize );
 
 EL_EXPORT ElError ElProductLanczosDistSparse_s
-( ElConstDistSparseMatrix_s A, ElMatrix_s T, ElInt basisSize );
+( ElConstDistSparseMatrix_s A, ElDistMatrix_s T, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDistSparse_d
-( ElConstDistSparseMatrix_d A, ElMatrix_d T, ElInt basisSize );
+( ElConstDistSparseMatrix_d A, ElDistMatrix_d T, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDistSparse_c
-( ElConstDistSparseMatrix_c A, ElMatrix_s T, ElInt basisSize );
+( ElConstDistSparseMatrix_c A, ElDistMatrix_s T, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDistSparse_z
-( ElConstDistSparseMatrix_z A, ElMatrix_d T, ElInt basisSize );
+( ElConstDistSparseMatrix_z A, ElDistMatrix_d T, ElInt basisSize );
 
 EL_EXPORT ElError ElProductLanczosDecompSparse_s
 ( ElConstSparseMatrix_s A, ElMatrix_s V,
@@ -920,19 +920,19 @@ EL_EXPORT ElError ElProductLanczosDecompSparse_z
 
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_s
 ( ElConstDistSparseMatrix_s A, ElDistMultiVec_s V,
-  ElMatrix_s T,                ElDistMultiVec_s v, 
+  ElDistMatrix_s T,            ElDistMultiVec_s v, 
   float* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElDistMultiVec_d V,
-  ElMatrix_d T,                ElDistMultiVec_d v, 
+  ElDistMatrix_d T,            ElDistMultiVec_d v, 
   double* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_c
 ( ElConstDistSparseMatrix_c A, ElDistMultiVec_c V,
-  ElMatrix_s T,                ElDistMultiVec_c v, 
+  ElDistMatrix_s T,            ElDistMultiVec_c v, 
   float* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElDistMultiVec_z V,
-  ElMatrix_d T,                ElDistMultiVec_z v, 
+  ElDistMatrix_d T,            ElDistMultiVec_z v, 
   double* beta, ElInt basisSize );
 
 /* Extremal singular value estimation
