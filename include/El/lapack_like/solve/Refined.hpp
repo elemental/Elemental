@@ -259,8 +259,6 @@ inline Int PromotedBatch
         applyAInv( B );
         return 0;
     }
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
     typedef Promote<F> PF;
 
     Matrix<PF> BProm, BOrigProm;
@@ -419,7 +417,6 @@ inline Int Batch
         return 0;
     }
     mpi::Comm comm = B.Comm();
-    const int commRank = mpi::Rank(comm);
 
     auto BOrig = B;
 
@@ -500,8 +497,6 @@ inline Int PromotedSingle
         applyAInv( b );
         return 0;
     }
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
     typedef Promote<F> PF;
     mpi::Comm comm = b.Comm();
     const int commRank = mpi::Rank(comm);
@@ -581,8 +576,6 @@ inline Int PromotedBatch
         applyAInv( B );
         return 0;
     }
-    typedef Base<F> Real;
-    typedef Promote<Real> PReal;
     typedef Promote<F> PF;
     mpi::Comm comm = B.Comm();
     const int commRank = mpi::Rank(comm);

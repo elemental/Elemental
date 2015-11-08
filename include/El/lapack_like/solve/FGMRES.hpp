@@ -7,12 +7,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SOLVE_LGMRES_HPP
-#define EL_SOLVE_LGMRES_HPP
+#ifndef EL_SOLVE_FGMRES_HPP
+#define EL_SOLVE_FGMRES_HPP
+
+// The pseudocode for Flexible GMRES can be found in "Algorithm 2.2" in
+//   Youcef Saad
+//   "A flexible inner-outer preconditioned GMRES algorithm"
+//   SIAM J. Sci. Comput., Vol. 14, No. 2, pp. 461--469, 1993.
 
 namespace El {
 
-namespace lgmres {
+namespace fgmres {
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
@@ -26,49 +31,69 @@ inline Int Single
         bool progress )
 {
     DEBUG_ONLY(
-      CSE cse("lgmres::Single");
+      CSE cse("fgmres::Single");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
+
+    // A z_j and A x_0
+    const bool saveProducts = true;
+    const bool time = false;
+
     typedef Base<F> Real;
     const Int n = b.Height();
+    Timer iterTimer;
 
     // x := 0
     // ======
     Matrix<F> x;
     Zeros( x, n, 1 );
 
+    Matrix<F> Ax0;
+    if( saveProducts )
+    {
+        // A x_0 := 0
+        // ==========
+        Zeros( Ax0, n, 1 );
+    }
+
     // w := b (= b - A x_0)
     // ====================
-    Matrix<F> w;
-    w = b;
+    auto w = b;
     const Real origResidNorm = Nrm2( w );
+    if( progress )
+        Output("origResidNorm: ",origResidNorm);
     if( origResidNorm == Real(0) )
         return 0;
+
+    // TODO: Constrain the maximum number of iterations
 
     Int iter=0;
     bool converged = false;
     Matrix<Real> cs;
     Matrix<F> sn, H, t;
-    Matrix<F> x0, q, V;
+    Matrix<F> x0, V, Z, AZ, q;
     while( !converged )
     {
         if( progress )
-            Output("Starting GMRES iteration ",iter);
+            Output("Starting FGMRES iteration ",iter);
         const Int indent = PushIndent();
 
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
         Zeros( V, n, restart );
+        Zeros( Z, n, restart );
+        if( saveProducts )
+            Zeros( AZ, n, restart );
 
         // x0 := x
         // =======
         x0 = x;
+        if( saveProducts && iter != 0 )
+            Ax0 = q;
 
-        // w := inv(M) w
-        // =============
-        precond( w );
+        // NOTE: w = b - A x already
 
         // beta := || w ||_2
         // =================
@@ -85,21 +110,31 @@ inline Int Single
         Zeros( t, restart+1, 1 );
         t.Set( 0, 0, beta );
 
-        // Run one round of GMRES
-        // ======================
+        // Run one round of GMRES(restart)
+        // ===============================
         for( Int j=0; j<restart; ++j )
         {
             if( progress )
-                Output("Starting inner GMRES iteration ",j);
+                Output("Starting inner FGMRES iteration ",j);
+            if( time )
+                iterTimer.Start();
             const Int innerIndent = PushIndent();
 
-            // w := A v_j
-            // ----------
-            applyA( F(1), V(ALL,IR(j)), F(0), w );
+            // z_j := inv(M) v_j
+            // =================
+            auto vj = V( ALL, IR(j) );
+            auto zj = Z( ALL, IR(j) );
+            zj = vj;
+            precond( zj );
 
-            // w := inv(M) w
-            // -------------
-            precond( w );
+            // w := A z_j
+            // ----------
+            applyA( F(1), zj, F(0), w );
+            if( saveProducts )
+            {
+                auto Azj = AZ( ALL, IR(j) );
+                Azj = w;
+            }
 
             // Run the j'th step of Arnoldi
             // ----------------------------
@@ -122,7 +157,7 @@ inline Int Single
             if( j+1 != restart )
             {
                 // v_{j+1} := w / delta
-                // ^^^^^^^^^^^^^^^^^^^^
+                // ^^^^^^^^^^^^^^^^^^^^^^^^^^
                 auto vjp1 = V( ALL, IR(j+1) );
                 vjp1 = w;
                 vjp1 *= 1/delta;
@@ -174,19 +209,35 @@ inline Int Single
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
-            // x := x0 + Vj y
+            // x := x0 + Zj y
             // ^^^^^^^^^^^^^^
             x = x0;
-            for( Int i=0; i<=j; ++i )
-            {
-                const F eta_i = y.Get(i,0);
-                Axpy( eta_i, V( ALL, IR(i) ), x );
-            }
+            auto Zj = Z( ALL, IR(0,j+1) );
+            auto yj = y( IR(0,j+1), ALL );
+            Gemv( NORMAL, F(1), Zj, yj, F(1), x );
 
             // w := b - A x
             // ------------
             w = b;
-            applyA( F(-1), x, F(1), w ); 
+            if( saveProducts )
+            {
+                // q := Ax = Ax0 + A Z_j y_j
+                // ^^^^^^^^^^^^^^^^^^^^^^^^^
+                q = Ax0;
+                auto AZj = AZ( ALL, IR(0,j+1) );
+                Gemv( NORMAL, F(1), AZj, yj, F(1), q );
+
+                // w := b - A x
+                // ^^^^^^^^^^^^
+                w -= q;
+            }
+            else
+            {
+                applyA( F(-1), x, F(1), w );
+            }
+
+            if( time )
+                Output("iter took ",iterTimer.Stop()," secs");
 
             // Residual checks
             // ---------------
@@ -211,7 +262,7 @@ inline Int Single
             }
             ++iter;
             if( iter == maxIts )
-                RuntimeError("LGMRES did not converge");
+                RuntimeError("FGMRES did not converge");
             SetIndent( innerIndent );
         }
         SetIndent( indent );
@@ -220,11 +271,11 @@ inline Int Single
     return iter;
 }
 
-} // namespace lgmres
+} // namespace fgmres
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
-inline Int LGMRES
+inline Int FGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         Matrix<F>& B,
@@ -233,21 +284,21 @@ inline Int LGMRES
         Int maxIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("LGMRES"))
+    DEBUG_ONLY(CSE cse("FGMRES"))
     Int mostIts = 0;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
     {
         auto b = B( ALL, IR(j) );
         const Int its =
-          lgmres::Single
+          fgmres::Single
           ( applyA, precond, b, relTol, restart, maxIts, progress );
         mostIts = Max(mostIts,its);
     }
     return mostIts;
 }
 
-namespace lgmres {
+namespace fgmres {
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
@@ -261,56 +312,78 @@ inline Int Single
         bool progress )
 {
     DEBUG_ONLY(
-      CSE cse("lgmres::Single");
+      CSE cse("fgmres::Single");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
+    // Avoid half of the matrix-vector products by keeping the results of
+    // A z_j and A x_0
+    const bool saveProducts = true;
+    const bool time = false;
+
     typedef Base<F> Real;
     const Int n = b.Height();
     mpi::Comm comm = b.Comm();
     const int commRank = mpi::Rank(comm);
+    Timer iterTimer;
 
     // x := 0
     // ======
     DistMultiVec<F> x(comm);
     Zeros( x, n, 1 );
 
+    DistMultiVec<F> Ax0(comm);
+    if( saveProducts )
+    {
+        // A x_0 := 0
+        // ==========
+        Zeros( Ax0, n, 1 );
+    }
+
     // w := b (= b - A x_0)
     // ====================
     DistMultiVec<F> w(comm);
     w = b;
     const Real origResidNorm = Nrm2( w );
+    if( progress && commRank == 0 )
+        Output("origResidNorm: ",origResidNorm);
     if( origResidNorm == Real(0) )
         return 0;
 
+    // TODO: Constrain the maximum number of iterations
     Int iter=0;
     bool converged = false;
     Matrix<Real> cs;
     Matrix<F> sn, H, t;
-    DistMultiVec<F> x0(comm), q(comm), V(comm);
+    DistMultiVec<F> x0(comm), q(comm), V(comm), Z(comm), AZ(comm);
     while( !converged )
     {
         if( progress && commRank == 0 )
-            Output("Starting GMRES iteration ",iter);
+            Output("Starting FGMRES iteration ",iter);
         const Int indent = PushIndent();
+
+        // x0 := x
+        // =======
+        x0 = x;
+        if( saveProducts && iter != 0 )
+            Ax0 = q;
 
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
         Zeros( V, n, restart );
+        Zeros( Z, n, restart );
+        if( saveProducts )
+            Zeros( AZ, n, restart );
+
         // TODO: Extend DistMultiVec so that it can be directly manipulated
         //       rather than requiring access to the local Matrix and staging
         //       through the temporary vector q
         auto& VLoc = V.Matrix();
+        auto& ZLoc = Z.Matrix();
         Zeros( q, n, 1 );
 
-        // x0 := x
-        // =======
-        x0 = x;
-
-        // w := inv(M) w
-        // =============
-        precond( w );
+        // NOTE: w = b - A x already
 
         // beta := || w ||_2
         // =================
@@ -332,17 +405,29 @@ inline Int Single
         for( Int j=0; j<restart; ++j )
         {
             if( progress && commRank == 0 )
-                Output("Starting inner GMRES iteration ",j);
+                Output("Starting inner FGMRES iteration ",j);
+            if( time && commRank == 0 )
+                iterTimer.Start();
             const Int innerIndent = PushIndent();
 
-            // w := A v_j
-            // ----------
-            q.Matrix() = VLoc( ALL, IR(j) );
-            applyA( F(1), q, F(0), w );
+            // z_j := inv(M) v_j
+            // =================
+            auto vjLoc = VLoc( ALL, IR(j) );
+            auto zjLoc = ZLoc( ALL, IR(j) );
+            q.Matrix() = vjLoc;
+            precond( q );
+            zjLoc = q.Matrix();
 
-            // w := inv(M) w
-            // -------------
-            precond( w );
+            // w := A z_j
+            // ----------
+            // NOTE: q currently contains z_j
+            applyA( F(1), q, F(0), w );
+            if( saveProducts )
+            {
+                auto& AZLoc = AZ.Matrix();
+                auto AzjLoc = AZLoc( ALL, IR(j) );
+                AzjLoc = w.LockedMatrix();
+            }
 
             // Run the j'th step of Arnoldi
             // ----------------------------
@@ -417,19 +502,36 @@ inline Int Single
             auto HTL = H( IR(0,j+1), IR(0,j+1) );
             auto y = tT;
             Trsv( UPPER, NORMAL, NON_UNIT, HTL, y );
-            // x := x0 + Vj y
+            // x := x0 + Zj y
             // ^^^^^^^^^^^^^^
             x = x0;
-            for( Int i=0; i<=j; ++i )
-            {
-                const F eta_i = y.Get(i,0);
-                Axpy( eta_i, VLoc( ALL, IR(i) ), x.Matrix() );
-            }
+            auto ZjLoc = ZLoc( ALL, IR(0,j+1) );
+            auto yj = y( IR(0,j+1), ALL );
+            Gemv( NORMAL, F(1), ZjLoc, yj, F(1), x.Matrix() );
 
             // w := b - A x
             // ------------
             w = b;
-            applyA( F(-1), x, F(1), w );
+            if( saveProducts )
+            {
+                // q := Ax = Ax0 + A Z_j y_j
+                // ^^^^^^^^^^^^^^^^^^^^^^^^^
+                q = Ax0;
+                const auto& AZLoc = AZ.LockedMatrix();
+                auto AZjLoc = AZLoc( ALL, IR(0,j+1) );
+                Gemv( NORMAL, F(1), AZjLoc, yj, F(1), q.Matrix() );
+
+                // w := b - A x
+                // ^^^^^^^^^^^^
+                w -= q;
+            }
+            else
+            {
+                applyA( F(-1), x, F(1), w );
+            }
+
+            if( time && commRank == 0 )
+                Output("iter took ",iterTimer.Stop()," secs");
 
             // Residual checks
             // ---------------
@@ -454,7 +556,7 @@ inline Int Single
             }
             ++iter;
             if( iter == maxIts )
-                RuntimeError("LGMRES did not converge");
+                RuntimeError("FGMRES did not converge");
             SetIndent( innerIndent );
         }
         SetIndent( indent );
@@ -463,11 +565,11 @@ inline Int Single
     return iter;
 }
 
-} // namespace lgmres
+} // namespace fgmres
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
-inline Int LGMRES
+inline Int FGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         DistMultiVec<F>& B,
@@ -476,7 +578,7 @@ inline Int LGMRES
         Int maxIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("LGMRES"))
+    DEBUG_ONLY(CSE cse("FGMRES"))
     const Int height = B.Height();
     const Int width = B.Width();
 
@@ -490,7 +592,7 @@ inline Int LGMRES
         auto bLoc = BLoc( ALL, IR(j) );
         uLoc = bLoc;
         const Int its =
-          lgmres::Single
+          fgmres::Single
           ( applyA, precond, u, relTol, restart, maxIts, progress );
         bLoc = uLoc;
         mostIts = Max(mostIts,its);
@@ -500,4 +602,4 @@ inline Int LGMRES
 
 } // namespace El
 
-#endif // ifndef EL_SOLVE_LGMRES_HPP
+#endif // ifndef EL_SOLVE_FGMRES_HPP

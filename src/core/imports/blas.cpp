@@ -691,7 +691,7 @@ BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx )
 {
     typedef Base<F> Real;
     Real maxAbsVal = -1;
-    Real maxAbsInd = -1;
+    BlasInt maxAbsInd = -1;
     for( BlasInt i=0; i<n; ++i ) 
     {
         const Real absVal = Abs(x[i*incx]);
@@ -701,6 +701,7 @@ BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx )
             maxAbsInd = i;
         }
     } 
+    return maxAbsInd;
 }
 #ifdef EL_HAVE_QUAD
 template BlasInt MaxInd( BlasInt n, const Int* x, BlasInt incx );
