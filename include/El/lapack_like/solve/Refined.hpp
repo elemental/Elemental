@@ -12,10 +12,10 @@
 
 namespace El {
 
-namespace solve {
+namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int RefinedSingle
+inline Int Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& b,
@@ -24,7 +24,7 @@ inline Int RefinedSingle
         bool progress )
 {
     DEBUG_ONLY(
-      CSE cse("solve::RefinedSingle");
+      CSE cse("refined_solve::Single");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -90,14 +90,14 @@ inline Int RefinedSingle
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int RefinedBatch
+inline Int Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("solve::RefinedBatch"))
+    DEBUG_ONLY(CSE cse("refined_solve::Batch"))
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );    
@@ -141,7 +141,7 @@ inline Int RefinedBatch
     return refineIt;
 }
 
-} // namespace solve
+} // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
 inline Int RefinedSolve
@@ -154,17 +154,17 @@ inline Int RefinedSolve
 {
     DEBUG_ONLY(CSE cse("RefinedSolve"))
     if( B.Width() == 1 )
-        return solve::RefinedSingle
+        return refined_solve::Single
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
     else
-        return solve::RefinedBatch
+        return refined_solve::Batch
                ( applyA, applyAInv, B, maxRefineIts, progress );
 }
 
-namespace solve {
+namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedRefinedSingle
+inline Int PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& b,
@@ -173,7 +173,7 @@ inline Int PromotedRefinedSingle
         bool progress )
 {
     DEBUG_ONLY(
-      CSE cse("solve::PromotedRefinedSingle");
+      CSE cse("refined_solve::PromotedSingle");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -246,14 +246,14 @@ inline Int PromotedRefinedSingle
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedRefinedBatch
+inline Int PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("solve::PromotedRefinedBatch"))
+    DEBUG_ONLY(CSE cse("refined_solve::PromotedBatch"))
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
@@ -303,7 +303,7 @@ inline Int PromotedRefinedBatch
     return refineIt;
 }
 
-} // namespace solve
+} // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
 inline Int PromotedRefinedSolve
@@ -316,17 +316,17 @@ inline Int PromotedRefinedSolve
 {
     DEBUG_ONLY(CSE cse("PromotedRefinedSolve"))
     if( B.Width() == 1 )
-        return solve::PromotedRefinedSingle
+        return refined_solve::PromotedSingle
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
     else
-        return solve::PromotedRefinedBatch
+        return refined_solve::PromotedBatch
                ( applyA, applyAInv, B, maxRefineIts, progress );
 }
 
-namespace solve {
+namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int RefinedSingle
+inline Int Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& b,
@@ -335,7 +335,7 @@ inline Int RefinedSingle
         bool progress )
 {
     DEBUG_ONLY(
-      CSE cse("solve::RefinedSingle");
+      CSE cse("refined_solve::Single");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -405,14 +405,14 @@ inline Int RefinedSingle
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int RefinedBatch
+inline Int Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("solve::RefinedBatch"))
+    DEBUG_ONLY(CSE cse("refined_solve::Batch"))
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
@@ -459,7 +459,7 @@ inline Int RefinedBatch
     return refineIt;
 }
 
-} // namespace solve
+} // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
 inline Int RefinedSolve
@@ -472,17 +472,17 @@ inline Int RefinedSolve
 {
     DEBUG_ONLY(CSE cse("RefinedSolve"))
     if( B.Width() == 1 )
-        return solve::RefinedSingle
+        return refined_solve::Single
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
     else
-        return solve::RefinedBatch
+        return refined_solve::Batch
                ( applyA, applyAInv, B, maxRefineIts, progress );
 }
 
-namespace solve {
+namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedRefinedSingle
+inline Int PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& b,
@@ -491,7 +491,7 @@ inline Int PromotedRefinedSingle
         bool progress )
 {
     DEBUG_ONLY(
-      CSE cse("solve::PromotedRefinedSingle");
+      CSE cse("refined_solve::PromotedSingle");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -568,14 +568,14 @@ inline Int PromotedRefinedSingle
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedRefinedBatch
+inline Int PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("solve::PromotedRefinedBatch"))
+    DEBUG_ONLY(CSE cse("refined_solve::PromotedBatch"))
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
@@ -629,7 +629,7 @@ inline Int PromotedRefinedBatch
     return refineIt;
 }
 
-} // namespace solve
+} // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
 inline Int PromotedRefinedSolve
@@ -642,10 +642,10 @@ inline Int PromotedRefinedSolve
 {
     DEBUG_ONLY(CSE cse("PromotedRefinedSolve"))
     if( B.Width() == 1 )
-        return solve::PromotedRefinedSingle
+        return refined_solve::PromotedSingle
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
     else
-        return solve::PromotedRefinedBatch
+        return refined_solve::PromotedBatch
                ( applyA, applyAInv, B, maxRefineIts, progress );
 }
 

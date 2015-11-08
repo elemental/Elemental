@@ -173,6 +173,7 @@ void MultiShiftHessSolve
 
 } // namespace El
 
+#include "./solve/LGMRES.hpp"
 #include "./solve/Refined.hpp"
 
 #endif // ifndef EL_SOLVE_HPP
