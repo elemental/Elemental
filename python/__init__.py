@@ -34,3 +34,4 @@ from lapack_like   import *
 from matrices      import *
 from optimization  import *
 from control       import *
+from lattice       import *

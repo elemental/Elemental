@@ -18,6 +18,7 @@
 #include "El/lapack_like.hpp"
 #include "El/optimization.hpp"
 #include "El/control.hpp"
+#include "El/lattice.hpp"
 
 #include "El/matrices.hpp"
 

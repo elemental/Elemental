@@ -268,6 +268,30 @@ template<> Quad Atanh( const Quad& alpha );
 template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
 #endif
 
+// Rounding
+// ========
+
+// Round to the nearest integer
+// ----------------------------
+template<typename Real> Real Round( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad Round( const Quad& alpha );
+#endif
+
+// Ceiling
+// -------
+template<typename Real> Real Ceil( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad Ceil( const Quad& alpha );
+#endif
+
+// Floor
+// -----
+template<typename Real> Real Floor( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad Floor( const Quad& alpha );
+#endif
+
 } // namespace El
 
 #endif // ifndef EL_ELEMENT_DECL_HPP

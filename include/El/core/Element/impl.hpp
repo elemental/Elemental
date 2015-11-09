@@ -553,6 +553,36 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 }
 #endif
 
+// Rounding
+// ========
+
+// Round to the nearest integer
+// ----------------------------
+template<typename Real>
+inline Real Round( const Real& alpha ) { return std::round(alpha); }
+#ifdef EL_HAVE_QUAD
+template<>
+inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
+#endif
+
+// Ceiling
+// -------
+template<typename Real>
+inline Real Ceil( const Real& alpha ) { return std::ceil(alpha); }
+#ifdef EL_HAVE_QUAD
+template<>
+inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
+#endif
+
+// Floor
+// -----
+template<typename Real>
+inline Real Floor( const Real& alpha ) { return std::floor(alpha); }
+#ifdef EL_HAVE_QUAD
+template<>
+inline Quad Floor( const Quad& alpha ) { return floorq(alpha); }
+#endif
+
 } // namespace El
 
 #endif // ifndef EL_ELEMENT_IMPL_HPP
