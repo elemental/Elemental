@@ -276,7 +276,9 @@ Base<F> LLLDelta( const Matrix<F>& QR )
     DiagonalSolve( LEFT, NORMAL, diagR, R );
     ShiftDiagonal( R, F(-1) );
     const Real maxRatio = MaxNorm( R );
-    if( maxRatio > Real(1)/Real(2)+Pow(Epsilon<Real>(),Real(3)/Real(4)) )
+    const Real bound = 
+      ( IsComplex<F>::val ? Real(1)/Sqrt(Real(2)) : Real(1)/Real(2) );
+    if( maxRatio > bound+Pow(Epsilon<Real>(),Real(3)/Real(4)) )
         return 0; // the worst-possible delta
 
     return delta;

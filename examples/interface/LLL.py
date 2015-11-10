@@ -1,14 +1,14 @@
 import El;
 
-m = 10
-n = 5
+m = 200
+n = 100
 
-A = El.Matrix(El.dTag)
+A = El.Matrix(El.zTag)
 El.Uniform( A, m, n, 0., 10.)
 El.Round( A )
 El.Print( A, "A" )
 
-B=El.Matrix(El.dTag)
+B=El.Matrix(El.zTag)
 
 El.Copy( A, B )
 QR = El.LLL(B,0.75)
