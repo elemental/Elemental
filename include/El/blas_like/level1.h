@@ -1560,6 +1560,26 @@ EL_EXPORT ElError ElReshapeDistSparse_c
 EL_EXPORT ElError ElReshapeDistSparse_z
 ( ElInt m, ElInt n, ElConstDistSparseMatrix_z A, ElDistSparseMatrix_z B );
 
+/* Round
+   ===== */
+EL_EXPORT ElError ElRound_i( ElMatrix_i A );
+EL_EXPORT ElError ElRound_s( ElMatrix_s A );
+EL_EXPORT ElError ElRound_d( ElMatrix_d A );
+EL_EXPORT ElError ElRound_c( ElMatrix_c A );
+EL_EXPORT ElError ElRound_z( ElMatrix_z A );
+
+EL_EXPORT ElError ElRoundDist_i( ElDistMatrix_i A );
+EL_EXPORT ElError ElRoundDist_s( ElDistMatrix_s A );
+EL_EXPORT ElError ElRoundDist_d( ElDistMatrix_d A );
+EL_EXPORT ElError ElRoundDist_c( ElDistMatrix_c A );
+EL_EXPORT ElError ElRoundDist_z( ElDistMatrix_z A );
+
+EL_EXPORT ElError ElRoundDistMultiVec_i( ElDistMultiVec_i A );
+EL_EXPORT ElError ElRoundDistMultiVec_s( ElDistMultiVec_s A );
+EL_EXPORT ElError ElRoundDistMultiVec_d( ElDistMultiVec_d A );
+EL_EXPORT ElError ElRoundDistMultiVec_c( ElDistMultiVec_c A );
+EL_EXPORT ElError ElRoundDistMultiVec_z( ElDistMultiVec_z A );
+
 /* Scale
    ===== */
 EL_EXPORT ElError ElScale_i( ElInt alpha, ElMatrix_i A );

@@ -1440,6 +1440,17 @@ void Reshape
 template<typename T>
 DistSparseMatrix<T> GetSubmatrix( Int m, Int n, const DistSparseMatrix<T>& A );
 
+// Round
+// =====
+// Round each entry to the nearest integer
+template<typename T>
+void Round( Matrix<T>& A );
+template<typename T>
+void Round( AbstractDistMatrix<T>& A );
+template<typename T>
+void Round( DistMultiVec<T>& A );
+// TODO: Sparse matrix versions
+
 // Scale
 // =====
 // TODO: Force S=T?

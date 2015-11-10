@@ -558,8 +558,14 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 
 // Round to the nearest integer
 // ----------------------------
-template<typename Real>
-inline Real Round( const Real& alpha ) { return std::round(alpha); }
+template<typename T>
+inline T Round( const T& alpha ) { return std::round(alpha); }
+template<typename T>
+inline Complex<T> Round( const Complex<T>& alpha )
+{ return Complex<T>(Round(alpha.real()),Round(alpha.imag())); }
+// Full specializations
+// ^^^^^^^^^^^^^^^^^^^^
+template<> inline Int Round( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 template<>
 inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
@@ -567,8 +573,14 @@ inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
 
 // Ceiling
 // -------
-template<typename Real>
-inline Real Ceil( const Real& alpha ) { return std::ceil(alpha); }
+template<typename T>
+inline T Ceil( const T& alpha ) { return std::ceil(alpha); }
+template<typename T>
+inline Complex<T> Ceil( const Complex<T>& alpha )
+{ return Complex<T>(Ceil(alpha.real()),Ceil(alpha.imag())); }
+// Full specializations
+// ^^^^^^^^^^^^^^^^^^^^
+template<> inline Int Ceil( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 template<>
 inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
@@ -576,8 +588,14 @@ inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 
 // Floor
 // -----
-template<typename Real>
-inline Real Floor( const Real& alpha ) { return std::floor(alpha); }
+template<typename T>
+inline T Floor( const T& alpha ) { return std::floor(alpha); }
+template<typename T>
+inline Complex<T> Floor( const Complex<T>& alpha )
+{ return Complex<T>(Floor(alpha.real()),Floor(alpha.imag())); }
+// Full specializations
+// ^^^^^^^^^^^^^^^^^^^^
+template<> inline Int Floor( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 template<>
 inline Quad Floor( const Quad& alpha ) { return floorq(alpha); }

@@ -124,7 +124,6 @@ main( int argc, char* argv[] )
             const Real singValDiff = FrobeniusNorm( sOnly );
             const Real twoNormOfA = MaxNorm( s );
             const Real maxNormOfA = MaxNorm( A );
-            const Real frobNormOfA = FrobeniusNorm( A );
 
             DiagonalScale( RIGHT, NORMAL, s, U );
             Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );

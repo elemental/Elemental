@@ -435,6 +435,13 @@ ElError ElGetSubgraphDist
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = CReflect(VectorMinAbs(*CReflect(x))) ) } \
   /* TODO: QuasiDiagonalScale */ \
+  /* Round */ \
+  ElError ElRound_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( Round( *CReflect(A) ) ) } \
+  ElError ElRoundDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( Round( *CReflect(A) ) ) } \
+  ElError ElRoundDistMultiVec_ ## SIG ( ElDistMultiVec_ ## SIG A ) \
+  { EL_TRY( Round( *CReflect(A) ) ) } \
   /* Scale */ \
   ElError ElScale_ ## SIG \
   ( CREFLECT(T) alpha, ElMatrix_ ## SIG A ) \

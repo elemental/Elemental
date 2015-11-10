@@ -28,5 +28,5 @@ El.Print(A)
 
 B=El.Matrix()
 El.Copy( A, B )
-El.LLL(B,0.75,0.5001,0.,0.001)
+El.LLL(B,0.75)
 

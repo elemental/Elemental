@@ -13,99 +13,153 @@
 // Ivan Morel, Damien Stehle, and Gilles Villard,
 // "H-LLL: Using Householder inside LLL",
 // ISSAC '09, July 28--31, 2009, Seoul, Republic of Korea.
+//
+// Note that there is a subtle bug in Algorithm 4 of the paper, as step 7
+// involves setting k := max(k-1,2), which, in the case of zero indexing,
+// becomes k := max(k-1,1). The second branch of the 'max' is only activated
+// in the case where k=1 and is kept at this value despite having just 
+// swapped b_0 and b_1. But this would imply that the 0'th column of the 
+// Householder QR factorization is now incorrect, and so it must be refreshed.
+// This implementation fixes said issue via a call to lll::HouseholderStep
+// with k=0.
+//
+// Future work will involve investigating blocked algorithms and/or 
+// distributed-memory and/or GPU implementations.
+//
+// Also, the following paper was consulted for more general factorization
+// viewpoints:
+//
+// Dirk Wubben, Ronald Bohnke, Volker Kuhn, and Karl-Dirk Kammeyer,
+// "MMSE-Based Lattice-Reduction for Near-ML Detection of MIMO Systems",
+// ITG Workshop on Smart Antennas, pp. 106--113, 2004
 
 namespace El {
 
-template<typename Real>
-inline void Round( Matrix<Real>& B )
-{
-    DEBUG_ONLY(CSE cse("Round"))
-    const Int m = B.Height();
-    const Int n = B.Width();
-    Real* BBuf = B.Buffer();
-    const Int BLDim = B.LDim();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            BBuf[i+j*BLDim] = Round(BBuf[i+j*BLDim]);
-}
-
 namespace lll {
 
-// NOTE: It is assumed that {delta,eta,theta} are valid
-template<typename Real>
-void Incomplete
+// Put the k'th column of B into the k'th column of QR and then rotate
+// said column with the first k-1 (scaled) Householder reflectors.
+//
+// TODO: Maintain the reflectors in an accumulated form
+template<typename F>
+void ExpandQR
 ( Int k,
-  Matrix<Real>& B,
-  Matrix<Real>& H,
-  Matrix<Real>& t,
-  Matrix<Real>& d,
-  Real delta,
-  Real eta,
-  Real theta,
-  Real loopTol,
-  Real zeroTol )
+  const Matrix<F>& B,
+        Matrix<F>& QR,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d )
 {
-    DEBUG_ONLY(CSE cse("lll::Incomplete"))
+    DEBUG_ONLY(CSE cse("lll::ExpandQR"))
+    typedef Base<F> Real;
+    const Int m = B.Height();
+    const F* BBuf = B.LockedBuffer();
+          F* QRBuf = QR.Buffer();  
+    const Int BLDim = B.LDim();
+    const Int QRLDim = QR.LDim();
+
+    // Copy in the k'th column of B
+    for( Int i=0; i<m; ++i )
+        QRBuf[i+k*QRLDim] = BBuf[i+k*BLDim];
+
+    for( Int i=0; i<k; ++i )
+    {
+        // Apply the i'th Householder reflector
+
+        // Temporarily replace QR(i,i) with 1
+        const Real alpha = RealPart(QRBuf[i+i*QRLDim]);
+        QRBuf[i+i*QRLDim] = 1;
+
+        const F innerProd =
+          blas::Dot
+          ( m-i,
+            &QRBuf[i+i*QRLDim], 1,
+            &QRBuf[i+k*QRLDim], 1 );
+        blas::Axpy
+        ( m-i, -t.Get(i,0)*innerProd,
+          &QRBuf[i+i*QRLDim], 1,
+          &QRBuf[i+k*QRLDim], 1 );
+
+        // Fix the scaling
+        QRBuf[i+k*QRLDim] *= d.Get(i,0);
+
+        // Restore H(i,i)
+        QRBuf[i+i*QRLDim] = alpha; 
+    }
+}
+
+template<typename F>
+void HouseholderStep
+( Int k,
+  const Matrix<F>& B,
+        Matrix<F>& QR,
+        Matrix<F>& t,
+        Matrix<Base<F>>& d,
+        Base<F> zeroTol )
+{
+    DEBUG_ONLY(CSE cse("lll::HouseholderStep"))
+    typedef Base<F> Real;
+
+    lll::ExpandQR( k, B, QR, t, d );
+
+    F* QRBuf = QR.Buffer();
+    const Int QRLDim = QR.LDim();
+
+    // Perform the next step of Householder reduction
+    F& rhokk = QRBuf[k+k*QRLDim]; 
+    auto qr21 = QR( IR(k+1,END), IR(k) );
+    F tau = LeftReflector( rhokk, qr21 );
+    t.Set( k, 0, tau );
+    if( RealPart(rhokk) < Real(0) )
+    {
+        d.Set( k, 0, -1 );
+        rhokk *= -1;
+    }
+    else
+        d.Set( k, 0, +1 );
+    if( RealPart(rhokk) < zeroTol )
+        throw SingularMatrixException();
+}
+
+// NOTE: It is assumed that delta is valid
+template<typename F>
+void Step
+( Int k,
+  Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  Base<F> delta,
+  Base<F> loopTol,
+  Base<F> zeroTol,
+  bool progress )
+{
+    DEBUG_ONLY(CSE cse("lll::Step"))
+    typedef Base<F> Real;
     const Int m = B.Height();
 
-    vector<Real> xBuf(k);
+    vector<F> xBuf(k);
 
-    Real* BBuf = B.Buffer();
+    F* BBuf = B.Buffer();
+    F* QRBuf = QR.Buffer();
     const Int BLDim = B.LDim();
-
-    Real* HBuf = H.Buffer();
-    const Int HLDim = H.LDim();
-
-    Real* dBuf = d.Buffer();
-    Real* tBuf = t.Buffer();
-
-    const bool progress = true;
-    const bool print = false;
+    const Int QRLDim = QR.LDim();
 
     while( true ) 
     {
-        if( print )
-        {
-            Print( B, "B" );
-            Print( H, "H" );
-        }
-        // Compute the (scaled) top of r_k from b_k using Householder
-        // TODO: Maintain the reflectors in an accumulated form
-        for( Int i=0; i<m; ++i )
-            HBuf[i+k*HLDim] = BBuf[i+k*BLDim];
-        for( Int i=0; i<k; ++i )
-        {
-            // Apply the i'th Householder reflector
-
-            // Temporarily replace H(i,i) with 1
-            const Real alpha = HBuf[i+i*HLDim]; 
-            HBuf[i+i*HLDim] = 1;
-
-            const Real innerProd =
-              blas::Dot( m-i, &HBuf[i+i*HLDim], 1, &HBuf[i+k*HLDim], 1 );
-            blas::Axpy
-            ( m-i, -tBuf[i]*innerProd,
-              &HBuf[i+i*HLDim], 1, &HBuf[i+k*HLDim], 1 );
-
-            // Restore H(i,i)
-            HBuf[i+i*HLDim] = alpha; 
-        }
-        // Fix the scaling of r_k
-        for( Int i=0; i<k; ++i )
-            HBuf[i+k*HLDim] *= dBuf[i];
+        lll::ExpandQR( k, B, QR, t, d );
 
         for( Int i=k-1; i>=0; --i )
         {
-            const Real chi = Round(HBuf[i+k*HLDim]/HBuf[i+i*HLDim]);
+            const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
             xBuf[i] = chi;
-            blas::Axpy( i, -chi, &HBuf[i*HLDim], 1, &HBuf[k*HLDim], 1 );
+            blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
         }
 
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         blas::Gemv
         ( 'N', m, k,
-          Real(-1), BBuf, BLDim, &xBuf[0], 1,
-          Real(+1), &BBuf[k*BLDim], 1 );
+          F(-1), BBuf, BLDim, &xBuf[0], 1,
+          F(+1), &BBuf[k*BLDim], 1 );
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( newNorm*newNorm > loopTol*oldNorm*oldNorm )
         {
@@ -117,105 +171,45 @@ void Incomplete
              " since oldNorm=",oldNorm," and newNorm=",newNorm);
     }
 
-    // Recompute {r_k,v_k,tau_k,delta_k} from b_k using Householder
-    // TODO: Maintain the reflectors in an accumulated form
-    for( Int i=0; i<m; ++i )
-        HBuf[i+k*HLDim] = BBuf[i+k*BLDim];
-    for( Int i=0; i<k; ++i )
-    {
-        // Apply the i'th Householder reflector
-
-        // Temporarily replace H(i,i) with 1
-        const Real alpha = HBuf[i+i*HLDim]; 
-        HBuf[i+i*HLDim] = 1;
-
-        const Real innerProd =
-          blas::Dot( m-i, &HBuf[i+i*HLDim], 1, &HBuf[i+k*HLDim], 1 );
-        blas::Axpy
-        ( m-i, -tBuf[i]*innerProd, &HBuf[i+i*HLDim], 1, &HBuf[i+k*HLDim], 1 );
-
-        // Restore H(i,i)
-        HBuf[i+i*HLDim] = alpha; 
-    }
-    // Fix the scaling of r_k
-    for( Int i=0; i<k; ++i )
-        HBuf[i+k*HLDim] *= dBuf[i];
-    // Perform the next step of Householder reduction
-    {
-        Real& rhokk = HBuf[k+k*HLDim]; 
-        auto a21 = H( IR(k+1,END), IR(k) );
-        tBuf[k] = LeftReflector( rhokk, a21 );
-        if( rhokk < Real(0) )
-        {
-            dBuf[k] = -1;
-            rhokk *= -1;
-        }
-        else
-            dBuf[k] = 1;
-        if( rhokk < zeroTol )
-            throw SingularMatrixException();
-    }
+    lll::HouseholderStep( k, B, QR, t, d, zeroTol );
 }
 
 } // namespace lll
 
-template<typename Real>
-void LLL( Matrix<Real>& B, Real delta, Real eta, Real theta, Real loopTol )
+template<typename F>
+void LLL( Matrix<F>& B, Matrix<F>& QR, Base<F> delta, Base<F> loopTol, bool progress )
 {
     DEBUG_ONLY(CSE cse("LLL"))
+    typedef Base<F> Real;
     if( delta > Real(1) )
         LogicError("delta is assumed to be at most 1");
-    if( eta < Real(1)/Real(2) )
-        LogicError("eta is assumed to be at least 1/2");
-    if( theta >= eta - Real(1)/Real(2) )
-        LogicError("We assume that theta < eta - 1/2");
 
-    const bool progress = true;
-    const bool print = false;
     Real zeroTol = Pow(Epsilon<Real>(),Real(0.5));
 
     // Force the input to be integer-valued; it would be okay to assume this
     Round( B );
-    if( print )
-        Print( B, "Round(B)" );
 
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
-    Matrix<Real> H, t, d;
-    Zeros( H, m, n );
+    Matrix<F> t;
+    Matrix<Real> d;
+    Zeros( QR, m, n );
     Zeros( d, minDim, 1 );
     Zeros( t, minDim, 1 );
 
     // Perform the first step of Householder reduction
-    {
-        Real* HBuf = H.Buffer();
-        Real* BBuf = B.Buffer();
-        for( Int i=0; i<m; ++i )
-            HBuf[i] = BBuf[i];
-        auto alpha11 = H( IR(0), IR(0) );
-        auto a21 = H( IR(1,END), IR(0) );
-        const Real tau = LeftReflector( alpha11, a21 );
-        t.Set( 0, 0, tau );
-        if( HBuf[0] < Real(0) )
-        {
-            d.Set(0,0,Real(-1));
-            HBuf[0] *= Real(-1);
-        }
-        else
-            d.Set(0,0,Real(1));
-        if( HBuf[0] < zeroTol )
-            throw SingularMatrixException();
-    }
+    lll::HouseholderStep( 0, B, QR, t, d, zeroTol );
 
     Int k=1;
     while( k < n )
     {
-        lll::Incomplete( k, B, H, t, d, delta, eta, theta, loopTol, zeroTol );
+        lll::Step( k, B, QR, t, d, delta, loopTol, zeroTol, progress );
+
         const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
-        const Real rTNorm = FrobeniusNorm( H(IR(0,k-1),IR(k)) );
+        const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
         const Real s = bNorm*bNorm - rTNorm*rTNorm;
-        const Real rho_km1_km1 = H.Get(k-1,k-1);
+        const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
         if( delta*rho_km1_km1*rho_km1_km1 <= s )
         {
             ++k;
@@ -225,17 +219,79 @@ void LLL( Matrix<Real>& B, Real delta, Real eta, Real theta, Real loopTol )
             if( progress )
                 Output("Dropping from k=",k," to ",Max(k-1,1));
             ColSwap( B, k-1, k );
-            k = Max(k-1,1);
+            if( k == 1 )
+            {
+                // We must reinitialize since we keep k=1
+                lll::HouseholderStep( 0, B, QR, t, d, zeroTol );
+            }
+            else
+            {
+                k = k-1; 
+            }
         }
     }
 }
 
-#define PROTO(Real) \
+template<typename F>
+Base<F> LLLDelta( const Matrix<F>& QR )
+{
+    DEBUG_ONLY(CSE cse("LLLDelta"))
+    typedef Base<F> Real;
+    const Int m = QR.Height();
+    const Int n = QR.Width();
+    const Int minDim = Min(m,n);
+
+    auto QRTop = QR( IR(0,minDim), ALL );
+    auto R = QRTop;
+    MakeTrapezoidal( UPPER, R );
+    
+    // Find the maximum delta such that
+    //
+    //   delta R(k,k)^2 <= R(k+1,k+1)^2 + |R(k,k+1)|^2
+    //
+    // for 0 <= k < n-1.
+    //
+    if( n <= 1 )
+        return 1; // the best-possible delta
+    Matrix<F> z;
+    Real delta = std::numeric_limits<Real>::max();
+    for( Int i=0; i<n-1; ++i )
+    {
+        const Real rho_i_i = R.GetRealPart(i,i);
+        const Real rho_i_ip1 = Abs(R.Get(i,i+1));
+        const Real rho_ip1_ip1 = R.GetRealPart(i+1,i+1);
+
+        const Real deltaBound =
+          (rho_ip1_ip1*rho_ip1_ip1+rho_i_ip1*rho_i_ip1)/(rho_i_i*rho_i_i);
+ 
+        delta = Min(delta,deltaBound);
+    }
+
+    // Ensure that
+    //
+    //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < k < n
+    //
+    // NOTE: This does not seem to hold for complex LLL reductions.
+    auto diagR = GetDiagonal(R);
+    DiagonalSolve( LEFT, NORMAL, diagR, R );
+    ShiftDiagonal( R, F(-1) );
+    const Real maxRatio = MaxNorm( R );
+    if( maxRatio > Real(1)/Real(2)+Pow(Epsilon<Real>(),Real(3)/Real(4)) )
+        return 0; // the worst-possible delta
+
+    return delta;
+}
+
+#define PROTO(F) \
   template void LLL \
-  ( Matrix<Real>& B, Real delta, Real eta, Real theta, Real loopTol );
+  ( Matrix<F>& B, \
+    Matrix<F>& QR, \
+    Base<F> delta, \
+    Base<F> loopTol, \
+    bool progress ); \
+  template Base<F> LLLDelta( const Matrix<F>& QR );
 
 #define EL_NO_INT_PROTO
-#define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace El

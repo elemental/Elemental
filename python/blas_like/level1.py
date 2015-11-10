@@ -2213,6 +2213,50 @@ def Reshape(m,n,A):
   else:
     TypeExcept()
 
+# Round
+# -----
+lib.ElRound_i.argtypes = \
+lib.ElRound_s.argtypes = \
+lib.ElRound_d.argtypes = \
+lib.ElRound_c.argtypes = \
+lib.ElRound_z.argtypes = \
+lib.ElRoundDist_i.argtypes = \
+lib.ElRoundDist_s.argtypes = \
+lib.ElRoundDist_d.argtypes = \
+lib.ElRoundDist_c.argtypes = \
+lib.ElRoundDist_z.argtypes = \
+lib.ElRoundDistMultiVec_i.argtypes = \
+lib.ElRoundDistMultiVec_s.argtypes = \
+lib.ElRoundDistMultiVec_d.argtypes = \
+lib.ElRoundDistMultiVec_c.argtypes = \
+lib.ElRoundDistMultiVec_z.argtypes = \
+  [c_void_p]
+
+def Round(A):
+  args = [A.obj]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElRound_i(*args)
+    elif A.tag == sTag: lib.ElRound_s(*args)
+    elif A.tag == dTag: lib.ElRound_d(*args)
+    elif A.tag == cTag: lib.ElRound_c(*args)
+    elif A.tag == zTag: lib.ElRound_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElRoundDist_i(*args)
+    elif A.tag == sTag: lib.ElRoundDist_s(*args)
+    elif A.tag == dTag: lib.ElRoundDist_d(*args)
+    elif A.tag == cTag: lib.ElRoundDist_c(*args)
+    elif A.tag == zTag: lib.ElRoundDist_z(*args)
+    else: DataExcept()
+  elif type(A) is DistMultiVec:
+    if   A.tag == iTag: lib.ElRoundDistMultiVec_i(*args)
+    elif A.tag == sTag: lib.ElRoundDistMultiVec_s(*args)
+    elif A.tag == dTag: lib.ElRoundDistMultiVec_d(*args)
+    elif A.tag == cTag: lib.ElRoundDistMultiVec_c(*args)
+    elif A.tag == zTag: lib.ElRoundDistMultiVec_z(*args)
+    else: DataExcept()
+  else: TypeExcept()
+
 # Scale
 # -----
 lib.ElScale_i.argtypes = [iType,c_void_p]

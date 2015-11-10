@@ -1,14 +1,27 @@
 import El;
 
-m = 10
-n = 5
+# Form 
+# 1 -1 3
+# 1  0 5
+# 1  2 6
+A = El.Matrix()
+El.Zeros(A,3,3)
 
-A = El.Matrix(El.dTag)
-El.Uniform( A, m, n, 0., 10.)
-El.Round( A )
-El.Print( A, "A" )
+A.Set(0,0,1)
+A.Set(1,0,1)
+A.Set(2,0,1)
 
-B=El.Matrix(El.dTag)
+A.Set(0,1,-1)
+A.Set(1,1, 0)
+A.Set(2,1, 2)
+
+A.Set(0,2,3)
+A.Set(1,2,5)
+A.Set(2,2,6)
+
+El.Print(A,"A")
+
+B=El.Matrix()
 
 El.Copy( A, B )
 QR = El.LLL(B,0.75)

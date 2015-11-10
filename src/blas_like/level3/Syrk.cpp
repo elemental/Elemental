@@ -191,12 +191,9 @@ void Syrk
     }
 
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    const Int commSize = mpi::Size( comm );
-
     if( C.Height() != n || C.Width() != n )
         LogicError("C was of the incorrect size");
-    if( C.Comm() != comm )
+    if( C.Comm() != A.Comm() )
         LogicError("Communicators of A and C must match");
 
     ScaleTrapezoid( beta, uplo, C );

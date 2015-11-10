@@ -12,8 +12,18 @@
 
 namespace El {
 
-template<typename Real>
-void LLL( Matrix<Real>& B, Real delta, Real eta, Real theta, Real innerTol );
+template<typename F>
+void LLL
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Base<F> delta,
+  Base<F> innerTol=0,
+  bool progress=false );
+template<typename F>
+Base<F> LLLDelta( const Matrix<F>& QR );
+
+template<typename F>
+void LatticeGramSchmidt( const Matrix<F>& B, Matrix<F>& G, Matrix<F>& M );
 
 } // namespace El
 

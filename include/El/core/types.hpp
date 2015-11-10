@@ -12,21 +12,6 @@
 
 namespace El {
 
-typedef unsigned char byte;
-
-// If these are changes, you must make sure that they have 
-// existing MPI datatypes. This is only sometimes true for 'long long'
-#ifdef EL_USE_64BIT_INTS
-typedef long long int Int;
-typedef long long unsigned Unsigned;
-#else
-typedef int Int;
-typedef unsigned Unsigned;
-#endif
- 
-typedef Complex<float>  scomplex; 
-typedef Complex<double> dcomplex;
-
 template<typename T>
 struct Range
 {

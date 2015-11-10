@@ -16,12 +16,26 @@
 
 namespace El {
 
+typedef unsigned char byte;
+
+// If these are changes, you must make sure that they have 
+// existing MPI datatypes. This is only sometimes true for 'long long'
+#ifdef EL_USE_64BIT_INTS
+typedef long long int Int;
+typedef long long unsigned Unsigned;
+#else
+typedef int Int;
+typedef unsigned Unsigned;
+#endif
+
 #if defined(EL_HAVE_QUADMATH)
 typedef __float128 Quad;
 #endif
 
 template<typename Real>
 using Complex = std::complex<Real>;
+typedef Complex<float>  scomplex;
+typedef Complex<double> dcomplex;
 
 // Basic element manipulation and I/O
 // ==================================
@@ -273,21 +287,33 @@ template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
 
 // Round to the nearest integer
 // ----------------------------
-template<typename Real> Real Round( const Real& alpha );
+template<typename T> T Round( const T& alpha );
+template<typename T> Complex<T> Round( const Complex<T>& alpha );
+// Full specializations
+// ^^^^^^^^^^^^^^^^^^^^
+template<> Int Round( const Int& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Round( const Quad& alpha );
 #endif
 
 // Ceiling
 // -------
-template<typename Real> Real Ceil( const Real& alpha );
+template<typename T> T Ceil( const T& alpha );
+template<typename T> Complex<T> Ceil( const Complex<T>& alpha );
+// Full specializations
+// ^^^^^^^^^^^^^^^^^^^^
+template<> Int Ceil( const Int& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Ceil( const Quad& alpha );
 #endif
 
 // Floor
 // -----
-template<typename Real> Real Floor( const Real& alpha );
+template<typename T> T Floor( const T& alpha );
+template<typename T> Complex<T> Floor( const Complex<T>& alpha );
+// Full specializations
+// ^^^^^^^^^^^^^^^^^^^^
+template<> Int Floor( const Int& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Floor( const Quad& alpha );
 #endif
