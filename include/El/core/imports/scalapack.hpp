@@ -36,10 +36,17 @@ namespace scalapack {
 
 // Cholesky
 // --------
-void Cholesky( char uplo, int n, float* A, const int* desca );
-void Cholesky( char uplo, int n, double* A, const int* desca );
-void Cholesky( char uplo, int n, scomplex* A, const int* desca );
-void Cholesky( char uplo, int n, dcomplex* A, const int* desca );
+void Cholesky( char uplo, int n, float* A, const int* descA );
+void Cholesky( char uplo, int n, double* A, const int* descA );
+void Cholesky( char uplo, int n, scomplex* A, const int* descA );
+void Cholesky( char uplo, int n, dcomplex* A, const int* descA );
+
+// QR
+// --
+void QR( int m, int n, float* A, const int* descA, float* tau );
+void QR( int m, int n, double* A, const int* descA, double* tau );
+void QR( int m, int n, scomplex* A, const int* descA, scomplex* tau );
+void QR( int m, int n, dcomplex* A, const int* descA, dcomplex* tau );
 
 // Solvers
 // =======
@@ -47,16 +54,16 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* desca );
 // General linear solver
 // ---------------------
 void LinearSolve
-( int n, int numRhs, float* A, const int* desca,
+( int n, int numRhs, float* A, const int* descA,
   int* ipiv, float* B, const int* descb );
 void LinearSolve
-( int n, int numRhs, double* A, const int* desca,
+( int n, int numRhs, double* A, const int* descA,
   int* ipiv, double* B, const int* descb );
 void LinearSolve
-( int n, int numRhs, scomplex* A, const int* desca,
+( int n, int numRhs, scomplex* A, const int* descA,
   int* ipiv, scomplex* B, const int* descb );
 void LinearSolve
-( int n, int numRhs, dcomplex* A, const int* desca,
+( int n, int numRhs, dcomplex* A, const int* descA,
   int* ipiv, dcomplex* B, const int* descb );
 
 // Spectral analysis
@@ -116,41 +123,41 @@ void SVD
 // """""""""""""""
 void HermitianEig
 ( char uplo, int n,
-  float* A, const int* desca,
+  float* A, const int* descA,
   float* w );
 void HermitianEig
 ( char uplo, int n,
-  double* A, const int* desca,
+  double* A, const int* descA,
   double* w );
 void HermitianEig
 ( char uplo, int n,
-  scomplex* A, const int* desca,
+  scomplex* A, const int* descA,
   float* w );
 void HermitianEig
 ( char uplo, int n,
-  dcomplex* A, const int* desca,
+  dcomplex* A, const int* descA,
   double* w );
 
 // Floating-point range
 // """"""""""""""""""""
 int HermitianEig
 ( char uplo, int n,
-  float* A, const int* desca,
+  float* A, const int* descA,
   float* w,
   float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
-  double* A, const int* desca,
+  double* A, const int* descA,
   double* w,
   double vl, double vu );
 int HermitianEig
 ( char uplo, int n,
-  scomplex* A, const int* desca,
+  scomplex* A, const int* descA,
   float* w,
   float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
-  dcomplex* A, const int* desca,
+  dcomplex* A, const int* descA,
   double* w,
   double vl, double vu );
 
@@ -158,22 +165,22 @@ int HermitianEig
 // """""""""""
 void HermitianEig
 ( char uplo, int n,
-  float* A, const int* desca,
+  float* A, const int* descA,
   float* w,
   int il, int iu );
 void HermitianEig
 ( char uplo, int n,
-  double* A, const int* desca,
+  double* A, const int* descA,
   double* w,
   int il, int iu );
 void HermitianEig
 ( char uplo, int n,
-  scomplex* A, const int* desca,
+  scomplex* A, const int* descA,
   float* w,
   int il, int iu );
 void HermitianEig
 ( char uplo, int n,
-  dcomplex* A, const int* desca,
+  dcomplex* A, const int* descA,
   double* w,
   int il, int iu );
 
@@ -184,77 +191,77 @@ void HermitianEig
 // """"""""""""""
 void HermitianEig
 ( char uplo, int n,
-  float* A, const int* desca,
+  float* A, const int* descA,
   float* w, 
-  float* Z, const int* descz );
+  float* Z, const int* descZ );
 void HermitianEig
 ( char uplo, int n,
-  double* A, const int* desca,
+  double* A, const int* descA,
   double* w, 
-  double* Z, const int* descz );
+  double* Z, const int* descZ );
 void HermitianEig
 ( char uplo, int n,
-  scomplex* A, const int* desca,
+  scomplex* A, const int* descA,
   float* w, 
-  scomplex* Z, const int* descz );
+  scomplex* Z, const int* descZ );
 void HermitianEig
 ( char uplo, int n,
-  dcomplex* A, const int* desca,
+  dcomplex* A, const int* descA,
   double* w, 
-  dcomplex* Z, const int* descz );
+  dcomplex* Z, const int* descZ );
 
 // Floating-point range
 // """"""""""""""""""""
 int HermitianEig
 ( char uplo, int n,
-  float* A, const int* desca,
+  float* A, const int* descA,
   float* w, 
-  float* Z, const int* descz,
+  float* Z, const int* descZ,
   float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
-  double* A, const int* desca,
+  double* A, const int* descA,
   double* w, 
-  double* Z, const int* descz,
+  double* Z, const int* descZ,
   double vl, double vu );
 int HermitianEig
 ( char uplo, int n,
-  scomplex* A, const int* desca,
+  scomplex* A, const int* descA,
   float* w, 
-  scomplex* Z, const int* descz,
+  scomplex* Z, const int* descZ,
   float vl, float vu );
 int HermitianEig
 ( char uplo, int n,
-  dcomplex* A, const int* desca,
+  dcomplex* A, const int* descA,
   double* w, 
-  dcomplex* Z, const int* descz,
+  dcomplex* Z, const int* descZ,
   double vl, double vu );
 
 // Index range
 // """""""""""
 void HermitianEig
 ( char uplo, int n,
-  float* A, const int* desca,
+  float* A, const int* descA,
   float* w, 
-  float* Z, const int* descz,
+  float* Z, const int* descZ,
   int il, int iu );
 void HermitianEig
 ( char uplo, int n,
-  double* A, const int* desca,
+  double* A, const int* descA,
   double* w, 
-  double* Z, const int* descz,
+  double* Z, const int* descZ,
   int il, int iu );
 void HermitianEig
 ( char uplo, int n,
-  scomplex* A, const int* desca,
+  scomplex* A, const int* descA,
   float* w, 
-  scomplex* Z, const int* descz,
+  scomplex* Z, const int* descZ,
   int il, int iu );
 void HermitianEig
 ( char uplo, int n,
-  dcomplex* A, const int* desca,
+  dcomplex* A, const int* descA,
   double* w, 
-  dcomplex* Z, const int* descz,
+  dcomplex* Z, const int* descZ,
   int il, int iu );
 
 // Reduction of a generalized HPD EVP to standard form
@@ -306,56 +313,56 @@ void TwoSidedTrmm
 
 void HessenbergSchur
 ( int n,
-  float* H, const int* desch,
+  float* H, const int* descH,
   scomplex* w,
   bool fullTriangle=false, bool aed=false );
 void HessenbergSchur
 ( int n,
-  double* H, const int* desch,
+  double* H, const int* descH,
   dcomplex* w,
   bool fullTriangle=false, bool aed=false );
 void HessenbergSchur
 ( int n,
-  scomplex* H, const int* desch,
+  scomplex* H, const int* descH,
   scomplex* w,
   bool fullTriangle=false, bool aed=false );
 void HessenbergSchur
 ( int n,
-  dcomplex* H, const int* desch,
+  dcomplex* H, const int* descH,
   dcomplex* w,
   bool fullTriangle=false, bool aed=false );
 
 void HessenbergSchur
 ( int n,
-  float* H, const int* desch,
+  float* H, const int* descH,
   scomplex* w, 
-  float* Q, const int* descq,
+  float* Q, const int* descQ,
   bool fullTriangle=true, bool multiplyQ=false, bool aed=false );
 void HessenbergSchur
 ( int n,
-  double* H, const int* desch,
+  double* H, const int* descH,
   dcomplex* w, 
-  double* Q, const int* descq,
+  double* Q, const int* descQ,
   bool fullTriangle=true, bool multiplyQ=false, bool aed=false );
 void HessenbergSchur
 ( int n,
-  scomplex* H, const int* desch,
+  scomplex* H, const int* descH,
   scomplex* w, 
-  scomplex* Q, const int* descq,
+  scomplex* Q, const int* descQ,
   bool fullTriangle=true, bool multiplyQ=false, bool aed=false );
 void HessenbergSchur
 ( int n,
-  dcomplex* H, const int* desch,
+  dcomplex* H, const int* descH,
   dcomplex* w, 
-  dcomplex* Q, const int* descq,
+  dcomplex* Q, const int* descQ,
   bool fullTriangle=true, bool multiplyQ=false, bool aed=false );
 
 // Hessenberg eigenvalues/pairs
 // ----------------------------
-void HessenbergEig( int n, float* H, const int* desch, scomplex* w );
-void HessenbergEig( int n, double* H, const int* desch, dcomplex* w );
-void HessenbergEig( int n, scomplex* H, const int* desch, scomplex* w );
-void HessenbergEig( int n, dcomplex* H, const int* desch, dcomplex* w );
+void HessenbergEig( int n, float* H, const int* descH, scomplex* w );
+void HessenbergEig( int n, double* H, const int* descH, dcomplex* w );
+void HessenbergEig( int n, scomplex* H, const int* descH, scomplex* w );
+void HessenbergEig( int n, dcomplex* H, const int* descH, dcomplex* w );
 
 // TODO: Compute the eigenvectors
 

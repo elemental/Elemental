@@ -38,6 +38,31 @@ void QR
     qr::Householder( A, t, d );
 }
 
+template<typename F>
+void QR
+( DistMatrix<F,MC,MR,BLOCK>& A,
+  DistMatrix<F,MR,STAR,BLOCK>& t )
+{
+    DEBUG_ONLY(CSE cse("QR"))
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    t.AlignWith( A );
+    t.Resize( minDim, 1 ); 
+
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
+    auto descA = FillDesc( A, context );
+
+    scalapack::QR( m, n, A.Buffer(), descA.data(), t.Buffer() );
+
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
+#endif
+}
+
 // Variants which perform (Businger-Golub) column-pivoting
 // =======================================================
 
@@ -86,6 +111,9 @@ void QR
     ElementalMatrix<Base<F>>& d, \
     ElementalMatrix<Int>& p, \
     const QRCtrl<Base<F>>& ctrl ); \
+  template void QR \
+  ( DistMatrix<F,MC,MR,BLOCK>& A, \
+    DistMatrix<F,MR,STAR,BLOCK>& t ); \
   template void qr::ExplicitTriang \
   ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \

@@ -37,6 +37,33 @@ void EL_SCALAPACK(pzpotrf)
   dcomplex* A, const int* iA, const int* jA, const int* descA,
   int* info );
 
+// QR
+// --
+void EL_SCALAPACK(psgeqrf)
+( const int* m, const int* n,
+  float* A, const int* iA, const int* jA, const int* descA,
+  float* tau,
+  float* work, const int* lwork,
+  int* info );
+void EL_SCALAPACK(pdgeqrf)
+( const int* m, const int* n,
+  double* A, const int* iA, const int* jA, const int* descA,
+  double* tau,
+  double* work, const int* lwork,
+  int* info );
+void EL_SCALAPACK(pcgeqrf)
+( const int* m, const int* n,
+  scomplex* A, const int* iA, const int* jA, const int* descA,
+  scomplex* tau,
+  scomplex* work, const int* lwork,
+  int* info );
+void EL_SCALAPACK(pzgeqrf)
+( const int* m, const int* n,
+  dcomplex* A, const int* iA, const int* jA, const int* descA,
+  dcomplex* tau,
+  dcomplex* work, const int* lwork,
+  int* info );
+
 // Solvers
 // =======
 
@@ -316,6 +343,80 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
     EL_SCALAPACK(pzpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
         RuntimeError("pzpotrf returned with info=",info);
+}
+
+// QR
+// --
+void QR( int m, int n, float* A, const int* descA, float* tau )
+{
+    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    int iA=1, jA=1, info;
+
+    int lwork=-1;
+    float dummyWork;
+    EL_SCALAPACK(psgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, &dummyWork, &lwork, &info );
+    
+    lwork = dummyWork;
+    vector<float> work(lwork);
+    EL_SCALAPACK(psgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("psgeqrf returned with info=",info);
+}
+
+void QR( int m, int n, double* A, const int* descA, double* tau )
+{
+    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    int iA=1, jA=1, info;
+
+    int lwork=-1;
+    double dummyWork;
+    EL_SCALAPACK(pdgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, &dummyWork, &lwork, &info );
+    
+    lwork = dummyWork;
+    vector<double> work(lwork);
+    EL_SCALAPACK(pdgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pdgeqrf returned with info=",info);
+}
+
+void QR( int m, int n, scomplex* A, const int* descA, scomplex* tau )
+{
+    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    int iA=1, jA=1, info;
+
+    int lwork=-1;
+    scomplex dummyWork;
+    EL_SCALAPACK(pcgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, &dummyWork, &lwork, &info );
+    
+    lwork = dummyWork.real();
+    vector<scomplex> work(lwork);
+    EL_SCALAPACK(pcgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pcgeqrf returned with info=",info);
+}
+
+void QR( int m, int n, dcomplex* A, const int* descA, dcomplex* tau )
+{
+    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    int iA=1, jA=1, info;
+
+    int lwork=-1;
+    dcomplex dummyWork;
+    EL_SCALAPACK(pzgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, &dummyWork, &lwork, &info );
+    
+    lwork = dummyWork.real();
+    vector<dcomplex> work(lwork);
+    EL_SCALAPACK(pzgeqrf)
+    ( &m, &n, A, &iA, &jA, descA, tau, work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pzgeqrf returned with info=",info);
 }
 
 // Solvers

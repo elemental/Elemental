@@ -77,7 +77,13 @@ void TestCorrectness
 }
 
 template<typename F>
-void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
+void TestQR
+( bool testCorrectness,
+  bool print,
+  Int m,
+  Int n,
+  const Grid& g,
+  bool scalapack )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,MD,STAR> t(g);
@@ -88,6 +94,22 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
         AOrig = A;
     if( print )
         Print( A, "A" );
+    const double mD = double(m);
+    const double nD = double(n);
+
+    if( scalapack )
+    {
+        DistMatrix<F,MC,MR,BLOCK> ABlock( A );
+        DistMatrix<F,MR,STAR,BLOCK> tBlock(g);
+        mpi::Barrier( g.Comm() );
+        const double startTime = mpi::Time();
+        QR( ABlock, tBlock ); 
+        const double runTime = mpi::Time() - startTime;
+        const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
+        const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+        if( g.Rank() == 0 )
+            Output("  ScaLAPACK: ",runTime," seconds. GFlops = ",gFlops);
+    }
 
     if( g.Rank() == 0 )
         Output("  Starting QR factorization...");
@@ -96,12 +118,10 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     QR( A, t, d );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
-    const double mD = double(m);
-    const double nD = double(n);
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
+        Output("  Elemental: ",runTime," seconds. GFlops = ",gFlops);
     if( print )
     {
         Print( A, "A after factorization" );
@@ -124,11 +144,16 @@ main( int argc, char* argv[] )
     {
         Int r = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",100);
-        const Int n = Input("--width","width of matrix",100);
-        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--height","height of matrix",1000);
+        const Int n = Input("--width","width of matrix",1000);
+        const Int nb = Input("--nb","algorithmic blocksize",64);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
+#ifdef EL_HAVE_SCALAPACK
+        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
+#else
+        const bool scalapack = false;
+#endif
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -144,11 +169,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             Output("Testing with doubles:");
-        TestQR<double>( testCorrectness, print, m, n, g );
+        TestQR<double>( testCorrectness, print, m, n, g, scalapack );
 
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
-        TestQR<Complex<double>>( testCorrectness, print, m, n, g );
+        TestQR<Complex<double>>( testCorrectness, print, m, n, g, scalapack );
     }
     catch( exception& e ) { ReportException(e); }
 
