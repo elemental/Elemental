@@ -559,46 +559,46 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 // Round to the nearest integer
 // ----------------------------
 template<typename T>
-inline T Round( const T& alpha ) { return round(alpha); }
+inline T RoundScalar( const T& alpha ) { return round(alpha); }
 template<typename T>
-inline Complex<T> Round( const Complex<T>& alpha )
-{ return Complex<T>(Round(alpha.real()),Round(alpha.imag())); }
+inline Complex<T> RoundScalar( const Complex<T>& alpha )
+{ return Complex<T>(RoundScalar(alpha.real()),RoundScalar(alpha.imag())); }
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> inline Int Round( const Int& alpha ) { return alpha; }
+template<> inline Int RoundScalar( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 template<>
-inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
+inline Quad RoundScalar( const Quad& alpha ) { return rintq(alpha); }
 #endif
 
 // Ceiling
 // -------
 template<typename T>
-inline T Ceil( const T& alpha ) { return ceil(alpha); }
+inline T CeilScalar( const T& alpha ) { return ceil(alpha); }
 template<typename T>
-inline Complex<T> Ceil( const Complex<T>& alpha )
-{ return Complex<T>(Ceil(alpha.real()),Ceil(alpha.imag())); }
+inline Complex<T> CeilScalar( const Complex<T>& alpha )
+{ return Complex<T>(CeilScalar(alpha.real()),CeilScalar(alpha.imag())); }
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> inline Int Ceil( const Int& alpha ) { return alpha; }
+template<> inline Int CeilScalar( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 template<>
-inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
+inline Quad CeilScalar( const Quad& alpha ) { return ceilq(alpha); }
 #endif
 
 // Floor
 // -----
 template<typename T>
-inline T Floor( const T& alpha ) { return floor(alpha); }
+inline T FloorScalar( const T& alpha ) { return floor(alpha); }
 template<typename T>
-inline Complex<T> Floor( const Complex<T>& alpha )
-{ return Complex<T>(Floor(alpha.real()),Floor(alpha.imag())); }
+inline Complex<T> FloorScalar( const Complex<T>& alpha )
+{ return Complex<T>(FloorScalar(alpha.real()),FloorScalar(alpha.imag())); }
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> inline Int Floor( const Int& alpha ) { return alpha; }
+template<> inline Int FloorScalar( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 template<>
-inline Quad Floor( const Quad& alpha ) { return floorq(alpha); }
+inline Quad FloorScalar( const Quad& alpha ) { return floorq(alpha); }
 #endif
 
 } // namespace El
