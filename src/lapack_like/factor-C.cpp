@@ -48,6 +48,7 @@ ElError ElQRCtrlDefault_s( ElQRCtrl_s* ctrl )
     ctrl->adaptive = false;
     ctrl->tol = 0;
     ctrl->alwaysRecomputeNorms = false;
+    ctrl->smallestFirst = false;
     return EL_SUCCESS;
 }
 
@@ -59,6 +60,7 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
     ctrl->adaptive = false;
     ctrl->tol = 0;
     ctrl->alwaysRecomputeNorms = false;
+    ctrl->smallestFirst = false;
     return EL_SUCCESS;
 }
 

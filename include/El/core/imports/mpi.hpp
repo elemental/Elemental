@@ -112,6 +112,54 @@ const Op BINARY_AND = MPI_BAND;
 const Op BINARY_OR = MPI_BOR;
 const Op BINARY_XOR = MPI_BXOR;
 
+template<typename T> Op UserOp();
+template<typename T> Op UserCommOp();
+
+template<typename Real> inline Op MaxOp() EL_NO_EXCEPT { return MAX; }
+template<typename Real> inline Op MinOp() EL_NO_EXCEPT { return MIN; }
+#ifdef EL_HAVE_QUAD
+template<> Op MaxOp<Quad>() EL_NO_EXCEPT;
+template<> Op MinOp<Quad>() EL_NO_EXCEPT;
+#endif
+
+template<typename T> inline Op SumOp() EL_NO_EXCEPT { return SUM; }
+#ifdef EL_HAVE_QUAD
+template<> Op SumOp<Quad>() EL_NO_EXCEPT;
+template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT;
+#endif
+
+template<typename Real> Op MaxLocOp() EL_NO_EXCEPT;
+template<> Op MaxLocOp<Int>() EL_NO_EXCEPT;
+template<> Op MaxLocOp<float>() EL_NO_EXCEPT;
+template<> Op MaxLocOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QUAD
+template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT;
+#endif
+
+template<typename Real> Op MaxLocPairOp() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<Int>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QUAD
+template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT;
+#endif
+
+template<typename Real> Op MinLocOp() EL_NO_EXCEPT;
+template<> Op MinLocOp<Int>() EL_NO_EXCEPT;
+template<> Op MinLocOp<float>() EL_NO_EXCEPT;
+template<> Op MinLocOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QUAD
+template<> Op MinLocOp<Quad>() EL_NO_EXCEPT;
+#endif
+
+template<typename Real> Op MinLocPairOp() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<Int>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<float>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QUAD
+template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT;
+#endif
+
 // Added constant(s)
 const int MIN_COLL_MSG = 1; // minimum message size for collectives
 inline int Pad( int count ) EL_NO_EXCEPT
@@ -202,6 +250,11 @@ bool IProbe
 
 template<typename T>
 int GetCount( Status& status ) EL_NO_RELEASE_EXCEPT;
+
+// NOTE: This is instantiated for the standard datatypes
+template<typename T>
+void SetUserReduceFunc
+( std::function<T(const T&,const T&)> func, bool commutative=true );
 
 // Point-to-point communication
 // ============================
@@ -560,6 +613,22 @@ template<typename Real>
 void AllReduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+template<typename T,class OpClass>
+inline void CustomAllReduce
+( const T* sb, T* rb, int count, OpClass op, bool commutative, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    if( commutative )
+    {
+        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
+        AllReduce( sb, rb, count, UserCommOp<T>(), comm ); 
+    }
+    else
+    {
+        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
+        AllReduce( sb, rb, count, UserOp<T>(), comm ); 
+    }
+}
 
 // Default to SUM
 template<typename T>
@@ -569,6 +638,21 @@ EL_NO_RELEASE_EXCEPT;
 // If the message-length is one
 template<typename T>
 T AllReduce( T sb, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<typename T,class OpClass>
+inline T CustomAllReduce
+( T sb, OpClass op, bool commutative, Comm comm ) EL_NO_RELEASE_EXCEPT
+{
+    if( commutative )
+    {
+        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
+        return AllReduce( sb, UserCommOp<T>(), comm ); 
+    }
+    else
+    {
+        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
+        return AllReduce( sb, UserOp<T>(), comm ); 
+    }
+}
 
 // If the message-length is one (and default to SUM)
 template<typename T>
@@ -581,6 +665,22 @@ void AllReduce( T* buf, int count, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+template<typename T,class OpClass>
+inline void CustomAllReduce
+( T* buf, int count, OpClass op, bool commutative, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    if( commutative )
+    {
+        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
+        AllReduce( buf, count, UserCommOp<T>(), comm ); 
+    }
+    else
+    {
+        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
+        AllReduce( buf, count, UserOp<T>(), comm ); 
+    }
+}
 
 // Default to SUM
 template<typename T>
@@ -720,51 +820,7 @@ template<> Datatype TypeMap<Entry<Complex<double>>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<Quad>>>() EL_NO_EXCEPT;
 #endif
 
-template<typename Real> inline Op MaxOp() EL_NO_EXCEPT { return MAX; }
-template<typename Real> inline Op MinOp() EL_NO_EXCEPT { return MIN; }
-#ifdef EL_HAVE_QUAD
-template<> Op MaxOp<Quad>() EL_NO_EXCEPT;
-template<> Op MinOp<Quad>() EL_NO_EXCEPT;
-#endif
-
-template<typename T> inline Op SumOp() EL_NO_EXCEPT { return SUM; }
-#ifdef EL_HAVE_QUAD
-template<> Op SumOp<Quad>() EL_NO_EXCEPT;
-template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT;
-#endif
-
-template<typename Real> Op MaxLocOp() EL_NO_EXCEPT;
-template<> Op MaxLocOp<Int>() EL_NO_EXCEPT;
-template<> Op MaxLocOp<float>() EL_NO_EXCEPT;
-template<> Op MaxLocOp<double>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT;
-#endif
-
-template<typename Real> Op MaxLocPairOp() EL_NO_EXCEPT;
-template<> Op MaxLocPairOp<Int>() EL_NO_EXCEPT;
-template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT;
-template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT;
-#endif
-
-template<typename Real> Op MinLocOp() EL_NO_EXCEPT;
-template<> Op MinLocOp<Int>() EL_NO_EXCEPT;
-template<> Op MinLocOp<float>() EL_NO_EXCEPT;
-template<> Op MinLocOp<double>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Op MinLocOp<Quad>() EL_NO_EXCEPT;
-#endif
-
-template<typename Real> Op MinLocPairOp() EL_NO_EXCEPT;
-template<> Op MinLocPairOp<Int>() EL_NO_EXCEPT;
-template<> Op MinLocPairOp<float>() EL_NO_EXCEPT;
-template<> Op MinLocPairOp<double>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT;
-#endif
-
+// Convenience functions which might not be very useful
 int Comm::Rank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(*this); }
 int Comm::Size() const EL_NO_RELEASE_EXCEPT { return mpi::Size(*this); }
 int Group::Rank() const EL_NO_RELEASE_EXCEPT { return mpi::Rank(*this); }

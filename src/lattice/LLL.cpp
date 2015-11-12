@@ -177,7 +177,14 @@ void Step
 } // namespace lll
 
 template<typename F>
-void LLL( Matrix<F>& B, Matrix<F>& QR, Base<F> delta, Base<F> loopTol, bool progress )
+Int LLL
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Base<F> delta,
+  Base<F> loopTol,
+  bool presort,
+  bool smallestFirst,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("LLL"))
     typedef Base<F> Real;
@@ -188,6 +195,20 @@ void LLL( Matrix<F>& B, Matrix<F>& QR, Base<F> delta, Base<F> loopTol, bool prog
 
     // Force the input to be integer-valued; it would be okay to assume this
     Round( B );
+
+    if( presort )
+    {
+        QRCtrl<Real> ctrl;
+        ctrl.smallestFirst = smallestFirst;
+
+        auto BCopy = B;
+        Matrix<F> t;
+        Matrix<Real> d;
+        Matrix<Int> colPerm;
+        El::QR( BCopy, t, d, colPerm, ctrl );
+
+        InversePermuteCols( B, colPerm );
+    }
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -201,7 +222,7 @@ void LLL( Matrix<F>& B, Matrix<F>& QR, Base<F> delta, Base<F> loopTol, bool prog
     // Perform the first step of Householder reduction
     lll::HouseholderStep( 0, B, QR, t, d, zeroTol );
 
-    Int k=1;
+    Int k=1, numBacktrack=0;
     while( k < n )
     {
         lll::Step( k, B, QR, t, d, delta, loopTol, zeroTol, progress );
@@ -216,6 +237,7 @@ void LLL( Matrix<F>& B, Matrix<F>& QR, Base<F> delta, Base<F> loopTol, bool prog
         }
         else
         {
+            ++numBacktrack;
             if( progress )
                 Output("Dropping from k=",k," to ",Max(k-1,1));
             ColSwap( B, k-1, k );
@@ -230,6 +252,7 @@ void LLL( Matrix<F>& B, Matrix<F>& QR, Base<F> delta, Base<F> loopTol, bool prog
             }
         }
     }
+    return numBacktrack;
 }
 
 template<typename F>
@@ -271,7 +294,8 @@ Base<F> LLLDelta( const Matrix<F>& QR )
     //
     //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < k < n
     //
-    // NOTE: This does not seem to hold for complex LLL reductions.
+    // NOTE: This does not seem to hold for complex LLL reductions,
+    //       so sqrt(2)/2 is used instead.
     auto diagR = GetDiagonal(R);
     DiagonalSolve( LEFT, NORMAL, diagR, R );
     ShiftDiagonal( R, F(-1) );
@@ -285,11 +309,13 @@ Base<F> LLLDelta( const Matrix<F>& QR )
 }
 
 #define PROTO(F) \
-  template void LLL \
+  template Int LLL \
   ( Matrix<F>& B, \
     Matrix<F>& QR, \
     Base<F> delta, \
     Base<F> loopTol, \
+    bool presort, \
+    bool smallestFirst, \
     bool progress ); \
   template Base<F> LLLDelta( const Matrix<F>& QR );
 

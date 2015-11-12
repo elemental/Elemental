@@ -10,6 +10,13 @@
 
 namespace {
 
+using El::Int;
+#ifdef EL_HAVE_QUAD
+using El::Quad;
+#endif
+using El::Complex;
+using std::function;
+
 // Datatypes
 // =========
 #ifdef EL_HAVE_QUAD
@@ -56,18 +63,287 @@ El::mpi::Op minLocPairIntOp, minLocPairFloatOp, minLocPairDoubleOp;
 El::mpi::Op minLocPairQuadOp;
 #endif
 
-} // anonymouse namespace   
+function<Int(const Int&,const Int&)>
+  userIntFunc, userIntCommFunc;
+El::mpi::Op userIntOp, userIntCommOp;
+
+function<float(const float&,const float&)>
+  userFloatFunc, userFloatCommFunc;
+El::mpi::Op userFloatOp, userFloatCommOp;
+
+function<double(const double&,const double&)>
+  userDoubleFunc, userDoubleCommFunc;
+El::mpi::Op userDoubleOp, userDoubleCommOp;
+
+function<Complex<float>(const Complex<float>&,const Complex<float>&)>
+  userComplexFloatFunc, userComplexFloatCommFunc;
+El::mpi::Op userComplexFloatOp, userComplexFloatCommOp;
+
+function<Complex<double>(const Complex<double>&,const Complex<double>&)>
+  userComplexDoubleFunc, userComplexDoubleCommFunc;
+El::mpi::Op userComplexDoubleOp, userComplexDoubleCommOp;
+
+#ifdef EL_HAVE_QUAD
+function<Quad(const Quad&,const Quad&)>
+  userQuadFunc, userQuadCommFunc;
+El::mpi::Op userQuadOp, userQuadCommOp;
+
+function<Complex<Quad>(const Complex<Quad>&,const Complex<Quad>&)>
+  userComplexQuadFunc, userComplexQuadCommFunc;
+El::mpi::Op userComplexQuadOp, userComplexQuadCommOp;
+#endif
+
+// TODO: ValueInt<Real> user functions and ops
+// TODO: ValueIntPair<Real> user functions and ops
+
+} // anonymous namespace   
 
 namespace El {
 namespace mpi {
+
+// TODO: Expose hooks for these routines so that the user could run
+//
+//  mpi::AllReduce
+//  ( value,
+//    []( const T& alpha, const T& beta ) { return Min(alpha,beta); }
+//    comm )
+//
+template<>
+void SetUserReduceFunc
+( function<Int(const Int&,const Int&)> func, bool commutative )
+{
+    if( commutative )
+        ::userIntCommFunc = func;
+    else
+        ::userIntFunc = func;
+}
+static void
+UserIntReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Int*>(inVoid);
+    auto outData = static_cast<      Int*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userIntFunc(inData[j],outData[j]);
+}
+static void
+UserIntReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Int*>(inVoid);
+    auto outData = static_cast<      Int*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userIntCommFunc(inData[j],outData[j]);
+}
+
+template<>
+void SetUserReduceFunc
+( function<float(const float&,const float&)> func, bool commutative )
+{
+    if( commutative )
+        ::userFloatCommFunc = func;
+    else
+        ::userFloatFunc = func;
+}
+static void
+UserFloatReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const float*>(inVoid);
+    auto outData = static_cast<      float*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userFloatFunc(inData[j],outData[j]);
+}
+static void
+UserFloatReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const float*>(inVoid);
+    auto outData = static_cast<      float*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userFloatCommFunc(inData[j],outData[j]);
+}
+
+template<>
+void SetUserReduceFunc
+( function<double(const double&,const double&)> func, bool commutative )
+{
+    if( commutative )
+        ::userDoubleCommFunc = func;
+    else
+        ::userDoubleFunc = func;
+}
+static void
+UserDoubleReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const double*>(inVoid);
+    auto outData = static_cast<      double*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userDoubleFunc(inData[j],outData[j]);
+}
+static void
+UserDoubleReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const double*>(inVoid);
+    auto outData = static_cast<      double*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userDoubleCommFunc(inData[j],outData[j]);
+}
+
+template<>
+void SetUserReduceFunc
+( function<Complex<float>(const Complex<float>&,const Complex<float>&)> func,
+  bool commutative )
+{
+    if( commutative )
+        ::userComplexFloatCommFunc = func;
+    else
+        ::userComplexFloatFunc = func;
+}
+static void
+UserComplexFloatReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Complex<float>*>(inVoid);
+    auto outData = static_cast<      Complex<float>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userComplexFloatFunc(inData[j],outData[j]);
+}
+static void
+UserComplexFloatReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Complex<float>*>(inVoid);
+    auto outData = static_cast<      Complex<float>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userComplexFloatCommFunc(inData[j],outData[j]);
+}
+
+template<>
+void SetUserReduceFunc
+( function<Complex<double>(const Complex<double>&,const Complex<double>&)> func,
+  bool commutative )
+{
+    if( commutative )
+        ::userComplexDoubleCommFunc = func;
+    else
+        ::userComplexDoubleFunc = func;
+}
+static void
+UserComplexDoubleReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Complex<double>*>(inVoid);
+    auto outData = static_cast<      Complex<double>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userComplexDoubleFunc(inData[j],outData[j]);
+}
+static void
+UserComplexDoubleReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Complex<double>*>(inVoid);
+    auto outData = static_cast<      Complex<double>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userComplexDoubleCommFunc(inData[j],outData[j]);
+}
+
+#ifdef EL_HAVE_QUAD
+template<>
+void SetUserReduceFunc
+( function<Quad(const Quad&,const Quad&)> func, bool commutative )
+{
+    if( commutative )
+        ::userQuadReduceCommFunc = func;
+    else
+        ::userQuadReduceFunc = func;
+}
+static void
+UserQuadReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Quad*>(inVoid);
+    auto outData = static_cast<      Quad*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userQuadFunc(inData[j],outData[j]);
+}
+static void
+UserQuadReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Quad*>(inVoid);
+    auto outData = static_cast<      Quad*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userQuadCommFunc(inData[j],outData[j]);
+}
+
+template<>
+void SetUserReduceFunc
+( function<Complex<Quad>(const Complex<Quad>&,const Complex<Quad>&)> func,
+  bool commutative )
+{
+    if( commutative )
+        ::userComplexQuadCommFunc = func;
+    else
+        ::userComplexQuadFunc = func;
+}
+static void
+UserComplexQuadReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Complex<Quad>*>(inVoid);
+    auto outData = static_cast<      Complex<Quad>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userComplexQuadFunc(inData[j],outData[j]);
+}
+static void
+UserComplexQuadReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const Complex<Quad>*>(inVoid);
+    auto outData = static_cast<      Complex<Quad>*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] = ::userComplexQuadCommFunc(inData[j],outData[j]);
+}
+#endif
 
 #ifdef EL_HAVE_QUAD
 static void
 MaxQuad( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Quad* inData  = static_cast<const Quad*>(inVoid);
-          Quad* outData = static_cast<      Quad*>(outVoid);
+    auto inData  = static_cast<const Quad*>(inVoid);
+    auto outData = static_cast<      Quad*>(outVoid);
     const int length = *lengthPtr;
     for( int j=0; j<length; ++j )
     {
@@ -80,8 +356,8 @@ static void
 MinQuad( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Quad* inData  = static_cast<const Quad*>(inVoid);
-          Quad* outData = static_cast<      Quad*>(outVoid);
+    auto inData  = static_cast<const Quad*>(inVoid);
+    auto outData = static_cast<      Quad*>(outVoid);
     const int length = *lengthPtr;
     for( int j=0; j<length; ++j )
     {
@@ -94,8 +370,8 @@ static void
 SumQuad( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Quad* inData  = static_cast<const Quad*>(inVoid);
-          Quad* outData = static_cast<      Quad*>(outVoid);
+    auto inData  = static_cast<const Quad*>(inVoid);
+    auto outData = static_cast<      Quad*>(outVoid);
     const int length = *lengthPtr;
     for( int j=0; j<length; ++j )
         outData[j] += inData[j];
@@ -106,8 +382,8 @@ SumQuadComplex
 ( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
-    const Complex<Quad>* inData  = static_cast<const Complex<Quad>*>(inVoid);
-          Complex<Quad>* outData = static_cast<      Complex<Quad>*>(outVoid);
+    auto inData  = static_cast<const Complex<Quad>*>(inVoid);
+    auto outData = static_cast<      Complex<Quad>*>(outVoid);
     const int length = *lengthPtr;
     for( int j=0; j<length; ++j )
         outData[j] += inData[j];
@@ -119,8 +395,8 @@ static void
 MaxLocFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const ValueInt<T>* inData  = static_cast<const ValueInt<T>*>(inVoid);
-          ValueInt<T>* outData = static_cast<      ValueInt<T>*>(outVoid);
+    auto inData  = static_cast<const ValueInt<T>*>(inVoid);
+    auto outData = static_cast<      ValueInt<T>*>(outVoid);
     const int length = *lengthPtr;
     for( int j=0; j<length; ++j )
     {
@@ -153,8 +429,8 @@ MaxLocPairFunc
 ( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const Entry<T>* inData  = static_cast<const Entry<T>*>(inVoid);
-          Entry<T>* outData = static_cast<      Entry<T>*>(outVoid);
+    auto inData  = static_cast<const Entry<T>*>(inVoid);
+    auto outData = static_cast<      Entry<T>*>(outVoid);
     const int length = *lengthPtr;
     for( int k=0; k<length; ++k )
     {
@@ -185,8 +461,8 @@ static void
 MinLocFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const ValueInt<T>* inData  = static_cast<const ValueInt<T>*>(inVoid);
-          ValueInt<T>* outData = static_cast<      ValueInt<T>*>(outVoid);
+    auto inData  = static_cast<const ValueInt<T>*>(inVoid);
+    auto outData = static_cast<      ValueInt<T>*>(outVoid);
     const int length = *lengthPtr;
     for( int j=0; j<length; ++j )
     {
@@ -219,8 +495,8 @@ MinLocPairFunc
 ( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
-    const Entry<T>* inData  = static_cast<const Entry<T>*>(inVoid);
-          Entry<T>* outData = static_cast<      Entry<T>*>(outVoid);
+    auto inData  = static_cast<const Entry<T>*>(inVoid);
+    auto outData = static_cast<      Entry<T>*>(outVoid);
     const int length = *lengthPtr;
     for( int k=0; k<length; ++k )
     {
@@ -513,6 +789,43 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
 
     // Create the necessary MPI operations
     // ===================================
+    // Functions for user-defined ops
+    // ------------------------------
+    Create
+    ( (UserFunction*)UserIntReduce, false, ::userIntOp );
+    Create
+    ( (UserFunction*)UserIntReduceComm, true, ::userIntCommOp );
+    Create
+    ( (UserFunction*)UserFloatReduce, false, ::userFloatOp );
+    Create
+    ( (UserFunction*)UserFloatReduceComm, true, ::userFloatCommOp );
+    Create
+    ( (UserFunction*)UserDoubleReduce, false, ::userDoubleOp );
+    Create
+    ( (UserFunction*)UserDoubleReduceComm, true, ::userDoubleCommOp );
+    Create
+    ( (UserFunction*)UserComplexFloatReduce, false,
+                   ::userComplexFloatOp );
+    Create
+    ( (UserFunction*)UserComplexFloatReduceComm, true,
+                   ::userComplexFloatCommOp );
+    Create
+    ( (UserFunction*)UserComplexDoubleReduce, false,
+                   ::userComplexDoubleOp );
+    Create
+    ( (UserFunction*)UserComplexDoubleReduceComm, true,
+                   ::userComplexDoubleCommOp );
+#ifdef EL_HAVE_QUAD
+    Create
+    ( (UserFunction*)UserQuadReduce, false, ::userQuadOp );
+    Create
+    ( (UserFunction*)UserQuadReduceComm, true, ::userQuadCommOp );
+    Create
+    ( (UserFunction*)UserComplexQuadReduce, false, ::userComplexQuadOp );
+    Create
+    ( (UserFunction*)UserComplexQuadReduceComm, true, ::userComplexQuadCommOp );
+#endif
+   
     // Functions for scalar types
     // --------------------------
 #ifdef EL_HAVE_QUAD
@@ -591,6 +904,26 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 
     // Destroy the created operations
     // ==============================
+
+    // User-defined operations
+    // -----------------------
+    Free( ::userIntOp );
+    Free( ::userIntCommOp );
+    Free( ::userFloatOp );
+    Free( ::userFloatCommOp );
+    Free( ::userDoubleOp );
+    Free( ::userDoubleCommOp );
+    Free( ::userComplexFloatOp );
+    Free( ::userComplexFloatCommOp );
+    Free( ::userComplexDoubleOp );
+    Free( ::userComplexDoubleCommOp );
+#ifdef EL_HAVE_QUAD
+    Free( ::userQuadOp );
+    Free( ::userQuadCommOp );
+    Free( ::userComplexQuadOp );
+    Free( ::userComplexQuadCommOp );
+#endif
+
 #ifdef EL_HAVE_QUAD
     Free( ::maxQuadOp );
     Free( ::minQuadOp );
@@ -622,6 +955,34 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
     Free( ::minLocPairQuadOp );
 #endif
 }
+
+template<> Op UserOp<Int>() EL_NO_EXCEPT { return ::userIntOp; }
+template<> Op UserOp<float>() EL_NO_EXCEPT { return ::userFloatOp; }
+template<> Op UserOp<double>() EL_NO_EXCEPT { return ::userDoubleOp; }
+template<> Op UserOp<Complex<float>>() EL_NO_EXCEPT
+{ return ::userComplexFloatOp; }
+template<> Op UserOp<Complex<double>>() EL_NO_EXCEPT
+{ return ::userComplexDoubleOp; }
+#ifdef EL_HAVE_QUAD
+template<> Op UserOp<Quad>() EL_NO_EXCEPT
+{ return ::userQuadOp; }
+template<> Op UserOp<Complex<Quad>>() EL_NO_EXCEPT
+{ return ::userComplexQuadOp; }
+#endif
+
+template<> Op UserCommOp<Int>() EL_NO_EXCEPT { return ::userIntCommOp; }
+template<> Op UserCommOp<float>() EL_NO_EXCEPT { return ::userFloatCommOp; }
+template<> Op UserCommOp<double>() EL_NO_EXCEPT { return ::userDoubleCommOp; }
+template<> Op UserCommOp<Complex<float>>() EL_NO_EXCEPT
+{ return ::userComplexFloatCommOp; }
+template<> Op UserCommOp<Complex<double>>() EL_NO_EXCEPT
+{ return ::userComplexDoubleCommOp; }
+#ifdef EL_HAVE_QUAD
+template<> Op UserCommOp<Quad>() EL_NO_EXCEPT
+{ return ::userQuadCommOp; }
+template<> Op UserCommOp<Complex<Quad>>() EL_NO_EXCEPT
+{ return ::userComplexQuadCommOp; }
+#endif
 
 #ifdef EL_HAVE_QUAD
 template<> Op MaxOp<Quad>() EL_NO_EXCEPT { return ::maxQuadOp; }

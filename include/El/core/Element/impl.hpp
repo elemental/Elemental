@@ -559,7 +559,7 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 // Round to the nearest integer
 // ----------------------------
 template<typename T>
-inline T Round( const T& alpha ) { return std::round(alpha); }
+inline T Round( const T& alpha ) { return round(alpha); }
 template<typename T>
 inline Complex<T> Round( const Complex<T>& alpha )
 { return Complex<T>(Round(alpha.real()),Round(alpha.imag())); }
@@ -574,7 +574,7 @@ inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
 // Ceiling
 // -------
 template<typename T>
-inline T Ceil( const T& alpha ) { return std::ceil(alpha); }
+inline T Ceil( const T& alpha ) { return ceil(alpha); }
 template<typename T>
 inline Complex<T> Ceil( const Complex<T>& alpha )
 { return Complex<T>(Ceil(alpha.real()),Ceil(alpha.imag())); }
@@ -589,7 +589,7 @@ inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 // Floor
 // -----
 template<typename T>
-inline T Floor( const T& alpha ) { return std::floor(alpha); }
+inline T Floor( const T& alpha ) { return floor(alpha); }
 template<typename T>
 inline Complex<T> Floor( const Complex<T>& alpha )
 { return Complex<T>(Floor(alpha.real()),Floor(alpha.imag())); }

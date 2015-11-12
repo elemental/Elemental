@@ -31,12 +31,16 @@ ColNorms( const Matrix<F>& A, vector<Base<F>>& norms )
     return maxNorm;
 }
 
-template<typename Real>
+template<typename Real,class Compare=std::less<Real>>
 inline ValueInt<Real>
-FindPivot( const vector<Real>& norms, Int col )
+FindPivot
+( const vector<Real>& norms,
+        Int col,
+        Compare compare=std::less<Real>() )
 {
     DEBUG_ONLY(CSE cse("qr::FindPivot"))
-    const auto maxNorm = std::max_element( norms.begin()+col, norms.end() );
+    const auto maxNorm =
+      std::max_element( norms.begin()+col, norms.end(), compare );
     ValueInt<Real> pivot;
     pivot.value = *maxNorm;
     pivot.index = maxNorm - norms.begin();
@@ -45,7 +49,10 @@ FindPivot( const vector<Real>& norms, Int col )
 
 template<typename F> 
 inline void BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& p,
+(       Matrix<F>& A,
+        Matrix<F>& t,
+        Matrix<Base<F>>& d,
+        Matrix<Int>& p,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::BusingerGolub"))
@@ -85,9 +92,18 @@ inline void BusingerGolub
         auto AB2     = A( indB, ind2 );
 
         // Find the next column pivot
-        const ValueInt<Real> pivot = FindPivot( norms, k );
-        if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
-            break;
+        ValueInt<Real> pivot;
+        if( ctrl.smallestFirst )
+        {
+            // Adaptivity does not make sense for "rank-obscuring" factorization
+            pivot = FindPivot( norms, k, std::greater<Real>() );
+        }
+        else
+        {
+            pivot = FindPivot( norms, k, std::less<Real>() );
+            if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
+                break;
+        }
         RowSwap( pInv, k, pivot.index );
  
         // Perform the swap
@@ -154,19 +170,36 @@ inline void BusingerGolub
     t.Resize( k, 1 );
 }
 
+// TODO: Implement lambda op which is registered to MPI but can easily
+//       be swapped out by Elemental?
+//
+//       In the mean time, we can simply make use of smallestFirst.
 template<typename F>
 inline ValueInt<Base<F>>
 FindColPivot
-( const DistMatrix<F>& A, const vector<Base<F>>& norms, Int col )
+( const DistMatrix<F>& A,
+  const vector<Base<F>>& norms,
+        Int col,
+        bool smallestFirst=false )
 {
     DEBUG_ONLY(CSE cse("qr::FindColPivot"))
     typedef Base<F> Real;
     const Int localColsBefore = A.LocalColOffset(col);
-    const ValueInt<Real> localPivot = FindPivot( norms, localColsBefore );
+    ValueInt<Real> localPivot;
+    if( smallestFirst )
+        localPivot = FindPivot( norms, localColsBefore, std::greater<Real>() );
+    else
+        localPivot = FindPivot( norms, localColsBefore, std::less<Real>() );
     ValueInt<Real> pivot;
     pivot.value = localPivot.value;
     pivot.index = A.GlobalCol(localPivot.index);
-    return mpi::AllReduce( pivot, mpi::MaxLocOp<Real>(), A.Grid().RowComm() );
+
+    if( smallestFirst )
+        return mpi::AllReduce
+               ( pivot, mpi::MinLocOp<Real>(), A.Grid().RowComm() );
+    else
+        return mpi::AllReduce
+               ( pivot, mpi::MaxLocOp<Real>(), A.Grid().RowComm() );
 }
 
 template<typename F>
@@ -226,8 +259,10 @@ ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
 template<typename F>
 inline void
 ReplaceColNorms
-( const DistMatrix<F>& A, vector<Int>& inaccurateNorms, 
-  vector<Base<F>>& norms, vector<Base<F>>& origNorms )
+( const DistMatrix<F>& A,
+        vector<Int>& inaccurateNorms, 
+        vector<Base<F>>& norms,
+        vector<Base<F>>& origNorms )
 {
     DEBUG_ONLY(CSE cse("qr::ReplaceColNorms"))
     typedef Base<F> Real;
@@ -278,13 +313,15 @@ ReplaceColNorms
 
 template<typename F>
 inline void BusingerGolub
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& t, 
-  ElementalMatrix<Base<F>>& d, ElementalMatrix<Int>& p, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& t, 
+  ElementalMatrix<Base<F>>& d,
+  ElementalMatrix<Int>& p, 
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("qr::BusingerGolub");
-        AssertSameGrids( APre, t, d, p );
+      CSE cse("qr::BusingerGolub");
+      AssertSameGrids( APre, t, d, p );
     )
     typedef Base<F> Real;
 
@@ -332,9 +369,18 @@ inline void BusingerGolub
         auto AB2     = A( indB, ind2 );
 
         // Find the next column pivot
-        const ValueInt<Real> pivot = FindColPivot( A, norms, k );
-        if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
-            break;
+        ValueInt<Real> pivot;
+        if( ctrl.smallestFirst )
+        {
+            // Adaptivity does not make sense for "rank-obscuring" factorization
+            pivot = FindColPivot( A, norms, k, true );
+        }
+        else
+        {
+            pivot = FindColPivot( A, norms, k, false );
+            if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
+                break;
+        }
         RowSwap( pInv, k, pivot.index );
 
         // Perform the swap

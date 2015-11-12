@@ -21,8 +21,13 @@ extern "C" {
     ElMatrix_ ## SIG QR, \
     Base<F> delta, \
     Base<F> innerTol, \
-    bool progress ) \
-  { EL_TRY( LLL( *CReflect(B), *CReflect(QR), delta, innerTol, progress ) ) } \
+    bool presort, \
+    bool smallestFirst, \
+    bool progress, \
+    ElInt* numBacktrack ) \
+  { EL_TRY( *numBacktrack = \
+      LLL( *CReflect(B), *CReflect(QR), delta, innerTol, \
+           presort, smallestFirst, progress ) ) } \
   ElError ElLLLDelta_ ## SIG \
   ( ElConstMatrix_ ## SIG QR, Base<F>* delta ) \
   { EL_TRY( *delta = LLLDelta( *CReflect(QR) ) ) }

@@ -36,21 +36,23 @@ def LatticeGramSchmidt(B):
 # ===
 lib.ElLLL_s.argtypes = \
 lib.ElLLL_c.argtypes = \
-  [c_void_p,c_void_p,sType,sType,bType]
+  [c_void_p,c_void_p,sType,sType,bType,bType,bType,POINTER(iType)]
 lib.ElLLL_d.argtypes = \
 lib.ElLLL_z.argtypes = \
-  [c_void_p,c_void_p,dType,dType,bType]
+  [c_void_p,c_void_p,dType,dType,bType,bType,bType,POINTER(iType)]
 
-def LLL(B,delta,innerTol=0,progress=False):
+def LLL(B,delta,innerTol=0,presort=False,smallestFirst=True,progress=False):
+  numBacktrack = iType()
   QRMat = Matrix(B.tag)
-  args = [B.obj,QRMat.obj,delta,innerTol,progress]
+  args = [B.obj,QRMat.obj,delta,innerTol,
+          presort,smallestFirst,progress,pointer(numBacktrack)]
   if type(B) is Matrix:
     if   B.tag == sTag: lib.ElLLL_s(*args)
     elif B.tag == dTag: lib.ElLLL_d(*args)
     elif B.tag == cTag: lib.ElLLL_c(*args)
     elif B.tag == zTag: lib.ElLLL_z(*args)
     else: DataExcept()
-    return QRMat
+    return QRMat, numBacktrack.value
   else: TypeExcept()
 
 lib.ElLLLDelta_s.argtypes = \
