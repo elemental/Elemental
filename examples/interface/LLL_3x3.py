@@ -1,4 +1,8 @@
-import El;
+import El
+
+loopTol = 0.
+progress = False
+output = True
 
 # Form 
 # 1 -1 3
@@ -19,20 +23,19 @@ A.Set(0,2,3)
 A.Set(1,2,5)
 A.Set(2,2,6)
 
-El.Print(A,"A")
+if output:
+  El.Print(A,"A")
 
 B=El.Matrix()
 
-El.Copy( A, B )
-QR = El.LLL(B,0.75)
-El.Print(B,"B(0.75)")
-delta = El.LLLDelta(QR)
-print "delta=", delta
-print ""
-
-El.Copy( A, B )
-QR = El.LLL(B,0.5)
-El.Print(B,"B(0.5)")
-delta = El.LLLDelta(QR)
-print "delta=", delta
-
+for presorted, smallestFirst in (True,False), (True,True), (False,False):
+  for deltaLower in 0.5, 0.75, 0.95, 0.98:
+    El.Copy( A, B )
+    QR, numBacktrack = \
+      El.LLL(B,deltaLower,loopTol,presorted,smallestFirst,progress)
+    if output:
+      El.Print(B,"B(0.75)")
+    delta = El.LLLDelta(QR)
+    print "delta=", delta
+    print "num backtracks=", numBacktrack
+    print ""

@@ -1328,6 +1328,7 @@ inline ElQRCtrl_s CReflect( const QRCtrl<float>& ctrl )
     ctrlC.adaptive = ctrl.adaptive;
     ctrlC.tol = ctrl.tol;
     ctrlC.alwaysRecomputeNorms = ctrl.alwaysRecomputeNorms;
+    ctrlC.smallestFirst = ctrl.smallestFirst;
     return ctrlC;
 }
 inline ElQRCtrl_d CReflect( const QRCtrl<double>& ctrl )
@@ -1339,6 +1340,7 @@ inline ElQRCtrl_d CReflect( const QRCtrl<double>& ctrl )
     ctrlC.adaptive = ctrl.adaptive;
     ctrlC.tol = ctrl.tol;
     ctrlC.alwaysRecomputeNorms = ctrl.alwaysRecomputeNorms;
+    ctrlC.smallestFirst = ctrl.smallestFirst;
     return ctrlC;
 }
 
@@ -1351,6 +1353,7 @@ inline QRCtrl<float> CReflect( const ElQRCtrl_s& ctrlC )
     ctrl.adaptive = ctrlC.adaptive;
     ctrl.tol = ctrlC.tol;
     ctrl.alwaysRecomputeNorms = ctrlC.alwaysRecomputeNorms;
+    ctrl.smallestFirst = ctrlC.smallestFirst;
     return ctrl;
 }
 inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
@@ -1362,6 +1365,7 @@ inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
     ctrl.adaptive = ctrlC.adaptive;
     ctrl.tol = ctrlC.tol;
     ctrl.alwaysRecomputeNorms = ctrlC.alwaysRecomputeNorms;
+    ctrl.smallestFirst = ctrlC.smallestFirst;
     return ctrl;
 }
 

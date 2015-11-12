@@ -889,12 +889,14 @@ lib.ElQRCtrlDefault_d.argtypes = \
   [c_void_p]
 class QRCtrl_s(ctypes.Structure):
   _fields_ = [("colPiv",bType),("boundRank",bType),("maxRank",iType),
-              ("adaptive",bType),("tol",sType),("alwaysRecomputeNorms",bType)]
+              ("adaptive",bType),("tol",sType),("alwaysRecomputeNorms",bType),
+              ("smallestFirst",bType)]
   def __init__(self):
     lib.ElQRCtrlDefault_s(pointer(self))
 class QRCtrl_d(ctypes.Structure):
   _fields_ = [("colPiv",bType),("boundRank",bType),("maxRank",iType),
-              ("adaptive",bType),("tol",dType),("alwaysRecomputeNorms",bType)]
+              ("adaptive",bType),("tol",dType),("alwaysRecomputeNorms",bType),
+              ("smallestFirst",bType)]
   def __init__(self):
     lib.ElQRCtrlDefault_d(pointer(self))
 

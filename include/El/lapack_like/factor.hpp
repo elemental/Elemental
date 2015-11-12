@@ -658,6 +658,14 @@ struct QRCtrl
     Real tol=0;
 
     bool alwaysRecomputeNorms=false;
+
+    // Selecting for the smallest norm first is an important preprocessing
+    // step for LLL suggested by Wubben et al.
+    //
+    // Ideally a black-box reduction operation could be provided by the user
+    // instead, as it is often the case that one may desire a custom pivoting
+    // rule.
+    bool smallestFirst=false;
 };
 
 // Return an implicit representation of Q and R such that A = Q R

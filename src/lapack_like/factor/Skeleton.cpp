@@ -21,8 +21,10 @@ namespace El {
 template<typename F> 
 void Skeleton
 ( const Matrix<F>& A, 
-  Matrix<Int>& permR, Matrix<Int>& permC, 
-  Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+        Matrix<Int>& permR,
+        Matrix<Int>& permC, 
+        Matrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Skeleton"))
     // Find the row permutation

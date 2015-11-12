@@ -24,9 +24,14 @@ main( int argc, char* argv[] )
         const Int n = Input("--size","width of matrix",100);
         const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices?",false);
+        const bool smallestFirst =
+          Input("--smallestFirst","smallest norm first?",false);
         ProcessInput();
         PrintInputReport();
         const Int m = n;
+
+        QRCtrl<Real> ctrl;
+        ctrl.smallestFirst = smallestFirst;
 
         DistMatrix<C> A;
         GKS( A, n );

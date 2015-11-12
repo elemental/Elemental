@@ -685,6 +685,8 @@ typedef struct
     bool alwaysRecomputeNorms;    
 
     /* TODO: Add Chan ratio */
+
+    bool smallestFirst;
 } ElQRCtrl_s;
 EL_EXPORT ElError ElQRCtrlDefault_s( ElQRCtrl_s* ctrl );
 
@@ -701,6 +703,7 @@ typedef struct
     bool alwaysRecomputeNorms;    
 
     /* TODO: Add Chan ratio */
+    bool smallestFirst;
 } ElQRCtrl_d;
 EL_EXPORT ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl );
 

@@ -82,8 +82,10 @@ PseudoTrsm
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<Int>& p, 
-  Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( Matrix<F>& A,
+  Matrix<Int>& p, 
+  Matrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("id::BusingerGolub"))
     typedef Base<F> Real;
@@ -108,8 +110,10 @@ BusingerGolub
 template<typename F> 
 inline void
 BusingerGolub
-( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p, 
-  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Int>& p, 
+  ElementalMatrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("id::BusingerGolub"))
     typedef Base<F> Real;
@@ -138,8 +142,10 @@ BusingerGolub
 
 template<typename F> 
 void ID
-( const Matrix<F>& A, Matrix<Int>& p, 
-        Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( const Matrix<F>& A,
+        Matrix<Int>& p, 
+        Matrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("ID"))
     Matrix<F> B( A );
@@ -148,8 +154,11 @@ void ID
 
 template<typename F> 
 void ID
-( Matrix<F>& A, Matrix<Int>& p, 
-  Matrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
+(       Matrix<F>& A,
+        Matrix<Int>& p, 
+        Matrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl,
+        bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("ID"))
     Matrix<F> B;
@@ -162,8 +171,10 @@ void ID
 
 template<typename F> 
 void ID
-( const ElementalMatrix<F>& A, ElementalMatrix<Int>& p, 
-        ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Int>& p, 
+        ElementalMatrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("ID"))
     DistMatrix<F> B( A );
@@ -172,8 +183,11 @@ void ID
 
 template<typename F> 
 void ID
-( ElementalMatrix<F>& A, ElementalMatrix<Int>& p, 
-  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<Int>& p, 
+        ElementalMatrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl,
+        bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("ID"))
     if( canOverwrite )
@@ -189,17 +203,27 @@ void ID
 
 #define PROTO(F) \
   template void ID \
-  ( const Matrix<F>& A, Matrix<Int>& p, \
-          Matrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
+  ( const Matrix<F>& A, \
+          Matrix<Int>& p, \
+          Matrix<F>& Z, \
+    const QRCtrl<Base<F>> ctrl ); \
   template void ID \
-  ( const ElementalMatrix<F>& A, ElementalMatrix<Int>& p, \
-          ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
+  ( const ElementalMatrix<F>& A, \
+          ElementalMatrix<Int>& p, \
+          ElementalMatrix<F>& Z, \
+    const QRCtrl<Base<F>> ctrl ); \
   template void ID \
-  ( Matrix<F>& A, Matrix<Int>& p, \
-    Matrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); \
+  ( Matrix<F>& A, \
+    Matrix<Int>& p, \
+    Matrix<F>& Z, \
+    const QRCtrl<Base<F>> ctrl, \
+    bool canOverwrite ); \
   template void ID \
-  ( ElementalMatrix<F>& A, ElementalMatrix<Int>& p, \
-    ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); 
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Int>& p, \
+    ElementalMatrix<F>& Z, \
+    const QRCtrl<Base<F>> ctrl, \
+    bool canOverwrite ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

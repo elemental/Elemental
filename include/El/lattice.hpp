@@ -13,11 +13,13 @@
 namespace El {
 
 template<typename F>
-void LLL
+Int LLL
 ( Matrix<F>& B,
   Matrix<F>& QR,
   Base<F> delta,
   Base<F> innerTol=0,
+  bool presort=false,
+  bool smallestFirst=true,
   bool progress=false );
 template<typename F>
 Base<F> LLLDelta( const Matrix<F>& QR );

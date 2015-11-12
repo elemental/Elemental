@@ -26,6 +26,8 @@ main( int argc, char* argv[] )
         const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
         const double tol = Input("--tol","tolerance for ID",-1.);
         const bool print = Input("--print","print matrices?",false);
+        const bool smallestFirst =
+          Input("--smallestFirst","smallest norm first?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -48,6 +50,7 @@ main( int argc, char* argv[] )
             ctrl.adaptive = true;
             ctrl.tol = tol;
         }
+        ctrl.smallestFirst = smallestFirst;
         ID( A, p, Z, ctrl );
         const Int rank = Z.Height();
         if( print )

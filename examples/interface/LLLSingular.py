@@ -1,4 +1,4 @@
-import El;
+import El
 
 # Form 
 # -6   9 -15 -18 
@@ -27,6 +27,10 @@ A.Set(3,3,-82)
 El.Print(A)
 
 B=El.Matrix()
-El.Copy( A, B )
-El.LLL(B,0.75)
 
+for presorted, smallestFirst in (True,True), (True,False), (False,False):
+  for deltaLower in 0.5, 0.75, 0.95, 0.98:
+    print "Testing with presorted=%r, smallestFirst=%r, deltaLower=%f" % \
+      (presorted,smallestFirst,deltaLower)
+    El.Copy( A, B )
+    El.LLL(B,deltaLower,0.,presorted,smallestFirst)

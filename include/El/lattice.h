@@ -15,13 +15,17 @@ extern "C" {
 #endif
 
 EL_EXPORT ElError ElLLL_s
-( ElMatrix_s B, ElMatrix_s QR, float delta, float innerTol, bool progress );
+( ElMatrix_s B, ElMatrix_s QR, float delta, float innerTol,
+  bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 EL_EXPORT ElError ElLLL_d
-( ElMatrix_d B, ElMatrix_d QR, double delta, double innerTol, bool progress );
+( ElMatrix_d B, ElMatrix_d QR, double delta, double innerTol,
+  bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 EL_EXPORT ElError ElLLL_c
-( ElMatrix_c B, ElMatrix_c QR, float delta, float innerTol, bool progress );
+( ElMatrix_c B, ElMatrix_c QR, float delta, float innerTol,
+  bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 EL_EXPORT ElError ElLLL_z
-( ElMatrix_z B, ElMatrix_z QR, double delta, double innerTol, bool progress );
+( ElMatrix_z B, ElMatrix_z QR, double delta, double innerTol,
+  bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 
 EL_EXPORT ElError ElLLLDelta_s( ElConstMatrix_s QR, float* delta );
 EL_EXPORT ElError ElLLLDelta_d( ElConstMatrix_d QR, double* delta );

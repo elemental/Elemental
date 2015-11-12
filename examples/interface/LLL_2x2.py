@@ -1,4 +1,4 @@
-import El;
+import El
 
 # Form 
 # 1 4
@@ -16,5 +16,5 @@ El.Print(A)
 
 B=El.Matrix()
 El.Copy( A, B )
-QR = El.LLL(B,0.75)
+QR, numBacktrack = El.LLL(B,0.75)
 El.Print(B)
