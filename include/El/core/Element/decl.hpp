@@ -284,38 +284,41 @@ template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
 
 // Rounding
 // ========
+// TODO: Come up with a way to avoid the need for the 'Scalar' postfix
+//       which was added to avoid, for example,  Round( Matrix<T>& ) from 
+//       being improperly interpreted as a special case of the scalar Round
 
 // Round to the nearest integer
 // ----------------------------
-template<typename T> T Round( const T& alpha );
-template<typename T> Complex<T> Round( const Complex<T>& alpha );
+template<typename T> T RoundScalar( const T& alpha );
+template<typename T> Complex<T> RoundScalar( const Complex<T>& alpha );
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int Round( const Int& alpha );
+template<> Int RoundScalar( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad Round( const Quad& alpha );
+template<> Quad RoundScalar( const Quad& alpha );
 #endif
 
 // Ceiling
 // -------
-template<typename T> T Ceil( const T& alpha );
-template<typename T> Complex<T> Ceil( const Complex<T>& alpha );
+template<typename T> T CeilScalar( const T& alpha );
+template<typename T> Complex<T> CeilScalar( const Complex<T>& alpha );
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int Ceil( const Int& alpha );
+template<> Int CeilScalar( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad Ceil( const Quad& alpha );
+template<> Quad CeilScalar( const Quad& alpha );
 #endif
 
 // Floor
 // -----
-template<typename T> T Floor( const T& alpha );
-template<typename T> Complex<T> Floor( const Complex<T>& alpha );
+template<typename T> T FloorScalar( const T& alpha );
+template<typename T> Complex<T> FloorScalar( const Complex<T>& alpha );
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int Floor( const Int& alpha );
+template<> Int FloorScalar( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad Floor( const Quad& alpha );
+template<> Quad FloorScalar( const Quad& alpha );
 #endif
 
 } // namespace El

@@ -150,7 +150,7 @@ void Step
 
         for( Int i=k-1; i>=0; --i )
         {
-            const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
+            const F chi = RoundScalar(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
             xBuf[i] = chi;
             blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
         }
