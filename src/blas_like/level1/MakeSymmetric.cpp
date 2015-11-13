@@ -94,7 +94,7 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
         if( e < numEntries && sBuf[e] == i && tBuf[e] == i )
         {
             ++numDiagonal;
-            if( conjugate && IsComplex<T>::val )
+            if( conjugate && IsComplex<T>::value )
                 vBuf[e] = RealPart(vBuf[e]);
         }
     }
@@ -147,7 +147,7 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
     T* vBuf = A.ValueBuffer();
     const Int* sBuf = A.LockedSourceBuffer();
     const Int* tBuf = A.LockedTargetBuffer();
-    if( conjugate && IsComplex<T>::val )
+    if( conjugate && IsComplex<T>::value )
     {
         for( Int k=0; k<numLocalEntries; ++k )
             if( sBuf[k] == tBuf[k] )

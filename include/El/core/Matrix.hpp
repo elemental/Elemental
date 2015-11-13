@@ -131,10 +131,12 @@ public:
 
     void Set( Int i, Int j, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
     void Set( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
+
     void SetRealPart
     ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
     void SetImagPart
     ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+
     void SetRealPart
     ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
     void SetImagPart
@@ -142,10 +144,12 @@ public:
 
     void Update( Int i, Int j, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
     void Update( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
+
     void UpdateRealPart
     ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
     void UpdateImagPart
     ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+
     void UpdateRealPart
     ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
     void UpdateImagPart
@@ -189,7 +193,6 @@ private:
 
     // Assertions
     // ==========
-    void ComplainIfReal() const;
     void AssertValidDimensions( Int height, Int width ) const;
     void AssertValidDimensions( Int height, Int width, Int ldim ) const;
     void AssertValidEntry( Int i, Int j ) const;

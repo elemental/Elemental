@@ -1161,7 +1161,8 @@ double DistFront<F>::LocalFactorGFlops( bool selInv ) const
         double realFrontFlops = 
           ( selInv ? (2*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n
                    : (1*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n ) / p;
-        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+        gflops += (IsComplex<F>::value ? 4*realFrontFlops
+                                       : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
@@ -1196,7 +1197,8 @@ double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
             p = front.L2D.DistSize();
         }
         double realFrontFlops = (m*n*numRHS) / p;
-        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+        gflops += (IsComplex<F>::value ? 4*realFrontFlops
+                                       : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;

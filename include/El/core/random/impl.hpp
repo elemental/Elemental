@@ -115,7 +115,7 @@ inline T UnitCell()
     typedef Base<T> Real;
     T cell;
     SetRealPart( cell, Real(1) );
-    if( IsComplex<T>::val )
+    if( IsComplex<T>::value )
         SetImagPart( cell, Real(1) );
     return cell;
 }
@@ -130,7 +130,7 @@ inline T SampleUniform( T a, T b )
     std::mt19937& gen = Generator();
     std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
     SetRealPart( sample, realUni(gen) ); 
-    if( IsComplex<T>::val )
+    if( IsComplex<T>::value )
     {
         std::uniform_real_distribution<Real> imagUni(ImagPart(a),ImagPart(b));
         SetImagPart( sample, imagUni(gen) );
@@ -142,7 +142,7 @@ inline T SampleUniform( T a, T b )
     Real bImag = ImagPart(b);
     Real realPart = (Real(rand())/(Real(RAND_MAX)+1))*(bReal-aReal) + aReal;
     SetRealPart( sample, realPart );
-    if( IsComplex<T>::val )
+    if( IsComplex<T>::value )
     {
         Real imagPart = (Real(rand())/(Real(RAND_MAX)+1))*(bImag-aImag) + aImag;
         SetImagPart( sample, imagPart );
@@ -217,14 +217,14 @@ inline F SampleNormal( F mean, Base<F> stddev )
 {
     typedef Base<F> Real;
     F sample;
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
         stddev = stddev / Sqrt(Real(2));
 
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
     std::normal_distribution<Real> realNormal( RealPart(mean), stddev );
     SetRealPart( sample, realNormal(gen) );
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
     {
         std::normal_distribution<Real> imagNormal( ImagPart(mean), stddev );
         SetImagPart( sample, imagNormal(gen) );
@@ -243,7 +243,7 @@ inline F SampleNormal( F mean, Base<F> stddev )
         {
             const Real W = Sqrt(-2*Log(S)/S);
             SetRealPart( sample, RealPart(mean) + stddev*U*W );
-            if( IsComplex<F>::val )
+            if( IsComplex<F>::value )
                 SetImagPart( sample, ImagPart(mean) + stddev*V*W );
             break;
         }

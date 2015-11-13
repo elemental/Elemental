@@ -150,7 +150,7 @@ void Step
 
         for( Int i=k-1; i>=0; --i )
         {
-            const F chi = RoundScalar(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
+            const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
             xBuf[i] = chi;
             blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
         }
@@ -301,7 +301,7 @@ Base<F> LLLDelta( const Matrix<F>& QR )
     ShiftDiagonal( R, F(-1) );
     const Real maxRatio = MaxNorm( R );
     const Real bound = 
-      ( IsComplex<F>::val ? Real(1)/Sqrt(Real(2)) : Real(1)/Real(2) );
+      ( IsComplex<F>::value ? Real(1)/Sqrt(Real(2)) : Real(1)/Real(2) );
     if( maxRatio > bound+Pow(Epsilon<Real>(),Real(3)/Real(4)) )
         return 0; // the worst-possible delta
 

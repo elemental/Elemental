@@ -25,15 +25,17 @@ namespace El {
 namespace qp {
 namespace box {
 
-template<typename Real>
-Int ADMM
-( const Matrix<Real>& Q, const Matrix<Real>& C, 
-  Real lb, Real ub, Matrix<Real>& Z, 
+template<typename Real,DisableIf<IsComplex<Real>>...>
+inline Int
+ADMM
+( const Matrix<Real>& Q,
+  const Matrix<Real>& C, 
+        Real lb,
+        Real ub,
+        Matrix<Real>& Z, 
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::box::ADMM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
     const Int n = Q.Height();
     const Int k = C.Width();
 
@@ -133,15 +135,17 @@ Int ADMM
     return numIter;
 }
 
-template<typename Real>
-Int ADMM
-( const ElementalMatrix<Real>& QPre, const ElementalMatrix<Real>& CPre, 
-  Real lb, Real ub, ElementalMatrix<Real>& ZPre, 
+template<typename Real,DisableIf<IsComplex<Real>>...>
+inline Int
+ADMM
+( const ElementalMatrix<Real>& QPre,
+  const ElementalMatrix<Real>& CPre, 
+        Real lb,
+        Real ub,
+        ElementalMatrix<Real>& ZPre, 
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::box::ADMM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
 
     auto QPtr = ReadProxy<Real,MC,MR>( &QPre );  auto& Q = *QPtr;
     auto CPtr = ReadProxy<Real,MC,MR>( &CPre );  auto& C = *CPtr;
@@ -250,12 +254,18 @@ Int ADMM
 
 #define PROTO(Real) \
   template Int ADMM \
-  ( const Matrix<Real>& Q, const Matrix<Real>& C, \
-    Real lb, Real ub, Matrix<Real>& Z, \
+  ( const Matrix<Real>& Q, \
+    const Matrix<Real>& C, \
+          Real lb, \
+          Real ub, \
+          Matrix<Real>& Z, \
     const ADMMCtrl<Real>& ctrl ); \
   template Int ADMM \
-  ( const ElementalMatrix<Real>& Q, const ElementalMatrix<Real>& C, \
-    Real lb, Real ub, ElementalMatrix<Real>& Z, \
+  ( const ElementalMatrix<Real>& Q, \
+    const ElementalMatrix<Real>& C, \
+          Real lb, \
+          Real ub, \
+          ElementalMatrix<Real>& Z, \
     const ADMMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

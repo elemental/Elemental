@@ -44,7 +44,7 @@ void TestHemm
     const double nD = double(n);
     const double realGFlops = 
         ( side==LEFT ? 2.*mD*mD*nD : 2.*mD*nD*nD ) / (1.e9*runTime);
-    const double gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    const double gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

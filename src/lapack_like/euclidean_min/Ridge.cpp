@@ -22,7 +22,7 @@ void Ridge
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
-    if( orientation == TRANSPOSE && IsComplex<F>::val )
+    if( orientation == TRANSPOSE && IsComplex<F>::value )
         LogicError("Transpose version of complex Ridge not yet supported");
 
     if( m >= n )
@@ -102,7 +102,7 @@ void Ridge
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
-    if( orientation == TRANSPOSE && IsComplex<F>::val )
+    if( orientation == TRANSPOSE && IsComplex<F>::value )
         LogicError("Transpose version of complex Ridge not yet supported");
 
     if( m >= n )

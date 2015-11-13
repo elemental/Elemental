@@ -10,11 +10,16 @@
 #ifndef EL_ELEMENT_DECL_HPP
 #define EL_ELEMENT_DECL_HPP
 
+// For std::enable_if
+#include <type_traits>
+
 #ifdef EL_HAVE_QUADMATH
 #include <quadmath.h>
 #endif
 
 namespace El {
+
+using std::enable_if;
 
 typedef unsigned char byte;
 
@@ -28,7 +33,7 @@ typedef int Int;
 typedef unsigned Unsigned;
 #endif
 
-#if defined(EL_HAVE_QUADMATH)
+#ifdef EL_HAVE_QUAD
 typedef __float128 Quad;
 #endif
 
@@ -36,6 +41,29 @@ template<typename Real>
 using Complex = std::complex<Real>;
 typedef Complex<float>  scomplex;
 typedef Complex<double> dcomplex;
+#ifdef EL_HAVE_QUAD
+typedef Complex<Quad> qcomplex;
+#endif
+
+// For usage in EnableIf
+template<typename T> struct IsScalar { static const bool value=false; };
+template<> struct IsScalar<Int> { static const bool value=true; };
+template<> struct IsScalar<float> { static const bool value=true; };
+template<> struct IsScalar<double> { static const bool value=true; };
+template<> struct IsScalar<Complex<float>> { static const bool value=true; };
+template<> struct IsScalar<Complex<double>> { static const bool value=true; };
+#ifdef EL_HAVE_QUAD
+template<> struct IsScalar<Quad> { static const bool value=true; };
+template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
+#endif
+
+namespace detail { enum class enabler {}; }
+template<typename Condition>
+using EnableIf =
+  typename std::enable_if<Condition::value,detail::enabler>::type;
+template<typename Condition>
+using DisableIf =
+  typename std::enable_if<!Condition::value,detail::enabler>::type;
 
 // Basic element manipulation and I/O
 // ==================================
@@ -66,8 +94,10 @@ template<typename F> using Base = typename BaseHelper<F>::type;
 
 // For querying whether or not an element's type is complex
 // --------------------------------------------------------
-template<typename Real> struct IsComplex                { enum { val=0 }; };
-template<typename Real> struct IsComplex<Complex<Real>> { enum { val=1 }; };
+template<typename Real> struct IsComplex
+{ static const bool value=0; };
+template<typename Real> struct IsComplex<Complex<Real>>
+{ static const bool value=1; };
 
 // Pretty-printing
 // ---------------
@@ -284,42 +314,64 @@ template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
 
 // Rounding
 // ========
-// TODO: Come up with a way to avoid the need for the 'Scalar' postfix
-//       which was added to avoid, for example,  Round( Matrix<T>& ) from 
-//       being improperly interpreted as a special case of the scalar Round
 
 // Round to the nearest integer
 // ----------------------------
-template<typename T> T RoundScalar( const T& alpha );
-template<typename T> Complex<T> RoundScalar( const Complex<T>& alpha );
+template<typename T,DisableIf<IsComplex<T>>...>
+T Round( const T& alpha );
+
+// Partial specializations
+// ^^^^^^^^^^^^^^^^^^^^^^^
+template<typename T,DisableIf<IsComplex<T>>...>
+Complex<T> Round( const Complex<T>& alpha );
+
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int RoundScalar( const Int& alpha );
+template<> Int Round( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad RoundScalar( const Quad& alpha );
+template<> Quad Round( const Quad& alpha );
 #endif
 
 // Ceiling
 // -------
-template<typename T> T CeilScalar( const T& alpha );
-template<typename T> Complex<T> CeilScalar( const Complex<T>& alpha );
+template<typename T,DisableIf<IsComplex<T>>...>
+T Ceil( const T& alpha );
+
+// Partial specializations
+// ^^^^^^^^^^^^^^^^^^^^^^^
+template<typename T>
+Complex<T> Ceil( const Complex<T>& alpha );
+
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int CeilScalar( const Int& alpha );
+template<> Int Ceil( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad CeilScalar( const Quad& alpha );
+template<> Quad Ceil( const Quad& alpha );
 #endif
 
 // Floor
 // -----
-template<typename T> T FloorScalar( const T& alpha );
-template<typename T> Complex<T> FloorScalar( const Complex<T>& alpha );
+template<typename T,DisableIf<IsComplex<T>>...>
+T Floor( const T& alpha );
+
+// Partial specializations
+// ^^^^^^^^^^^^^^^^^^^^^^^
+template<typename T> Complex<T>
+Floor( const Complex<T>& alpha );
+
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int FloorScalar( const Int& alpha );
+template<> Int Floor( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad FloorScalar( const Quad& alpha );
+template<> Quad Floor( const Quad& alpha );
 #endif
+
+// Two-norm formation
+// ==================
+// TODO: Move this somewhere more fitting
+template<typename F>
+void UpdateScaledSquare
+( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
 
 } // namespace El
 

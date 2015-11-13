@@ -563,7 +563,8 @@ double Front<F>::FactorGFlops() const
         {
             realFrontFlops = (n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n;
         }
-        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+        gflops += (IsComplex<F>::value ? 4*realFrontFlops
+                                       : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
@@ -591,7 +592,8 @@ double Front<F>::SolveGFlops( Int numRHS ) const
         {
             realFrontFlops = m*n*numRHS;
         }
-        gflops += (IsComplex<F>::val ? 4*realFrontFlops : realFrontFlops)/1.e9;
+        gflops += (IsComplex<F>::value ? 4*realFrontFlops
+                                       : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;

@@ -21,7 +21,7 @@ QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle )
     const Int n = A.Height();
     w.Resize( n, 1 );
     lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), fullTriangle );
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
     {
@@ -42,7 +42,7 @@ QR
     w.Resize( n, 1 );
     lapack::Schur
     ( n, A.Buffer(), A.LDim(), w.Buffer(), Q.Buffer(), Q.LDim(), fullTriangle );
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
     {
@@ -100,7 +100,7 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
 #endif
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
     {
@@ -157,7 +157,7 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
 #endif
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
     {
@@ -223,7 +223,7 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
 #endif
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
     {
@@ -287,7 +287,7 @@ QR
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
 #endif
-    if( IsComplex<F>::val )
+    if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
     {

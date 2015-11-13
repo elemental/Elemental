@@ -558,48 +558,81 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 
 // Round to the nearest integer
 // ----------------------------
-template<typename T>
-inline T RoundScalar( const T& alpha ) { return round(alpha); }
-template<typename T>
-inline Complex<T> RoundScalar( const Complex<T>& alpha )
-{ return Complex<T>(RoundScalar(alpha.real()),RoundScalar(alpha.imag())); }
+template<typename T,DisableIf<IsComplex<T>>...>
+inline T Round( const T& alpha ) { return round(alpha); }
+
+// Partial specializations
+// ^^^^^^^^^^^^^^^^^^^^^^^
+template<typename T,DisableIf<IsComplex<T>>...>
+inline Complex<T> Round( const Complex<T>& alpha )
+{ return Complex<T>(Round(alpha.real()),Round(alpha.imag())); }
+
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> inline Int RoundScalar( const Int& alpha ) { return alpha; }
+template<> inline Int Round( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
-template<>
-inline Quad RoundScalar( const Quad& alpha ) { return rintq(alpha); }
+template<> inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
 #endif
 
 // Ceiling
 // -------
-template<typename T>
-inline T CeilScalar( const T& alpha ) { return ceil(alpha); }
-template<typename T>
-inline Complex<T> CeilScalar( const Complex<T>& alpha )
-{ return Complex<T>(CeilScalar(alpha.real()),CeilScalar(alpha.imag())); }
+template<typename T,DisableIf<IsComplex<T>>...>
+inline T Ceil( const T& alpha ) { return ceil(alpha); }
+
+// Partial specializations
+// ^^^^^^^^^^^^^^^^^^^^^^^
+template<typename T,DisableIf<IsComplex<T>>...>
+inline Complex<T> Ceil( const Complex<T>& alpha )
+{ return Complex<T>(Ceil(alpha.real()),Ceil(alpha.imag())); }
+
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> inline Int CeilScalar( const Int& alpha ) { return alpha; }
+template<> inline Int Ceil( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
-template<>
-inline Quad CeilScalar( const Quad& alpha ) { return ceilq(alpha); }
+template<> inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 #endif
 
 // Floor
 // -----
-template<typename T>
-inline T FloorScalar( const T& alpha ) { return floor(alpha); }
-template<typename T>
-inline Complex<T> FloorScalar( const Complex<T>& alpha )
-{ return Complex<T>(FloorScalar(alpha.real()),FloorScalar(alpha.imag())); }
+template<typename T,DisableIf<IsComplex<T>>...>
+inline T Floor( const T& alpha ) { return floor(alpha); }
+
+// Partial specializations
+// ^^^^^^^^^^^^^^^^^^^^^^^
+template<typename T,DisableIf<IsComplex<T>>...>
+inline Complex<T> Floor( const Complex<T>& alpha )
+{ return Complex<T>(Floor(alpha.real()),Floor(alpha.imag())); }
+
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> inline Int FloorScalar( const Int& alpha ) { return alpha; }
+template<> inline Int Floor( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
-template<>
-inline Quad FloorScalar( const Quad& alpha ) { return floorq(alpha); }
+template<> inline Quad Floor( const Quad& alpha ) { return floorq(alpha); }
 #endif
+
+// Two-norm formation
+// ==================
+template<typename F>
+inline void UpdateScaledSquare
+( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT
+{
+    typedef Base<F> Real;
+    Real alphaAbs = Abs(alpha);
+    if( alphaAbs != 0 )
+    {
+        if( alphaAbs <= scale )
+        {
+            const Real relScale = alphaAbs/scale;
+            scaledSquare += relScale*relScale;
+        }
+        else
+        {
+            const Real relScale = scale/alphaAbs;
+            scaledSquare = scaledSquare*relScale*relScale + Real(1);
+            scale = alphaAbs;
+        }
+    }
+}
 
 } // namespace El
 

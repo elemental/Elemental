@@ -22,7 +22,7 @@ void Tikhonov
     const Int n = ( normal ? A.Width()  : A.Height() );
     if( G.Width() != n )
         LogicError("Tikhonov matrix was the wrong width");
-    if( orientation == TRANSPOSE && IsComplex<F>::val )
+    if( orientation == TRANSPOSE && IsComplex<F>::value )
         LogicError("Transpose version of complex Tikhonov not yet supported");
 
     if( m >= n )
@@ -80,7 +80,7 @@ void Tikhonov
     const Int n = ( normal ? A.Width()  : A.Height() );
     if( G.Width() != n )
         LogicError("Tikhonov matrix was the wrong width");
-    if( orientation == TRANSPOSE && IsComplex<F>::val )
+    if( orientation == TRANSPOSE && IsComplex<F>::value )
         LogicError("Transpose version of complex Tikhonov not yet supported");
 
     if( m >= n )

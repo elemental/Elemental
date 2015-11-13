@@ -15,7 +15,6 @@ namespace El {
 using std::size_t;
 
 using std::array;
-using std::complex;
 using std::deque;
 using std::function;
 using std::pair;
@@ -333,10 +332,6 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full );
 
 // Insists that the index can be found
 Int Find( const vector<Int>& sortedInds, Int index );
-
-template<typename F>
-void UpdateScaledSquare
-( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
 
 } // namespace El
 

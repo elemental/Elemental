@@ -12,12 +12,10 @@ namespace El {
 
 // Sort each column of the real matrix X
 
-template<typename Real>
+template<typename Real,DisableIf<IsComplex<Real>>...>
 void Sort( Matrix<Real>& X, SortType sort )
 {
     DEBUG_ONLY(CSE cse("Sort"))
-    if( IsComplex<Real>::val )
-        LogicError("Complex numbers do not have a natural ordering");
     if( sort == UNSORTED )
         return;
     const Int m = X.Height();
@@ -32,7 +30,7 @@ void Sort( Matrix<Real>& X, SortType sort )
     }
 }
 
-template<typename Real>
+template<typename Real,DisableIf<IsComplex<Real>>...>
 void Sort( ElementalMatrix<Real>& X, SortType sort )
 {
     DEBUG_ONLY(CSE cse("Sort"))
@@ -59,13 +57,10 @@ void Sort( ElementalMatrix<Real>& X, SortType sort )
 
 // Tagged sort
 
-template<typename Real>
-vector<ValueInt<Real>> TaggedSort
-( const Matrix<Real>& x, SortType sort )
+template<typename Real,DisableIf<IsComplex<Real>>...>
+vector<ValueInt<Real>> TaggedSort( const Matrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CSE cse("TaggedSort"))
-    if( IsComplex<Real>::val )
-        LogicError("Complex numbers do not have a natural ordering");
     const Int m = x.Height();
     const Int n = x.Width();
     if( m != 1 && n != 1 )
@@ -90,9 +85,9 @@ vector<ValueInt<Real>> TaggedSort
     return pairs;
 }
 
-template<typename Real>
-vector<ValueInt<Real>> TaggedSort
-( const ElementalMatrix<Real>& x, SortType sort )
+template<typename Real,DisableIf<IsComplex<Real>>...>
+vector<ValueInt<Real>>
+TaggedSort( const ElementalMatrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CSE cse("TaggedSort"))
     if( x.ColDist()==STAR && x.RowDist()==STAR )

@@ -82,7 +82,7 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
         LU( A );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     cout << "DONE. " << endl
          << "  Time = " << runTime << " seconds. GFlops = " 
          << gFlops << endl;

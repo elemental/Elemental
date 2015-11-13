@@ -42,7 +42,7 @@ void TestTrsv
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = Pow(double(n),2.)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

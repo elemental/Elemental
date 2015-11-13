@@ -106,7 +106,8 @@ void TestQR
         QR( ABlock, tBlock ); 
         const double runTime = mpi::Time() - startTime;
         const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
-        const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+        const double gFlops =
+          ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
         if( g.Rank() == 0 )
             Output("  ScaLAPACK: ",runTime," seconds. GFlops = ",gFlops);
     }
@@ -119,7 +120,7 @@ void TestQR
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
         Output("  Elemental: ",runTime," seconds. GFlops = ",gFlops);
     if( print )

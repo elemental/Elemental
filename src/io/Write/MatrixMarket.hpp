@@ -29,7 +29,7 @@ MatrixMarket( const Matrix<T>& A, string basename="matrix" )
     {
         ostringstream os;
         os << "%%MatrixMarket matrix array ";
-        if( IsComplex<T>::val )
+        if( IsComplex<T>::value )
             os << "complex "; 
         else
             os << "real ";
@@ -55,7 +55,7 @@ MatrixMarket( const Matrix<T>& A, string basename="matrix" )
         {
             ostringstream os;
             os << A.GetRealPart(i,j);
-            if( IsComplex<T>::val )
+            if( IsComplex<T>::value )
                 os << " " << A.GetImagPart(i,j);
             os << "\n";
             file << os.str();

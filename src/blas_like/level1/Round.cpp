@@ -22,7 +22,7 @@ void Round( Matrix<T>& A )
     const Int ALDim = A.LDim();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            ABuf[i+j*ALDim] = RoundScalar(ABuf[i+j*ALDim]);
+            ABuf[i+j*ALDim] = Round(ABuf[i+j*ALDim]);
 }
 
 template<>
