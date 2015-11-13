@@ -276,9 +276,9 @@ void SetUserReduceFunc
 ( function<Quad(const Quad&,const Quad&)> func, bool commutative )
 {
     if( commutative )
-        ::userQuadReduceCommFunc = func;
+        ::userQuadCommFunc = func;
     else
-        ::userQuadReduceFunc = func;
+        ::userQuadFunc = func;
 }
 static void
 UserQuadReduce
