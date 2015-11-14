@@ -558,12 +558,12 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 
 // Round to the nearest integer
 // ----------------------------
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T,EnableIf<IsScalar<T>>...>
 inline T Round( const T& alpha ) { return std::round(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T>
 inline Complex<T> Round( const Complex<T>& alpha )
 { return Complex<T>(Round(alpha.real()),Round(alpha.imag())); }
 
@@ -576,12 +576,12 @@ template<> inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
 
 // Ceiling
 // -------
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T,EnableIf<IsScalar<T>>...>
 inline T Ceil( const T& alpha ) { return std::ceil(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T>
 inline Complex<T> Ceil( const Complex<T>& alpha )
 { return Complex<T>(Ceil(alpha.real()),Ceil(alpha.imag())); }
 
@@ -594,12 +594,12 @@ template<> inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 
 // Floor
 // -----
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T,EnableIf<IsScalar<T>>...>
 inline T Floor( const T& alpha ) { return std::floor(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T>
 inline Complex<T> Floor( const Complex<T>& alpha )
 { return Complex<T>(Floor(alpha.real()),Floor(alpha.imag())); }
 

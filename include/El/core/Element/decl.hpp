@@ -95,9 +95,9 @@ template<typename F> using Base = typename BaseHelper<F>::type;
 // For querying whether or not an element's type is complex
 // --------------------------------------------------------
 template<typename Real> struct IsComplex
-{ static const bool value=0; };
+{ static const bool value=false; };
 template<typename Real> struct IsComplex<Complex<Real>>
-{ static const bool value=1; };
+{ static const bool value=true; };
 
 // Pretty-printing
 // ---------------
@@ -317,12 +317,12 @@ template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
 
 // Round to the nearest integer
 // ----------------------------
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T,EnableIf<IsScalar<T>>...>
 T Round( const T& alpha );
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T>
 Complex<T> Round( const Complex<T>& alpha );
 
 // Full specializations
@@ -334,7 +334,7 @@ template<> Quad Round( const Quad& alpha );
 
 // Ceiling
 // -------
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T,EnableIf<IsScalar<T>>...>
 T Ceil( const T& alpha );
 
 // Partial specializations
@@ -351,13 +351,13 @@ template<> Quad Ceil( const Quad& alpha );
 
 // Floor
 // -----
-template<typename T,DisableIf<IsComplex<T>>...>
+template<typename T,EnableIf<IsScalar<T>>...>
 T Floor( const T& alpha );
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T> Complex<T>
-Floor( const Complex<T>& alpha );
+template<typename T>
+Complex<T> Floor( const Complex<T>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
