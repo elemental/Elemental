@@ -447,7 +447,6 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    ComplainIfReal();
     El::SetImagPart( Set_( i, j ), alpha );
 }
 
@@ -502,7 +501,6 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    ComplainIfReal();
     El::UpdateImagPart( Set_( i, j ), alpha );
 }
 
@@ -621,13 +619,6 @@ EL_NO_RELEASE_EXCEPT
 
 // Assertions
 // ==========
-
-template<typename T>
-void Matrix<T>::ComplainIfReal() const
-{ 
-    if( !IsComplex<T>::val )
-        LogicError("Called complex-only routine with real data");
-}
 
 template<typename T>
 void Matrix<T>::AssertValidDimensions( Int height, Int width ) const

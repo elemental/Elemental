@@ -279,7 +279,6 @@ public:
 
     // Assertions
     // ==========
-    void ComplainIfReal() const;
     void AssertNotLocked() const;
     void AssertNotStoringData() const;
     void AssertValidEntry( Int i, Int j ) const;

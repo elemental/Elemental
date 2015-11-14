@@ -387,7 +387,7 @@ EL_NO_RELEASE_EXCEPT
           LogicError("Get should only be called in-grid");
     )
     Base<T> value;
-    if( IsComplex<T>::val )
+    if( IsComplex<T>::value )
     {
         if( CrossRank() == Root() )
         {
@@ -436,8 +436,7 @@ EL_NO_RELEASE_EXCEPT
 { SetRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
+void AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::SetImagPart"))
@@ -446,8 +445,7 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::SetImagPart( const Entry<Base<T>>& entry )
+void AbstractDistMatrix<T>::SetImagPart( const Entry<Base<T>>& entry )
 EL_NO_RELEASE_EXCEPT
 { SetImagPart( entry.i, entry.j, entry.value ); }
 
@@ -484,8 +482,7 @@ EL_NO_RELEASE_EXCEPT
 { UpdateRealPart( entry.i, entry.j, entry.value ); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
+void AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("ADM::UpdateImagPart"))
@@ -494,8 +491,7 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
+void AbstractDistMatrix<T>::UpdateImagPart( const Entry<Base<T>>& entry )
 EL_NO_RELEASE_EXCEPT
 { UpdateImagPart( entry.i, entry.j, entry.value ); }
 
@@ -734,14 +730,14 @@ EL_NO_RELEASE_EXCEPT
 { SetLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+void AbstractDistMatrix<T>::SetLocalImagPart
+( Int iLoc, Int jLoc, Base<T> alpha )
 EL_NO_RELEASE_EXCEPT
 { matrix_.SetImagPart(iLoc,jLoc,alpha); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::SetLocalImagPart( const Entry<Base<T>>& localEntry )
+void AbstractDistMatrix<T>::SetLocalImagPart
+( const Entry<Base<T>>& localEntry )
 EL_NO_RELEASE_EXCEPT
 { SetLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
@@ -771,15 +767,14 @@ EL_NO_RELEASE_EXCEPT
 { UpdateLocalRealPart( localEntry.i, localEntry.j, localEntry.value ); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::UpdateLocalImagPart
+void AbstractDistMatrix<T>::UpdateLocalImagPart
 ( Int iLoc, Int jLoc, Base<T> alpha )
 EL_NO_RELEASE_EXCEPT
 { matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
 
 template<typename T>
-void
-AbstractDistMatrix<T>::UpdateLocalImagPart( const Entry<Base<T>>& localEntry )
+void AbstractDistMatrix<T>::UpdateLocalImagPart
+( const Entry<Base<T>>& localEntry )
 EL_NO_RELEASE_EXCEPT
 { UpdateLocalImagPart( localEntry.i, localEntry.j, localEntry.value ); }
 
@@ -833,14 +828,6 @@ AbstractDistMatrix<T>::SetRowShift()
 
 // Assertions
 // ==========
-
-template<typename T>
-void
-AbstractDistMatrix<T>::ComplainIfReal() const
-{ 
-    if( !IsComplex<T>::val )
-        LogicError("Called complex-only routine with real data");
-}
 
 template<typename T>
 void

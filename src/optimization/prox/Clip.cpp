@@ -13,11 +13,7 @@ namespace El {
 template<typename Real>
 void LowerClip( Matrix<Real>& X, Real lowerBound )
 {
-    DEBUG_ONLY(
-      CSE cse("LowerClip");
-      if( IsComplex<Real>::val )
-          LogicError("Lower clip does not apply to complex data");
-    )
+    DEBUG_ONLY(CSE cse("LowerClip"))
     auto lowerClip = [&]( Real alpha ) { return Max(lowerBound,alpha); };
     EntrywiseMap( X, function<Real(Real)>(lowerClip) );
 }
@@ -25,11 +21,7 @@ void LowerClip( Matrix<Real>& X, Real lowerBound )
 template<typename Real>
 void UpperClip( Matrix<Real>& X, Real upperBound )
 {
-    DEBUG_ONLY(
-      CSE cse("UpperClip");
-      if( IsComplex<Real>::val )
-          LogicError("Upper clip does not apply to complex data");
-    )
+    DEBUG_ONLY(CSE cse("UpperClip"))
     auto upperClip = [&]( Real alpha ) { return Min(upperBound,alpha); };
     EntrywiseMap( X, function<Real(Real)>(upperClip) );
 }
@@ -37,11 +29,7 @@ void UpperClip( Matrix<Real>& X, Real upperBound )
 template<typename Real>
 void Clip( Matrix<Real>& X, Real lowerBound, Real upperBound )
 {
-    DEBUG_ONLY(
-      CSE cse("Clip");
-      if( IsComplex<Real>::val )
-          LogicError("Clip does not apply to complex data");
-    )
+    DEBUG_ONLY(CSE cse("Clip"))
     auto clip = [&]( Real alpha ) 
                 { return Max(lowerBound,Min(upperBound,alpha)); };
     EntrywiseMap( X, function<Real(Real)>(clip) );

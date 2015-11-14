@@ -25,13 +25,14 @@ namespace nnls {
 //
 
 template<typename Real>
-Int ADMM
-( const Matrix<Real>& A, const Matrix<Real>& B, Matrix<Real>& X, 
+inline typename enable_if<!IsComplex<Real>::value,Int>::type
+ADMM
+( const Matrix<Real>& A,
+  const Matrix<Real>& B,
+        Matrix<Real>& X, 
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::ADMM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
 
     Matrix<Real> Q, C;
@@ -42,14 +43,14 @@ Int ADMM
 }
 
 template<typename Real>
-Int ADMM
-( const ElementalMatrix<Real>& APre, const ElementalMatrix<Real>& B, 
+inline typename enable_if<!IsComplex<Real>::value,Int>::type
+ADMM
+( const ElementalMatrix<Real>& APre,
+  const ElementalMatrix<Real>& B, 
         ElementalMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::ADMM"))
-    if( IsComplex<Real>::val ) 
-        LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
 
     auto APtr = ReadProxy<Real,MC,MR>( &APre );

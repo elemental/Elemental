@@ -87,7 +87,7 @@ void TestCholeskyMod
     Cholesky( uplo, T );
     double runTime = mpi::Time() - startTime;
     double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
-    double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+    double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE\n"

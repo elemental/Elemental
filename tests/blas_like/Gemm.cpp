@@ -78,7 +78,7 @@ void TestGemm
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "  Time = " << runTime << " seconds. GFlops = " 
@@ -103,7 +103,7 @@ void TestGemm
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "  Time = " << runTime << " seconds. GFlops = " 
@@ -128,7 +128,7 @@ void TestGemm
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+    gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -156,7 +156,7 @@ void TestGemm
         mpi::Barrier( g.Comm() );
         runTime = mpi::Time() - startTime;
         realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
-        gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
+        gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
         if( g.Rank() == 0 )
         {
             cout << "DONE. " << endl

@@ -85,7 +85,7 @@ void InPlaceRedist( DistMatrix<F>& Z, Int rowAlign, const Base<F>* readBuffer )
         {
             const Real* dataCol = &(data[j*localHeight]);
             Real* thisCol = (Real*)Z.Buffer(0,thisRowOffset+j*r);
-            if( IsComplex<F>::val )
+            if( IsComplex<F>::value )
             {
                 for( Int i=0; i<localHeight; ++i )
                 {
@@ -587,8 +587,8 @@ void HermitianEig
         // of ZBuf so that we can later redistribute in place
         Real* ZBuf = (Real*)Z.Buffer();
         const Int ZBufSize =
-            ( IsComplex<F>::val ? 2*Z.LDim()*Z.LocalWidth()
-                                :   Z.LDim()*Z.LocalWidth() );
+            ( IsComplex<F>::value ? 2*Z.LDim()*Z.LocalWidth()
+                                  :   Z.LDim()*Z.LocalWidth() );
         const Int Z_STAR_VR_LocalWidth = Length(kEst,g.VRRank(),g.Size());
         const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
         Real* Z_STAR_VR_Buf = &ZBuf[ZBufSize-Z_STAR_VR_BufSize];

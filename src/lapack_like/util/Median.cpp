@@ -10,12 +10,10 @@
 
 namespace El {
 
-template<typename Real>
+template<typename Real,DisableIf<IsComplex<Real>>...>
 ValueInt<Real> Median( const Matrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("Median"))
-    if( IsComplex<Real>::val )
-        LogicError("Complex numbers do not have a natural ordering");
     const Int m = x.Height();
     const Int n = x.Width();
     if( m != 1 && n != 1 )
@@ -36,7 +34,7 @@ ValueInt<Real> Median( const Matrix<Real>& x )
     return pairs[k/2];
 }
 
-template<typename Real>
+template<typename Real,DisableIf<IsComplex<Real>>...>
 ValueInt<Real> Median( const ElementalMatrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("Median"))

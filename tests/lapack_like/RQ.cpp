@@ -111,7 +111,7 @@ void TestRQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     const double mD = double(m);
     const double nD = double(n);
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
