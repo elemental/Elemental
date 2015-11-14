@@ -559,7 +559,7 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 // Round to the nearest integer
 // ----------------------------
 template<typename T,DisableIf<IsComplex<T>>...>
-inline T Round( const T& alpha ) { return round(alpha); }
+inline T Round( const T& alpha ) { return std::round(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
@@ -577,7 +577,7 @@ template<> inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
 // Ceiling
 // -------
 template<typename T,DisableIf<IsComplex<T>>...>
-inline T Ceil( const T& alpha ) { return ceil(alpha); }
+inline T Ceil( const T& alpha ) { return std::ceil(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
@@ -595,7 +595,7 @@ template<> inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 // Floor
 // -----
 template<typename T,DisableIf<IsComplex<T>>...>
-inline T Floor( const T& alpha ) { return floor(alpha); }
+inline T Floor( const T& alpha ) { return std::floor(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
