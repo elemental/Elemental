@@ -59,10 +59,8 @@ main( int argc, char* argv[] )
         DistMatrix<C> U(g), V(g), A(g);
         Uniform( U, m, r );
         Uniform( V, n, r );
-        DEBUG_ONLY( std::cout << "Debug Mode!" << std::endl )
-        LogOS() << g.InGrid() << ", " << g.OwningRank() << ", "
-                << g.ViewingRank() << std::endl;
-        Gemm( NORMAL, ADJOINT, C(1), U, V, A );
+        if( commRank < pnp )
+            Gemm( NORMAL, ADJOINT, C(1), U, V, A );
         const Real frobA = FrobeniusNorm( A );
         if( print )
             Print( A, "A" );
