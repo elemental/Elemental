@@ -264,21 +264,19 @@ DEBUG_ONLY(
     typedef CallStackEntry CSE;
 )
 
-DEBUG_ONLY(
-    void OpenLog( const char* filename );
+void OpenLog( const char* filename );
 
-    std::ostream & LogOS();
+std::ostream & LogOS();
 
-    template<typename... Args>
-    inline void Log( Args... args )
-    {
-        std::ostringstream str;
-        BuildStream( str, args... );
-        LogOS() << str.str() << std::endl;
-    }
+template<typename... Args>
+inline void Log( Args... args )
+{
+    std::ostringstream str;
+    BuildStream( str, args... );
+    LogOS() << str.str() << std::endl;
+}
 
-    void CloseLog();
-)
+void CloseLog();
 
 void ReportException( const exception& e, ostream& os=cerr );
 

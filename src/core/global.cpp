@@ -31,8 +31,8 @@ std::mt19937 generator;
 // Debugging
 DEBUG_ONLY(std::stack<string> callStack)
 
-// LogFile in Debugging
-DEBUG_ONLY(std::ofstream logFile)
+// A (per-process) output file for logging
+std::ofstream logFile;
 
 // Output/logging
 Int indentLevel=0;
@@ -601,35 +601,26 @@ DEBUG_ONLY(
 
 ) // DEBUG_ONLY
 
-// Log Debug only
-DEBUG_ONLY(
-    void OpenLog()
-    {
-        ostringstream os;
-    }
+void OpenLog( const char* filename )
+{
+    if( ::logFile.is_open() )
+        CloseLog();
+    ::logFile.open( filename );
+}
 
-    void OpenLog( const char* filename )
+std::ostream& LogOS()
+{
+    if( !::logFile.is_open() )
     {
-        if( ::logFile.is_open() )
-            CloseLog();
-        ::logFile.open( filename );
+        ostringstream fileOS;
+        fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
+               << mpi::WorldRank() << ".log";
+        ::logFile.open( fileOS.str().c_str() );
     }
+    return ::logFile; 
+}
 
-    std::ostream& LogOS()
-    {
-        if( !::logFile.is_open() )
-        {
-            ostringstream fileOS;
-            fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
-                   << mpi::WorldRank() << ".log";
-            ::logFile.open( fileOS.str().c_str() );
-        }
-        return ::logFile; 
-    }
-
-    void CloseLog() { ::logFile.close(); }
-)
-// Log DEBUG_ONLY
+void CloseLog() { ::logFile.close(); }
 
 Int PushIndent() { return ::indentLevel++; }
 Int PopIndent() { return ::indentLevel--; }
