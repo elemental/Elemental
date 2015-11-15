@@ -683,7 +683,20 @@ ElError ElGetSubgraphDist
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* Max */ \
-  /* TODO */ \
+  ElError ElMax_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = CReflect(Max(*CReflect(A))) ) } \
+  ElError ElMaxDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = CReflect(Max(*CReflect(A))) ) } \
+  ElError ElSymmetricMax_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = \
+    CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElSymmetricMaxDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = \
+    CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
   /* MaxLoc */ \
   ElError ElMaxLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
@@ -706,7 +719,20 @@ ElError ElGetSubgraphDist
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
   { EL_TRY( *entry = CReflect(VectorMaxLoc(*CReflect(x))) ) } \
   /* Min */ \
-  /* TODO */ \
+  ElError ElMin_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = CReflect(Min(*CReflect(A))) ) } \
+  ElError ElMinDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = CReflect(Min(*CReflect(A))) ) } \
+  ElError ElSymmetricMin_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = \
+    CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElSymmetricMinDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, CREFLECT(T)* value ) \
+  { EL_TRY( *value = \
+    CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
   /* MinLoc */ \
   ElError ElMinLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \

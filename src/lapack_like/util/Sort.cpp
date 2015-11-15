@@ -12,7 +12,7 @@ namespace El {
 
 // Sort each column of the real matrix X
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void Sort( Matrix<Real>& X, SortType sort )
 {
     DEBUG_ONLY(CSE cse("Sort"))
@@ -30,7 +30,7 @@ void Sort( Matrix<Real>& X, SortType sort )
     }
 }
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void Sort( ElementalMatrix<Real>& X, SortType sort )
 {
     DEBUG_ONLY(CSE cse("Sort"))
@@ -57,7 +57,7 @@ void Sort( ElementalMatrix<Real>& X, SortType sort )
 
 // Tagged sort
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 vector<ValueInt<Real>> TaggedSort( const Matrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CSE cse("TaggedSort"))
@@ -85,7 +85,7 @@ vector<ValueInt<Real>> TaggedSort( const Matrix<Real>& x, SortType sort )
     return pairs;
 }
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 vector<ValueInt<Real>>
 TaggedSort( const ElementalMatrix<Real>& x, SortType sort )
 {

@@ -181,18 +181,21 @@ void ColumnTwoNorms
 
 // Separated complex data
 // ^^^^^^^^^^^^^^^^^^^^^^
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void ColumnTwoNorms
-( const Matrix<Real>& XReal, const Matrix<Real>& XImag, 
-  Matrix<Real>& norms );
-template<typename Real,Dist U,Dist V>
+( const Matrix<Real>& XReal,
+  const Matrix<Real>& XImag, 
+        Matrix<Real>& norms );
+template<typename Real,Dist U,Dist V,typename=EnableIf<IsReal<Real>>>
 void ColumnTwoNorms
-( const DistMatrix<Real,U,V>& XReal, const DistMatrix<Real,U,V>& XImag, 
-  DistMatrix<Real,V,STAR>& norms );
-template<typename Real>
+( const DistMatrix<Real,U,V>& XReal,
+  const DistMatrix<Real,U,V>& XImag, 
+        DistMatrix<Real,V,STAR>& norms );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void ColumnTwoNorms
-( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
-  Matrix<Real>& norms );
+( const DistMultiVec<Real>& XReal,
+  const DistMultiVec<Real>& XImag, 
+        Matrix<Real>& norms );
 
 // Max norms
 // ---------
@@ -1222,31 +1225,55 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset=0 );
 
 // Max
 // ===
-// TODO
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Max( const Matrix<Real>& A );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Max( const AbstractDistMatrix<Real>& A );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 // MaxLoc
 // ======
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real> MaxLoc( const Matrix<Real>& A );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A );
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real>
 SymmetricMaxLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x );
 
 // MaxAbs
 // ======
-// TODO
+template<typename T>
+Base<T> MaxAbs( const Matrix<T>& A );
+template<typename T>
+Base<T> MaxAbs( const AbstractDistMatrix<T>& A );
+template<typename T>
+Base<T> MaxAbs( const SparseMatrix<T>& A );
+template<typename T>
+Base<T> MaxAbs( const DistSparseMatrix<T>& A );
+
+template<typename T>
+Base<T> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<T>& A );
+template<typename T>
+Base<T> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
+template<typename T>
+Base<T> SymmetricMaxAbs( UpperOrLower uplo, const SparseMatrix<T>& A );
+template<typename T>
+Base<T> SymmetricMaxAbs( UpperOrLower uplo, const DistSparseMatrix<T>& A );
 
 // MaxAbsLoc
 // =========
@@ -1279,31 +1306,47 @@ SymmetricMaxAbsLoc( UpperOrLower uplo, const DistSparseMatrix<T>& A );
 
 // Min
 // ===
-// TODO
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Min( const Matrix<Real>& A );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Min( const AbstractDistMatrix<Real>& A );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 // MinLoc
 // ======
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> VectorMinLoc( const Matrix<Real>& x );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x );
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real> MinLoc( const Matrix<Real>& A );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A );
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A );
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Entry<Real>
 SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 // MinAbs
 // ======
-// TODO
+template<typename F>
+Base<F> MinAbs( const Matrix<F>& A );
+template<typename F>
+Base<F> MinAbs( const AbstractDistMatrix<F>& A );
+
+template<typename F>
+Base<F> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+Base<F> SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 // MinAbsLoc
 // =========
@@ -1423,18 +1466,15 @@ RightQuasiDiagonalSolve
 // Real part
 // =========
 template<typename T>
-void RealPart
-( const Matrix<T>& A, Matrix<Base<T>>& AReal );
+void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal );
 template<typename T>
-void RealPart
-( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal );
+void RealPart( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal );
 /* TODO: Sparse versions */
 
 // Reshape
 // =======
 template<typename T>
-void Reshape
-( Int m, Int n, const Matrix<T>& A, Matrix<T>& B );
+void Reshape( Int m, Int n, const Matrix<T>& A, Matrix<T>& B );
 template<typename T>
 Matrix<T> Reshape( Int m, Int n, const Matrix<T>& A );
 
@@ -1481,9 +1521,9 @@ void Scale( S alpha, DistSparseMatrix<T>& A );
 template<typename T,typename S>
 void Scale( S alpha, DistMultiVec<T>& A );
 
-template<typename Real,typename S>
+template<typename Real,typename S,typename=EnableIf<IsReal<Real>>>
 void Scale( S alpha, Matrix<Real>& AReal, Matrix<Real>& AImag );
-template<typename Real,typename S>
+template<typename Real,typename S,typename=EnableIf<IsReal<Real>>>
 void Scale
 ( S alpha, AbstractDistMatrix<Real>& AReal, AbstractDistMatrix<Real>& AImag );
 

@@ -1294,7 +1294,27 @@ EL_EXPORT ElError ElMakeTrapezoidalDistSparse_z
 
 /* Max
    === */
-/* TODO */
+EL_EXPORT ElError ElMax_i( ElConstMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElMax_s( ElConstMatrix_s A, float* value );
+EL_EXPORT ElError ElMax_d( ElConstMatrix_d A, double* value );
+
+EL_EXPORT ElError ElMaxDist_i( ElConstDistMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElMaxDist_s( ElConstDistMatrix_s A, float* value );
+EL_EXPORT ElError ElMaxDist_d( ElConstDistMatrix_d A, double* value );
+
+EL_EXPORT ElError ElSymmetricMax_i
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElSymmetricMax_s
+( ElUpperOrLower uplo, ElConstMatrix_s A, float* value );
+EL_EXPORT ElError ElSymmetricMax_d
+( ElUpperOrLower uplo, ElConstMatrix_d A, double* value );
+
+EL_EXPORT ElError ElSymmetricMaxDist_i
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElSymmetricMaxDist_s
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* value );
+EL_EXPORT ElError ElSymmetricMaxDist_d
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, double* value );
 
 /* MaxLoc
    ====== */
@@ -1395,7 +1415,27 @@ EL_EXPORT ElError ElVectorMaxAbsLocDist_z
 
 /* Min
    === */
-/* TODO */
+EL_EXPORT ElError ElMin_i( ElConstMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElMin_s( ElConstMatrix_s A, float* value );
+EL_EXPORT ElError ElMin_d( ElConstMatrix_d A, double* value );
+
+EL_EXPORT ElError ElMinDist_i( ElConstDistMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElMinDist_s( ElConstDistMatrix_s A, float* value );
+EL_EXPORT ElError ElMinDist_d( ElConstDistMatrix_d A, double* value );
+
+EL_EXPORT ElError ElSymmetricMin_i
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElSymmetricMin_s
+( ElUpperOrLower uplo, ElConstMatrix_s A, float* value );
+EL_EXPORT ElError ElSymmetricMin_d
+( ElUpperOrLower uplo, ElConstMatrix_d A, double* value );
+
+EL_EXPORT ElError ElSymmetricMinDist_i
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElInt* value );
+EL_EXPORT ElError ElSymmetricMinDist_s
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, float* value );
+EL_EXPORT ElError ElSymmetricMinDist_d
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, double* value );
 
 /* MinLoc
    ====== */

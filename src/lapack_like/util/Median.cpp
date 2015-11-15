@@ -10,7 +10,7 @@
 
 namespace El {
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> Median( const Matrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("Median"))
@@ -34,7 +34,7 @@ ValueInt<Real> Median( const Matrix<Real>& x )
     return pairs[k/2];
 }
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 ValueInt<Real> Median( const ElementalMatrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("Median"))

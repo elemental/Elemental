@@ -91,6 +91,11 @@ template<typename F> using Base = typename BaseHelper<F>::type;
 
 // For querying whether or not an element's type is complex
 // --------------------------------------------------------
+template<typename Real> struct IsReal
+{ static const bool value=true; };
+template<typename Real> struct IsReal<Complex<Real>>
+{ static const bool value=false; };
+
 template<typename Real> struct IsComplex
 { static const bool value=false; };
 template<typename Real> struct IsComplex<Complex<Real>>

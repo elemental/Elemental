@@ -563,7 +563,7 @@ inline T Round( const T& alpha ) { return std::round(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,typename=EnableIf<IsScalar<T>>>
+template<typename T,typename>
 inline Complex<T> Round( const Complex<T>& alpha )
 { return Complex<T>(Round(alpha.real()),Round(alpha.imag())); }
 
@@ -581,7 +581,7 @@ inline T Ceil( const T& alpha ) { return std::ceil(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,typename=EnableIf<IsScalar<T>>>
+template<typename T,typename>
 inline Complex<T> Ceil( const Complex<T>& alpha )
 { return Complex<T>(Ceil(alpha.real()),Ceil(alpha.imag())); }
 
@@ -599,7 +599,7 @@ inline T Floor( const T& alpha ) { return std::floor(alpha); }
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,typename=EnableIf<IsScalar<T>>>
+template<typename T,typename>
 inline Complex<T> Floor( const Complex<T>& alpha )
 { return Complex<T>(Floor(alpha.real()),Floor(alpha.imag())); }
 
