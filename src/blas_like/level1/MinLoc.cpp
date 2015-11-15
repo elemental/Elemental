@@ -28,7 +28,7 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
         for( Int i=0; i<m; ++i )
         {
             const Real value = x.Get(i,0);
-            if( value > pivot.value )
+            if( value < pivot.value )
             {
                 pivot.value = value;
                 pivot.index = i;
@@ -40,7 +40,7 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
         for( Int j=0; j<n; ++j )
         {
             const Real value = x.Get(0,j);
-            if( value > pivot.value )
+            if( value < pivot.value )
             {
                 pivot.value = value;
                 pivot.index = j;
@@ -75,7 +75,7 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
                     const Real value = x.GetLocal(iLoc,0);
-                    if( value > pivot.value )
+                    if( value < pivot.value )
                     {
                         pivot.value = value;
                         pivot.index = x.GlobalRow(iLoc);
@@ -91,7 +91,7 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     const Real value = x.GetLocal(0,jLoc);
-                    if( value > pivot.value )
+                    if( value < pivot.value )
                     {
                         pivot.value = value;
                         pivot.index = x.GlobalCol(jLoc);
@@ -121,7 +121,7 @@ ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
         const Real value = x.GetLocal(iLoc,0);
-        if( value > pivot.value )
+        if( value < pivot.value )
         {
             pivot.value = value;
             pivot.index = x.GlobalRow(iLoc);
@@ -149,7 +149,7 @@ Entry<Real> MinLoc( const Matrix<Real>& A )
         for( Int i=0; i<m; ++i )
         {
             const Real value = ABuf[i+j*ALDim];
-            if( value > pivot.value )
+            if( value < pivot.value )
             {
                 pivot.i = i;
                 pivot.j = j;
@@ -186,7 +186,7 @@ Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
                 const Real value = ABuf[iLoc+jLoc*ALDim];
-                if( value > pivot.value )
+                if( value < pivot.value )
                 {
                     const Int i = A.GlobalRow(iLoc);
                     pivot.i = i;
@@ -226,7 +226,7 @@ Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
             for( Int i=j; i<n; ++i )
             {
                 const Real value = ABuf[i+j*ALDim];
-                if( value > pivot.value )
+                if( value < pivot.value )
                 {
                     pivot.i = i;
                     pivot.j = j;
@@ -242,7 +242,7 @@ Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
             for( Int i=0; i<=j; ++i )
             {
                 const Real value = ABuf[i+j*ALDim];
-                if( value > pivot.value )
+                if( value < pivot.value )
                 {
                     pivot.i = i;
                     pivot.j = j;
@@ -282,7 +282,7 @@ SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
                     const Real value = A.GetLocal(iLoc,jLoc);
-                    if( value > pivot.value )
+                    if( value < pivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
                         pivot.i = i;
@@ -301,7 +301,7 @@ SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
                     const Real value = A.GetLocal(iLoc,jLoc);
-                    if( value > pivot.value )
+                    if( value < pivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
                         pivot.i = i;
