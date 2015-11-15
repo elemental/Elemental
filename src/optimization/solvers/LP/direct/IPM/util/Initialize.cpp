@@ -151,14 +151,14 @@ void Initialize
     {
         // alpha_p := min { alpha : x + alpha*e >= 0 }
         // -------------------------------------------
-        const auto xMinPair = VectorMin( x );
+        const auto xMinPair = VectorMinLoc( x );
         const Real alphaPrimal = -xMinPair.value;
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized x was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const auto zMinPair = VectorMin( z );
+        const auto zMinPair = VectorMinLoc( z );
         const Real alphaDual = -zMinPair.value;
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
@@ -256,14 +256,14 @@ void Initialize
     {
         // alpha_p := min { alpha : x + alpha*e >= 0 }
         // -------------------------------------------
-        const auto xMinPair = VectorMin( x );
+        const auto xMinPair = VectorMinLoc( x );
         const Real alphaPrimal = -xMinPair.value;
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized x was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const auto zMinPair = VectorMin( z );
+        const auto zMinPair = VectorMinLoc( z );
         const Real alphaDual = -zMinPair.value;
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");

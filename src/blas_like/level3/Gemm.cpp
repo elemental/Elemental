@@ -60,7 +60,8 @@ void Gemm
     {
         blas::Gemm
         ( transA, transB, m, n, k,
-          alpha, A.LockedBuffer(), A.LDim(), B.LockedBuffer(), B.LDim(),
+          alpha, A.LockedBuffer(), A.LDim(),
+                 B.LockedBuffer(), B.LDim(),
           beta,  C.Buffer(),       C.LDim() );
     }
     else

@@ -23,8 +23,8 @@ BunchParlett( const Matrix<F>& A, Base<F> gamma )
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
-    const ValueInt<Real> diagMax = VectorMaxAbs( GetDiagonal(A) );
-    const Entry<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
+    const ValueInt<Real> diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
+    const Entry<Real> offDiagMax = SymmetricMaxAbsLoc( LOWER, A );
 
     LDLPivot pivot;
     if( diagMax.value >= gamma*offDiagMax.value )
@@ -51,8 +51,8 @@ BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
 
-    const ValueInt<Real> diagMax = VectorMaxAbs( GetDiagonal(A) );
-    const Entry<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
+    const ValueInt<Real> diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
+    const Entry<Real> offDiagMax = SymmetricMaxAbsLoc( LOWER, A );
 
     LDLPivot pivot;
     if( diagMax.value >= gamma*offDiagMax.value )

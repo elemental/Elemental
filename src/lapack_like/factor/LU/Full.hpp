@@ -34,7 +34,7 @@ Full
 
         // Find the index and value of the pivot candidate
         auto ABR = A( indB, indR );
-        auto pivot = MaxAbs( ABR );
+        auto pivot = MaxAbsLoc( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
         rowPiv.Set( k, 0, iPiv );
@@ -83,7 +83,7 @@ Full
 
         // Find the index and value of the pivot candidate
         auto ABR = A( indB, indR );
-        auto pivot = MaxAbs( ABR );
+        auto pivot = MaxAbsLoc( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
         rowPiv.Set( k, 0, iPiv );

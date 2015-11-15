@@ -91,14 +91,14 @@ void SetDefaultBlockWidth( Int blockWidth );
 
 std::mt19937& Generator();
 
-template<typename T>
+template<typename T,EnableIf<IsScalar<T>>>
 inline const T& Max( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
 inline const Int& Max( const Int& m, const Int& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
-template<typename T>
+template<typename T,EnableIf<IsScalar<T>>>
 inline const T& Min( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::min(m,n); }
 

@@ -91,8 +91,8 @@ void GeomEquil
     //const Real sqrtDamp = Sqrt(damp);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbsA = MaxAbs( A );
-    auto maxAbsB = MaxAbs( B );
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
     const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
     if( maxAbsVal == Real(0) )
         return;
@@ -131,8 +131,8 @@ void GeomEquil
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
-        auto newMaxAbsA = MaxAbs( A );
-        auto newMaxAbsB = MaxAbs( B );
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
         const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
         const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
         const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );
@@ -191,8 +191,8 @@ void GeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbsA = MaxAbs( A );
-    auto maxAbsB = MaxAbs( B );
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
     const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
     if( maxAbsVal == Real(0) )
         return;
@@ -291,8 +291,8 @@ void GeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbsA = MaxAbs( A );
-        auto newMaxAbsB = MaxAbs( B );
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
         const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
         const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
         const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );
@@ -375,8 +375,8 @@ void GeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbsA = MaxAbs( A );
-    auto maxAbsB = MaxAbs( B );
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
     const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
     if( maxAbsVal == Real(0) )
         return;
@@ -477,8 +477,8 @@ void GeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbsA = MaxAbs( A );
-        auto newMaxAbsB = MaxAbs( B );
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
         const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
         const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
         const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );

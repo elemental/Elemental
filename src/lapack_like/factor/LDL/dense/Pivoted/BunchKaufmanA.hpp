@@ -29,7 +29,7 @@ BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
     const Real alpha11Abs = Abs(A.Get(0,0));
     const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
-    const auto a21Max = VectorMaxAbs( A(ind2,ind1) );
+    const auto a21Max = VectorMaxAbsLoc( A(ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -46,8 +46,8 @@ BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
     const Range<Int> indr0( 0,   r   ),
                      indr1( r,   r+1 ),
                      indr2( r+1, n   );
-    const auto leftMax   = VectorMaxAbs( A(indr1,indr0) );
-    const auto bottomMax = VectorMaxAbs( A(indr2,indr1) );
+    const auto leftMax   = VectorMaxAbsLoc( A(indr1,indr0) );
+    const auto bottomMax = VectorMaxAbsLoc( A(indr2,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -84,7 +84,7 @@ BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
     const Real alpha11Abs = Abs(A.Get(0,0));
     const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
-    const auto a21Max = VectorMaxAbs( A(ind2,ind1) );
+    const auto a21Max = VectorMaxAbsLoc( A(ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -101,8 +101,8 @@ BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
     const Range<Int> indr0( 0,   r   ),
                      indr1( r,   r+1 ),
                      indr2( r+1, n   );
-    const auto leftMax   = VectorMaxAbs( A(indr1,indr0) );
-    const auto bottomMax = VectorMaxAbs( A(indr2,indr1) );
+    const auto leftMax   = VectorMaxAbsLoc( A(indr1,indr0) );
+    const auto bottomMax = VectorMaxAbsLoc( A(indr2,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -155,7 +155,7 @@ PanelBunchKaufmanA
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( zB1(ind2Off,ind1Off) );
+    const auto a21Max = VectorMaxAbsLoc( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -197,8 +197,8 @@ PanelBunchKaufmanA
         Gemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
-    const auto leftMax   = VectorMaxAbs( zLeft );
-    const auto bottomMax = VectorMaxAbs( zStrictBottom );
+    const auto leftMax   = VectorMaxAbsLoc( zLeft );
+    const auto bottomMax = VectorMaxAbsLoc( zStrictBottom );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -254,7 +254,7 @@ PanelBunchKaufmanA
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( zB1(ind2Off,ind1Off) );
+    const auto a21Max = VectorMaxAbsLoc( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -298,8 +298,8 @@ PanelBunchKaufmanA
         LocalGemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
-    const auto leftMax   = VectorMaxAbs( zLeft );
-    const auto bottomMax = VectorMaxAbs( zStrictBottom );
+    const auto leftMax   = VectorMaxAbsLoc( zLeft );
+    const auto bottomMax = VectorMaxAbsLoc( zStrictBottom );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )

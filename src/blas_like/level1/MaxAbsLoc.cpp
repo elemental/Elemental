@@ -13,15 +13,15 @@ namespace El {
 // TODO: Add options for FastAbs instead of Abs
 
 template<typename T>
-ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x )
+ValueInt<Base<T>> VectorMaxAbsLoc( const Matrix<T>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMaxAbs"))
+    DEBUG_ONLY(CSE cse("VectorMaxAbsLoc"))
     typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
-        if( m != 1 && n != 1 )
-            LogicError("Input should have been a vector");
+      if( m != 1 && n != 1 )
+          LogicError("Input should have been a vector");
     )
 
     ValueInt<Real> pivot;
@@ -62,9 +62,9 @@ ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x )
 }
 
 template<typename T>
-ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x )
+ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMaxAbs"))
+    DEBUG_ONLY(CSE cse("VectorMaxAbsLoc"))
     typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -127,9 +127,9 @@ ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x )
 }
 
 template<typename T>
-Entry<Base<T>> MaxAbs( const Matrix<T>& A )
+Entry<Base<T>> MaxAbsLoc( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MaxAbs"))
+    DEBUG_ONLY(CSE cse("MaxAbsLoc"))
     typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -163,10 +163,10 @@ Entry<Base<T>> MaxAbs( const Matrix<T>& A )
 }
 
 template<typename T>
-Entry<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A )
+Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(
-      CSE cse("MaxAbs");
+      CSE cse("MaxAbsLoc");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -214,9 +214,9 @@ Entry<Base<T>> MaxAbs( const AbstractDistMatrix<T>& A )
 }
 
 template<typename T>
-Entry<Base<T>> MaxAbs( const SparseMatrix<T>& A )
+Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MaxAbs"))
+    DEBUG_ONLY(CSE cse("MaxAbsLoc"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -248,9 +248,9 @@ Entry<Base<T>> MaxAbs( const SparseMatrix<T>& A )
 }
 
 template<typename T>
-Entry<Base<T>> MaxAbs( const DistSparseMatrix<T>& A )
+Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MaxAbs"))
+    DEBUG_ONLY(CSE cse("MaxAbsLoc"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -282,10 +282,10 @@ Entry<Base<T>> MaxAbs( const DistSparseMatrix<T>& A )
 }
 
 template<typename T>
-Entry<Base<T>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<T>& A )
+Entry<Base<T>> SymmetricMaxAbsLoc( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_ONLY(
-      CSE cse("SymmetricMaxAbs");
+      CSE cse("SymmetricMaxAbsLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -337,11 +337,11 @@ Entry<Base<T>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<T>& A )
 }
 
 template<typename T>
-Entry<Base<T>> SymmetricMaxAbs
+Entry<Base<T>> SymmetricMaxAbsLoc
 ( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(
-      CSE cse("SymmetricMaxAbs");
+      CSE cse("SymmetricMaxAbsLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
@@ -411,10 +411,10 @@ Entry<Base<T>> SymmetricMaxAbs
 }
 
 template<typename T>
-Entry<Base<T>> SymmetricMaxAbs
+Entry<Base<T>> SymmetricMaxAbsLoc
 ( UpperOrLower uplo, const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricMaxAbs"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxAbsLoc"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -447,10 +447,10 @@ Entry<Base<T>> SymmetricMaxAbs
 }
 
 template<typename T>
-Entry<Base<T>> SymmetricMaxAbs
+Entry<Base<T>> SymmetricMaxAbsLoc
 ( UpperOrLower uplo, const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricMaxAbs"))
+    DEBUG_ONLY(CSE cse("SymmetricMaxAbsLoc"))
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -483,19 +483,21 @@ Entry<Base<T>> SymmetricMaxAbs
 }
 
 #define PROTO(T) \
-  template ValueInt<Base<T>> VectorMaxAbs( const Matrix<T>& x ); \
-  template ValueInt<Base<T>> VectorMaxAbs( const AbstractDistMatrix<T>& x ); \
-  template Entry<Base<T>> MaxAbs( const Matrix<T>& x ); \
-  template Entry<Base<T>> MaxAbs( const AbstractDistMatrix<T>& x ); \
-  template Entry<Base<T>> MaxAbs( const SparseMatrix<T>& x ); \
-  template Entry<Base<T>> MaxAbs( const DistSparseMatrix<T>& x ); \
-  template Entry<Base<T>> SymmetricMaxAbs \
+  template ValueInt<Base<T>> VectorMaxAbsLoc \
+  ( const Matrix<T>& x ); \
+  template ValueInt<Base<T>> VectorMaxAbsLoc \
+  ( const AbstractDistMatrix<T>& x ); \
+  template Entry<Base<T>> MaxAbsLoc( const Matrix<T>& x ); \
+  template Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& x ); \
+  template Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& x ); \
+  template Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& x ); \
+  template Entry<Base<T>> SymmetricMaxAbsLoc \
   ( UpperOrLower uplo, const Matrix<T>& A ); \
-  template Entry<Base<T>> SymmetricMaxAbs \
+  template Entry<Base<T>> SymmetricMaxAbsLoc \
   ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
-  template Entry<Base<T>> SymmetricMaxAbs \
+  template Entry<Base<T>> SymmetricMaxAbsLoc \
   ( UpperOrLower uplo, const SparseMatrix<T>& x ); \
-  template Entry<Base<T>> SymmetricMaxAbs \
+  template Entry<Base<T>> SymmetricMaxAbsLoc \
   ( UpperOrLower uplo, const DistSparseMatrix<T>& x );
 
 #define EL_ENABLE_QUAD

@@ -41,7 +41,7 @@ void GeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -58,7 +58,7 @@ void GeomEquil
         for( Int j=0; j<n; ++j )
         {
             auto aCol = A( ALL, IR(j) );
-            auto maxColAbs = VectorMaxAbs( aCol );
+            auto maxColAbs = VectorMaxAbsLoc( aCol );
             const Real maxColAbsVal = maxColAbs.value;
             if( maxColAbsVal > Real(0) )
             {
@@ -74,7 +74,7 @@ void GeomEquil
         for( Int i=0; i<m; ++i )
         {
             auto aRow = A( IR(i), ALL );
-            auto maxRowAbs = VectorMaxAbs( aRow );
+            auto maxRowAbs = VectorMaxAbsLoc( aRow );
             const Real maxRowAbsVal = maxRowAbs.value;
             if( maxRowAbsVal > Real(0) )
             {
@@ -86,7 +86,7 @@ void GeomEquil
             }
         }
 
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -102,7 +102,7 @@ void GeomEquil
     for( Int j=0; j<n; ++j )
     {
         auto aCol = A( ALL, IR(j) );
-        auto maxColAbs = VectorMaxAbs( aCol );
+        auto maxColAbs = VectorMaxAbsLoc( aCol );
         const Real maxColAbsVal = maxColAbs.value;
         if( maxColAbsVal > Real(0) )
         {
@@ -134,8 +134,8 @@ void StackedGeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbsA = MaxAbs( A );
-    auto maxAbsB = MaxAbs( B );
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
     const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
     if( maxAbsVal == Real(0) )
         return;
@@ -155,8 +155,8 @@ void StackedGeomEquil
         {
             auto aCol = A( ALL, IR(j) );
             auto bCol = B( ALL, IR(j) );
-            auto maxColAbsA = VectorMaxAbs( aCol );
-            auto maxColAbsB = VectorMaxAbs( bCol );
+            auto maxColAbsA = VectorMaxAbsLoc( aCol );
+            auto maxColAbsB = VectorMaxAbsLoc( bCol );
             const Real maxColAbsVal = Max(maxColAbsA.value,maxColAbsB.value);
             if( maxColAbsVal > Real(0) )
             {
@@ -175,7 +175,7 @@ void StackedGeomEquil
         for( Int i=0; i<mA; ++i )
         {
             auto aRow = A( IR(i), ALL );
-            auto maxRowAbs = VectorMaxAbs( aRow );
+            auto maxRowAbs = VectorMaxAbsLoc( aRow );
             const Real maxRowAbsVal = maxRowAbs.value;
             if( maxRowAbsVal > Real(0) )
             {
@@ -189,7 +189,7 @@ void StackedGeomEquil
         for( Int i=0; i<mB; ++i )
         {
             auto bRow = B( IR(i), ALL );
-            auto maxRowAbs = VectorMaxAbs( bRow );
+            auto maxRowAbs = VectorMaxAbsLoc( bRow );
             const Real maxRowAbsVal = maxRowAbs.value;
             if( maxRowAbsVal > Real(0) )
             {
@@ -201,8 +201,8 @@ void StackedGeomEquil
             }
         }
 
-        auto newMaxAbsA = MaxAbs( A );
-        auto newMaxAbsB = MaxAbs( B );
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
         const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
         const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
         const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );
@@ -221,8 +221,8 @@ void StackedGeomEquil
     {
         auto aCol = A( ALL, IR(j) );
         auto bCol = B( ALL, IR(j) );
-        auto maxColAbsA = VectorMaxAbs( aCol );
-        auto maxColAbsB = VectorMaxAbs( bCol );
+        auto maxColAbsA = VectorMaxAbsLoc( aCol );
+        auto maxColAbsB = VectorMaxAbsLoc( bCol );
         const Real maxColAbsVal = Max(maxColAbsA.value,maxColAbsB.value);
         if( maxColAbsVal > Real(0) )
         {
@@ -271,7 +271,7 @@ void GeomEquil
     //const Real sqrtDamp = Sqrt(damp);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -305,7 +305,7 @@ void GeomEquil
         DiagonalScale( LEFT, NORMAL, rowScale, dRow );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -374,8 +374,8 @@ void StackedGeomEquil
     //const Real sqrtDamp = Sqrt(damp);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbsA = MaxAbs( A );
-    auto maxAbsB = MaxAbs( B );
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
     const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
     if( maxAbsVal == Real(0) )
         return;
@@ -421,8 +421,8 @@ void StackedGeomEquil
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
-        auto newMaxAbsA = MaxAbs( A );
-        auto newMaxAbsB = MaxAbs( B );
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
         const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
         const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
         const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );
@@ -473,7 +473,7 @@ void GeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -531,7 +531,7 @@ void GeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -587,8 +587,8 @@ void StackedGeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbsA = MaxAbs( A );
-    auto maxAbsB = MaxAbs( B );
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
     const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
     if( maxAbsVal == Real(0) )
         return;
@@ -674,8 +674,8 @@ void StackedGeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbsA = MaxAbs( A );
-        auto newMaxAbsB = MaxAbs( B );
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
         const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
         const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
         const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );
@@ -752,7 +752,7 @@ void GeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -812,7 +812,7 @@ void GeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -875,8 +875,8 @@ void StackedGeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbsA = MaxAbs( A );
-    auto maxAbsB = MaxAbs( B );
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
     const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
     if( maxAbsVal == Real(0) )
         return;
@@ -970,8 +970,8 @@ void StackedGeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbsA = MaxAbs( A );
-        auto newMaxAbsB = MaxAbs( B );
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
         const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
         const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
         const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );

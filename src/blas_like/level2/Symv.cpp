@@ -16,7 +16,9 @@ namespace El {
 template<typename T>
 void Symv
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y,
+  T alpha, const Matrix<T>& A,
+           const Matrix<T>& x,
+  T beta, Matrix<T>& y,
   bool conjugate )
 {
     DEBUG_ONLY(
@@ -56,7 +58,8 @@ void Symv
 ( UpperOrLower uplo,
   T alpha, const ElementalMatrix<T>& APre,
            const ElementalMatrix<T>& x,
-  T beta,        ElementalMatrix<T>& yPre, bool conjugate,
+  T beta,        ElementalMatrix<T>& yPre,
+  bool conjugate,
   const SymvCtrl<T>& ctrl )
 {
     DEBUG_ONLY(
@@ -289,16 +292,25 @@ void LocalRowAccumulate
 
 #define PROTO(T) \
   template void Symv \
-  ( UpperOrLower uplo, T alpha, \
-    const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y, \
+  ( UpperOrLower uplo, \
+    T alpha, \
+    const Matrix<T>& A, \
+    const Matrix<T>& x, \
+    T beta, \
+         Matrix<T>& y, \
     bool conjugate ); \
   template void Symv \
-  ( UpperOrLower uplo, T alpha, \
-    const ElementalMatrix<T>& A, const ElementalMatrix<T>& x, \
-    T beta, ElementalMatrix<T>& y, bool conjugate, \
+  ( UpperOrLower uplo, \
+    T alpha, \
+    const ElementalMatrix<T>& A, \
+    const ElementalMatrix<T>& x, \
+    T beta, \
+          ElementalMatrix<T>& y, \
+    bool conjugate, \
     const SymvCtrl<T>& ctrl ); \
   template void symv::LocalColAccumulate \
-  ( UpperOrLower uplo, T alpha, \
+  ( UpperOrLower uplo, \
+    T alpha, \
     const DistMatrix<T>& A, \
     const DistMatrix<T,MC,STAR>& x_MC_STAR, \
     const DistMatrix<T,MR,STAR>& x_MR_STAR, \
@@ -306,7 +318,8 @@ void LocalRowAccumulate
           DistMatrix<T,MR,STAR>& z_MR_STAR, bool conjugate, \
     const SymvCtrl<T>& ctrl ); \
   template void symv::LocalRowAccumulate \
-  ( UpperOrLower uplo, T alpha, \
+  ( UpperOrLower uplo, \
+    T alpha, \
     const DistMatrix<T>& A, \
     const DistMatrix<T,STAR,MC>& x_STAR_MC, \
     const DistMatrix<T,STAR,MR>& x_STAR_MR, \

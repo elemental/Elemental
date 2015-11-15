@@ -373,7 +373,7 @@ namespace box {
 
 // Alternating Direction Method of Multipliers
 // -------------------------------------------
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 Int ADMM
 ( const Matrix<Real>& Q,
   const Matrix<Real>& C, 
@@ -381,7 +381,7 @@ Int ADMM
         Real ub,
         Matrix<Real>& X, 
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 Int ADMM
 ( const ElementalMatrix<Real>& Q,
   const ElementalMatrix<Real>& C, 
