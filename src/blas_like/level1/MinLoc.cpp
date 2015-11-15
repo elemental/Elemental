@@ -10,7 +10,7 @@
 
 namespace El {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMinLoc"))
@@ -50,7 +50,7 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMinLoc"))
@@ -105,7 +105,7 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMinLoc"))
@@ -131,7 +131,7 @@ ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real> MinLoc( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("MinLoc"))
@@ -160,7 +160,7 @@ Entry<Real> MinLoc( const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -203,7 +203,7 @@ Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -254,7 +254,7 @@ Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real>
 SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {

@@ -10,7 +10,7 @@
 
 namespace El {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real Max( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("Max"))
@@ -26,7 +26,7 @@ Real Max( const Matrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real Max( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -52,7 +52,7 @@ Real Max( const AbstractDistMatrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -80,7 +80,7 @@ Real SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(

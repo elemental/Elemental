@@ -10,7 +10,7 @@
 
 namespace El {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real Min( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("Min"))
@@ -26,7 +26,7 @@ Real Min( const Matrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real Min( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -52,7 +52,7 @@ Real Min( const AbstractDistMatrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -80,7 +80,7 @@ Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(

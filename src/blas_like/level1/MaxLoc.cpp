@@ -10,7 +10,7 @@
 
 namespace El {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMaxLoc"))
@@ -50,7 +50,7 @@ ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMaxLoc"))
@@ -105,7 +105,7 @@ ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMaxLoc"))
@@ -131,7 +131,7 @@ ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real> MaxLoc( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("MaxLoc"))
@@ -160,7 +160,7 @@ Entry<Real> MaxLoc( const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -203,7 +203,7 @@ Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -254,7 +254,7 @@ Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Entry<Real>
 SymmetricMaxLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {

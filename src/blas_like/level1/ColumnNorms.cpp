@@ -310,9 +310,11 @@ void ColumnMaxNorms
 
 // Versions which operate on explicitly-separated complex matrices
 // ===============================================================
-template<typename Real>
+template<typename Real,typename>
 void ColumnTwoNorms
-( const Matrix<Real>& XReal, const Matrix<Real>& XImag, Matrix<Real>& norms )
+( const Matrix<Real>& XReal,
+  const Matrix<Real>& XImag,
+        Matrix<Real>& norms )
 {
     DEBUG_ONLY(CSE cse("pspec::ColumnTwoNorms"))
     const Int m = XReal.Height();
@@ -332,10 +334,11 @@ void ColumnTwoNorms
     }
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real,Dist U,Dist V,typename>
 void ColumnTwoNorms
 ( const DistMatrix<Real,U,V>& XReal,
-  const DistMatrix<Real,U,V>& XImag, DistMatrix<Real,V,STAR>& norms )
+  const DistMatrix<Real,U,V>& XImag,
+        DistMatrix<Real,V,STAR>& norms )
 {
     DEBUG_ONLY(CSE cse("pspec::ColumnTwoNorms"))
     if( XReal.RowAlign() != norms.ColAlign() )
@@ -364,9 +367,10 @@ void ColumnTwoNorms
         normBuf[jLoc] = Sqrt(normBuf[jLoc]);
 }
 
-template<typename Real>
+template<typename Real,typename>
 void ColumnTwoNorms
-( const DistMultiVec<Real>& XReal, const DistMultiVec<Real>& XImag, 
+( const DistMultiVec<Real>& XReal,
+  const DistMultiVec<Real>& XImag, 
         Matrix<Real>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
