@@ -10,7 +10,7 @@
 
 namespace El {
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMinLoc"))
@@ -21,18 +21,11 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
           LogicError("Input should have been a vector");
     )
     ValueInt<Real> pivot;
-    if( Min(m,n) == 0 )
-    {
-        pivot.value = 0;
-        pivot.index = -1;    
-        return pivot;
-    }
-
-    pivot.value = x.Get(0,0);
-    pivot.index = 0;
+    pivot.index = -1;
+    pivot.value = std::numeric_limits<Real>::max();
     if( n == 1 )
     {
-        for( Int i=1; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const Real value = x.Get(i,0);
             if( value < pivot.value )
@@ -44,7 +37,7 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
     }
     else
     {
-        for( Int j=1; j<n; ++j )
+        for( Int j=0; j<n; ++j )
         {
             const Real value = x.Get(0,j);
             if( value < pivot.value )
@@ -57,7 +50,7 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMinLoc"))
@@ -70,16 +63,8 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
           LogicError("viewing processes are not allowed");
     )
     ValueInt<Real> pivot;
-    if( Min(m,n) == 0 )
-    {
-        pivot.value = 0;
-        pivot.index = -1;
-        return pivot;
-    }
- 
-    ValueInt<Real> localPivot;
-    localPivot.value = x.Get(0,0);
-    localPivot.index = 0;
+    pivot.index = -1;
+    pivot.value = std::numeric_limits<Real>::max();
     if( x.Participating() )
     {
         if( n == 1 )
@@ -90,10 +75,10 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
                     const Real value = x.GetLocal(iLoc,0);
-                    if( value < localPivot.value )
+                    if( value < pivot.value )
                     {
-                        localPivot.value = value;
-                        localPivot.index = x.GlobalRow(iLoc);
+                        pivot.value = value;
+                        pivot.index = x.GlobalRow(iLoc);
                     }
                 }
             }
@@ -106,23 +91,21 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     const Real value = x.GetLocal(0,jLoc);
-                    if( value < localPivot.value )
+                    if( value < pivot.value )
                     {
-                        localPivot.value = value;
-                        localPivot.index = x.GlobalCol(jLoc);
+                        pivot.value = value;
+                        pivot.index = x.GlobalCol(jLoc);
                     }
                 }
             }
         }
-        pivot = mpi::AllReduce
-                ( localPivot, mpi::MinLocOp<Real>(), x.DistComm() );
+        pivot = mpi::AllReduce( pivot, mpi::MinLocOp<Real>(), x.DistComm() );
     }
-    mpi::Broadcast( pivot.index, x.Root(), x.CrossComm() );
-    mpi::Broadcast( pivot.value, x.Root(), x.CrossComm() );
+    mpi::Broadcast( pivot, x.Root(), x.CrossComm() );
     return pivot;
 }
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMinLoc"))
@@ -131,60 +114,41 @@ ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
       if( x.Width() != 1 )
           LogicError("Input should have been a vector");
     )
-    mpi::Comm comm = x.Comm();
     ValueInt<Real> pivot;
-    if( height == 0 )
-    {
-        pivot.value = 0;
-        pivot.index = -1;
-        return pivot;
-    }
- 
-    // Get an upper-bound for the minimum entry of the matrix to avoid cases
-    // where a process does not own any data
-    // =====================================================================
-    const Real maxNorm = MaxNorm( x );
-    ValueInt<Real> localPivot;
-    localPivot.value = maxNorm;
-    localPivot.index = 0;
+    pivot.index = -1;
+    pivot.value = std::numeric_limits<Real>::max();
     const Int mLocal = x.LocalHeight();
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
         const Real value = x.GetLocal(iLoc,0);
-        if( value < localPivot.value )
+        if( value < pivot.value )
         {
-            localPivot.value = value;
-            localPivot.index = x.GlobalRow(iLoc);
+            pivot.value = value;
+            pivot.index = x.GlobalRow(iLoc);
         }
     }
-    pivot = mpi::AllReduce( localPivot, mpi::MinLocOp<Real>(), comm );
+    pivot = mpi::AllReduce( pivot, mpi::MinLocOp<Real>(), x.Comm() );
     return pivot;
 }
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename>
 Entry<Real> MinLoc( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("MinLoc"))
     const Int m = A.Height();
     const Int n = A.Width();
+    const Real* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
 
     Entry<Real> pivot;
-    if( Min(m,n) == 0 )
-    {
-        pivot.i = -1;
-        pivot.j = -1;
-        pivot.value = 0;
-        return pivot;
-    }
-
-    pivot.i = 0;
-    pivot.j = 0;
-    pivot.value = A.Get(0,0);
+    pivot.i = -1;
+    pivot.j = -1;
+    pivot.value = std::numeric_limits<Real>::max();
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real value = A.Get(i,j);
+            const Real value = ABuf[i+j*ALDim];
             if( value < pivot.value )
             {
                 pivot.i = i;
@@ -196,7 +160,7 @@ Entry<Real> MinLoc( const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename>
 Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -204,19 +168,13 @@ Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    Entry<Real> pivot;
-    if( Min(A.Height(),A.Width()) == 0 )
-    {
-        pivot.i = -1;
-        pivot.j = -1;
-        pivot.value = 0;
-        return pivot;
-    }
+    const Real* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
 
-    Entry<Real> localPivot;
-    localPivot.i = 0;
-    localPivot.j = 0;
-    localPivot.value = A.Get(0,0);
+    Entry<Real> pivot;
+    pivot.i = -1;
+    pivot.j = -1;
+    pivot.value = std::numeric_limits<Real>::max();
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
@@ -227,26 +185,25 @@ Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
             const Int j = A.GlobalCol(jLoc);
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
-                const Real value = A.GetLocal(iLoc,jLoc);
-                if( value < localPivot.value )
+                const Real value = ABuf[iLoc+jLoc*ALDim];
+                if( value < pivot.value )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    localPivot.i = i;
-                    localPivot.j = j;
-                    localPivot.value = value;
+                    pivot.i = i;
+                    pivot.j = j;
+                    pivot.value = value;
                 }
             }
         }
-
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
+                ( pivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
     mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;
 }
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename>
 Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -255,25 +212,20 @@ Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
           LogicError("A must be square");
     )
     const Int n = A.Width();
-    Entry<Real> pivot;
-    if( n == 0 )
-    {
-        pivot.i = -1;
-        pivot.j = -1;
-        pivot.value = 0;
-        return pivot;
-    }
+    const Real* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
 
-    pivot.i = 0;
-    pivot.j = 0;
-    pivot.value = A.Get(0,0);
+    Entry<Real> pivot;
+    pivot.i = -1;
+    pivot.j = -1;
+    pivot.value = std::numeric_limits<Real>::max();
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
         {
             for( Int i=j; i<n; ++i )
             {
-                const Real value = A.Get(i,j);
+                const Real value = ABuf[i+j*ALDim];
                 if( value < pivot.value )
                 {
                     pivot.i = i;
@@ -289,7 +241,7 @@ Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
         { 
             for( Int i=0; i<=j; ++i )
             {
-                const Real value = A.Get(i,j);
+                const Real value = ABuf[i+j*ALDim];
                 if( value < pivot.value )
                 {
                     pivot.i = i;
@@ -302,7 +254,7 @@ Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename=DisableIf<IsComplex<Real>>>
+template<typename Real,typename>
 Entry<Real>
 SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
@@ -313,24 +265,14 @@ SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-
     Entry<Real> pivot;
-    if( A.Height() == 0 )
-    {
-        pivot.i = -1;
-        pivot.j = -1;
-        pivot.value = 0;
-        return pivot;
-    }
-
-    Entry<Real> localPivot;
-    localPivot.i = 0;
-    localPivot.j = 0;
-    localPivot.value = A.Get(0,0);
+    pivot.i = -1;
+    pivot.j = -1;
+    pivot.value = std::numeric_limits<Real>::max();
     if( A.Participating() )
     {
+        const Int mLocal = A.LocalHeight();
+        const Int nLocal = A.LocalWidth();
         if( uplo == LOWER )
         {
             for( Int jLoc=0; jLoc<nLocal; ++jLoc )
@@ -340,12 +282,12 @@ SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
                     const Real value = A.GetLocal(iLoc,jLoc);
-                    if( value < localPivot.value )
+                    if( value < pivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
-                        localPivot.i = i;
-                        localPivot.j = j;
-                        localPivot.value = value;
+                        pivot.i = i;
+                        pivot.j = j;
+                        pivot.value = value;
                     }
                 }
             }
@@ -359,20 +301,19 @@ SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
                     const Real value = A.GetLocal(iLoc,jLoc);
-                    if( value < localPivot.value )
+                    if( value < pivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
-                        localPivot.i = i;
-                        localPivot.j = j;
-                        localPivot.value = value;
+                        pivot.i = i;
+                        pivot.j = j;
+                        pivot.value = value;
                     }
                 }
             }
         }
-
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
+                ( pivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
     mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;

@@ -1664,7 +1664,61 @@ def MakeTrapezoidal(uplo,A,offset=0):
 
 # Max
 # ---
-# TODO
+lib.ElMax_i.argtypes = \
+lib.ElMaxDist_i.argtypes = \
+  [c_void_p,POINTER(iType)]
+
+lib.ElMax_s.argtypes = \
+lib.ElMaxDist_s.argtypes = \
+  [c_void_p,POINTER(sType)]
+
+lib.ElMax_d.argtypes = \
+lib.ElMaxDist_d.argtypes = \
+  [c_void_p,POINTER(dType)]
+
+def Max(A):
+  value = TagToType(A.tag)()
+  args = [A.obj,pointer(value)]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElMax_i(*args) 
+    elif A.tag == sTag: lib.ElMax_s(*args) 
+    elif A.tag == dTag: lib.ElMax_d(*args) 
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElMaxDist_i(*args) 
+    elif A.tag == sTag: lib.ElMaxDist_s(*args) 
+    elif A.tag == dTag: lib.ElMaxDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return value
+
+lib.ElSymmetricMax_i.argtypes = \
+lib.ElSymmetricMaxDist_i.argtypes = \
+  [c_uint,c_void_p,POINTER(iType)]
+
+lib.ElSymmetricMax_s.argtypes = \
+lib.ElSymmetricMaxDist_s.argtypes = \
+  [c_uint,c_void_p,POINTER(sType)]
+
+lib.ElSymmetricMax_d.argtypes = \
+lib.ElSymmetricMaxDist_d.argtypes = \
+  [c_uint,c_void_p,POINTER(dType)]
+
+def SymmetricMax(uplo,A):
+  value = TagToType(A.tag)()
+  args = [uplo,A.obj,pointer(value)]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElSymmetricMax_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMax_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMax_d(*args) 
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElSymmetricMaxDist_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMaxDist_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMaxDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return value
 
 # MaxLoc
 # ------
@@ -1908,7 +1962,61 @@ def VectorMaxAbsLoc(A):
 
 # Min
 # ---
-# TODO
+lib.ElMin_i.argtypes = \
+lib.ElMinDist_i.argtypes = \
+  [c_void_p,POINTER(iType)]
+
+lib.ElMin_s.argtypes = \
+lib.ElMinDist_s.argtypes = \
+  [c_void_p,POINTER(sType)]
+
+lib.ElMin_d.argtypes = \
+lib.ElMinDist_d.argtypes = \
+  [c_void_p,POINTER(dType)]
+
+def Min(A):
+  value = TagToType(A.tag)()
+  args = [A.obj,pointer(value)]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElMin_i(*args) 
+    elif A.tag == sTag: lib.ElMin_s(*args) 
+    elif A.tag == dTag: lib.ElMin_d(*args) 
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElMinDist_i(*args) 
+    elif A.tag == sTag: lib.ElMinDist_s(*args) 
+    elif A.tag == dTag: lib.ElMinDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return value
+
+lib.ElSymmetricMin_i.argtypes = \
+lib.ElSymmetricMinDist_i.argtypes = \
+  [c_uint,c_void_p,POINTER(iType)]
+
+lib.ElSymmetricMin_s.argtypes = \
+lib.ElSymmetricMinDist_s.argtypes = \
+  [c_uint,c_void_p,POINTER(sType)]
+
+lib.ElSymmetricMin_d.argtypes = \
+lib.ElSymmetricMinDist_d.argtypes = \
+  [c_uint,c_void_p,POINTER(dType)]
+
+def SymmetricMin(uplo,A):
+  value = TagToType(A.tag)()
+  args = [uplo,A.obj,pointer(value)]
+  if type(A) is Matrix:
+    if   A.tag == iTag: lib.ElSymmetricMin_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMin_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMin_d(*args) 
+    else: DataExcept()
+  elif type(A) is DistMatrix:
+    if   A.tag == iTag: lib.ElSymmetricMinDist_i(*args) 
+    elif A.tag == sTag: lib.ElSymmetricMinDist_s(*args) 
+    elif A.tag == dTag: lib.ElSymmetricMinDist_d(*args) 
+    else: DataExcept()
+  else: TypeExcept()
+  return value
 
 # MinLoc
 # ------

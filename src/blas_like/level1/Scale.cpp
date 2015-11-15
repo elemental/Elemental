@@ -44,7 +44,7 @@ void Scale( S alphaS, Matrix<T>& A )
     }
 }
 
-template<typename Real,typename S>
+template<typename Real,typename S,typename>
 void Scale( S alphaS, Matrix<Real>& AReal, Matrix<Real>& AImag )
 {
     DEBUG_ONLY(CSE cse("Scale"))
@@ -90,7 +90,7 @@ template<typename T,typename S>
 void Scale( S alpha, AbstractDistMatrix<T>& A )
 { Scale( alpha, A.Matrix() ); }
 
-template<typename Real,typename S>
+template<typename Real,typename S,typename>
 void Scale( S alpha, AbstractDistMatrix<Real>& AReal, 
                      AbstractDistMatrix<Real>& AImag )
 { Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
