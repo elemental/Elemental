@@ -86,7 +86,7 @@ Unblocked
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = VectorMaxAbs( GetDiagonal(ABR) );
+            const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = Select( ABR, pivotType, gamma );
@@ -168,7 +168,7 @@ Unblocked
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = VectorMaxAbs( GetDiagonal(ABR) );
+            const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = Select( ABR, pivotType, gamma );

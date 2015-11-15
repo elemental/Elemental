@@ -92,7 +92,7 @@ Panel
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
             auto ABR = A( indB, indR );
-            const auto diagMax = VectorMaxAbs( GetDiagonal(ABR) );
+            const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
             RowSwap( p,  k, k+diagMax.index );
@@ -221,7 +221,7 @@ Panel
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
             auto ABR = A( indB, indR );
-            const auto diagMax = VectorMaxAbs( GetDiagonal(ABR) );
+            const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
             RowSwap( X0, k, k+diagMax.index );

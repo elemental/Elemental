@@ -53,7 +53,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -73,7 +73,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         for( Int j=0; j<n; ++j )
         {
             auto aCol = A( ALL, IR(j) );
-            auto maxColAbs = VectorMaxAbs( aCol );
+            auto maxColAbs = VectorMaxAbsLoc( aCol );
             const Real maxColAbsVal = maxColAbs.value;
             const Real minColAbsVal = MinAbsNonzero( aCol, maxColAbsVal );
             const Real propScale = Sqrt(minColAbsVal*maxColAbsVal);
@@ -85,7 +85,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
 
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -111,7 +111,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
     }
-    auto newMaxAbs = MaxAbs( A );
+    auto newMaxAbs = MaxAbsLoc( A );
     const Real newMaxAbsVal = newMaxAbs.value;
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -153,7 +153,7 @@ void SymmetricGeomEquil
     //const Real sqrtDamp = Sqrt(damp);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -177,7 +177,7 @@ void SymmetricGeomEquil
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -208,7 +208,7 @@ void SymmetricGeomEquil
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
-    auto newMaxAbs = MaxAbs( A );
+    auto newMaxAbs = MaxAbsLoc( A );
     const Real newMaxAbsVal = newMaxAbs.value;
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -233,7 +233,7 @@ void SymmetricGeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -266,7 +266,7 @@ void SymmetricGeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -294,7 +294,7 @@ void SymmetricGeomEquil
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
     }
-    auto newMaxAbs = MaxAbs( A );
+    auto newMaxAbs = MaxAbsLoc( A );
     const Real newMaxAbsVal = newMaxAbs.value;
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -322,7 +322,7 @@ void SymmetricGeomEquil
     const Real relTol = Real(9)/Real(10);
 
     // Compute the original ratio of the maximum to minimum nonzero
-    auto maxAbs = MaxAbs( A );
+    auto maxAbs = MaxAbsLoc( A );
     const Real maxAbsVal = maxAbs.value;
     if( maxAbsVal == Real(0) )
         return;
@@ -357,7 +357,7 @@ void SymmetricGeomEquil
 
         // Determine whether we are done or not
         // ------------------------------------
-        auto newMaxAbs = MaxAbs( A );
+        auto newMaxAbs = MaxAbsLoc( A );
         const Real newMaxAbsVal = newMaxAbs.value;
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
@@ -386,7 +386,7 @@ void SymmetricGeomEquil
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
     }
-    auto newMaxAbs = MaxAbs( A );
+    auto newMaxAbs = MaxAbsLoc( A );
     const Real newMaxAbsVal = newMaxAbs.value;
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;

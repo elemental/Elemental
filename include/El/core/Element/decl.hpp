@@ -57,13 +57,10 @@ template<> struct IsScalar<Quad> { static const bool value=true; };
 template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
 #endif
 
-namespace detail { enum class enabler {}; }
-template<typename Condition>
-using EnableIf =
-  typename std::enable_if<Condition::value,detail::enabler>::type;
-template<typename Condition>
-using DisableIf =
-  typename std::enable_if<!Condition::value,detail::enabler>::type;
+template<typename Condition,class T=void>
+using EnableIf = typename std::enable_if<Condition::value,T>::type;
+template<typename Condition,class T=void>
+using DisableIf = typename std::enable_if<!Condition::value,T>::type;
 
 // Basic element manipulation and I/O
 // ==================================
@@ -317,53 +314,53 @@ template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
 
 // Round to the nearest integer
 // ----------------------------
-template<typename T,EnableIf<IsScalar<T>>...>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 T Round( const T& alpha );
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 Complex<T> Round( const Complex<T>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int Round( const Int& alpha );
+Int Round( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad Round( const Quad& alpha );
+Quad Round( const Quad& alpha );
 #endif
 
 // Ceiling
 // -------
-template<typename T,EnableIf<IsScalar<T>>...>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 T Ceil( const T& alpha );
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 Complex<T> Ceil( const Complex<T>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int Ceil( const Int& alpha );
+Int Ceil( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad Ceil( const Quad& alpha );
+Quad Ceil( const Quad& alpha );
 #endif
 
 // Floor
 // -----
-template<typename T,EnableIf<IsScalar<T>>...>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 T Floor( const T& alpha );
 
 // Partial specializations
 // ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 Complex<T> Floor( const Complex<T>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-template<> Int Floor( const Int& alpha );
+Int Floor( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-template<> Quad Floor( const Quad& alpha );
+Quad Floor( const Quad& alpha );
 #endif
 
 // Two-norm formation

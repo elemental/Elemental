@@ -73,7 +73,7 @@ int main( int argc, char* argv[] )
         DistMatrix<F> G( SInv );
         DistMatrix<Real,VR,STAR> w;
         HermitianEig( LOWER, G, w );
-        Real minEig = Min(w).value;
+        Real minEig = MinLoc(w).value;
         if( minEig <= Real(0) )
             ShiftDiagonal( SInv, shift-shiftScale*minEig );
 
@@ -90,7 +90,7 @@ int main( int argc, char* argv[] )
         Axpy( sigma, V, SNoisy );
         G = SNoisy;
         HermitianEig( LOWER, G, w );
-        minEig = Min(w).value;
+        minEig = MinLoc(w).value;
         if( minEig <= Real(0) )
             ShiftDiagonal( SNoisy, shift-shiftScale*minEig );
 

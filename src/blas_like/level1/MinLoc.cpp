@@ -10,15 +10,15 @@
 
 namespace El {
 
-template<typename Real>
-ValueInt<Real> VectorMin( const Matrix<Real>& x )
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMin"))
+    DEBUG_ONLY(CSE cse("VectorMinLoc"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
-        if( m != 1 && n != 1 )
-            LogicError("Input should have been a vector");
+      if( m != 1 && n != 1 )
+          LogicError("Input should have been a vector");
     )
     ValueInt<Real> pivot;
     if( Min(m,n) == 0 )
@@ -57,17 +57,17 @@ ValueInt<Real> VectorMin( const Matrix<Real>& x )
     return pivot;
 }
 
-template<typename Real>
-ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x )
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMin"))
+    DEBUG_ONLY(CSE cse("VectorMinLoc"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
-        if( m != 1 && n != 1 )
-            LogicError("Input should have been a vector");
-        if( !x.Grid().InGrid() )
-            LogicError("viewing processes are not allowed");
+      if( m != 1 && n != 1 )
+          LogicError("Input should have been a vector");
+      if( !x.Grid().InGrid() )
+          LogicError("viewing processes are not allowed");
     )
     ValueInt<Real> pivot;
     if( Min(m,n) == 0 )
@@ -122,14 +122,14 @@ ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x )
     return pivot;
 }
 
-template<typename Real>
-ValueInt<Real> VectorMin( const DistMultiVec<Real>& x )
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMin"))
+    DEBUG_ONLY(CSE cse("VectorMinLoc"))
     const Int height = x.Height();
     DEBUG_ONLY(
-        if( x.Width() != 1 )
-            LogicError("Input should have been a vector");
+      if( x.Width() != 1 )
+          LogicError("Input should have been a vector");
     )
     mpi::Comm comm = x.Comm();
     ValueInt<Real> pivot;
@@ -161,10 +161,10 @@ ValueInt<Real> VectorMin( const DistMultiVec<Real>& x )
     return pivot;
 }
 
-template<typename Real>
-Entry<Real> Min( const Matrix<Real>& A )
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+Entry<Real> MinLoc( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("Min"))
+    DEBUG_ONLY(CSE cse("MinLoc"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -196,13 +196,13 @@ Entry<Real> Min( const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real>
-Entry<Real> Min( const AbstractDistMatrix<Real>& A )
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
-        CSE cse("Min");
-        if( !A.Grid().InGrid() )
-            LogicError("Viewing processes are not allowed");
+      CSE cse("MinLoc");
+      if( !A.Grid().InGrid() )
+          LogicError("Viewing processes are not allowed");
     )
     Entry<Real> pivot;
     if( Min(A.Height(),A.Width()) == 0 )
@@ -246,11 +246,11 @@ Entry<Real> Min( const AbstractDistMatrix<Real>& A )
     return pivot;
 }
 
-template<typename Real>
-Entry<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
-      CSE cse("SymmetricMin");
+      CSE cse("SymmetricMinLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -302,12 +302,12 @@ Entry<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 Entry<Real>
-SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
+SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
-      CSE cse("SymmetricMin");
+      CSE cse("SymmetricMinLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
@@ -379,14 +379,14 @@ SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 }
 
 #define PROTO(Real) \
-  template ValueInt<Real> VectorMin( const Matrix<Real>& x ); \
-  template ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x ); \
-  template ValueInt<Real> VectorMin( const DistMultiVec<Real>& x ); \
-  template Entry<Real> Min( const Matrix<Real>& x ); \
-  template Entry<Real> Min( const AbstractDistMatrix<Real>& x ); \
-  template Entry<Real> SymmetricMin \
+  template ValueInt<Real> VectorMinLoc( const Matrix<Real>& x ); \
+  template ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x ); \
+  template ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x ); \
+  template Entry<Real> MinLoc( const Matrix<Real>& x ); \
+  template Entry<Real> MinLoc( const AbstractDistMatrix<Real>& x ); \
+  template Entry<Real> SymmetricMinLoc \
   ( UpperOrLower uplo, const Matrix<Real>& A ); \
-  template Entry<Real> SymmetricMin \
+  template Entry<Real> SymmetricMinLoc \
   ( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 #define EL_NO_COMPLEX_PROTO

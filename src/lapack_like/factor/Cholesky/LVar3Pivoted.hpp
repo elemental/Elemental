@@ -20,7 +20,7 @@ inline LDLPivot
 Full( const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
-    const auto diagMax = VectorMaxAbs( GetDiagonal(A) );
+    const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -32,7 +32,7 @@ inline LDLPivot
 Full( const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
-    const auto diagMax = VectorMaxAbs( GetDiagonal(A) );
+    const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -53,7 +53,7 @@ PanelFull( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y )
             d.Update( i, 0, -X.Get(i,j)*Y.Get(i,j) );
 
     // Return maximum from it
-    auto diagMax = VectorMaxAbs( d );
+    auto diagMax = VectorMaxAbsLoc( d );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -90,7 +90,7 @@ PanelFull
     }
 
     // Return maximum from it
-    auto diagMax = VectorMaxAbs( d );
+    auto diagMax = VectorMaxAbsLoc( d );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;

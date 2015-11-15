@@ -25,7 +25,7 @@ namespace El {
 namespace qp {
 namespace box {
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 inline Int
 ADMM
 ( const Matrix<Real>& Q,
@@ -135,7 +135,7 @@ ADMM
     return numIter;
 }
 
-template<typename Real,DisableIf<IsComplex<Real>>...>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 inline Int
 ADMM
 ( const ElementalMatrix<Real>& QPre,

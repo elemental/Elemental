@@ -18,10 +18,18 @@ namespace El {
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
+  T alpha, const Matrix<T>& A,
+           const Matrix<T>& B,
+  T beta,        Matrix<T>& C,
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symm"))
+    if( side == LEFT && B.Width() == 1 )
+    {
+        Symv( uplo, alpha, A, B, beta, C , conjugate );
+        return;
+    }
+
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
     if( conjugate )
@@ -45,10 +53,18 @@ void Symm
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  T beta,        ElementalMatrix<T>& C, bool conjugate )
+  T alpha, const ElementalMatrix<T>& A,
+           const ElementalMatrix<T>& B,
+  T beta,        ElementalMatrix<T>& C,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Symm"))
+    if( side == LEFT && B.Width() == 1 )
+    {
+        Symv( uplo, alpha, A, B, beta, C , conjugate );
+        return;
+    }
+
     C *= beta;
     if( side == LEFT && uplo == LOWER )
         symm::LL( alpha, A, B, C, conjugate );
@@ -63,12 +79,16 @@ void Symm
 #define PROTO(T) \
   template void Symm \
   ( LeftOrRight side, UpperOrLower uplo, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C, bool conjugate ); \
+    T alpha, const Matrix<T>& A, \
+             const Matrix<T>& B, \
+    T beta,        Matrix<T>& C, \
+    bool conjugate ); \
   template void Symm \
   ( LeftOrRight side, UpperOrLower uplo, \
-    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
-    T beta,        ElementalMatrix<T>& C, bool conjugate ); \
+    T alpha, const ElementalMatrix<T>& A, \
+             const ElementalMatrix<T>& B, \
+    T beta,        ElementalMatrix<T>& C, \
+    bool conjugate ); \
   template void symm::LocalAccumulateLL \
   ( Orientation orientation, T alpha, \
     const DistMatrix<T>& A, \

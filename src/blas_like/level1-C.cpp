@@ -389,51 +389,55 @@ ElError ElGetSubgraphDist
   ( ElUpperOrLower uplo, ElDistSparseMatrix_ ## SIG A, ElInt offset ) \
   { EL_TRY( MakeTrapezoidal( CReflect(uplo), *CReflect(A), offset ) ) } \
   /* MaxAbs */ \
-  ElError ElMaxAbs_ ## SIG \
+  /* TODO */ \
+  /* MaxAbsLoc */ \
+  ElError ElMaxAbsLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(MaxAbs(*CReflect(A))) ) } \
-  ElError ElMaxAbsDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(MaxAbsLoc(*CReflect(A))) ) } \
+  ElError ElMaxAbsLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(MaxAbs(*CReflect(A))) ) } \
-  ElError ElSymmetricMaxAbs_ ## SIG \
+  { EL_TRY( *entry = CReflect(MaxAbsLoc(*CReflect(A))) ) } \
+  ElError ElSymmetricMaxAbsLoc_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
     ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
-      CReflect(SymmetricMaxAbs(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElSymmetricMaxAbsDist_ ## SIG \
+      CReflect(SymmetricMaxAbsLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElSymmetricMaxAbsLocDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
     ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
-      CReflect(SymmetricMaxAbs(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElVectorMaxAbs_ ## SIG \
+      CReflect(SymmetricMaxAbsLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElVectorMaxAbsLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMaxAbs(*CReflect(x))) ) } \
-  ElError ElVectorMaxAbsDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(VectorMaxAbsLoc(*CReflect(x))) ) } \
+  ElError ElVectorMaxAbsLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMaxAbs(*CReflect(x))) ) } \
+  { EL_TRY( *entry = CReflect(VectorMaxAbsLoc(*CReflect(x))) ) } \
   /* MinAbs */ \
-  ElError ElMinAbs_ ## SIG \
+  /* TODO */ \
+  /* MinAbsLoc */ \
+  ElError ElMinAbsLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(MinAbs(*CReflect(A))) ) } \
-  ElError ElMinAbsDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(MinAbsLoc(*CReflect(A))) ) } \
+  ElError ElMinAbsLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(MinAbs(*CReflect(A))) ) } \
-  ElError ElSymmetricMinAbs_ ## SIG \
+  { EL_TRY( *entry = CReflect(MinAbsLoc(*CReflect(A))) ) } \
+  ElError ElSymmetricMinAbsLoc_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
     ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
-      CReflect(SymmetricMinAbs(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElSymmetricMinAbsDist_ ## SIG \
+      CReflect(SymmetricMinAbsLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElSymmetricMinAbsLocDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
     ElEntry_ ## SIGBASE *entry ) \
   { EL_TRY( *entry = \
-      CReflect(SymmetricMinAbs(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElVectorMinAbs_ ## SIG \
+      CReflect(SymmetricMinAbsLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElVectorMinAbsLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMinAbs(*CReflect(x))) ) } \
-  ElError ElVectorMinAbsDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(VectorMinAbsLoc(*CReflect(x))) ) } \
+  ElError ElVectorMinAbsLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMinAbs(*CReflect(x))) ) } \
+  { EL_TRY( *entry = CReflect(VectorMinAbsLoc(*CReflect(x))) ) } \
   /* TODO: QuasiDiagonalScale */ \
   /* Round */ \
   ElError ElRound_ ## SIG ( ElMatrix_ ## SIG A ) \
@@ -679,43 +683,51 @@ ElError ElGetSubgraphDist
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* Max */ \
-  ElError ElMax_ ## SIG \
+  /* TODO */ \
+  /* MaxLoc */ \
+  ElError ElMaxLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(Max(*CReflect(A))) ) } \
-  ElError ElMaxDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(MaxLoc(*CReflect(A))) ) } \
+  ElError ElMaxLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(Max(*CReflect(A))) ) } \
-  ElError ElSymmetricMax_ ## SIG \
+  { EL_TRY( *entry = CReflect(MaxLoc(*CReflect(A))) ) } \
+  ElError ElSymmetricMaxLoc_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElSymmetricMaxDist_ ## SIG \
+  { EL_TRY( *entry = \
+    CReflect(SymmetricMaxLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElSymmetricMaxLocDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(SymmetricMax(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElVectorMax_ ## SIG \
+  { EL_TRY( *entry = \
+    CReflect(SymmetricMaxLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElVectorMaxLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMax(*CReflect(x))) ) } \
-  ElError ElVectorMaxDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(VectorMaxLoc(*CReflect(x))) ) } \
+  ElError ElVectorMaxLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMax(*CReflect(x))) ) } \
+  { EL_TRY( *entry = CReflect(VectorMaxLoc(*CReflect(x))) ) } \
   /* Min */ \
-  ElError ElMin_ ## SIG \
+  /* TODO */ \
+  /* MinLoc */ \
+  ElError ElMinLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(Min(*CReflect(A))) ) } \
-  ElError ElMinDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(MinLoc(*CReflect(A))) ) } \
+  ElError ElMinLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(Min(*CReflect(A))) ) } \
-  ElError ElSymmetricMin_ ## SIG \
+  { EL_TRY( *entry = CReflect(MinLoc(*CReflect(A))) ) } \
+  ElError ElSymmetricMinLoc_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElSymmetricMinDist_ ## SIG \
+  { EL_TRY( *entry = \
+    CReflect(SymmetricMinLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElSymmetricMinLocDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, ElEntry_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(SymmetricMin(CReflect(uplo),*CReflect(A))) ) } \
-  ElError ElVectorMin_ ## SIG \
+  { EL_TRY( *entry = \
+    CReflect(SymmetricMinLoc(CReflect(uplo),*CReflect(A))) ) } \
+  ElError ElVectorMinLoc_ ## SIG \
   ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMin(*CReflect(x))) ) } \
-  ElError ElVectorMinDist_ ## SIG \
+  { EL_TRY( *entry = CReflect(VectorMinLoc(*CReflect(x))) ) } \
+  ElError ElVectorMinLocDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
-  { EL_TRY( *entry = CReflect(VectorMin(*CReflect(x))) ) }
+  { EL_TRY( *entry = CReflect(VectorMinLoc(*CReflect(x))) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* Column norms */ \
