@@ -38,25 +38,18 @@ void TestTrsm
         Print( Y, "Y" );
     }
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Trsm...";
-        cout.flush();
-    }
+        Output("  Starting Trsm");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     Trsm( side, uplo, orientation, diag, alpha, A, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 
-        ( side==LEFT ? double(m)*double(m)*double(n)
-                     : double(m)*double(n)*double(n) ) /(1.e9*runTime);
+      ( side==LEFT ? double(m)*double(m)*double(n)
+                   : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. \n"
-             << "  Time = " << runTime << " seconds. GFlops = " << gFlops 
-             << endl;
-    }
+        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( Y, "Y after solve" );
     Y -= X;
@@ -65,9 +58,9 @@ void TestTrsm
     const auto EFrob = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
     {
-        cout << "|| S ||_F = " << SFrob << "\n"
-             << "|| X ||_F = " << XFrob << "\n"
-             << "|| E ||_F = " << EFrob << "\n" << std::endl;
+        Output("  || S ||_F = ",SFrob);
+        Output("  || X ||_F = ",XFrob);
+        Output("  || E ||_F = ",EFrob);
     }
 }
 
@@ -108,15 +101,14 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test Trsm" 
-                 << sideChar << uploChar << transChar << diagChar << endl;
+            Output("Will test Trsm ",sideChar,uploChar,transChar,diagChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles");
         TestTrsm<double>( print, side, uplo, orientation, diag, m, n, 3., g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with Complex<double>");
         TestTrsm<Complex<double>>
         ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
     }

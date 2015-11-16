@@ -12,16 +12,6 @@ namespace El {
 
 namespace reg_ldl {
 
-// TODO: Switch to returning the relative residual of the refined solution
-
-// TODO: Do not accept iterative refinements which increase the residual norm
-
-// TODO: Implement multi-RHS version of LGMRES
-
-// TODO: Implement multi-RHS version of FGMRES
-
-// TODO: Start with batch version of RegularizedSolveAfter
-
 template<typename F>
 inline Int RegularizedSolveAfterNoPromote
 ( const SparseMatrix<F>& A, 

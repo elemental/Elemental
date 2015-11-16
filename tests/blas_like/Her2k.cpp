@@ -12,8 +12,14 @@ using namespace El;
 
 template<typename T> 
 void TestHer2k
-( bool print, UpperOrLower uplo, Orientation orientation,
-  Int m, Int k, T alpha, Base<T> beta, const Grid& g )
+( bool print,
+  UpperOrLower uplo,
+  Orientation orientation,
+  Int m,
+  Int k,
+  T alpha,
+  Base<T> beta,
+  const Grid& g )
 {
     DistMatrix<T> A(g), B(g), C(g);
 
@@ -36,10 +42,7 @@ void TestHer2k
     }
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Her2k...";
-        cout.flush();
-    }
+        Output("  Starting Her2k");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     Her2k( uplo, orientation, alpha, A, B, beta, C );
@@ -48,19 +51,13 @@ void TestHer2k
     const double realGFlops = 2.*double(m)*double(m)*double(k)/(1.e9*runTime);
     const double gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
-        ostringstream msg;
         if( orientation == NORMAL )
-            msg << "C := " << alpha << " A B' + B A'" << beta << " C";
+            Print( C, BuildString("C := ",alpha,"(A B' + B A') + ",beta," C") );
         else
-            msg << "C := " << alpha << " A' B + B' A" << beta << " C";
-        Print( C, msg.str() );
+            Print( C, BuildString("C := ",alpha,"(A' B + B' A) + ",beta," C") );
     }
 }
 
@@ -98,14 +95,14 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test Her2k" << uploChar << transChar << endl;
+            Output("Will test Her2k ",uploChar,transChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles");
         TestHer2k<double>( print, uplo, orientation, m, k, 3., 4., g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with Complex<double>");
         TestHer2k<Complex<double>>
         ( print, uplo, orientation, m, k, Complex<double>(3.), 4., g );
     }

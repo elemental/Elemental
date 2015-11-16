@@ -91,14 +91,14 @@ void SetDefaultBlockWidth( Int blockWidth );
 
 std::mt19937& Generator();
 
-template<typename T,EnableIf<IsScalar<T>>>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 inline const T& Max( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
 inline const Int& Max( const Int& m, const Int& n ) EL_NO_EXCEPT
 { return std::max(m,n); }
 
-template<typename T,EnableIf<IsScalar<T>>>
+template<typename T,typename=EnableIf<IsScalar<T>>>
 inline const T& Min( const T& m, const T& n ) EL_NO_EXCEPT
 { return std::min(m,n); }
 
@@ -159,6 +159,14 @@ inline void BuildStream( ostringstream& os, T item, Args... args )
 {
     os << item;
     BuildStream( os, args... );
+}
+
+template<typename... Args>
+inline string BuildString( Args... args )
+{ 
+    ostringstream os;
+    BuildStream( os, args... );
+    return os.str(); 
 }
 
 class UnrecoverableException : public std::runtime_error

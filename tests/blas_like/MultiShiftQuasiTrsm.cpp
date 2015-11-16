@@ -85,8 +85,8 @@ void TestMultiShiftQuasiTrsm
         Gemm( orientation, NORMAL, F(1)/alpha, H, X, F(1), Y );
         for( Int j=0; j<n; ++j )
         {
-            auto x = LockedView( X, 0, j, m, 1 );
-            auto y =       View( Y, 0, j, m, 1 );
+            auto x = X( ALL, IR(j) );
+            auto y = Y( ALL, IR(j) );
             Axpy( -modShifts.Get(j,0)/alpha, x, y );
         }
     }
@@ -95,8 +95,8 @@ void TestMultiShiftQuasiTrsm
         Gemm( NORMAL, orientation, F(1)/alpha, X, H, F(1), Y );
         for( Int i=0; i<m; ++i )
         {
-            auto x = LockedView( X, i, 0, 1, n );
-            auto y =       View( Y, i, 0, 1, n );
+            auto x = X( IR(i), ALL );
+            auto y = Y( IR(i), ALL );
             Axpy( -modShifts.Get(i,0)/alpha, x, y );
         }
     }
@@ -109,10 +109,7 @@ void TestMultiShiftQuasiTrsm
         Print( Y, "Y" );
     }
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting MultiShiftQuasiTrsm...";
-        cout.flush();
-    }
+        Output("  Starting MultiShiftQuasiTrsm");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     MultiShiftQuasiTrsm( side, uplo, orientation, alpha, H, shifts, Y );
@@ -123,11 +120,7 @@ void TestMultiShiftQuasiTrsm
                      : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. \n"
-             << "  Time = " << runTime << " seconds. GFlops ~= " << gFlops 
-             << endl;
-    }
+        Output("  Finished after ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( Y, "Y after solve" );
     Y -= X;
@@ -136,9 +129,9 @@ void TestMultiShiftQuasiTrsm
     const auto EFrob = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
     {
-        cout << "|| H ||_F = " << HFrob << "\n"
-             << "|| X ||_F = " << XFrob << "\n"
-             << "|| E ||_F = " << EFrob << "\n" << std::endl;
+        Output("  || H ||_F = ",HFrob);
+        Output("  || X ||_F = ",XFrob);
+        Output("  || E ||_F = ",EFrob);
     }
 }
 
@@ -177,16 +170,15 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test MultiShiftQuasiTrsm" 
-                 << sideChar << uploChar << transChar << endl;
+            Output("Testing MultiShiftQuasiTrsm ",sideChar,uploChar,transChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles");
         TestMultiShiftQuasiTrsm<double>
         ( print, side, uplo, orientation, m, n, 3., g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with Complex<double>");
         TestMultiShiftQuasiTrsm<Complex<double>>
         ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
     }

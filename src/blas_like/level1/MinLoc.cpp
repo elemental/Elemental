@@ -109,7 +109,6 @@ template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
 {
     DEBUG_ONLY(CSE cse("VectorMinLoc"))
-    const Int height = x.Height();
     DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("Input should have been a vector");

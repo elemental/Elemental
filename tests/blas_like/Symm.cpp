@@ -12,9 +12,14 @@ using namespace El;
 
 template<typename T>
 void TestSymm
-( const LeftOrRight side, const UpperOrLower uplo,
-  const Int m, const Int n, const T alpha, const T beta,
-  const bool print, const Grid& g )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Int m,
+  Int n,
+  T alpha,
+  T beta,
+  bool print,
+  const Grid& g )
 {
     DistMatrix<T> A(g), B(g), C(g);
 
@@ -33,10 +38,7 @@ void TestSymm
 
     // Test Symm
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Parallel Symm...";
-        cout.flush();
-    }
+        Output("  Starting Symm");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     Symm( side, uplo, alpha, A, B, beta, C );
@@ -45,22 +47,16 @@ void TestSymm
     const double mD = double(m);
     const double nD = double(n);
     const double realGFlops = 
-        ( side==LEFT ? 2.*mD*mD*nD : 2.*mD*nD*nD ) / (1.e9*runTime);
+      ( side==LEFT ? 2.*mD*mD*nD : 2.*mD*nD*nD ) / (1.e9*runTime);
     const double gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
-        ostringstream msg;
         if( side == LEFT )
-            msg << "C := " << alpha << " Symm(A) B + " << beta << " C";
+            Print( C, BuildString("C := ",alpha," Symm(A) B + ",beta," C") );
         else
-            msg << "C := " << alpha << " B Symm(A) + " << beta << " C";
-        Print( C, msg.str() );
+            Print( C, BuildString("C := ",alpha," B Symm(A) + ",beta," C") );
     }
 }
 
@@ -95,14 +91,14 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test Symm" << sideChar << uploChar << endl;
+            Output("Will test Symm ",sideChar,uploChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles");
         TestSymm<double>( side, uplo, m, n, 3., 4., print, g ); 
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with Complex<double>");
         TestSymm<Complex<double>>
         ( side, uplo, m, n, Complex<double>(3), Complex<double>(4), print, g ); 
     }
