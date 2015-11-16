@@ -41,11 +41,7 @@ MatrixMarket( const Matrix<T>& A, string basename="matrix" )
     // ===================
     const Int m = A.Height();
     const Int n = A.Width();
-    {
-        ostringstream os; 
-        os << m << " " << n << "\n";
-        file << os.str();
-    }
+    file << BuildString(m," ",n,"\n");
     
     // Write the entries
     // =================

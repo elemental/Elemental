@@ -135,7 +135,7 @@ AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
 {
     DEBUG_ONLY(
       CSE cse("ADM::SetRoot");
-      if( root < 0 || root >= mpi::Size(CrossComm()) )
+      if( root < 0 || root >= CrossSize() )
           LogicError("Invalid root");
     )
     if( root != root_ )

@@ -13,8 +13,12 @@ using namespace El;
 template<typename F> 
 void TestMultiShiftTrsm
 ( bool print,
-  LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  Int m, Int n, F alpha, const Grid& g )
+  LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation, 
+  Int m, Int n,
+  F alpha,
+  const Grid& g )
 {
     typedef Base<F> Real;
     DistMatrix<F> U(g), X(g);
@@ -44,8 +48,8 @@ void TestMultiShiftTrsm
         Gemm( orientation, NORMAL, F(1)/alpha, U, X, F(1), Y );
         for( Int j=0; j<n; ++j )
         {
-            auto x = LockedView( X, 0, j, m, 1 );
-            auto y =       View( Y, 0, j, m, 1 );
+            auto x = X( ALL, IR(j) );
+            auto y = Y( ALL, IR(j) );
             Axpy( -modShifts.Get(j,0)/alpha, x, y );
         }
     }
@@ -54,8 +58,8 @@ void TestMultiShiftTrsm
         Gemm( NORMAL, orientation, F(1)/alpha, X, U, F(1), Y );
         for( Int i=0; i<m; ++i )
         {
-            auto x = LockedView( X, i, 0, 1, n );
-            auto y =       View( Y, i, 0, 1, n );
+            auto x = X( IR(i), ALL );
+            auto y = Y( IR(i), ALL );
             Axpy( -modShifts.Get(i,0)/alpha, x, y );
         }
     }
@@ -68,10 +72,7 @@ void TestMultiShiftTrsm
         Print( Y, "Y" );
     }
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting MultiShiftTrsm...";
-        cout.flush();
-    }
+        Output("  Starting MultiShiftTrsm");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     MultiShiftTrsm( side, uplo, orientation, alpha, U, shifts, Y );
@@ -82,11 +83,7 @@ void TestMultiShiftTrsm
                      : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. \n"
-             << "  Time = " << runTime << " seconds. GFlops ~= " << gFlops 
-             << endl;
-    }
+        Output("  Finished after ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( Y, "Y after solve" );
     Y -= X;
@@ -95,9 +92,9 @@ void TestMultiShiftTrsm
     const auto EFrob = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
     {
-        cout << "|| U ||_F = " << UFrob << "\n"
-             << "|| X ||_F = " << XFrob << "\n"
-             << "|| E ||_F = " << EFrob << "\n" << std::endl;
+        Output("  || U ||_F = ",UFrob);
+        Output("  || X ||_F = ",XFrob);
+        Output("  || E ||_F = ",EFrob);
     }
 }
 
@@ -136,15 +133,15 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test MultiShiftTrsm" 
-                 << sideChar << uploChar << transChar << endl;
+            Output("Will test MultiShiftTrsm ",sideChar,uploChar,transChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
-        TestMultiShiftTrsm<double>( print, side, uplo, orientation, m, n, 3., g );
+            Output("Testing with doubles");
+        TestMultiShiftTrsm<double>
+        ( print, side, uplo, orientation, m, n, 3., g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with Complex<double>");
         TestMultiShiftTrsm<Complex<double>>
         ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
     }

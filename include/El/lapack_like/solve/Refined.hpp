@@ -44,6 +44,7 @@ inline Int Single
 
     Int refineIt = 0;
     Matrix<F> dx, xCand, y;
+    Zeros( y, x.Height(), 1 );
     applyA( x, y );
     b -= y;
     Base<F> errorNorm = MaxNorm( b );
@@ -114,6 +115,7 @@ inline Int Batch
 
     Int refineIt = 0;
     Matrix<F> dX, Y;
+    Zeros( Y, X.Height(), X.Width() );
     applyA( X, Y );
     B -= Y;
 
@@ -199,6 +201,7 @@ inline Int PromotedSingle
 
     Int refineIt = 0;
     Matrix<PF> dxProm, xCandProm, yProm;
+    Zeros( yProm, xProm.Height(), 1 );
     applyA( xProm, yProm );
     bProm -= yProm;
     auto errorNorm = MaxNorm( bProm );
@@ -273,6 +276,7 @@ inline Int PromotedBatch
 
     Int refineIt = 0;
     Matrix<PF> dXProm, YProm;
+    Zeros( YProm, XProm.Height(), XProm.Width() );
     applyA( XProm, YProm );
     BProm -= YProm;
 
@@ -355,6 +359,7 @@ inline Int Single
 
     Int refineIt = 0;
     DistMultiVec<F> dx(comm), xCand(comm), y(comm);
+    Zeros( y, x.Height(), 1 );
     applyA( x, y );
     b -= y;
     Base<F> errorNorm = MaxNorm( b );
@@ -427,6 +432,7 @@ inline Int Batch
 
     Int refineIt = 0;
     DistMultiVec<F> dX(comm), Y(comm);
+    Zeros( Y, X.Height(), X.Width() );
     applyA( X, Y );
     B -= Y;
 
@@ -514,6 +520,7 @@ inline Int PromotedSingle
 
     Int refineIt = 0;
     DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
+    Zeros( yProm, xProm.Height(), 1 );
     applyA( xProm, yProm );
     bProm -= yProm;
     auto errorNorm = Nrm2( bProm );
@@ -592,6 +599,7 @@ inline Int PromotedBatch
 
     Int refineIt = 0;
     DistMultiVec<PF> dXProm(comm), YProm(comm);
+    Zeros( YProm, XProm.Height(), XProm.Width() );
     applyA( XProm, YProm );
     BProm -= YProm;
 

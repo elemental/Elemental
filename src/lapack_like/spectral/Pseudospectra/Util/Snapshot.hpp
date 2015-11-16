@@ -58,38 +58,35 @@ Snapshot
         }
         if( numSave )
         {
-            ostringstream os;
-            os << snapCtrl.numBase << "_" << numIts;
-            Write( estMap, os.str(), snapCtrl.numFormat );
+            auto title = BuildString( snapCtrl.numBase, "_", numIts );
+            Write( estMap, title, snapCtrl.numFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"_counts", snapCtrl.numFormat );
+                Write( itCountMap, title+"_counts", snapCtrl.numFormat );
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
             EntrywiseMap( estMap, function<Real(Real)>(logMap) );
         if( imgSave )
         {
-            ostringstream os;
-            os << snapCtrl.imgBase << "_" << numIts;
-            Write( estMap, os.str(), snapCtrl.imgFormat );
+            auto title = BuildString( snapCtrl.imgBase, "_", numIts );
+            Write( estMap, title, snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"_counts", snapCtrl.imgFormat );
+                Write( itCountMap, title+"_counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Write( estMap, os.str()+"_discrete", snapCtrl.imgFormat );
+            Write( estMap, title+"_discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
             snapCtrl.imgSaveCount = 0;
         }
         if( imgDisp )
         {
-            ostringstream os;
-            os << snapCtrl.imgBase << "_" << numIts;
-            Display( estMap, os.str() );       
+            auto title = BuildString( snapCtrl.imgBase, "_", numIts );
+            Display( estMap, title );       
             if( snapCtrl.itCounts )
-                Display( itCountMap, os.str()+"_counts" );
+                Display( itCountMap, title+"_counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Display( estMap, os.str()+"_discrete" );
+            Display( estMap, title+"_discrete" );
             SetColorMap( colorMap );
             snapCtrl.imgDispCount = 0;
         }
@@ -200,38 +197,35 @@ Snapshot
         }
         if( numSave )
         {
-            ostringstream os;
-            os << snapCtrl.numBase << "_" << numIts;
-            Write( estMap, os.str(), snapCtrl.numFormat );
+            auto title = BuildString( snapCtrl.numBase, "_", numIts );
+            Write( estMap, title, snapCtrl.numFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"_counts", snapCtrl.numFormat );
+                Write( itCountMap, title+"_counts", snapCtrl.numFormat );
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
             EntrywiseMap( estMap, function<Real(Real)>(logMap) );
         if( imgSave )
         {
-            ostringstream os;
-            os << snapCtrl.imgBase << "_" << numIts;
-            Write( estMap, os.str(), snapCtrl.imgFormat );
+            auto title = BuildString( snapCtrl.imgBase, "_", numIts );
+            Write( estMap, title, snapCtrl.imgFormat );
             if( snapCtrl.itCounts )
-                Write( itCountMap, os.str()+"_counts", snapCtrl.imgFormat );
+                Write( itCountMap, title+"_counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Write( estMap, os.str()+"_discrete", snapCtrl.imgFormat );
+            Write( estMap, title+"_discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
             snapCtrl.imgSaveCount = 0;
         }
         if( imgDisp )
         {
-            ostringstream os;
-            os << snapCtrl.imgBase << "_" << numIts;
-            Display( estMap, os.str() );
+            auto title = BuildString( snapCtrl.imgBase, "_", numIts );
+            Display( estMap, title );
             if( snapCtrl.itCounts )
-                Display( itCountMap, os.str()+"_counts" );
+                Display( itCountMap, title+"_counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
-            Display( estMap, os.str()+"_discrete" );
+            Display( estMap, title+"_discrete" );
             SetColorMap( colorMap );
             snapCtrl.imgDispCount = 0;
         }
