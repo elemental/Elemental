@@ -324,10 +324,13 @@ inline void BusingerGolub
       AssertSameGrids( APre, t, d, p );
     )
     typedef Base<F> Real;
+    Log( "Elemental::QR::BusingerGolub" );
 
+    Log( "Elemental::QR::BusingerGolub ReadWriteProxy" );
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
+    Log( "Elemental::QR::BusingerGolub Resize and Setup" );
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -336,6 +339,7 @@ inline void BusingerGolub
     t.Resize( maxSteps, 1 );
     d.Resize( maxSteps, 1 );
 
+    Log( "Elemental::QR::BusingerGolub Initialize norms" );
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
@@ -345,6 +349,7 @@ inline void BusingerGolub
     const Real updateTol = Sqrt(Epsilon<Real>());
     vector<Int> inaccurateNorms;
 
+    Log( "Elemental::QR::BusingerGolub Initialize the inverse permutation" );
     // Initialize the inverse permutation to the identity
     const Grid& g = A.Grid();
     DistMatrix<Int,VC,STAR> pInv(g);
@@ -352,11 +357,13 @@ inline void BusingerGolub
     for( Int jLoc=0; jLoc<pInv.LocalHeight(); ++jLoc ) 
         pInv.SetLocal( jLoc, 0, pInv.GlobalRow(jLoc) );
 
+    Log( "Elemental::QR::BusingerGolub Generate submatrix" );
     DistMatrix<F> z21(g);
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
     DistMatrix<F,MR,STAR> z21_MR_STAR(g);
     DistMatrix<F,STAR,MR> a12_STAR_MR(g);
 
+    Log( "Elemental::QR::BusingerGolub Iteration" );
     Int k=0;
     for( ; k<maxSteps; ++k )
     {
@@ -481,16 +488,22 @@ inline void BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColNorms( A, inaccurateNorms, norms, origNorms );
     }
+    Log( "Elemental::QR::BusingerGolub InvertPermutation" );
     InvertPermutation( pInv, p );
 
+    Log( "Elemental::QR::BusingerGolub Form d and Rescale R" );
     // Form d and rescale R
     auto R = A( IR(0,k), ALL );
+    Log( "Elemental::QR::BusingerGolub GetRealPartOfDiagonal" );
     GetRealPartOfDiagonal(R,d);
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
+    Log( "Elemental::QR::BusingerGolub EntrywiseMap" );
     EntrywiseMap( d, function<Real(Real)>(sgn) );
+    Log( "Elemental::QR::BusingerGolub DiagonalScaleTrapezoid" );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
+    Log( "Elemental::QR::BusingerGolub Resize t" );
     // Ensure that t is the correct length
     t.Resize( k, 1 );
 }

@@ -118,15 +118,20 @@ BusingerGolub
     DEBUG_ONLY(CSE cse("id::BusingerGolub"))
     typedef Base<F> Real;
 
+    Log( "Elemental::ID::BusingerGolub" );
+
+    Log( "Elemental::ID::BusingerGolub ReadWriteProxy" );
     auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
     auto& A = *APtr;
 
     // Perform the pivoted QR factorization
+    Log( "Elemental::ID::BusingerGolub QR" );
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
     QR( A, t, d, p, ctrl );
     const Int numSteps = t.Height();
 
+    Log( "Elemental::ID::BusingerGolub Partition" );
     const Int n = A.Width();
     const Real eps = Epsilon<Real>();
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
@@ -190,6 +195,7 @@ void ID
         bool canOverwrite )
 {
     DEBUG_ONLY(CSE cse("ID"))
+    Log( "Elemental::ID with overwirte" );
     if( canOverwrite )
     {
         id::BusingerGolub( A, p, Z, ctrl );

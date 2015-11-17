@@ -34,6 +34,8 @@ template<typename T,Dist U,Dist V>
 inline void Copy( const ElementalMatrix<T>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
+    Log( "Elemental: Copy ElementalMatrix to DistMatrix" );
+    Log( B.DistData().colDist, B.DistData().rowDist );
     B = A;
 }
 

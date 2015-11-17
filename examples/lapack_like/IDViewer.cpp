@@ -56,15 +56,26 @@ main( int argc, char* argv[] )
         mpi::Incl( group, pnp, ranks.data(), pgroup );
         Grid g( comm, pgroup, gridHeight );
 
+        Log( "Gemm, A = UV^*" );
         DistMatrix<C> U(g), V(g), A(g);
         Uniform( U, m, r );
         Uniform( V, n, r );
+        A.Resize( m, n );
         if( commRank < pnp )
             Gemm( NORMAL, ADJOINT, C(1), U, V, A );
-        const Real frobA = FrobeniusNorm( A );
-        if( print )
-            Print( A, "A" );
+        
+        // Invalid root error message
+        Log( "Test of auto AA(A) with viewers" );
+        auto AA(A);
 
+        Log( "Forbenious Norm of A" );
+        Real frobA = Real(0.0);
+        if( commRank < pnp )
+            frobA = FrobeniusNorm( A );
+        if( print && commRank < pnp )
+            Print( A, "A", LogOS() );
+
+        Log( "ID of A" );
         DistMatrix<Int,VR,STAR> p(g);
         DistMatrix<C> Z(g);
         QRCtrl<double> ctrl;
@@ -75,7 +86,8 @@ main( int argc, char* argv[] )
             ctrl.adaptive = true;
             ctrl.tol = tol;
         }
-        ID( A, p, Z, ctrl );
+        if( commRank < pnp )
+            ID( A, p, Z, ctrl );
         const Int rank = Z.Height();
         if( print )
         {
@@ -83,20 +95,28 @@ main( int argc, char* argv[] )
             Print( Z, "Z" );
         }
 
+        /* We do not currently care about the accuracy of ID
         // Pivot A and form the matrix of its (hopefully) dominant columns
-        InversePermuteCols( A, p );
+        Log( "PermuteCol of A" );
+        if( commRank < pnp )
+            InversePermuteCols( A, p );
+        Log( "hatA = A" );
         auto hatA( A );
         hatA.Resize( m, rank );
-        if( print )
+        if( print && commRank < pnp )
         {
-            Print( A, "A P" );
-            Print( hatA, "\\hat{A}" );
+            Print( A, "A P", LogOS() );
+            Print( hatA, "\\hat{A}", LogOS() );
         }
 
         // Check || A P - \hat{A} [I, Z] ||_F / || A ||_F
+        Log( "Prtition A = [AL AR]" );
         DistMatrix<C> AL(g), AR(g);
-        PartitionRight( A, AL, AR, rank );
-        Zero( AL );
+        if( commRank < pnp )
+            PartitionRight( A, AL, AR, rank );
+        if( commRank < pnp )
+            Zero( AL );
+        if( commRank < pnp )
         {
             DistMatrix<C,MC,STAR> hatA_MC_STAR(g);
             DistMatrix<C,STAR,MR> Z_STAR_MR(g);
@@ -107,16 +127,19 @@ main( int argc, char* argv[] )
             LocalGemm
             ( NORMAL, NORMAL, C(-1), hatA_MC_STAR, Z_STAR_MR, C(1), AR );
         }
-        const Real frobError = FrobeniusNorm( A );
-        if( print )
-            Print( A, "A P - \\hat{A} [I, Z]" );
+        Real frobError = Real(0.0);
+        if( commRank < pnp )
+            frobError = FrobeniusNorm( A );
+        if( print && commRank < pnp )
+            Print( A, "A P - \\hat{A} [I, Z]", LogOS() );
 
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "|| A ||_F = " << frobA << "\n\n"
-                      << "|| A P - \\hat{A} [I, Z] ||_F / || A ||_F = " 
-                      << frobError/frobA << "\n" << std::endl;
-        }
+        Log( "Show error" );
+        if( commRank < pnp )
+            LogOS() << "|| A ||_F = " << frobA << "\n\n"               
+                    << "|| A P - \\hat{A} [I, Z] ||_F / || A ||_F = " 
+                    << frobError/frobA << "\n" << std::endl;
+                    */
+        Log( "Finished" );
     }
     catch( exception& e ) { ReportException(e); }
 
