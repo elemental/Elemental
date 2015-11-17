@@ -13,7 +13,8 @@ namespace El {
 namespace {
 
 template<typename Real>
-function<Real(Real,Real)> OpToReduce( mpi::Op op )
+inline EnableIf<IsReal<Real>,function<Real(Real,Real)>>
+OpToReduce( mpi::Op op )
 {
     function<Real(Real,Real)> reduce;
     if( op == mpi::SUM )
@@ -27,13 +28,25 @@ function<Real(Real,Real)> OpToReduce( mpi::Op op )
     return reduce;
 }
 
+template<typename F>
+inline EnableIf<IsComplex<F>,function<F(F,F)>>
+OpToReduce( mpi::Op op )
+{
+    function<F(F,F)> reduce;
+    if( op == mpi::SUM )
+        reduce = []( F alpha, F beta ) { return alpha+beta; };
+    else
+        LogicError("Unsupported cone::AllReduce operation");
+    return reduce;
+}
+
 } // anonymous namespace
 
 namespace cone {
 
-template<typename Real>
+template<typename F>
 void AllReduce
-(       Matrix<Real>& x, 
+(       Matrix<F>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds,
         mpi::Op op )
@@ -45,11 +58,11 @@ void AllReduce
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-          Real* xBuf = x.Buffer();
+          F* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
-    auto reduce = OpToReduce<Real>( op );
+    auto reduce = OpToReduce<F>( op );
     for( Int i=0; i<height; )
     {
         const Int order = orderBuf[i];
@@ -57,7 +70,7 @@ void AllReduce
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
-        Real coneRes = xBuf[i];
+        F coneRes = xBuf[i];
         for( Int j=i+1; j<i+order; ++j )
             coneRes = reduce(coneRes,xBuf[j]);
         for( Int j=i; j<i+order; ++j )
@@ -67,9 +80,9 @@ void AllReduce
     }
 }
 
-template<typename Real>
+template<typename F>
 void AllReduce
-(       ElementalMatrix<Real>& xPre, 
+(       ElementalMatrix<F>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   mpi::Op op,
@@ -82,7 +95,7 @@ void AllReduce
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
+    auto xPtr = ReadProxy<F,VC,STAR>(&xPre,ctrl); 
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& x = *xPtr;
@@ -95,13 +108,13 @@ void AllReduce
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    auto reduce = OpToReduce<Real>( op );
+    auto reduce = OpToReduce<F>( op );
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
     const int commSize = mpi::Size(comm);
 
-          Real* xBuf = x.Buffer();
+          F* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
@@ -145,7 +158,7 @@ void AllReduce
         // ^^^^^^^^^^^^^
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Real> sendBuf(totalSend);
+        vector<F> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
@@ -167,7 +180,7 @@ void AllReduce
         // ^^^^^^^^^^^^^^^^^ 
         vector<int> recvOffs;
         const int totalRecv = Scan( recvCounts, recvOffs );
-        vector<Real> recvBuf(totalRecv);
+        vector<F> recvBuf(totalRecv);
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
           recvBuf.data(), recvCounts.data(), recvOffs.data(), x.DistComm() );
@@ -185,7 +198,7 @@ void AllReduce
             const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
-                Real coneRes = xBuf[iLoc];
+                F coneRes = xBuf[iLoc];
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
@@ -267,24 +280,24 @@ void AllReduce
         const Int i = recvData[2*largeCone+0];
         const Int order = recvData[2*largeCone+1];
         auto xCone = x( IR(i,i+order), ALL );
-        Real* xConeBuf = xCone.Buffer();
+        F* xConeBuf = xCone.Buffer();
 
         // Compute our local result in this cone
-        Real localConeRes = 0;
+        F localConeRes = 0;
         const Int xConeLocalHeight = xCone.LocalHeight();
         for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
             localConeRes = reduce(localConeRes,xConeBuf[iLoc]);
 
         // Compute the maximum for this cone
-        const Real coneRes = mpi::AllReduce( localConeRes, op, x.DistComm() );
+        const F coneRes = mpi::AllReduce( localConeRes, op, x.DistComm() );
         for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
             xConeBuf[iLoc] = coneRes;
     }
 }
 
-template<typename Real>
+template<typename F>
 void AllReduce
-(       DistMultiVec<Real>& x, 
+(       DistMultiVec<F>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, 
   mpi::Op op, Int cutoff )
@@ -302,9 +315,9 @@ void AllReduce
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    auto reduce = OpToReduce<Real>( op );
+    auto reduce = OpToReduce<F>( op );
 
-          Real* xBuf = x.Matrix().Buffer();
+          F* xBuf = x.Matrix().Buffer();
     const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
@@ -345,7 +358,7 @@ void AllReduce
         // ^^^^^^^^^^^^^
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Real> sendBuf(totalSend);
+        vector<F> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
@@ -367,7 +380,7 @@ void AllReduce
         // ^^^^^^^^^^^^^^^^^ 
         vector<int> recvOffs;
         const int totalRecv = Scan( recvCounts, recvOffs );
-        vector<Real> recvBuf(totalRecv);
+        vector<F> recvBuf(totalRecv);
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
           recvBuf.data(), recvCounts.data(), recvOffs.data(), x.Comm() );
@@ -385,7 +398,7 @@ void AllReduce
             const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
-                Real coneRes = xBuf[iLoc];
+                F coneRes = xBuf[iLoc];
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
@@ -468,38 +481,37 @@ void AllReduce
         const Int order = recvData[2*largeCone+1];
 
         // Compute our local result in this cone
-        Real localConeRes = 0;
+        F localConeRes = 0;
         const Int iFirst = x.FirstLocalRow();
         const Int iLast = iFirst + x.LocalHeight();
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
             localConeRes = reduce(localConeRes,xBuf[j-iFirst]);
 
         // Compute the maximum for this cone
-        const Real coneRes = mpi::AllReduce( localConeRes, op, x.Comm() );
+        const F coneRes = mpi::AllReduce( localConeRes, op, x.Comm() );
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
             xBuf[j-iFirst] = coneRes;
     }
 }
 
-#define PROTO(Real) \
+#define PROTO(F) \
   template void AllReduce \
-  (       Matrix<Real>& x, \
+  (       Matrix<F>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     mpi::Op op ); \
   template void AllReduce \
-  (       ElementalMatrix<Real>& x, \
+  (       ElementalMatrix<F>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, \
     mpi::Op op, Int cutoff ); \
   template void AllReduce \
-  (       DistMultiVec<Real>& x, \
+  (       DistMultiVec<F>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
     mpi::Op op, Int cutoff );
 
 #define EL_NO_INT_PROTO
-#define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 

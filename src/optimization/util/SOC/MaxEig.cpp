@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-template<typename Real>
+template<typename Real,typename>
 void MaxEig
 ( const Matrix<Real>& x, 
         Matrix<Real>& maxEigs,
@@ -31,7 +31,7 @@ void MaxEig
             maxEigBuf[i] = xBuf[i]+maxEigBuf[i];
 }
 
-template<typename Real>
+template<typename Real,typename>
 void MaxEig
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& maxEigsPre,
@@ -73,12 +73,13 @@ void MaxEig
             maxEigBuf[iLoc] = xBuf[iLoc] + maxEigBuf[iLoc];
 }
 
-template<typename Real>
+template<typename Real,typename>
 void MaxEig
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& maxEigs,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::MaxEig"))
     const Int height = x.Height();
@@ -101,7 +102,7 @@ void MaxEig
             maxEigBuf[iLoc] = xBuf[iLoc] + maxEigBuf[iLoc];
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxEig
 ( const Matrix<Real>& x, 
   const Matrix<Int>& orders, 
@@ -122,7 +123,7 @@ Real MaxEig
     return maxEig;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxEig
 ( const ElementalMatrix<Real>& x, 
   const ElementalMatrix<Int>& orders,
@@ -153,7 +154,7 @@ Real MaxEig
     return mpi::AllReduce( maxEigLocal, mpi::MAX, x.DistComm() );
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxEig
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
@@ -185,12 +186,14 @@ Real MaxEig
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& maxEigs, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void MaxEig \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& maxEigs, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff ); \
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff ); \
   template Real MaxEig \
   ( const Matrix<Real>& x, \
     const Matrix<Int>& orders, \
@@ -198,11 +201,13 @@ Real MaxEig
   template Real MaxEig \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template Real MaxEig \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
