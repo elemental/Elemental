@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-template<typename Real>
+template<typename Real,typename>
 void LowerNorms
 ( const Matrix<Real>& x, 
         Matrix<Real>& lowerNorms,
@@ -42,7 +42,7 @@ void LowerNorms
             lowerNormBuf[i] = Sqrt(lowerNormBuf[i]);
 }
 
-template<typename Real>
+template<typename Real,typename>
 void LowerNorms
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& lowerNormsPre,
@@ -90,12 +90,13 @@ void LowerNorms
             lowerNormBuf[iLoc] = Sqrt(lowerNormBuf[iLoc]);
 }
 
-template<typename Real>
+template<typename Real,typename>
 void LowerNorms
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& lowerNorms,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::LowerNorms"))
     const Int height = x.Height();
@@ -132,12 +133,14 @@ void LowerNorms
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& lowerNorms, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void LowerNorms \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& lowerNorms, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

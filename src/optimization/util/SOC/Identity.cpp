@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-template<typename Real>
+template<typename Real,typename>
 void Identity
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders,
@@ -36,7 +36,7 @@ void Identity
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Identity
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
@@ -76,7 +76,7 @@ void Identity
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Identity
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 

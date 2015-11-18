@@ -29,7 +29,10 @@ Int blockHeight=32, blockWidth=32;
 std::mt19937 generator;
 
 // Debugging
-DEBUG_ONLY(std::stack<string> callStack)
+DEBUG_ONLY(
+  std::stack<string> callStack;
+  bool tracingEnabled = false;
+)
 
 // A (per-process) output file for logging
 std::ofstream logFile;
@@ -566,6 +569,9 @@ void ComplainIfDebug()
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 DEBUG_ONLY(
 
+    void EnableTracing() { ::tracingEnabled = true; }
+    void DisableTracing() { ::tracingEnabled = false; }
+
     void PushCallStack( string s )
     { 
 #ifdef EL_HYBRID
@@ -573,6 +579,15 @@ DEBUG_ONLY(
             return;
 #endif
         ::callStack.push(s); 
+        if( ::tracingEnabled )
+        {
+            const int stackSize = ::callStack.size();
+            ostringstream os;
+            for( int j=0; j<stackSize; ++j )
+                os << " "; 
+            os << s << endl;
+            cout <<  os.str();
+        }
     }
 
     void PopCallStack()

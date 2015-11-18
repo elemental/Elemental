@@ -17,7 +17,7 @@ namespace pos_orth {
 //
 // which implies that w_i = sqrt(s_i/z_i).
 
-template<typename Real>
+template<typename Real,typename>
 void NesterovTodd
 ( const Matrix<Real>& s, 
   const Matrix<Real>& z,
@@ -34,7 +34,7 @@ void NesterovTodd
         wBuf[i] = Sqrt(sBuf[i]/zBuf[i]);
 }
 
-template<typename Real>
+template<typename Real,typename>
 void NesterovTodd
 ( const ElementalMatrix<Real>& sPre, 
   const ElementalMatrix<Real>& zPre,
@@ -61,7 +61,7 @@ void NesterovTodd
         wBuf[iLoc] = Sqrt(sBuf[iLoc]/zBuf[iLoc]);
 }
 
-template<typename Real>
+template<typename Real,typename>
 void NesterovTodd
 ( const DistMultiVec<Real>& s, 
   const DistMultiVec<Real>& z,

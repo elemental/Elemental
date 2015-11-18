@@ -11,7 +11,7 @@
 namespace El {
 namespace pos_orth {
 
-template<typename Real>
+template<typename Real,typename>
 void PushPairInto
 (       Matrix<Real>& s, 
         Matrix<Real>& z,
@@ -31,7 +31,7 @@ void PushPairInto
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void PushPairInto
 (       ElementalMatrix<Real>& sPre, 
         ElementalMatrix<Real>& zPre,
@@ -66,7 +66,7 @@ void PushPairInto
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void PushPairInto
 (       DistMultiVec<Real>& s, 
         DistMultiVec<Real>& z,

@@ -13,7 +13,7 @@ namespace soc {
 
 // Q_x y = (2 x x^T - det(x) R) y = 2 (x^T y) x - det(x) (R y)
 
-template<typename Real>
+template<typename Real,typename>
 void ApplyQuadratic
 ( const Matrix<Real>& x, 
   const Matrix<Real>& y,
@@ -43,7 +43,7 @@ void ApplyQuadratic
     z -= detRy;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void ApplyQuadratic
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre,
@@ -90,13 +90,14 @@ void ApplyQuadratic
     z -= detRy;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void ApplyQuadratic
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
 
@@ -120,7 +121,7 @@ void ApplyQuadratic
     z -= detRy;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void ApplyQuadratic
 ( const Matrix<Real>& x,
         Matrix<Real>& y,
@@ -134,7 +135,7 @@ void ApplyQuadratic
     y = z;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void ApplyQuadratic
 ( const ElementalMatrix<Real>& x,
         ElementalMatrix<Real>& y,
@@ -149,12 +150,13 @@ void ApplyQuadratic
     y = z;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void ApplyQuadratic
 ( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
   const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
     // TODO?: Optimize 
@@ -175,13 +177,15 @@ void ApplyQuadratic
     const ElementalMatrix<Real>& y, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void ApplyQuadratic \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff ); \
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff ); \
   template void ApplyQuadratic \
   ( const Matrix<Real>& x, \
           Matrix<Real>& y, \
@@ -191,12 +195,14 @@ void ApplyQuadratic
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& y, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void ApplyQuadratic \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

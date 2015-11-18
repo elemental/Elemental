@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-template<typename Real>
+template<typename Real,typename>
 void Shift
 (       Matrix<Real>& x,
         Real shift,
@@ -34,7 +34,7 @@ void Shift
             xBuf[i] += shift;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Shift
 (       ElementalMatrix<Real>& xPre,
         Real shift,
@@ -72,7 +72,7 @@ void Shift
             xBuf[iLoc] += shift;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Shift
 (       DistMultiVec<Real>& x,
         Real shift,

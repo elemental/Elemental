@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-template<typename Real>
+template<typename Real,typename>
 void Dets
 ( const Matrix<Real>& x, 
         Matrix<Real>& d,
@@ -24,7 +24,7 @@ void Dets
     soc::Dots( x, Rx, d, orders, firstInds );
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Dets
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& dPre,
@@ -53,7 +53,7 @@ void Dets
     soc::Dots( x, Rx, d, orders, firstInds, cutoff );
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Dets
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& d,

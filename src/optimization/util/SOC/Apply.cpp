@@ -13,7 +13,7 @@ namespace soc {
 
 // x o y = [ x^T y; x0 y1 + y0 x1 ]
 
-template<typename Real>
+template<typename Real,typename>
 void Apply
 ( const Matrix<Real>& x, 
   const Matrix<Real>& y,
@@ -41,7 +41,7 @@ void Apply
             zBuf[i] += xRootBuf[i]*yBuf[i] + yRootBuf[i]*xBuf[i];
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Apply
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre,
@@ -91,13 +91,14 @@ void Apply
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Apply
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::Apply"))
     soc::Dots( x, y, z, orders, firstInds );
@@ -124,7 +125,7 @@ void Apply
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Apply
 ( const Matrix<Real>& x, 
         Matrix<Real>& y,
@@ -138,7 +139,7 @@ void Apply
     y = z;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Apply
 ( const ElementalMatrix<Real>& x, 
         ElementalMatrix<Real>& y,
@@ -153,12 +154,13 @@ void Apply
     y = z;
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Apply
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& y,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::Apply"))
     // TODO?: Optimize
@@ -179,13 +181,15 @@ void Apply
     const ElementalMatrix<Real>& y, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void Apply \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff ); \
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff ); \
   template void Apply \
   ( const Matrix<Real>& x, \
           Matrix<Real>& y, \
@@ -195,12 +199,14 @@ void Apply
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& y, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void Apply \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

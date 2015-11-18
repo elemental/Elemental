@@ -14,7 +14,7 @@ namespace soc {
 // sqrt(x) = [ eta_0; x_1/(2 eta_0) ],
 // where eta_0 = sqrt(x_0 + sqrt(det(x))) / sqrt(2).
 
-template<typename Real>
+template<typename Real,typename>
 void SquareRoot
 ( const Matrix<Real>& x, 
         Matrix<Real>& xRoot,
@@ -52,7 +52,7 @@ void SquareRoot
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void SquareRoot
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& xRootPre,
@@ -105,12 +105,13 @@ void SquareRoot
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void SquareRoot
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& xRoot,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::SquareRoot"))
     const Real* xBuf = x.LockedMatrix().LockedBuffer();
@@ -152,12 +153,14 @@ void SquareRoot
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& xRoot, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void SquareRoot \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& xRoot, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

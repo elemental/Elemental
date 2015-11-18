@@ -545,51 +545,97 @@ EL_NO_RELEASE_EXCEPT
 { QueueUpdate( Entry<T>{i,j,value} ); }
 
 template<typename T>
-void AbstractDistMatrix<T>::ProcessQueues()
+void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessQueues"))
     const auto& g = Grid();
-    mpi::Comm comm = g.ViewingComm();
-    const int commSize = mpi::Size( comm );
-
-    // Compute the metadata
-    // ====================
-    vector<int> sendCounts(commSize,0);
-    for( const auto& entry : remoteUpdates_ )
+    if( includeViewers )
     {
-        const int owner = 
-          g.VCToViewing( 
-            g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
-          );
-        ++sendCounts[owner];
-    }
+        mpi::Comm comm = g.ViewingComm();
+        const int commSize = mpi::Size( comm );
 
-    // Pack the data
-    // =============
-    vector<int> sendOffs;
-    const int totalSend = Scan( sendCounts, sendOffs );
-    vector<Entry<T>> sendBuf(totalSend);
-    auto offs = sendOffs;
-    for( const auto& entry : remoteUpdates_ )
+        // Compute the metadata
+        // ====================
+        vector<int> sendCounts(commSize,0);
+        for( const auto& entry : remoteUpdates_ )
+        {
+            const int owner = 
+              g.VCToViewing( 
+                g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
+              );
+            ++sendCounts[owner];
+        }
+
+        // Pack the data
+        // =============
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        vector<Entry<T>> sendBuf(totalSend);
+        auto offs = sendOffs;
+        for( const auto& entry : remoteUpdates_ )
+        {
+            const int owner = 
+              g.VCToViewing( 
+                g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
+              );
+            sendBuf[offs[owner]++] = entry;
+        }
+        SwapClear( remoteUpdates_ );
+
+        // Exchange and unpack the data
+        // ============================
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        Int recvBufSize = recvBuf.size();
+        mpi::Broadcast( recvBufSize, 0, RedundantComm() );
+        recvBuf.resize( recvBufSize );
+        mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
+        // TODO: Make this loop faster
+        for( const auto& entry : recvBuf )
+            Update( entry );
+    }
+    else
     {
-        const int owner = 
-          g.VCToViewing( 
-            g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
-          );
-        sendBuf[offs[owner]++] = entry;
-    }
-    SwapClear( remoteUpdates_ );
+        if( !Participating() )
+            return;
 
-    // Exchange and unpack the data
-    // ============================
-    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    Int recvBufSize = recvBuf.size();
-    mpi::Broadcast( recvBufSize, 0, RedundantComm() );
-    recvBuf.resize( recvBufSize );
-    mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
-    // TODO: Make this loop faster
-    for( const auto& entry : recvBuf )
-        Update( entry );
+        mpi::Comm comm = g.VCComm();
+        const int commSize = mpi::Size( comm );
+
+        // Compute the metadata
+        // ====================
+        vector<int> sendCounts(commSize,0);
+        for( const auto& entry : remoteUpdates_ )
+        {
+            const int owner = 
+              g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root());
+            ++sendCounts[owner];
+        }
+
+        // Pack the data
+        // =============
+        vector<int> sendOffs;
+        const int totalSend = Scan( sendCounts, sendOffs );
+        vector<Entry<T>> sendBuf(totalSend);
+        auto offs = sendOffs;
+        for( const auto& entry : remoteUpdates_ )
+        {
+            const int owner = 
+              g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root());
+            sendBuf[offs[owner]++] = entry;
+        }
+        SwapClear( remoteUpdates_ );
+
+        // Exchange and unpack the data
+        // ============================
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+        Int recvBufSize = recvBuf.size();
+        mpi::Broadcast( recvBufSize, 0, RedundantComm() );
+        recvBuf.resize( recvBufSize );
+        mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
+        // TODO: Make this loop faster
+        for( const auto& entry : recvBuf )
+            Update( entry );
+    }
 }
 
 template<typename T>

@@ -13,7 +13,7 @@ namespace pos_orth {
 
 // Compute Max( s o z ) / Min( s o z ) to determine if we need to recenter
 
-template<typename Real>
+template<typename Real,typename>
 Real ComplementRatio
 ( const Matrix<Real>& s,
   const Matrix<Real>& z )
@@ -34,7 +34,7 @@ Real ComplementRatio
     return maxProd/minProd;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real ComplementRatio
 ( const ElementalMatrix<Real>& sPre,
   const ElementalMatrix<Real>& zPre )
@@ -65,7 +65,7 @@ Real ComplementRatio
     return maxProd/minProd;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real ComplementRatio
 ( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z )

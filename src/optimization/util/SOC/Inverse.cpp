@@ -13,7 +13,7 @@ namespace soc {
 
 // inv(x) = (R x) / det(x)
 
-template<typename Real>
+template<typename Real,typename>
 void Inverse
 ( const Matrix<Real>& x, 
         Matrix<Real>& xInv,
@@ -34,7 +34,7 @@ void Inverse
     Hadamard( dInv, Rx, xInv ); 
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Inverse
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& xInvPre,
@@ -70,12 +70,13 @@ void Inverse
     Hadamard( dInv, Rx, xInv );
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Inverse
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& xInv,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::Inverse"))
 
@@ -101,12 +102,14 @@ void Inverse
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& xInv, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void Inverse \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& xInv, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

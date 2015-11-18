@@ -15,10 +15,11 @@ namespace soc {
 // vector x, with the corresponding order of the cone each member belongs to
 // stored in the same index of 'order', and the first index of the cone 
 // being listed in the same index of 'firstInd'.
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside
 ( const Matrix<Real>& x, 
-  const Matrix<Int>& orders, const Matrix<Int>& firstInds )
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds )
 {
     DEBUG_ONLY(CSE cse("soc::NumOutside"))
     Matrix<Real> d;
@@ -40,7 +41,7 @@ Int NumOutside
     return numNonSO;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
@@ -75,11 +76,12 @@ Int NumOutside
     return mpi::AllReduce( numLocalNonSOC, x.DistComm() );
 }
 
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::NumOutside"))
 
@@ -105,11 +107,13 @@ Int NumOutside
   template Int NumOutside \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template Int NumOutside \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
