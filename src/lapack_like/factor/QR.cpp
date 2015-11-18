@@ -87,7 +87,6 @@ void QR
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
-    Log( "Elemental::QR" );
     qr::BusingerGolub( A, t, d, p, ctrl );
 }
 
