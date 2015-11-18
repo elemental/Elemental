@@ -16,40 +16,40 @@ namespace cone {
 // Broadcast
 // =========
 // Replicate the entry in the root position in each cone over the entire cone
-template<typename Real>
+template<typename F>
 void Broadcast
-(       Matrix<Real>& x, 
+(       Matrix<F>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds );
-template<typename Real>
+template<typename F>
 void Broadcast
-(       ElementalMatrix<Real>& x, 
+(       ElementalMatrix<F>& x, 
   const ElementalMatrix<Int>& orders, 
   const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename Real>
+template<typename F>
 void Broadcast
-(       DistMultiVec<Real>& x,
+(       DistMultiVec<F>& x,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 // AllReduce
 // =========
 // Fill each subcone with the reduction over each cone
-template<typename Real>
+template<typename F>
 void AllReduce
-(       Matrix<Real>& x, 
+(       Matrix<F>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds,
   mpi::Op op=mpi::SUM );
-template<typename Real>
+template<typename F>
 void AllReduce
-(       ElementalMatrix<Real>& x, 
+(       ElementalMatrix<F>& x, 
   const ElementalMatrix<Int>& orders, 
   const ElementalMatrix<Int>& firstInds, 
   mpi::Op op=mpi::SUM, Int cutoff=1000 );
-template<typename Real>
+template<typename F>
 void AllReduce
-(       DistMultiVec<Real>& x,
+(       DistMultiVec<F>& x,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, 
   mpi::Op op=mpi::SUM, Int cutoff=1000 );

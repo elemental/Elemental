@@ -11,7 +11,7 @@
 namespace El {
 namespace pos_orth {
 
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
@@ -28,7 +28,7 @@ Int NumOutside( const Matrix<Real>& A )
     return numNonPos;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside( const SparseMatrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
@@ -42,7 +42,7 @@ Int NumOutside( const SparseMatrix<Real>& A )
     return numNonPos;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
@@ -56,7 +56,7 @@ Int NumOutside( const AbstractDistMatrix<Real>& A )
     return numNonPos;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside( const DistSparseMatrix<Real>& A )
 {
     DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
@@ -71,7 +71,7 @@ Int NumOutside( const DistSparseMatrix<Real>& A )
     return mpi::AllReduce( numLocalNonPos, A.Comm() );
 }
 
-template<typename Real>
+template<typename Real,typename>
 Int NumOutside( const DistMultiVec<Real>& A )
 {
     DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))

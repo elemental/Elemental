@@ -13,7 +13,7 @@ namespace soc {
 
 // TODO: Lower-level access
 
-template<typename Real>
+template<typename Real,typename>
 void PushInto
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders, 
@@ -36,7 +36,7 @@ void PushInto
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void PushInto
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
@@ -71,7 +71,7 @@ void PushInto
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void PushInto
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 

@@ -110,8 +110,8 @@ namespace soc {
 
 namespace {
 
-template<typename Real>
-Real ChooseStepLength
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+inline Real ChooseStepLength
 ( Real x0, Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
   Real delta=Epsilon<Real>() )
 {
@@ -152,7 +152,7 @@ Real ChooseStepLength
 
 } // anonymous namespace
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxStep
 ( const Matrix<Real>& x,
   const Matrix<Real>& y, 
@@ -207,7 +207,7 @@ Real MaxStep
     return alpha;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxStep
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre, 
@@ -266,7 +266,7 @@ Real MaxStep
     return mpi::AllReduce( alpha, mpi::MIN, x.DistComm() );
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxStep
 ( const DistMultiVec<Real>& x,     
   const DistMultiVec<Real>& y, 

@@ -18,7 +18,7 @@ namespace soc {
 //       would require a non-trivial amount of additional code for a relatively
 //       rare and comparatively inexpensive operation.
 
-template<typename Real>
+template<typename Real,typename>
 void PushPairInto
 (       Matrix<Real>& s, 
         Matrix<Real>& z,
@@ -47,7 +47,7 @@ void PushPairInto
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void PushPairInto
 (       ElementalMatrix<Real>& sPre, 
         ElementalMatrix<Real>& zPre,
@@ -92,7 +92,7 @@ void PushPairInto
     }
 }
 
-template<typename Real>
+template<typename Real,typename>
 void PushPairInto
 (       DistMultiVec<Real>& s, 
         DistMultiVec<Real>& z,

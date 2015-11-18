@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-template<typename Real>
+template<typename Real,typename>
 void MinEig
 ( const Matrix<Real>& x, 
         Matrix<Real>& minEigs,
@@ -32,7 +32,7 @@ void MinEig
             minEigBuf[i] = xBuf[i]-minEigBuf[i];
 }
 
-template<typename Real>
+template<typename Real,typename>
 void MinEig
 ( const ElementalMatrix<Real>& xPre, 
         ElementalMatrix<Real>& minEigsPre,
@@ -74,12 +74,13 @@ void MinEig
             minEigBuf[iLoc] = xBuf[iLoc] - minEigBuf[iLoc];
 }
 
-template<typename Real>
+template<typename Real,typename>
 void MinEig
 ( const DistMultiVec<Real>& x, 
         DistMultiVec<Real>& minEigs,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("soc::MinEig"))
     const Int height = x.Height();
@@ -102,7 +103,7 @@ void MinEig
             minEigBuf[iLoc] = xBuf[iLoc] - minEigBuf[iLoc];
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MinEig
 ( const Matrix<Real>& x, 
   const Matrix<Int>& orders, 
@@ -123,7 +124,7 @@ Real MinEig
     return minEig;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MinEig
 ( const ElementalMatrix<Real>& x, 
   const ElementalMatrix<Int>& orders, 
@@ -154,7 +155,7 @@ Real MinEig
     return mpi::AllReduce( minEigLocal, mpi::MIN, x.DistComm() );
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MinEig
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 
@@ -186,12 +187,14 @@ Real MinEig
   ( const ElementalMatrix<Real>& x, \
           ElementalMatrix<Real>& minEigs, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void MinEig \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& minEigs, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff ); \
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff ); \
   template Real MinEig \
   ( const Matrix<Real>& x, \
     const Matrix<Int>& orders, \
@@ -199,11 +202,13 @@ Real MinEig
   template Real MinEig \
   ( const ElementalMatrix<Real>& x, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template Real MinEig \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

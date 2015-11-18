@@ -15,7 +15,7 @@ namespace soc {
 // vector x, with the corresponding order of the cone each member belongs to
 // stored in the same index of 'order', and the first index of the cone 
 // being listed in the same index of 'firstInd'.
-template<typename Real>
+template<typename Real,typename>
 void Dots
 ( const Matrix<Real>& x, 
   const Matrix<Real>& y,
@@ -56,7 +56,7 @@ void Dots
 }
 
 // TODO: An alternate, trivial implementation to benchmark against
-template<typename Real>
+template<typename Real,typename>
 void Dots
 ( const ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Real>& yPre,
@@ -178,7 +178,7 @@ void Dots
 }
 
 // TODO: An alternate, trivial implementation to benchmark against
-template<typename Real>
+template<typename Real,typename>
 void Dots
 ( const DistMultiVec<Real>& x, 
   const DistMultiVec<Real>& y,
@@ -315,13 +315,15 @@ void Dots
     const ElementalMatrix<Real>& y, \
           ElementalMatrix<Real>& z, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void Dots \
   ( const DistMultiVec<Real>& x, \
     const DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

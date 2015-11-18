@@ -23,7 +23,7 @@ namespace soc {
 
 namespace {
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void ClassicalNT
 ( const Matrix<Real>& s, 
   const Matrix<Real>& z,
@@ -59,7 +59,7 @@ void ClassicalNT
     Copy( wProm, w );
 }
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void ClassicalNT
 ( const ElementalMatrix<Real>& sPre, 
   const ElementalMatrix<Real>& zPre,
@@ -106,13 +106,14 @@ void ClassicalNT
     soc::ApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
 }
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void ClassicalNT
 ( const DistMultiVec<Real>& s, 
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, Int cutoff )
+  const DistMultiVec<Int>& firstInds,
+  Int cutoff )
 {
     DEBUG_ONLY(CSE cse("ClassicalNT"))
     typedef Promote<Real> PReal;
@@ -146,7 +147,7 @@ void ClassicalNT
 // See Section 4.2 of 
 // http://www.seas.ucla.edu/~vandenbe/publications/coneprog.pdf
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void VandenbergheNT
 ( const Matrix<Real>& s, 
   const Matrix<Real>& z,
@@ -205,7 +206,7 @@ void VandenbergheNT
     Copy( wProm, w );
 }
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void VandenbergheNT
 ( const ElementalMatrix<Real>& sPre, 
   const ElementalMatrix<Real>& zPre,
@@ -278,7 +279,7 @@ void VandenbergheNT
     }
 }
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void VandenbergheNT
 ( const DistMultiVec<Real>& s, 
   const DistMultiVec<Real>& z,
@@ -341,7 +342,7 @@ void VandenbergheNT
 
 } // anonymous namespace
 
-template<typename Real>
+template<typename Real,typename>
 void NesterovTodd
 ( const Matrix<Real>& s, 
   const Matrix<Real>& z,
@@ -357,7 +358,7 @@ void NesterovTodd
         VandenbergheNT( s, z, w, orders, firstInds );
 }
 
-template<typename Real>
+template<typename Real,typename>
 void NesterovTodd
 ( const ElementalMatrix<Real>& s, 
   const ElementalMatrix<Real>& z,
@@ -374,7 +375,7 @@ void NesterovTodd
         VandenbergheNT( s, z, w, orders, firstInds, cutoff );
 }
 
-template<typename Real>
+template<typename Real,typename>
 void NesterovTodd
 ( const DistMultiVec<Real>& s, 
   const DistMultiVec<Real>& z,
@@ -402,13 +403,15 @@ void NesterovTodd
     const ElementalMatrix<Real>& z, \
           ElementalMatrix<Real>& w, \
     const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+    const ElementalMatrix<Int>& firstInds, \
+    Int cutoff ); \
   template void NesterovTodd \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \
           DistMultiVec<Real>& w, \
     const DistMultiVec<Int>& orders, \
-    const DistMultiVec<Int>& firstInds, Int cutoff );
+    const DistMultiVec<Int>& firstInds, \
+    Int cutoff );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

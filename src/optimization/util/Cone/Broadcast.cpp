@@ -11,9 +11,9 @@
 namespace El {
 namespace cone {
 
-template<typename Real>
+template<typename F>
 void Broadcast
-(       Matrix<Real>& x, 
+(       Matrix<F>& x, 
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
@@ -24,7 +24,7 @@ void Broadcast
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    Real* xBuf = x.Buffer();
+    F* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
@@ -37,7 +37,7 @@ void Broadcast
               LogicError("Inconsistency in orders and firstInds");
         )
 
-        const Real x0 = xBuf[i]; 
+        const F x0 = xBuf[i]; 
         for( Int j=i+1; j<i+order; ++j )
             xBuf[j] = x0;
 
@@ -45,9 +45,9 @@ void Broadcast
     }
 }
 
-template<typename Real>
+template<typename F>
 void Broadcast
-(       ElementalMatrix<Real>& xPre, 
+(       ElementalMatrix<F>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
@@ -59,7 +59,7 @@ void Broadcast
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
+    auto xPtr = ReadProxy<F,VC,STAR>(&xPre,ctrl); 
     auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
     auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
     auto& x = *xPtr;
@@ -76,7 +76,7 @@ void Broadcast
     mpi::Comm comm = x.DistComm();
     const int commSize = mpi::Size(comm);
 
-    Real* xBuf = x.Buffer();
+    F* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
@@ -127,21 +127,21 @@ void Broadcast
     // ===========================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    vector<Entry<Real>> sendData;
+    vector<Entry<F>> sendData;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
         const Int order = orderBuf[iLoc];
         const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
-            sendData.push_back( Entry<Real>{i,order,xBuf[iLoc]} );
+            sendData.push_back( Entry<F>{i,order,xBuf[iLoc]} );
     }
     const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     vector<int> recvOffs;
     const int totalRecv = Scan( numRecvCones, recvOffs );
-    vector<Entry<Real>> recvData(totalRecv);
+    vector<Entry<F>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
       recvData.data(), numRecvCones.data(), recvOffs.data(), comm );
@@ -149,15 +149,15 @@ void Broadcast
     {
         const Int i = recvData[largeCone].i;
         const Int order = recvData[largeCone].j;
-        const Real x0 = recvData[largeCone].value;
+        const F x0 = recvData[largeCone].value;
         auto xBot = x( IR(i+1,i+order), ALL );
         Fill( xBot, x0 );
     }
 }
 
-template<typename Real>
+template<typename F>
 void Broadcast
-(       DistMultiVec<Real>& x, 
+(       DistMultiVec<F>& x, 
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
@@ -175,7 +175,7 @@ void Broadcast
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    Real* xBuf = x.Matrix().Buffer();
+    F* xBuf = x.Matrix().Buffer();
     const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
@@ -224,7 +224,7 @@ void Broadcast
     // ===========================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    vector<Entry<Real>> sendData;
+    vector<Entry<F>> sendData;
     // TODO: Count and reserve
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -232,14 +232,14 @@ void Broadcast
         const Int order = orderBuf[iLoc];
         const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
-            sendData.push_back( Entry<Real>{i,order,xBuf[iLoc]} );
+            sendData.push_back( Entry<F>{i,order,xBuf[iLoc]} );
     }
     const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     vector<int> recvOffs;
     const int totalRecv = Scan( numRecvCones, recvOffs ); 
-    vector<Entry<Real>> recvData(totalRecv);
+    vector<Entry<F>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
       recvData.data(), numRecvCones.data(), recvOffs.data(), comm );
@@ -247,7 +247,7 @@ void Broadcast
     {
         const Int i = recvData[largeCone].i;
         const Int order = recvData[largeCone].j;
-        const Real x0 = recvData[largeCone].value;
+        const F x0 = recvData[largeCone].value;
 
         // Unpack the root entry
         const Int iFirst = firstLocalRow;
@@ -257,22 +257,21 @@ void Broadcast
     }
 }
 
-#define PROTO(Real) \
+#define PROTO(F) \
   template void Broadcast \
-  (       Matrix<Real>& x, \
+  (       Matrix<F>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void Broadcast \
-  (       ElementalMatrix<Real>& x, \
+  (       ElementalMatrix<F>& x, \
     const ElementalMatrix<Int>& orders, \
     const ElementalMatrix<Int>& firstInds, Int cutoff ); \
   template void Broadcast \
-  (       DistMultiVec<Real>& x, \
+  (       DistMultiVec<F>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );
 
 #define EL_NO_INT_PROTO
-#define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
 #include "El/macros/Instantiate.h"
 

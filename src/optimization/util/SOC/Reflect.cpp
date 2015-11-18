@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-template<typename Real>
+template<typename Real,typename>
 void Reflect
 (       Matrix<Real>& x, 
   const Matrix<Int>& orders,
@@ -36,7 +36,7 @@ void Reflect
             xBuf[i] = -xBuf[i];
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Reflect
 (       ElementalMatrix<Real>& xPre, 
   const ElementalMatrix<Int>& ordersPre, 
@@ -73,7 +73,7 @@ void Reflect
             xBuf[iLoc] = -xBuf[iLoc];
 }
 
-template<typename Real>
+template<typename Real,typename>
 void Reflect
 (       DistMultiVec<Real>& x, 
   const DistMultiVec<Int>& orders, 

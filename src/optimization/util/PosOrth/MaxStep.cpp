@@ -11,7 +11,7 @@
 namespace El {
 namespace pos_orth {
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxStep
 ( const Matrix<Real>& s,
   const Matrix<Real>& ds,
@@ -33,7 +33,7 @@ Real MaxStep
     return alpha;
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxStep
 ( const ElementalMatrix<Real>& sPre, 
   const ElementalMatrix<Real>& dsPre,
@@ -72,7 +72,7 @@ Real MaxStep
     return mpi::AllReduce( alpha, mpi::MIN, s.DistComm() );
 }
 
-template<typename Real>
+template<typename Real,typename>
 Real MaxStep
 ( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& ds,

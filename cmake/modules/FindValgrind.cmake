@@ -13,10 +13,8 @@
 
 message(STATUS "Valgrind Prefix: ${VALGRIND_PREFIX}")
 
-find_path(VALGRIND_INCLUDE_DIR memcheck.h
-  /usr/include /usr/include/valgrind /usr/local/include 
-  /usr/local/include/valgrind
-  ${VALGRIND_PREFIX}/include ${VALGRIND_PREFIX}/include/valgrind)
+find_path(VALGRIND_INCLUDE_DIR valgrind/memcheck.h
+  /usr/include /usr/local/include ${VALGRIND_PREFIX}/include)
 find_program(VALGRIND_PROGRAM NAMES valgrind PATH 
   /usr/bin /usr/local/bin ${VALGRIND_PREFIX}/bin)
 
