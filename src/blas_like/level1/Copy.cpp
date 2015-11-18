@@ -35,6 +35,9 @@ inline void Copy( const ElementalMatrix<T>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     Log( "Elemental: Copy ElementalMatrix to DistMatrix" );
+    Log( "Elemental: Copy Dist of A" );
+    Log( A.DistData().colDist, A.DistData().rowDist );
+    Log( "Elemental: Copy Dist of B" );
     Log( B.DistData().colDist, B.DistData().rowDist );
     B = A;
 }
