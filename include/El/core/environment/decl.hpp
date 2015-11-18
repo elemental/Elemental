@@ -251,6 +251,9 @@ public:
 };
 
 DEBUG_ONLY(
+    void EnableTracing();
+    void DisableTracing();
+
     void PushCallStack( string s );
     void PopCallStack();
     void DumpCallStack( ostream& os=cerr );
