@@ -154,7 +154,8 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
                 }
             }
         }
-        B.ProcessQueues();
+        const bool includeViewers = (A.Grid() != B.Grid());
+        B.ProcessQueues( includeViewers );
     }
 }
 

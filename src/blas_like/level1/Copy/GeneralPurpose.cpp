@@ -47,7 +47,9 @@ void GeneralPurpose
                 }
             }    
         }
-        B.ProcessQueues();
+
+        const bool includeViewers = (A.Grid() != B.Grid());
+        B.ProcessQueues( includeViewers );
     }
 }
 

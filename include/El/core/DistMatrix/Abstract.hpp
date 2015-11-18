@@ -216,7 +216,7 @@ public:
     void Reserve( Int numRemoteEntries );
     void QueueUpdate( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
     void QueueUpdate( Int i, Int j, scalarType value ) EL_NO_RELEASE_EXCEPT;
-    void ProcessQueues();
+    void ProcessQueues( bool includeViewers=true );
 
     // Batch extraction of remote entries
     // ----------------------------------
