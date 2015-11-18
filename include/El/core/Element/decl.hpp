@@ -46,6 +46,10 @@ typedef Complex<Quad> qcomplex;
 #endif
 
 // For usage in EnableIf
+// =====================
+
+// Types that Matrix, DistMatrix, etc. are instantiatable with
+// -----------------------------------------------------------
 template<typename T> struct IsScalar { static const bool value=false; };
 template<> struct IsScalar<Int> { static const bool value=true; };
 template<> struct IsScalar<float> { static const bool value=true; };
@@ -55,6 +59,25 @@ template<> struct IsScalar<Complex<double>> { static const bool value=true; };
 #ifdef EL_HAVE_QUAD
 template<> struct IsScalar<Quad> { static const bool value=true; };
 template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
+#endif
+
+// A superset of the above that includes pointers to the above, as well
+// as 'int' (which is different than Int if 64-bit integers are enabled)
+// ---------------------------------------------------------------------
+template<typename T> struct IsData { static const bool value=false; };
+template<typename T> struct IsData<T*> { static const bool value=true; };
+template<typename T> struct IsData<const T*> { static const bool value=true; };
+#ifdef EL_USE_64BIT_INTS
+template<> struct IsData<int> { static const bool value=true; };
+#endif
+template<> struct IsData<Int> { static const bool value=true; };
+template<> struct IsData<float> { static const bool value=true; };
+template<> struct IsData<double> { static const bool value=true; };
+template<> struct IsData<Complex<float>> { static const bool value=true; };
+template<> struct IsData<Complex<double>> { static const bool value=true; };
+#ifdef EL_HAVE_QUAD
+template<> struct IsData<Quad> { static const bool value=true; };
+template<> struct IsData<Complex<Quad>> { static const bool value=true; };
 #endif
 
 template<typename Condition,class T=void>
