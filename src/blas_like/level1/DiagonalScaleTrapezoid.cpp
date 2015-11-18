@@ -86,7 +86,6 @@ void DiagonalScaleTrapezoid
   const ElementalMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A, Int offset )
 {
     DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
-    Log( "Elemental::DiagonalScaleTrapezoid" );
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -102,17 +101,12 @@ void DiagonalScaleTrapezoid
 
     if( side == LEFT )
     {
-        Log( "Elemental::DiagonalScaleTrapezoid side==LEFT" );
         ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
-        Log( "Elemental::DiagonalScaleTrapezoid A.Root" );
         ctrl.root = A.Root();
-        Log( "Elemental::DiagonalScaleTrapezoid A.ColAlign" );
         ctrl.colAlign = A.ColAlign();
-        Log( "Elemental::DiagonalScaleTrapezoid ReadProxy" );
         auto dPtr = ReadProxy<TDiag,U,Collect<V>()>( &dPre, ctrl );
-        Log( "Elemental::DiagonalScaleTrapezoid d=*dPtr" );
         auto& d = *dPtr;
 
         if( uplo == LOWER )
@@ -136,7 +130,6 @@ void DiagonalScaleTrapezoid
         }
         else
         {
-        Log( "Elemental::DiagonalScaleTrapezoid side==LEFT and uplo == UPPER" );
             // Scale from the diagonal to the right
             for( Int iLoc=0; iLoc<mLoc; ++iLoc )
             {

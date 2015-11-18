@@ -38,10 +38,8 @@ shared_ptr<const DistMatrix<T,U,V>>
 ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
-    Log( "Elemental::ReadProxy" );
     if( std::is_same<S,T>::value )
     {
-        Log( "Elemental::ReadProxy Dynamic cast of A" );
         const DM* ACast = dynamic_cast<const DM*>(A);
 
         const bool haveDist = (ACast != nullptr);
@@ -52,27 +50,18 @@ ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
         const bool haveRoot = haveDist &&
             (!ctrl.rootConstrain || A->Root() == ctrl.root);
 
-        Log( "Elemental::ReadProxy Return shared_ptr" );
-        Log( "Elemental::ReadProxy haveDist: ", haveDist );
         if( haveColAlign && haveRowAlign && haveRoot )
             return shared_ptr<const DM>( ACast, []( const DM* B ) { } );
-        Log( "Elemental::ReadProxy Did not return" );
     }
 
-    Log( "Elemental::ReadProxy Create AShared" );
     auto AShared = make_shared<DM>( A->Grid() );
-    Log( "Elemental::ReadProxy SetRoot" );
     if( ctrl.rootConstrain )
         AShared->SetRoot( ctrl.root );
-    Log( "Elemental::ReadProxy AlignCols" );
     if( ctrl.colConstrain )
         AShared->AlignCols( ctrl.colAlign );
-    Log( "Elemental::ReadProxy AlignRows" );
     if( ctrl.rowConstrain )
         AShared->AlignRows( ctrl.rowAlign );
-    Log( "Elemental::ReadProxy Copy" );
     Copy( *A, *AShared );
-    Log( "Elemental::ReadProxy Return AShared" );
     return AShared;
 }
 
