@@ -34,7 +34,7 @@ DistSparseMatrix<double> ConcatFD2D( Int n0, Int n1 )
 
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::Rank( comm );
 
@@ -80,6 +80,5 @@ int main( int argc, char* argv[] )
     }
     catch( const exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

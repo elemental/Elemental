@@ -43,10 +43,10 @@ ElError ElMPIGroupFree( MPI_Group* group )
 { EL_TRY( El::mpi::Group wrap(*group); El::mpi::Free(wrap) ) }
 
 ElError ElMPIWorldRank( int* rank )
-{ EL_TRY( *rank = El::mpi::WorldRank() ) }
+{ EL_TRY( *rank = El::mpi::Rank() ) }
 
 ElError ElMPIWorldSize( int* size )
-{ EL_TRY( *size = El::mpi::WorldSize() ) }
+{ EL_TRY( *size = El::mpi::Size() ) }
 
 ElError ElMPITime( double* time )
 { EL_TRY( *time = El::mpi::Time() ) }

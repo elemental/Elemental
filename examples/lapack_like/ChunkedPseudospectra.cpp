@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 typedef double Real;
@@ -16,7 +15,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -82,12 +81,13 @@ main( int argc, char* argv[] )
         const Int mx = Input("--mx","number of x points for HelmholtzPML",30);
         const Int my = Input("--my","number of y points for HelmholtzPML",30);
         const Int numPmlPoints = Input("--numPml","num PML points for Helm",5);
-        const double sigma = Input("--sigma","PML amplitude",1.5);
-        const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
+        const Real sigma = Input("--sigma","PML amplitude",Real(1.5));
+        const Real pmlExp = Input("--pmlExp","PML takeoff exponent",Real(3));
         // Uniform Helmholtz Green's options
-        const double lambda = Input("--lambda","wavelength of U.H.Green's",0.1);
+        const Real lambda =
+          Input("--lambda","wavelength of U.H.Green's",Real(0.1));
         // Hatano-Nelson options 
-        const double gHatano = Input("--gHatano","g in Hatano-Nelson",0.5);
+        const Real gHatano = Input("--gHatano","g in Hatano-Nelson",Real(0.5));
         const bool periodic = Input("--periodic","periodic HatanoNelson?",true);
         // Input/Output options
         const bool progress = Input("--progress","print progress?",true);
@@ -273,58 +273,50 @@ main( int argc, char* argv[] )
         }
         mpi::Barrier( mpi::COMM_WORLD );
         const double schurTime = timer.Stop();
-        if( mpi::WorldRank() == 0 )
-            cout << "Schur decomposition took " << schurTime << " seconds" 
-                 << endl; 
+        if( mpi::Rank() == 0 )
+            Output("Schur decomposition took ",schurTime," seconds");
 
         if( saveSchur )
         {
-            if( mpi::WorldRank() == 0 )
-            {
-                cout << "Writing Schur decomposition to file...";
-                cout.flush();
-            }
+            if( mpi::Rank() == 0 )
+                Output("Writing Schur decomposition to file...");
             timer.Start();
             if( isReal )
             {
-                {
-                    ostringstream os;
-                    os << matName << "_" 
-                       << AReal.ColStride() << "x" << AReal.RowStride()
-                       << "_" << AReal.DistRank();
-                    Write( AReal.LockedMatrix(), os.str(), BINARY );
-                }
+                auto schurTitle = 
+                  BuildString
+                  (matName,"_",AReal.ColStride(),"x",AReal.RowStride(),
+                   "_",AReal.DistRank());
+                Write( AReal.LockedMatrix(), schurTitle, BINARY );
                 if( psNorm == PS_ONE_NORM )
                 {
-                    ostringstream os;
-                    os << matName << "_Q_"
-                       << QReal.ColStride() << "x" << QReal.RowStride()
-                       << "_" << QReal.DistRank();
-                    Write( QReal.LockedMatrix(), os.str(), BINARY );
+                    auto QTitle = 
+                      BuildString
+                      (matName,"_Q_",QReal.ColStride(),"x",QReal.RowStride(),
+                       "_",QReal.DistRank());
+                    Write( QReal.LockedMatrix(), QTitle, BINARY );
                 }
             } 
             else
             {
-                {
-                    ostringstream os;
-                    os << matName << "_" 
-                       << ACpx.ColStride() << "x" << ACpx.RowStride()
-                       << "_" << ACpx.DistRank();
-                    Write( ACpx.LockedMatrix(), os.str(), BINARY );
-                }
+                auto schurTitle =
+                  BuildString
+                  (matName,"_",ACpx.ColStride(),"x",ACpx.RowStride(),
+                   "_",ACpx.DistRank());
+                Write( ACpx.LockedMatrix(), schurTitle, BINARY );
                 if( psNorm == PS_ONE_NORM )
                 {
-                    ostringstream os;
-                    os << matName << "_Q_"
-                       << QCpx.ColStride() << "x" << QCpx.RowStride()
-                       << "_" << QCpx.DistRank();
-                    Write( QCpx.LockedMatrix(), os.str(), BINARY );
+                    auto QTitle =
+                      BuildString
+                      (matName,"_Q_",QCpx.ColStride(),"x",QCpx.RowStride(),
+                       "_",QCpx.DistRank());
+                    Write( QCpx.LockedMatrix(), QTitle, BINARY );
                 }
             }
-            mpi::Barrier( mpi::COMM_WORLD );
+            mpi::Barrier();
             const double saveSchurTime = timer.Stop();
-            if( mpi::WorldRank() == 0 )
-                cout << "DONE. " << saveSchurTime << " seconds" << endl;
+            if( mpi::Rank() == 0 )
+                Output("Saving took ",saveSchurTime," seconds");
         }
 
         // Find a window if none is specified
@@ -336,22 +328,24 @@ main( int argc, char* argv[] )
             if( oneNorm == 0. && radius == 0. )
             {
                 width = 1;
-                if( mpi::WorldRank() == 0 )
-                    cout << "Setting width to 1 to handle zero matrix" << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Setting width to 1 to handle zero matrix");
             }
             else if( radius >= 0.2*oneNorm )
             {
                 width = 2.5*radius;
-                if( mpi::WorldRank() == 0 )
-                    cout << "Setting width to " << width
-                         << " based on the spectral radius, " << radius << endl;
+                if( mpi::Rank() == 0 )
+                    Output 
+                    ("Setting width to ",width,
+                     " based on the spectral radius, ",radius);
             }
             else
             {
                 width = 0.8*oneNorm;
-                if( mpi::WorldRank() == 0 )
-                    cout << "Setting width to " << width
-                         << " based on the one norm, " << oneNorm << endl;
+                if( mpi::Rank() == 0 )
+                    Output
+                    ("Setting width to ",width," based on the one norm, ",
+                     oneNorm);
             }
             realWidth = width;
             imagWidth = width;
@@ -390,9 +384,7 @@ main( int argc, char* argv[] )
             const Real realChunkWidth = realStep*realChunkSize;
             for( Int imagChunk=0; imagChunk<numImag; ++imagChunk )
             {
-                ostringstream chunkStream;
-                chunkStream << "_" << realChunk << "_" << imagChunk;
-                const string chunkTag = chunkStream.str();
+                auto chunkTag = BuildString("_",realChunk,"_",imagChunk);
 
                 const Int imagChunkSize = 
                     ( imagChunk==numImag-1 ? yLeftover : yBlock );
@@ -403,9 +395,9 @@ main( int argc, char* argv[] )
                 const C chunkCenter = chunkCorner + 
                     0.5*C(realStep*realChunkSize,imagStep*imagChunkSize);
 
-                if( mpi::WorldRank() == 0 )
-                    cout << "Starting computation for chunk centered at "
-                         << chunkCenter << endl;
+                if( mpi::Rank() == 0 )
+                    Output
+                    ("Starting computation for chunk centered at ",chunkCenter);
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
                 psCtrl.snapCtrl.numBase = matName+"_"+numBase+chunkTag;
@@ -427,16 +419,14 @@ main( int argc, char* argv[] )
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );
-                if( mpi::WorldRank() == 0 )
-                {
-                    cout << "num seconds=" << pseudoTime << "\n"
-                         << "num iterations=" << numIts << endl;
-                }
+                if( mpi::Rank() == 0 )
+                    Output
+                    ("num seconds=",pseudoTime,"\n",
+                     "num iterations=",numIts);
             }
         }
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

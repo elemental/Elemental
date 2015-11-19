@@ -12,8 +12,12 @@ using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( LeftOrRight side, UpperOrLower uplo, ForwardOrBackward order,
-  Conjugation conjugation, Int offset, bool printMatrices,
+( LeftOrRight side,
+  UpperOrLower uplo,
+  ForwardOrBackward order,
+  Conjugation conjugation,
+  Int offset,
+  bool printMatrices,
   const DistMatrix<F>& H,
   const DistMatrix<F,MD,STAR>& t )
 {
@@ -22,7 +26,7 @@ void TestCorrectness
     const Int m = H.Height();
 
     if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of transform..." << endl;
+        Output("  Testing orthogonality of transform...");
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
     DistMatrix<F> Y(g);
@@ -64,31 +68,38 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    const Real oneNormOfError = OneNorm( Z );
-    const Real infNormOfError = InfinityNorm( Z );
-    const Real frobNormOfError = FrobeniusNorm( Z );
+    const Real oneNormError = OneNorm( Z );
+    const Real infNormError = InfinityNorm( Z );
+    const Real frobNormError = FrobeniusNorm( Z );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )
         {
-            cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
-                 << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
-                 << "    ||Q Q^H - I||_F  = " << frobNormOfError << endl;
+            Output
+            ("    ||Q Q^H - I||_1  = ",oneNormError,"\n",
+             "    ||Q Q^H - I||_oo = ",infNormError,"\n",
+             "    ||Q Q^H - I||_F  = ",frobNormError);
         }
         else
         {
-            cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
-                 << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
-                 << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+            Output
+            ("    ||Q^H Q - I||_1  = ",oneNormError,"\n",
+             "    ||Q^H Q - I||_oo = ",infNormError,"\n",
+             "    ||Q^H Q - I||_F  = ",frobNormError);
         }
     }
 }
 
 template<typename F>
 void TestUT
-( LeftOrRight side, UpperOrLower uplo, 
-  ForwardOrBackward order, Conjugation conjugation,
-  Int m, Int offset, bool testCorrectness, bool printMatrices,
+( LeftOrRight side,
+  UpperOrLower uplo, 
+  ForwardOrBackward order,
+  Conjugation conjugation,
+  Int m,
+  Int offset,
+  bool testCorrectness,
+  bool printMatrices,
   const Grid& g )
 {
     DistMatrix<F> H(g), A(g);
@@ -133,10 +144,7 @@ void TestUT
     }
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting UT transform...";
-        cout.flush();
-    }
+        Output("  Starting UT transform...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     ApplyPackedReflectors
@@ -146,11 +154,7 @@ void TestUT
     const double realGFlops = 8.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( printMatrices )
         Print( A, "A after factorization" );
     if( testCorrectness )
@@ -163,7 +167,7 @@ void TestUT
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -204,22 +208,21 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test UT transform" << endl;
+            Output("Will test UT transform");
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestUT<double>
         ( side, uplo, dir, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestUT<Complex<double>>
         ( side, uplo, dir, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

@@ -12,9 +12,8 @@ using namespace El;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
+    Environment env( argc, argv );
+    const Int commRank = mpi::Rank();
 
     if( commRank == 0 )
     {
@@ -23,6 +22,5 @@ main( int argc, char* argv[] )
         PrintCxxCompilerInfo();
     }
 
-    Finalize();
     return 0;
 }

@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Create a typedef for convenience
@@ -16,7 +15,7 @@ typedef double Real;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -57,6 +56,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

@@ -18,8 +18,8 @@ int
 main( int argc, char* argv[] )
 {
     // This detects whether or not you have already initialized MPI and 
-    // does so if necessary. The full routine is El::Initialize.
-    Initialize( argc, argv );
+    // does so if necessary. 
+    Environment env( argc, argv );
 
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         // Create a 2d process grid from a communicator. In our case, it is
-        // MPI_COMM_WORLD. There is another constructor that allows you to 
+        // mpi::COMM_WORLD. There is another constructor that allows you to 
         // specify the grid dimensions, Grid g( comm, r ), which creates a
         // grid of height r.
         Grid g( mpi::COMM_WORLD );
@@ -96,17 +96,13 @@ main( int argc, char* argv[] )
         Herk( LOWER, NORMAL, Real(-1), X, Real(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "|| H ||_F = " << frobH << "\n"
-                 << "|| H X - X Omega ||_F / || A ||_F = " 
-                 << frobResid / frobH << "\n"
-                 << "|| X X^H - I ||_F = " << frobOrthog / frobH
-                 << "\n" << endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| H ||_F = ",frobH,"\n",
+             "|| H X - X Omega ||_F / || A ||_F = ",frobResid/frobH,"\n",
+             "|| X X^H - I ||_F = ",frobOrthog,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

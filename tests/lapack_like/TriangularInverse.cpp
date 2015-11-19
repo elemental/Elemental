@@ -13,7 +13,8 @@ using namespace El;
 template<typename F> 
 void TestCorrectness
 ( bool print,
-  UpperOrLower uplo, UnitOrNonUnit diag,
+  UpperOrLower uplo,
+  UnitOrNonUnit diag,
   const DistMatrix<F>& A,
   const DistMatrix<F>& AOrig )
 {
@@ -36,50 +37,41 @@ void TestCorrectness
     const Real oneNormFinal = OneNorm( A );
     const Real infNormFinal = InfinityNorm( A );
     const Real frobNormFinal = FrobeniusNorm( A );
-    const Real oneNormOfError = OneNorm( Y );
-    const Real infNormOfError = InfinityNorm( Y );
-    const Real frobNormOfError = FrobeniusNorm( Y );
+    const Real oneNormError = OneNorm( Y );
+    const Real infNormError = InfinityNorm( Y );
+    const Real frobNormError = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
-    {
-        cout << "||A||_1           = " << oneNormOrig << "\n"
-             << "||A||_oo          = " << infNormOrig << "\n"
-             << "||A||_F           = " << frobNormOrig << "\n"
-             << "||A^-1||_1        = " << oneNormFinal << "\n"
-             << "||A^-1||_oo       = " << infNormFinal << "\n"
-             << "||A^-1||_F        = " << frobNormFinal << "\n"
-             << "||A A^-1 - I||_1  = " << oneNormOfError << "\n"
-             << "||A A^-1 - I||_oo = " << infNormOfError << "\n"
-             << "||A A^-1 - I||_F  = " << frobNormOfError << endl;
-    }
+        Output
+        ("||A||_1           = ",oneNormOrig,"\n",
+         "||A||_oo          = ",infNormOrig,"\n",
+         "||A||_F           = ",frobNormOrig,"\n",
+         "||A^-1||_1        = ",oneNormFinal,"\n",
+         "||A^-1||_oo       = ",infNormFinal,"\n",
+         "||A^-1||_F        = ",frobNormFinal,"\n",
+         "||A A^-1 - I||_1  = ",oneNormError,"\n",
+         "||A A^-1 - I||_oo = ",infNormError,"\n",
+         "||A A^-1 - I||_F  = ",frobNormError);
 }
 
 template<typename F> 
 void TestTriangularInverse
-( bool testCorrectness, bool print,
-  UpperOrLower uplo, UnitOrNonUnit diag, Int m, const Grid& g )
+( bool testCorrectness,
+  bool print,
+  UpperOrLower uplo,
+  UnitOrNonUnit diag,
+  Int m,
+  const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
     MakeTrapezoidal( uplo, A );
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting triangular inversion...";
-        cout.flush();
-    }
+        Output("  Starting triangular inversion...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     TriangularInverse( uplo, diag, A );
@@ -88,11 +80,7 @@ void TestTriangularInverse
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( A, "A after inversion" );
     if( testCorrectness )
@@ -102,7 +90,7 @@ void TestTriangularInverse
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -131,21 +119,19 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test TriangularInverse" << uploChar << diagChar 
-                 << endl;
+            Output("Will test TriangularInverse",uploChar,diagChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestTriangularInverse<double>
         ( testCorrectness, print, uplo, diag, m, g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestTriangularInverse<Complex<double>>
         ( testCorrectness, print, uplo, diag, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

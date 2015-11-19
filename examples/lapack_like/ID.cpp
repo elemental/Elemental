@@ -7,16 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 typedef double Real;
-typedef Complex<Real> C;
+typedef Complex<Real> F;
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -24,7 +22,7 @@ main( int argc, char* argv[] )
         const Int n = Input("--width","width of matrix",100);
         const Int r = Input("--rank","rank of matrix",5);
         const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
-        const double tol = Input("--tol","tolerance for ID",-1.);
+        const Real tol = Input("--tol","tolerance for ID",Real(-1));
         const bool print = Input("--print","print matrices?",false);
         const bool smallestFirst =
           Input("--smallestFirst","smallest norm first?",false);
@@ -32,17 +30,17 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Grid& g = DefaultGrid();
-        DistMatrix<C> U(g), V(g), A(g);
+        DistMatrix<F> U(g), V(g), A(g);
         Uniform( U, m, r );
         Uniform( V, n, r );
-        Gemm( NORMAL, ADJOINT, C(1), U, V, A );
+        Gemm( NORMAL, ADJOINT, F(1), U, V, A );
         const Real frobA = FrobeniusNorm( A );
         if( print )
             Print( A, "A" );
 
         DistMatrix<Int,VR,STAR> p(g);
-        DistMatrix<C,STAR,VR> Z(g);
-        QRCtrl<double> ctrl;
+        DistMatrix<F,STAR,VR> Z(g);
+        QRCtrl<Real> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = maxSteps;
         if( tol != -1. )
@@ -70,32 +68,29 @@ main( int argc, char* argv[] )
         }
 
         // Check || A P - \hat{A} [I, Z] ||_F / || A ||_F
-        DistMatrix<C> AL(g), AR(g);
+        DistMatrix<F> AL(g), AR(g);
         PartitionRight( A, AL, AR, rank );
         Zero( AL );
         {
-            DistMatrix<C,MC,STAR> hatA_MC_STAR(g);
-            DistMatrix<C,STAR,MR> Z_STAR_MR(g);
+            DistMatrix<F,MC,STAR> hatA_MC_STAR(g);
+            DistMatrix<F,STAR,MR> Z_STAR_MR(g);
             hatA_MC_STAR.AlignWith( AR );
             Z_STAR_MR.AlignWith( AR );
             hatA_MC_STAR = hatA;
             Z_STAR_MR = Z;
             LocalGemm
-            ( NORMAL, NORMAL, C(-1), hatA_MC_STAR, Z_STAR_MR, C(1), AR );
+            ( NORMAL, NORMAL, F(-1), hatA_MC_STAR, Z_STAR_MR, F(1), AR );
         }
         const Real frobError = FrobeniusNorm( A );
         if( print )
             Print( A, "A P - \\hat{A} [I, Z]" );
 
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "|| A ||_F = " << frobA << "\n\n"
-                      << "|| A P - \\hat{A} [I, Z] ||_F / || A ||_F = " 
-                      << frobError/frobA << "\n" << std::endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A ||_F = ",frobA,"\n",
+             "|| A P - \\hat{A} [I, Z] ||_F / || A ||_F = ",frobError/frobA);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

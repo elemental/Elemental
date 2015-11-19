@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 typedef double Real;
@@ -16,7 +15,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -24,7 +23,7 @@ main( int argc, char* argv[] )
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int k = Input("--k","index of KyFan norm",10);
-        const double p = Input("--p","power of Schatten norm",2);
+        const Real p = Input("--p","power of Schatten norm",Real(2));
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -36,16 +35,16 @@ main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
 
-        const double kyFanNorm = KyFanNorm( A, k );
-        const double schattenNorm = SchattenNorm( A, p );
-        const double entrywiseNorm = EntrywiseNorm( A, p );
-        if( mpi::WorldRank() == 0 )
-            cout << "|| A ||_K(p)   = " << kyFanNorm << "\n"
-                 << "|| A ||_S(p)   = " << schattenNorm << "\n"
-                 << "|| vec(A) ||_p = " << entrywiseNorm << std::endl;
+        const Real kyFanNorm = KyFanNorm( A, k );
+        const Real schattenNorm = SchattenNorm( A, p );
+        const Real entrywiseNorm = EntrywiseNorm( A, p );
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A ||_K(p)   = ",kyFanNorm,"\n",
+             "|| A ||_S(p)   = ",schattenNorm,"\n",
+             "|| vec(A) ||_p = ",entrywiseNorm);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

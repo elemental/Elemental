@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -17,7 +16,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     enum TestType { FOURIER=0, HILBERT=1, IDENTITY=2, ONES=3, ONE_TWO_ONE=4,
                     UNIFORM=5, WILKINSON=6, ZEROS=7 }; 
@@ -42,50 +41,50 @@ main( int argc, char* argv[] )
             switch( testType )
             {
             case FOURIER:     
-                if( mpi::WorldRank() == 0 ) 
-                    cout << "Testing Fourier " << qrString << endl;
+                if( mpi::Rank() == 0 ) 
+                    Output("Testing Fourier ",qrString);
                 n = k;
                 Fourier( A, n ); 
                 break;
             case HILBERT:     
-                if( mpi::WorldRank() == 0 )
-                    cout << "Testing Hilbert " << qrString << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Testing Hilbert ",qrString);
                 n = k;
                 Hilbert( A, n ); 
                 break;
             case IDENTITY:    
-                if( mpi::WorldRank() == 0 )
-                    cout << "Testing Identity " << qrString << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Testing Identity ",qrString);
                 n = k;
                 Identity( A, n, n ); 
                 break;
             case ONES:        
-                if( mpi::WorldRank() == 0 )
-                    cout << "Testing Ones " << qrString << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Testing Ones ",qrString);
                 n = k;
                 Ones( A, n, n ); 
                 break;
             case ONE_TWO_ONE: 
-                if( mpi::WorldRank() == 0 )
-                    cout << "Testing OneTwoOne " << qrString << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Testing OneTwoOne ",qrString);
                 n = k;
                 OneTwoOne( A, n ); 
                 break;
             case UNIFORM:     
-                if( mpi::WorldRank() == 0 )
-                    cout << "Testing Uniform " << qrString << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Testing Uniform ",qrString);
                 n = k;
                 Uniform( A, n, n ); 
                 break;
             case WILKINSON:   
-                if( mpi::WorldRank() == 0 )
-                    cout << "Testing Wilkinson " << qrString << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Testing Wilkinson ",qrString);
                 Wilkinson( A, k ); 
                 n = 2*k+1;
                 break;
             case ZEROS:       
-                if( mpi::WorldRank() == 0 )
-                    cout << "Testing Zeros " << qrString << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Testing Zeros ",qrString);
                 n = k;
                 Zeros( A, n, n ); 
                 break;
@@ -95,43 +94,30 @@ main( int argc, char* argv[] )
             U = A;
             SVD( U, s, V, ctrl );
 
-            const Real twoNormOfA = MaxNorm( s );
-            const Real maxNormOfA = MaxNorm( A );
-            const Real oneNormOfA = OneNorm( A );
-            const Real infNormOfA = InfinityNorm( A );
-            const Real frobNormOfA = FrobeniusNorm( A );
-            const Real twoEstOfA = TwoNormEstimate( A );
+            const Real twoNormA = MaxNorm( s );
+            const Real maxNormA = MaxNorm( A );
+            const Real frobNormA = FrobeniusNorm( A );
+            const Real twoEstA = TwoNormEstimate( A );
 
             DiagonalScale( RIGHT, NORMAL, s, U );
             Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
-            const Real maxNormOfE = MaxNorm( A );
-            const Real oneNormOfE = OneNorm( A );
-            const Real infNormOfE = InfinityNorm( A );
-            const Real frobNormOfE = FrobeniusNorm( A );
+            const Real maxNormE = MaxNorm( A );
+            const Real frobNormE = FrobeniusNorm( A );
             const Real epsilon = lapack::MachineEpsilon<Real>();
-            const Real scaledResidual = frobNormOfE/(n*epsilon*twoNormOfA);
+            const Real scaledResidual = frobNormE/(n*epsilon*twoNormA);
 
-            if( mpi::WorldRank() == 0 )
-            {
-                cout << "||A||_max   = " << maxNormOfA << "\n"
-                     << "||A||_1     = " << oneNormOfA << "\n"
-                     << "||A||_oo    = " << infNormOfA << "\n"
-                     << "||A||_F     = " << frobNormOfA << "\n"
-                     << "\n"
-                     << "||A||_2     = " << twoNormOfA << "\n"
-                     << "||A||_2 est = " << twoEstOfA << "\n"
-                     << "\n"
-                     << "||A - U Sigma V^H||_max = " << maxNormOfE << "\n"
-                     << "||A - U Sigma V^H||_1   = " << oneNormOfE << "\n"
-                     << "||A - U Sigma V^H||_oo  = " << infNormOfE << "\n"
-                     << "||A - U Sigma V^H||_F   = " << frobNormOfE << "\n"
-                     << "||A - U Sigma V_H||_F / (n eps ||A||_2) = " 
-                     << scaledResidual << "\n" << endl;
-            }
+            if( mpi::Rank() == 0 )
+                Output
+                ("||A||_max   = ",maxNormA,"\n",
+                 "||A||_F     = ",frobNormA,"\n",
+                 "||A||_2     = ",twoNormA,"\n",
+                 "||A||_2 est = ",twoEstA,"\n",
+                 "||A - U Sigma V^H||_max = ",maxNormE,"\n",
+                 "||A - U Sigma V^H||_F   = ",frobNormE,"\n",
+                 "||A - U Sigma V_H||_F / (n eps ||A||_2) = ",scaledResidual);
         }
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

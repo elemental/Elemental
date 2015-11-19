@@ -995,7 +995,7 @@ void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
       &info );
     if( int(rwork[0]) > int(rwork.size()) )
     {
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
             Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
         rwork.resize( int(rwork[0]) );
     }
@@ -1040,7 +1040,7 @@ void SingularValues( int m, int n, dcomplex* A, const int* descA, double* s )
       &info );
     if( int(rwork[0]) > int(rwork.size()) )
     {
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
             Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
         rwork.resize( int(rwork[0]) );
     }
@@ -1164,7 +1164,7 @@ void SVD
       &dummyWork, &lwork, rwork.data(), &info );
     if( int(rwork[0]) > int(rwork.size()) )
     {
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
             Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
         rwork.resize( int(rwork[0]) );
     }
@@ -1205,7 +1205,7 @@ void SVD
       &dummyWork, &lwork, rwork.data(), &info );
     if( int(rwork[0]) > int(rwork.size()) )
     {
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
             Output("WARNING: Resized rwork from ",rwork.size()," to ",rwork[0]);
         rwork.resize( int(rwork[0]) );
     }

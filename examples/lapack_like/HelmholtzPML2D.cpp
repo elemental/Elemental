@@ -11,22 +11,24 @@
 #include "El.hpp"
 using namespace El;
 
+typedef double Real;
+typedef Complex<Real> C;
+
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
+    Environment env( argc, argv );
+    mpi::Comm comm;
     const int commRank = mpi::Rank( comm );
-    typedef double Real;
-    typedef Complex<Real> C;
 
     try
     {
         const Int n1 = Input("--n1","first grid dimension",30);
         const Int n2 = Input("--n2","second grid dimension",30);
-        const double omega = Input("--omega","angular frequency",18.);
+        const Real omega = Input("--omega","angular frequency",Real(18));
         const Int b = Input("--pmlWidth","number of grid points of PML",5);
-        const double sigma = Input("--sigma","magnitude of PML profile",1.5);
-        const double p = Input("--exponent","exponent of PML profile",3.);
+        const Real sigma =
+          Input("--sigma","magnitude of PML profile",Real(1.5));
+        const Real p = Input("--exponent","exponent of PML profile",Real(3));
         const bool selInv = Input("--selInv","selectively invert?",false);
         const bool intraPiv = Input("--intraPiv","frontal pivoting?",false);
         const bool natural = Input("--natural","analytic partitions?",true);
@@ -55,7 +57,7 @@ int main( int argc, char* argv[] )
         DistMultiVec<C> y( N, 1, comm ), z( N, 1, comm );
         /*
         if( commRank == 0 )
-            cout << "Generating point-source for y..." << endl;
+            Output("Generating point-source for y...");
         Zero( z );
         const Int xSource = n1/2;
         const Int ySource = n2/2;
@@ -63,13 +65,13 @@ int main( int argc, char* argv[] )
         const Int firstLocalRow = z.FirstLocalRow();
         const Int localHeight = z.LocalHeight();
         if( iSource >= firstLocalRow && iSource < firstLocalRow+localHeight )
-            z.SetLocal( iSource-firstLocalRow, 0, Complex<double>(1.0,0.0) );
+            z.SetLocal( iSource-firstLocalRow, 0, C(1) );
         */
         Uniform( z, N, 1 );
         y = z;
 
         if( commRank == 0 )
-            cout << "Running nested dissection..." << endl;
+            Output("Running nested dissection...");
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
         ldl::DistNodeInfo info;
@@ -93,23 +95,23 @@ int main( int argc, char* argv[] )
         InvertMap( map, invMap );
         mpi::Barrier( comm );
         if( commRank == 0 )
-            cout << mpi::Time()-nestedStart << " seconds" << endl;
+            Output(mpi::Time()-nestedStart," seconds");
 
         const int rootSepSize = info.size;
         if( commRank == 0 )
-            cout << rootSepSize << " vertices in root separator\n" << endl;
+            Output(rootSepSize," vertices in root separator\n");
 
         if( commRank == 0 )
-            cout << "Building ldl::DistFront tree..." << endl;
+            Output("Building ldl::DistFront tree...");
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
         ldl::DistFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         if( commRank == 0 )
-            cout << mpi::Time()-buildStart << " seconds" << endl;
+            Output(mpi::Time()-buildStart," seconds");
 
         if( commRank == 0 )
-            cout << "Running block LDL^T..." << endl;
+            Output("Running block LDL^T...");
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
         LDLFrontType type;
@@ -120,13 +122,13 @@ int main( int argc, char* argv[] )
         LDL( info, front, type );
         mpi::Barrier( comm );
         if( commRank == 0 )
-            cout << mpi::Time()-ldlStart << " seconds" << endl;
+            Output(mpi::Time()-ldlStart," seconds");
 
         if( info.child != nullptr && info.child->onLeft )
         {
             if( commRank == 0 )
-                cout << "Computing SVD of connectivity of second separator to "
-                        "the root separator..." << endl;
+                Output
+                ("Computing SVD of connectivity of 2nd separator to the root");
             const double svdStart = mpi::Time();
             const auto& FL = front.child->L2D;
             const Grid& grid = FL.Grid();
@@ -142,9 +144,9 @@ int main( int argc, char* argv[] )
             const Int minDim = singVals_VR_STAR.Height();
             if( grid.Rank() == singVals.Root() )
             {
-                cout << "done, " << mpi::Time()-svdStart << " seconds\n"
-                     << "  two norm=" << twoNorm << "\n";
-                for( double tol=1e-1; tol>=1e-10; tol/=10 )
+                Output
+                ("  two norm=",twoNorm," (",mpi::Time()-svdStart," seconds)");
+                for( Real tol=1e-1; tol>=Real(1e-10); tol/=10 )
                 {
                     int numRank = minDim;
                     for( int j=0; j<minDim; ++j )
@@ -155,15 +157,15 @@ int main( int argc, char* argv[] )
                             break;
                         }
                     }
-                    cout << "  rank (" << tol << ")=" << numRank << "/"
-                         << minDim << endl;
+                    Output("  rank (",tol,")=",numRank,"/",minDim);
                 }
             }
         }
 
         if( commRank == 0 )
-            cout << "Computing SVD of the largest off-diagonal block of "
-                    "numerical Green's function on root separator..." << endl;
+            Output
+            ("Computing SVD of the largest off-diagonal block of "
+             "numerical Green's function on root separator...");
         {
             const double svdStart = mpi::Time();
             const auto& FL = front.L2D;
@@ -171,8 +173,7 @@ int main( int argc, char* argv[] )
             const int lHalf = rootSepSize/2;
             const int uHalf = rootSepSize - lHalf;
             if( commRank == 0 )
-                cout << "lower half=" << lHalf
-                     << ", upper half=" << uHalf << endl;
+                Output("lower half=",lHalf,", upperHalf=",uHalf);
             auto offDiagBlock = FL( IR(lHalf,rootSepSize), IR(0,lHalf) );
             auto offDiagBlockCopy( offDiagBlock );
             DistMatrix<Real,VR,STAR> singVals_VR_STAR( grid );
@@ -182,8 +183,8 @@ int main( int argc, char* argv[] )
             const Real twoNorm = MaxNorm( singVals_VR_STAR );
             if( grid.Rank() == singVals.Root() )
             {
-                cout << "done, " << mpi::Time()-svdStart << " seconds\n";
-                for( double tol=1e-1; tol>=1e-10; tol/=10 )
+                Output(mpi::Time()-svdStart," seconds");
+                for( Real tol=1e-1; tol>=Real(1e-10); tol/=10 )
                 {
                     int numRank = lHalf;
                     for( int j=0; j<lHalf; ++j )
@@ -194,32 +195,30 @@ int main( int argc, char* argv[] )
                             break;
                         }
                     }
-                    cout << "  rank (" << tol << ")=" << numRank
-                         << "/" << lHalf << endl;
+                    Output("  rank (",tol,")=",numRank,"/",lHalf);
                 }
             }
         }
 
         if( commRank == 0 )
-            cout << "Solving against y..." << endl;
+            Output("Solving against y...");
         const double solveStart = mpi::Time();
         ldl::SolveAfter( invMap, info, front, y );
         mpi::Barrier( comm );
         if( commRank == 0 )
-            cout << mpi::Time()-solveStart << " seconds" << endl;
+            Output(mpi::Time()-solveStart," seconds");
 
         if( commRank == 0 )
-            cout << "Checking residual norm of solution..." << endl;
-        const double bNorm = Nrm2( z );
+            Output("Checking residual norm of solution...");
+        const Real bNorm = Nrm2( z );
         Multiply( NORMAL, C(-1), A, y, C(1), z );
-        const double errorNorm = Nrm2( z );
+        const Real errorNorm = Nrm2( z );
         if( commRank == 0 )
-            cout << "|| b     ||_2 = " << bNorm << "\n"
-                 << "|| error ||_2 / || b ||_2 = " 
-                 << errorNorm/bNorm << "\n" << endl;
+            Output
+            ("|| b     ||_2 = ",bNorm,"\n",
+             "|| error ||_2 / || b ||_2 = ",errorNorm/bNorm,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

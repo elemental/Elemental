@@ -16,7 +16,7 @@ typedef Complex<Real> C;
 
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::Rank( comm );
 
@@ -71,7 +71,7 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-            cout << "Running nested dissection..." << endl;
+            Output("Running nested dissection...");
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
         ldl::DistNodeInfo info;
@@ -86,11 +86,11 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            cout << nestedStop-nestedStart << " seconds" << endl;
+            Output(nestedStop-nestedStart," seconds");
 
         const Int rootSepSize = info.size;
         if( commRank == 0 )
-            cout << rootSepSize << " vertices in root separator\n" << endl;
+            Output(rootSepSize," vertices in root separator\n");
         /*
         if( display )
         {
@@ -103,14 +103,14 @@ int main( int argc, char* argv[] )
         */
 
         if( commRank == 0 )
-            cout << "Building DistSymmFront tree..." << endl;
+            Output("Building DistSymmFront tree...");
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
         ldl::DistFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
-            cout << buildStop-buildStart << " seconds" << endl;
+            Output(buildStop-buildStart," seconds");
 
         // Memory usage before factorization
         const Int localEntriesBefore = front.NumLocalEntries();
@@ -121,16 +121,14 @@ int main( int argc, char* argv[] )
         const Int entriesBefore =
           mpi::AllReduce( localEntriesBefore, mpi::SUM, comm );
         if( commRank == 0 )
-            cout << "Memory usage before factorization: \n"
-                 << "  min entries:   " << minLocalEntriesBefore << "\n"
-                 << "  max entries:   " << maxLocalEntriesBefore << "\n"
-                 << "  total entries: " << entriesBefore << "\n" << endl;
+            Output
+            ("Memory usage before factorization: \n",
+             "  min entries:   ",minLocalEntriesBefore,"\n"
+             "  max entries:   ",maxLocalEntriesBefore,"\n"
+             "  total entries: ",entriesBefore,"\n");
 
         if( commRank == 0 )
-        {
-            cout << "Running LDL^T and redistribution...";
-            cout.flush();
-        }
+            Output("Running LDL^T and redistribution...");
         SetBlocksize( nbFact );
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
@@ -157,7 +155,7 @@ int main( int argc, char* argv[] )
         const double factGFlops = mpi::AllReduce( localFactGFlops, comm );
         const double factSpeed = factGFlops / factTime;
         if( commRank == 0 )
-            cout << factTime << " seconds, " << factSpeed << " GFlop/s" << endl;
+            Output(factTime," seconds, ",factSpeed," GFlop/s");
 
         // Memory usage after factorization
         const Int localEntriesAfter = front.NumLocalEntries();
@@ -168,10 +166,11 @@ int main( int argc, char* argv[] )
         const Int entriesAfter =
           mpi::AllReduce( localEntriesAfter, mpi::SUM, comm );
         if( commRank == 0 )
-            cout << "Memory usage after factorization: \n"
-                 << "  min entries:   " << minLocalEntriesAfter << "\n"
-                 << "  max entries:   " << maxLocalEntriesAfter << "\n"
-                 << "  total entries: " << entriesAfter << "\n" << endl;
+            Output
+            ("Memory usage after factorization: \n",
+             "  min entries:   ",minLocalEntriesAfter,"\n",
+             "  max entries:   ",maxLocalEntriesAfter,"\n",
+             "  total entries: ",entriesAfter,"\n");
 
         for( Int numRHS=numRHSBeg; numRHS<=numRHSEnd; numRHS+=numRHSInc )
         {
@@ -185,7 +184,7 @@ int main( int argc, char* argv[] )
                 MakeUniform( Y );
                 SetBlocksize( nbSolve );
                 if( commRank == 0 )
-                    cout << "  nbSolve=" << nbSolve << "..." << endl;
+                    Output("  nbSolve=",nbSolve,"...");
                 mpi::Barrier( comm );
                 const double solveStart = mpi::Time();
                 ldl::SolveAfter( invMap, info, front, Y );
@@ -193,13 +192,11 @@ int main( int argc, char* argv[] )
                 const double solveTime = mpi::Time() - solveStart;
                 const double solveSpeed = solveGFlops / solveTime;
                 if( commRank == 0 )
-                    cout << solveTime << " seconds, " 
-                         << solveSpeed << " GFlop/s" << endl;
+                    Output(solveTime," seconds (",solveSpeed," GFlop/s)");
             }
         }
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

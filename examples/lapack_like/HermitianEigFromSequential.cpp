@@ -18,8 +18,8 @@ int
 main( int argc, char* argv[] )
 {
     // This detects whether or not you have already initialized MPI and 
-    // does so if necessary. The full routine is El::Initialize.
-    Initialize( argc, argv );
+    // does so if necessary. 
+    Environment env( argc, argv );
 
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
 
         // Create an n x n complex matrix residing on a single process.
         DistMatrix<C,CIRC,CIRC> H( n, n );
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
         {
             // Set entry (i,j) to (i+j,i-j)
             for( Int j=0; j<n; ++j )
@@ -56,6 +56,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

@@ -16,7 +16,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -87,12 +87,13 @@ main( int argc, char* argv[] )
         const Int mx = Input("--mx","number of x points for HelmholtzPML",30);
         const Int my = Input("--my","number of y points for HelmholtzPML",30);
         const Int numPmlPoints = Input("--numPml","num PML points for Helm",5);
-        const double sigma = Input("--sigma","PML amplitude",1.5);
-        const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
+        const Real sigma = Input("--sigma","PML amplitude",Real(1.5));
+        const Real pmlExp = Input("--pmlExp","PML takeoff exponent",Real(3));
         // Uniform Helmholtz Green's options
-        const double lambda = Input("--lambda","wavelength of U.H.Green's",0.1);
+        const Real lambda =
+          Input("--lambda","wavelength of U.H.Green's",Real(0.1));
         // Hatano-Nelson options [also uses uniform real center]
-        const double gHatano = Input("--gHatano","g in Hatano-Nelson",0.5);
+        const Real gHatano = Input("--gHatano","g in Hatano-Nelson",Real(0.5));
         const bool periodic = Input("--periodic","periodic HatanoNelson?",true);
         // Input/Output options
         const bool progress = Input("--progress","print progress?",true);
@@ -297,11 +298,10 @@ main( int argc, char* argv[] )
                 ( ACpx, invNormMap, realSize, imagSize, box, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
-        if( mpi::WorldRank() == 0 )
-            cout << "num iterations=" << numIts << endl;
+        if( mpi::Rank() == 0 )
+            Output("num iterations=",numIts);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

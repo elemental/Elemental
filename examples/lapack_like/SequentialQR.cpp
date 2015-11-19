@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 typedef double Real;
@@ -16,7 +15,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -39,23 +38,18 @@ main( int argc, char* argv[] )
         const Real frobQR = FrobeniusNorm( E );
 
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
-        const Int k = std::min(m,n);
+        const Int k = Min(m,n);
         Identity( E, k, k );
         Herk( LOWER, ADJOINT, Real(-1), Q, Real(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "|| A ||_F = " << frobA << "\n"
-                      << "|| A - Q R ||_F / || A ||_F   = "
-                      << frobQR/frobA << "\n"
-                      << "|| I - Q^H Q ||_F / || A ||_F = "
-                      << frobOrthog/frobA << "\n"
-                      << std::endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A ||_F = ",frobA,"\n",
+             "|| A - Q R ||_F / || A ||_F   = ",frobQR/frobA,"\n",
+             "|| I - Q^H Q ||_F / || A ||_F = ",frobOrthog/frobA,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

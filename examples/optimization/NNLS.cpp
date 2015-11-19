@@ -27,7 +27,7 @@ typedef double Real;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -89,14 +89,13 @@ main( int argc, char* argv[] )
             Display( X, "X" );
         }
 
-        const double ANorm = FrobeniusNorm( A );
+        const Real ANorm = FrobeniusNorm( A );
         Gemm( NORMAL, TRANSPOSE, Real(-1), B, X, Real(1), A );
-        const double ENorm = FrobeniusNorm( A );
-        if( mpi::WorldRank() == 0 )
-            cout << "|| A - B X' ||_2 / || A ||_2 = " << ENorm/ANorm << endl;
+        const Real ENorm = FrobeniusNorm( A );
+        if( mpi::Rank() == 0 )
+            Output("|| A - B X' ||_2 / || A ||_2 = ",ENorm/ANorm);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

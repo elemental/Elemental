@@ -7,13 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -45,17 +44,15 @@ main( int argc, char* argv[] )
         timer.Start();
         Gemm( NORMAL, NORMAL, alpha, A, B, beta, C, GEMM_CANNON );
         const double gemmTime = timer.Stop();
-        if( g.Rank() == 0 )
+        if( mpi::Rank() == 0 )
         {
-            const double gflops = (2.*m*n*k) / (1.e9*gemmTime);
-            cout << "Gemm took " << gemmTime << " seconds and achieved "
-                 << gflops << " GFlops" << endl;
+            const double gFlops = (2.*m*n*k) / (1.e9*gemmTime);
+            Output("Gemm took ",gemmTime," seconds (",gFlops," GFlop/s)");
         }
         if( print )
             Print( C, "C := alpha A B + beta C" );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

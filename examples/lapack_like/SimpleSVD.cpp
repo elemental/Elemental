@@ -13,10 +13,9 @@ const Int m=300, n=300;  // run SVD on m x n matrix
 typedef double Real;     // real datatype is `Real'
 typedef Complex<Real> C; // complex datatype `C'
 
-int
-main( int argc, char* argv[] )
+int main()
 {
-    Initialize();
+    Environment env;
     DistMatrix<C> A;
     Uniform( A, m, n );
 
@@ -29,15 +28,11 @@ main( int argc, char* argv[] )
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
     const Real frobNormE = FrobeniusNorm( A );
-    const Real eps = lapack::MachineEpsilon<Real>();
-    const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
-    if( mpi::WorldRank() == 0 )
+    const Real eps = Epsilon<Real>();
+    const Real scaledResid = frobNormE / (Max(m,n)*eps*twoNormA);
+    if( mpi::Rank() == 0 )
     {
         Output("||A||_2 = ",twoNormA);
-        Output
-        ("||A - U Sigma V^H||_F / (max(m,n) eps ||A||_2) = ",scaledResidual);
+        Output("||A - U Sigma V^H||_F / (max(m,n) eps ||A||_2) = ",scaledResid);
     }
-
-    Finalize();
-    return 0;
 }

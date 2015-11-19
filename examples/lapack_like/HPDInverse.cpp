@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -17,7 +16,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -50,16 +49,14 @@ main( int argc, char* argv[] )
         const Real frobNormA = HermitianFrobeniusNorm( uplo, A );
         const Real frobNormInvA = HermitianFrobeniusNorm( uplo, invA );
         const Real frobNormError = FrobeniusNorm( E );
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "|| A          ||_F = " << frobNormA << "\n"
-                 << "|| invA       ||_F = " << frobNormInvA << "\n"
-                 << "|| I - invA A ||_F = " << frobNormError << "\n" << endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A          ||_F = ",frobNormA,"\n",
+             "|| inv(A)     ||_F = ",frobNormInvA,"\n",
+             "|| I - invA A ||_F = ",frobNormError,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }
 

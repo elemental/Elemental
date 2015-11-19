@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -18,8 +17,8 @@ int
 main( int argc, char* argv[] )
 {
     // This detects whether or not you have already initialized MPI and 
-    // does so if necessary. The full routine is El::Initialize.
-    Initialize( argc, argv );
+    // does so if necessary.
+    Environment env( argc, argv );
 
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
@@ -80,17 +79,13 @@ main( int argc, char* argv[] )
         Herk( LOWER, NORMAL, Real(-1), X, Real(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "|| H ||_F = " << frobS << "\n"
-                      << "|| H X - X Omega ||_F / || A ||_F = " 
-                      << frobResid / frobS << "\n"
-                      << "|| X X^H - I ||_F = " << frobOrthog / frobS
-                      << "\n" << std::endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| H ||_F = ",frobS,"\n",
+             "|| H X - X Omega ||_F / || A ||_F = ",frobResid/frobS,"\n",
+             "|| X X^H - I ||_F = ",frobOrthog/frobS,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

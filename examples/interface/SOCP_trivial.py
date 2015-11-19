@@ -1,7 +1,6 @@
 # The simplest example of solving an SOCP with Elemental.
 # Contributed by Steven Diamond.
 import El
-El.Initialize()
 orders = El.DistMultiVec(El.iTag)
 orders.Resize(1, 1)
 orders.Set(0, 0, 1)

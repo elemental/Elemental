@@ -22,7 +22,7 @@ typedef double Real;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -74,16 +74,14 @@ main( int argc, char* argv[] )
         const Real bTwoNorm = FrobeniusNorm( b );
         Gemv( NORMAL, Real(-1), A, z, Real(1), b );
         const Real rTwoNorm = FrobeniusNorm( b );
-        if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-        {
-            cout << "|| A z - b ||_2 = " << rTwoNorm << "\n"
-                 << "|| b ||_2 = " << bTwoNorm << "\n"
-                 << "|| z ||_1 = " << zOneNorm << "\n"
-                 << "|| z ||_0 = " << zZeroNorm << "\n" << endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A z - b ||_2 = ",rTwoNorm,"\n",
+             "|| b ||_2 = ",bTwoNorm,"\n",
+             "|| z ||_1 = ",zOneNorm,"\n",
+             "|| z ||_0 = ",zZeroNorm,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

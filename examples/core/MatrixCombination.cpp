@@ -17,14 +17,13 @@ using namespace El;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
+    Environment env( argc, argv );
+    mpi::Comm comm;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
     if( commSize ==1 )
     {
-        std::cout << "Cannot split one process into two teams" << std::endl;
-        Finalize();
+        Output("Cannot split one process into two teams");
         return 0;
     }
 
@@ -85,11 +84,8 @@ main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            std::cout << "Starting MatrixPartition...";
-            std::cout.flush();
-        }
-        mpi::Barrier( comm );
+            Output("Starting MatrixPartition...");
+        mpi::Barrier();
         double startTime = mpi::Time();
 
         DistMatrix<double> A(grid);
@@ -99,10 +95,10 @@ main( int argc, char* argv[] )
         AL = ALower;
         AR = AUpper;
 
-        mpi::Barrier( comm );
+        mpi::Barrier();
         double stopTime = mpi::Time();
         if( commRank == 0 )
-            std::cout << stopTime-startTime << " seconds." << std::endl;
+            Output("Partition took ",stopTime-startTime," seconds.");
 
         if( print )
             Print( A, "A" );
@@ -110,6 +106,5 @@ main( int argc, char* argv[] )
     }
     catch( std::exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

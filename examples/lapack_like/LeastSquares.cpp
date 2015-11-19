@@ -9,10 +9,13 @@
 #include "El.hpp"
 using namespace El;
 
+typedef double Real;
+typedef Complex<Real> F;
+
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -40,7 +43,6 @@ main( int argc, char* argv[] )
         Grid grid( comm, gridHeight );
 
         // Set up random A and B, then make the copy X := B
-        typedef Complex<double> F;
         DistMatrix<F> A(grid), B(grid), X(grid), Z(grid);
         for( Int test=0; test<3; ++test )
         {
@@ -55,41 +57,37 @@ main( int argc, char* argv[] )
 
             // Perform the QR/LQ factorization and solve
             if( commRank == 0 )
-            {
-                cout << "Starting LeastSquares...";
-                cout.flush();
-            }
-            mpi::Barrier( comm );
+                Output("Starting LeastSquares...");
+            mpi::Barrier();
             double startTime = mpi::Time();
             LeastSquares( orientation, A, B, X );
-            mpi::Barrier( comm );
+            mpi::Barrier();
             double stopTime = mpi::Time();
             if( commRank == 0 )
-                cout << stopTime-startTime << " seconds." << endl;
+                Output(stopTime-startTime," seconds.");
 
             // Form R := op(A) X - B
             DistMatrix<F> R( B );
             Gemm( orientation, NORMAL, F(1), A, X, F(-1), R );
 
             // Compute the relevant Frobenius norms and a relative residual
-            const double epsilon = lapack::MachineEpsilon<double>();
-            const double AFrobNorm = FrobeniusNorm( A );
-            const double BFrobNorm = FrobeniusNorm( B );
-            const double XFrobNorm = FrobeniusNorm( X );
-            const double RFrobNorm = FrobeniusNorm( R );
-            const double frobResidual = 
-                RFrobNorm / (AFrobNorm*XFrobNorm*epsilon*n);
+            const Real eps = Epsilon<Real>();
+            const Real AFrobNorm = FrobeniusNorm( A );
+            const Real BFrobNorm = FrobeniusNorm( B );
+            const Real XFrobNorm = FrobeniusNorm( X );
+            const Real RFrobNorm = FrobeniusNorm( R );
+            const Real frobResidual = RFrobNorm / (AFrobNorm*XFrobNorm*eps*n);
             if( commRank == 0 )
-                cout << "||A||_F       = " << AFrobNorm << "\n"
-                     << "||B||_F       = " << BFrobNorm << "\n"
-                     << "||X||_F       = " << XFrobNorm << "\n"
-                     << "||A X - B||_F = " << RFrobNorm << "\n"
-                     << "||op(A)X-B||_F / (||A||_F ||X||_F epsilon n) = " 
-                     << frobResidual << "\n" << endl;
+                Output
+                ("|| A ||_F       = ",AFrobNorm,"\n",
+                 "|| B ||_F       = ",BFrobNorm,"\n",
+                 "|| X ||_F       = ",XFrobNorm,"\n",
+                 "|| A X - B ||_F = ",RFrobNorm,"\n",
+                 "|| op(A) X - B ||_F / (|| A ||_F || X ||_F eps n) = ",
+                 frobResidual,"\n");
         }
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

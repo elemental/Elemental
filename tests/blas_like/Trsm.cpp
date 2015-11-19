@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
@@ -67,7 +66,7 @@ void TestTrsm
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -114,6 +113,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }
