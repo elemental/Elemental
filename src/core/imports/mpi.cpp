@@ -112,19 +112,6 @@ void Free( Datatype& type ) EL_NO_RELEASE_EXCEPT
 
 // Communicator manipulation 
 // =========================
-
-int WorldRank() EL_NO_RELEASE_EXCEPT
-{
-    DEBUG_ONLY(CSE cse("mpi::WorldRank"))
-    return Rank( COMM_WORLD ); 
-}
-
-int WorldSize() EL_NO_RELEASE_EXCEPT
-{
-    DEBUG_ONLY(CSE cse("mpi::WorldSize"))
-    return Size( COMM_WORLD );
-}
-
 int Rank( Comm comm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Rank"))

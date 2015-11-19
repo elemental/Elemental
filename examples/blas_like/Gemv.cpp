@@ -17,9 +17,8 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
+    Environment env( argc, argv );
+    const int commRank = mpi::Rank();
 
     try 
     {
@@ -74,7 +73,7 @@ main( int argc, char* argv[] )
         {
             DistMatrix<C,MC,MR,BLOCK> ABlock( A ), xBlock( x ), yBlock( y );
             Output("Starting ScaLAPACK Gemv");
-            mpi::Barrier( comm );
+            mpi::Barrier();
             const double gemvStart = mpi::Time();
             Gemv( orientation, C(3), A, x, C(4), y );
             const double gemvRun = mpi::Time() - gemvStart;
@@ -83,7 +82,7 @@ main( int argc, char* argv[] )
         }
 
         // Run the matrix-vector product
-        mpi::Barrier( comm );
+        mpi::Barrier();
         Output("Starting Gemv");
         const double gemvStart = mpi::Time();
         Gemv( orientation, C(3), A, x, C(4), y );
@@ -101,6 +100,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

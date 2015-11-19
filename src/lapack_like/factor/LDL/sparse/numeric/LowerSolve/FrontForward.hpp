@@ -395,7 +395,7 @@ inline void FrontFastIntraPivLowerForwardSolve
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    if( mpi::WorldRank() == 0 )
+    if( mpi::Rank() == 0 )
         cerr << "Performance warning: pivots not yet cached" << endl;
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);

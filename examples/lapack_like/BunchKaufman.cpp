@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 typedef double Real;
@@ -15,19 +14,19 @@ typedef Complex<Real> C;
 
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
         const Int n = Input("--size","size of matrix to factor",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int numRhs = Input("--numRhs","number of random r.h.s.",100);
-        const double realMean = Input("--realMean","real mean",0.); 
-        const double imagMean = Input("--imagMean","imag mean",0.);
-        const double stddev = Input("--stddev","standard dev.",1.);
+        const Real realMean = Input("--realMean","real mean",Real(0)); 
+        const Real imagMean = Input("--imagMean","imag mean",Real(0));
+        const Real stddev = Input("--stddev","standard dev.",Real(1));
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         const Int pivotInt = Input("--pivot","pivot type",0);
-        const double gamma = Input("--gamma","pivot constant",0.);
+        const Real gamma = Input("--gamma","pivot constant",Real(0));
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -85,28 +84,24 @@ int main( int argc, char* argv[] )
             Print( B, "XComp" );
             Print( X, "E" );
         }
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "|| A ||_F = " << AFrob << "\n"
-                      << "|| X ||_F = " << XFrob << "\n"
-                      << "|| X - inv(A) A X ||_F = " << errFrob << std::endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A ||_F = ",AFrob,"\n",
+             "|| X ||_F = ",XFrob,"\n",
+             "|| X - inv(A) A X ||_F = ",errFrob);
 
         if( conjugate )
         {
             // Compute the inertia of A now that we are done with it.
             auto inertia = Inertia( LOWER, A, ctrl );
-            if( mpi::WorldRank() == 0 )
-            {
-                std::cout << "numPositive=" << inertia.numPositive << "\n"
-                          << "numNegative=" << inertia.numNegative << "\n"
-                          << "numZero    =" << inertia.numZero << "\n"
-                          << std::endl;
-            }
+            if( mpi::Rank() == 0 )
+                Output
+                ("numPositive=",inertia.numPositive,"\n",
+                 "numNegative=",inertia.numNegative,"\n",
+                 "numZero    =",inertia.numZero,"\n");
         }
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

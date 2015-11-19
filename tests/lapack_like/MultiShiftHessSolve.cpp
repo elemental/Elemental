@@ -13,10 +13,14 @@ using namespace El;
 // This is checked by testing the norm of  op(H) X - X Mu - Y.
 template<typename F> 
 void TestCorrectness
-( UpperOrLower uplo, Orientation orientation, const DistMatrix<F,VC,STAR>& H, 
+( UpperOrLower uplo,
+  Orientation orientation,
+  const DistMatrix<F,VC,STAR>& H, 
   const DistMatrix<F,VR,STAR>& shifts, 
   const DistMatrix<F,STAR,VR>& X, 
-  const DistMatrix<F,STAR,VR>& Y, bool print, bool display )
+  const DistMatrix<F,STAR,VR>& Y,
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Int m = X.Height();
@@ -61,22 +65,26 @@ void TestCorrectness
     const Real HInf = InfinityNorm( H );
     const Real ZFrob = FrobeniusNorm( Z );
     const Real ZInf = InfinityNorm( Z );
-    if( mpi::WorldRank() == 0 )
-    {
-        std::cout << "    || H ||_F  = " << HFrob << "\n"
-                  << "    || H ||_oo = " << HInf << "\n"
-                  << "    || Y ||_F  = " << YFrob << "\n"
-                  << "    || Y ||_oo = " << YInf << "\n"
-                  << "    || H X - X Mu - Y ||_F  = " << ZFrob << "\n"
-                  << "    || H X - X Mu - Y ||_oo = " << ZInf << "\n"
-                  << std::endl;
-    }
+    if( mpi::Rank() == 0 )
+        Output
+        ("    || H ||_F  = ",HFrob,"\n",
+         "    || H ||_oo = ",HInf,"\n",
+         "    || Y ||_F  = ",YFrob,"\n",
+         "    || Y ||_oo = ",YInf,"\n",
+         "    || H X - X Mu - Y ||_F  = ",ZFrob,"\n",
+         "    || H X - X Mu - Y ||_oo = ",ZInf);
 }
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo, Orientation orientation, Int m, Int n, 
-  bool testCorrectness, bool print, bool display, const Grid& g )
+( UpperOrLower uplo,
+  Orientation orientation,
+  Int m,
+  Int n, 
+  bool testCorrectness,
+  bool print,
+  bool display,
+  const Grid& g )
 {
     DistMatrix<F,VC,STAR> H(g);
     DistMatrix<F,STAR,VR> X(g), Y(g);
@@ -94,22 +102,16 @@ void TestHessenberg
     Uniform( shifts, n, 1 );
 
     X = Y;
-    if( mpi::WorldRank() == 0 )
-    {
-        std::cout << "  Starting Hessenberg solve...";
-        std::cout.flush();
-    }
-    mpi::Barrier( mpi::COMM_WORLD );
+    if( mpi::Rank() == 0 )
+        Output("  Starting Hessenberg solve...");
+    mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     MultiShiftHessSolve( uplo, orientation, F(1), H, shifts, X );
     mpi::Barrier( mpi::COMM_WORLD );
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
-    if( mpi::WorldRank() == 0 )
-    {
-        std::cout << "DONE. " << std::endl
-                  << "  Time = " << runTime << " seconds." << std::endl;
-    }
+    if( mpi::Rank() == 0 )
+        Output("  Time = ",runTime," seconds");
     if( testCorrectness )
         TestCorrectness( uplo, orientation, H, shifts, X, Y, print, display );
 }
@@ -117,7 +119,7 @@ void TestHessenberg
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
 
@@ -144,17 +146,16 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( commRank == 0 )
-            std::cout << "Double-precision:" << std::endl;
+            Output("Double-precision:");
         TestHessenberg<double>
         ( uplo, orient, m, n, testCorrectness, print, display, grid );
 
         if( commRank == 0 )
-            std::cout << "Double-precision complex:" << std::endl;
+            Output("Double-precision complex:");
         TestHessenberg<Complex<double>>
         ( uplo, orient, m, n, testCorrectness, print, display, grid );
     }
     catch( std::exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

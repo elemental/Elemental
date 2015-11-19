@@ -17,14 +17,14 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
         const Int n = Input("--size","size of matrix to factor",100);
-        const double realMean = Input("--realMean","real mean",0.); 
-        const double imagMean = Input("--imagMean","imag mean",0.);
-        const double stddev = Input("--stddev","standard dev.",1.);
+        const Real realMean = Input("--realMean","real mean",Real(0)); 
+        const Real imagMean = Input("--imagMean","imag mean",Real(0));
+        const Real stddev = Input("--stddev","standard dev.",Real(1));
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         ProcessInput();
         PrintInputReport();
@@ -55,13 +55,11 @@ main( int argc, char* argv[] )
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );
         Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
-        const Real frobNormOfError = FrobeniusNorm( A );
-        if( mpi::WorldRank() == 0 )
-            cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
-                 << endl;
+        const Real frobNormError = FrobeniusNorm( A );
+        if( mpi::Rank() == 0 )
+            Output("|| A - L D L^[T/H] ||_F = ",frobNormError,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

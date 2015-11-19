@@ -9,9 +9,12 @@
 #include "El.hpp"
 using namespace El;
 
+typedef double Real;
+typedef Complex<Real> F;
+
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -51,7 +54,7 @@ int main( int argc, char* argv[] )
 
         // Set up random A and B, then make the copies X := B
         Timer timer;
-        DistMatrix<double> A(grid), B(grid), X(grid);
+        DistMatrix<F> A(grid), B(grid), X(grid);
 
         for( Int test=0; test<numTests; ++test )
         {
@@ -68,7 +71,7 @@ int main( int argc, char* argv[] )
             {
                 if( commRank == 0 )
                     Output("Starting ScaLAPACK linear solve");
-                DistMatrix<double,MC,MR,BLOCK> ABlock( A ), BBlock( B );
+                DistMatrix<F,MC,MR,BLOCK> ABlock( A ), BBlock( B );
                 mpi::Barrier( comm );
                 if( commRank == 0 )
                     timer.Start();
@@ -96,17 +99,16 @@ int main( int argc, char* argv[] )
             if( error && (elemental || scalapack) )
             { 
                 // Form R := A X - B
-                DistMatrix<> R( B );
-                Gemm( NORMAL, NORMAL, 1., A, X, -1., R );
+                auto R( B );
+                Gemm( NORMAL, NORMAL, F(1), A, X, F(-1), R );
 
                 // Compute infinity norms and a relative residual
-                const double epsilon = lapack::MachineEpsilon();
-                const double AInfNorm = InfinityNorm( A );
-                const double BInfNorm = InfinityNorm( B );
-                const double XInfNorm = InfinityNorm( X );
-                const double RInfNorm = InfinityNorm( R );
-                const double infResidual = RInfNorm / 
-                  (AInfNorm*XInfNorm*epsilon*n);
+                const Real eps = Epsilon<Real>();
+                const Real AInfNorm = InfinityNorm( A );
+                const Real BInfNorm = InfinityNorm( B );
+                const Real XInfNorm = InfinityNorm( X );
+                const Real RInfNorm = InfinityNorm( R );
+                const Real infResidual = RInfNorm / (AInfNorm*XInfNorm*eps*n);
                 if( commRank == 0 )
                 {
                     if( details )
@@ -123,12 +125,11 @@ int main( int argc, char* argv[] )
                 }
 
                 // Compute one norms and a relative residual
-                const double AOneNorm = OneNorm( A );
-                const double BOneNorm = OneNorm( B );
-                const double XOneNorm = OneNorm( X );
-                const double ROneNorm = OneNorm( R );
-                const double oneResidual = ROneNorm / 
-                  (AOneNorm*XOneNorm*epsilon*n);
+                const Real AOneNorm = OneNorm( A );
+                const Real BOneNorm = OneNorm( B );
+                const Real XOneNorm = OneNorm( X );
+                const Real ROneNorm = OneNorm( R );
+                const Real oneResidual = ROneNorm / (AOneNorm*XOneNorm*eps*n);
                 if( commRank == 0 )
                 {
                     if( details )
@@ -148,6 +149,5 @@ int main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

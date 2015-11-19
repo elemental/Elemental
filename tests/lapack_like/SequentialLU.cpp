@@ -12,7 +12,8 @@ using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( bool pivoted, bool print, 
+( bool pivoted,
+  bool print, 
   const Matrix<F>& A,
   const Matrix<Int>& rowPiv,
   const Matrix<F>& AOrig )
@@ -20,7 +21,7 @@ void TestCorrectness
     typedef Base<F> Real;
     const Int m = AOrig.Height();
 
-    cout << "Testing error..." << endl;
+    Output("Testing error...");
 
     // Generate random right-hand sides
     Matrix<F> X, Y;
@@ -105,7 +106,7 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
 
@@ -136,6 +137,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

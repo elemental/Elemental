@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -17,7 +16,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -44,7 +43,7 @@ main( int argc, char* argv[] )
         SetDefaultBlockHeight( mb );
         SetDefaultBlockWidth( nb );
 
-        const int commRank = mpi::WorldRank();
+        const int commRank = mpi::Rank();
         Timer timer;
 
         if( testSeq && commRank == 0 )
@@ -122,23 +121,22 @@ main( int argc, char* argv[] )
             // Compare the singular values from both methods
             sOnly -= s;
             const Real singValDiff = FrobeniusNorm( sOnly );
-            const Real twoNormOfA = MaxNorm( s );
-            const Real maxNormOfA = MaxNorm( A );
+            const Real twoNormA = MaxNorm( s );
+            const Real maxNormA = MaxNorm( A );
 
             DiagonalScale( RIGHT, NORMAL, s, U );
             Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
-            const Real maxNormOfE = MaxNorm( A );
-            const Real frobNormOfE = FrobeniusNorm( A );
-            const Real epsilon = lapack::MachineEpsilon<Real>();
-            const Real scaledResidual =
-              frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
+            const Real maxNormE = MaxNorm( A );
+            const Real frobNormE = FrobeniusNorm( A );
+            const Real eps = Epsilon<Real>();
+            const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
 
             if( commRank == 0 )
             {
-                Output("|| A ||_max   = ",maxNormOfA);
-                Output("|| A ||_2     = ",twoNormOfA);
-                Output("||A - U Sigma V^H||_max = ",maxNormOfE);
-                Output("||A - U Sigma V^H||_F   = ",frobNormOfE);
+                Output("|| A ||_max   = ",maxNormA);
+                Output("|| A ||_2     = ",twoNormA);
+                Output("||A - U Sigma V^H||_max = ",maxNormE);
+                Output("||A - U Sigma V^H||_F   = ",frobNormE);
                 Output
                 ("||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = ",
                  scaledResidual);
@@ -148,6 +146,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

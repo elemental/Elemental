@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'R' and 'C' for convenience
@@ -18,8 +17,8 @@ int
 main( int argc, char* argv[] )
 {
     // This detects whether or not you have already initialized MPI and 
-    // does so if necessary. The full routine is El::Initialize.
-    Initialize( argc, argv );
+    // does so if necessary.
+    Environment env( argc, argv );
 
     // Extract our MPI rank
     mpi::Comm comm = mpi::COMM_WORLD;
@@ -81,7 +80,7 @@ main( int argc, char* argv[] )
         // Print its trace
         const C trace = Trace( H );
         if( commRank == 0 )
-            cout << "Tr(H) = " << trace << endl;
+            Output("Tr(H) = ",trace);
 
         // Build the singular value decomposition through the Hermitian EVD.
         //
@@ -100,7 +99,6 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }
 

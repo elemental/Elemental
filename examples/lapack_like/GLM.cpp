@@ -15,8 +15,8 @@ typedef Complex<Real> F;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
+    Environment env( argc, argv );
+    mpi::Comm comm;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
@@ -66,11 +66,11 @@ main( int argc, char* argv[] )
         if( print )
             Print( D, "D - A X - B Y" );
         if( commRank == 0 )
-            cout << "|| D             ||_F = " << DFrob << "\n"
-                 << "|| A X + B Y - D ||_F = " << EFrob << "\n" << endl;
+            Output
+            ("|| D             ||_F = ",DFrob,"\n",
+             "|| A X + B Y - D ||_F = ",EFrob,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

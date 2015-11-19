@@ -14,7 +14,7 @@ typedef double Real;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -63,11 +63,10 @@ main( int argc, char* argv[] )
         if( print )
             Print( x, "x" );
         const Int xZeroNorm = ZeroNorm( x );
-        if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-            cout << "|| x ||_0 = " << xZeroNorm << "\n" << endl;
+        if( mpi::Rank() == 0 )
+            Output("|| x ||_0 = ",xZeroNorm);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

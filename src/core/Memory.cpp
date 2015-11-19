@@ -98,7 +98,7 @@ G* Memory<G>::Require( size_t size )
             size_ = 0;
             ostringstream os;
             os << "Failed to allocate " << size*sizeof(G) 
-               << " bytes on process " << mpi::WorldRank() << endl;
+               << " bytes on process " << mpi::Rank() << endl;
             cerr << os.str();
             throw e;
         }

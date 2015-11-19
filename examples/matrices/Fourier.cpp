@@ -12,7 +12,7 @@ using namespace El;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -32,10 +32,10 @@ main( int argc, char* argv[] )
         if( n >= 50 )
         {
             const Int nSqrt = Sqrt( double(n) );
-            if( mpi::WorldRank() == 0 )
-                cout << "Viewing " << nSqrt << " x " << nSqrt << " block "
-                     << "starting at (" 
-                     << (n-nSqrt)/2 << "," << (n-nSqrt)/2 << ")" << endl;
+            if( mpi::Rank() == 0 )
+                Output
+                ("Viewing ",nSqrt," x ",nSqrt," block starting at (",
+                 (n-nSqrt)/2,",",(n-nSqrt)/2,")");
             auto AMid = View( A, (n-nSqrt)/2, (n-nSqrt)/2, nSqrt, nSqrt );
             if( display )
                 Display( AMid, "Middle block" );
@@ -50,6 +50,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

@@ -12,7 +12,7 @@ using namespace El;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -38,11 +38,10 @@ main( int argc, char* argv[] )
             Print( B, "B" );
         }
         const double logDetDiv = LogDetDiv( LOWER, A, B );
-        if( mpi::WorldRank() == 0 )
-            cout << "LogDetDiv(A,B) = " << logDetDiv << endl;
+        if( mpi::Rank() == 0 )
+            Output("LogDetDiv(A,B) = ",logDetDiv);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

@@ -17,7 +17,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -51,14 +51,13 @@ main( int argc, char* argv[] )
             Print( H, "H" );
 
         // Reform H with the exponentials of the original eigenvalues
+        // TODO: Extend HermitianFunction to directly support lambdas
         auto expFunc = []( Real alpha ) { return Exp(Complex<Real>(0,alpha)); };
-        HermitianFunction
-        ( LOWER, H, std::function<Complex<Real>(Real)>(expFunc) );
+        HermitianFunction( LOWER, H, function<Complex<Real>(Real)>(expFunc) );
         if( print )
             Print( H, "exp(i*H)" );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

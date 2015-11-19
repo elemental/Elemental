@@ -12,7 +12,7 @@ using namespace El;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -36,16 +36,16 @@ main( int argc, char* argv[] )
 
         // Get a consistent set of row and column indices (duplication is okay)
         std::vector<Int> rowInds(numRows), colInds(numCols);
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
         {
             for( Int j=0; j<numRows; ++j )
                 rowInds[j] = SampleUniform<Int>(0,n);
             for( Int j=0; j<numCols; ++j )
                 colInds[j] = SampleUniform<Int>(0,n);
         }
-        mpi::Broadcast( rowInds.data(), numRows, 0, mpi::COMM_WORLD );
-        mpi::Broadcast( colInds.data(), numCols, 0, mpi::COMM_WORLD );
-        if( mpi::WorldRank() == 0 && print )
+        mpi::Broadcast( rowInds.data(), numRows, 0 );
+        mpi::Broadcast( colInds.data(), numCols, 0 );
+        if( mpi::Rank() == 0 && print )
         {
             std::cout << "rowInds: \n";
             for( Int j=0; j<numRows; ++j )
@@ -77,6 +77,5 @@ main( int argc, char* argv[] )
     }
     catch( std::exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }
