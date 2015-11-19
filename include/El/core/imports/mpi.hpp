@@ -13,6 +13,9 @@
 
 namespace El {
 
+using std::function;
+using std::vector;
+
 namespace mpi {
 
 #if defined(EL_HAVE_MPI3_NONBLOCKING_COLLECTIVES) || \
@@ -254,7 +257,7 @@ int GetCount( Status& status ) EL_NO_RELEASE_EXCEPT;
 // NOTE: This is instantiated for the standard datatypes
 template<typename T>
 void SetUserReduceFunc
-( std::function<T(const T&,const T&)> func, bool commutative=true );
+( function<T(const T&,const T&)> func, bool commutative=true );
 
 // Point-to-point communication
 // ============================
@@ -561,11 +564,11 @@ void AllToAll
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
-std::vector<T> AllToAll
-( const std::vector<T>& sendBuf, 
-  const std::vector<int>& sendCounts, 
-  const std::vector<int>& sendDispls,
-  mpi::Comm comm ) EL_NO_RELEASE_EXCEPT;
+vector<T> AllToAll
+( const vector<T>& sendBuf, 
+  const vector<int>& sendCounts, 
+  const vector<int>& sendDispls,
+  Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Reduce
 // ------
@@ -573,10 +576,24 @@ template<typename T>
 void Reduce
 ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void Reduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, 
   int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Reduce
+( const T* sb, T* rb, int count, OpClass op, bool commutative,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Reduce( sb, rb, count, UserCommOp<T>(), root, comm ); 
+    else
+        Reduce( sb, rb, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
@@ -587,6 +604,18 @@ EL_NO_RELEASE_EXCEPT;
 template<typename T>
 T Reduce( T sb, Op op, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline T Reduce
+( T sb, OpClass op, bool commutative, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        return Reduce( sb, UserCommOp<T>(), root, comm ); 
+    else
+        return Reduce( sb, UserOp<T>(), root, comm ); 
+}
+
 // With a message-size of one and default to SUM
 template<typename T>
 T Reduce( T sb, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
@@ -596,9 +625,22 @@ T Reduce( T sb, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename T>
 void Reduce( T* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Reduce
+( T* buf, int count, OpClass op, bool commutative, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Reduce( buf, count, UserCommOp<T>(), root, comm ); 
+    else
+        Reduce( buf, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
@@ -609,25 +651,22 @@ void Reduce( T* buf, int count, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void AllReduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-template<typename T,class OpClass>
-inline void CustomAllReduce
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void AllReduce
 ( const T* sb, T* rb, int count, OpClass op, bool commutative, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
     if( commutative )
-    {
-        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( sb, rb, count, UserCommOp<T>(), comm ); 
-    }
     else
-    {
-        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( sb, rb, count, UserOp<T>(), comm ); 
-    }
 }
 
 // Default to SUM
@@ -638,20 +677,16 @@ EL_NO_RELEASE_EXCEPT;
 // If the message-length is one
 template<typename T>
 T AllReduce( T sb, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<typename T,class OpClass>
-inline T CustomAllReduce
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline T AllReduce
 ( T sb, OpClass op, bool commutative, Comm comm ) EL_NO_RELEASE_EXCEPT
 {
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
     if( commutative )
-    {
-        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
         return AllReduce( sb, UserCommOp<T>(), comm ); 
-    }
     else
-    {
-        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
         return AllReduce( sb, UserOp<T>(), comm ); 
-    }
 }
 
 // If the message-length is one (and default to SUM)
@@ -662,24 +697,21 @@ T AllReduce( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // -----------------------
 template<typename T>
 void AllReduce( T* buf, int count, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-template<typename T,class OpClass>
-inline void CustomAllReduce
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void AllReduce
 ( T* buf, int count, OpClass op, bool commutative, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
     if( commutative )
-    {
-        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( buf, count, UserCommOp<T>(), comm ); 
-    }
     else
-    {
-        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( buf, count, UserOp<T>(), comm ); 
-    }
 }
 
 // Default to SUM
@@ -691,10 +723,23 @@ void AllReduce( T* buf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void ReduceScatter
 ( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void ReduceScatter
 ( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void ReduceScatter
+( const T* sb, T* rb, int count, OpClass op, bool commutative, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        ReduceScatter( sb, rb, count, UserCommOp<T>(), comm ); 
+    else
+        ReduceScatter( sb, rb, count, UserOp<T>(), comm ); 
+}
 
 // Default to SUM
 template<typename T>
@@ -704,9 +749,22 @@ void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // ---------------------------
 template<typename Real>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void ReduceScatter
+( T* buf, int count, OpClass op, bool commutative, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        ReduceScatter( buf, count, UserCommOp<T>(), comm ); 
+    else
+        ReduceScatter( buf, count, UserOp<T>(), comm ); 
+}
 
 // Default to SUM
 template<typename T>
@@ -718,10 +776,23 @@ template<typename Real>
 void ReduceScatter
 ( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void ReduceScatter
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs, Op op, 
   Comm comm ) EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void ReduceScatter
+( const T* sb, T* rb, const int* rcs, OpClass op, bool commutative, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        ReduceScatter( sb, rb, rcs, UserCommOp<T>(), comm ); 
+    else
+        ReduceScatter( sb, rb, rcs, UserOp<T>(), comm ); 
+}
 
 // Default to SUM
 template<typename T>
@@ -733,10 +804,24 @@ EL_NO_RELEASE_EXCEPT;
 template<typename T>
 void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void Scan
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Scan
+( const T* sb, T* rb, int count, OpClass op, bool commutative,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Scan( sb, rb, count, UserCommOp<T>(), root, comm ); 
+    else
+        Scan( sb, rb, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
@@ -746,6 +831,17 @@ void Scan( const T* sbuf, T* rbuf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename T>
 T Scan( T sb, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline T Scan( T sb, OpClass op, bool commutative, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        return Scan( sb, UserCommOp<T>(), root, comm ); 
+    else
+        return Scan( sb, UserOp<T>(), root, comm ); 
+}
+
 // With a message-size of one and default to SUM
 template<typename T>
 T Scan( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
@@ -754,9 +850,22 @@ T Scan( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // ------------------
 template<typename T>
 void Scan( T* buf, int count, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Scan
+( T* buf, int count, OpClass op, bool commutative, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Scan( buf, count, UserCommOp<T>(), root, comm ); 
+    else
+        Scan( buf, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
@@ -764,17 +873,17 @@ void Scan( T* buf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
 void SparseAllToAll
-( const std::vector<T>& sendBuffer,
-  const std::vector<int>& sendCounts, 
-  const std::vector<int>& sendOffs,
-        std::vector<T>& recvBuffer,
-  const std::vector<int>& recvCounts, 
-  const std::vector<int>& recvOffs,
+( const vector<T>& sendBuffer,
+  const vector<int>& sendCounts, 
+  const vector<int>& sendOffs,
+        vector<T>& recvBuffer,
+  const vector<int>& recvCounts, 
+  const vector<int>& recvOffs,
         Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 void VerifySendsAndRecvs
-( const std::vector<int>& sendCounts,
-  const std::vector<int>& recvCounts, Comm comm );
+( const vector<int>& sendCounts,
+  const vector<int>& recvCounts, Comm comm );
 
 void CreateCustom() EL_NO_RELEASE_EXCEPT;
 void DestroyCustom() EL_NO_RELEASE_EXCEPT;
