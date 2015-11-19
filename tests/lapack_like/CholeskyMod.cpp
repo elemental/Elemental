@@ -7,12 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F>
 void TestCorrectness
-( UpperOrLower uplo, const DistMatrix<F>& T, Base<F> alpha, const DistMatrix<F>& V,
+( UpperOrLower uplo,
+  const DistMatrix<F>& T,
+  Base<F> alpha,
+  const DistMatrix<F>& V,
   const DistMatrix<F>& A )
 {
     typedef Base<F> Real;
@@ -30,31 +32,20 @@ void TestCorrectness
     Hemm( LEFT, uplo, F(1), B, X, F(0), Y );
     const Real maxNormT = MaxNorm( T );
     const Real maxNormB = HermitianMaxNorm( uplo, B );
-    const Real infNormB = HermitianInfinityNorm( uplo, B );
     const Real frobNormB = HermitianFrobeniusNorm( uplo, B );
-    const Real oneNormY = OneNorm( Y );
-    const Real infNormY = InfinityNorm( Y );
     const Real frobNormY = FrobeniusNorm( Y );
 
     cholesky::SolveAfter( uplo, NORMAL, T, Y );
     X -= Y;
-    const Real oneNormE = OneNorm( X );
-    const Real infNormE = InfinityNorm( X );
     const Real frobNormE = FrobeniusNorm( X );
 
     if( g.Rank() == 0 )
-    {
-        cout << "||T||_max = " << maxNormT << "\n"
-             << "||B||_max = " << maxNormB << "\n"
-             << "||B||_1   = " << infNormB << "\n"
-             << "||B||_F   = " << frobNormB << "\n"
-             << "||Y||_1   = " << oneNormY << "\n"
-             << "||Y||_oo  = " << infNormY << "\n"
-             << "||Y||_F   = " << frobNormY << "\n"
-             << "||X - inv(B) X||_1  = " << oneNormE << "\n"
-             << "||X - inv(B) X||_oo = " << infNormE << "\n"
-             << "||X - inv(B) X||_F  = " << frobNormE << endl;
-    }
+        Output
+        ("||T||_max = ",maxNormT,"\n",
+         "||B||_max = ",maxNormB,"\n",
+         "||B||_F   = ",frobNormB,"\n",
+         "||Y||_F   = ",frobNormY,"\n",
+         "||X - inv(B) X||_F  = ",frobNormE);
 }
 
 template<typename F> 
@@ -65,64 +56,37 @@ void TestCholeskyMod
     DistMatrix<F> T(g), A(g);
     HermitianUniformSpectrum( T, m, 1e-9, 10 );
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         A = T;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( T, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Cholesky factorization...";
-        cout.flush();
-    }
+        Output("  Starting Cholesky...");
     double startTime = mpi::Time();
     Cholesky( uplo, T );
     double runTime = mpi::Time() - startTime;
     double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE\n"
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
     MakeTrapezoidal( uplo, T );
     if( print )
         Print( T, "Cholesky factor" );
 
-    if( g.Rank() == 0 )
-    {
-        cout << "  Generating random update vectors...";
-        cout.flush();
-    }
     DistMatrix<F> V(g), VMod(g);
     Uniform( V, m, n );
     V *= F(1)/Sqrt(F(m)*F(n));
     VMod = V;
-    if( g.Rank() == 0 )
-        cout << "DONE" << endl;
     if( print )
         Print( V, "V" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Cholesky modification...";
-        cout.flush();
-    }
+        Output("  Starting Cholesky mod...");
     startTime = mpi::Time();
     CholeskyMod( uplo, T, alpha, VMod );
     runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
-        cout << "DONE\n"
-             << "  Time = " << runTime << " seconds." << endl;
+        Output("  ",runTime," seconds");
     if( print )
         Print( T, "Modified Cholesky factor" );
 
@@ -161,15 +125,15 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test CholeskyMod" << uploChar << endl;
+            Output("Will test CholeskyMod",uploChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestCholeskyMod<double>
         ( testCorrectness, print, uplo, m, n, alpha, g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestCholeskyMod<Complex<double>>
         ( testCorrectness, print, uplo, m, n, alpha, g );
     }

@@ -7,13 +7,16 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& AOrig,
-  bool print, bool display )
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+        Matrix<F>& AOrig,
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Int n = AOrig.Height();
@@ -75,7 +78,11 @@ void TestCorrectness
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo, Int n, bool testCorrectness, bool print, bool display )
+( UpperOrLower uplo,
+  Int n,
+  bool testCorrectness,
+  bool print,
+  bool display )
 {
     Matrix<F> A, AOrig;
     Matrix<F> t;

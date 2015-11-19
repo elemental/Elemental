@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F>
@@ -68,11 +67,7 @@ void TestHermitianEig
     else
         HermitianUniformSpectrum( A, m, -10, 10 );
     if( testCorrectness && !onlyEigvals )
-    {
-        if( g.Rank() == 0 )
-            Output("  Making copy of original matrix...");
         AOrig = A;
-    }
     if( print )
         Print( A, "A" );
 

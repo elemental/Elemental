@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
@@ -35,26 +34,21 @@ void TestCorrectness
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    const Real oneNormOfX = OneNorm( X );
-    const Real infNormOfX = InfinityNorm( X );
-    const Real frobNormOfX = FrobeniusNorm( X );
+    const Real infNormX = InfinityNorm( X );
+    const Real frobNormX = FrobeniusNorm( X );
     Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
-    const Real oneNormOfError = OneNorm( X );
-    const Real infNormOfError = InfinityNorm( X );
-    const Real frobNormOfError = FrobeniusNorm( X );
-    const Real oneNormOfA = OneNorm( AOrig );
-    const Real infNormOfA = InfinityNorm( AOrig );
-    const Real frobNormOfA = FrobeniusNorm( AOrig );
+    const Real infNormError = InfinityNorm( X );
+    const Real frobNormError = FrobeniusNorm( X );
+    const Real infNormA = InfinityNorm( AOrig );
+    const Real frobNormA = FrobeniusNorm( AOrig );
 
-    cout << "||A||_1                  = " << oneNormOfA << "\n"
-         << "||A||_oo                 = " << infNormOfA << "\n"
-         << "||A||_F                  = " << frobNormOfA << "\n"
-         << "||X||_1                  = " << oneNormOfX << "\n"
-         << "||X||_oo                 = " << infNormOfX << "\n"
-         << "||X||_F                  = " << frobNormOfX << "\n"
-         << "||A U^-1 L^-1 X - X||_1  = " << oneNormOfError << "\n"
-         << "||A U^-1 L^-1 X - X||_oo = " << infNormOfError << "\n"
-         << "||A U^-1 L^-1 X - X||_F  = " << frobNormOfError << endl;
+    Output
+    ("||A||_oo                 = ",infNormA,"\n",
+     "||A||_F                  = ",frobNormA,"\n",
+     "||X||_oo                 = ",infNormX,"\n",
+     "||X||_F                  = ",frobNormX,"\n",
+     "||A U^-1 L^-1 X - X||_oo = ",infNormError,"\n",
+     "||A U^-1 L^-1 X - X||_F  = ",frobNormError);
 }
 
 template<typename F> 
@@ -65,17 +59,11 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
 
     Uniform( A, m, m );
     if( testCorrectness )
-    {
-        cout << "  Making copy of original matrix...";
-        cout.flush();
         ARef = A;
-        cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
 
-    cout << "  Starting LU factorization...";
-    cout.flush();
+    Output("  Starting LU factorization...");
     const double startTime = mpi::Time();
     if( pivot )
         LU( A, rowPiv );
@@ -84,9 +72,7 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    cout << "DONE. " << endl
-         << "  Time = " << runTime << " seconds. GFlops = " 
-         << gFlops << endl;
+    Output("  ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
@@ -124,15 +110,14 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test LU" 
-                 << ( pivot ? " with partial pivoting" : " " ) << endl;
+            Output("Will test LU",( pivot ? " with partial pivoting" : " " ));
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestLU<double>( pivot, testCorrectness, print, m );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestLU<Complex<double>>( pivot, testCorrectness, print, m );
     }
     catch( exception& e ) { ReportException(e); }

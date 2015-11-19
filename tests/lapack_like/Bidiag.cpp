@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
@@ -16,7 +15,8 @@ void TestCorrectness
   const DistMatrix<F,STAR,STAR>& tP,
   const DistMatrix<F,STAR,STAR>& tQ,
         DistMatrix<F>& AOrig,
-  bool print, bool display )
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -99,18 +99,19 @@ void TestCorrectness
 
 template<typename F>
 void TestBidiag
-( Int m, Int n, const Grid& g, bool testCorrectness, bool print, bool display )
+( Int m,
+  Int n,
+  const Grid& g,
+  bool testCorrectness,
+  bool print,
+  bool display )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
 
     Uniform( A, m, n );
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-            Output("  Making copy of original matrix");
         AOrig = A;
-    }
     if( print )
         Print( A, "A" );
     if( display )

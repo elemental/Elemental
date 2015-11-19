@@ -7,12 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F>
 void TestCorrectness
-( UpperOrLower uplo, const Matrix<F>& T, Base<F> alpha, const Matrix<F>& V,
+( UpperOrLower uplo,
+  const Matrix<F>& T,
+  Base<F> alpha,
+  const Matrix<F>& V,
   const Matrix<F>& A )
 {
     typedef Base<F> Real;
@@ -47,7 +49,11 @@ void TestCorrectness
 
 template<typename F> 
 void TestCholeskyMod
-( bool testCorrectness, bool print, UpperOrLower uplo, Int m, Int n, 
+( bool testCorrectness,
+  bool print,
+  UpperOrLower uplo,
+  Int m,
+  Int n, 
   Base<F> alpha )
 {
     Matrix<F> T, A;

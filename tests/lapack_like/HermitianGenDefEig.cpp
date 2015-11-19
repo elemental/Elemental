@@ -174,8 +174,6 @@ void TestHermitianGenDefEig
 
     if( testCorrectness && !onlyEigvals )
     {
-        if( g.Rank() == 0 )
-            cout << "  Making copies of original matrices..." << endl;
         AOrig = A;
         BOrig = B;
     }
