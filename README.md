@@ -25,7 +25,7 @@ Elemental supports a wide collection of distributed-memory functionality,
 including:
 
 **Convex optimization**:
-* Dense and sparse Interior Point Methods for Linear, Quadratic, and Second-Order Cone Programs
+* Dense and sparse Interior Point Methods for Linear, Quadratic, and Second-Order Cone Programs (**Note: Scalability for sparse IPMs will be lacking until more general sparse matrix distributions are introduced into Elemental**)
     - Basis Pursuit
     - Chebyshev Points
     - Dantzig selectors
@@ -57,6 +57,12 @@ including:
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
+
+### The current development roadmap
+
+**Lattice reduction**:
+* Elemental now contains a Householder-based LLL lattice reduction implementation and distributed versions of LLL and BKZ 2.0 are planned
+* Support for distributed-memory Householder-based LLL and BKZ 2.0 is planned
 
 ### License
 
