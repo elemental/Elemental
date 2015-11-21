@@ -368,6 +368,36 @@ if(NOT EL_DISABLE_QUAD)
   endif()
 endif()
 
+# Check for MPFR support
+# ======================
+if(NOT EL_DISABLE_MPFR)
+  find_package(MPFR)
+  if(MPFR_FOUND)
+    set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES})
+    set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES})
+    set(MPFR_CODE
+      "#include \"mpfr.h\"
+       int main( int argc, char* argv[] )
+       {
+           mpfr_t a;
+           mpfr_prec_t prec = 256;
+           mpfr_inits2( prec, a );
+           return 0;
+       }")
+    check_cxx_source_compiles("${MPFR_CODE}" EL_HAVE_MPFR)
+    if(EL_HAVE_MPFR)
+      list(APPEND MATH_LIBS ${MPFR_LIBRARIES})
+      list(APPEND MATH_LIBS_AT_CONFIG ${MPFR_LIBRARIES})
+      message(STATUS "Including ${MPFR_INCLUDES} to add support for MPFR")
+      include_directories(${MPFR_INCLUDES})
+    else() 
+      message(WARNING "Found MPFR but could not successfully compile with it")
+    endif()
+    unset(CMAKE_REQUIRED_LIBRARIES)
+    unset(CMAKE_REQUIRED_INCLUDES)
+  endif()
+endif()
+
 if(EL_DISABLE_PARMETIS)
   include(external_projects/ElMath/METIS)
 else()
