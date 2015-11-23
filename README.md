@@ -76,10 +76,10 @@ including:
 * (3a) Add support for homogeneous self-dual embeddings
 * (3b) Enhance sparse scalability via low edge-degree plus low-rank 
   decompositions \[depends on (1b); weakly depends on (1a)\]
-* (3c) Distributed sparse semidefinite programs via chordal decompositions
+* (3c) Distributed sparse semidefinite programs via chordal decompositions \[weakly depends on (3b)\]
 
 **Lattice reduction**:
-* (4a) [Distributed Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) and [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) \[weakly depends on (1c)\]
+* (4a) Distributed [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) and [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) \[weakly depends on (1c)\]
 
 Alternatively, see the `TODO` list for a detailed, albeit somewhat outdated,
 list of planned additions.
