@@ -106,8 +106,8 @@ int main( int argc, char* argv[] )
 }
 " METIS_TEST_RUNS)
 
-  set(CMAKE_REQUIRED_INCLUDES)
-  set(CMAKE_REQUIRED_LIBRARIES)
+  unset(CMAKE_REQUIRED_INCLUDES)
+  unset(CMAKE_REQUIRED_LIBRARIES)
 endif()
 
 # Standard package handling
