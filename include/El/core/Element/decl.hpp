@@ -85,6 +85,9 @@ using EnableIf = typename std::enable_if<Condition::value,T>::type;
 template<typename Condition,class T=void>
 using DisableIf = typename std::enable_if<!Condition::value,T>::type;
 
+template<typename S,typename T>
+using IsSame = std::is_same<S,T>;
+
 // Basic element manipulation and I/O
 // ==================================
 
@@ -95,12 +98,9 @@ template<> struct PromoteHelper<float> { typedef double type; };
 #ifdef EL_HAVE_QUAD
 template<> struct PromoteHelper<double> { typedef Quad type; };
 #endif
-template<> struct PromoteHelper<Complex<float>> 
-{ typedef Complex<double> type; };
-#ifdef EL_HAVE_QUAD
-template<> struct PromoteHelper<Complex<double>>
-{ typedef Complex<Quad> type; };
-#endif
+
+template<typename Real> struct PromoteHelper<Complex<Real>>
+{ typedef Complex<typename PromoteHelper<Real>::type> type; };
 
 template<typename F> using Promote = typename PromoteHelper<F>::type;
 

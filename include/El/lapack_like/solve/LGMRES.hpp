@@ -10,6 +10,8 @@
 #ifndef EL_SOLVE_LGMRES_HPP
 #define EL_SOLVE_LGMRES_HPP
 
+// TODO: Add support for promotion?
+
 namespace El {
 
 namespace lgmres {

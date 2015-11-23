@@ -15,6 +15,8 @@
 //   "A flexible inner-outer preconditioned GMRES algorithm"
 //   SIAM J. Sci. Comput., Vol. 14, No. 2, pp. 461--469, 1993.
 
+// Add support for promotion?
+
 namespace El {
 
 namespace fgmres {

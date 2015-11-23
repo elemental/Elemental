@@ -16,7 +16,7 @@ namespace El {
 template<typename T,typename S>
 shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A )
 {
-    if( std::is_same<S,T>::value )
+    if( IsSame<S,T>::value )
     {
         auto ACast = reinterpret_cast<Matrix<T>*>(A);
         return shared_ptr<Matrix<T>>
@@ -38,7 +38,7 @@ shared_ptr<DistMatrix<T,U,V>>
 ReadProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
-    if( std::is_same<S,T>::value )
+    if( IsSame<S,T>::value )
     {
         DM* ACast = dynamic_cast<DM*>(A);
 

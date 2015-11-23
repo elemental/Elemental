@@ -60,9 +60,18 @@ including:
 
 ### The current development roadmap
 
+**Core data structures**:
+* Eliminate DistMultiVec in favor of the newly extended DistMatrix
+* Extend DistSparseMatrix to support elementwise and blockwise 2D distributions
+* Extend the library to support distributed arbitrary-precision real and complex
+  arithmetic on top of MPFR and MPC
+
+**Convex optimization**:
+* Add support for homogeneous self-dual embeddings
+* Enhance sparse scalability via low edge-degree plus low-rank decompositions
+
 **Lattice reduction**:
-* Elemental now contains a Householder-based LLL lattice reduction implementation and distributed versions of LLL and BKZ 2.0 are planned
-* Support for distributed-memory Householder-based LLL and BKZ 2.0 is planned
+* Distributed Householder-based LLL and BKZ 2.0
 
 ### License
 

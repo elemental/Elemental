@@ -84,7 +84,8 @@ inline Int RegularizedSolveAfterNoPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromote
+inline DisableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
   const vector<Int>& invMap, 
@@ -97,6 +98,7 @@ inline Int RegularizedSolveAfterPromote
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    
     typedef Base<F> Real; 
     typedef Promote<Real> PReal;
     typedef Promote<F> PF;
@@ -128,7 +130,27 @@ inline Int RegularizedSolveAfterPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromote
+inline EnableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    return RegularizedSolveAfterNoPromote
+      ( A, reg, invMap, info, front, B, relTol, maxRefineIts, progress, time );
+}
+
+template<typename F>
+inline DisableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
   const Matrix<Base<F>>& d, 
@@ -175,6 +197,27 @@ inline Int RegularizedSolveAfterPromote
 }
 
 template<typename F>
+inline EnableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
+( const SparseMatrix<F>& A, 
+  const Matrix<Base<F>>& reg,
+  const Matrix<Base<F>>& d, 
+  const vector<Int>& invMap, 
+  const ldl::NodeInfo& info,
+  const ldl::Front<F>& front, 
+        Matrix<F>& B,
+  Base<F> relTol,
+  Int maxRefineIts, 
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    return RegularizedSolveAfter
+      ( A, reg, d, invMap, info, front, B,
+        relTol, maxRefineIts, progress, time );
+}
+
+template<typename F>
 Int RegularizedSolveAfter
 ( const SparseMatrix<F>& A, 
   const Matrix<Base<F>>& reg,
@@ -188,15 +231,9 @@ Int RegularizedSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
-#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
            ( A, reg, invMap, info, front, B, relTol, maxRefineIts, 
              progress, time );
-#else
-    return RegularizedSolveAfterNoPromote
-           ( A, reg, invMap, info, front, B, relTol, maxRefineIts, 
-             progress, time );
-#endif
 }
 
 template<typename F>
@@ -214,15 +251,9 @@ Int RegularizedSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
-#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, 
              B, relTol, maxRefineIts, progress, time );
-#else
-    return RegularizedSolveAfterNoPromote
-           ( A, reg, d, invMap, info, front, 
-             B, relTol, maxRefineIts, progress, time );
-#endif
 }
 
 template<typename F>
@@ -344,7 +375,8 @@ inline Int RegularizedSolveAfterNoPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromote
+inline DisableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMap& invMap, 
@@ -391,6 +423,27 @@ inline Int RegularizedSolveAfterPromote
 }
 
 template<typename F>
+inline EnableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    return RegularizedSolveAfterNoPromote
+      ( A, reg, invMap, info, front, B, meta,
+        relTol, maxRefineIts, progress, time );
+}
+
+template<typename F>
 inline Int RegularizedSolveAfterPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
@@ -411,7 +464,8 @@ inline Int RegularizedSolveAfterPromote
 }
 
 template<typename F>
-inline Int RegularizedSolveAfterPromote
+inline DisableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
   const DistMultiVec<Base<F>>& d,
@@ -460,6 +514,28 @@ inline Int RegularizedSolveAfterPromote
 }
 
 template<typename F>
+inline EnableIf<IsSame<F,Promote<F>>,Int>
+RegularizedSolveAfterPromote
+( const DistSparseMatrix<F>& A, 
+  const DistMultiVec<Base<F>>& reg,
+  const DistMultiVec<Base<F>>& d,
+  const DistMap& invMap, 
+  const ldl::DistNodeInfo& info,
+  const ldl::DistFront<F>& front, 
+        DistMultiVec<F>& B,
+        ldl::DistMultiVecNodeMeta& meta,
+  Base<F> relTol,
+  Int maxRefineIts,
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfterPromote"))
+    return RegularizedSolveAfterNoPromote
+      ( A, reg, d, invMap, info, front, B, meta,
+        relTol, maxRefineIts, progress, time );
+}
+
+template<typename F>
 inline Int RegularizedSolveAfterPromote
 ( const DistSparseMatrix<F>& A, 
   const DistMultiVec<Base<F>>& reg,
@@ -495,15 +571,9 @@ Int RegularizedSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
-#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
     ( A, reg, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
-#else
-    return RegularizedSolveAfterNoPromote
-    ( A, reg, invMap, info, front, B, meta,
-      relTol, maxRefineIts, progress, time );
-#endif
 }
 
 template<typename F>
@@ -542,15 +612,9 @@ Int RegularizedSolveAfter
   bool time )
 {
     DEBUG_ONLY(CSE cse("reg_ldl::RegularizedSolveAfter"))
-#ifdef EL_HAVE_QUAD
     return RegularizedSolveAfterPromote
     ( A, reg, d, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
-#else
-    return RegularizedSolveAfterNoPromote
-    ( A, reg, d, invMap, info, front, B, meta,
-      relTol, maxRefineIts, progress, time );
-#endif
 }
 
 template<typename F>
