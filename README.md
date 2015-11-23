@@ -73,7 +73,7 @@ including:
   structure \[weakly depends upon (2b)\]
 
 **Convex optimization**:
-* (3a) Add support for homogeneous self-dual embeddings
+* (3a) Add support for homogeneous self-dual embeddings \[weakly depends on (2a)\]
 * (3b) Enhance sparse scalability via low edge-degree plus low-rank 
   decompositions \[depends on (1b); weakly depends on (1a)\]
 * (3c) Distributed sparse semidefinite programs via chordal decompositions \[weakly depends on (3b)\]
