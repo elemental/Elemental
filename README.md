@@ -61,10 +61,10 @@ including:
 ### The current development roadmap
 
 **Core data structures**:
-* (1a) Eliminate DistMultiVec in favor of the newly extended DistMatrix
-* (1b) Extend DistSparseMatrix to support elementwise and blockwise 2D distributions
+* (1a) Eliminate `DistMultiVec` in favor of the newly extended `DistMatrix`
+* (1b) Extend `DistSparseMatrix` to support elementwise and blockwise 2D distributions
 * (1c) Extend the library to support distributed arbitrary-precision real and complex
-  arithmetic on top of MPFR and MPC
+  arithmetic on top of [MPFR](http://www.mpfr.org/) and [MPC](http://www.multiprecision.org/index.php?prog=mpc)
 
 **Linear algebra**:
 * (2a) Distributed iterative refinement tailored to two right-hand sides \[weakly depends on (1a)\]
@@ -79,7 +79,7 @@ including:
 * (3c) Distributed sparse semidefinite programs via chordal decompositions
 
 **Lattice reduction**:
-* (4a) Distributed Householder-based LLL and BKZ 2.0 \[weakly depends on (1c)\]
+* (4a) [Distributed Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) and [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) \[weakly depends on (1c)\]
 
 Alternatively, see the `TODO` list for a detailed, albeit somewhat outdated,
 list of planned additions.
