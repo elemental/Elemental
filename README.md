@@ -69,6 +69,7 @@ including:
 **Convex optimization**:
 * Add support for homogeneous self-dual embeddings
 * Enhance sparse scalability via low edge-degree plus low-rank decompositions
+* Distributed sparse semidefinite programs via chordal decompositions
 
 **Lattice reduction**:
 * Distributed Householder-based LLL and BKZ 2.0
