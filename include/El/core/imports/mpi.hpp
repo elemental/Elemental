@@ -927,6 +927,7 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT;
 
 template<typename T> Datatype TypeMap() EL_NO_EXCEPT;
 template<> Datatype TypeMap<byte>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<short>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<int>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<unsigned>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<long int>() EL_NO_EXCEPT;

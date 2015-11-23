@@ -15,6 +15,7 @@
 # Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
 # Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
 # Copyright (c) 2010 Jitse Niesen, <jitse@maths.leeds.ac.uk>
+# Copyright (c) 2015 Jack Poulson, <jack.poulson@gmail.com>
 # Redistribution and use is allowed according to the terms of the BSD license.
 
 # Set MPFR_INCLUDES
@@ -24,6 +25,7 @@ find_path(MPFR_INCLUDES
   mpfr.h
   PATHS
   $ENV{GMPDIR}
+  $ENV{MPFRDIR}
   ${INCLUDE_INSTALL_DIR}
 )
 
@@ -73,7 +75,8 @@ endif(MPFR_INCLUDES)
 
 # Set MPFR_LIBRARIES
 
-find_library(MPFR_LIBRARIES mpfr PATHS $ENV{GMPDIR} ${LIB_INSTALL_DIR})
+find_library(MPFR_LIBRARIES mpfr
+  PATHS $ENV{GMPDIR} $ENV{MPFRDIR} ${LIB_INSTALL_DIR})
 
 # Epilogue
 
