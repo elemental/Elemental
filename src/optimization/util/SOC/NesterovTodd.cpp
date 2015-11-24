@@ -72,7 +72,7 @@ void ClassicalNT
     typedef Promote<Real> PReal;
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
@@ -220,7 +220,7 @@ void VandenbergheNT
     const Grid& grid = sPre.Grid();
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

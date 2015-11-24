@@ -35,7 +35,7 @@ shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A )
 
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<const DistMatrix<T,U,V>> 
-ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
+ReadProxy( const ElementalMatrix<S>* A, const ElementalProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
     if( IsSame<S,T>::value )
@@ -67,7 +67,7 @@ ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
 
 #define CONVERT_DIST(S,T,U,V) \
   template shared_ptr<const DistMatrix<T,U,V>> \
-  ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl );
+  ReadProxy( const ElementalMatrix<S>* A, const ElementalProxyCtrl& ctrl );
 
 #define CONVERT(S,T) \
   template shared_ptr<const Matrix<T>> ReadProxy( const Matrix<S>* A ); \

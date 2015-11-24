@@ -41,7 +41,7 @@ void NesterovTodd
         ElementalMatrix<Real>& wPre )
 {
     DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
     auto sPtr = ReadProxy<Real,VC,STAR>(&sPre,ctrl); 

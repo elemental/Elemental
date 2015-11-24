@@ -39,73 +39,73 @@ inline ostream& operator<<( ostream& os, Complex<Real> alpha )
 
 // Return the real/imaginary part of an element
 // --------------------------------------------
-template<typename Real>
+template<typename Real,typename>
 inline Real RealPart( const Real&          alpha ) EL_NO_EXCEPT
 { return alpha; }
-template<typename Real>
+template<typename Real,typename>
 inline Real RealPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.real(); }
 
-template<typename Real>
+template<typename Real,typename>
 inline Real ImagPart( const Real&          alpha ) EL_NO_EXCEPT
 { return 0; }
-template<typename Real>
+template<typename Real,typename>
 inline Real ImagPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.imag(); }
 
 // Set the real/imaginary part of an element
 // -----------------------------------------
-template<typename Real>
+template<typename Real,typename>
 inline void SetRealPart( Real& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha = beta; }
-template<typename Real>
+template<typename Real,typename>
 inline void SetRealPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha.real(beta); }
 
-template<typename Real>
+template<typename Real,typename>
 inline void SetImagPart( Real& alpha, const Real& beta )
 {
     DEBUG_ONLY(CSE cse("SetImagPart"))
     LogicError("Nonsensical assignment");
 }
-template<typename Real>
+template<typename Real,typename>
 inline void SetImagPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha.imag(beta); }
 
 // Update the real/imaginary part of an element
 // --------------------------------------------
-template<typename Real>
+template<typename Real,typename>
 inline void UpdateRealPart( Real& alpha, const Real& beta )
 EL_NO_EXCEPT
 { alpha += beta; }
-template<typename Real>
+template<typename Real,typename>
 inline void UpdateRealPart( Complex<Real>& alpha, const Real& beta )
 EL_NO_EXCEPT
 { alpha.real( alpha.real()+beta ); }
 
-template<typename Real>
+template<typename Real,typename>
 inline void UpdateImagPart( Real& alpha, const Real& beta )
 {
     DEBUG_ONLY(CSE cse("UpdateImagPart"))
     LogicError("Nonsensical update");
 }
-template<typename Real>
+template<typename Real,typename>
 inline void UpdateImagPart( Complex<Real>& alpha, const Real& beta )
 EL_NO_EXCEPT
 { alpha.imag( alpha.imag()+beta ); }
 
 // Conjugate an element
 // --------------------
-template<typename Real>
+template<typename Real,typename>
 inline Real Conj( const Real& alpha ) EL_NO_EXCEPT { return alpha; }
 
-template<typename Real>
+template<typename Real,typename>
 inline Complex<Real> Conj( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Complex<Real>(alpha.real(),-alpha.imag()); }
 
 // Return the complex argument
 // ---------------------------
-template<typename F>
+template<typename F,typename>
 inline Base<F> Arg( const F& alpha )
 { return Atan2( ImagPart(alpha), RealPart(alpha) ); }
 
@@ -123,7 +123,7 @@ inline Quad Arg( const Complex<Quad>& alphaPre )
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
-template<typename Real>
+template<typename Real,typename>
 inline Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
@@ -139,7 +139,7 @@ inline Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta )
 
 // Magnitude and sign
 // ==================
-template<typename T>
+template<typename T,typename>
 inline Base<T> Abs( const T& alpha ) EL_NO_EXCEPT { return std::abs(alpha); }
 
 #ifdef EL_HAVE_QUADMATH
@@ -156,10 +156,10 @@ inline Quad Abs( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 }
 #endif
 
-template<typename Real>
+template<typename Real,typename>
 inline Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT { return Abs(alpha); }
 
-template<typename Real>
+template<typename Real,typename>
 inline Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
 
@@ -174,15 +174,15 @@ inline Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT
 }
 #endif
 
-template<typename Real>
+template<typename Real,typename>
 inline Real FastAbs( const Real& alpha ) EL_NO_EXCEPT
 { return Abs(alpha); }
 
-template<typename Real>
+template<typename Real,typename>
 inline Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
 
-template<typename Real>
+template<typename Real,typename>
 inline Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
 {
     if( alpha < 0 )
@@ -195,7 +195,7 @@ inline Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
 
 // Exponentiation
 // ==============
-template<typename F>
+template<typename F,typename>
 inline F      Exp( const F&   alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
 inline double Exp( const Int& alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
 
@@ -215,7 +215,7 @@ inline Complex<Quad> Exp( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 }
 #endif
 
-template<typename F,typename T>
+template<typename F,typename T,typename,typename>
 inline F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT
 { return std::pow(alpha,beta); }
 // NOTE: What about an integer to a floating-point power? Switch to auto 
@@ -257,7 +257,7 @@ inline Complex<Quad> Pow
 
 // Inverse exponentiation
 // ----------------------
-template<typename F>
+template<typename F,typename>
 inline F      Log( const F&   alpha ) { return std::log(alpha); }
 inline double Log( const Int& alpha ) { return std::log(alpha); }
 
@@ -277,7 +277,7 @@ inline Complex<Quad> Log( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Sqrt( const F&   alpha ) { return std::sqrt(alpha); }
 inline double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
 
@@ -299,7 +299,7 @@ inline Complex<Quad> Sqrt( const Complex<Quad>& alphaPre )
 
 // Trigonometric
 // =============
-template<typename F>
+template<typename F,typename>
 inline F      Cos( const F&   alpha ) { return std::cos(alpha); }
 inline double Cos( const Int& alpha ) { return std::cos(alpha); }
 
@@ -319,7 +319,7 @@ inline Complex<Quad> Cos( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Sin( const F&   alpha ) { return std::sin(alpha); }
 inline double Sin( const Int& alpha ) { return std::sin(alpha); }
 
@@ -339,7 +339,7 @@ inline Complex<Quad> Sin( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Tan( const F&   alpha ) { return std::tan(alpha); }
 inline double Tan( const Int& alpha ) { return std::tan(alpha); }
 
@@ -361,7 +361,7 @@ inline Complex<Quad> Tan( const Complex<Quad>& alphaPre )
 
 // Inverse trigonometric
 // ---------------------
-template<typename F>
+template<typename F,typename>
 inline F      Acos( const F&   alpha ) { return std::acos(alpha); }
 inline double Acos( const Int& alpha ) { return std::acos(alpha); }
 
@@ -381,7 +381,7 @@ inline Complex<Quad> Acos( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Asin( const F&   alpha ) { return std::asin(alpha); }
 inline double Asin( const Int& alpha ) { return std::asin(alpha); }
 
@@ -401,7 +401,7 @@ inline Complex<Quad> Asin( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Atan( const F&   alpha ) { return std::atan(alpha); }
 inline double Atan( const Int& alpha ) { return std::atan(alpha); }
 
@@ -421,7 +421,7 @@ inline Complex<Quad> Atan( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename Real>
+template<typename Real,typename>
 inline Real Atan2( const Real& y, const Real& x ) { return std::atan2( y, x ); }
 inline double Atan2( const Int& y, const Int& x ) { return std::atan2( y, x ); }
 
@@ -431,7 +431,7 @@ inline double Atan2( const Int& y, const Int& x ) { return std::atan2( y, x ); }
 
 // Hyperbolic
 // ==========
-template<typename F>
+template<typename F,typename>
 inline F      Cosh( const F&   alpha ) { return std::cosh(alpha); }
 inline double Cosh( const Int& alpha ) { return std::cosh(alpha); }
 
@@ -451,7 +451,7 @@ inline Complex<Quad> Cosh( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Sinh( const F&   alpha ) { return std::sinh(alpha); }
 inline double Sinh( const Int& alpha ) { return std::sinh(alpha); }
 
@@ -471,7 +471,7 @@ inline Complex<Quad> Sinh( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Tanh( const F&   alpha ) { return std::tanh(alpha); }
 inline double Tanh( const Int& alpha ) { return std::tanh(alpha); }
 
@@ -493,7 +493,7 @@ inline Complex<Quad> Tanh( const Complex<Quad>& alphaPre )
 
 // Inverse hyperbolic
 // ------------------
-template<typename F>
+template<typename F,typename>
 inline F      Acosh( const F&   alpha ) { return std::acosh(alpha); }
 inline double Acosh( const Int& alpha ) { return std::acosh(alpha); }
 
@@ -513,7 +513,7 @@ inline Complex<Quad> Acosh( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Asinh( const F&   alpha ) { return std::asinh(alpha); }
 inline double Asinh( const Int& alpha ) { return std::asinh(alpha); }
 
@@ -533,7 +533,7 @@ inline Complex<Quad> Asinh( const Complex<Quad>& alphaPre )
 }
 #endif
 
-template<typename F>
+template<typename F,typename>
 inline F      Atanh( const F&   alpha ) { return std::atanh(alpha); }
 inline double Atanh( const Int& alpha ) { return std::atanh(alpha); }
 
@@ -558,14 +558,11 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 
 // Round to the nearest integer
 // ----------------------------
-template<typename T,typename>
-inline T Round( const T& alpha ) { return std::round(alpha); }
-
-// Partial specializations
-// ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,typename>
-inline Complex<T> Round( const Complex<T>& alpha )
-{ return Complex<T>(Round(alpha.real()),Round(alpha.imag())); }
+template<typename Real,typename>
+inline Real Round( const Real& alpha ) { return std::round(alpha); }
+template<typename Real,typename>
+inline Complex<Real> Round( const Complex<Real>& alpha )
+{ return Complex<Real>(Round(alpha.real()),Round(alpha.imag())); }
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
@@ -576,14 +573,11 @@ inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
 
 // Ceiling
 // -------
-template<typename T,typename>
-inline T Ceil( const T& alpha ) { return std::ceil(alpha); }
-
-// Partial specializations
-// ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,typename>
-inline Complex<T> Ceil( const Complex<T>& alpha )
-{ return Complex<T>(Ceil(alpha.real()),Ceil(alpha.imag())); }
+template<typename Real,typename>
+inline Real Ceil( const Real& alpha ) { return std::ceil(alpha); }
+template<typename Real,typename>
+inline Complex<Real> Ceil( const Complex<Real>& alpha )
+{ return Complex<Real>(Ceil(alpha.real()),Ceil(alpha.imag())); }
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
@@ -594,14 +588,11 @@ inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 
 // Floor
 // -----
-template<typename T,typename>
-inline T Floor( const T& alpha ) { return std::floor(alpha); }
-
-// Partial specializations
-// ^^^^^^^^^^^^^^^^^^^^^^^
-template<typename T,typename>
-inline Complex<T> Floor( const Complex<T>& alpha )
-{ return Complex<T>(Floor(alpha.real()),Floor(alpha.imag())); }
+template<typename Real,typename>
+inline Real Floor( const Real& alpha ) { return std::floor(alpha); }
+template<typename Real,typename>
+inline Complex<Real> Floor( const Complex<Real>& alpha )
+{ return Complex<Real>(Floor(alpha.real()),Floor(alpha.imag())); }
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
@@ -612,7 +603,7 @@ inline Quad Floor( const Quad& alpha ) { return floorq(alpha); }
 
 // Two-norm formation
 // ==================
-template<typename F>
+template<typename F,typename>
 inline void UpdateScaledSquare
 ( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT
 {

@@ -42,7 +42,7 @@ void PushPairInto
     AssertSameGrids( sPre, zPre, wPre );
     const Real maxMod = Pow(Epsilon<Real>(),Real(0.5));
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

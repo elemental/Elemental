@@ -40,7 +40,7 @@ Real ComplementRatio
   const ElementalMatrix<Real>& zPre )
 {
     DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
     auto sPtr = ReadProxy<Real,VC,STAR>(&sPre,ctrl); 

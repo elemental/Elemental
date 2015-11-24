@@ -502,7 +502,7 @@ void Mehrotra
     A = APre;
     b = bPre;
     c = cPre;
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;

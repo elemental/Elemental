@@ -218,7 +218,7 @@ LN
     auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre ); 
     auto& X = *XPtr;
 
-    ProxyCtrl ctrl; 
+    ElementalProxyCtrl ctrl; 
     ctrl.colConstrain = true;
     ctrl.colAlign = X.RowAlign();
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );
@@ -335,7 +335,7 @@ UN
     auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre );
     auto& X = *XPtr;
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = X.RowAlign();
     auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );

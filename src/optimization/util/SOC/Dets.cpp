@@ -35,7 +35,7 @@ void Dets
     DEBUG_ONLY(CSE cse("soc::Dets"))
     AssertSameGrids( xPre, dPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

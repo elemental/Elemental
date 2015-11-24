@@ -45,7 +45,7 @@ void Inverse
     DEBUG_ONLY(CSE cse("soc::Inverse"))
     AssertSameGrids( xPre, xInvPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

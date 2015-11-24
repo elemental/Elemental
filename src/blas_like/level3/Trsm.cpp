@@ -129,7 +129,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,VR,STAR>(&A); 
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = APost.ColAlign();
                     auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl);
@@ -140,7 +140,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,VC,STAR>(&A); 
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = APost.ColAlign();
                     auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
@@ -170,7 +170,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,VR,STAR>(&A); 
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = APost.ColAlign();
                     auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl); 
@@ -182,7 +182,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,STAR,VC>(&A); 
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = APost.RowAlign();
                     auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
@@ -194,7 +194,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,STAR,VR>(&A); 
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = A.RowAlign();
                     auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl);
@@ -206,7 +206,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,VC,STAR>(&A); 
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = A.ColAlign();
                     auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl); 
@@ -240,7 +240,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,VR,STAR>(&A);
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = A.ColAlign();
                     auto BPtr = ReadWriteProxy<F,VR,STAR>(&B,ctrl);
@@ -251,7 +251,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,VC,STAR>(&A);
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = A.ColAlign();
                     auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
@@ -281,7 +281,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,STAR,VC>(&A);
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = A.RowAlign();
                     auto BPtr = ReadWriteProxy<F,VC,STAR>(&B,ctrl);
@@ -293,7 +293,7 @@ void Trsm
                 {
                     auto APtr = ReadProxy<F,STAR,VR>(&A);
                     auto& APost = *APtr;
-                    ProxyCtrl ctrl;
+                    ElementalProxyCtrl ctrl;
                     ctrl.colConstrain = true;
                     ctrl.colAlign = A.RowAlign();
                     auto BPtr = ReadWriteProxy<F,VR,STAR>(&B);

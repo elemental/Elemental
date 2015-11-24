@@ -52,7 +52,7 @@ void RuizEquil
     DEBUG_ONLY(CSE cse("cone::RuizEquil"))
     typedef Base<F> Real;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;

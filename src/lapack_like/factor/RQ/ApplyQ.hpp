@@ -83,7 +83,7 @@ void ApplyQ
     auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
     auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
 
-    ProxyCtrl tCtrl;
+    ElementalProxyCtrl tCtrl;
     tCtrl.rootConstrain = true;
     tCtrl.colConstrain = true;
     tCtrl.root = A.DiagonalRoot(offset);

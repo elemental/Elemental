@@ -103,7 +103,7 @@ void NormalKKT
     const Int m = A.Height();
     const Int n = A.Width();
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colAlign = 0;
     ctrl.colConstrain = true;
     auto xPtr = ReadProxy<Real,MR,STAR>( &xPre, ctrl ); auto& x = *xPtr;
@@ -288,7 +288,7 @@ void NormalKKTRHS
     DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
     const Int n = A.Width();
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colAlign = 0;
     ctrl.colConstrain = true;
     auto xPtr = ReadProxy<Real,MR,STAR>( &xPre, ctrl ); auto& x = *xPtr;
@@ -463,7 +463,7 @@ void ExpandNormalSolution
     DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
     const Int n = A.Width();
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colAlign = 0;
     ctrl.colConstrain = true;
     auto xPtr = ReadProxy<Real,MR,STAR>( &xPre, ctrl ); auto& x = *xPtr;

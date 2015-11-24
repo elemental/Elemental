@@ -53,7 +53,7 @@ void LowerNorms
     DEBUG_ONLY(CSE cse("soc::LowerNorms"))
     AssertSameGrids( xPre, lowerNormsPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

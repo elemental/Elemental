@@ -41,7 +41,7 @@ void RuizEquil
     DEBUG_ONLY(CSE cse("RuizEquil"))
     typedef Base<F> Real;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;
@@ -190,7 +190,7 @@ void StackedRuizEquil
     DEBUG_ONLY(CSE cse("StackedRuizEquil"))
     typedef Base<F> Real;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;

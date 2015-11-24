@@ -84,7 +84,7 @@ void UpdateMappedDiagonal
       CSE cse("UpdateMappedDiagonal");
       AssertSameGrids( A, dPre );
     )
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
     ctrl.rootConstrain = true;

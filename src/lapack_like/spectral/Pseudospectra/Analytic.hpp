@@ -69,7 +69,7 @@ Analytic
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = shifts.ColAlign();
     auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre, ctrl );

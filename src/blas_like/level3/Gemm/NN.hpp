@@ -33,7 +33,7 @@ Cannon_NN
 
     // Force A, B, and C to be in [MC,MR] distributions aligned with C
     auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
-    ProxyCtrl ctrlA, ctrlB;
+    ElementalProxyCtrl ctrlA, ctrlB;
     ctrlA.colConstrain = true; ctrlA.colAlign = C.ColAlign();
     ctrlB.rowConstrain = true; ctrlB.rowAlign = C.RowAlign();
     auto APtr = ReadProxy<T,MC,MR>( &APre, ctrlA ); auto& A = *APtr;

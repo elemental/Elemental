@@ -46,7 +46,7 @@ void PushInto
     DEBUG_ONLY(CSE cse("soc::PushInto"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

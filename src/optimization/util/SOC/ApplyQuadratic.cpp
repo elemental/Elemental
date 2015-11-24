@@ -55,7 +55,7 @@ void ApplyQuadratic
     DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

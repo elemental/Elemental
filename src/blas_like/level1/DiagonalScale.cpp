@@ -50,7 +50,7 @@ void DiagonalScale
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( side == LEFT )
     {
-        ProxyCtrl ctrl;
+        ElementalProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
@@ -61,7 +61,7 @@ void DiagonalScale
     }
     else
     {
-        ProxyCtrl ctrl;
+        ElementalProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();

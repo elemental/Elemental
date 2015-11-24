@@ -51,7 +51,7 @@ Int NumOutside
     DEBUG_ONLY(CSE cse("soc::NumOutside"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

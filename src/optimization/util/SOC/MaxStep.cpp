@@ -218,7 +218,7 @@ Real MaxStep
     DEBUG_ONLY(CSE cse("soc::MaxStep"))
     typedef Promote<Real> PReal;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.colAlign = 0;
     auto xPtr = ReadProxy<PReal,VC,STAR>(&xPre,control);
