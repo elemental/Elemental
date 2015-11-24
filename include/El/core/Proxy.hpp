@@ -55,12 +55,12 @@ shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A );
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<const DistMatrix<T,U,V>>
 ReadProxy
-( const ElementalMatrix<S>* A,
+( const AbstractDistMatrix<S>* A,
   const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>>
 ReadProxy
-( ElementalMatrix<S>* A,
+( AbstractDistMatrix<S>* A,
   const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
 
 // TODO: General DistMatrix version
@@ -77,7 +77,7 @@ shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
-( ElementalMatrix<S>* A,
+( AbstractDistMatrix<S>* A,
   const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
 
 // Write proxy
@@ -92,8 +92,10 @@ shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> WriteProxy
-( ElementalMatrix<S>* A,
+( AbstractDistMatrix<S>* A,
   const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
+
+// TODO: General implementation
 
 } // namespace El
 

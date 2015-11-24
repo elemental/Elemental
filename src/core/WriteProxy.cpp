@@ -34,7 +34,7 @@ shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A )
 
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> 
-WriteProxy( ElementalMatrix<S>* A, const ElementalProxyCtrl& ctrl )
+WriteProxy( AbstractDistMatrix<S>* A, const ElementalProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
     if( IsSame<S,T>::value )
@@ -55,11 +55,11 @@ WriteProxy( ElementalMatrix<S>* A, const ElementalProxyCtrl& ctrl )
             // This is somewhat tricky since a subsequent write could otherwise
             // change the alignment.
             if( ctrl.colConstrain )
-                A->AlignCols( ctrl.colAlign );
+                ACast->AlignCols( ctrl.colAlign );
             if( ctrl.rowConstrain )
-                A->AlignRows( ctrl.rowAlign );
+                ACast->AlignRows( ctrl.rowAlign );
             if( ctrl.rootConstrain )
-                A->SetRoot( ctrl.root );
+                ACast->SetRoot( ctrl.root );
             return shared_ptr<DM>( ACast, []( const DM* B ) { } );
         }
     }
@@ -87,7 +87,7 @@ WriteProxy( ElementalMatrix<S>* A, const ElementalProxyCtrl& ctrl )
 
 #define CONVERT_DIST(S,T,U,V) \
   template shared_ptr<DistMatrix<T,U,V>> \
-  WriteProxy( ElementalMatrix<S>* A, const ElementalProxyCtrl& ctrl );
+  WriteProxy( AbstractDistMatrix<S>* A, const ElementalProxyCtrl& ctrl );
 
 #define CONVERT(S,T) \
   template shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A ); \
