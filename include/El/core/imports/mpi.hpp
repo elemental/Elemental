@@ -13,6 +13,9 @@
 
 namespace El {
 
+using std::function;
+using std::vector;
+
 namespace mpi {
 
 #if defined(EL_HAVE_MPI3_NONBLOCKING_COLLECTIVES) || \
@@ -33,7 +36,7 @@ namespace mpi {
 struct Comm
 {
     MPI_Comm comm;
-    Comm( MPI_Comm mpiComm=MPI_COMM_NULL ) EL_NO_EXCEPT : comm(mpiComm) { }
+    Comm( MPI_Comm mpiComm=MPI_COMM_WORLD ) EL_NO_EXCEPT : comm(mpiComm) { }
 
     inline int Rank() const EL_NO_RELEASE_EXCEPT;
     inline int Size() const EL_NO_RELEASE_EXCEPT;
@@ -60,7 +63,7 @@ inline bool operator!=( const Group& a, const Group& b ) EL_NO_EXCEPT
 struct Op
 {
     MPI_Op op;
-    Op( MPI_Op mpiOp=MPI_OP_NULL ) EL_NO_EXCEPT : op(mpiOp) { }
+    Op( MPI_Op mpiOp=MPI_SUM ) EL_NO_EXCEPT : op(mpiOp) { }
 };
 inline bool operator==( const Op& a, const Op& b ) EL_NO_EXCEPT
 { return a.op == b.op; }
@@ -182,10 +185,8 @@ void Free( Op& op ) EL_NO_RELEASE_EXCEPT;
 void Free( Datatype& type ) EL_NO_RELEASE_EXCEPT;
 
 // Communicator manipulation
-int WorldRank() EL_NO_RELEASE_EXCEPT;
-int WorldSize() EL_NO_RELEASE_EXCEPT;
-int Rank( Comm comm ) EL_NO_RELEASE_EXCEPT;
-int Size( Comm comm ) EL_NO_RELEASE_EXCEPT;
+int Rank( Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
+int Size( Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 void Create
 ( Comm parentComm, Group subsetGroup, Comm& subsetComm ) EL_NO_RELEASE_EXCEPT;
 void Dup( Comm original, Comm& duplicate ) EL_NO_RELEASE_EXCEPT;
@@ -238,7 +239,7 @@ void Translate
   Comm newComm,                  int* newRanks ) EL_NO_RELEASE_EXCEPT;
 
 // Utilities
-void Barrier( Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Barrier( Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 void Wait( Request& request ) EL_NO_RELEASE_EXCEPT;
 void Wait( Request& request, Status& status ) EL_NO_RELEASE_EXCEPT;
 void WaitAll( int numRequests, Request* requests ) EL_NO_RELEASE_EXCEPT;
@@ -254,7 +255,7 @@ int GetCount( Status& status ) EL_NO_RELEASE_EXCEPT;
 // NOTE: This is instantiated for the standard datatypes
 template<typename T>
 void SetUserReduceFunc
-( std::function<T(const T&,const T&)> func, bool commutative=true );
+( function<T(const T&,const T&)> func, bool commutative=true );
 
 // Point-to-point communication
 // ============================
@@ -263,23 +264,26 @@ void SetUserReduceFunc
 // ----
 template<typename Real>
 void TaggedSend
-( const Real* buf, int count, int to, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT;
+( const Real* buf, int count, int to, int tag, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedSend
-( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void Send( const T* buf, int count, int to, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Send( const T* buf, int count, int to, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 
 // If the send-count is one
 template<typename T>
-void TaggedSend( T b, int to, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void TaggedSend( T b, int to, int tag, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 
 // If the send-count is one and the tag is irrelevant
 template<typename T>
-void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Send( T b, int to, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking send
 // -----------------
@@ -335,23 +339,26 @@ EL_NO_RELEASE_EXCEPT;
 // Recv
 // ----
 template<typename Real>
-void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
+void TaggedRecv
+( Real* buf, int count, int from, int tag, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
+void TaggedRecv
+( Complex<Real>* buf, int count, int from, int tag, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void Recv( T* buf, int count, int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Recv( T* buf, int count, int from, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one
 template<typename T>
-T TaggedRecv( int from, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T TaggedRecv( int from, int tag, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one and the tag is irrelevant
 template<typename T>
-T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T Recv( int from, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking recv
 // -----------------
@@ -383,43 +390,45 @@ T IRecv( int from, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedSendRecv
 ( const Real* sbuf, int sc, int to,   int stag,
-        Real* rbuf, int rc, int from, int rtag, Comm comm )
+        Real* rbuf, int rc, int from, int rtag, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedSendRecv
 ( const Complex<Real>* sbuf, int sc, int to,   int stag,
-        Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm )
+        Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // If the tags are irrelevant
 template<typename T>
 void SendRecv
 ( const T* sbuf, int sc, int to,
-        T* rbuf, int rc, int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        T* rbuf, int rc, int from, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // If the send and recv counts are one
 template<typename T>
-T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
+T TaggedSendRecv
+( T sb, int to, int stag, int from, int rtag, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send and recv counts are one and the tags don't matter
 template<typename T>
-T SendRecv( T sb, int to, int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T SendRecv( T sb, int to, int from, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer SendRecv
 // ----------------------
 template<typename Real>
 void TaggedSendRecv
-( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+( Real* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedSendRecv
 ( Complex<Real>* buf, int count, int to, int stag, int from, int rtag, 
-  Comm comm ) EL_NO_RELEASE_EXCEPT;
+  Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // If the tags don't matter
 template<typename T>
-void SendRecv( T* buf, int count, int to, int from, Comm comm )
+void SendRecv( T* buf, int count, int to, int from, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // Collective communication
@@ -428,15 +437,15 @@ EL_NO_RELEASE_EXCEPT;
 // Broadcast
 // ---------
 template<typename Real>
-void Broadcast( Real* buf, int count, int root, Comm comm )
+void Broadcast( Real* buf, int count, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
+void Broadcast( Complex<Real>* buf, int count, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // If the message length is one
 template<typename T>
-void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Broadcast( T& b, int root, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking broadcast
 // ----------------------
@@ -462,11 +471,13 @@ void IBroadcast( T& b, int root, Comm comm, Request& request );
 template<typename Real>
 void Gather
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Real* rbuf, int rc, int root,
+  Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void  Gather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Complex<Real>* rbuf, int rc, int root,
+  Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking gather
 // -------------------
@@ -484,13 +495,14 @@ void IGather
 template<typename Real>
 void Gather
 ( const Real* sbuf, int sc,
-        Real* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+        Real* rbuf, const int* rcs, const int* rds, int root,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, 
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+  int root, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // AllGather
 // ---------
@@ -498,23 +510,25 @@ void Gather
 template<typename Real>
 void AllGather
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Real* rbuf, int rc, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Complex<Real>* rbuf, int rc, Comm comm=COMM_WORLD )
+  EL_NO_RELEASE_EXCEPT;
 
 // AllGather with variable recv sizes
 // ----------------------------------
 template<typename Real>
 void AllGather
 ( const Real* sbuf, int sc,
-        Real* rbuf, const int* rcs, const int* rds, Comm comm )
+        Real* rbuf, const int* rcs, const int* rds, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
+        Complex<Real>* rbuf, const int* rcs, const int* rds,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // Scatter
@@ -522,17 +536,21 @@ EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void Scatter
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Real* rbuf, int rc, int root, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void Scatter
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Complex<Real>* rbuf, int rc, int root, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 // In-place option
 template<typename Real>
-void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
+void Scatter
+( Real* buf, int sc, int rc, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
-void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
+void Scatter
+( Complex<Real>* buf, int sc, int rc, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // AllToAll
@@ -541,246 +559,375 @@ EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllToAll
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Real* rbuf, int rc, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllToAll
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+        Complex<Real>* rbuf, int rc, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 
 // AllToAll with non-uniform send/recv sizes
 // -----------------------------------------
 template<typename Real>
 void AllToAll
 ( const Real* sbuf, const int* scs, const int* sds,
-        Real* rbuf, const int* rcs, const int* rds, Comm comm )
+        Real* rbuf, const int* rcs, const int* rds, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void AllToAll
 ( const Complex<Real>* sbuf, const int* scs, const int* sds,
-        Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
+        Complex<Real>* rbuf, const int* rcs, const int* rds,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
-std::vector<T> AllToAll
-( const std::vector<T>& sendBuf, 
-  const std::vector<int>& sendCounts, 
-  const std::vector<int>& sendDispls,
-  mpi::Comm comm ) EL_NO_RELEASE_EXCEPT;
+vector<T> AllToAll
+( const vector<T>& sendBuf, 
+  const vector<int>& sendCounts, 
+  const vector<int>& sendDispls,
+  Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Reduce
 // ------
 template<typename T>
 void Reduce
-( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm )
+( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void Reduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, 
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+  int root, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Reduce
+( const T* sb, T* rb, int count, OpClass op, bool commutative,
+  int root, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Reduce( sb, rb, count, UserCommOp<T>(), root, comm ); 
+    else
+        Reduce( sb, rb, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
-void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm )
+void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // With a message-size of one
 template<typename T>
-T Reduce( T sb, Op op, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T Reduce( T sb, Op op, int root, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline T Reduce
+( T sb, OpClass op, bool commutative, int root, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        return Reduce( sb, UserCommOp<T>(), root, comm ); 
+    else
+        return Reduce( sb, UserOp<T>(), root, comm ); 
+}
 
 // With a message-size of one and default to SUM
 template<typename T>
-T Reduce( T sb, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T Reduce( T sb, int root, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer reduce
 // --------------------
 template<typename T>
-void Reduce( T* buf, int count, Op op, int root, Comm comm )
+void Reduce( T* buf, int count, Op op, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
-void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
+void Reduce
+( Complex<Real>* buf, int count, Op op, int root, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Reduce
+( T* buf, int count, OpClass op, bool commutative, int root,
+  Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Reduce( buf, count, UserCommOp<T>(), root, comm ); 
+    else
+        Reduce( buf, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
-void Reduce( T* buf, int count, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Reduce( T* buf, int count, int root, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 
 // AllReduce
 // ---------
 template<typename T>
-void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
+void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void AllReduce
-( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
-template<typename T,class OpClass>
-inline void CustomAllReduce
-( const T* sb, T* rb, int count, OpClass op, bool commutative, Comm comm )
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void AllReduce
+( const T* sb, T* rb, int count, OpClass op, bool commutative,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT
 {
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
     if( commutative )
-    {
-        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( sb, rb, count, UserCommOp<T>(), comm ); 
-    }
     else
-    {
-        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( sb, rb, count, UserOp<T>(), comm ); 
-    }
 }
 
 // Default to SUM
 template<typename T>
-void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm )
+void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // If the message-length is one
 template<typename T>
-T AllReduce( T sb, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<typename T,class OpClass>
-inline T CustomAllReduce
-( T sb, OpClass op, bool commutative, Comm comm ) EL_NO_RELEASE_EXCEPT
+T AllReduce( T sb, Op op, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline T AllReduce
+( T sb, OpClass op, bool commutative, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
 {
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
     if( commutative )
-    {
-        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
         return AllReduce( sb, UserCommOp<T>(), comm ); 
-    }
     else
-    {
-        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
         return AllReduce( sb, UserOp<T>(), comm ); 
-    }
 }
 
 // If the message-length is one (and default to SUM)
 template<typename T>
-T AllReduce( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T AllReduce( T sb, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer AllReduce
 // -----------------------
 template<typename T>
-void AllReduce( T* buf, int count, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<typename Real>
-void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
+void AllReduce( T* buf, int count, Op op, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
-template<typename T,class OpClass>
-inline void CustomAllReduce
-( T* buf, int count, OpClass op, bool commutative, Comm comm )
+
+template<typename Real>
+void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void AllReduce
+( T* buf, int count, OpClass op, bool commutative, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT
 {
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
     if( commutative )
-    {
-        SetUserReduceCommFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( buf, count, UserCommOp<T>(), comm ); 
-    }
     else
-    {
-        SetUserReduceFunc( std::function<T(const T&,const T&)>(op) );
         AllReduce( buf, count, UserOp<T>(), comm ); 
-    }
 }
 
 // Default to SUM
 template<typename T>
-void AllReduce( T* buf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void AllReduce( T* buf, int count, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // ReduceScatter
 // -------------
 template<typename Real>
 void ReduceScatter
-( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
+( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void ReduceScatter
-( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
+( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void ReduceScatter
+( const T* sb, T* rb, int count, OpClass op, bool commutative,
+  Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        ReduceScatter( sb, rb, count, UserCommOp<T>(), comm ); 
+    else
+        ReduceScatter( sb, rb, count, UserOp<T>(), comm ); 
+}
 
 // Default to SUM
 template<typename T>
-void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer ReduceScatter
 // ---------------------------
 template<typename Real>
-void ReduceScatter( Real* buf, int rc, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<typename Real>
-void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
+void ReduceScatter( Real* buf, int rc, Op op, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename Real>
+void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void ReduceScatter
+( T* buf, int count, OpClass op, bool commutative, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        ReduceScatter( buf, count, UserCommOp<T>(), comm ); 
+    else
+        ReduceScatter( buf, count, UserOp<T>(), comm ); 
+}
 
 // Default to SUM
 template<typename T>
-void ReduceScatter( T* buf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void ReduceScatter( T* buf, int rc, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Variable-length ReduceScatter
 // -----------------------------
 template<typename Real>
 void ReduceScatter
-( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
+( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void ReduceScatter
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs, Op op, 
-  Comm comm ) EL_NO_RELEASE_EXCEPT;
+  Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void ReduceScatter
+( const T* sb, T* rb, const int* rcs, OpClass op, bool commutative,
+  Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        ReduceScatter( sb, rb, rcs, UserCommOp<T>(), comm ); 
+    else
+        ReduceScatter( sb, rb, rcs, UserOp<T>(), comm ); 
+}
 
 // Default to SUM
 template<typename T>
-void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm )
+void ReduceScatter
+( const T* sbuf, T* rbuf, const int* rcs, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
 
 // Scan
 // ----
 template<typename T>
-void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
+void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
 template<typename Real>
 void Scan
-( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op,
+  Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Scan
+( const T* sb, T* rb, int count, OpClass op, bool commutative,
+  int root, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Scan( sb, rb, count, UserCommOp<T>(), root, comm ); 
+    else
+        Scan( sb, rb, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
-void Scan( const T* sbuf, T* rbuf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Scan
+( const T* sbuf, T* rbuf, int count, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
 
 // With a message-size of one
 template<typename T>
-T Scan( T sb, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T Scan( T sb, Op op, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline T Scan
+( T sb, OpClass op, bool commutative, int root, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        return Scan( sb, UserCommOp<T>(), root, comm ); 
+    else
+        return Scan( sb, UserOp<T>(), root, comm ); 
+}
 
 // With a message-size of one and default to SUM
 template<typename T>
-T Scan( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
+T Scan( T sb, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer scan
 // ------------------
 template<typename T>
-void Scan( T* buf, int count, Op op, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<typename Real>
-void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
+void Scan( T* buf, int count, Op op, Comm comm=COMM_WORLD )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename Real>
+void Scan( Complex<Real>* buf, int count, Op op, Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT;
+
+template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
+inline void Scan
+( T* buf, int count, OpClass op, bool commutative, int root,
+  Comm comm=COMM_WORLD )
+EL_NO_RELEASE_EXCEPT
+{
+    SetUserReduceFunc( function<T(const T&,const T&)>(op), commutative );
+    if( commutative )
+        Scan( buf, count, UserCommOp<T>(), root, comm ); 
+    else
+        Scan( buf, count, UserOp<T>(), root, comm ); 
+}
 
 // Default to SUM
 template<typename T>
-void Scan( T* buf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
+void Scan( T* buf, int count, Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
 void SparseAllToAll
-( const std::vector<T>& sendBuffer,
-  const std::vector<int>& sendCounts, 
-  const std::vector<int>& sendOffs,
-        std::vector<T>& recvBuffer,
-  const std::vector<int>& recvCounts, 
-  const std::vector<int>& recvOffs,
-        Comm comm ) EL_NO_RELEASE_EXCEPT;
+( const vector<T>& sendBuffer,
+  const vector<int>& sendCounts, 
+  const vector<int>& sendOffs,
+        vector<T>& recvBuffer,
+  const vector<int>& recvCounts, 
+  const vector<int>& recvOffs,
+        Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
 
 void VerifySendsAndRecvs
-( const std::vector<int>& sendCounts,
-  const std::vector<int>& recvCounts, Comm comm );
+( const vector<int>& sendCounts,
+  const vector<int>& recvCounts, Comm comm=COMM_WORLD );
 
 void CreateCustom() EL_NO_RELEASE_EXCEPT;
 void DestroyCustom() EL_NO_RELEASE_EXCEPT;
 
 template<typename T> Datatype TypeMap() EL_NO_EXCEPT;
 template<> Datatype TypeMap<byte>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<short>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<int>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<unsigned>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<long int>() EL_NO_EXCEPT;

@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
@@ -24,7 +23,7 @@ void TestCorrectness
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
     if( g.Rank() == 0 )
-        cout << "Testing error..." << endl;
+        Output("Testing error...");
 
     // Set H to the appropriate Hessenberg portion of A
     DistMatrix<F> H( A );
@@ -70,12 +69,11 @@ void TestCorrectness
     const Real frobNormError = FrobeniusNorm( H );
 
     if( g.Rank() == 0 )
-    {
-        cout << "    ||A||_oo = " << infNormAOrig << "\n"
-             << "    ||A||_F  = " << frobNormAOrig << "\n"
-             << "    ||H - Q^H A Q||_oo = " << infNormError << "\n"
-             << "    ||H - Q^H A Q||_F  = " << frobNormError << endl;
-    }
+        Output
+        ("    ||A||_oo = ",infNormAOrig,"\n",
+         "    ||A||_F  = ",frobNormAOrig,"\n",
+         "    ||H - Q^H A Q||_oo = ",infNormError,"\n",
+         "    ||H - Q^H A Q||_F  = ",frobNormError);
 }
 
 template<typename F>
@@ -88,26 +86,14 @@ void TestHessenberg
 
     Uniform( A, n, n );
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
     if( display )
         Display( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting reduction to Hessenberg form...";
-        cout.flush();
-    }
+        Output("  Starting reduction to Hessenberg form...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     Hessenberg( uplo, A, t );
@@ -115,10 +101,7 @@ void TestHessenberg
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds." << std::endl;
-    }
+        Output("  ",runTime," seconds");
     if( print )
     {
         Print( A, "A after Hessenberg" );
@@ -136,7 +119,7 @@ void TestHessenberg
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -164,16 +147,15 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( commRank == 0 )
-            cout << "Double-precision:" << endl;
+            Output("Double-precision:");
         TestHessenberg<double>( uplo, n, g, testCorrectness, print, display );
 
         if( commRank == 0 )
-            cout << "Double-precision complex:" << endl;
+            Output("Double-precision complex:");
         TestHessenberg<Complex<double>>
         ( uplo, n, g, testCorrectness, print, display );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

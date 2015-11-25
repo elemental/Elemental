@@ -499,7 +499,7 @@ void Args::HandleVersion( ostream& os ) const
     const bool foundVersion = ( arg != argv_+argc_ );
     if( foundVersion )
     {
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
             PrintVersion();
         throw ArgException();
     }
@@ -512,7 +512,7 @@ void Args::HandleBuild( ostream& os ) const
     const bool foundBuild = ( arg != argv_+argc_ );
     if( foundBuild )
     {
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
         {
             PrintVersion();
             PrintConfig();
@@ -536,7 +536,7 @@ void ReportException( const exception& e, ostream& os )
     {
         if( string(e.what()) != "" )
         {
-            os << "Process " << mpi::WorldRank() 
+            os << "Process " << mpi::Rank() 
                << " caught an unrecoverable exception with message:\n"
                << e.what() << endl;
         }
@@ -547,7 +547,7 @@ void ReportException( const exception& e, ostream& os )
     { 
         if( string(e.what()) != "" )
         {
-            os << "Process " << mpi::WorldRank() << " caught error message:\n"
+            os << "Process " << mpi::Rank() << " caught error message:\n"
                << e.what() << endl;
         }
         DEBUG_ONLY(DumpCallStack(os))
@@ -557,7 +557,7 @@ void ReportException( const exception& e, ostream& os )
 void ComplainIfDebug()
 {
     DEBUG_ONLY(
-        if( mpi::WorldRank() == 0 )
+        if( mpi::Rank() == 0 )
         {
             Output("=======================================================");
             Output(" In debug mode! Do not expect competitive performance! ");
@@ -629,7 +629,7 @@ std::ostream& LogOS()
     {
         ostringstream fileOS;
         fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
-               << mpi::WorldRank() << ".log";
+               << mpi::Rank() << ".log";
         ::logFile.open( fileOS.str().c_str() );
     }
     return ::logFile; 

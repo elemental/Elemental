@@ -13,7 +13,7 @@ using namespace El;
 
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::Rank( comm );
 
@@ -60,7 +60,7 @@ int main( int argc, char* argv[] )
         const bool conjugate = false;
 
         if( commRank == 0 )
-            cout << "Generating random vector X and forming Y := A X" << endl;
+            Output("Generating random vector X and forming Y := A X");
         const double multiplyStart = mpi::Time();
         DistMultiVec<double> X( N, numRHS, comm ), Y( N, numRHS, comm );
         MakeUniform( X );
@@ -71,18 +71,18 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
-            cout << multiplyStop-multiplyStart << " seconds" << endl;
+            Output(multiplyStop-multiplyStart," seconds");
 
         if( commRank == 0 )
-            cout << "Solving..." << endl;
+            Output("Solving...");
         const double solveStart = mpi::Time();
         SymmetricSolve( A, Y, conjugate, tryLDL, ctrl );
         const double solveStop = mpi::Time();
         if( commRank == 0 )
-            cout << solveStop-solveStart << " seconds" << endl;
+            Output(solveStop-solveStart," seconds");
 
         if( commRank == 0 )
-            cout << "Checking error in computed solution..." << endl;
+            Output("Checking error in computed solution...");
         Matrix<double> XNorms, YNorms;
         ColumnTwoNorms( X, XNorms );
         ColumnTwoNorms( Y, YNorms );
@@ -91,16 +91,15 @@ int main( int argc, char* argv[] )
         ColumnTwoNorms( Y, errorNorms );
         if( commRank == 0 )
             for( int j=0; j<numRHS; ++j )
-                cout << "Right-hand side " << j << "\n"
-                     << "------------------------------------------\n"
-                     << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
-                     << "|| xComp ||_2 = " << YNorms.Get(j,0) << "\n"
-                     << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
-                     << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
-                     << endl;
+                Output
+                ("Right-hand side ",j,"\n",
+                 "------------------------------------------\n",
+                 "|| x     ||_2 = ",XNorms.Get(j,0),"\n",
+                 "|| xComp ||_2 = ",YNorms.Get(j,0),"\n",
+                 "|| A x   ||_2 = ",YOrigNorms.Get(j,0),"\n",
+                 "|| error ||_2 = ",errorNorms.Get(j,0),"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

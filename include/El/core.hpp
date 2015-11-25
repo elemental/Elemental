@@ -10,7 +10,10 @@
 #ifndef EL_CORE_HPP
 #define EL_CORE_HPP
 
-#include "mpi.h"
+// This would ideally be included within core/imports/mpi.hpp, but it is 
+// well-known that this must often be included first.
+#include <mpi.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -33,13 +36,6 @@
 #include <vector>
 #include <iomanip>
 
-#if defined(EL_HAVE_VALGRIND)
-# include "valgrind/valgrind.h"
-# define EL_RUNNING_ON_VALGRIND RUNNING_ON_VALGRIND
-#else
-# define EL_RUNNING_ON_VALGRIND 0
-#endif
-
 // The DEBUG_ONLY and RELEASE_ONLY macros are, to the best of my knowledge, 
 // the only preprocessor names defined by Elemental that is not namespaced 
 // with "EL". Given how frequently they are used, I will leave it as-is 
@@ -50,36 +46,6 @@
 #else
 # define DEBUG_ONLY(cmd) cmd;
 # define RELEASE_ONLY(cmd)
-#endif
-
-#ifdef EL_HYBRID
-# include <omp.h>
-# define EL_PARALLEL_FOR _Pragma("omp parallel for")
-# ifdef EL_HAVE_OMP_COLLAPSE
-#  define EL_PARALLEL_FOR_COLLAPSE2 _Pragma("omp parallel for collapse(2)")
-# else
-#  define EL_PARALLEL_FOR_COLLAPSE2 EL_PARALLEL_FOR
-# endif
-#else
-# define EL_PARALLEL_FOR 
-# define EL_PARALLEL_FOR_COLLAPSE2
-#endif
-
-#ifdef EL_AVOID_OMP_FMA
-# define EL_FMA_PARALLEL_FOR 
-#else
-# define EL_FMA_PARALLEL_FOR EL_PARALLEL_FOR
-#endif
-#ifdef EL_PARALLELIZE_INNER_LOOPS
-# define EL_INNER_PARALLEL_FOR           EL_PARALLEL_FOR
-# define EL_INNER_PARALLEL_FOR_COLLAPSE2 EL_PARALLEL_FOR_COLLAPSE2
-# define EL_OUTER_PARALLEL_FOR 
-# define EL_OUTER_PARALLEL_FOR_COLLAPSE2
-#else
-# define EL_INNER_PARALLEL_FOR
-# define EL_INNER_PARALLEL_FOR_COLLAPSE2
-# define EL_OUTER_PARALLEL_FOR           EL_PARALLEL_FOR
-# define EL_OUTER_PARALLEL_FOR_COLLAPSE2 EL_PARALLEL_FOR_COLLAPSE2
 #endif
 
 #ifdef EL_HAVE_NO_EXCEPT
@@ -97,50 +63,12 @@
 #define EL_CONCAT2(name1,name2) name1 ## name2
 #define EL_CONCAT(name1,name2) EL_CONCAT2(name1,name2)
 
-#if defined(EL_BUILT_BLIS_LAPACK) || defined(EL_BUILT_OPENBLAS)
-
-# ifdef EL_HAVE_BLAS_SUFFIX
-#  define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
-# else
-#  define EL_BLAS(name) FC_GLOBAL(name,name)
-# endif
-# ifdef EL_HAVE_LAPACK_SUFFIX
-#  define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
-# else
-#  define EL_LAPACK(name) FC_GLOBAL(name,name)
-# endif
-
-#else
-
-# if defined(EL_HAVE_BLAS_SUFFIX)
-#  define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
-# else
-#  define EL_BLAS(name) name
-# endif
-
-# if defined(EL_HAVE_LAPACK_SUFFIX)
-#  define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
-# else
-#  define EL_LAPACK(name) name
-# endif
-
-#endif
-
-#if defined(EL_HAVE_SCALAPACK)
-# if defined(EL_BUILT_SCALAPACK)
-#  define EL_SCALAPACK(name) FC_GLOBAL(name,name)
-# else
-#  if defined(EL_HAVE_SCALAPACK_SUFFIX)
-#   define EL_SCALAPACK(name) EL_CONCAT(name,EL_SCALAPACK_SUFFIX)
-#  else
-#   define EL_SCALAPACK(name) name
-#  endif
-# endif
-#endif
-
 // TODO: Think of how to better decouple the following components
 
 // Declare the intertwined core parts of our library
+#include "El/core/imports/valgrind.hpp"
+#include "El/core/imports/omp.hpp"
+#include "El/core/imports/mpc.hpp"
 #include "El/core/Memory.hpp"
 #include "El/core/Element/decl.hpp"
 #include "El/core/types.hpp"

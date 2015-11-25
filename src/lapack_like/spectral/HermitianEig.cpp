@@ -573,7 +573,7 @@ void HermitianEig
     // do so, we must pad Z's dimensions slightly.
     const Int N = MaxLength(n,g.Height())*g.Height();
     const Int K = MaxLength(kEst,g.Size())*g.Size(); 
-    ProxyCtrl proxCtrl;
+    ElementalProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
     proxCtrl.rowConstrain = true;
     proxCtrl.colAlign = 0;

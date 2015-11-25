@@ -23,6 +23,16 @@ inline void AssertScaLAPACKSupport()
 
 #ifdef EL_HAVE_SCALAPACK
 
+#if defined(EL_BUILT_SCALAPACK)
+# define EL_SCALAPACK(name) FC_GLOBAL(name,name)
+#else
+# if defined(EL_HAVE_SCALAPACK_SUFFIX)
+#  define EL_SCALAPACK(name) EL_CONCAT(name,EL_SCALAPACK_SUFFIX)
+# else
+#  define EL_SCALAPACK(name) name
+# endif
+#endif
+
 // TODO: Decide which routines should be modified to use 64-bit integers if
 //       BLAS/LAPACK were modified to do so...
 #include "./scalapack/blacs.hpp"

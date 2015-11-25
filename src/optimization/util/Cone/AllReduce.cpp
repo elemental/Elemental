@@ -91,7 +91,7 @@ void AllReduce
     DEBUG_ONLY(CSE cse("cone::AllReduce"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

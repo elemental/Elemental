@@ -16,8 +16,8 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    const Int worldRank = mpi::WorldRank();
+    Environment env( argc, argv );
+    const Int worldRank = mpi::Rank();
 
     try 
     {
@@ -131,22 +131,16 @@ main( int argc, char* argv[] )
             Print( E, "unpivoted I - Q^H Q" );
 
         if( worldRank == 0 )
-        {
-            cout << "|| A ||_F = " << frobA << "\n\n"
-                 << "With pivoting: \n" 
-                 << "    || A P - Q R ||_F / || A ||_F = " 
-                 << frobQRPiv/frobA << "\n"
-                 << "    || I - Q^H Q ||_F / || A ||_F = "
-                 << frobOrthogPiv/frobA << "\n\n"
-                 << "Without pivoting: \n"
-                 << "    || A - Q R ||_F / || A ||_F = "
-                 << frobQRNoPiv/frobA << "\n"
-                 << "    || I - Q^H Q ||_F / || A ||_F = "
-                 << frobOrthogNoPiv/frobA << "\n" << endl;
-        }
+            Output
+            ("|| A ||_F = ",frobA,"\n\n",
+             "With pivoting: \n", 
+             "    || A P - Q R ||_F / || A ||_F = ",frobQRPiv/frobA,"\n", 
+             "    || I - Q^H Q ||_F / || A ||_F = ",frobOrthogPiv/frobA,"\n\n",
+             "Without pivoting: \n",
+             "    || A - Q R ||_F / || A ||_F = ",frobQRNoPiv/frobA,"\n",
+             "    || I - Q^H Q ||_F / || A ||_F = ",frobOrthogNoPiv/frobA,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

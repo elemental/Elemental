@@ -12,8 +12,7 @@ using namespace El;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
+    Environment env( argc, argv );
 
     try
     {
@@ -22,16 +21,13 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( mpi::WorldRank() == 0 )
-        {
-            const Int commSize = mpi::Size( comm );
-            std::cout << "Will create matrices distributed over " 
-                      << commSize << " process(es) in various ways" 
-                      << std::endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("Will create matrices distributed over ",mpi::Size(), 
+             " process(es) in various ways"); 
 
         // Built-in
-        const Grid grid( comm );
+        const Grid grid;
         {
             DistMatrix<double> X(grid);
             Identity( X, n, n );
@@ -82,6 +78,5 @@ main( int argc, char* argv[] )
     }
     catch( std::exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

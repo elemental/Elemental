@@ -12,6 +12,37 @@
 
 namespace El {
 
+// NOTE: The EL_LAPACK macro is defined here since many of the BLAS overloads
+//       (e.g., zsyr) are technically LAPACK routines
+#if defined(EL_BUILT_BLIS_LAPACK) || defined(EL_BUILT_OPENBLAS)
+
+# ifdef EL_HAVE_BLAS_SUFFIX
+#  define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
+# else
+#  define EL_BLAS(name) FC_GLOBAL(name,name)
+# endif
+# ifdef EL_HAVE_LAPACK_SUFFIX
+#  define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
+# else
+#  define EL_LAPACK(name) FC_GLOBAL(name,name)
+# endif
+
+#else
+
+# if defined(EL_HAVE_BLAS_SUFFIX)
+#  define EL_BLAS(name) EL_CONCAT(name,EL_BLAS_SUFFIX)
+# else
+#  define EL_BLAS(name) name
+# endif
+
+# if defined(EL_HAVE_LAPACK_SUFFIX)
+#  define EL_LAPACK(name) EL_CONCAT(name,EL_LAPACK_SUFFIX)
+# else
+#  define EL_LAPACK(name) name
+# endif
+
+#endif
+
 #ifdef EL_USE_64BIT_BLAS_INTS
 typedef long long int BlasInt;
 #else

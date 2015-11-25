@@ -16,7 +16,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -80,7 +80,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( r == 0 )
-            r = Grid::FindFactor( mpi::Size(mpi::COMM_WORLD) );
+            r = Grid::FindFactor( mpi::Size() );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( mpi::COMM_WORLD, r, order );
         SetBlocksize( nbAlg );
@@ -102,8 +102,7 @@ main( int argc, char* argv[] )
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
         bool isReal = true;
-        string matName;
-        ostringstream os;
+        string matName, readName;
         DistMatrix<Real> AReal(g);
         DistMatrix<C> ACpx(g);
         switch( matType )
@@ -138,18 +137,21 @@ main( int argc, char* argv[] )
             isReal = true;
             break;
         case 6: matName=basename;
-            os << basename << "_" 
-               << AReal.ColStride() << "x" << AReal.RowStride()
-               << "_" << AReal.DistRank() << ".bin";
+            readName =
+              BuildString
+              (basename,"_",AReal.ColStride(),"x",AReal.RowStride(),"_",
+               AReal.DistRank(),".bin");
             AReal.Resize( n, n );
-            Read( AReal.Matrix(), os.str(), BINARY );
+            Read( AReal.Matrix(), readName, BINARY );
             isReal = true;
             break;
         case 7: matName=basename;
-            os << basename << "_" << ACpx.ColStride() << "x" << ACpx.RowStride()
-               << "_" << ACpx.DistRank() << ".bin";
+            readName =
+              BuildString
+              (basename,"_",ACpx.ColStride(),"x",ACpx.RowStride(),"_",
+               ACpx.DistRank(),".bin");
             ACpx.Resize( n, n );
-            Read( ACpx.Matrix(), os.str(), BINARY );
+            Read( ACpx.Matrix(), readName, BINARY );
             isReal = false;
             break;
         default:
@@ -195,22 +197,24 @@ main( int argc, char* argv[] )
             if( oneNorm == 0. && radius == 0. )
             {
                 width = 1;
-                if( mpi::WorldRank() == 0 )
-                    cout << "Setting width to 1 to handle zero matrix" << endl;
+                if( mpi::Rank() == 0 )
+                    Output("Setting width to 1 to handle zero matrix");
             }
             else if( radius >= 0.2*oneNorm )
             {
                 width = 2.5*radius;
-                if( mpi::WorldRank() == 0 )
-                    cout << "Setting width to " << width
-                         << " based on the spectral radius, " << radius << endl;
+                if( mpi::Rank() == 0 )
+                    Output
+                    ("Setting width to ",width,
+                     " based on the spectral radius, ",radius);
             }
             else
             {
                 width = 0.8*oneNorm;
-                if( mpi::WorldRank() == 0 )
-                    cout << "Setting width to " << width
-                         << " based on the one norm, " << oneNorm << endl;
+                if( mpi::Rank() == 0 )
+                    Output
+                    ("Setting width to ",width," based on the one norm, ",
+                     oneNorm);
             }
             realWidth = width;
             imagWidth = width;
@@ -250,9 +254,7 @@ main( int argc, char* argv[] )
             const Real realChunkWidth = xStep*realChunkSize;
             for( Int imagChunk=0; imagChunk<numImag; ++imagChunk )
             {
-                ostringstream chunkStream;
-                chunkStream << "_" << realChunk << "_" << imagChunk;
-                const string chunkTag = chunkStream.str();
+                auto chunkTag = BuildString("_",realChunk,"_",imagChunk);
 
                 const Int imagChunkSize = 
                     ( imagChunk==numImag-1 ? yLeftover : yBlock );
@@ -263,10 +265,10 @@ main( int argc, char* argv[] )
                 const C chunkCenter = chunkCorner + 
                     0.5*C(xStep*realChunkSize,yStep*imagChunkSize);
 
-                if( mpi::WorldRank() == 0 )
-                    cout << "Starting computation for chunk centered at "
-                         << chunkCenter << endl;
-                mpi::Barrier( mpi::COMM_WORLD );
+                if( mpi::Rank() == 0 )
+                    Output
+                    ("Starting computation for chunk centered at ",chunkCenter);
+                mpi::Barrier();
                 timer.Start();
                 psCtrl.snapCtrl.imgBase = matName+"_"+imgBase+chunkTag;
                 psCtrl.snapCtrl.numBase = matName+"_"+numBase+chunkTag;
@@ -290,19 +292,17 @@ main( int argc, char* argv[] )
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );
                 }
-                mpi::Barrier( mpi::COMM_WORLD );
+                mpi::Barrier();
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );
-                if( mpi::WorldRank() == 0 )
-                {
-                    cout << "num seconds=" << pseudoTime << "\n"
-                         << "num iterations=" << numIts << endl;
-                }
+                if( mpi::Rank() == 0 )
+                    Output
+                    ("num seconds=",pseudoTime,"\n",
+                     "num iterations=",numIts);
             }
         }
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

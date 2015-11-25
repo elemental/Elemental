@@ -14,7 +14,7 @@ typedef double Real;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
             w *= 1/wNorm;
         }
         Real offset = SampleNormal();
-        mpi::Broadcast( offset, 0, mpi::COMM_WORLD );
+        mpi::Broadcast( offset, 0 );
 
         // Draw each example (row) from a Gaussian perturbation of a point
         // lying on the hyperplane
@@ -60,8 +60,8 @@ main( int argc, char* argv[] )
                       { return alpha >= 0 ? Real(1) : Real(-1); }; 
         EntrywiseMap( q, function<Real(Real)>(sgnMap) );
 
-        if( mpi::WorldRank() == 0 )
-            cout << "offset=" << offset << endl;
+        if( mpi::Rank() == 0 )
+            Output("offset=",offset);
         if( print )
         {
             Print( w, "w" );
@@ -83,12 +83,12 @@ main( int argc, char* argv[] )
         auto wSVM = View( wHatSVM, 0, 0, n, 1 );
         const Real offsetSVM = -wHatSVM.Get(n,0);
         const Real wSVMNorm = FrobeniusNorm( wSVM );
-        if( mpi::WorldRank() == 0 )
-            cout << "|| wSVM ||_2=" << wSVMNorm << "\n"
-                 << "margin      =" << Real(2)/wSVMNorm << "\n"
-                 << "offsetSVM=" << offsetSVM << "\n"
-                 << "offsetSVM / || wSVM ||_2=" << offsetSVM/wSVMNorm 
-                 << endl;
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| wSVM ||_2=",wSVMNorm,"\n",
+             "margin      =",Real(2)/wSVMNorm,"\n",
+             "offsetSVM   =",offsetSVM,"\n",
+             "offsetSVM / || wSVM ||_2=",offsetSVM/wSVMNorm);
         if( print )
             Print( wSVM, "wSVM" );
 
@@ -101,11 +101,10 @@ main( int argc, char* argv[] )
             Print( qSVM, "qSVM" );
         qSVM -= q;
         const Real numWrong = OneNorm(qSVM) / Real(2);
-        if( mpi::WorldRank() == 0 )
-            cout << "ratio misclassified: " << numWrong << "/" << m << endl;
+        if( mpi::Rank() == 0 )
+            Output("ratio misclassified: ",numWrong,"/",m);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

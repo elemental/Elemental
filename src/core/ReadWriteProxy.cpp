@@ -17,7 +17,7 @@ template<typename T,typename S>
 shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A )
 {
     typedef Matrix<T> M;
-    if( std::is_same<S,T>::value )
+    if( IsSame<S,T>::value )
     {
         auto ACast = reinterpret_cast<Matrix<T>*>(A);
         return shared_ptr<Matrix<T>>
@@ -37,10 +37,10 @@ shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A )
 
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> 
-ReadWriteProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
+ReadWriteProxy( AbstractDistMatrix<S>* A, const ElementalProxyCtrl& ctrl )
 {
     typedef DistMatrix<T,U,V> DM;
-    if( std::is_same<S,T>::value )
+    if( IsSame<S,T>::value )
     {
         DM* ACast = dynamic_cast<DM*>(A);
 
@@ -58,11 +58,11 @@ ReadWriteProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
             // This is somewhat tricky since a subsequent write could otherwise
             // change the alignment.
             if( ctrl.colConstrain )
-                A->AlignCols( ctrl.colAlign );
+                ACast->AlignCols( ctrl.colAlign );
             if( ctrl.rowConstrain )
-                A->AlignRows( ctrl.rowAlign );
+                ACast->AlignRows( ctrl.rowAlign );
             if( ctrl.rootConstrain )
-                A->SetRoot( ctrl.root );
+                ACast->SetRoot( ctrl.root );
             return shared_ptr<DM>( ACast, []( const DM* B ) { } );
         }
     }
@@ -90,7 +90,7 @@ ReadWriteProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl )
 
 #define CONVERT_DIST(S,T,U,V) \
   template shared_ptr<DistMatrix<T,U,V>> \
-  ReadWriteProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl );
+  ReadWriteProxy( AbstractDistMatrix<S>* A, const ElementalProxyCtrl& ctrl );
 
 #define CONVERT(S,T) \
   template shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A ); \

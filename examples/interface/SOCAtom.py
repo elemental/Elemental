@@ -1,7 +1,6 @@
 # A problematic SOC problem from CVXPY's tests.
 
 import El
-El.Initialize()
 
 orders = El.DistMultiVec(El.iTag)
 firstInds = El.DistMultiVec(El.iTag)

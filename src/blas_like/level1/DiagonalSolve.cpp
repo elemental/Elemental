@@ -80,7 +80,7 @@ void DiagonalSolve
     )
     if( side == LEFT )
     {
-        ProxyCtrl ctrl;
+        ElementalProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
@@ -92,7 +92,7 @@ void DiagonalSolve
     }
     else
     {
-        ProxyCtrl ctrl;
+        ElementalProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();

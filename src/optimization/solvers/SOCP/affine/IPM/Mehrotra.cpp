@@ -418,7 +418,7 @@ void Mehrotra
     b = bPre;
     c = cPre;
     h = hPre;
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;

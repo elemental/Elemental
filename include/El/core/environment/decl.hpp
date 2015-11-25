@@ -46,11 +46,20 @@ void PrintCxxCompilerInfo( ostream& os=cout );
 bool Using64BitInt();
 bool Using64BitBlasInt();
 
-// For initializing and finalizing Elemental
+// For manually initializing and finalizing Elemental
 void Initialize();
 void Initialize( int& argc, char**& argv );
 void Finalize();
 bool Initialized();
+
+// For initializing/finalizing Elemental using RAII
+class Environment
+{
+public:
+    Environment() { Initialize(); }
+    Environment( int& argc, char**& argv ) { Initialize( argc, argv ); }
+    ~Environment() { Finalize(); }
+};
 
 // For getting the MPI argument instance (for internal usage)
 class Args : public choice::MpiArgs

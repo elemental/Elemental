@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 typedef double Real;
@@ -16,7 +15,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -24,7 +23,7 @@ main( int argc, char* argv[] )
         const Int n = Input("--width","width of matrix",100);
         const Int r = Input("--rank","rank of matrix",5);
         const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
-        const double tol = Input("--tol","tolerance for ID",-1.);
+        const Real tol = Input("--tol","tolerance for ID",Real(-1));
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -39,10 +38,10 @@ main( int argc, char* argv[] )
             Print( A, "A" );
 
         const Grid& g = A.Grid();
-        QRCtrl<double> ctrl;
+        QRCtrl<Real> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = maxSteps;
-        if( tol != -1. )
+        if( tol != Real(-1) )
         {
             ctrl.adaptive = true;
             ctrl.tol = tol;
@@ -53,8 +52,8 @@ main( int argc, char* argv[] )
         const Int rank = Z.Height();
         if( print )
         {
-            Print( permR, "permR" );
-            Print( permC, "permC" );
+            Print( permR, "perm_R" );
+            Print( permC, "perm_C" );
             Print( Z, "Z" );
         }
 
@@ -67,8 +66,8 @@ main( int argc, char* argv[] )
         AC.Resize( A.Height(), rank );
         if( print )
         {
-            Print( AC, "AC" );
-            Print( AR, "AR" );
+            Print( AC, "A_C" );
+            Print( AR, "A_R" );
         }
 
         // Check || A - AC Z AR ||_F / || A ||_F
@@ -77,17 +76,14 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, NORMAL, C(-1), AC, B, C(1), A );
         const Real frobError = FrobeniusNorm( A );
         if( print )
-            Print( A, "A - AC Z AR" );
+            Print( A, "A - A_C Z A_R" );
 
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "|| A ||_F = " << frobA << "\n\n"
-                 << "|| A - AC Z AR ||_F / || A ||_F = " 
-                 << frobError/frobA << "\n" << endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A ||_F = ",frobA,"\n",
+             "|| A - A_C Z A_R ||_F / || A ||_F = ",frobError/frobA);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

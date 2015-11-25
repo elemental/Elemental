@@ -12,7 +12,7 @@ using namespace El;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
 
         if( filename == "" )
         {
-            cout << "Please specify a filename to read" << endl;
+            Output("Please specify a filename to read");
         }
         else
         {
@@ -46,6 +46,5 @@ main( int argc, char* argv[] )
     }
     catch( std::exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

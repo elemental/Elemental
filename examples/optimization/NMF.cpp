@@ -14,7 +14,7 @@ typedef double Real;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -58,14 +58,13 @@ main( int argc, char* argv[] )
             Print( Y, "Y" );
         }
 
-        const double ANorm = FrobeniusNorm( A );
+        const Real ANorm = FrobeniusNorm( A );
         Gemm( NORMAL, ADJOINT, Real(-1), X, Y, Real(1), A );
-        const double ENorm = FrobeniusNorm( A );
-        if( mpi::WorldRank() == 0 )
-            cout << "|| A - X Y^H ||_F / || A ||_F = " << ENorm/ANorm << endl;
+        const Real ENorm = FrobeniusNorm( A );
+        if( mpi::Rank() == 0 )
+            Output("|| A - X Y^H ||_F / || A ||_F = ",ENorm/ANorm);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

@@ -42,7 +42,7 @@ void MaxEig
     DEBUG_ONLY(CSE cse("soc::MaxEig"))
     AssertSameGrids( xPre, maxEigsPre, orders, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
@@ -133,7 +133,7 @@ Real MaxEig
     DEBUG_ONLY(CSE cse("soc::MaxEig"))
     AssertSameGrids( x, orders, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

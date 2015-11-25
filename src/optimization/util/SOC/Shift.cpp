@@ -44,7 +44,7 @@ void Shift
     DEBUG_ONLY(CSE cse("soc::Shift"))
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

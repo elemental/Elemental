@@ -68,7 +68,7 @@ void Dots
     DEBUG_ONLY(CSE cse("soc::Dots"))
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

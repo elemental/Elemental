@@ -157,8 +157,19 @@ void Multiply
 template<typename T>
 void Multiply
 ( Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, const DistMultiVec<T>& X,
-  T beta,                                      DistMultiVec<T>& Y );
+  T alpha,
+  const DistSparseMatrix<T>& A,
+  const DistMultiVec<T>& X,
+  T beta,
+        DistMultiVec<T>& Y );
+template<typename T>
+void Multiply
+( Orientation orientation,
+  T alpha,
+  const DistSparseMatrix<T>& A,
+  const AbstractDistMatrix<T>& X,
+  T beta,
+        AbstractDistMatrix<T>& Y );
 
 // MultiShiftQuasiTrsm
 // ===================

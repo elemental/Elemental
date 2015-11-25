@@ -7,13 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
 void TestCorrectness
 ( const DistMatrix<F,VC,  STAR>& A,
-        DistMatrix<F,VC,  STAR>& B, Base<F> tau, bool print )
+        DistMatrix<F,VC,  STAR>& B,
+  Base<F> tau,
+  bool print )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -29,16 +30,20 @@ void TestCorrectness
     const Real BFrob = FrobeniusNorm( B );
     const Real errorFrob = FrobeniusNorm( BNormal );
     if( g.Rank() == 0 )
-        cout << "  || A ||_F = " << AFrob << "\n"
-             << "  || B ||_F = " << BFrob << "\n"
-             << "  || E ||_F = " << errorFrob << "\n"
-             << endl;
+        Output
+        ("  || A ||_F = ",AFrob,"\n",
+         "  || B ||_F = ",BFrob,"\n",
+         "  || E ||_F = ",errorFrob);
 }
 
 template<typename F>
 void TestSVT
-( bool testCorrectness, bool print,
-  Int m, Int n, const Grid& g, Base<F> tau )
+( bool testCorrectness,
+  bool print,
+  Int m,
+  Int n,
+  const Grid& g,
+  Base<F> tau )
 {
     DistMatrix<F,VC,STAR> A(g), B(g);
     Uniform( A, m, n );
@@ -47,17 +52,14 @@ void TestSVT
     B = A;
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting TS-SVT factorization...";
-        cout.flush();
-    }
+        Output("  Starting TS-SVT factorization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     SVT( B, tau );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
-        cout << "DONE. Time = " << runTime << " seconds." << endl;
+        Output("  ",runTime," seconds");
     if( print )
         Print( B, "B" );
     if( testCorrectness )
@@ -67,7 +69,7 @@ void TestSVT
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
 
@@ -88,19 +90,16 @@ main( int argc, char* argv[] )
         const Grid g( comm, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            cout << "Will test TS-SVT" << endl;
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestSVT<double>( testCorrectness, print, m, n, g, tau );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestSVT<double>( testCorrectness, print, m, n, g, tau );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

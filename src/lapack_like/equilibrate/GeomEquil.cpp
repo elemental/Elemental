@@ -242,7 +242,7 @@ void GeomEquil
     DEBUG_ONLY(CSE cse("GeomEquil"))
     typedef Base<F> Real;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;
@@ -338,7 +338,7 @@ void StackedGeomEquil
     DEBUG_ONLY(CSE cse("StackedGeomEquil"))
     typedef Base<F> Real;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;

@@ -269,7 +269,7 @@ void AugmentedKKTRHS
 {
     DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKTRHS"))
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.rowConstrain = true;
     ctrl.colAlign = 0;

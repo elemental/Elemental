@@ -247,7 +247,7 @@ void KKT
     const Int k = G.Height();
     const Grid& g = A.Grid();
 
-    ProxyCtrl proxCtrl;
+    ElementalProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
     proxCtrl.colAlign = 0;
 

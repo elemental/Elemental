@@ -101,7 +101,7 @@ void DiagonalScaleTrapezoid
 
     if( side == LEFT )
     {
-        ProxyCtrl ctrl;
+        ElementalProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
@@ -151,7 +151,7 @@ void DiagonalScaleTrapezoid
     }
     else
     {
-        ProxyCtrl ctrl;
+        ElementalProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();

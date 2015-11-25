@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
@@ -25,7 +24,7 @@ void TestCorrectness
     const Int minDim = std::min(m,n);
 
     if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of Q..." << endl;
+        Output("  Testing orthogonality of Q...");
 
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
@@ -39,18 +38,17 @@ void TestCorrectness
     Identity( X, minDim, minDim );
     X -= ZUpper;
 
-    Real oneNormOfError = OneNorm( X );
-    Real infNormOfError = InfinityNorm( X );
-    Real frobNormOfError = FrobeniusNorm( X );
+    Real oneNormError = OneNorm( X );
+    Real infNormError = InfinityNorm( X );
+    Real frobNormError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
-    {
-        cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
-             << "    ||Q Q^H - I||_F  = " << frobNormOfError << endl;
-    }
+        Output
+        ("    ||Q Q^H - I||_1  = ",oneNormError,"\n",
+         "    ||Q Q^H - I||_oo = ",infNormError,"\n",
+         "    ||Q Q^H - I||_F  = ",frobNormError);
 
     if( g.Rank() == 0 )
-        cout << "  Testing if A = LQ..." << endl;
+        Output("  Testing if A = LQ...");
 
     // Form L Q
     auto L( A );
@@ -60,21 +58,20 @@ void TestCorrectness
     // Form L Q - A
     L -= AOrig;
     
-    const Real oneNormOfA = OneNorm( AOrig );
-    const Real infNormOfA = InfinityNorm( AOrig );
-    const Real frobNormOfA = FrobeniusNorm( AOrig );
-    oneNormOfError = OneNorm( L );
-    infNormOfError = InfinityNorm( L );
-    frobNormOfError = FrobeniusNorm( L );
+    const Real oneNormA = OneNorm( AOrig );
+    const Real infNormA = InfinityNorm( AOrig );
+    const Real frobNormA = FrobeniusNorm( AOrig );
+    oneNormError = OneNorm( L );
+    infNormError = InfinityNorm( L );
+    frobNormError = FrobeniusNorm( L );
     if( g.Rank() == 0 )
-    {
-        cout << "    ||A||_1       = " << oneNormOfA << "\n"
-             << "    ||A||_oo      = " << infNormOfA << "\n"
-             << "    ||A||_F       = " << frobNormOfA << "\n"
-             << "    ||A - LQ||_1  = " << oneNormOfError << "\n"
-             << "    ||A - LQ||_oo = " << infNormOfError << "\n"
-             << "    ||A - LQ||_F  = " << frobNormOfError << endl;
-    }
+        Output
+        ("    ||A||_1       = ",oneNormA,"\n",
+         "    ||A||_oo      = ",infNormA,"\n",
+         "    ||A||_F       = ",frobNormA,"\n",
+         "    ||A - LQ||_1  = ",oneNormError,"\n",
+         "    ||A - LQ||_oo = ",infNormError,"\n",
+         "    ||A - LQ||_F  = ",frobNormError);
 }
 
 template<typename F>
@@ -84,26 +81,14 @@ void TestLQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     Uniform( A, m, n );
 
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting LQ factorization...";
-        cout.flush();
-    }
+        Output("  Starting LQ factorization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     LQ( A, t, d );
@@ -114,11 +99,7 @@ void TestLQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     const double realGFlops = (2.*mD*mD*nD - 2./3.*mD*mD*mD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
@@ -132,7 +113,7 @@ void TestLQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -157,18 +138,17 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test LQ" << endl;
+            Output("Will test LQ");
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestLQ<double>( testCorrectness, print, m, n, g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestLQ<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

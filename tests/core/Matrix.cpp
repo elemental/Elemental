@@ -35,13 +35,13 @@ void TestMatrix( Int m, Int n, Int ldim )
 
     const Int commRank = mpi::Rank( mpi::COMM_WORLD );
     if( commRank == 0 )
-        cout << "passed" << endl;
+        Output("passed");
 }
 
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     try 
     {
         const Int m = Input("--height","height of matrix",100);
@@ -50,16 +50,15 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( mpi::WorldRank() == 0 )
-            cout << "Testing with doubles" << endl;
+        if( mpi::Rank() == 0 )
+            Output("Testing with doubles");
         TestMatrix<double>( m, n, ldim );
 
-        if( mpi::WorldRank() == 0 )
-            cout << "Testing with double-precision complex..." << endl;
+        if( mpi::Rank() == 0 )
+            Output("Testing with double-precision complex...");
         TestMatrix<Complex<double>>( m, n, ldim );
     }
     catch( std::exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

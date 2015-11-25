@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F,Dist UPerm>
 void TestCorrectness
-( bool pivot, UpperOrLower uplo,
+( bool pivot,
+  UpperOrLower uplo,
   const DistMatrix<F>& A,
   const DistMatrix<Int,UPerm,STAR>& p,
   const DistMatrix<F>& AOrig )
@@ -29,10 +29,7 @@ void TestCorrectness
     Hemm( LEFT, uplo, F(1), AOrig, X, F(0), Y );
     const Real maxNormL = HermitianMaxNorm( uplo, A );
     const Real maxNormA = HermitianMaxNorm( uplo, AOrig );
-    const Real infNormA = HermitianInfinityNorm( uplo, AOrig );
     const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
-    const Real oneNormY = OneNorm( Y );
-    const Real infNormY = InfinityNorm( Y );
     const Real frobNormY = FrobeniusNorm( Y );
 
     if( pivot )
@@ -40,53 +37,38 @@ void TestCorrectness
     else
         cholesky::SolveAfter( uplo, NORMAL, A, Y );
     X -= Y;
-    const Real oneNormE = OneNorm( X );
-    const Real infNormE = InfinityNorm( X );
     const Real frobNormE = FrobeniusNorm( X );
 
     if( g.Rank() == 0 )
-    {
-        cout << "||L||_max            = " << maxNormL << "\n"
-             << "||A||_max            = " << maxNormA << "\n"
-             << "||A||_1 = ||A||_oo   = " << infNormA << "\n"
-             << "||A||_F              = " << frobNormA << "\n"
-             << "||Y||_1              = " << oneNormY << "\n"
-             << "||Y||_oo             = " << infNormY << "\n"
-             << "||Y||_F              = " << frobNormY << "\n"
-             << "||X - inv(A) X||_1  = " << oneNormE << "\n"
-             << "||X - inv(A) X||_oo = " << infNormE << "\n"
-             << "||X - inv(A) X||_F  = " << frobNormE << endl;
-    }
+        Output
+        ("||L||_max            = ",maxNormL,"\n",
+         "||A||_max            = ",maxNormA,"\n",
+         "||A||_F              = ",frobNormA,"\n",
+         "||Y||_F              = ",frobNormY,"\n",
+         "||X - inv(A) X||_F  = ",frobNormE);
 }
 
 template<typename F,Dist UPerm> 
 void TestCholesky
-( bool testCorrectness, bool pivot, bool print, bool printDiag,
-  UpperOrLower uplo, Int m, const Grid& g )
+( bool testCorrectness,
+  bool pivot,
+  bool print,
+  bool printDiag,
+  UpperOrLower uplo,
+  Int m,
+  const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<Int,UPerm,STAR> p(g);
 
     HermitianUniformSpectrum( A, m, 1e-9, 10 );
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Cholesky factorization...";
-        cout.flush();
-    }
+        Output("  Starting Cholesky...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( pivot )
@@ -98,11 +80,7 @@ void TestCholesky
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE.\n"
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     { 
         Print( A, "A after factorization" );
@@ -118,7 +96,7 @@ void TestCholesky
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -149,20 +127,19 @@ main( int argc, char* argv[] )
         SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test Cholesky" << uploChar << endl;
+            Output("Will test Cholesky",uploChar);
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestCholesky<double,VC>
         ( testCorrectness, pivot, print, printDiag, uplo, m, g );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestCholesky<Complex<double>,VC>
         ( testCorrectness, pivot, print, printDiag, uplo, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

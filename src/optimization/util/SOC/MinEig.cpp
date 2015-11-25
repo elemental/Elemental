@@ -43,7 +43,7 @@ void MinEig
     DEBUG_ONLY(CSE cse("soc::MinEig"))
     AssertSameGrids( xPre, minEigsPre, orders, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
@@ -134,7 +134,7 @@ Real MinEig
     DEBUG_ONLY(CSE cse("soc::MinEig"))
     AssertSameGrids( x, orders, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

@@ -63,7 +63,7 @@ void SquareRoot
     DEBUG_ONLY(CSE cse("soc::SquareRoot"))
     AssertSameGrids( xPre, xRootPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

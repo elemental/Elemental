@@ -16,18 +16,29 @@ struct ProxyCtrl
 {
     bool colConstrain, rowConstrain, rootConstrain;
     Int colAlign, rowAlign, root;
+    Int blockHeight, blockWidth;
+    Int colCut, rowCut;
 
     ProxyCtrl() 
+    : colConstrain(false), rowConstrain(false), rootConstrain(false),
+      colAlign(0), rowAlign(0), root(0), 
+      blockHeight(DefaultBlockHeight()), blockWidth(DefaultBlockWidth()),
+      colCut(0), rowCut(0)
+    { }
+};
+
+struct ElementalProxyCtrl
+{
+    bool colConstrain, rowConstrain, rootConstrain;
+    Int colAlign, rowAlign, root;
+
+    ElementalProxyCtrl() 
     : colConstrain(false), rowConstrain(false), rootConstrain(false),
       colAlign(0), rowAlign(0), root(0) 
     { }
 };
 
-// TODO: BlockProxyCtrl
-
 // TODO: Detailed description of the allowed (S,T) pairings
-
-// TODO: Allow elemental and block-cyclic matrices to interact through proxies
 
 // Read proxy
 // ==========
@@ -43,10 +54,16 @@ shared_ptr<Matrix<T>> ReadProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<const DistMatrix<T,U,V>>
-ReadProxy( const ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+ReadProxy
+( const AbstractDistMatrix<S>* A,
+  const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>>
-ReadProxy( ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+ReadProxy
+( AbstractDistMatrix<S>* A,
+  const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
+
+// TODO: General DistMatrix version
 
 // Read-write proxy
 // ================
@@ -60,7 +77,8 @@ shared_ptr<Matrix<T>> ReadWriteProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
-( ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+( AbstractDistMatrix<S>* A,
+  const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
 
 // Write proxy
 // ===========
@@ -74,7 +92,10 @@ shared_ptr<Matrix<T>> WriteProxy( Matrix<S>* A );
 // -----------
 template<typename T,Dist U,Dist V,typename S>
 shared_ptr<DistMatrix<T,U,V>> WriteProxy
-( ElementalMatrix<S>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+( AbstractDistMatrix<S>* A,
+  const ElementalProxyCtrl& ctrl=ElementalProxyCtrl() );
+
+// TODO: General implementation
 
 } // namespace El
 

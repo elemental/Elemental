@@ -22,7 +22,6 @@
 # which has three SOCs of size three.
 
 import El
-El.Initialize()
 
 orders = El.DistMultiVec(El.iTag)
 firstInds = El.DistMultiVec(El.iTag)

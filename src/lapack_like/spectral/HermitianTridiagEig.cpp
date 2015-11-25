@@ -99,7 +99,7 @@ inline void Helper
         SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
-    ProxyCtrl wCtrl;
+    ElementalProxyCtrl wCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
     auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
@@ -144,7 +144,7 @@ inline void Helper
         SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
-    ProxyCtrl wCtrl;
+    ElementalProxyCtrl wCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
     auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
@@ -329,7 +329,7 @@ inline void Helper
     const Int n = d.Height();
     const Grid& g = d.Grid();
 
-    ProxyCtrl wCtrl, ZCtrl;
+    ElementalProxyCtrl wCtrl, ZCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;
@@ -425,7 +425,7 @@ inline void Helper
         dSubReal.SetLocal( j, 0, psiAbs );
     }
 
-    ProxyCtrl wCtrl, ZCtrl;
+    ElementalProxyCtrl wCtrl, ZCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;
@@ -536,7 +536,7 @@ void HermitianTridiagEigPostEstimate
 {
     DEBUG_ONLY(CSE cse("HermitianTridiagEigPostEstimate"))
 
-    ProxyCtrl wCtrl, ZCtrl;
+    ElementalProxyCtrl wCtrl, ZCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;

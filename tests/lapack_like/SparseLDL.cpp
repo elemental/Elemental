@@ -22,7 +22,7 @@ using namespace El;
 
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::Rank( comm );
 
@@ -74,7 +74,7 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-            cout << "Generating random X and forming Y := A X..." << endl;
+            Output("Generating random X and forming Y := A X...");
         const double multiplyStart = mpi::Time();
         DistMultiVec<double> X( N, numRHS, comm ), Y( N, numRHS, comm );
         MakeUniform( X );
@@ -85,7 +85,7 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double multiplyStop = mpi::Time();
         if( commRank == 0 )
-            cout << multiplyStop-multiplyStart << " seconds" << endl; 
+            Output(multiplyStop-multiplyStart," seconds");
         if( display )
         {
             Display( X, "X" );
@@ -98,7 +98,7 @@ int main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-            cout << "Running nested dissection..." << endl;
+            Output("Running nested dissection...");
         const double nestedStart = mpi::Time();
         const auto& graph = A.DistGraph();
         ldl::DistNodeInfo info;
@@ -113,11 +113,11 @@ int main( int argc, char* argv[] )
         mpi::Barrier( comm );
         const double nestedStop = mpi::Time();
         if( commRank == 0 )
-            cout << nestedStop-nestedStart << " seconds" << endl;
+            Output(nestedStop-nestedStart," seconds");
 
         const Int rootSepSize = info.size;
         if( commRank == 0 )
-            cout << rootSepSize << " vertices in root separator\n" << endl;
+            Output(rootSepSize," vertices in root separator\n");
         /*
         if( display )
         {
@@ -130,14 +130,14 @@ int main( int argc, char* argv[] )
         */
 
         if( commRank == 0 )
-            cout << "Building ldl::DistFront tree..." << endl;
+            Output("Building ldl::DistFront tree...");
         mpi::Barrier( comm );
         const double buildStart = mpi::Time();
         ldl::DistFront<double> front( A, map, sep, info );
         mpi::Barrier( comm );
         const double buildStop = mpi::Time();
         if( commRank == 0 )
-            cout << buildStop-buildStart << " seconds" << endl;
+            Output(buildStop-buildStart," seconds");
 
         // Unpack the ldl::DistFront into a sparse matrix
         if( unpack )
@@ -160,13 +160,14 @@ int main( int argc, char* argv[] )
         const Int entriesBefore =
           mpi::AllReduce( localEntriesBefore, mpi::SUM, comm );
         if( commRank == 0 )
-            cout << "Memory usage before factorization: \n"
-                 << "  min entries:   " << minLocalEntriesBefore << "\n"
-                 << "  max entries:   " << maxLocalEntriesBefore << "\n"
-                 << "  total entries: " << entriesBefore << "\n" << endl;
+            Output
+            ("Memory usage before factorization: \n",
+             "  min entries:   ",minLocalEntriesBefore,"\n",
+             "  max entries:   ",maxLocalEntriesBefore,"\n",
+             "  total entries: ",entriesBefore,"\n");
 
         if( commRank == 0 )
-            cout << "Running LDL^T and redistribution..." << endl;
+            Output("Running LDL^T and redistribution...");
         SetBlocksize( nbFact );
         mpi::Barrier( comm );
         const double ldlStart = mpi::Time();
@@ -193,7 +194,7 @@ int main( int argc, char* argv[] )
         const double factGFlops = mpi::AllReduce( localFactGFlops, comm ); 
         const double factSpeed = factGFlops / factTime;
         if( commRank == 0 )
-            cout << factTime << " seconds, " << factSpeed << " GFlop/s" << endl;
+            Output(factTime," seconds, ",factSpeed," GFlop/s");
 
         // Memory usage after factorization
         const Int localEntriesAfter = front.NumLocalEntries();
@@ -204,13 +205,14 @@ int main( int argc, char* argv[] )
         const Int entriesAfter =
           mpi::AllReduce( localEntriesAfter, mpi::SUM, comm );
         if( commRank == 0 )
-            cout << "Memory usage after factorization: \n"
-                 << "  min entries:   " << minLocalEntriesAfter << "\n"
-                 << "  max entries:   " << maxLocalEntriesAfter << "\n"
-                 << "  total entries: " << entriesAfter << "\n" << endl;
+            Output
+            ("Memory usage after factorization: \n",
+             "  min entries:   ",minLocalEntriesAfter,"\n",
+             "  max entries:   ",maxLocalEntriesAfter,"\n",
+             "  total entries: ",entriesAfter,"\n");
 
         if( commRank == 0 )
-            cout << "Solving against Y..." << endl;
+            Output("Solving against Y...");
         SetBlocksize( nbSolve );
         double solveStart, solveStop;
         mpi::Barrier( comm );
@@ -223,11 +225,10 @@ int main( int argc, char* argv[] )
         const double solveGFlops = mpi::AllReduce( localSolveGFlops, comm ); 
         const double solveSpeed = solveGFlops / factTime;
         if( commRank == 0 )
-            cout << solveTime << " seconds, " 
-                 << solveSpeed << " GFlop/s" << endl;
+            Output(solveTime," seconds (",solveSpeed," GFlop/s)");
 
         if( commRank == 0 )
-            cout << "Checking error in computed solution..." << endl;
+            Output("Checking error in computed solution...");
         Matrix<double> XNorms, YNorms;
         ColumnTwoNorms( X, XNorms );
         ColumnTwoNorms( Y, YNorms );
@@ -236,14 +237,13 @@ int main( int argc, char* argv[] )
         ColumnTwoNorms( Y, errorNorms );
         if( commRank == 0 )
             for( int j=0; j<numRHS; ++j )
-                cout << "Right-hand side " << j << ":\n"
-                     << "|| x     ||_2 = " << XNorms.Get(j,0) << "\n"
-                     << "|| error ||_2 = " << errorNorms.Get(j,0) << "\n"
-                     << "|| A x   ||_2 = " << YOrigNorms.Get(j,0) << "\n"
-                     << endl;
+                Output
+                ("Right-hand side ",j,":\n",
+                 "|| x     ||_2 = ",XNorms.Get(j,0),"\n",
+                 "|| error ||_2 = ",errorNorms.Get(j,0),"\n",
+                 "|| A x   ||_2 = ",YOrigNorms.Get(j,0),"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

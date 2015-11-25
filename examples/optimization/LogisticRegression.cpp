@@ -14,7 +14,7 @@ typedef double Real;
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -41,7 +41,7 @@ main( int argc, char* argv[] )
             w *= 1/wNorm;
         }
         Real offset = SampleNormal();
-        mpi::Broadcast( offset, 0, mpi::COMM_WORLD );
+        mpi::Broadcast( offset, 0 );
 
         // Draw each example (row) from a Gaussian perturbation of a point
         // lying on the hyperplane
@@ -62,8 +62,8 @@ main( int argc, char* argv[] )
                       { return alpha >= 0 ? Real(1) : Real(-1); }; 
         EntrywiseMap( q, function<Real(Real)>(sgnMap) );
 
-        if( mpi::WorldRank() == 0 )
-            cout << "offset=" << offset << endl;
+        if( mpi::Rank() == 0 )
+            Output("offset=",offset);
         if( print )
         {
             Print( w, "w" );
@@ -85,13 +85,15 @@ main( int argc, char* argv[] )
         const Real offsetLog = -wHatLog.Get(n,0);
         const Real wLogOneNorm = OneNorm( wLog );
         const Real wLogFrobNorm = FrobeniusNorm( wLog );
-        if( mpi::WorldRank() == 0 )
-            cout << "|| wLog ||_1=" << wLogOneNorm << "\n"
-                 << "|| wLog ||_2=" << wLogFrobNorm << "\n"
-                 << "margin      =" << Real(2)/wLogFrobNorm << "\n"
-                 << "offsetLog=" << offsetLog << "\n"
-                 << "offsetLog / || wLog ||_2=" << offsetLog/wLogFrobNorm 
-                 << endl;
+        if( mpi::Rank() == 0 )
+        {
+            Output("|| wLog ||_1=",wLogOneNorm);
+            Output("|| wLog ||_2=",wLogFrobNorm);
+            Output("margin      =",Real(2)/wLogFrobNorm);
+            Output("offsetLog=",offsetLog);
+            Output("offsetLog / || wLog ||_2=",offsetLog/wLogFrobNorm);
+            Output("");
+        }
         if( print )
             Print( wLog, "wLog" );
 
@@ -105,11 +107,10 @@ main( int argc, char* argv[] )
             Print( qLog, "qLog" );
         qLog -= q;
         const Real numWrong = OneNorm(qLog) / Real(2);
-        if( mpi::WorldRank() == 0 )
-            cout << "ratio misclassified: " << numWrong << "/" << m << endl;
+        if( mpi::Rank() == 0 )
+            Output("ratio misclassified: ",numWrong,"/",m);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

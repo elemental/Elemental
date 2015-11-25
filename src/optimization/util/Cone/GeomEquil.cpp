@@ -58,7 +58,7 @@ void GeomEquil
     DEBUG_ONLY(CSE cse("cone::GeomEquil"))
     typedef Base<F> Real;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;

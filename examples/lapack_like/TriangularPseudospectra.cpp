@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 typedef double Real;
@@ -16,7 +15,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -100,8 +99,7 @@ main( int argc, char* argv[] )
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
         bool isReal = true;
-        string matName;
-        ostringstream os;
+        string matName, readName;
         DistMatrix<Real> AReal(g);
         DistMatrix<C> ACpx(g);
         switch( matType )
@@ -136,19 +134,21 @@ main( int argc, char* argv[] )
             isReal = true;
             break;
         case 6: matName=basename;
-            os << basename << "-" 
-               << AReal.ColStride() << "x" << AReal.RowStride() << "_"
-               << AReal.DistRank() << ".bin";
+            readName = 
+              BuildString
+              (basename,"-",AReal.ColStride(),"x",AReal.RowStride(),"_",
+               AReal.DistRank(),".bin");
             AReal.Resize( n, n );
-            Read( AReal.Matrix(), os.str(), BINARY ); 
+            Read( AReal.Matrix(), readName, BINARY ); 
             isReal = true;
             break;
         case 7: matName=basename;
-            os << basename << "_" 
-               << ACpx.ColStride() << "x" << ACpx.RowStride() << "_"
-               << ACpx.DistRank() << ".bin";
+            readName = 
+              BuildString
+              (basename,"-",ACpx.ColStride(),"x",ACpx.RowStride(),"_",
+               ACpx.DistRank(),".bin");
             ACpx.Resize( n, n );
-            Read( ACpx.Matrix(), os.str(), BINARY ); 
+            Read( ACpx.Matrix(), readName, BINARY ); 
             isReal = false;
             break;
         default:
@@ -234,11 +234,10 @@ main( int argc, char* argv[] )
                 ( ACpx, invNormMap, realSize, imagSize, box, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
-        if( mpi::WorldRank() == 0 )
-            cout << "num iterations=" << numIts << endl;
+        if( mpi::Rank() == 0 )
+            Output("num iterations=",numIts);
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

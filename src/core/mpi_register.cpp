@@ -570,6 +570,8 @@ Datatype& EntryType<Complex<Quad>>() EL_NO_EXCEPT
 
 template<> Datatype TypeMap<byte>() EL_NO_EXCEPT
 { return MPI_UNSIGNED_CHAR; }
+template<> Datatype TypeMap<short>() EL_NO_EXCEPT
+{ return MPI_SHORT; }
 template<> Datatype TypeMap<int>() EL_NO_EXCEPT
 { return MPI_INT; }
 template<> Datatype TypeMap<unsigned>() EL_NO_EXCEPT

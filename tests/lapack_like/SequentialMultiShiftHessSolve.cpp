@@ -31,7 +31,7 @@ void TestCorrectness
 
     Gemm( orientation, NORMAL, F(-1), H, X, F(1), Z );
 
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
     {
         Print( H, "H" );
         Print( X, "X" );
@@ -39,7 +39,7 @@ void TestCorrectness
         Print( shifts, "shifts" );
         Print( Z, "-H X + X Mu + Y" );
     }
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
     {
         Display( H, "H" );
         Display( X, "X" );
@@ -54,7 +54,7 @@ void TestCorrectness
     const Real HInf = InfinityNorm( H );
     const Real ZFrob = FrobeniusNorm( Z );
     const Real ZInf = InfinityNorm( Z );
-    if( mpi::WorldRank() == 0 )
+    if( mpi::Rank() == 0 )
     {
         std::cout << "    || H ||_F  = " << HFrob << "\n"
                   << "    || H ||_oo = " << HInf << "\n"
@@ -85,7 +85,7 @@ void TestHessenberg
     Uniform( shifts, n, 1 );
 
     X = Y;
-    if( mpi::WorldRank() == 0 )
+    if( mpi::Rank() == 0 )
     {
         std::cout << "  Starting Hessenberg solve...";
         std::cout.flush();
@@ -96,7 +96,7 @@ void TestHessenberg
     mpi::Barrier( mpi::COMM_WORLD );
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
-    if( mpi::WorldRank() == 0 )
+    if( mpi::Rank() == 0 )
     {
         std::cout << "DONE. " << std::endl
                   << "  Time = " << runTime << " seconds." << std::endl;
@@ -108,7 +108,7 @@ void TestHessenberg
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
 
@@ -143,6 +143,5 @@ main( int argc, char* argv[] )
     }
     catch( std::exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

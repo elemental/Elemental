@@ -49,9 +49,8 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
+    Environment env( argc, argv );
+    const Int commRank = mpi::Rank();
     typedef Complex<double> C;
 
     try
@@ -89,8 +88,10 @@ main( int argc, char* argv[] )
         const double frobLTrue = FrobeniusNorm( LTrue );
         const double maxLTrue = MaxNorm( LTrue );
         if( commRank == 0 )
-            cout << "|| L ||_F = " << frobLTrue << "\n"
-                 << "|| L ||_max = " << maxLTrue << endl;
+        {
+            Output("|| L ||_F = ",frobLTrue);
+            Output("|| L ||_max = ",maxLTrue);
+        }
         if( display )
             Display( LTrue, "True low-rank" );
         if( print )
@@ -102,9 +103,11 @@ main( int argc, char* argv[] )
         const double frobSTrue = FrobeniusNorm( STrue );
         const double maxSTrue = MaxNorm( STrue );
         if( commRank == 0 )
-            cout << "number of corrupted entries: " << numCorrupt << "\n"
-                 << "|| S ||_F = " << frobSTrue << "\n"
-                 << "|| S ||_max = " << maxSTrue << endl;
+        {
+            Output("# of corrupted entries: ",numCorrupt);
+            Output("|| S ||_F = ",frobSTrue);
+            Output("|| S ||_max = ",maxSTrue);
+        }
         if( display )
         {
             Display( STrue, "True sparse matrix" );
@@ -116,9 +119,9 @@ main( int argc, char* argv[] )
             Print( STrue, "True sparse" );
 
         if( commRank == 0 )
-            cout << "Using " << STrue.Grid().Height() << " x " 
-                 << STrue.Grid().Width() 
-                 << " process grid and blocksize of " << Blocksize() << endl;
+            Output
+            ("Using ",STrue.Grid().Height()," x ",STrue.Grid().Width(),
+             " grid and blocksize of ",Blocksize());
 
         // M = LTrue + STrue
         DistMatrix<C> M( LTrue );
@@ -162,12 +165,10 @@ main( int argc, char* argv[] )
         const double frobLDiff = FrobeniusNorm( L );
         const double frobSDiff = FrobeniusNorm( S );
         if( commRank == 0 )
-            cout << "\n"
-                 << "Error in computed decomposition:\n"
-                 << "  || L - LTrue ||_F / || LTrue ||_F = " 
-                 << frobLDiff/frobLTrue << "\n"
-                 << "  || S - STrue ||_F / || STrue ||_F = " 
-                 << frobSDiff/frobSTrue << "\n" << endl;
+            Output
+            ("Error in decomposition:\n",
+             "  || L - LTrue ||_F / || LTrue ||_F = ",frobLDiff/frobLTrue,"\n",
+             "  || S - STrue ||_F / || STrue ||_F = ",frobSDiff/frobSTrue,"\n");
 
         if( display )
         {
@@ -182,6 +183,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

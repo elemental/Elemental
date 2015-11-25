@@ -7,20 +7,23 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& AOrig,
-  bool print, bool display )
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+        Matrix<F>& AOrig,
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Int n = AOrig.Height();
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
-    if( mpi::WorldRank() == 0 )
-        cout << "Testing error..." << endl;
+    if( mpi::Rank() == 0 )
+        Output("Testing error...");
 
     // Set H to the appropriate Hessenberg portion of A
     Matrix<F> H( A );
@@ -28,12 +31,12 @@ void TestCorrectness
         MakeTrapezoidal( LOWER, H, 1 );
     else
         MakeTrapezoidal( UPPER, H, -1 );
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( H, "Hessenberg" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( H, "Bidiagonal" );
 
-    if( (print || display) && mpi::WorldRank() == 0 )
+    if( (print || display) && mpi::Rank() == 0 )
     {
         Matrix<F> Q;
         Identity( Q, n, n );
@@ -47,9 +50,9 @@ void TestCorrectness
     // Reverse the accumulated Householder transforms
     hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, t, AOrig );
     hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, t, AOrig );
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( AOrig, "Manual Hessenberg" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( AOrig, "Manual Hessenberg" );
 
     // Compare the appropriate portion of AOrig and B
@@ -58,68 +61,56 @@ void TestCorrectness
     else
         MakeTrapezoidal( UPPER, AOrig, -1 );
     H -= AOrig;
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( H, "Error in rotated Hessenberg" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( H, "Error in rotated Hessenberg" );
     const Real infNormError = InfinityNorm( H );
     const Real frobNormError = FrobeniusNorm( H );
 
-    if( mpi::WorldRank() == 0 )
-    {
-        cout << "    ||A||_oo = " << infNormAOrig << "\n"
-             << "    ||A||_F  = " << frobNormAOrig << "\n"
-             << "    ||H - Q^H A Q||_oo = " << infNormError << "\n"
-             << "    ||H - Q^H A Q||_F  = " << frobNormError << endl;
-    }
+    if( mpi::Rank() == 0 )
+        Output
+        ("    ||A||_oo = ",infNormAOrig,"\n",
+         "    ||A||_F  = ",frobNormAOrig,"\n",
+         "    ||H - Q^H A Q||_oo = ",infNormError,"\n",
+         "    ||H - Q^H A Q||_F  = ",frobNormError);
 }
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo, Int n, bool testCorrectness, bool print, bool display )
+( UpperOrLower uplo,
+  Int n,
+  bool testCorrectness,
+  bool print,
+  bool display )
 {
     Matrix<F> A, AOrig;
     Matrix<F> t;
 
     Uniform( A, n, n );
     if( testCorrectness )
-    {
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( mpi::WorldRank() == 0 )
-            cout << "DONE" << endl;
-    }
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( A, "A" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( A, "A" );
 
-    if( mpi::WorldRank() == 0 )
-    {
-        cout << "  Starting reduction to Hessenberg form...";
-        cout.flush();
-    }
+    if( mpi::Rank() == 0 )
+        Output("  Starting reduction to Hessenberg form...");
     mpi::Barrier( mpi::COMM_WORLD );
     const double startTime = mpi::Time();
     Hessenberg( uplo, A, t );
     mpi::Barrier( mpi::COMM_WORLD );
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
-    if( mpi::WorldRank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds." << std::endl;
-    }
-    if( print && mpi::WorldRank() == 0 )
+    if( mpi::Rank() == 0 )
+        Output("  Time = ",runTime," seconds");
+    if( print && mpi::Rank() == 0 )
     {
         Print( A, "A after Hessenberg" );
         Print( t, "t after Hessenberg" );
     }
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
     {
         Display( A, "A after Hessenberg" );
         Display( t, "t after Hessenberg" );
@@ -131,7 +122,7 @@ void TestHessenberg
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
 
@@ -152,16 +143,15 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( commRank == 0 )
-            cout << "Double-precision:" << endl;
+            Output("Double-precision:");
         TestHessenberg<double>( uplo, n, testCorrectness, print, display );
 
         if( commRank == 0 )
-            cout << "Double-precision complex:" << endl;
+            Output("Double-precision complex:");
         TestHessenberg<Complex<double>>
         ( uplo, n, testCorrectness, print, display );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

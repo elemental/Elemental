@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F,Dist UPerm> 
@@ -23,7 +22,7 @@ void TestCorrectness
     const Int m = AOrig.Height();
 
     if( g.Rank() == 0 )
-        cout << "Testing error..." << endl;
+        Output("Testing error...");
 
     // Generate random right-hand sides
     DistMatrix<F> X(g);
@@ -37,29 +36,22 @@ void TestCorrectness
         lu::SolveAfter( NORMAL, A, rowPiv, colPiv, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    const Real oneNormOfX = OneNorm( X );
-    const Real infNormOfX = InfinityNorm( X );
-    const Real frobNormOfX = FrobeniusNorm( X );
+    const Real infNormX = InfinityNorm( X );
+    const Real frobNormX = FrobeniusNorm( X );
     Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
-    const Real oneNormOfError = OneNorm( X );
-    const Real infNormOfError = InfinityNorm( X );
-    const Real frobNormOfError = FrobeniusNorm( X );
-    const Real oneNormOfA = OneNorm( AOrig );
-    const Real infNormOfA = InfinityNorm( AOrig );
-    const Real frobNormOfA = FrobeniusNorm( AOrig );
+    const Real infNormError = InfinityNorm( X );
+    const Real frobNormError = FrobeniusNorm( X );
+    const Real infNormA = InfinityNorm( AOrig );
+    const Real frobNormA = FrobeniusNorm( AOrig );
 
     if( g.Rank() == 0 )
-    {
-        cout << "||A||_1             = " << oneNormOfA << "\n"
-             << "||A||_oo            = " << infNormOfA << "\n"
-             << "||A||_F             = " << frobNormOfA << "\n"
-             << "||X||_1             = " << oneNormOfX << "\n"
-             << "||X||_oo            = " << infNormOfX << "\n"
-             << "||X||_F             = " << frobNormOfX << "\n"
-             << "||A A^-1 X - X||_1  = " << oneNormOfError << "\n"
-             << "||A A^-1 X - X||_oo = " << infNormOfError << "\n"
-             << "||A A^-1 X - X||_F  = " << frobNormOfError << endl;
-    }
+        Output
+        ("||A||_oo            = ",infNormA,"\n",
+         "||A||_F             = ",frobNormA,"\n",
+         "||X||_oo            = ",infNormX,"\n",
+         "||X||_F             = ",frobNormX,"\n",
+         "||A A^-1 X - X||_oo = ",infNormError,"\n",
+         "||A A^-1 X - X||_F  = ",frobNormError);
 }
 
 template<typename F,Dist UPerm> 
@@ -76,24 +68,12 @@ void TestLU
         Uniform( A, m, m );
 
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting LU factorization...";
-        cout.flush();
-    }
+        Output("  Starting LU factorization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( pivoting == 0 )
@@ -108,11 +88,7 @@ void TestLU
     const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
@@ -144,7 +120,7 @@ void TestLU
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -174,26 +150,24 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
         if( commRank == 0 )
         {
-            cout << "Will test LU with ";
             if( pivot == 0 )
-                cout << "no pivoting" << std::endl;
+                Output("Testing LU with no pivoting");
             else if( pivot == 1 )
-                cout << "partial pivoting" << std::endl;
+                Output("Testing LU with partial pivoting");
             else if( pivot == 2 )
-                cout << "full pivoting" << std::endl;
+                Output("Testing LU with full pivoting");
         }
 
         if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
+            Output("Testing with doubles:");
         TestLU<double,STAR>( m, g, pivot, testCorrectness, forceGrowth, print );
 
         if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
+            Output("Testing with double-precision complex:");
         TestLU<Complex<double>,STAR>
         ( m, g, pivot, testCorrectness, forceGrowth, print );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

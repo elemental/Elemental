@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -17,7 +16,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -47,18 +46,13 @@ main( int argc, char* argv[] )
         Identity( B, n, n );
         Herk( LOWER, NORMAL, Real(1), Q, Real(-1), B );
         const Real frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << ctrl.numIts << " iterations of QDWH\n"
-                      << "||A - QP||_F / ||A||_F = " 
-                      << frobQDWH/frobA << "\n"
-                      << "||I - QQ^H||_F / ||A||_F = " 
-                      << frobQDWHOrthog/frobA << "\n"
-                      << std::endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            (ctrl.numIts," iterations of QDWH\n",
+             "||A - QP||_F / ||A||_F = ",frobQDWH/frobA,"\n",
+             "||I - QQ^H||_F / ||A||_F = ",frobQDWHOrthog/frobA,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

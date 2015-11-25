@@ -7,22 +7,24 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( const Matrix<F>& A, const Matrix<F>& tP, const Matrix<F>& tQ,
+( const Matrix<F>& A,
+  const Matrix<F>& tP,
+  const Matrix<F>& tQ,
         Matrix<F>& AOrig,
-  bool print, bool display )
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Int m = AOrig.Height();
     const Int n = AOrig.Width();
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
-    if( mpi::WorldRank() == 0 )
-        cout << "Testing error..." << endl;
+    if( mpi::Rank() == 0 )
+        Output("Testing error...");
 
     // Grab the diagonal and superdiagonal of the bidiagonal matrix
     auto d = GetDiagonal( A, 0 );
@@ -33,9 +35,9 @@ void TestCorrectness
     Zeros( B, m, n );
     SetDiagonal( B, d, 0  );
     SetDiagonal( B, e, (m>=n ? 1 : -1) );
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( B, "Bidiagonal" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( B, "Bidiagonal" );
 
     if( print || display )
@@ -45,12 +47,12 @@ void TestCorrectness
         Identity( P, n, n );
         bidiag::ApplyQ( LEFT,  NORMAL, A, tQ, Q );
         bidiag::ApplyP( RIGHT, NORMAL, A, tP, P );
-        if( print && mpi::WorldRank() == 0 )
+        if( print && mpi::Rank() == 0 )
         {
             Print( Q, "Q" );
             Print( P, "P" );
         }
-        if( display && mpi::WorldRank() == 0 )
+        if( display && mpi::Rank() == 0 )
         {
             Display( Q, "Q" );
             Display( P, "P" );
@@ -60,9 +62,9 @@ void TestCorrectness
     // Reverse the accumulated Householder transforms
     bidiag::ApplyQ( LEFT,  ADJOINT, A, tQ, AOrig );
     bidiag::ApplyP( RIGHT, NORMAL,  A, tP, AOrig );
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( AOrig, "Manual bidiagonal" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( AOrig, "Manual bidiagonal" );
 
     // Compare the appropriate portion of AOrig and B
@@ -77,68 +79,53 @@ void TestCorrectness
         MakeTrapezoidal( UPPER, AOrig, -1 );
     }
     B -= AOrig;
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( B, "Error in rotated bidiagonal" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( B, "Error in rotated bidiagonal" );
     const Real infNormError = InfinityNorm( B );
     const Real frobNormError = FrobeniusNorm( B );
 
-    if( mpi::WorldRank() == 0 )
-    {
-        cout << "    ||A||_oo = " << infNormAOrig << "\n"
-             << "    ||A||_F  = " << frobNormAOrig << "\n"
-             << "    ||B - Q^H A P||_oo = " << infNormError << "\n"
-             << "    ||B - Q^H A P||_F  = " << frobNormError << endl;
-    }
+    if( mpi::Rank() == 0 )
+        Output
+        ("    ||A||_oo = ",infNormAOrig,"\n",
+         "    ||A||_F  = ",frobNormAOrig,"\n",
+         "    ||B - Q^H A P||_oo = ",infNormError,"\n",
+         "    ||B - Q^H A P||_F  = ",frobNormError);
 }
 
 template<typename F>
-void TestBidiag( Int m, Int n, bool testCorrectness, bool print, bool display )
+void TestBidiag
+( Int m, Int n, bool testCorrectness, bool print, bool display )
 {
     Matrix<F> A, AOrig;
     Matrix<F> tP, tQ;
 
     Uniform( A, m, n );
     if( testCorrectness )
-    {
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( mpi::WorldRank() == 0 )
-            cout << "DONE" << endl;
-    }
-    if( print && mpi::WorldRank() == 0 )
+    if( print && mpi::Rank() == 0 )
         Print( A, "A" );
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
         Display( A, "A" );
 
-    if( mpi::WorldRank() == 0 )
-    {
-        cout << "  Starting bidiagonalization...";
-        cout.flush();
-    }
+    if( mpi::Rank() == 0 )
+        Output("  Starting bidiagonalization...");
     mpi::Barrier( mpi::COMM_WORLD );
     const double startTime = mpi::Time();
     Bidiag( A, tP, tQ );
     mpi::Barrier( mpi::COMM_WORLD );
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
-    if( mpi::WorldRank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds." << std::endl;
-    }
-    if( print && mpi::WorldRank() == 0 )
+    if( mpi::Rank() == 0 )
+        Output("  Time = ",runTime," seconds");
+    if( print && mpi::Rank() == 0 )
     {
         Print( A, "A after Bidiag" );
         Print( tP, "tP after Bidiag" );
         Print( tQ, "tQ after Bidiag" );
     }
-    if( display && mpi::WorldRank() == 0 )
+    if( display && mpi::Rank() == 0 )
     {
         Display( A, "A after Bidiag" );
         Display( tP, "tP after Bidiag" );
@@ -151,9 +138,8 @@ void TestBidiag( Int m, Int n, bool testCorrectness, bool print, bool display )
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
+    Environment env( argc, argv );
+    const Int commRank = mpi::Rank();
 
     try
     {
@@ -171,15 +157,14 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( commRank == 0 )
-            cout << "Double-precision:" << endl;
+            Output("Double-precision:");
         TestBidiag<double>( m, n, testCorrectness, print, display );
 
         if( commRank == 0 )
-            cout << "Double-precision complex:" << endl;
+            Output("Double-precision complex:");
         TestBidiag<Complex<double>>( m, n, testCorrectness, print, display );
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

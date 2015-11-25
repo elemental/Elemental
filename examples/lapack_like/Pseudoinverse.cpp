@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -17,7 +16,7 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
@@ -39,18 +38,15 @@ main( int argc, char* argv[] )
             Print( pinvA, "pinv(A)" );
         }
 
-        const Real frobOfA = FrobeniusNorm( A );
-        const Real frobOfPinvA = FrobeniusNorm( pinvA );
+        const Real frobA = FrobeniusNorm( A );
+        const Real frobPinvA = FrobeniusNorm( pinvA );
 
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "||   A   ||_F =  " << frobOfA << "\n"
-                 << "||pinv(A)||_F =  " << frobOfPinvA << "\n"
-                 << endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("||   A     ||_F = ",frobA,"\n",
+             "|| pinv(A) ||_F = ",frobPinvA,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

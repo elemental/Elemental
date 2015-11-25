@@ -22,7 +22,7 @@ typedef Real F;
 
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try
     {
@@ -123,13 +123,12 @@ int main( int argc, char* argv[] )
             Display( SNoisy, "SNoisy" );
             Display( D, "D" );
         }
-        if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-            cout << "|| S            ||_F         = " << SNorm << "\n"
-                 << "|| SNoisy       ||_F         = " << SNoisyNorm << "\n"
-                 << "|| cov(Omega)-I ||_F         = " << unitCovErrNorm 
-                 << "\n"
-                 << "|| cov(D)-SNoisy ||_F / || S ||_F = " 
-                 << covErrNorm/SNorm << "\n" << endl;
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| S       ||_F      = ",SNorm,"\n",
+             "|| SNoisy  ||_F      = ",SNoisyNorm,"\n",
+             "|| cov(Omega)-I ||_F = ",unitCovErrNorm,"\n",
+             "|| cov(D)-SNoisy ||_F / || S ||_F = ",covErrNorm/SNorm,"\n");
 
         SparseInvCovCtrl<Base<F>> ctrl;
         ctrl.rho = rho;
@@ -148,14 +147,12 @@ int main( int argc, char* argv[] )
         const Real ZErrNorm = FrobeniusNorm( G );
         if( print )
             Print( Z, "Z" );
-        if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-            cout << "|| SInv     ||_F                = " 
-                 << SInvNorm << "\n"
-                 << "|| Z - SInv ||_F / || SInv ||_F = "
-                 << ZErrNorm/SInvNorm << "\n" << endl;
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| SInv     ||_F = ",SInvNorm,"\n",
+             "|| Z - SInv ||_F = ",ZErrNorm/SInvNorm,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

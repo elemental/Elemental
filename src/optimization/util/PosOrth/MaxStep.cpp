@@ -46,7 +46,7 @@ Real MaxStep
     auto sPtr = ReadProxy<Real,MC,MR>(&sPre);
     auto& s = *sPtr;
 
-    ProxyCtrl control;
+    ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = s.ColAlign();

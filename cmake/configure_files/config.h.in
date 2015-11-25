@@ -67,6 +67,7 @@
 #cmakedefine EL_HAVE_FLA_BSVD
 #cmakedefine EL_HAVE_QUAD
 #cmakedefine EL_HAVE_QUADMATH
+#cmakedefine EL_HAVE_MPC
 #cmakedefine EL_HAVE_MKL
 #cmakedefine EL_DISABLE_MKL_CSRMV
 

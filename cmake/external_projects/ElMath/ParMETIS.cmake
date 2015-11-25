@@ -79,8 +79,8 @@ elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
       -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-      -D MPI_C_INCLUDE_PATH=${MPI_C_INCLUDE_PATH}
-      -D MPI_C_LIBRARIES=${MPI_C_LIBRARIES}
+      -D MPI_C_INCLUDE_PATH=${MPI_C_INCSTRING}
+      -D MPI_C_LIBRARIES=${MPI_C_LIBSTRING}
       -D MPI_LINK_FLAGS=${MPI_LINK_FLAGS}
       -D DISABLE_PARMETIS_PROGRAMS=ON
       -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}
@@ -93,6 +93,7 @@ elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
 
   # Extract the source and install directories
   ExternalProject_Get_Property(project_parmetis source_dir install_dir)
+  set(PARMETIS_DIR ${install_dir} CACHE STRING "Directory where ParMETIS is be installed")
   set(PARMETIS_INCLUDE_DIR "${install_dir}/include")
 
   # Add targets for libmetis and libparmetis (either shared or static)

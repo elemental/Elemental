@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -17,15 +16,15 @@ typedef Complex<Real> C;
 int
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
     try 
     {
         const Int n = Input("--size","size of matrix to factor",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const double realMean = Input("--realMean","real mean",0.);
-        const double imagMean = Input("--imagMean","imag mean",0.);
-        const double stddev = Input("--stddev","standard dev.",1.);
+        const Real realMean = Input("--realMean","real mean",Real(0));
+        const Real imagMean = Input("--imagMean","imag mean",Real(0));
+        const Real stddev = Input("--stddev","standard dev.",Real(1));
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         ProcessInput();
         PrintInputReport();
@@ -57,15 +56,13 @@ main( int argc, char* argv[] )
         const Real frobNormA = FrobeniusNorm( A );
         const Real frobNormInvA = SymmetricFrobeniusNorm( LOWER, invA );
         const Real frobNormError = FrobeniusNorm( E );
-        if( mpi::WorldRank() == 0 )
-        {
-            cout << "|| A          ||_F = " << frobNormA << "\n"
-                 << "|| invA       ||_F = " << frobNormInvA << "\n"
-                 << "|| I - invA A ||_F = " << frobNormError << "\n" << endl;
-        }
+        if( mpi::Rank() == 0 )
+            Output
+            ("|| A          ||_F = ",frobNormA,"\n",
+             "|| inv(A)     ||_F = ",frobNormInvA,"\n",
+             "|| I - inv(A) ||_F = ",frobNormError,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }

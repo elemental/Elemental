@@ -53,7 +53,7 @@ void Apply
     DEBUG_ONLY(CSE cse("soc::Apply"))
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
-    ProxyCtrl ctrl;
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 

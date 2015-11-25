@@ -368,6 +368,64 @@ if(NOT EL_DISABLE_QUAD)
   endif()
 endif()
 
+# Check for MPFR *and* MPC support
+# ================================
+if(NOT EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
+  message("Disabling MPFR since MPI_LONG_LONG was not detected")
+endif()
+if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
+  # TODO: Demand a minimum MPFR version number
+  find_package(MPFR)
+  if(MPFR_FOUND)
+    set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES})
+    set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES})
+    set(MPFR_CODE
+      "#include \"mpfr.h\"
+       int main( int argc, char* argv[] )
+       {
+           mpfr_t a;
+           mpfr_prec_t prec = 256;
+           mpfr_init2( a, prec );
+           return 0;
+       }")
+    check_cxx_source_compiles("${MPFR_CODE}" EL_HAVE_MPFR)
+    if(NOT EL_HAVE_MPFR)
+      message(WARNING "Found MPFR but could not successfully compile with it")
+    endif()
+    unset(CMAKE_REQUIRED_LIBRARIES)
+    unset(CMAKE_REQUIRED_INCLUDES)
+  endif()
+
+  if(EL_HAVE_MPFR)
+    # TODO: Demand a minimum MPC version number
+    find_package(MPC)
+    if(MPC_FOUND) 
+      set(CMAKE_REQUIRED_LIBRARIES ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
+      set(CMAKE_REQUIRED_INCLUDES ${MPC_INCLUDES} ${MPFR_INCLUDES})
+      set(MPC_CODE
+        "#include \"mpc.h\" 
+        int main( int argc, char* argv[] )
+        {
+            mpc_t a;
+            mpfr_prec_t prec = 256;
+            mpc_init2( a, prec );
+            return 0;
+        }")
+      check_cxx_source_compiles("${MPC_CODE}" EL_HAVE_MPC)
+      if(EL_HAVE_MPC)
+        list(APPEND MATH_LIBS ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
+        list(APPEND MATH_LIBS_AT_CONFIG ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
+        message(STATUS "Including ${MPFR_INCLUDES} and ${MPC_INCLUDES} to add support for MPFR and MPC")
+        include_directories(${MPFR_INCLUDES} ${MPC_INCLUDES})
+      else()
+        message(WARNING "Found MPC but could not successfully compile with it")
+      endif()
+      unset(CMAKE_REQUIRED_LIBRARIES)
+      unset(CMAKE_REQUIRED_INCLUDES)
+    endif()
+  endif()
+endif()
+
 if(EL_DISABLE_PARMETIS)
   include(external_projects/ElMath/METIS)
 else()

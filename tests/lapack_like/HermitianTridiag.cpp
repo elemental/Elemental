@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-using namespace std;
 using namespace El;
 
 template<typename F> 
@@ -24,7 +23,7 @@ void TestCorrectness
     const Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
     const Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
     if( g.Rank() == 0 )
-        cout << "Testing error..." << endl;
+        Output("Testing error...");
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
     Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
@@ -83,20 +82,23 @@ void TestCorrectness
     const Real frobNormQError = FrobeniusNorm( B ); 
 
     if( g.Rank() == 0 )
-    {
-        cout << "    ||A||_oo = " << infNormAOrig << "\n"
-             << "    ||A||_F  = " << frobNormAOrig << "\n"
-             << "    || I - Q^H Q ||_oo = " << infNormQError << "\n"
-             << "    || I - Q^H Q ||_F  = " << frobNormQError << "\n"
-             << "    ||A - Q T Q^H||_oo = " << infNormError << "\n"
-             << "    ||A - Q T Q^H||_F  = " << frobNormError << endl;
-    }
+        Output
+        ("    ||A||_oo = ",infNormAOrig,"\n",
+         "    ||A||_F  = ",frobNormAOrig,"\n",
+         "    || I - Q^H Q ||_oo = ",infNormQError,"\n",
+         "    || I - Q^H Q ||_F  = ",frobNormQError,"\n",
+         "    ||A - Q T Q^H||_oo = ",infNormError,"\n",
+         "    ||A - Q T Q^H||_F  = ",frobNormError);
 }
 
 template<typename F>
 void TestHermitianTridiag
-( UpperOrLower uplo, Int m, const Grid& g, 
-  bool testCorrectness, bool print, bool display, 
+( UpperOrLower uplo,
+  Int m,
+  const Grid& g, 
+  bool testCorrectness,
+  bool print,
+  bool display, 
   const HermitianTridiagCtrl<F>& ctrl )
 {
     DistMatrix<F> A(g), AOrig(g);
@@ -105,26 +107,14 @@ void TestHermitianTridiag
     //HermitianUniformSpectrum( A, m, -10, 10 );
     Wigner( A, m );
     if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
         AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( print )
         Print( A, "A" );
     if( display )
         Display( A, "A" );
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting tridiagonalization...";
-        cout.flush();
-    }
+        Output("  Starting tridiagonalization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     HermitianTridiag( uplo, A, t, ctrl );
@@ -133,11 +123,7 @@ void TestHermitianTridiag
     const double realGFlops = 16./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after HermitianTridiag" );
@@ -155,7 +141,7 @@ void TestHermitianTridiag
 int 
 main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
@@ -188,7 +174,7 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test HermitianTridiag" << uploChar << endl;
+            Output("Will test HermitianTridiag",uploChar);
 
         HermitianTridiagCtrl<double> ctrl_d;
         HermitianTridiagCtrl<Complex<double>> ctrl_z;
@@ -197,7 +183,7 @@ main( int argc, char* argv[] )
         ctrl_z.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
 
         if( commRank == 0 )
-            cout << "Normal algorithms:" << endl;
+            Output("Normal algorithms:");
         ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_NORMAL;
         if( testReal )
             TestHermitianTridiag<double>
@@ -207,7 +193,7 @@ main( int argc, char* argv[] )
             ( uplo, m, g, testCorrectness, print, display, ctrl_z );
 
         if( commRank == 0 )
-            cout << "Square row-major algorithm:" << endl;
+            Output("Square row-major algorithm:");
         ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_d.order = ctrl_z.order = ROW_MAJOR;
         if( testReal )
@@ -218,7 +204,7 @@ main( int argc, char* argv[] )
             ( uplo, m, g, testCorrectness, print, display, ctrl_z );
 
         if( commRank == 0 )
-            cout << "Square column-major algorithm:" << endl;
+            Output("Square column-major algorithm:");
         ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_d.order = ctrl_z.order = COLUMN_MAJOR;
         if( testReal )
@@ -230,6 +216,5 @@ main( int argc, char* argv[] )
     }
     catch( exception& e ) { ReportException(e); }
 
-    Finalize();
     return 0;
 }
