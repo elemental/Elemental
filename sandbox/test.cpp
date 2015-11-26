@@ -17,7 +17,7 @@ int main( int argc, char* argv[] )
     ctrl.boundRank = true;
     ctrl.maxRank = 20;
     ID( A, p, Z, ctrl );
-    if( mpi::WorldRank() == 0 )
+    if( mpi::Rank() == 0 )
         std::cout << Z.Height() << ", " << Z.Width() << std::endl;
 
     Finalize();
