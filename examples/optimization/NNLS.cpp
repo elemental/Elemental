@@ -31,9 +31,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        const Int m = Input("--m","matrix height",200);
+        const Int m = Input("--m","matrix height",150);
         const Int n = Input("--n","matrix width",100);
-        const Int k = Input("--k","number of right-hand sides",10);
+        const Int k = Input("--k","number of right-hand sides",2);
         // TODO: Test both the ADMM and IPM versions
         /*
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
