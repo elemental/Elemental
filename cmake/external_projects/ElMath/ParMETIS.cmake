@@ -93,6 +93,7 @@ elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
 
   # Extract the source and install directories
   ExternalProject_Get_Property(project_parmetis source_dir install_dir)
+  set(PARMETIS_DIR ${install_dir} CACHE STRING "Directory where ParMETIS is be installed")
   set(PARMETIS_INCLUDE_DIR "${install_dir}/include")
 
   # Add targets for libmetis and libparmetis (either shared or static)

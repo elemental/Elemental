@@ -56,7 +56,7 @@ if(NOT PARMETIS_INCLUDE_DIR)
 endif()
 
 if(NOT METIS_INCLUDE_DIR)
-  find_path(METIS_INCLUDE_DIR parmetis.h
+  find_path(METIS_INCLUDE_DIR metis.h
     HINTS ${METIS_INCLUDE_DIR} ENV METIS_INCLUDE_DIR ${METIS_DIR} ENV METIS_DIR
     PATH_SUFFIXES include
     DOC "Directory where the METIS header files are located"
