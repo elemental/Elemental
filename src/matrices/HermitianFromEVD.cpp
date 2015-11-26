@@ -50,9 +50,12 @@ void HermitianFromEVD
     DEBUG_ONLY(CSE cse("HermitianFromEVD"))
     typedef Base<F> Real;
 
-    auto APtr = WriteProxy<F,MC,MR>( &APre );     auto& A = *APtr;
-    auto wPtr = ReadProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
-    auto ZPtr = ReadProxy<F,MC,MR>( &ZPre );      auto& Z = *ZPtr;
+    DistMatrixWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Real,Real,VR,STAR> wProx( wPre );
+    DistMatrixReadProxy<F,F,MC,MR> ZProx( ZPre );
+    auto& A = AProx.Get();
+    auto& w = wProx.GetLocked();
+    auto& Z = ZProx.GetLocked();
 
     const Grid& g = A.Grid();
     DistMatrix<F,MC,  STAR> Z1_MC_STAR(g);

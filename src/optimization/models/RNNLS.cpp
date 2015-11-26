@@ -128,9 +128,14 @@ void RNNLS
 {
     DEBUG_ONLY(CSE cse("RNNLS"))
 
-    auto APtr = ReadProxy<Real,MC,MR>(&APre);  auto& A = *APtr;
-    auto bPtr = ReadProxy<Real,MC,MR>(&bPre);  auto& b = *bPtr;
-    auto xPtr = WriteProxy<Real,MC,MR>(&xPre); auto& x = *xPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR>
+      AProx( APre ),
+      bProx( bPre );
+    DistMatrixWriteProxy<Real,Real,MC,MR>
+      xProx( xPre );
+    auto& A = AProx.GetLocked();
+    auto& b = bProx.GetLocked();
+    auto& x = xProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();

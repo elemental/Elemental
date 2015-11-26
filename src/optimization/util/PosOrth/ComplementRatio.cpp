@@ -40,13 +40,16 @@ Real ComplementRatio
   const ElementalMatrix<Real>& zPre )
 {
     DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
+
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
-    auto sPtr = ReadProxy<Real,VC,STAR>(&sPre,ctrl); 
-    auto zPtr = ReadProxy<Real,VC,STAR>(&zPre,ctrl);
-    auto& s = *sPtr;
-    auto& z = *zPtr;
+
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      sProx( sPre, ctrl ),
+      zProx( zPre, ctrl );
+    auto& s = sProx.GetLocked();
+    auto& z = zProx.GetLocked();
 
     const Int localHeight = s.LocalHeight();
     const Real* sBuf = s.LockedBuffer();

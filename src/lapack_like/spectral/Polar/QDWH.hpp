@@ -170,8 +170,8 @@ QDWHInner
 {
     DEBUG_ONLY(CSE cse("polar::QDWHInner"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     typedef Base<F> Real;
     typedef Complex<Real> Cpx;
@@ -265,8 +265,8 @@ QDWH( ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     typedef Base<F> Real;
     const Real twoEst = TwoNormEstimate( A );
@@ -307,8 +307,10 @@ QDWH
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> PProx( PPre );
+    auto& A = AProx.Get();
+    auto& P = PProx.Get();
 
     DistMatrix<F> ACopy( A );
     const Int numIts = QDWH( A, ctrl );
@@ -470,8 +472,8 @@ QDWHInner
     if( APre.Height() != APre.Width() )
         LogicError("Height must be same as width");
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     typedef Base<F> Real;
     typedef Complex<Real> Cpx;
@@ -567,8 +569,8 @@ QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     typedef Base<F> Real;
     MakeHermitian( uplo, A );
@@ -598,8 +600,10 @@ QDWH
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> PProx( PPre );
+    auto& A = AProx.Get();
+    auto& P = PProx.Get();
 
     DistMatrix<F> ACopy( A );
     // NOTE: This might be avoidable

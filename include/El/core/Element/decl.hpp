@@ -48,6 +48,14 @@ typedef Complex<Quad> qcomplex;
 // For usage in EnableIf
 // =====================
 
+template<typename S,typename T>
+using IsSame = std::is_same<S,T>;
+
+template<typename Condition,class T=void>
+using EnableIf = typename std::enable_if<Condition::value,T>::type;
+template<typename Condition,class T=void>
+using DisableIf = typename std::enable_if<!Condition::value,T>::type;
+
 // Types that Matrix, DistMatrix, etc. are instantiatable with
 // -----------------------------------------------------------
 template<typename T> struct IsScalar { static const bool value=false; };
@@ -60,36 +68,6 @@ template<> struct IsScalar<Complex<double>> { static const bool value=true; };
 template<> struct IsScalar<Quad> { static const bool value=true; };
 template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
 #endif
-
-// A superset of the above that includes pointers to the above, as well
-// as 'int' (which is different than Int if 64-bit integers are enabled)
-// ---------------------------------------------------------------------
-template<typename T> struct IsData { static const bool value=false; };
-template<typename T> struct IsData<T*> { static const bool value=true; };
-template<typename T> struct IsData<const T*> { static const bool value=true; };
-#ifdef EL_USE_64BIT_INTS
-template<> struct IsData<int> { static const bool value=true; };
-#endif
-template<> struct IsData<Int> { static const bool value=true; };
-template<> struct IsData<float> { static const bool value=true; };
-template<> struct IsData<double> { static const bool value=true; };
-template<> struct IsData<Complex<float>> { static const bool value=true; };
-template<> struct IsData<Complex<double>> { static const bool value=true; };
-#ifdef EL_HAVE_QUAD
-template<> struct IsData<Quad> { static const bool value=true; };
-template<> struct IsData<Complex<Quad>> { static const bool value=true; };
-#endif
-
-template<typename Condition,class T=void>
-using EnableIf = typename std::enable_if<Condition::value,T>::type;
-template<typename Condition,class T=void>
-using DisableIf = typename std::enable_if<!Condition::value,T>::type;
-
-template<typename S,typename T>
-using IsSame = std::is_same<S,T>;
-
-// Basic element manipulation and I/O
-// ==================================
 
 // Increase the precision (if possible)
 // ------------------------------------
@@ -125,6 +103,44 @@ template<typename Real> struct IsComplex
 { static const bool value=false; };
 template<typename Real> struct IsComplex<Complex<Real>>
 { static const bool value=true; };
+
+template<typename S,typename T>
+struct CanCast
+{   
+    static const bool value =
+      IsScalar<S>::value &&
+      IsScalar<T>::value && 
+      (!IsComplex<S>::value || IsComplex<T>::value) &&
+      (IsSame<S,Int>::value || !IsSame<T,Int>::value);
+};
+
+template<typename S,typename T>
+struct CanBidirectionalCast
+{   
+    static const bool value = CanCast<S,T>::value && CanCast<T,S>::value;
+};
+
+// A superset of the above that includes pointers to the above, as well
+// as 'int' (which is different than Int if 64-bit integers are enabled)
+// ---------------------------------------------------------------------
+template<typename T> struct IsData { static const bool value=false; };
+template<typename T> struct IsData<T*> { static const bool value=true; };
+template<typename T> struct IsData<const T*> { static const bool value=true; };
+#ifdef EL_USE_64BIT_INTS
+template<> struct IsData<int> { static const bool value=true; };
+#endif
+template<> struct IsData<Int> { static const bool value=true; };
+template<> struct IsData<float> { static const bool value=true; };
+template<> struct IsData<double> { static const bool value=true; };
+template<> struct IsData<Complex<float>> { static const bool value=true; };
+template<> struct IsData<Complex<double>> { static const bool value=true; };
+#ifdef EL_HAVE_QUAD
+template<> struct IsData<Quad> { static const bool value=true; };
+template<> struct IsData<Complex<Quad>> { static const bool value=true; };
+#endif
+
+// Basic element manipulation and I/O
+// ==================================
 
 // Pretty-printing
 // ---------------

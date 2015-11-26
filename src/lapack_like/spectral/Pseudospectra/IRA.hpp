@@ -675,14 +675,12 @@ IRA
     using namespace pspec;
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy<C,MC,MR>( &UPre );
-    auto& U = *UPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
-
-    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre );
-    auto& invNorms = *invNormsPtr;
+    DistMatrixReadProxy<C,C,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixWriteProxy<Real,Real,VR,STAR> invNormsProx( invNormsPre );
+    auto& U = UProx.GetLocked();
+    auto& shifts = shiftsProx.GetLocked();
+    auto& invNorms = invNormsProx.Get();
 
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
@@ -955,14 +953,12 @@ IRA
     using namespace pspec;
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre );
-    auto& U = *UPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
-
-    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre );
-    auto& invNorms = *invNormsPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixWriteProxy<Real,Real,VR,STAR> invNormsProx( invNormsPre );
+    auto& U = UProx.GetLocked();
+    auto& shifts = shiftsProx.GetLocked();
+    auto& invNorms = invNormsProx.Get();
 
     const Int n = U.Height();
     const Int numShifts = shifts.Height();

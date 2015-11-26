@@ -53,8 +53,8 @@ ADMM
     DEBUG_ONLY(CSE cse("nnls::ADMM"))
     const Real maxReal = std::numeric_limits<Real>::max();
 
-    auto APtr = ReadProxy<Real,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
 
     DistMatrix<Real> Q(A.Grid()), C(A.Grid());
     Herk( LOWER, ADJOINT, Real(1), A, Q );

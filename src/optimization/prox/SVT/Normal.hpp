@@ -36,8 +36,8 @@ Int Normal( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CSE cse("svt::Normal"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     typedef Base<F> Real;
     DistMatrix<F> U( A );

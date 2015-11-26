@@ -82,10 +82,12 @@ void ApplyQ
     const Int minDim = Min(APre.Height(),APre.Width());
 
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
-    const Conjugation conjugation =  ( normal ? CONJUGATED : UNCONJUGATED );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.Get(); 
 
     const Int m = B.Height();
     const Int n = B.Width();

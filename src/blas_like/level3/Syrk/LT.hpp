@@ -13,8 +13,10 @@ namespace syrk {
 template<typename T>
 inline void
 LT
-( T alpha, const ElementalMatrix<T>& APre, 
-                 ElementalMatrix<T>& CPre, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& APre, 
+        ElementalMatrix<T>& CPre,
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syrk::LT");
@@ -28,8 +30,10 @@ LT
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g);

@@ -166,7 +166,7 @@ ElementalMatrix<T>::AlignCols( int colAlign, bool constrain )
     if( constrain )
         this->colConstrained_ = true;
     this->colAlign_ = colAlign;
-    this->SetShifts();
+    this->SetColShift();
 }
 
 template<typename T>
@@ -183,7 +183,7 @@ ElementalMatrix<T>::AlignRows( int rowAlign, bool constrain )
     if( constrain )
         this->rowConstrained_ = true;
     this->rowAlign_ = rowAlign;
-    this->SetShifts();
+    this->SetRowShift();
 }
 
 template<typename T>

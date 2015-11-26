@@ -221,14 +221,17 @@ Real MaxStep
     ElementalProxyCtrl control;
     control.colConstrain = true;
     control.colAlign = 0;
-    auto xPtr = ReadProxy<PReal,VC,STAR>(&xPre,control);
-    auto yPtr = ReadProxy<PReal,VC,STAR>(&yPre,control);
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,control);
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,control);
-    auto& x = *xPtr;
-    auto& y = *yPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+
+    DistMatrixReadProxy<Real,PReal,VC,STAR>
+      xProx( xPre, control ),
+      yProx( yPre, control );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, control ),
+      firstIndsProx( firstIndsPre, control );
+    auto& x = xProx.GetLocked();
+    auto& y = yProx.GetLocked();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     const Grid& g = x.Grid();
     DistMatrix<PReal,VC,STAR> xDets(g), yDets(g), xTRys(g);

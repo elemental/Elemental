@@ -124,8 +124,8 @@ void PivotsToPartialPermutation
   Int offset )
 {
     DEBUG_ONLY(CSE cse("PivotsToPartialPermutation"))
-    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
-    auto& pivots = *pivotsPtr;
+    DistMatrixReadProxy<Int,Int,STAR,STAR> pivotsProx( pivotsPre );
+    auto& pivots = pivotsProx.GetLocked();
     PivotsToPartialPermutation( pivots, p, pInv, offset );
 }
 

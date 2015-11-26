@@ -134,7 +134,10 @@ ComputePartition( DistMatrix<F>& A )
 template<typename F>
 inline ValueInt<Base<F>>
 SignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SDCCtrl<Base<F>>& ctrl )
+( Matrix<F>& A,
+  Matrix<F>& G,
+  bool returnQ,
+  const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SignDivide"))
 
@@ -175,7 +178,9 @@ SignDivide
 template<typename F>
 inline ValueInt<Base<F>>
 SignDivide
-( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
+( DistMatrix<F>& A,
+  DistMatrix<F>& G,
+  bool returnQ, 
   const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SignDivide"))
@@ -218,7 +223,10 @@ SignDivide
 template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SDCCtrl<Base<F>>& ctrl )
+( Matrix<F>& A,
+  Matrix<F>& G,
+  bool returnQ,
+  const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
@@ -279,7 +287,9 @@ RandomizedSignDivide
 template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
-( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ,
+( DistMatrix<F>& A,
+  DistMatrix<F>& G,
+  bool returnQ,
   const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::RandomizedSignDivide"))
@@ -479,7 +489,9 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Real>& A, Matrix<Real>& Q, const SDCCtrl<Real>& ctrl )
+( Matrix<Real>& A,
+  Matrix<Real>& Q,
+  const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -545,7 +557,8 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Complex<Real>>& A, Matrix<Complex<Real>>& Q, 
+( Matrix<Complex<Real>>& A,
+  Matrix<Complex<Real>>& Q, 
   const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
@@ -758,7 +771,9 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Real>& A, DistMatrix<Real>& Q, const SDCCtrl<Real>& ctrl )
+( DistMatrix<Real>& A,
+  DistMatrix<Real>& Q,
+  const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -826,7 +841,8 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Complex<Real>>& A, DistMatrix<Complex<Real>>& Q,
+( DistMatrix<Complex<Real>>& A,
+  DistMatrix<Complex<Real>>& Q,
   const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
@@ -901,7 +917,8 @@ SpectralDivide
 template<typename F>
 inline void
 SDC
-( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, 
+( Matrix<F>& A,
+  Matrix<Complex<Base<F>>>& w, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CSE cse("schur::SDC"))
@@ -943,8 +960,11 @@ SDC
 template<typename F>
 inline void
 SDC
-( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
-  bool fullTriangle=true, const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
+( Matrix<F>& A,
+  Matrix<Complex<Base<F>>>& w,
+  Matrix<F>& Q, 
+  bool fullTriangle=true,
+  const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CSE cse("schur::SDC"))
     const Int n = A.Height();
@@ -1009,8 +1029,12 @@ SDC
 // require a much more sophisticated (machine- and problem-specific) model to
 // make the 'best' splitting, but this approach should be a good compromise.
 inline void SplitGrid
-( int nLeft, int nRight, const Grid& grid, 
-  const Grid*& leftGrid, const Grid*& rightGrid, bool progress=false )
+( int nLeft,
+  int nRight,
+  const Grid& grid, 
+  const Grid*& leftGrid,
+  const Grid*& rightGrid,
+  bool progress=false )
 {
     typedef double Real;
     const Real leftWork = Pow(Real(nLeft),Real(3));
@@ -1055,8 +1079,10 @@ inline void SplitGrid
 
 template<typename F,typename EigType>
 inline void PushSubproblems
-( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
-  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
+( DistMatrix<F>& ATL,
+  DistMatrix<F>& ABR, 
+  DistMatrix<F>& ATLSub,
+  DistMatrix<F>& ABRSub,
   DistMatrix<EigType,VR,STAR>& wT,    
   DistMatrix<EigType,VR,STAR>& wB,
   DistMatrix<EigType,VR,STAR>& wTSub, 
@@ -1082,8 +1108,10 @@ inline void PushSubproblems
 
 template<typename F,typename EigType>
 inline void PullSubproblems
-( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
-  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
+( DistMatrix<F>& ATL,
+  DistMatrix<F>& ABR,
+  DistMatrix<F>& ATLSub,
+  DistMatrix<F>& ABRSub,
   DistMatrix<EigType,VR,STAR>& wT,    
   DistMatrix<EigType,VR,STAR>& wB,
   DistMatrix<EigType,VR,STAR>& wTSub, 
@@ -1143,18 +1171,21 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& wPre, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Complex<Base<F>>>& wPre, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
-        CSE cse("schur::SDC");
-        AssertSameGrids( APre, wPre );
+      CSE cse("schur::SDC");
+      AssertSameGrids( APre, wPre );
     )
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto wPtr = WriteProxy<C,VR,STAR>( &wPre );   auto& w = *wPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<C,C,VR,STAR> wProx( wPre );
+    auto& A = AProx.Get();
+    auto& w = wProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -1211,13 +1242,16 @@ SDC
 
 template<typename F,typename EigType>
 inline void PushSubproblems
-( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
-  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
+( DistMatrix<F>& ATL,
+  DistMatrix<F>& ABR, 
+  DistMatrix<F>& ATLSub,
+  DistMatrix<F>& ABRSub,
   DistMatrix<EigType,VR,STAR>& wT,    
   DistMatrix<EigType,VR,STAR>& wB,
   DistMatrix<EigType,VR,STAR>& wTSub, 
   DistMatrix<EigType,VR,STAR>& wBSub,
-  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
+  DistMatrix<F>& ZTSub,
+  DistMatrix<F>& ZBSub,
   bool progress=false )
 {
     DEBUG_ONLY(CSE cse("schur::PushSubproblems"))
@@ -1243,14 +1277,18 @@ inline void PushSubproblems
 
 template<typename F,typename EigType>
 inline void PullSubproblems
-( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
-  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
+( DistMatrix<F>& ATL,
+  DistMatrix<F>& ABR,
+  DistMatrix<F>& ATLSub,
+  DistMatrix<F>& ABRSub,
   DistMatrix<EigType,VR,STAR>& wT,    
   DistMatrix<EigType,VR,STAR>& wB,
   DistMatrix<EigType,VR,STAR>& wTSub, 
   DistMatrix<EigType,VR,STAR>& wBSub,
-  DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
-  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
+  DistMatrix<F>& ZT,
+  DistMatrix<F>& ZB,
+  DistMatrix<F>& ZTSub,
+  DistMatrix<F>& ZBSub,
   bool progress=false )
 {
     DEBUG_ONLY(CSE cse("schur::PullSubproblems"))
@@ -1318,20 +1356,25 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( ElementalMatrix<F>& APre, ElementalMatrix<Complex<Base<F>>>& wPre, 
-  ElementalMatrix<F>& QPre, bool fullTriangle=true, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Complex<Base<F>>>& wPre, 
+  ElementalMatrix<F>& QPre,
+  bool fullTriangle=true, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
-        CSE cse("schur::SDC");
-        AssertSameGrids( APre, wPre, QPre );
+      CSE cse("schur::SDC");
+      AssertSameGrids( APre, wPre, QPre );
     )
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto wPtr = WriteProxy<C,VR,STAR>( &wPre );   auto& w = *wPtr;
-    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<C,C,VR,STAR> wProx( wPre );
+    DistMatrixWriteProxy<F,F,MC,MR> QProx( QPre );
+    auto& A = AProx.Get();
+    auto& w = wProx.Get();
+    auto& Q = QProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();

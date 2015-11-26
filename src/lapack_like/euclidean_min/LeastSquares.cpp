@@ -47,8 +47,8 @@ void Overwrite
 {
     DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());

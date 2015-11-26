@@ -95,8 +95,8 @@ void KKT
     const Int m = A.Height();
     const Int n = A.Width();
 
-    auto JPtr = WriteProxy<Real,MC,MR>(&JPre); 
-    auto& J = *JPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
+    auto& J = JProx.Get();
 
     Zeros( J, 2*n+m, 2*n+m );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
@@ -364,8 +364,8 @@ void KKTRHS
 {
     DEBUG_ONLY(CSE cse("qp::direct::KKTRHS"))
 
-    auto dPtr = WriteProxy<Real,MC,MR>(&dPre); 
-    auto& d = *dPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
+    auto& d = dProx.Get();
 
     const Int m = rb.Height();
     const Int n = rc.Height();

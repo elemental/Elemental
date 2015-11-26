@@ -22,11 +22,11 @@ inline void
 UUpdate( Matrix<F>& U, Matrix<F>& V )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::UUpdate");
-        if( U.Height() != U.Width() )
-            LogicError("Cholesky factors must be square");
-        if( V.Height() != U.Height() )
-            LogicError("V is the wrong height");
+      CSE cse("cholesky::mod::UUpdate");
+      if( U.Height() != U.Width() )
+          LogicError("Cholesky factors must be square");
+      if( V.Height() != U.Height() )
+          LogicError("V is the wrong height");
     )
     const Int m = V.Height();
 
@@ -78,16 +78,17 @@ inline void
 UUpdate( ElementalMatrix<F>& UPre, ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::UUpdate");
-        if( UPre.Height() != UPre.Width() )
-            LogicError("Cholesky factors must be square");
-        if( VPre.Height() != UPre.Height() )
-            LogicError("V is the wrong height");
-        AssertSameGrids( UPre, VPre );
+      CSE cse("cholesky::mod::UUpdate");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("Cholesky factors must be square");
+      if( VPre.Height() != UPre.Height() )
+          LogicError("V is the wrong height");
+      AssertSameGrids( UPre, VPre );
     )
 
-    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre ); auto& U = *UPtr;
-    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> UProx( UPre ), VProx( VPre );
+    auto& U = UProx.Get();
+    auto& V = VProx.Get();
 
     const Int m = V.Height();
     const Grid& g = U.Grid();
@@ -148,11 +149,11 @@ inline void
 UDowndate( Matrix<F>& U, Matrix<F>& V )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::UDowndate");
-        if( U.Height() != U.Width() )
-            LogicError("Cholesky factors must be square");
-        if( V.Height() != U.Height() )
-            LogicError("V is the wrong height");
+      CSE cse("cholesky::mod::UDowndate");
+      if( U.Height() != U.Width() )
+          LogicError("Cholesky factors must be square");
+      if( V.Height() != U.Height() )
+          LogicError("V is the wrong height");
     )
     const Int m = V.Height();
 
@@ -204,16 +205,17 @@ inline void
 UDowndate( ElementalMatrix<F>& UPre, ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::UDowndate");
-        if( UPre.Height() != UPre.Width() )
-            LogicError("Cholesky factors must be square");
-        if( VPre.Height() != UPre.Height() )
-            LogicError("V is the wrong height");
-        AssertSameGrids( UPre, VPre );
+      CSE cse("cholesky::mod::UDowndate");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("Cholesky factors must be square");
+      if( VPre.Height() != UPre.Height() )
+          LogicError("V is the wrong height");
+      AssertSameGrids( UPre, VPre );
     )
 
-    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre ); auto& U = *UPtr;
-    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> UProx( UPre ), VProx( VPre );
+    auto& U = UProx.Get();
+    auto& V = VProx.Get();
 
     const Int m = V.Height();
     const Grid& g = U.Grid();

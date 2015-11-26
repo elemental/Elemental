@@ -61,8 +61,8 @@ SafeProduct<Base<F>> AfterCholesky
 {
     DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -94,8 +94,8 @@ Cholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     SafeProduct<Base<F>> det( A.Height() );
     try

@@ -21,7 +21,10 @@ namespace El {
 
 template<typename F>
 void Sylvester
-( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
+( Int m,
+  Matrix<F>& W,
+  Matrix<F>& X,
+  SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Sylvester"))
     Sign( W, ctrl );
@@ -49,13 +52,15 @@ void Sylvester
 
 template<typename F>
 void Sylvester
-( Int m, ElementalMatrix<F>& WPre, ElementalMatrix<F>& X, 
+( Int m,
+  ElementalMatrix<F>& WPre,
+  ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Sylvester"))
 
-    auto WPtr = ReadProxy<F,MC,MR>( &WPre );
-    auto& W = *WPtr;
+    DistMatrixReadProxy<F,F,MC,MR> WProx( WPre );
+    auto& W = WProx.Get();
 
     const Grid& g = W.Grid();
     Sign( W, ctrl );
@@ -148,9 +153,14 @@ void Sylvester
 
 #define PROTO(F) \
   template void Sylvester \
-  ( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  ( Int m, \
+    Matrix<F>& W, \
+    Matrix<F>& X, \
+    SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
-  ( Int m, ElementalMatrix<F>& W, ElementalMatrix<F>& X, \
+  ( Int m, \
+    ElementalMatrix<F>& W, \
+    ElementalMatrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
   template void Sylvester \
   ( const Matrix<F>& A, \

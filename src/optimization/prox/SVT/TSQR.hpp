@@ -20,8 +20,8 @@ Int TSQR( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CSE cse("SVT"))
 
-    auto APtr = ReadWriteProxy<F,VC,STAR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,VC,STAR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )

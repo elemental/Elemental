@@ -77,11 +77,10 @@ SafeProduct<F> AfterLUPartialPiv
     if( APre.Height() != rowPivPre.Height() )
         LogicError("Row pivot vector is incorrect length");
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
-    auto rowPivPtr = ReadProxy<Int,STAR,STAR>( &rowPivPre );
-    auto& rowPiv = *rowPivPtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Int,Int,STAR,STAR> rowPivProx( rowPivPre );
+    auto& A = AProx.GetLocked();
+    auto& rowPiv = rowPivProx.GetLocked();
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -121,8 +120,8 @@ LUPartialPiv( ElementalMatrix<F>& APre )
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     SafeProduct<F> det( A.Height() );
     try 

@@ -23,7 +23,7 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
       A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const Matrix<S>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
@@ -39,7 +39,7 @@ inline void Copy( const ElementalMatrix<T>& A, DistMatrix<T,U,V>& B )
 
 // Datatype conversions should not be very common, and so it is likely best to
 // avoid explicitly instantiating every combination
-template<typename S,typename T,Dist U,Dist V>
+template<typename S,typename T,Dist U,Dist V,typename>
 inline void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
@@ -107,7 +107,7 @@ inline void Copy
     Copy( BOrig.LockedMatrix(), B.Matrix() );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
@@ -118,7 +118,7 @@ void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
     #include "El/macros/GuardAndPayload.h"
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
@@ -159,7 +159,7 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
     }
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
@@ -337,14 +337,14 @@ void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B )
     B = A;
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
@@ -370,14 +370,14 @@ void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
     B = A;
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy"))
@@ -461,7 +461,7 @@ void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
     B.Matrix() = A.LockedMatrix();
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
 {
     DEBUG_ONLY(CSE cse("Copy [DistMultiVec]"))

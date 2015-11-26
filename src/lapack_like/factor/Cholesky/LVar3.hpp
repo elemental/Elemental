@@ -48,9 +48,9 @@ inline void
 ReverseLVar3Unb( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::ReverseLVar3Unb");
-        if( A.Height() != A.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::ReverseLVar3Unb");
+      if( A.Height() != A.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -80,9 +80,9 @@ inline void
 LVar3( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LVar3");
-        if( A.Height() != A.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::LVar3");
+      if( A.Height() != A.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -108,9 +108,9 @@ inline void
 ReverseLVar3( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::ReverseLVar3");
-        if( A.Height() != A.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::ReverseLVar3");
+      if( A.Height() != A.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -137,13 +137,14 @@ inline void
 LVar3( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LVar3");
-        if( APre.Height() != APre.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::LVar3");
+      if( APre.Height() != APre.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
@@ -195,13 +196,14 @@ inline void
 ReverseLVar3( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::ReverseLVar3");
-        if( APre.Height() != APre.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::ReverseLVar3");
+      if( APre.Height() != APre.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A10_STAR_VR(g);

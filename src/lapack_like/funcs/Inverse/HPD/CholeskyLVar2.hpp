@@ -17,14 +17,15 @@ namespace hpd_inv {
 // Variant 2 algorithm from Fig. 9 in Bientinesi et al.'s "Families of 
 // Algorithms Related to the Inversion of a Symmetric Positive Definite Matrix".
 
+// TODO: Rewrite this routine without partition tracking
 template<typename F> 
 inline void
 CholeskyLVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("hpd_inv::CholeskyLVar2");
-        if( A.Height() != A.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("hpd_inv::CholeskyLVar2");
+      if( A.Height() != A.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
     // Matrix views
     Matrix<F> 
@@ -65,18 +66,19 @@ CholeskyLVar2( Matrix<F>& A )
     }
 }
 
+// TODO: Rewrite this routine without partition tracking
 template<typename F> 
 inline void
 CholeskyLVar2( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("hpd_inv::CholeskyLVar2");
-        if( APre.Height() != APre.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("hpd_inv::CholeskyLVar2");
+      if( APre.Height() != APre.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Matrix views
     const Grid& g = A.Grid();

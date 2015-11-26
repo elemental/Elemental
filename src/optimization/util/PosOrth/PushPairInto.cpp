@@ -46,12 +46,14 @@ void PushPairInto
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto sPtr = ReadWriteProxy<Real,VC,STAR>(&sPre,ctrl); 
-    auto zPtr = ReadWriteProxy<Real,VC,STAR>(&zPre,ctrl); 
-    auto wPtr = ReadProxy<Real,VC,STAR>(&wPre,ctrl);
-    auto& s = *sPtr;
-    auto& z = *zPtr;
-    auto& w = *wPtr;
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      sProx( sPre, ctrl ),
+      zProx( zPre, ctrl );
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      wProx( wPre, ctrl );
+    auto& s = sProx.Get();
+    auto& z = zProx.Get();
+    auto& w = wProx.GetLocked();
 
     const Int localHeight = s.LocalHeight();
     const Real* wBuf = w.LockedBuffer();

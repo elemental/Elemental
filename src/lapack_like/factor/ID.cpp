@@ -64,13 +64,16 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, Base<F> tol )
 template<typename F>
 inline void
 PseudoTrsm
-( const ElementalMatrix<F>& RLPre, ElementalMatrix<F>& RRPre,
+( const ElementalMatrix<F>& RLPre,
+        ElementalMatrix<F>& RRPre,
   Base<F> tol )
 {
     DEBUG_ONLY(CSE cse("id::PseudoTrsm"))
 
-    auto RLPtr = ReadProxy<F,STAR,STAR>( &RLPre );    auto& RL = *RLPtr;
-    auto RRPtr = ReadWriteProxy<F,STAR,VR>( &RRPre ); auto& RR = *RRPtr;
+    DistMatrixReadProxy<F,F,STAR,STAR> RLProx( RLPre );
+    DistMatrixReadWriteProxy<F,F,STAR,VR> RRProx( RRPre );
+    auto& RL = RLProx.GetLocked();
+    auto& RR = RRProx.Get();
 
     PseudoTrsm( RL.LockedMatrix(), RR.Matrix(), tol );
 }
@@ -118,8 +121,8 @@ BusingerGolub
     DEBUG_ONLY(CSE cse("id::BusingerGolub"))
     typedef Base<F> Real;
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Perform the pivoted QR factorization
     DistMatrix<F,MD,STAR> t(A.Grid());

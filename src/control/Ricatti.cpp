@@ -50,8 +50,8 @@ void Ricatti
 {
     DEBUG_ONLY(CSE cse("Ricatti"))
 
-    auto WPtr = ReadProxy<F,MC,MR>( &WPre );
-    auto& W = *WPtr;
+    DistMatrixReadProxy<F,F,MC,MR> WProx( WPre );
+    auto& W = WProx.Get();
 
     const Grid& g = W.Grid();
     Sign( W, ctrl );

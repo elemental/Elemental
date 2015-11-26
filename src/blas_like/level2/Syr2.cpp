@@ -68,8 +68,8 @@ void Syr2
            DimsString(x,"x"),"\n",DimsString(y,"y"));
     )
 
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     const Int localHeight = A.LocalHeight();

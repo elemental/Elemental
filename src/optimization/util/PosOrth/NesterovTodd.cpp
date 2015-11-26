@@ -41,15 +41,19 @@ void NesterovTodd
         ElementalMatrix<Real>& wPre )
 {
     DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
+
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
-    auto sPtr = ReadProxy<Real,VC,STAR>(&sPre,ctrl); 
-    auto zPtr = ReadProxy<Real,VC,STAR>(&zPre,ctrl);
-    auto wPtr = WriteProxy<Real,VC,STAR>(&wPre,ctrl);
-    auto& s = *sPtr;
-    auto& z = *zPtr;
-    auto& w = *wPtr;
+
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      sProx( sPre, ctrl ),
+      zProx( zPre, ctrl );
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      wProx( wPre, ctrl );
+    auto& s = sProx.GetLocked();
+    auto& z = zProx.GetLocked();
+    auto& w = wProx.Get();
 
     w.Resize( s.Height(), 1 );
     const Int localHeight = w.LocalHeight();

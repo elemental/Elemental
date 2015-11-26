@@ -329,7 +329,7 @@ void BlockMatrix<T>::AlignCols
     this->blockHeight_ = blockHeight;
     this->colAlign_ = colAlign;
     this->colCut_ = colCut;
-    this->SetShifts();
+    this->SetColShift();
 }
 
 template<typename T>
@@ -352,7 +352,7 @@ void BlockMatrix<T>::AlignRows
     this->blockWidth_ = blockWidth;
     this->rowAlign_ = rowAlign;
     this->rowCut_ = rowCut;
-    this->SetShifts();
+    this->SetRowShift();
 }
 
 template<typename T>

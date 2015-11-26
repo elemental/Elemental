@@ -43,8 +43,8 @@ void NormalUniformSpectrum
     DEBUG_ONLY(CSE cse("NormalUniformSpectrum"))
     typedef Complex<Real> C;
 
-    auto APtr = WriteProxy<C,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& grid = A.Grid();
     A.Resize( n, n );

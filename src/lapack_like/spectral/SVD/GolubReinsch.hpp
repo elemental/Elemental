@@ -101,8 +101,10 @@ GolubReinsch
   ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     GolubReinsch( A, s, V );
 }
 
@@ -199,8 +201,10 @@ GolubReinschFlame
   ElementalMatrix<F>& VPre )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     GolubReinschFlame( A, s, V );
 }
 
@@ -268,8 +272,8 @@ inline void
 GolubReinsch( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
     GolubReinsch( A, s );
 }
 

@@ -12,8 +12,10 @@ namespace El {
 
 template<typename TDiag,typename T>
 void DiagonalScale
-( LeftOrRight side, Orientation orientation,
-  const Matrix<TDiag>& d, Matrix<T>& A )
+( LeftOrRight side,
+  Orientation orientation,
+  const Matrix<TDiag>& d,
+        Matrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     const Int m = A.Height();
@@ -44,8 +46,10 @@ void DiagonalScale
 
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScale
-( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A )
+( LeftOrRight side,
+  Orientation orientation,
+  const ElementalMatrix<TDiag>& dPre,
+        DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     if( side == LEFT )
@@ -55,8 +59,10 @@ void DiagonalScale
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.ColAlign();
-        auto dPtr = ReadProxy<TDiag,U,Collect<V>()>( &dPre, ctrl );
-        auto& d = *dPtr;
+
+        DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>()> dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
         DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
     }
     else
@@ -66,16 +72,20 @@ void DiagonalScale
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.RowAlign();
-        auto dPtr = ReadProxy<TDiag,V,Collect<U>()>( &dPre, ctrl );
-        auto& d = *dPtr;
+
+        DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>()> dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
         DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
     }
 }
 
 template<typename TDiag,typename T>
 void DiagonalScale
-( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A )
+( LeftOrRight side,
+  Orientation orientation,
+  const ElementalMatrix<TDiag>& d,
+        ElementalMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
@@ -87,7 +97,8 @@ void DiagonalScale
 
 template<typename TDiag,typename T>
 void DiagonalScale
-( LeftOrRight side, Orientation orientation,
+( LeftOrRight side,
+  Orientation orientation,
   const Matrix<TDiag>& d, 
         SparseMatrix<T>& A )
 {
@@ -126,7 +137,8 @@ void DiagonalScale
 
 template<typename TDiag,typename T>
 void DiagonalScale
-( LeftOrRight side, Orientation orientation,
+( LeftOrRight side,
+  Orientation orientation,
   const DistMultiVec<TDiag>& d,
         DistSparseMatrix<T>& A )
 {
@@ -193,7 +205,8 @@ void DiagonalScale
 
 template<typename TDiag,typename T>
 void DiagonalScale
-( LeftOrRight side, Orientation orientation,
+( LeftOrRight side,
+  Orientation orientation,
   const DistMultiVec<TDiag>& d,
         DistMultiVec<T>& X )
 {

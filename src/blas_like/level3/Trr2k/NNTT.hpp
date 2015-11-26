@@ -16,10 +16,15 @@ namespace trr2k {
 template<typename T>
 void Trr2kNNTT
 ( UpperOrLower uplo,
-  Orientation orientC, Orientation orientationOfD,
-  T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-  T beta,  const ElementalMatrix<T>& CPre, const ElementalMatrix<T>& DPre,
-                 ElementalMatrix<T>& EPre )
+  Orientation orientC,
+  Orientation orientationOfD,
+  T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+  T beta,
+  const ElementalMatrix<T>& CPre,
+  const ElementalMatrix<T>& DPre,
+        ElementalMatrix<T>& EPre )
 {
     DEBUG_ONLY(
       CSE cse("trr2k::Trr2kNNTT");
@@ -33,11 +38,18 @@ void Trr2kNNTT
     const Int bsize = Blocksize();
     const Grid& g = EPre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadProxy<T,MC,MR>( &CPre );      auto& C = *CPtr;
-    auto DPtr = ReadProxy<T,MC,MR>( &DPre );      auto& D = *DPtr;
-    auto EPtr = ReadWriteProxy<T,MC,MR>( &EPre ); auto& E = *EPtr;
+    DistMatrixReadProxy<T,T,MC,MR>
+      AProx( APre ),
+      BProx( BPre ),
+      CProx( CPre ),
+      DProx( DPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR>
+      EProx( EPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.GetLocked();
+    auto& D = DProx.GetLocked();
+    auto& E = EProx.Get();
 
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);

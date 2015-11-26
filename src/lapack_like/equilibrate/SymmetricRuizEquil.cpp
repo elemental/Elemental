@@ -50,10 +50,11 @@ void SymmetricRuizEquil
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    auto APtr = ReadWriteProxy<F,MC,MR>(&APre,control);
-    auto dPtr = WriteProxy<Real,MC,STAR>(&dPre,control); 
-    auto& A = *APtr;
-    auto& d = *dPtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre, control );
+    DistMatrixWriteProxy<Real,Real,MC,STAR> dProx( dPre, control );
+    auto& A = AProx.Get();
+    auto& d = dProx.Get();
 
     const Int n = A.Height();
     Ones( d, n, 1 );

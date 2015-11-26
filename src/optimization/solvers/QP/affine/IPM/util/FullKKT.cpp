@@ -99,8 +99,8 @@ void KKT
     const Int n = A.Width();
     const Int k = G.Height();
 
-    auto JPtr = WriteProxy<Real,MC,MR>(&JPre); 
-    auto& J = *JPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
+    auto& J = JProx.Get();
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
@@ -532,8 +532,8 @@ void KKTRHS
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
 
-    auto dPtr = WriteProxy<Real,MC,MR>(&dPre);
-    auto& d = *dPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
+    auto& d = dProx.Get();
 
     const Int n = rc.Height();
     const Int m = rb.Height();
@@ -621,8 +621,8 @@ void ExpandCoreSolution
 {
     DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
 
-    auto dPtr = ReadProxy<Real,MC,MR>(&dPre);
-    auto& d = *dPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> dProx( dPre );
+    auto& d = dProx.GetLocked();
 
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");

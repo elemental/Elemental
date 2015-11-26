@@ -106,8 +106,13 @@ void NormalKKT
     ElementalProxyCtrl ctrl;
     ctrl.colAlign = 0;
     ctrl.colConstrain = true;
-    auto xPtr = ReadProxy<Real,MR,STAR>( &xPre, ctrl ); auto& x = *xPtr;
-    auto zPtr = ReadProxy<Real,MR,STAR>( &zPre, ctrl ); auto& z = *zPtr; 
+
+    DistMatrixReadProxy<Real,Real,MR,STAR>
+      xProx( xPre, ctrl ),
+      zProx( zPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& z = zProx.GetLocked();
+
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
     {
@@ -291,8 +296,13 @@ void NormalKKTRHS
     ElementalProxyCtrl ctrl;
     ctrl.colAlign = 0;
     ctrl.colConstrain = true;
-    auto xPtr = ReadProxy<Real,MR,STAR>( &xPre, ctrl ); auto& x = *xPtr;
-    auto zPtr = ReadProxy<Real,MR,STAR>( &zPre, ctrl ); auto& z = *zPtr; 
+
+    DistMatrixReadProxy<Real,Real,MR,STAR>
+      xProx( xPre, ctrl ),
+      zProx( zPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& z = zProx.GetLocked();
+
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
     {
@@ -466,8 +476,13 @@ void ExpandNormalSolution
     ElementalProxyCtrl ctrl;
     ctrl.colAlign = 0;
     ctrl.colConstrain = true;
-    auto xPtr = ReadProxy<Real,MR,STAR>( &xPre, ctrl ); auto& x = *xPtr;
-    auto zPtr = ReadProxy<Real,MR,STAR>( &zPre, ctrl ); auto& z = *zPtr; 
+
+    DistMatrixReadProxy<Real,Real,MR,STAR>
+      xProx( xPre, ctrl ),
+      zProx( zPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& z = zProx.GetLocked();
+
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
     {

@@ -14,8 +14,10 @@ namespace gemm {
 template<typename T>
 inline void
 Cannon_NN
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::Cannon_NN");
@@ -32,12 +34,17 @@ Cannon_NN
         LogicError("Process grid must be square for Cannon's");
 
     // Force A, B, and C to be in [MC,MR] distributions aligned with C
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& C = CProx.Get();
+
     ElementalProxyCtrl ctrlA, ctrlB;
     ctrlA.colConstrain = true; ctrlA.colAlign = C.ColAlign();
     ctrlB.rowConstrain = true; ctrlB.rowAlign = C.RowAlign();
-    auto APtr = ReadProxy<T,MC,MR>( &APre, ctrlA ); auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre, ctrlB ); auto& B = *BPtr;
+    
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre, ctrlA );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre, ctrlB );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
 
     const Int row = g.Row();
     const Int col = g.Col();
@@ -95,9 +102,10 @@ Cannon_NN
 template<typename T>
 inline void
 SUMMA_NNA
-( T alpha, const ElementalMatrix<T>& APre, 
-           const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+( T alpha,
+  const ElementalMatrix<T>& APre, 
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNA");
@@ -113,9 +121,12 @@ SUMMA_NNA
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -146,8 +157,10 @@ SUMMA_NNA
 template<typename T>
 inline void 
 SUMMA_NNB
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNB");
@@ -163,9 +176,12 @@ SUMMA_NNB
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
@@ -193,8 +209,10 @@ SUMMA_NNB
 template<typename T>
 inline void 
 SUMMA_NNC
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNC");
@@ -210,9 +228,12 @@ SUMMA_NNC
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -240,8 +261,10 @@ SUMMA_NNC
 template<typename T>
 inline void 
 SUMMA_NNDot
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NNDot");
@@ -258,9 +281,12 @@ SUMMA_NNDot
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     if( A.Height() > B.Width() )
     {
@@ -334,8 +360,11 @@ SUMMA_NNDot
 template<typename T>
 inline void
 SUMMA_NN
-( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+( T alpha,
+  const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B,
+        ElementalMatrix<T>& C,
+  GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CSE cse("gemm::SUMMA_NN"))
     const Int m = C.Height();

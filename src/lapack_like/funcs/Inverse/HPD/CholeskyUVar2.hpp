@@ -17,14 +17,15 @@ namespace hpd_inv {
 // Bientinesi et al.'s "Families of Algorithms Related to the Inversion of 
 // a Symmetric Positive Definite Matrix".
 
+// TODO: Rewrite this routine without partition tracking
 template<typename F> 
 inline void
 CholeskyUVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("hpd_inv::CholeskyUVar2");
-        if( A.Height() != A.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("hpd_inv::CholeskyUVar2");
+      if( A.Height() != A.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
 
     const Int n = A.Height();
@@ -54,18 +55,19 @@ CholeskyUVar2( Matrix<F>& A )
     }
 }
 
+// TODO: Rewrite this routine without partition tracking
 template<typename F> 
 inline void
 CholeskyUVar2( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("hpd_inv::CholeskyUVar2");
-        if( APre.Height() != APre.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("hpd_inv::CholeskyUVar2");
+      if( APre.Height() != APre.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);

@@ -109,9 +109,14 @@ void Explicit
   ElementalMatrix<F>& QPre )
 {
     DEBUG_ONLY(CSE cse("bidiag::Explicit"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
-    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR>
+      AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      PProx( PPre ),
+      QProx( QPre );
+    auto& A = AProx.Get();
+    auto& P = PProx.Get();
+    auto& Q = QProx.Get();
     Explicit( A, P, Q );
 }
 

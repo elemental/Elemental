@@ -12,7 +12,10 @@ namespace El {
 
 template<typename T>
 void Syr
-( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A, 
+( UpperOrLower uplo,
+  T alpha,
+  const Matrix<T>& x,
+        Matrix<T>& A, 
   bool conjugate )
 {
     DEBUG_ONLY(
@@ -44,8 +47,10 @@ void Syr
 template<typename T>
 void Syr
 ( UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& x,
-                 ElementalMatrix<T>& APre, bool conjugate )
+  T alpha,
+  const ElementalMatrix<T>& x,
+        ElementalMatrix<T>& APre,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("Syr");
@@ -59,8 +64,8 @@ void Syr
            DimsString(x,"x"));
     )
 
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     const Int localHeight = A.LocalHeight();

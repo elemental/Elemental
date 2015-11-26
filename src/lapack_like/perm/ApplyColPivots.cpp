@@ -71,8 +71,9 @@ void ApplyColPivots
         Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyColPivots"))
-    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
-    auto& pivots = *pivotsPtr;
+
+    DistMatrixReadProxy<Int,Int,STAR,STAR> pivotsProx( pivotsPre );
+    auto& pivots = pivotsProx.GetLocked();
 
     const Int numPivots = pivots.Height();
     const Int* pivotsBuf = pivots.LockedBuffer();
@@ -90,8 +91,9 @@ void ApplyInverseColPivots
         Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyInverseColPivots"))
-    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
-    auto& pivots = *pivotsPtr;
+
+    DistMatrixReadProxy<Int,Int,STAR,STAR> pivotsProx( pivotsPre );
+    auto& pivots = pivotsProx.GetLocked();
 
     const Int numPivots = pivots.Height();
     const Int* pivotsBuf = pivots.LockedBuffer();

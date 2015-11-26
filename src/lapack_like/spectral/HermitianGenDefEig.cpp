@@ -56,8 +56,9 @@ void HermitianGenDefEig
           LogicError("Hermitian matrices must be square.");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
 
     Cholesky( uplo, B );
     if( pencil == AXBX )
@@ -119,15 +120,17 @@ void HermitianGenDefEig
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_ONLY(
-        CSE cse("HermitianGenDefEig");
-        AssertSameGrids( APre, BPre, w, XPre );
-        if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
-            LogicError("Hermitian matrices must be square.");
+      CSE cse("HermitianGenDefEig");
+      AssertSameGrids( APre, BPre, w, XPre );
+      if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
+          LogicError("Hermitian matrices must be square.");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
-    auto XPtr = WriteProxy<F,MC,MR>( &XPre );     auto& X = *XPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
+    auto& X = XProx.Get();
 
     Cholesky( uplo, B );
     if( pencil == AXBX )

@@ -18,8 +18,10 @@ namespace lq {
 template<typename F> 
 void SolveAfter
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, 
-  const Matrix<Base<F>>& d, const Matrix<F>& B,       
+  const Matrix<F>& A,
+  const Matrix<F>& t, 
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& B,       
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("lq::SolveAfter"))
@@ -76,9 +78,11 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F      >& APre, const ElementalMatrix<F>& t, 
-  const ElementalMatrix<Base<F>>& d,    const ElementalMatrix<F>& B, 
-        ElementalMatrix<F      >& XPre )
+  const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& t, 
+  const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& B, 
+        ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("lq::SolveAfter"))
     const Int m = APre.Height();
@@ -87,8 +91,10 @@ void SolveAfter
     if( m > n )
         LogicError("Must have full row rank");
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto XPtr = WriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& A = AProx.GetLocked();
+    auto& X = XProx.Get();
 
     X.Resize( n, B.Width() );
     // TODO: Add scaling

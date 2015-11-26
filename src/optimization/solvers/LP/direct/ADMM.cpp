@@ -24,7 +24,8 @@ namespace direct {
 template<typename Real>
 Int ADMM
 ( const Matrix<Real>& A, 
-  const Matrix<Real>& b, const Matrix<Real>& c, 
+  const Matrix<Real>& b,
+  const Matrix<Real>& c, 
         Matrix<Real>& z,
   const ADMMCtrl<Real>& ctrl )
 {
@@ -176,16 +177,23 @@ Int ADMM
 template<typename Real>
 Int ADMM
 ( const ElementalMatrix<Real>& APre, 
-  const ElementalMatrix<Real>& bPre, const ElementalMatrix<Real>& cPre,
+  const ElementalMatrix<Real>& bPre,
+  const ElementalMatrix<Real>& cPre,
         ElementalMatrix<Real>& zPre, 
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::ADMM"))
 
-    auto APtr = ReadProxy<Real,MC,MR>( &APre );  auto& A = *APtr;
-    auto bPtr = ReadProxy<Real,MC,MR>( &bPre );  auto& b = *bPtr;
-    auto cPtr = ReadProxy<Real,MC,MR>( &cPre );  auto& c = *cPtr;
-    auto zPtr = WriteProxy<Real,MC,MR>( &zPre ); auto& z = *zPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR>
+      AProx( APre ),
+      bProx( bPre ),
+      cProx( cPre );
+    DistMatrixWriteProxy<Real,Real,MC,MR>
+      zProx( zPre );
+    auto& A = AProx.GetLocked();
+    auto& b = bProx.GetLocked();
+    auto& c = cProx.GetLocked();
+    auto& z = zProx.Get();
 
     // Cache a custom partially-pivoted LU factorization of 
     //    |  rho*I   A^H | = | B11  B12 |
@@ -336,12 +344,16 @@ Int ADMM
 
 #define PROTO(Real) \
   template Int ADMM \
-  ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& z, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
+    const Matrix<Real>& c, \
+          Matrix<Real>& z, \
     const ADMMCtrl<Real>& ctrl ); \
   template Int ADMM \
-  ( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c,       ElementalMatrix<Real>& z, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& c, \
+          ElementalMatrix<Real>& z, \
     const ADMMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

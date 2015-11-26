@@ -47,9 +47,12 @@ void NormalFromEVD
     DEBUG_ONLY(CSE cse("NormalFromEVD"))
     typedef Complex<Real> C;
 
-    auto APtr = WriteProxy<C,MC,MR>( &APre );  auto& A = *APtr;
-    auto wPtr = ReadProxy<C,VR,STAR>( &wPre ); auto& w = *wPtr;
-    auto ZPtr = ReadProxy<C,MC,MR>( &ZPre );   auto& Z = *ZPtr;
+    DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );
+    DistMatrixReadProxy<C,C,VR,STAR> wProx( wPre );
+    DistMatrixReadProxy<C,C,MC,MR> ZProx( ZPre );
+    auto& A = AProx.Get();
+    auto& w = wProx.GetLocked();
+    auto& Z = ZProx.GetLocked();
 
     const Grid& g = A.Grid();
     DistMatrix<C,MC,  STAR> Z1_MC_STAR(g);

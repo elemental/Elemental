@@ -44,17 +44,17 @@ inline void
 LVar1( ElementalMatrix<T>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trtrmm::LVar1");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("L must be square");
+      CSE cse("trtrmm::LVar1");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("L must be square");
     )
     const Int n = LPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto LPtr = ReadWriteProxy<T,MC,MR>( &LPre ); 
-    auto& L = *LPtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> LProx( LPre );
+    auto& L = LProx.Get();
 
     // Temporary distributions
     DistMatrix<T,STAR,VR  > L10_STAR_VR(g);

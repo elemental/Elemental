@@ -134,8 +134,10 @@ LV
           LogicError("t must be the same length as H's offset diag");
     )
 
-    auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
-    auto HPtr = ReadWriteProxy<F,MC,MR>( &HPre ); auto& H = *HPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR  > HProx( HPre );
+    DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );
+    auto& H = HProx.Get();
+    auto& t = tProx.GetLocked();
 
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.

@@ -64,8 +64,8 @@ void CheckRealSchur( const ElementalMatrix<Real>& UPre, bool standardForm )
 {
     DEBUG_ONLY(CSE cse("CheckRealSchur")) 
 
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre );
-    auto& U = *UPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     auto uMain = GetDiagonal(U);
     auto uSub = GetDiagonal(U,-1);

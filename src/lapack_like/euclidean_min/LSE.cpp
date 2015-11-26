@@ -161,15 +161,23 @@ void Overwrite
   ElementalMatrix<F>& BPre, 
   ElementalMatrix<F>& CPre,
   ElementalMatrix<F>& DPre, 
-  ElementalMatrix<F>& XPre, bool computeResidual )
+  ElementalMatrix<F>& XPre,
+  bool computeResidual )
 {
     DEBUG_ONLY(CSE cse("lse::Overwrite"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<F,MC,MR>( &CPre ); auto& C = *CPtr;
-    auto DPtr = ReadWriteProxy<F,MC,MR>( &DPre ); auto& D = *DPtr;
-    auto XPtr = WriteProxy<F,MC,MR>( &XPre );     auto& X = *XPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR>
+      AProx( APre ),
+      BProx( BPre ),
+      CProx( CPre ),
+      DProx( DPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      XProx( XPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
+    auto& C = CProx.Get();
+    auto& D = DProx.Get();
+    auto& X = XProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();

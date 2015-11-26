@@ -96,8 +96,8 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
     DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
 
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre );
-    auto& X = *XPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& X = XProx.Get();
 
     typedef Base<F> Real;
     const Grid& g = X.Grid();
@@ -211,8 +211,8 @@ InverseFreeSignDivide( ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
 
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre );
-    auto& X = *XPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& X = XProx.Get();
 
     typedef Base<F> Real;
     const Grid& g = X.Grid();

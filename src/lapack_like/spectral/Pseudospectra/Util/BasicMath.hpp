@@ -27,8 +27,8 @@ template<typename F>
 inline bool
 TriangIsNormal( const ElementalMatrix<F>& UPre, Base<F> tol )
 {
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );
-    auto& U = *UPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     const Base<F> diagFrob = FrobeniusNorm(GetDiagonal(U));
     const Base<F> upperFrob = FrobeniusNorm( U );

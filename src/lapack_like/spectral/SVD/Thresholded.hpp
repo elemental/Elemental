@@ -216,8 +216,10 @@ TallAbsoluteThresholded
   Base<F> tol )
 {
     DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;    
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     TallAbsoluteThresholded( A, s, V, tol );
 }
 
@@ -285,8 +287,10 @@ TallRelativeThresholded
   Base<F> relTol )
 {
     DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     TallRelativeThresholded( A, s, V, relTol );
 }
 
@@ -383,8 +387,10 @@ TallAbsoluteThresholded
   Base<F> tol )
 {
     DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
-    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
-    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
+    DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
+    auto& s = sProx.Get();
+    auto& V = VProx.Get();
     TallAbsoluteThresholded( A, s, V, tol );
 }
 
@@ -456,8 +462,10 @@ TallRelativeThresholded
   Base<F> relTol )
 {
     DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
-    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
-    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
+    DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
+    auto& s = sProx.Get();
+    auto& V = VProx.Get();
     TallRelativeThresholded( A, s, V, relTol );
 }
 
@@ -682,8 +690,10 @@ WideAbsoluteThresholded
   Base<F> tol )
 {
     DEBUG_ONLY(CSE cse("svd::WideAbsoluteThresholded"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     WideAbsoluteThresholded( A, s, V, tol );
 }
 
@@ -752,8 +762,10 @@ WideRelativeThresholded
   Base<F> relTol )
 {
     DEBUG_ONLY(CSE cse("svd::WideRelativeThresholded"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     WideRelativeThresholded( A, s, V, relTol );
 }
 

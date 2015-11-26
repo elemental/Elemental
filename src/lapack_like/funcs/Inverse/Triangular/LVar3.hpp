@@ -18,9 +18,9 @@ inline void
 LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
 {
     DEBUG_ONLY(
-        CSE cse("triang_inv::LVar3Unb");
-        if( L.Height() != L.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("triang_inv::LVar3Unb");
+      if( L.Height() != L.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
     const Int n = L.Height();
     const Int ldl = L.LDim();
@@ -48,9 +48,9 @@ inline void
 LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 {
     DEBUG_ONLY(
-        CSE cse("triang_inv::LVar3");
-        if( L.Height() != L.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("triang_inv::LVar3");
+      if( L.Height() != L.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
     const Int n = L.Height();
     const Int bsize = Blocksize();
@@ -79,13 +79,13 @@ inline void
 LVar3( UnitOrNonUnit diag, ElementalMatrix<F>& LPre )
 {
     DEBUG_ONLY(
-        CSE cse("triang_inv::LVar3");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("triang_inv::LVar3");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
 
-    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre );
-    auto& L = *LPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> LProx( LPre );
+    auto& L = LProx.Get();
 
     const Grid& g = L.Grid();
     DistMatrix<F,STAR,MR  > L10_STAR_MR(g);

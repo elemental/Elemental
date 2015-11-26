@@ -14,19 +14,22 @@ namespace El {
 template<typename T>
 void Trr2
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& X, const Matrix<T>& Y, Matrix<T>& A, 
+  T alpha,
+  const Matrix<T>& X,
+  const Matrix<T>& Y,
+        Matrix<T>& A, 
   bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Trr2");
-        if( X.Width() != 2 || Y.Width() != 2 )
-            LogicError("X and Y must be of width 2");
+      CSE cse("Trr2");
+      if( X.Width() != 2 || Y.Width() != 2 )
+          LogicError("X and Y must be of width 2");
     )
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-        if( X.Height() != m || Y.Height() != n )
-            LogicError("X and Y must conform with A");
+      if( X.Height() != m || Y.Height() != n )
+          LogicError("X and Y must conform with A");
     )
     const T* XCol0 = X.LockedBuffer(0,0);
     const T* XCol1 = X.LockedBuffer(0,1);
@@ -63,18 +66,23 @@ void Trr2
 template<typename T>
 void Trr2
 ( UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& XPre, const ElementalMatrix<T>& YPre,
-                 ElementalMatrix<T>& APre, bool conjugate )
+  T alpha,
+  const ElementalMatrix<T>& XPre,
+  const ElementalMatrix<T>& YPre,
+        ElementalMatrix<T>& APre,
+  bool conjugate )
 {
     DEBUG_ONLY(
-        CSE cse("Trr2");
-        if( XPre.Width() != 2 || YPre.Width() != 2 )
-            LogicError("X and Y must be of width 2");
+      CSE cse("Trr2");
+      if( XPre.Width() != 2 || YPre.Width() != 2 )
+          LogicError("X and Y must be of width 2");
     )
 
-    auto XPtr = ReadProxy<T,MC,MR>( &XPre );      auto& X = *XPtr;
-    auto YPtr = ReadProxy<T,MC,MR>( &YPre );      auto& Y = *YPtr;
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); auto& A = *APtr;
+    DistMatrixReadProxy<T,T,MC,MR> XProx( XPre ), YProx( YPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> AProx( APre );
+    auto& X = XProx.GetLocked();
+    auto& Y = YProx.GetLocked();
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     const Int mLocal = A.LocalHeight();

@@ -93,8 +93,11 @@ void LocalAccumulateRL
 template<typename T>
 inline void
 RLA
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre,
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RLA");
@@ -106,9 +109,11 @@ RLA
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
     DistMatrix<T,VC,  STAR> B1Trans_VC_STAR(g);
@@ -153,8 +158,11 @@ RLA
 template<typename T>
 inline void
 RLC
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre,
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("symm::RLC");
@@ -164,9 +172,11 @@ RLC
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
@@ -213,8 +223,11 @@ RLC
 template<typename T>
 inline void
 RL
-( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B,
+        ElementalMatrix<T>& C,
+  bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::RL"))
     // TODO: Come up with a better routing mechanism

@@ -147,9 +147,14 @@ ADMM
 {
     DEBUG_ONLY(CSE cse("qp::box::ADMM"))
 
-    auto QPtr = ReadProxy<Real,MC,MR>( &QPre );  auto& Q = *QPtr;
-    auto CPtr = ReadProxy<Real,MC,MR>( &CPre );  auto& C = *CPtr;
-    auto ZPtr = WriteProxy<Real,MC,MR>( &ZPre ); auto& Z = *ZPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR>
+      QProx( QPre ),
+      CProx( CPre );
+    DistMatrixWriteProxy<Real,Real,MC,MR>
+      ZProx( ZPre );
+    auto& Q = QProx.GetLocked();
+    auto& C = CProx.GetLocked();
+    auto& Z = ZProx.Get();
 
     const Grid& grid = Q.Grid();
     const Int n = Q.Height();

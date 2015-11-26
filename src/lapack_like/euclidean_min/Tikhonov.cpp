@@ -13,8 +13,11 @@ namespace El {
 template<typename F> 
 void Tikhonov
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& B, 
-  const Matrix<F>& G,       Matrix<F>& X, TikhonovAlg alg )
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+  const Matrix<F>& G,
+        Matrix<F>& X,
+  TikhonovAlg alg )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
     const bool normal = ( orientation==NORMAL );
@@ -65,15 +68,22 @@ void Tikhonov
 template<typename F> 
 void Tikhonov
 ( Orientation orientation,
-  const ElementalMatrix<F>& APre, const ElementalMatrix<F>& BPre, 
-  const ElementalMatrix<F>& G,          ElementalMatrix<F>& XPre, 
+  const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& BPre, 
+  const ElementalMatrix<F>& G,
+        ElementalMatrix<F>& XPre, 
   TikhonovAlg alg )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto BPtr = ReadProxy<F,MC,MR>( &BPre );  auto& B = *BPtr;
-    auto XPtr = WriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR>
+      AProx( APre ),
+      BProx( BPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      XProx( XPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& X = XProx.Get();
 
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
@@ -179,8 +189,10 @@ void Tikhonov
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B,
-  const SparseMatrix<F>& G,       Matrix<F>& X, 
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B,
+  const SparseMatrix<F>& G,
+        Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
@@ -232,8 +244,10 @@ void Tikhonov
 template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B,
-  const DistSparseMatrix<F>& G,       DistMultiVec<F>& X, 
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B,
+  const DistSparseMatrix<F>& G,
+        DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Tikhonov"))
@@ -311,22 +325,31 @@ void Tikhonov
 #define PROTO(F) \
   template void Tikhonov \
   ( Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& B, \
-    const Matrix<F>& G,       Matrix<F>& X, TikhonovAlg alg ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& B, \
+    const Matrix<F>& G, \
+          Matrix<F>& X, \
+          TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, \
-    const ElementalMatrix<F>& G,       ElementalMatrix<F>& X, \
-    TikhonovAlg alg ); \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+    const ElementalMatrix<F>& G, \
+          ElementalMatrix<F>& X, \
+          TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const SparseMatrix<F>& A, const Matrix<F>& B, \
-    const SparseMatrix<F>& G,       Matrix<F>& X, \
+    const SparseMatrix<F>& A, \
+    const Matrix<F>& B, \
+    const SparseMatrix<F>& G, \
+          Matrix<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-    const DistSparseMatrix<F>& G,       DistMultiVec<F>& X, \
+    const DistSparseMatrix<F>& A, \
+    const DistMultiVec<F>& B, \
+    const DistSparseMatrix<F>& G, \
+          DistMultiVec<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

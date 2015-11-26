@@ -57,14 +57,17 @@ void LowerNorms
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr          = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto lowerNormsPtr = WriteProxy<Real,VC,STAR>(&lowerNormsPre,ctrl);
-    auto ordersPtr     = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr  = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& lowerNorms = *lowerNormsPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      xProx( xPre, ctrl );
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      lowerNormsProx( lowerNormsPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& lowerNorms = lowerNormsProx.Get();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();

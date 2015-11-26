@@ -63,8 +63,8 @@ inline void HCat
     const Int nA = A.Width();
     const Int nB = B.Width();
 
-    auto CPtr = WriteProxy<T,MC,MR>(&CPre);
-    auto& C = *CPtr;
+    DistMatrixWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& C = CProx.Get();
 
     Zeros( C, m, nA+nB );
     auto CL = C( IR(0,m), IR(0,nA)     );
@@ -86,8 +86,8 @@ void VCat
     const Int mB = B.Height();
     const Int n = A.Width();
 
-    auto CPtr = WriteProxy<T,MC,MR>(&CPre);
-    auto& C = *CPtr;
+    DistMatrixWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& C = CProx.Get();
 
     Zeros( C, mA+mB, n );
     auto CT = C( IR(0,mA),     IR(0,n) );

@@ -27,7 +27,7 @@ void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv )
       // a reordering of (0,1,...,n-1).
       const Int range = MaxNorm( p ) + 1;
       if( range != n )
-          LogicError("Invalid putation range");
+          LogicError("Invalid permutation range");
     )
 
     for( Int i=0; i<n; ++i )
@@ -49,18 +49,17 @@ void InvertPermutation
     if( n == 0 )
         return;
 
-    auto pPtr = ReadProxy<Int,VC,STAR>( &pPre ); 
-    auto& p = *pPtr;
-
-    auto pInvPtr = WriteProxy<Int,VC,STAR>( &pInvPre ); 
-    auto& pInv = *pInvPtr;
+    DistMatrixReadProxy<Int,Int,VC,STAR> pProx( pPre );
+    DistMatrixWriteProxy<Int,Int,VC,STAR> pInvProx( pInvPre );
+    auto& p = pProx.GetLocked();
+    auto& pInv = pInvProx.Get();
 
     DEBUG_ONLY(
       // This is obviously necessary but not sufficient for 'p' to contain
       // a reordering of (0,1,...,n-1).
       const Int range = MaxNorm( p ) + 1;
       if( range != n )
-          LogicError("Invalid putation range");
+          LogicError("Invalid permutation range");
     )
 
     // Compute the send counts

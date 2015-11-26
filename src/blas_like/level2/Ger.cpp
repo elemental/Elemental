@@ -11,7 +11,11 @@
 namespace El {
 
 template<typename T>
-void Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+void Ger
+( T alpha,
+  const Matrix<T>& x,
+  const Matrix<T>& y,
+        Matrix<T>& A )
 {
     DEBUG_ONLY(
       CSE cse("Ger");
@@ -36,9 +40,10 @@ void Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 
 template<typename T>
 void Ger
-( T alpha, const ElementalMatrix<T>& x, 
-           const ElementalMatrix<T>& y,
-                 ElementalMatrix<T>& APre )
+( T alpha,
+  const ElementalMatrix<T>& x, 
+  const ElementalMatrix<T>& y,
+        ElementalMatrix<T>& APre )
 {
     DEBUG_ONLY(
       CSE cse("Ger");
@@ -56,8 +61,8 @@ void Ger
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -123,9 +128,10 @@ void Ger
 
 template<typename T>
 void LocalGer
-( T alpha, const ElementalMatrix<T>& x, 
-           const ElementalMatrix<T>& y,
-                 ElementalMatrix<T>& A )
+( T alpha,
+  const ElementalMatrix<T>& x, 
+  const ElementalMatrix<T>& y,
+        ElementalMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("LocalGer"))
     // TODO: Add error checking here

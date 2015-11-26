@@ -85,8 +85,8 @@ void ExplicitUnitary
 {
     DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
@@ -164,8 +164,8 @@ void Explicit
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
@@ -250,8 +250,8 @@ void Explicit
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);

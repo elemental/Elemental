@@ -21,7 +21,9 @@ namespace El {
 
 template<typename F>
 Int SparseInvCov
-( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z,
+( const Matrix<F>& D,
+        Base<F> lambda,
+        Matrix<F>& Z,
   const SparseInvCovCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SparseInvCov"))
@@ -109,13 +111,15 @@ Int SparseInvCov
 
 template<typename F>
 Int SparseInvCov
-( const ElementalMatrix<F>& D, Base<F> lambda, ElementalMatrix<F>& ZPre,
+( const ElementalMatrix<F>& D,
+        Base<F> lambda,
+        ElementalMatrix<F>& ZPre,
   const SparseInvCovCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SparseInvCov"))
 
-    auto ZPtr = WriteProxy<F,MC,MR>( &ZPre );
-    auto& Z = *ZPtr;
+    DistMatrixWriteProxy<F,F,MC,MR> ZProx( ZPre );
+    auto& Z = ZProx.Get();
 
     typedef Base<F> Real;
     const Grid& g = D.Grid();
@@ -203,10 +207,14 @@ Int SparseInvCov
 
 #define PROTO(F) \
   template Int SparseInvCov \
-  ( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z, \
+  ( const Matrix<F>& D, \
+          Base<F> lambda, \
+          Matrix<F>& Z, \
     const SparseInvCovCtrl<Base<F>>& ctrl ); \
   template Int SparseInvCov \
-  ( const ElementalMatrix<F>& D, Base<F> lambda, ElementalMatrix<F>& Z, \
+  ( const ElementalMatrix<F>& D, \
+          Base<F> lambda, \
+          ElementalMatrix<F>& Z, \
     const SparseInvCovCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

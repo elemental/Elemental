@@ -12,8 +12,12 @@ namespace El {
 
 template<typename F> 
 void GQR
-( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA, 
-  Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB )
+( Matrix<F>& A,
+  Matrix<F>& tA,
+  Matrix<Base<F>>& dA, 
+  Matrix<F>& B,
+  Matrix<F>& tB,
+  Matrix<Base<F>>& dB )
 {
     DEBUG_ONLY(CSE cse("GQR"))
     QR( A, tA, dA );
@@ -24,14 +28,17 @@ void GQR
 template<typename F> 
 void GQR
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tA, ElementalMatrix<Base<F>>& dA,
+  ElementalMatrix<F>& tA,
+  ElementalMatrix<Base<F>>& dA,
   ElementalMatrix<F>& BPre, 
-  ElementalMatrix<F>& tB, ElementalMatrix<Base<F>>& dB )
+  ElementalMatrix<F>& tB,
+  ElementalMatrix<Base<F>>& dB )
 {
     DEBUG_ONLY(CSE cse("GQR"))
-  
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
 
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
@@ -57,8 +64,9 @@ void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("gqr::ExplicitTriang"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tA(g);
@@ -73,13 +81,19 @@ void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 
 #define PROTO(F) \
   template void GQR \
-  ( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA, \
-    Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB ); \
+  ( Matrix<F>& A, \
+    Matrix<F>& tA, \
+    Matrix<Base<F>>& dA, \
+    Matrix<F>& B, \
+    Matrix<F>& tB, \
+    Matrix<Base<F>>& dB ); \
   template void GQR \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& tA, ElementalMatrix<Base<F>>& dA, \
+    ElementalMatrix<F>& tA, \
+    ElementalMatrix<Base<F>>& dA, \
     ElementalMatrix<F>& B, \
-    ElementalMatrix<F>& tB, ElementalMatrix<Base<F>>& dB ); \
+    ElementalMatrix<F>& tB, \
+    ElementalMatrix<Base<F>>& dB ); \
   template void gqr::ExplicitTriang \
   ( Matrix<F>& A, Matrix<F>& B ); \
   template void gqr::ExplicitTriang \

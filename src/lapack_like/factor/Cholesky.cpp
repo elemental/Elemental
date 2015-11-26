@@ -153,8 +153,8 @@ void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
     DEBUG_ONLY(CSE cse("HPSDCholesky"))
 
     // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );

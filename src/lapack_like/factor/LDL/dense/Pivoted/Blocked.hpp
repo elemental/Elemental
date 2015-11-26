@@ -17,13 +17,17 @@ namespace pivot {
 template<typename F>
 inline void
 Blocked
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
+( Matrix<F>& A,
+  Matrix<F>& dSub,
+  Matrix<Int>& p,
+  bool conjugate=false,
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::pivot::Blocked");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("ldl::pivot::Blocked");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
     if( n == 0 )
@@ -67,15 +71,18 @@ Blocked
 template<typename F>
 inline void
 Blocked
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& dSubPre,
-  ElementalMatrix<Int>& pPre, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& dSubPre,
+  ElementalMatrix<Int>& pPre,
+  bool conjugate=false, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::pivot::Blocked");
-        AssertSameGrids( APre, dSubPre, pPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
+      CSE cse("ldl::pivot::Blocked");
+      AssertSameGrids( APre, dSubPre, pPre );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
     )
     const Int n = APre.Height();
     pPre.Resize( n, 1 );
@@ -86,9 +93,12 @@ Blocked
     }
     dSubPre.Resize( n-1, 1 );
 
-    auto APtr    = ReadWriteProxy<F,MC,MR>( &APre );  auto& A    = *APtr;
-    auto dSubPtr = WriteProxy<F,MC,STAR>( &dSubPre ); auto& dSub = *dSubPtr;
-    auto pPtr    = WriteProxy<Int,VC,STAR>( &pPre );  auto& p    = *pPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,STAR> dSubProx( dSubPre );
+    DistMatrixWriteProxy<Int,Int,VC,STAR> pProx( pPre );
+    auto& A = AProx.Get();
+    auto& dSub = dSubProx.Get();
+    auto& p = pProx.Get();
 
     Zero( dSub );
 

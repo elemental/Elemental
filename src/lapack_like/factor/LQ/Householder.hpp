@@ -49,22 +49,24 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 template<typename F> 
 inline void
 Householder
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& tPre, 
   ElementalMatrix<Base<F>>& dPre )
 {
     DEBUG_ONLY(
-        CSE cse("Householder");
-        AssertSameGrids( APre, tPre, dPre );
+      CSE cse("Householder");
+      AssertSameGrids( APre, tPre, dPre );
     )
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
-    auto tPtr = WriteProxy<F,      MD,STAR>( &tPre ); auto& t = *tPtr;
-    auto dPtr = WriteProxy<Base<F>,MD,STAR>( &dPre ); auto& d = *dPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MD,STAR> tProx( tPre );
+    DistMatrixWriteProxy<Base<F>,Base<F>,MD,STAR> dProx( dPre );
+    auto& A = AProx.Get();
+    auto& t = tProx.Get();
+    auto& d = dProx.Get();
     t.Resize( minDim, 1 );
     d.Resize( minDim, 1 );
 

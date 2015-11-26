@@ -81,8 +81,8 @@ void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("Pseudoinverse"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Get the SVD of A
     typedef Base<F> Real;
@@ -118,8 +118,8 @@ void HermitianPseudoinverse
 {
     DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Get the EVD of A
     typedef Base<F> Real;

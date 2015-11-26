@@ -55,12 +55,14 @@ Int NumOutside
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      xProx( xPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     DistMatrix<Real,VC,STAR> d(x.Grid());
     soc::Dets( x, d, orders, firstInds, cutoff );

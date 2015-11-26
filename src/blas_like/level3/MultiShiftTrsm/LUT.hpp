@@ -14,7 +14,9 @@ template<typename F>
 inline void
 LUT
 ( Orientation orientation,
-  Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
+        Matrix<F>& U,
+  const Matrix<F>& shifts,
+        Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUT"))
 
@@ -43,16 +45,18 @@ template<typename F>
 inline void
 LUT
 ( Orientation orientation,
-  const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre,
+  const ElementalMatrix<F>& UPre,
+  const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUT"))
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& shifts = shiftsProx.GetLocked();
+    auto& X = XProx.Get();
 
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);

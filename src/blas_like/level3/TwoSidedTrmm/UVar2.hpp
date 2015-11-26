@@ -82,7 +82,8 @@ template<typename F>
 inline void
 UVar2
 ( UnitOrNonUnit diag, 
-  ElementalMatrix<F>& APre, const ElementalMatrix<F>& UPre )
+        ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& UPre )
 {
     DEBUG_ONLY(
       CSE cse("twotrmm::UVar2");
@@ -97,8 +98,10 @@ UVar2
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    auto& A = AProx.Get();
+    auto& U = UProx.GetLocked();
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), U11_STAR_STAR(g), 

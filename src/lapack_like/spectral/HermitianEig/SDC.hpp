@@ -73,7 +73,10 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 template<typename F>
 inline ValueInt<Base<F>>
 QDWHDivide
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
+( UpperOrLower uplo,
+  DistMatrix<F>& A,
+  DistMatrix<F>& G,
+  bool returnQ=false )
 {
     DEBUG_ONLY(CSE cse("herm_eig::QDWHDivide"))
 
@@ -118,7 +121,10 @@ QDWHDivide
 template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ, 
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<F>& G,
+  bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::RandomizedSignDivide"))
@@ -184,7 +190,10 @@ RandomizedSignDivide
 template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
+( UpperOrLower uplo,
+  DistMatrix<F>& A,
+  DistMatrix<F>& G,
+  bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::RandomizedSignDivide"))
@@ -252,7 +261,9 @@ RandomizedSignDivide
 template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
-( UpperOrLower uplo, Matrix<F>& A, const HermitianSDCCtrl<Base<F>>& ctrl )
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
 
@@ -298,7 +309,9 @@ SpectralDivide
 template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& Q, 
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
@@ -345,7 +358,8 @@ SpectralDivide
 template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
-( UpperOrLower uplo, DistMatrix<F>& A, 
+( UpperOrLower uplo,
+  DistMatrix<F>& A, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
@@ -393,7 +407,9 @@ SpectralDivide
 template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& Q, 
+( UpperOrLower uplo,
+  DistMatrix<F>& A,
+  DistMatrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
@@ -440,7 +456,9 @@ SpectralDivide
 
 template<typename F>
 void SDC
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, 
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<Base<F>>& w, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SDC"))
@@ -475,7 +493,10 @@ void SDC
 
 template<typename F>
 void SDC
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Q, 
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<Base<F>>& w,
+  Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_eig::SDC"))
@@ -520,7 +541,8 @@ void SDC
 
 template<typename F>
 void SDC
-( UpperOrLower uplo, ElementalMatrix<F>& APre, 
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre, 
   ElementalMatrix<Base<F>>& wPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
@@ -541,8 +563,10 @@ void SDC
         return;
     }
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Real,Real,VR,STAR> wProx( wPre );
+    auto& A = AProx.Get();
+    auto& w = wProx.Get();
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, ctrl );
@@ -573,7 +597,8 @@ void SDC
 template<typename F>
 void SDC
 ( UpperOrLower uplo, 
-  ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& wPre, 
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& wPre, 
   ElementalMatrix<F>& QPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
@@ -595,9 +620,12 @@ void SDC
         return;
     }
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto QPtr = WriteProxy<F,MC,MR>( &QPre );      auto& Q = *QPtr;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> QProx( QPre );
+    DistMatrixWriteProxy<Real,Real,VR,STAR> wProx( wPre );
+    auto& A = AProx.Get();
+    auto& Q = QProx.Get();
+    auto& w = wProx.Get();
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, Q, ctrl );

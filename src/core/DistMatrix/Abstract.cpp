@@ -139,10 +139,11 @@ AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
           LogicError("Invalid root");
     )
     if( root != root_ )
-        Empty(false);
+        EmptyData(false);
     root_ = root;
     if( constrain )
         rootConstrained_ = true;
+    SetShifts();
 }
 
 // Operator overloading

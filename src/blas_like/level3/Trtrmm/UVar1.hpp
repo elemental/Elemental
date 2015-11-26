@@ -44,13 +44,13 @@ inline void
 UVar1( ElementalMatrix<T>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trtrmm::UVar1");
-        if( UPre.Height() != UPre.Width() )
-            LogicError("U must be square");
+      CSE cse("trtrmm::UVar1");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("U must be square");
     )
 
-    auto UPtr = ReadWriteProxy<T,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> UProx( UPre );
+    auto& U = UProx.Get();
 
     const Grid& g = UPre.Grid();
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);

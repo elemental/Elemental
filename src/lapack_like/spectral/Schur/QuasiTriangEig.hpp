@@ -15,7 +15,9 @@ namespace schur {
 
 template<typename F>
 void QuasiTriangEig
-( const Matrix<F>& dMain, const Matrix<F>& dSub, const Matrix<F>& dSup,
+( const Matrix<F>& dMain,
+  const Matrix<F>& dSub,
+  const Matrix<F>& dSup,
   Matrix<Complex<Base<F>>>& w )
 {
     DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
@@ -64,12 +66,13 @@ Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
 
 template<typename F>
 void QuasiTriangEig
-( const ElementalMatrix<F>& UPre, ElementalMatrix<Complex<Base<F>>>& w )
+( const ElementalMatrix<F>& UPre,
+        ElementalMatrix<Complex<Base<F>>>& w )
 {
     DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );
-    auto& U = *UPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> dMain(g), dSub(g), dSup(g);

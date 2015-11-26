@@ -140,8 +140,8 @@ void Var1
 {
     DEBUG_ONLY(CSE cse("ds::Var1"))
 
-    auto APtr = ReadProxy<Real,MC,MR>(&APre);
-    auto& A = *APtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
 
     const Int n = A.Width();
     const Grid& g = A.Grid();

@@ -148,7 +148,8 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 template<typename F>
 inline void
 LN
-( const ElementalMatrix<F>& LPre, ElementalMatrix<F>& xPre, 
+( const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& xPre, 
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
@@ -167,8 +168,10 @@ LN
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> xProx( xPre );
+    auto& L = LProx.GetLocked();
+    auto& x = xProx.Get();
 
     // Matrix views 
     DistMatrix<F> L11(g), L21(g), x1(g);

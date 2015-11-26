@@ -63,16 +63,20 @@ void GeomEquil
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    auto APtr     = ReadWriteProxy<F,MC,MR>(&APre,control);
-    auto BPtr     = ReadWriteProxy<F,MC,MR>(&BPre,control);
-    auto dRowAPtr = WriteProxy<Real,MC,STAR>(&dRowAPre,control); 
-    auto dRowBPtr = WriteProxy<Real,MC,STAR>(&dRowBPre,control); 
-    auto dColPtr  = WriteProxy<Real,MR,STAR>(&dColPre,control);
-    auto& A = *APtr;
-    auto& B = *BPtr;
-    auto& dRowA = *dRowAPtr;
-    auto& dRowB = *dRowBPtr;
-    auto& dCol  = *dColPtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR>
+      AProx( APre, control ),
+      BProx( BPre, control );
+    DistMatrixWriteProxy<Real,Real,MC,STAR>
+      dRowAProx( dRowAPre, control ),
+      dRowBProx( dRowBPre, control );
+    DistMatrixWriteProxy<Real,Real,MR,STAR>
+      dColProx( dColPre, control );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
+    auto& dRowA = dRowAProx.Get();
+    auto& dRowB = dRowBProx.Get();
+    auto& dCol = dColProx.Get();
 
     const Int mA = A.Height();
     const Int mB = B.Height();

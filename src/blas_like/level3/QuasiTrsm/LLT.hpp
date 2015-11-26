@@ -152,7 +152,8 @@ template<typename F>
 inline void
 LLTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre, ElementalMatrix<F>& XPre,
+  const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -164,8 +165,10 @@ LLTLarge
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -220,7 +223,8 @@ template<typename F>
 inline void
 LLTMedium
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre, ElementalMatrix<F>& XPre,
+  const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -232,8 +236,10 @@ LLTMedium
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -290,7 +296,8 @@ template<typename F,Dist colDist>
 inline void
 LLTSmall
 ( Orientation orientation, 
-  const DistMatrix<F,colDist,STAR>& L, DistMatrix<F,colDist,STAR>& X,
+  const DistMatrix<F,colDist,STAR>& L,
+        DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -352,7 +359,8 @@ template<typename F,Dist rowDist>
 inline void
 LLTSmall
 ( Orientation orientation, 
-  const DistMatrix<F,STAR,rowDist>& L, DistMatrix<F,rowDist,STAR>& X,
+  const DistMatrix<F,STAR,rowDist>& L,
+        DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

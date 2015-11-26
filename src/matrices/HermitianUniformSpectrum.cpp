@@ -47,8 +47,8 @@ void HermitianUniformSpectrum
     typedef Base<F> Real;
 
     // Switch to [MC,MR] so that qr::ApplyQ is fast
-    auto APtr = WriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Form d and D
     vector<F> d( n );

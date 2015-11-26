@@ -279,7 +279,8 @@ LUN
 template<typename F>
 inline void
 LUNLarge
-( const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre, 
+( const ElementalMatrix<F>& UPre,
+  const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LUNLarge"))
@@ -287,11 +288,12 @@ LUNLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -355,15 +357,15 @@ LUNLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
-    auto XRealPtr = ReadWriteProxy<Real,MC,MR>( &XRealPre ); 
-    auto& XReal = *XRealPtr;
-    auto XImagPtr = ReadWriteProxy<Real,MC,MR>( &XImagPre ); 
-    auto& XImag = *XImagPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<Real,Real,MC,MR>
+      XRealProx( XRealPre ),
+      XImagProx( XImagPre );
+    auto& U = UProx.GetLocked();
+    auto& XReal = XRealProx.Get();
+    auto& XImag = XImagProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<Real,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g);
@@ -428,7 +430,8 @@ LUNLarge
 template<typename F>
 inline void
 LUNMedium
-( const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre, 
+( const ElementalMatrix<F>& UPre,
+  const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LUNMedium"))
@@ -436,11 +439,12 @@ LUNMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -509,15 +513,15 @@ LUNMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
-    auto XRealPtr = ReadWriteProxy<Real,MC,MR>( &XRealPre ); 
-    auto& XReal = *XRealPtr;
-    auto XImagPtr = ReadWriteProxy<Real,MC,MR>( &XImagPre ); 
-    auto& XImag = *XImagPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<Real,Real,MC,MR>
+      XRealProx( XRealPre ),
+      XImagProx( XImagPre );
+    auto& U = UProx.GetLocked();
+    auto& XReal = XRealProx.Get();
+    auto& XImag = XImagProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<Real,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g);

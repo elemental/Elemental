@@ -164,7 +164,8 @@ template<typename F>
 inline void
 LT
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre, ElementalMatrix<F>& xPre,
+  const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
@@ -189,8 +190,10 @@ LT
     if( conjugate )
         Conjugate( xPre );
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> xProx( xPre );
+    auto& L = LProx.GetLocked();
+    auto& x = xProx.Get();
 
     // Matrix views 
     DistMatrix<F> L10(g), L11(g), x1(g);

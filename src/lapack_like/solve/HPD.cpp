@@ -14,8 +14,10 @@ namespace hpd_solve {
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  Matrix<F>& A,
+  Matrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("hpd_solve::Overwrite"))
     Cholesky( uplo, A );
@@ -24,13 +26,17 @@ void Overwrite
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("hpd_solve::Overwrite"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto BPtr = WriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> BProx( BPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
 
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
@@ -40,8 +46,10 @@ void Overwrite
 
 template<typename F>
 void HPDSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  const Matrix<F>& A,
+        Matrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("HPDSolve"))
     Matrix<F> ACopy( A );
@@ -50,8 +58,10 @@ void HPDSolve
 
 template<typename F>
 void HPDSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("HPDSolve"))
     DistMatrix<F> ACopy( A );
@@ -61,7 +71,8 @@ void HPDSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void HPDSolve
-( const SparseMatrix<F>& A, Matrix<F>& B,
+( const SparseMatrix<F>& A,
+        Matrix<F>& B,
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("HPDSolve"))
@@ -86,7 +97,8 @@ void HPDSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void HPDSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& B,
   const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("HPDSolve"))

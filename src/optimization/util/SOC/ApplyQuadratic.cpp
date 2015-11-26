@@ -59,16 +59,19 @@ void ApplyQuadratic
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto yPtr = ReadProxy<Real,VC,STAR>(&yPre,ctrl);
-    auto zPtr = WriteProxy<Real,VC,STAR>(&zPre,ctrl);
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& y = *yPtr;
-    auto& z = *zPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      xProx( xPre, ctrl ),
+      yProx( yPre, ctrl );
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      zProx( zPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& y = yProx.GetLocked();
+    auto& z = zProx.Get();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked(); 
 
     // detRy := det(x) R y
     DistMatrix<Real,VC,STAR> d(x.Grid());

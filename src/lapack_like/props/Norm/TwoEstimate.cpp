@@ -51,8 +51,9 @@ Base<F> TwoNormEstimate
     DEBUG_ONLY(CSE cse("TwoNormEstimate"))
     typedef Base<F> Real;
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -113,7 +114,10 @@ Base<F> HermitianTwoNormEstimate( const DistSparseMatrix<F>& A, Int basisSize )
 
 template<typename F>
 Base<F> HermitianTwoNormEstimate
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+  Base<F> tol,
+  Int maxIts )
 {
     DEBUG_ONLY(CSE cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
@@ -148,14 +152,17 @@ Base<F> HermitianTwoNormEstimate
 
 template<typename F>
 Base<F> HermitianTwoNormEstimate
-( UpperOrLower uplo, const ElementalMatrix<F>& APre, Base<F> tol, 
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& APre,
+  Base<F> tol, 
   Int maxIts )
 {
     DEBUG_ONLY(CSE cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+
     const Int n = A.Height();
 
     const Grid& g = APre.Grid();
@@ -225,14 +232,17 @@ Base<F> SymmetricTwoNormEstimate
 
 template<typename F>
 Base<F> SymmetricTwoNormEstimate
-( UpperOrLower uplo, const ElementalMatrix<F>& APre, Base<F> tol, 
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& APre,
+  Base<F> tol, 
   Int maxIts )
 {
     DEBUG_ONLY(CSE cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+
     const Int n = A.Height();
 
     const Grid& g = APre.Grid();

@@ -172,8 +172,9 @@ void Overwrite
 {
     DEBUG_ONLY(CSE cse("lin_solve::Overwrite"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
 
     const bool useFullLU = true; 
 

@@ -188,8 +188,8 @@ inline void Lanczos
     DEBUG_ONLY(CSE cse("Lanczos"))
     typedef Base<F> Real;
 
-    auto TPtr = WriteProxy<Real,STAR,STAR>(&TPre);
-    auto& T = *TPtr;
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
+    auto& T = TProx.Get();
 
     const Real eps = Epsilon<Real>();
     mpi::Comm comm = T.Grid().Comm();
@@ -269,8 +269,8 @@ inline Base<F> LanczosDecomp
     DEBUG_ONLY(CSE cse("LanczosDecomp"))
     typedef Base<F> Real;
 
-    auto TPtr = WriteProxy<Real,STAR,STAR>(&TPre);
-    auto& T = *TPtr;
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
+    auto& T = TProx.Get();
 
     const Real eps = Epsilon<Real>();
     mpi::Comm comm = T.Grid().Comm();

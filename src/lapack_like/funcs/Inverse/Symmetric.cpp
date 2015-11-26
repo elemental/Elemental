@@ -13,7 +13,9 @@ namespace El {
 // NOTE: This overwrites both triangles of the inverse.
 template<typename F>
 void SymmetricInverse
-( UpperOrLower uplo, Matrix<F>& A, bool conjugate, 
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricInverse"))
@@ -38,13 +40,15 @@ void SymmetricInverse
 
 template<typename F>
 void SymmetricInverse
-( UpperOrLower uplo, ElementalMatrix<F>& APre, bool conjugate, 
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricInverse"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     if( uplo == LOWER )
     {
@@ -68,7 +72,9 @@ void SymmetricInverse
 
 template<typename F>
 void LocalSymmetricInverse
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, 
+( UpperOrLower uplo,
+  DistMatrix<F,STAR,STAR>& A,
+  bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LocalSymmetricInverse"))
@@ -77,13 +83,19 @@ void LocalSymmetricInverse
 
 #define PROTO(F) \
   template void SymmetricInverse \
-  ( UpperOrLower uplo, Matrix<F>& A, bool conjugate, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricInverse \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void LocalSymmetricInverse \
-  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, \
+  ( UpperOrLower uplo, \
+    DistMatrix<F,STAR,STAR>& A, \
+    bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

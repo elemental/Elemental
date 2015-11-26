@@ -17,9 +17,10 @@ template<typename T>
 void TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
-  T alpha, const ElementalMatrix<T>& APre,
-           const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+  T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("trrk::TrrkNT");
@@ -33,9 +34,11 @@ void TrrkNT
     const Int bsize = Blocksize();
     const Grid& g = CPre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
     DistMatrix<T,VR,  STAR> B1_VR_STAR(g);

@@ -19,9 +19,9 @@ template<typename F>
 Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
-        CSE cse("svt::PivotedQR");
-        if( numSteps > Min(A.Height(),A.Width()) )
-            LogicError("number of steps is too large");
+      CSE cse("svt::PivotedQR");
+      if( numSteps > Min(A.Height(),A.Width()) )
+          LogicError("number of steps is too large");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -64,13 +64,13 @@ Int PivotedQR
 ( ElementalMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
-        CSE cse("svt::PivotedQR");
-        if( numSteps > Min(APre.Height(),APre.Width()) )
-            LogicError("number of steps is too large");
+      CSE cse("svt::PivotedQR");
+      if( numSteps > Min(APre.Height(),APre.Width()) )
+          LogicError("number of steps is too large");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     typedef Base<F> Real;
     const Int m = A.Height();

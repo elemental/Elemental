@@ -11,7 +11,10 @@
 namespace El {
 
 template<typename T> 
-void Kronecker( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
+void Kronecker
+( const Matrix<T>& A,
+  const Matrix<T>& B,
+        Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Kronecker"))
     const Int mA = A.Height();
@@ -33,12 +36,14 @@ void Kronecker( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 
 template<typename T> 
 void Kronecker
-( const Matrix<T>& A, const Matrix<T>& B, ElementalMatrix<T>& CPre )
+( const Matrix<T>& A,
+  const Matrix<T>& B,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(CSE cse("Kronecker"))
 
-    auto CPtr = WriteProxy<T,MC,MR>(&CPre);
-    auto& C = *CPtr;
+    DistMatrixWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& C = CProx.Get();
 
     const Int mA = A.Height();
     const Int nA = A.Width();
@@ -65,7 +70,9 @@ void Kronecker
 
 template<typename T> 
 void Kronecker
-( const SparseMatrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C )
+( const SparseMatrix<T>& A,
+  const SparseMatrix<T>& B,
+        SparseMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Kronecker"))
     const Int mA = A.Height();

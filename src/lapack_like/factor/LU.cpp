@@ -48,8 +48,8 @@ void LU( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("LU"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
@@ -156,11 +156,10 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& rowPivPre )
       AssertSameGrids( APre, rowPivPre );
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
-    auto rowPivPtr = WriteProxy<Int,STAR,STAR>( &rowPivPre );
-    auto& rowPiv = *rowPivPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Int,Int,STAR,STAR> rowPivProx( rowPivPre );
+    auto& A = AProx.Get();
+    auto& rowPiv = rowPivProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);

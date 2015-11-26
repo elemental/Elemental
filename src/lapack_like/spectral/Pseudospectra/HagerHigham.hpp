@@ -524,14 +524,12 @@ HagerHigham
     DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy<C,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
-
-    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre );
-    auto& invNorms = *invNormsPtr;
+    DistMatrixReadProxy<C,C,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixWriteProxy<Real,Real,VR,STAR> invNormsProx( invNormsPre );
+    auto& U = UProx.GetLocked();
+    auto& shifts = shiftsProx.GetLocked();
+    auto& invNorms = invNormsProx.Get();
 
     using namespace pspec;
     const Int n = U.Height();
@@ -725,17 +723,13 @@ HagerHigham
     using namespace pspec;
     typedef Complex<Real> C;
 
-    auto UPtr = ReadProxy<C,MC,MR>( &UPre );
-    auto& U = *UPtr;
-
-    auto QPtr = ReadProxy<C,MC,MR>( &QPre );
-    auto& Q = *QPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
-
-    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre );
-    auto& invNorms = *invNormsPtr;
+    DistMatrixReadProxy<C,C,MC,MR> UProx( UPre ), QProx( QPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixWriteProxy<Real,Real,VR,STAR> invNormsProx( invNormsPre );
+    auto& U = UProx.GetLocked();
+    auto& Q = QProx.GetLocked();
+    auto& shifts = shiftsProx.GetLocked();
+    auto& invNorms = invNormsProx.Get();
 
     const Int n = U.Height();
     const Int nLoc = U.LocalHeight();

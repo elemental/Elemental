@@ -18,7 +18,11 @@ namespace quasitrsm {
 
 template<typename F>
 inline void
-LUTUnb( bool conjugate, const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
+LUTUnb
+( bool conjugate,
+  const Matrix<F>& U,
+        Matrix<F>& X,
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LUTUnb"))
     typedef Base<F> Real;
@@ -112,7 +116,9 @@ LUTUnb( bool conjugate, const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 inline void
 LUT
-( Orientation orientation, const Matrix<F>& U, Matrix<F>& X,
+( Orientation orientation,
+  const Matrix<F>& U,
+        Matrix<F>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -150,7 +156,8 @@ template<typename F>
 inline void
 LUTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre,
+  const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -162,8 +169,10 @@ LUTLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -211,7 +220,8 @@ template<typename F>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
+  const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -223,8 +233,10 @@ LUTMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -273,7 +285,8 @@ template<typename F,Dist rowDist>
 inline void
 LUTSmall
 ( Orientation orientation, 
-  const DistMatrix<F,STAR,rowDist>& U, DistMatrix<F,rowDist,STAR>& X,
+  const DistMatrix<F,STAR,rowDist>& U,
+        DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

@@ -85,8 +85,8 @@ void AfterLUPartialPiv
 {
     DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");

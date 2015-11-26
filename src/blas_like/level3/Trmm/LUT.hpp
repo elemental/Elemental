@@ -19,7 +19,9 @@ namespace trmm {
 template<typename T>
 inline void
 LocalAccumulateLUT
-( Orientation orientation, UnitOrNonUnit diag, T alpha,
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  T alpha,
   const DistMatrix<T>& U,
   const DistMatrix<T,MC,STAR>& X,
         DistMatrix<T,MR,STAR>& Z )
@@ -68,8 +70,10 @@ LocalAccumulateLUT
 template<typename T>
 inline void
 LUTA
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUTA");
@@ -85,8 +89,10 @@ LUTA
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MC,STAR> X1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
@@ -114,17 +120,19 @@ LUTA
 template<typename T>
 inline void
 LUTCOld
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
-        CSE cse("trmm::LUTCOld");
-        AssertSameGrids( UPre, XPre );
-        if( orientation == NORMAL )
-            LogicError("Expected (Conjugate)Transpose option");
-        if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
-            LogicError
-            ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
+      CSE cse("trmm::LUTCOld");
+      AssertSameGrids( UPre, XPre );
+      if( orientation == NORMAL )
+          LogicError("Expected (Conjugate)Transpose option");
+      if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
+          LogicError
+          ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
     )
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -132,8 +140,10 @@ LUTCOld
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g); 
@@ -176,8 +186,10 @@ LUTCOld
 template<typename T>
 inline void
 LUTC
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LUTC");
@@ -192,8 +204,10 @@ LUTC
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
@@ -236,8 +250,10 @@ LUTC
 template<typename T>
 inline void
 LUT
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& U, ElementalMatrix<T>& X )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& U,
+        ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::LUT"))
     // TODO: Come up with a better routing mechanism

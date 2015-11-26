@@ -156,13 +156,15 @@ void PermuteRows
 {
     DEBUG_ONLY(CSE cse("PermuteRows"))
 
-    auto permPtr    = ReadProxy<Int,STAR,STAR>( &permPre );
-    auto invPermPtr = ReadProxy<Int,STAR,STAR>( &invPermPre );
+    DistMatrixReadProxy<Int,Int,STAR,STAR>
+      permProx( permPre ),
+      invPermProx( invPermPre );
+    auto& perm = permProx.GetLocked();
+    auto& invPerm = invPermProx.GetLocked();
    
     if( A.Participating() )
     {
-        PermutationMeta meta
-        ( *permPtr, *invPermPtr, A.ColAlign(), A.ColComm() );
+        PermutationMeta meta( perm, invPerm, A.ColAlign(), A.ColComm() );
         PermuteRows( A, meta );
     }
 }

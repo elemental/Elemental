@@ -85,8 +85,10 @@ void DiagonalSolve
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.ColAlign();
-        auto dPtr = ReadProxy<FDiag,U,Collect<V>()>( &dPre, ctrl );
-        auto& d = *dPtr;
+
+        DistMatrixReadProxy<FDiag,FDiag,U,Collect<V>()> dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
         DiagonalSolve
         ( LEFT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
     }
@@ -97,8 +99,10 @@ void DiagonalSolve
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.RowAlign();
-        auto dPtr = ReadProxy<FDiag,V,Collect<U>()>( &dPre, ctrl );
-        auto& d = *dPtr;
+
+        DistMatrixReadProxy<FDiag,FDiag,V,Collect<U>()> dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
         DiagonalSolve
         ( RIGHT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
     }

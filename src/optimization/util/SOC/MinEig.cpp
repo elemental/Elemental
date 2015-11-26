@@ -47,12 +47,15 @@ void MinEig
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr         = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto minEigsPtr   = WriteProxy<Real,VC,STAR>(&minEigsPre,ctrl);
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& minEigs = *minEigsPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      xProx( xPre, ctrl );
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      minEigsProx( minEigsPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& minEigs = minEigsProx.Get();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
@@ -138,8 +141,8 @@ Real MinEig
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Int,Int,VC,STAR> firstIndsProx( firstIndsPre, ctrl );
+    auto& firstInds = firstIndsProx.GetLocked();
 
     DistMatrix<Real,VC,STAR> minEigs(x.Grid());
     soc::MinEig( x, minEigs, orders, firstInds, cutoff );
