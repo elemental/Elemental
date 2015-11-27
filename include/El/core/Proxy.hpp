@@ -12,16 +12,6 @@
 
 namespace El {
 
-namespace ReadWriteModeNS {
-enum ReadWriteMode
-{
-  READ,
-  READ_WRITE,
-  WRITE
-};
-} // namespace ReadWriteModeNS
-using namespace ReadWriteModeNS;
-
 template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 class MatrixReadProxy 
 {
