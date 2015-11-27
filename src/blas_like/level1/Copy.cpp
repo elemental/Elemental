@@ -125,15 +125,15 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
     const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
     if( wrapA == ELEMENT && wrapB == ELEMENT )
     {
-        auto& ACast = dynamic_cast<const ElementalMatrix<T>&>(A);
+        auto& ACast = dynamic_cast<const ElementalMatrix<S>&>(A);
         auto& BCast = dynamic_cast<ElementalMatrix<T>&>(B);
-        BCast = ACast;
+        Copy( ACast, BCast );
     }
     else if( wrapA == BLOCK && wrapB == BLOCK )
     {
-        auto& ACast = dynamic_cast<const BlockMatrix<T>&>(A);
+        auto& ACast = dynamic_cast<const BlockMatrix<S>&>(A);
         auto& BCast = dynamic_cast<BlockMatrix<T>&>(B);
-        BCast = ACast;
+        Copy( ACast, BCast );
     }
     else 
     {
