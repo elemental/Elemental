@@ -15,8 +15,8 @@ inline void
 UT
 ( Orientation orientation,
   UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& xPre )
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
       CSE cse("trsv::UT");

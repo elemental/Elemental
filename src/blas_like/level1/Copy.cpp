@@ -113,7 +113,7 @@ void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
     DEBUG_ONLY(CSE cse("Copy (EM<S> to EM<T>)"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
+        auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( A, BCast );
     #include "El/macros/GuardAndPayload.h"
 }
@@ -125,14 +125,14 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
     const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
     if( wrapA == ELEMENT && wrapB == ELEMENT )
     {
-        auto& ACast = dynamic_cast<const ElementalMatrix<S>&>(A);
-        auto& BCast = dynamic_cast<ElementalMatrix<T>&>(B);
+        auto& ACast = static_cast<const ElementalMatrix<S>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
         Copy( ACast, BCast );
     }
     else if( wrapA == BLOCK && wrapB == BLOCK )
     {
-        auto& ACast = dynamic_cast<const BlockMatrix<S>&>(A);
-        auto& BCast = dynamic_cast<BlockMatrix<T>&>(B);
+        auto& ACast = static_cast<const BlockMatrix<S>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
         Copy( ACast, BCast );
     }
     else 
@@ -165,7 +165,7 @@ void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B )
     DEBUG_ONLY(CSE cse("Copy (BM<S> to BM<T>)"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-      auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(B); \
+      auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(B); \
       Copy( A, BCast );
     #include "El/macros/GuardAndPayload.h"
 }

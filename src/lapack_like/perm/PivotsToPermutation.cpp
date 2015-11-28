@@ -43,7 +43,7 @@ void PivotsToPermutation
 }
 
 void PivotsToPermutation
-( const ElementalMatrix<Int>& pivots, ElementalMatrix<Int>& perm, 
+( const AbstractDistMatrix<Int>& pivots, AbstractDistMatrix<Int>& perm, 
   Int offset )
 {
     DEBUG_ONLY(
@@ -109,7 +109,7 @@ void PivotsToInversePermutation
 }
 
 void PivotsToInversePermutation
-( const ElementalMatrix<Int>& pivots, ElementalMatrix<Int>& invPerm, 
+( const AbstractDistMatrix<Int>& pivots, AbstractDistMatrix<Int>& invPerm, 
   Int offset )
 {
     DEBUG_ONLY(

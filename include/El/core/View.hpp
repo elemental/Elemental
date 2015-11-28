@@ -87,7 +87,6 @@ inline void LockedView
 
 // Return by value
 // ^^^^^^^^^^^^^^^
-
 template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
 {
@@ -105,10 +104,11 @@ inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
 }
 
 // BlockMatrix
-// -----------------
-
+// -----------
 template<typename T>
-inline void View( BlockMatrix<T>& A, ElementalMatrix<T>& B )
+inline void View
+( BlockMatrix<T>& A,
+  ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -128,7 +128,8 @@ inline void View( BlockMatrix<T>& A, ElementalMatrix<T>& B )
 
 template<typename T>
 inline void LockedView
-( BlockMatrix<T>& A, const ElementalMatrix<T>& B )
+(       BlockMatrix<T>& A,
+  const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -140,7 +141,9 @@ inline void LockedView
 }
 
 template<typename T>
-inline void View( ElementalMatrix<T>& A, BlockMatrix<T>& B )
+inline void View
+( ElementalMatrix<T>& A,
+  BlockMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -161,7 +164,8 @@ inline void View( ElementalMatrix<T>& A, BlockMatrix<T>& B )
 
 template<typename T>
 inline void LockedView
-( ElementalMatrix<T>& A, const BlockMatrix<T>& B )
+(       ElementalMatrix<T>& A,
+  const BlockMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -175,6 +179,74 @@ inline void LockedView
       B.LockedBuffer(), B.LDim(), B.Root() );
 }
 
+// AbstractDistMatrix
+// ------------------
+template<typename T>
+inline void View
+( AbstractDistMatrix<T>& A,
+  AbstractDistMatrix<T>& B )
+{
+    auto AWrap = A.Wrap();
+    auto BWrap = B.Wrap();
+    if( AWrap == ELEMENT && BWrap == ELEMENT )    
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
+        View( ACast, BCast );
+    } 
+    else if( AWrap == ELEMENT && BWrap == BLOCK )
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
+        View( ACast, BCast );
+    }
+    else if( AWrap == BLOCK && BWrap == ELEMENT )
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
+        View( ACast, BCast );
+    }
+    else
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
+        View( ACast, BCast );
+    }
+}
+
+template<typename T>
+inline void LockedView
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B )
+{
+    auto AWrap = A.Wrap();
+    auto BWrap = B.Wrap();
+    if( AWrap == ELEMENT && BWrap == ELEMENT )    
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<const ElementalMatrix<T>&>(B);
+        LockedView( ACast, BCast );
+    } 
+    else if( AWrap == ELEMENT && BWrap == BLOCK )
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<const BlockMatrix<T>&>(B);
+        LockedView( ACast, BCast );
+    }
+    else if( AWrap == BLOCK && BWrap == ELEMENT )
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<const ElementalMatrix<T>&>(B);
+        LockedView( ACast, BCast );
+    }
+    else
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<const BlockMatrix<T>&>(B);
+        LockedView( ACast, BCast );
+    }
+}
+
 // View a contiguous submatrix
 // ===========================
 
@@ -183,8 +255,10 @@ inline void LockedView
 
 template<typename T>
 inline void View
-( Matrix<T>& A, Matrix<T>& B,
-  Int i, Int j, Int height, Int width )
+( Matrix<T>& A,
+  Matrix<T>& B,
+  Int i, Int j,
+  Int height, Int width )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -206,8 +280,10 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( Matrix<T>& A, const Matrix<T>& B,
-  Int i, Int j, Int height, Int width )
+(       Matrix<T>& A,
+  const Matrix<T>& B,
+  Int i, Int j,
+  Int height, Int width )
 {
     DEBUG_ONLY(
       CSE cse("LockedView");
@@ -226,7 +302,9 @@ inline void LockedView
 
 template<typename T>
 inline void View
-( Matrix<T>& A, Matrix<T>& B, Range<Int> I, Range<Int> J )
+( Matrix<T>& A,
+  Matrix<T>& B,
+  Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
         I.end = B.Height();
@@ -237,7 +315,9 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( Matrix<T>& A, const Matrix<T>& B, Range<Int> I, Range<Int> J )
+(       Matrix<T>& A,
+  const Matrix<T>& B,
+  Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
         I.end = B.Height();
@@ -293,7 +373,8 @@ inline Matrix<T> LockedView
 
 template<typename T>
 inline void View
-( ElementalMatrix<T>& A, ElementalMatrix<T>& B,
+( ElementalMatrix<T>& A,
+  ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
@@ -331,7 +412,8 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
@@ -358,7 +440,8 @@ inline void LockedView
 
 template<typename T>
 inline void View
-( ElementalMatrix<T>& A, ElementalMatrix<T>& B, 
+( ElementalMatrix<T>& A,
+  ElementalMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
@@ -370,7 +453,8 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( ElementalMatrix<T>& A, const ElementalMatrix<T>& B, 
+(       ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
@@ -424,24 +508,42 @@ inline DistMatrix<T,U,V> LockedView
 }
 
 // BlockMatrix
-// -----------------
+// -----------
 
 template<typename T>
 inline void View
-( BlockMatrix<T>& A, BlockMatrix<T>& B,
-  Int i, Int j, Int height, Int width )
+( BlockMatrix<T>& A,
+  BlockMatrix<T>& B,
+  Int i,
+  Int j,
+  Int height,
+  Int width )
 {
     DEBUG_ONLY(
       CSE cse("View");
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
-    LogicError("Views of BlockMatrix are not yet supported");
+    if( B.Locked() )
+        A.LockedAttach
+        ( B.Height(), B.Width(), B.Grid(), 
+          B.BlockHeight(), B.BlockWidth(),
+          B.ColAlign(), B.RowAlign(), 
+          B.ColCut(), B.RowCut(),
+          B.LockedBuffer(), B.LDim(), B.Root() );
+    else
+        A.Attach
+        ( B.Height(), B.Width(), B.Grid(),
+          B.BlockHeight(), B.BlockWidth(),
+          B.ColAlign(), B.RowAlign(), 
+          B.ColCut(), B.RowCut(),
+          B.Buffer(), B.LDim(), B.Root() );
 }
 
 template<typename T>
 inline void LockedView
-( BlockMatrix<T>& A, const BlockMatrix<T>& B,
+(       BlockMatrix<T>& A,
+  const BlockMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
@@ -449,12 +551,18 @@ inline void LockedView
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
-    LogicError("Views of BlockMatrix are not yet supported");
+    A.LockedAttach
+    ( B.Height(), B.Width(), B.Grid(), 
+      B.BlockHeight(), B.BlockWidth(),
+      B.ColAlign(), B.RowAlign(), 
+      B.ColCut(), B.RowCut(),
+      B.LockedBuffer(), B.LDim(), B.Root() );
 }
 
 template<typename T>
 inline void View
-( BlockMatrix<T>& A, BlockMatrix<T>& B, 
+( BlockMatrix<T>& A,
+  BlockMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
@@ -466,7 +574,8 @@ inline void View
 
 template<typename T>
 inline void LockedView
-( BlockMatrix<T>& A, const BlockMatrix<T>& B, 
+(       BlockMatrix<T>& A,
+  const BlockMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
@@ -517,6 +626,102 @@ inline DistMatrix<T,U,V,BLOCK> LockedView
     if( J.end == END )
         J.end = B.Width();
     return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
+
+// AbstractDistMatrix
+// ------------------
+template<typename T>
+inline void View
+( AbstractDistMatrix<T>& A,
+  AbstractDistMatrix<T>& B,
+  Int i, Int j, Int height, Int width )
+{
+    auto AWrap = A.Wrap();
+    auto BWrap = B.Wrap();
+    if( AWrap == ELEMENT && BWrap == ELEMENT )    
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    } 
+    else if( AWrap == ELEMENT && BWrap == BLOCK )
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    }
+    else if( AWrap == BLOCK && BWrap == ELEMENT )
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    }
+    else
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    }
+}
+
+template<typename T>
+inline void View
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+  Int i, Int j, Int height, Int width )
+{
+    auto AWrap = A.Wrap();
+    auto BWrap = B.Wrap();
+    if( AWrap == ELEMENT && BWrap == ELEMENT )    
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<const ElementalMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    } 
+    else if( AWrap == ELEMENT && BWrap == BLOCK )
+    {
+        auto& ACast = static_cast<ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<const BlockMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    }
+    else if( AWrap == BLOCK && BWrap == ELEMENT )
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<const ElementalMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    }
+    else
+    {
+        auto& ACast = static_cast<BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<const BlockMatrix<T>&>(B);
+        View( ACast, BCast, i, j, height, width );
+    }
+}
+
+template<typename T>
+inline void View
+( AbstractDistMatrix<T>& A,
+  AbstractDistMatrix<T>& B, 
+  Range<Int> I, Range<Int> J )
+{
+    if( I.end == END )
+        I.end = B.Height();
+    if( J.end == END )
+        J.end = B.Width();
+    View( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
+}
+
+template<typename T>
+inline void LockedView
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B, 
+  Range<Int> I, Range<Int> J )
+{ 
+    if( I.end == END )
+        I.end = B.Height();
+    if( J.end == END )
+        J.end = B.Width();
+    LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
 }
 
 } // namespace El

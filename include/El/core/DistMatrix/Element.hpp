@@ -28,13 +28,12 @@ public:
 
     virtual ~ElementalMatrix();
 
-    virtual ElementalMatrix<T>* Construct
-    ( const El::Grid& g, int root ) const = 0;
-    virtual ElementalMatrix<T>* ConstructTranspose
-    ( const El::Grid& g, int root ) const = 0;
-    virtual ElementalMatrix<T>* ConstructDiagonal
-    ( const El::Grid& g, int root ) const = 0;
-    // TODO: ConstructPartialCol and friends?
+    virtual type* Copy() const override = 0;
+    virtual type* Construct( const El::Grid& g, int root ) const override = 0;
+    virtual type* ConstructTranspose( const El::Grid& g, int root ) const
+      override = 0;
+    virtual type* ConstructDiagonal( const El::Grid& g, int root ) const
+      override = 0;
 
     // Assignment and reconfiguration
     // ==============================

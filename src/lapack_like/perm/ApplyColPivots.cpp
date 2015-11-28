@@ -66,8 +66,8 @@ void ApplyInverseColPivots
 
 template<typename T>
 void ApplyColPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivotsPre,
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivotsPre,
         Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyColPivots"))
@@ -86,8 +86,8 @@ void ApplyColPivots
 
 template<typename T>
 void ApplyInverseColPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivotsPre,
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivotsPre,
         Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyInverseColPivots"))
@@ -110,16 +110,16 @@ void ApplyInverseColPivots
     const Matrix<Int>& pivots, \
     Int offset ); \
   template void ApplyColPivots \
-  (       ElementalMatrix<T>& A, \
-    const ElementalMatrix<Int>& pivots, \
+  (       AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& pivots, \
           Int offset ); \
   template void ApplyInverseColPivots \
   (       Matrix<T>& A, \
     const Matrix<Int>& pivots, \
           Int offset ); \
   template void ApplyInverseColPivots \
-  (       ElementalMatrix<T>& A, \
-    const ElementalMatrix<Int>& pivots, \
+  (       AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& pivots, \
           Int offset );
 
 #include "El/macros/Instantiate.h"

@@ -66,7 +66,9 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
 
 template<typename F>
 inline void
-LUpdate( ElementalMatrix<F>& LPre, ElementalMatrix<F>& VPre )
+LUpdate
+( AbstractDistMatrix<F>& LPre,
+  AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::mod::LUpdate");
@@ -175,7 +177,8 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
 
 template<typename F>
 inline void
-LDowndate( ElementalMatrix<F>& LPre, ElementalMatrix<F>& VPre )
+LDowndate
+( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::mod::LDowndate");
@@ -259,7 +262,10 @@ LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
 
 template<typename F>
 inline void
-LMod( ElementalMatrix<F>& L, Base<F> alpha, ElementalMatrix<F>& V )
+LMod
+( AbstractDistMatrix<F>& L,
+  Base<F> alpha,
+  AbstractDistMatrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("cholesky::LMod"))
     typedef Base<F> Real;

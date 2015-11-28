@@ -17,8 +17,8 @@ template<typename F>
 inline void
 RUN
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& XPre,
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("trsm::RUN"))

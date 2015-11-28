@@ -84,7 +84,7 @@ void InversePermuteCols( Matrix<T>& A, const Matrix<Int>& invPerm )
 }
 
 template<typename T> 
-void PermuteCols( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
+void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
 {
     DEBUG_ONLY(
       CSE cse("PermuteCols");
@@ -139,9 +139,9 @@ void PermuteCols( ElementalMatrix<T>& A, const PermutationMeta& oldMeta )
 
 template<typename T>
 void PermuteCols
-(       ElementalMatrix<T>& A, 
-  const ElementalMatrix<Int>& permPre, 
-  const ElementalMatrix<Int>& invPermPre )
+(       AbstractDistMatrix<T>& A, 
+  const AbstractDistMatrix<Int>& permPre, 
+  const AbstractDistMatrix<Int>& invPermPre )
 {
     DEBUG_ONLY(CSE cse("PermuteCols"))
 
@@ -160,8 +160,8 @@ void PermuteCols
 
 template<typename T>
 void PermuteCols
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& perm )
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& perm )
 {
     DEBUG_ONLY(CSE cse("PermuteCols"))
     const Grid& g = A.Grid();
@@ -172,8 +172,8 @@ void PermuteCols
 
 template<typename T>
 void InversePermuteCols
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& invPerm )
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& invPerm )
 {
     DEBUG_ONLY(CSE cse("InversePermuteCols"))
     const Grid& g = A.Grid();
@@ -187,24 +187,24 @@ void InversePermuteCols
   (       Matrix<T>& A, \
     const Matrix<Int>& perm ); \
   template void PermuteCols \
-  (       ElementalMatrix<T>& A, \
-    const ElementalMatrix<Int>& perm ); \
+  (       AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& perm ); \
   template void InversePermuteCols \
   (       Matrix<T>& A, \
     const Matrix<Int>& perm ); \
   template void InversePermuteCols \
-  (       ElementalMatrix<T>& A, \
-    const ElementalMatrix<Int>& perm ); \
+  (       AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& perm ); \
   template void PermuteCols \
   (       Matrix<T>& A, \
     const Matrix<Int>& perm, \
     const Matrix<Int>& invPerm ); \
   template void PermuteCols \
-  (       ElementalMatrix<T>& A, \
-    const ElementalMatrix<Int>& perm, \
-    const ElementalMatrix<Int>& invPerm ); \
+  (       AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& perm, \
+    const AbstractDistMatrix<Int>& invPerm ); \
   template void PermuteCols \
-  (       ElementalMatrix<T>& A, \
+  (       AbstractDistMatrix<T>& A, \
     const PermutationMeta& oldMeta );
 
 #include "El/macros/Instantiate.h"

@@ -482,7 +482,7 @@ const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const ElementalMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(EM&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -491,7 +491,7 @@ const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(ADM&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -500,7 +500,7 @@ const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const DistMultiVec<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(DMV&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -562,7 +562,7 @@ ElementalMatrix<T>::operator=( ElementalMatrix<T>&& A )
     DEBUG_ONLY(CSE cse("EM::operator=(EM&&)"))
     if( this->Viewing() || A.Viewing() )
     {
-        Copy( A, *this );
+        El::Copy( A, *this );
     }
     else
     {

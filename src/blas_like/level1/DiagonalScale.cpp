@@ -90,7 +90,7 @@ void DiagonalScale
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
         DiagonalScale( side, orientation, d, ACast );
     #include "El/macros/GuardAndPayload.h"
 }

@@ -35,7 +35,7 @@ void InvertPermutation( const Matrix<Int>& p, Matrix<Int>& pInv )
 }
 
 void InvertPermutation
-( const ElementalMatrix<Int>& pPre, ElementalMatrix<Int>& pInvPre )
+( const AbstractDistMatrix<Int>& pPre, AbstractDistMatrix<Int>& pInvPre )
 {
     DEBUG_ONLY(
       CSE cse("InvertPermutation");
@@ -44,7 +44,6 @@ void InvertPermutation
     )
 
     const Int n = pPre.Height();
-    pInvPre.AlignWith( pPre, false );
     pInvPre.Resize( n, 1 );
     if( n == 0 )
         return;

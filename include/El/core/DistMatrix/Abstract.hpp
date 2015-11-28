@@ -30,6 +30,12 @@ public:
 
     virtual ~AbstractDistMatrix();
 
+    virtual type* Copy() const = 0;
+    virtual type* Construct( const El::Grid& g, int root ) const = 0;
+    virtual type* ConstructTranspose( const El::Grid& g, int root ) const = 0;
+    virtual type* ConstructDiagonal( const El::Grid& g, int root ) const = 0;
+    // TODO: ConstructPartialCol and friends?
+
     // Assignment and reconfiguration
     // ==============================
     virtual void Empty( bool freeMemory=true );

@@ -56,7 +56,8 @@ void TestCholesky
   bool printDiag,
   UpperOrLower uplo,
   Int m,
-  const Grid& g )
+  const Grid& g,
+  bool scalapack )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<Int,UPerm,STAR> p(g);
@@ -68,13 +69,16 @@ void TestCholesky
         Print( A, "A" );
 
     if( g.Rank() == 0 )
-        Output("  Starting Cholesky...");
+        if( scalapack && !pivot )
+            Output("  Starting ScaLAPACK Cholesky...");
+        else
+            Output("  Starting Elemental Cholesky...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( pivot )
         Cholesky( uplo, A, p );
     else
-        Cholesky( uplo, A );
+        Cholesky( uplo, A, scalapack );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -114,6 +118,11 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool printDiag = Input("--printDiag","print diag of fact?",false);
+#ifdef EL_HAVE_SCALAPACK
+        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
+#else
+        const bool scalapack = false;
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -131,13 +140,19 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             Output("Testing with doubles:");
+        if( scalapack )
+            TestCholesky<double,VC>
+            ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
         TestCholesky<double,VC>
-        ( testCorrectness, pivot, print, printDiag, uplo, m, g );
+        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
 
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
+        if( scalapack )
+            TestCholesky<Complex<double>,VC>
+            ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
         TestCholesky<Complex<double>,VC>
-        ( testCorrectness, pivot, print, printDiag, uplo, m, g );
+        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
     }
     catch( exception& e ) { ReportException(e); }
 

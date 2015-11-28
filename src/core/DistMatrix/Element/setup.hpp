@@ -87,7 +87,7 @@ DM::DistMatrix( const AbstractDistMatrix<T>& A )
     {
         #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
         #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+          auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
           if( COLDIST != CDIST || ROWDIST != RDIST || \
               reinterpret_cast<const DM*>(&A) != this ) \
               *this = ACast; \
@@ -100,7 +100,7 @@ DM::DistMatrix( const AbstractDistMatrix<T>& A )
         #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
         #define PAYLOAD(CDIST,RDIST) \
           auto& ACast = \
-            dynamic_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+            static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
           *this = ACast;
         #include "El/macros/GuardAndPayload.h"     
     }
@@ -117,7 +117,7 @@ DM::DistMatrix( const ElementalMatrix<T>& A )
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       if( COLDIST != CDIST || ROWDIST != RDIST || \
           reinterpret_cast<const DM*>(&A) != this ) \
           *this = ACast; \
@@ -142,6 +142,10 @@ template<typename T>
 DM::DistMatrix( DM&& A ) EL_NO_EXCEPT : EM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
+
+template<typename T> 
+DistMatrix<T,COLDIST,ROWDIST>* DM::Copy() const
+{ return new DistMatrix<T,COLDIST,ROWDIST>(*this); }
 
 template<typename T> 
 DistMatrix<T,COLDIST,ROWDIST>* DM::Construct
@@ -229,7 +233,7 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
     {
         #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
         #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+          auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
           *this = ACast;
         #include "El/macros/GuardAndPayload.h"     
     }
@@ -238,7 +242,7 @@ DM& DM::operator=( const AbstractDistMatrix<T>& A )
         #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
         #define PAYLOAD(CDIST,RDIST) \
           auto& ACast = \
-            dynamic_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+            static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
           *this = ACast;
         #include "El/macros/GuardAndPayload.h"     
     }

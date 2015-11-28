@@ -14,8 +14,8 @@ template<typename F>
 inline void
 LN
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& xPre )
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
       CSE cse("trsv::LN");

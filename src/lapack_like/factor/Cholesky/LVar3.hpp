@@ -134,7 +134,7 @@ ReverseLVar3( Matrix<F>& A )
 
 template<typename F>
 inline void
-LVar3( ElementalMatrix<F>& APre )
+LVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LVar3");
@@ -193,7 +193,7 @@ LVar3( ElementalMatrix<F>& APre )
 
 template<typename F>
 inline void
-ReverseLVar3( ElementalMatrix<F>& APre )
+ReverseLVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::ReverseLVar3");

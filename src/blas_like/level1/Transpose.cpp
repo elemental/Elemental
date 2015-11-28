@@ -240,19 +240,19 @@ void Transpose
     DEBUG_ONLY(CSE cse("Transpose"))
     if( A.Wrap() == ELEMENT && B.Wrap() == ELEMENT )
     {
-        const auto& ACast = dynamic_cast<const ElementalMatrix<T>&>(A);
-              auto& BCast = dynamic_cast<      ElementalMatrix<T>&>(B);
+        const auto& ACast = static_cast<const ElementalMatrix<T>&>(A);
+              auto& BCast = static_cast<      ElementalMatrix<T>&>(B);
         Transpose( ACast, BCast, conjugate );
     }
     else if( A.Wrap() == BLOCK  && B.Wrap() == BLOCK )
     {
-        const auto& ACast = dynamic_cast<const BlockMatrix<T>&>(A);
-              auto& BCast = dynamic_cast<      BlockMatrix<T>&>(B);
+        const auto& ACast = static_cast<const BlockMatrix<T>&>(A);
+              auto& BCast = static_cast<      BlockMatrix<T>&>(B);
         Transpose( ACast, BCast, conjugate );
     }
     else if( A.Wrap() == ELEMENT ) // && B.Wrap() == BLOCK
     {
-        auto& BCast = dynamic_cast<BlockMatrix<T>&>(B);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
         unique_ptr<BlockMatrix<T>> 
             C( BCast.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BCast );
@@ -262,7 +262,7 @@ void Transpose
     }
     else  // A.Wrap() == BLOCK && B.Wrap() == ELEMENT
     {
-        auto& BCast = dynamic_cast<ElementalMatrix<T>&>(B);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
         unique_ptr<ElementalMatrix<T>> 
             C( BCast.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BCast );

@@ -72,8 +72,8 @@ void ApplyColPivots
         Int offset=0 );
 template<typename T>
 void ApplyColPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivots, 
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots, 
         Int offset=0 );
 
 template<typename T>
@@ -83,8 +83,8 @@ void ApplyInverseColPivots
         Int offset=0 );
 template<typename T>
 void ApplyInverseColPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivots, 
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots, 
         Int offset=0 );
 
 // Apply row pivots
@@ -96,8 +96,8 @@ void ApplyRowPivots
         Int offset=0 );
 template<typename T>
 void ApplyRowPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivots,
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots,
         Int offset=0 );
 
 template<typename T>
@@ -107,8 +107,8 @@ void ApplyInverseRowPivots
         Int offset=0 );
 template<typename T>
 void ApplyInverseRowPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivots, 
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots, 
         Int offset=0 );
 
 // Apply symmetric pivots
@@ -123,8 +123,8 @@ void ApplySymmetricPivots
 template<typename T>
 void ApplySymmetricPivots
 ( UpperOrLower uplo,
-        ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivots,
+        AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots,
   bool conjugate=false, 
   Int offset=0 );
 
@@ -138,8 +138,8 @@ void ApplyInverseSymmetricPivots
 template<typename T>
 void ApplyInverseSymmetricPivots
 ( UpperOrLower uplo,
-        ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivots,
+        AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivots,
   bool conjugate=false, 
   Int offset=0 );
 
@@ -149,8 +149,8 @@ void ExplicitPermutation
 ( const Matrix<Int>& p,
         Matrix<Int>& P );
 void ExplicitPermutation
-( const ElementalMatrix<Int>& p,
-        ElementalMatrix<Int>& P );
+( const AbstractDistMatrix<Int>& p,
+        AbstractDistMatrix<Int>& P );
 
 // Invert permutation
 // ==================
@@ -158,13 +158,13 @@ void InvertPermutation
 ( const Matrix<Int>& p,
         Matrix<Int>& pInv );
 void InvertPermutation
-( const ElementalMatrix<Int>& p,
-        ElementalMatrix<Int>& pInv );
+( const AbstractDistMatrix<Int>& p,
+        AbstractDistMatrix<Int>& pInv );
 
 // Parity of a permutation
 // =======================
 bool PermutationParity( const Matrix<Int>& p );
-bool PermutationParity( const ElementalMatrix<Int>& p );
+bool PermutationParity( const AbstractDistMatrix<Int>& p );
 
 // Permute columns
 // ===============
@@ -174,8 +174,8 @@ void PermuteCols
   const Matrix<Int>& p );
 template<typename T>
 void PermuteCols
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& p );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& p );
 
 template<typename T>
 void InversePermuteCols
@@ -183,8 +183,8 @@ void InversePermuteCols
   const Matrix<Int>& p );
 template<typename T>
 void InversePermuteCols
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& p );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& p );
 
 template<typename T>
 void PermuteCols
@@ -193,13 +193,13 @@ void PermuteCols
   const Matrix<Int>& pInv );
 template<typename T>
 void PermuteCols
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& p,
-  const ElementalMatrix<Int>& pInv );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& p,
+  const AbstractDistMatrix<Int>& pInv );
 
 template<typename T>
 void PermuteCols
-(       ElementalMatrix<T>& A,
+(       AbstractDistMatrix<T>& A,
   const PermutationMeta& meta );
 
 // Permute rows
@@ -210,8 +210,8 @@ void PermuteRows
   const Matrix<Int>& p );
 template<typename T>
 void PermuteRows
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& p );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& p );
 
 template<typename T>
 void InversePermuteRows
@@ -219,8 +219,8 @@ void InversePermuteRows
   const Matrix<Int>& p );
 template<typename T>
 void InversePermuteRows
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& p );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& p );
 
 template<typename T>
 void PermuteRows
@@ -229,19 +229,19 @@ void PermuteRows
   const Matrix<Int>& pInv );
 template<typename T>
 void PermuteRows
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& p,
-  const ElementalMatrix<Int>& pInv );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& p,
+  const AbstractDistMatrix<Int>& pInv );
 
 template<typename T>
 void PermuteRows
-(       ElementalMatrix<T>& A,
+(       AbstractDistMatrix<T>& A,
   const PermutationMeta& meta );
 
 // Parity of a sequence of pivots
 // ==============================
 bool PivotParity( const Matrix<Int>& p, Int pivotOffset=0 );
-bool PivotParity( const ElementalMatrix<Int>& p, Int pivotOffset=0 );
+bool PivotParity( const AbstractDistMatrix<Int>& p, Int pivotOffset=0 );
 
 // Convert a pivot sequence to a partial permutation vector
 // ========================================================
@@ -251,14 +251,14 @@ void PivotsToPartialPermutation
         Matrix<Int>& pInv,
         Int offset=0 );
 void PivotsToPartialPermutation
-( const ElementalMatrix<Int>& pivots,
-        ElementalMatrix<Int>& p,
-        ElementalMatrix<Int>& pInv,
+( const AbstractDistMatrix<Int>& pivots,
+        AbstractDistMatrix<Int>& p,
+        AbstractDistMatrix<Int>& pInv,
         Int offset=0 );
 void PivotsToPartialPermutation
 ( const DistMatrix<Int,STAR,STAR>& pivots,
-        ElementalMatrix<Int>& p,
-        ElementalMatrix<Int>& pInv,
+        AbstractDistMatrix<Int>& p,
+        AbstractDistMatrix<Int>& pInv,
         Int offset=0 );
 
 // Convert a pivot sequence to a permutation vector
@@ -268,8 +268,8 @@ void PivotsToPermutation
         Matrix<Int>& p,
         Int offset=0 );
 void PivotsToPermutation
-( const ElementalMatrix<Int>& pivots,
-        ElementalMatrix<Int>& p,
+( const AbstractDistMatrix<Int>& pivots,
+        AbstractDistMatrix<Int>& p,
         Int offset=0 );
 
 void PivotsToInversePermutation
@@ -277,8 +277,8 @@ void PivotsToInversePermutation
         Matrix<Int>& pInv,
         Int offset=0 );
 void PivotsToInversePermutation
-( const ElementalMatrix<Int>& pivots,
-        ElementalMatrix<Int>& pInv,
+( const AbstractDistMatrix<Int>& pivots,
+        AbstractDistMatrix<Int>& pInv,
         Int offset=0 );
 
 } // namespace El

@@ -7,8 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace trsv {
 
@@ -17,8 +15,8 @@ inline void
 LT
 ( Orientation orientation,
   UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& xPre )
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
       CSE cse("trsv::LT");

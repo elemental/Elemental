@@ -58,7 +58,7 @@ const BlockMatrix<T>&
 BlockMatrix<T>::operator=( const BlockMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("BCM::operator=(BCM&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -67,7 +67,7 @@ const BlockMatrix<T>&
 BlockMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("BCM::operator=(ADM&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -129,7 +129,7 @@ BlockMatrix<T>::operator=( BlockMatrix<T>&& A )
 {
     if( this->Viewing() || A.Viewing() )
     {
-        Copy( A, *this );
+        El::Copy( A, *this );
     }
     else
     {

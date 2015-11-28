@@ -118,7 +118,7 @@ void DiagonalSolve
     DEBUG_ONLY(CSE cse("DiagonalSolve"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = dynamic_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
+        auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
         DiagonalSolve( side, orientation, d, ACast, checkIfSingular );
     #include "El/macros/GuardAndPayload.h"
 }

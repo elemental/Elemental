@@ -50,7 +50,7 @@ bool PermutationParity( const Matrix<Int>& origPerm )
     return isOdd;
 }
 
-bool PermutationParity( const ElementalMatrix<Int>& pPre ) 
+bool PermutationParity( const AbstractDistMatrix<Int>& pPre ) 
 {
     DEBUG_ONLY(
         CSE cse("PermutationParity");

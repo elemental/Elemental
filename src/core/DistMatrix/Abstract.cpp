@@ -158,7 +158,7 @@ AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
     DEBUG_ONLY(CSE cse("ADM::operator=(ADM&&)"))
     if( Viewing() || A.Viewing() )
     {
-        Copy( A, *this );
+        El::Copy( A, *this );
     }
     else
     {

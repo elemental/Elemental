@@ -438,14 +438,18 @@ template<typename F>
 void Trsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
+  F alpha,
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
   bool checkIfSingular=false, TrsmAlgorithm alg=TRSM_DEFAULT );
 
 template<typename F>
 void LocalTrsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X,
+  F alpha,
+  const DistMatrix<F,STAR,STAR>& A,
+        AbstractDistMatrix<F>& X,
   bool checkIfSingular=false );
 
 // Trstrm

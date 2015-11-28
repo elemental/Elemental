@@ -14,8 +14,8 @@ template<typename F>
 inline void
 UN
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& xPre )
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
       CSE cse("trsv::UN");
