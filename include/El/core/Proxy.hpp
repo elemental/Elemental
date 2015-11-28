@@ -38,13 +38,9 @@ public:
         Copy( A, *prox_ );
     }
 
-    ~MatrixReadProxy() 
-    { 
-        delete prox_;
-    }
+    ~MatrixReadProxy() { delete prox_; }
 
-    const Matrix<T>& GetLocked() const
-    { return *prox_; }
+    const Matrix<T>& GetLocked() const { return *prox_; }
 
     Matrix<T>& Get()
     {
@@ -74,8 +70,7 @@ public:
 
     ~MatrixReadProxy() { }
 
-    const Matrix<T>& GetLocked() const
-    { return orig_; }
+    const Matrix<T>& GetLocked() const { return orig_; }
 
     Matrix<T>& Get()
     {
@@ -106,11 +101,8 @@ public:
         delete prox_;
     }
 
-    const Matrix<T>& GetLocked() const
-    { return *prox_; }
-
-    Matrix<T>& Get()
-    { return *prox_; }
+    const Matrix<T>& GetLocked() const { return *prox_; }
+          Matrix<T>& Get()             { return *prox_; }
 };
 
 template<typename T>
@@ -126,11 +118,8 @@ public:
 
     ~MatrixWriteProxy() { }
 
-    const Matrix<T>& GetLocked() const
-    { return orig_; }
-
-    Matrix<T>& Get()
-    { return orig_; }
+    const Matrix<T>& GetLocked() const { return orig_; }
+          Matrix<T>& Get()             { return orig_; }
 };
 
 template<typename S,typename T,typename=EnableIf<CanBidirectionalCast<S,T>>>
@@ -154,11 +143,8 @@ public:
         delete prox_;
     }
 
-    const Matrix<T>& GetLocked() const
-    { return *prox_; }
-
-    Matrix<T>& Get()
-    { return *prox_; }
+    const Matrix<T>& GetLocked() const { return *prox_; }
+          Matrix<T>& Get()             { return *prox_; }
 };
 
 template<typename T>
@@ -174,11 +160,8 @@ public:
 
     ~MatrixReadWriteProxy() { }
 
-    const Matrix<T>& GetLocked() const
-    { return orig_; }
-
-    Matrix<T>& Get()
-    { return orig_; }
+    const Matrix<T>& GetLocked() const { return orig_; }
+          Matrix<T>& Get()             { return orig_; }
 };
 
 struct ProxyCtrl 
@@ -207,18 +190,21 @@ struct ElementalProxyCtrl
     { }
 };
 
-// TODO: Extend to support BLOCK distributions
-
-template<typename S,typename T,Dist U=MC,Dist V=MR,
+template<typename S,typename T,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENT,
          typename=EnableIf<CanCast<S,T>>>
-class DistMatrixReadProxy 
+class DistMatrixReadProxy; 
+
+template<typename S,typename T,Dist U,Dist V>
+class DistMatrixReadProxy<S,T,U,V,ELEMENT,void>
 {
 private:
+    typedef DistMatrix<T,U,V,ELEMENT> proxType;
+
     bool locked_;
     bool needDelete_;
 
     AbstractDistMatrix<S>& orig_;
-    DistMatrix<T,U,V>* prox_;
+    proxType* prox_;
 
 public:
     // TODO: Add try-catch statements into constructors?
@@ -241,15 +227,15 @@ public:
             if( !colMisalign && !rowMisalign && !rootMisalign )
             {
                 needDelete_ = false;
-                auto ACast = dynamic_cast<const DistMatrix<T,U,V>*>(&A);
+                auto ACast = dynamic_cast<const proxType*>(&A);
                 // TODO: Ensure that ACast != null_ptr, though it should be
                 //       guaranteed by the above if statement
-                prox_ = const_cast<DistMatrix<T,U,V>*>(ACast);
+                prox_ = const_cast<proxType*>(ACast);
                 return;
             }
         }
         needDelete_ = true;
-        prox_ = new DistMatrix<T,U,V>(A.Grid());
+        prox_ = new proxType(A.Grid());
         if( ctrl.rootConstrain )
             prox_->SetRoot( ctrl.root );
         if( ctrl.colConstrain )
@@ -277,14 +263,14 @@ public:
             if( !colMisalign && !rowMisalign && !rootMisalign )
             {
                 needDelete_ = false;
-                prox_ = dynamic_cast<DistMatrix<T,U,V>*>(&A);
+                prox_ = dynamic_cast<proxType*>(&A);
                 // TODO: Ensure that prox_ != null_ptr, though it should be
                 //       guaranteed by the above if statement
                 return;
             }
         }
         needDelete_ = true;
-        prox_ = new DistMatrix<T,U,V>(A.Grid());
+        prox_ = new proxType(A.Grid());
         if( ctrl.rootConstrain )
             prox_->SetRoot( ctrl.root );
         if( ctrl.colConstrain )
@@ -300,10 +286,9 @@ public:
             delete prox_;
     }
 
-    const DistMatrix<T,U,V>& GetLocked() const
-    { return *prox_; }
+    const proxType& GetLocked() const { return *prox_; }
 
-    DistMatrix<T,U,V>& Get()
+    proxType& Get()
     {
         if( locked_ )
             LogicError("Attempted to extract mutable from immutable");
@@ -311,16 +296,135 @@ public:
     }
 };
 
-template<typename S,typename T,Dist U=MC,Dist V=MR,
-         typename=EnableIf<CanCast<T,S>>>
-class DistMatrixWriteProxy 
+template<typename S,typename T,Dist U,Dist V>
+class DistMatrixReadProxy<S,T,U,V,BLOCK,void>
 {
 private:
+    typedef DistMatrix<T,U,V,BLOCK> proxType;
+
+    bool locked_;
+    bool needDelete_;
+
+    AbstractDistMatrix<S>& orig_;
+    proxType* prox_;
+
+public:
+    // TODO: Add try-catch statements into constructors?
+
+    DistMatrixReadProxy
+    ( const AbstractDistMatrix<S>& A,
+      const ProxyCtrl& ctrl=ProxyCtrl() )
+    : locked_(true),
+      orig_(const_cast<AbstractDistMatrix<S>&>(A))
+    { 
+        if( IsSame<S,T>::value && 
+            A.ColDist() == U && A.RowDist() == V && A.Wrap() == BLOCK)
+        {
+            const bool colMisalign = 
+              ( ctrl.colConstrain && 
+                (A.ColAlign() != ctrl.colAlign ||
+                 A.BlockHeight() != ctrl.blockHeight ||
+                 A.ColCut() != ctrl.colCut) );
+            const bool rowMisalign = 
+              ( ctrl.rowConstrain && 
+                (A.RowAlign() != ctrl.rowAlign ||
+                 A.BlockWidth() != ctrl.blockWidth ||
+                 A.RowCut() != ctrl.rowCut) );
+            const bool rootMisalign = 
+              ( ctrl.rootConstrain && A.Root() != ctrl.root );
+            if( !colMisalign && !rowMisalign && !rootMisalign )
+            {
+                needDelete_ = false;
+                auto ACast = dynamic_cast<const proxType*>(&A);
+                // TODO: Ensure that ACast != null_ptr, though it should be
+                //       guaranteed by the above if statement
+                prox_ = const_cast<proxType*>(ACast);
+                return;
+            }
+        }
+        needDelete_ = true;
+        prox_ = new proxType(A.Grid());
+        if( ctrl.rootConstrain )
+            prox_->SetRoot( ctrl.root );
+        if( ctrl.colConstrain )
+            prox_->AlignCols( ctrl.blockHeight, ctrl.colAlign, ctrl.colCut );
+        if( ctrl.rowConstrain )
+            prox_->AlignRows( ctrl.blockWidth, ctrl.rowAlign, ctrl.rowCut );
+        Copy( A, *prox_ );
+    }
+
+    DistMatrixReadProxy
+    ( AbstractDistMatrix<S>& A,
+      const ProxyCtrl& ctrl=ProxyCtrl() )
+    : locked_(false),
+      orig_(const_cast<AbstractDistMatrix<S>&>(A))
+    { 
+        if( IsSame<S,T>::value &&
+            A.ColDist() == U && A.RowDist() == V && A.Wrap() == BLOCK )
+        {
+            const bool colMisalign = 
+              ( ctrl.colConstrain && 
+                (A.ColAlign() != ctrl.colAlign ||
+                 A.BlockHeight() != ctrl.blockHeight ||
+                 A.ColCut() != ctrl.colCut) );
+            const bool rowMisalign = 
+              ( ctrl.rowConstrain && 
+                (A.RowAlign() != ctrl.rowAlign ||
+                 A.BlockWidth() != ctrl.blockWidth ||
+                 A.RowCut() != ctrl.rowCut) );
+            const bool rootMisalign = 
+              ( ctrl.rootConstrain && A.Root() != ctrl.root );
+            if( !colMisalign && !rowMisalign && !rootMisalign )
+            {
+                needDelete_ = false;
+                prox_ = dynamic_cast<proxType*>(&A);
+                // TODO: Ensure that prox_ != null_ptr, though it should be
+                //       guaranteed by the above if statement
+                return;
+            }
+        }
+        needDelete_ = true;
+        prox_ = new proxType(A.Grid());
+        if( ctrl.rootConstrain )
+            prox_->SetRoot( ctrl.root );
+        if( ctrl.colConstrain )
+            prox_->AlignCols( ctrl.blockHeight, ctrl.colAlign, ctrl.colCut );
+        if( ctrl.rowConstrain )
+            prox_->AlignRows( ctrl.blockWidth, ctrl.rowAlign, ctrl.rowCut );
+        Copy( A, *prox_ );
+    }
+
+    ~DistMatrixReadProxy() 
+    { 
+        if( needDelete_ )
+            delete prox_;
+    }
+
+    const proxType& GetLocked() const { return *prox_; }
+
+    proxType& Get()
+    {
+        if( locked_ )
+            LogicError("Attempted to extract mutable from immutable");
+        return *prox_;
+    }
+};
+
+template<typename S,typename T,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENT,
+         typename=EnableIf<CanCast<T,S>>>
+class DistMatrixWriteProxy;
+
+template<typename S,typename T,Dist U,Dist V>
+class DistMatrixWriteProxy<S,T,U,V,ELEMENT,void>
+{
+private:
+    typedef DistMatrix<T,U,V,ELEMENT> proxType;
+
     bool needDelete_;
     bool needWriteCopy_;
 
     AbstractDistMatrix<S>& orig_;
-    DistMatrix<T,U,V>* prox_;
+    proxType* prox_;
 
 public:
     // TODO: Add try-catch statements into constructors?
@@ -342,7 +446,7 @@ public:
             {
                 needDelete_ = false;
                 needWriteCopy_ = false;
-                prox_ = dynamic_cast<DistMatrix<T,U,V>*>(&A);
+                prox_ = dynamic_cast<proxType*>(&A);
                 // TODO: Ensure that prox_ != null_ptr, though it should be
                 //       guaranteed by the above if statement
                 return;
@@ -350,7 +454,7 @@ public:
         }
         needDelete_ = true;
         needWriteCopy_ = true;
-        prox_ = new DistMatrix<T,U,V>(A.Grid());
+        prox_ = new proxType(A.Grid());
         if( ctrl.rootConstrain )
             prox_->SetRoot( ctrl.root );
         if( ctrl.colConstrain )
@@ -368,23 +472,93 @@ public:
             delete prox_;
     }
 
-    const DistMatrix<T,U,V>& GetLocked() const
-    { return *prox_; }
-
-    DistMatrix<T,U,V>& Get()
-    { return *prox_; }
+    const proxType& GetLocked() const { return *prox_; }
+          proxType& Get()             { return *prox_; }
 };
 
-template<typename S,typename T,Dist U=MC,Dist V=MR,
-         typename=EnableIf<CanBidirectionalCast<S,T>>>
-class DistMatrixReadWriteProxy 
+template<typename S,typename T,Dist U,Dist V>
+class DistMatrixWriteProxy<S,T,U,V,BLOCK,void>
 {
 private:
+    typedef DistMatrix<T,U,V,BLOCK> proxType;
+
     bool needDelete_;
     bool needWriteCopy_;
 
     AbstractDistMatrix<S>& orig_;
-    DistMatrix<T,U,V>* prox_;
+    proxType* prox_;
+
+public:
+    // TODO: Add try-catch statements into constructors?
+    DistMatrixWriteProxy
+    ( AbstractDistMatrix<S>& A,
+      const ProxyCtrl& ctrl=ProxyCtrl() )
+    : orig_(const_cast<AbstractDistMatrix<S>&>(A))
+    { 
+        if( IsSame<S,T>::value &&
+            A.ColDist() == U && A.RowDist() == V && A.Wrap() == BLOCK )
+        {
+            const bool colMisalign = 
+              ( ctrl.colConstrain && 
+                (A.ColAlign() != ctrl.colAlign ||
+                 A.BlockHeight() != ctrl.blockHeight ||
+                 A.ColCut() != ctrl.colCut) );
+            const bool rowMisalign = 
+              ( ctrl.rowConstrain && 
+                (A.RowAlign() != ctrl.rowAlign ||
+                 A.BlockWidth() != ctrl.blockWidth ||
+                 A.RowCut() != ctrl.rowCut) );
+            const bool rootMisalign = 
+              ( ctrl.rootConstrain && A.Root() != ctrl.root );
+            if( !colMisalign && !rowMisalign && !rootMisalign )
+            {
+                needDelete_ = false;
+                needWriteCopy_ = false;
+                prox_ = dynamic_cast<proxType*>(&A);
+                // TODO: Ensure that prox_ != null_ptr, though it should be
+                //       guaranteed by the above if statement
+                return;
+            }
+        }
+        needDelete_ = true;
+        needWriteCopy_ = true;
+        prox_ = new proxType(A.Grid());
+        if( ctrl.rootConstrain )
+            prox_->SetRoot( ctrl.root );
+        if( ctrl.colConstrain )
+            prox_->AlignCols( ctrl.blockHeight, ctrl.colAlign, ctrl.colCut );
+        if( ctrl.rowConstrain )
+            prox_->AlignRows( ctrl.blockWidth, ctrl.rowAlign, ctrl.rowCut );
+        prox_->Resize( A.Height(), A.Width() );
+    }
+
+    ~DistMatrixWriteProxy() 
+    { 
+        if( needWriteCopy_ && !uncaught_exception() ) 
+            Copy( *prox_, orig_ );
+        if( needDelete_ )
+            delete prox_;
+    }
+
+    const proxType& GetLocked() const { return *prox_; }
+          proxType& Get()             { return *prox_; }
+};
+
+template<typename S,typename T,Dist U=MC,Dist V=MR,DistWrap wrap=ELEMENT,
+         typename=EnableIf<CanBidirectionalCast<S,T>>>
+class DistMatrixReadWriteProxy; 
+
+template<typename S,typename T,Dist U,Dist V>
+class DistMatrixReadWriteProxy<S,T,U,V,ELEMENT,void>
+{
+private:
+    typedef DistMatrix<T,U,V,ELEMENT> proxType;
+
+    bool needDelete_;
+    bool needWriteCopy_;
+
+    AbstractDistMatrix<S>& orig_;
+    proxType* prox_;
 
 public:
     // TODO: Add try-catch statements into constructors?
@@ -406,7 +580,7 @@ public:
             {
                 needDelete_ = false;
                 needWriteCopy_ = false;
-                prox_ = dynamic_cast<DistMatrix<T,U,V>*>(&A);
+                prox_ = dynamic_cast<proxType*>(&A);
                 // TODO: Ensure that prox_ != null_ptr, though it should be
                 //       guaranteed by the above if statement
                 return;
@@ -414,7 +588,7 @@ public:
         }
         needDelete_ = true;
         needWriteCopy_ = true;
-        prox_ = new DistMatrix<T,U,V>(A.Grid());
+        prox_ = new proxType(A.Grid());
         if( ctrl.rootConstrain )
             prox_->SetRoot( ctrl.root );
         if( ctrl.colConstrain )
@@ -432,11 +606,76 @@ public:
             delete prox_;
     }
 
-    const DistMatrix<T,U,V>& GetLocked() const
-    { return *prox_; }
+    const proxType& GetLocked() const { return *prox_; }
+          proxType& Get()             { return *prox_; }
+};
 
-    DistMatrix<T,U,V>& Get()
-    { return *prox_; }
+template<typename S,typename T,Dist U,Dist V>
+class DistMatrixReadWriteProxy<S,T,U,V,BLOCK,void>
+{
+private:
+    typedef DistMatrix<T,U,V,BLOCK> proxType;
+
+    bool needDelete_;
+    bool needWriteCopy_;
+
+    AbstractDistMatrix<S>& orig_;
+    proxType* prox_;
+
+public:
+    // TODO: Add try-catch statements into constructors?
+    DistMatrixReadWriteProxy
+    ( AbstractDistMatrix<S>& A,
+      const ProxyCtrl& ctrl=ProxyCtrl() )
+    : orig_(const_cast<AbstractDistMatrix<S>&>(A))
+    { 
+        if( IsSame<S,T>::value &&
+            A.ColDist() == U && A.RowDist() == V && A.Wrap() == BLOCK )
+        {
+            const bool colMisalign = 
+              ( ctrl.colConstrain && 
+                (A.ColAlign() != ctrl.colAlign ||
+                 A.BlockHeight() != ctrl.blockHeight ||
+                 A.ColCut() != ctrl.colCut) );
+            const bool rowMisalign = 
+              ( ctrl.rowConstrain && 
+                (A.RowAlign() != ctrl.rowAlign ||
+                 A.BlockWidth() != ctrl.blockWidth ||
+                 A.RowCut() != ctrl.rowCut) );
+            const bool rootMisalign = 
+              ( ctrl.rootConstrain && A.Root() != ctrl.root );
+            if( !colMisalign && !rowMisalign && !rootMisalign )
+            {
+                needDelete_ = false;
+                needWriteCopy_ = false;
+                prox_ = dynamic_cast<proxType*>(&A);
+                // TODO: Ensure that prox_ != null_ptr, though it should be
+                //       guaranteed by the above if statement
+                return;
+            }
+        }
+        needDelete_ = true;
+        needWriteCopy_ = true;
+        prox_ = new proxType(A.Grid());
+        if( ctrl.rootConstrain )
+            prox_->SetRoot( ctrl.root );
+        if( ctrl.colConstrain )
+            prox_->AlignCols( ctrl.blockHeight, ctrl.colAlign, ctrl.colCut );
+        if( ctrl.rowConstrain )
+            prox_->AlignRows( ctrl.blockWidth, ctrl.rowAlign, ctrl.rowCut );
+        Copy( A, *prox_ );
+    }
+
+    ~DistMatrixReadWriteProxy() 
+    { 
+        if( needWriteCopy_ && !uncaught_exception() )
+            Copy( *prox_, orig_ );
+        if( needDelete_ )
+            delete prox_;
+    }
+
+    const proxType& GetLocked() const { return *prox_; }
+          proxType& Get()             { return *prox_; }
 };
 
 } // namespace El
