@@ -228,8 +228,10 @@ public:
     // ----------------------------------
     void ReservePulls( Int numPulls ) const;
     void QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    void ProcessPullQueue( scalarType* pullBuf ) const;
-    void ProcessPullQueue( vector<scalarType>& pullBuf ) const;
+    void ProcessPullQueue
+    ( scalarType* pullBuf, bool includeViewers=true ) const;
+    void ProcessPullQueue
+    ( vector<scalarType>& pullBuf, bool includeViewers=true ) const;
 
     // Local entry manipulation
     // ------------------------

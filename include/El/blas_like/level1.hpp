@@ -456,6 +456,8 @@ void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B );
 template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B );
 
+template<typename T>
+void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 

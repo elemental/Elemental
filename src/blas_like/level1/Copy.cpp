@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 
@@ -118,6 +119,29 @@ void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
     #include "El/macros/GuardAndPayload.h"
 }
 
+template<typename T>
+void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CSE cse("Copy (ADM<S> to ADM<T>)"))
+    const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
+    if( wrapA == ELEMENT && wrapB == ELEMENT )
+    {
+        auto& ACast = static_cast<const ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
+        Copy( ACast, BCast );
+    }
+    else if( wrapA == BLOCK && wrapB == BLOCK )
+    {
+        auto& ACast = static_cast<const BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
+        Copy( ACast, BCast );
+    }
+    else 
+    {
+        copy::GeneralPurpose( A, B );
+    }
+}
+
 template<typename S,typename T,typename>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
@@ -137,25 +161,7 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
     }
     else 
     {
-        Zeros( B, A.Height(), A.Width() );
-        if( A.RedundantRank() == 0 )
-        {
-            const Int localHeight = A.LocalHeight();
-            const Int localWidth = A.LocalWidth();
-            B.Reserve( localHeight*localWidth );
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const Int j = A.GlobalCol(jLoc);
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                {
-                    const Int i = A.GlobalRow(iLoc);
-                    B.QueueUpdate
-                    ( i, j, Caster<S,T>::Cast(A.GetLocal(iLoc,jLoc)) );
-                }
-            }
-        }
-        const bool includeViewers = (A.Grid() != B.Grid());
-        B.ProcessQueues( includeViewers );
+        copy::GeneralPurpose( A, B );
     }
 }
 
@@ -360,7 +366,7 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
     
     Zeros( B, m, n );
     for( Int e=0; e<numEntries; ++e )
-        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = Caster<S,T>::Cast(AValBuf[e]);
+        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = T(AValBuf[e]);
 }
 
 template<typename T>
@@ -387,7 +393,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     Zeros( B, m, n );
     B.Reserve( numEntries );
     for( Int e=0; e<numEntries; ++e )
-        B.QueueUpdate( A.Row(e), A.Col(e), Caster<S,T>::Cast(A.Value(e)) );
+        B.QueueUpdate( A.Row(e), A.Col(e), T(A.Value(e)) );
     B.ProcessQueues();
 }
 

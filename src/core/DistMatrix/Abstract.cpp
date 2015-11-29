@@ -535,7 +535,7 @@ EL_NO_RELEASE_EXCEPT
     //       lead to the processors in the same redundant communicator having
     //       different results after ProcessQueues()
     if( RedundantSize() == 1 && IsLocal(entry.i,entry.j) )
-        Update( entry );
+        UpdateLocal( LocalRow(entry.i), LocalCol(entry.j), entry.value );
     else
         remoteUpdates_.push_back( entry );
 }
@@ -550,93 +550,67 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessQueues"))
     const auto& g = Grid();
+    const Dist colDist = ColDist();
+    const Dist rowDist = RowDist();
+    const int root = Root();
+    const Int totalSend = remoteUpdates_.size();
+
+    // Compute the metadata
+    // ====================
+    mpi::Comm comm;
+    vector<int> sendCounts, owners(totalSend);
     if( includeViewers )
     {
-        mpi::Comm comm = g.ViewingComm();
+        comm = g.ViewingComm();
         const int commSize = mpi::Size( comm );
-
-        // Compute the metadata
-        // ====================
-        vector<int> sendCounts(commSize,0);
-        for( const auto& entry : remoteUpdates_ )
+        sendCounts.resize(commSize,0);
+        for( Int k=0; k<totalSend; ++k )
         {
-            const int owner = 
-              g.VCToViewing( 
-                g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
-              );
+            const Entry<T>& entry = remoteUpdates_[k];
+            const int distOwner = Owner(entry.i,entry.j);
+            const int vcOwner = g.CoordsToVC(colDist,rowDist,distOwner,root);
+            const int owner = g.VCToViewing(vcOwner);
+            owners[k] = owner;
             ++sendCounts[owner];
         }
-
-        // Pack the data
-        // =============
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<T>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( const auto& entry : remoteUpdates_ )
-        {
-            const int owner = 
-              g.VCToViewing( 
-                g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root())
-              );
-            sendBuf[offs[owner]++] = entry;
-        }
-        SwapClear( remoteUpdates_ );
-
-        // Exchange and unpack the data
-        // ============================
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        Int recvBufSize = recvBuf.size();
-        mpi::Broadcast( recvBufSize, 0, RedundantComm() );
-        recvBuf.resize( recvBufSize );
-        mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
-        // TODO: Make this loop faster
-        for( const auto& entry : recvBuf )
-            Update( entry );
     }
     else
     {
         if( !Participating() )
             return;
-
-        mpi::Comm comm = g.VCComm();
+        comm = g.VCComm();
         const int commSize = mpi::Size( comm );
-
-        // Compute the metadata
-        // ====================
-        vector<int> sendCounts(commSize,0);
-        for( const auto& entry : remoteUpdates_ )
+        sendCounts.resize(commSize,0);
+        for( Int k=0; k<totalSend; ++k )
         {
-            const int owner = 
-              g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root());
+            const Entry<T>& entry = remoteUpdates_[k];
+            const int distOwner = Owner(entry.i,entry.j);
+            const int owner = g.CoordsToVC(colDist,rowDist,distOwner,root);
+            owners[k] = owner;
             ++sendCounts[owner];
         }
-
-        // Pack the data
-        // =============
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        vector<Entry<T>> sendBuf(totalSend);
-        auto offs = sendOffs;
-        for( const auto& entry : remoteUpdates_ )
-        {
-            const int owner = 
-              g.CoordsToVC(ColDist(),RowDist(),Owner(entry.i,entry.j),Root());
-            sendBuf[offs[owner]++] = entry;
-        }
-        SwapClear( remoteUpdates_ );
-
-        // Exchange and unpack the data
-        // ============================
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        Int recvBufSize = recvBuf.size();
-        mpi::Broadcast( recvBufSize, 0, RedundantComm() );
-        recvBuf.resize( recvBufSize );
-        mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
-        // TODO: Make this loop faster
-        for( const auto& entry : recvBuf )
-            Update( entry );
     }
+
+    // Pack the data
+    // =============
+    vector<int> sendOffs;
+    Scan( sendCounts, sendOffs );
+    vector<Entry<T>> sendBuf(totalSend);
+    auto offs = sendOffs;
+    for( Int k=0; k<totalSend; ++k )
+        sendBuf[offs[owners[k]]++] = remoteUpdates_[k];
+    SwapClear( remoteUpdates_ );
+
+    // Exchange and unpack the data
+    // ============================
+    auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
+    Int recvBufSize = recvBuf.size();
+    mpi::Broadcast( recvBufSize, 0, RedundantComm() );
+    recvBuf.resize( recvBufSize );
+    mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
+    // TODO: Make this loop faster
+    for( const auto& entry : recvBuf )
+        UpdateLocal( LocalRow(entry.i), LocalCol(entry.j), entry.value );
 }
 
 template<typename T>
@@ -654,26 +628,57 @@ void AbstractDistMatrix<T>::QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
 }
 
 template<typename T>
-void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
+void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) const
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
     const auto& g = Grid();
-    mpi::Comm comm = g.ViewingComm();
-    const int commSize = mpi::Size( comm );
+    const Dist colDist = ColDist();
+    const Dist rowDist = RowDist();
+    const int root = Root();
+    const Int totalRecv = remotePulls_.size();
 
     // Compute the metadata
     // ====================
-    vector<int> recvCounts(commSize,0);
-    for( const auto& valueInt : remotePulls_ )
+    mpi::Comm comm;
+    int commSize;
+    vector<int> recvCounts, owners(totalRecv);
+    if( includeViewers )
     {
-        const Int i = valueInt.value;
-        const Int j = valueInt.index;
-        const int owner = 
-          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
-        ++recvCounts[owner];
+        comm = g.ViewingComm();
+        commSize = mpi::Size( comm );
+        recvCounts.resize(commSize,0);
+        for( Int k=0; k<totalRecv; ++k )
+        {
+            const auto& valueInt = remotePulls_[k];
+            const Int i = valueInt.value;
+            const Int j = valueInt.index;
+            const int distOwner = Owner(i,j);
+            const int vcOwner = g.CoordsToVC(colDist,rowDist,distOwner,root);
+            const int owner = g.VCToViewing(vcOwner);
+            owners[k] = owner;
+            ++recvCounts[owner];
+        }
+    }
+    else
+    {
+        if( !Participating() )
+            return;
+        comm = g.VCComm();
+        commSize = mpi::Size( comm );
+        recvCounts.resize(commSize,0);
+        for( Int k=0; k<totalRecv; ++k )
+        {
+            const auto& valueInt = remotePulls_[k];
+            const Int i = valueInt.value;
+            const Int j = valueInt.index;
+            const int distOwner = Owner(i,j);
+            const int owner = g.CoordsToVC(colDist,rowDist,distOwner,root);
+            owners[k] = owner;
+            ++recvCounts[owner];
+        }
     }
     vector<int> recvOffs;
-    const int totalRecv = Scan( recvCounts, recvOffs );
+    Scan( recvCounts, recvOffs );
     vector<int> sendCounts(commSize);
     mpi::AllToAll( recvCounts.data(), 1, sendCounts.data(), 1, comm );
     vector<int> sendOffs;
@@ -681,14 +686,8 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
 
     auto offs = recvOffs;
     vector<ValueInt<Int>> recvCoords(totalRecv);
-    for( const auto& valueInt : remotePulls_ )
-    {
-        const Int i = valueInt.value;
-        const Int j = valueInt.index;
-        const int owner = 
-          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
-        recvCoords[offs[owner]++] = valueInt;
-    }
+    for( Int k=0; k<totalRecv; ++k )
+        recvCoords[offs[owners[k]]++] = remotePulls_[k];
     vector<ValueInt<Int>> sendCoords(totalSend);
     mpi::AllToAll
     ( recvCoords.data(), recvCounts.data(), recvOffs.data(),
@@ -702,10 +701,7 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
     {
         const Int i = sendCoords[k].value;
         const Int j = sendCoords[k].index;
-
-        const Int iLoc = LocalRow( i );
-        const Int jLoc = LocalCol( j );
-        sendBuf[k] = GetLocal( iLoc, jLoc );
+        sendBuf[k] = GetLocal( LocalRow(i), LocalCol(j) );
     }
 
     // Exchange and unpack the data
@@ -717,23 +713,17 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf ) const
       recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
     Int k = 0;
     offs = recvOffs;
-    for( const auto& valueInt : remotePulls_ )
-    {
-        const Int i = valueInt.value;
-        const Int j = valueInt.index;
-        const int owner = 
-          g.VCToViewing( g.CoordsToVC(ColDist(),RowDist(),Owner(i,j),Root()) );
-        pullBuf[k++] = recvBuf[offs[owner]++];
-    }
+    for( Int k=0; k<totalRecv; ++k )
+        pullBuf[k++] = recvBuf[offs[owners[k]]++];
     SwapClear( remotePulls_ );
 }
 
 template<typename T>
-void AbstractDistMatrix<T>::ProcessPullQueue( vector<T>& pullVec ) const
+void AbstractDistMatrix<T>::ProcessPullQueue( vector<T>& pullVec, bool includeViewers ) const
 {
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
     pullVec.resize( remotePulls_.size() );
-    ProcessPullQueue( pullVec.data() );
+    ProcessPullQueue( pullVec.data(), includeViewers );
 }
 
 // Local entry manipulation

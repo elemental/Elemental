@@ -25,9 +25,9 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("Cholesky");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Cholesky");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         cholesky::LVar3( A );
@@ -53,9 +53,9 @@ template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("ReverseCholesky");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("ReverseCholesky");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         cholesky::ReverseLVar3( A );
