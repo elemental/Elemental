@@ -71,6 +71,7 @@ void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
     {
         AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
+        // TODO: Add support for optionally timing the proxy redistribution
         DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> ABlockProx( A );
         auto& ABlock = ABlockProx.Get();
 

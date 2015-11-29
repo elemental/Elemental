@@ -593,14 +593,16 @@ template<typename T>
 int ElementalMatrix<T>::RowOwner( Int i ) const EL_NO_EXCEPT
 {
     if( i == END ) i = this->height_ - 1;
-    return int((i+this->ColAlign()) % this->ColStride());
+    const Int rowOwner = (i+this->ColAlign()) % this->ColStride();
+    return int(rowOwner);
 }
 
 template<typename T>
 int ElementalMatrix<T>::ColOwner( Int j ) const EL_NO_EXCEPT
 { 
     if( j == END ) j = this->width_ - 1;
-    return int((j+this->RowAlign()) % this->RowStride()); 
+    const Int colOwner = (j+this->RowAlign()) % this->RowStride();
+    return int(colOwner);
 }
 
 template<typename T>
@@ -615,6 +617,20 @@ Int ElementalMatrix<T>::LocalColOffset( Int j ) const EL_NO_EXCEPT
 { 
     if( j == END ) j = this->width_ - 1;
     return Length_(j,this->RowShift(),this->RowStride()); 
+}
+
+template<typename T>
+Int ElementalMatrix<T>::LocalRowOffset( Int i, int rowOwner ) const EL_NO_EXCEPT
+{ 
+    if( i == END ) i = this->height_ - 1;
+    return Length_(i,rowOwner,this->ColAlign(),this->ColStride()); 
+}
+
+template<typename T>
+Int ElementalMatrix<T>::LocalColOffset( Int j, int colOwner ) const EL_NO_EXCEPT
+{ 
+    if( j == END ) j = this->width_ - 1;
+    return Length_(j,colOwner,this->RowAlign(),this->RowStride()); 
 }
 
 template<typename T>

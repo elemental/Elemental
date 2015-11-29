@@ -58,7 +58,7 @@ AbstractDistMatrix<T>::Empty( bool freeMemory )
     rootConstrained_ = false;
     SetShifts();
 
-    SwapClear( remoteUpdates_ );
+    SwapClear( remoteUpdates );
 }
 
 template<typename T>
@@ -69,7 +69,7 @@ AbstractDistMatrix<T>::EmptyData( bool freeMemory )
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
-    SwapClear( remoteUpdates_ );
+    SwapClear( remoteUpdates );
 }
 
 template<typename T>
@@ -315,6 +315,30 @@ Int AbstractDistMatrix<T>::LocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
 }
 
 template<typename T>
+Int AbstractDistMatrix<T>::LocalRow( Int i, int rowOwner ) const
+EL_NO_RELEASE_EXCEPT
+{ 
+    DEBUG_ONLY(
+      CSE cse("ADM::LocalRow");
+      if( RowOwner(i) != rowOwner )
+          LogicError("Requested local index of non-local row");
+    )
+    return LocalRowOffset(i,rowOwner);
+}
+
+template<typename T>
+Int AbstractDistMatrix<T>::LocalCol( Int j, int colOwner ) const
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(
+      CSE cse("ADM::LocalCol");
+      if( ColOwner(j) != colOwner )
+          LogicError("Requested local index of non-local column");
+    )
+    return LocalColOffset(j,colOwner);
+}
+
+template<typename T>
 bool AbstractDistMatrix<T>::IsLocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 { return Participating() && RowOwner(i) == ColRank(); }
 template<typename T>
@@ -522,8 +546,8 @@ template<typename T>
 void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
 { 
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::Reserve"))
-    const Int currSize = remoteUpdates_.size();
-    remoteUpdates_.reserve( currSize + numRemoteUpdates ); 
+    const Int currSize = remoteUpdates.size();
+    remoteUpdates.reserve( currSize + numRemoteUpdates ); 
 }
 
 template<typename T>
@@ -537,7 +561,7 @@ EL_NO_RELEASE_EXCEPT
     if( RedundantSize() == 1 && IsLocal(entry.i,entry.j) )
         UpdateLocal( LocalRow(entry.i), LocalCol(entry.j), entry.value );
     else
-        remoteUpdates_.push_back( entry );
+        remoteUpdates.push_back( entry );
 }
 
 template<typename T>
@@ -553,7 +577,7 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
     const Dist colDist = ColDist();
     const Dist rowDist = RowDist();
     const int root = Root();
-    const Int totalSend = remoteUpdates_.size();
+    const Int totalSend = remoteUpdates.size();
 
     // Compute the metadata
     // ====================
@@ -566,7 +590,7 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
         sendCounts.resize(commSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
-            const Entry<T>& entry = remoteUpdates_[k];
+            const Entry<T>& entry = remoteUpdates[k];
             const int distOwner = Owner(entry.i,entry.j);
             const int vcOwner = g.CoordsToVC(colDist,rowDist,distOwner,root);
             const int owner = g.VCToViewing(vcOwner);
@@ -583,7 +607,7 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
         sendCounts.resize(commSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
-            const Entry<T>& entry = remoteUpdates_[k];
+            const Entry<T>& entry = remoteUpdates[k];
             const int distOwner = Owner(entry.i,entry.j);
             const int owner = g.CoordsToVC(colDist,rowDist,distOwner,root);
             owners[k] = owner;
@@ -598,8 +622,8 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
     vector<Entry<T>> sendBuf(totalSend);
     auto offs = sendOffs;
     for( Int k=0; k<totalSend; ++k )
-        sendBuf[offs[owners[k]]++] = remoteUpdates_[k];
-    SwapClear( remoteUpdates_ );
+        sendBuf[offs[owners[k]]++] = remoteUpdates[k];
+    SwapClear( remoteUpdates );
 
     // Exchange and unpack the data
     // ============================

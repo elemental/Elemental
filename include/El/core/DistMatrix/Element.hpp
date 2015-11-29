@@ -136,6 +136,8 @@ public:
     int  ColOwner( Int j )       const override EL_NO_EXCEPT;
     Int  LocalRowOffset( Int i ) const override EL_NO_EXCEPT;
     Int  LocalColOffset( Int j ) const override EL_NO_EXCEPT;
+    Int  LocalRowOffset( Int i, int rowOwner ) const override EL_NO_EXCEPT;
+    Int  LocalColOffset( Int j, int colOwner ) const override EL_NO_EXCEPT;
     Int  GlobalRow( Int iLoc )   const override EL_NO_EXCEPT;
     Int  GlobalCol( Int jLoc )   const override EL_NO_EXCEPT;
 

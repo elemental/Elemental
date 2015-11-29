@@ -178,7 +178,7 @@ void BlockMatrix<T>::Empty( bool freeMemory )
     this->rowConstrained_ = false;
     this->rootConstrained_ = false;
 
-    SwapClear( this->remoteUpdates_ );
+    SwapClear( this->remoteUpdates );
 }
 
 template<typename T>
@@ -565,14 +565,18 @@ template<typename T>
 int BlockMatrix<T>::RowOwner( Int i ) const EL_NO_EXCEPT
 { 
     if( i == END ) i = this->height_ - 1;
-    return int((((i+this->ColCut())/this->BlockHeight())+this->ColAlign()) % this->ColStride()); 
+    const Int block = (i+this->ColCut())/this->BlockHeight();
+    const Int rowOwner = (block+this->ColAlign()) % this->ColStride();
+    return int(rowOwner);
 }
 
 template<typename T>
 int BlockMatrix<T>::ColOwner( Int j ) const EL_NO_EXCEPT
 { 
     if( j == END ) j = this->width_ - 1;
-    return int((((j+this->RowCut())/this->BlockWidth())+this->RowAlign()) % this->RowStride()); 
+    const Int block = (j+this->RowCut())/this->BlockWidth();
+    const Int colOwner = (block+this->RowAlign()) % this->RowStride();
+    return int(colOwner);
 }
 
 template<typename T>
@@ -590,6 +594,24 @@ Int BlockMatrix<T>::LocalColOffset( Int j ) const EL_NO_EXCEPT
     if( j == END ) j = this->width_ - 1;
     return BlockedLength_
            ( j, this->RowShift(), this->BlockWidth(),
+             this->RowCut(), this->RowStride() ); 
+}
+
+template<typename T>
+Int BlockMatrix<T>::LocalRowOffset( Int i, int rowOwner ) const EL_NO_EXCEPT
+{ 
+    if( i == END ) i = this->height_ - 1;
+    return BlockedLength_
+           ( i, rowOwner, this->ColAlign(), this->BlockHeight(), 
+             this->ColCut(), this->ColStride() ); 
+}
+
+template<typename T>
+Int BlockMatrix<T>::LocalColOffset( Int j, int colOwner ) const EL_NO_EXCEPT
+{ 
+    if( j == END ) j = this->width_ - 1;
+    return BlockedLength_
+           ( j, colOwner, this->RowAlign(), this->BlockWidth(),
              this->RowCut(), this->RowStride() ); 
 }
 

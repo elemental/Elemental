@@ -150,10 +150,10 @@ template<typename T>
 inline void FastResize( vector<T>& v, Int numEntries )
 {
 #ifdef EL_ZERO_INIT
-    v.resize( numEntries, 0 );
+    v.resize( numEntries );
 #elif defined(EL_HAVE_VALGRIND)
     if( EL_RUNNING_ON_VALGRIND )
-        v.resize( numEntries, 0 );
+        v.resize( numEntries );
     else
         v.reserve( numEntries );
 #else
