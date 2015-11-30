@@ -218,6 +218,13 @@ inline Complex<Quad> Exp( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 template<typename F,typename T,typename,typename>
 inline F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT
 { return std::pow(alpha,beta); }
+
+#ifdef EL_USE_64BIT_INTS
+template<typename F,typename>
+inline F Pow( const F& alpha, const int& beta ) EL_NO_EXCEPT
+{ return Pow(alpha,F(beta)); }
+#endif
+
 // NOTE: What about an integer to a floating-point power? Switch to auto 
 //       return type inherited from std::pow?
 

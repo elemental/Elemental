@@ -267,6 +267,10 @@ template<typename F,typename T,
          typename=EnableIf<IsScalar<F>>,
           typename=EnableIf<IsScalar<T>>>
 F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT;
+#ifdef EL_USE_64BIT_INTS
+template<typename F,typename=EnableIf<IsScalar<F>>>
+F Pow( const F& alpha, const int& beta ) EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Pow( const Quad& alpha, const Quad& beta ) EL_NO_EXCEPT;
 template<> Complex<Quad> Pow
