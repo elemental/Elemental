@@ -40,8 +40,12 @@ void Covariance
 {
     DEBUG_ONLY(CSE cse("Covariance"))
 
-    auto DPtr = ReadProxy<F,MC,MR>( &DPre );  auto& D = *DPtr;
-    auto SPtr = WriteProxy<F,MC,MR>( &SPre ); auto& S = *SPtr;
+    DistMatrixReadProxy<F,F,MC,MR>
+      DProx( DPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      SProx( SPre );
+    auto& D = DProx.GetLocked();
+    auto& S = SProx.Get();
 
     const Grid& g = D.Grid();
     const Int numObs = D.Height();

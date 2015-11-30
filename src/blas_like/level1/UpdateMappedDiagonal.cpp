@@ -89,8 +89,9 @@ void UpdateMappedDiagonal
     ctrl.colAlign = A.DiagonalAlign(offset);
     ctrl.rootConstrain = true;
     ctrl.root = A.DiagonalRoot(offset);
-    auto dPtr = ReadProxy<S,DiagCol<U,V>(),DiagRow<U,V>()>(&dPre,ctrl);
-    const auto& d = *dPtr;
+
+    DistMatrixReadProxy<S,S,DiagCol<U,V>(),DiagRow<U,V>()> dProx( dPre, ctrl );
+    auto& d = dProx.GetLocked();
 
     if( d.Participating() )
     {

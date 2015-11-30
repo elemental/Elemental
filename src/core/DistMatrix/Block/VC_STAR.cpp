@@ -155,7 +155,7 @@ BDM& BDM::operator=( const BlockMatrix<T>& A )
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
       auto& ACast = \
-        dynamic_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+        static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
       *this = ACast;
     #include "El/macros/GuardAndPayload.h"
     return *this;

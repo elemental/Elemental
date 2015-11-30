@@ -13,8 +13,10 @@ namespace syrk {
 template<typename T>
 inline void
 UN
-( T alpha, const ElementalMatrix<T>& APre, 
-                 ElementalMatrix<T>& CPre, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& APre, 
+        ElementalMatrix<T>& CPre,
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syrk::UN");
@@ -27,8 +29,10 @@ UN
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);

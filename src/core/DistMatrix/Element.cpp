@@ -166,7 +166,7 @@ ElementalMatrix<T>::AlignCols( int colAlign, bool constrain )
     if( constrain )
         this->colConstrained_ = true;
     this->colAlign_ = colAlign;
-    this->SetShifts();
+    this->SetColShift();
 }
 
 template<typename T>
@@ -183,7 +183,7 @@ ElementalMatrix<T>::AlignRows( int rowAlign, bool constrain )
     if( constrain )
         this->rowConstrained_ = true;
     this->rowAlign_ = rowAlign;
-    this->SetShifts();
+    this->SetRowShift();
 }
 
 template<typename T>
@@ -482,7 +482,7 @@ const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const ElementalMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(EM&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -491,7 +491,7 @@ const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(ADM&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -500,7 +500,7 @@ const ElementalMatrix<T>&
 ElementalMatrix<T>::operator=( const DistMultiVec<T>& A )
 {
     DEBUG_ONLY(CSE cse("EM::operator=(DMV&)"))
-    Copy( A, *this );
+    El::Copy( A, *this );
     return *this;
 }
 
@@ -562,7 +562,7 @@ ElementalMatrix<T>::operator=( ElementalMatrix<T>&& A )
     DEBUG_ONLY(CSE cse("EM::operator=(EM&&)"))
     if( this->Viewing() || A.Viewing() )
     {
-        Copy( A, *this );
+        El::Copy( A, *this );
     }
     else
     {
@@ -593,14 +593,16 @@ template<typename T>
 int ElementalMatrix<T>::RowOwner( Int i ) const EL_NO_EXCEPT
 {
     if( i == END ) i = this->height_ - 1;
-    return int((i+this->ColAlign()) % this->ColStride());
+    const Int rowOwner = (i+this->ColAlign()) % this->ColStride();
+    return int(rowOwner);
 }
 
 template<typename T>
 int ElementalMatrix<T>::ColOwner( Int j ) const EL_NO_EXCEPT
 { 
     if( j == END ) j = this->width_ - 1;
-    return int((j+this->RowAlign()) % this->RowStride()); 
+    const Int colOwner = (j+this->RowAlign()) % this->RowStride();
+    return int(colOwner);
 }
 
 template<typename T>
@@ -615,6 +617,20 @@ Int ElementalMatrix<T>::LocalColOffset( Int j ) const EL_NO_EXCEPT
 { 
     if( j == END ) j = this->width_ - 1;
     return Length_(j,this->RowShift(),this->RowStride()); 
+}
+
+template<typename T>
+Int ElementalMatrix<T>::LocalRowOffset( Int i, int rowOwner ) const EL_NO_EXCEPT
+{ 
+    if( i == END ) i = this->height_ - 1;
+    return Length_(i,rowOwner,this->ColAlign(),this->ColStride()); 
+}
+
+template<typename T>
+Int ElementalMatrix<T>::LocalColOffset( Int j, int colOwner ) const EL_NO_EXCEPT
+{ 
+    if( j == END ) j = this->width_ - 1;
+    return Length_(j,colOwner,this->RowAlign(),this->RowStride()); 
 }
 
 template<typename T>

@@ -14,7 +14,10 @@ namespace El {
 template<typename T>
 void Trr
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, 
+  T alpha,
+  const Matrix<T>& x,
+  const Matrix<T>& y,
+        Matrix<T>& A, 
   bool conjugate )
 {
     DEBUG_ONLY(
@@ -25,8 +28,8 @@ void Trr
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-        if( x.Height() != m || y.Height() != n )
-            LogicError("x and y must conform with A");
+      if( x.Height() != m || y.Height() != n )
+          LogicError("x and y must conform with A");
     )
     const T* xCol = x.LockedBuffer();
     const T* yCol = y.LockedBuffer();
@@ -59,9 +62,11 @@ void Trr
 template<typename T>
 void Trr
 ( UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& x, 
-           const ElementalMatrix<T>& y,
-                 ElementalMatrix<T>& APre, bool conjugate )
+  T alpha,
+  const ElementalMatrix<T>& x, 
+  const ElementalMatrix<T>& y,
+        ElementalMatrix<T>& APre,
+  bool conjugate )
 {
     DEBUG_ONLY(
       CSE cse("Trr");
@@ -69,8 +74,8 @@ void Trr
           LogicError("x and y must be of width 1");
     )
 
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     const Int mLocal = A.LocalHeight();

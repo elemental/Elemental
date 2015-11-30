@@ -15,7 +15,9 @@ namespace El {
 
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, Matrix<F>& A, function<Base<F>(Base<F>)> func )
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CSE cse("HermitianFunction [Real]"))
     if( A.Height() != A.Width() )
@@ -36,13 +38,14 @@ void HermitianFunction
 
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, ElementalMatrix<F>& APre,
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
   function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CSE cse("HermitianFunction [Real]"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
@@ -68,7 +71,8 @@ void HermitianFunction
 
 template<typename Real>
 void HermitianFunction
-( UpperOrLower uplo, Matrix<Complex<Real>>& A, 
+( UpperOrLower uplo,
+  Matrix<Complex<Real>>& A, 
   function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CSE cse("HermitianFunction [Complex]"))
@@ -96,17 +100,18 @@ void HermitianFunction
 
 template<typename Real>
 void HermitianFunction
-( UpperOrLower uplo, ElementalMatrix<Complex<Real>>& APre, 
+( UpperOrLower uplo,
+  ElementalMatrix<Complex<Real>>& APre, 
   function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CSE cse("HermitianFunction [Complex]"))
+    typedef Complex<Real> C;
 
-    auto APtr = ReadWriteProxy<Complex<Real>,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<C,C,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    typedef Complex<Real> C;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -131,19 +136,23 @@ void HermitianFunction
 
 #define PROTO_COMPLEX(F) \
   template void HermitianFunction \
-  ( UpperOrLower uplo, Matrix<F>& A, \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
     function<Base<F>(Base<F>)> func ); \
   template void HermitianFunction \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
     function<Base<F>(Base<F>)> func );
 
 #define PROTO_REAL(Real) \
   PROTO_COMPLEX(Real) \
   template void HermitianFunction \
-  ( UpperOrLower uplo, Matrix<Complex<Real>>& A, \
+  ( UpperOrLower uplo, \
+    Matrix<Complex<Real>>& A, \
     function<Complex<Real>(Real)> func ); \
   template void HermitianFunction \
-  ( UpperOrLower uplo, ElementalMatrix<Complex<Real>>& A, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<Complex<Real>>& A, \
     function<Complex<Real>(Real)> func );
 
 #define EL_NO_INT_PROTO

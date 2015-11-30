@@ -19,7 +19,8 @@ namespace trmm {
 template<typename T>
 inline void
 LocalAccumulateRLT
-( UnitOrNonUnit diag, T alpha,
+( UnitOrNonUnit diag,
+  T alpha,
   const DistMatrix<T>& L,
   const DistMatrix<T,MR,STAR>& XTrans,
         DistMatrix<T,MC,STAR>& ZTrans )
@@ -71,8 +72,10 @@ LocalAccumulateRLT
 template<typename T>
 inline void
 RLTA
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& LPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RLTA");
@@ -84,8 +87,10 @@ RLTA
     const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
     DistMatrix<T,MC,  STAR> Z1Trans_MC_STAR(g);
@@ -116,8 +121,10 @@ RLTA
 template<typename T>
 inline void
 RLTC
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& LPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RLTC");
@@ -133,8 +140,10 @@ RLTC
     const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MR,  STAR> L10Trans_MR_STAR(g);
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -174,8 +183,10 @@ RLTC
 template<typename T>
 inline void
 RLT
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& L, ElementalMatrix<T>& X )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& L,
+        ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::RLT"))
     // TODO: Come up with a better routing mechanism

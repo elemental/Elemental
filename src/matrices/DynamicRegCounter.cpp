@@ -30,8 +30,8 @@ template<typename T>
 void DynamicRegCounter( ElementalMatrix<T>& APre, Int n )
 {
     DEBUG_ONLY(CSE cse("DynamicRegCounter"))
-    auto APtr = WriteProxy<T,MC,MR>(&APre);
-    auto& A = *APtr;
+    DistMatrixWriteProxy<T,T,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     Zeros( A, 2*n, 2*n );
     auto ATL = A( IR(0,n),   IR(0,n)   );

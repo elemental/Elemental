@@ -63,8 +63,10 @@ ChanUpper
   double heightRatio=1.5 )
 {
     DEBUG_ONLY(CSE cse("svd::ChanUpper"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr; 
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     ChanUpper( A, s, V, heightRatio );
 }
 
@@ -100,8 +102,8 @@ ChanUpper
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(CSE cse("svd::ChanUpper"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
     ChanUpper( A, s, heightRatio );
 }
 
@@ -158,8 +160,10 @@ Chan
   double heightRatio=1.5 )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto VPtr = WriteProxy<F,MC,MR>( &VPre );     auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& V = VProx.Get();
     Chan( A, s, V, heightRatio );
 }
 
@@ -210,8 +214,8 @@ Chan
   double heightRatio=1.2 )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
     Chan( A, s, heightRatio );
 }
 

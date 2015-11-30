@@ -65,8 +65,8 @@ void AugmentedKKT
     const Int m = A.Height();
     const Int n = A.Width();
 
-    auto JPtr = WriteProxy<Real,MC,MR>(&JPre);
-    auto& J = *JPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
+    auto& J = JProx.Get();
 
     Zeros( J, m+n, m+n );
     const IR xInd(0,n), yInd(n,n+m);

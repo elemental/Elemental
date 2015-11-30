@@ -59,12 +59,14 @@ void Broadcast
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = ReadProxy<F,VC,STAR>(&xPre,ctrl); 
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<F,F,VC,STAR>
+      xProx( xPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.Get();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 

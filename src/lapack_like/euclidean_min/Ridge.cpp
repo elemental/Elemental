@@ -89,15 +89,22 @@ void Ridge
 template<typename F> 
 void Ridge
 ( Orientation orientation,
-  const ElementalMatrix<F>& APre, const ElementalMatrix<F>& BPre, 
-        Base<F> gamma,                     ElementalMatrix<F>& XPre, 
-  RidgeAlg alg )
+  const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& BPre, 
+        Base<F> gamma,
+        ElementalMatrix<F>& XPre, 
+        RidgeAlg alg )
 {
     DEBUG_ONLY(CSE cse("Ridge"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto BPtr = ReadProxy<F,MC,MR>( &BPre );  auto& B = *BPtr;
-    auto XPtr = WriteProxy<F,MC,MR>(& XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR>
+      AProx( APre ),
+      BProx( BPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      XProx( XPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& X = XProx.Get();
 
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
@@ -169,8 +176,10 @@ void Ridge
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const SparseMatrix<F>& A, const Matrix<F>& B, 
-        Base<F> gamma,            Matrix<F>& X, 
+  const SparseMatrix<F>& A,
+  const Matrix<F>& B, 
+        Base<F> gamma,
+        Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
@@ -190,8 +199,10 @@ void Ridge
 template<typename F>
 void Ridge
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, 
-        Base<F> gamma,                DistMultiVec<F>& X, 
+  const DistSparseMatrix<F>& A,
+  const DistMultiVec<F>& B, 
+        Base<F> gamma,
+        DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(
@@ -211,23 +222,31 @@ void Ridge
 #define PROTO(F) \
   template void Ridge \
   ( Orientation orientation, \
-    const Matrix<F>& A, const Matrix<F>& B, \
-          Base<F> gamma,      Matrix<F>& X, \
-    RidgeAlg alg ); \
+    const Matrix<F>& A, \
+    const Matrix<F>& B, \
+          Base<F> gamma, \
+          Matrix<F>& X, \
+          RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, const ElementalMatrix<F>& B, \
-          Base<F> gamma,                  ElementalMatrix<F>& X, \
-    RidgeAlg alg ); \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& B, \
+          Base<F> gamma, \
+          ElementalMatrix<F>& X, \
+          RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const SparseMatrix<F>& A, const Matrix<F>& B, \
-          Base<F> gamma,            Matrix<F>& X, \
+    const SparseMatrix<F>& A, \
+    const Matrix<F>& B, \
+          Base<F> gamma, \
+          Matrix<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void Ridge \
   ( Orientation orientation, \
-    const DistSparseMatrix<F>& A, const DistMultiVec<F>& B, \
-          Base<F> gamma,                DistMultiVec<F>& X, \
+    const DistSparseMatrix<F>& A, \
+    const DistMultiVec<F>& B, \
+          Base<F> gamma, \
+          DistMultiVec<F>& X, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

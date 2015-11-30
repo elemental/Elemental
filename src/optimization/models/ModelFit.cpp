@@ -19,7 +19,9 @@ template<typename Real>
 Int ModelFit
 ( function<void(Matrix<Real>&,Real)> lossProx,
   function<void(Matrix<Real>&,Real)> regProx,
-  const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w, 
+  const Matrix<Real>& A,
+  const Matrix<Real>& b,
+        Matrix<Real>& w, 
   const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ModelFit"))
@@ -104,15 +106,21 @@ template<typename Real>
 Int ModelFit
 ( function<void(DistMatrix<Real>&,Real)> lossProx,
   function<void(DistMatrix<Real>&,Real)> regProx,
-  const ElementalMatrix<Real>& APre, const ElementalMatrix<Real>& bPre, 
+  const ElementalMatrix<Real>& APre,
+  const ElementalMatrix<Real>& bPre, 
         ElementalMatrix<Real>& wPre, 
   const ModelFitCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ModelFit"))
 
-    auto APtr = ReadProxy<Real,MC,MR>( &APre );  auto& A = *APtr;
-    auto bPtr = ReadProxy<Real,MC,MR>( &bPre );  auto& b = *bPtr;
-    auto wPtr = WriteProxy<Real,MC,MR>( &wPre ); auto& w = *wPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR>
+      AProx( APre ),
+      bProx( bPre );
+    DistMatrixWriteProxy<Real,Real,MC,MR>
+      wProx( wPre );
+    auto& A = AProx.GetLocked();
+    auto& b = bProx.GetLocked();
+    auto& w = wProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -196,12 +204,15 @@ Int ModelFit
   template Int ModelFit \
   ( function<void(Matrix<Real>&,Real)> lossProx, \
     function<void(Matrix<Real>&,Real)> regProx, \
-    const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w, \
+    const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
+          Matrix<Real>& w, \
     const ModelFitCtrl<Real>& ctrl ); \
   template Int ModelFit \
   ( function<void(DistMatrix<Real>&,Real)> lossProx, \
     function<void(DistMatrix<Real>&,Real)> regProx, \
-    const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, \
+    const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
           ElementalMatrix<Real>& w, \
     const ModelFitCtrl<Real>& ctrl );
 

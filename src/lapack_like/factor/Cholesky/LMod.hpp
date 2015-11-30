@@ -22,11 +22,11 @@ inline void
 LUpdate( Matrix<F>& L, Matrix<F>& V )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::LUpdate");
-        if( L.Height() != L.Width() )
-            LogicError("Cholesky factors must be square");
-        if( V.Height() != L.Height() )
-            LogicError("V is the wrong height");
+      CSE cse("cholesky::mod::LUpdate");
+      if( L.Height() != L.Width() )
+          LogicError("Cholesky factors must be square");
+      if( V.Height() != L.Height() )
+          LogicError("V is the wrong height");
     )
     const Int m = V.Height();
 
@@ -66,19 +66,22 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
 
 template<typename F>
 inline void
-LUpdate( ElementalMatrix<F>& LPre, ElementalMatrix<F>& VPre )
+LUpdate
+( AbstractDistMatrix<F>& LPre,
+  AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::LUpdate");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("Cholesky factors must be square");
-        if( VPre.Height() != LPre.Height() )
-            LogicError("V is the wrong height");
-        AssertSameGrids( LPre, VPre );
+      CSE cse("cholesky::mod::LUpdate");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("Cholesky factors must be square");
+      if( VPre.Height() != LPre.Height() )
+          LogicError("V is the wrong height");
+      AssertSameGrids( LPre, VPre );
     )
 
-    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
-    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> LProx( LPre ), VProx( VPre );
+    auto& L = LProx.Get();
+    auto& V = VProx.Get();
 
     const Int m = V.Height();
     const Grid& g = L.Grid();
@@ -127,11 +130,11 @@ inline void
 LDowndate( Matrix<F>& L, Matrix<F>& V )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::LDowndate");
-        if( L.Height() != L.Width() )
-            LogicError("Cholesky factors must be square");
-        if( V.Height() != L.Height() )
-            LogicError("V is the wrong height");
+      CSE cse("cholesky::mod::LDowndate");
+      if( L.Height() != L.Width() )
+          LogicError("Cholesky factors must be square");
+      if( V.Height() != L.Height() )
+          LogicError("V is the wrong height");
     )
     const Int m = V.Height();
 
@@ -174,19 +177,21 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
 
 template<typename F>
 inline void
-LDowndate( ElementalMatrix<F>& LPre, ElementalMatrix<F>& VPre )
+LDowndate
+( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::mod::LDowndate");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("Cholesky factors must be square");
-        if( VPre.Height() != LPre.Height() )
-            LogicError("V is the wrong height");
-        AssertSameGrids( LPre, VPre );
+      CSE cse("cholesky::mod::LDowndate");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("Cholesky factors must be square");
+      if( VPre.Height() != LPre.Height() )
+          LogicError("V is the wrong height");
+      AssertSameGrids( LPre, VPre );
     )
 
-    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
-    auto VPtr = ReadWriteProxy<F,MC,MR>( &VPre ); auto& V = *VPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> LProx( LPre ), VProx( VPre );
+    auto& L = LProx.Get();
+    auto& V = VProx.Get();
 
     const Int m = V.Height();
     const Grid& g = L.Grid();
@@ -257,7 +262,10 @@ LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
 
 template<typename F>
 inline void
-LMod( ElementalMatrix<F>& L, Base<F> alpha, ElementalMatrix<F>& V )
+LMod
+( AbstractDistMatrix<F>& L,
+  Base<F> alpha,
+  AbstractDistMatrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("cholesky::LMod"))
     typedef Base<F> Real;

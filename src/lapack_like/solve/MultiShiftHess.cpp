@@ -22,7 +22,11 @@ namespace mshs {
 
 template<typename F>
 inline void
-LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X ) 
+LN
+( F alpha,
+  const Matrix<F>& H,
+  const Matrix<F>& shifts,
+        Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mshs::LN"))
     X *= alpha;
@@ -114,7 +118,11 @@ LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
 
 template<typename F>
 inline void
-UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X ) 
+UN
+( F alpha,
+  const Matrix<F>& H,
+  const Matrix<F>& shifts,
+        Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mshs::UN"))
     X *= alpha;
@@ -210,19 +218,22 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename F>
 inline void
 LN
-( F alpha, const ElementalMatrix<F>& H, 
-  const ElementalMatrix<F>& shiftsPre, ElementalMatrix<F>& XPre ) 
+( F alpha,
+  const ElementalMatrix<F>& H, 
+  const ElementalMatrix<F>& shiftsPre,
+        ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mshs::LN"))
 
-    auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre ); 
-    auto& X = *XPtr;
+    DistMatrixReadWriteProxy<F,F,STAR,VR> XProx( XPre );
+    auto& X = XProx.Get();
 
     ElementalProxyCtrl ctrl; 
     ctrl.colConstrain = true;
     ctrl.colAlign = X.RowAlign();
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );
-    auto& shifts = *shiftsPtr;
+
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre, ctrl );
+    auto& shifts = shiftsProx.GetLocked();
 
     X *= alpha;
 
@@ -327,19 +338,22 @@ LN
 template<typename F>
 inline void
 UN
-( F alpha, const ElementalMatrix<F>& H, 
-  const ElementalMatrix<F>& shiftsPre, ElementalMatrix<F>& XPre ) 
+( F alpha,
+  const ElementalMatrix<F>& H, 
+  const ElementalMatrix<F>& shiftsPre,
+        ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mshs::UN"))
 
-    auto XPtr = ReadWriteProxy<F,STAR,VR>( &XPre );
-    auto& X = *XPtr;
+    DistMatrixReadWriteProxy<F,F,STAR,VR> XProx( XPre );
+    auto& X = XProx.Get();
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = X.RowAlign();
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre, ctrl );
-    auto& shifts = *shiftsPtr;
+
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre, ctrl );
+    auto& shifts = shiftsProx.GetLocked();
 
     X *= alpha;
 
@@ -443,8 +457,12 @@ UN
 
 template<typename F>
 void MultiShiftHessSolve
-( UpperOrLower uplo, Orientation orientation,
-  F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
+( UpperOrLower uplo,
+  Orientation orientation,
+  F alpha,
+  const Matrix<F>& H,
+  const Matrix<F>& shifts,
+        Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftHessSolve"))
     if( uplo == LOWER )
@@ -465,9 +483,12 @@ void MultiShiftHessSolve
 
 template<typename F>
 void MultiShiftHessSolve
-( UpperOrLower uplo, Orientation orientation,
-  F alpha, const ElementalMatrix<F>& H, const ElementalMatrix<F>& shifts, 
-  ElementalMatrix<F>& X )
+( UpperOrLower uplo,
+  Orientation orientation,
+  F alpha,
+  const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& shifts, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftHessSolve"))
     if( uplo == LOWER )
@@ -488,12 +509,18 @@ void MultiShiftHessSolve
 
 #define PROTO(F) \
   template void MultiShiftHessSolve \
-  ( UpperOrLower uplo, Orientation orientation, F alpha, \
-    const Matrix<F>& H, const Matrix<F>& shifts, \
+  ( UpperOrLower uplo, \
+    Orientation orientation, \
+    F alpha, \
+    const Matrix<F>& H, \
+    const Matrix<F>& shifts, \
           Matrix<F>& X ); \
   template void MultiShiftHessSolve \
-  ( UpperOrLower uplo, Orientation orientation, F alpha, \
-    const ElementalMatrix<F>& H, const ElementalMatrix<F>& shifts, \
+  ( UpperOrLower uplo, \
+    Orientation orientation, \
+    F alpha, \
+    const ElementalMatrix<F>& H, \
+    const ElementalMatrix<F>& shifts, \
           ElementalMatrix<F>& X );
 
 #define EL_NO_INT_PROTO

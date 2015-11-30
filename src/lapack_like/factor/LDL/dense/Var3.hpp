@@ -120,8 +120,8 @@ Var3( ElementalMatrix<F>& APre, bool conjugate=false )
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );

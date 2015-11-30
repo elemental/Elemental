@@ -75,7 +75,7 @@ void SetDiagonal
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
       SetDiagonal( ACast, d, offset );
     #include "El/macros/GuardAndPayload.h"
 }
@@ -88,7 +88,7 @@ void SetRealPartOfDiagonal
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
       SetRealPartOfDiagonal( ACast, d, offset );
     #include "El/macros/GuardAndPayload.h"
 }
@@ -101,7 +101,7 @@ void SetImagPartOfDiagonal
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
       SetImagPartOfDiagonal( ACast, d, offset );
     #include "El/macros/GuardAndPayload.h"
 }

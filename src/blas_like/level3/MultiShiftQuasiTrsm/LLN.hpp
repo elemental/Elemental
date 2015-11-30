@@ -125,19 +125,21 @@ LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename F>
 inline void
 LLNLarge
-( const ElementalMatrix<F>& LPre, const ElementalMatrix<F>& shiftsPre, 
-  ElementalMatrix<F>& XPre )
+( const ElementalMatrix<F>& LPre,
+  const ElementalMatrix<F>& shiftsPre, 
+        ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LLNLarge"))
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
@@ -182,7 +184,8 @@ LLNLarge
 template<typename F>
 inline void
 LLNMedium
-( const ElementalMatrix<F>& LPre, const ElementalMatrix<F>& shiftsPre, 
+( const ElementalMatrix<F>& LPre,
+  const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LLNMedium"))
@@ -190,11 +193,12 @@ LLNMedium
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);

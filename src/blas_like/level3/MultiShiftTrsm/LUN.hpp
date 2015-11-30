@@ -13,13 +13,16 @@ namespace mstrsm {
 template<typename F>
 inline void
 LeftUnb
-( UpperOrLower uplo, Orientation orientation,
-  Matrix<F>& T, const Matrix<F>& shifts, Matrix<F>& X ) 
+( UpperOrLower uplo,
+  Orientation orientation,
+        Matrix<F>& T,
+  const Matrix<F>& shifts,
+        Matrix<F>& X ) 
 {
     DEBUG_ONLY(
-        CSE cse("mstrsm::LeftUnb");
-        if( shifts.Height() != X.Width() )
-            LogicError("Incompatible number of shifts");
+      CSE cse("mstrsm::LeftUnb");
+      if( shifts.Height() != X.Width() )
+          LogicError("Incompatible number of shifts");
     )
     const char uploChar = ( uplo==LOWER ? 'L' : 'U' );
     char orientChar; 
@@ -74,15 +77,17 @@ template<typename F>
 inline void
 LUN
 ( const ElementalMatrix<F>& UPre, 
-  const ElementalMatrix<F>& shiftsPre, ElementalMatrix<F>& XPre ) 
+  const ElementalMatrix<F>& shiftsPre,
+        ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUN"))
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre ); 
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& shifts = shiftsProx.GetLocked();
+    auto& X = XProx.Get();
 
     const Grid& g = U.Grid();
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);

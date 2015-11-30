@@ -76,16 +76,19 @@ void ClassicalNT
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto sPtr = ReadProxy<PReal,VC,STAR>(&sPre,ctrl); 
-    auto zPtr = ReadProxy<PReal,VC,STAR>(&zPre,ctrl);
-    auto wPtr = WriteProxy<PReal,VC,STAR>(&wPre,ctrl);
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& s = *sPtr;
-    auto& z = *zPtr;
-    auto& w = *wPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Real,PReal,VC,STAR>
+      sProx( sPre, ctrl ),
+      zProx( zPre, ctrl );
+    DistMatrixWriteProxy<Real,PReal,VC,STAR>
+      wProx( wPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& s = sProx.GetLocked();
+    auto& z = zProx.GetLocked();
+    auto& w = wProx.Get();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked(); 
 
     DistMatrix<PReal,VC,STAR> sRoot(s.Grid());
     soc::SquareRoot( s, sRoot, orders, firstInds, cutoff );
@@ -228,12 +231,14 @@ void VandenbergheNT
     Copy( sPre, s );
     Copy( zPre, z );
 
-    auto wPtr = WriteProxy<PReal,VC,STAR>(&wPre,ctrl);
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& w = *wPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixWriteProxy<Real,PReal,VC,STAR>
+      wProx( wPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& w = wProx.Get();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked(); 
 
     // Normalize with respect to the Jordan determinant
     // ================================================

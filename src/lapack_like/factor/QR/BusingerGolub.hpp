@@ -325,8 +325,8 @@ inline void BusingerGolub
     )
     typedef Base<F> Real;
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();

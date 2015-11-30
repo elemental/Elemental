@@ -66,13 +66,14 @@ void ApplyInverseRowPivots
 
 template<typename T>
 void ApplyRowPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivotsPre,
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivotsPre,
         Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyRowPivots"))
-    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
-    auto& pivots = *pivotsPtr;
+
+    DistMatrixReadProxy<Int,Int,STAR,STAR> pivotsProx( pivotsPre );
+    auto& pivots = pivotsProx.GetLocked();
 
     const Int numPivots = pivots.Height();
     const Int* pivotsBuf = pivots.LockedBuffer();
@@ -85,13 +86,14 @@ void ApplyRowPivots
 
 template<typename T>
 void ApplyInverseRowPivots
-(       ElementalMatrix<T>& A,
-  const ElementalMatrix<Int>& pivotsPre,
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& pivotsPre,
         Int offset )
 {
     DEBUG_ONLY(CSE cse("ApplyInverseRowPivots"))
-    auto pivotsPtr = ReadProxy<Int,STAR,STAR>( &pivotsPre );
-    auto& pivots = *pivotsPtr;
+
+    DistMatrixReadProxy<Int,Int,STAR,STAR> pivotsProx( pivotsPre );
+    auto& pivots = pivotsProx.GetLocked();
 
     const Int numPivots = pivots.Height();
     const Int* pivotsBuf = pivots.LockedBuffer();
@@ -108,16 +110,16 @@ void ApplyInverseRowPivots
     const Matrix<Int>& pivots, \
           Int offset ); \
   template void ApplyRowPivots \
-  (       ElementalMatrix<T>& A, \
-    const ElementalMatrix<Int>& pivots, \
+  (       AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& pivots, \
           Int offset ); \
   template void ApplyInverseRowPivots \
   (       Matrix<T>& A, \
     const Matrix<Int>& pivots, \
           Int offset ); \
   template void ApplyInverseRowPivots \
-  (       ElementalMatrix<T>& A, \
-    const ElementalMatrix<Int>& pivots, \
+  (       AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& pivots, \
           Int offset );
 
 #include "El/macros/Instantiate.h"

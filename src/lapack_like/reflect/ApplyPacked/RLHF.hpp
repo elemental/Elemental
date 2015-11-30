@@ -32,18 +32,21 @@ namespace apply_packed_reflectors {
 template<typename F> 
 inline void
 RLHF
-( Conjugation conjugation, Int offset, 
-  const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
+( Conjugation conjugation,
+  Int offset, 
+  const Matrix<F>& H,
+  const Matrix<F>& t,
+        Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::RLHF");
-        if( A.Width() != H.Width() )
-            LogicError("A and H must have the same width");
+      CSE cse("apply_packed_reflectors::RLHF");
+      if( A.Width() != H.Width() )
+          LogicError("A and H must have the same width");
     )
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != diagLength )
-            LogicError("t must be the same length as H's offset diag");
+      if( t.Height() != diagLength )
+          LogicError("t must be the same length as H's offset diag");
     )
     Matrix<F> HPanConj, SInv, Z;
 
@@ -77,25 +80,30 @@ RLHF
 template<typename F> 
 inline void
 RLHF
-( Conjugation conjugation, Int offset, 
-  const ElementalMatrix<F>& HPre, const ElementalMatrix<F>& tPre, 
+( Conjugation conjugation,
+  Int offset, 
+  const ElementalMatrix<F>& HPre,
+  const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::RLHF");
-        if( APre.Width() != HPre.Width() )
-            LogicError("A and H must have the same width");
-        AssertSameGrids( HPre, tPre, APre );
+      CSE cse("apply_packed_reflectors::RLHF");
+      if( APre.Width() != HPre.Width() )
+          LogicError("A and H must have the same width");
+      AssertSameGrids( HPre, tPre, APre );
     )
 
-    auto HPtr = ReadProxy<F,MC,MR>( &HPre );      auto& H = *HPtr;
-    auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
+    DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR  > AProx( APre );
+    auto& H = HProx.GetLocked();
+    auto& t = tProx.GetLocked();
+    auto& A = AProx.Get();
 
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != diagLength )
-            LogicError("t must be the same length as H's offset diag");
+      if( t.Height() != diagLength )
+          LogicError("t must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanConj(g);

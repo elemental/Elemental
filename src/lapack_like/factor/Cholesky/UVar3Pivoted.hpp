@@ -66,7 +66,9 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 
 template<typename F>
 inline void
-UUnblockedPivoted( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p )
+UUnblockedPivoted
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::UUnblockedPivoted");
@@ -75,8 +77,8 @@ UUnblockedPivoted( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p )
       AssertSameGrids( APre, p );
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Initialize the permutation to the identity
     const Int n = A.Height();
@@ -191,7 +193,7 @@ template<typename F>
 inline void
 UPanelPivoted
 ( DistMatrix<F>& AFull,
-  ElementalMatrix<Int>& p, 
+  AbstractDistMatrix<Int>& p, 
   DistMatrix<F,MC,STAR>& X,
   DistMatrix<F,MR,STAR>& Y,
   Int bsize,
@@ -297,7 +299,9 @@ UVar3( Matrix<F>& A, Matrix<Int>& p )
 
 template<typename F>
 inline void
-UVar3( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
+UVar3
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::UVar3");
@@ -305,8 +309,10 @@ UVar3( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
           LogicError("A must be square");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto pPtr = WriteProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Int,Int,VC,STAR> pProx( pPre );
+    auto& A = AProx.Get();
+    auto& p = pProx.Get();
 
     // Initialize the permutation to the identity
     const Int n = A.Height();

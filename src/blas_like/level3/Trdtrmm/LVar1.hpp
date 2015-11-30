@@ -15,9 +15,9 @@ inline void
 LVar1( Matrix<F>& L, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::LVar1");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
+      CSE cse("trdtrmm::LVar1");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
     )
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Matrix<F> S10;
@@ -49,9 +49,9 @@ inline void
 LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::LVar1");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
+      CSE cse("trdtrmm::LVar1");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
     )
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Matrix<F> S10;
@@ -89,17 +89,17 @@ inline void
 LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::LVar1");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("L must be square");
+      CSE cse("trdtrmm::LVar1");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("L must be square");
     )
     const Int n = LPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto LPtr = ReadWriteProxy<F,MC,MR>( &LPre );
-    auto& L = *LPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> LProx( LPre );
+    auto& L = LProx.Get();
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,VC  > S10_STAR_VC(g);
@@ -145,21 +145,24 @@ LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
 template<typename F>
 inline void
 LVar1
-( ElementalMatrix<F>& LPre, const ElementalMatrix<F>& dSubPre, 
+(       ElementalMatrix<F>& LPre,
+  const ElementalMatrix<F>& dSubPre, 
   bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::LVar1");
-        if( LPre.Height() != LPre.Width() )
-            LogicError("L must be square");
+      CSE cse("trdtrmm::LVar1");
+      if( LPre.Height() != LPre.Width() )
+          LogicError("L must be square");
     )
     const Int n = LPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto LPtr    = ReadWriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
-    auto dSubPtr = ReadProxy<F,MD,STAR>( &dSubPre ); auto& dSub = *dSubPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadProxy<F,F,MD,STAR> dSubProx( dSubPre );
+    auto& L = LProx.Get();
+    auto& dSub = dSubProx.GetLocked();
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,VC  > S10_STAR_VC(g);

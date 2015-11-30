@@ -502,16 +502,22 @@ void Mehrotra
     A = APre;
     b = bPre;
     c = cPre;
+
     ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
+
+    DistMatrixReadWriteProxy<Real,Real,MC,MR>
     // NOTE: x does not need to be a read proxy when !ctrl.primalInit
-    auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
+      xProx( xPre, control ),
     // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
-    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
-    auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
+      yProx( yPre, control ),
+      zProx( zPre, control );
+    auto& x = xProx.Get();
+    auto& y = yProx.Get();
+    auto& z = zProx.Get();
 
     // Equilibrate the LP by diagonally scaling A
     const Int m = A.Height();

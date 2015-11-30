@@ -247,17 +247,18 @@ void KKT
     const Int k = G.Height();
     const Grid& g = A.Grid();
 
-    ElementalProxyCtrl proxCtrl;
-    proxCtrl.colConstrain = true;
-    proxCtrl.colAlign = 0;
+    ElementalProxyCtrl ctrl;
+    ctrl.colConstrain = true;
+    ctrl.colAlign = 0;
 
-    auto ordersPtr    = ReadProxy<Int,VC,STAR>(&ordersPre,proxCtrl);
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,proxCtrl);
-    auto& orders    = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
-    auto JPtr = WriteProxy<Real,MC,MR>(&JPre); 
-    auto& J = *JPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
+    auto& J = JProx.Get();
 
     DistMatrix<Real,VC,STAR> wDets(g);
     soc::Dets( w, wDets, orders, firstInds, cutoffPar );
@@ -2087,8 +2088,8 @@ void KKTRHS
 {
     DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
 
-    auto dPtr = WriteProxy<Real,MC,MR>(&dPre);
-    auto& d = *dPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
+    auto& d = dProx.Get();
 
     const Int n = rc.Height();
     const Int m = rb.Height();

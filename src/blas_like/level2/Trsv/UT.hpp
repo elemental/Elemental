@@ -13,29 +13,33 @@ namespace trsv {
 template<typename F>
 inline void
 UT
-( Orientation orientation, UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& xPre )
+( Orientation orientation,
+  UnitOrNonUnit diag, 
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
-        CSE cse("trsv::UT");
-        if( orientation == NORMAL )
-            LogicError("Expected a (conjugate-)transpose option");
-        AssertSameGrids( UPre, xPre );
-        if( UPre.Height() != UPre.Width() )
-            LogicError("U must be square");
-        if( xPre.Width() != 1 && xPre.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength =
-            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
-        if( UPre.Width() != xLength )
-            LogicError("Nonconformal");
+      CSE cse("trsv::UT");
+      if( orientation == NORMAL )
+          LogicError("Expected a (conjugate-)transpose option");
+      AssertSameGrids( UPre, xPre );
+      if( UPre.Height() != UPre.Width() )
+          LogicError("U must be square");
+      if( xPre.Width() != 1 && xPre.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength =
+          ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+      if( UPre.Width() != xLength )
+          LogicError("Nonconformal");
     )
     const Int m = UPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> xProx( xPre );
+    auto& U = UProx.GetLocked();
+    auto& x = xProx.Get();
 
     // Matrix views 
     DistMatrix<F> U11(g), U12(g), x1(g);

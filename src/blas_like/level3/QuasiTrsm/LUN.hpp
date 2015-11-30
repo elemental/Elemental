@@ -136,7 +136,8 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 inline void
 LUNLarge
-( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
+( const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LUNLarge"))
@@ -144,8 +145,10 @@ LUNLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -205,8 +208,10 @@ LUNMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);

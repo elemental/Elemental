@@ -148,7 +148,7 @@ DM& DM::operator=( const ElementalMatrix<T>& A )
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       *this = ACast;
     #include "El/macros/GuardAndPayload.h"
     return *this;

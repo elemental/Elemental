@@ -13,8 +13,11 @@ namespace syr2k {
 template<typename T>
 inline void
 LT
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre,
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syr2k::LT");
@@ -33,9 +36,14 @@ LT
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     const T alphaSec = ( conjugate ? Conj(alpha) : alpha );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR>
+      AProx( APre ),
+      BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR>
+      CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g), B1Trans_MR_STAR(g);

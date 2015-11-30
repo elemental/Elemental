@@ -25,9 +25,9 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("Cholesky");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("Cholesky");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         cholesky::LVar3( A );
@@ -53,9 +53,9 @@ template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("ReverseCholesky");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("ReverseCholesky");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         cholesky::ReverseLVar3( A );
@@ -64,18 +64,41 @@ void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void Cholesky( UpperOrLower uplo, ElementalMatrix<F>& A )
+void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
 {
     DEBUG_ONLY(CSE cse("Cholesky"))
-    if( uplo == LOWER )
-        cholesky::LVar3( A );
+    if( scalapack )
+    {
+        AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+        // TODO: Add support for optionally timing the proxy redistribution
+        DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> ABlockProx( A );
+        auto& ABlock = ABlockProx.Get();
+
+        const Int n = ABlock.Height();
+        const int bHandle = blacs::Handle( ABlock );
+        const int context = blacs::GridInit( bHandle, ABlock );
+        auto descA = FillDesc( ABlock, context );
+
+        const char uploChar = UpperOrLowerToChar( uplo );
+        scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
+
+        blacs::FreeGrid( context );
+        blacs::FreeHandle( bHandle );
+#endif
+    }
     else
-        cholesky::UVar3( A );
+    {
+        if( uplo == LOWER )
+            cholesky::LVar3( A );
+        else
+            cholesky::UVar3( A );
+    }
 }
 
 template<typename F> 
 void Cholesky
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& piv )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& piv )
 {
     DEBUG_ONLY(CSE cse("Cholesky"))
     if( uplo == LOWER )
@@ -90,7 +113,7 @@ void Cholesky
 { Cholesky( uplo, A.Matrix() ); }
 
 template<typename F> 
-void ReverseCholesky( UpperOrLower uplo, ElementalMatrix<F>& A )
+void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("ReverseCholesky"))
     if( uplo == LOWER )
@@ -122,8 +145,10 @@ void CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
 
 template<typename F>
 void CholeskyMod
-( UpperOrLower uplo, ElementalMatrix<F>& T, 
-  Base<F> alpha, ElementalMatrix<F>& V )
+( UpperOrLower uplo,
+  AbstractDistMatrix<F>& T, 
+  Base<F> alpha,
+  AbstractDistMatrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("CholeskyMod"))
     if( alpha == Base<F>(0) )
@@ -148,13 +173,13 @@ void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
+void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("HPSDCholesky"))
 
     // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -167,33 +192,36 @@ void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
 
 #define PROTO(F) \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void Cholesky( UpperOrLower uplo, ElementalMatrix<F>& A ); \
+  template void Cholesky \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack ); \
   template void Cholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
   template void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A ); \
   template void ReverseCholesky \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void ReverseCholesky \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& piv ); \
   template void Cholesky \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& piv ); \
+  ( UpperOrLower uplo, \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Int>& piv ); \
   template void CholeskyMod \
   ( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V ); \
   template void CholeskyMod \
   ( UpperOrLower uplo, \
-    ElementalMatrix<F>& T, \
+    AbstractDistMatrix<F>& T, \
     Base<F> alpha, \
-    ElementalMatrix<F>& V ); \
+    AbstractDistMatrix<F>& V ); \
   template void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& A ); \
+  template void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, \
           Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, \
@@ -201,9 +229,9 @@ void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
           Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<Int>& piv, \
-          ElementalMatrix<F>& B ); 
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<Int>& piv, \
+          AbstractDistMatrix<F>& B ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

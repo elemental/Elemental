@@ -115,10 +115,16 @@ void Overwrite
 {
     DEBUG_ONLY(CSE cse("glm::Overwrite"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
-    auto DPtr = ReadWriteProxy<F,MC,MR>( &DPre ); auto& D = *DPtr;
-    auto YPtr = WriteProxy<F,MC,MR>( &YPre );     auto& Y = *YPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR>
+      AProx( APre ),
+      BProx( BPre ),
+      DProx( DPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      YProx( YPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
+    auto& D = DProx.Get();
+    auto& Y = YProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();

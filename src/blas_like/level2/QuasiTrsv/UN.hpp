@@ -146,7 +146,8 @@ UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 template<typename F>
 inline void
 UN
-( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& xPre,
+( const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
@@ -166,8 +167,10 @@ UN
     const Int kLast = LastOffset( m, bsize );
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> xProx( xPre );
+    auto& U = UProx.GetLocked();
+    auto& x = xProx.Get();
 
     // Matrix views 
     DistMatrix<F> U01(g), U11(g), x1(g);

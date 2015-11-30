@@ -22,9 +22,9 @@ inline void
 UVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::UVar2");
-        if( A.Height() != A.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::UVar2");
+      if( A.Height() != A.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -50,17 +50,17 @@ UVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-UVar2( ElementalMatrix<F>& APre )
+UVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::UVar2");
-        if( APre.Height() != APre.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::UVar2");
+      if( APre.Height() != APre.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);

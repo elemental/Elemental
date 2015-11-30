@@ -444,16 +444,21 @@ void Contract( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 
 // Copy
 // ====
+
 template<typename T>
 void Copy( const Matrix<T>& A, Matrix<T>& B );
-// TODO: A detailed description of which conversions are instantiated 
-template<typename S,typename T>
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const Matrix<S>& A, Matrix<T>& B );
-template<typename S,typename T>
+
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B );
-template<typename S,typename T>
+
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B );
-template<typename S,typename T>
+
+template<typename T>
+void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 
 template<typename T>
@@ -482,18 +487,22 @@ void CopyFromNonRoot( const DistGraph& distGraph, int root=0 );
 
 template<typename T>
 void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B );
-// TODO: A detailed description of which conversions are instantiated 
-template<typename S,typename T>
+
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B );
-template<typename S,typename T>
+
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const SparseMatrix<S>& A, Matrix<T>& B );
+
 template<typename T>
 void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
-// TODO: A detailed description of which conversions are instantiated 
-template<typename S,typename T>
+
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B );
-template<typename S,typename T>
+
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B );
+
 template<typename T>
 void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A );
 template<typename T>
@@ -501,9 +510,10 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root=0 );
 
 template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B );
-// TODO: A detailed description of which conversions are instantiated 
-template<typename S,typename T>
+
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B );
+
 template<typename T>
 void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B );
 template<typename T>
@@ -1593,31 +1603,31 @@ template<typename T>
 void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y );
 template<typename T>
 void Swap
-( Orientation orientation, ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
+( Orientation orientation, AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 
 template<typename T>
 void RowSwap( Matrix<T>& A, Int to, Int from );
 template<typename T>
-void RowSwap( ElementalMatrix<T>& A, Int to, Int from );
+void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from );
 
 template<typename T>
 void ColSwap( Matrix<T>& A, Int to, Int from );
 template<typename T>
-void ColSwap( ElementalMatrix<T>& A, Int to, Int from );
+void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from );
 
 template<typename T>
 void SymmetricSwap
 ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate=false );
 template<typename T>
 void SymmetricSwap
-( UpperOrLower uplo, ElementalMatrix<T>& A, Int to, Int from,
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from,
   bool conjugate=false );
 
 template<typename T>
 void HermitianSwap( UpperOrLower uplo, Matrix<T>& A, Int to, Int from );
 template<typename T>
 void HermitianSwap
-( UpperOrLower uplo, ElementalMatrix<T>& A, Int to, Int from );
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from );
 
 // Symmetric2x2Inv
 // ===============

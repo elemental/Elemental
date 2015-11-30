@@ -19,7 +19,8 @@ namespace bp {
 
 template<typename F>
 Int ADMM
-( const Matrix<F>& A, const Matrix<F>& b, 
+( const Matrix<F>& A,
+  const Matrix<F>& b, 
         Matrix<F>& z, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
@@ -151,15 +152,21 @@ Int ADMM
 
 template<typename F>
 Int ADMM
-( const ElementalMatrix<F>& APre, const ElementalMatrix<F>& bPre, 
+( const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& bPre, 
         ElementalMatrix<F>& zPre,
   const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bp::ADMM"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto bPtr = ReadProxy<F,MC,MR>( &bPre );  auto& b = *bPtr;
-    auto zPtr = WriteProxy<F,MC,MR>( &zPre ); auto& z = *zPtr;
+    DistMatrixReadProxy<F,F,MC,MR>
+      AProx( APre ),
+      bProx( bPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      zProx( zPre );
+    auto& A = AProx.GetLocked();
+    auto& b = bProx.GetLocked();
+    auto& z = zProx.Get();
 
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
     // NOTE: If m >= n and A has full column rank, then basis pursuit is 

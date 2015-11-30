@@ -12,7 +12,10 @@ namespace El {
 
 template<typename T,typename S>
 void GetMappedDiagonal
-( const Matrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset )
+( const Matrix<T>& A,
+        Matrix<S>& d,
+        function<S(T)> func,
+        Int offset )
 {
     DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
     const Int diagLength = A.DiagonalLength(offset);
@@ -34,8 +37,10 @@ void GetMappedDiagonal
 
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
-( const DistMatrix<T,U,V>& A, ElementalMatrix<S>& dPre, 
-  function<S(T)> func, Int offset )
+( const DistMatrix<T,U,V>& A,
+        ElementalMatrix<S>& dPre, 
+        function<S(T)> func,
+        Int offset )
 { 
     DEBUG_ONLY(
       CSE cse("GetMappedDiagonal");
@@ -46,8 +51,9 @@ void GetMappedDiagonal
     ctrl.colAlign = A.DiagonalAlign(offset);
     ctrl.rootConstrain = true;
     ctrl.root = A.DiagonalRoot(offset);
-    auto dPtr = WriteProxy<S,DiagCol<U,V>(),DiagRow<U,V>()>(&dPre,ctrl);
-    auto& d = *dPtr;
+
+    DistMatrixWriteProxy<S,S,DiagCol<U,V>(),DiagRow<U,V>()> dProx( dPre, ctrl );
+    auto& d = dProx.Get();
 
     d.Resize( A.DiagonalLength(offset), 1 );
     if( d.Participating() )
@@ -79,7 +85,10 @@ void GetMappedDiagonal
 
 template<typename T,typename S>
 void GetMappedDiagonal
-( const SparseMatrix<T>& A, Matrix<S>& d, function<S(T)> func, Int offset )
+( const SparseMatrix<T>& A,
+        Matrix<S>& d,
+        function<S(T)> func,
+        Int offset )
 {
     DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
     const Int m = A.Height();
@@ -113,8 +122,10 @@ void GetMappedDiagonal
 
 template<typename T,typename S>
 void GetMappedDiagonal
-( const DistSparseMatrix<T>& A, DistMultiVec<S>& d, 
-  function<S(T)> func, Int offset )
+( const DistSparseMatrix<T>& A,
+        DistMultiVec<S>& d, 
+        function<S(T)> func,
+        Int offset )
 {
     DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
     const Int m = A.Height();

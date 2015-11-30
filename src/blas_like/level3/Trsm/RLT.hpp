@@ -20,8 +20,8 @@ inline void
 RLT
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre, 
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -33,8 +33,10 @@ RLT
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,VR,  STAR> L21_VR_STAR(g);

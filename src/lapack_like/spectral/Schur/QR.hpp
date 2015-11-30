@@ -176,8 +176,10 @@ QR
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
     AssertScaLAPACKSupport();
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
+
 #ifdef EL_HAVE_SCALAPACK
     // Reduce the matrix to upper-Hessenberg form in an elemental form
     DistMatrix<F,STAR,STAR> t( A.Grid() );
@@ -243,8 +245,12 @@ QR
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
     AssertScaLAPACKSupport();
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto QPtr = WriteProxy<F,MC,MR>( &QPre );     auto& Q = *QPtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> QProx( QPre );
+    auto& A = AProx.Get();
+    auto& Q = QProx.Get();
+
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
     // Reduce A to upper-Hessenberg form in an element-wise distribution

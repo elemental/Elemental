@@ -20,10 +20,10 @@ template<typename F>
 inline void L( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(
-        CSE cse("hessenberg::L");
-        // Is this requirement necessary?!?
-        if( t.Viewing() )
-            LogicError("t must not be a view");
+      CSE cse("hessenberg::L");
+      // Is this requirement necessary?!?
+      if( t.Viewing() )
+          LogicError("t must not be a view");
     )
     const Int n = A.Height();
     t.Resize( Max(n-1,0), 1 );
@@ -78,12 +78,14 @@ template<typename F>
 inline void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(
-        CSE cse("hessenberg::L");
-        AssertSameGrids( APre, tPre );
+      CSE cse("hessenberg::L");
+      AssertSameGrids( APre, tPre );
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> tProx( tPre );
+    auto& A = AProx.Get();
+    auto& t = tProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();

@@ -259,8 +259,8 @@ void HermitianEig
         return;
     }
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
@@ -517,8 +517,8 @@ void HermitianEig
         return; 
     }
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
@@ -573,13 +573,16 @@ void HermitianEig
     // do so, we must pad Z's dimensions slightly.
     const Int N = MaxLength(n,g.Height())*g.Height();
     const Int K = MaxLength(kEst,g.Size())*g.Size(); 
+
     ElementalProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
     proxCtrl.rowConstrain = true;
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
-    auto ZPtr = WriteProxy<F,MC,MR>( &ZPre, proxCtrl );
-    auto& Z = *ZPtr;
+    
+    DistMatrixWriteProxy<F,F,MC,MR> ZProx( ZPre, proxCtrl );
+    auto& Z = ZProx.Get();
+
     Z.Resize( N, K );
     DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
     {

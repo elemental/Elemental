@@ -66,13 +66,15 @@ void Skeleton
 template<typename F> 
 void Skeleton
 ( const ElementalMatrix<F>& APre, 
-  ElementalMatrix<Int>& permR, ElementalMatrix<Int>& permC, 
-  ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
+        ElementalMatrix<Int>& permR,
+        ElementalMatrix<Int>& permC, 
+        ElementalMatrix<F>& Z,
+  const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Skeleton"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
 
     const Grid& g = A.Grid();
 
@@ -115,12 +117,16 @@ void Skeleton
 #define PROTO(F) \
   template void Skeleton \
   ( const Matrix<F>& A, \
-    Matrix<Int>& permR, Matrix<Int>& permC, \
-    Matrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
+          Matrix<Int>& permR, \
+          Matrix<Int>& permC, \
+          Matrix<F>& Z, \
+    const QRCtrl<Base<F>> ctrl ); \
   template void Skeleton \
   ( const ElementalMatrix<F>& A, \
-    ElementalMatrix<Int>& permR, ElementalMatrix<Int>& permC, \
-    ElementalMatrix<F>& Z, const QRCtrl<Base<F>> ctrl );
+          ElementalMatrix<Int>& permR, \
+          ElementalMatrix<Int>& permC, \
+          ElementalMatrix<F>& Z, \
+    const QRCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

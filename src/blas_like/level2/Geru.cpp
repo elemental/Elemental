@@ -59,8 +59,8 @@ void Geru
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<T,MC,MR>( &APre ); 
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<T,T,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     if( x.Width() == 1 && y.Width() == 1 )
     {

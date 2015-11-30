@@ -82,7 +82,8 @@ template<typename F>
 inline void
 LVar2
 ( UnitOrNonUnit diag, 
-  ElementalMatrix<F>& A, const ElementalMatrix<F>& L )
+        ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& L )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::LVar2");
@@ -97,8 +98,10 @@ LVar2
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    auto& A = AProx.Get();
+    auto& L = LProx.GetLocked();
     
     // Temporary distributions
     DistMatrix<F,STAR,VR  > A10_STAR_VR(g);

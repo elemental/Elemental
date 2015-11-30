@@ -50,7 +50,7 @@ void SVD
     {
         if( A.ColDist() == VC && A.RowDist() == STAR )
         {
-            auto& ACast = dynamic_cast<DistMatrix<F,VC,STAR>&>( A );
+            auto& ACast = static_cast<DistMatrix<F,VC,STAR>&>( A );
             svd::Thresholded( ACast, s, V, ctrl.tol, ctrl.relative );
         }
         else

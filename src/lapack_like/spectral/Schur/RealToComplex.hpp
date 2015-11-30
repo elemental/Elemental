@@ -59,10 +59,10 @@ void RealToComplex
     DEBUG_ONLY(CSE cse("schur::RealToComplex"))
     typedef Complex<Real> C;
 
-    auto UQuasiPtr = ReadProxy<Real,MC,MR>( &UQuasiPre );
-    auto& UQuasi = *UQuasiPtr;
-    auto UPtr = WriteProxy<C,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UQuasiProx( UQuasiPre );
+    DistMatrixWriteProxy<C,C,MC,MR> UProx( UPre );
+    auto& UQuasi = UQuasiProx.GetLocked();
+    auto& U = UProx.Get();
 
     DEBUG_ONLY(CheckRealSchur(UQuasi))
 

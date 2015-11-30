@@ -18,9 +18,9 @@ inline void
 UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 {
     DEBUG_ONLY(
-        CSE cse("triang_inv::UVar3Unb");
-        if( U.Height() != U.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("triang_inv::UVar3Unb");
+      if( U.Height() != U.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
     const Int n = U.Height();
     const Int ldu = U.LDim();
@@ -48,9 +48,9 @@ inline void
 UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 {
     DEBUG_ONLY(
-        CSE cse("triang_inv::UVar3");
-        if( U.Height() != U.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("triang_inv::UVar3");
+      if( U.Height() != U.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
     const Int n = U.Height();
     const Int bsize = Blocksize();
@@ -81,13 +81,13 @@ inline void
 UVar3( UnitOrNonUnit diag, ElementalMatrix<F>& UPre )
 {
     DEBUG_ONLY(
-        CSE cse("triang_inv::UVar3");
-        if( UPre.Height() != UPre.Width() )
-            LogicError("Nonsquare matrices cannot be triangular");
+      CSE cse("triang_inv::UVar3");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("Nonsquare matrices cannot be triangular");
     )
 
-    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre );
-    auto& U = *UPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> UProx( UPre );
+    auto& U = UProx.Get();
 
     const Grid& g = U.Grid();
     DistMatrix<F,VC,  STAR> U01_VC_STAR(g);

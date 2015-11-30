@@ -7,13 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "El/blas_like/level1/copy_internal.hpp"
 
 namespace El {
 
 template<typename T>
 void Copy( const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (M<T> to M<T>)"))
     const Int height = A.Height();
     const Int width = A.Width();
     B.Resize( height, width ); 
@@ -23,26 +24,26 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
       A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const Matrix<S>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (M<S> to M<T>)"))
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
 template<typename T,Dist U,Dist V>
 inline void Copy( const ElementalMatrix<T>& A, DistMatrix<T,U,V>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (EM<T> to DM<T,U,V>)"))
     B = A;
 }
 
 // Datatype conversions should not be very common, and so it is likely best to
 // avoid explicitly instantiating every combination
 template<typename S,typename T,Dist U,Dist V>
-inline void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
+void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (EM<S> to DM<T,U,V>)"))
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
         if( !B.RootConstrained() )
@@ -70,7 +71,7 @@ template<typename T,Dist U,Dist V>
 inline void Copy
 ( const BlockMatrix<T>& A, DistMatrix<T,U,V,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (BM<T> to DM<T,U,V,BLOCK>)"))
     B = A;
 }
 
@@ -80,7 +81,7 @@ template<typename S,typename T,Dist U,Dist V>
 inline void Copy
 ( const BlockMatrix<S>& A, DistMatrix<T,U,V,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (BM<S> to DM<T,U,V,BLOCK>)"))
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
         if( !B.RootConstrained() )
@@ -107,72 +108,77 @@ inline void Copy
     Copy( BOrig.LockedMatrix(), B.Matrix() );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (EM<S> to EM<T>)"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
+        auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( A, BCast );
     #include "El/macros/GuardAndPayload.h"
 }
 
-template<typename S,typename T>
-void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
+template<typename T>
+void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (ADM<S> to ADM<T>)"))
     const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
     if( wrapA == ELEMENT && wrapB == ELEMENT )
     {
-        auto& ACast = dynamic_cast<const ElementalMatrix<T>&>(A);
-        auto& BCast = dynamic_cast<ElementalMatrix<T>&>(B);
-        BCast = ACast;
+        auto& ACast = static_cast<const ElementalMatrix<T>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
+        Copy( ACast, BCast );
     }
     else if( wrapA == BLOCK && wrapB == BLOCK )
     {
-        auto& ACast = dynamic_cast<const BlockMatrix<T>&>(A);
-        auto& BCast = dynamic_cast<BlockMatrix<T>&>(B);
-        BCast = ACast;
+        auto& ACast = static_cast<const BlockMatrix<T>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
+        Copy( ACast, BCast );
     }
     else 
     {
-        Zeros( B, A.Height(), A.Width() );
-        if( A.RedundantRank() == 0 )
-        {
-            const Int localHeight = A.LocalHeight();
-            const Int localWidth = A.LocalWidth();
-            B.Reserve( localHeight*localWidth );
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const Int j = A.GlobalCol(jLoc);
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                {
-                    const Int i = A.GlobalRow(iLoc);
-                    B.QueueUpdate
-                    ( i, j, Caster<S,T>::Cast(A.GetLocal(iLoc,jLoc)) );
-                }
-            }
-        }
-        const bool includeViewers = (A.Grid() != B.Grid());
-        B.ProcessQueues( includeViewers );
+        copy::GeneralPurpose( A, B );
     }
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
+void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CSE cse("Copy (ADM<S> to ADM<T>)"))
+    const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
+    if( wrapA == ELEMENT && wrapB == ELEMENT )
+    {
+        auto& ACast = static_cast<const ElementalMatrix<S>&>(A);
+        auto& BCast = static_cast<ElementalMatrix<T>&>(B);
+        Copy( ACast, BCast );
+    }
+    else if( wrapA == BLOCK && wrapB == BLOCK )
+    {
+        auto& ACast = static_cast<const BlockMatrix<S>&>(A);
+        auto& BCast = static_cast<BlockMatrix<T>&>(B);
+        Copy( ACast, BCast );
+    }
+    else 
+    {
+        copy::GeneralPurpose( A, B );
+    }
+}
+
+template<typename S,typename T,typename>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (BM<S> to BM<T>)"))
     #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-      auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(B); \
+      auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(B); \
       Copy( A, BCast );
     #include "El/macros/GuardAndPayload.h"
 }
 
 void Copy( const Graph& A, Graph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [Graph]"))
+    DEBUG_ONLY(CSE cse("Copy (G to G)"))
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
 
@@ -187,7 +193,7 @@ void Copy( const Graph& A, Graph& B )
 
 void Copy( const Graph& A, DistGraph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [Graph/DistGraph]"))
+    DEBUG_ONLY(CSE cse("Copy (G to DG)"))
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
 
@@ -203,7 +209,7 @@ void Copy( const Graph& A, DistGraph& B )
 
 void Copy( const DistGraph& A, Graph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [DistGraph/Graph]"))
+    DEBUG_ONLY(CSE cse("Copy (DG to G)"))
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
     mpi::Comm comm = A.Comm();
@@ -221,7 +227,7 @@ void Copy( const DistGraph& A, Graph& B )
 
 void Copy( const DistGraph& A, DistGraph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [DistGraph]"))
+    DEBUG_ONLY(CSE cse("Copy (DG to DG)"))
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
     
@@ -239,7 +245,7 @@ template<typename T>
 void CopyFromRoot
 ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromRoot (M<T> to DM<T,CIRC,CIRC>)"))
     if( B.CrossRank() != B.Root() )
         LogicError("Called CopyFromRoot from non-root");
     B.Resize( A.Height(), A.Width() );
@@ -250,7 +256,7 @@ void CopyFromRoot
 template<typename T>
 void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
 {
-    DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot (DM<T,CIRC,CIRC>)"))
     if( B.CrossRank() == B.Root() )
         LogicError("Called CopyFromNonRoot from root");
     B.MakeSizeConsistent( includingViewers );
@@ -261,7 +267,7 @@ void CopyFromRoot
 ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK>& B,
   bool includingViewers )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromRoot (M<T> to DM<T,CIRC,CIRC,BLOCK>)"))
     if( B.CrossRank() != B.Root() )
         LogicError("Called CopyFromRoot from non-root");
     B.Resize( A.Height(), A.Width() );
@@ -273,7 +279,7 @@ template<typename T>
 void CopyFromNonRoot
 ( DistMatrix<T,CIRC,CIRC,BLOCK>& B, bool includingViewers )
 {
-    DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot (DM<T,CIRC,CIRC,BLOCK>)"))
     if( B.CrossRank() == B.Root() )
         LogicError("Called CopyFromNonRoot from root");
     B.MakeSizeConsistent( includingViewers );
@@ -281,7 +287,7 @@ void CopyFromNonRoot
 
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromRoot (DG to G)"))
     const mpi::Comm comm = distGraph.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
@@ -309,7 +315,7 @@ void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
 
 void CopyFromNonRoot( const DistGraph& distGraph, int root )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot (DG)"))
     const mpi::Comm comm = distGraph.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
@@ -333,21 +339,21 @@ void CopyFromNonRoot( const DistGraph& distGraph, int root )
 template<typename T>
 void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [SparseMatrix]"))
+    DEBUG_ONLY(CSE cse("Copy (SM<T> to SM<T>)"))
     B = A;
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (SM<S> to SM<T>)"))
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (SM<S> to M<T>)"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
@@ -366,21 +372,21 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
 template<typename T>
 void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [DistSparseMatrix]"))
+    DEBUG_ONLY(CSE cse("Copy (DSM<T> to DSM<T>)"))
     B = A;
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (DSM<S> to DSM<T>)"))
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_ONLY(CSE cse("Copy (DSM<S> to ADM<T>)"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumLocalEntries();
@@ -394,7 +400,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 template<typename T>
 void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromRoot (DSM<T> to SM<T>)"))
     const mpi::Comm comm = ADist.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
@@ -428,7 +434,7 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
 template<typename T>
 void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot (DSM<T>)"))
     const mpi::Comm comm = ADist.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
@@ -455,23 +461,23 @@ void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root )
 template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [DistMultiVec]"))
+    DEBUG_ONLY(CSE cse("Copy (DMV<T> to DMV<T>)"))
     B.SetComm( A.Comm() );
     B.Resize( A.Height(), A.Width() );
     B.Matrix() = A.LockedMatrix();
 }
 
-template<typename S,typename T>
+template<typename S,typename T,typename>
 void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [DistMultiVec]"))
+    DEBUG_ONLY(CSE cse("Copy (DMV<S> to DMV<T>)"))
     EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
 }
 
 template<typename T>
 void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [DistMultiVec -> ADM]"))
+    DEBUG_ONLY(CSE cse("Copy (DMV<T> to ADM<T>)"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -489,7 +495,7 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Copy [ADM -> DistMultiVec]"))
+    DEBUG_ONLY(CSE cse("Copy (ADM<T> to DMV<T>)"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -513,7 +519,7 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
 template<typename T>
 void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromRoot (DMV<T> to M<T>)"))
     const Int m = XDist.Height();
     const Int n = XDist.Width();
     X.Resize( m, n, Max(m,1) );
@@ -565,7 +571,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 template<typename T>
 void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 {
-    DEBUG_ONLY(CSE cse("CopyFromNonRoot"))
+    DEBUG_ONLY(CSE cse("CopyFromNonRoot (DMV<T>)"))
     const Int m = XDist.Height();
     const Int n = XDist.Width();
     if( Min(m,n) == 0 )

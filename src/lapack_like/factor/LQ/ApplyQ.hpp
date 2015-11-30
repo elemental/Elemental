@@ -15,9 +15,12 @@ namespace lq {
 
 template<typename F>
 void ApplyQ
-( LeftOrRight side, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, 
-  const Matrix<Base<F>>& d, Matrix<F>& B )
+( LeftOrRight side,
+  Orientation orientation, 
+  const Matrix<F>& A,
+  const Matrix<F>& t, 
+  const Matrix<Base<F>>& d,
+        Matrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("lq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -65,9 +68,12 @@ void ApplyQ
 
 template<typename F>
 void ApplyQ
-( LeftOrRight side, Orientation orientation, 
-  const ElementalMatrix<F>& APre, const ElementalMatrix<F>& tPre, 
-  const ElementalMatrix<Base<F>>& d, ElementalMatrix<F>& BPre )
+( LeftOrRight side,
+  Orientation orientation, 
+  const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& tPre, 
+  const ElementalMatrix<Base<F>>& d,
+        ElementalMatrix<F>& BPre )
 {
     DEBUG_ONLY(CSE cse("lq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -78,16 +84,19 @@ void ApplyQ
     const ForwardOrBackward direction = ( normal==onLeft ? FORWARD : BACKWARD );
     const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.Get();
 
     ElementalProxyCtrl tCtrl;
     tCtrl.rootConstrain = true;
     tCtrl.colConstrain = true;
     tCtrl.root = A.DiagonalRoot();
     tCtrl.colAlign = A.DiagonalAlign();
-    auto tPtr = ReadProxy<F,MD,STAR>( &tPre, tCtrl );
-    auto& t = *tPtr;
+
+    DistMatrixReadProxy<F,F,MD,STAR> tProx( tPre, tCtrl );
+    auto& t = tProx.GetLocked();
 
     const Int m = B.Height();
     const Int n = B.Width();

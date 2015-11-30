@@ -21,14 +21,14 @@ void Trsv
   const Matrix<F>& A, Matrix<F>& x )
 {
     DEBUG_ONLY(
-        CSE cse("Trsv");
-        if( x.Height() != 1 && x.Width() != 1 )
-            LogicError("x must be a vector");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        if( xLength != A.Height() )
-            LogicError("x must conform with A");
+      CSE cse("Trsv");
+      if( x.Height() != 1 && x.Width() != 1 )
+          LogicError("x must be a vector");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      if( xLength != A.Height() )
+          LogicError("x must conform with A");
     )
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
@@ -43,7 +43,7 @@ void Trsv
 template<typename F>
 void Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& x )
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(CSE cse("Trsv"))
     if( uplo == LOWER )
@@ -68,7 +68,7 @@ void Trsv
     const Matrix<F>& A, Matrix<F>& x ); \
   template void Trsv \
   ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
-    const ElementalMatrix<F>& A, ElementalMatrix<F>& x );
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

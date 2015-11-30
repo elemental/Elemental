@@ -14,27 +14,30 @@ template<typename F>
 inline void
 UN
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& xPre )
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
-        CSE cse("trsv::UN");
-        AssertSameGrids( UPre, xPre );
-        if( UPre.Height() != UPre.Width() )
-            LogicError("U must be square");
-        if( xPre.Width() != 1 && xPre.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength =
-            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
-        if( UPre.Width() != xLength )
-            LogicError("Nonconformal");
+      CSE cse("trsv::UN");
+      AssertSameGrids( UPre, xPre );
+      if( UPre.Height() != UPre.Width() )
+          LogicError("U must be square");
+      if( xPre.Width() != 1 && xPre.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength =
+          ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+      if( UPre.Width() != xLength )
+          LogicError("Nonconformal");
     )
     const Int m = UPre.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> xProx( xPre );
+    auto& U = UProx.GetLocked();
+    auto& x = xProx.Get();
 
     // Matrix views
     DistMatrix<F> U01(g), U11(g), x1(g);

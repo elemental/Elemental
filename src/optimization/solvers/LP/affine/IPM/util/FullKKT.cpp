@@ -94,7 +94,8 @@ void KKT
     const Int n = A.Width();
     const Int k = G.Height();
 
-    auto JPtr = WriteProxy<Real,MC,MR>(&JPre);    auto& J = *JPtr;
+    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
+    auto& J = JProx.Get();
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);

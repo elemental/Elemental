@@ -13,8 +13,11 @@ namespace syr2k {
 template<typename T>
 inline void
 UN
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre,
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("syr2k::UN");
@@ -32,9 +35,14 @@ UN
     const Grid& g = CPre.Grid();
     const T alphaSec = ( conjugate ? Conj(alpha) : alpha );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR>
+      AProx( APre ),
+      BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR>
+      CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g), B1_MC_STAR(g);

@@ -113,9 +113,9 @@ inline void
 ReverseUVar3( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::ReverseUVar3");
-        if( A.Height() != A.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::ReverseUVar3");
+      if( A.Height() != A.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -139,16 +139,17 @@ ReverseUVar3( Matrix<F>& A )
 
 template<typename F> 
 inline void
-UVar3( ElementalMatrix<F>& APre )
+UVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::UVar3");
-        if( APre.Height() != APre.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::UVar3");
+      if( APre.Height() != APre.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); 
-    auto& A = *APtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
@@ -189,16 +190,17 @@ UVar3( ElementalMatrix<F>& APre )
 
 template<typename F> 
 inline void
-ReverseUVar3( ElementalMatrix<F>& APre )
+ReverseUVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::ReverseUVar3");
-        if( APre.Height() != APre.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::ReverseUVar3");
+      if( APre.Height() != APre.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A01_VC_STAR(g);

@@ -63,16 +63,19 @@ void PushPairInto
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto sPtr = ReadWriteProxy<Real,VC,STAR>(&sPre,ctrl); 
-    auto zPtr = ReadWriteProxy<Real,VC,STAR>(&zPre,ctrl); 
-    auto wPtr = ReadProxy<Real,VC,STAR>(&wPre,ctrl);
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& s = *sPtr;
-    auto& z = *zPtr;
-    auto& w = *wPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadWriteProxy<Real,Real,VC,STAR>
+      sProx( sPre, ctrl ),
+      zProx( zPre, ctrl );
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      wProx( wPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& s = sProx.Get();
+    auto& z = zProx.Get();
+    auto& w = wProx.GetLocked();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     DistMatrix<Real,VC,STAR> sLower(s.Grid()), zLower(z.Grid());
     soc::LowerNorms( s, sLower, orders, firstInds, cutoff );

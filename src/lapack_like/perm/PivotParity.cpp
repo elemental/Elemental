@@ -17,11 +17,11 @@ namespace El {
 bool PivotParity( const Matrix<Int>& p, Int pivotOffset )
 {
     DEBUG_ONLY(
-        CSE cse("PivotParity");
-        if( p.Width() != 1 )
-            LogicError("p must be a column vector");
-        if( pivotOffset < 0 )
-            LogicError("pivot offset cannot be negative");
+      CSE cse("PivotParity");
+      if( p.Width() != 1 )
+          LogicError("p must be a column vector");
+      if( pivotOffset < 0 )
+          LogicError("pivot offset cannot be negative");
     )
     const Int n = p.Height();
     bool isOdd = false;
@@ -31,18 +31,18 @@ bool PivotParity( const Matrix<Int>& p, Int pivotOffset )
     return isOdd;
 }
 
-bool PivotParity( const ElementalMatrix<Int>& pPre, Int pivotOffset ) 
+bool PivotParity( const AbstractDistMatrix<Int>& pPre, Int pivotOffset ) 
 {
     DEBUG_ONLY(
-        CSE cse("PivotParity");
-        if( pPre.Width() != 1 )
-            LogicError("p must be a column vector");
-        if( pivotOffset < 0 )
-            LogicError("pivot offset cannot be negative");
+      CSE cse("PivotParity");
+      if( pPre.Width() != 1 )
+          LogicError("p must be a column vector");
+      if( pivotOffset < 0 )
+          LogicError("pivot offset cannot be negative");
     )
 
-    auto pPtr = ReadProxy<Int,VC,STAR>( &pPre );
-    auto& p = *pPtr;
+    DistMatrixReadProxy<Int,Int,VC,STAR> pProx( pPre );
+    auto& p = pProx.GetLocked();
 
     bool isLocallyOdd = false;
     const Int mLocal = p.LocalHeight();

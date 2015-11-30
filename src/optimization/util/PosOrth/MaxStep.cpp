@@ -43,16 +43,17 @@ Real MaxStep
 
     // TODO: Decide if more general intermediate distributions should be
     //       supported.
-    auto sPtr = ReadProxy<Real,MC,MR>(&sPre);
-    auto& s = *sPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> sProx( sPre );
+    auto& s = sProx.GetLocked();
 
     ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = s.ColAlign();
     control.rowAlign = s.RowAlign();
-    auto dsPtr = ReadProxy<Real,MC,MR>(&dsPre,control);
-    auto& ds = *dsPtr;
+
+    DistMatrixReadProxy<Real,Real,MC,MR> dsProx( dsPre, control );
+    auto& ds = dsProx.GetLocked();
 
     const Real* sBuf = s.LockedBuffer();
     const Real* dsBuf = ds.LockedBuffer();

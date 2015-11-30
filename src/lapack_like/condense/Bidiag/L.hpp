@@ -184,9 +184,14 @@ L
   ElementalMatrix<F>& tQPre )
 {
     DEBUG_ONLY(CSE cse("bidiag::L"))
-    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
-    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
-    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR>
+      AProx( APre );
+    DistMatrixWriteProxy<F,F,STAR,STAR>
+      tPProx( tPPre ),
+      tQProx( tQPre );
+    auto& A = AProx.Get();
+    auto& tP = tPProx.Get();
+    auto& tQ = tQProx.Get();
     L( A, tP, tQ );
 }
 

@@ -22,9 +22,9 @@ inline void
 LVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LVar2");
-        if( A.Height() != A.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::LVar2");
+      if( A.Height() != A.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
@@ -50,16 +50,16 @@ LVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-LVar2( ElementalMatrix<F>& APre )
+LVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("cholesky::LVar2");
-        if( APre.Height() != APre.Width() )
-            LogicError("Can only compute Cholesky factor of square matrices");
+      CSE cse("cholesky::LVar2");
+      if( APre.Height() != APre.Width() )
+          LogicError("Can only compute Cholesky factor of square matrices");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,MR,  STAR> A10Adj_MR_STAR(g);

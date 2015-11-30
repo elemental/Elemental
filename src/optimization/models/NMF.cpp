@@ -16,7 +16,8 @@ namespace El {
 template<typename Real>
 void NMF
 ( const Matrix<Real>& A, 
-        Matrix<Real>& X, Matrix<Real>& Y,
+        Matrix<Real>& X,
+        Matrix<Real>& Y,
   const NMFCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("NMF"))
@@ -42,9 +43,15 @@ void NMF
 {
     DEBUG_ONLY(CSE cse("NMF"))
 
-    auto APtr = ReadProxy<Real,MC,MR>( &APre );      auto& A = *APtr;
-    auto XPtr = ReadWriteProxy<Real,MC,MR>( &XPre ); auto& X = *XPtr;
-    auto YPtr = WriteProxy<Real,MC,MR>( &YPre );     auto& Y = *YPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR>
+      AProx( APre );
+    DistMatrixReadWriteProxy<Real,Real,MC,MR>
+      XProx( XPre );
+    DistMatrixWriteProxy<Real,Real,MC,MR>
+      YProx( YPre );
+    auto& A = AProx.GetLocked();
+    auto& X = XProx.Get();
+    auto& Y = YProx.Get();
 
     DistMatrix<Real> AAdj(A.Grid()), XAdj(A.Grid()), YAdj(A.Grid());
     Adjoint( A, AAdj );

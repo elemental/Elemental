@@ -169,7 +169,8 @@ template<typename F>
 inline void
 UT
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre, ElementalMatrix<F>& xPre,
+  const ElementalMatrix<F>& UPre,
+        ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
@@ -193,8 +194,10 @@ UT
     if( conjugate )
         Conjugate( xPre );
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> xProx( xPre );
+    auto& U = UProx.GetLocked();
+    auto& x = xProx.Get();
 
     // Matrix views 
     DistMatrix<F> U11(g), U12(g), x1(g);

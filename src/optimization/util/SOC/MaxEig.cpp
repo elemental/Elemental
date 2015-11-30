@@ -46,12 +46,15 @@ void MaxEig
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr         = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto maxEigsPtr   = WriteProxy<Real,VC,STAR>(&maxEigsPre,ctrl);
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& maxEigs = *maxEigsPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      xProx( xPre, ctrl );
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      maxEigsProx( maxEigsPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& maxEigs = maxEigsProx.Get();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
@@ -137,8 +140,8 @@ Real MaxEig
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Int,Int,VC,STAR> firstIndsProx( firstIndsPre, ctrl );
+    auto& firstInds = firstIndsProx.GetLocked();
 
     DistMatrix<Real,VC,STAR> maxEigs(x.Grid());
     soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );

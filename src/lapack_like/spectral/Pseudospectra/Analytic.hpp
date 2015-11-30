@@ -66,14 +66,15 @@ Analytic
     using namespace pspec;
     typedef Complex<Real> C;
 
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    auto& shifts = shiftsProx.GetLocked();
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = shifts.ColAlign();
-    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre, ctrl );
-    auto& invNorms = *invNormsPtr;
+
+    DistMatrixWriteProxy<Real,Real,VR,STAR> invNormsProx( invNormsPre, ctrl );
+    auto& invNorms = invNormsProx.Get();
 
     const Int n = w.Height();
     const Int numShifts = shifts.Height();

@@ -17,11 +17,11 @@ template<typename F>
 void SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::SolveAfter");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CSE cse("ldl::SolveAfter");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const bool checkIfSingular = false;
@@ -33,21 +33,24 @@ void SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 
 template<typename F> 
 void SolveAfter
-( const ElementalMatrix<F>& APre, ElementalMatrix<F>& B, bool conjugated )
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<F>& B,
+  bool conjugated )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::SolveAfter");
-        AssertSameGrids( APre, B );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( APre.Height() != B.Height() )
-            LogicError("A and B must be the same height");
+      CSE cse("ldl::SolveAfter");
+      AssertSameGrids( APre, B );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( APre.Height() != B.Height() )
+          LogicError("A and B must be the same height");
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const bool checkIfSingular = false;
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+
     const auto d = GetDiagonal(A);
 
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
@@ -57,18 +60,21 @@ void SolveAfter
 
 template<typename F> 
 void SolveAfter
-( const Matrix<F>& A, const Matrix<F>& dSub, 
-  const Matrix<Int>& p, Matrix<F>& B, bool conjugated )
+( const Matrix<F>& A,
+  const Matrix<F>& dSub, 
+  const Matrix<Int>& p,
+        Matrix<F>& B,
+  bool conjugated )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::SolveAfter");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
-        if( p.Height() != A.Height() )
-            LogicError("A and p must be the same height");
-        // TODO: Check for dSub
+      CSE cse("ldl::SolveAfter");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( A.Height() != B.Height() )
+          LogicError("A and B must be the same height");
+      if( p.Height() != A.Height() )
+          LogicError("A and p must be the same height");
+      // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = GetDiagonal(A);
@@ -85,28 +91,29 @@ void SolveAfter
 
 template<typename F> 
 void SolveAfter
-( const ElementalMatrix<F>& APre, const ElementalMatrix<F>& dSub, 
-  const ElementalMatrix<Int>& p, ElementalMatrix<F>& BPre, 
+( const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& dSub, 
+  const ElementalMatrix<Int>& p,
+        ElementalMatrix<F>& BPre, 
   bool conjugated )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::SolveAfter");
-        AssertSameGrids( APre, BPre, p );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( APre.Height() != BPre.Height() )
-            LogicError("A and B must be the same height");
-        if( APre.Height() != p.Height() )
-            LogicError("A and p must be the same height");
-        // TODO: Check for dSub
+      CSE cse("ldl::SolveAfter");
+      AssertSameGrids( APre, BPre, p );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( APre.Height() != BPre.Height() )
+          LogicError("A and B must be the same height");
+      if( APre.Height() != p.Height() )
+          LogicError("A and p must be the same height");
+      // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
-
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre );
-    auto& B = *BPtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.Get();
 
     const auto d = GetDiagonal(A);
 

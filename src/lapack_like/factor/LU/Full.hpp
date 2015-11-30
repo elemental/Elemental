@@ -71,8 +71,8 @@ Full
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     rowPiv.Resize( minDim, 1 );
     colPiv.Resize( minDim, 1 );

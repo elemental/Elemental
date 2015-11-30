@@ -15,10 +15,12 @@ namespace trrk {
 // Distributed C := alpha A^{T/H} B + C
 template<typename T>
 void TrrkTN
-( UpperOrLower uplo, Orientation orientationOfA,
-  T alpha, const ElementalMatrix<T>& APre,
-           const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("trrk::TrrkTN");
@@ -32,9 +34,11 @@ void TrrkTN
     const Int bsize = Blocksize();
     const Grid& g = CPre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);

@@ -91,8 +91,10 @@ void LocalAccumulateLL
 template<typename T>
 inline void
 LLA
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre,
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -105,9 +107,11 @@ LLA
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> B1_MC_STAR(g);
@@ -150,8 +154,10 @@ LLA
 template<typename T>
 inline void
 LLC
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre, 
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre, 
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -163,9 +169,11 @@ LLC
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> AB1_MC_STAR(g);
@@ -211,8 +219,10 @@ LLC
 
 template<typename T>
 inline void LL
-( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C,
+( T alpha,
+  const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B,
+        ElementalMatrix<T>& C,
   bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::LL"))

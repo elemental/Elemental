@@ -30,10 +30,8 @@ void Identity
     Zeros( x, height, 1 );
     Real* xBuf = x.Buffer();
     for( Int i=0; i<height; ++i )
-    {
         if( i == firstIndBuf[i] )
             xBuf[i] = 1;
-    }
 }
 
 template<typename Real,typename>
@@ -49,12 +47,14 @@ void Identity
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = WriteProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      xProx( xPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.Get();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = orders.Height();
     DEBUG_ONLY(

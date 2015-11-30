@@ -100,7 +100,8 @@ LUTUnb
 ( bool conjugate, 
   const Matrix<Real>& U, 
   const Matrix<Complex<Real>>& shifts, 
-        Matrix<Real>& XReal, Matrix<Real>& XImag )
+        Matrix<Real>& XReal,
+        Matrix<Real>& XImag )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LUTUnb"))
     typedef Complex<Real> C;
@@ -294,7 +295,8 @@ template<typename F>
 inline void
 LUTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre,
+  const ElementalMatrix<F>& UPre,
+  const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(
@@ -306,11 +308,12 @@ LUTLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -372,15 +375,15 @@ LUTLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
-    auto XRealPtr = ReadWriteProxy<Real,MC,MR>( &XRealPre ); 
-    auto& XReal = *XRealPtr;
-    auto XImagPtr = ReadWriteProxy<Real,MC,MR>( &XImagPre ); 
-    auto& XImag = *XImagPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<Real,Real,MC,MR>
+      XRealProx( XRealPre ),
+      XImagProx( XImagPre );
+    auto& U = UProx.GetLocked();
+    auto& XReal = XRealProx.Get();
+    auto& XImag = XImagProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<Real,STAR,MC  > U12_STAR_MC(g);
@@ -441,7 +444,8 @@ template<typename F>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre, const ElementalMatrix<F>& shiftsPre, 
+  const ElementalMatrix<F>& UPre,
+  const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
 {
     DEBUG_ONLY(
@@ -453,11 +457,12 @@ LUTMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
-
-    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -525,15 +530,15 @@ LUTMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
-    auto XRealPtr = ReadWriteProxy<Real,MC,MR>( &XRealPre ); 
-    auto& XReal = *XRealPtr;
-    auto XImagPtr = ReadWriteProxy<Real,MC,MR>( &XImagPre ); 
-    auto& XImag = *XImagPtr;
-
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<Real,Real,MC,MR>
+      XRealProx( XRealPre ),
+      XImagProx( XImagPre );
+    auto& U = UProx.GetLocked();
+    auto& XReal = XRealProx.Get();
+    auto& XImag = XImagProx.Get();
+    auto& shifts = shiftsProx.GetLocked();
 
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<Real,STAR,MC  > U12_STAR_MC(g);

@@ -14,9 +14,12 @@ namespace symm_solve {
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
-  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  Matrix<F>& A,
+  Matrix<F>& B, 
+  bool conjugate,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
     if( uplo == UPPER )
@@ -35,16 +38,21 @@ void Overwrite
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre, 
-  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& BPre, 
+  bool conjugate,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadWriteProxy<F,MC,MR>( &BPre ); auto& B = *BPtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
 
     DistMatrix<Int,VC,STAR> p(A.Grid()); 
     DistMatrix<F,MD,STAR> dSub(A.Grid());
@@ -62,9 +70,12 @@ void Overwrite
 
 template<typename F>
 void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B, 
-  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  const Matrix<F>& A,
+        Matrix<F>& B, 
+  bool conjugate,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricSolve"))
     Matrix<F> ACopy( A );
@@ -73,9 +84,12 @@ void SymmetricSolve
 
 template<typename F>
 void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
-  bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+( UpperOrLower uplo,
+  Orientation orientation, 
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& B, 
+  bool conjugate,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricSolve"))
     DistMatrix<F> ACopy( A );
@@ -85,8 +99,11 @@ void SymmetricSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void SymmetricSolve
-( const SparseMatrix<F>& A, Matrix<F>& B,
-  bool conjugate, bool tryLDL, const BisectCtrl& ctrl )
+( const SparseMatrix<F>& A,
+        Matrix<F>& B,
+  bool conjugate,
+  bool tryLDL,
+  const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricSolve"))
 
@@ -118,8 +135,11 @@ void SymmetricSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void SymmetricSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
-  bool conjugate, bool tryLDL, const BisectCtrl& ctrl )
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& B,
+  bool conjugate,
+  bool tryLDL,
+  const BisectCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("SymmetricSolve"))
     if( tryLDL )

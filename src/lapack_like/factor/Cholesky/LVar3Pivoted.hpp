@@ -64,7 +64,8 @@ template<typename F>
 inline LDLPivot
 PanelFull
 ( const DistMatrix<F>& A, 
-  const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y )
+  const DistMatrix<F,MC,STAR>& X,
+  const DistMatrix<F,MR,STAR>& Y )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::pivot::PanelFull");
@@ -148,7 +149,8 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 template<typename F>
 inline void
 LUnblockedPivoted
-( ElementalMatrix<F>& APre, ElementalMatrix<Int>& p )
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LUnblockedPivoted");
@@ -157,8 +159,8 @@ LUnblockedPivoted
       AssertSameGrids( APre, p );
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Initialize the permutation to the identity
     const Int n = A.Height();
@@ -202,8 +204,12 @@ LUnblockedPivoted
 template<typename F>
 inline void
 LPanelPivoted
-( Matrix<F>& AFull, Matrix<Int>& p, 
-  Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off )
+( Matrix<F>& AFull,
+  Matrix<Int>& p, 
+  Matrix<F>& X,
+  Matrix<F>& Y,
+  Int bsize,
+  Int off )
 {
     DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
@@ -265,8 +271,12 @@ LPanelPivoted
 template<typename F>
 inline void
 LPanelPivoted
-( DistMatrix<F>& AFull, ElementalMatrix<Int>& p, 
-  DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
+( DistMatrix<F>& AFull,
+  AbstractDistMatrix<Int>& p, 
+  DistMatrix<F,MC,STAR>& X,
+  DistMatrix<F,MR,STAR>& Y,
+  Int bsize,
+  Int off )
 {
     DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
     auto A = AFull( IR(off,END), IR(off,END) );
@@ -367,7 +377,9 @@ LVar3( Matrix<F>& A, Matrix<Int>& p )
 
 template<typename F>
 inline void
-LVar3( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
+LVar3
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LVar3");
@@ -376,8 +388,10 @@ LVar3( ElementalMatrix<F>& APre, ElementalMatrix<Int>& pPre )
           LogicError("A must be square");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto pPtr = WriteProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Int,Int,VC,STAR> pProx( pPre );
+    auto& A = AProx.Get();
+    auto& p = pProx.Get();
 
     // Initialize the permutation to the identity
     const Int n = A.Height();

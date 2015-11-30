@@ -91,8 +91,10 @@ void LocalAccumulateLU
 template<typename T>
 inline void
 LUA
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre,
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -105,9 +107,11 @@ LUA
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     DistMatrix<T,MC,STAR> B1_MC_STAR(g);
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -149,8 +153,10 @@ LUA
 template<typename T>
 inline void
 LUC
-( T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre,
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_ONLY(
@@ -162,9 +168,11 @@ LUC
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> AT1_MC_STAR(g);
@@ -211,8 +219,11 @@ LUC
 template<typename T>
 inline void
 LU
-( T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C, bool conjugate=false )
+( T alpha,
+  const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B,
+        ElementalMatrix<T>& C,
+  bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("symm::LU"))
     // TODO: Come up with a better routing mechanism

@@ -25,7 +25,10 @@ namespace El {
 
 template<typename F>
 void GeomEquil
-( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, bool progress )
+( Matrix<F>& A,
+  Matrix<Base<F>>& dRow,
+  Matrix<Base<F>>& dCol,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("GeomEquil"))
     typedef Base<F> Real;
@@ -114,9 +117,12 @@ void GeomEquil
 
 template<typename F>
 void StackedGeomEquil
-( Matrix<F>& A, Matrix<F>& B, 
-  Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, 
-  Matrix<Base<F>>& dCol, bool progress )
+( Matrix<F>& A,
+  Matrix<F>& B, 
+  Matrix<Base<F>>& dRowA,
+  Matrix<Base<F>>& dRowB, 
+  Matrix<Base<F>>& dCol,
+  bool progress )
 {
     DEBUG_ONLY(CSE cse("StackedGeomEquil"))
     typedef Base<F> Real;
@@ -236,7 +242,8 @@ void StackedGeomEquil
 template<typename F>
 void GeomEquil
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<Base<F>>& dRowPre, ElementalMatrix<Base<F>>& dColPre,
+  ElementalMatrix<Base<F>>& dRowPre,
+  ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("GeomEquil"))
@@ -247,12 +254,13 @@ void GeomEquil
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    auto APtr    = ReadWriteProxy<F,MC,MR>(&APre,control);
-    auto dRowPtr = WriteProxy<Real,MC,STAR>(&dRowPre,control); 
-    auto dColPtr = WriteProxy<Real,MR,STAR>(&dColPre,control);
-    auto& A = *APtr;
-    auto& dRow = *dRowPtr;
-    auto& dCol = *dColPtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre, control );
+    DistMatrixWriteProxy<Real,Real,MC,STAR> dRowProx( dRowPre, control );
+    DistMatrixWriteProxy<Real,Real,MR,STAR> dColProx( dColPre, control );
+    auto& A = AProx.Get();
+    auto& dRow = dRowProx.Get();
+    auto& dCol = dColProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -343,16 +351,17 @@ void StackedGeomEquil
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    auto APtr     = ReadWriteProxy<F,MC,MR>(&APre,control);
-    auto BPtr     = ReadWriteProxy<F,MC,MR>(&BPre,control);
-    auto dRowAPtr = WriteProxy<Real,MC,STAR>(&dRowAPre,control); 
-    auto dRowBPtr = WriteProxy<Real,MC,STAR>(&dRowBPre,control); 
-    auto dColPtr  = WriteProxy<Real,MR,STAR>(&dColPre,control);
-    auto& A = *APtr;
-    auto& B = *BPtr;
-    auto& dRowA = *dRowAPtr;
-    auto& dRowB = *dRowBPtr;
-    auto& dCol  = *dColPtr;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre, control );
+    DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre, control );
+    DistMatrixWriteProxy<Real,Real,MC,STAR> dRowAProx( dRowAPre, control );
+    DistMatrixWriteProxy<Real,Real,MC,STAR> dRowBProx( dRowBPre, control );
+    DistMatrixWriteProxy<Real,Real,MR,STAR> dColProx( dColPre, control );
+    auto& A = AProx.Get();
+    auto& B = BProx.Get();
+    auto& dRowA = dRowAProx.Get();
+    auto& dRowB = dRowBProx.Get();
+    auto& dCol = dColProx.Get();
 
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -456,7 +465,9 @@ void StackedGeomEquil
 
 template<typename F>
 void GeomEquil
-( SparseMatrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol,
+( SparseMatrix<F>& A,
+  Matrix<Base<F>>& dRow,
+  Matrix<Base<F>>& dCol,
   bool progress )
 {
     DEBUG_ONLY(CSE cse("GeomEquil"))
@@ -566,8 +577,10 @@ void GeomEquil
 
 template<typename F>
 void StackedGeomEquil
-( SparseMatrix<F>& A, SparseMatrix<F>& B,
-  Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB,
+( SparseMatrix<F>& A,
+  SparseMatrix<F>& B,
+  Matrix<Base<F>>& dRowA,
+  Matrix<Base<F>>& dRowB,
   Matrix<Base<F>>& dCol,
   bool progress )
 {
@@ -731,7 +744,8 @@ void StackedGeomEquil
 template<typename F>
 void GeomEquil
 ( DistSparseMatrix<F>& A, 
-  DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol, 
+  DistMultiVec<Base<F>>& dRow,
+  DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
     DEBUG_ONLY(CSE cse("GeomEquil"))
@@ -848,7 +862,8 @@ void GeomEquil
 
 template<typename F>
 void StackedGeomEquil
-( DistSparseMatrix<F>& A, DistSparseMatrix<F>& B,
+( DistSparseMatrix<F>& A,
+  DistSparseMatrix<F>& B,
   DistMultiVec<Base<F>>& dRowA, 
   DistMultiVec<Base<F>>& dRowB, 
   DistMultiVec<Base<F>>& dCol, 
@@ -1028,36 +1043,53 @@ void StackedGeomEquil
 
 #define PROTO(F) \
   template void GeomEquil \
-  ( Matrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, \
+  ( Matrix<F>& A, \
+    Matrix<Base<F>>& dRow, \
+    Matrix<Base<F>>& dCol, \
     bool progress ); \
   template void GeomEquil \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& dRow, ElementalMatrix<Base<F>>& dCol, \
+    ElementalMatrix<Base<F>>& dRow, \
+    ElementalMatrix<Base<F>>& dCol, \
     bool progress ); \
   template void GeomEquil \
-  ( SparseMatrix<F>& A, Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol, \
+  ( SparseMatrix<F>& A, \
+    Matrix<Base<F>>& dRow, \
+    Matrix<Base<F>>& dCol, \
     bool progress ); \
   template void GeomEquil \
   ( DistSparseMatrix<F>& A, \
-    DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol, \
+    DistMultiVec<Base<F>>& dRow, \
+    DistMultiVec<Base<F>>& dCol, \
     bool progress ); \
   template void StackedGeomEquil \
-  ( Matrix<F>& A, Matrix<F>& B, \
-    Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, \
-    Matrix<Base<F>>& dCol, bool progress ); \
+  ( Matrix<F>& A, \
+    Matrix<F>& B, \
+    Matrix<Base<F>>& dRowA, \
+    Matrix<Base<F>>& dRowB, \
+    Matrix<Base<F>>& dCol, \
+    bool progress ); \
   template void StackedGeomEquil \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& B, \
     ElementalMatrix<Base<F>>& dRowA, \
     ElementalMatrix<Base<F>>& dRowB, \
-    ElementalMatrix<Base<F>>& dCol, bool progress ); \
+    ElementalMatrix<Base<F>>& dCol, \
+    bool progress ); \
   template void StackedGeomEquil \
-  ( SparseMatrix<F>& A, SparseMatrix<F>& B, \
-    Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, \
-    Matrix<Base<F>>& dCol, bool progress ); \
+  ( SparseMatrix<F>& A, \
+    SparseMatrix<F>& B, \
+    Matrix<Base<F>>& dRowA, \
+    Matrix<Base<F>>& dRowB, \
+    Matrix<Base<F>>& dCol, \
+    bool progress ); \
   template void StackedGeomEquil \
-  ( DistSparseMatrix<F>& A, DistSparseMatrix<F>& B, \
-    DistMultiVec<Base<F>>& dRowA, DistMultiVec<Base<F>>& dRowB, \
-    DistMultiVec<Base<F>>& dCol, bool progress );
+  ( DistSparseMatrix<F>& A, \
+    DistSparseMatrix<F>& B, \
+    DistMultiVec<Base<F>>& dRowA, \
+    DistMultiVec<Base<F>>& dRowB, \
+    DistMultiVec<Base<F>>& dCol, \
+    bool progress );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

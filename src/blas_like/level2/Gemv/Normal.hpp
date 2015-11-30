@@ -12,9 +12,11 @@ namespace gemv {
 
 template<typename T>
 inline void Normal
-( T alpha, const ElementalMatrix<T>& APre,
-           const ElementalMatrix<T>& x,
-  T beta,        ElementalMatrix<T>& yPre )
+( T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& x,
+  T beta,
+        ElementalMatrix<T>& yPre )
 {
     DEBUG_ONLY(
       CSE cse("gemv::Normal");
@@ -31,8 +33,10 @@ inline void Normal
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto yPtr = ReadWriteProxy<T,MC,MR>( &yPre ); auto& y = *yPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> yProx( yPre );
+    auto& A = AProx.GetLocked();
+    auto& y = yProx.Get();
 
     y *= beta;
     if( x.Width() == 1 && y.Width() == 1 )
@@ -98,9 +102,11 @@ inline void Normal
 
 template<typename T>
 inline void Normal
-( T alpha, const DistMatrix<T>& A,
-           const ElementalMatrix<T>& x,
-  T beta,        DistMatrix<T,VC,STAR>& y )
+( T alpha,
+  const DistMatrix<T>& A,
+  const ElementalMatrix<T>& x,
+  T beta,
+        DistMatrix<T,VC,STAR>& y )
 {
     DEBUG_ONLY(
       CSE cse("gemv::Normal");

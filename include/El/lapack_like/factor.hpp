@@ -20,14 +20,15 @@ namespace El {
 template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void Cholesky( UpperOrLower uplo, ElementalMatrix<F>& A );
+void Cholesky
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack=false );
 template<typename F>
 void Cholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void ReverseCholesky( UpperOrLower uplo, ElementalMatrix<F>& A );
+void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
@@ -35,7 +36,7 @@ template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p );
 template<typename F>
 void Cholesky
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<Int>& p );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p );
 
 template<typename F>
 void CholeskyMod
@@ -46,14 +47,14 @@ void CholeskyMod
 template<typename F>
 void CholeskyMod
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& T, 
+  AbstractDistMatrix<F>& T,
   Base<F> alpha,
-  ElementalMatrix<F>& V );
+  AbstractDistMatrix<F>& V );
 
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void HPSDCholesky( UpperOrLower uplo, ElementalMatrix<F>& A );
+void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 
 namespace cholesky {
 
@@ -67,8 +68,8 @@ template<typename F>
 void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
-  const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B );
 
 template<typename F>
 void SolveAfter
@@ -81,9 +82,9 @@ template<typename F>
 void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<Int>& p,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<Int>& p,
+        AbstractDistMatrix<F>& B );
 
 } // namespace cholesky
 

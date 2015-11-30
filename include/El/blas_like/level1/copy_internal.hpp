@@ -14,9 +14,9 @@ namespace El {
 
 namespace copy {
 
-template<typename T>
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void GeneralPurpose
-( const AbstractDistMatrix<T>& A,
+( const AbstractDistMatrix<S>& A,
         AbstractDistMatrix<T>& B );
 
 template<typename T>

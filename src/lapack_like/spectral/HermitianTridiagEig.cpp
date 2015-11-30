@@ -102,8 +102,9 @@ inline void Helper
     ElementalProxyCtrl wCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
-    auto& w = *wPtr;
+
+    DistMatrixWriteProxy<Real,Real,VR,STAR> wProx( wPre, wCtrl );
+    auto& w = wProx.Get();
 
     // Force the computation to take place with double-precision since PMRRR
     // currently only supports this case
@@ -147,8 +148,9 @@ inline void Helper
     ElementalProxyCtrl wCtrl;
     wCtrl.colConstrain = true;
     wCtrl.colAlign = 0;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
-    auto& w = *wPtr;
+
+    DistMatrixWriteProxy<Real,Real,VR,STAR> wProx( wPre, wCtrl );
+    auto& w = wProx.Get();
 
     // Force the computation to take place with double-precision since PMRRR
     // currently only supports this case
@@ -334,10 +336,11 @@ inline void Helper
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;
     ZCtrl.rowAlign = 0;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl );   
-    auto& w = *wPtr;
-    auto ZPtr = WriteProxy<double,STAR,VR>( &ZPre, ZCtrl ); 
-    auto& Z = *ZPtr;
+
+    DistMatrixWriteProxy<Real,Real,VR,STAR> wProx( wPre, wCtrl );
+    DistMatrixWriteProxy<Real,double,STAR,VR> ZProx( ZPre, ZCtrl );
+    auto& w = wProx.Get();
+    auto& Z = ZProx.Get();
 
     DistMatrix<double,STAR,STAR> d_STAR_STAR(g), dSub_STAR_STAR(g);
     Copy( d, d_STAR_STAR );
@@ -430,8 +433,11 @@ inline void Helper
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;
     ZCtrl.rowAlign = 0;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); auto& w = *wPtr;
-    auto ZPtr = WriteProxy<C,STAR,VR>( &ZPre, ZCtrl );    auto& Z = *ZPtr;
+
+    DistMatrixWriteProxy<Real,Real,VR,STAR> wProx( wPre, wCtrl );
+    DistMatrixWriteProxy<C,C,STAR,VR> ZProx( ZPre, ZCtrl );
+    auto& w = wProx.Get();
+    auto& Z = ZProx.Get();
 
     Int k;
     if( subset.rangeSubset )
@@ -541,10 +547,11 @@ void HermitianTridiagEigPostEstimate
     wCtrl.colAlign = 0;
     ZCtrl.rowConstrain = true;
     ZCtrl.rowAlign = 0;
-    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre, wCtrl ); 
-    auto& w = *wPtr;
-    auto ZPtr = WriteProxy<double,STAR,VR>( &ZPre, ZCtrl ); 
-    auto& Z = *ZPtr;
+
+    DistMatrixWriteProxy<Real,Real,VR,STAR> wProx( wPre, wCtrl );
+    DistMatrixWriteProxy<Real,double,STAR,VR> ZProx( ZPre, ZCtrl );
+    auto& w = wProx.Get();
+    auto& Z = ZProx.Get();
 
     const Int n = d.Height();
     DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() ),

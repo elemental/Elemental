@@ -62,8 +62,8 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
     const Real pi = 4*Atan( Real(1) );
     const C phi = Sqrt( C(0,omega/pi) ); 
 
-    auto APtr = WriteProxy<C,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
     
     // Compute Gauss quadrature points and weights
     const Grid& g = A.Grid();

@@ -15,8 +15,10 @@ template<typename T>
 inline void
 SUMMA_NTA
 ( Orientation orientB,
-  T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+  T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTA");
@@ -35,9 +37,12 @@ SUMMA_NTA
     const Grid& g = APre.Grid();
     const bool conjugate = ( orientB == ADJOINT );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);
@@ -66,8 +71,10 @@ template<typename T>
 inline void
 SUMMA_NTB
 ( Orientation orientB,
-  T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+  T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTB");
@@ -86,9 +93,12 @@ SUMMA_NTB
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MR,STAR> A1Trans_MR_STAR(g);
@@ -120,8 +130,10 @@ template<typename T>
 inline void
 SUMMA_NTC
 ( Orientation orientB,
-  T alpha, const ElementalMatrix<T>& APre, const ElementalMatrix<T>& BPre,
-                 ElementalMatrix<T>& CPre )
+  T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& BPre,
+        ElementalMatrix<T>& CPre )
 {
     DEBUG_ONLY(
       CSE cse("gemm::SUMMA_NTC");
@@ -141,9 +153,12 @@ SUMMA_NTC
     const Grid& g = APre.Grid();
     const bool conjugate = ( orientB == ADJOINT );
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto BPtr = ReadProxy<T,MC,MR>( &BPre );      auto& B = *BPtr;
-    auto CPtr = ReadWriteProxy<T,MC,MR>( &CPre ); auto& C = *CPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& C = CProx.Get();
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -174,8 +189,11 @@ template<typename T>
 inline void
 SUMMA_NT
 ( Orientation orientB,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+  T alpha,
+  const ElementalMatrix<T>& A,
+  const ElementalMatrix<T>& B,
+        ElementalMatrix<T>& C,
+  GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CSE cse("gemm::SUMMA_NT"))
     const Int m = C.Height();

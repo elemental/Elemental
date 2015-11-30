@@ -418,22 +418,30 @@ void Mehrotra
     b = bPre;
     c = cPre;
     h = hPre;
+
     ElementalProxyCtrl control;
     control.colConstrain = true;
     control.rowConstrain = true;
     control.colAlign = 0;
     control.rowAlign = 0;
-    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInit
-    auto xPtr = ReadWriteProxy<Real,MC,MR>(&xPre,control); auto& x = *xPtr;
-    auto sPtr = ReadWriteProxy<Real,MC,MR>(&sPre,control); auto& s = *sPtr;
-    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
-    auto yPtr = ReadWriteProxy<Real,MC,MR>(&yPre,control); auto& y = *yPtr;
-    auto zPtr = ReadWriteProxy<Real,MC,MR>(&zPre,control); auto& z = *zPtr;
 
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre);
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadWriteProxy<Real,Real,MC,MR>
+    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInit
+      xProx( xPre, control ),
+      sProx( sPre, control ),
+    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
+      yProx( yPre, control ),
+      zProx( zPre, control );
+    auto& x = xProx.Get();
+    auto& s = sProx.Get();
+    auto& y = yProx.Get();
+    auto& z = zProx.Get();
+
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre ),
+      firstIndsProx( firstIndsPre );
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     const Int m = A.Height();
     const Int k = G.Height();

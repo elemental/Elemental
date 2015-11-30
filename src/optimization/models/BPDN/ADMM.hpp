@@ -33,8 +33,10 @@ namespace bpdn {
 
 template<typename F>
 Int ADMM
-( const Matrix<F>& A,   const Matrix<F>& b, 
-        Base<F> lambda,       Matrix<F>& z, 
+( const Matrix<F>& A,
+  const Matrix<F>& b, 
+        Base<F> lambda,
+        Matrix<F>& z, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::ADMM"))
@@ -159,15 +161,22 @@ Int ADMM
 
 template<typename F>
 Int ADMM
-( const ElementalMatrix<F>& APre, const ElementalMatrix<F>& bPre, 
-        Base<F> lambda,                    ElementalMatrix<F>& zPre, 
+( const ElementalMatrix<F>& APre,
+  const ElementalMatrix<F>& bPre, 
+        Base<F> lambda,
+        ElementalMatrix<F>& zPre, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::ADMM"))
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );  auto& A = *APtr;
-    auto bPtr = ReadProxy<F,MC,MR>( &bPre );  auto& b = *bPtr;
-    auto zPtr = WriteProxy<F,MC,MR>( &zPre ); auto& z = *zPtr;
+    DistMatrixReadProxy<F,F,MC,MR>
+      AProx( APre ),
+      bProx( bPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      zProx( zPre );
+    auto& A = AProx.GetLocked();
+    auto& b = bProx.GetLocked();
+    auto& z = zProx.Get(); 
 
     typedef Base<F> Real;
     const Int m = A.Height();

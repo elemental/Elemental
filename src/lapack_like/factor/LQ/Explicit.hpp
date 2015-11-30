@@ -65,8 +65,8 @@ void ExplicitUnitary( ElementalMatrix<F>& APre )
     DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
@@ -108,8 +108,8 @@ void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
     DEBUG_ONLY(CSE cse("lq::Explicit"))
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);

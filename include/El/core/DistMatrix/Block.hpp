@@ -28,12 +28,12 @@ public:
 
     virtual ~BlockMatrix();
 
-    virtual BlockMatrix<T>* Construct
-    ( const El::Grid& g, int root ) const = 0;
-    virtual BlockMatrix<T>* ConstructTranspose
-    ( const El::Grid& g, int root ) const = 0;
-    virtual BlockMatrix<T>* ConstructDiagonal
-    ( const El::Grid& g, int root ) const = 0;
+    virtual type* Copy() const override = 0;
+    virtual type* Construct( const El::Grid& g, int root ) const override = 0;
+    virtual type* ConstructTranspose( const El::Grid& g, int root ) const
+      override = 0;
+    virtual type* ConstructDiagonal( const El::Grid& g, int root ) const
+      override = 0;
 
     // Assignment and reconfiguration
     // ==============================
@@ -139,6 +139,8 @@ public:
     int ColOwner( Int j )       const override EL_NO_EXCEPT;
     Int LocalRowOffset( Int i ) const override EL_NO_EXCEPT;
     Int LocalColOffset( Int j ) const override EL_NO_EXCEPT;
+    Int LocalRowOffset( Int i, int rowOwner ) const override EL_NO_EXCEPT;
+    Int LocalColOffset( Int j, int colOwner ) const override EL_NO_EXCEPT;
     Int GlobalRow( Int iLoc )   const override EL_NO_EXCEPT;
     Int GlobalCol( Int jLoc )   const override EL_NO_EXCEPT;
 

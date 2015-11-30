@@ -33,8 +33,8 @@ Matrix<Int> TriangularSpectralCloud
     typedef Complex<Real> C;
 
     // Force U to be complex in as cheap of a manner as possible
-    auto UPtr = ReadProxy<C>( &UPre ); 
-    auto& U = *UPtr;
+    MatrixReadProxy<F,C> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -86,8 +86,8 @@ Matrix<Int> TriangularSpectralCloud
     typedef Complex<Real> C;
 
     // Force U to be complex as cheaply as possible
-    auto UPtr = ReadProxy<C>( &UPre ); 
-    auto& U = *UPtr;
+    MatrixReadProxy<F,C> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -124,8 +124,9 @@ Matrix<Int> TriangularSpectralCloud
     else
     {
         // Force Q to be complex as cheaply as possible
-        auto QPtr = ReadProxy<C>( &QPre ); 
-        return pspec::HagerHigham( U, *QPtr, shifts, invNorms, psCtrl );
+        MatrixReadProxy<F,C> QProx( QPre );
+        auto& Q = QProx.GetLocked();
+        return pspec::HagerHigham( U, Q, shifts, invNorms, psCtrl );
     }
 }
 
@@ -210,8 +211,8 @@ Matrix<Int> HessenbergSpectralCloud
     typedef Complex<Real> C;
 
     // Force H to be complex as cheaply as possible
-    auto HPtr = ReadProxy<C>( &HPre );
-    auto& H = *HPtr;
+    MatrixReadProxy<F,C> HProx( HPre );
+    auto& H = HProx.GetLocked();
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
     //       triangular version of SpectralCloud?
@@ -246,8 +247,8 @@ Matrix<Int> HessenbergSpectralCloud
     typedef Complex<Real> C;
 
     // Force H to be complex as cheaply as possible
-    auto HPtr = ReadProxy<C>( &HPre ); 
-    auto& H = *HPtr;
+    MatrixReadProxy<F,C> HProx( HPre );
+    auto& H = HProx.GetLocked();
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
     //       triangular version of SpectralCloud?
@@ -267,8 +268,9 @@ Matrix<Int> HessenbergSpectralCloud
     else
     {
         // Force Q to be complex as cheaply as possible
-        auto QPtr = ReadProxy<C>( &QPre );
-        return pspec::HagerHigham( H, *QPtr, shifts, invNorms, psCtrl );
+        MatrixReadProxy<F,C> QProx( QPre );
+        auto& Q = QProx.GetLocked();
+        return pspec::HagerHigham( H, Q, shifts, invNorms, psCtrl );
     }
 }
 
@@ -285,12 +287,12 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be complex and in a [MC,MR] distribution
-    auto UPtr = ReadProxy<C,MC,MR>( &UPre );
-    auto& U = *UPtr;
+    DistMatrixReadProxy<F,C,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre ); 
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    auto& shifts = shiftsProx.GetLocked();
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -343,12 +345,12 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be complex and in a [MC,MR] distribution 
-    auto UPtr = ReadProxy<C,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<F,C,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre ); 
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    auto& shifts = shiftsProx.GetLocked();
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -387,8 +389,9 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
     {
         // Force 'Q' to be complex and in a [MC,MR] distribution as cheaply
         // as possible
-        auto QPtr = ReadProxy<C,MC,MR>( &QPre ); 
-        return pspec::HagerHigham( U, *QPtr, shifts, invNorms, psCtrl );
+        DistMatrixReadProxy<F,C,MC,MR> QProx( QPre );
+        auto& Q = QProx.GetLocked();
+        return pspec::HagerHigham( U, Q, shifts, invNorms, psCtrl );
     }
 }
 
@@ -400,15 +403,16 @@ DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
         PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CSE cse("QuasiTriangularSpectralCloud"))
+    typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<Complex<Real>,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    auto& shifts = shiftsProx.GetLocked();
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -445,15 +449,16 @@ DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
         PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CSE cse("QuasiTriangularSpectralCloud"))
+    typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<Complex<Real>,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    auto& shifts = shiftsProx.GetLocked();
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -493,12 +498,12 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
     typedef Complex<Real> C;
 
     // Force 'H' to be complex in a [MC,MR] distribution
-    auto HPtr = ReadProxy<C,MC,MR>( &HPre );
-    auto& H = *HPtr;
+    DistMatrixReadProxy<F,C,MC,MR> HProx( HPre );
+    auto& H = HProx.GetLocked();
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    auto& shifts = shiftsProx.GetLocked();
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
     //       to TriangularSpectralCloud
@@ -532,12 +537,12 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
     typedef Complex<Real> C;
 
     // Force 'H' to be complex and in a [MC,MR] distribution
-    auto HPtr = ReadProxy<C,MC,MR>( &HPre );
-    auto& H = *HPtr;
+    DistMatrixReadProxy<F,C,MC,MR> HProx( HPre );
+    auto& H = HProx.GetLocked();
 
     // Force 'shifts' to be in a [VR,STAR] distribution
-    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
-    auto& shifts = *shiftsPtr;
+    DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
+    auto& shifts = shiftsProx.GetLocked();
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
     //       to TriangularSpectralCloud
@@ -557,8 +562,9 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
     else
     {
         // Force 'Q' to be complex and in a [MC,MR] distribution
-        auto QPtr = ReadProxy<C,MC,MR>( &QPre );
-        return pspec::HagerHigham( H, *QPtr, shifts, invNorms, psCtrl );
+        DistMatrixReadProxy<F,C,MC,MR> QProx( QPre );
+        auto& Q = QProx.GetLocked();
+        return pspec::HagerHigham( H, Q, shifts, invNorms, psCtrl );
     }
 }
 
@@ -1732,8 +1738,8 @@ DistMatrix<Int> TriangularSpectralPortrait
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
@@ -1788,8 +1794,8 @@ DistMatrix<Int> TriangularSpectralPortrait
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
-    auto UPtr = ReadProxy<F,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
 
     const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
@@ -1843,8 +1849,8 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
     const auto w = schur::QuasiTriangEig( U );
 
     const Real radius = MaxNorm( w );
@@ -1899,8 +1905,8 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
-    auto UPtr = ReadProxy<Real,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
     const auto w = schur::QuasiTriangEig( U );
 
     const Real radius = MaxNorm( w );

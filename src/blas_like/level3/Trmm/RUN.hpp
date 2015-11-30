@@ -19,7 +19,8 @@ namespace trmm {
 template<typename T>
 inline void
 LocalAccumulateRUN
-( Orientation orientation, UnitOrNonUnit diag, T alpha,
+( Orientation orientation,
+  UnitOrNonUnit diag, T alpha,
   const DistMatrix<T,MC,  MR  >& U,
   const DistMatrix<T,STAR,MC  >& X,
         DistMatrix<T,MR,  STAR>& ZTrans )
@@ -68,7 +69,8 @@ template<typename T>
 inline void
 RUNA
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUNA");
@@ -79,8 +81,10 @@ RUNA
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,STAR,VC  > X1_STAR_VC(g);
     DistMatrix<T,STAR,MC  > X1_STAR_MC(g);
@@ -113,7 +117,8 @@ template<typename T>
 inline void
 RUNCOld
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUNCOld");
@@ -126,8 +131,10 @@ RUNCOld
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MR,  STAR> U01_MR_STAR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g); 
@@ -163,7 +170,8 @@ template<typename T>
 inline void
 RUNC
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUNC");
@@ -176,8 +184,10 @@ RUNC
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MR,  STAR> U12Trans_MR_STAR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
@@ -217,7 +227,9 @@ RUNC
 template<typename T>
 inline void
 RUN
-( UnitOrNonUnit diag, const ElementalMatrix<T>& U, ElementalMatrix<T>& X )
+( UnitOrNonUnit diag,
+  const ElementalMatrix<T>& U,
+        ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::RUN"))
     // TODO: Come up with a better routing mechanism

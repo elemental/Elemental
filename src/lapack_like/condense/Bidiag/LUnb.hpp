@@ -17,9 +17,9 @@ template<typename F>
 inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
     DEBUG_ONLY(
-        CSE cse("bidiag::LUnb");
-        if( A.Height() > A.Width() )
-            LogicError("A must be at least as wide as it is tall");
+      CSE cse("bidiag::LUnb");
+      if( A.Height() > A.Width() )
+          LogicError("A must be at least as wide as it is tall");
     )
     const Int m = A.Height();
     const Int n = A.Width();
@@ -103,18 +103,24 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 template<typename F> 
 inline void LUnb
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre, ElementalMatrix<F>& tQPre )
+  ElementalMatrix<F>& tPPre,
+  ElementalMatrix<F>& tQPre )
 {
     DEBUG_ONLY(
-        CSE cse("bidiag::LUnb");
-        AssertSameGrids( APre, tPPre, tQPre );
-        if( APre.Height() > APre.Width() )
-            LogicError("A must be at least as wide as it is tall");
+      CSE cse("bidiag::LUnb");
+      AssertSameGrids( APre, tPPre, tQPre );
+      if( APre.Height() > APre.Width() )
+          LogicError("A must be at least as wide as it is tall");
     )
 
-    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
-    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
-    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR>
+      AProx( APre );
+    DistMatrixWriteProxy<F,F,STAR,STAR>
+      tPProx( tPPre ),
+      tQProx( tQPre );
+    auto& A = AProx.Get();
+    auto& tP = tPProx.Get();
+    auto& tQ = tQProx.Get();
 
     const Grid& g = A.Grid();
     const Int m = A.Height();

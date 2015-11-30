@@ -22,8 +22,8 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
     const Int tPHeight = Max(n-1,0);
     const Int tQHeight = n;
     DEBUG_ONLY(
-        if( m < n )
-            LogicError("A must be at least as tall as it is wide");
+      if( m < n )
+          LogicError("A must be at least as tall as it is wide");
     )
     tP.Resize( tPHeight, 1 );
     tQ.Resize( tQHeight, 1 );
@@ -101,16 +101,22 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 template<typename F> 
 inline void UUnb
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre, ElementalMatrix<F>& tQPre )
+  ElementalMatrix<F>& tPPre,
+  ElementalMatrix<F>& tQPre )
 {
     DEBUG_ONLY(
-        CSE cse("bidiag::UUnb");
-        AssertSameGrids( APre, tPPre, tQPre );
+      CSE cse("bidiag::UUnb");
+      AssertSameGrids( APre, tPPre, tQPre );
     )
 
-    auto APtr  = ReadWriteProxy<F,MC,MR>( &APre );  auto& A  = *APtr;
-    auto tPPtr = WriteProxy<F,STAR,STAR>( &tPPre ); auto& tP = *tPPtr;
-    auto tQPtr = WriteProxy<F,STAR,STAR>( &tQPre ); auto& tQ = *tQPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR>
+      AProx( APre );
+    DistMatrixWriteProxy<F,F,STAR,STAR>
+      tPProx( tPPre ),
+      tQProx( tQPre );
+    auto& A = AProx.Get();
+    auto& tP = tPProx.Get();
+    auto& tQ = tQProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();

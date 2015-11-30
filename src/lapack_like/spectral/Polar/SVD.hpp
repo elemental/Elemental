@@ -57,8 +57,8 @@ SVD( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("polar::SVD"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Get the SVD of A
     typedef Base<F> Real;
@@ -78,8 +78,10 @@ SVD( ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre )
 {
     DEBUG_ONLY(CSE cse("polar::SVD"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto PPtr = WriteProxy<F,MC,MR>( &PPre );     auto& P = *PPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> PProx( PPre );
+    auto& A = AProx.Get();
+    auto& P = PProx.Get();
 
     // Get the SVD of A
     typedef Base<F> Real;

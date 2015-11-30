@@ -33,13 +33,16 @@ namespace apply_packed_reflectors {
 template<typename F>
 inline void
 LUVF
-( Conjugation conjugation, Int offset, 
-  const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
+( Conjugation conjugation,
+  Int offset, 
+  const Matrix<F>& H,
+  const Matrix<F>& t,
+        Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::LUVF");
-        if( H.Height() != A.Height() )
-            LogicError("H and A must be the same height");
+      CSE cse("apply_packed_reflectors::LUVF");
+      if( H.Height() != A.Height() )
+          LogicError("H and A must be the same height");
     )
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
@@ -77,25 +80,30 @@ LUVF
 template<typename F> 
 inline void
 LUVF
-( Conjugation conjugation, Int offset, 
-  const ElementalMatrix<F>& HPre, const ElementalMatrix<F>& tPre, 
+( Conjugation conjugation,
+  Int offset, 
+  const ElementalMatrix<F>& HPre,
+  const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(
-        CSE cse("apply_packed_reflectors::LUVF");
-        AssertSameGrids( HPre, tPre, APre );
-        if( HPre.Height() != APre.Height() )
-            LogicError("H and A must be the same height");
+      CSE cse("apply_packed_reflectors::LUVF");
+      AssertSameGrids( HPre, tPre, APre );
+      if( HPre.Height() != APre.Height() )
+          LogicError("H and A must be the same height");
     )
 
-    auto HPtr = ReadProxy<F,MC,MR>( &HPre );      auto& H = *HPtr;
-    auto tPtr = ReadProxy<F,MC,STAR>( &tPre );    auto& t = *tPtr;
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
+    DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR  > AProx( APre );
+    auto& H = HProx.GetLocked();
+    auto& t = tProx.GetLocked();
+    auto& A = AProx.Get();
 
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != diagLength )
-            LogicError("t must be the same length as H's offset diag");
+      if( t.Height() != diagLength )
+          LogicError("t must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanCopy(g);

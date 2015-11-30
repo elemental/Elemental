@@ -14,26 +14,29 @@ template<typename F>
 inline void
 LN
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<F>& LPre, ElementalMatrix<F>& xPre )
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
-        CSE cse("trsv::LN");
-        AssertSameGrids( LPre, xPre );
-        if( LPre.Height() != LPre.Width() )
-            LogicError("L must be square");
-        if( xPre.Width() != 1 && xPre.Height() != 1 )
-            LogicError("x must be a vector");
-        const Int xLength = 
-            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
-        if( LPre.Width() != xLength )
-            LogicError("Nonconformal");
+      CSE cse("trsv::LN");
+      AssertSameGrids( LPre, xPre );
+      if( LPre.Height() != LPre.Width() )
+          LogicError("L must be square");
+      if( xPre.Width() != 1 && xPre.Height() != 1 )
+          LogicError("x must be a vector");
+      const Int xLength = 
+          ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+      if( LPre.Width() != xLength )
+          LogicError("Nonconformal");
     )
     const Int m = LPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto xPtr = ReadWriteProxy<F,MC,MR>( &xPre ); auto& x = *xPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> xProx( xPre );
+    auto& L = LProx.GetLocked();
+    auto& x = xProx.Get();
 
     // Matrix views 
     DistMatrix<F> L11(g), L21(g), x1(g);

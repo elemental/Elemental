@@ -27,8 +27,9 @@ Int Degree( const Matrix<Int>& firstInds )
 Int Degree( const ElementalMatrix<Int>& firstIndsPre )
 {
     DEBUG_ONLY(CSE cse("soc::Degree"))
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre);
-    auto& firstInds = *firstIndsPtr;
+
+    DistMatrixReadProxy<Int,Int,VC,STAR> firstIndsProx( firstIndsPre );
+    auto& firstInds = firstIndsProx.GetLocked();
 
     Int localDegree = 0;
     const Int localHeight = firstInds.LocalHeight();

@@ -27,6 +27,8 @@ public:
     typedef AbstractDistMatrix<T> absType;
     typedef ElementalMatrix<T> elemType;
     typedef DistMatrix<T,STAR,MC> type;
+    typedef DistMatrix<T,MC,STAR> transType;
+    typedef DistMatrix<T,MC,STAR> diagType;
 
     // Constructors and destructors
     // ============================
@@ -53,12 +55,10 @@ public:
     // Destructor
     ~DistMatrix();
 
-    DistMatrix<T,STAR,MC>* Construct
-    ( const El::Grid& g, int root ) const override;
-    DistMatrix<T,MC,STAR>* ConstructTranspose
-    ( const El::Grid& g, int root ) const override;
-    DistMatrix<T,MC,STAR>* ConstructDiagonal
-    ( const El::Grid& g, int root ) const override;
+    type* Copy() const override;
+    type* Construct( const El::Grid& g, int root ) const override;
+    transType* ConstructTranspose( const El::Grid& g, int root ) const override;
+    diagType* ConstructDiagonal( const El::Grid& g, int root ) const override;
 
     // Operator overloading
     // ====================

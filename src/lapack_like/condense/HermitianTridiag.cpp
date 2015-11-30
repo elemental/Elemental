@@ -36,8 +36,10 @@ void HermitianTridiag
 {
     DEBUG_ONLY(CSE cse("HermitianTridiag"))
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> tProx( tPre );
+    auto& A = AProx.Get();
+    auto& t = tProx.Get();
 
     const Grid& g = A.Grid();
     if( ctrl.approach == HERMITIAN_TRIDIAG_NORMAL )

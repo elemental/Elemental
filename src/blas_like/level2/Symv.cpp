@@ -16,9 +16,11 @@ namespace El {
 template<typename T>
 void Symv
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& A,
-           const Matrix<T>& x,
-  T beta, Matrix<T>& y,
+  T alpha,
+  const Matrix<T>& A,
+  const Matrix<T>& x,
+  T beta,
+        Matrix<T>& y,
   bool conjugate )
 {
     DEBUG_ONLY(
@@ -56,9 +58,11 @@ void Symv
 template<typename T>
 void Symv
 ( UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& APre,
-           const ElementalMatrix<T>& x,
-  T beta,        ElementalMatrix<T>& yPre,
+  T alpha,
+  const ElementalMatrix<T>& APre,
+  const ElementalMatrix<T>& x,
+  T beta,
+        ElementalMatrix<T>& yPre,
   bool conjugate,
   const SymvCtrl<T>& ctrl )
 {
@@ -79,8 +83,10 @@ void Symv
     )
     const Grid& g = APre.Grid();
 
-    auto APtr = ReadProxy<T,MC,MR>( &APre );      auto& A = *APtr;
-    auto yPtr = ReadWriteProxy<T,MC,MR>( &yPre ); auto& y = *yPtr;
+    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> yProx( yPre );
+    auto& A = AProx.GetLocked();
+    auto& y = yProx.Get();
 
     y *= beta;
     if( x.Width() == 1 && y.Width() == 1 )

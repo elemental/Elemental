@@ -38,7 +38,9 @@ inline void NormalizeEntries( ElementalMatrix<F>& A )
 
 template<typename F>
 inline void ADMM
-( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S, 
+( const Matrix<F>& M, 
+        Matrix<F>& L,
+        Matrix<F>& S, 
   const RPCACtrl<Base<F>>& ctrl )
 {
     typedef Base<F> Real;
@@ -132,12 +134,19 @@ inline void ADMM
 
 template<typename F>
 inline void ADMM
-( const ElementalMatrix<F>& MPre, ElementalMatrix<F>& LPre, 
-        ElementalMatrix<F>& SPre, const RPCACtrl<Base<F>>& ctrl )
+( const ElementalMatrix<F>& MPre,
+        ElementalMatrix<F>& LPre, 
+        ElementalMatrix<F>& SPre,
+  const RPCACtrl<Base<F>>& ctrl )
 {
-    auto MPtr = ReadProxy<F,MC,MR>( &MPre ); auto& M = *MPtr;
-    auto LPtr = WriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
-    auto SPtr = WriteProxy<F,MC,MR>( &SPre ); auto& S = *SPtr;
+    DistMatrixReadProxy<F,F,MC,MR>
+      MProx( MPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      LProx( LPre ),
+      SProx( SPre );
+    auto& M = MProx.GetLocked();
+    auto& L = LProx.Get();
+    auto& S = SProx.Get();
 
     typedef Base<F> Real;
     const Int m = M.Height();
@@ -233,7 +242,9 @@ inline void ADMM
 
 template<typename F>
 inline void ALM
-( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S, 
+( const Matrix<F>& M,
+        Matrix<F>& L,
+        Matrix<F>& S, 
   const RPCACtrl<Base<F>>& ctrl )
 {
     typedef Base<F> Real;
@@ -374,12 +385,18 @@ inline void ALM
 template<typename F>
 inline void ALM
 ( const ElementalMatrix<F>& MPre, 
-        ElementalMatrix<F>& LPre, ElementalMatrix<F>& SPre, 
+        ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& SPre, 
   const RPCACtrl<Base<F>>& ctrl )
 {
-    auto MPtr = ReadProxy<F,MC,MR>( &MPre ); auto& M = *MPtr;
-    auto LPtr = WriteProxy<F,MC,MR>( &LPre ); auto& L = *LPtr;
-    auto SPtr = WriteProxy<F,MC,MR>( &SPre ); auto& S = *SPtr;
+    DistMatrixReadProxy<F,F,MC,MR>
+      MProx( MPre );
+    DistMatrixWriteProxy<F,F,MC,MR>
+      LProx( LPre ),
+      SProx( SPre );
+    auto& M = MProx.GetLocked();
+    auto& L = LProx.Get();
+    auto& S = SProx.Get();
 
     typedef Base<F> Real;
     const Int m = M.Height();
@@ -518,7 +535,9 @@ inline void ALM
 
 template<typename F>
 void RPCA
-( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S,
+( const Matrix<F>& M,
+        Matrix<F>& L,
+        Matrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("RPCA"))
@@ -530,7 +549,8 @@ void RPCA
 
 template<typename F>
 void RPCA
-( const ElementalMatrix<F>& M, ElementalMatrix<F>& L, 
+( const ElementalMatrix<F>& M,
+        ElementalMatrix<F>& L, 
         ElementalMatrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl )
 {
@@ -543,11 +563,15 @@ void RPCA
 
 #define PROTO(F) \
   template void RPCA \
-  ( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S, \
+  ( const Matrix<F>& M, \
+          Matrix<F>& L, \
+          Matrix<F>& S, \
     const RPCACtrl<Base<F>>& ctrl ); \
   template void RPCA \
-  ( const ElementalMatrix<F>& M, ElementalMatrix<F>& L, \
-          ElementalMatrix<F>& S, const RPCACtrl<Base<F>>& ctrl );
+  ( const ElementalMatrix<F>& M, \
+          ElementalMatrix<F>& L, \
+          ElementalMatrix<F>& S, \
+    const RPCACtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -40,8 +40,10 @@ void Cholesky( ElementalMatrix<F>& APre, ElementalMatrix<F>& RPre )
     if( m < n )
         LogicError("A^H A will be singular");
 
-    auto APtr = ReadWriteProxy<F,VC,STAR>( &APre ); auto& A = *APtr;
-    auto RPtr = WriteProxy<F,STAR,STAR>( &RPre );   auto& R = *RPtr;
+    DistMatrixReadWriteProxy<F,F,VC,STAR> AProx( APre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> RProx( RPre );
+    auto& A = AProx.Get();
+    auto& R = RProx.Get();
 
     Zeros( R, n, n );
     Herk( UPPER, ADJOINT, Base<F>(1), A.Matrix(), Base<F>(0), R.Matrix() );

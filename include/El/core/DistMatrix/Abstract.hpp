@@ -30,6 +30,12 @@ public:
 
     virtual ~AbstractDistMatrix();
 
+    virtual type* Copy() const = 0;
+    virtual type* Construct( const El::Grid& g, int root ) const = 0;
+    virtual type* ConstructTranspose( const El::Grid& g, int root ) const = 0;
+    virtual type* ConstructDiagonal( const El::Grid& g, int root ) const = 0;
+    // TODO: ConstructPartialCol and friends?
+
     // Assignment and reconfiguration
     // ==============================
     virtual void Empty( bool freeMemory=true );
@@ -116,11 +122,15 @@ public:
     virtual int  ColOwner( Int j )       const EL_NO_EXCEPT = 0;
     virtual Int  LocalRowOffset( Int i ) const EL_NO_EXCEPT = 0;
     virtual Int  LocalColOffset( Int j ) const EL_NO_EXCEPT = 0;
+    virtual Int  LocalRowOffset( Int i, int rowOwner ) const EL_NO_EXCEPT = 0;
+    virtual Int  LocalColOffset( Int j, int colOwner ) const EL_NO_EXCEPT = 0;
     virtual Int  GlobalRow( Int iLoc )   const EL_NO_EXCEPT = 0;
     virtual Int  GlobalCol( Int jLoc )   const EL_NO_EXCEPT = 0;
 
     Int  LocalRow( Int i )       const EL_NO_RELEASE_EXCEPT;
     Int  LocalCol( Int j )       const EL_NO_RELEASE_EXCEPT;
+    Int  LocalRow( Int i, int rowOwner ) const EL_NO_RELEASE_EXCEPT;
+    Int  LocalCol( Int j, int colOwner ) const EL_NO_RELEASE_EXCEPT;
     int  Owner( Int i, Int j )   const EL_NO_EXCEPT;
     bool IsLocalRow( Int i )     const EL_NO_RELEASE_EXCEPT;
     bool IsLocalCol( Int j )     const EL_NO_RELEASE_EXCEPT;
@@ -222,8 +232,10 @@ public:
     // ----------------------------------
     void ReservePulls( Int numPulls ) const;
     void QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    void ProcessPullQueue( scalarType* pullBuf ) const;
-    void ProcessPullQueue( vector<scalarType>& pullBuf ) const;
+    void ProcessPullQueue
+    ( scalarType* pullBuf, bool includeViewers=true ) const;
+    void ProcessPullQueue
+    ( vector<scalarType>& pullBuf, bool includeViewers=true ) const;
 
     // Local entry manipulation
     // ------------------------
@@ -285,6 +297,10 @@ public:
     void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
     void AssertSameSize( Int height, Int width ) const;
 
+    // Remote updates
+    // --------------
+    vector<Entry<scalarType>> remoteUpdates;
+
 protected:
     // Member variables
     // ================
@@ -308,7 +324,6 @@ protected:
 
     // Remote updates
     // --------------
-    vector<Entry<scalarType>> remoteUpdates_;
     // NOTE: Using ValueInt<Int> is somewhat of a hack; it would be nice to 
     //       have a pair of integers as its own data structure that does not
     //       require separate MPI wrappers from ValueInt<Int>

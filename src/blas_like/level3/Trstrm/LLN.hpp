@@ -52,7 +52,10 @@ LLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 template<typename F>
 inline void
 LLN
-( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X,
+( UnitOrNonUnit diag,
+  F alpha,
+  const Matrix<F>& L,
+        Matrix<F>& X,
   bool checkIfSingular=true )
 {
     DEBUG_ONLY(CSE cse("trstrm::LLN"))
@@ -91,7 +94,9 @@ template<typename F>
 inline void
 LLN
 ( UnitOrNonUnit diag, 
-  F alpha, const ElementalMatrix<F>& LPre, ElementalMatrix<F>& XPre,
+  F alpha,
+  const ElementalMatrix<F>& LPre,
+        ElementalMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("trstrm::LLN"))
@@ -99,8 +104,10 @@ LLN
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<F,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<F,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<F,F,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X11_STAR_STAR(g);

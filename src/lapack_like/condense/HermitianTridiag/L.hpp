@@ -72,8 +72,10 @@ void L
           LogicError("A must be square");
     )
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre ); auto& A = *APtr;
-    auto tPtr = WriteProxy<F,STAR,STAR>( &tPre ); auto& t = *tPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> tProx( tPre );
+    auto& A = AProx.Get();
+    auto& t = tProx.Get();
 
     const Int n = A.Height();
     if( n == 0 )

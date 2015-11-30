@@ -65,9 +65,14 @@ void QP
 {
     DEBUG_ONLY(CSE cse("nnls::QP"))
 
-    auto APtr = ReadProxy<Real,MC,MR>(&APre);  auto& A = *APtr;
-    auto BPtr = ReadProxy<Real,MC,MR>(&BPre);  auto& B = *BPtr;
-    auto XPtr = WriteProxy<Real,MC,MR>(&XPre); auto& X = *XPtr;
+    DistMatrixReadProxy<Real,Real,MC,MR>
+      AProx( APre ),
+      BProx( BPre );
+    DistMatrixWriteProxy<Real,Real,MC,MR>
+      XProx( XPre );
+    auto& A = AProx.GetLocked();
+    auto& B = BProx.GetLocked();
+    auto& X = XProx.Get();
 
     const Int n = A.Width();
     const Int k = B.Width();

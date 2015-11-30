@@ -49,14 +49,17 @@ void Inverse
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    auto xPtr = ReadProxy<Real,VC,STAR>(&xPre,ctrl); 
-    auto xInvPtr = WriteProxy<Real,VC,STAR>(&xInvPre,ctrl);
-    auto ordersPtr = ReadProxy<Int,VC,STAR>(&ordersPre,ctrl); 
-    auto firstIndsPtr = ReadProxy<Int,VC,STAR>(&firstIndsPre,ctrl);
-    auto& x = *xPtr;
-    auto& xInv = *xInvPtr;
-    auto& orders = *ordersPtr;
-    auto& firstInds = *firstIndsPtr;
+    DistMatrixReadProxy<Real,Real,VC,STAR>
+      xProx( xPre, ctrl );
+    DistMatrixWriteProxy<Real,Real,VC,STAR>
+      xInvProx( xInvPre, ctrl );
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre, ctrl ),
+      firstIndsProx( firstIndsPre, ctrl );
+    auto& x = xProx.GetLocked();
+    auto& xInv = xInvProx.Get();
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
 
     DistMatrix<Real,VC,STAR> dInv(x.Grid()); 
     soc::Dets( x, dInv, orders, firstInds, cutoff );

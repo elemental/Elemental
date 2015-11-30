@@ -19,7 +19,9 @@ namespace trmm {
 template<typename T>
 inline void
 LocalAccumulateLLN
-( Orientation orientation, UnitOrNonUnit diag, T alpha,
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  T alpha,
   const DistMatrix<T,MC,  MR  >& L,
   const DistMatrix<T,STAR,MR  >& XTrans,
         DistMatrix<T,MC,  STAR>& Z )
@@ -70,7 +72,8 @@ template<typename T>
 inline void
 LLNA
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNA");
@@ -84,8 +87,10 @@ LLNA
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,VR,  STAR> X1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
@@ -114,7 +119,8 @@ template<typename T>
 inline void
 LLNCOld
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNCOld");
@@ -128,8 +134,10 @@ LLNCOld
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -172,7 +180,8 @@ template<typename T>
 inline void
 LLNC
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre, ElementalMatrix<T>& XPre )
+  const ElementalMatrix<T>& LPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::LLNC");
@@ -185,8 +194,10 @@ LLNC
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    auto LPtr = ReadProxy<T,MC,MR>( &LPre );      auto& L = *LPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> LProx( LPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& L = LProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -225,7 +236,9 @@ LLNC
 template<typename T>
 inline void
 LLN
-( UnitOrNonUnit diag, const ElementalMatrix<T>& L, ElementalMatrix<T>& X )
+( UnitOrNonUnit diag,
+  const ElementalMatrix<T>& L,
+        ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::LLN"))
     // TODO: Come up with a better routing mechanism

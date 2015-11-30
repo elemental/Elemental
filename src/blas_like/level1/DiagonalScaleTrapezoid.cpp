@@ -12,15 +12,19 @@ namespace El {
 
 template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const Matrix<TDiag>& d, Matrix<T>& A, Int offset )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation, 
+  const Matrix<TDiag>& d,
+        Matrix<T>& A,
+  Int offset )
 {
     DEBUG_ONLY(
-        CSE cse("DiagonalScaleTrapezoid");
-        if( side==LEFT && (d.Height()!=A.Height() || d.Width()!=1) )
-            LogicError("d should have been a vector of the height of A");
-        if( side==RIGHT && (d.Height()!=A.Width() || d.Width()!=1) )
-            LogicError("d should have been a vector of the width of A");
+      CSE cse("DiagonalScaleTrapezoid");
+      if( side==LEFT && (d.Height()!=A.Height() || d.Width()!=1) )
+          LogicError("d should have been a vector of the height of A");
+      if( side==RIGHT && (d.Height()!=A.Width() || d.Width()!=1) )
+          LogicError("d should have been a vector of the width of A");
     )
     const Int m = A.Height();
     const Int n = A.Width();
@@ -82,8 +86,12 @@ void DiagonalScaleTrapezoid
 
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScaleTrapezoid
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A, Int offset )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  const ElementalMatrix<TDiag>& dPre,
+        DistMatrix<T,U,V>& A,
+  Int offset )
 {
     DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
     const Int m = A.Height();
@@ -106,8 +114,9 @@ void DiagonalScaleTrapezoid
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.ColAlign();
-        auto dPtr = ReadProxy<TDiag,U,Collect<V>()>( &dPre, ctrl );
-        auto& d = *dPtr;
+
+        DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>()> dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
 
         if( uplo == LOWER )
         {
@@ -156,8 +165,9 @@ void DiagonalScaleTrapezoid
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.RowAlign();
-        auto dPtr = ReadProxy<TDiag,V,Collect<U>()>( &dPre, ctrl );
-        auto& d = *dPtr;
+        
+        DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>()> dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
 
         if( uplo == LOWER )
         {
@@ -203,21 +213,29 @@ void DiagonalScaleTrapezoid
 
 template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A, Int offset )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  const ElementalMatrix<TDiag>& d,
+        ElementalMatrix<T>& A,
+  Int offset )
 {
     DEBUG_ONLY(CSE cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
         DiagonalScaleTrapezoid( side, uplo, orientation, d, ACast, offset );
     #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const Matrix<TDiag>& d, SparseMatrix<T>& A, Int offset )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  const Matrix<TDiag>& d,
+        SparseMatrix<T>& A,
+  Int offset )
 {
     DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
     LogicError("This routine is not yet written");
@@ -225,8 +243,12 @@ void DiagonalScaleTrapezoid
 
 template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const DistMultiVec<TDiag>& d, DistSparseMatrix<T>& A, Int offset )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  const DistMultiVec<TDiag>& d,
+        DistSparseMatrix<T>& A,
+  Int offset )
 {
     DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
     LogicError("This routine is not yet written");

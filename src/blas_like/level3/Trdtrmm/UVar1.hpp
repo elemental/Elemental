@@ -15,9 +15,9 @@ inline void
 UVar1( Matrix<F>& U, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::UVar1");
-        if( U.Height() != U.Width() )
-            LogicError("U must be square");
+      CSE cse("trdtrmm::UVar1");
+      if( U.Height() != U.Width() )
+          LogicError("U must be square");
     )
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -51,17 +51,17 @@ inline void
 UVar1( ElementalMatrix<F>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::UVar1");
-        if( UPre.Height() != UPre.Width() )
-            LogicError("U must be square");
+      CSE cse("trdtrmm::UVar1");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("U must be square");
     )
     const Int n = UPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    auto UPtr = ReadWriteProxy<F,MC,MR>( &UPre ); 
-    auto& U = *UPtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> UProx( UPre );
+    auto& U = UProx.Get();
 
     DistMatrix<F,MC,  STAR> S01_MC_STAR(g);
     DistMatrix<F,VC,  STAR> S01_VC_STAR(g);

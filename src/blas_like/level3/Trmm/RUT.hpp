@@ -19,7 +19,8 @@ namespace trmm {
 template<typename T>
 inline void
 LocalAccumulateRUT
-( UnitOrNonUnit diag, T alpha,
+( UnitOrNonUnit diag,
+  T alpha,
   const DistMatrix<T>& U,
   const DistMatrix<T,MR,STAR>& XTrans,
         DistMatrix<T,MC,STAR>& ZTrans )
@@ -70,8 +71,10 @@ LocalAccumulateRUT
 template<typename T>
 inline void
 RUTA
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUTA");
@@ -83,8 +86,10 @@ RUTA
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
     DistMatrix<T,MC,  STAR> Z1Trans_MC_STAR(g);
@@ -115,8 +120,10 @@ RUTA
 template<typename T>
 inline void
 RUTC
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre, ElementalMatrix<T>& XPre )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& UPre,
+        ElementalMatrix<T>& XPre )
 {
     DEBUG_ONLY(
       CSE cse("trmm::RUTC");
@@ -132,8 +139,10 @@ RUTC
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    auto UPtr = ReadProxy<T,MC,MR>( &UPre );      auto& U = *UPtr;
-    auto XPtr = ReadWriteProxy<T,MC,MR>( &XPre ); auto& X = *XPtr;
+    DistMatrixReadProxy<T,T,MC,MR> UProx( UPre );
+    DistMatrixReadWriteProxy<T,T,MC,MR> XProx( XPre );
+    auto& U = UProx.GetLocked();
+    auto& X = XProx.Get();
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> U12Trans_MR_STAR(g);
@@ -172,8 +181,10 @@ RUTC
 template<typename T>
 inline void
 RUT
-( Orientation orientation, UnitOrNonUnit diag,
-  const ElementalMatrix<T>& U, ElementalMatrix<T>& X )
+( Orientation orientation,
+  UnitOrNonUnit diag,
+  const ElementalMatrix<T>& U,
+        ElementalMatrix<T>& X )
 {
     DEBUG_ONLY(CSE cse("trmm::RUT"))
     // TODO: Come up with a better routing mechanism

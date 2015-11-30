@@ -12,7 +12,9 @@ namespace El {
 
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl )
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Inertia"))
     if( uplo == UPPER )
@@ -25,15 +27,16 @@ InertiaType Inertia
 
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, ElementalMatrix<F>& APre, 
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
 
-    auto APtr = ReadProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     DistMatrix<Int,VC,STAR> p( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
@@ -43,9 +46,12 @@ InertiaType Inertia
 
 #define PROTO(F) \
   template InertiaType Inertia \
-  ( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl ); \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template InertiaType Inertia \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
     const LDLPivotCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

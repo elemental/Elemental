@@ -52,8 +52,12 @@ Select( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 template<typename F>
 inline void
 Unblocked
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
+( Matrix<F>& A,
+  Matrix<F>& dSub,
+  Matrix<Int>& p,
+  bool conjugate=false,
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CSE cse("ldl::pivot::Unblocked");
@@ -132,15 +136,18 @@ Unblocked
 template<typename F>
 inline void
 Unblocked
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& dSub, 
-  ElementalMatrix<Int>& p, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& dSub, 
+  ElementalMatrix<Int>& p,
+  bool conjugate=false, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::pivot::Unblocked");
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        AssertSameGrids( APre, dSub, p );
+      CSE cse("ldl::pivot::Unblocked");
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      AssertSameGrids( APre, dSub, p );
     )
     const Int n = APre.Height();
     const Grid& g = APre.Grid();
@@ -148,8 +155,8 @@ Unblocked
     Zeros( dSub, n-1, 1 );
     p.Resize( n, 1 );
 
-    auto APtr = ReadWriteProxy<F,MC,MR>( &APre );
-    auto& A = *APtr;
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
 
     // Initialize the permutation to the identity
     for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
