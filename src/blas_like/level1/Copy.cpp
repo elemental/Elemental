@@ -366,7 +366,7 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
     
     Zeros( B, m, n );
     for( Int e=0; e<numEntries; ++e )
-        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = T(AValBuf[e]);
+        BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = Caster<S,T>::Cast(AValBuf[e]);
 }
 
 template<typename T>
@@ -393,7 +393,7 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     Zeros( B, m, n );
     B.Reserve( numEntries );
     for( Int e=0; e<numEntries; ++e )
-        B.QueueUpdate( A.Row(e), A.Col(e), T(A.Value(e)) );
+        B.QueueUpdate( A.Row(e), A.Col(e), Caster<S,T>::Cast(A.Value(e)) );
     B.ProcessQueues();
 }
 
