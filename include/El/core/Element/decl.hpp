@@ -161,14 +161,14 @@ Real ImagPart( const Real& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real ImagPart( const Complex<Real>& alpha ) EL_NO_EXCEPT;
 
-template<typename S,typename T>
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 struct Caster {
     static T Cast( S alpha )
     { return T(alpha); }
 };
 
 template<typename S,typename T>
-struct Caster<S,Complex<T>> {
+struct Caster<S,Complex<T>,void> {
     static Complex<T> Cast( S alpha )
     { return Complex<T>( RealPart(alpha), ImagPart(alpha) ); }
 };

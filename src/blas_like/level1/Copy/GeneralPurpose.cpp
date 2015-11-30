@@ -83,7 +83,7 @@ void GeneralPurpose
                 const S alpha = ABuf[iLoc+jLoc*ALDim];
                 if( noRedundant && isLocalRow && isLocalCol )
                 {
-                    B.SetLocal( localRow, localCol, T(alpha) );
+                    B.SetLocal( localRow, localCol, Caster<S,T>::Cast(alpha) );
                 }
                 else
                 {
@@ -163,7 +163,7 @@ void GeneralPurpose
     for( Int k=0; k<recvBufSize; ++k )
     {
         const auto& entry = recvBuf[k];
-        BBuf[entry.i+entry.j*BLDim] = T(entry.value);
+        BBuf[entry.i+entry.j*BLDim] = Caster<S,T>::Cast(entry.value);
     }
 }
 
