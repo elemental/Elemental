@@ -61,9 +61,37 @@ class DistMultiVec;
 namespace El {
 
 #ifdef EL_HAVE_SCALAPACK
-template<typename scalarType>
+
+namespace blacs { 
+
+template<typename scalarType,DistWrap wrap>
+inline int Handle( const DistMatrix<scalarType,MC,MR,wrap>& A )
+{ return Handle( A.DistComm().comm ); }
+
+template<typename scalarType,DistWrap wrap>
+inline int GridInit( int bHandle, const DistMatrix<scalarType,MC,MR,wrap>& A )
+{
+    const int context =
+      GridInit
+      ( bHandle, A.Grid().Order()==COLUMN_MAJOR, A.ColStride(), A.RowStride() );
+    DEBUG_ONLY(
+      if( A.ColStride() != GridHeight(context) )
+          LogicError("Grid height did not match BLACS");
+      if( A.RowStride() != GridWidth(context) )
+          LogicError("Grid width did not match BLACS");
+      if( A.ColRank() != GridRow(context) )
+          LogicError("Grid row did not match BLACS");
+      if( A.RowRank() != GridCol(context) )
+          LogicError("Grid col did not match BLACS");
+    )
+    return context;
+}
+
+} // namespace blacs
+
+template<typename scalarType,DistWrap wrap>
 inline typename blacs::Desc
-FillDesc( const DistMatrix<scalarType,MC,MR,BLOCK>& A, int context )
+FillDesc( const DistMatrix<scalarType,MC,MR,wrap>& A, int context )
 {
     if( A.ColCut() != 0 || A.RowCut() != 0 )
         LogicError("Cannot produce a meaningful descriptor if nonzero cut");
