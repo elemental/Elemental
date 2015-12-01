@@ -64,13 +64,16 @@ namespace El {
 
 namespace blacs { 
 
-template<typename scalarType,DistWrap wrap>
-inline int Handle( const DistMatrix<scalarType,MC,MR,wrap>& A )
+template<typename scalarType>
+inline int Handle( const AbstractDistMatrix<scalarType>& A )
 { return Handle( A.DistComm().comm ); }
 
-template<typename scalarType,DistWrap wrap>
-inline int GridInit( int bHandle, const DistMatrix<scalarType,MC,MR,wrap>& A )
+template<typename scalarType>
+inline int GridInit( int bHandle, const AbstractDistMatrix<scalarType>& A )
 {
+    if( A.ColDist() != MC || A.RowDist() != MR )
+        LogicError
+        ("Only (MC,MR) distributions are currently supported with ScaLAPACK");
     const int context =
       GridInit
       ( bHandle, A.Grid().Order()==COLUMN_MAJOR, A.ColStride(), A.RowStride() );
@@ -89,12 +92,15 @@ inline int GridInit( int bHandle, const DistMatrix<scalarType,MC,MR,wrap>& A )
 
 } // namespace blacs
 
-template<typename scalarType,DistWrap wrap>
+template<typename scalarType>
 inline typename blacs::Desc
-FillDesc( const DistMatrix<scalarType,MC,MR,wrap>& A, int context )
+FillDesc( const AbstractDistMatrix<scalarType>& A, int context )
 {
     if( A.ColCut() != 0 || A.RowCut() != 0 )
         LogicError("Cannot produce a meaningful descriptor if nonzero cut");
+    if( A.ColDist() != MC || A.RowDist() != MR )
+        LogicError
+        ("Only (MC,MR) distributions are currently supported with ScaLAPACK");
     typename blacs::Desc desc =
         { 1, context, int(A.Height()), int(A.Width()),
           int(A.BlockHeight()), int(A.BlockWidth()),

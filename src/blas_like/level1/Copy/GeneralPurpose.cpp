@@ -13,12 +13,13 @@
 namespace El {
 namespace copy {
 
-template<typename S,typename T,typename>
-void GeneralPurpose
+template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
+inline void Helper
 ( const AbstractDistMatrix<S>& A,
         AbstractDistMatrix<T>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::GeneralPurpose"))
+    DEBUG_ONLY(CSE cse("copy::Helper"))
+
     // TODO: Decide whether S or T should be used as the transmission type
     //       based upon which is smaller. Transmit S by default.
     const Int height = A.Height();
@@ -28,11 +29,6 @@ void GeneralPurpose
     const int root = B.Root();
     B.Resize( height, width );
 
-    if( A.Grid().Size() == 1 && B.Grid().Size() == 1 )
-    {
-        Copy( A.LockedMatrix(), B.Matrix() );
-        return;
-    }
     const bool includeViewers = (A.Grid() != B.Grid());
 
     const Int localHeight = A.LocalHeight();
@@ -165,6 +161,71 @@ void GeneralPurpose
         const auto& entry = recvBuf[k];
         BBuf[entry.i+entry.j*BLDim] = Caster<S,T>::Cast(entry.value);
     }
+}
+
+template<typename S,typename T,typename>
+void GeneralPurpose
+( const AbstractDistMatrix<S>& A,
+        AbstractDistMatrix<T>& B ) 
+{
+    DEBUG_ONLY(CSE cse("copy::GeneralPurpose"))
+
+    if( A.Grid().Size() == 1 && B.Grid().Size() == 1 )
+    {
+        B.Resize( A.Height(), A.Width() );
+        Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
+
+    Helper( A, B );
+}
+
+
+template<typename T,typename>
+void GeneralPurpose
+( const AbstractDistMatrix<T>& A,
+        AbstractDistMatrix<T>& B ) 
+{
+    DEBUG_ONLY(CSE cse("copy::GeneralPurpose"))
+
+    const Int height = A.Height();
+    const Int width = A.Width();
+
+    if( A.Grid().Size() == 1 && B.Grid().Size() == 1 )
+    {
+        B.Resize( height, width );
+        Copy( A.LockedMatrix(), B.Matrix() );
+        return;
+    }
+
+#ifdef EL_HAVE_SCALAPACK
+    const bool useBLACSRedist = true;
+    if( useBLACSRedist &&
+        A.ColDist() == MC && A.RowDist() == MR &&
+        B.ColDist() == MC && B.RowDist() == MR )
+    {
+        B.Resize( height, width );
+        const int bHandleA = blacs::Handle( A );
+        const int bHandleB = blacs::Handle( B );
+        const int contextA = blacs::GridInit( bHandleA, A );
+        const int contextB = blacs::GridInit( bHandleB, B );
+        auto descA = FillDesc( A, contextA );
+        auto descB = FillDesc( B, contextB );
+        // This appears to be noticeably faster than the current
+        // Elemental-native scheme which also transmits metadata
+        //
+        // Hmmm...should there be some type of check to ensure that the  
+        // entire set of processes in contextA encompasses the entire set of
+        // processes used for A and B?
+        blacs::Redistribute
+        ( A.Height(), A.Width(),
+          A.LockedBuffer(), descA.data(),
+          B.Buffer(),       descB.data(), contextA );
+        return;
+    }
+#endif
+
+    Helper( A, B );
 }
 
 #define CONVERT(S,T) \
