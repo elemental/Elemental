@@ -298,7 +298,8 @@ Int AbstractDistMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(
       CSE cse("ADM::LocalRow");
       if( !IsLocalRow(i) )
-          LogicError("Requested local index of non-local row");
+          LogicError
+          ("Row ",i,"is owned by ",RowOwner(i),", not ",ColRank());
     )
     return LocalRowOffset(i);
 }
@@ -309,7 +310,8 @@ Int AbstractDistMatrix<T>::LocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(
       CSE cse("ADM::LocalCol");
       if( !IsLocalCol(j) )
-          LogicError("Requested local index of non-local column");
+          LogicError
+          ("Column ",j,"is owned by ",ColOwner(j),", not ",RowRank());
     )
     return LocalColOffset(j);
 }
@@ -319,9 +321,10 @@ Int AbstractDistMatrix<T>::LocalRow( Int i, int rowOwner ) const
 EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(
-      CSE cse("ADM::LocalRow");
+      CSE cse("ADM::LocalRow(i,rowOwner)");
       if( RowOwner(i) != rowOwner )
-          LogicError("Requested local index of non-local row");
+          LogicError
+          ("Row ",i,"is owned by ",RowOwner(i)," not ",rowOwner);
     )
     return LocalRowOffset(i,rowOwner);
 }
@@ -331,9 +334,10 @@ Int AbstractDistMatrix<T>::LocalCol( Int j, int colOwner ) const
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
-      CSE cse("ADM::LocalCol");
+      CSE cse("ADM::LocalCol(j,colOwner)");
       if( ColOwner(j) != colOwner )
-          LogicError("Requested local index of non-local column");
+          LogicError
+          ("Column ",j,"is owned by ",ColOwner(j),", not ",colOwner);
     )
     return LocalColOffset(j,colOwner);
 }
@@ -735,10 +739,9 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) 
     mpi::AllToAll
     ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
       recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
-    Int k = 0;
     offs = recvOffs;
     for( Int k=0; k<totalRecv; ++k )
-        pullBuf[k++] = recvBuf[offs[owners[k]]++];
+        pullBuf[k] = recvBuf[offs[owners[k]]++];
     SwapClear( remotePulls_ );
 }
 

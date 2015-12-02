@@ -28,6 +28,7 @@ inline void Helper
     const Dist colDist=B.ColDist(), rowDist=B.RowDist();
     const int root = B.Root();
     B.Resize( height, width );
+    const bool BPartic = B.Participating();
 
     const bool includeViewers = (A.Grid() != B.Grid());
 
@@ -50,12 +51,9 @@ inline void Helper
         {
             const Int i = A.GlobalRow(iLoc);
             const int ownerRow = B.RowOwner(i);
-            ownerRows[iLoc] = ownerRow;
-            const bool isLocalRow = ( ownerRow == colRank );
             globalRows[iLoc] = i;
-            localRows[iLoc] =
-              ( isLocalRow ? B.LocalRow(i)
-                           : B.LocalRow(i,ownerRow) );
+            ownerRows[iLoc] = ownerRow;
+            localRows[iLoc] = B.LocalRow(i,ownerRow);
         }
 
         remoteEntries.reserve( localHeight*localWidth );
@@ -66,16 +64,13 @@ inline void Helper
         {
             const Int j = A.GlobalCol(jLoc);
             const int ownerCol = B.ColOwner(j);
-            const bool isLocalCol = ( ownerCol == rowRank );
-            const Int localCol = 
-              ( isLocalCol ? B.LocalCol(j)
-                           : B.LocalCol(j,ownerCol) );
+            const Int localCol = B.LocalCol(j,ownerCol);
+            const bool isLocalCol = ( BPartic && ownerCol == rowRank );
             for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
             {
-                const Int i = globalRows[iLoc];
                 const int ownerRow = ownerRows[iLoc];
-                const bool isLocalRow = ( ownerRow == colRank );
                 const Int localRow = localRows[iLoc];
+                const bool isLocalRow = ( BPartic && ownerRow == colRank );
                 const S alpha = ABuf[iLoc+jLoc*ALDim];
                 if( noRedundant && isLocalRow && isLocalCol )
                 {
@@ -117,7 +112,7 @@ inline void Helper
     }
     else
     {
-        if( !B.Participating() )
+        if( !g.InGrid() )
             return;
         comm = g.VCComm();
         const int commSize = mpi::Size( comm );
@@ -150,16 +145,19 @@ inline void Helper
     // Exchange and unpack the data
     // ============================
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    Int recvBufSize = recvBuf.size();
-    mpi::Broadcast( recvBufSize, 0, B.RedundantComm() );
-    FastResize( recvBuf, recvBufSize );
-    mpi::Broadcast( recvBuf.data(), recvBufSize, 0, B.RedundantComm() );
-    T* BBuf = B.Buffer();
-    const Int BLDim = B.LDim();
-    for( Int k=0; k<recvBufSize; ++k )
+    if( B.Participating() )
     {
-        const auto& entry = recvBuf[k];
-        BBuf[entry.i+entry.j*BLDim] = Caster<S,T>::Cast(entry.value);
+        Int recvBufSize = recvBuf.size();
+        mpi::Broadcast( recvBufSize, 0, B.RedundantComm() );
+        FastResize( recvBuf, recvBufSize );
+        mpi::Broadcast( recvBuf.data(), recvBufSize, 0, B.RedundantComm() );
+        T* BBuf = B.Buffer();
+        const Int BLDim = B.LDim();
+        for( Int k=0; k<recvBufSize; ++k )
+        {
+            const auto& entry = recvBuf[k];
+            BBuf[entry.i+entry.j*BLDim] = Caster<S,T>::Cast(entry.value);
+        }
     }
 }
 
