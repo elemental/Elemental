@@ -20,7 +20,8 @@ Int LLL
   Base<F> innerTol=0,
   bool presort=false,
   bool smallestFirst=true,
-  bool progress=false );
+  bool progress=false,
+  bool time=false );
 template<typename F>
 Base<F> LLLDelta( const Matrix<F>& QR );
 
