@@ -12,17 +12,15 @@ namespace El {
 
 namespace triang_eigvec {
 
-// NOTE: This is a duplicate of the unblocked routine from mstrsm::LeftUnb
-//       and should somehow be made unredundant
 template<typename F>
 inline void
-UnblockedMultishiftSolve
+DiagonalBlockSolve
 (       Matrix<F>& T,
   const Matrix<F>& shifts,
         Matrix<F>& X ) 
 {
     DEBUG_ONLY(
-      CSE cse("triang_eigvec::UnblockedMultishiftSolve");
+      CSE cse("triang_eigvec::DiagonalBlockSolve");
       if( shifts.Height() != X.Width() )
           LogicError("Incompatible number of shifts");
     )
@@ -32,11 +30,12 @@ UnblockedMultishiftSolve
     const Int n = T.Height();
     const Int ldim = T.LDim();
     const Int numShifts = shifts.Height();
-    for( Int j=0; j<numShifts; ++j )
+    for( Int j=1; j<numShifts; ++j )
     {
         ShiftDiagonal( T, -shifts.Get(j,0) );
+        // TODO: Handle small diagonal entries in the usual manner
         blas::Trsv
-        ( uploChar, orientChar, 'N', n, 
+        ( uploChar, orientChar, 'N', Min(n,j), 
           T.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
         SetDiagonal( T, diag );
     }
@@ -49,7 +48,7 @@ inline void
 TriangEigenvecs( Matrix<F>& U, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("TriangEigenvecs"))
-    const Int m = X.Height();
+    const Int m = U.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
 
@@ -58,9 +57,10 @@ TriangEigenvecs( Matrix<F>& U, Matrix<F>& X )
 
     // TODO: Handle near and exact singularity
 
-    // Make X the strictly upper triangle of  U
+    // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
+    Scale( F(-1), X );
 
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -72,10 +72,10 @@ TriangEigenvecs( Matrix<F>& U, Matrix<F>& X )
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, IR(0,k+nb) );
-        auto X1 = X( ind1, IR(0,k+nb) );
+        auto X0 = X( ind0, IR(k,END) );
+        auto X1 = X( ind1, IR(k,END) );
 
-        triang_eigvec::UnblockedMultishiftSolve( U11, shifts, X1 );
+        triang_eigvec::DiagonalBlockSolve( U11, shifts(IR(k,END),ALL), X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
     }
     FillDiagonal( X, F(1) ); 
@@ -100,9 +100,10 @@ TriangEigenvecs
 
     // TODO: Handle near and exact singularity
 
-    // Make X the strictly upper triangle of  U
+    // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
+    Scale( F(-1), X );
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -123,15 +124,15 @@ TriangEigenvecs
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, IR(0,k+nb) );
-        auto X1 = X( ind1, IR(0,k+nb) );
+        auto X0 = X( ind0, IR(k,END) );
+        auto X1 = X( ind1, IR(k,END) );
 
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR = X1; // X1[* ,VR] <- X1[MC,MR]
-        triang_eigvec::UnblockedMultishiftSolve
-        ( U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), 
+        triang_eigvec::DiagonalBlockSolve
+        ( U11_STAR_STAR.Matrix(), shifts(IR(k,END),ALL).LockedMatrix(), 
           X1_STAR_VR.Matrix() );
 
         X1_STAR_MR.AlignWith( X0 );
