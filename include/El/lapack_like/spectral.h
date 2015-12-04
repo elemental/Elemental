@@ -799,6 +799,26 @@ EL_EXPORT ElError ElSchurDecompDist_z
 /* TODO: Expert versions */
 /* TODO: QuasiTriangEig, CheckRealSchur, and RealToComplex */
 
+/* Triangular eigenvectors
+   ======================= */
+EL_EXPORT ElError ElTriangEigenvecs_s
+( ElMatrix_s U, ElMatrix_s X );
+EL_EXPORT ElError ElTriangEigenvecs_d
+( ElMatrix_d U, ElMatrix_d X );
+EL_EXPORT ElError ElTriangEigenvecs_c
+( ElMatrix_c U, ElMatrix_c X );
+EL_EXPORT ElError ElTriangEigenvecs_z
+( ElMatrix_z U, ElMatrix_z X );
+
+EL_EXPORT ElError ElTriangEigenvecsDist_s
+( ElConstDistMatrix_s U, ElDistMatrix_s X );
+EL_EXPORT ElError ElTriangEigenvecsDist_d
+( ElConstDistMatrix_d U, ElDistMatrix_d X );
+EL_EXPORT ElError ElTriangEigenvecsDist_c
+( ElConstDistMatrix_c U, ElDistMatrix_c X );
+EL_EXPORT ElError ElTriangEigenvecsDist_z
+( ElConstDistMatrix_z U, ElDistMatrix_z X );
+
 /* Singular Value Decomposition (SVD)
    ================================== */
 /* SVDCtrl */

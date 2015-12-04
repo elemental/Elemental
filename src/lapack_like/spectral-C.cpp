@@ -573,7 +573,15 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt basisSize, \
     Base<F>* sigMin, Base<F>* sigMax ) \
   { EL_TRY( auto extremal = ExtremalSingValEst( *CReflect(A), basisSize ); \
-            *sigMin = extremal.first; *sigMax = extremal.second ) } 
+            *sigMin = extremal.first; *sigMax = extremal.second ) } \
+  /* Triangular eigenvectors
+     ======================= */ \
+  ElError ElTriangEigenvecs_ ## SIG \
+  ( ElMatrix_ ## SIG U, ElMatrix_ ## SIG X ) \
+  { EL_TRY( TriangEigenvecs( *CReflect(U), *CReflect(X) ) ) } \
+  ElError ElTriangEigenvecsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG U, ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( TriangEigenvecs( *CReflect(U), *CReflect(X) ) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Schur decomposition

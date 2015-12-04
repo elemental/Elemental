@@ -365,6 +365,19 @@ void RealToComplex
 
 } // namespace schur
 
+// Compute eigenvectors of a triangular matrix
+// ===========================================
+// NOTE: This functionality is still experimental and should not yet be
+//       trusted
+template<typename F>
+void TriangEigenvecs
+(       Matrix<F>& U,
+        Matrix<F>& X );
+template<typename F>
+void TriangEigenvecs
+( const ElementalMatrix<F>& U,
+        ElementalMatrix<F>& X );
+
 // Skew-Hermitian eigenvalue solvers
 // =================================
 // Compute the full set of eigenvalues

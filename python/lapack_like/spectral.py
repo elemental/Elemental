@@ -814,6 +814,29 @@ def Schur(A,fullTriangle=True,vectors=False):
       return w
   else: TypeExcept()
 
+# Triangular eigenvectors
+# =======================
+def TriangEigenvecs(U):
+  if type(U) is Matrix:
+    X = Matrix(U.tag)
+    args = [U.obj,X.obj]
+    if   A.tag == sTag: lib.ElTriangEigenvecs_s(*args)
+    elif A.tag == dTag: lib.ElTriangEigenvecs_d(*args)
+    elif A.tag == cTag: lib.ElTriangEigenvecs_c(*args)
+    elif A.tag == zTag: lib.ElTriangEigenvecs_z(*args)
+    else: DataExcept()
+    return X
+  elif type(U) is DistMatrix:
+    X = DistMatrix(U.tag,MC,MR,U.Grid())
+    args = [U.obj,X.obj]
+    if   A.tag == sTag: lib.ElTriangEigenvecsDist_s(*args)
+    elif A.tag == dTag: lib.ElTriangEigenvecsDist_d(*args)
+    elif A.tag == cTag: lib.ElTriangEigenvecsDist_c(*args)
+    elif A.tag == zTag: lib.ElTriangEigenvecsDist_z(*args)
+    else: DataExcept()
+    return X
+  else: TypeExcept()
+
 # Singular value decomposition
 # ============================
 
