@@ -609,13 +609,10 @@ Matrix<Int> Helper
         Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
-            LogicError("Real to complex full Schur not yet supported");
-            /*
             Matrix<C> UCpx, QCpx;
             schur::RealToComplex( U, Q, UCpx, QCpx );
             return TriangularSpectralCloud
                    ( UCpx, QCpx, shifts, invNorms, psCtrl );
-            */
         }
         return QuasiTriangularSpectralCloud( U, Q, shifts, invNorms, psCtrl );
     }
@@ -661,13 +658,10 @@ DistMatrix<Int,VR,STAR> Helper
         Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
-            LogicError("Real to complex full Schur not yet supported");
-            /*
             DistMatrix<C> UCpx(g), QCpx(g);
             schur::RealToComplex( U, Q, UCpx, QCpx );
             return TriangularSpectralCloud
                    ( UCpx, QCpx, shifts, invNorms, psCtrl );
-            */
         }
         return QuasiTriangularSpectralCloud( U, Q, shifts, invNorms, psCtrl );
     }
@@ -2181,12 +2175,10 @@ Matrix<Int> Helper
         if( psCtrl.forceComplexPs )
         {
             LogicError("Real to complex full Schur not yet supported");
-            /*
             Matrix<C> BCpx, QCpx;
             schur::RealToComplex( B, Q, BCpx, QCpx );
             return TriangularSpectralPortrait
                    ( BCpx, invNormMap, realSize, imagSize, box, psCtrl );
-            */
         }
         return QuasiTriangularSpectralPortrait
                ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
@@ -2239,13 +2231,10 @@ DistMatrix<Int> Helper
         Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs ) 
         {
-            LogicError("Real to complex full Schur not yet supported");
-            /*
             DistMatrix<C> BCpx(g), QCpx(g);
             schur::RealToComplex( B, Q, BCpx, QCpx );
             return TriangularSpectralPortrait
                    ( BCpx, QCpx, invNormMap, realSize, imagSize, box, psCtrl );
-            */
         }
         return QuasiTriangularSpectralPortrait
                ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );

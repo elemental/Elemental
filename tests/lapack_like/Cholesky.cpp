@@ -69,10 +69,12 @@ void TestCholesky
         Print( A, "A" );
 
     if( g.Rank() == 0 )
+    {
         if( scalapack && !pivot )
             Output("  ScaLAPACK Cholesky (including round-trip conversion)...");
         else
             Output("  Elemental Cholesky...");
+    }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( pivot )

@@ -10,7 +10,7 @@
 
 namespace El {
 
-namespace triang_eigvec {
+namespace triang_eig {
 
 template<typename F>
 inline void
@@ -20,7 +20,7 @@ DiagonalBlockSolve
         Matrix<F>& X ) 
 {
     DEBUG_ONLY(
-      CSE cse("triang_eigvec::DiagonalBlockSolve");
+      CSE cse("triang_eig::DiagonalBlockSolve");
       if( shifts.Height() != X.Width() )
           LogicError("Incompatible number of shifts");
     )
@@ -41,13 +41,13 @@ DiagonalBlockSolve
     }
 }
 
-} // namespace triang_eigvec
+} // namespace triang_eig
 
 template<typename F>
 inline void
-TriangEigenvecs( Matrix<F>& U, Matrix<F>& X ) 
+TriangEig( Matrix<F>& U, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CSE cse("TriangEigenvecs"))
+    DEBUG_ONLY(CSE cse("TriangEig"))
     const Int m = U.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
@@ -75,7 +75,7 @@ TriangEigenvecs( Matrix<F>& U, Matrix<F>& X )
         auto X0 = X( ind0, IR(k,END) );
         auto X1 = X( ind1, IR(k,END) );
 
-        triang_eigvec::DiagonalBlockSolve( U11, shifts(IR(k,END),ALL), X1 );
+        triang_eig::DiagonalBlockSolve( U11, shifts(IR(k,END),ALL), X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
     }
     FillDiagonal( X, F(1) ); 
@@ -83,11 +83,11 @@ TriangEigenvecs( Matrix<F>& U, Matrix<F>& X )
 
 template<typename F>
 inline void
-TriangEigenvecs
+TriangEig
 ( const ElementalMatrix<F>& UPre, 
         ElementalMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("TriangEigenvecs"))
+    DEBUG_ONLY(CSE cse("TriangEig"))
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
@@ -131,7 +131,7 @@ TriangEigenvecs
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR = X1; // X1[* ,VR] <- X1[MC,MR]
-        triang_eigvec::DiagonalBlockSolve
+        triang_eig::DiagonalBlockSolve
         ( U11_STAR_STAR.Matrix(), shifts(IR(k,END),ALL).LockedMatrix(), 
           X1_STAR_VR.Matrix() );
 
@@ -148,10 +148,10 @@ TriangEigenvecs
 }
 
 #define PROTO(F) \
-  template void TriangEigenvecs \
+  template void TriangEig \
   (       Matrix<F>& T, \
           Matrix<F>& X ); \
-  template void TriangEigenvecs \
+  template void TriangEig \
   ( const ElementalMatrix<F>& T, \
           ElementalMatrix<F>& X );
 

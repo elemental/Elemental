@@ -162,30 +162,46 @@ void Schur
   ( DistMatrix<F,MC,MR,BLOCK>& A, \
     ElementalMatrix<Complex<Base<F>>>& w, \
     DistMatrix<F,MC,MR,BLOCK>& Q, \
-    bool fullTriangle, const SchurCtrl<Base<F>> ctrl ); \
+    bool fullTriangle, \
+    const SchurCtrl<Base<F>> ctrl ); \
   template void schur::CheckRealSchur \
   ( const Matrix<F>& U, bool standardForm ); \
   template void schur::CheckRealSchur \
   ( const ElementalMatrix<F>& U, bool standardForm ); \
   template void schur::QuasiTriangEig \
-  ( const Matrix<F>& dMain, const Matrix<F>& dSub, const Matrix<F>& dSup, \
-    Matrix<Complex<Base<F>>>& w ); \
+  ( const Matrix<F>& dMain, \
+    const Matrix<F>& dSub, \
+    const Matrix<F>& dSup, \
+          Matrix<Complex<Base<F>>>& w ); \
   template void schur::QuasiTriangEig \
-  ( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w ); \
+  ( const Matrix<F>& U, \
+          Matrix<Complex<Base<F>>>& w ); \
   template Matrix<Complex<Base<F>>> schur::QuasiTriangEig \
   ( const Matrix<F>& U ); \
   template DistMatrix<Complex<Base<F>>,VR,STAR> \
   schur::QuasiTriangEig( const ElementalMatrix<F>& U ); \
   template void schur::QuasiTriangEig \
-  ( const ElementalMatrix<F>& U, ElementalMatrix<Complex<Base<F>>>& w );
+  ( const ElementalMatrix<F>& U, \
+          ElementalMatrix<Complex<Base<F>>>& w );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
   template void schur::RealToComplex \
-  ( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U ); \
+  ( const Matrix<Real>& UQuasi, \
+          Matrix<Complex<Real>>& U ); \
+  template void schur::RealToComplex \
+  ( const Matrix<Real>& UQuasi, \
+    const Matrix<Real>& QQuasi, \
+          Matrix<Complex<Real>>& U, \
+          Matrix<Complex<Real>>& Q ); \
   template void schur::RealToComplex \
   ( const ElementalMatrix<Real>& UQuasi, \
-          ElementalMatrix<Complex<Real>>& U );
+          ElementalMatrix<Complex<Real>>& U ); \
+  template void schur::RealToComplex \
+  ( const ElementalMatrix<Real>& UQuasi, \
+    const ElementalMatrix<Real>& QQuasi, \
+          ElementalMatrix<Complex<Real>>& U, \
+          ElementalMatrix<Complex<Real>>& Q );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
