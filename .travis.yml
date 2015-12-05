@@ -25,7 +25,7 @@ install:
   - sudo apt-get update -qq -y
   - sudo apt-get install -qq -y clang-3.7 gcc-4.9 g++-4.9 gfortran-4.9 libstdc++-4.9-dev
   # lcov
-  - git pull --recurse-submodules
+  - git pull
   - sh travis/install-mpi.sh $MPI
   # - sudo pip install cpp-coveralls
   - curl https://cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
