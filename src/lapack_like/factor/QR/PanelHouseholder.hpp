@@ -14,8 +14,10 @@ namespace El {
 namespace qr {
 
 template<typename F> 
-inline void
-PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
+inline void PanelHouseholder
+( Matrix<F>& A,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d )
 {
     DEBUG_ONLY(CSE cse("qr::PanelHouseholder"))
     typedef Base<F> Real;
@@ -67,13 +69,14 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 }
 
 template<typename F> 
-inline void
-PanelHouseholder
-( DistMatrix<F>& A, ElementalMatrix<F>& t, ElementalMatrix<Base<F>>& d )
+inline void PanelHouseholder
+( DistMatrix<F>& A,
+  ElementalMatrix<F>& t,
+  ElementalMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(
-        CSE cse("qr::PanelHouseholder");
-        AssertSameGrids( A, t, d );
+      CSE cse("qr::PanelHouseholder");
+      AssertSameGrids( A, t, d );
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();

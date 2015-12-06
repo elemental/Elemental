@@ -318,6 +318,7 @@ ReplaceColNorms
     }
 }
 
+// TODO: Switch to returning pivots instead of explicit permutations?
 template<typename F>
 inline void BusingerGolub
 ( ElementalMatrix<F>& APre,
