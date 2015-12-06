@@ -84,7 +84,10 @@ void InversePermuteCols( Matrix<T>& A, const Matrix<Int>& invPerm )
 }
 
 template<typename T> 
-void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
+void PermuteCols
+(       AbstractDistMatrix<T>& A,
+  const PermutationMeta& oldMeta,
+  bool inverse )
 {
     DEBUG_ONLY(
       CSE cse("PermuteCols");
@@ -93,6 +96,8 @@ void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
       if( A.RowAlign() != oldMeta.align )
           LogicError("Invalid alignment in metadata");
     )
+    if( inverse )
+        LogicError("Inverse option not yet supported"); 
     if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
 
@@ -205,7 +210,8 @@ void InversePermuteCols
     const AbstractDistMatrix<Int>& invPerm ); \
   template void PermuteCols \
   (       AbstractDistMatrix<T>& A, \
-    const PermutationMeta& oldMeta );
+    const PermutationMeta& oldMeta, \
+    bool inverse );
 
 #include "El/macros/Instantiate.h"
 
