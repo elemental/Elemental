@@ -814,6 +814,74 @@ def Schur(A,fullTriangle=True,vectors=False):
       return w
   else: TypeExcept()
 
+# Triangular eigenvectors
+# =======================
+lib.ElTriangEig_s.argtypes = \
+lib.ElTriangEig_d.argtypes = \
+lib.ElTriangEig_c.argtypes = \
+lib.ElTriangEig_z.argtypes = \
+lib.ElTriangEigDist_s.argtypes = \
+lib.ElTriangEigDist_d.argtypes = \
+lib.ElTriangEigDist_c.argtypes = \
+lib.ElTriangEigDist_z.argtypes = \
+  [c_void_p,c_void_p]
+
+def TriangEig(U):
+  if type(U) is Matrix:
+    X = Matrix(U.tag)
+    args = [U.obj,X.obj]
+    if   U.tag == sTag: lib.ElTriangEig_s(*args)
+    elif U.tag == dTag: lib.ElTriangEig_d(*args)
+    elif U.tag == cTag: lib.ElTriangEig_c(*args)
+    elif U.tag == zTag: lib.ElTriangEig_z(*args)
+    else: DataExcept()
+    return X
+  elif type(U) is DistMatrix:
+    X = DistMatrix(U.tag,MC,MR,U.Grid())
+    args = [U.obj,X.obj]
+    if   U.tag == sTag: lib.ElTriangEigDist_s(*args)
+    elif U.tag == dTag: lib.ElTriangEigDist_d(*args)
+    elif U.tag == cTag: lib.ElTriangEigDist_c(*args)
+    elif U.tag == zTag: lib.ElTriangEigDist_z(*args)
+    else: DataExcept()
+    return X
+  else: TypeExcept()
+
+# Eigenvalue decomposition
+# ========================
+lib.ElEig_s.argtypes = \
+lib.ElEig_d.argtypes = \
+lib.ElEig_c.argtypes = \
+lib.ElEig_z.argtypes = \
+lib.ElEigDist_s.argtypes = \
+lib.ElEigDist_d.argtypes = \
+lib.ElEigDist_c.argtypes = \
+lib.ElEigDist_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+
+def Eig(A):
+  if type(A) is Matrix:
+    w = Matrix(Complexify(A.tag))
+    X = Matrix(Complexify(A.tag))
+    args = [A.obj,w.obj,X.obj]
+    if   A.tag == sTag: lib.ElEig_s(*args)
+    elif A.tag == dTag: lib.ElEig_d(*args)
+    elif A.tag == cTag: lib.ElEig_c(*args)
+    elif A.tag == zTag: lib.ElEig_z(*args)
+    else: DataExcept()
+    return w, X
+  elif type(A) is DistMatrix:
+    w = DistMatrix(Complexify(A.tag),VR,STAR,A.Grid())
+    X = DistMatrix(Complexify(A.tag),MC,MR,  A.Grid())
+    args = [A.obj,w.obj,X.obj]
+    if   A.tag == sTag: lib.ElEigDist_s(*args)
+    elif A.tag == dTag: lib.ElEigDist_d(*args)
+    elif A.tag == cTag: lib.ElEigDist_c(*args)
+    elif A.tag == zTag: lib.ElEigDist_z(*args)
+    else: DataExcept()
+    return w, X
+  else: TypeExcept()
+
 # Singular value decomposition
 # ============================
 

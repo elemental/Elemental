@@ -573,9 +573,39 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt basisSize, \
     Base<F>* sigMin, Base<F>* sigMax ) \
   { EL_TRY( auto extremal = ExtremalSingValEst( *CReflect(A), basisSize ); \
-            *sigMin = extremal.first; *sigMax = extremal.second ) } 
+            *sigMin = extremal.first; *sigMax = extremal.second ) } \
+  /* Triangular eigenvectors
+     ======================= */ \
+  ElError ElTriangEig_ ## SIG \
+  ( ElMatrix_ ## SIG U, ElMatrix_ ## SIG X ) \
+  { EL_TRY( TriangEig( *CReflect(U), *CReflect(X) ) ) } \
+  ElError ElTriangEigDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG U, ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( TriangEig( *CReflect(U), *CReflect(X) ) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
+  /* Eigenvalue decomposition
+     ======================== */ \
+  ElError ElEig_ ## SIGBASE \
+  ( ElMatrix_ ## SIGBASE A, \
+    ElMatrix_ ## SIG w, \
+    ElMatrix_ ## SIG X ) \
+  { EL_TRY( Eig( *CReflect(A), *CReflect(w), *CReflect(X) ) ) } \
+  ElError ElEig_ ## SIG \
+  ( ElMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG w, \
+    ElMatrix_ ## SIG X ) \
+  { EL_TRY( Eig( *CReflect(A), *CReflect(w), *CReflect(X) ) ) } \
+  ElError ElEigDist_ ## SIGBASE \
+  ( ElDistMatrix_ ## SIGBASE A, \
+    ElDistMatrix_ ## SIG w, \
+    ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( Eig( *CReflect(A), *CReflect(w), *CReflect(X) ) ) } \
+  ElError ElEigDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG w, \
+    ElDistMatrix_ ## SIG X ) \
+  { EL_TRY( Eig( *CReflect(A), *CReflect(w), *CReflect(X) ) ) } \
   /* Schur decomposition
      =================== */ \
   /* Compute the eigenvalues (and possibly Schur factor) 

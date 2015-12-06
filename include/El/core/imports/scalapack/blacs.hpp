@@ -25,6 +25,23 @@ void FreeHandle( int bhandle );
 void FreeGrid( int context );
 void Exit( bool finished=false );
 
+void Redistribute
+( int m, int n,
+  const float* A, const int* descA,
+        float* B, const int* descB, int context );
+void Redistribute
+( int m, int n,
+  const double* A, const int* descA,
+        double* B, const int* descB, int context );
+void Redistribute
+( int m, int n,
+  const Complex<float>* A, const int* descA,
+        Complex<float>* B, const int* descB, int context );
+void Redistribute
+( int m, int n,
+  const Complex<double>* A, const int* descA,
+        Complex<double>* B, const int* descB, int context );
+
 typedef typename std::array<int,9> Desc;
 
 } // namespace blacs

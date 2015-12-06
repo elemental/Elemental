@@ -797,7 +797,35 @@ EL_EXPORT ElError ElSchurDecompDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z w, ElDistMatrix_z Q, bool fullTriangle );
 
 /* TODO: Expert versions */
-/* TODO: QuasiTriangEig, CheckRealSchur, and RealToComplex */
+/* TODO: CheckRealSchur, and RealToComplex */
+
+/* Triangular eigenvectors
+   ======================= */
+EL_EXPORT ElError ElTriangEig_s( ElMatrix_s U, ElMatrix_s X );
+EL_EXPORT ElError ElTriangEig_d( ElMatrix_d U, ElMatrix_d X );
+EL_EXPORT ElError ElTriangEig_c( ElMatrix_c U, ElMatrix_c X );
+EL_EXPORT ElError ElTriangEig_z( ElMatrix_z U, ElMatrix_z X );
+
+EL_EXPORT ElError ElTriangEigDist_s( ElConstDistMatrix_s U, ElDistMatrix_s X );
+EL_EXPORT ElError ElTriangEigDist_d( ElConstDistMatrix_d U, ElDistMatrix_d X );
+EL_EXPORT ElError ElTriangEigDist_c( ElConstDistMatrix_c U, ElDistMatrix_c X );
+EL_EXPORT ElError ElTriangEigDist_z( ElConstDistMatrix_z U, ElDistMatrix_z X );
+
+/* Eigenvalue decomposition
+   ======================== */
+EL_EXPORT ElError ElEig_s( ElMatrix_s A, ElMatrix_c w, ElMatrix_c X );
+EL_EXPORT ElError ElEig_d( ElMatrix_d A, ElMatrix_z w, ElMatrix_z X );
+EL_EXPORT ElError ElEig_c( ElMatrix_c A, ElMatrix_c w, ElMatrix_c X );
+EL_EXPORT ElError ElEig_z( ElMatrix_z A, ElMatrix_z w, ElMatrix_z X );
+
+EL_EXPORT ElError ElEigDist_s
+( ElDistMatrix_s A, ElDistMatrix_c w, ElDistMatrix_c X );
+EL_EXPORT ElError ElEigDist_d
+( ElDistMatrix_d A, ElDistMatrix_z w, ElDistMatrix_z X );
+EL_EXPORT ElError ElEigDist_c
+( ElDistMatrix_c A, ElDistMatrix_c w, ElDistMatrix_c X );
+EL_EXPORT ElError ElEigDist_z
+( ElDistMatrix_z A, ElDistMatrix_z w, ElDistMatrix_z X );
 
 /* Singular Value Decomposition (SVD)
    ================================== */

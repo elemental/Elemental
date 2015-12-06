@@ -292,12 +292,16 @@ struct SchurCtrl
 
 template<typename F>
 void Schur
-( Matrix<F>& A, Matrix<Complex<Base<F>>>& w,
-  bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+( Matrix<F>& A,
+  Matrix<Complex<Base<F>>>& w,
+  bool fullTriangle=false,
+  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( ElementalMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w,
-  bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Complex<Base<F>>>& w,
+  bool fullTriangle=false,
+  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
 ( DistMatrix<F,MC,MR,BLOCK>& A,
@@ -307,12 +311,17 @@ void Schur
 
 template<typename F>
 void Schur
-( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q,
-  bool fullTriangle=true, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+( Matrix<F>& A,
+  Matrix<Complex<Base<F>>>& w,
+  Matrix<F>& Q,
+  bool fullTriangle=true,
+  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( ElementalMatrix<F>& A, ElementalMatrix<Complex<Base<F>>>& w, 
-  ElementalMatrix<F>& Q, bool fullTriangle=true, 
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Complex<Base<F>>>& w, 
+  ElementalMatrix<F>& Q,
+  bool fullTriangle=true, 
   const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
@@ -340,14 +349,19 @@ void CheckRealSchur
 
 template<typename F>
 void QuasiTriangEig
-( const Matrix<F>& dMain, const Matrix<F>& dSub, const Matrix<F>& dSup,
+( const Matrix<F>& dMain,
+  const Matrix<F>& dSub,
+  const Matrix<F>& dSup,
   Matrix<Complex<Base<F>>>& w );
 
 template<typename F>
-void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w );
+void QuasiTriangEig
+( const Matrix<F>& U,
+        Matrix<Complex<Base<F>>>& w );
 template<typename F>
 void QuasiTriangEig
-( const ElementalMatrix<F>& U, ElementalMatrix<Complex<Base<F>>>& w );
+( const ElementalMatrix<F>& U,
+        ElementalMatrix<Complex<Base<F>>>& w );
 
 template<typename F>
 Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U );
@@ -363,7 +377,48 @@ void RealToComplex
 ( const ElementalMatrix<Real>& UQuasi, 
         ElementalMatrix<Complex<Real>>& U );
 
+template<typename Real>
+void RealToComplex
+( const Matrix<Real>& UQuasi,
+  const Matrix<Real>& QQuasi,
+        Matrix<Complex<Real>>& U,
+        Matrix<Complex<Real>>& Q );
+template<typename Real>
+void RealToComplex
+( const ElementalMatrix<Real>& UQuasi, 
+  const ElementalMatrix<Real>& QQuasi,
+        ElementalMatrix<Complex<Real>>& U,
+        ElementalMatrix<Complex<Real>>& Q );
+
 } // namespace schur
+
+// Compute eigenvectors of a triangular matrix
+// ===========================================
+// NOTE: This functionality is still experimental and should not yet be
+//       trusted
+template<typename F>
+void TriangEig
+(       Matrix<F>& U,
+        Matrix<F>& X );
+template<typename F>
+void TriangEig
+( const ElementalMatrix<F>& U,
+        ElementalMatrix<F>& X );
+
+// Compute the eigendecomposition of a square matrix
+// =================================================
+// NOTE: This functionality is still experimental and should not yet be
+//       trusted
+template<typename F>
+void Eig
+( Matrix<F>& A,
+  Matrix<Complex<Base<F>>>& w,
+  Matrix<Complex<Base<F>>>& X );
+template<typename F>
+void Eig
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Complex<Base<F>>>& w,
+  ElementalMatrix<Complex<Base<F>>>& X );
 
 // Skew-Hermitian eigenvalue solvers
 // =================================

@@ -69,6 +69,17 @@ template<> struct IsScalar<Quad> { static const bool value=true; };
 template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
 #endif
 
+template<typename T> struct IsBlasScalar
+{ static const bool value=false; };
+template<> struct IsBlasScalar<float>
+{ static const bool value=true; };
+template<> struct IsBlasScalar<double>
+{ static const bool value=true; };
+template<> struct IsBlasScalar<Complex<float>>
+{ static const bool value=true; };
+template<> struct IsBlasScalar<Complex<double>>
+{ static const bool value=true; };
+
 // Increase the precision (if possible)
 // ------------------------------------
 template<typename F> struct PromoteHelper { typedef F type; };

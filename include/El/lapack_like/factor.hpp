@@ -164,11 +164,13 @@ void LDL
 // original sparse matrix before calling LDL.
 template<typename F>
 void LDL
-( const ldl::NodeInfo& info, ldl::Front<F>& L, 
+( const ldl::NodeInfo& info,
+        ldl::Front<F>& L, 
   LDLFrontType newType=LDL_2D );
 template<typename F>
 void LDL
-( const ldl::DistNodeInfo& info, ldl::DistFront<F>& L, 
+( const ldl::DistNodeInfo& info,
+        ldl::DistFront<F>& L, 
   LDLFrontType newType=LDL_2D );
 
 namespace ldl {
@@ -1039,5 +1041,7 @@ void Skeleton
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 } // namespace El
+
+#include "El/lapack_like/factor/qr/ProxyHouseholder.hpp"
 
 #endif // ifndef EL_FACTOR_HPP

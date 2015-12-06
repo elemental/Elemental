@@ -39,8 +39,15 @@ FindPivot
         Compare compare=std::less<Real>() )
 {
     DEBUG_ONLY(CSE cse("qr::FindPivot"))
-    const auto maxNorm =
-      std::max_element( norms.begin()+col, norms.end(), compare );
+    if( norms.size()-col <= 0 )
+    {
+        ValueInt<Real> pivot;
+        pivot.value = 0;
+        pivot.index = -1;
+        return pivot;
+    }
+
+    auto maxNorm = std::max_element( norms.begin()+col, norms.end(), compare );
     ValueInt<Real> pivot;
     pivot.value = *maxNorm;
     pivot.index = maxNorm - norms.begin();
@@ -311,6 +318,7 @@ ReplaceColNorms
     }
 }
 
+// TODO: Switch to returning pivots instead of explicit permutations?
 template<typename F>
 inline void BusingerGolub
 ( ElementalMatrix<F>& APre,

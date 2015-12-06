@@ -15,7 +15,10 @@ namespace schur {
 
 template<typename F>
 inline void
-QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle )
+QR
+( Matrix<F>& A,
+  Matrix<Complex<Base<F>>>& w,
+  bool fullTriangle )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
     const Int n = A.Height();
@@ -33,7 +36,9 @@ QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle )
 template<typename F>
 inline void
 QR
-( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
+( Matrix<F>& A,
+  Matrix<Complex<Base<F>>>& w,
+  Matrix<F>& Q, 
   bool fullTriangle )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
@@ -56,7 +61,8 @@ inline void
 QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
-  bool fullTriangle, const HessQRCtrl& ctrl )
+  bool fullTriangle,
+  const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::QR"))
     AssertScaLAPACKSupport();

@@ -3,23 +3,19 @@ using namespace El;
 
 int main( int argc, char* argv[] )
 {
-    Initialize( argc, argv );
+    Environment env( argc, argv );
 
-    const Int m = Input("--m","matrix height",100);
-    const Int n = Input("--n","matrix width",20);
+    try
+    {
+        const Int m = Input("--m","matrix height",100);
+        const Int n = Input("--n","matrix width",100);
+        ProcessInput();
 
-    DistMatrix<double> A;
-    Uniform( A, m, n );
+        DistMatrix<double> A;
+        Uniform( A, m, n );
+        Print( A, "A" );
+    }
+    catch( std::exception& e ) { ReportException(e); }
 
-    DistMatrix<Int,VR,STAR> p;
-    DistMatrix<double,STAR,VR> Z;
-    QRCtrl<double> ctrl;
-    ctrl.boundRank = true;
-    ctrl.maxRank = 20;
-    ID( A, p, Z, ctrl );
-    if( mpi::Rank() == 0 )
-        std::cout << Z.Height() << ", " << Z.Width() << std::endl;
-
-    Finalize();
     return 0;
 }
