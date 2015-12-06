@@ -31,7 +31,7 @@ private:
     Int numPower_, numOversample_;
 
 public:
-    StandardProxy( Int numPower=2, Int numOversample=5 )
+    StandardProxy( Int numPower=1, Int numOversample=10 )
     : numPower_(numPower), numOversample_(numOversample)
     { }
 
@@ -118,7 +118,7 @@ ProxyHouseholder
   Matrix<Base<F>>& d,
   Matrix<Int>& p,
   const ProxyType& proxy,
-  bool usePanelPerm=true,
+  bool usePanelPerm=false,
   bool smallestFirst=false )
 {
     DEBUG_ONLY(CSE cse("qr::ProxyHouseholder"))
@@ -186,7 +186,7 @@ ProxyHouseholder
   ElementalMatrix<Base<F>>& dPre,
   ElementalMatrix<Int>& p,
   const ProxyType& proxy,
-  bool usePanelPerm=true,
+  bool usePanelPerm=false,
   bool smallestFirst=false )
 {
     DEBUG_ONLY(

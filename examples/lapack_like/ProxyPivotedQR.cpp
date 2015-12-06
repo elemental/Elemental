@@ -10,7 +10,7 @@ private:
     Int numPower_, numOversample_;
 
 public:
-    Proxy( Int numPower=2, Int numOversample=30 )
+    Proxy( Int numPower=1, Int numOversample=10 )
     : numPower_(numPower), numOversample_(numOversample)
     { }
 
@@ -80,35 +80,80 @@ public:
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
+    const int commRank = mpi::Rank(mpi::COMM_WORLD);
 
     try
     {
         const Int m = Input("--m","matrix height",300);
         const Int n = Input("--n","matrix width",300);
         const Int nb = Input("--nb","blocksize",32);
-        const bool panelPiv = Input("--panelPiv","panel pivoting?",true);
-        const Int oversample = Input("--oversample","oversample factor",20);
-        const Int numPower = Input("--numPower","# of power iterations",2);
+        const bool panelPiv = Input("--panelPiv","panel pivoting?",false);
+        const Int oversample = Input("--oversample","oversample factor",10);
+        const Int numPower = Input("--numPower","# of power iterations",1);
         const bool smallestFirst =
           Input("--smallestFirst","smallest norms first?",false);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+        PrintInputReport();
 
         SetBlocksize( nb );
 
         DistMatrix<double> A;
         Uniform( A, m, n );
-        Print( A, "A" );
+        auto ACopy = A;
+        if( print )
+            Print( A, "A" );
+        Timer timer;
 
+        if( commRank == 0 )
+            timer.Start();
         DistMatrix<double> t, d;
         DistMatrix<Int,VC,STAR> p;
         Proxy<double> prox(numPower,oversample);
         qr::ProxyHouseholder( A, t, d, p, prox, panelPiv, smallestFirst ); 
-
-        Print( A, "QR" );
-        Print( t, "t" );
-        Print( d, "d" );
-        Print( p, "p" );
-
+        if( commRank == 0 ) 
+            Output("Proxy QR time: ",timer.Stop()," seconds");
+        if( print )
+        {
+            Print( A, "QR" );
+            Print( t, "t" );
+            Print( d, "d" );
+            Print( p, "p" );
+        }
         DistMatrix<double,MD,STAR> diagR;
+        GetDiagonal( A, diagR );
+        Print( diagR, "diag(R)" );
+
+        A = ACopy;
+        if( commRank == 0 )
+            timer.Start();
+        QRCtrl<double> ctrl;
+        ctrl.smallestFirst = smallestFirst;
+        QR( A, t, d, p, ctrl ); 
+        if( commRank == 0 ) 
+            Output("Businger-Golub time: ",timer.Stop()," seconds");
+        if( print )
+        {
+            Print( A, "QR" );
+            Print( t, "t" );
+            Print( d, "d" );
+            Print( p, "p" );
+        }
+        GetDiagonal( A, diagR );
+        Print( diagR, "diag(R)" );
+
+        A = ACopy;
+        if( commRank == 0 )
+            timer.Start();
+        QR( A, t, d ); 
+        if( commRank == 0 ) 
+            Output("Standard QR time: ",timer.Stop()," seconds");
+        if( print )
+        {
+            Print( A, "QR" );
+            Print( t, "t" );
+            Print( d, "d" );
+        }
         GetDiagonal( A, diagR );
         Print( diagR, "diag(R)" );
     }

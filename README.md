@@ -47,6 +47,7 @@ including:
     - Equality-constrained Least Squares
     - General (Gauss-Markov) Linear Models
 * High-performance pseudospectral computation and visualization
+* Blocked column-pivoted QR via Johnson-Lindenstrauss
 * Quadratic-time low-rank Cholesky and LU modifications
 * Bunch-Kaufman and Bunch-Parlett for accurate symmetric factorization
 * LU and Cholesky with full pivoting
