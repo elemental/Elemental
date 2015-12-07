@@ -76,9 +76,14 @@ class Permutation
 public:
     Permutation();
 
-    void Resize( Int domainSize );
+    void Empty();
+    void ReserveSwaps( Int numSwaps );
+    void MakeArbitrary( Int domainSize );
+
     void AppendSwap( Int origin, Int dest );
     void AppendSwapSequence( const Permutation& perm, Int offset=0 );
+
+    void SetImage( Int origin, Int dest );
 
     bool Parity() const;
     bool IsSwapSequence() const;
@@ -87,19 +92,19 @@ public:
     void Explicit( Matrix<Int>& P ) const;
 
     template<typename T>
-    void ApplyToCols
+    void PermuteCols
     ( Matrix<T>& A,
       bool inverse=false,
       Int offset=0 );
 
     template<typename T>
-    void ApplyToRows
+    void PermuteRows
     ( Matrix<T>& A,
       bool inverse=false,
       Int offset=0 );
 
     template<typename T>
-    void ApplySymmetrically
+    void PermuteSymmetrically
     ( UpperOrLower uplo,
       Matrix<T>& A,
       bool conjugate=false,
@@ -107,28 +112,27 @@ public:
       Int offset=0 );
 
 private:
-    Int domainSize_=0;
+
     mutable bool parity_=false;
     mutable bool staleParity_=false;
 
     bool swapSequence_=true;
 
-    // Only used if swapSequence=true
-    // ------------------------------
+    // Only used if swapSequence_=true
+    // -------------------------------
     // NOTE: As swaps are added, if the origin sequence is of the usual form
     //       of 0, 1, 2, ..., then an explicit swap origin vector is not
     //       maintained. However, if an unexpected origin is ever encountered,
     //       then an explicit list is then maintained.
-    Int swapOffset_=0;
-    Int lastSwapIndex_=-1;
+    Int nextSwapIndex_=0;
     bool implicitSwapOrigins_=true;
     Matrix<Int> swapDests_, swapOrigins_;
 
-    // Only used if swapSequence=false
-    // -------------------------------
+    // Only used if swapSequence_=false
+    // --------------------------------
             Matrix<Int> perm_;
     mutable Matrix<Int> invPerm_;
-    mutable bool staleInverse_=false;
+    mutable bool staleInverse_=true;
 };
 
 class DistPermutation
@@ -136,9 +140,14 @@ class DistPermutation
 public:
     DistPermutation( const Grid& g );
 
-    void Resize( Int domainSize );
+    void Empty();
+    void ReserveSwaps( Int numSwaps );
+    void MakeArbitrary( Int domainSize );
+
     void AppendSwap( Int origin, Int dest );
     void AppendSwapSequence( const DistPermutation& perm, Int offset=0 );
+
+    void SetImage( Int origin, Int dest );
 
     bool Parity() const;
     bool IsSwapSequence() const;
@@ -147,29 +156,26 @@ public:
     void Explicit( AbstractDistMatrix<Int>& P ) const;
 
     template<typename T>
-    void ApplyToCols
+    void PermuteCols
     ( AbstractDistMatrix<T>& A,
       bool inverse=false,
       Int offset=0 );
 
     template<typename T>
-    void ApplyToRows
+    void PermuteRows
     ( AbstractDistMatrix<T>& A,
       bool inverse=false,
       Int offset=0 );
 
     template<typename T>
-    void ApplySymmetrically
+    void PermuteSymmetrically
     ( UpperOrLower uplo,
       AbstractDistMatrix<T>& A,
       bool conjugate=false,
       bool inverse=false,
       Int offset=0 );
 
-    //void FormMetadata() const;
-
 private:
-    Int domainSize_=0;
     mutable bool parity_=false;
     mutable bool staleParity_=false;
 
@@ -178,22 +184,21 @@ private:
 
     bool swapSequence_=true;
 
-    // Only used if swapSequence=true
-    // ------------------------------
+    // Only used if swapSequence_=true
+    // -------------------------------
     // NOTE: As swaps are added, if the origin sequence is of the usual form
     //       of 0, 1, 2, ..., then an explicit swap origin vector is not
     //       maintained. However, if an unexpected origin is ever encountered,
     //       then an explicit list is then maintained.
-    Int swapOffset_=0;
-    Int lastSwapIndex_=-1;
+    Int nextSwapIndex_=0;
     bool implicitSwapOrigins_=true;
     DistMatrix<Int,VC,STAR> swapDests_, swapOrigins_;
 
-    // Only used if swapSequence=false
-    // -------------------------------
+    // Only used if swapSequence_=false
+    // --------------------------------
             DistMatrix<Int,VC,STAR> perm_;
     mutable DistMatrix<Int,VC,STAR> invPerm_;
-    mutable bool staleInverse_=false;
+    mutable bool staleInverse_=true;
 };
 
 // Permute columns
