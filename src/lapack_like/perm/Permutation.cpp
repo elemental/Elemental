@@ -152,7 +152,7 @@ bool Permutation::IsImplicitSwapSequence() const
 
 template<typename T>
 void Permutation::PermuteCols
-( Matrix<T>& A, bool inverse, Int offset )
+( Matrix<T>& A, bool inverse, Int offset ) const
 {
     DEBUG_ONLY(CSE cse("Permutation::PermuteCols"))
     if( swapSequence_ )
@@ -225,7 +225,7 @@ void Permutation::PermuteCols
 
 template<typename T>
 void Permutation::PermuteRows
-( Matrix<T>& A, bool inverse, Int offset )
+( Matrix<T>& A, bool inverse, Int offset ) const
 {
     DEBUG_ONLY(CSE cse("Permutation::PermuteRows"))
     if( swapSequence_ )
@@ -302,7 +302,7 @@ void Permutation::PermuteSymmetrically
   Matrix<T>& A,
   bool conjugate,
   bool inverse,
-  Int offset )
+  Int offset ) const
 {
     DEBUG_ONLY(CSE cse("Permutation::PermuteSymmetrically"))
     if( swapSequence_ )
@@ -369,21 +369,39 @@ void Permutation::PermuteSymmetrically
     }
 }
 
+void Permutation::Explicit( Matrix<Int>& P ) const
+{
+    DEBUG_ONLY(CSE cse("Permutation::Explicit"))
+    if( swapSequence_ )
+    {
+        Matrix<Int> perm;
+        if( implicitSwapOrigins_ )
+            PivotsToPermutation( swapDests_, perm );
+        else
+            LogicError("Unsupported explicit permutation option");
+        ExplicitPermutation( perm, P );
+    }
+    else
+    {
+        ExplicitPermutation( perm_, P );
+    }
+}
+
 #define PROTO(T) \
   template void Permutation::PermuteCols \
   ( Matrix<T>& A, \
     bool inverse, \
-    Int offset ); \
+    Int offset ) const; \
   template void Permutation::PermuteRows \
   ( Matrix<T>& A, \
     bool inverse, \
-    Int offset ); \
+    Int offset ) const; \
   template void Permutation::PermuteSymmetrically \
   ( UpperOrLower uplo, \
     Matrix<T>& A, \
     bool conjugate, \
     bool inverse, \
-    Int offset );
+    Int offset ) const;
 
 #include "El/macros/Instantiate.h"
 

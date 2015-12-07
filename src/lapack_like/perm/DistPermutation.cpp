@@ -182,7 +182,9 @@ bool DistPermutation::IsImplicitSwapSequence() const
 
 template<typename T>
 void DistPermutation::PermuteCols
-( AbstractDistMatrix<T>& A, bool inverse, Int offset )
+( AbstractDistMatrix<T>& A,
+  bool inverse,
+  Int offset ) const
 {
     DEBUG_ONLY(CSE cse("DistPermutation::PermuteCols"))
     // TODO: Use an (MC,MR) proxy for A?
@@ -276,7 +278,9 @@ void DistPermutation::PermuteCols
 
 template<typename T>
 void DistPermutation::PermuteRows
-( AbstractDistMatrix<T>& A, bool inverse, Int offset )
+( AbstractDistMatrix<T>& A,
+  bool inverse,
+  Int offset ) const
 {
     DEBUG_ONLY(CSE cse("DistPermutation::PermuteRows"))
     // TODO: Use an (MC,MR) proxy for A?
@@ -374,7 +378,7 @@ void DistPermutation::PermuteSymmetrically
   AbstractDistMatrix<T>& A,
   bool conjugate,
   bool inverse,
-  Int offset )
+  Int offset ) const
 {
     DEBUG_ONLY(CSE cse("DistPermutation::PermuteSymmetrically"))
     // TODO: Use an (MC,MR) proxy for A?
@@ -451,21 +455,40 @@ void DistPermutation::PermuteSymmetrically
     }
 }
 
+void DistPermutation::Explicit( AbstractDistMatrix<Int>& P ) const
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::Explicit"))
+    P.SetGrid( grid_ );
+    if( swapSequence_ )
+    {
+        DistMatrix<Int,VC,STAR> perm(grid_);
+        if( implicitSwapOrigins_ )
+            PivotsToPermutation( swapDests_, perm );
+        else
+            LogicError("Unsupported explicit permutation option");
+        ExplicitPermutation( perm, P );
+    }
+    else
+    {
+        ExplicitPermutation( perm_, P );
+    }
+}
+
 #define PROTO(T) \
   template void DistPermutation::PermuteCols \
   ( AbstractDistMatrix<T>& A, \
     bool inverse, \
-    Int offset ); \
+    Int offset ) const; \
   template void DistPermutation::PermuteRows \
   ( AbstractDistMatrix<T>& A, \
     bool inverse, \
-    Int offset ); \
+    Int offset ) const; \
   template void DistPermutation::PermuteSymmetrically \
   ( UpperOrLower uplo, \
     AbstractDistMatrix<T>& A, \
     bool conjugate, \
     bool inverse, \
-    Int offset );
+    Int offset ) const;
 
 #include "El/macros/Instantiate.h"
 

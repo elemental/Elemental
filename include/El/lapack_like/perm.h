@@ -47,6 +47,20 @@ EL_EXPORT ElError ElPermutationMetaScaleUp
 EL_EXPORT ElError ElPermutationMetaScaleDown
 ( ElPermutationMeta* meta, ElInt length );
 
+/* Anonymous placeholders for Permutation and DistPermutation
+   ---------------------------------------------------------- */
+typedef struct ElPermutationDummy* ElPermutation;
+typedef struct ElDistPermutationDummy* ElDistPermutation;
+
+typedef const struct ElPermutationDummy* ElConstPermutation;
+typedef const struct ElDistPermutationDummy* ElConstDistPermutation;
+
+EL_EXPORT ElError ElPermutationCreate( ElPermutation* p );
+EL_EXPORT ElError ElDistPermutationCreate( ElDistPermutation* p, ElGrid g );
+
+EL_EXPORT ElError ElPermutationDestroy( ElConstPermutation p );
+EL_EXPORT ElError ElDistPermutationDestroy( ElConstDistPermutation p );
+
 /* Apply column pivots
    =================== */
 EL_EXPORT ElError ElApplyColPivots_i

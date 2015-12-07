@@ -83,10 +83,10 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( ReverseCholesky( CReflect(uplo), *CReflect(A) ) ) } \
   /* Cholesky (full pivoting) */ \
   ElError ElCholeskyPiv_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_i p ) \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElPermutation p ) \
   { EL_TRY( Cholesky( CReflect(uplo), *CReflect(A), *CReflect(p) ) ) } \
   ElError ElCholeskyPivDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_i p ) \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistPermutation p ) \
   { EL_TRY( Cholesky( CReflect(uplo), *CReflect(A), *CReflect(p) ) ) } \
   /* Cholesky low-rank modification */ \
   ElError ElCholeskyMod_ ## SIG \
@@ -124,14 +124,14 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   /* Solve after a Cholesky factorization (full pivoting) */ \
   ElError ElSolveAfterCholeskyPiv_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElConstMatrix_ ## SIG A, ElConstMatrix_i p, ElMatrix_ ## SIG B ) \
+    ElConstMatrix_ ## SIG A, ElConstPermutation p, ElMatrix_ ## SIG B ) \
   { EL_TRY( \
       cholesky::SolveAfter( \
         CReflect(uplo), CReflect(orientation), \
         *CReflect(A), *CReflect(p), *CReflect(B) ) ) } \
   ElError ElSolveAfterCholeskyPivDist_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
-    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, \
+    ElConstDistMatrix_ ## SIG A, ElConstDistPermutation p, \
     ElDistMatrix_ ## SIG B ) \
   { EL_TRY( \
       cholesky::SolveAfter( \

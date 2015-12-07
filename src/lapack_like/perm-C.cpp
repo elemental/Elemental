@@ -87,6 +87,22 @@ ElError ElPermutationMetaScaleDown( ElPermutationMeta* meta, ElInt length )
     )
 }
 
+ElError ElPermutationCreate( ElPermutation* p )
+{ EL_TRY( *p = CReflect( new Permutation ) ) }
+
+ElError ElPermutationDestroy( ElConstPermutation p )
+{ EL_TRY( delete CReflect(p) ) }
+
+ElError ElDistPermutationCreate( ElDistPermutation* p, ElGrid grid )
+{ EL_TRY( *p = CReflect( new DistPermutation(*CReflect(grid)) ) ) }
+
+ElError ElDistPermutationDestroy( ElConstDistPermutation p )
+{ EL_TRY( delete CReflect(p) ) }
+
+// Deprecation line
+// ################
+// TODO: Deprecate the below in favor of Permutation and DistPermutation
+
 // Explicit permutation
 // ====================
 ElError ElExplicitPermutation( ElConstMatrix_i p, ElMatrix_i P )

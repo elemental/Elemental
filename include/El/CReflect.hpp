@@ -858,6 +858,27 @@ inline PermutationMeta CReflect( const ElPermutationMeta& metaC )
     return meta;
 }
 
+inline Permutation* CReflect( ElPermutation p )
+{ return EL_RC(Permutation*,p); }
+inline ElPermutation CReflect( Permutation* p )
+{ return (ElPermutation)EL_RC(struct ElPermutationDummy*,p); }
+
+inline DistPermutation* CReflect( ElDistPermutation p )
+{ return EL_RC(DistPermutation*,p); }
+inline ElDistPermutation CReflect( DistPermutation* p )
+{ return (ElDistPermutation)EL_RC(struct ElDistPermutationDummy*,p); }
+
+inline const Permutation* CReflect( ElConstPermutation p )
+{ return EL_RC(const Permutation*,p); }
+inline ElConstPermutation CReflect( const Permutation* p )
+{ return (ElConstPermutation)EL_RC(const struct ElPermutationDummy*,p); }
+
+inline const DistPermutation* CReflect( ElConstDistPermutation p )
+{ return EL_RC(const DistPermutation*,p); }
+inline ElConstDistPermutation CReflect( const DistPermutation* p )
+{ return (ElConstDistPermutation)
+         EL_RC(const struct ElDistPermutationDummy*,p); }
+
 // Condensed form
 // ^^^^^^^^^^^^^^
 inline ElHermitianTridiagApproach 

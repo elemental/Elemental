@@ -34,7 +34,7 @@ lib.ElCholeskyPivDist_z.argtypes = \
 def Cholesky(uplo,A,piv=False):
   if type(A) is Matrix:
     if piv:
-      p = Matrix(iTag)
+      p = Permutation()
       args = [uplo,A.obj,p.obj]
       if   A.tag == sTag: lib.ElCholeskyPiv_s(*args)
       elif A.tag == dTag: lib.ElCholeskyPiv_d(*args)
@@ -51,7 +51,7 @@ def Cholesky(uplo,A,piv=False):
       else: DataExcept()
   elif type(A) is DistMatrix:
     if piv:
-      p = DistMatrix(iTag,VC,STAR,A.Grid())
+      p = DistPermutation(A.Grid())
       args = [uplo,A.obj,p.obj]
       if   A.tag == sTag: lib.ElCholeskyPivDist_s(*args)
       elif A.tag == dTag: lib.ElCholeskyPivDist_d(*args)
@@ -167,20 +167,22 @@ def SolveAfterCholesky(uplo,orient,A,B):
   else: TypeExcept()
 
 def SolveAfterCholeskyPiv(uplo,orient,A,p,B):
-  if type(A) is not type(p) or type(p) is not type(B):
-    raise Exception('Types of {A,p,B} must match')
+  if type(A) is not type(B):
+    raise Exception('Types of A and B must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
-  if p.tag != iTag:
-    raise Exception('p must be integral')
   args = [uplo,orient,A.obj,p.obj,B.obj]
   if type(A) is Matrix:
+    if type(p) is not Permutation:
+      raise Exception('p must be a Permutation')
     if   A.tag == sTag: lib.ElSolveAfterCholeskyPiv_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterCholeskyPiv_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterCholeskyPiv_c(*args)
     elif A.tag == zTag: lib.ElSolveAfterCholeskyPiv_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(p) is not DistPermutation:
+      raise Exception('p must be a DistPermutation')
     if   A.tag == sTag: lib.ElSolveAfterCholeskyPivDist_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterCholeskyPivDist_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterCholeskyPivDist_c(*args)

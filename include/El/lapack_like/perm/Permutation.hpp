@@ -30,19 +30,17 @@ public:
     bool IsSwapSequence() const;
     bool IsImplicitSwapSequence() const;
 
-    void Explicit( Matrix<Int>& P ) const;
-
     template<typename T>
     void PermuteCols
     ( Matrix<T>& A,
       bool inverse=false,
-      Int offset=0 );
+      Int offset=0 ) const;
 
     template<typename T>
     void PermuteRows
     ( Matrix<T>& A,
       bool inverse=false,
-      Int offset=0 );
+      Int offset=0 ) const;
 
     template<typename T>
     void PermuteSymmetrically
@@ -50,7 +48,9 @@ public:
       Matrix<T>& A,
       bool conjugate=false,
       bool inverse=false,
-      Int offset=0 );
+      Int offset=0 ) const;
+
+    void Explicit( Matrix<Int>& P ) const;
 
 private:
 

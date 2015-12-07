@@ -49,6 +49,30 @@ class PermutationMeta(ctypes.Structure):
   def ScaleDown(self,length):
     lib.ElPermutationMetaScaleDown(pointer(self),length)
 
+class Permutation(object):
+  lib.ElPermutationCreate.argtypes = [POINTER(c_void_p)]
+  def __init__(self):
+    self.obj = c_void_p()
+    lib.ElPermutationCreate(pointer(self.obj))
+
+  lib.ElPermutationDestroy.argtypes = [c_void_p]
+  def Destroy(self):
+    lib.ElPermutationDestroy(self.obj)  
+
+  # TODO: More member functions, e.g., PermuteRows and PermuteCols
+
+class DistPermutation(object):
+  lib.ElDistPermutationCreate.argtypes = [POINTER(c_void_p),c_void_p]
+  def __init__(self,grid):
+    self.obj = c_void_p()
+    lib.ElDistPermutationCreate(pointer(self.obj),grid.obj)
+
+  lib.ElDistPermutationDestroy.argtypes = [c_void_p]
+  def Destroy(self):
+    lib.ElDistPermutationDestroy(self.obj)
+
+  # TODO: More member functions, e.g., PermuteRows and PermuteCols
+
 # Apply column pivots
 # ===================
 lib.ElApplyColPivots_i.argtypes = \

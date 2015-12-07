@@ -78,50 +78,50 @@ EL_EXPORT ElError ElReverseCholeskyDist_z
 /* Cholesky with full (diagonal) pivoting, P A P^T = L L^H = U^H U
    --------------------------------------------------------------- */
 EL_EXPORT ElError ElCholeskyPiv_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_i p );
+( ElUpperOrLower uplo, ElMatrix_s A, ElPermutation p );
 EL_EXPORT ElError ElCholeskyPiv_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_i p );
+( ElUpperOrLower uplo, ElMatrix_d A, ElPermutation p );
 EL_EXPORT ElError ElCholeskyPiv_c
-( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_i p );
+( ElUpperOrLower uplo, ElMatrix_c A, ElPermutation p );
 EL_EXPORT ElError ElCholeskyPiv_z
-( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_i p );
+( ElUpperOrLower uplo, ElMatrix_z A, ElPermutation p );
 
 EL_EXPORT ElError ElCholeskyPivDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_i p );
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistPermutation p );
 EL_EXPORT ElError ElCholeskyPivDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_i p );
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistPermutation p );
 EL_EXPORT ElError ElCholeskyPivDist_c
-( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_i p );
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistPermutation p );
 EL_EXPORT ElError ElCholeskyPivDist_z
-( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_i p );
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistPermutation p );
 
 /* Solve linear systems after factorization 
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElSolveAfterCholeskyPiv_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
+  ElConstMatrix_s A, ElConstPermutation p, ElMatrix_s B );
 EL_EXPORT ElError ElSolveAfterCholeskyPiv_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
+  ElConstMatrix_d A, ElConstPermutation p, ElMatrix_d B );
 EL_EXPORT ElError ElSolveAfterCholeskyPiv_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
+  ElConstMatrix_c A, ElConstPermutation p, ElMatrix_c B );
 EL_EXPORT ElError ElSolveAfterCholeskyPiv_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
+  ElConstMatrix_z A, ElConstPermutation p, ElMatrix_z B );
 
 EL_EXPORT ElError ElSolveAfterCholeskyPivDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
+  ElConstDistMatrix_s A, ElConstDistPermutation p, ElDistMatrix_s B );
 EL_EXPORT ElError ElSolveAfterCholeskyPivDist_d
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
+  ElConstDistMatrix_d A, ElConstDistPermutation p, ElDistMatrix_d B );
 EL_EXPORT ElError ElSolveAfterCholeskyPivDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
+  ElConstDistMatrix_c A, ElConstDistPermutation p, ElDistMatrix_c B );
 EL_EXPORT ElError ElSolveAfterCholeskyPivDist_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
-  ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
+  ElConstDistMatrix_z A, ElConstDistPermutation p, ElDistMatrix_z B );
 
 /* Modify a Cholesky factorization, L L^H + alpha V V^H = LHat LHat^H
    ------------------------------------------------------------------ */

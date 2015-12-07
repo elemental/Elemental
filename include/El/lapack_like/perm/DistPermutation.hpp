@@ -89,19 +89,17 @@ public:
     bool IsSwapSequence() const;
     bool IsImplicitSwapSequence() const;
 
-    void Explicit( AbstractDistMatrix<Int>& P ) const;
-
     template<typename T>
     void PermuteCols
     ( AbstractDistMatrix<T>& A,
       bool inverse=false,
-      Int offset=0 );
+      Int offset=0 ) const;
 
     template<typename T>
     void PermuteRows
     ( AbstractDistMatrix<T>& A,
       bool inverse=false,
-      Int offset=0 );
+      Int offset=0 ) const;
 
     template<typename T>
     void PermuteSymmetrically
@@ -109,15 +107,14 @@ public:
       AbstractDistMatrix<T>& A,
       bool conjugate=false,
       bool inverse=false,
-      Int offset=0 );
+      Int offset=0 ) const;
+
+    void Explicit( AbstractDistMatrix<Int>& P ) const;
 
 private:
     const Grid& grid_;
     mutable bool parity_=false;
     mutable bool staleParity_=false;
-
-    //bool staleMetadata_=false;
-    //mutable PermutationMeta meta_;
 
     bool swapSequence_=true;
 
@@ -138,9 +135,9 @@ private:
     mutable bool staleInverse_=true;
 
     // Use the alignment and communicator as a key
-    bool staleMeta_=false;
     typedef std::pair<Int,mpi::Comm> keyType_;
     mutable std::map<keyType_,PermutationMeta> rowMeta_, colMeta_;
+    mutable bool staleMeta_=false;
 };
 
 } // namespace El

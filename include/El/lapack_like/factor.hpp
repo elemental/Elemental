@@ -33,10 +33,10 @@ template<typename F>
 void ReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p );
+void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p );
 template<typename F>
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, DistPermutation& p );
 
 template<typename F>
 void CholeskyMod
@@ -76,14 +76,14 @@ void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<Int>& p, 
+  const Permutation& p, 
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
   const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<Int>& p,
+  const DistPermutation& p,
         AbstractDistMatrix<F>& B );
 
 } // namespace cholesky
