@@ -96,8 +96,6 @@ void PermuteCols
       if( A.RowAlign() != oldMeta.align )
           LogicError("Invalid alignment in metadata");
     )
-    if( inverse )
-        LogicError("Inverse option not yet supported"); 
     if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
 
@@ -107,38 +105,78 @@ void PermuteCols
     const Int localHeight = A.LocalHeight();
     PermutationMeta meta = oldMeta;
     meta.ScaleUp( localHeight ); 
-    // Fill vectors with the send data
-    auto offsets = meta.sendDispls;
-    const int totalSend = meta.TotalSend();
-    vector<T> sendData;
-    FastResize( sendData, mpi::Pad(totalSend) );
-    const int numSends = meta.sendIdx.size();
-    for( int send=0; send<numSends; ++send )
+
+    if( inverse )
     {
-        const int jLoc = meta.sendIdx[send];
-        const int rank = meta.sendRanks[send];
-        MemCopy( &sendData[offsets[rank]], &ABuf[jLoc*ALDim], localHeight );
-        offsets[rank] += localHeight;
+        // Fill vectors with the send data
+        auto offsets = meta.recvDispls;
+        const int totalSend = meta.TotalRecv();
+        vector<T> sendData;
+        FastResize( sendData, mpi::Pad(totalSend) );
+        const int numSends = meta.recvIdx.size();
+        for( int send=0; send<numSends; ++send )
+        {
+            const int jLoc = meta.recvIdx[send];
+            const int rank = meta.recvRanks[send];
+            MemCopy( &sendData[offsets[rank]], &ABuf[jLoc*ALDim], localHeight );
+            offsets[rank] += localHeight;
+        }
+
+        // Communicate all pivot rows
+        const int totalRecv = meta.TotalSend();
+        vector<T> recvData;
+        FastResize( recvData, mpi::Pad(totalRecv) );
+        mpi::AllToAll
+        ( sendData.data(), meta.recvCounts.data(), meta.recvDispls.data(),
+          recvData.data(), meta.sendCounts.data(), meta.sendDispls.data(), 
+          meta.comm );
+
+        // Unpack the recv data
+        offsets = meta.sendDispls;
+        const int numRecvs = meta.sendIdx.size();
+        for( int recv=0; recv<numRecvs; ++recv )
+        {
+            const int jLoc = meta.sendIdx[recv];
+            const int rank = meta.sendRanks[recv];
+            MemCopy( &ABuf[jLoc*ALDim], &recvData[offsets[rank]], localHeight );
+            offsets[rank] += localHeight;
+        }
     }
-
-    // Communicate all pivot rows
-    const int totalRecv = meta.TotalRecv();
-    vector<T> recvData;
-    FastResize( recvData, mpi::Pad(totalRecv) );
-    mpi::AllToAll
-    ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
-      recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(), 
-      meta.comm );
-
-    // Unpack the recv data
-    offsets = meta.recvDispls;
-    const int numRecvs = meta.recvIdx.size();
-    for( int recv=0; recv<numRecvs; ++recv )
+    else
     {
-        const int jLoc = meta.recvIdx[recv];
-        const int rank = meta.recvRanks[recv];
-        MemCopy( &ABuf[jLoc*ALDim], &recvData[offsets[rank]], localHeight );
-        offsets[rank] += localHeight;
+        // Fill vectors with the send data
+        auto offsets = meta.sendDispls;
+        const int totalSend = meta.TotalSend();
+        vector<T> sendData;
+        FastResize( sendData, mpi::Pad(totalSend) );
+        const int numSends = meta.sendIdx.size();
+        for( int send=0; send<numSends; ++send )
+        {
+            const int jLoc = meta.sendIdx[send];
+            const int rank = meta.sendRanks[send];
+            MemCopy( &sendData[offsets[rank]], &ABuf[jLoc*ALDim], localHeight );
+            offsets[rank] += localHeight;
+        }
+
+        // Communicate all pivot rows
+        const int totalRecv = meta.TotalRecv();
+        vector<T> recvData;
+        FastResize( recvData, mpi::Pad(totalRecv) );
+        mpi::AllToAll
+        ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
+          recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(), 
+          meta.comm );
+
+        // Unpack the recv data
+        offsets = meta.recvDispls;
+        const int numRecvs = meta.recvIdx.size();
+        for( int recv=0; recv<numRecvs; ++recv )
+        {
+            const int jLoc = meta.recvIdx[recv];
+            const int rank = meta.recvRanks[recv];
+            MemCopy( &ABuf[jLoc*ALDim], &recvData[offsets[rank]], localHeight );
+            offsets[rank] += localHeight;
+        }
     }
 }
 

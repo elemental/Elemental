@@ -249,19 +249,28 @@ void DistPermutation::PermuteCols
             staleMeta_ = false;
         }
 
-        // TODO: Query/maintain the unordered_map
-
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );
             staleInverse_ = false;
         }
+
+        // TODO: Query/maintain the unordered_map
+        const Int align = A.RowAlign();
+        mpi::Comm comm = A.RowComm();
+        keyType_ key = std::pair<Int,mpi::Comm>(align,comm);
+        auto data = colMeta_.find( key );
+        if( data == colMeta_.end() )
+        {
+            colMeta_.emplace
+            ( std::piecewise_construct,
+              std::forward_as_tuple(key),
+              std::forward_as_tuple(perm_,invPerm_,align,comm) );
+            data = colMeta_.find( key );
+        }
         // TODO: Move El::PermuteCols into this class
-        if( inverse )
-            El::PermuteCols( A, invPerm_, perm_ );
-        else
-            El::PermuteCols( A, perm_, invPerm_ );
+        El::PermuteCols( A, data->second, inverse );
     }
 }
 
@@ -334,19 +343,28 @@ void DistPermutation::PermuteRows
             staleMeta_ = false;
         }
 
-        // TODO: Query/maintain the unordered_map
-
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );
             staleInverse_ = false;
         }
+
+        // TODO: Query/maintain the unordered_map
+        const Int align = A.ColAlign();
+        mpi::Comm comm = A.ColComm();
+        keyType_ key = std::pair<Int,mpi::Comm>(align,comm);
+        auto data = rowMeta_.find( key );
+        if( data == rowMeta_.end() )
+        {
+            rowMeta_.emplace
+            ( std::piecewise_construct,
+              std::forward_as_tuple(key),
+              std::forward_as_tuple(perm_,invPerm_,align,comm) );
+            data = rowMeta_.find( key );
+        }
         // TODO: Move El::PermuteRows into this class
-        if( inverse )
-            El::PermuteRows( A, invPerm_, perm_ );
-        else
-            El::PermuteRows( A, perm_, invPerm_ );
+        El::PermuteRows( A, data->second, inverse );
     }
 }
 
