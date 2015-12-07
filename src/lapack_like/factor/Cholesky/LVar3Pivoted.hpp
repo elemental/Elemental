@@ -41,16 +41,27 @@ Full( const DistMatrix<F>& A )
 
 template<typename F>
 inline LDLPivot
-PanelFull( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y )
+PanelFull
+( const Matrix<F>& A,
+        Matrix<F>& d,
+  const Matrix<F>& X,
+  const Matrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("cholesky::pivot::PanelFull"))
+
     // Form updated diagonal
-    auto d = GetDiagonal(A);
     const Int height = d.Height();
     const Int k = X.Width();
+          F* dBuf = d.Buffer();
+    const F* XBuf = X.LockedBuffer();
+    const F* YBuf = Y.LockedBuffer();
+    const Int XLDim = X.LDim();
+    const Int YLDim = Y.LDim();
     for( Int i=0; i<height; ++i )
-        for( Int j=0; j<k; ++j )
-            d.Update( i, 0, -X.Get(i,j)*Y.Get(i,j) );
+    {
+        dBuf[i] -= XBuf[i+(k-1)*XLDim]*YBuf[i+(k-1)*YLDim];
+        dBuf[i] = RealPart(dBuf[i]);
+    }
 
     // Return maximum from it
     auto diagMax = VectorMaxAbsLoc( d );
@@ -64,6 +75,7 @@ template<typename F>
 inline LDLPivot
 PanelFull
 ( const DistMatrix<F>& A, 
+        DistMatrix<F,MD,STAR>& d,
   const DistMatrix<F,MC,STAR>& X,
   const DistMatrix<F,MR,STAR>& Y )
 {
@@ -72,21 +84,28 @@ PanelFull
       if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
           LogicError("A, X, and Y are not properly aligned");
     )
+
     // Form updated diagonal
-    auto d = GetDiagonal(A);
     if( d.Participating() )
     {
         const Int dLocalHeight = d.LocalHeight();
         const Int k = X.Width();
+        F* dBuf = d.Buffer();
+        const F* XBuf = X.LockedBuffer();
+        const F* YBuf = Y.LockedBuffer();
+        const Int XLDim = X.LDim();
+        const Int YLDim = Y.LDim();
+
+        const Int dColShift = d.ColShift();
+        const Int dColStride = d.ColStride();
         for( Int iLoc=0; iLoc<dLocalHeight; ++iLoc )
         {
-            const Int i = d.GlobalRow(iLoc);
+            const Int i = dColShift + iLoc*dColStride;
+            // TODO: Avoid repeated calls to LocalRow and use strides
             const Int iLocX = X.LocalRow(i);
             const Int iLocY = Y.LocalRow(i);
-            for( Int j=0; j<k; ++j )
-                d.UpdateLocal
-                ( iLoc, 0, -X.GetLocal(iLocX,j)*Y.GetLocal(iLocY,j) );
-            d.MakeReal( iLoc, 0 );
+            dBuf[iLoc] -= XBuf[iLocX+(k-1)*XLDim]*YBuf[iLocY+(k-1)*YLDim];
+            dBuf[iLoc] = RealPart(dBuf[iLoc]);
         }
     }
 
@@ -95,6 +114,7 @@ PanelFull
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
+    
     return pivot;
 }
 
@@ -211,6 +231,8 @@ LPanelPivoted
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
 
+    auto d = GetDiagonal(A);
+
     for( Int k=0; k<bsize; ++k )
     {
         const Range<Int> ind0( 0,   k   ),
@@ -222,6 +244,7 @@ LPanelPivoted
         auto a21 = A( ind2, ind1 );
         auto aB1 = A( indB, ind1 );
         auto ABR = A( indB, indR );
+        auto dB = d( indB, ALL );
 
         auto x21 = X( ind2, ind1 );
         auto XB0 = X( indB, ind0 );
@@ -231,12 +254,13 @@ LPanelPivoted
         auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot 
-        const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
+        const auto pivot = pivot::PanelFull( ABR, dB, XB0, YB0 );
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
         pFull.AppendSwap( k+off, from+off );
+        RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
 
@@ -278,6 +302,8 @@ LPanelPivoted
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
 
+    auto d = GetDiagonal(A);
+
     for( Int k=0; k<bsize; ++k )
     {
         const Range<Int> ind0( 0,   k   ),
@@ -289,6 +315,7 @@ LPanelPivoted
         auto a21 = A( ind2, ind1 );
         auto aB1 = A( indB, ind1 );
         auto ABR = A( indB, indR );
+        auto dB = d( indB, ALL );
 
         auto x21 = X( ind2, ind1 );
         auto XB0 = X( indB, ind0 );
@@ -298,12 +325,13 @@ LPanelPivoted
         auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot
-        const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
+        const auto pivot = pivot::PanelFull( ABR, dB, XB0, YB0 );
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
         pFull.AppendSwap( k+off, from+off );
+        RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
 

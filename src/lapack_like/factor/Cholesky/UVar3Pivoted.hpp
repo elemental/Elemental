@@ -133,6 +133,8 @@ UPanelPivoted
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
 
+    auto d = GetDiagonal(A);
+
     for( Int k=0; k<bsize; ++k )
     {
         const Range<Int> ind0( 0,   k   ),
@@ -144,6 +146,7 @@ UPanelPivoted
         auto a12 = A( ind1, ind2 );
         auto a1R = A( ind1, indR );
         auto ABR = A( indB, indR );
+        auto dB = d( indB, ALL );
 
         auto x10 = X( ind1, ind0 );
         auto x21 = X( ind2, ind1 );
@@ -153,12 +156,13 @@ UPanelPivoted
         auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot 
-        const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
+        const auto pivot = pivot::PanelFull( ABR, dB, XB0, YB0 );
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
         HermitianSwap( UPPER, AFull, k+off, from+off );
         pFull.AppendSwap( k+off, from+off );
+        RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
 
@@ -200,6 +204,8 @@ UPanelPivoted
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
 
+    auto d = GetDiagonal(A);
+
     for( Int k=0; k<bsize; ++k )
     {
         const Range<Int> ind0( 0,   k   ),
@@ -211,6 +217,7 @@ UPanelPivoted
         auto a12 = A( ind1, ind2 );
         auto a1R = A( ind1, indR );
         auto ABR = A( indB, indR );
+        auto dB = d( indB, ALL );
 
         auto x10 = X( ind1, ind0 );
         auto x21 = X( ind2, ind1 );
@@ -220,12 +227,13 @@ UPanelPivoted
         auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot
-        const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
+        const auto pivot = pivot::PanelFull( ABR, dB, XB0, YB0 );
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
         HermitianSwap( UPPER, AFull, k+off, from+off );
         pFull.AppendSwap( k+off, from+off );
+        RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
 
