@@ -10,11 +10,19 @@
 
 namespace El {
 
-Permutation::Permutation() { }
+DistPermutation::DistPermutation( const Grid& g )
+: grid_(g)
+{ 
+    DEBUG_ONLY(CSE cse("DistPermutation::DistPermutation"))
+    swapDests_.SetGrid( g );
+    swapOrigins_.SetGrid( g );
+    perm_.SetGrid( g );
+    invPerm_.SetGrid( g );
+}
 
-void Permutation::Empty()
+void DistPermutation::Empty()
 {
-    DEBUG_ONLY(CSE cse("Permutation::Empty"))
+    DEBUG_ONLY(CSE cse("DistPermutation::Empty"))
 
     parity_ = false;
     staleParity_ = false;
@@ -33,25 +41,34 @@ void Permutation::Empty()
     perm_.Empty();
     invPerm_.Empty();
     staleInverse_ = false;
+
+    rowMeta_.clear();
+    colMeta_.clear();
+    staleMeta_ = false;
 }
 
-void Permutation::ReserveSwaps( Int numSwaps )
+void DistPermutation::ReserveSwaps( Int numSwaps )
 {
-    DEBUG_ONLY(CSE cse("Permutation::ReserveSwaps"))
+    DEBUG_ONLY(CSE cse("DistPermutation::ReserveSwaps"))
     Empty();
 
+    swapDests_.SetGrid( grid_ );
     swapDests_.Resize( numSwaps, 1 );
-    for( Int j=0; j<numSwaps; ++j )
-        swapDests_.Set( j, 0, j );
+    const Int localHeight = swapDests_.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        swapDests_.SetLocal( iLoc, 0, swapDests_.GlobalRow(iLoc) );
+
+    staleMeta_ = true;
 }
 
-void Permutation::AppendSwap( Int origin, Int dest )
+void DistPermutation::AppendSwap( Int origin, Int dest )
 {
-    DEBUG_ONLY(CSE cse("Permutation::AppendSwap"))
+    DEBUG_ONLY(CSE cse("DistPermutation::AppendSwap"))
     if( !swapSequence_ )
         LogicError("Appending swaps to general permutations not yet enabled");
     if( !staleParity_ && origin != dest )
         parity_ = !parity_;
+    staleMeta_ = true;
 
     if( !implicitSwapOrigins_ )
     {
@@ -71,9 +88,11 @@ void Permutation::AppendSwap( Int origin, Int dest )
         implicitSwapOrigins_ = false;
         const Int numSwaps = swapDests_.Height();
 
+        swapOrigins_.SetGrid( grid_ );
         swapOrigins_.Resize( numSwaps, 1 );
-        for( Int j=0; j<numSwaps; ++j )
-            swapOrigins_.Set( j, 0, j ); 
+        const Int localHeight = swapOrigins_.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            swapOrigins_.SetLocal( iLoc, 0, swapOrigins_.GlobalRow(iLoc) );
 
         swapOrigins_.Set( nextSwapIndex_, 0, origin );
         swapDests_.Set( nextSwapIndex_, 0, dest );
@@ -81,60 +100,71 @@ void Permutation::AppendSwap( Int origin, Int dest )
     }
 }
 
-void Permutation::AppendSwapSequence( const Permutation& perm, Int offset )
+void DistPermutation::AppendSwapSequence
+( const DistPermutation& perm, Int offset )
 {
-    DEBUG_ONLY(CSE cse("Permutation::AppendSwapSequence"))
+    DEBUG_ONLY(CSE cse("DistPermutation::AppendSwapSequence"))
     if( !swapSequence_ || !perm.swapSequence_ )
         LogicError("Appending swaps to general permutations not yet enabled");
     
     const Int numSwapAppends = perm.swapDests_.Height();
+    DistMatrix<Int,STAR,STAR> swapDests_STAR_STAR = perm.swapDests_;
     if( perm.implicitSwapOrigins_ )
     {
         for( Int j=0; j<numSwapAppends; ++j )
-            AppendSwap( nextSwapIndex_+j, perm.swapDests_.Get(j,0)-offset );
+            AppendSwap
+            ( nextSwapIndex_+j, swapDests_STAR_STAR.GetLocal(j,0)-offset );
     }
     else
     {
+        DistMatrix<Int,STAR,STAR> swapOrigins_STAR_STAR = perm.swapOrigins_;
         for( Int j=0; j<numSwapAppends; ++j )
             AppendSwap
-            ( perm.swapOrigins_.Get(j,0)-offset,
-              perm.swapDests_.Get(j,0)-offset );
+            ( swapOrigins_STAR_STAR.GetLocal(j,0)-offset,
+              swapDests_STAR_STAR.GetLocal(j,0)-offset );
     }
     nextSwapIndex_ += numSwapAppends;
 }
 
-void Permutation::SetImage( Int origin, Int dest )
+void DistPermutation::SetImage( Int origin, Int dest )
 {
-    DEBUG_ONLY(CSE cse("Permutation::SetImage"))
+    DEBUG_ONLY(CSE cse("DistPermutation::SetImage"))
     if( swapSequence_ )
         LogicError("Cannot explicitly set the image of a swap sequence");
     perm_.Set( origin, 0, dest );
     invPerm_.Set( dest, 0, origin );
     staleParity_ = true;
+    staleMeta_ = true;
 }
 
-void Permutation::MakeArbitrary( Int domainSize )
+void DistPermutation::MakeArbitrary( Int domainSize )
 {
-    DEBUG_ONLY(CSE cse("Permutation::MakeArbitrary"))
+    DEBUG_ONLY(CSE cse("DistPermutation::MakeArbitrary"))
     if( swapSequence_ )
     {
         Empty();
         swapSequence_ = false;
     }
+    perm_.SetGrid( grid_ );
+    invPerm_.SetGrid( grid_ );
     perm_.Resize( domainSize, 1 );
     invPerm_.Resize( domainSize, 1 );
-    for( Int j=0; j<domainSize; ++j )
-        perm_.Set( j, 0, j );
-    for( Int j=0; j<domainSize; ++j ) 
-        invPerm_.Set( j, 0, j );
+    const Int localHeight = perm_.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = perm_.GlobalRow(iLoc);
+        perm_.SetLocal( iLoc, 0, i );
+        invPerm_.SetLocal( iLoc, 0, i );
+    }
     parity_ = false;
     staleParity_ = false;
     staleInverse_ = false;
+    staleMeta_ = true;
 }
 
-bool Permutation::Parity() const
+bool DistPermutation::Parity() const
 {
-    DEBUG_ONLY(CSE cse("Permutation::Parity"))
+    DEBUG_ONLY(CSE cse("DistPermutation::Parity"))
     if( staleParity_ )
     {
         LogicError("Computation of parity not yet enabled");
@@ -144,17 +174,18 @@ bool Permutation::Parity() const
     return parity_;
 }
 
-bool Permutation::IsSwapSequence() const
+bool DistPermutation::IsSwapSequence() const
 { return swapSequence_; }
 
-bool Permutation::IsImplicitSwapSequence() const
+bool DistPermutation::IsImplicitSwapSequence() const
 { return implicitSwapOrigins_; }
 
 template<typename T>
-void Permutation::PermuteCols
-( Matrix<T>& A, bool inverse, Int offset )
+void DistPermutation::PermuteCols
+( AbstractDistMatrix<T>& A, bool inverse, Int offset )
 {
-    DEBUG_ONLY(CSE cse("Permutation::PermuteCols"))
+    DEBUG_ONLY(CSE cse("DistPermutation::PermuteCols"))
+    // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -163,6 +194,7 @@ void Permutation::PermuteCols
             return;
 
         const Int numSwaps = swapDests_.Height();
+        DistMatrix<Int,STAR,STAR> dests_STAR_STAR( swapDests_ );
         if( inverse )
         {
             if( implicitSwapOrigins_ )
@@ -170,20 +202,20 @@ void Permutation::PermuteCols
                 for( Int j=numSwaps-1; j>=0; --j )
                 {
                     const Int origin = j;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     ColSwap( A, origin, dest );
                 }
             }
             else
             {
+                DistMatrix<Int,STAR,STAR> origins_STAR_STAR( swapOrigins_ );
                 for( Int j=numSwaps-1; j>=0; --j )
                 {
-                    const Int origin = swapOrigins_.Get(j,0)-offset;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     ColSwap( A, origin, dest );
                 }
             }
-
         }
         else
         {
@@ -192,16 +224,17 @@ void Permutation::PermuteCols
                 for( Int j=0; j<numSwaps; ++j )
                 {
                     const Int origin = j;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     ColSwap( A, origin, dest );
                 }
             }
             else
             {
+                DistMatrix<Int,STAR,STAR> origins_STAR_STAR( swapOrigins_ );
                 for( Int j=0; j<numSwaps; ++j )
                 {
-                    const Int origin = swapOrigins_.Get(j,0)-offset;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     ColSwap( A, origin, dest );
                 }
             }
@@ -209,6 +242,15 @@ void Permutation::PermuteCols
     }
     else
     {
+        if( staleMeta_ )
+        {
+            rowMeta_.clear();
+            colMeta_.clear();
+            staleMeta_ = false;
+        }
+
+        // TODO: Query/maintain the unordered_map
+
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -224,10 +266,11 @@ void Permutation::PermuteCols
 }
 
 template<typename T>
-void Permutation::PermuteRows
-( Matrix<T>& A, bool inverse, Int offset )
+void DistPermutation::PermuteRows
+( AbstractDistMatrix<T>& A, bool inverse, Int offset )
 {
-    DEBUG_ONLY(CSE cse("Permutation::PermuteRows"))
+    DEBUG_ONLY(CSE cse("DistPermutation::PermuteRows"))
+    // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -236,6 +279,7 @@ void Permutation::PermuteRows
             return;
 
         const Int numSwaps = swapDests_.Height();
+        DistMatrix<Int,STAR,STAR> dests_STAR_STAR( swapDests_ );
         if( inverse )
         {
             if( implicitSwapOrigins_ )
@@ -243,20 +287,20 @@ void Permutation::PermuteRows
                 for( Int j=numSwaps-1; j>=0; --j )
                 {
                     const Int origin = j;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     RowSwap( A, origin, dest );
                 }
             }
             else
             {
+                DistMatrix<Int,STAR,STAR> origins_STAR_STAR( swapOrigins_ );
                 for( Int j=numSwaps-1; j>=0; --j )
                 {
-                    const Int origin = swapOrigins_.Get(j,0)-offset;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     RowSwap( A, origin, dest );
                 }
             }
-
         }
         else
         {
@@ -265,16 +309,17 @@ void Permutation::PermuteRows
                 for( Int j=0; j<numSwaps; ++j )
                 {
                     const Int origin = j;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     RowSwap( A, origin, dest );
                 }
             }
             else
             {
+                DistMatrix<Int,STAR,STAR> origins_STAR_STAR( swapOrigins_ );
                 for( Int j=0; j<numSwaps; ++j )
                 {
-                    const Int origin = swapOrigins_.Get(j,0)-offset;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     RowSwap( A, origin, dest );
                 }
             }
@@ -282,6 +327,15 @@ void Permutation::PermuteRows
     }
     else
     {
+        if( staleMeta_ )
+        {
+            rowMeta_.clear();
+            colMeta_.clear();
+            staleMeta_ = false;
+        }
+
+        // TODO: Query/maintain the unordered_map
+
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -297,14 +351,15 @@ void Permutation::PermuteRows
 }
 
 template<typename T>
-void Permutation::PermuteSymmetrically
+void DistPermutation::PermuteSymmetrically
 ( UpperOrLower uplo,
-  Matrix<T>& A,
+  AbstractDistMatrix<T>& A,
   bool conjugate,
   bool inverse,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("Permutation::PermuteSymmetrically"))
+    DEBUG_ONLY(CSE cse("DistPermutation::PermuteSymmetrically"))
+    // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -313,6 +368,7 @@ void Permutation::PermuteSymmetrically
             return;
 
         const Int numSwaps = swapDests_.Height();
+        DistMatrix<Int,STAR,STAR> dests_STAR_STAR( swapDests_ );
         if( inverse )
         {
             if( implicitSwapOrigins_ )
@@ -320,20 +376,20 @@ void Permutation::PermuteSymmetrically
                 for( Int j=numSwaps-1; j>=0; --j )
                 {
                     const Int origin = j;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     SymmetricSwap( uplo, A, origin, dest, conjugate );
                 }
             }
             else
             {
+                DistMatrix<Int,STAR,STAR> origins_STAR_STAR( swapOrigins_ );
                 for( Int j=numSwaps-1; j>=0; --j )
                 {
-                    const Int origin = swapOrigins_.Get(j,0)-offset;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     SymmetricSwap( uplo, A, origin, dest, conjugate );
                 }
             }
-
         }
         else
         {
@@ -342,16 +398,17 @@ void Permutation::PermuteSymmetrically
                 for( Int j=0; j<numSwaps; ++j )
                 {
                     const Int origin = j;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     SymmetricSwap( uplo, A, origin, dest, conjugate );
                 }
             }
             else
             {
+                DistMatrix<Int,STAR,STAR> origins_STAR_STAR( swapOrigins_ );
                 for( Int j=0; j<numSwaps; ++j )
                 {
-                    const Int origin = swapOrigins_.Get(j,0)-offset;
-                    const Int dest = swapDests_.Get(j,0)-offset;
+                    const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
+                    const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
                     SymmetricSwap( uplo, A, origin, dest, conjugate );
                 }
             }
@@ -359,6 +416,13 @@ void Permutation::PermuteSymmetrically
     }
     else
     {
+        if( staleMeta_ )
+        {
+            rowMeta_.clear();
+            colMeta_.clear();
+            staleMeta_ = false;
+        }
+
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -370,17 +434,17 @@ void Permutation::PermuteSymmetrically
 }
 
 #define PROTO(T) \
-  template void Permutation::PermuteCols \
-  ( Matrix<T>& A, \
+  template void DistPermutation::PermuteCols \
+  ( AbstractDistMatrix<T>& A, \
     bool inverse, \
     Int offset ); \
-  template void Permutation::PermuteRows \
-  ( Matrix<T>& A, \
+  template void DistPermutation::PermuteRows \
+  ( AbstractDistMatrix<T>& A, \
     bool inverse, \
     Int offset ); \
-  template void Permutation::PermuteSymmetrically \
+  template void DistPermutation::PermuteSymmetrically \
   ( UpperOrLower uplo, \
-    Matrix<T>& A, \
+    AbstractDistMatrix<T>& A, \
     bool conjugate, \
     bool inverse, \
     Int offset );
