@@ -18,15 +18,21 @@ public:
     Permutation();
 
     void Empty();
-    void ReserveSwaps( Int numSwaps );
-    void MakeArbitrary( Int domainSize );
+    void MakeIdentity( Int size );
 
-    const Permutation& operator=( const Permutation& p );
+    void ReserveSwaps( Int maxSwaps );
+    void MakeArbitrary();
 
-    void AppendSwap( Int origin, Int dest );
-    void AppendSwapSequence( const Permutation& perm, Int offset=0 );
+    const Permutation& operator=( const Permutation& P );
+
+    void RowSwap( Int origin, Int dest );
+    void RowSwapSequence( const Permutation& P, Int offset=0 );
 
     void SetImage( Int origin, Int dest );
+
+    // The following return the same result but follow the usual convention
+    Int Height() const;
+    Int Width() const;
 
     bool Parity() const;
     bool IsSwapSequence() const;
@@ -35,13 +41,19 @@ public:
     template<typename T>
     void PermuteCols
     ( Matrix<T>& A,
-      bool inverse=false,
+      Int offset=0 ) const;
+    template<typename T>
+    void InversePermuteCols
+    ( Matrix<T>& A,
       Int offset=0 ) const;
 
     template<typename T>
     void PermuteRows
     ( Matrix<T>& A,
-      bool inverse=false,
+      Int offset=0 ) const;
+    template<typename T>
+    void InversePermuteRows
+    ( Matrix<T>& A,
       Int offset=0 ) const;
 
     template<typename T>
@@ -49,12 +61,19 @@ public:
     ( UpperOrLower uplo,
       Matrix<T>& A,
       bool conjugate=false,
-      bool inverse=false,
+      Int offset=0 ) const;
+    template<typename T>
+    void InversePermuteSymmetrically
+    ( UpperOrLower uplo,
+      Matrix<T>& A,
+      bool conjugate=false,
       Int offset=0 ) const;
 
     void Explicit( Matrix<Int>& P ) const;
 
 private:
+
+    Int size_=0;
 
     mutable bool parity_=false;
     mutable bool staleParity_=false;
@@ -67,7 +86,7 @@ private:
     //       of 0, 1, 2, ..., then an explicit swap origin vector is not
     //       maintained. However, if an unexpected origin is ever encountered,
     //       then an explicit list is then maintained.
-    Int nextSwapIndex_=0;
+    Int numSwaps_=0;
     bool implicitSwapOrigins_=true;
     Matrix<Int> swapDests_, swapOrigins_;
 

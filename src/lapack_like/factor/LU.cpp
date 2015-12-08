@@ -102,7 +102,7 @@ void LU( DistMatrix<F,STAR,STAR>& A )
 // Performs LU factorization with partial pivoting
 
 template<typename F> 
-void LU( Matrix<F>& A, Matrix<Int>& rowPiv )
+void LU( Matrix<F>& A, Permutation& P )
 {
     DEBUG_ONLY(CSE cse("LU"))
 
@@ -111,8 +111,11 @@ void LU( Matrix<F>& A, Matrix<Int>& rowPiv )
     const Int minDim = Min(m,n);
     const Int bsize = Blocksize();
 
-    rowPiv.Resize( m, 1 );
-
+    P.MakeIdentity( m );
+    P.ReserveSwaps( minDim );
+    
+    Permutation PB;
+   
     // Temporaries for accumulating partial permutations for each block
     for( Int k=0; k<minDim; k+=bsize )
     {
@@ -129,12 +132,9 @@ void LU( Matrix<F>& A, Matrix<Int>& rowPiv )
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
 
-        auto p1Piv = rowPiv( ind1, ALL );
-
-        lu::Panel( AB1, p1Piv );
-        ApplyRowPivots( AB0, p1Piv );
-        ApplyRowPivots( AB2, p1Piv );
-        Shift( p1Piv, k );
+        lu::Panel( AB1, P, PB, k );
+        PB.PermuteRows( AB0 );
+        PB.PermuteRows( AB2 );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
@@ -142,24 +142,22 @@ void LU( Matrix<F>& A, Matrix<Int>& rowPiv )
 }
 
 template<typename F> 
-void LU( Matrix<F>& A, Matrix<Int>& rowPiv, Matrix<Int>& colPiv )
+void LU
+( Matrix<F>& A,
+  Permutation& P,
+  Permutation& Q )
 {
     DEBUG_ONLY(CSE cse("LU"))
-    lu::Full( A, rowPiv, colPiv );
+    lu::Full( A, P, Q );
 }
 
 template<typename F> 
-void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& rowPivPre )
+void LU( ElementalMatrix<F>& APre, DistPermutation& P )
 {
-    DEBUG_ONLY(
-      CSE cse("LU");
-      AssertSameGrids( APre, rowPivPre );
-    )
+    DEBUG_ONLY(CSE cse("LU"))
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<Int,Int,STAR,STAR> rowPivProx( rowPivPre );
     auto& A = AProx.Get();
-    auto& rowPiv = rowPivProx.Get();
 
     const Grid& g = A.Grid();
     DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);
@@ -167,11 +165,15 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& rowPivPre )
     DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
 
-    // Initialize the permutation to the identity
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    rowPiv.Resize( minDim, 1 );
+    P.SetGrid( g );
+
+    P.MakeIdentity( m );
+    P.ReserveSwaps( minDim );
+
+    DistPermutation PB(g);
 
     vector<F> panelBuf, pivotBuf;
     const Int bsize = Blocksize();
@@ -187,8 +189,6 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& rowPivPre )
 
         auto AB  = A( indB, ALL );
 
-        auto p1Piv = rowPiv( ind1, ALL );
-
         const Int A21Height = A21.Height();
         const Int A21LocHeight = A21.LocalHeight();
         const Int panelLDim = nb+A21LocHeight;
@@ -199,10 +199,9 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& rowPivPre )
         ( A21Height, nb, g, A21.ColAlign(), 0, &panelBuf[nb], panelLDim, 0 );
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv, pivotBuf );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, P, PB, k, pivotBuf );
 
-        ApplyRowPivots( AB, p1Piv );
-        Shift( p1Piv, k );
+        PB.PermuteRows( AB );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
@@ -224,11 +223,11 @@ void LU( ElementalMatrix<F>& APre, ElementalMatrix<Int>& rowPivPre )
 template<typename F> 
 void LU
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<Int>& rowPiv,
-  ElementalMatrix<Int>& colPiv )
+  DistPermutation& P,
+  DistPermutation& Q )
 {
     DEBUG_ONLY(CSE cse("LU"))
-    lu::Full( A, rowPiv, colPiv );
+    lu::Full( A, P, Q );
 }
 
 #define PROTO(F) \
@@ -237,37 +236,43 @@ void LU
   template void LU( DistMatrix<F,STAR,STAR>& A ); \
   template void LU \
   ( Matrix<F>& A, \
-    Matrix<Int>& rowPiv ); \
+    Permutation& P ); \
   template void LU \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<Int>& rowPiv ); \
+    DistPermutation& P ); \
   template void LU \
   ( Matrix<F>& A, \
-    Matrix<Int>& rowPiv, \
-    Matrix<Int>& colPiv ); \
+    Permutation& P, \
+    Permutation& Q ); \
   template void LU \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<Int>& rowPiv, \
-    ElementalMatrix<Int>& colPiv ); \
+    DistPermutation& P, \
+    DistPermutation& Q ); \
   template void LUMod \
   (       Matrix<F>& A, \
-          Matrix<Int>& perm, \
+          Permutation& P, \
     const Matrix<F>& u, \
     const Matrix<F>& v, \
-    bool conjugate, Base<F> tau ); \
+    bool conjugate, \
+    Base<F> tau ); \
   template void LUMod \
   (       ElementalMatrix<F>& A, \
-          ElementalMatrix<Int>& perm, \
+          DistPermutation& P, \
     const ElementalMatrix<F>& u, \
     const ElementalMatrix<F>& v, \
-    bool conjugate, Base<F> tau ); \
+    bool conjugate, \
+    Base<F> tau ); \
   template void lu::Panel \
   ( Matrix<F>& APan, \
-    Matrix<Int>& p1 ); \
+    Permutation& P, \
+    Permutation& PB, \
+    Int offset ); \
   template void lu::Panel \
   ( DistMatrix<F,  STAR,STAR>& A11, \
     DistMatrix<F,  MC,  STAR>& A21, \
-    DistMatrix<Int,STAR,STAR>& p1, \
+    DistPermutation& P, \
+    DistPermutation& PB, \
+    Int offset, \
     vector<F>& pivotBuf ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
@@ -280,24 +285,24 @@ void LU
   template void lu::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<Int>& rowPiv, \
+    const Permutation& P, \
           Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<Int>& rowPiv, \
+    const DistPermutation& P, \
           ElementalMatrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<Int>& rowPiv, \
-    const Matrix<Int>& colPiv, \
+    const Permutation& P, \
+    const Permutation& Q, \
           Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<Int>& rowPiv, \
-    const ElementalMatrix<Int>& colPiv, \
+    const DistPermutation& P, \
+    const DistPermutation& Q, \
           ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO

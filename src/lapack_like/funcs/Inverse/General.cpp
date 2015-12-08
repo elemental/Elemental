@@ -38,9 +38,9 @@ void LocalInverse( DistMatrix<F,STAR,STAR>& A )
   template void Inverse( ElementalMatrix<F>& A ); \
   template void LocalInverse( DistMatrix<F,STAR,STAR>& A ); \
   template void inverse::AfterLUPartialPiv \
-  ( Matrix<F>& A, const Matrix<Int>& p ); \
+  ( Matrix<F>& A, const Permutation& P ); \
   template void inverse::AfterLUPartialPiv \
-  ( ElementalMatrix<F>& A, const ElementalMatrix<Int>& p ); 
+  ( ElementalMatrix<F>& A, const DistPermutation& P ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

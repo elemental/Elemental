@@ -58,7 +58,7 @@ template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A,
   const Matrix<F>& dSub, 
-  const Permutation& p,
+  const Permutation& P,
         Matrix<F>& B,
   bool conjugated )
 {
@@ -73,18 +73,18 @@ void MultiplyAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = GetDiagonal(A);
 
-    p.PermuteRows( B );
+    P.PermuteRows( B );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    p.PermuteRows( B, true );
+    P.InversePermuteRows( B );
 }
 
 template<typename F> 
 void MultiplyAfter
 ( const ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& dSub, 
-  const DistPermutation& p,
+  const DistPermutation& P,
         ElementalMatrix<F>& BPre, 
   bool conjugated )
 {
@@ -106,11 +106,11 @@ void MultiplyAfter
 
     const auto d = GetDiagonal(A);
 
-    p.PermuteRows( B );
+    P.PermuteRows( B );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    p.PermuteRows( B, true );
+    P.InversePermuteRows( B );
 }
 
 } // namespace ldl

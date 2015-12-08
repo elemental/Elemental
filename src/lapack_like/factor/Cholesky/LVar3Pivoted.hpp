@@ -122,7 +122,7 @@ PanelFull
 
 template<typename F>
 inline void
-LUnblockedPivoted( Matrix<F>& A, Permutation& p )
+LUnblockedPivoted( Matrix<F>& A, Permutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LUnblockedPivoted");
@@ -131,7 +131,9 @@ LUnblockedPivoted( Matrix<F>& A, Permutation& p )
     )
     const Int n = A.Height();
 
-    p.ReserveSwaps( n );
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     for( Int k=0; k<n; ++k )
     {
         const Range<Int> ind1( k,   k+1 ),
@@ -149,7 +151,7 @@ LUnblockedPivoted( Matrix<F>& A, Permutation& p )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        p.AppendSwap( k, from );
+        P.RowSwap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -166,7 +168,7 @@ template<typename F>
 inline void
 LUnblockedPivoted
 ( AbstractDistMatrix<F>& APre,
-  DistPermutation& p )
+  DistPermutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LUnblockedPivoted");
@@ -178,7 +180,10 @@ LUnblockedPivoted
     auto& A = AProx.Get();
 
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     for( Int k=0; k<n; ++k )
     {
         const Range<Int> ind1( k,   k+1 ),
@@ -196,7 +201,7 @@ LUnblockedPivoted
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        p.AppendSwap( k, from );
+        P.RowSwap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -215,7 +220,7 @@ template<typename F>
 inline void
 LPanelPivoted
 ( Matrix<F>& AFull,
-  Permutation& pFull, 
+  Permutation& PFull, 
   Matrix<F>& X,
   Matrix<F>& Y,
   Int bsize,
@@ -259,7 +264,7 @@ LPanelPivoted
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        pFull.AppendSwap( k+off, from+off );
+        PFull.RowSwap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -284,7 +289,7 @@ template<typename F>
 inline void
 LPanelPivoted
 ( DistMatrix<F>& AFull,
-  DistPermutation& pFull,
+  DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
   DistMatrix<F,MR,STAR>& Y,
   Int bsize,
@@ -330,7 +335,7 @@ LPanelPivoted
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        pFull.AppendSwap( k+off, from+off );
+        PFull.RowSwap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -354,7 +359,7 @@ LPanelPivoted
 
 template<typename F>
 inline void
-LVar3( Matrix<F>& A, Permutation& p )
+LVar3( Matrix<F>& A, Permutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LVar3");
@@ -362,14 +367,16 @@ LVar3( Matrix<F>& A, Permutation& p )
           LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     Matrix<F> XB1, YB1;
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        LPanelPivoted( A, p, XB1, YB1, nb, k );
+        LPanelPivoted( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),
@@ -386,7 +393,7 @@ template<typename F>
 inline void
 LVar3
 ( AbstractDistMatrix<F>& APre,
-  DistPermutation& p )
+  DistPermutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LVar3");
@@ -398,7 +405,9 @@ LVar3
     auto& A = AProx.Get();
 
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> XB1(g);
@@ -407,7 +416,7 @@ LVar3
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        LPanelPivoted( A, p, XB1, YB1, nb, k );
+        LPanelPivoted( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),

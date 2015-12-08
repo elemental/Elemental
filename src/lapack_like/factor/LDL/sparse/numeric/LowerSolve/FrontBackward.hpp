@@ -106,7 +106,7 @@ inline void FrontVanillaLowerBackwardSolve
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
 ( const Matrix<F>& L,
-  const Permutation& p,
+  const Permutation& P,
         Matrix<F>& X,
   bool conjugate )
 {
@@ -114,7 +114,7 @@ inline void FrontIntraPivLowerBackwardSolve
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
     Matrix<F> XT, XB;
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT, true );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -164,7 +164,7 @@ inline void FrontVanillaLowerBackwardSolve
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate,
   bool singleL11AllGather=true )
@@ -177,7 +177,7 @@ inline void FrontIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT, true );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -251,7 +251,7 @@ inline void FrontVanillaLowerBackwardSolve
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
@@ -263,7 +263,7 @@ inline void FrontIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT, true );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -313,7 +313,7 @@ inline void FrontFastLowerBackwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
@@ -325,7 +325,7 @@ inline void FrontFastIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT, true );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -396,7 +396,7 @@ inline void FrontFastLowerBackwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
@@ -408,7 +408,7 @@ inline void FrontFastIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT, true );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -452,7 +452,7 @@ inline void FrontFastLowerBackwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
@@ -464,7 +464,7 @@ inline void FrontFastIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT, true );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>

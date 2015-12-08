@@ -62,7 +62,7 @@ template<typename F>
 void SolveAfter
 ( const Matrix<F>& A,
   const Matrix<F>& dSub, 
-  const Permutation& p,
+  const Permutation& P,
         Matrix<F>& B,
   bool conjugated )
 {
@@ -77,18 +77,18 @@ void SolveAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = GetDiagonal(A);
 
-    p.PermuteRows( B );
+    P.PermuteRows( B );
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-    p.PermuteRows( B, true );
+    P.InversePermuteRows( B );
 }
 
 template<typename F> 
 void SolveAfter
 ( const ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& dSub, 
-  const DistPermutation& p,
+  const DistPermutation& P,
         ElementalMatrix<F>& BPre, 
   bool conjugated )
 {
@@ -110,11 +110,11 @@ void SolveAfter
 
     const auto d = GetDiagonal(A);
 
-    p.PermuteRows( B );
+    P.PermuteRows( B );
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-    p.PermuteRows( B, true );
+    P.InversePermuteRows( B );
 }
 
 } // namespace ldl

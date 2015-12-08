@@ -27,7 +27,7 @@ inline void
 Pivoted
 ( Matrix<F>& A,
   Matrix<F>& dSub,
-  Permutation& p,
+  Permutation& P,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
@@ -37,10 +37,10 @@ Pivoted
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        pivot::Blocked( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
+        pivot::Blocked( A, dSub, P, conjugate, ctrl.pivotType, ctrl.gamma );
         break;
     default:
-        pivot::Unblocked( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
+        pivot::Unblocked( A, dSub, P, conjugate, ctrl.pivotType, ctrl.gamma );
     }
 }
 
@@ -49,7 +49,7 @@ inline void
 Pivoted
 ( ElementalMatrix<F>& A,
   ElementalMatrix<F>& dSub, 
-  DistPermutation& p,
+  DistPermutation& P,
   bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
@@ -59,10 +59,10 @@ Pivoted
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        pivot::Blocked( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
+        pivot::Blocked( A, dSub, P, conjugate, ctrl.pivotType, ctrl.gamma );
         break;
     default:
-        pivot::Unblocked( A, dSub, p, conjugate, ctrl.pivotType, ctrl.gamma );
+        pivot::Unblocked( A, dSub, P, conjugate, ctrl.pivotType, ctrl.gamma );
     }
 }
 

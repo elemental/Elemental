@@ -271,18 +271,18 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   ElError ElLUDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( LU( *CReflect(A) ) ) } \
   /* LU with partial pivoting */ \
-  ElError ElLUPartialPiv_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_i p ) \
-  { EL_TRY( LU( *CReflect(A), *CReflect(p) ) ) } \
+  ElError ElLUPartialPiv_ ## SIG ( ElMatrix_ ## SIG A, ElPermutation P ) \
+  { EL_TRY( LU( *CReflect(A), *CReflect(P) ) ) } \
   ElError ElLUPartialPivDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p ) \
-  { EL_TRY( LU( *CReflect(A), *CReflect(p) ) ) } \
+  ( ElDistMatrix_ ## SIG A, ElDistPermutation P ) \
+  { EL_TRY( LU( *CReflect(A), *CReflect(P) ) ) } \
   /* LU with full pivoting */ \
   ElError ElLUFullPiv_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_i p, ElMatrix_i q ) \
-  { EL_TRY( LU( *CReflect(A), *CReflect(p), *CReflect(q) ) ) } \
+  ( ElMatrix_ ## SIG A, ElPermutation P, ElPermutation Q ) \
+  { EL_TRY( LU( *CReflect(A), *CReflect(P), *CReflect(Q) ) ) } \
   ElError ElLUFullPivDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, ElDistMatrix_i q ) \
-  { EL_TRY( LU( *CReflect(A), *CReflect(p), *CReflect(q) ) ) } \
+  ( ElDistMatrix_ ## SIG A, ElDistPermutation P, ElDistPermutation Q ) \
+  { EL_TRY( LU( *CReflect(A), *CReflect(P), *CReflect(Q) ) ) } \
   /* Solve against vectors after LU with no pivoting */ \
   ElError ElSolveAfterLU_ ## SIG \
   ( ElOrientation orientation, ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -295,31 +295,32 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
       CReflect(orientation), *CReflect(A), *CReflect(B) ) ) } \
   /* Solve against vectors after LU with partial pivoting */ \
   ElError ElSolveAfterLUPartialPiv_ ## SIG \
-  ( ElOrientation orientation, ElConstMatrix_ ## SIG A, ElConstMatrix_i p, \
+  ( ElOrientation orientation, ElConstMatrix_ ## SIG A, ElConstPermutation P, \
     ElMatrix_ ## SIG B ) \
   { EL_TRY( lu::SolveAfter( \
       CReflect(orientation), \
-      *CReflect(A), *CReflect(p), *CReflect(B) ) ) } \
+      *CReflect(A), *CReflect(P), *CReflect(B) ) ) } \
   ElError ElSolveAfterLUPartialPivDist_ ## SIG \
   ( ElOrientation orientation, \
-    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, \
+    ElConstDistMatrix_ ## SIG A, ElConstDistPermutation P, \
     ElDistMatrix_ ## SIG B ) \
   { EL_TRY( lu::SolveAfter( \
-      CReflect(orientation), *CReflect(A), *CReflect(p), *CReflect(B) ) ) } \
+      CReflect(orientation), *CReflect(A), *CReflect(P), *CReflect(B) ) ) } \
   /* Solve against vectors after LU with full pivoting */ \
   ElError ElSolveAfterLUFullPiv_ ## SIG \
   ( ElOrientation orientation, ElConstMatrix_ ## SIG A, \
-    ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_ ## SIG B ) \
+    ElConstPermutation P, ElConstPermutation Q, ElMatrix_ ## SIG B ) \
   { EL_TRY( lu::SolveAfter( \
       CReflect(orientation), *CReflect(A), \
-      *CReflect(p), *CReflect(q), *CReflect(B) ) ) } \
+      *CReflect(P), *CReflect(Q), *CReflect(B) ) ) } \
   ElError ElSolveAfterLUFullPivDist_ ## SIG \
   ( ElOrientation orientation, \
-    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, ElConstDistMatrix_i q, \
+    ElConstDistMatrix_ ## SIG A, \
+    ElConstDistPermutation P, ElConstDistPermutation Q, \
     ElDistMatrix_ ## SIG B ) \
   { EL_TRY( lu::SolveAfter( \
       CReflect(orientation), *CReflect(A), \
-      *CReflect(p), *CReflect(q), *CReflect(B) ) ) } \
+      *CReflect(P), *CReflect(Q), *CReflect(B) ) ) } \
   /* QR factorization 
      ================ */ \
   /* Return the packed QR factorization (with no pivoting) */ \
@@ -547,16 +548,16 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
      ================ */ \
   /* Rank-one LU factorization modification */ \
   ElError ElLUMod_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_i p, \
+  ( ElMatrix_ ## SIG A, ElPermutation P, \
     ElConstMatrix_ ## SIG u, ElConstMatrix_ ## SIG v, Real tau ) \
   { EL_TRY( LUMod( \
-      *CReflect(A), *CReflect(p), \
+      *CReflect(A), *CReflect(P), \
       *CReflect(u), *CReflect(v), false, tau ) ) } \
   ElError ElLUModDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, \
+  ( ElDistMatrix_ ## SIG A, ElDistPermutation P, \
     ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, Real tau ) \
   { EL_TRY( LUMod( \
-      *CReflect(A), *CReflect(p), \
+      *CReflect(A), *CReflect(P), \
       *CReflect(u), *CReflect(v), false, tau ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
@@ -652,18 +653,18 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
      ================ */ \
   /* Rank-one LU factorization modification */ \
   ElError ElLUMod_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_i p, \
+  ( ElMatrix_ ## SIG A, ElPermutation P, \
     ElConstMatrix_ ## SIG u, ElConstMatrix_ ## SIG v, \
     bool conjugate, Base<F> tau ) \
   { EL_TRY( LUMod( \
-      *CReflect(A), *CReflect(p), \
+      *CReflect(A), *CReflect(P), \
       *CReflect(u), *CReflect(v), conjugate, tau ) ) } \
   ElError ElLUModDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, \
+  ( ElDistMatrix_ ## SIG A, ElDistPermutation P, \
     ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, \
     bool conjugate, Base<F> tau ) \
   { EL_TRY( LUMod( \
-      *CReflect(A), *CReflect(p), \
+      *CReflect(A), *CReflect(P), \
       *CReflect(u), *CReflect(v), conjugate, tau ) ) }
 
 #define EL_NO_INT_PROTO

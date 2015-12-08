@@ -532,24 +532,24 @@ def LU(A,pivType=LU_PARTIAL):
       elif A.tag == zTag: lib.ElLU_z(*args)
       else: DataExcept()
     elif pivType == LU_PARTIAL:
-      p = Matrix(iTag)
-      args = [A.obj,p.obj]
+      P = Permutation()
+      args = [A.obj,P.obj]
       if   A.tag == sTag: lib.ElLUPartialPiv_s(*args)
       elif A.tag == dTag: lib.ElLUPartialPiv_d(*args)
       elif A.tag == cTag: lib.ElLUPartialPiv_c(*args)
       elif A.tag == zTag: lib.ElLUPartialPiv_z(*args)
       else: DataExcept()
-      return p
+      return P
     elif pivType == LU_FULL:
-      p = Matrix(iTag)
-      q = Matrix(iTag)
-      args = [A.obj,p.obj,q.obj]
+      P = Permutation()
+      Q = Permutation()
+      args = [A.obj,P.obj,Q.obj]
       if   A.tag == sTag: lib.ElLUFullPiv_s(*args)
       elif A.tag == dTag: lib.ElLUFullPiv_d(*args)
       elif A.tag == cTag: lib.ElLUFullPiv_c(*args)
       elif A.tag == zTag: lib.ElLUFullPiv_z(*args)
       else: DataExcept()
-      return p, q
+      return P, Q
     else: raise Exception('Unsupported pivot type')
   elif type(A) is DistMatrix:
     if pivType == LU_WITHOUT_PIVOTING:
@@ -560,24 +560,24 @@ def LU(A,pivType=LU_PARTIAL):
       elif A.tag == zTag: lib.ElLUDist_z(*args)
       else: DataExcept()
     elif pivType == LU_PARTIAL:
-      p = DistMatrix(iTag,VC,STAR,A.Grid())
-      args = [A.obj,p.obj]
+      P = DistPermutation(A.Grid())
+      args = [A.obj,P.obj]
       if   A.tag == sTag: lib.ElLUPartialPivDist_s(*args)
       elif A.tag == dTag: lib.ElLUPartialPivDist_d(*args)
       elif A.tag == cTag: lib.ElLUPartialPivDist_c(*args)
       elif A.tag == zTag: lib.ElLUPartialPivDist_z(*args)
       else: DataExcept()
-      return p
+      return P
     elif pivType == LU_FULL:
-      p = DistMatrix(iTag,VC,STAR,A.Grid())
-      q = DistMatrix(iTag,VC,STAR,A.Grid())
-      args = [A.obj,p.obj,q.obj]
+      P = DistPermutation(A.Grid())
+      Q = DistPermutation(A.Grid())
+      args = [A.obj,P.obj,Q.obj]
       if   A.tag == sTag: lib.ElLUFullPivDist_s(*args)
       elif A.tag == dTag: lib.ElLUFullPivDist_d(*args)
       elif A.tag == cTag: lib.ElLUFullPivDist_c(*args)
       elif A.tag == zTag: lib.ElLUFullPivDist_z(*args)
       else: DataExcept()
-      return p, q
+      return P, Q
     else: raise Exception('Unsupported pivot type')
   else: TypeExcept()
 
@@ -595,22 +595,24 @@ lib.ElLUModDist_d.argtypes = \
 lib.ElLUModDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,dType]
 
-def LUMod(A,p,u,v,conjugate=True,tau=0.1):
-  if type(A) is not type(p) or type(p) is not type(u) or type(u) is not type(v):
-    raise Exception('Types of {A,p,u,v} must be equal')
+def LUMod(A,P,u,v,conjugate=True,tau=0.1):
+  if type(A) is not type(u) or type(u) is not type(v):
+    raise Exception('Types of {A,u,v} must be equal')
   if A.tag != u.tag or u.tag != v.tag:
     raise Exception('Datatypes of {A,u,v} must be equal')
-  if p.tag != iTag:
-    raise Exception('p must be integral')
-  args = [A.obj,p.obj,u.obj,v.obj,tau]
-  argsCpx = [A.obj,p.obj,u.obj,v.obj,conjugate,tau]
+  args = [A.obj,P.obj,u.obj,v.obj,tau]
+  argsCpx = [A.obj,P.obj,u.obj,v.obj,conjugate,tau]
   if type(A) is Matrix:
+    if type(P) is not Permutation:
+      raise Exception('Expected P to be a Permutation')
     if   A.tag == sTag: lib.ElLUMod_s(*args)
     elif A.tag == dTag: lib.ElLUMod_d(*args)
     elif A.tag == cTag: lib.ElLUMod_c(*argsCpx)
     elif A.tag == zTag: lib.ElLUMod_z(*argsCpx)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(P) is not DistPermutation:
+      raise Exception('Expected P to be a DistPermutation')
     if   A.tag == sTag: lib.ElLUModDist_s(*args)
     elif A.tag == dTag: lib.ElLUModDist_d(*args)
     elif A.tag == cTag: lib.ElLUModDist_c(*argsCpx)
@@ -657,21 +659,23 @@ lib.ElSolveAfterLUPartialPivDist_c.argtypes = \
 lib.ElSolveAfterLUPartialPivDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p]
 
-def SolveAfterLUPartialPiv(orient,A,p,B):
-  if type(A) is not type(p) or type(p) is not type(B):
-    raise Exception('Types of {A,p,B} must match')
+def SolveAfterLUPartialPiv(orient,A,P,B):
+  if type(A) is not type(B):
+    raise Exception('Types of {A,B} must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
-  if p.tag != iTag:
-    raise Exception('p must be integral')
-  args = [orient,A.obj,p.obj,B.obj]
+  args = [orient,A.obj,P.obj,B.obj]
   if type(A) is Matrix:
+    if type(P) is not Permutation:
+      raise Exception('Expected P to be a Permutation')
     if   A.tag == sTag: lib.ElSolveAfterLUPartialPiv_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterLUPartialPiv_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterLUPartialPiv_c(*args)
     elif A.tag == zTag: lib.ElSolveAfterLUPartialPiv_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(P) is not DistPermutation:
+      raise Exception('Expected P to be a DistPermutation')
     if   A.tag == sTag: lib.ElSolveAfterLUPartialPivDist_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterLUPartialPivDist_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterLUPartialPivDist_c(*args)
@@ -688,21 +692,23 @@ lib.ElSolveAfterLUFullPivDist_c.argtypes = \
 lib.ElSolveAfterLUFullPivDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
 
-def SolveAfterLUFullPiv(orient,A,p,q,B):
-  if type(A) is not type(p) or type(p) is not type(q) or type(q) is not type(B):
-    raise Exception('Types of {A,p,q,B} must match')
+def SolveAfterLUFullPiv(orient,A,P,Q,B):
+  if type(A) is not type(B):
+    raise Exception('Types of A and B must match')
   if A.tag != B.tag:
     raise Exception('Datatypes of A and B must match')
-  if p.tag != iTag or q.tag != iTag:
-    raise Exception('p and q must be integral')
-  args = [orient,A.obj,p.obj,q.obj,B.obj]
+  args = [orient,A.obj,P.obj,Q.obj,B.obj]
   if type(A) is Matrix:
+    if type(P) is not Permutation or type(Q) is not Permutation:
+      raise Exception('Expected P and Q to be Permutations')
     if   A.tag == sTag: lib.ElSolveAfterLUFullPiv_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterLUFullPiv_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterLUFullPiv_c(*args)
     elif A.tag == zTag: lib.ElSolveAfterLUFullPiv_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(P) is not DistPermutation or type(Q) is not DistPermutation:
+      raise Exception('Expected P and Q to be DistPermutations')
     if   A.tag == sTag: lib.ElSolveAfterLUFullPivDist_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterLUFullPivDist_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterLUFullPivDist_c(*args)

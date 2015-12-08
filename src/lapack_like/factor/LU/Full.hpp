@@ -17,16 +17,18 @@ template<typename F>
 inline void
 Full
 ( Matrix<F>& A,
-  Matrix<Int>& rowPiv,
-  Matrix<Int>& colPiv )
+  Permutation& P,
+  Permutation& Q )
 {
     DEBUG_ONLY(CSE cse("lu::Full"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
 
-    rowPiv.Resize( minDim, 1 );
-    colPiv.Resize( minDim, 1 );
+    P.MakeIdentity( m );
+    Q.MakeIdentity( n );
+    P.ReserveSwaps( minDim );
+    Q.ReserveSwaps( minDim );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -37,8 +39,8 @@ Full
         auto pivot = MaxAbsLoc( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
-        rowPiv.Set( k, 0, iPiv );
-        colPiv.Set( k, 0, jPiv );
+        P.RowSwap( k, iPiv );
+        Q.RowSwap( k, jPiv );
 
         RowSwap( A, k, iPiv );
         ColSwap( A, k, jPiv );
@@ -60,13 +62,10 @@ template<typename F>
 inline void
 Full
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<Int>& rowPiv,
-  ElementalMatrix<Int>& colPiv )
+  DistPermutation& P,
+  DistPermutation& Q )
 {
-    DEBUG_ONLY(
-      CSE cse("lu::Full");
-      AssertSameGrids( APre, rowPiv, colPiv );
-    )
+    DEBUG_ONLY(CSE cse("lu::Full"))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
@@ -74,8 +73,10 @@ Full
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    rowPiv.Resize( minDim, 1 );
-    colPiv.Resize( minDim, 1 );
+    P.MakeIdentity( m );
+    Q.MakeIdentity( n );
+    P.ReserveSwaps( minDim );
+    Q.ReserveSwaps( minDim );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -86,8 +87,8 @@ Full
         auto pivot = MaxAbsLoc( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
-        rowPiv.Set( k, 0, iPiv );
-        colPiv.Set( k, 0, jPiv );
+        P.RowSwap( k, iPiv );
+        Q.RowSwap( k, jPiv );
 
         RowSwap( A, iPiv, k );
         ColSwap( A, jPiv, k );

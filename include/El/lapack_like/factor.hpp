@@ -33,10 +33,10 @@ template<typename F>
 void ReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p );
+void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& P );
 template<typename F>
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, DistPermutation& p );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, DistPermutation& P );
 
 template<typename F>
 void CholeskyMod
@@ -76,14 +76,14 @@ void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
   const Matrix<F>& A,
-  const Permutation& p, 
+  const Permutation& P, 
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
   const AbstractDistMatrix<F>& A,
-  const DistPermutation& p,
+  const DistPermutation& P,
         AbstractDistMatrix<F>& B );
 
 } // namespace cholesky
@@ -149,14 +149,14 @@ template<typename F>
 void LDL
 ( Matrix<F>& A,
   Matrix<F>& dSub,
-  Permutation& p,
+  Permutation& P,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LDL
 ( ElementalMatrix<F>& A,
   ElementalMatrix<F>& dSub,
-  DistPermutation& p,
+  DistPermutation& P,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
@@ -205,14 +205,14 @@ template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A,
   const Matrix<F>& dSub,
-  const Permutation& p,
+  const Permutation& P,
         Matrix<F>& B,
   bool conjugated );
 template<typename F>
 void MultiplyAfter
 ( const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& dSub,
-  const DistPermutation& p,
+  const DistPermutation& P,
         ElementalMatrix<F>& B,
   bool conjugated );
 
@@ -270,14 +270,14 @@ template<typename F>
 void SolveAfter
 ( const Matrix<F>& A,
   const Matrix<F>& dSub,
-  const Permutation& p,
+  const Permutation& P,
         Matrix<F>& B,
   bool conjugated );
 template<typename F>
 void SolveAfter
 ( const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& dSub,
-  const DistPermutation& p,
+  const DistPermutation& P,
         ElementalMatrix<F>& B, 
   bool conjugated );
 
@@ -484,29 +484,30 @@ void LU( DistMatrix<F,STAR,STAR>& A );
 // LU with partial pivoting
 // ------------------------
 template<typename F>
-void LU( Matrix<F>& A, Matrix<Int>& rowPiv );
+void LU( Matrix<F>& A, Permutation& P );
 template<typename F>
-void LU( ElementalMatrix<F>& A, ElementalMatrix<Int>& rowPiv );
+void LU( ElementalMatrix<F>& A, DistPermutation& P );
 
 // LU with full pivoting
 // ---------------------
+// P A Q^T = L U
 template<typename F>
 void LU
 ( Matrix<F>& A,
-  Matrix<Int>& rowPiv,
-  Matrix<Int>& colPiv );
+  Permutation& P,
+  Permutation& Q );
 template<typename F>
 void LU
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<Int>& rowPiv,
-  ElementalMatrix<Int>& colPiv );
+  DistPermutation& P,
+  DistPermutation& Q );
 
 // Rank-one modification of a partially-pivoted LU factorization
 // -------------------------------------------------------------
 template<typename F>
 void LUMod
 (       Matrix<F>& A,
-        Matrix<Int>& rowPerm,
+        Permutation& P,
   const Matrix<F>& u,
   const Matrix<F>& v,
   bool conjugate=true,
@@ -514,7 +515,7 @@ void LUMod
 template<typename F>
 void LUMod
 (       ElementalMatrix<F>& A,
-        ElementalMatrix<Int>& rowPerm,
+        DistPermutation& P,
   const ElementalMatrix<F>& u,
   const ElementalMatrix<F>& v, 
   bool conjugate=true,
@@ -541,13 +542,13 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<Int>& rowPiv,
+  const Permutation& P,
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<Int>& rowPiv,
+  const DistPermutation& P,
         ElementalMatrix<F>& B );
 
 // Solve linear systems using an implicit fully-pivoted LU factorization
@@ -556,15 +557,15 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<Int>& rowPiv,
-  const Matrix<Int>& colPiv,
+  const Permutation& P,
+  const Permutation& Q,
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<Int>& rowPiv,
-  const ElementalMatrix<Int>& colPiv,
+  const DistPermutation& P,
+  const DistPermutation& Q,
         ElementalMatrix<F>& B );
 
 } // namespace lu

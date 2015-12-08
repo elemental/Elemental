@@ -68,7 +68,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A, 
-  const Matrix<Int>& rowPiv,
+  const Permutation& P,
         Matrix<F>& B )
 {
     DEBUG_ONLY(
@@ -77,12 +77,10 @@ void SolveAfter
           LogicError("A must be square");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
-      if( rowPiv.Height() != A.Height() )
-          LogicError("A and p must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, rowPiv );
+        P.PermuteRows( B );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
@@ -90,7 +88,7 @@ void SolveAfter
     {
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, rowPiv );
+        P.InversePermuteRows( B );
     }
 }
 
@@ -98,22 +96,20 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& A, 
-  const ElementalMatrix<Int>& rowPiv,
+  const DistPermutation& P,
         ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
       CSE cse("lu::SolveAfter");
-      AssertSameGrids( A, B, rowPiv );
+      AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
-      if( A.Height() != rowPiv.Height() )
-          LogicError("A and rowPiv must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, rowPiv );
+        P.PermuteRows( B );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
@@ -121,7 +117,7 @@ void SolveAfter
     {
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, rowPiv );
+        P.InversePermuteRows( B );
     }
 }
 
@@ -129,8 +125,8 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A, 
-  const Matrix<Int>& rowPiv, 
-  const Matrix<Int>& colPiv, 
+  const Permutation& P,
+  const Permutation& Q,
         Matrix<F>& B )
 {
     DEBUG_ONLY(
@@ -139,24 +135,20 @@ void SolveAfter
           LogicError("A must be square");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
-      if( rowPiv.Height() != A.Height() )
-          LogicError("A and rowPiv must be the same height");
-      if( colPiv.Height() != A.Height() )
-          LogicError("A and colPiv must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, rowPiv );
+        P.PermuteRows( B );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, colPiv );
+        Q.InversePermuteRows( B );
     }
     else
     {
-        ApplyRowPivots( B, colPiv );
+        Q.PermuteRows( B );
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, rowPiv );
+        P.InversePermuteRows( B );
     }
 }
 
@@ -164,35 +156,31 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& A, 
-  const ElementalMatrix<Int>& rowPiv,
-  const ElementalMatrix<Int>& colPiv,
+  const DistPermutation& P,
+  const DistPermutation& Q,
         ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(
       CSE cse("lu::SolveAfter");
-      AssertSameGrids( A, B, rowPiv, colPiv );
+      AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
-      if( A.Height() != rowPiv.Height() )
-          LogicError("A and rowPiv must be the same height");
-      if( A.Height() != colPiv.Height() )
-          LogicError("A and colPiv must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, rowPiv );
+        P.PermuteRows( B );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, colPiv );
+        Q.InversePermuteRows( B );
     }
     else
     {
-        ApplyRowPivots( B, colPiv );
+        Q.PermuteRows( B );
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, rowPiv );
+        P.InversePermuteRows( B );
     }
 }
 

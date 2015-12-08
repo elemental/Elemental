@@ -98,7 +98,13 @@ void Swap
 template<typename T>
 void RowSwap( Matrix<T>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CSE cse("RowSwap"))
+    DEBUG_ONLY(
+      CSE cse("RowSwap");
+      if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
+          LogicError
+          ("Attempted invalid row swap, (",to,",",from,") of matrix of height ",
+           A.Height());
+    )
     if( to == from )
         return;
     const Int n = A.Width();
@@ -110,7 +116,14 @@ void RowSwap( Matrix<T>& A, Int to, Int from )
 template<typename T>
 void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CSE cse("RowSwap"))
+    DEBUG_ONLY(
+      CSE cse("RowSwap");
+      if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
+          LogicError
+          ("Attempted invalid row swap, (",to,",",from,") of matrix of height ",
+           A.Height());
+    )
+
     if( to == from )
         return;
     if( !A.Participating() )
@@ -162,7 +175,14 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 template<typename T>
 void ColSwap( Matrix<T>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CSE cse("ColSwap"))
+    DEBUG_ONLY(
+      CSE cse("ColSwap");
+      if( to < 0 || to >= A.Width() || from < 0 || from >= A.Width() )
+          LogicError
+          ("Attempted invalid col swap, (",to,",",from,") of matrix of width ",
+           A.Width());
+    )
+
     if( to == from )
         return;
     const Int m = A.Height();
@@ -174,7 +194,13 @@ void ColSwap( Matrix<T>& A, Int to, Int from )
 template<typename T>
 void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CSE cse("ColSwap"))
+    DEBUG_ONLY(
+      CSE cse("ColSwap");
+      if( to < 0 || to >= A.Width() || from < 0 || from >= A.Width() )
+          LogicError
+          ("Attempted invalid col swap, (",to,",",from,") of matrix of width ",
+           A.Width());
+    )
     if( to == from )
         return;
     if( !A.Participating() )
@@ -220,7 +246,12 @@ void SymmetricSwap
       CSE cse("SymmetricSwap");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
+      if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
+          LogicError
+          ("Attempted invalid symmetric swap, (",to,",",from,
+           ") of matrix of size ",A.Height());
     )
+
     if( to == from )
     {
         if( conjugate )
@@ -314,6 +345,10 @@ void SymmetricSwap
       CSE cse("SymmetricSwap");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
+      if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
+          LogicError
+          ("Attempted invalid symmetric swap, (",to,",",from,
+           ") of matrix of size ",A.Height());
     )
     typedef unique_ptr<AbstractDistMatrix<T>> ADMPtr;
 

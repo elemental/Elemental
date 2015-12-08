@@ -496,114 +496,118 @@ EL_EXPORT ElError ElSolveAfterLUDist_z
 
 /* LU factorization with partial pivoting
    -------------------------------------- */
-EL_EXPORT ElError ElLUPartialPiv_s( ElMatrix_s A, ElMatrix_i p );
-EL_EXPORT ElError ElLUPartialPiv_d( ElMatrix_d A, ElMatrix_i p );
-EL_EXPORT ElError ElLUPartialPiv_c( ElMatrix_c A, ElMatrix_i p );
-EL_EXPORT ElError ElLUPartialPiv_z( ElMatrix_z A, ElMatrix_i p );
+EL_EXPORT ElError ElLUPartialPiv_s( ElMatrix_s A, ElPermutation P );
+EL_EXPORT ElError ElLUPartialPiv_d( ElMatrix_d A, ElPermutation P );
+EL_EXPORT ElError ElLUPartialPiv_c( ElMatrix_c A, ElPermutation P );
+EL_EXPORT ElError ElLUPartialPiv_z( ElMatrix_z A, ElPermutation P );
 
-EL_EXPORT ElError ElLUPartialPivDist_s( ElDistMatrix_s A, ElDistMatrix_i p );
-EL_EXPORT ElError ElLUPartialPivDist_d( ElDistMatrix_d A, ElDistMatrix_i p );
-EL_EXPORT ElError ElLUPartialPivDist_c( ElDistMatrix_c A, ElDistMatrix_i p );
-EL_EXPORT ElError ElLUPartialPivDist_z( ElDistMatrix_z A, ElDistMatrix_i p );
+EL_EXPORT ElError ElLUPartialPivDist_s( ElDistMatrix_s A, ElDistPermutation P );
+EL_EXPORT ElError ElLUPartialPivDist_d( ElDistMatrix_d A, ElDistPermutation P );
+EL_EXPORT ElError ElLUPartialPivDist_c( ElDistMatrix_c A, ElDistPermutation P );
+EL_EXPORT ElError ElLUPartialPivDist_z( ElDistMatrix_z A, ElDistPermutation P );
 
 /* Solve linear systems after factorization
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElSolveAfterLUPartialPiv_s
 ( ElOrientation orientation, 
-  ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
+  ElConstMatrix_s A, ElConstPermutation P, ElMatrix_s B );
 EL_EXPORT ElError ElSolveAfterLUPartialPiv_d
 ( ElOrientation orientation, 
-  ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
+  ElConstMatrix_d A, ElConstPermutation P, ElMatrix_d B );
 EL_EXPORT ElError ElSolveAfterLUPartialPiv_c
 ( ElOrientation orientation, 
-  ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
+  ElConstMatrix_c A, ElConstPermutation P, ElMatrix_c B );
 EL_EXPORT ElError ElSolveAfterLUPartialPiv_z
 ( ElOrientation orientation, 
-  ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
+  ElConstMatrix_z A, ElConstPermutation P, ElMatrix_z B );
 
 EL_EXPORT ElError ElSolveAfterLUPartialPivDist_s
 ( ElOrientation orientation, 
-  ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
+  ElConstDistMatrix_s A, ElConstDistPermutation P, ElDistMatrix_s B );
 EL_EXPORT ElError ElSolveAfterLUPartialPivDist_d
 ( ElOrientation orientation, 
-  ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
+  ElConstDistMatrix_d A, ElConstDistPermutation P, ElDistMatrix_d B );
 EL_EXPORT ElError ElSolveAfterLUPartialPivDist_c
 ( ElOrientation orientation, 
-  ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
+  ElConstDistMatrix_c A, ElConstDistPermutation P, ElDistMatrix_c B );
 EL_EXPORT ElError ElSolveAfterLUPartialPivDist_z
 ( ElOrientation orientation, 
-  ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
+  ElConstDistMatrix_z A, ElConstDistPermutation P, ElDistMatrix_z B );
 
 /* LU factorization with full pivoting
    ----------------------------------- */
-EL_EXPORT ElError ElLUFullPiv_s( ElMatrix_s A, ElMatrix_i p, ElMatrix_i q );
-EL_EXPORT ElError ElLUFullPiv_d( ElMatrix_d A, ElMatrix_i p, ElMatrix_i q );
-EL_EXPORT ElError ElLUFullPiv_c( ElMatrix_c A, ElMatrix_i p, ElMatrix_i q );
-EL_EXPORT ElError ElLUFullPiv_z( ElMatrix_z A, ElMatrix_i p, ElMatrix_i q );
+EL_EXPORT ElError ElLUFullPiv_s
+( ElMatrix_s A, ElPermutation P, ElPermutation Q );
+EL_EXPORT ElError ElLUFullPiv_d
+( ElMatrix_d A, ElPermutation P, ElPermutation Q );
+EL_EXPORT ElError ElLUFullPiv_c
+( ElMatrix_c A, ElPermutation P, ElPermutation Q );
+EL_EXPORT ElError ElLUFullPiv_z
+( ElMatrix_z A, ElPermutation P, ElPermutation Q );
 
 EL_EXPORT ElError ElLUFullPivDist_s
-( ElDistMatrix_s A, ElDistMatrix_i p, ElDistMatrix_i q );
+( ElDistMatrix_s A, ElDistPermutation P, ElDistPermutation Q );
 EL_EXPORT ElError ElLUFullPivDist_d
-( ElDistMatrix_d A, ElDistMatrix_i p, ElDistMatrix_i q );
+( ElDistMatrix_d A, ElDistPermutation P, ElDistPermutation Q );
 EL_EXPORT ElError ElLUFullPivDist_c
-( ElDistMatrix_c A, ElDistMatrix_i p, ElDistMatrix_i q );
+( ElDistMatrix_c A, ElDistPermutation P, ElDistPermutation Q );
 EL_EXPORT ElError ElLUFullPivDist_z
-( ElDistMatrix_z A, ElDistMatrix_i p, ElDistMatrix_i q );
+( ElDistMatrix_z A, ElDistPermutation P, ElDistPermutation Q );
 
 /* Solve linear systems after factorization
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElSolveAfterLUFullPiv_s
 ( ElOrientation orientation, ElConstMatrix_s A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_s B );
+  ElConstPermutation P, ElConstPermutation Q, ElMatrix_s B );
 EL_EXPORT ElError ElSolveAfterLUFullPiv_d
 ( ElOrientation orientation, ElConstMatrix_d A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_d B );
+  ElConstPermutation P, ElConstPermutation Q, ElMatrix_d B );
 EL_EXPORT ElError ElSolveAfterLUFullPiv_c
 ( ElOrientation orientation, ElConstMatrix_c A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_c B );
+  ElConstPermutation P, ElConstPermutation Q, ElMatrix_c B );
 EL_EXPORT ElError ElSolveAfterLUFullPiv_z
 ( ElOrientation orientation, ElConstMatrix_z A, 
-  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_z B );
+  ElConstPermutation P, ElConstPermutation Q, ElMatrix_z B );
 
 EL_EXPORT ElError ElSolveAfterLUFullPivDist_s
 ( ElOrientation orientation, ElConstDistMatrix_s A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_s B );
+  ElConstDistPermutation P, ElConstDistPermutation Q, ElDistMatrix_s B );
 EL_EXPORT ElError ElSolveAfterLUFullPivDist_d
 ( ElOrientation orientation, ElConstDistMatrix_d A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_d B );
+  ElConstDistPermutation P, ElConstDistPermutation Q, ElDistMatrix_d B );
 EL_EXPORT ElError ElSolveAfterLUFullPivDist_c
 ( ElOrientation orientation, ElConstDistMatrix_c A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_c B );
+  ElConstDistPermutation P, ElConstDistPermutation Q, ElDistMatrix_c B );
 EL_EXPORT ElError ElSolveAfterLUFullPivDist_z
 ( ElOrientation orientation, ElConstDistMatrix_z A, 
-  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_z B );
+  ElConstDistPermutation P, ElConstDistPermutation Q, ElDistMatrix_z B );
 
 /* Rank-one LU modification
    ------------------------ */
 EL_EXPORT ElError ElLUMod_s
-( ElMatrix_s A, ElMatrix_i p, 
+( ElMatrix_s A, ElPermutation P, 
   ElConstMatrix_s u, ElConstMatrix_s v, float tau );
 EL_EXPORT ElError ElLUMod_d
-( ElMatrix_d A, ElMatrix_i p, 
+( ElMatrix_d A, ElPermutation P, 
   ElConstMatrix_d u, ElConstMatrix_d v, double tau );
 EL_EXPORT ElError ElLUMod_c
-( ElMatrix_c A, ElMatrix_i p, 
+( ElMatrix_c A, ElPermutation P, 
   ElConstMatrix_c u, ElConstMatrix_c v, bool conjugate, float tau );
 EL_EXPORT ElError ElLUMod_z
-( ElMatrix_z A, ElMatrix_i p, 
+( ElMatrix_z A, ElPermutation P, 
   ElConstMatrix_z u, ElConstMatrix_z v, bool conjugate, double tau );
 
 EL_EXPORT ElError ElLUModDist_s
-( ElDistMatrix_s A, ElDistMatrix_i p, 
+( ElDistMatrix_s A, ElDistPermutation P, 
   ElConstDistMatrix_s u, ElConstDistMatrix_s v, float tau );
 EL_EXPORT ElError ElLUModDist_d
-( ElDistMatrix_d A, ElDistMatrix_i p, 
+( ElDistMatrix_d A, ElDistPermutation P, 
   ElConstDistMatrix_d u, ElConstDistMatrix_d v, double tau );
 EL_EXPORT ElError ElLUModDist_c
-( ElDistMatrix_c A, ElDistMatrix_i p, 
+( ElDistMatrix_c A, ElDistPermutation P, 
   ElConstDistMatrix_c u, ElConstDistMatrix_c v, bool conjugate, float tau );
 EL_EXPORT ElError ElLUModDist_z
-( ElDistMatrix_z A, ElDistMatrix_i p, 
+( ElDistMatrix_z A, ElDistPermutation P, 
   ElConstDistMatrix_z u, ElConstDistMatrix_z v, bool conjugate, double tau );
 
 /* LQ factorization

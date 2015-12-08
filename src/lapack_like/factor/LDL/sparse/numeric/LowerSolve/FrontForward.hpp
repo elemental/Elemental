@@ -50,13 +50,13 @@ inline void FrontVanillaLowerForwardSolve
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const Matrix<F>& L,
-  const Permutation& p,
+  const Permutation& P,
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
     Matrix<F> XT, XB;
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT );
+    P.PermuteRows( XT );
     FrontVanillaLowerForwardSolve( L, X );
 }
 
@@ -237,17 +237,16 @@ inline void FrontVanillaLowerForwardSolve
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistPermutation& p, 
+  const DistPermutation& P, 
         DistMatrix<F,VC,STAR>& X,
   bool singleL11AllGather=true )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT );
+    P.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X, singleL11AllGather );
 }
@@ -329,16 +328,15 @@ inline void FrontVanillaLowerForwardSolve
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT );
+    P.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X );
 }
@@ -387,16 +385,15 @@ inline void FrontFastLowerForwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT );
+    P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
@@ -461,16 +458,15 @@ inline void FrontFastLowerForwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT );
+    P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
@@ -513,16 +509,15 @@ inline void FrontFastLowerForwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
-  const DistPermutation& p,
+  const DistPermutation& P,
         DistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    p.PermuteRows( XT );
+    P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }

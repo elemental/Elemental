@@ -77,17 +77,24 @@ public:
     DistPermutation( const Grid& g=DefaultGrid() );
 
     void SetGrid( const Grid& g );
+
     void Empty();
-    void ReserveSwaps( Int numSwaps );
-    void MakeArbitrary( Int domainSize );
+    void MakeIdentity( Int size );
+
+    void ReserveSwaps( Int maxSwaps );
+    void MakeArbitrary();
     
     const DistPermutation& operator=( const Permutation& p );
     const DistPermutation& operator=( const DistPermutation& p );
 
-    void AppendSwap( Int origin, Int dest );
-    void AppendSwapSequence( const DistPermutation& perm, Int offset=0 );
+    void RowSwap( Int origin, Int dest );
+    void RowSwapSequence( const DistPermutation& perm, Int offset=0 );
 
     void SetImage( Int origin, Int dest );
+
+    // The following return the same result but follow the usual convention
+    Int Height() const;
+    Int Width() const;
 
     bool Parity() const;
     bool IsSwapSequence() const;
@@ -96,13 +103,19 @@ public:
     template<typename T>
     void PermuteCols
     ( AbstractDistMatrix<T>& A,
-      bool inverse=false,
+      Int offset=0 ) const;
+    template<typename T>
+    void InversePermuteCols
+    ( AbstractDistMatrix<T>& A,
       Int offset=0 ) const;
 
     template<typename T>
     void PermuteRows
     ( AbstractDistMatrix<T>& A,
-      bool inverse=false,
+      Int offset=0 ) const;
+    template<typename T>
+    void InversePermuteRows
+    ( AbstractDistMatrix<T>& A,
       Int offset=0 ) const;
 
     template<typename T>
@@ -110,12 +123,18 @@ public:
     ( UpperOrLower uplo,
       AbstractDistMatrix<T>& A,
       bool conjugate=false,
-      bool inverse=false,
+      Int offset=0 ) const;
+    template<typename T>
+    void InversePermuteSymmetrically
+    ( UpperOrLower uplo,
+      AbstractDistMatrix<T>& A,
+      bool conjugate=false,
       Int offset=0 ) const;
 
     void Explicit( AbstractDistMatrix<Int>& P ) const;
 
 private:
+    Int size_=0;
     const Grid& grid_;
     mutable bool parity_=false;
     mutable bool staleParity_=false;
@@ -128,7 +147,7 @@ private:
     //       of 0, 1, 2, ..., then an explicit swap origin vector is not
     //       maintained. However, if an unexpected origin is ever encountered,
     //       then an explicit list is then maintained.
-    Int nextSwapIndex_=0;
+    Int numSwaps_=0;
     bool implicitSwapOrigins_=true;
     DistMatrix<Int,VC,STAR> swapDests_, swapOrigins_;
 

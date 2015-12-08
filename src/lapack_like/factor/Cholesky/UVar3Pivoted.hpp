@@ -17,7 +17,7 @@ namespace cholesky {
 
 template<typename F>
 inline void
-UUnblockedPivoted( Matrix<F>& A, Permutation& p )
+UUnblockedPivoted( Matrix<F>& A, Permutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::UUnblockedPivoted");
@@ -26,7 +26,9 @@ UUnblockedPivoted( Matrix<F>& A, Permutation& p )
     )
     const Int n = A.Height();
 
-    p.ReserveSwaps( n );
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     for( Int k=0; k<n; ++k )
     {
         const Range<Int> ind1( k,   k+1 ),
@@ -44,7 +46,7 @@ UUnblockedPivoted( Matrix<F>& A, Permutation& p )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( UPPER, A, k, from );
-        p.AppendSwap( k, from );
+        P.RowSwap( k, from );
 
         // a12 := a12 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -64,7 +66,7 @@ template<typename F>
 inline void
 UUnblockedPivoted
 ( AbstractDistMatrix<F>& APre,
-  DistPermutation& p )
+  DistPermutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::UUnblockedPivoted");
@@ -76,7 +78,9 @@ UUnblockedPivoted
     auto& A = AProx.Get();
 
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     for( Int k=0; k<n; ++k )
     {
@@ -95,7 +99,7 @@ UUnblockedPivoted
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( UPPER, A, k, from );
-        p.AppendSwap( k, from );
+        P.RowSwap( k, from );
 
         // a12 := a12 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -117,7 +121,7 @@ template<typename F>
 inline void
 UPanelPivoted
 ( Matrix<F>& AFull,
-  Permutation& pFull, 
+  Permutation& PFull, 
   Matrix<F>& X,
   Matrix<F>& Y,
   Int bsize,
@@ -161,7 +165,7 @@ UPanelPivoted
 
         // Apply the pivot
         HermitianSwap( UPPER, AFull, k+off, from+off );
-        pFull.AppendSwap( k+off, from+off );
+        PFull.RowSwap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -186,7 +190,7 @@ template<typename F>
 inline void
 UPanelPivoted
 ( DistMatrix<F>& AFull,
-  DistPermutation& pFull,
+  DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
   DistMatrix<F,MR,STAR>& Y,
   Int bsize,
@@ -232,7 +236,7 @@ UPanelPivoted
 
         // Apply the pivot
         HermitianSwap( UPPER, AFull, k+off, from+off );
-        pFull.AppendSwap( k+off, from+off );
+        PFull.RowSwap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -256,7 +260,7 @@ UPanelPivoted
 
 template<typename F>
 inline void
-UVar3( Matrix<F>& A, Permutation& p )
+UVar3( Matrix<F>& A, Permutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::UVar3");
@@ -264,14 +268,16 @@ UVar3( Matrix<F>& A, Permutation& p )
           LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     Matrix<F> XB1, YB1;
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        UPanelPivoted( A, p, XB1, YB1, nb, k );
+        UPanelPivoted( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),
@@ -288,7 +294,7 @@ template<typename F>
 inline void
 UVar3
 ( AbstractDistMatrix<F>& APre,
-  DistPermutation& p )
+  DistPermutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::UVar3");
@@ -300,7 +306,9 @@ UVar3
     auto& A = AProx.Get();
 
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> XB1(g);
@@ -309,7 +317,7 @@ UVar3
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        UPanelPivoted( A, p, XB1, YB1, nb, k );
+        UPanelPivoted( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),

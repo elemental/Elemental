@@ -212,9 +212,9 @@ Base<F> HPDDeterminant
   template SafeProduct<Base<F>> hpd_det::AfterCholesky \
   ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const Matrix<F>& A, const Matrix<Int>& p ); \
+  ( const Matrix<F>& A, const Permutation& P ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p );
+  ( const ElementalMatrix<F>& A, const DistPermutation& P );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

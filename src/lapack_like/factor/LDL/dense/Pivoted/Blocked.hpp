@@ -19,7 +19,7 @@ inline void
 Blocked
 ( Matrix<F>& A,
   Matrix<F>& dSub,
-  Permutation& p,
+  Permutation& P,
   bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
@@ -30,7 +30,10 @@ Blocked
           LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
@@ -46,7 +49,7 @@ Blocked
         const Int nbProp = Min(bsize,n-k);
         const Range<Int> indB( k, n ), indBSub( k, n-1 );
         auto dSubB = dSub( indBSub, ALL );
-        Panel( A, dSubB, p, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
+        Panel( A, dSubB, P, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 
         // Update the bottom-right panel
@@ -67,7 +70,7 @@ inline void
 Blocked
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& dSubPre,
-  DistPermutation& p,
+  DistPermutation& P,
   bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
@@ -79,7 +82,10 @@ Blocked
           LogicError("A must be square");
     )
     const Int n = APre.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     if( n == 0 )
     {
         dSubPre.Resize( 0, 1 );
@@ -104,7 +110,7 @@ Blocked
         const Int nbProp = Min(bsize,n-k);
         const Range<Int> indB( k, n ), indBSub( k, n-1 );
         auto dSubB = dSub( indBSub, ALL );
-        Panel( A, dSubB, p, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
+        Panel( A, dSubB, P, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 
         // Update the bottom-right panel

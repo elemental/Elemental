@@ -21,13 +21,11 @@ namespace inverse {
 //     inv(A) = inv(U) inv(L) P.
 
 template<typename F> 
-void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& rowPiv )
+void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
 {
     DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != rowPiv.Height() )
-        LogicError("Pivot vector is incorrect length");
 
     TriangularInverse( UPPER, NON_UNIT, A );
 
@@ -63,7 +61,7 @@ void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& rowPiv )
     }
 
     // inv(A) := inv(A) P
-    ApplyInverseColPivots( A, rowPiv );
+    P.InversePermuteCols( A );
 }
 
 template<typename F> 
@@ -73,15 +71,15 @@ LUPartialPiv( Matrix<F>& A )
     DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    Matrix<Int> rowPiv;
-    El::LU( A, rowPiv );
-    inverse::AfterLUPartialPiv( A, rowPiv );
+    Permutation P;
+    El::LU( A, P );
+    inverse::AfterLUPartialPiv( A, P );
 }
 
 template<typename F> 
 void AfterLUPartialPiv
 (       ElementalMatrix<F>& APre,
-  const ElementalMatrix<Int>& rowPiv )
+  const DistPermutation& P )
 {
     DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
 
@@ -90,9 +88,6 @@ void AfterLUPartialPiv
 
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != rowPiv.Height() )
-        LogicError("Pivot vector is incorrect length");
-    AssertSameGrids( A, rowPiv );
 
     TriangularInverse( UPPER, NON_UNIT, A );
 
@@ -144,7 +139,7 @@ void AfterLUPartialPiv
     }
 
     // inv(A) := inv(A) P
-    ApplyInverseColPivots( A, rowPiv );
+    P.InversePermuteCols( A );
 }
 
 template<typename F> 
@@ -155,9 +150,9 @@ LUPartialPiv( ElementalMatrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();
-    DistMatrix<Int,STAR,STAR> rowPiv( g );
-    El::LU( A, rowPiv );
-    inverse::AfterLUPartialPiv( A, rowPiv );
+    DistPermutation P(g);
+    El::LU( A, P );
+    inverse::AfterLUPartialPiv( A, P );
 }
 
 } // namespace inverse

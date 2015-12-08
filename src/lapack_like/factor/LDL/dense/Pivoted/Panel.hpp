@@ -62,7 +62,7 @@ inline void
 Panel
 ( Matrix<F>& AFull,
   Matrix<F>& dSub,
-  Permutation& pFull, 
+  Permutation& PFull, 
   Matrix<F>& X,
   Matrix<F>& Y,
   Int bsize,
@@ -80,10 +80,10 @@ Panel
     if( n == 0 )
         return;
     DEBUG_ONLY(
-        if( A.Width() != n )
-            LogicError("A must be square");
-        if( dSub.Height() != n-1 || dSub.Width() != 1 )
-            LogicError("dSub is the wrong size" );
+      if( A.Width() != n )
+          LogicError("A must be square");
+      if( dSub.Height() != n-1 || dSub.Width() != 1 )
+          LogicError("dSub is the wrong size" );
     )
 
     Int k=0;
@@ -102,7 +102,7 @@ Panel
             const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
-            pFull.AppendSwap( off+k, off+k+diagMax.index );
+            PFull.RowSwap( off+k, off+k+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
@@ -118,7 +118,7 @@ Panel
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
-        pFull.AppendSwap( off+to, off+from );
+        PFull.RowSwap( off+to, off+from );
         RowSwap( X0, to, from );
         RowSwap( Y0, to, from );
 
@@ -188,7 +188,7 @@ inline void
 Panel
 ( DistMatrix<F>& AFull, 
   ElementalMatrix<F>& dSub, 
-  DistPermutation& pFull, 
+  DistPermutation& PFull, 
   DistMatrix<F,MC,STAR>& X,
   DistMatrix<F,MR,STAR>& Y,
   Int bsize,
@@ -233,7 +233,7 @@ Panel
             const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
-            pFull.AppendSwap( off+k, off+k+diagMax.index );
+            PFull.RowSwap( off+k, off+k+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
@@ -249,7 +249,7 @@ Panel
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
-        pFull.AppendSwap( off+to, off+from );
+        PFull.RowSwap( off+to, off+from );
         RowSwap( X0, to, from );
         RowSwap( Y0, to, from );
 

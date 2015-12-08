@@ -54,7 +54,7 @@ inline void
 Unblocked
 ( Matrix<F>& A,
   Matrix<F>& dSub,
-  Permutation& p,
+  Permutation& P,
   bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
@@ -65,7 +65,10 @@ Unblocked
           LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.ReserveSwaps( n );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
@@ -94,7 +97,7 @@ Unblocked
         {
             const Int from = k + pivot.from[l];
             SymmetricSwap( LOWER, A, k+l, from, conjugate );
-            p.AppendSwap( k+l, from );
+            P.RowSwap( k+l, from );
         }
 
         // Update trailing submatrix and store pivots
@@ -133,7 +136,7 @@ inline void
 Unblocked
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& dSub, 
-  DistPermutation& p,
+  DistPermutation& P,
   bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
@@ -147,7 +150,9 @@ Unblocked
     const Int n = APre.Height();
     const Grid& g = APre.Grid();
 
-    p.ReserveSwaps( n );
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     Zeros( dSub, n-1, 1 );
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -175,7 +180,7 @@ Unblocked
         {
             const Int from = k + pivot.from[l];
             SymmetricSwap( LOWER, A, k+l, from, conjugate );
-            p.AppendSwap( k+l, from );
+            P.RowSwap( k+l, from );
         }
 
 

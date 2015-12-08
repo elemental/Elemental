@@ -71,11 +71,11 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ElError ElInverseDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( Inverse( *CReflect(A) ) ) } \
   ElError ElInverseAfterLUPartialPiv_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElConstMatrix_i p ) \
-  { EL_TRY( inverse::AfterLUPartialPiv( *CReflect(A), *CReflect(p) ) ) } \
+  ( ElMatrix_ ## SIG A, ElConstPermutation P ) \
+  { EL_TRY( inverse::AfterLUPartialPiv( *CReflect(A), *CReflect(P) ) ) } \
   ElError ElInverseAfterLUPartialPivDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_i p ) \
-  { EL_TRY( inverse::AfterLUPartialPiv( *CReflect(A), *CReflect(p) ) ) } \
+  ( ElDistMatrix_ ## SIG A, ElConstDistPermutation P ) \
+  { EL_TRY( inverse::AfterLUPartialPiv( *CReflect(A), *CReflect(P) ) ) } \
   /* HPD */ \
   ElError ElHPDInverse_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \

@@ -48,7 +48,7 @@ void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation, 
   const Matrix<F>& A,
-  const Permutation& p,
+  const Permutation& P,
         Matrix<F>& B )
 {
     DEBUG_ONLY(
@@ -58,7 +58,7 @@ void SolveAfter
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
-    p.PermuteRows( B );
+    P.PermuteRows( B );
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -73,7 +73,7 @@ void SolveAfter
     }
     if( orientation == TRANSPOSE )
         Conjugate( B );
-    p.PermuteRows( B, true );
+    P.InversePermuteRows( B );
 }
 
 template<typename F> 
@@ -112,7 +112,7 @@ void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation, 
   const AbstractDistMatrix<F>& A,
-  const DistPermutation& p, 
+  const DistPermutation& P, 
         AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
@@ -123,7 +123,7 @@ void SolveAfter
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
-    p.PermuteRows( B );
+    P.PermuteRows( B );
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -138,7 +138,7 @@ void SolveAfter
     }
     if( orientation == TRANSPOSE )
         Conjugate( B );
-    p.PermuteRows( B, true );
+    P.InversePermuteRows( B );
 }
 
 } // namespace cholesky
