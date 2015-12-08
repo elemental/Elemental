@@ -1020,7 +1020,8 @@ DistFront<F>::operator=( const DistFront<F>& front )
         L2D.Attach( grid, front.duplicate->LDense );
         diag.Attach( grid, front.duplicate->diag );
         subdiag.Attach( grid, front.duplicate->subdiag );
-        piv.Attach( grid, front.duplicate->piv );
+        p.SetGrid( grid );
+        p = front.duplicate->p;
     }
     else
     {
@@ -1032,7 +1033,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
         L2D = front.L2D;
         diag = front.diag;
         subdiag = front.subdiag;
-        piv = front.piv;
+        p = front.p;
         work = front.work;
     }
     return *this;

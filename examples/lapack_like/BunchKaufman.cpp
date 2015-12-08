@@ -50,7 +50,7 @@ int main( int argc, char* argv[] )
         }
 
         // Make a copy of A and then overwrite it with its LDL factorization
-        DistMatrix<Int,VC,STAR> p;
+        DistPermutation p;
         DistMatrix<C,MD,STAR> dSub;
         DistMatrix<C> factA( A );
         MakeTrapezoidal( LOWER, factA );
@@ -60,7 +60,10 @@ int main( int argc, char* argv[] )
             Print( A,     "A"     );
             Print( factA, "factA" );
             Print( dSub,  "dSub"  );
-            Print( p,     "p"     );
+ 
+            DistMatrix<Int> P;
+            p.Explicit( P );
+            Print( P, "P" );
         }
 
         // Generate a random set of vectors

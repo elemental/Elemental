@@ -132,6 +132,26 @@ void Permutation::MakeArbitrary( Int domainSize )
     staleInverse_ = false;
 }
 
+const Permutation& Permutation::operator=( const Permutation& p )
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::operator="))
+
+    swapSequence_ = p.swapSequence_;
+    nextSwapIndex_ = p.nextSwapIndex_;
+    implicitSwapOrigins_ = p.implicitSwapOrigins_;
+
+    swapDests_ = p.swapDests_;
+    swapOrigins_ = p.swapOrigins_;
+    perm_ = p.perm_;
+    invPerm_ = p.invPerm_;
+
+    parity_ = p.parity_;
+    staleParity_ = p.staleParity_;
+    staleInverse_ = p.staleInverse_;
+
+    return *this;
+}
+
 bool Permutation::Parity() const
 {
     DEBUG_ONLY(CSE cse("Permutation::Parity"))

@@ -74,11 +74,15 @@ struct PermutationMeta
 class DistPermutation
 {
 public:
-    DistPermutation( const Grid& g );
+    DistPermutation( const Grid& g=DefaultGrid() );
 
+    void SetGrid( const Grid& g );
     void Empty();
     void ReserveSwaps( Int numSwaps );
     void MakeArbitrary( Int domainSize );
+    
+    const DistPermutation& operator=( const Permutation& p );
+    const DistPermutation& operator=( const DistPermutation& p );
 
     void AppendSwap( Int origin, Int dest );
     void AppendSwapSequence( const DistPermutation& perm, Int offset=0 );

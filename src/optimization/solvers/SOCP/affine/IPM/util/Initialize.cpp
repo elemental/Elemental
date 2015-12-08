@@ -114,7 +114,7 @@ void Initialize
     // Factor the KKT matrix
     // =====================
     Matrix<Real> dSub;
-    Matrix<Int> p;
+    Permutation p;
     LDL( J, dSub, p, false );
 
     // w should be equal to the identity element, and so should sqrt(w)
@@ -238,7 +238,7 @@ void Initialize
     // Factor the KKT matrix
     // =====================
     DistMatrix<Real> dSub(g);
-    DistMatrix<Int> p(g);
+    DistPermutation p(g);
     LDL( J, dSub, p, false );
 
     DistMatrix<Real> rc(g), rb(g), rh(g), rmu(g), d(g), u(g);

@@ -50,13 +50,13 @@ inline void FrontVanillaLowerForwardSolve
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const Matrix<F>& L,
-  const Matrix<Int>& p,
+  const Permutation& p,
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
     Matrix<F> XT, XB;
     PartitionDown( X, XT, XB, L.Width() );
-    PermuteRows( XT, p );
+    p.PermuteRows( XT );
     FrontVanillaLowerForwardSolve( L, X );
 }
 
@@ -116,7 +116,7 @@ FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
         if( BlockFactorization(type) )
             FrontBlockLowerForwardSolve( front.LDense, W );
         else if( PivotedFactorization(type) )
-            FrontIntraPivLowerForwardSolve( front.LDense, front.piv, W );
+            FrontIntraPivLowerForwardSolve( front.LDense, front.p, W );
         else
             FrontVanillaLowerForwardSolve( front.LDense, W );
     }
@@ -237,7 +237,7 @@ inline void FrontVanillaLowerForwardSolve
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistMatrix<Int,VC,STAR>& p, 
+  const DistPermutation& p, 
         DistMatrix<F,VC,STAR>& X,
   bool singleL11AllGather=true )
 {
@@ -247,8 +247,7 @@ inline void FrontIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    // TODO TODO TODO TODO TODO...
-    PermuteRows( XT, p );
+    p.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X, singleL11AllGather );
 }
@@ -330,7 +329,7 @@ inline void FrontVanillaLowerForwardSolve
 template<typename F>
 inline void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& p,
         DistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
@@ -339,8 +338,7 @@ inline void FrontIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    // TODO TODO TODO TODO TODO...
-    PermuteRows( XT, p );
+    p.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X );
 }
@@ -389,19 +387,16 @@ inline void FrontFastLowerForwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& p,
         DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
     // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    if( mpi::Rank() == 0 )
-        cerr << "Performance warning: pivots not yet cached" << endl;
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    // TODO TODO TODO TODO TODO...
-    PermuteRows( XT, p );
+    p.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
@@ -466,7 +461,7 @@ inline void FrontFastLowerForwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& p,
         DistMatrix<F,VC,STAR>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
@@ -475,8 +470,7 @@ inline void FrontFastIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    // TODO TODO TODO TODO TODO...
-    PermuteRows( XT, p );
+    p.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
@@ -519,7 +513,7 @@ inline void FrontFastLowerForwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& p,
         DistMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
@@ -528,8 +522,7 @@ inline void FrontFastIntraPivLowerForwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    // TODO TODO TODO TODO TODO...
-    PermuteRows( XT, p );
+    p.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
@@ -684,11 +677,11 @@ FrontLowerForwardSolve
     else if( type == LDL_SELINV_2D )
         FrontFastLowerForwardSolve( front.L2D, W );
     else if( type == LDL_INTRAPIV_1D )
-        FrontIntraPivLowerForwardSolve( front.L1D, front.piv, W );
+        FrontIntraPivLowerForwardSolve( front.L1D, front.p, W );
     else if( type == LDL_INTRAPIV_SELINV_1D )
-        FrontFastIntraPivLowerForwardSolve( front.L1D, front.piv, W );
+        FrontFastIntraPivLowerForwardSolve( front.L1D, front.p, W );
     else if( type == LDL_INTRAPIV_SELINV_2D )
-        FrontFastIntraPivLowerForwardSolve( front.L2D, front.piv, W );
+        FrontFastIntraPivLowerForwardSolve( front.L2D, front.p, W );
     else if( BlockFactorization(type) )
         FrontBlockLowerForwardSolve( front.L2D, W );
     else
@@ -708,9 +701,9 @@ FrontLowerForwardSolve
     else if( type == LDL_SELINV_2D )
         FrontFastLowerForwardSolve( front.L2D, W );
     else if( type == LDL_INTRAPIV_2D )
-        FrontIntraPivLowerForwardSolve( front.L2D, front.piv, W );
+        FrontIntraPivLowerForwardSolve( front.L2D, front.p, W );
     else if( type == LDL_INTRAPIV_SELINV_2D )
-        FrontFastIntraPivLowerForwardSolve( front.L2D, front.piv, W );
+        FrontFastIntraPivLowerForwardSolve( front.L2D, front.p, W );
     else if( BlockFactorization(type) )
         FrontBlockLowerForwardSolve( front.L2D, W );
     else

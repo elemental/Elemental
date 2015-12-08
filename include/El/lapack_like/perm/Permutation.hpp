@@ -21,6 +21,8 @@ public:
     void ReserveSwaps( Int numSwaps );
     void MakeArbitrary( Int domainSize );
 
+    const Permutation& operator=( const Permutation& p );
+
     void AppendSwap( Int origin, Int dest );
     void AppendSwapSequence( const Permutation& perm, Int offset=0 );
 
@@ -74,6 +76,8 @@ private:
             Matrix<Int> perm_;
     mutable Matrix<Int> invPerm_;
     mutable bool staleInverse_=true;
+
+    friend class DistPermutation;
 };
 
 } // namespace El

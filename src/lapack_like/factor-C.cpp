@@ -489,19 +489,19 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( LDL( *CReflect(A), false ) ) } \
   /* Return the packed LDL factorization with pivoting */ \
   ElError ElLDLPiv_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p ) \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElPermutation p ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false ) ) } \
   ElError ElLDLPivDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p ) \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistPermutation p ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false ) ) } \
   /* Expert versions */ \
   ElError ElLDLPivX_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElPermutation p, \
     ElLDLPivotCtrl_ ## SIG ctrl ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false, \
                  CReflect(ctrl) ) ) } \
   ElError ElLDLPivXDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistPermutation p, \
     ElLDLPivotCtrl_ ## SIG ctrl ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), false, \
                  CReflect(ctrl) ) ) } \
@@ -514,14 +514,14 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( ldl::MultiplyAfter( *CReflect(A), *CReflect(B), false ) ) } \
   /* Multiply vectors after a pivoted LDL factorization */ \
   ElError ElMultiplyAfterLDLPiv_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstPermutation p, \
     ElMatrix_ ## SIG B ) \
   { EL_TRY( ldl::MultiplyAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
       false ) ) } \
   ElError ElMultiplyAfterLDLPivDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
-    ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B ) \
+    ElConstDistPermutation p, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( ldl::MultiplyAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), false ) ) } \
   /* Solve against vectors after an unpivoted LDL factorization */ \
@@ -533,14 +533,14 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( ldl::SolveAfter( *CReflect(A), *CReflect(B), false ) ) } \
   /* Solve against vectors after a pivoted LDL factorization */ \
   ElError ElSolveAfterLDLPiv_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstPermutation p, \
     ElMatrix_ ## SIG B ) \
   { EL_TRY( ldl::SolveAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
       false ) ) } \
   ElError ElSolveAfterLDLPivDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
-    ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B ) \
+    ElConstDistPermutation p, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( ldl::SolveAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), false ) ) } \
   /* LU factorization
@@ -570,20 +570,30 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( LDL( *CReflect(A), conjugate ) ) } \
   /* Return the packed LDL factorization with pivoting */ \
   ElError ElLDLPiv_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, bool conjugate ) \
+  ( ElMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG dSub, \
+    ElPermutation p, \
+    bool conjugate ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate ) ) } \
   ElError ElLDLPivDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG dSub, \
+    ElDistPermutation p, \
     bool conjugate ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate ) ) } \
   /* Expert versions */ \
   ElError ElLDLPivX_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, bool conjugate, \
+  ( ElMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG dSub, \
+    ElPermutation p, \
+    bool conjugate, \
     ElLDLPivotCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate, \
                  CReflect(ctrl) ) ) } \
   ElError ElLDLPivXDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG dSub, \
+    ElDistPermutation p, \
     bool conjugate, ElLDLPivotCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), *CReflect(p), conjugate, \
                  CReflect(ctrl) ) ) } \
@@ -596,14 +606,19 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( ldl::MultiplyAfter( *CReflect(A), *CReflect(B), conjugate ) ) } \
   /* Multiply vectors after a pivoted LDL factorization */ \
   ElError ElMultiplyAfterLDLPiv_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
+  ( ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG dSub, \
+    ElConstPermutation p, \
     ElMatrix_ ## SIG B, bool conjugate ) \
   { EL_TRY( ldl::MultiplyAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
       conjugate ) ) } \
   ElError ElMultiplyAfterLDLPivDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
-    ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B, bool conjugate ) \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG dSub, \
+    ElConstDistPermutation p, \
+    ElDistMatrix_ ## SIG B, \
+    bool conjugate ) \
   { EL_TRY( ldl::MultiplyAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
       conjugate ) ) } \
@@ -616,14 +631,20 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( ldl::SolveAfter( *CReflect(A), *CReflect(B), conjugate ) ) } \
   /* Solve against vectors after a pivoted LDL factorization */ \
   ElError ElSolveAfterLDLPiv_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
-    ElMatrix_ ## SIG B, bool conjugate ) \
+  ( ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG dSub, \
+    ElConstPermutation p, \
+    ElMatrix_ ## SIG B, \
+    bool conjugate ) \
   { EL_TRY( ldl::SolveAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
       conjugate ) ) } \
   ElError ElSolveAfterLDLPivDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
-    ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B, bool conjugate ) \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG dSub, \
+    ElConstDistPermutation p, \
+    ElDistMatrix_ ## SIG B, \
+    bool conjugate ) \
   { EL_TRY( ldl::SolveAfter( \
       *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), \
       conjugate ) ) } \

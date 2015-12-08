@@ -19,7 +19,7 @@ inline void
 Blocked
 ( Matrix<F>& A,
   Matrix<F>& dSub,
-  Matrix<Int>& p,
+  Permutation& p,
   bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
@@ -30,18 +30,13 @@ Blocked
           LogicError("A must be square");
     )
     const Int n = A.Height();
+    p.ReserveSwaps( n );
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        p.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
-
-    // Initialize the permutation to the identity
-    p.Resize( n, 1 );
-    for( Int i=0; i<n; ++i )
-        p.Set( i, 0, i );
 
     Matrix<F> XB1, YB1;
     const Int bsize = Blocksize();
@@ -51,8 +46,7 @@ Blocked
         const Int nbProp = Min(bsize,n-k);
         const Range<Int> indB( k, n ), indBSub( k, n-1 );
         auto dSubB = dSub( indBSub, ALL );
-        auto pB = p( indB, ALL );
-        Panel( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
+        Panel( A, dSubB, p, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 
         // Update the bottom-right panel
@@ -73,19 +67,19 @@ inline void
 Blocked
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& dSubPre,
-  ElementalMatrix<Int>& pPre,
+  DistPermutation& p,
   bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
     DEBUG_ONLY(
       CSE cse("ldl::pivot::Blocked");
-      AssertSameGrids( APre, dSubPre, pPre );
+      AssertSameGrids( APre, dSubPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
     const Int n = APre.Height();
-    pPre.Resize( n, 1 );
+    p.ReserveSwaps( n );
     if( n == 0 )
     {
         dSubPre.Resize( 0, 1 );
@@ -95,17 +89,10 @@ Blocked
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,STAR> dSubProx( dSubPre );
-    DistMatrixWriteProxy<Int,Int,VC,STAR> pProx( pPre );
     auto& A = AProx.Get();
     auto& dSub = dSubProx.Get();
-    auto& p = pProx.Get();
 
     Zero( dSub );
-
-    // Initialize the permutation to the identity
-    if( p.IsLocalCol(0) )
-        for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
-            p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
     const Grid& g = APre.Grid();
     DistMatrix<F,MC,STAR> XB1(g);
@@ -117,8 +104,7 @@ Blocked
         const Int nbProp = Min(bsize,n-k);
         const Range<Int> indB( k, n ), indBSub( k, n-1 );
         auto dSubB = dSub( indBSub, ALL );
-        auto pB = p( indB, ALL );
-        Panel( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
+        Panel( A, dSubB, p, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 
         // Update the bottom-right panel

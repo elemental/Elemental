@@ -117,7 +117,7 @@ void Mehrotra
                  dxAff, dyAff, dzAff, dsAff,
                  dx,    dy,    dz,    ds;
     Matrix<Real> dSub;
-    Matrix<Int> p;
+    Permutation p;
     Matrix<Real> dxError, dyError, dzError;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
@@ -463,7 +463,7 @@ void Mehrotra
     dz.AlignWith( s );
     rmu.AlignWith( s );
     DistMatrix<Real> dSub(grid);
-    DistMatrix<Int> p(grid);
+    DistPermutation p(grid);
     DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
     dzError.AlignWith( s );
     const Int indent = PushIndent();

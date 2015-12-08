@@ -58,7 +58,7 @@ template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A,
   const Matrix<F>& dSub, 
-  const Matrix<Int>& p,
+  const Permutation& p,
         Matrix<F>& B,
   bool conjugated )
 {
@@ -68,44 +68,36 @@ void MultiplyAfter
           LogicError("A must be square");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
-      if( p.Height() != A.Height() )
-          LogicError("A and p must be the same height");
       // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = GetDiagonal(A);
 
-    Matrix<Int> pInv;
-    InvertPermutation( p, pInv );
-    
-    PermuteRows( B, p, pInv );
+    p.PermuteRows( B );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    PermuteRows( B, pInv, p );
+    p.PermuteRows( B, true );
 }
 
 template<typename F> 
 void MultiplyAfter
 ( const ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& dSub, 
-  const ElementalMatrix<Int>& p,
+  const DistPermutation& p,
         ElementalMatrix<F>& BPre, 
   bool conjugated )
 {
     DEBUG_ONLY(
       CSE cse("ldl::MultiplyAfter");
-      AssertSameGrids( APre, BPre, p );
+      AssertSameGrids( APre, BPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( APre.Height() != BPre.Height() )
           LogicError("A and B must be the same height");
-      if( APre.Height() != p.Height() )
-          LogicError("A and p must be the same height");
       // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
-    const Grid& g = APre.Grid();
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre );
@@ -114,14 +106,11 @@ void MultiplyAfter
 
     const auto d = GetDiagonal(A);
 
-    DistMatrix<Int,VC,STAR> pInv(g);
-    InvertPermutation( p, pInv );
-
-    PermuteRows( B, p, pInv );
+    p.PermuteRows( B );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    PermuteRows( B, pInv, p );
+    p.PermuteRows( B, true );
 }
 
 } // namespace ldl

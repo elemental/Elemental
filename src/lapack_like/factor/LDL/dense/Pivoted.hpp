@@ -25,7 +25,10 @@ namespace ldl {
 template<typename F>
 inline void
 Pivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate,
+( Matrix<F>& A,
+  Matrix<F>& dSub,
+  Permutation& p,
+  bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ldl::Pivoted"))
@@ -44,8 +47,10 @@ Pivoted
 template<typename F>
 inline void
 Pivoted
-( ElementalMatrix<F>& A, ElementalMatrix<F>& dSub, 
-  ElementalMatrix<Int>& p, bool conjugate, 
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& dSub, 
+  DistPermutation& p,
+  bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ldl::Pivoted"))

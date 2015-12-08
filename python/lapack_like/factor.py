@@ -269,7 +269,7 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
       else: DataExcept()
     else:
       dSub = Matrix(A.tag)
-      p = Matrix(iTag)
+      p = Permutation()
       ctrl = TagToPivotCtrl(A.tag,pivType)
       args = [A.obj,dSub.obj,p.obj,ctrl]
       argsCpx = [A.obj,dSub.obj,p.obj,conjugate,ctrl]
@@ -290,7 +290,7 @@ def LDL(A,conjugate=True,pivType=BUNCH_KAUFMAN_A):
       else: DataExcept()
     else:
       dSub = DistMatrix(A.tag,VC,STAR,A.Grid())
-      p = DistMatrix(iTag,VC,STAR,A.Grid())
+      p = DistPermutation(A.Grid())
       ctrl = TagToPivotCtrl(A.tag,pivType)
       args = [A.obj,dSub.obj,p.obj,ctrl]
       argsCpx = [A.obj,dSub.obj,p.obj,conjugate,ctrl]
@@ -368,22 +368,23 @@ def SolveAfterLDL(A,B,conjugate=True):
   else: TypeExcept()
 
 def SolveAfterLDLPiv(A,dSub,p,B,conjugate=True):
-  if type(A) is not type(dSub) or type(dSub) is not type(p) or \
-     type(p) is not type(B):
-    raise Exception('Types of {A,dSub,p,B} must match')
+  if type(A) is not type(dSub) or type(dSub) is not type(B):
+    raise Exception('Types of {A,dSub,B} must match')
   if A.tag != dSub.tag or dSub.tag != B.tag:
     raise Exception('Datatypes of {A,dSub,B} must match')
-  if p.tag != iTag:
-    raise Exception('p must be integral')
   args = [A.obj,dSub.obj,p.obj,B.obj]
   argsCpx = [A.obj,dSub.obj,p.obj,B.obj,conjugate]
   if type(A) is Matrix:
+    if type(p) is not Permutation:
+      raise Exception('Expected p to be a Permutation')
     if   A.tag == sTag: lib.ElSolveAfterLDLPiv_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterLDLPiv_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterLDLPiv_c(*argsCpx)
     elif A.tag == zTag: lib.ElSolveAfterLDLPiv_z(*argsCpx)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(p) is not DistPermutation:
+      raise Exception('Expected p to be a DistPermutation')
     if   A.tag == sTag: lib.ElSolveAfterLDLPivDist_s(*args)
     elif A.tag == dTag: lib.ElSolveAfterLDLPivDist_d(*args)
     elif A.tag == cTag: lib.ElSolveAfterLDLPivDist_c(*argsCpx)
@@ -437,22 +438,23 @@ lib.ElMultiplyAfterLDLPivDist_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,bType]
 
 def MultiplyAfterLDLPiv(A,dSub,p,B,conjugate=True):
-  if type(A) is not type(dSub) or type(dSub) is not type(p) or \
-     type(p) is not type(B):
-    raise Exception('Types of {A,dSub,p,B} must match')
+  if type(A) is not type(dSub) or type(dSub) is not type(B):
+    raise Exception('Types of {A,dSub,B} must match')
   if A.tag != dSub.tag or dSub.tag != B.tag:
     raise Exception('Datatypes of {A,dSub,B} must match')
-  if p.tag != iTag:
-    raise Exception('p must be integral')
   args = [A.obj,dSub.obj,p.obj,B.obj]
   argsCpx = [A.obj,dSub.obj,p.obj,B.obj,conjugate]
   if type(A) is Matrix:
+    if type(p) is not Permutation:
+      raise Exception('Expected p to be a Permutation')
     if   A.tag == sTag: lib.ElMultiplyAfterLDLPiv_s(*args)
     elif A.tag == dTag: lib.ElMultiplyAfterLDLPiv_d(*args)
     elif A.tag == cTag: lib.ElMultiplyAfterLDLPiv_c(*argsCpx)
     elif A.tag == zTag: lib.ElMultiplyAfterLDLPiv_z(*argsCpx)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(p) is not DistPermutation:
+      raise Exception('Expected p to be a DistPermutation')
     if   A.tag == sTag: lib.ElMultiplyAfterLDLPivDist_s(*args)
     elif A.tag == dTag: lib.ElMultiplyAfterLDLPivDist_d(*args)
     elif A.tag == cTag: lib.ElMultiplyAfterLDLPivDist_c(*argsCpx)

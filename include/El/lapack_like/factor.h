@@ -206,45 +206,57 @@ EL_EXPORT ElError ElLDLDist_z( ElDistMatrix_z A, bool conjugate );
 /* Packed LDL factorization (with pivoting)
    ---------------------------------------- */
 EL_EXPORT ElError ElLDLPiv_s
-( ElMatrix_s A, ElMatrix_s dSub, ElMatrix_i p );
+( ElMatrix_s A, ElMatrix_s dSub, ElPermutation p );
 EL_EXPORT ElError ElLDLPiv_d
-( ElMatrix_d A, ElMatrix_d dSub, ElMatrix_i p );
+( ElMatrix_d A, ElMatrix_d dSub, ElPermutation p );
 EL_EXPORT ElError ElLDLPiv_c
-( ElMatrix_c A, ElMatrix_c dSub, ElMatrix_i p, bool conjugate );
+( ElMatrix_c A, ElMatrix_c dSub, ElPermutation p, bool conjugate );
 EL_EXPORT ElError ElLDLPiv_z
-( ElMatrix_z A, ElMatrix_z dSub, ElMatrix_i p, bool conjugate );
+( ElMatrix_z A, ElMatrix_z dSub, ElPermutation p, bool conjugate );
 
 EL_EXPORT ElError ElLDLPivDist_s
-( ElDistMatrix_s A, ElDistMatrix_s dSub, ElDistMatrix_i p );
+( ElDistMatrix_s A, ElDistMatrix_s dSub, ElDistPermutation p );
 EL_EXPORT ElError ElLDLPivDist_d
-( ElDistMatrix_d A, ElDistMatrix_d dSub, ElDistMatrix_i p );
+( ElDistMatrix_d A, ElDistMatrix_d dSub, ElDistPermutation p );
 EL_EXPORT ElError ElLDLPivDist_c
-( ElDistMatrix_c A, ElDistMatrix_c dSub, ElDistMatrix_i p, bool conjugate );
+( ElDistMatrix_c A, ElDistMatrix_c dSub, ElDistPermutation p, bool conjugate );
 EL_EXPORT ElError ElLDLPivDist_z
-( ElDistMatrix_z A, ElDistMatrix_z dSub, ElDistMatrix_i p, bool conjugate );
+( ElDistMatrix_z A, ElDistMatrix_z dSub, ElDistPermutation p, bool conjugate );
 
 /* Expert versions 
    ^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElLDLPivX_s
-( ElMatrix_s A, ElMatrix_s dSub, ElMatrix_i p, ElLDLPivotCtrl_s );
+( ElMatrix_s A, ElMatrix_s dSub, ElPermutation p, ElLDLPivotCtrl_s );
 EL_EXPORT ElError ElLDLPivX_d
-( ElMatrix_d A, ElMatrix_d dSub, ElMatrix_i p, ElLDLPivotCtrl_d );
+( ElMatrix_d A, ElMatrix_d dSub, ElPermutation p, ElLDLPivotCtrl_d );
 EL_EXPORT ElError ElLDLPivX_c
-( ElMatrix_c A, ElMatrix_c dSub, ElMatrix_i p, bool conjugate, 
+( ElMatrix_c A, ElMatrix_c dSub, ElPermutation p, bool conjugate, 
   ElLDLPivotCtrl_s );
 EL_EXPORT ElError ElLDLPivX_z
-( ElMatrix_z A, ElMatrix_z dSub, ElMatrix_i p, bool conjugate, 
+( ElMatrix_z A, ElMatrix_z dSub, ElPermutation p, bool conjugate, 
   ElLDLPivotCtrl_d );
 
 EL_EXPORT ElError ElLDLPivXDist_s
-( ElDistMatrix_s A, ElDistMatrix_s dSub, ElDistMatrix_i p, ElLDLPivotCtrl_s );
+( ElDistMatrix_s A,
+  ElDistMatrix_s dSub,
+  ElDistPermutation p,
+  ElLDLPivotCtrl_s );
 EL_EXPORT ElError ElLDLPivXDist_d
-( ElDistMatrix_d A, ElDistMatrix_d dSub, ElDistMatrix_i p, ElLDLPivotCtrl_d );
+( ElDistMatrix_d A,
+  ElDistMatrix_d dSub,
+  ElDistPermutation p,
+  ElLDLPivotCtrl_d );
 EL_EXPORT ElError ElLDLPivXDist_c
-( ElDistMatrix_c A, ElDistMatrix_c dSub, ElDistMatrix_i p, bool conjugate, 
+( ElDistMatrix_c A,
+  ElDistMatrix_c dSub,
+  ElDistPermutation p,
+  bool conjugate, 
   ElLDLPivotCtrl_s );
 EL_EXPORT ElError ElLDLPivXDist_z
-( ElDistMatrix_z A, ElDistMatrix_z dSub, ElDistMatrix_i p, bool conjugate, 
+( ElDistMatrix_z A,
+  ElDistMatrix_z dSub,
+  ElDistPermutation p,
+  bool conjugate, 
   ElLDLPivotCtrl_d );
 
 /* Return the inertia given the quasi-diagonal factor from an LDL^H 
@@ -290,28 +302,50 @@ EL_EXPORT ElError ElSolveAfterLDLDist_z
 /* Solve linear systems with a pivoted LDL factorization
    ----------------------------------------------------- */
 EL_EXPORT ElError ElSolveAfterLDLPiv_s
-( ElConstMatrix_s A, ElConstMatrix_s dSub, ElConstMatrix_i p, ElMatrix_s B );
+( ElConstMatrix_s A,
+  ElConstMatrix_s dSub,
+  ElConstPermutation p,
+  ElMatrix_s B );
 EL_EXPORT ElError ElSolveAfterLDLPiv_d
-( ElConstMatrix_d A, ElConstMatrix_d dSub, ElConstMatrix_i p, ElMatrix_d B );
+( ElConstMatrix_d A,
+  ElConstMatrix_d dSub,
+  ElConstPermutation p,
+  ElMatrix_d B );
 EL_EXPORT ElError ElSolveAfterLDLPiv_c
-( ElConstMatrix_c A, ElConstMatrix_c dSub, ElConstMatrix_i p, ElMatrix_c B, 
+( ElConstMatrix_c A,
+  ElConstMatrix_c dSub,
+  ElConstPermutation p,
+  ElMatrix_c B, 
   bool conjugate );
 EL_EXPORT ElError ElSolveAfterLDLPiv_z
-( ElConstMatrix_z A, ElConstMatrix_z dSub, ElConstMatrix_i p, ElMatrix_z B, 
+( ElConstMatrix_z A,
+  ElConstMatrix_z dSub,
+  ElConstPermutation p,
+  ElMatrix_z B, 
   bool conjugate );
 
 EL_EXPORT ElError ElSolveAfterLDLPivDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s dSub, ElConstDistMatrix_i p, 
+( ElConstDistMatrix_s A,
+  ElConstDistMatrix_s dSub,
+  ElConstDistPermutation p, 
   ElDistMatrix_s B );
 EL_EXPORT ElError ElSolveAfterLDLPivDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d dSub, ElConstDistMatrix_i p, 
+( ElConstDistMatrix_d A,
+  ElConstDistMatrix_d dSub,
+  ElConstDistPermutation p, 
   ElDistMatrix_d B );
 EL_EXPORT ElError ElSolveAfterLDLPivDist_c
-( ElConstDistMatrix_c A, ElConstDistMatrix_c dSub, ElConstDistMatrix_i p, 
-  ElDistMatrix_c B, bool conjugate );
+( ElConstDistMatrix_c A,
+  ElConstDistMatrix_c dSub,
+  ElConstDistPermutation p, 
+  ElDistMatrix_c B,
+  bool conjugate );
 EL_EXPORT ElError ElSolveAfterLDLPivDist_z
-( ElConstDistMatrix_z A, ElConstDistMatrix_z dSub, ElConstDistMatrix_i p, 
-  ElDistMatrix_z B, bool conjugate );
+( ElConstDistMatrix_z A,
+  ElConstDistMatrix_z dSub,
+  ElConstDistPermutation p, 
+  ElDistMatrix_z B,
+  bool conjugate );
 
 /* Multiply vectors after an unpivoted LDL factorization
    ----------------------------------------------------- */
@@ -336,28 +370,50 @@ EL_EXPORT ElError ElMultiplyAfterLDLDist_z
 /* Multiply vectors after a pivoted LDL factorization
    -------------------------------------------------- */
 EL_EXPORT ElError ElMultiplyAfterLDLPiv_s
-( ElConstMatrix_s A, ElConstMatrix_s dSub, ElConstMatrix_i p, ElMatrix_s B );
+( ElConstMatrix_s A,
+  ElConstMatrix_s dSub,
+  ElConstPermutation p,
+  ElMatrix_s B );
 EL_EXPORT ElError ElMultiplyAfterLDLPiv_d
-( ElConstMatrix_d A, ElConstMatrix_d dSub, ElConstMatrix_i p, ElMatrix_d B );
+( ElConstMatrix_d A,
+  ElConstMatrix_d dSub,
+  ElConstPermutation p,
+  ElMatrix_d B );
 EL_EXPORT ElError ElMultiplyAfterLDLPiv_c
-( ElConstMatrix_c A, ElConstMatrix_c dSub, ElConstMatrix_i p, ElMatrix_c B, 
+( ElConstMatrix_c A,
+  ElConstMatrix_c dSub,
+  ElConstPermutation p,
+  ElMatrix_c B, 
   bool conjugate );
 EL_EXPORT ElError ElMultiplyAfterLDLPiv_z
-( ElConstMatrix_z A, ElConstMatrix_z dSub, ElConstMatrix_i p, ElMatrix_z B, 
+( ElConstMatrix_z A,
+  ElConstMatrix_z dSub,
+  ElConstPermutation p,
+  ElMatrix_z B, 
   bool conjugate );
 
 EL_EXPORT ElError ElMultiplyAfterLDLPivDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s dSub, ElConstDistMatrix_i p, 
+( ElConstDistMatrix_s A,
+  ElConstDistMatrix_s dSub,
+  ElConstDistPermutation p, 
   ElDistMatrix_s B );
 EL_EXPORT ElError ElMultiplyAfterLDLPivDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d dSub, ElConstDistMatrix_i p, 
+( ElConstDistMatrix_d A,
+  ElConstDistMatrix_d dSub,
+  ElConstDistPermutation p, 
   ElDistMatrix_d B );
 EL_EXPORT ElError ElMultiplyAfterLDLPivDist_c
-( ElConstDistMatrix_c A, ElConstDistMatrix_c dSub, ElConstDistMatrix_i p, 
-  ElDistMatrix_c B, bool conjugate );
+( ElConstDistMatrix_c A,
+  ElConstDistMatrix_c dSub,
+  ElConstDistPermutation p, 
+  ElDistMatrix_c B,
+  bool conjugate );
 EL_EXPORT ElError ElMultiplyAfterLDLPivDist_z
-( ElConstDistMatrix_z A, ElConstDistMatrix_z dSub, ElConstDistMatrix_i p, 
-  ElDistMatrix_z B, bool conjugate );
+( ElConstDistMatrix_z A,
+  ElConstDistMatrix_z dSub,
+  ElConstDistPermutation p, 
+  ElDistMatrix_z B,
+  bool conjugate );
 
 /* Solve a linear system via a regularized factorization
    ===================================================== */

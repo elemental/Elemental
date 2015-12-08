@@ -70,16 +70,22 @@ struct MatrixNode
     MatrixNode( DistMultiVecNode<T>* dupNode );
 
     MatrixNode
-    ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X );
+    ( const vector<Int>& invMap,
+      const NodeInfo& info,
+      const Matrix<T>& X );
 
     ~MatrixNode();
 
     const MatrixNode<T>& operator=( const MatrixNode<T>& X );
 
     void Pull
-    ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X );
+    ( const vector<Int>& invMap,
+      const NodeInfo& info,
+      const Matrix<T>& X );
     void Push
-    ( const vector<Int>& invMap, const NodeInfo& info, Matrix<T>& X ) const;
+    ( const vector<Int>& invMap,
+      const NodeInfo& info,
+            Matrix<T>& X ) const;
 
     Int Height() const;
 };
@@ -232,7 +238,7 @@ struct Front
 
     Matrix<F> diag;
     Matrix<F> subdiag;
-    Matrix<Int> piv;
+    Permutation p;
 
     Matrix<F> workDense;
     SparseMatrix<F> workSparse;
@@ -244,20 +250,26 @@ struct Front
     Front( Front<F>* parentNode=nullptr );
     Front( DistFront<F>* dupNode );
     Front
-    ( const SparseMatrix<F>& A, const vector<Int>& reordering,
-      const NodeInfo& rootInfo, bool conjugate=true );
+    ( const SparseMatrix<F>& A,
+      const vector<Int>& reordering,
+      const NodeInfo& rootInfo,
+      bool conjugate=true );
 
     ~Front();
 
     void Pull
-    ( const SparseMatrix<F>& A, const vector<Int>& reordering, 
-      const NodeInfo& rootInfo, bool conjugate=true );
+    ( const SparseMatrix<F>& A,
+      const vector<Int>& reordering, 
+      const NodeInfo& rootInfo,
+      bool conjugate=true );
     void PullUpdate
-    ( const SparseMatrix<F>& A, const vector<Int>& reordering, 
+    ( const SparseMatrix<F>& A,
+      const vector<Int>& reordering, 
       const NodeInfo& rootInfo );
 
     void Push
-    ( SparseMatrix<F>& A, const vector<Int>& reordering, 
+    (       SparseMatrix<F>& A,
+      const vector<Int>& reordering, 
       const NodeInfo& rootInfo ) const;
 
     void Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const;
@@ -307,7 +319,7 @@ struct DistFront
 
     DistMatrix<F,VC,STAR> diag;
     DistMatrix<F,VC,STAR> subdiag;
-    DistMatrix<Int,VC,STAR> piv;
+    DistPermutation p;
 
     DistMatrix<F> work;
     mutable FactorCommMeta commMeta;

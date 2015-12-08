@@ -54,30 +54,25 @@ inline void
 Unblocked
 ( Matrix<F>& A,
   Matrix<F>& dSub,
-  Matrix<Int>& p,
+  Permutation& p,
   bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
     DEBUG_ONLY(
-        CSE cse("ldl::pivot::Unblocked");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      CSE cse("ldl::pivot::Unblocked");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     const Int n = A.Height();
+    p.ReserveSwaps( n );
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        p.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
 
-    // Initialize the permutation to the identity
-    p.Resize( n, 1 );
-    for( Int j=0; j<n; ++j )
-        p.Set( j, 0, j );
-     
     Matrix<F> Y21;
 
     Int k=0;
@@ -99,7 +94,7 @@ Unblocked
         {
             const Int from = k + pivot.from[l];
             SymmetricSwap( LOWER, A, k+l, from, conjugate );
-            RowSwap( p, k+l, from );
+            p.AppendSwap( k+l, from );
         }
 
         // Update trailing submatrix and store pivots
@@ -138,7 +133,7 @@ inline void
 Unblocked
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& dSub, 
-  ElementalMatrix<Int>& p,
+  DistPermutation& p,
   bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
@@ -147,20 +142,16 @@ Unblocked
       CSE cse("ldl::pivot::Unblocked");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
-      AssertSameGrids( APre, dSub, p );
+      AssertSameGrids( APre, dSub );
     )
     const Int n = APre.Height();
     const Grid& g = APre.Grid();
 
+    p.ReserveSwaps( n );
     Zeros( dSub, n-1, 1 );
-    p.Resize( n, 1 );
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-
-    // Initialize the permutation to the identity
-    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
-        p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
     DistMatrix<F> Y21(g);
     DistMatrix<F,STAR,STAR> D11_STAR_STAR(g);
@@ -184,7 +175,7 @@ Unblocked
         {
             const Int from = k + pivot.from[l];
             SymmetricSwap( LOWER, A, k+l, from, conjugate );
-            RowSwap( p, k+l, from );
+            p.AppendSwap( k+l, from );
         }
 
 

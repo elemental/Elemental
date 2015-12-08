@@ -20,6 +20,16 @@ DistPermutation::DistPermutation( const Grid& g )
     invPerm_.SetGrid( g );
 }
 
+void DistPermutation::SetGrid( const Grid& g )
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::SetGrid"))
+    Empty();
+    swapDests_.SetGrid( g );
+    swapOrigins_.SetGrid( g );
+    perm_.SetGrid( g );
+    invPerm_.SetGrid( g );
+}
+
 void DistPermutation::Empty()
 {
     DEBUG_ONLY(CSE cse("DistPermutation::Empty"))
@@ -160,6 +170,58 @@ void DistPermutation::MakeArbitrary( Int domainSize )
     staleParity_ = false;
     staleInverse_ = false;
     staleMeta_ = true;
+}
+
+const DistPermutation& DistPermutation::operator=( const Permutation& p )
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::operator="))
+    if( grid_.Size() != 1 )
+        LogicError("Invalid grid size for sequential copy");
+
+    swapSequence_ = p.swapSequence_;
+    nextSwapIndex_ = p.nextSwapIndex_;
+    implicitSwapOrigins_ = p.implicitSwapOrigins_;
+
+    swapDests_.Resize( p.swapDests_.Height(), 1 );
+    swapOrigins_.Resize( p.swapOrigins_.Height(), 1 );
+    perm_.Resize( p.perm_.Height(), 1 );
+    invPerm_.Resize( p.invPerm_.Height(), 1 );
+    Copy( p.swapDests_, swapDests_.Matrix() );
+    Copy( p.swapOrigins_, swapOrigins_.Matrix() );
+    Copy( p.perm_, perm_.Matrix() );
+    Copy( p.invPerm_, invPerm_.Matrix() );
+    
+    parity_ = p.parity_;
+    staleParity_ = p.staleParity_;
+    staleInverse_ = p.staleInverse_;
+    staleMeta_ = true;
+
+    return *this;
+}
+
+const DistPermutation& DistPermutation::operator=( const DistPermutation& p )
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::operator="))
+    SetGrid( p.grid_ );
+
+    swapSequence_ = p.swapSequence_;
+    nextSwapIndex_ = p.nextSwapIndex_;
+    implicitSwapOrigins_ = p.implicitSwapOrigins_;
+
+    swapDests_ = p.swapDests_;
+    swapOrigins_ = p.swapOrigins_;
+    perm_ = p.perm_;
+    invPerm_ = p.invPerm_;
+    
+    parity_ = p.parity_;
+    staleParity_ = p.staleParity_;
+    staleInverse_ = p.staleInverse_;
+
+    colMeta_ = p.colMeta_;
+    rowMeta_ = p.rowMeta_;
+    staleMeta_ = p.staleMeta_;
+
+    return *this;
 }
 
 bool DistPermutation::Parity() const

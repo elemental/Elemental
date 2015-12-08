@@ -15,7 +15,7 @@ void TestCorrectness
   bool print, 
   const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& dSub,
-  const ElementalMatrix<Int>& p,
+  const DistPermutation& p,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -52,7 +52,7 @@ void TestCorrectness
          "||A X - L D L^[T/H] X||_F  = ",frobNormOfError);
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void TestLDL
 ( bool conjugated,
   bool testCorrectness,
@@ -75,7 +75,7 @@ void TestLDL
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     DistMatrix<F,MD,STAR> dSub(g);
-    DistMatrix<Int,UPerm,STAR> p(g);
+    DistPermutation p(g);
     LDL( A, dSub, p, conjugated );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -86,7 +86,9 @@ void TestLDL
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( p, "p" );
+        DistMatrix<Int> P(g);
+        p.Explicit( P ); 
+        Print( P, "P" );
     }
     if( testCorrectness )
         TestCorrectness( conjugated, print, A, dSub, p, AOrig );
@@ -127,11 +129,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             Output("Testing with doubles:");
-        TestLDL<double,VC>( conjugated, testCorrectness, print, m, g );
+        TestLDL<double>( conjugated, testCorrectness, print, m, g );
 
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
-        TestLDL<Complex<double>,VC>( conjugated, testCorrectness, print, m, g );
+        TestLDL<Complex<double>>( conjugated, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

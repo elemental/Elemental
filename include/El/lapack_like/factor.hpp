@@ -149,14 +149,14 @@ template<typename F>
 void LDL
 ( Matrix<F>& A,
   Matrix<F>& dSub,
-  Matrix<Int>& p,
+  Permutation& p,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LDL
 ( ElementalMatrix<F>& A,
   ElementalMatrix<F>& dSub,
-  ElementalMatrix<Int>& p,
+  DistPermutation& p,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
@@ -205,14 +205,14 @@ template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A,
   const Matrix<F>& dSub,
-  const Matrix<Int>& p,
+  const Permutation& p,
         Matrix<F>& B,
   bool conjugated );
 template<typename F>
 void MultiplyAfter
 ( const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& dSub,
-  const ElementalMatrix<Int>& p,
+  const DistPermutation& p,
         ElementalMatrix<F>& B,
   bool conjugated );
 
@@ -270,14 +270,14 @@ template<typename F>
 void SolveAfter
 ( const Matrix<F>& A,
   const Matrix<F>& dSub,
-  const Matrix<Int>& p,
+  const Permutation& p,
         Matrix<F>& B,
   bool conjugated );
 template<typename F>
 void SolveAfter
 ( const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& dSub,
-  const ElementalMatrix<Int>& p,
+  const DistPermutation& p,
         ElementalMatrix<F>& B, 
   bool conjugated );
 
