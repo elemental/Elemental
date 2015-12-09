@@ -21,8 +21,8 @@ namespace El {
 template<typename F> 
 void Skeleton
 ( const Matrix<F>& A, 
-        Matrix<Int>& permR,
-        Matrix<Int>& permC, 
+        Permutation& PR,
+        Permutation& PC,
         Matrix<F>& Z,
   const QRCtrl<Base<F>> ctrl )
 {
@@ -32,12 +32,12 @@ void Skeleton
     Adjoint( A, B );
     Matrix<F> t;
     Matrix<Base<F>> d;
-    QR( B, t, d, permR, ctrl );
+    QR( B, t, d, PR, ctrl );
     const Int numSteps = t.Height();
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
-    InversePermuteCols( B, permR );
+    PR.PermuteCols( B );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
@@ -51,11 +51,11 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, t, d, permC, secondCtrl );
+    QR( B, t, d, PC, secondCtrl );
 
     // Form pinv(AC)
     B = A;
-    InversePermuteCols( B, permC );
+    PC.PermuteCols( B );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
@@ -66,8 +66,8 @@ void Skeleton
 template<typename F> 
 void Skeleton
 ( const ElementalMatrix<F>& APre, 
-        ElementalMatrix<Int>& permR,
-        ElementalMatrix<Int>& permC, 
+        DistPermutation& PR,
+        DistPermutation& PC,
         ElementalMatrix<F>& Z,
   const QRCtrl<Base<F>> ctrl )
 {
@@ -83,12 +83,12 @@ void Skeleton
     Adjoint( A, B );
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    QR( B, t, d, permR, ctrl );
+    QR( B, t, d, PR, ctrl );
     const Int numSteps = t.Height();
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
-    InversePermuteCols( B, permR );
+    PR.PermuteCols( B );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
@@ -102,11 +102,11 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, t, d, permC, secondCtrl );
+    QR( B, t, d, PC, secondCtrl );
 
     // Form pinv(AC)
     B = A;
-    InversePermuteCols( B, permC );
+    PC.PermuteCols( B );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
@@ -117,14 +117,14 @@ void Skeleton
 #define PROTO(F) \
   template void Skeleton \
   ( const Matrix<F>& A, \
-          Matrix<Int>& permR, \
-          Matrix<Int>& permC, \
+          Permutation& PR, \
+          Permutation& PC, \
           Matrix<F>& Z, \
     const QRCtrl<Base<F>> ctrl ); \
   template void Skeleton \
   ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<Int>& permR, \
-          ElementalMatrix<Int>& permC, \
+          DistPermutation& PR, \
+          DistPermutation& PC, \
           ElementalMatrix<F>& Z, \
     const QRCtrl<Base<F>> ctrl );
 

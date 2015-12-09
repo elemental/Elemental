@@ -18,9 +18,9 @@ template<typename F>
 void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     DEBUG_ONLY(
-        CSE cse("qr::ts::Reduce");
-        if( A.RowDist() != STAR )
-            LogicError("Invalid row distribution for TSQR");
+      CSE cse("qr::ts::Reduce");
+      if( A.RowDist() != STAR )
+          LogicError("Invalid row distribution for TSQR");
     )
     const Int m =  A.Height();
     const Int n = A.Width();
@@ -183,11 +183,11 @@ template<typename F>
 void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     DEBUG_ONLY(
-        CSE cse("qr::ts::Scatter");
-        if( A.RowDist() != STAR )
-            LogicError("Invalid row distribution for TSQR");
+      CSE cse("qr::ts::Scatter");
+      if( A.RowDist() != STAR )
+          LogicError("Invalid row distribution for TSQR");
     )
-    const Int m =  A.Height();
+    const Int m = A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();
     const Int p = mpi::Size( colComm );
@@ -225,7 +225,8 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
                 // TODO: Exploit sparsity?
                 ApplyQ
                 ( LEFT, NORMAL, 
-                  treeData.QRList[stage], treeData.tList[stage], 
+                  treeData.QRList[stage],
+                  treeData.tList[stage], 
                   treeData.dList[stage], Z );
             }
             // Send bottom-half to partner and keep top half

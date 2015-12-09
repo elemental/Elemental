@@ -692,21 +692,21 @@ void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   DistMatrix<F,MR,STAR,BLOCK>& t );
 
-// Return an implicit representation of (Q,R,P) such that A P ~= Q R
-// -----------------------------------------------------------------
+// Return an implicit representation of (Q,R,Omega) such that A Omega^T ~= Q R
+// ---------------------------------------------------------------------------
 template<typename F>
 void QR
 ( Matrix<F>& A,
   Matrix<F>& t, 
   Matrix<Base<F>>& d,
-  Matrix<Int>& p,
+  Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void QR
 ( ElementalMatrix<F>& A,
   ElementalMatrix<F>& t, 
   ElementalMatrix<Base<F>>& d,
-  ElementalMatrix<Int>& p,
+  DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 namespace qr {
@@ -757,8 +757,8 @@ void Cholesky( Matrix<F>& A, Matrix<F>& R );
 template<typename F>
 void Cholesky( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
 
-// Return R (with non-negative diagonal) such that A = Q R or A P = Q R
-// --------------------------------------------------------------------
+// Return R (with non-negative diagonal) such that A = Q R or A Omega^T = Q R
+// --------------------------------------------------------------------------
 template<typename F>
 void ExplicitTriang
 ( Matrix<F>& A,
@@ -768,8 +768,8 @@ void ExplicitTriang
 ( ElementalMatrix<F>& A,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
-// Return Q such that either A = Q R or A P = Q R
-// ----------------------------------------------
+// Return Q such that either A = Q R or A Omega^T = Q R
+// ----------------------------------------------------
 template<typename F>
 void ExplicitUnitary
 ( Matrix<F>& A,
@@ -781,8 +781,8 @@ void ExplicitUnitary
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
-// Return both Q and R such that A = Q R or A P = Q R
-// --------------------------------------------------
+// Return both Q and R such that A = Q R or A Omega^T = Q R
+// --------------------------------------------------------
 template<typename F>
 void Explicit
 ( Matrix<F>& A,
@@ -796,21 +796,21 @@ void Explicit
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
-// Return (Q,R,P) such that A P = Q R
-// ----------------------------------
+// Return (Q,R,Omega) such that A Omega^T = Q R
+// --------------------------------------------
 // NOTE: Column-pivoting is performed regardless of the value of ctrl.colPiv 
 template<typename F>
 void Explicit
 ( Matrix<F>& A,
   Matrix<F>& R, 
-  Matrix<Int>& P,
+  Matrix<Int>& Omega,
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Explicit
 ( ElementalMatrix<F>& A,
   ElementalMatrix<F>& R, 
-  ElementalMatrix<Int>& P,
+  ElementalMatrix<Int>& Omega,
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
@@ -999,27 +999,27 @@ void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 template<typename F>
 void ID
 ( const Matrix<F>& A,
-        Matrix<Int>& p, 
+        Permutation& P, 
         Matrix<F>& Z, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ID
 ( const ElementalMatrix<F>& A,
-        ElementalMatrix<Int>& p,
+        DistPermutation& P,
         ElementalMatrix<F>& Z, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
 void ID
 ( Matrix<F>& A,
-  Matrix<Int>& p, 
+  Permutation& P, 
   Matrix<F>& Z,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
 template<typename F>
 void ID
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<Int>& p,
+  DistPermutation& P,
   ElementalMatrix<F>& Z,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
@@ -1029,15 +1029,15 @@ void ID
 template<typename F>
 void Skeleton
 ( const Matrix<F>& A,
-        Matrix<Int>& pR,
-        Matrix<Int>& pC,
+        Permutation& PR,
+        Permutation& PC,
         Matrix<F>& Z,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Skeleton
 ( const ElementalMatrix<F>& A,
-        ElementalMatrix<Int>& pR,
-        ElementalMatrix<Int>& pC,
+        DistPermutation& PR,
+        DistPermutation& PC,
         ElementalMatrix<F>& Z,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 

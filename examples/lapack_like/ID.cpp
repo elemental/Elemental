@@ -38,7 +38,7 @@ int main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
 
-        DistMatrix<Int,VR,STAR> p(g);
+        DistPermutation Omega(g);
         DistMatrix<F,STAR,VR> Z(g);
         QRCtrl<Real> ctrl;
         ctrl.boundRank = true;
@@ -49,25 +49,27 @@ int main( int argc, char* argv[] )
             ctrl.tol = tol;
         }
         ctrl.smallestFirst = smallestFirst;
-        ID( A, p, Z, ctrl );
+        ID( A, Omega, Z, ctrl );
         const Int rank = Z.Height();
         if( print )
         {
-            Print( p, "p" );
+            DistMatrix<Int> OmegaFull(g);
+            Omega.Explicit( OmegaFull );
+            Print( OmegaFull, "Omega" );
             Print( Z, "Z" );
         }
 
         // Pivot A and form the matrix of its (hopefully) dominant columns
-        InversePermuteCols( A, p );
+        Omega.PermuteCols( A );
         auto hatA( A );
         hatA.Resize( m, rank );
         if( print )
         {
-            Print( A, "A P" );
+            Print( A, "A Omega^T" );
             Print( hatA, "\\hat{A}" );
         }
 
-        // Check || A P - \hat{A} [I, Z] ||_F / || A ||_F
+        // Check || A Omega^T - \hat{A} [I, Z] ||_F / || A ||_F
         DistMatrix<F> AL(g), AR(g);
         PartitionRight( A, AL, AR, rank );
         Zero( AL );
@@ -83,12 +85,13 @@ int main( int argc, char* argv[] )
         }
         const Real frobError = FrobeniusNorm( A );
         if( print )
-            Print( A, "A P - \\hat{A} [I, Z]" );
+            Print( A, "A Omega^T - \\hat{A} [I, Z]" );
 
         if( mpi::Rank() == 0 )
             Output
             ("|| A ||_F = ",frobA,"\n",
-             "|| A P - \\hat{A} [I, Z] ||_F / || A ||_F = ",frobError/frobA);
+             "|| A Omega^T - \\hat{A} [I, Z] ||_F / || A ||_F = ",
+             frobError/frobA);
     }
     catch( exception& e ) { ReportException(e); }
 

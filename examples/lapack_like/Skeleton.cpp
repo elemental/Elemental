@@ -46,23 +46,26 @@ main( int argc, char* argv[] )
             ctrl.adaptive = true;
             ctrl.tol = tol;
         }
-        DistMatrix<Int,VR,STAR> permR(g), permC(g);
+        DistPermutation PR(g), PC(g);
         DistMatrix<C> Z(g);
-        Skeleton( A, permR, permC, Z, ctrl );
+        Skeleton( A, PR, PC, Z, ctrl );
         const Int rank = Z.Height();
         if( print )
         {
-            Print( permR, "perm_R" );
-            Print( permC, "perm_C" );
+            DistMatrix<Int> PFull(g);
+            PR.Explicit( PFull );
+            Print( PFull, "PR" );
+            PC.Explicit( PFull );
+            Print( PFull, "PC" );
             Print( Z, "Z" );
         }
 
         // Form the matrices of A's (hopefully) dominant rows and columns
         DistMatrix<C> AR( A );
-        InversePermuteRows( AR, permR );
+        PR.PermuteRows( AR );
         AR.Resize( rank, A.Width() );
         DistMatrix<C> AC( A );
-        InversePermuteCols( AC, permC );
+        PC.PermuteCols( AC );
         AC.Resize( A.Height(), rank );
         if( print )
         {

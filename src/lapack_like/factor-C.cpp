@@ -180,16 +180,16 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   /* Interpolative Decomposition 
      =========================== */ \
   ElError ElID_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_i p, ElMatrix_ ## SIG Z, \
+  ( ElMatrix_ ## SIG A, ElPermutation Omega, ElMatrix_ ## SIG Z, \
     ElQRCtrl_ ## SIGBASE ctrl, bool canOverwrite ) \
   { EL_TRY( \
-      ID( *CReflect(A), *CReflect(p), *CReflect(Z), \
+      ID( *CReflect(A), *CReflect(Omega), *CReflect(Z), \
           CReflect(ctrl), canOverwrite ) ) } \
   ElError ElIDDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, ElDistMatrix_ ## SIG Z, \
+  ( ElDistMatrix_ ## SIG A, ElDistPermutation Omega, ElDistMatrix_ ## SIG Z, \
     ElQRCtrl_ ## SIGBASE ctrl, bool canOverwrite ) \
   { EL_TRY( \
-      ID( *CReflect(A), *CReflect(p), *CReflect(Z), \
+      ID( *CReflect(A), *CReflect(Omega), *CReflect(Z), \
           CReflect(ctrl), canOverwrite ) ) } \
   /* LDL factorization
      ================= */ \
@@ -334,27 +334,30 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   /* Return the packed QR factorization (with column pivoting) */ \
   ElError ElQRColPiv_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, \
-    ElMatrix_i p ) \
+    ElPermutation Omega ) \
   { EL_TRY( QR( \
-      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(p) ) ) } \
+      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(Omega) ) ) } \
   ElError ElQRColPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
-    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, ElDistMatrix_i p ) \
-  { EL_TRY( QR( *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(p) ) ) } \
+    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, \
+    ElDistPermutation Omega ) \
+  { EL_TRY( QR( *CReflect(A), *CReflect(t), *CReflect(d), \
+                *CReflect(Omega) ) ) } \
   /* Return the packed QR factorization (with column pivoting, eXpert) */ \
   ElError ElQRColPivX_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, \
-    ElMatrix_i p, ElQRCtrl_ ## SIGBASE ctrl ) \
+    ElPermutation Omega, ElQRCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( QR( \
-      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(p),\
+      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(Omega),\
       CReflect(ctrl) ) ) } \
   ElError ElQRColPivXDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
-    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, ElDistMatrix_i p, \
+    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, \
+    ElDistPermutation Omega, \
     ElQRCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( QR( \
       *CReflect(A), *CReflect(t), *CReflect(d), \
-      *CReflect(p), CReflect(ctrl) ) ) } \
+      *CReflect(Omega), CReflect(ctrl) ) ) } \
   /* Explicitly return Q and R (with no pivoting) */ \
   ElError ElQRExplicit_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R ) \
@@ -362,13 +365,13 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   ElError ElQRExplicitDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R) ) ) } \
-  /* Explicitly return Q, R, and P (with column pivoting) */ \
+  /* Explicitly return Q, R, and Omega (with column pivoting) */ \
   ElError ElQRColPivExplicit_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R, ElMatrix_i P ) \
-  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(P) ) ) } \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R, ElMatrix_i Omega ) \
+  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(Omega) ) ) } \
   ElError ElQRColPivExplicitDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R, ElDistMatrix_i P ) \
-  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(P) ) ) } \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R, ElDistMatrix_i Omega ) \
+  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(Omega) ) ) } \
   /* Return the triangular factor from QR */ \
   ElError ElQRExplicitTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( qr::ExplicitTriang( *CReflect(A) ) ) } \
@@ -467,14 +470,14 @@ ElError ElQRCtrlDefault_d( ElQRCtrl_d* ctrl )
   /* Skeleton factorization
      ====================== */ \
   ElError ElSkeleton_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElMatrix_i pR, ElMatrix_i pC, \
+  ( ElConstMatrix_ ## SIG A, ElPermutation PR, ElPermutation PC, \
     ElMatrix_ ## SIG Z, ElQRCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( Skeleton( *CReflect(A), *CReflect(pR), *CReflect(pC), \
+  { EL_TRY( Skeleton( *CReflect(A), *CReflect(PR), *CReflect(PC), \
                       *CReflect(Z), CReflect(ctrl) ) ) } \
   ElError ElSkeletonDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_i pR, ElDistMatrix_i pC, \
+  ( ElConstDistMatrix_ ## SIG A, ElDistPermutation PR, ElDistPermutation PC, \
     ElDistMatrix_ ## SIG Z, ElQRCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( Skeleton( *CReflect(A), *CReflect(pR), *CReflect(pC), \
+  { EL_TRY( Skeleton( *CReflect(A), *CReflect(PR), *CReflect(PC), \
                       *CReflect(Z), CReflect(ctrl) ) ) }
 
 #define C_PROTO_REAL(SIG,Real) \

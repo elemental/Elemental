@@ -99,7 +99,12 @@ void DistPermutation::ReserveSwaps( Int maxSwaps )
 
 void DistPermutation::RowSwap( Int origin, Int dest )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::RowSwap"))
+    DEBUG_ONLY(
+      CSE cse("DistPermutation::RowSwap");
+      if( origin < 0 || origin >= size_ || dest < 0 || dest >= size_ )
+          LogicError
+          ("Attempted swap (",origin,",",dest,") for perm. of size ",size_);
+    )
     if( origin != dest )
         parity_ = !parity_;
     if( swapSequence_ && numSwaps_ == swapDests_.Height() )
@@ -160,7 +165,7 @@ void DistPermutation::RowSwapSequence
         {
             for( Int j=0; j<numSwapAppends; ++j )
                 RowSwap
-                ( numSwaps_+j, swapDests_STAR_STAR.GetLocal(j,0)-offset );
+                ( j+offset, swapDests_STAR_STAR.GetLocal(j,0)+offset );
         }
         else
         {
@@ -168,15 +173,14 @@ void DistPermutation::RowSwapSequence
               P.swapOrigins_(activeInd,ALL);
             for( Int j=0; j<numSwapAppends; ++j )
                 RowSwap
-                ( swapOrigins_STAR_STAR.GetLocal(j,0)-offset,
-                  swapDests_STAR_STAR.GetLocal(j,0)-offset );
+                ( swapOrigins_STAR_STAR.GetLocal(j,0)+offset,
+                  swapDests_STAR_STAR.GetLocal(j,0)+offset );
         }
-        numSwaps_ += numSwapAppends;
     }
     else
     {
         MakeArbitrary();
-        P.PermuteRows( perm_ );
+        P.PermuteRows( perm_, offset );
         invPerm_.Empty();
 
         staleParity_ = true;
@@ -319,8 +323,8 @@ void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = j;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
@@ -330,14 +334,18 @@ void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
               swapOrigins_(activeInd,ALL);
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = origins_STAR_STAR.GetLocal(j,0)+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
+
         if( staleMeta_ )
         {
             rowMeta_.clear();
@@ -390,8 +398,8 @@ void DistPermutation::InversePermuteCols
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = j;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
@@ -401,14 +409,18 @@ void DistPermutation::InversePermuteCols
               swapOrigins_(activeInd,ALL);
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = origins_STAR_STAR.GetLocal(j,0)+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
+
         if( staleMeta_ )
         {
             rowMeta_.clear();
@@ -460,8 +472,8 @@ void DistPermutation::PermuteRows( AbstractDistMatrix<T>& A, Int offset ) const
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = j;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
@@ -471,14 +483,18 @@ void DistPermutation::PermuteRows( AbstractDistMatrix<T>& A, Int offset ) const
               swapOrigins_(activeInd,ALL);
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = origins_STAR_STAR.GetLocal(j,0)+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
+
         if( staleMeta_ )
         {
             rowMeta_.clear();
@@ -531,8 +547,8 @@ void DistPermutation::InversePermuteRows
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = j;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
@@ -542,14 +558,18 @@ void DistPermutation::InversePermuteRows
               swapOrigins_(activeInd,ALL);
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = origins_STAR_STAR.GetLocal(j,0)+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
+
         if( staleMeta_ )
         {
             rowMeta_.clear();
@@ -605,8 +625,8 @@ void DistPermutation::PermuteSymmetrically
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = j;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
@@ -616,14 +636,18 @@ void DistPermutation::PermuteSymmetrically
               swapOrigins_(activeInd,ALL);
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = origins_STAR_STAR.GetLocal(j,0)+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
+
         if( staleMeta_ )
         {
             rowMeta_.clear();
@@ -664,8 +688,8 @@ void DistPermutation::InversePermuteSymmetrically
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = j;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
@@ -675,14 +699,18 @@ void DistPermutation::InversePermuteSymmetrically
               swapOrigins_(activeInd,ALL);
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = origins_STAR_STAR.GetLocal(j,0)-offset;
-                const Int dest = dests_STAR_STAR.GetLocal(j,0)-offset;
+                const Int origin = origins_STAR_STAR.GetLocal(j,0)+offset;
+                const Int dest = dests_STAR_STAR.GetLocal(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
+
         if( staleMeta_ )
         {
             rowMeta_.clear();
@@ -704,19 +732,9 @@ void DistPermutation::Explicit( AbstractDistMatrix<Int>& P ) const
 {
     DEBUG_ONLY(CSE cse("DistPermutation::Explicit"))
     P.SetGrid( grid_ );
-    if( swapSequence_ )
-    {
-        DistMatrix<Int,VC,STAR> perm(grid_);
-        if( implicitSwapOrigins_ )
-            El::PivotsToPermutation( swapDests_, perm );
-        else
-            LogicError("Unsupported explicit permutation option");
-        ExplicitPermutation( perm, P );
-    }
-    else
-    {
-        ExplicitPermutation( perm_, P );
-    }
+    // TODO: Faster algorithm 
+    Identity( P, size_, size_ );
+    PermuteRows( P );
 }
 
 #define PROTO(T) \

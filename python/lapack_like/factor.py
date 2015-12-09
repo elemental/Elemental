@@ -990,9 +990,9 @@ def QR(A,piv=False,factType=QR_IMPLICIT,ctrl=None):
       if factType == QR_IMPLICIT:  
         t = Matrix(A.tag)
         d = Matrix(Base(A.tag))
-        p = Matrix(iTag)
-        args = [A.obj,t.obj,d.obj,p.obj]
-        argsCtrl = [A.obj,t.obj,d.obj,p.obj,ctrl]
+        Omega = Permutation()
+        args = [A.obj,t.obj,d.obj,Omega.obj]
+        argsCtrl = [A.obj,t.obj,d.obj,Omega.obj,ctrl]
         if   A.tag == sTag:
           if ctrl == None: lib.ElQRColPivDist_s(*args)
           else:            lib.ElQRColPivXDist_s(*argsCtrl)
@@ -1006,19 +1006,19 @@ def QR(A,piv=False,factType=QR_IMPLICIT,ctrl=None):
           if ctrl == None: lib.ElQRColPivDist_z(*args)
           else:            lib.ElQRColPivXDist_z(*argsCtrl)
         else: DataExcept()
-        return t, d, p
+        return t, d, Omega
       elif factType == QR_EXPLICIT:
         if ctrl != None: 
           raise Exception('\'ctrl\' not yet supported for explicit piv fact\'s')
         R = Matrix(A.tag)
-        P = Matrix(iTag)
-        args = [A.obj,R.obj,P.obj]
+        Omega = Matrix(iTag)
+        args = [A.obj,R.obj,Omega.obj]
         if   A.tag == sTag: lib.ElQRColPivExplicit_s(*args)
         elif A.tag == dTag: lib.ElQRColPivExplicit_d(*args)
         elif A.tag == cTag: lib.ElQRColPivExplicit_c(*args)
         elif A.tag == zTag: lib.ElQRColPivExplicit_z(*args)
         else: DataExcept()
-        return R, P
+        return R, Omega
       else: 
         raise Exception('Partial pivoted explicit fact\'s not yet supported')
     else:
@@ -1061,9 +1061,9 @@ def QR(A,piv=False,factType=QR_IMPLICIT,ctrl=None):
       if factType == QR_IMPLICIT:  
         t = DistMatrix(A.tag,MC,STAR,A.Grid())
         d = DistMatrix(Base(A.tag),MC,STAR,A.Grid())
-        p = DistMatrix(iTag,MC,STAR,A.Grid())
-        args = [A.obj,t.obj,d.obj,p.obj]
-        argsCtrl = [A.obj,t.obj,d.obj,p.obj,ctrl]
+        Omega = DistPermutation(A.Grid())
+        args = [A.obj,t.obj,d.obj,Omega.obj]
+        argsCtrl = [A.obj,t.obj,d.obj,Omega.obj,ctrl]
         if   A.tag == sTag:
           if ctrl == None: lib.ElQRColPivDist_s(*args)
           else:            lib.ElQRColPivXDist_s(*argsCtrl)
@@ -1077,19 +1077,19 @@ def QR(A,piv=False,factType=QR_IMPLICIT,ctrl=None):
           if ctrl == None: lib.ElQRColPivDist_z(*args)
           else:            lib.ElQRColPivXDist_z(*argsCtrl)
         else: DataExcept()
-        return t, d, p
+        return t, d, Omega
       elif factType == QR_EXPLICIT:
         if ctrl != None: 
           raise Exception('\'ctrl\' not yet supported for explicit piv fact\'s')
         R = DistMatrix(A.tag,MC,MR,A.Grid())
-        P = DistMatrix(iTag,MC,MR,A.Grid())
-        args = [A.obj,R.obj,P.obj]
+        Omega = DistMatrix(iTag,MC,MR,A.Grid())
+        args = [A.obj,R.obj,Omega.obj]
         if   A.tag == sTag: lib.ElQRColPivExplicitDist_s(*args)
         elif A.tag == dTag: lib.ElQRColPivExplicitDist_d(*args)
         elif A.tag == cTag: lib.ElQRColPivExplicitDist_c(*args)
         elif A.tag == zTag: lib.ElQRColPivExplicitDist_z(*args)
         else: DataExcept()
-        return R, P
+        return R, Omega
       else: 
         raise Exception('Partial pivoted explicit fact\'s not yet supported')
     else:
@@ -1551,25 +1551,25 @@ lib.ElIDDist_z.argtypes = \
 
 def ID(A,ctrl,canOverwrite=False):
   if type(A) is Matrix: 
-    p = Matrix(iTag)
+    Omega = Permutation()
     Z = Matrix(A.tag)
-    args = [A.obj,p.obj,Z.obj,ctrl,canOverwrite]
+    args = [A.obj,Omega.obj,Z.obj,ctrl,canOverwrite]
     if   A.tag == sTag: lib.ElID_s(*args)
     elif A.tag == dTag: lib.ElID_d(*args)
     elif A.tag == cTag: lib.ElID_c(*args)
     elif A.tag == zTag: lib.ElID_z(*args)
     else: DataExcept()
-    return p, Z
+    return Omega, Z
   elif type(A) is DistMatrix:
-    p = DistMatrix(iTag,MC,STAR,A.Grid())
+    Omega = DistPermutation(A.Grid())
     Z = DistMatrix(A.tag,STAR,VR,A.Grid())
-    args = [A.obj,p.obj,Z.obj,ctrl,canOverwrite]
+    args = [A.obj,Omega.obj,Z.obj,ctrl,canOverwrite]
     if   A.tag == sTag: lib.ElIDDist_s(*args)
     elif A.tag == dTag: lib.ElIDDist_d(*args)
     elif A.tag == cTag: lib.ElIDDist_c(*args)
     elif A.tag == zTag: lib.ElIDDist_z(*args)
     else: DataExcept()
-    return p, Z
+    return Omega, Z
   else: TypeExcept()
 
 # Skeleton decomposition
@@ -1588,25 +1588,25 @@ lib.ElSkeletonDist_z.argtypes = \
 
 def Skeleton(A,ctrl):
   if type(A) is Matrix:
-    pR = Matrix(iTag)
-    pC = Matrix(iTag)
+    PR = Permutation()
+    PC = Permutation()
     Z = Matrix(A.tag)
-    args = [A.obj,pR.obj,pC.obj,Z.obj,ctrl]
+    args = [A.obj,PR.obj,PC.obj,Z.obj,ctrl]
     if   A.tag == sTag: lib.ElSkeleton_s(*args)
     elif A.tag == dTag: lib.ElSkeleton_d(*args)
     elif A.tag == cTag: lib.ElSkeleton_c(*args)
     elif A.tag == zTag: lib.ElSkeleton_z(*args)
     else: DataExcept()
-    return pR, pC, Z
+    return PR, PC, Z
   elif type(A) is DistMatrix:
-    pR = DistMatrix(iTag,MC,STAR,A.Grid())
-    pC = DistMatrix(iTag,MC,STAR,A.Grid())
+    PR = DistPermutation(A.Grid())
+    PC = DistPermutation(A.Grid())
     Z = DistMatrix(A.tag,STAR,VR,A.Grid())
-    args = [A.obj,pR.obj,pC.obj,Z.obj,ctrl]
+    args = [A.obj,PR.obj,PC.obj,Z.obj,ctrl]
     if   A.tag == sTag: lib.ElSkeletonDist_s(*args)
     elif A.tag == dTag: lib.ElSkeletonDist_d(*args)
     elif A.tag == cTag: lib.ElSkeletonDist_c(*args)
     elif A.tag == zTag: lib.ElSkeletonDist_z(*args)
     else: DataExcept()
-    return pR, pC, Z
+    return PR, PC, Z
   else: TypeExcept()

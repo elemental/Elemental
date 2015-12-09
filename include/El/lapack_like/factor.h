@@ -786,45 +786,53 @@ EL_EXPORT ElError ElQRDist_z
 /* Return the packed QR factorization (with column pivoting)
    --------------------------------------------------------- */
 EL_EXPORT ElError ElQRColPiv_s
-( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElMatrix_i p );
+( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElPermutation Omega );
 EL_EXPORT ElError ElQRColPiv_d
-( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElMatrix_i p );
+( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElPermutation Omega );
 EL_EXPORT ElError ElQRColPiv_c
-( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElMatrix_i p );
+( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElPermutation Omega );
 EL_EXPORT ElError ElQRColPiv_z
-( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElMatrix_i p );
+( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElPermutation Omega );
 
 EL_EXPORT ElError ElQRColPivDist_s
-( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElDistMatrix_i p );
+( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d,
+  ElDistPermutation Omega );
 EL_EXPORT ElError ElQRColPivDist_d
-( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElDistMatrix_i p );
+( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d,
+  ElDistPermutation Omega );
 EL_EXPORT ElError ElQRColPivDist_c
-( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElDistMatrix_i p );
+( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d,
+  ElDistPermutation Omega );
 EL_EXPORT ElError ElQRColPivDist_z
-( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElDistMatrix_i p );
+( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d,
+  ElDistPermutation Omega );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElQRColPivX_s
-( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElMatrix_i p, ElQRCtrl_s ctrl );
+( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElPermutation Omega,
+  ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElQRColPivX_d
-( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElMatrix_i p, ElQRCtrl_d ctrl );
+( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElPermutation Omega,
+  ElQRCtrl_d ctrl );
 EL_EXPORT ElError ElQRColPivX_c
-( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElMatrix_i p, ElQRCtrl_s ctrl );
+( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElPermutation Omega,
+  ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElQRColPivX_z
-( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElMatrix_i p, ElQRCtrl_d ctrl );
+( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElPermutation Omega,
+  ElQRCtrl_d ctrl );
 
 EL_EXPORT ElError ElQRColPivXDist_s
-( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElDistMatrix_i p, 
+( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElDistPermutation Omega,
   ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElQRColPivXDist_d
-( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElDistMatrix_i p,
+( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElDistPermutation Omega,
   ElQRCtrl_d ctrl );
 EL_EXPORT ElError ElQRColPivXDist_c
-( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElDistMatrix_i p,
+( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElDistPermutation Omega,
   ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElQRColPivXDist_z
-( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElDistMatrix_i p,
+( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElDistPermutation Omega,
   ElQRCtrl_d ctrl );
 
 /* Return the triangular factor from QR with no pivoting
@@ -871,25 +879,25 @@ EL_EXPORT ElError ElQRExplicitDist_z( ElDistMatrix_z A, ElDistMatrix_z R );
    ^^^^^^^^^^^^^^ */
 /* TODO */
 
-/* Return the explicit Q, R, and P
-   ------------------------------- */
+/* Return the explicit Q, R, and Omega
+   ----------------------------------- */
 EL_EXPORT ElError ElQRColPivExplicit_s
-( ElMatrix_s A, ElMatrix_s R, ElMatrix_i P );
+( ElMatrix_s A, ElMatrix_s R, ElMatrix_i Omega );
 EL_EXPORT ElError ElQRColPivExplicit_d
-( ElMatrix_d A, ElMatrix_d R, ElMatrix_i P );
+( ElMatrix_d A, ElMatrix_d R, ElMatrix_i Omega );
 EL_EXPORT ElError ElQRColPivExplicit_c
-( ElMatrix_c A, ElMatrix_c R, ElMatrix_i P );
+( ElMatrix_c A, ElMatrix_c R, ElMatrix_i Omega );
 EL_EXPORT ElError ElQRColPivExplicit_z
-( ElMatrix_z A, ElMatrix_z R, ElMatrix_i P );
+( ElMatrix_z A, ElMatrix_z R, ElMatrix_i Omega );
 
 EL_EXPORT ElError ElQRColPivExplicitDist_s
-( ElDistMatrix_s A, ElDistMatrix_s R, ElDistMatrix_i P );
+( ElDistMatrix_s A, ElDistMatrix_s R, ElDistMatrix_i Omega );
 EL_EXPORT ElError ElQRColPivExplicitDist_d
-( ElDistMatrix_d A, ElDistMatrix_d R, ElDistMatrix_i P );
+( ElDistMatrix_d A, ElDistMatrix_d R, ElDistMatrix_i Omega );
 EL_EXPORT ElError ElQRColPivExplicitDist_c
-( ElDistMatrix_c A, ElDistMatrix_c R, ElDistMatrix_i P );
+( ElDistMatrix_c A, ElDistMatrix_c R, ElDistMatrix_i Omega );
 EL_EXPORT ElError ElQRColPivExplicitDist_z
-( ElDistMatrix_z A, ElDistMatrix_z R, ElDistMatrix_i P );
+( ElDistMatrix_z A, ElDistMatrix_z R, ElDistMatrix_i Omega );
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
@@ -1172,57 +1180,57 @@ EL_EXPORT ElError ElGRQExplicitTriangDist_z
 /* Interpolative Decomposition
    =========================== */
 EL_EXPORT ElError ElID_s
-( ElMatrix_s A, ElMatrix_i p, ElMatrix_s Z, ElQRCtrl_s ctrl, 
+( ElMatrix_s A, ElPermutation Omega, ElMatrix_s Z, ElQRCtrl_s ctrl, 
   bool canOverwrite );
 EL_EXPORT ElError ElID_d
-( ElMatrix_d A, ElMatrix_i p, ElMatrix_d Z, ElQRCtrl_d ctrl,
+( ElMatrix_d A, ElPermutation Omega, ElMatrix_d Z, ElQRCtrl_d ctrl,
   bool canOverwrite );
 EL_EXPORT ElError ElID_c
-( ElMatrix_c A, ElMatrix_i p, ElMatrix_c Z, ElQRCtrl_s ctrl,
+( ElMatrix_c A, ElPermutation Omega, ElMatrix_c Z, ElQRCtrl_s ctrl,
   bool canOverWrite );
 EL_EXPORT ElError ElID_z
-( ElMatrix_z A, ElMatrix_i p, ElMatrix_z Z, ElQRCtrl_d ctrl,
+( ElMatrix_z A, ElPermutation Omega, ElMatrix_z Z, ElQRCtrl_d ctrl,
   bool canOverwrite );
 
 EL_EXPORT ElError ElIDDist_s
-( ElDistMatrix_s A, ElDistMatrix_i p, ElDistMatrix_s Z, ElQRCtrl_s ctrl, 
+( ElDistMatrix_s A, ElDistPermutation Omega, ElDistMatrix_s Z, ElQRCtrl_s ctrl, 
   bool canOverwrite );
 EL_EXPORT ElError ElIDDist_d
-( ElDistMatrix_d A, ElDistMatrix_i p, ElDistMatrix_d Z, ElQRCtrl_d ctrl, 
+( ElDistMatrix_d A, ElDistPermutation Omega, ElDistMatrix_d Z, ElQRCtrl_d ctrl, 
   bool canOverwrite );
 EL_EXPORT ElError ElIDDist_c
-( ElDistMatrix_c A, ElDistMatrix_i p, ElDistMatrix_c Z, ElQRCtrl_s ctrl, 
+( ElDistMatrix_c A, ElDistPermutation Omega, ElDistMatrix_c Z, ElQRCtrl_s ctrl, 
   bool canOverwrite );
 EL_EXPORT ElError ElIDDist_z
-( ElDistMatrix_z A, ElDistMatrix_i p, ElDistMatrix_z Z, ElQRCtrl_d ctrl, 
+( ElDistMatrix_z A, ElDistPermutation Omega, ElDistMatrix_z Z, ElQRCtrl_d ctrl, 
   bool canOverwrite );
 
 /* Skeleton factorization
    ====================== */
 EL_EXPORT ElError ElSkeleton_s
-( ElConstMatrix_s A, ElMatrix_i pR, ElMatrix_i pC, 
+( ElConstMatrix_s A, ElPermutation PR, ElPermutation PC, 
   ElMatrix_s Z, ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElSkeleton_d
-( ElConstMatrix_d A, ElMatrix_i pR, ElMatrix_i pC, 
+( ElConstMatrix_d A, ElPermutation PR, ElPermutation PC, 
   ElMatrix_d Z, ElQRCtrl_d ctrl );
 EL_EXPORT ElError ElSkeleton_c
-( ElConstMatrix_c A, ElMatrix_i pR, ElMatrix_i pC, 
+( ElConstMatrix_c A, ElPermutation PR, ElPermutation PC, 
   ElMatrix_c Z, ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElSkeleton_z
-( ElConstMatrix_z A, ElMatrix_i pR, ElMatrix_i pC, 
+( ElConstMatrix_z A, ElPermutation PR, ElPermutation PC, 
   ElMatrix_z Z, ElQRCtrl_d ctrl );
 
 EL_EXPORT ElError ElSkeletonDist_s
-( ElConstDistMatrix_s A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+( ElConstDistMatrix_s A, ElDistPermutation PR, ElDistPermutation PC, 
   ElDistMatrix_s Z, ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElSkeletonDist_d
-( ElConstDistMatrix_d A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+( ElConstDistMatrix_d A, ElDistPermutation PR, ElDistPermutation PC, 
   ElDistMatrix_d Z, ElQRCtrl_d ctrl );
 EL_EXPORT ElError ElSkeletonDist_c
-( ElConstDistMatrix_c A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+( ElConstDistMatrix_c A, ElDistPermutation PR, ElDistPermutation PC, 
   ElDistMatrix_c Z, ElQRCtrl_s ctrl );
 EL_EXPORT ElError ElSkeletonDist_z
-( ElConstDistMatrix_z A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+( ElConstDistMatrix_z A, ElDistPermutation PR, ElDistPermutation PC, 
   ElDistMatrix_z Z, ElQRCtrl_d ctrl );
 
 #ifdef __cplusplus

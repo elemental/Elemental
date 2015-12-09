@@ -45,21 +45,27 @@ main( int argc, char* argv[] )
         auto QRPiv( A );
         DistMatrix<C,MD,STAR> tPiv;
         DistMatrix<Real,MD,STAR> dPiv;
-        DistMatrix<Int,VR,STAR> perm;
-        QR( QRPiv, tPiv, dPiv, perm );
+        DistPermutation Omega;
+        QR( QRPiv, tPiv, dPiv, Omega );
         if( display )
         {
             Display( QRPiv, "QRPiv" );
             Display( tPiv, "tPiv" );
             Display( dPiv, "dPiv" );
-            Display( perm, "perm" );
+
+            DistMatrix<Int> OmegaFull;
+            Omega.Explicit( OmegaFull );
+            Display( OmegaFull, "Omega" );
         }
         if( print )
         {
             Print( QRPiv, "QRPiv" );
             Print( tPiv, "tPiv" );
             Print( dPiv, "dPiv" );
-            Print( perm, "perm" );
+
+            DistMatrix<Int> OmegaFull;
+            Omega.Explicit( OmegaFull );
+            Print( OmegaFull, "Omega" );
         }
 
         // Compute the standard QR decomposition of A
@@ -81,11 +87,11 @@ main( int argc, char* argv[] )
         }
 
         // Check the error in the pivoted QR factorization, 
-        // || A P - Q R ||_F / || A ||_F
+        // || A Omega^T - Q R ||_F / || A ||_F
         auto E( QRPiv );
         MakeTrapezoidal( UPPER, E );
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
-        PermuteCols( E, perm );
+        Omega.InversePermuteCols( E );
         E -= A;
         const Real frobQRPiv = FrobeniusNorm( E );
         if( display )

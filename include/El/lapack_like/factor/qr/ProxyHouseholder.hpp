@@ -37,25 +37,25 @@ public:
 
     void operator()
     ( const Matrix<F>& A,
-            Matrix<Int>& perm,
+            Permutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
     {
         const Int m = A.Height();
 
         // Generate a Gaussian random matrix 
-        Matrix<F> Omega; 
-        Gaussian( Omega, numPivots+numOversample_, m );
+        Matrix<F> G; 
+        Gaussian( G, numPivots+numOversample_, m );
         // TODO: Force the row norms to be one?
         /*
         Matrix<Base<F>> rowNorms;
-        RowTwoNorms( Omega, rowNorms );
-        DiagonalSolve( LEFT, NORMAL, rowNorms, Omega );
+        RowTwoNorms( G, rowNorms );
+        DiagonalSolve( LEFT, NORMAL, rowNorms, G );
         */
 
-        // Form  Omega A (A^H A)^q 
+        // Form  G A (A^H A)^q 
         Matrix<F> Y, Z; 
-        Gemm( NORMAL, NORMAL, F(1), Omega, A, Y );
+        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
             Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
@@ -67,12 +67,12 @@ public:
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
         Matrix<F> t, d;
-        QR( Y, t, d, perm, ctrl );
+        QR( Y, t, d, Omega, ctrl );
     }
 
     void operator()
     ( const ElementalMatrix<F>& APre,
-            ElementalMatrix<Int>& perm,
+            DistPermutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
     {
@@ -83,18 +83,18 @@ public:
         auto& A = AProxy.GetLocked();
 
         // Generate a Gaussian random matrix
-        DistMatrix<F> Omega(g);
-        Gaussian( Omega, numPivots+numOversample_, m );
+        DistMatrix<F> G(g);
+        Gaussian( G, numPivots+numOversample_, m );
         // TODO: Force the row norms to be one?
         /*
         DistMatrix<Base<F>,MC,STAR> rowNorms(g);
-        RowTwoNorms( Omega, rowNorms );
-        DiagonalSolve( LEFT, NORMAL, rowNorms, Omega );
+        RowTwoNorms( G, rowNorms );
+        DiagonalSolve( LEFT, NORMAL, rowNorms, G );
         */
 
-        // Form  Omega A (A^H A)^q 
+        // Form  G A (A^H A)^q 
         DistMatrix<F> Y(g), Z(g);
-        Gemm( NORMAL, NORMAL, F(1), Omega, A, Y );
+        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
             Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
@@ -106,7 +106,7 @@ public:
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
         DistMatrix<F,MD,STAR> t(g), d(g);
-        QR( Y, t, d, perm, ctrl );
+        QR( Y, t, d, Omega, ctrl );
     }
 };
 
@@ -116,7 +116,7 @@ ProxyHouseholder
 ( Matrix<F>& A,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
-  Matrix<Int>& p,
+  Permutation& Omega,
   const ProxyType& proxy,
   bool usePanelPerm=false,
   bool smallestFirst=false )
@@ -128,12 +128,13 @@ ProxyHouseholder
     t.Resize( minDim, 1 );
     d.Resize( minDim, 1 );
 
-    Matrix<Int> pInv;
-    pInv.Resize( n, 1 );
-    for( Int j=0; j<n; ++j )
-        pInv.Set( j, 0, j );
+    Omega.MakeIdentity( n );
+    if( usePanelPerm )
+        Omega.ReserveSwaps( 2*n );
+    else
+        Omega.ReserveSwaps( n );
 
-    Matrix<Int> proxyPerm, panelPerm;
+    Permutation proxyPerm, panelPerm;
 
     QRCtrl<Base<F>> ctrl;
     ctrl.smallestFirst = smallestFirst;
@@ -153,10 +154,8 @@ ProxyHouseholder
         proxy( ABR, proxyPerm, nb, smallestFirst ); 
 
         auto AR = A(ALL,indR);
-        PermuteCols( AR, proxyPerm );
-
-        auto pInvB = pInv(indB,ALL);
-        PermuteRows( pInvB, proxyPerm );
+        proxyPerm.PermuteCols( AR );
+        Omega.RowSwapSequence( proxyPerm, k );
 
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
@@ -166,8 +165,9 @@ ProxyHouseholder
         if( usePanelPerm )
         {
             QR( AB1, t1, d1, panelPerm, ctrl );
-            auto pInv1 = pInv(ind1,ALL);
-            PermuteRows( pInv1, panelPerm );
+            auto AT1 = A( IR(0,k), ind1 );
+            panelPerm.PermuteCols( AT1 );
+            Omega.RowSwapSequence( panelPerm, k );
         }
         else
         {
@@ -175,7 +175,6 @@ ProxyHouseholder
         }
         ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
     }
-    InvertPermutation( pInv, p );
 }
 
 template<typename F,class ProxyType> 
@@ -184,14 +183,14 @@ ProxyHouseholder
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& tPre, 
   ElementalMatrix<Base<F>>& dPre,
-  ElementalMatrix<Int>& p,
+  DistPermutation& Omega,
   const ProxyType& proxy,
   bool usePanelPerm=false,
   bool smallestFirst=false )
 {
     DEBUG_ONLY(
       CSE cse("qr::ProxyHouseholder");
-      AssertSameGrids( APre, tPre, dPre, p );
+      AssertSameGrids( APre, tPre, dPre );
     )
     const Int m = APre.Height();
     const Int n = APre.Width();
@@ -208,12 +207,13 @@ ProxyHouseholder
     t.Resize( minDim, 1 );
     d.Resize( minDim, 1 );
 
-    DistMatrix<Int,VC,STAR> pInv(g);
-    pInv.Resize( n, 1 );
-    for( Int jLoc=0; jLoc<pInv.LocalHeight(); ++jLoc )
-        pInv.SetLocal( jLoc, 0, pInv.GlobalRow(jLoc) );
+    Omega.MakeIdentity( n );
+    if( usePanelPerm )
+        Omega.ReserveSwaps( 2*n );
+    else
+        Omega.ReserveSwaps( n );
 
-    DistMatrix<Int,VC,STAR> proxyPerm(g), panelPerm(g);
+    DistPermutation proxyPerm(g), panelPerm(g);
 
     QRCtrl<Base<F>> ctrl;
     ctrl.smallestFirst = smallestFirst;
@@ -233,10 +233,8 @@ ProxyHouseholder
         proxy( ABR, proxyPerm, nb, smallestFirst ); 
 
         auto AR = A(ALL,indR);
-        PermuteCols( AR, proxyPerm );
-
-        auto pInvB = pInv(indB,ALL);
-        PermuteRows( pInvB, proxyPerm );
+        proxyPerm.PermuteCols( AR );
+        Omega.RowSwapSequence( proxyPerm, k );
 
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
@@ -246,8 +244,9 @@ ProxyHouseholder
         if( usePanelPerm )
         {
             QR( AB1, t1, d1, panelPerm, ctrl );
-            auto pInv1 = pInv(ind1,ALL);
-            PermuteRows( pInv1, panelPerm );
+            auto AT1 = A( IR(0,k), ind1 );
+            panelPerm.PermuteCols( AT1 );
+            Omega.RowSwapSequence( panelPerm, k );
         }
         else
         {
@@ -255,7 +254,6 @@ ProxyHouseholder
         }
         ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
     }
-    InvertPermutation( pInv, p );
 }
 
 } // namespace qr

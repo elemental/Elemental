@@ -92,7 +92,7 @@ void Panel
           LogicError("Buffers of A and B did not properly align");
     )
 
-    PB.MakeIdentity( A.Height() );
+    PB.MakeIdentity( A.Height()+B.Height() );
     PB.ReserveSwaps( n );
 
     pivotBuffer.resize( n );

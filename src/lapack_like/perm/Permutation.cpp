@@ -77,7 +77,12 @@ void Permutation::ReserveSwaps( Int maxSwaps )
 
 void Permutation::RowSwap( Int origin, Int dest )
 {
-    DEBUG_ONLY(CSE cse("Permutation::RowSwap"))
+    DEBUG_ONLY(
+      CSE cse("Permutation::RowSwap");
+      if( origin < 0 || origin >= size_ || dest < 0 || dest >= size_ )
+          LogicError
+          ("Attempted swap (",origin,",",dest,") for perm. of size ",size_);
+    )
     if( origin != dest )
         parity_ = !parity_;
     if( swapSequence_ && numSwaps_ == swapDests_.Height() )
@@ -126,21 +131,20 @@ void Permutation::RowSwapSequence( const Permutation& P, Int offset )
         if( P.implicitSwapOrigins_ )
         {
             for( Int j=0; j<numSwapAppends; ++j )
-                RowSwap( numSwaps_+j, P.swapDests_.Get(j,0)-offset );
+                RowSwap( j+offset, P.swapDests_.Get(j,0)+offset );
         }
         else
         {
             for( Int j=0; j<numSwapAppends; ++j )
                 RowSwap
-                ( P.swapOrigins_.Get(j,0)-offset,
-                  P.swapDests_.Get(j,0)-offset );
+                ( P.swapOrigins_.Get(j,0)+offset,
+                  P.swapDests_.Get(j,0)+offset );
         }
-        numSwaps_ += numSwapAppends;
     }
     else
     {
         MakeArbitrary();
-        P.PermuteRows( perm_ );
+        P.PermuteRows( perm_, offset );
         invPerm_.Empty();
 
         staleParity_ = true;
@@ -243,8 +247,8 @@ void Permutation::PermuteCols( Matrix<T>& A, Int offset ) const
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = j;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
@@ -252,14 +256,17 @@ void Permutation::PermuteCols( Matrix<T>& A, Int offset ) const
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = swapOrigins_.Get(j,0)-offset;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = swapOrigins_.Get(j,0)+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -286,8 +293,8 @@ void Permutation::InversePermuteCols( Matrix<T>& A, Int offset ) const
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = j;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
@@ -295,14 +302,17 @@ void Permutation::InversePermuteCols( Matrix<T>& A, Int offset ) const
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = swapOrigins_.Get(j,0)-offset;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = swapOrigins_.Get(j,0)+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 ColSwap( A, origin, dest );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -329,8 +339,8 @@ void Permutation::PermuteRows( Matrix<T>& A, Int offset ) const
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = j;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
@@ -338,8 +348,8 @@ void Permutation::PermuteRows( Matrix<T>& A, Int offset ) const
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = swapOrigins_.Get(j,0)-offset;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = swapOrigins_.Get(j,0)+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
@@ -372,8 +382,8 @@ void Permutation::InversePermuteRows( Matrix<T>& A, Int offset ) const
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = j;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
@@ -381,14 +391,17 @@ void Permutation::InversePermuteRows( Matrix<T>& A, Int offset ) const
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = swapOrigins_.Get(j,0)-offset;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = swapOrigins_.Get(j,0)+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 El::RowSwap( A, origin, dest );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -419,8 +432,8 @@ void Permutation::PermuteSymmetrically
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = j;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
@@ -428,14 +441,17 @@ void Permutation::PermuteSymmetrically
         {
             for( Int j=0; j<numSwaps_; ++j )
             {
-                const Int origin = swapOrigins_.Get(j,0)-offset;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = swapOrigins_.Get(j,0)+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -465,8 +481,8 @@ void Permutation::InversePermuteSymmetrically
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = j;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = j+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
@@ -474,14 +490,17 @@ void Permutation::InversePermuteSymmetrically
         {
             for( Int j=numSwaps_-1; j>=0; --j )
             {
-                const Int origin = swapOrigins_.Get(j,0)-offset;
-                const Int dest = swapDests_.Get(j,0)-offset;
+                const Int origin = swapOrigins_.Get(j,0)+offset;
+                const Int dest = swapDests_.Get(j,0)+offset;
                 SymmetricSwap( uplo, A, origin, dest, conjugate );
             }
         }
     }
     else
     {
+        if( offset != 0 )
+            LogicError
+            ("General permutations are not supported with nonzero offsets");
         // TODO: Move El::InversePermutation into this class
         if( staleInverse_ )
         {
@@ -495,19 +514,9 @@ void Permutation::InversePermuteSymmetrically
 void Permutation::Explicit( Matrix<Int>& P ) const
 {
     DEBUG_ONLY(CSE cse("Permutation::Explicit"))
-    if( swapSequence_ )
-    {
-        Matrix<Int> perm;
-        if( implicitSwapOrigins_ )
-            PivotsToPermutation( swapDests_, perm );
-        else
-            LogicError("Unsupported explicit permutation option");
-        ExplicitPermutation( perm, P );
-    }
-    else
-    {
-        ExplicitPermutation( perm_, P );
-    }
+    // TODO: Faster algorithm
+    Identity( P, size_, size_ );
+    PermuteRows( P );
 }
 
 #define PROTO(T) \
