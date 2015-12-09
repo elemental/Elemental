@@ -10,6 +10,286 @@
 
 namespace El {
 
+namespace {
+
+template<typename T>
+inline void PermuteCols
+(       AbstractDistMatrix<T>& A,
+  const PermutationMeta& oldMeta,
+  bool inverse=false )
+{
+    DEBUG_ONLY(
+      CSE cse("PermuteCols");
+      if( A.RowComm() != oldMeta.comm )
+          LogicError("Invalid communicator in metadata");
+      if( A.RowAlign() != oldMeta.align )
+          LogicError("Invalid alignment in metadata");
+    )
+    if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
+        return;
+
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+
+    const Int localHeight = A.LocalHeight();
+    PermutationMeta meta = oldMeta;
+    meta.ScaleUp( localHeight );
+
+    if( inverse )
+    {
+        // Fill vectors with the send data
+        auto offsets = meta.recvDispls;
+        const int totalSend = meta.TotalRecv();
+        vector<T> sendData;
+        FastResize( sendData, mpi::Pad(totalSend) );
+        const int numSends = meta.recvIdx.size();
+        for( int send=0; send<numSends; ++send )
+        {
+            const int jLoc = meta.recvIdx[send];
+            const int rank = meta.recvRanks[send];
+            MemCopy( &sendData[offsets[rank]], &ABuf[jLoc*ALDim], localHeight );
+            offsets[rank] += localHeight;
+        }
+
+        // Communicate all pivot rows
+        const int totalRecv = meta.TotalSend();
+        vector<T> recvData;
+        FastResize( recvData, mpi::Pad(totalRecv) );
+        mpi::AllToAll
+        ( sendData.data(), meta.recvCounts.data(), meta.recvDispls.data(),
+          recvData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
+          meta.comm );
+
+        // Unpack the recv data
+        offsets = meta.sendDispls;
+        const int numRecvs = meta.sendIdx.size();
+        for( int recv=0; recv<numRecvs; ++recv )
+        {
+            const int jLoc = meta.sendIdx[recv];
+            const int rank = meta.sendRanks[recv];
+            MemCopy( &ABuf[jLoc*ALDim], &recvData[offsets[rank]], localHeight );
+            offsets[rank] += localHeight;
+        }
+    }
+    else
+    {
+        // Fill vectors with the send data
+        auto offsets = meta.sendDispls;
+        const int totalSend = meta.TotalSend();
+        vector<T> sendData;
+        FastResize( sendData, mpi::Pad(totalSend) );
+        const int numSends = meta.sendIdx.size();
+        for( int send=0; send<numSends; ++send )
+        {
+            const int jLoc = meta.sendIdx[send];
+            const int rank = meta.sendRanks[send];
+            MemCopy( &sendData[offsets[rank]], &ABuf[jLoc*ALDim], localHeight );
+            offsets[rank] += localHeight;
+        }
+
+        // Communicate all pivot rows
+        const int totalRecv = meta.TotalRecv();
+        vector<T> recvData;
+        FastResize( recvData, mpi::Pad(totalRecv) );
+        mpi::AllToAll
+        ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
+          recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(),
+          meta.comm );
+
+        // Unpack the recv data
+        offsets = meta.recvDispls;
+        const int numRecvs = meta.recvIdx.size();
+        for( int recv=0; recv<numRecvs; ++recv )
+        {
+            const int jLoc = meta.recvIdx[recv];
+            const int rank = meta.recvRanks[recv];
+            MemCopy( &ABuf[jLoc*ALDim], &recvData[offsets[rank]], localHeight );
+            offsets[rank] += localHeight;
+        }
+    }
+}
+
+template<typename T>
+inline void PermuteRows
+(       AbstractDistMatrix<T>& A,
+  const PermutationMeta& oldMeta,
+  bool inverse=false )
+{
+    DEBUG_ONLY(
+      CSE cse("PermuteRows");
+      if( A.ColComm() != oldMeta.comm )
+          LogicError("Invalid communicator in metadata");
+      if( A.ColAlign() != oldMeta.align )
+          LogicError("Invalid alignment in metadata");
+    )
+    if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
+        return;
+
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+
+    const Int localWidth = A.LocalWidth();
+    PermutationMeta meta = oldMeta;
+    meta.ScaleUp( localWidth );
+
+    if( inverse )
+    {
+        // Fill vectors with the send data
+        auto offsets = meta.recvDispls;
+        const int totalSend = meta.TotalRecv();
+        vector<T> sendData;
+        FastResize( sendData, mpi::Pad(totalSend) );
+        const int numSends = meta.recvIdx.size();
+        for( int send=0; send<numSends; ++send )
+        {
+            const int iLoc = meta.recvIdx[send];
+            const int rank = meta.recvRanks[send];
+
+            StridedMemCopy
+            ( &sendData[offsets[rank]], 1, &ABuf[iLoc], ALDim, localWidth );
+            offsets[rank] += localWidth;
+        }
+
+        // Communicate all pivot rows
+        const int totalRecv = meta.TotalSend();
+        vector<T> recvData;
+        FastResize( recvData, mpi::Pad(totalRecv) );
+        mpi::AllToAll
+        ( sendData.data(), meta.recvCounts.data(), meta.recvDispls.data(),
+          recvData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
+          meta.comm );
+
+        // Unpack the recv data
+        offsets = meta.sendDispls;
+        const int numRecvs = meta.sendIdx.size();
+        for( int recv=0; recv<numRecvs; ++recv )
+        {
+            const int iLoc = meta.sendIdx[recv];
+            const int rank = meta.sendRanks[recv];
+            StridedMemCopy
+            ( &ABuf[iLoc], ALDim, &recvData[offsets[rank]], 1,localWidth );
+            offsets[rank] += localWidth;
+        }
+    }
+    else
+    {
+        // Fill vectors with the send data
+        auto offsets = meta.sendDispls;
+        const int totalSend = meta.TotalSend();
+        vector<T> sendData;
+        FastResize( sendData, mpi::Pad(totalSend) );
+        const int numSends = meta.sendIdx.size();
+        for( int send=0; send<numSends; ++send )
+        {
+            const int iLoc = meta.sendIdx[send];
+            const int rank = meta.sendRanks[send];
+
+            StridedMemCopy
+            ( &sendData[offsets[rank]], 1, &ABuf[iLoc], ALDim, localWidth );
+            offsets[rank] += localWidth;
+        }
+
+        // Communicate all pivot rows
+        const int totalRecv = meta.TotalRecv();
+        vector<T> recvData;
+        FastResize( recvData, mpi::Pad(totalRecv) );
+        mpi::AllToAll
+        ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
+          recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(),
+          meta.comm );
+
+        // Unpack the recv data
+        offsets = meta.recvDispls;
+        const int numRecvs = meta.recvIdx.size();
+        for( int recv=0; recv<numRecvs; ++recv )
+        {
+            const int iLoc = meta.recvIdx[recv];
+            const int rank = meta.recvRanks[recv];
+            StridedMemCopy
+            ( &ABuf[iLoc], ALDim, &recvData[offsets[rank]], 1,localWidth );
+            offsets[rank] += localWidth;
+        }
+    }
+}
+
+void InvertPermutation
+( const AbstractDistMatrix<Int>& pPre,
+        AbstractDistMatrix<Int>& pInvPre )
+{
+    DEBUG_ONLY(
+      CSE cse("InvertPermutation");
+      if( pPre.Width() != 1 )
+          LogicError("p must be a column vector");
+    )
+
+    const Int n = pPre.Height();
+    pInvPre.Resize( n, 1 );
+    if( n == 0 )
+        return;
+
+    DistMatrixReadProxy<Int,Int,VC,STAR> pProx( pPre );
+    DistMatrixWriteProxy<Int,Int,VC,STAR> pInvProx( pInvPre );
+    auto& p = pProx.GetLocked();
+    auto& pInv = pInvProx.Get();
+
+    DEBUG_ONLY(
+      // This is obviously necessary but not sufficient for 'p' to contain
+      // a reordering of (0,1,...,n-1).
+      const Int range = MaxNorm( p ) + 1;
+      if( range != n )
+          LogicError("Invalid permutation range");
+    )
+
+    // Compute the send counts
+    const mpi::Comm colComm = p.ColComm();
+    const Int commSize = mpi::Size( colComm );
+    vector<int> sendSizes(commSize,0), recvSizes(commSize,0);
+    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
+    {
+        const Int iDest = p.GetLocal(iLoc,0);
+        const int owner = pInv.RowOwner(iDest);
+        sendSizes[owner] += 2; // we'll send the global index and the value
+    }
+    // Perform a small AllToAll to get the receive counts
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, colComm );
+    vector<int> sendOffs, recvOffs;
+    const int sendTotal = Scan( sendSizes, sendOffs );
+    const int recvTotal = Scan( recvSizes, recvOffs );
+
+    // Pack the send data
+    vector<Int> sendBuf(sendTotal);
+    auto offsets = sendOffs;
+    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
+    {
+        const Int i     = p.GlobalRow(iLoc);
+        const Int iDest = p.GetLocal(iLoc,0);
+        const int owner = pInv.RowOwner(iDest);
+        sendBuf[offsets[owner]++] = iDest;
+        sendBuf[offsets[owner]++] = i;
+    }
+
+    // Perform the actual exchange
+    vector<Int> recvBuf(recvTotal);
+    mpi::AllToAll
+    ( sendBuf.data(), sendSizes.data(), sendOffs.data(),
+      recvBuf.data(), recvSizes.data(), recvOffs.data(), colComm );
+    SwapClear( sendBuf );
+    SwapClear( sendSizes );
+    SwapClear( sendOffs );
+
+    // Unpack the received data
+    for( Int k=0; k<recvTotal/2; ++k )
+    {
+        const Int iDest = recvBuf[2*k+0];
+        const Int i     = recvBuf[2*k+1];
+
+        const Int iDestLoc = pInv.LocalRow(iDest);
+        pInv.SetLocal( iDestLoc, 0, i );
+    }
+}
+
+} // anonymous namespace
+
 DistPermutation::DistPermutation( const Grid& g )
 : grid_(g)
 { 
@@ -285,9 +565,41 @@ bool DistPermutation::Parity() const
     DEBUG_ONLY(CSE cse("DistPermutation::Parity"))
     if( staleParity_ )
     {
-        LogicError("Computation of parity not yet enabled");
+        if( swapSequence_ )
+            LogicError("Unexpected stale parity for a swap sequence");
+
+        // Walking through the process of LU factorization with partial 
+        // pivoting for a permutation matrix, which never requires a
+        // Schur-complement update, yields an algorithm for expressing the 
+        // inverse of a permutation in terms of a sequence of transpositions in 
+        // linear time. Note that performing the swaps requires access to the 
+        // inverse permutation, which can be formed in linear time.
+        if( staleInverse_ )
+        {
+            El::InvertPermutation( perm_, invPerm_ );
+            staleInverse_ = false;
+        }
+
+        DistMatrix<Int,STAR,STAR> permCopy(perm_), invPermCopy(invPerm_);
+
+        parity_ = false;
+        for( Int k=0; k<size_; ++k )
+        {   
+            const Int permVal = permCopy.GetLocal(k,0);
+            if( permVal != k )
+            {   
+                parity_ = !parity_;
+                const Int invPermVal = invPermCopy.GetLocal(k,0);
+                // We only need to perform half of the swaps
+                //      perm[k] <-> perm[invPerm[k]]
+                //   invPerm[k] <-> invPerm[perk[k]] 
+                // since we will not need to access perm[k] and invPerm[k] again
+                permCopy.SetLocal( invPermVal, 0, permVal ); 
+                invPermCopy.SetLocal( permVal, 0, invPermVal );
+            }
+        }
+
         staleParity_ = false;
-        return parity_; 
     }
     return parity_;
 }
@@ -732,9 +1044,21 @@ void DistPermutation::Explicit( AbstractDistMatrix<Int>& P ) const
 {
     DEBUG_ONLY(CSE cse("DistPermutation::Explicit"))
     P.SetGrid( grid_ );
-    // TODO: Faster algorithm 
-    Identity( P, size_, size_ );
-    PermuteRows( P );
+    if( swapSequence_ )
+    {
+        // Compose the swaps into an explicit permutation vector
+        // -----------------------------------------------------
+        perm_.Resize( size_, 1 );
+        const Int localHeight = perm_.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            perm_.SetLocal( iLoc, 0, perm_.GlobalRow(iLoc) );
+        PermuteRows( perm_ );
+    }
+
+    DistMatrix<Int,STAR,STAR> perm_STAR_STAR( perm_ );
+    Zeros( P, size_, size_ );
+    for( Int i=0; i<size_; ++i )
+        P.Set( i, perm_STAR_STAR.GetLocal(i,0), 1 );
 }
 
 #define PROTO(T) \

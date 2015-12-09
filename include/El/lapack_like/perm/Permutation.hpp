@@ -92,8 +92,7 @@ private:
 
     // Only used if swapSequence_=false
     // --------------------------------
-            Matrix<Int> perm_;
-    mutable Matrix<Int> invPerm_;
+    mutable Matrix<Int> perm_, invPerm_;
     mutable bool staleInverse_=true;
 
     friend class DistPermutation;

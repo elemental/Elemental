@@ -153,8 +153,7 @@ private:
 
     // Only used if swapSequence_=false
     // --------------------------------
-            DistMatrix<Int,VC,STAR> perm_;
-    mutable DistMatrix<Int,VC,STAR> invPerm_;
+    mutable DistMatrix<Int,VC,STAR> perm_, invPerm_;
     mutable bool staleInverse_=true;
 
     // Use the alignment and communicator as a key
