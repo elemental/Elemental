@@ -470,6 +470,42 @@ void DistPermutation::RowSwapSequence
     }
 }
 
+void DistPermutation::RowSwapSequence
+( const ElementalMatrix<Int>& swapOriginsPre,
+  const ElementalMatrix<Int>& swapDestsPre,
+  Int offset )
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::RowSwapSequence"))
+    DistMatrixReadProxy<Int,Int,STAR,STAR>
+      swapOriginsProx( swapOriginsPre ),
+      swapDestsProx( swapDestsPre );
+    auto& swapOrigins = swapOriginsProx.GetLocked();
+    auto& swapDests = swapDestsProx.GetLocked();
+      
+    // TODO: Assert swapOrigins and swapDests are column vectors of same size
+    const Int numSwaps = swapDests.Height();
+    for( Int k=0; k<numSwaps; ++k )
+        RowSwap
+        ( swapOrigins.GetLocal(k,0)+offset, 
+          swapDests.GetLocal(k,0)+offset );
+}
+
+void DistPermutation::ImplicitRowSwapSequence
+( const ElementalMatrix<Int>& swapDestsPre,
+  Int offset )
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::ImplicitRowSwapSequence"))
+    DistMatrixReadProxy<Int,Int,STAR,STAR> swapDestsProx( swapDestsPre );
+    auto& swapDests = swapDestsProx.GetLocked();
+
+    const Int numPrevSwaps = numSwaps_;
+
+    // TODO: Assert swapOrigins and swapDests are column vectors of same size
+    const Int numSwaps = swapDests.Height();
+    for( Int k=0; k<numSwaps; ++k )
+        RowSwap( numPrevSwaps+k, swapDests.GetLocal(k,0)+offset );
+}
+
 void DistPermutation::SetImage( Int origin, Int dest )
 {
     DEBUG_ONLY(CSE cse("DistPermutation::SetImage"))
@@ -617,6 +653,22 @@ bool DistPermutation::IsSwapSequence() const
 bool DistPermutation::IsImplicitSwapSequence() const
 { return implicitSwapOrigins_; }
 
+const DistMatrix<Int,VC,STAR>& DistPermutation::SwapOrigins() const
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::SwapOrigins"))
+    if( !swapSequence_ || !implicitSwapOrigins_ )
+        LogicError("Swap origins are not explicitly stored");
+    return swapOrigins_;
+}
+
+const DistMatrix<Int,VC,STAR>& DistPermutation::SwapDestinations() const
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::SwapOrigins"))
+    if( !swapSequence_ )
+        LogicError("Swap destinations are not explicitly stored");
+    return swapDests_;
+}
+
 template<typename T>
 void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
 {
@@ -630,6 +682,11 @@ void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
             return;
 
         auto activeInd = IR(0,numSwaps_);
+
+        // TODO: Introduce an std::map for caching the pivots this process
+        //       needs to care about to avoid redundant [STAR,STAR] formations
+        // TODO: Decide on the data structure; an std::vector of pivot origins
+        //       and destinations?
 
         DistMatrix<Int,STAR,STAR> dests_STAR_STAR( swapDests_(activeInd,ALL) );
         if( implicitSwapOrigins_ )
