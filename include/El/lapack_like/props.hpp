@@ -105,10 +105,10 @@ namespace det {
 
 template<typename F>
 SafeProduct<F> AfterLUPartialPiv
-( const Matrix<F>& A, const Matrix<Int>& p );
+( const Matrix<F>& A, const Permutation& P );
 template<typename F>
 SafeProduct<F> AfterLUPartialPiv
-( const ElementalMatrix<F>& A, const ElementalMatrix<Int>& p );
+( const ElementalMatrix<F>& A, const DistPermutation& P );
 
 } // namespace det
 

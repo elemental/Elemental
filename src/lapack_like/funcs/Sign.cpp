@@ -28,15 +28,15 @@ NewtonStep
 
     // Calculate mu while forming XNew := inv(X)
     Real mu=1;
-    Matrix<Int> p;
+    Permutation P;
     XNew = X;
-    LU( XNew, p );
+    LU( XNew, P );
     if( scaling == SIGN_SCALE_DET )
     {
-        SafeProduct<F> det = det::AfterLUPartialPiv( XNew, p );
+        SafeProduct<F> det = det::AfterLUPartialPiv( XNew, P );
         mu = Real(1)/Exp(det.kappa);
     }
-    inverse::AfterLUPartialPiv( XNew, p );
+    inverse::AfterLUPartialPiv( XNew, P );
     if( scaling == SIGN_SCALE_FROB )
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
 
@@ -59,15 +59,15 @@ NewtonStep
 
     // Calculate mu while forming B := inv(X)
     Real mu=1;
-    DistMatrix<Int,VC,STAR> p( X.Grid() );
+    DistPermutation P( X.Grid() );
     XNew = X;
-    LU( XNew, p );
+    LU( XNew, P );
     if( scaling == SIGN_SCALE_DET )
     {
-        SafeProduct<F> det = det::AfterLUPartialPiv( XNew, p );
+        SafeProduct<F> det = det::AfterLUPartialPiv( XNew, P );
         mu = Real(1)/Exp(det.kappa);
     }
-    inverse::AfterLUPartialPiv( XNew, p );
+    inverse::AfterLUPartialPiv( XNew, P );
     if( scaling == SIGN_SCALE_FROB )
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
 

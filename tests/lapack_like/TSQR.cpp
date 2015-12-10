@@ -25,7 +25,7 @@ void TestCorrectness
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
-    Herk( UPPER, ADJOINT, F(-1), Q_MC_MR, F(1), Z );
+    Herk( UPPER, ADJOINT, Real(-1), Q_MC_MR, Real(1), Z );
     Real oneNormError = HermitianOneNorm( UPPER, Z );
     Real infNormError = HermitianInfinityNorm( UPPER, Z );
     Real frobNormError = HermitianFrobeniusNorm( UPPER, Z );
@@ -121,7 +121,7 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
-        TestQR<double>( testCorrectness, print, m, n, g );
+        TestQR<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }
 

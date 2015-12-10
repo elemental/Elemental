@@ -110,7 +110,7 @@ void Initialize
     // Factor the KKT matrix
     // =====================
     Matrix<Real> dSub;
-    Matrix<Int> p;
+    Permutation p;
     LDL( J, dSub, p, false );
 
     Matrix<Real> rc, rb, rmu, u, v, d;
@@ -218,7 +218,7 @@ void Initialize
     // Factor the KKT matrix
     // =====================
     DistMatrix<Real> dSub(g);
-    DistMatrix<Int> p(g);
+    DistPermutation p(g);
     LDL( J, dSub, p, false );
 
     DistMatrix<Real> rc(g), rb(g), rmu(g), u(g), v(g), d(g);

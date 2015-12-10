@@ -21,8 +21,8 @@ void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
     Matrix<Base<F>> d;
     if( ctrl.colPiv )
     {
-        Matrix<Int> p;
-        BusingerGolub( A, t, d, p, ctrl );
+        Permutation Omega;
+        BusingerGolub( A, t, d, Omega, ctrl );
     }
     else
         Householder( A, t, d );
@@ -39,8 +39,8 @@ void ExplicitTriang( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
     if( ctrl.colPiv )
     {
-        DistMatrix<Int,VC,STAR> p(A.Grid());
-        BusingerGolub( A, t, d, p, ctrl );
+        DistPermutation Omega(A.Grid());
+        BusingerGolub( A, t, d, Omega, ctrl );
     }
     else
         Householder( A, t, d );
@@ -58,8 +58,8 @@ void ExplicitUnitary
     Matrix<Base<F>> d;
     if( ctrl.colPiv )
     {
-        Matrix<Int> p;
-        QR( A, t, d, p, ctrl );
+        Permutation Omega;
+        QR( A, t, d, Omega, ctrl );
     }
     else
         QR( A, t, d );
@@ -93,8 +93,8 @@ void ExplicitUnitary
     DistMatrix<Base<F>,MD,STAR> d(g);
     if( ctrl.colPiv )
     {
-        DistMatrix<Int,VR,STAR> p(g);
-        QR( A, t, d, p, ctrl );
+        DistPermutation Omega(g);
+        QR( A, t, d, Omega, ctrl );
     }
     else
         QR( A, t, d );
@@ -126,8 +126,8 @@ void Explicit
     Matrix<Base<F>> d;
     if( ctrl.colPiv )
     {
-        Matrix<Int> p;
-        QR( A, t, d, p, ctrl );
+        Permutation Omega;
+        QR( A, t, d, Omega, ctrl );
     }
     else
         QR( A, t, d );
@@ -172,8 +172,8 @@ void Explicit
     DistMatrix<Base<F>,MD,STAR> d(g);
     if( ctrl.colPiv )
     {
-        DistMatrix<Int,VR,STAR> p(g);
-        QR( A, t, d, p, ctrl );
+        DistPermutation Omega(g);
+        QR( A, t, d, Omega, ctrl );
     }
     else
         QR( A, t, d );
@@ -205,15 +205,15 @@ template<typename F>
 void Explicit
 ( Matrix<F>& A,
   Matrix<F>& R,
-  Matrix<Int>& P,
+  Matrix<Int>& OmegaFull,
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::Explicit"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    Matrix<Int> p;
-    QR( A, t, d, p, ctrl );
+    Permutation Omega;
+    QR( A, t, d, Omega, ctrl );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -237,14 +237,14 @@ void Explicit
         qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
     }
 
-    ExplicitPermutation( p, P );
+    Omega.Explicit( OmegaFull );
 } 
 
 template<typename F>
 void Explicit
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& R, 
-  ElementalMatrix<Int>& P,
+  ElementalMatrix<Int>& OmegaFull,
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
@@ -256,8 +256,8 @@ void Explicit
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<Int,VC,STAR> p(g);
-    QR( A, t, d, p, ctrl );
+    DistPermutation Omega(g);
+    QR( A, t, d, Omega, ctrl );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -281,7 +281,7 @@ void Explicit
         qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
     }
 
-    ExplicitPermutation( p, P );
+    Omega.Explicit( OmegaFull );
 }
 
 } // namespace qr

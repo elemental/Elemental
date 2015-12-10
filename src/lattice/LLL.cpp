@@ -604,10 +604,10 @@ Int LLL
         auto BCopy = B;
         Matrix<F> t;
         Matrix<Real> d;
-        Matrix<Int> colPerm;
-        El::QR( BCopy, t, d, colPerm, ctrl );
-
-        InversePermuteCols( B, colPerm );
+        Permutation Omega;
+        // TODO: Add support for qr::ProxyHouseholder as well
+        El::QR( BCopy, t, d, Omega, ctrl );
+        Omega.PermuteCols( B );
     }
 
     const bool useBlocked = false;

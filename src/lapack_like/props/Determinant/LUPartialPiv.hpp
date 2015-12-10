@@ -15,13 +15,11 @@ namespace det {
 
 template<typename F>
 SafeProduct<F> AfterLUPartialPiv
-( const Matrix<F>& A, const Matrix<Int>& rowPiv )
+( const Matrix<F>& A, const Permutation& P )
 {
     DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    if( A.Height() != rowPiv.Height() )
-        LogicError("Permutation vector is incorrect length");
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -37,7 +35,7 @@ SafeProduct<F> AfterLUPartialPiv
         det.rho *= delta/alpha;
         det.kappa += Log(alpha)/scale;
     }
-    const bool isOdd = PivotParity( rowPiv );
+    const bool isOdd = P.Parity();
     if( isOdd )
         det.rho = -det.rho;
 
@@ -53,9 +51,9 @@ inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
     SafeProduct<F> det( A.Height() );
     try 
     {
-        Matrix<Int> rowPiv;
-        El::LU( A, rowPiv ); 
-        det = det::AfterLUPartialPiv( A, rowPiv );
+        Permutation P;
+        El::LU( A, P ); 
+        det = det::AfterLUPartialPiv( A, P );
     } 
     catch( SingularMatrixException& e )
     {
@@ -68,19 +66,14 @@ inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
 template<typename F> 
 SafeProduct<F> AfterLUPartialPiv
 ( const ElementalMatrix<F>& APre,
-  const ElementalMatrix<Int>& rowPivPre )
+  const DistPermutation& P )
 {
     DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    AssertSameGrids( APre, rowPivPre );
-    if( APre.Height() != rowPivPre.Height() )
-        LogicError("Row pivot vector is incorrect length");
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixReadProxy<Int,Int,STAR,STAR> rowPivProx( rowPivPre );
     auto& A = AProx.GetLocked();
-    auto& rowPiv = rowPivProx.GetLocked();
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -105,7 +98,7 @@ SafeProduct<F> AfterLUPartialPiv
     det.rho = mpi::AllReduce( localRho, mpi::PROD, g.VCComm() );
     det.kappa = mpi::AllReduce( localKappa, mpi::SUM, g.VCComm() );
 
-    const bool isOdd = PivotParity( rowPiv );
+    const bool isOdd = P.Parity();
     if( isOdd )
         det.rho = -det.rho;
 
@@ -126,9 +119,9 @@ LUPartialPiv( ElementalMatrix<F>& APre )
     SafeProduct<F> det( A.Height() );
     try 
     {
-        DistMatrix<Int,STAR,STAR> rowPiv( A.Grid() );
-        El::LU( A, rowPiv );
-        det = det::AfterLUPartialPiv( A, rowPiv );
+        DistPermutation P( A.Grid() );
+        El::LU( A, P );
+        det = det::AfterLUPartialPiv( A, P );
     }
     catch( SingularMatrixException& e ) 
     {

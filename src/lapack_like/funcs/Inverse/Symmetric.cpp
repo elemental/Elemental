@@ -21,18 +21,16 @@ void SymmetricInverse
     DEBUG_ONLY(CSE cse("SymmetricInverse"))
     if( uplo == LOWER )
     {
-        Matrix<Int> p;
+        Permutation P;
         Matrix<F> dSub;
-        LDL( A, dSub, p, conjugate, ctrl );
+        LDL( A, dSub, P, conjugate, ctrl );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 
         // NOTE: Fill in both triangles of the inverse
-        Matrix<Int> pInv;
-        InvertPermutation( p, pInv );
         MakeSymmetric( LOWER, A, conjugate );
-        PermuteRows( A, pInv, p );
-        PermuteCols( A, pInv, p ); 
+        P.InversePermuteRows( A );
+        P.InversePermuteCols( A );
     }
     else
         LogicError("This option is not yet supported");
@@ -52,19 +50,17 @@ void SymmetricInverse
 
     if( uplo == LOWER )
     {
-        DistMatrix<Int,VC,STAR> p( A.Grid() );
+        DistPermutation P( A.Grid() );
         DistMatrix<F,MD,STAR> dSub( A.Grid() );
 
-        LDL( A, dSub, p, conjugate, ctrl );
+        LDL( A, dSub, P, conjugate, ctrl );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 
         // NOTE: Fill in both triangles of the inverse
-        DistMatrix<Int,VC,STAR> pInv(p.Grid());
-        InvertPermutation( p, pInv );
         MakeSymmetric( LOWER, A, conjugate );
-        PermuteRows( A, pInv, p );
-        PermuteCols( A, pInv, p );
+        P.InversePermuteRows( A );
+        P.InversePermuteCols( A );
     }
     else
         LogicError("This option is not yet supported");

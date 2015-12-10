@@ -74,11 +74,11 @@ namespace inverse {
 template<typename F>
 void AfterLUPartialPiv
 (       Matrix<F>& A,
-  const Matrix<Int>& rowPiv );
+  const Permutation& P );
 template<typename F>
 void AfterLUPartialPiv
 (       ElementalMatrix<F>& A,
-  const ElementalMatrix<Int>& rowPiv );
+  const DistPermutation& P );
 } // namespace inverse
 
 template<typename F>

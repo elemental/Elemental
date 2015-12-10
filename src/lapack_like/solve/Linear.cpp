@@ -13,13 +13,15 @@ namespace El {
 namespace lu {
 
 template<typename F>
-void Panel( Matrix<F>& APan, Matrix<Int>& p1 );
+void Panel( Matrix<F>& APan, Permutation& P, Permutation& p1, Int offset );
 
 template<typename F>
 void Panel
 ( DistMatrix<F,  STAR,STAR>& A11,
   DistMatrix<F,  MC,  STAR>& A21,
-  DistMatrix<Int,STAR,STAR>& p1,
+  DistPermutation& P,
+  DistPermutation& PB,
+  Int offset,
   vector<F>& pivotBuf );
 
 } // namespace lu
@@ -35,7 +37,13 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
           LogicError("A and B must be the same height");
     )
 
-    Matrix<Int> p1Piv;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    Permutation P;
+    P.MakeIdentity( m );
+    P.ReserveSwaps( Min(m,n) );
+
+    Permutation PB;
 
     const Int mA = A.Height();
     const Int nA = A.Width();
@@ -56,9 +64,9 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
         auto B2  = B( ind2, ALL );
         auto BB  = B( indB, ALL );
 
-        lu::Panel( AB1, p1Piv );
-        ApplyRowPivots( AB2, p1Piv );
-        ApplyRowPivots( BB, p1Piv );
+        lu::Panel( AB1, P, PB, k );
+        PB.PermuteRows( AB2 );
+        PB.PermuteRows( BB );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, B1 );
@@ -85,11 +93,16 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     const Int bsize = Blocksize();
     const Grid& g = A.Grid();
 
+    DistPermutation P(g);
+    P.MakeIdentity( mA );
+    P.ReserveSwaps( Min(mA,nA) );
+
+    DistPermutation PB(g);
+
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g), B1_STAR_VR(g);
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g), B1_STAR_MR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
-    DistMatrix<Int,STAR,STAR> p1Piv(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
@@ -119,9 +132,9 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         ( A21Height, nb, g, A21.ColAlign(), 0, &panelBuf[nb], panelLDim, 0 );
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv, pivotBuf );
-        ApplyRowPivots( AB2, p1Piv );
-        ApplyRowPivots( BB, p1Piv );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, P, PB, k, pivotBuf );
+        PB.PermuteRows( AB2 );
+        PB.PermuteRows( BB );
 
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;
@@ -180,9 +193,9 @@ void Overwrite
 
     if( useFullLU )
     {
-        DistMatrix<Int,STAR,STAR> rowPiv(A.Grid());
-        LU( A, rowPiv );
-        lu::SolveAfter( NORMAL, A, rowPiv, B );
+        DistPermutation P(A.Grid());
+        LU( A, P );
+        lu::SolveAfter( NORMAL, A, P, B );
     }
     else
     {

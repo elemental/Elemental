@@ -9,12 +9,12 @@
 #include "El.hpp"
 using namespace El;
 
-template<typename F,Dist UPerm>
+template<typename F>
 void TestCorrectness
 ( bool pivot,
   UpperOrLower uplo,
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& p,
+  const DistPermutation& p,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -48,7 +48,7 @@ void TestCorrectness
          "||X - inv(A) X||_F  = ",frobNormE);
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void TestCholesky
 ( bool testCorrectness,
   bool pivot,
@@ -60,7 +60,7 @@ void TestCholesky
   bool scalapack )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> p(g);
+    DistPermutation p(g);
 
     HermitianUniformSpectrum( A, m, 1e-9, 10 );
     if( testCorrectness )
@@ -91,7 +91,11 @@ void TestCholesky
     { 
         Print( A, "A after factorization" );
         if( pivot )
-            Print( p, "p" );
+        {
+            DistMatrix<Int,VC,STAR> P(g);
+            p.Explicit( P );
+            Print( P, "P" );
+        }
     }
     if( printDiag )
         Print( GetRealPartOfDiagonal(A), "diag(A)" );
@@ -143,17 +147,17 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Testing with doubles:");
         if( scalapack )
-            TestCholesky<double,VC>
+            TestCholesky<double>
             ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
-        TestCholesky<double,VC>
+        TestCholesky<double>
         ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
 
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
         if( scalapack )
-            TestCholesky<Complex<double>,VC>
+            TestCholesky<Complex<double>>
             ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
-        TestCholesky<Complex<double>,VC>
+        TestCholesky<Complex<double>>
         ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
     }
     catch( exception& e ) { ReportException(e); }

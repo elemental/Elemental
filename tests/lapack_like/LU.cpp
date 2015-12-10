@@ -9,12 +9,12 @@
 #include "El.hpp"
 using namespace El;
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void TestCorrectness
 ( const DistMatrix<F>& AOrig,
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& rowPiv,
-  const DistMatrix<Int,UPerm,STAR>& colPiv,
+  const DistPermutation& P,
+  const DistPermutation& Q,
   Int pivoting, bool print )
 {
     typedef Base<F> Real;
@@ -31,9 +31,9 @@ void TestCorrectness
     if( pivoting == 0 )
         lu::SolveAfter( NORMAL, A, Y );
     else if( pivoting == 1 )
-        lu::SolveAfter( NORMAL, A, rowPiv, Y );
+        lu::SolveAfter( NORMAL, A, P, Y );
     else
-        lu::SolveAfter( NORMAL, A, rowPiv, colPiv, Y );
+        lu::SolveAfter( NORMAL, A, P, Q, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const Real infNormX = InfinityNorm( X );
@@ -54,13 +54,13 @@ void TestCorrectness
          "||A A^-1 X - X||_F  = ",frobNormError);
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void TestLU
 ( Int m, const Grid& g, Int pivoting, 
   bool testCorrectness, bool forceGrowth, bool print )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> rowPiv(g), colPiv(g);
+    DistPermutation P(g), Q(g);
 
     if( forceGrowth )
         GEPPGrowth( A, m );
@@ -79,9 +79,9 @@ void TestLU
     if( pivoting == 0 )
         LU( A );
     else if( pivoting == 1 )
-        LU( A, rowPiv );
+        LU( A, P );
     else if( pivoting == 2 )
-        LU( A, rowPiv, colPiv );
+        LU( A, P, Q );
 
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -94,16 +94,21 @@ void TestLU
         Print( A, "A after factorization" );
         if( pivoting >= 1 )
         {
+            // This needs to be rewritten in light of DistPermutation
+            /*
             DistMatrix<Int> P(g);
             DistMatrix<Int,STAR,STAR> p(g);
-            Print( rowPiv, "rowPiv after factorization" );
+            Print( P, "rowPiv after factorization" );
             PivotsToPermutation( rowPiv, p );
             Print( p, "p after factorization");
             ExplicitPermutation( p, P );
             Print( P, "P" );
+            */
         }
         if( pivoting == 2 )
         {
+            // This needs to be rewritten in light of DistPermutation
+            /*
             DistMatrix<Int> Q(g);
             DistMatrix<Int,STAR,STAR> q(g);
             Print( colPiv, "colPiv after factorization" );
@@ -111,10 +116,11 @@ void TestLU
             Print( q, "q after factorization");
             ExplicitPermutation( q, Q );
             Print( Q, "Q" );
+            */
         }
     }
     if( testCorrectness )
-        TestCorrectness( AOrig, A, rowPiv, colPiv, pivoting, print );
+        TestCorrectness( AOrig, A, P, Q, pivoting, print );
 }
 
 int 
@@ -160,11 +166,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             Output("Testing with doubles:");
-        TestLU<double,STAR>( m, g, pivot, testCorrectness, forceGrowth, print );
+        TestLU<double>( m, g, pivot, testCorrectness, forceGrowth, print );
 
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
-        TestLU<Complex<double>,STAR>
+        TestLU<Complex<double>>
         ( m, g, pivot, testCorrectness, forceGrowth, print );
     }
     catch( exception& e ) { ReportException(e); }

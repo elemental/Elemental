@@ -71,11 +71,11 @@ void QR
 ( Matrix<F>& A,
   Matrix<F>& t, 
   Matrix<Base<F>>& d,
-  Matrix<Int>& p,
+  Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
-    qr::BusingerGolub( A, t, d, p, ctrl );
+    qr::BusingerGolub( A, t, d, Omega, ctrl );
 }
 
 template<typename F> 
@@ -83,11 +83,11 @@ void QR
 ( ElementalMatrix<F>& A,
   ElementalMatrix<F>& t, 
   ElementalMatrix<Base<F>>& d,
-  ElementalMatrix<Int>& p,
+  DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
-    qr::BusingerGolub( A, t, d, p, ctrl );
+    qr::BusingerGolub( A, t, d, Omega, ctrl );
 }
 
 #define PROTO(F) \
@@ -103,13 +103,13 @@ void QR
   ( Matrix<F>& A, \
     Matrix<F>& t, \
     Matrix<Base<F>>& d, \
-    Matrix<Int>& p, \
+    Permutation& Omega, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void QR \
   ( ElementalMatrix<F>& A, \
     ElementalMatrix<F>& t, \
     ElementalMatrix<Base<F>>& d, \
-    ElementalMatrix<Int>& p, \
+    DistPermutation& Omega, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void QR \
   ( DistMatrix<F,MC,MR,BLOCK>& A, \
@@ -135,13 +135,13 @@ void QR
   template void qr::Explicit \
   ( Matrix<F>& A, \
     Matrix<F>& R, \
-    Matrix<Int>& P, \
+    Matrix<Int>& Omega, \
     bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
   ( ElementalMatrix<F>& A, \
     ElementalMatrix<F>& R, \
-    ElementalMatrix<Int>& P, \
+    ElementalMatrix<Int>& Omega, \
     bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ApplyQ \

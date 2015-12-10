@@ -16,19 +16,19 @@ public:
 
     void operator()
     ( const Matrix<F>& A,
-            Matrix<Int>& perm,
+            Permutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
     {
         const Int m = A.Height();
 
         // Generate a Gaussian random matrix
-        Matrix<F> Omega;
-        Gaussian( Omega, numPivots+numOversample_, m );
+        Matrix<F> G;
+        Gaussian( G, numPivots+numOversample_, m );
 
-        // Form Omega (A A^H)^q A = Omega A (A^H A)^2
+        // Form G (A A^H)^q A = G A (A^H A)^2
         Matrix<F> Y, Z;
-        Gemm( NORMAL, NORMAL, F(1), Omega, A, Y );
+        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
             Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
@@ -40,12 +40,12 @@ public:
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
         Matrix<F> t, d;
-        QR( Y, t, d, perm, ctrl );
+        QR( Y, t, d, Omega, ctrl );
     }
 
     void operator()
     ( const ElementalMatrix<F>& APre,
-            ElementalMatrix<Int>& perm,
+            DistPermutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
     {
@@ -56,12 +56,12 @@ public:
         auto& A = AProxy.GetLocked();
 
         // Generate a Gaussian random matrix
-        DistMatrix<F> Omega(g);
-        Gaussian( Omega, numPivots+numOversample_, m );
+        DistMatrix<F> G(g);
+        Gaussian( G, numPivots+numOversample_, m );
 
-        // Form Omega (A A^H)^q A = Omega A (A^H A)^2
+        // Form G (A A^H)^q A = G A (A^H A)^2
         DistMatrix<F> Y(g), Z(g);
-        Gemm( NORMAL, NORMAL, F(1), Omega, A, Y );
+        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
             Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
@@ -73,7 +73,7 @@ public:
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
         DistMatrix<F,MD,STAR> t(g), d(g);
-        QR( Y, t, d, perm, ctrl );
+        QR( Y, t, d, Omega, ctrl );
     }
 };
 
@@ -108,9 +108,9 @@ int main( int argc, char* argv[] )
         if( commRank == 0 )
             timer.Start();
         DistMatrix<double> t, d;
-        DistMatrix<Int,VC,STAR> p;
+        DistPermutation Omega;
         Proxy<double> prox(numPower,oversample);
-        qr::ProxyHouseholder( A, t, d, p, prox, panelPiv, smallestFirst ); 
+        qr::ProxyHouseholder( A, t, d, Omega, prox, panelPiv, smallestFirst ); 
         if( commRank == 0 ) 
             Output("Proxy QR time: ",timer.Stop()," seconds");
         if( print )
@@ -118,7 +118,10 @@ int main( int argc, char* argv[] )
             Print( A, "QR" );
             Print( t, "t" );
             Print( d, "d" );
-            Print( p, "p" );
+
+            DistMatrix<Int> OmegaFull;
+            Omega.Explicit( OmegaFull );
+            Print( OmegaFull, "Omega" );
         }
         DistMatrix<double,MD,STAR> diagR;
         GetDiagonal( A, diagR );
@@ -129,7 +132,7 @@ int main( int argc, char* argv[] )
             timer.Start();
         QRCtrl<double> ctrl;
         ctrl.smallestFirst = smallestFirst;
-        QR( A, t, d, p, ctrl ); 
+        QR( A, t, d, Omega, ctrl ); 
         if( commRank == 0 ) 
             Output("Businger-Golub time: ",timer.Stop()," seconds");
         if( print )
@@ -137,7 +140,10 @@ int main( int argc, char* argv[] )
             Print( A, "QR" );
             Print( t, "t" );
             Print( d, "d" );
-            Print( p, "p" );
+
+            DistMatrix<Int> OmegaFull;
+            Omega.Explicit( OmegaFull );
+            Print( OmegaFull, "Omega" );
         }
         GetDiagonal( A, diagR );
         Print( diagR, "diag(R)" );

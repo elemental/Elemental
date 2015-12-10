@@ -24,7 +24,7 @@ void Overwrite
     DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
-    Matrix<Int> p; 
+    Permutation p; 
     Matrix<F> dSub;
     LDL( A, dSub, p, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
@@ -54,7 +54,7 @@ void Overwrite
     auto& A = AProx.Get();
     auto& B = BProx.Get();
 
-    DistMatrix<Int,VC,STAR> p(A.Grid()); 
+    DistPermutation p(A.Grid()); 
     DistMatrix<F,MD,STAR> dSub(A.Grid());
     LDL( A, dSub, p, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||

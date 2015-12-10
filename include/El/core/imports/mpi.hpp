@@ -45,6 +45,11 @@ inline bool operator==( const Comm& a, const Comm& b ) EL_NO_EXCEPT
 { return a.comm == b.comm; }
 inline bool operator!=( const Comm& a, const Comm& b ) EL_NO_EXCEPT
 { return a.comm != b.comm; }
+// Hopefully, despite the fact that MPI_Comm is opaque, the following will
+// reliably hold (otherwise it must be extended). Typically, MPI_Comm is
+// either 'int' or 'void*'.
+inline bool operator<( const Comm& a, const Comm& b ) EL_NO_EXCEPT
+{ return a.comm < b.comm; }
 
 struct Group
 {

@@ -106,14 +106,15 @@ inline void FrontVanillaLowerBackwardSolve
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
 ( const Matrix<F>& L,
-  const Matrix<Int>& p,
-        Matrix<F>& X, bool conjugate )
+  const Permutation& P,
+        Matrix<F>& X,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
     Matrix<F> XT, XB;
     PartitionDown( X, XT, XB, L.Width() );
-    InversePermuteRows( XT, p );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -163,9 +164,10 @@ inline void FrontVanillaLowerBackwardSolve
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
-  bool conjugate, bool singleL11AllGather=true )
+  bool conjugate,
+  bool singleL11AllGather=true )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
 
@@ -175,7 +177,7 @@ inline void FrontIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    InversePermuteRows( XT, p );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -249,7 +251,7 @@ inline void FrontVanillaLowerBackwardSolve
 template<typename F>
 inline void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
@@ -261,7 +263,7 @@ inline void FrontIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    InversePermuteRows( XT, p );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -311,7 +313,7 @@ inline void FrontFastLowerBackwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
@@ -323,7 +325,7 @@ inline void FrontFastIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    InversePermuteRows( XT, p );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -394,7 +396,7 @@ inline void FrontFastLowerBackwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
@@ -406,7 +408,7 @@ inline void FrontFastIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F,VC,STAR> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    InversePermuteRows( XT, p );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -450,7 +452,7 @@ inline void FrontFastLowerBackwardSolve
 template<typename F>
 inline void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
@@ -462,7 +464,7 @@ inline void FrontFastIntraPivLowerBackwardSolve
     const Grid& g = L.Grid();
     DistMatrix<F> XT(g), XB(g);
     PartitionDown( X, XT, XB, L.Width() );
-    InversePermuteRows( XT, p );
+    P.InversePermuteRows( XT );
 }
 
 template<typename F>
@@ -681,7 +683,7 @@ inline void FrontLowerBackwardSolve
             FrontBlockLowerBackwardSolve( front.LDense, W, conjugate );
         else if( PivotedFactorization(type) )
             FrontIntraPivLowerBackwardSolve
-            ( front.LDense, front.piv, W, conjugate );
+            ( front.LDense, front.p, W, conjugate );
         else
             FrontVanillaLowerBackwardSolve( front.LDense, W, conjugate );
     }
@@ -707,10 +709,10 @@ inline void FrontLowerBackwardSolve
         FrontFastLowerBackwardSolve( front.L2D, W, conjugate );
     else if( type == LDL_INTRAPIV_2D )
         FrontIntraPivLowerBackwardSolve
-        ( front.L2D, front.piv, W, conjugate );
+        ( front.L2D, front.p, W, conjugate );
     else if( type == LDL_INTRAPIV_SELINV_2D )
         FrontFastIntraPivLowerBackwardSolve
-        ( front.L2D, front.piv, W, conjugate );
+        ( front.L2D, front.p, W, conjugate );
     else if( blocked )
         FrontBlockLowerBackwardSolve( front.L2D, W, conjugate );
     else
@@ -741,13 +743,13 @@ inline void FrontLowerBackwardSolve
         FrontFastLowerBackwardSolve( front.L2D, W, conjugate );
     else if( type == LDL_INTRAPIV_1D )
         FrontIntraPivLowerBackwardSolve
-        ( front.L1D, front.piv, W, conjugate );
+        ( front.L1D, front.p, W, conjugate );
     else if( type == LDL_INTRAPIV_SELINV_1D )
         FrontFastIntraPivLowerBackwardSolve
-        ( front.L1D, front.piv, W, conjugate );
+        ( front.L1D, front.p, W, conjugate );
     else if( type == LDL_INTRAPIV_SELINV_2D )
         FrontFastIntraPivLowerBackwardSolve
-        ( front.L2D, front.piv, W, conjugate );
+        ( front.L2D, front.p, W, conjugate );
     else if( blocked )
         FrontBlockLowerBackwardSolve( front.L2D, W, conjugate );
     else

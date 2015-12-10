@@ -14,7 +14,7 @@ void TestCorrectness
 ( bool pivoted,
   bool print, 
   const Matrix<F>& A,
-  const Matrix<Int>& rowPiv,
+  const Permutation& P,
   const Matrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -27,7 +27,7 @@ void TestCorrectness
     Uniform( X, m, 100 );
     Y = X;
     if( pivoted )
-        ApplyRowPivots( Y, rowPiv );
+        P.PermuteRows( Y );
 
     // Solve against the (pivoted) right-hand sides
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, Y );
@@ -55,7 +55,7 @@ template<typename F>
 void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
 {
     Matrix<F> A, ARef;
-    Matrix<Int> rowPiv, p;
+    Permutation P;
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -66,7 +66,7 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
     Output("  Starting LU factorization...");
     const double startTime = mpi::Time();
     if( pivot )
-        LU( A, rowPiv );
+        LU( A, P );
     else
         LU( A );
     const double runTime = mpi::Time() - startTime;
@@ -78,15 +78,18 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
         Print( A, "A after factorization" );
         if( pivot )
         {
+            // TODO: Print permutation
+            /*
             PivotsToPermutation( rowPiv, p );
             Print( p, "p after factorization" );
             Matrix<Int> P;
             ExplicitPermutation( p, P );
             Print( P, "P after factorization" );
+            */
         }
     }
     if( testCorrectness )
-        TestCorrectness( pivot, print, A, rowPiv, ARef );
+        TestCorrectness( pivot, print, A, P, ARef );
 }
 
 int 

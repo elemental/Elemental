@@ -59,11 +59,11 @@ Int ADMM
     Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
     // TODO: Replace with sparse-direct Cholesky version?
-    Matrix<Int> rowPiv2;
-    LU( B22, rowPiv2 );
-    ApplyRowPivots( L21, rowPiv2 );
+    Permutation P2;
+    LU( B22, P2 );
+    P2.PermuteRows( L21 );
     bPiv = b;
-    ApplyRowPivots( bPiv, rowPiv2 );
+    P2.PermuteRows( bPiv );
 
     // Possibly form the inverse of L22 U22
     Matrix<Real> X22;
@@ -228,11 +228,11 @@ Int ADMM
     L21 *= 1/ctrl.rho;
     Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
-    DistMatrix<Int,VC,STAR> rowPiv2(grid);
-    LU( B22, rowPiv2 );
-    ApplyRowPivots( L21, rowPiv2 );
+    DistPermutation P2(grid);
+    LU( B22, P2 );
+    P2.PermuteRows( L21 );
     bPiv = b;
-    ApplyRowPivots( bPiv, rowPiv2 );
+    P2.PermuteRows( bPiv );
 
     // Possibly form the inverse of L22 U22
     DistMatrix<Real> X22(grid);

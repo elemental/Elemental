@@ -59,7 +59,7 @@ inline void BusingerGolub
 (       Matrix<F>& A,
         Matrix<F>& t,
         Matrix<Base<F>>& d,
-        Matrix<Int>& p,
+        Permutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("qr::BusingerGolub"))
@@ -81,11 +81,8 @@ inline void BusingerGolub
     auto norms = origNorms;
     const Real updateTol = Sqrt(Epsilon<Real>());
 
-    // Initialize the inverse permutation to the identity
-    Matrix<Int> pInv;
-    pInv.Resize( n, 1 );
-    for( Int j=0; j<n; ++j )
-        pInv.Set( j, 0, j ); 
+    Omega.MakeIdentity( n );
+    Omega.ReserveSwaps( n );
 
     Int k=0;
     for( ; k<maxSteps; ++k )
@@ -111,7 +108,7 @@ inline void BusingerGolub
             if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
                 break;
         }
-        RowSwap( pInv, k, pivot.index );
+        Omega.RowSwap( k, pivot.index );
  
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -163,7 +160,6 @@ inline void BusingerGolub
             }
         }
     }
-    InvertPermutation( pInv, p );
 
     // Form d and rescale R
     auto R = A( IR(0,k), ALL );
@@ -324,12 +320,12 @@ inline void BusingerGolub
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& t, 
   ElementalMatrix<Base<F>>& d,
-  ElementalMatrix<Int>& p, 
+  DistPermutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
       CSE cse("qr::BusingerGolub");
-      AssertSameGrids( APre, t, d, p );
+      AssertSameGrids( APre, t, d );
     )
     typedef Base<F> Real;
 
@@ -353,13 +349,10 @@ inline void BusingerGolub
     const Real updateTol = Sqrt(Epsilon<Real>());
     vector<Int> inaccurateNorms;
 
-    // Initialize the inverse permutation to the identity
-    const Grid& g = A.Grid();
-    DistMatrix<Int,VC,STAR> pInv(g);
-    pInv.Resize( n, 1 );
-    for( Int jLoc=0; jLoc<pInv.LocalHeight(); ++jLoc ) 
-        pInv.SetLocal( jLoc, 0, pInv.GlobalRow(jLoc) );
+    Omega.MakeIdentity( n );
+    Omega.ReserveSwaps( n );
 
+    const Grid& g = A.Grid();
     DistMatrix<F> z21(g);
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
     DistMatrix<F,MR,STAR> z21_MR_STAR(g);
@@ -389,7 +382,7 @@ inline void BusingerGolub
             if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
                 break;
         }
-        RowSwap( pInv, k, pivot.index );
+        Omega.RowSwap( k, pivot.index );
 
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -489,7 +482,6 @@ inline void BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColNorms( A, inaccurateNorms, norms, origNorms );
     }
-    InvertPermutation( pInv, p );
 
     // Form d and rescale R
     auto R = A( IR(0,k), ALL );
