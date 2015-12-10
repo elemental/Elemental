@@ -298,6 +298,31 @@ void Permutation::RowSwapSequence( const Permutation& P, Int offset )
     }
 }
 
+void Permutation::RowSwapSequence
+( const Matrix<Int>& swapOrigins,
+  const Matrix<Int>& swapDests,
+  Int offset )
+{
+    DEBUG_ONLY(CSE cse("Permutation::RowSwapSequence"))
+    // TODO: Assert swapOrigins and swapDests are column vectors of same size
+    const Int numSwaps = swapDests.Height();
+    for( Int k=0; k<numSwaps; ++k )
+        RowSwap( swapOrigins.Get(k,0)+offset, swapDests.Get(k,0)+offset );
+}
+
+void Permutation::ImplicitRowSwapSequence
+( const Matrix<Int>& swapDests,
+  Int offset )
+{
+    DEBUG_ONLY(CSE cse("Permutation::ImplicitRowSwapSequence"))
+    const Int numPrevSwaps = numSwaps_;
+
+    // TODO: Assert swapOrigins and swapDests are column vectors of same size
+    const Int numSwaps = swapDests.Height();
+    for( Int k=0; k<numSwaps; ++k )
+        RowSwap( numPrevSwaps+k, swapDests.Get(k,0)+offset );
+}
+
 void Permutation::SetImage( Int origin, Int dest )
 {
     DEBUG_ONLY(CSE cse("Permutation::SetImage"))
@@ -409,6 +434,22 @@ bool Permutation::IsSwapSequence() const
 
 bool Permutation::IsImplicitSwapSequence() const
 { return implicitSwapOrigins_; }
+
+const Matrix<Int>& Permutation::SwapOrigins() const
+{
+    DEBUG_ONLY(CSE cse("Permutation::SwapOrigins"))
+    if( !swapSequence_ || !implicitSwapOrigins_ )
+        LogicError("Swap origins are not explicitly stored");
+    return swapOrigins_;
+}
+
+const Matrix<Int>& Permutation::SwapDestinations() const
+{
+    DEBUG_ONLY(CSE cse("Permutation::SwapOrigins"))
+    if( !swapSequence_ )
+        LogicError("Swap destinations are not explicitly stored");
+    return swapDests_;
+}
 
 template<typename T>
 void Permutation::PermuteCols( Matrix<T>& A, Int offset ) const

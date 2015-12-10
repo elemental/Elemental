@@ -27,6 +27,11 @@ public:
 
     void RowSwap( Int origin, Int dest );
     void RowSwapSequence( const Permutation& P, Int offset=0 );
+    void RowSwapSequence
+    ( const Matrix<Int>& swapOrigins,
+      const Matrix<Int>& swapDests, Int offset=0 );
+
+    void ImplicitRowSwapSequence( const Matrix<Int>& swapDests, Int offset=0 );
 
     void SetImage( Int origin, Int dest );
 
@@ -37,6 +42,12 @@ public:
     bool Parity() const;
     bool IsSwapSequence() const;
     bool IsImplicitSwapSequence() const;
+
+    // NOTE: This is only valid if IsImplicitSwapSequence() is true, otherwise
+    //       it is implicitly [0,...,numSwaps-1]
+    const Matrix<Int>& SwapOrigins() const;
+    // NOTE: This is only valid if IsSwapSequence() is true
+    const Matrix<Int>& SwapDestinations() const;
 
     template<typename T>
     void PermuteCols
