@@ -20,9 +20,29 @@ namespace qr {
 //    be used to avoid single-vector pivoting",
 //   Available from http://arxiv.org/abs/1505.08115, May 2015.
 //
-// While I am currently unhappy with the forfeiting of optimal pivots, the
-// performance improvements should be substantial once Elemental is moved
-// back from arbitrary permutations back to pivot sequences.
+// It is worth noting that multiple research groups have been actively working
+// on nearly identical algorithms, with the relevant timeline being:
+//
+// 1) May, 2014; 
+//    Jed Duersch's final presentation for Math 273 at UC Berkeley
+//    introduced the fundamental algorithm and its ideas.
+//
+// 2) May, 2015;
+//    P.G. Martinsson, "Blocked rank-revealing QR factorizations:
+//    How randomized sampling can be used to avoid single-vector pivoting",
+//    arXiv:1505.08115. Available from http://arxiv.org/abs/1505.08115
+//
+// 3) September, 2015;
+//    Jed Duersch and Ming Gu, "True BLAS-3 Performance QRCP using Random
+//    Sampling", arXiv:1509.06820.
+//    Available from http://arxiv.org/abs/1509.06820
+//
+// 4) December, 2015:
+//    P.G. Martinsson, Gregorio Quintana-Orti, Nathan Heavner, and
+//    Robert van de Geijn,"Householder QR Factorization: Adding Randomization
+//    for Column-Pivoting", arXiv:1512.02671
+//    Available from http://arxiv.org/abs/1512.02671
+//
 
 template<typename F>
 class StandardProxy
