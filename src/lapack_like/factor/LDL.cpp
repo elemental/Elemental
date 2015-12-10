@@ -59,8 +59,11 @@ void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate )
 // -------
 template<typename F>
 void LDL
-( Matrix<F>& A, Matrix<F>& dSub, 
-  Matrix<Int>& p, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl )
+( Matrix<F>& A,
+  Matrix<F>& dSub, 
+  Permutation& p,
+  bool conjugate,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LDL"))
     ldl::Pivoted( A, dSub, p, conjugate, ctrl );
@@ -68,8 +71,10 @@ void LDL
 
 template<typename F>
 void LDL
-( ElementalMatrix<F>& A, ElementalMatrix<F>& dSub, 
-  ElementalMatrix<Int>& p, bool conjugate, 
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& dSub, 
+  DistPermutation& p,
+  bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl ) 
 {
     DEBUG_ONLY(CSE cse("LDL"))
@@ -80,7 +85,9 @@ void LDL
 // ======
 template<typename F>
 void LDL
-( const ldl::NodeInfo& info, ldl::Front<F>& front, LDLFrontType newType )
+( const ldl::NodeInfo& info,
+        ldl::Front<F>& front,
+  LDLFrontType newType )
 {
     DEBUG_ONLY(CSE cse("LDL"))
     if( !Unfactored(front.type) )
@@ -98,7 +105,8 @@ void LDL
 
 template<typename F>
 void LDL
-( const ldl::DistNodeInfo& info, ldl::DistFront<F>& front, 
+( const ldl::DistNodeInfo& info,
+        ldl::DistFront<F>& front, 
   LDLFrontType newType )
 {
     DEBUG_ONLY(CSE cse("LDL"))
@@ -121,44 +129,70 @@ void LDL
   template void LDL( ElementalMatrix<F>& A, bool conjugate ); \
   template void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate ); \
   template void LDL \
-  ( Matrix<F>& A, Matrix<F>& dSub, \
-    Matrix<Int>& p, bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
+  ( Matrix<F>& A, \
+    Matrix<F>& dSub, \
+    Permutation& p, \
+    bool conjugate, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void LDL \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& dSub, \
-    ElementalMatrix<Int>& p, bool conjugate, \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& dSub, \
+    DistPermutation& p, \
+    bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template InertiaType ldl::Inertia \
-  ( const Matrix<Base<F>>& d, const Matrix<F>& dSub ); \
+  ( const Matrix<Base<F>>& d, \
+    const Matrix<F>& dSub ); \
   template InertiaType ldl::Inertia \
-  ( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub ); \
+  ( const ElementalMatrix<Base<F>>& d, \
+    const ElementalMatrix<F>& dSub ); \
   template void ldl::MultiplyAfter \
-  ( const Matrix<F>& A, Matrix<F>& B, bool conjugated ); \
-  template void ldl::MultiplyAfter \
-  ( const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+  ( const Matrix<F>& A, \
+          Matrix<F>& B, \
     bool conjugated ); \
   template void ldl::MultiplyAfter \
-  ( const Matrix<F>& A, const Matrix<F>& dSub, \
-    const Matrix<Int>& p, Matrix<F>& B, bool conjugated ); \
+  ( const ElementalMatrix<F>& A, \
+          ElementalMatrix<F>& B, \
+    bool conjugated ); \
   template void ldl::MultiplyAfter \
-  ( const ElementalMatrix<F>& A, const ElementalMatrix<F>& dSub, \
-    const ElementalMatrix<Int>& p, ElementalMatrix<F>& B, \
+  ( const Matrix<F>& A, \
+    const Matrix<F>& dSub, \
+    const Permutation& p, \
+          Matrix<F>& B, \
+    bool conjugated ); \
+  template void ldl::MultiplyAfter \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& dSub, \
+    const DistPermutation& p, \
+          ElementalMatrix<F>& B, \
     bool conjugated ); \
   template void ldl::SolveAfter \
-  ( const Matrix<F>& A, Matrix<F>& B, bool conjugated ); \
-  template void ldl::SolveAfter \
-  ( const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+  ( const Matrix<F>& A, \
+          Matrix<F>& B, \
     bool conjugated ); \
   template void ldl::SolveAfter \
-  ( const Matrix<F>& A, const Matrix<F>& dSub, \
-    const Matrix<Int>& p, Matrix<F>& B, bool conjugated ); \
+  ( const ElementalMatrix<F>& A, \
+          ElementalMatrix<F>& B, \
+    bool conjugated ); \
   template void ldl::SolveAfter \
-  ( const ElementalMatrix<F>& A, const ElementalMatrix<F>& dSub, \
-    const ElementalMatrix<Int>& p, ElementalMatrix<F>& B, \
+  ( const Matrix<F>& A, \
+    const Matrix<F>& dSub, \
+    const Permutation& p, \
+          Matrix<F>& B, \
+    bool conjugated ); \
+  template void ldl::SolveAfter \
+  ( const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& dSub, \
+    const DistPermutation& p, \
+          ElementalMatrix<F>& B, \
      bool conjugated ); \
   template void LDL \
-  ( const ldl::NodeInfo& info, ldl::Front<F>& front, LDLFrontType newType ); \
+  ( const ldl::NodeInfo& info, \
+          ldl::Front<F>& front, \
+    LDLFrontType newType ); \
   template void LDL \
-  ( const ldl::DistNodeInfo& info, ldl::DistFront<F>& front, \
+  ( const ldl::DistNodeInfo& info, \
+          ldl::DistFront<F>& front, \
     LDLFrontType newType );
 
 #define EL_NO_INT_PROTO

@@ -150,8 +150,8 @@ SignDivide
     // Compute the pivoted QR decomposition of the spectral projection 
     Matrix<F> t;
     Matrix<Base<F>> d;
-    Matrix<Int> p;
-    El::QR( G, t, d, p );
+    Permutation Omega;
+    El::QR( G, t, d, Omega );
 
     // A := Q^H A Q
     const Base<F> oneA = OneNorm( A );
@@ -195,8 +195,8 @@ SignDivide
     // Compute the pivoted QR decomposition of the spectral projection 
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    El::QR( G, t, d, p );
+    DistPermutation Omega(g);
+    El::QR( G, t, d, Omega );
 
     // A := Q^H A Q
     const Base<F> oneA = OneNorm( A );

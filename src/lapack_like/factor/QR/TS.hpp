@@ -18,9 +18,9 @@ template<typename F>
 void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     DEBUG_ONLY(
-        CSE cse("qr::ts::Reduce");
-        if( A.RowDist() != STAR )
-            LogicError("Invalid row distribution for TSQR");
+      CSE cse("qr::ts::Reduce");
+      if( A.RowDist() != STAR )
+          LogicError("Invalid row distribution for TSQR");
     )
     const Int m =  A.Height();
     const Int n = A.Width();
@@ -34,7 +34,10 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
     const Int logp = Log2(p);
-    auto lastZ = treeData.QR0( IR(0,n), IR(0,n) );
+
+    Matrix<F> lastZ;
+    lastZ = treeData.QR0( IR(0,n), IR(0,n) );
+
     treeData.QRList.resize( logp );
     treeData.tList.resize( logp );
     treeData.dList.resize( logp );
@@ -60,16 +63,16 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
             break;
         }
 
-        auto& Q = treeData.QRList[stage];
+        auto& QRFact = treeData.QRList[stage];
         auto& t = treeData.tList[stage];
         auto& d = treeData.dList[stage];
-        Q.Resize( 2*n, n, 2*n );
+        QRFact.Resize( 2*n, n, 2*n );
         t.Resize( n, 1 );
         d.Resize( n, 1 );
-        auto QTop = Q( IR(0,n),   IR(0,n) );
-        auto QBot = Q( IR(n,2*n), IR(0,n) );
-        QTop = ZTop;
-        QBot = ZBot;
+        auto QRFactTop = QRFact( IR(0,n),   IR(0,n) );
+        auto QRFactBot = QRFact( IR(n,2*n), IR(0,n) );
+        QRFactTop = ZTop;
+        QRFactBot = ZBot;
 
         // Note that the last QR is not performed by this routine, as many
         // higher-level routines, such as TS-SVT, are simplified if the final
@@ -77,8 +80,8 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
         if( stage < logp-1 )
         {
             // TODO: Exploit double-triangular structure
-            QR( Q, t, d );
-            lastZ = Q( IR(0,n), IR(0,n) );
+            QR( QRFact, t, d );
+            lastZ = QRFact( IR(0,n), IR(0,n) );
         }
     }
 }
@@ -183,11 +186,11 @@ template<typename F>
 void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     DEBUG_ONLY(
-        CSE cse("qr::ts::Scatter");
-        if( A.RowDist() != STAR )
-            LogicError("Invalid row distribution for TSQR");
+      CSE cse("qr::ts::Scatter");
+      if( A.RowDist() != STAR )
+          LogicError("Invalid row distribution for TSQR");
     )
-    const Int m =  A.Height();
+    const Int m = A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();
     const Int p = mpi::Size( colComm );
@@ -213,7 +216,7 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
         if( stage>0 && (Unsigned(rank) & ((Unsigned(1)<<stage)-1)) )
             continue;
 
-        const Int partner = rank ^ (1u<<stage);
+        const Int partner = Unsigned(rank) ^ (Unsigned(1)<<stage);
         const bool top = rank < partner;
         if( top )
         {
@@ -222,11 +225,14 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
                 // Multiply by the current Q
                 ZTop = ZHalf;        
                 Zero( ZBot );
+
                 // TODO: Exploit sparsity?
                 ApplyQ
                 ( LEFT, NORMAL, 
-                  treeData.QRList[stage], treeData.tList[stage], 
-                  treeData.dList[stage], Z );
+                  treeData.QRList[stage],
+                  treeData.tList[stage], 
+                  treeData.dList[stage],
+                  Z );
             }
             // Send bottom-half to partner and keep top half
             ZHalf = ZBot;
@@ -241,9 +247,10 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
     }
 
     // Apply the initial Q
-    Zero( A.Matrix() );
+    Zero( A );
     auto ATop = A.Matrix()( IR(0,n), IR(0,n) );
     ATop = ZHalf;
+
     // TODO: Exploit sparsity
     ApplyQ( LEFT, NORMAL, treeData.QR0, treeData.t0, treeData.d0, A.Matrix() );
 }
@@ -318,7 +325,8 @@ TreeData<F> TS( const ElementalMatrix<F>& A )
         ts::Reduce( A, treeData );
         if( A.ColRank() == 0 )
             QR
-            ( ts::RootQR(A,treeData), ts::RootPhases(A,treeData), 
+            ( ts::RootQR(A,treeData),
+              ts::RootPhases(A,treeData), 
               ts::RootSignature(A,treeData) );
     }
     return treeData;

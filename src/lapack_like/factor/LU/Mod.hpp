@@ -17,7 +17,7 @@ namespace El {
 // and turn it into a partially-pivoted LU factorization of
 //     A + u v',
 // say
-//     (A + u v') = P^T L ( U + w v'),
+//     (A + u v') = (PNew)^T L ( U + w v'),
 // w = inv(L) P u.
 
 // Please see subsection 2.1 from 
@@ -27,10 +27,20 @@ namespace El {
 // which discusses the technique of Schwetlick and Kielbasinski described in
 // "Numerische Lineare Algebra".
 
+// NOTE: We will make use of (at most) 2*minDim-1 swaps. Before originally
+//       forming P, reserve a large number of swaps so that running out
+//       does not force an arbitrary permutation via, e.g.,
+//
+//       Permutation P;
+//       P.ReserveSwaps( n + 2*Min(m,n)-1 );
+//       LU( A, P );
+//       LUMod( A, P, u, v, conjugate, tau );
+//
+
 template<typename F>
 void LUMod
 ( Matrix<F>& A,
-  Matrix<Int>& p, 
+        Permutation& P, 
   const Matrix<F>& u,
   const Matrix<F>& v,
   bool conjugate,
@@ -50,7 +60,7 @@ void LUMod
 
     // w := inv(L) P u
     auto w( u );
-    PermuteRows( w, p );
+    P.PermuteRows( w );
     Trsv( LOWER, NORMAL, UNIT, A, w );
 
     // Maintain an external vector for the temporary subdiagonal of U
@@ -81,7 +91,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( p, i, i+1 );
+            P.RowSwap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -199,7 +209,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( p, i, i+1 );
+            P.RowSwap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -277,7 +287,7 @@ void LUMod
 template<typename F>
 void LUMod
 (       ElementalMatrix<F>& APre,
-        ElementalMatrix<Int>& p, 
+        DistPermutation& P,
   const ElementalMatrix<F>& u,
   const ElementalMatrix<F>& v, 
   bool conjugate,
@@ -300,13 +310,13 @@ void LUMod
         LogicError("u is expected to be a conforming column vector");
     if( v.Height() != n || v.Width() != 1 )
         LogicError("v is expected to be a conforming column vector");
-    AssertSameGrids( A, p, u, v );
+    AssertSameGrids( A, u, v );
 
     // w := inv(L) P u
     // TODO: Consider locally maintaining all of w to avoid unnecessarily 
     //       broadcasting at every iteration.
     DistMatrix<F> w( u );
-    PermuteRows( w, p );
+    P.PermuteRows( w );
     Trsv( LOWER, NORMAL, UNIT, A, w );
 
     // Maintain an external vector for the temporary subdiagonal of U
@@ -339,7 +349,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( p, i, i+1 );
+            P.RowSwap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -458,7 +468,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( p, i, i+1 );
+            P.RowSwap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and

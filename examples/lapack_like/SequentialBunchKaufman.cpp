@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
         }
 
         // Make a copy of A and then overwrite it with its LDL factorization
-        Matrix<Int> perm;
+        Permutation perm;
         Matrix<C> dSub, factA( A );
         MakeTrapezoidal( LOWER, factA );
         LDL( factA, dSub, perm, conjugate, ctrl );
@@ -61,7 +61,10 @@ main( int argc, char* argv[] )
             Print( A,     "A"     );
             Print( factA, "factA" );
             Print( dSub,  "dSub"  );
-            Print( perm,  "perm" );
+            
+            Matrix<Int> P;
+            perm.Explicit( P ); 
+            Print( P,  "P" );
         }
 
         // Generate a random set of vectors

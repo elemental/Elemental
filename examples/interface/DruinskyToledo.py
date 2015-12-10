@@ -27,7 +27,9 @@ El.Copy( A, A_LU )
 dSub, p = El.LDL(A,False,El.BUNCH_KAUFMAN_A)
 El.MakeTrapezoidal(El.LOWER,A)
 El.Display(dSub,"Subdiagonal of D from LDL")
-El.Display(p,"LDL permutation")
+#P = El.DistMatrix(iTag,MC,MR,A.Grid())
+# TODO: Construct P from p
+#El.Display(P,"P")
 El.EntrywiseMap(A,lambda x:math.log10(max(abs(x),1)))
 El.Display(A,"Logarithmically-scaled LDL triangular factor")
 

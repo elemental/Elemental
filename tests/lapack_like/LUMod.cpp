@@ -9,11 +9,11 @@
 #include "El.hpp"
 using namespace El;
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void TestCorrectness
 ( bool print, 
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& p,
+  const DistPermutation& P,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -27,7 +27,7 @@ void TestCorrectness
     DistMatrix<F> X(g);
     Uniform( X, n, 100 );
     auto Y( X );
-    PermuteRows( Y, p );
+    P.PermuteRows( Y );
     lu::SolveAfter( NORMAL, A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
@@ -49,7 +49,7 @@ void TestCorrectness
          "||A A^-1 X - X||_F  = ",frobNormError);
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void TestLUMod
 ( bool conjugate,
   Base<F> tau,
@@ -59,7 +59,7 @@ void TestLUMod
   const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> rowPiv(g), p(g);
+    DistPermutation P(g);
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -72,7 +72,8 @@ void TestLUMod
             Output("  Starting LU factorization...");
         mpi::Barrier( g.Comm() );
         const double startTime = mpi::Time();
-        LU( A, rowPiv );
+        P.ReserveSwaps( m+2*m-1 );
+        LU( A, P );
         mpi::Barrier( g.Comm() );
         const double runTime = mpi::Time() - startTime;
         const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -82,15 +83,7 @@ void TestLUMod
             Output("  ",runTime," seconds (",gFlops," GFlop/s)");
     }
 
-    PivotsToPermutation( rowPiv, p );
-    if( print )
-    {
-        Print( A, "A after original factorization" );
-        Print( p, "p after original factorization");
-        DistMatrix<Int> P(g);
-        ExplicitPermutation( p, P );
-        Print( P, "P" );
-    }
+    // TODO: Print permutation
 
     // Generate random vectors u and v
     DistMatrix<F> u(g), v(g);
@@ -109,24 +102,17 @@ void TestLUMod
             Output("  Starting rank-one LU modification...");
         mpi::Barrier( g.Comm() );
         const double startTime = mpi::Time();
-        LUMod( A, p, u, v, conjugate, tau );
+        LUMod( A, P, u, v, conjugate, tau );
         mpi::Barrier( g.Comm() );
         const double runTime = mpi::Time() - startTime;
         if( g.Rank() == 0 )
             Output("  ",runTime," seconds");
     }
 
-    if( print )
-    {
-        Print( A, "A after modification" );
-        Print( p, "p after modification");
-        DistMatrix<Int> P(g);
-        ExplicitPermutation( p, P );
-        Print( P, "P" );
-    }
+    // TODO: Print permutation
 
     if( testCorrectness )
-        TestCorrectness( print, A, p, AOrig );
+        TestCorrectness( print, A, P, AOrig );
 }
 
 int 
@@ -160,11 +146,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             Output("Testing with doubles:");
-        TestLUMod<double,VC>( conjugate, tau, testCorrectness, print, m, g );
+        TestLUMod<double>( conjugate, tau, testCorrectness, print, m, g );
 
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
-        TestLUMod<Complex<double>,VC>
+        TestLUMod<Complex<double>>
         ( conjugate, tau, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }

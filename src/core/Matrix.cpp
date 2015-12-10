@@ -595,7 +595,7 @@ void Matrix<T>::LockedAttach_
     width_ = width;
     ldim_ = ldim;
     data_ = const_cast<T*>(buffer);
-    viewType_ = (El::ViewType)( viewType_ | VIEW );
+    viewType_ = (El::ViewType)( viewType_ | LOCKED_VIEW );
 }
 
 template<typename T>

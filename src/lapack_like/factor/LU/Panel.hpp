@@ -14,7 +14,7 @@ namespace El {
 namespace lu {
 
 template<typename F>
-void Panel( Matrix<F>& A, Matrix<Int>& pivots )
+void Panel( Matrix<F>& A, Permutation& P, Permutation& PB, Int offset )
 {
     const Int m = A.Height(); 
     const Int n = A.Width();
@@ -25,7 +25,9 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
       if( A.Height() < n )
           LogicError("Must be a column panel");
     )
-    pivots.Resize( n, 1 );
+
+    PB.MakeIdentity( A.Height() );
+    PB.ReserveSwaps( n );
 
     for( Int k=0; k<n; ++k )
     {
@@ -39,7 +41,8 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
         // Find the index and value of the pivot candidate
         const Int maxInd = blas::MaxInd( ind2VertSize+1, aB1Buf, 1 );
         const Int iPiv = maxInd + k;
-        pivots.Set( k, 0, iPiv );
+        P.RowSwap( k+offset, iPiv+offset );
+        PB.RowSwap( k, iPiv );
 
         // Swap the pivot row and current row
         if( iPiv != k )
@@ -66,7 +69,9 @@ template<typename F>
 void Panel
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
-  DistMatrix<Int,STAR,STAR>& pivots,
+  DistPermutation& P,
+  DistPermutation& PB,
+  Int offset,
   vector<F>& pivotBuffer )
 {
     typedef Base<F> Real;
@@ -80,14 +85,16 @@ void Panel
     mpi::Op maxLocOp = mpi::MaxLocOp<Real>();
     DEBUG_ONLY(
       CSE cse("lu::Panel");
-      AssertSameGrids( A, B, pivots );
+      AssertSameGrids( A, B );
       if( n != B.Width() )
           LogicError("A and B must be the same width");
       if( A.Buffer()+n != B.Buffer() )
           LogicError("Buffers of A and B did not properly align");
     )
 
-    pivots.Resize( n, 1 );
+    PB.MakeIdentity( A.Height()+B.Height() );
+    PB.ReserveSwaps( n );
+
     pivotBuffer.resize( n );
     for( Int k=0; k<n; ++k )
     {
@@ -109,7 +116,8 @@ void Panel
         // Compute and store the location of the new pivot
         const auto pivot = mpi::AllReduce( localPivot, maxLocOp, colComm );
         const Int iPiv = pivot.index;
-        pivots.SetLocal( k, 0, iPiv );
+        P.RowSwap( k+offset, iPiv+offset );
+        PB.RowSwap( k, iPiv );
 
         // Perform the pivot within this panel
         if( iPiv < n )

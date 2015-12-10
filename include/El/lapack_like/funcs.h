@@ -109,22 +109,22 @@ EL_EXPORT ElError ElInverseDist_z( ElDistMatrix_z A );
 /* After LU factorization with partial pivoting
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElInverseAfterLUPartialPiv_s
-( ElMatrix_s A, ElConstMatrix_i p );
+( ElMatrix_s A, ElConstPermutation P );
 EL_EXPORT ElError ElInverseAfterLUPartialPiv_d
-( ElMatrix_d A, ElConstMatrix_i p );
+( ElMatrix_d A, ElConstPermutation P );
 EL_EXPORT ElError ElInverseAfterLUPartialPiv_c
-( ElMatrix_c A, ElConstMatrix_i p );
+( ElMatrix_c A, ElConstPermutation P );
 EL_EXPORT ElError ElInverseAfterLUPartialPiv_z
-( ElMatrix_z A, ElConstMatrix_i p );
+( ElMatrix_z A, ElConstPermutation P );
 
 EL_EXPORT ElError ElInverseAfterLUPartialPivDist_s
-( ElDistMatrix_s A, ElConstDistMatrix_i p );
+( ElDistMatrix_s A, ElConstDistPermutation P );
 EL_EXPORT ElError ElInverseAfterLUPartialPivDist_d
-( ElDistMatrix_d A, ElConstDistMatrix_i p );
+( ElDistMatrix_d A, ElConstDistPermutation P );
 EL_EXPORT ElError ElInverseAfterLUPartialPivDist_c
-( ElDistMatrix_c A, ElConstDistMatrix_i p );
+( ElDistMatrix_c A, ElConstDistPermutation P );
 EL_EXPORT ElError ElInverseAfterLUPartialPivDist_z
-( ElDistMatrix_z A, ElConstDistMatrix_i p );
+( ElDistMatrix_z A, ElConstDistPermutation P );
 
 /* Hermitian Positive-Definite
    --------------------------- */

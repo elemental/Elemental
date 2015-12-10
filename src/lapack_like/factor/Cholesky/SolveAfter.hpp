@@ -48,22 +48,17 @@ void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<Int>& p,
+  const Permutation& P,
         Matrix<F>& B )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::SolveAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
-      if( p.Height() != A.Height() )
-          LogicError("Permutation vector is wrong size");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
-    Matrix<Int> pInv;
-    InvertPermutation( p, pInv );
-
-    PermuteRows( B, p, pInv );
+    P.PermuteRows( B );
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -78,7 +73,7 @@ void SolveAfter
     }
     if( orientation == TRANSPOSE )
         Conjugate( B );
-    PermuteRows( B, pInv, p );
+    P.InversePermuteRows( B );
 }
 
 template<typename F> 
@@ -117,7 +112,7 @@ void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation, 
   const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<Int>& p, 
+  const DistPermutation& P, 
         AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
@@ -125,15 +120,10 @@ void SolveAfter
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
-      if( A.Height() != p.Height() )
-          LogicError("Permutation vector is wrong height");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
-    DistMatrix<Int,VC,STAR> pInv(p.Grid());
-    InvertPermutation( p, pInv );
-
-    PermuteRows( B, p, pInv );
+    P.PermuteRows( B );
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -148,7 +138,7 @@ void SolveAfter
     }
     if( orientation == TRANSPOSE )
         Conjugate( B );
-    PermuteRows( B, pInv, p );
+    P.InversePermuteRows( B );
 }
 
 } // namespace cholesky

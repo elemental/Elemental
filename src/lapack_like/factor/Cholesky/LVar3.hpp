@@ -152,6 +152,8 @@ LVar3( AbstractDistMatrix<F>& APre )
     DistMatrix<F,STAR,MC  > A21Trans_STAR_MC(g);
     DistMatrix<F,STAR,MR  > A21Adj_STAR_MR(g);
 
+    Timer panelTimer, trrkTimer;
+
     const Int n = A.Height();
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -165,6 +167,8 @@ LVar3( AbstractDistMatrix<F>& APre )
         auto A21 = A( ind2, ind1 );
         auto A22 = A( ind2, ind2 );
 
+        panelTimer.Start();
+
         A11_STAR_STAR = A11;
         Cholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
@@ -173,6 +177,8 @@ LVar3( AbstractDistMatrix<F>& APre )
         A21_VC_STAR = A21;
         LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
+
+        panelTimer.Stop();
 
         A21_VR_STAR.AlignWith( A22 );
         A21_VR_STAR = A21_VC_STAR;
@@ -183,11 +189,18 @@ LVar3( AbstractDistMatrix<F>& APre )
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
+        trrkTimer.Start();
         LocalTrrk
         ( LOWER, TRANSPOSE, 
           F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );
+        trrkTimer.Stop();
 
         Transpose( A21Trans_STAR_MC, A21 );
+    }
+    if( g.Rank() == 0 )
+    {
+        Output("  Panel time: ",panelTimer.Total()," seconds");
+        Output("  Trrk time:  ",trrkTimer.Total()," seconds");
     }
 } 
 

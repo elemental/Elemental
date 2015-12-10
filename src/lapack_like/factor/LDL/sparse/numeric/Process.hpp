@@ -168,7 +168,8 @@ Process
             front.diag.LockedAttach( grid, frontDup.diag );
             if( PivotedFactorization(factorType) )
             {
-                front.piv.LockedAttach( grid, frontDup.piv );
+                front.p.SetGrid( grid );
+                front.p = frontDup.p;
                 front.subdiag.LockedAttach( grid, frontDup.subdiag );
             }
         }

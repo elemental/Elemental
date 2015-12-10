@@ -433,7 +433,7 @@ const Front<F>& Front<F>::operator=( const Front<F>& front )
     LSparse = front.LSparse;
     diag = front.diag;
     subdiag = front.subdiag;
-    piv = front.piv;
+    p = front.p;
     workDense = front.workDense;
     workSparse = front.workSparse;
     // Do not copy parent...

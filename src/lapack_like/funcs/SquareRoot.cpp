@@ -30,10 +30,10 @@ NewtonStep
     DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
     // XNew := inv(X) A
     XTmp = X;
-    Matrix<Int> p;
-    LU( XTmp, p );
+    Permutation P;
+    LU( XTmp, P );
     XNew = A;
-    lu::SolveAfter( NORMAL, XTmp, p, XNew );
+    lu::SolveAfter( NORMAL, XTmp, P, XNew );
 
     // XNew := 1/2 ( X + XNew )
     typedef Base<F> Real;
@@ -51,10 +51,10 @@ NewtonStep
     DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
     // XNew := inv(X) A
     XTmp = X;
-    DistMatrix<Int,VC,STAR> p(X.Grid());
-    LU( XTmp, p );
+    DistPermutation P(X.Grid());
+    LU( XTmp, P );
     XNew = A;
-    lu::SolveAfter( NORMAL, XTmp, p, XNew );
+    lu::SolveAfter( NORMAL, XTmp, P, XNew );
 
     // XNew := 1/2 ( X + XNew )
     typedef Base<F> Real;

@@ -70,7 +70,10 @@ inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
 
 template<typename F>
 void ProcessFrontIntraPiv
-( Matrix<F>& AL, Matrix<F>& subdiag, Matrix<Int>& piv, Matrix<F>& ABR,
+( Matrix<F>& AL,
+  Matrix<F>& subdiag,
+  Permutation& P,
+  Matrix<F>& ABR,
   bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
@@ -80,10 +83,10 @@ void ProcessFrontIntraPiv
     Matrix<F> ATL, ABL;
     PartitionDown( AL, ATL, ABL, n );
 
-    LDL( ATL, subdiag, piv, conjugate );
+    LDL( ATL, subdiag, P, conjugate );
     auto diag = GetDiagonal(ATL);
 
-    PermuteCols( ABL, piv );
+    P.PermuteCols( ABL );
     Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );
     Matrix<F> SBL( ABL );
 
@@ -93,7 +96,10 @@ void ProcessFrontIntraPiv
 
 template<typename F>
 inline void ProcessFrontBlock
-( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate, bool intraPiv )
+( Matrix<F>& AL,
+  Matrix<F>& ABR,
+  bool conjugate,
+  bool intraPiv )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
     Matrix<F> ATL, ABL;
@@ -104,14 +110,14 @@ inline void ProcessFrontBlock
 
     if( intraPiv )
     {
-        Matrix<Int> p;
+        Permutation P;
         Matrix<F> dSub;
         // TODO: Expose the pivot type as an option?
-        LDL( ATL, dSub, p, conjugate );
+        LDL( ATL, dSub, P, conjugate );
 
         // Solve against ABL and update ABR
         // NOTE: This does not exploit symmetry
-        SolveAfter( ATL, dSub, p, ABL, conjugate );
+        SolveAfter( ATL, dSub, P, ABL, conjugate );
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
         Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
 
@@ -123,8 +129,8 @@ inline void ProcessFrontBlock
         Trdtrmm( LOWER, ATL, dSub, conjugate );
         // TODO: SymmetricPermutation
         MakeSymmetric( LOWER, ATL, conjugate );
-        PermuteRows( ATL, p );
-        PermuteCols( ATL, p );
+        P.PermuteRows( ATL );
+        P.PermuteCols( ATL );
     }
     else
     {
@@ -152,26 +158,38 @@ inline void ProcessFront( Front<F>& front, LDLFrontType factorType )
     )
     const bool pivoted = PivotedFactorization( factorType );
     if( BlockFactorization(factorType) )
+    {
         ProcessFrontBlock
-        ( front.LDense, front.workDense, front.isHermitian, pivoted );
+        ( front.LDense,
+          front.workDense,
+          front.isHermitian,
+          pivoted );
+    }
     else if( pivoted )
     {
         ProcessFrontIntraPiv
-        ( front.LDense, front.subdiag, front.piv, front.workDense, 
+        ( front.LDense,
+          front.subdiag,
+          front.p,
+          front.workDense, 
           front.isHermitian );
         GetDiagonal( front.LDense, front.diag );
     }
     else
     {
         ProcessFrontVanilla
-        ( front.LDense, front.workDense, front.isHermitian );
+        ( front.LDense,
+          front.workDense,
+          front.isHermitian );
         GetDiagonal( front.LDense, front.diag );
     }
 }
 
 template<typename F> 
 inline void ProcessFrontVanilla
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate=false )
+( DistMatrix<F>& AL,
+  DistMatrix<F>& ABR,
+  bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("ldl::ProcessFrontVanilla");
@@ -243,8 +261,11 @@ inline void ProcessFrontVanilla
 
 template<typename F>
 void ProcessFrontIntraPiv
-( DistMatrix<F>& AL, DistMatrix<F,MD,STAR>& subdiag, 
-  DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& ABR, bool conjugate )
+( DistMatrix<F>& AL,
+  DistMatrix<F,MD,STAR>& subdiag, 
+  DistPermutation& P,
+  DistMatrix<F>& ABR,
+  bool conjugate )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
     const Grid& g = AL.Grid();
@@ -254,10 +275,10 @@ void ProcessFrontIntraPiv
     DistMatrix<F> ATL(g), ABL(g);
     PartitionDown( AL, ATL, ABL, n );
 
-    LDL( ATL, subdiag, p, conjugate );
+    LDL( ATL, subdiag, P, conjugate );
     auto diag = GetDiagonal(ATL);
 
-    PermuteCols( ABL, p );
+    P.PermuteCols( ABL );
     Trsm( RIGHT, LOWER, orientation, UNIT, F(1), ATL, ABL );
     DistMatrix<F,MC,STAR> SBL_MC_STAR(g);
     SBL_MC_STAR.AlignWith( ABR );
@@ -275,7 +296,10 @@ void ProcessFrontIntraPiv
 
 template<typename F>
 inline void ProcessFrontBlock
-( DistMatrix<F>& AL, DistMatrix<F>& ABR, bool conjugate, bool intraPiv )
+( DistMatrix<F>& AL,
+  DistMatrix<F>& ABR,
+  bool conjugate,
+  bool intraPiv )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
     const Grid& g = AL.Grid();
@@ -287,14 +311,14 @@ inline void ProcessFrontBlock
 
     if( intraPiv )
     {
-        DistMatrix<Int,VC,STAR> p( ATL.Grid() );
+        DistPermutation P( ATL.Grid() );
         DistMatrix<F,MD,STAR> dSub( ATL.Grid() );
         // TODO: Expose the pivot type as an option?
-        LDL( ATL, dSub, p, conjugate );
+        LDL( ATL, dSub, P, conjugate );
 
         // Solve against ABL and update ABR
         // NOTE: This update does not exploit symmetry
-        SolveAfter( ATL, dSub, p, ABL, conjugate );
+        SolveAfter( ATL, dSub, P, ABL, conjugate );
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
         Gemm( NORMAL, orientation, F(-1), ABL, BBL, F(1), ABR );
 
@@ -304,7 +328,7 @@ inline void ProcessFrontBlock
         // Finish inverting ATL
         TriangularInverse( LOWER, UNIT, ATL );
         Trdtrmm( LOWER, ATL, dSub, conjugate );
-        ApplyInverseSymmetricPivots( LOWER, ATL, p, conjugate );
+        P.InversePermuteSymmetrically( LOWER, ATL, conjugate );
     }
     else
     {
@@ -340,9 +364,9 @@ inline void ProcessFront( DistFront<F>& front, LDLFrontType factorType )
     else if( pivoted )
     {
         DistMatrix<F,MD,STAR> subdiag(grid);
-        front.piv.SetGrid( grid );
+        front.p.SetGrid( grid );
         ProcessFrontIntraPiv
-        ( front.L2D, subdiag, front.piv, front.work, front.isHermitian );
+        ( front.L2D, subdiag, front.p, front.work, front.isHermitian );
 
         auto diag = GetDiagonal( front.L2D );
         front.diag.SetGrid( grid );

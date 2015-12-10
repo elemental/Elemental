@@ -41,16 +41,27 @@ Full( const DistMatrix<F>& A )
 
 template<typename F>
 inline LDLPivot
-PanelFull( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y )
+PanelFull
+( const Matrix<F>& A,
+        Matrix<F>& d,
+  const Matrix<F>& X,
+  const Matrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("cholesky::pivot::PanelFull"))
+
     // Form updated diagonal
-    auto d = GetDiagonal(A);
     const Int height = d.Height();
     const Int k = X.Width();
+          F* dBuf = d.Buffer();
+    const F* XBuf = X.LockedBuffer();
+    const F* YBuf = Y.LockedBuffer();
+    const Int XLDim = X.LDim();
+    const Int YLDim = Y.LDim();
     for( Int i=0; i<height; ++i )
-        for( Int j=0; j<k; ++j )
-            d.Update( i, 0, -X.Get(i,j)*Y.Get(i,j) );
+    {
+        dBuf[i] -= XBuf[i+(k-1)*XLDim]*YBuf[i+(k-1)*YLDim];
+        dBuf[i] = RealPart(dBuf[i]);
+    }
 
     // Return maximum from it
     auto diagMax = VectorMaxAbsLoc( d );
@@ -64,6 +75,7 @@ template<typename F>
 inline LDLPivot
 PanelFull
 ( const DistMatrix<F>& A, 
+        DistMatrix<F,MD,STAR>& d,
   const DistMatrix<F,MC,STAR>& X,
   const DistMatrix<F,MR,STAR>& Y )
 {
@@ -72,21 +84,28 @@ PanelFull
       if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
           LogicError("A, X, and Y are not properly aligned");
     )
+
     // Form updated diagonal
-    auto d = GetDiagonal(A);
     if( d.Participating() )
     {
         const Int dLocalHeight = d.LocalHeight();
         const Int k = X.Width();
+        F* dBuf = d.Buffer();
+        const F* XBuf = X.LockedBuffer();
+        const F* YBuf = Y.LockedBuffer();
+        const Int XLDim = X.LDim();
+        const Int YLDim = Y.LDim();
+
+        const Int dColShift = d.ColShift();
+        const Int dColStride = d.ColStride();
         for( Int iLoc=0; iLoc<dLocalHeight; ++iLoc )
         {
-            const Int i = d.GlobalRow(iLoc);
+            const Int i = dColShift + iLoc*dColStride;
+            // TODO: Avoid repeated calls to LocalRow and use strides
             const Int iLocX = X.LocalRow(i);
             const Int iLocY = Y.LocalRow(i);
-            for( Int j=0; j<k; ++j )
-                d.UpdateLocal
-                ( iLoc, 0, -X.GetLocal(iLocX,j)*Y.GetLocal(iLocY,j) );
-            d.MakeReal( iLoc, 0 );
+            dBuf[iLoc] -= XBuf[iLocX+(k-1)*XLDim]*YBuf[iLocY+(k-1)*YLDim];
+            dBuf[iLoc] = RealPart(dBuf[iLoc]);
         }
     }
 
@@ -95,6 +114,7 @@ PanelFull
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
+    
     return pivot;
 }
 
@@ -102,7 +122,7 @@ PanelFull
 
 template<typename F>
 inline void
-LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
+LUnblockedPivoted( Matrix<F>& A, Permutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LUnblockedPivoted");
@@ -111,11 +131,9 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
     )
     const Int n = A.Height();
 
-    // Initialize the permutation to the identity
-    p.Resize( n, 1 );
-    for( Int i=0; i<n; ++i ) 
-        p.Set( i, 0, i );
-     
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
+
     for( Int k=0; k<n; ++k )
     {
         const Range<Int> ind1( k,   k+1 ),
@@ -133,7 +151,7 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        RowSwap( p, k, from );
+        P.RowSwap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -150,24 +168,21 @@ template<typename F>
 inline void
 LUnblockedPivoted
 ( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Int>& p )
+  DistPermutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LUnblockedPivoted");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
-      AssertSameGrids( APre, p );
     )
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    // Initialize the permutation to the identity
     const Int n = A.Height();
-    p.Resize( n, 1 );
-    if( p.IsLocalCol(0) )
-        for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
-            p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     for( Int k=0; k<n; ++k )
     {
@@ -186,7 +201,7 @@ LUnblockedPivoted
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        RowSwap( p, k, from );
+        P.RowSwap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -205,7 +220,7 @@ template<typename F>
 inline void
 LPanelPivoted
 ( Matrix<F>& AFull,
-  Matrix<Int>& p, 
+  Permutation& PFull, 
   Matrix<F>& X,
   Matrix<F>& Y,
   Int bsize,
@@ -217,11 +232,11 @@ LPanelPivoted
     DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
-      if( p.Height() != n || p.Width() != 1 )
-          LogicError("permutation vector is the wrong size");
     )
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
+
+    auto d = GetDiagonal(A);
 
     for( Int k=0; k<bsize; ++k )
     {
@@ -234,6 +249,7 @@ LPanelPivoted
         auto a21 = A( ind2, ind1 );
         auto aB1 = A( indB, ind1 );
         auto ABR = A( indB, indR );
+        auto dB = d( indB, ALL );
 
         auto x21 = X( ind2, ind1 );
         auto XB0 = X( indB, ind0 );
@@ -243,12 +259,13 @@ LPanelPivoted
         auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot 
-        const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
+        const auto pivot = pivot::PanelFull( ABR, dB, XB0, YB0 );
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        RowSwap( p, k, from );
+        PFull.RowSwap( k+off, from+off );
+        RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
 
@@ -272,7 +289,7 @@ template<typename F>
 inline void
 LPanelPivoted
 ( DistMatrix<F>& AFull,
-  AbstractDistMatrix<Int>& p, 
+  DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
   DistMatrix<F,MR,STAR>& Y,
   Int bsize,
@@ -284,13 +301,13 @@ LPanelPivoted
     DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
-      if( p.Height() != n || p.Width() != 1 )
-          LogicError("permutation vector is the wrong size");
     )
     X.AlignWith( A );
     Y.AlignWith( A );
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
+
+    auto d = GetDiagonal(A);
 
     for( Int k=0; k<bsize; ++k )
     {
@@ -303,6 +320,7 @@ LPanelPivoted
         auto a21 = A( ind2, ind1 );
         auto aB1 = A( indB, ind1 );
         auto ABR = A( indB, indR );
+        auto dB = d( indB, ALL );
 
         auto x21 = X( ind2, ind1 );
         auto XB0 = X( indB, ind0 );
@@ -312,12 +330,13 @@ LPanelPivoted
         auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot
-        const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
+        const auto pivot = pivot::PanelFull( ABR, dB, XB0, YB0 );
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        RowSwap( p, k, from );
+        PFull.RowSwap( k+off, from+off );
+        RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
 
@@ -340,7 +359,7 @@ LPanelPivoted
 
 template<typename F>
 inline void
-LVar3( Matrix<F>& A, Matrix<Int>& p )
+LVar3( Matrix<F>& A, Permutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LVar3");
@@ -349,20 +368,15 @@ LVar3( Matrix<F>& A, Matrix<Int>& p )
     )
     const Int n = A.Height();
 
-    // Initialize the permutation to the identity
-    p.Resize( n, 1 );
-    for( Int i=0; i<n; ++i )
-        p.Set( i, 0, i );
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     Matrix<F> XB1, YB1;
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-
-        const Range<Int> indB( k, n );
-        auto pB = p( indB, ALL );
-        LPanelPivoted( A, pB, XB1, YB1, nb, k );
+        LPanelPivoted( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),
@@ -379,25 +393,21 @@ template<typename F>
 inline void
 LVar3
 ( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Int>& pPre )
+  DistPermutation& P )
 {
     DEBUG_ONLY(
       CSE cse("cholesky::LVar3");
-      AssertSameGrids( APre, pPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<Int,Int,VC,STAR> pProx( pPre );
     auto& A = AProx.Get();
-    auto& p = pProx.Get();
 
-    // Initialize the permutation to the identity
     const Int n = A.Height();
-    p.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
-        p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
+
+    P.MakeIdentity( n );
+    P.ReserveSwaps( n );
 
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> XB1(g);
@@ -406,10 +416,7 @@ LVar3
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-
-        const Range<Int> indB( k, n );
-        auto pB = p( indB, ALL );
-        LPanelPivoted( A, pB, XB1, YB1, nb, k );
+        LPanelPivoted( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),

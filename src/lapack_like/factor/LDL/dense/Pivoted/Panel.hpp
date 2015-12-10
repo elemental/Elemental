@@ -17,8 +17,11 @@ namespace pivot {
 template<typename F>
 inline LDLPivot
 SelectFromPanel
-( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
-  LDLPivotType pivotType, Base<F> gamma )
+( const Matrix<F>& A,
+  const Matrix<F>& X,
+  const Matrix<F>& Y, 
+  LDLPivotType pivotType,
+  Base<F> gamma )
 {
     DEBUG_ONLY(CSE cse("ldl::pivot::SelectFromPanel"))
     LDLPivot pivot;
@@ -57,9 +60,15 @@ SelectFromPanel
 template<typename F>
 inline void
 Panel
-( Matrix<F>& AFull, Matrix<F>& dSub, Matrix<Int>& p, 
-  Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
-  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
+( Matrix<F>& AFull,
+  Matrix<F>& dSub,
+  Permutation& PFull, 
+  Matrix<F>& X,
+  Matrix<F>& Y,
+  Int bsize,
+  Int off=0,
+  bool conjugate=false,
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   Base<F> gamma=0 )
 {
     DEBUG_ONLY(CSE cse("ldl::pivot::Panel"))
@@ -71,12 +80,10 @@ Panel
     if( n == 0 )
         return;
     DEBUG_ONLY(
-        if( A.Width() != n )
-            LogicError("A must be square");
-        if( dSub.Height() != n-1 || dSub.Width() != 1 )
-            LogicError("dSub is the wrong size" );
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("permutation vector is the wrong size");
+      if( A.Width() != n )
+          LogicError("A must be square");
+      if( dSub.Height() != n-1 || dSub.Width() != 1 )
+          LogicError("dSub is the wrong size" );
     )
 
     Int k=0;
@@ -89,13 +96,13 @@ Panel
         auto Y0 = Y( ALL, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
-            LogicError("Have not yet generalized pivot storage");
-            // TODO: Form updated diagonal and select maximum
             auto ABR = A( indB, indR );
+            // TODO: Form updated diagonal
+            LogicError("Have not yet added diagonal update");
             const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
-            RowSwap( p,  k, k+diagMax.index );
+            PFull.RowSwap( off+k, off+k+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
@@ -111,7 +118,7 @@ Panel
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
-        RowSwap( p,  to, from );
+        PFull.RowSwap( off+to, off+from );
         RowSwap( X0, to, from );
         RowSwap( Y0, to, from );
 
@@ -181,9 +188,13 @@ inline void
 Panel
 ( DistMatrix<F>& AFull, 
   ElementalMatrix<F>& dSub, 
-  ElementalMatrix<Int>& p, 
-  DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
-  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+  DistPermutation& PFull, 
+  DistMatrix<F,MC,STAR>& X,
+  DistMatrix<F,MR,STAR>& Y,
+  Int bsize,
+  Int off=0,
+  bool conjugate=false,
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
     DEBUG_ONLY(CSE cse("ldl::pivot::Panel"))
@@ -198,12 +209,10 @@ Panel
     if( n == 0 )
         return;
     DEBUG_ONLY(
-        if( A.Width() != n )
-            LogicError("A must be square");
-        if( dSub.Height() != n-1 || dSub.Width() != 1 )
-            LogicError("dSub is the wrong size" );
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("permutation vector is the wrong size");
+      if( A.Width() != n )
+          LogicError("A must be square");
+      if( dSub.Height() != n-1 || dSub.Width() != 1 )
+          LogicError("dSub is the wrong size" );
     )
 
     DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
@@ -218,15 +227,15 @@ Panel
         auto Y0 = Y( ALL, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
-            LogicError("Have not yet generalized pivot storage");
-            // TODO: Form updated diagonal and select maximum
             auto ABR = A( indB, indR );
+            // TODO: Form updated diagonal
+            LogicError("Have not yet added diagonal update");
             const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
+            PFull.RowSwap( off+k, off+k+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
-            RowSwap( p,  k, k+diagMax.index );
         }
         const auto pivot = SelectFromPanel( A, X0, Y0, pivotType, gamma );
         const Int from = pivot.from[pivot.nb-1];
@@ -240,7 +249,7 @@ Panel
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
-        RowSwap( p,  to, from );
+        PFull.RowSwap( off+to, off+from );
         RowSwap( X0, to, from );
         RowSwap( Y0, to, from );
 

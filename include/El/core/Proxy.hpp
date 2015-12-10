@@ -282,6 +282,12 @@ public:
             {
                 madeCopy_ = false;
                 prox_ = static_cast<proxType*>(&A);
+                if( ctrl.rootConstrain )
+                    prox_->SetRoot( ctrl.root );
+                if( ctrl.colConstrain )
+                    prox_->AlignCols( ctrl.colAlign );    
+                if( ctrl.rowConstrain )
+                    prox_->AlignRows( ctrl.rowAlign );
                 return;
             }
         }
@@ -431,6 +437,14 @@ public:
             {
                 madeCopy_ = false;
                 prox_ = static_cast<proxType*>(&A);
+                if( ctrl.rootConstrain )
+                    prox_->SetRoot( ctrl.root );
+                if( ctrl.colConstrain )
+                    prox_->AlignCols
+                    ( ctrl.blockHeight, ctrl.colAlign, ctrl.colCut ); 
+                if( ctrl.rowConstrain )
+                    prox_->AlignRows
+                    ( ctrl.blockWidth, ctrl.rowAlign, ctrl.rowCut );
                 return;
             }
         }
@@ -531,6 +545,12 @@ public:
             {
                 madeCopy_ = false;
                 prox_ = static_cast<proxType*>(&A);
+                if( ctrl.rootConstrain )
+                    prox_->SetRoot( ctrl.root );
+                if( ctrl.colConstrain )
+                    prox_->AlignCols( ctrl.colAlign );    
+                if( ctrl.rowConstrain )
+                    prox_->AlignRows( ctrl.rowAlign );
                 return;
             }
         }
@@ -631,6 +651,14 @@ public:
             {
                 madeCopy_ = false;
                 prox_ = static_cast<proxType*>(&A);
+                if( ctrl.rootConstrain )
+                    prox_->SetRoot( ctrl.root );
+                if( ctrl.colConstrain )
+                    prox_->AlignCols
+                    ( ctrl.blockHeight, ctrl.colAlign, ctrl.colCut ); 
+                if( ctrl.rowConstrain )
+                    prox_->AlignRows
+                    ( ctrl.blockWidth, ctrl.rowAlign, ctrl.rowCut );
                 return;
             }
         }
@@ -729,6 +757,12 @@ public:
             {
                 madeCopy_ = false;
                 prox_ = static_cast<proxType*>(&A);
+                if( ctrl.rootConstrain )
+                    prox_->SetRoot( ctrl.root );
+                if( ctrl.colConstrain )
+                    prox_->AlignCols( ctrl.colAlign );    
+                if( ctrl.rowConstrain )
+                    prox_->AlignRows( ctrl.rowAlign );
                 return;
             }
         }
@@ -829,6 +863,14 @@ public:
             {
                 madeCopy_ = false;
                 prox_ = static_cast<proxType*>(&A);
+                if( ctrl.rootConstrain )
+                    prox_->SetRoot( ctrl.root );
+                if( ctrl.colConstrain )
+                    prox_->AlignCols
+                    ( ctrl.blockHeight, ctrl.colAlign, ctrl.colCut ); 
+                if( ctrl.rowConstrain )
+                    prox_->AlignRows
+                    ( ctrl.blockWidth, ctrl.rowAlign, ctrl.rowCut );
                 return;
             }
         }

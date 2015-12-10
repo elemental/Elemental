@@ -36,7 +36,7 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& piv )
+void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p )
 {
     DEBUG_ONLY(
       CSE cse("Cholesky");
@@ -44,9 +44,9 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& piv )
           LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A, piv );
+        cholesky::LVar3( A, p );
     else
-        cholesky::UVar3( A, piv );
+        cholesky::UVar3( A, p );
 }
 
 template<typename F>
@@ -98,13 +98,13 @@ void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
 
 template<typename F> 
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& piv )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, DistPermutation& p )
 {
     DEBUG_ONLY(CSE cse("Cholesky"))
     if( uplo == LOWER )
-        cholesky::LVar3( A, piv );
+        cholesky::LVar3( A, p );
     else
-        cholesky::UVar3( A, piv );
+        cholesky::UVar3( A, p );
 }
 
 template<typename F>
@@ -200,11 +200,11 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void ReverseCholesky \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A ); \
-  template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& piv ); \
+  template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p ); \
   template void Cholesky \
   ( UpperOrLower uplo, \
     AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Int>& piv ); \
+    DistPermutation& p ); \
   template void CholeskyMod \
   ( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V ); \
   template void CholeskyMod \
@@ -225,12 +225,12 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<Int>& piv, \
+    const Permutation& p, \
           Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<Int>& piv, \
+    const DistPermutation& p, \
           AbstractDistMatrix<F>& B ); 
 
 #define EL_NO_INT_PROTO

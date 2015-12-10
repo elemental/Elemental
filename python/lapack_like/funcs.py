@@ -109,19 +109,19 @@ lib.ElInverseAfterLUPartialPivDist_d.argtypes = \
 lib.ElInverseAfterLUPartialPivDist_c.argtypes = \
 lib.ElInverseAfterLUPartialPivDist_z.argtypes = \
   [c_void_p,c_void_p]
-def InverseAfterLUPartialPiv(A,p):
-  if type(A) is not type(p):
-    raise Exception('Types of A and p must match')
-  if p.tag != iTag:
-    raise Exception('p must be integral')
-  args = [A.obj,p.obj]
+def InverseAfterLUPartialPiv(A,P):
+  args = [A.obj,P.obj]
   if type(A) is Matrix:
+    if type(P) is not Permutation:
+      raise Exception('Expected P to be a Permutation')
     if   A.tag == sTag: lib.ElInverseAfterLUPartialPiv_s(*args)
     elif A.tag == dTag: lib.ElInverseAfterLUPartialPiv_d(*args)
     elif A.tag == cTag: lib.ElInverseAfterLUPartialPiv_c(*args)
     elif A.tag == zTag: lib.ElInverseAfterLUPartialPiv_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    if type(P) is not DistPermutation:
+      raise Exception('Expected P to be a DistPermutation')
     if   A.tag == sTag: lib.ElInverseAfterLUPartialPivDist_s(*args)
     elif A.tag == dTag: lib.ElInverseAfterLUPartialPivDist_d(*args)
     elif A.tag == cTag: lib.ElInverseAfterLUPartialPivDist_c(*args)
