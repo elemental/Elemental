@@ -216,7 +216,7 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
         if( stage>0 && (Unsigned(rank) & ((Unsigned(1)<<stage)-1)) )
             continue;
 
-        const Int partner = rank ^ (1u<<stage);
+        const Int partner = Unsigned(rank) ^ (Unsigned(1)<<stage);
         const bool top = rank < partner;
         if( top )
         {

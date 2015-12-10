@@ -385,6 +385,7 @@ void DistPermutation::RowSwap( Int origin, Int dest )
           LogicError
           ("Attempted swap (",origin,",",dest,") for perm. of size ",size_);
     )
+    
     if( origin != dest )
         parity_ = !parity_;
     if( swapSequence_ && numSwaps_ == swapDests_.Height() )

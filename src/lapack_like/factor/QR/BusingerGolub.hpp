@@ -480,7 +480,7 @@ inline void BusingerGolub
             }
         }
         // Step 2: Compute the replacement norms and also reset origNorms
-        ReplaceColNorms( A, inaccurateNorms, norms, origNorms );
+        ReplaceColNorms( A(ind2,ALL), inaccurateNorms, norms, origNorms );
     }
 
     // Form d and rescale R

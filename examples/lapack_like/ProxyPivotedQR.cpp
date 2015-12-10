@@ -62,6 +62,7 @@ public:
         // Form G (A A^H)^q A = G A (A^H A)^2
         DistMatrix<F> Y(g), Z(g);
         Gemm( NORMAL, NORMAL, F(1), G, A, Y );
+
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
             Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
@@ -84,9 +85,9 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const Int m = Input("--m","matrix height",300);
-        const Int n = Input("--n","matrix width",300);
-        const Int nb = Input("--nb","blocksize",32);
+        const Int n = Input("--n","matrix size",1000);
+        const Int nb = Input("--nb","blocksize",64);
+        const double phi = Input("--phi","Kahan parameter",0.5);
         const bool panelPiv = Input("--panelPiv","panel pivoting?",false);
         const Int oversample = Input("--oversample","oversample factor",10);
         const Int numPower = Input("--numPower","# of power iterations",1);
@@ -99,7 +100,8 @@ int main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         DistMatrix<double> A;
-        Uniform( A, m, n );
+        //Kahan( A, n, phi );
+        Uniform( A, n, n );
         auto ACopy = A;
         if( print )
             Print( A, "A" );
