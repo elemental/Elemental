@@ -243,15 +243,9 @@ inline bool PowerOfTwo( Unsigned n )
 
 inline Unsigned Log2( Unsigned n )
 {
-    Unsigned result = 0;
-    for( Unsigned powerOfTwo=4u*sizeof(Unsigned); powerOfTwo!=0; powerOfTwo/=2 )
-    {
-        if( n >= (1u<<powerOfTwo) )
-        {
-            n >>= powerOfTwo;
-            result += powerOfTwo;
-        }
-    }
+    Unsigned result=0;
+    while( n >>= 1 )
+      ++result;
     return result;
 }
 
