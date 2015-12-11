@@ -19,30 +19,26 @@
 
 namespace El {
 
-using std::enable_if;
-
-typedef unsigned char byte;
-
-// If these are changes, you must make sure that they have 
-// existing MPI datatypes. This is only sometimes true for 'long long'
-#ifdef EL_USE_64BIT_INTS
-typedef long long int Int;
-typedef long long unsigned Unsigned;
-#else
-typedef int Int;
-typedef unsigned Unsigned;
-#endif
-
 #ifdef EL_HAVE_QUAD
 typedef __float128 Quad;
 #endif
 
 template<typename Real>
 using Complex = std::complex<Real>;
+// NOTE: It appears that instantiating std::complex for Real=__float128
+//       is undefined. This is disappointing; and instantiating std::complex
+//       for Real=BigFloat is likely to be even more problematic. There may
+//       be a need for using a loose wrapper around std::complex when 
+//       Real is not in the approved list of datatypes,
+//       {float,double,long double}.
+
 typedef Complex<float>  scomplex;
 typedef Complex<double> dcomplex;
 #ifdef EL_HAVE_QUAD
 typedef Complex<Quad> qcomplex;
+#endif
+#ifdef EL_HAVE_MPC
+// TODO: Decide on how to handle complex BigFloat
 #endif
 
 // For usage in EnableIf

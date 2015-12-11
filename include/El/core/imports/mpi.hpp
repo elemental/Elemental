@@ -129,43 +129,52 @@ template<typename Real> inline Op MinOp() EL_NO_EXCEPT { return MIN; }
 template<> Op MaxOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinOp<Quad>() EL_NO_EXCEPT;
 #endif
+#ifdef EL_HAVE_MPC
+template<> Op MaxOp<BigFloat>() EL_NO_EXCEPT;
+template<> Op MinOp<BigFloat>() EL_NO_EXCEPT;
+#endif
 
 template<typename T> inline Op SumOp() EL_NO_EXCEPT { return SUM; }
 #ifdef EL_HAVE_QUAD
 template<> Op SumOp<Quad>() EL_NO_EXCEPT;
 template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
+#ifdef EL_HAVE_MPC
+template<> Op SumOp<BigFloat>() EL_NO_EXCEPT;
+#endif
 
 template<typename Real> Op MaxLocOp() EL_NO_EXCEPT;
+template<typename Real> Op MinLocOp() EL_NO_EXCEPT;
 template<> Op MaxLocOp<Int>() EL_NO_EXCEPT;
+template<> Op MinLocOp<Int>() EL_NO_EXCEPT;
 template<> Op MaxLocOp<float>() EL_NO_EXCEPT;
+template<> Op MinLocOp<float>() EL_NO_EXCEPT;
 template<> Op MaxLocOp<double>() EL_NO_EXCEPT;
+template<> Op MinLocOp<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
 template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT;
+template<> Op MinLocOp<Quad>() EL_NO_EXCEPT;
+#endif
+#ifdef EL_HAVE_MPC
+template<> Op MaxLocOp<BigFloat>() EL_NO_EXCEPT;
+template<> Op MinLocOp<BigFloat>() EL_NO_EXCEPT;
 #endif
 
 template<typename Real> Op MaxLocPairOp() EL_NO_EXCEPT;
-template<> Op MaxLocPairOp<Int>() EL_NO_EXCEPT;
-template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT;
-template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT;
-#endif
-
-template<typename Real> Op MinLocOp() EL_NO_EXCEPT;
-template<> Op MinLocOp<Int>() EL_NO_EXCEPT;
-template<> Op MinLocOp<float>() EL_NO_EXCEPT;
-template<> Op MinLocOp<double>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Op MinLocOp<Quad>() EL_NO_EXCEPT;
-#endif
-
 template<typename Real> Op MinLocPairOp() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<Int>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<Int>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<float>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<double>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
+template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT;
+#endif
+#ifdef EL_HAVE_MPC
+template<> Op MaxLocPairOp<BigFloat>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<BigFloat>() EL_NO_EXCEPT;
 #endif
 
 // Added constant(s)
@@ -942,34 +951,41 @@ template<> Datatype TypeMap<long long int>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<unsigned long long>() EL_NO_EXCEPT;
 #endif
 template<> Datatype TypeMap<float>() EL_NO_EXCEPT;
-template<> Datatype TypeMap<double>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<float>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<double>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<double>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<Quad>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
+#ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<BigFloat>() EL_NO_EXCEPT;
+#endif
+
 template<> Datatype TypeMap<ValueInt<Int>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<float>>() EL_NO_EXCEPT;
-template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT;
-#endif
 template<> Datatype TypeMap<ValueInt<Complex<float>>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<double>>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<Quad>>>() EL_NO_EXCEPT;
+#endif
+#ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<ValueInt<BigFloat>>() EL_NO_EXCEPT;
 #endif
 
 template<> Datatype TypeMap<Entry<Int>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<float>>() EL_NO_EXCEPT;
-template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT;
-#endif
 template<> Datatype TypeMap<Entry<Complex<float>>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<double>>>() EL_NO_EXCEPT;
 #ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<Quad>>>() EL_NO_EXCEPT;
+#endif
+#ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<Entry<BigFloat>>() EL_NO_EXCEPT;
 #endif
 
 // Convenience functions which might not be very useful

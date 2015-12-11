@@ -15,52 +15,81 @@ using El::Int;
 using El::Quad;
 #endif
 using El::Complex;
+#ifdef EL_HAVE_MPC
+using El::BigFloat;
+#endif
 using std::function;
 
 // Datatypes
 // =========
+
+// Scalar datatypes
+// ----------------
 #ifdef EL_HAVE_QUAD
 El::mpi::Datatype QuadType, QuadComplexType;
 #endif
+#ifdef EL_HAVE_MPC
+El::mpi::Datatype BigFloatType, MPComplexType;
+#endif
 
+// (Int,Scalar) datatypes
+// ----------------------
 El::mpi::Datatype IntIntType, floatIntType, doubleIntType,
                   floatComplexIntType, doubleComplexIntType;
 #ifdef EL_HAVE_QUAD
 El::mpi::Datatype QuadIntType, QuadComplexIntType;
 #endif
+#ifdef EL_HAVE_MPC
+El::mpi::Datatype BigFloatIntType;
+#endif
 
+// (Int,Int,Scalar) datatypes
+// --------------------------
 El::mpi::Datatype IntEntryType, floatEntryType, doubleEntryType,
                   floatComplexEntryType, doubleComplexEntryType;
 #ifdef EL_HAVE_QUAD
 El::mpi::Datatype QuadEntryType, QuadComplexEntryType;
 #endif
+#ifdef EL_HAVE_MPC
+El::mpi::Datatype BigFloatEntryType;
+#endif
 
 // Operations
 // ==========
+
+// Scalar datatype operations
+// --------------------------
 #ifdef EL_HAVE_QUAD
-El::mpi::Op minQuadOp;
-El::mpi::Op maxQuadOp;
+El::mpi::Op minQuadOp, maxQuadOp;
 El::mpi::Op sumQuadOp, sumQuadComplexOp;
 #endif
-
-El::mpi::Op maxLocIntOp, maxLocFloatOp, maxLocDoubleOp;
-#ifdef EL_HAVE_QUAD
-El::mpi::Op maxLocQuadOp;
+#ifdef EL_HAVE_MPC
+El::mpi::Op minBigFloatOp, maxBigFloatOp;
+El::mpi::Op sumBigFloatOp, sumMPComplexOp;
 #endif
 
-El::mpi::Op maxLocPairIntOp, maxLocPairFloatOp, maxLocPairDoubleOp;
+// (Int,Scalar) datatype operations
+// --------------------------------
+El::mpi::Op minLocIntOp,    maxLocIntOp,
+            minLocFloatOp,  maxLocFloatOp,
+            minLocDoubleOp, maxLocDoubleOp;
 #ifdef EL_HAVE_QUAD
-El::mpi::Op maxLocPairQuadOp;
+El::mpi::Op minLocQuadOp, maxLocQuadOp;
+#endif
+#ifdef EL_HAVE_MPC
+El::mpi::Op minLocBigFloatOp, maxLocBigFloatOp;
 #endif
 
-El::mpi::Op minLocIntOp, minLocFloatOp, minLocDoubleOp;
+// (Int,Int,Scalar) datatype operations
+// ------------------------------------
+El::mpi::Op minLocPairIntOp,    maxLocPairIntOp,
+            minLocPairFloatOp,  maxLocPairFloatOp,
+            minLocPairDoubleOp, maxLocPairDoubleOp;
 #ifdef EL_HAVE_QUAD
-El::mpi::Op minLocQuadOp;
+El::mpi::Op minLocPairQuadOp, maxLocPairQuadOp;
 #endif
-
-El::mpi::Op minLocPairIntOp, minLocPairFloatOp, minLocPairDoubleOp;
-#ifdef EL_HAVE_QUAD
-El::mpi::Op minLocPairQuadOp;
+#ifdef EL_HAVE_MPC
+El::mpi::Op minLocPairBigFloatOp, maxLocPairBigFloatOp;
 #endif
 
 function<Int(const Int&,const Int&)>
@@ -91,6 +120,14 @@ El::mpi::Op userQuadOp, userQuadCommOp;
 function<Complex<Quad>(const Complex<Quad>&,const Complex<Quad>&)>
   userComplexQuadFunc, userComplexQuadCommFunc;
 El::mpi::Op userComplexQuadOp, userComplexQuadCommOp;
+#endif
+
+#ifdef EL_HAVE_MPC
+function<BigFloat(const BigFloat&,const BigFloat&)>
+  userBigFloatFunc, userBigFloatCommFunc;
+El::mpi::Op userBigFloatOp, userBigFloatCommOp;
+
+// TODO: Complex BigFloat functions and ops
 #endif
 
 // TODO: ValueInt<Real> user functions and ops
@@ -335,9 +372,7 @@ EL_NO_EXCEPT
     for( int j=0; j<length; ++j )
         outData[j] = ::userComplexQuadCommFunc(inData[j],outData[j]);
 }
-#endif
 
-#ifdef EL_HAVE_QUAD
 static void
 MaxQuad( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
@@ -388,7 +423,113 @@ EL_NO_EXCEPT
     for( int j=0; j<length; ++j )
         outData[j] += inData[j];
 }
-#endif 
+#endif // ifdef EL_HAVE_QUAD
+
+#ifdef EL_HAVE_MPC
+template<>
+void SetUserReduceFunc
+( function<BigFloat(const BigFloat&,const BigFloat&)> func, bool commutative )
+{
+    if( commutative )
+        ::userBigFloatCommFunc = func;
+    else
+        ::userBigFloatFunc = func;
+}
+
+static void
+UserBigFloatReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    BigFloat a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        b.Deserialize(outData);
+
+        b = ::userBigFloatFunc(a,b);
+        outData = b.Serialize(outData); 
+    }
+}
+
+static void
+UserBigFloatReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    BigFloat a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        b.Deserialize(outData);
+
+        b = ::userBigFloatCommFunc(a,b);
+        outData = b.Serialize(outData); 
+    }
+}
+
+static void
+MaxBigFloat( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    BigFloat a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        auto bAfter = b.Deserialize(outData);
+
+        if( a > b )
+            a.Serialize(outData);
+        outData = bAfter;
+    }
+}
+
+static void
+MinBigFloat( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    BigFloat a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        auto bAfter = b.Deserialize(outData);
+
+        if( a < b )
+            a.Serialize(outData);
+        outData = bAfter;
+    }
+}
+
+static void
+SumBigFloat( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    BigFloat a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        b.Deserialize(outData);
+
+        b += a;
+        outData = b.Serialize(outData); 
+    }
+}
+#endif // ifdef EL_HAVE_MPC
 
 template<typename T>
 static void
@@ -408,6 +549,7 @@ EL_NO_EXCEPT
             outData[j] = inData[j];
     }
 }
+// TODO: MaxLocFunc<BigFloat>. Need to add Deserialize equivalent for Int
 template void
 MaxLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
 EL_NO_EXCEPT;
@@ -441,6 +583,7 @@ EL_NO_EXCEPT
             out = in;
     }
 }
+// TODO: MaxLocPairFunc<BigFloat>. Need to add Deserialize equivalent for Int
 template void
 MaxLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
 EL_NO_EXCEPT;
@@ -474,6 +617,7 @@ EL_NO_EXCEPT
             outData[j] = inData[j];
     }
 }
+// TODO: MinLocFunc<BigFloat>. Need to add Deserialize equivalent for Int
 template void
 MinLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
 EL_NO_EXCEPT;
@@ -507,6 +651,7 @@ EL_NO_EXCEPT
             out = in;
     }
 }
+// TODO: MinLocPairFunc<BigFloat>. Need to add Deserialize equivalent for Int
 template void
 MinLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype )
 EL_NO_EXCEPT;
@@ -528,21 +673,23 @@ Datatype& ValueIntType<Int>() EL_NO_EXCEPT { return ::IntIntType; }
 template<>
 Datatype& ValueIntType<float>() EL_NO_EXCEPT { return ::floatIntType; }
 template<>
-Datatype& ValueIntType<double>() EL_NO_EXCEPT { return ::doubleIntType; }
-#ifdef EL_HAVE_QUAD
-template<>
-Datatype& ValueIntType<Quad>() EL_NO_EXCEPT { return ::QuadIntType; }
-#endif
-template<>
 Datatype& ValueIntType<Complex<float>>() EL_NO_EXCEPT
 { return ::floatComplexIntType; }
+template<>
+Datatype& ValueIntType<double>() EL_NO_EXCEPT { return ::doubleIntType; }
 template<>
 Datatype& ValueIntType<Complex<double>>() EL_NO_EXCEPT
 { return ::doubleComplexIntType; }
 #ifdef EL_HAVE_QUAD
 template<>
+Datatype& ValueIntType<Quad>() EL_NO_EXCEPT { return ::QuadIntType; }
+template<>
 Datatype& ValueIntType<Complex<Quad>>() EL_NO_EXCEPT
 { return ::QuadComplexIntType; }
+#endif
+#ifdef EL_HAVE_MPC
+template<>
+Datatype& ValueIntType<BigFloat>() EL_NO_EXCEPT { return ::BigFloatIntType; }
 #endif
 
 template<typename R> static Datatype& EntryType() EL_NO_EXCEPT;
@@ -551,21 +698,23 @@ Datatype& EntryType<Int>() EL_NO_EXCEPT { return ::IntEntryType; }
 template<>
 Datatype& EntryType<float>() EL_NO_EXCEPT { return ::floatEntryType; }
 template<>
-Datatype& EntryType<double>() EL_NO_EXCEPT { return ::doubleEntryType; }
-#ifdef EL_HAVE_QUAD
-template<>
-Datatype& EntryType<Quad>() EL_NO_EXCEPT { return ::QuadEntryType; }
-#endif
-template<>
 Datatype& EntryType<Complex<float>>() EL_NO_EXCEPT
 { return ::floatComplexEntryType; }
+template<>
+Datatype& EntryType<double>() EL_NO_EXCEPT { return ::doubleEntryType; }
 template<>
 Datatype& EntryType<Complex<double>>() EL_NO_EXCEPT
 { return ::doubleComplexEntryType; }
 #ifdef EL_HAVE_QUAD
 template<>
+Datatype& EntryType<Quad>() EL_NO_EXCEPT { return ::QuadEntryType; }
+template<>
 Datatype& EntryType<Complex<Quad>>() EL_NO_EXCEPT
 { return ::QuadComplexEntryType; }
+#endif
+#ifdef EL_HAVE_MPC
+template<>
+Datatype& EntryType<BigFloat>() EL_NO_EXCEPT { return ::BigFloatEntryType; }
 #endif
 
 template<> Datatype TypeMap<byte>() EL_NO_EXCEPT
@@ -592,6 +741,12 @@ template<> Datatype TypeMap<float>() EL_NO_EXCEPT { return MPI_FLOAT; }
 template<> Datatype TypeMap<double>() EL_NO_EXCEPT{ return MPI_DOUBLE; }
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<Quad>() EL_NO_EXCEPT { return ::QuadType; }
+template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT 
+{ return ::QuadComplexType; }
+#endif
+#ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<BigFloat>() EL_NO_EXCEPT { return ::BigFloatType; }
+// TODO: Complex<BigFloat>?
 #endif
 
 /* I'm not sure of whether it is better to manually implement these
@@ -619,47 +774,47 @@ template<> Datatype TypeMap<Complex<double>>() EL_NO_EXCEPT
     return MPI_DOUBLE_COMPLEX;
 #endif
 }
-#ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT 
-{ return ::QuadComplexType; }
-#endif
 
 template<> Datatype TypeMap<ValueInt<Int>>() EL_NO_EXCEPT
 { return ValueIntType<Int>(); }
 template<> Datatype TypeMap<ValueInt<float>>() EL_NO_EXCEPT
 { return ValueIntType<float>(); }
-template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT
-{ return ValueIntType<double>(); }
-#ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT
-{ return ValueIntType<Quad>(); }
-#endif
 template<> Datatype TypeMap<ValueInt<Complex<float>>>() EL_NO_EXCEPT
 { return ValueIntType<Complex<float>>(); }
+template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT
+{ return ValueIntType<double>(); }
 template<> Datatype TypeMap<ValueInt<Complex<double>>>() EL_NO_EXCEPT
 { return ValueIntType<Complex<double>>(); }
 #ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT
+{ return ValueIntType<Quad>(); }
 template<> Datatype TypeMap<ValueInt<Complex<Quad>>>() EL_NO_EXCEPT
 { return ValueIntType<Complex<Quad>>(); }
+#endif
+#ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<ValueInt<BigFloat>>() EL_NO_EXCEPT
+{ return ValueIntType<BigFloat>(); }
 #endif
 
 template<> Datatype TypeMap<Entry<Int>>() EL_NO_EXCEPT
 { return EntryType<Int>(); }
 template<> Datatype TypeMap<Entry<float>>() EL_NO_EXCEPT
 { return EntryType<float>(); }
-template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT
-{ return EntryType<double>(); }
-#ifdef EL_HAVE_QUAD
-template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT
-{ return EntryType<Quad>(); }
-#endif
 template<> Datatype TypeMap<Entry<Complex<float>>>() EL_NO_EXCEPT
 { return EntryType<Complex<float>>(); }
+template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT
+{ return EntryType<double>(); }
 template<> Datatype TypeMap<Entry<Complex<double>>>() EL_NO_EXCEPT
 { return EntryType<Complex<double>>(); }
 #ifdef EL_HAVE_QUAD
+template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT
+{ return EntryType<Quad>(); }
 template<> Datatype TypeMap<Entry<Complex<Quad>>>() EL_NO_EXCEPT
 { return EntryType<Complex<Quad>>(); }
+#endif
+#ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<Entry<BigFloat>>() EL_NO_EXCEPT
+{ return EntryType<BigFloat>(); }
 #endif
 
 template<typename T>
@@ -688,6 +843,9 @@ static void CreateValueIntType() EL_NO_EXCEPT
     MPI_Type_create_struct( 2, blockLengths, displs, typeList, &type );
     MPI_Type_commit( &type );
 }
+
+// TODO: CreateValueIntType for BigFloat
+
 template void CreateValueIntType<Int>() EL_NO_EXCEPT;
 template void CreateValueIntType<float>() EL_NO_EXCEPT;
 template void CreateValueIntType<double>() EL_NO_EXCEPT;
@@ -730,6 +888,9 @@ static void CreateEntryType() EL_NO_EXCEPT
     MPI_Type_create_struct( 3, blockLengths, displs, typeList, &type );
     MPI_Type_commit( &type );
 }
+
+// TODO: CreateEntryType for BigFloat
+
 template void CreateEntryType<Int>() EL_NO_EXCEPT;
 template void CreateEntryType<float>() EL_NO_EXCEPT;
 template void CreateEntryType<double>() EL_NO_EXCEPT;
@@ -742,6 +903,7 @@ template void CreateEntryType<Complex<double>>() EL_NO_EXCEPT;
 template void CreateEntryType<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
 
+// TODO: Extend for MPC
 void CreateCustom() EL_NO_RELEASE_EXCEPT
 {
     // Create the necessary types
@@ -869,6 +1031,7 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
 #endif
 }
 
+// TODO: Extend for MPC
 void DestroyCustom() EL_NO_RELEASE_EXCEPT
 {
     // Destroy the created types
@@ -959,31 +1122,34 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 }
 
 template<> Op UserOp<Int>() EL_NO_EXCEPT { return ::userIntOp; }
+template<> Op UserCommOp<Int>() EL_NO_EXCEPT { return ::userIntCommOp; }
 template<> Op UserOp<float>() EL_NO_EXCEPT { return ::userFloatOp; }
+template<> Op UserCommOp<float>() EL_NO_EXCEPT { return ::userFloatCommOp; }
 template<> Op UserOp<double>() EL_NO_EXCEPT { return ::userDoubleOp; }
+template<> Op UserCommOp<double>() EL_NO_EXCEPT { return ::userDoubleCommOp; }
 template<> Op UserOp<Complex<float>>() EL_NO_EXCEPT
 { return ::userComplexFloatOp; }
-template<> Op UserOp<Complex<double>>() EL_NO_EXCEPT
-{ return ::userComplexDoubleOp; }
-#ifdef EL_HAVE_QUAD
-template<> Op UserOp<Quad>() EL_NO_EXCEPT
-{ return ::userQuadOp; }
-template<> Op UserOp<Complex<Quad>>() EL_NO_EXCEPT
-{ return ::userComplexQuadOp; }
-#endif
-
-template<> Op UserCommOp<Int>() EL_NO_EXCEPT { return ::userIntCommOp; }
-template<> Op UserCommOp<float>() EL_NO_EXCEPT { return ::userFloatCommOp; }
-template<> Op UserCommOp<double>() EL_NO_EXCEPT { return ::userDoubleCommOp; }
 template<> Op UserCommOp<Complex<float>>() EL_NO_EXCEPT
 { return ::userComplexFloatCommOp; }
+template<> Op UserOp<Complex<double>>() EL_NO_EXCEPT
+{ return ::userComplexDoubleOp; }
 template<> Op UserCommOp<Complex<double>>() EL_NO_EXCEPT
 { return ::userComplexDoubleCommOp; }
 #ifdef EL_HAVE_QUAD
+template<> Op UserOp<Quad>() EL_NO_EXCEPT
+{ return ::userQuadOp; }
 template<> Op UserCommOp<Quad>() EL_NO_EXCEPT
 { return ::userQuadCommOp; }
+template<> Op UserOp<Complex<Quad>>() EL_NO_EXCEPT
+{ return ::userComplexQuadOp; }
 template<> Op UserCommOp<Complex<Quad>>() EL_NO_EXCEPT
 { return ::userComplexQuadCommOp; }
+#endif
+#ifdef EL_HAVE_MPC
+template<> Op UserOp<BigFloat>() EL_NO_EXCEPT
+{ return ::userBigFloatOp; }
+template<> Op UserCommOp<BigFloat>() EL_NO_EXCEPT
+{ return ::userBigFloatCommOp; }
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -993,41 +1159,49 @@ template<> Op MinOp<Quad>() EL_NO_EXCEPT { return ::minQuadOp; }
 template<> Op SumOp<Quad>() EL_NO_EXCEPT { return ::sumQuadOp; }
 template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT { return ::sumQuadComplexOp; }
 #endif
+#ifdef EL_HAVE_MPC
+template<> Op MaxOp<BigFloat>() EL_NO_EXCEPT { return ::maxBigFloatOp; }
+template<> Op MinOp<BigFloat>() EL_NO_EXCEPT { return ::minBigFloatOp; }
+
+template<> Op SumOp<BigFloat>() EL_NO_EXCEPT { return ::sumBigFloatOp; }
+#endif
 
 template<> Op MaxLocOp<Int>() EL_NO_EXCEPT { return ::maxLocIntOp; }
+template<> Op MinLocOp<Int>() EL_NO_EXCEPT { return ::minLocIntOp; }
 template<> Op MaxLocOp<float>() EL_NO_EXCEPT { return ::maxLocFloatOp; }
+template<> Op MinLocOp<float>() EL_NO_EXCEPT { return ::minLocFloatOp; }
 template<> Op MaxLocOp<double>() EL_NO_EXCEPT { return ::maxLocDoubleOp; }
+template<> Op MinLocOp<double>() EL_NO_EXCEPT { return ::minLocDoubleOp; }
 #ifdef EL_HAVE_QUAD
 template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT { return ::maxLocQuadOp; }
+template<> Op MinLocOp<Quad>() EL_NO_EXCEPT { return ::minLocQuadOp; }
+#endif
+#ifdef EL_HAVE_MPC
+// TODO: MaxLocOp<BigFloat>
+// TODO: MinLocOp<BigFloat>
 #endif
 
 template<> Op MaxLocPairOp<Int>() EL_NO_EXCEPT
 { return ::maxLocPairIntOp; }
-template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT
-{ return ::maxLocPairFloatOp; }
-template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT
-{ return ::maxLocPairDoubleOp; }
-#ifdef EL_HAVE_QUAD
-template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT
-{ return ::maxLocPairQuadOp; }
-#endif
-
-template<> Op MinLocOp<Int>() EL_NO_EXCEPT { return ::minLocIntOp; }
-template<> Op MinLocOp<float>() EL_NO_EXCEPT { return ::minLocFloatOp; }
-template<> Op MinLocOp<double>() EL_NO_EXCEPT { return ::minLocDoubleOp; }
-#ifdef EL_HAVE_QUAD
-template<> Op MinLocOp<Quad>() EL_NO_EXCEPT { return ::minLocQuadOp; }
-#endif
-
 template<> Op MinLocPairOp<Int>() EL_NO_EXCEPT
 { return ::minLocPairIntOp; }
+template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT
+{ return ::maxLocPairFloatOp; }
 template<> Op MinLocPairOp<float>() EL_NO_EXCEPT
 { return ::minLocPairFloatOp; }
+template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT
+{ return ::maxLocPairDoubleOp; }
 template<> Op MinLocPairOp<double>() EL_NO_EXCEPT
 { return ::minLocPairDoubleOp; }
 #ifdef EL_HAVE_QUAD
+template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT
+{ return ::maxLocPairQuadOp; }
 template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT
 { return ::minLocPairQuadOp; }
+#endif
+#ifdef EL_HAVE_MPC
+// TODO: MaxLocPairOp<BigFloat>
+// TODO: MinLocPairOp<BigFloat>
 #endif
 
 } // namespace mpi

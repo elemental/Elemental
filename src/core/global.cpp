@@ -65,6 +65,8 @@ Int localTrrkComplexFloatBlocksize = 64;
 Int localTrrkComplexDoubleBlocksize = 64;
 
 // Qt5
+// ===
+// TODO: Move this into its own file?
 ColorMap colorMap=RED_BLACK_GREEN;
 Int numDiscreteColors = 15;
 #ifdef EL_HAVE_QT5

@@ -24,8 +24,8 @@ namespace nnls {
 // and solve the sequence of problems simultaneously with ADMM.
 //
 
-template<typename Real>
-inline typename enable_if<!IsComplex<Real>::value,Int>::type
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+inline Int
 ADMM
 ( const Matrix<Real>& A,
   const Matrix<Real>& B,
@@ -42,8 +42,8 @@ ADMM
     return qp::box::ADMM( Q, C, Real(0), maxReal, X, ctrl );
 }
 
-template<typename Real>
-inline typename enable_if<!IsComplex<Real>::value,Int>::type
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+inline Int
 ADMM
 ( const ElementalMatrix<Real>& APre,
   const ElementalMatrix<Real>& B, 

@@ -65,6 +65,22 @@
 
 // TODO: Think of how to better decouple the following components
 
+namespace El {
+
+typedef unsigned char byte;
+
+// If these are changes, you must make sure that they have 
+// existing MPI datatypes. This is only sometimes true for 'long long'
+#ifdef EL_USE_64BIT_INTS
+typedef long long int Int;
+typedef long long unsigned Unsigned;
+#else
+typedef int Int;
+typedef unsigned Unsigned;
+#endif
+
+} // namespace El
+
 // Declare the intertwined core parts of our library
 #include "El/core/imports/valgrind.hpp"
 #include "El/core/imports/omp.hpp"
