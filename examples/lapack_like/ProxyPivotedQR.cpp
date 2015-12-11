@@ -122,7 +122,7 @@ int main( int argc, char* argv[] )
             Print( d, "d" );
 
             DistMatrix<Int> OmegaFull;
-            Omega.Explicit( OmegaFull );
+            Omega.ExplicitMatrix( OmegaFull );
             Print( OmegaFull, "Omega" );
         }
         DistMatrix<double,MD,STAR> diagR;
@@ -144,7 +144,7 @@ int main( int argc, char* argv[] )
             Print( d, "d" );
 
             DistMatrix<Int> OmegaFull;
-            Omega.Explicit( OmegaFull );
+            Omega.ExplicitMatrix( OmegaFull );
             Print( OmegaFull, "Omega" );
         }
         GetDiagonal( A, diagR );

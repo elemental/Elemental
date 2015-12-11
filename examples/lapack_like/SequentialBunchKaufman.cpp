@@ -63,7 +63,7 @@ main( int argc, char* argv[] )
             Print( dSub,  "dSub"  );
             
             Matrix<Int> P;
-            perm.Explicit( P ); 
+            perm.ExplicitMatrix( P ); 
             Print( P,  "P" );
         }
 

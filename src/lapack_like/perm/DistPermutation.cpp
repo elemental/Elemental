@@ -655,20 +655,20 @@ bool DistPermutation::IsSwapSequence() const
 bool DistPermutation::IsImplicitSwapSequence() const
 { return implicitSwapOrigins_; }
 
-const DistMatrix<Int,VC,STAR>& DistPermutation::SwapOrigins() const
+const DistMatrix<Int,VC,STAR> DistPermutation::SwapOrigins() const
 {
     DEBUG_ONLY(CSE cse("DistPermutation::SwapOrigins"))
     if( !swapSequence_ || !implicitSwapOrigins_ )
         LogicError("Swap origins are not explicitly stored");
-    return swapOrigins_( IR( 0, numSwaps_ ), IR( 0, 1 ) );
+    return swapOrigins_(IR(0,numSwaps_),ALL);
 }
 
-const DistMatrix<Int,VC,STAR>& DistPermutation::SwapDestinations() const
+const DistMatrix<Int,VC,STAR> DistPermutation::SwapDestinations() const
 {
     DEBUG_ONLY(CSE cse("DistPermutation::SwapDestinations"))
     if( !swapSequence_ )
         LogicError("Swap destinations are not explicitly stored");
-    return swapDests_( IR( 0, numSwaps_ ), IR( 0, 1 ) );
+    return swapDests_(IR(0,numSwaps_),ALL);
 }
 
 template<typename T>
@@ -1100,25 +1100,36 @@ void DistPermutation::InversePermuteSymmetrically
     }
 }
 
-void DistPermutation::Explicit( AbstractDistMatrix<Int>& P ) const
+void DistPermutation::ExplicitVector( AbstractDistMatrix<Int>& p ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::Explicit"))
-    P.SetGrid( grid_ );
+    DEBUG_ONLY(CSE cse("DistPermutation::ExplicitVector"))
+    p.SetGrid( grid_ );
     if( swapSequence_ )
     {
-        // Compose the swaps into an explicit permutation vector
-        // -----------------------------------------------------
-        perm_.Resize( size_, 1 );
-        const Int localHeight = perm_.LocalHeight();
+        p.Resize( size_, 1 );
+        const Int localHeight = p.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            perm_.SetLocal( iLoc, 0, perm_.GlobalRow(iLoc) );
-        PermuteRows( perm_ );
+            p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
+        PermuteRows( p );
     }
+    else
+    {
+        Copy( perm_, p );
+    }
+}
 
-    DistMatrix<Int,STAR,STAR> perm_STAR_STAR( perm_ );
+void DistPermutation::ExplicitMatrix( AbstractDistMatrix<Int>& P ) const
+{
+    DEBUG_ONLY(CSE cse("DistPermutation::ExplicitMatrix"))
+    P.SetGrid( grid_ );
+
+    DistMatrix<Int,VC,STAR> p_VC_STAR(grid_);
+    ExplicitVector( p_VC_STAR );
+    DistMatrix<Int,STAR,STAR> p( p_VC_STAR );
+
     Zeros( P, size_, size_ );
     for( Int i=0; i<size_; ++i )
-        P.Set( i, perm_STAR_STAR.GetLocal(i,0), 1 );
+        P.Set( i, p.GetLocal(i,0), 1 );
 }
 
 #define PROTO(T) \

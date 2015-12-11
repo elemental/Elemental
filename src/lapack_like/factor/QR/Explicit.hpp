@@ -237,7 +237,7 @@ void Explicit
         qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
     }
 
-    Omega.Explicit( OmegaFull );
+    Omega.ExplicitMatrix( OmegaFull );
 } 
 
 template<typename F>
@@ -281,7 +281,7 @@ void Explicit
         qr::ApplyQ( LEFT, NORMAL, ACopy, t, d, A );
     }
 
-    Omega.Explicit( OmegaFull );
+    Omega.ExplicitMatrix( OmegaFull );
 }
 
 } // namespace qr

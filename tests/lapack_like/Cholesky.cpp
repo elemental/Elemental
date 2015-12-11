@@ -93,7 +93,7 @@ void TestCholesky
         if( pivot )
         {
             DistMatrix<Int,VC,STAR> P(g);
-            p.Explicit( P );
+            p.ExplicitMatrix( P );
             Print( P, "P" );
         }
     }

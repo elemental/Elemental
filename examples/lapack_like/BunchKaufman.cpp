@@ -62,7 +62,7 @@ int main( int argc, char* argv[] )
             Print( dSub,  "dSub"  );
  
             DistMatrix<Int> P;
-            p.Explicit( P );
+            p.ExplicitMatrix( P );
             Print( P, "P" );
         }
 
