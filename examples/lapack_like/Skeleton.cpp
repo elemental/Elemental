@@ -53,9 +53,9 @@ main( int argc, char* argv[] )
         if( print )
         {
             DistMatrix<Int> PFull(g);
-            PR.Explicit( PFull );
+            PR.ExplicitMatrix( PFull );
             Print( PFull, "PR" );
-            PC.Explicit( PFull );
+            PC.ExplicitMatrix( PFull );
             Print( PFull, "PC" );
             Print( Z, "Z" );
         }

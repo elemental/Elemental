@@ -435,20 +435,20 @@ bool Permutation::IsSwapSequence() const
 bool Permutation::IsImplicitSwapSequence() const
 { return implicitSwapOrigins_; }
 
-const Matrix<Int>& Permutation::SwapOrigins() const
+const Matrix<Int> Permutation::SwapOrigins() const
 {
     DEBUG_ONLY(CSE cse("Permutation::SwapOrigins"))
     if( !swapSequence_ || !implicitSwapOrigins_ )
         LogicError("Swap origins are not explicitly stored");
-    return swapOrigins_;
+    return swapOrigins_(IR(0,numSwaps_),ALL);
 }
 
-const Matrix<Int>& Permutation::SwapDestinations() const
+const Matrix<Int> Permutation::SwapDestinations() const
 {
     DEBUG_ONLY(CSE cse("Permutation::SwapOrigins"))
     if( !swapSequence_ )
         LogicError("Swap destinations are not explicitly stored");
-    return swapDests_;
+    return swapDests_(IR(0,numSwaps_),ALL);
 }
 
 template<typename T>
@@ -730,22 +730,31 @@ void Permutation::InversePermuteSymmetrically
     }
 }
 
-void Permutation::Explicit( Matrix<Int>& P ) const
+void Permutation::ExplicitVector( Matrix<Int>& p ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::Explicit"))
+    DEBUG_ONLY(CSE cse("Permutation::ExplicitVector"))
     if( swapSequence_ )
     {   
-        // Compose the swaps into an explicit permutation vector
-        // -----------------------------------------------------
-        perm_.Resize( size_, 1 );
+        p.Resize( size_, 1 );
         for( Int i=0; i<size_; ++i )
-            perm_.Set( i, 0, i );
-        PermuteRows( perm_ );
+            p.Set( i, 0, i );
+        PermuteRows( p );
     }
+    else
+    {
+        p = perm_;
+    }
+}
+
+void Permutation::ExplicitMatrix( Matrix<Int>& P ) const
+{
+    DEBUG_ONLY(CSE cse("Permutation::ExplicitMatrix"))
+    Matrix<Int> p;
+    ExplicitVector( p );
 
     Zeros( P, size_, size_ );
     for( Int i=0; i<size_; ++i )
-        P.Set( i, perm_.Get(i,0), 1 );
+        P.Set( i, p.Get(i,0), 1 );
 }
 
 #define PROTO(T) \

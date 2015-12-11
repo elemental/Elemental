@@ -45,9 +45,9 @@ public:
 
     // NOTE: This is only valid if IsImplicitSwapSequence() is true, otherwise
     //       it is implicitly [0,...,numSwaps-1]
-    const Matrix<Int>& SwapOrigins() const;
+    const Matrix<Int> SwapOrigins() const;
     // NOTE: This is only valid if IsSwapSequence() is true
-    const Matrix<Int>& SwapDestinations() const;
+    const Matrix<Int> SwapDestinations() const;
 
     template<typename T>
     void PermuteCols
@@ -80,7 +80,11 @@ public:
       bool conjugate=false,
       Int offset=0 ) const;
 
-    void Explicit( Matrix<Int>& P ) const;
+    // Form the permutation vector p so that P A = A(p,:)
+    void ExplicitVector( Matrix<Int>& p ) const;
+
+    // Form the permutation matrix P so that P A = A(p,:)
+    void ExplicitMatrix( Matrix<Int>& P ) const;
 
 private:
 
@@ -103,7 +107,8 @@ private:
 
     // Only used if swapSequence_=false
     // --------------------------------
-    mutable Matrix<Int> perm_, invPerm_;
+            Matrix<Int> perm_;
+    mutable Matrix<Int> invPerm_;
     mutable bool staleInverse_=true;
 
     friend class DistPermutation;

@@ -108,9 +108,9 @@ public:
 
     // NOTE: This is only valid if IsImplicitSwapSequence() is true, otherwise
     //       it is implicitly [0,...,numSwaps-1]
-    const DistMatrix<Int,VC,STAR>& SwapOrigins() const;
+    const DistMatrix<Int,VC,STAR> SwapOrigins() const;
     // NOTE: This is only valid if IsSwapSequence() is true
-    const DistMatrix<Int,VC,STAR>& SwapDestinations() const;
+    const DistMatrix<Int,VC,STAR> SwapDestinations() const;
 
     template<typename T>
     void PermuteCols
@@ -143,7 +143,11 @@ public:
       bool conjugate=false,
       Int offset=0 ) const;
 
-    void Explicit( AbstractDistMatrix<Int>& P ) const;
+    // Form the permutation vector p so that P A = A(p,:)
+    void ExplicitVector( AbstractDistMatrix<Int>& p ) const;
+
+    // Form the permutation matrix P so that P A = A(p,:)
+    void ExplicitMatrix( AbstractDistMatrix<Int>& P ) const;
 
 private:
     Int size_=0;
@@ -165,7 +169,8 @@ private:
 
     // Only used if swapSequence_=false
     // --------------------------------
-    mutable DistMatrix<Int,VC,STAR> perm_, invPerm_;
+            DistMatrix<Int,VC,STAR> perm_;
+    mutable DistMatrix<Int,VC,STAR> invPerm_;
     mutable bool staleInverse_=true;
 
     // Use the alignment and communicator as a key

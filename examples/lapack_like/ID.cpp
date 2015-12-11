@@ -54,7 +54,7 @@ int main( int argc, char* argv[] )
         if( print )
         {
             DistMatrix<Int> OmegaFull(g);
-            Omega.Explicit( OmegaFull );
+            Omega.ExplicitMatrix( OmegaFull );
             Print( OmegaFull, "Omega" );
             Print( Z, "Z" );
         }

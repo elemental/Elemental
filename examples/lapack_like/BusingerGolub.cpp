@@ -54,7 +54,7 @@ main( int argc, char* argv[] )
             Display( dPiv, "dPiv" );
 
             DistMatrix<Int> OmegaFull;
-            Omega.Explicit( OmegaFull );
+            Omega.ExplicitMatrix( OmegaFull );
             Display( OmegaFull, "Omega" );
         }
         if( print )
@@ -64,7 +64,7 @@ main( int argc, char* argv[] )
             Print( dPiv, "dPiv" );
 
             DistMatrix<Int> OmegaFull;
-            Omega.Explicit( OmegaFull );
+            Omega.ExplicitMatrix( OmegaFull );
             Print( OmegaFull, "Omega" );
         }
 

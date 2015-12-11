@@ -87,7 +87,7 @@ void TestLDL
     {
         Print( A, "A after factorization" );
         DistMatrix<Int> P(g);
-        p.Explicit( P ); 
+        p.ExplicitMatrix( P ); 
         Print( P, "P" );
     }
     if( testCorrectness )
