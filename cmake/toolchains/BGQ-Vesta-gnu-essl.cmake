@@ -60,7 +60,7 @@ set(LAPACK_FLAGS "-L${LAPACK_LIB} -llapack")
 set(XLF_FLAGS "-L${XLF_LIB} -lxlf90_r")
 
 if(EL_HYBRID)
-  set(ESSL_FLAGS "-L${ESSL_LIB} -lesslsmpbg") 
+  set(ESSL_FLAGS "-L${ESSL_LIB} -lesslsmpbg")
   set(XL_FLAGS "-L${XLSMP_LIB} -lxlsmp")
 else()
   set(ESSL_FLAGS "-L${ESSL_LIB} -lesslbg")

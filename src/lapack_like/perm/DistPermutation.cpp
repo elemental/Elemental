@@ -577,6 +577,8 @@ const DistPermutation& DistPermutation::operator=( const DistPermutation& P )
     DEBUG_ONLY(CSE cse("DistPermutation::operator="))
     SetGrid( P.grid_ );
 
+    size_ = P.size_;
+
     swapSequence_ = P.swapSequence_;
     numSwaps_ = P.numSwaps_;
     implicitSwapOrigins_ = P.implicitSwapOrigins_;
@@ -663,7 +665,7 @@ const DistMatrix<Int,VC,STAR> DistPermutation::SwapOrigins() const
 
 const DistMatrix<Int,VC,STAR> DistPermutation::SwapDestinations() const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::SwapOrigins"))
+    DEBUG_ONLY(CSE cse("DistPermutation::SwapDestinations"))
     if( !swapSequence_ )
         LogicError("Swap destinations are not explicitly stored");
     return swapDests_(IR(0,numSwaps_),ALL);
