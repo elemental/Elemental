@@ -18,9 +18,9 @@ namespace El {
 // Pretty-printing
 // ---------------
 
+// TODO: Move into core/imports/quadmath.hpp?
 #ifdef EL_HAVE_QUAD
-#ifdef EL_HAVE_QUADMATH
-inline ostream& operator<<( ostream& os, Quad alpha )
+inline ostream& operator<<( ostream& os, const Quad& alpha )
 {
     char str[128];
     quadmath_snprintf( str, 128, "%Qe", alpha );
@@ -28,10 +28,9 @@ inline ostream& operator<<( ostream& os, Quad alpha )
     return os;
 }
 #endif
-#endif
 
 template<typename Real>
-inline ostream& operator<<( ostream& os, Complex<Real> alpha )
+inline ostream& operator<<( ostream& os, const Complex<Real>& alpha )
 {
     os << alpha.real() << "+" << alpha.imag() << "i";
     return os;
@@ -156,6 +155,16 @@ inline Quad Abs( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
+{
+    BigFloat absAlpha;
+    mpfr_abs( absAlpha.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return absAlpha;
+}
+#endif
+
 template<typename Real,typename>
 inline Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT { return Abs(alpha); }
 
@@ -192,6 +201,18 @@ inline Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
     else
         return Real(0);
 }
+#ifdef EL_HAVE_MPC
+inline BigFloat Sgn( const BigFloat& alpha, bool symmetric ) EL_NO_EXCEPT
+{
+    mpfr_sign_t sign = MPFR_SIGN(alpha.BackEnd());
+    if( sign < 0 )
+        return BigFloat(-1);
+    else if( sign > 0 || !symmetric )
+        return BigFloat(1);
+    else
+        return BigFloat(0);
+}
+#endif
 
 // Exponentiation
 // ==============
@@ -212,6 +233,16 @@ inline Complex<Quad> Exp( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 
     __complex128 alphaExp = cexpq(alpha);
     return Complex<Quad>(crealq(alphaExp),cimagq(alphaExp)); 
+}
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT
+{
+    BigFloat beta;
+    mpfr_exp( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
 }
 #endif
 
@@ -262,6 +293,18 @@ inline Complex<Quad> Pow
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Pow
+( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT
+{
+    BigFloat gamma;
+    mpfr_pow
+    ( gamma.BackEnd(), alpha.BackEnd(), beta.BackEnd(), mpc::RoundingMode() );
+    return gamma;
+}
+#endif
+
 // Inverse exponentiation
 // ----------------------
 template<typename F,typename>
@@ -284,6 +327,16 @@ inline Complex<Quad> Log( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Log( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_log( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Sqrt( const F&   alpha ) { return std::sqrt(alpha); }
 inline double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
@@ -301,6 +354,16 @@ inline Complex<Quad> Sqrt( const Complex<Quad>& alphaPre )
 
     __complex128 sqrtAlpha = csqrtq(alpha);
     return Complex<Quad>(crealq(sqrtAlpha),cimagq(sqrtAlpha));
+}
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Sqrt( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_sqrt( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
 }
 #endif
 
@@ -326,6 +389,16 @@ inline Complex<Quad> Cos( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Cos( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_cos( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Sin( const F&   alpha ) { return std::sin(alpha); }
 inline double Sin( const Int& alpha ) { return std::sin(alpha); }
@@ -346,6 +419,16 @@ inline Complex<Quad> Sin( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Sin( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_sin( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Tan( const F&   alpha ) { return std::tan(alpha); }
 inline double Tan( const Int& alpha ) { return std::tan(alpha); }
@@ -363,6 +446,16 @@ inline Complex<Quad> Tan( const Complex<Quad>& alphaPre )
     
     __complex128 tanAlpha = ctanq(alpha);
     return Complex<Quad>(crealq(tanAlpha),cimagq(tanAlpha));
+}
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Tan( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_tan( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
 }
 #endif
 
@@ -388,6 +481,16 @@ inline Complex<Quad> Acos( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Acos( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_acos( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Asin( const F&   alpha ) { return std::asin(alpha); }
 inline double Asin( const Int& alpha ) { return std::asin(alpha); }
@@ -405,6 +508,16 @@ inline Complex<Quad> Asin( const Complex<Quad>& alphaPre )
     
     __complex128 asinAlpha = casinq(alpha);
     return Complex<Quad>(crealq(asinAlpha),cimagq(asinAlpha));
+}
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Asin( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_asin( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
 }
 #endif
 
@@ -428,12 +541,34 @@ inline Complex<Quad> Atan( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Atan( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_atan( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename Real,typename>
 inline Real Atan2( const Real& y, const Real& x ) { return std::atan2( y, x ); }
 inline double Atan2( const Int& y, const Int& x ) { return std::atan2( y, x ); }
 
 #ifdef EL_HAVE_QUADMATH
-// TODO: Atan2
+template<>
+inline Quad Atan2( const Quad& y, const Quad& x ) { return atan2q( y, x ); }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Atan2( const BigFloat& y, const BigFloat& x )
+{
+    BigFloat alpha;
+    mpfr_atan2
+    ( alpha.BackEnd(), y.BackEnd(), x.BackEnd(), mpc::RoundingMode() );
+    return alpha;
+}
 #endif
 
 // Hyperbolic
@@ -458,6 +593,16 @@ inline Complex<Quad> Cosh( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Cosh( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_cosh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Sinh( const F&   alpha ) { return std::sinh(alpha); }
 inline double Sinh( const Int& alpha ) { return std::sinh(alpha); }
@@ -478,6 +623,16 @@ inline Complex<Quad> Sinh( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Sinh( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_sinh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Tanh( const F&   alpha ) { return std::tanh(alpha); }
 inline double Tanh( const Int& alpha ) { return std::tanh(alpha); }
@@ -495,6 +650,16 @@ inline Complex<Quad> Tanh( const Complex<Quad>& alphaPre )
     
     __complex128 tanhAlpha = ctanhq(alpha);
     return Complex<Quad>(crealq(tanhAlpha),cimagq(tanhAlpha));
+}
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Tanh( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_tanh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
 }
 #endif
 
@@ -520,6 +685,16 @@ inline Complex<Quad> Acosh( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Acosh( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_acosh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Asinh( const F&   alpha ) { return std::asinh(alpha); }
 inline double Asinh( const Int& alpha ) { return std::asinh(alpha); }
@@ -540,6 +715,16 @@ inline Complex<Quad> Asinh( const Complex<Quad>& alphaPre )
 }
 #endif
 
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Asinh( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_asinh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
+}
+#endif
+
 template<typename F,typename>
 inline F      Atanh( const F&   alpha ) { return std::atanh(alpha); }
 inline double Atanh( const Int& alpha ) { return std::atanh(alpha); }
@@ -557,6 +742,16 @@ inline Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
     
     __complex128 atanhAlpha = catanhq(alpha);
     return Complex<Quad>(crealq(atanhAlpha),cimagq(atanhAlpha));
+}
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat Atanh( const BigFloat& alpha )
+{
+    BigFloat beta;
+    mpfr_atanh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    return beta;
 }
 #endif
 

@@ -118,15 +118,26 @@ inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 // Notice the sizeof(T) is no longer required.
 template<typename T>
 void MemCopy( T* dest, const T* source, size_t numEntries );
+#ifdef EL_HAVE_MPC
+void MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries );
+#endif
 
 template<typename T>
 void MemSwap( T* a, T* b, T* temp, size_t numEntries );
+#ifdef EL_HAVE_MPC
+void MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries );
+#endif
 
 // Generalization of std::memcpy so that unit strides are not required
 template<typename T>
 void StridedMemCopy
 (       T* dest,   Int destStride,
   const T* source, Int sourceStride, Int numEntries );
+#ifdef EL_HAVE_MPC
+void StridedMemCopy
+(       BigFloat* dest,   Int destStride,
+  const BigFloat* source, Int sourceStride, Int numEntries );
+#endif
 
 template<typename S,typename T>
 inline void CopySTL( const S& a, T& b )
@@ -139,6 +150,9 @@ inline void CopySTL( const S& a, T& b )
 // to non-POD datatypes. Notice that sizeof(T) is no longer required.
 template<typename T>
 void MemZero( T* buffer, size_t numEntries );
+#ifdef EL_HAVE_MPC
+void MemZero( BigFloat* buffer, size_t numEntries );
+#endif
 
 // Clear the contents of x by swapping with an empty object of the same type
 template<typename T>

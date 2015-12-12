@@ -37,13 +37,16 @@ private:
     mpfr_t mpfrFloat_;
 
 public:
+          mpfr_t& BackEnd()       { return mpfrFloat_; }
+    const mpfr_t& BackEnd() const { return mpfrFloat_; }
 
     BigFloat()
     {
         mpfr_init2( mpfrFloat_, mpc::Precision() );
     }
 
-    // Copy constructor
+    // Copy constructors
+    // -----------------
     BigFloat( const BigFloat& a )
     {
         if( &a != this )
@@ -57,20 +60,63 @@ public:
         )
     }
 
+    BigFloat( const unsigned& a )
+    {
+        mpfr_init2( BackEnd(), mpc::Precision() );
+        mpfr_set_ui( BackEnd(), a, mpc::RoundingMode() );
+    }
+
+    BigFloat( const unsigned long long& a )
+    {
+        mpfr_init2( BackEnd(), mpc::Precision() );
+        mpfr_set_uj( BackEnd(), a, mpc::RoundingMode() );
+    }
+
+    BigFloat( const int& a )
+    {
+        mpfr_init2( BackEnd(), mpc::Precision() );
+        mpfr_set_si( BackEnd(), a, mpc::RoundingMode() );
+    }
+
+    BigFloat( const long long int& a )
+    {
+        mpfr_init2( BackEnd(), mpc::Precision() );
+        mpfr_set_sj( BackEnd(), a, mpc::RoundingMode() );
+    }
+
+    BigFloat( const double& a )
+    {
+        mpfr_init2( BackEnd(), mpc::Precision() );
+        mpfr_set_d( BackEnd(), a, mpc::RoundingMode() );
+    }
+
+    BigFloat( const char* str, int base )
+    {
+        mpfr_init2( BackEnd(), mpc::Precision() );
+        mpfr_set_str( BackEnd(), str, base, mpc::RoundingMode() );
+    }
+
+    BigFloat( const std::string& str, int base )
+    {
+        mpfr_init2( BackEnd(), mpc::Precision() );
+        mpfr_set_str( BackEnd(), str.c_str(), base, mpc::RoundingMode() );
+    }
+
     // Move constructor
+    // ----------------
     BigFloat( BigFloat&& a )
     {
-        mpfr_swap( mpfrFloat_, a.mpfrFloat_ );
+        mpfr_swap( BackEnd(), a.BackEnd() );
     }
 
     ~BigFloat()
     {
-        mpfr_clear( mpfrFloat_ );
+        mpfr_clear( BackEnd() );
     }
 
     void Zero()
     {
-        mpfr_set_zero( mpfrFloat_, 0 );
+        mpfr_set_zero( BackEnd(), 0 );
     }
 
     mpfr_prec_t Precision() const
@@ -81,37 +127,37 @@ public:
 
     BigFloat& operator=( const BigFloat& a )
     {
-        mpfr_set( mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
+        mpfr_set( BackEnd(), a.BackEnd(), mpc::RoundingMode() );
         return *this;
     }
 
     BigFloat& operator=( BigFloat&& a )
     {
-        mpfr_swap( mpfrFloat_, a.mpfrFloat_ );
+        mpfr_swap( BackEnd(), a.BackEnd() );
         return *this;
     }
 
     BigFloat& operator+=( const BigFloat& a )
     {
-        mpfr_add( mpfrFloat_, mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
+        mpfr_add( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
         return *this;
     }
 
     BigFloat& operator-=( const BigFloat& a )
     {
-        mpfr_sub( mpfrFloat_, mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
+        mpfr_sub( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
         return *this;
     }
 
     BigFloat& operator*=( const BigFloat& a )
     {
-        mpfr_mul( mpfrFloat_, mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
+        mpfr_mul( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
         return *this;
     }
 
     BigFloat& operator/=( const BigFloat& a )
     {
-        mpfr_div( mpfrFloat_, mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
+        mpfr_div( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
         return *this;
     }
 
@@ -193,6 +239,20 @@ inline bool operator==( const BigFloat& a, const BigFloat& b )
 
 inline bool operator!=( const BigFloat& a, const BigFloat& b )
 { return !(a==b); }
+
+inline std::ostream& operator<<( std::ostream& os, const BigFloat& alpha )
+{
+    // Print in the flexible manner that switches between either 
+    // fixed or scientific format
+    char* rawStr = 0;
+    const int numChar = mpfr_asprintf( &rawStr, "%Rg", alpha.BackEnd() );
+    if( numChar >= 0 )
+    {
+        os << std::string(rawStr); 
+        mpfr_free_str( rawStr );
+    }
+    return os;
+}
 
 byte* Serialize( Int n, const BigFloat* x, byte* xPacked );
 const byte* Deserialize( Int n, const byte* xPacked, BigFloat* x );
