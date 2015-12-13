@@ -37,18 +37,40 @@ MemCopy( T* dest, const T* source, size_t numEntries )
     // This can be optimized/generalized later
     std::memcpy( dest, source, numEntries*sizeof(T) );
 }
+#ifdef EL_HAVE_MPC
+inline void
+MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries )
+{
+    for( size_t k=0; k<numEntries; ++k )
+        dest[k] = source[k];
+}
+#endif
 
 template<typename T>
 inline void
 MemSwap( T* a, T* b, T* temp, size_t numEntries )
 {
     // temp := a
-    std::memcpy( temp, a, numEntries*sizeof(T) );
+    MemCopy( temp, a, numEntries );
     // a := b
-    std::memcpy( a, b, numEntries*sizeof(T) );
+    MemCopy( a, b, numEntries );
     // b := temp
-    std::memcpy( b, temp, numEntries*sizeof(T) );
+    MemCopy( b, temp, numEntries );
 }
+#ifdef EL_HAVE_MPC
+inline void
+MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries )
+{
+    // NOTE: This is the same as above for now
+
+    // temp := a
+    MemCopy( temp, a, numEntries );
+    // a := b
+    MemCopy( a, b, numEntries );
+    // b := temp
+    MemCopy( b, temp, numEntries );
+}
+#endif
 
 template<typename T>
 inline void
@@ -59,6 +81,16 @@ StridedMemCopy
     // For now, use the BLAS wrappers/generalization
     blas::Copy( numEntries, source, sourceStride, dest, destStride );
 }
+#ifdef EL_HAVE_MPC
+inline void
+StridedMemCopy
+(       BigFloat* dest,   Int destStride,
+  const BigFloat* source, Int sourceStride, Int numEntries )
+{
+    for( Int k=0; k<numEntries; ++k )
+        dest[destStride*k] = source[sourceStride*k];
+}
+#endif
 
 template<typename T>
 inline void 
@@ -67,6 +99,13 @@ MemZero( T* buffer, size_t numEntries )
     // This can be optimized/generalized later
     std::memset( buffer, 0, numEntries*sizeof(T) );
 }
+#ifdef EL_HAVE_MPC
+inline void MemZero( BigFloat* buffer, size_t numEntries )
+{
+    for( size_t k=0; k<numEntries; ++k )
+        buffer[k].Zero();
+}
+#endif
 
 template<typename T>
 inline void SwapClear( T& x ) { T().swap( x ); }

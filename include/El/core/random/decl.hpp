@@ -44,6 +44,10 @@ Quad SampleUniform( Quad a, Quad b );
 template<>
 Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b );
 #endif
+#ifdef EL_HAVE_MPC
+template<>
+BigFloat SampleUniform( BigFloat a, BigFloat b );
+#endif
 
 template<>
 Int SampleUniform<Int>( Int a, Int b );
@@ -60,6 +64,10 @@ template<>
 Quad SampleNormal( Quad mean, Quad stddev );
 template<>
 Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev );
+#endif
+#ifdef EL_HAVE_MPC
+template<>
+BigFloat SampleNormal( BigFloat mean, BigFloat stddev );
 #endif
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 

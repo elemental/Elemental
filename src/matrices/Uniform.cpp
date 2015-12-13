@@ -77,7 +77,15 @@ void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
   template void Uniform \
   ( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius );
 
+#define PROTO_BIGFLOAT \
+  template void MakeUniform \
+  ( Matrix<BigFloat>& A, BigFloat center, BigFloat radius ); \
+  template void Uniform \
+  ( Matrix<BigFloat>& A, Int m, Int n, BigFloat center, BigFloat radius );
+
+
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

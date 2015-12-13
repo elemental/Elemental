@@ -118,15 +118,26 @@ inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 // Notice the sizeof(T) is no longer required.
 template<typename T>
 void MemCopy( T* dest, const T* source, size_t numEntries );
+#ifdef EL_HAVE_MPC
+void MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries );
+#endif
 
 template<typename T>
 void MemSwap( T* a, T* b, T* temp, size_t numEntries );
+#ifdef EL_HAVE_MPC
+void MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries );
+#endif
 
 // Generalization of std::memcpy so that unit strides are not required
 template<typename T>
 void StridedMemCopy
 (       T* dest,   Int destStride,
   const T* source, Int sourceStride, Int numEntries );
+#ifdef EL_HAVE_MPC
+void StridedMemCopy
+(       BigFloat* dest,   Int destStride,
+  const BigFloat* source, Int sourceStride, Int numEntries );
+#endif
 
 template<typename S,typename T>
 inline void CopySTL( const S& a, T& b )
@@ -139,6 +150,9 @@ inline void CopySTL( const S& a, T& b )
 // to non-POD datatypes. Notice that sizeof(T) is no longer required.
 template<typename T>
 void MemZero( T* buffer, size_t numEntries );
+#ifdef EL_HAVE_MPC
+void MemZero( BigFloat* buffer, size_t numEntries );
+#endif
 
 // Clear the contents of x by swapping with an empty object of the same type
 template<typename T>
@@ -164,14 +178,15 @@ inline void FastResize( vector<T>& v, Int numEntries )
 inline void BuildStream( ostringstream& os ) { }
 
 template<typename T,typename... Args>
-inline void BuildStream( ostringstream& os, T item, Args... args )
+inline void BuildStream
+( ostringstream& os, const T& item, const Args& ... args )
 {
     os << item;
     BuildStream( os, args... );
 }
 
 template<typename... Args>
-inline string BuildString( Args... args )
+inline string BuildString( const Args& ... args )
 { 
     ostringstream os;
     BuildStream( os, args... );
@@ -186,7 +201,7 @@ public:
 };
 
 template<typename... Args>
-inline void UnrecoverableError( Args... args )
+inline void UnrecoverableError( const Args& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -195,7 +210,7 @@ inline void UnrecoverableError( Args... args )
 }
 
 template<typename... Args>
-inline void LogicError( Args... args )
+inline void LogicError( const Args& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -204,7 +219,7 @@ inline void LogicError( Args... args )
 }
 
 template<typename... Args>
-inline void RuntimeError( Args... args )
+inline void RuntimeError( const Args& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -289,7 +304,7 @@ void OpenLog( const char* filename );
 std::ostream & LogOS();
 
 template<typename... Args>
-inline void Log( Args... args )
+inline void Log( const Args& ... args )
 {
     std::ostringstream str;
     BuildStream( str, args... );
@@ -310,7 +325,7 @@ Int IndentLevel();
 std::string Indent();
 
 template<typename... Args>
-inline void Output( Args... args )
+inline void Output( const Args& ... args )
 {
     ostringstream os;
     os << Indent();

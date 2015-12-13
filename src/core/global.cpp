@@ -28,6 +28,10 @@ Int blockHeight=32, blockWidth=32;
 // A common Mersenne twister configuration
 std::mt19937 generator;
 
+#ifdef EL_HAVE_MPC
+gmp_randstate_t gmpRandState;
+#endif
+
 // Debugging
 DEBUG_ONLY(
   std::stack<string> callStack;
@@ -65,6 +69,8 @@ Int localTrrkComplexFloatBlocksize = 64;
 Int localTrrkComplexDoubleBlocksize = 64;
 
 // Qt5
+// ===
+// TODO: Move this into its own file?
 ColorMap colorMap=RED_BLACK_GREEN;
 Int numDiscreteColors = 15;
 #ifdef EL_HAVE_QT5
@@ -376,6 +382,10 @@ void Initialize( int& argc, char**& argv )
     const long seed = (secs<<16) | (rank & 0xFFFF);
     ::generator.seed( seed );
     srand( seed );
+#ifdef EL_HAVE_MPC
+    gmp_randinit_default( ::gmpRandState );
+    gmp_randseed_ui( ::gmpRandState, seed );
+#endif
 }
 
 void Finalize()
@@ -423,6 +433,10 @@ void Finalize()
 
         while( ! ::blocksizeStack.empty() )
             ::blocksizeStack.pop();
+
+#ifdef EL_HAVE_MPC
+        gmp_randclear( ::gmpRandState );
+#endif
     }
 
     DEBUG_ONLY( CloseLog() )
@@ -491,6 +505,24 @@ void SetDefaultBlockWidth( Int nb )
 
 std::mt19937& Generator()
 { return ::generator; }
+
+#ifdef EL_HAVE_MPC
+namespace mpc {
+
+void RandomState( gmp_randstate_t randState )
+{
+    // It is surprisingly tedious to return the state...
+
+    randState->_mp_seed->_mp_alloc = ::gmpRandState->_mp_seed->_mp_alloc;
+    randState->_mp_seed->_mp_size = ::gmpRandState->_mp_seed->_mp_size;
+    randState->_mp_seed->_mp_d = ::gmpRandState->_mp_seed->_mp_d;
+
+    randState->_mp_alg = ::gmpRandState->_mp_alg;
+    randState->_mp_algdata._mp_lc = ::gmpRandState->_mp_algdata._mp_lc;
+}
+
+} // namespace mpc
+#endif
 
 void Args::HandleVersion( ostream& os ) const
 {

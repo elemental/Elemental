@@ -8,27 +8,18 @@
 */
 #include "El.hpp"
 
-//#define EL_MEMORY_MALLOC
 namespace {
 
 template<typename G>
 static G* New( size_t size )
 {
-#ifdef EL_MEMORY_MALLOC
-    return (G*)malloc(size*sizeof(G));
-#else
     return new G[size];
-#endif
 }
 
 template<typename G>
 static void Delete( G*& ptr )
 {
-#ifdef EL_MEMORY_MALLOC
-    free( ptr );
-#else
     delete[] ptr;
-#endif
     ptr = nullptr;
 }
 
@@ -128,6 +119,7 @@ void Memory<G>::Empty()
 #define PROTO(T) template class Memory<T>;
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

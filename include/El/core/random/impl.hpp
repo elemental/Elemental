@@ -198,7 +198,25 @@ inline Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b )
 
     return sample;
 }
-#endif
+#endif // ifdef EL_HAVE_QUAD
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat SampleUniform( BigFloat a, BigFloat b )
+{
+    BigFloat sample; 
+    gmp_randstate_t randState;
+    mpc::RandomState( randState );
+
+    while( 1 )
+    {
+        const int ret = mpfr_urandomb( sample.Pointer(), randState );
+        if( ret == 0 )
+            break;
+    }
+    return a + sample*(b-a);
+}
+#endif // ifdef EL_HAVE_MPC
 
 template<>
 inline Int SampleUniform<Int>( Int a, Int b )
@@ -324,7 +342,34 @@ inline Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev )
 
     return sample;
 }
-#endif
+#endif // ifdef EL_HAVE_QUAD
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat SampleNormal( BigFloat mean, BigFloat stddev )
+{
+    BigFloat sample;
+
+    // Run Marsiglia's polar method
+    // ============================
+    // NOTE: Half of the generated samples are thrown away in the case that
+    //       F is real.
+    while( true )
+    {
+        const BigFloat U = SampleUniform<BigFloat>(-1,1);
+        const BigFloat V = SampleUniform<BigFloat>(-1,1);
+        const BigFloat S = Sqrt(U*U+V*V);
+        if( S > BigFloat(0) && S < BigFloat(1) )
+        {
+            const BigFloat W = Sqrt(-2*Log(S)/S);
+            sample = mean + stddev*U*W;
+            break;
+        }
+    }
+
+    return sample;
+}
+#endif // ifdef EL_HAVE_MPC
 
 template<>
 inline float
@@ -368,6 +413,13 @@ SampleBall<Complex<Quad>>( Complex<Quad> center, Quad radius )
     const Quad angle = SampleUniform<Quad>(0.f,Quad(2*Pi));
     return center + Complex<Quad>(r*Cos(angle),r*Sin(angle));
 }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat
+SampleBall<BigFloat>( BigFloat center, BigFloat radius )
+{ return SampleUniform<BigFloat>(center-radius,center+radius); }
 #endif
 
 // I'm not certain if there is any good way to define this

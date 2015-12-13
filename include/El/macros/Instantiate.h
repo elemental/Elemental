@@ -26,6 +26,12 @@
 #endif
 #endif
 
+#if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGFLOAT)
+#ifndef PROTO_BIGFLOAT
+# define PROTO_BIGFLOAT PROTO_REAL(BigFloat)
+#endif
+#endif
+
 #ifndef PROTO_COMPLEX
 # define PROTO_COMPLEX(T) PROTO(T)
 #endif
@@ -55,6 +61,9 @@ PROTO_DOUBLE
 # endif
 #if defined(EL_ENABLE_QUAD) && defined(EL_HAVE_QUAD)
 PROTO_QUAD
+#endif
+#if defined(EL_ENABLE_BIGFLOAT) && defined(EL_HAVE_MPC)
+PROTO_BIGFLOAT
 #endif
 #endif
 

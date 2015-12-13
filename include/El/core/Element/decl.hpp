@@ -19,30 +19,26 @@
 
 namespace El {
 
-using std::enable_if;
-
-typedef unsigned char byte;
-
-// If these are changes, you must make sure that they have 
-// existing MPI datatypes. This is only sometimes true for 'long long'
-#ifdef EL_USE_64BIT_INTS
-typedef long long int Int;
-typedef long long unsigned Unsigned;
-#else
-typedef int Int;
-typedef unsigned Unsigned;
-#endif
-
 #ifdef EL_HAVE_QUAD
 typedef __float128 Quad;
 #endif
 
 template<typename Real>
 using Complex = std::complex<Real>;
+// NOTE: It appears that instantiating std::complex for Real=__float128
+//       is undefined. This is disappointing; and instantiating std::complex
+//       for Real=BigFloat is likely to be even more problematic. There may
+//       be a need for using a loose wrapper around std::complex when 
+//       Real is not in the approved list of datatypes,
+//       {float,double,long double}.
+
 typedef Complex<float>  scomplex;
 typedef Complex<double> dcomplex;
 #ifdef EL_HAVE_QUAD
 typedef Complex<Quad> qcomplex;
+#endif
+#ifdef EL_HAVE_MPC
+// TODO: Decide on how to handle complex BigFloat
 #endif
 
 // For usage in EnableIf
@@ -67,6 +63,9 @@ template<> struct IsScalar<Complex<double>> { static const bool value=true; };
 #ifdef EL_HAVE_QUAD
 template<> struct IsScalar<Quad> { static const bool value=true; };
 template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
+#endif
+#ifdef EL_HAVE_MPC
+template<> struct IsScalar<BigFloat> { static const bool value=true; };
 #endif
 
 template<typename T> struct IsBlasScalar
@@ -149,17 +148,22 @@ template<> struct IsData<Complex<double>> { static const bool value=true; };
 template<> struct IsData<Quad> { static const bool value=true; };
 template<> struct IsData<Complex<Quad>> { static const bool value=true; };
 #endif
+#ifdef EL_HAVE_MPC
+template<> struct IsData<BigFloat> { static const bool value=true; };
+#endif
 
 // Basic element manipulation and I/O
 // ==================================
 
 // Pretty-printing
 // ---------------
+// TODO: Move into core/imports/quadmath.hpp?
 #ifdef EL_HAVE_QUAD
-std::ostream& operator<<( std::ostream& os, Quad alpha );
+std::ostream& operator<<( std::ostream& os, const Quad& alpha );
 #endif
+
 template<typename Real>
-std::ostream& operator<<( std::ostream& os, Complex<Real> alpha );
+std::ostream& operator<<( std::ostream& os, const Complex<Real>& alpha );
 
 // Return the real/imaginary part of an element
 // --------------------------------------------
@@ -241,6 +245,9 @@ Base<T> Abs( const T& alpha ) EL_NO_EXCEPT;
 template<> Quad Abs( const Quad& alpha ) EL_NO_EXCEPT;
 template<> Quad Abs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT;
+#endif
 
 // Carefully avoid unnecessary overflow in an absolute value computation
 // ---------------------------------------------------------------------
@@ -264,6 +271,9 @@ Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
 // ---------------------------------
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Sgn( const Real& alpha, bool symmetric=true ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_MPC
+BigFloat Sgn( const BigFloat& alpha, bool symmetric=true ) EL_NO_EXCEPT;
+#endif
 
 // Exponentiation
 // ==============
@@ -273,10 +283,13 @@ F Exp( const F& alpha ) EL_NO_EXCEPT;
 template<> Quad Exp( const Quad& alpha ) EL_NO_EXCEPT;
 template<> Complex<Quad> Exp( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT;
+#endif
 
 template<typename F,typename T,
          typename=EnableIf<IsScalar<F>>,
-          typename=EnableIf<IsScalar<T>>>
+         typename=EnableIf<IsScalar<T>>>
 F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT;
 #ifdef EL_USE_64BIT_INTS
 template<typename F,typename=EnableIf<IsScalar<F>>>
@@ -289,6 +302,10 @@ template<> Complex<Quad> Pow
 template<> Complex<Quad> Pow
 ( const Complex<Quad>& alpha, const Quad& beta ) EL_NO_EXCEPT;
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Pow
+( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT;
+#endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Log( const F& alpha );
@@ -296,12 +313,18 @@ F Log( const F& alpha );
 template<> Quad Log( const Quad& alpha );
 template<> Complex<Quad> Log( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Log( const BigFloat& alpha );
+#endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sqrt( const F& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Sqrt( const Quad& alpha );
 template<> Complex<Quad> Sqrt( const Complex<Quad>& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Sqrt( const BigFloat& alpha );
 #endif
 
 // Trigonometric functions
@@ -312,12 +335,18 @@ F Cos( const F& alpha );
 template<> Quad Cos( const Quad& alpha );
 template<> Complex<Quad> Cos( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Cos( const BigFloat& alpha );
+#endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sin( const F& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Sin( const Quad& alpha );
 template<> Complex<Quad> Sin( const Complex<Quad>& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Sin( const BigFloat& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
@@ -326,12 +355,18 @@ F Tan( const F& alpha );
 template<> Quad Tan( const Quad& alpha );
 template<> Complex<Quad> Tan( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Tan( const BigFloat& alpha );
+#endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Acos( const F& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Acos( const Quad& alpha );
 template<> Complex<Quad> Acos( const Complex<Quad>& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Acos( const BigFloat& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
@@ -340,6 +375,9 @@ F Asin( const F& alpha );
 template<> Quad Asin( const Quad& alpha );
 template<> Complex<Quad> Asin( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Asin( const BigFloat& alpha );
+#endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Atan( const F& alpha );
@@ -347,9 +385,20 @@ F Atan( const F& alpha );
 template<> Quad Atan( const Quad& alpha );
 template<> Complex<Quad> Atan( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Atan( const BigFloat& alpha );
+#endif
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Atan2( const Real& y, const Real& x );
+#ifdef EL_HAVE_QUAD
+template<>
+Quad Atan2( const Quad& y, const Quad& x );
+#endif
+#ifdef EL_HAVE_MPC
+template<>
+BigFloat Atan2( const BigFloat& y, const BigFloat& x );
+#endif
 
 // Hyperbolic functions
 // ====================
@@ -359,6 +408,9 @@ F Cosh( const F& alpha );
 template<> Quad Cosh( const Quad& alpha );
 template<> Complex<Quad> Cosh( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Cosh( const BigFloat& alpha );
+#endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sinh( const F& alpha );
@@ -366,12 +418,18 @@ F Sinh( const F& alpha );
 template<> Quad Sinh( const Quad& alpha );
 template<> Complex<Quad> Sinh( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Sinh( const BigFloat& alpha );
+#endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Tanh( const F& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Tanh( const Quad& alpha );
 template<> Complex<Quad> Tanh( const Complex<Quad>& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Tanh( const BigFloat& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>

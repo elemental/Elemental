@@ -87,7 +87,7 @@ int main( int argc, char* argv[] )
     {
         const Int n = Input("--n","matrix size",1000);
         const Int nb = Input("--nb","blocksize",64);
-        const double phi = Input("--phi","Kahan parameter",0.5);
+        //const double phi = Input("--phi","Kahan parameter",0.5);
         const bool panelPiv = Input("--panelPiv","panel pivoting?",false);
         const Int oversample = Input("--oversample","oversample factor",10);
         const Int numPower = Input("--numPower","# of power iterations",1);
