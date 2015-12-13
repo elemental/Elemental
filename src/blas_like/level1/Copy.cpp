@@ -709,7 +709,11 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 
 #endif
 
+#define PROTO_BIGFLOAT \
+  template void Copy( const Matrix<BigFloat>& A, Matrix<BigFloat>& B );
+
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

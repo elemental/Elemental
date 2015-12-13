@@ -172,7 +172,18 @@ void Scale( S alpha, DistMultiVec<T>& A )
   ( T alpha, AbstractDistMatrix<Base<T>>& AReal, \
              AbstractDistMatrix<Base<T>>& AImag );
 
+#define PROTO_TYPES(T,S) \
+  template void Scale( S alpha, Matrix<T>& A ); \
+  template void Scale( S alpha, AbstractDistMatrix<T>& A ); \
+  template void Scale( S alpha, SparseMatrix<T>& A ); \
+  template void Scale( S alpha, DistSparseMatrix<T>& A ); \
+  template void Scale( S alpha, DistMultiVec<T>& A );
+
+#define PROTO_BIGFLOAT \
+  template void Scale( BigFloat alpha, Matrix<BigFloat>& A );
+
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -29,7 +29,7 @@ using std::function;
 El::mpi::Datatype QuadType, QuadComplexType;
 #endif
 #ifdef EL_HAVE_MPC
-El::mpi::Datatype BigFloatType, MPComplexType;
+El::mpi::Datatype BigFloatType;
 #endif
 
 // (Int,Scalar) datatypes

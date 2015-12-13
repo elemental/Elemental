@@ -57,7 +57,11 @@ void Zeros( DistMultiVec<T>& A, Int m, Int n )
   template void Zeros( DistSparseMatrix<T>& A, Int m, Int n ); \
   template void Zeros( DistMultiVec<T>& A, Int m, Int n );
 
+#define PROTO_BIGFLOAT \
+  template void Zeros( Matrix<BigFloat>& A, Int m, Int n );
+
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -41,7 +41,7 @@ MemCopy( T* dest, const T* source, size_t numEntries )
 inline void
 MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries )
 {
-    for( Int k=0; k<numEntries; ++k )
+    for( size_t k=0; k<numEntries; ++k )
         dest[k] = source[k];
 }
 #endif
@@ -102,7 +102,7 @@ MemZero( T* buffer, size_t numEntries )
 #ifdef EL_HAVE_MPC
 inline void MemZero( BigFloat* buffer, size_t numEntries )
 {
-    for( Int k=0; k<numEntries; ++k )
+    for( size_t k=0; k<numEntries; ++k )
         buffer[k].Zero();
 }
 #endif

@@ -160,7 +160,7 @@ template<>
 inline BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
 {
     BigFloat absAlpha;
-    mpfr_abs( absAlpha.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_abs( absAlpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return absAlpha;
 }
 #endif
@@ -204,7 +204,7 @@ inline Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
 #ifdef EL_HAVE_MPC
 inline BigFloat Sgn( const BigFloat& alpha, bool symmetric ) EL_NO_EXCEPT
 {
-    mpfr_sign_t sign = MPFR_SIGN(alpha.BackEnd());
+    mpfr_sign_t sign = MPFR_SIGN(alpha.LockedPointer());
     if( sign < 0 )
         return BigFloat(-1);
     else if( sign > 0 || !symmetric )
@@ -241,7 +241,7 @@ template<>
 inline BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT
 {
     BigFloat beta;
-    mpfr_exp( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_exp( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -300,7 +300,9 @@ inline BigFloat Pow
 {
     BigFloat gamma;
     mpfr_pow
-    ( gamma.BackEnd(), alpha.BackEnd(), beta.BackEnd(), mpc::RoundingMode() );
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta.LockedPointer(), mpc::RoundingMode() );
     return gamma;
 }
 #endif
@@ -332,7 +334,7 @@ template<>
 inline BigFloat Log( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_log( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_log( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -362,7 +364,7 @@ template<>
 inline BigFloat Sqrt( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_sqrt( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_sqrt( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -394,7 +396,7 @@ template<>
 inline BigFloat Cos( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_cos( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_cos( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -424,7 +426,7 @@ template<>
 inline BigFloat Sin( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_sin( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_sin( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -454,7 +456,7 @@ template<>
 inline BigFloat Tan( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_tan( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_tan( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -486,7 +488,7 @@ template<>
 inline BigFloat Acos( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_acos( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_acos( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -516,7 +518,7 @@ template<>
 inline BigFloat Asin( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_asin( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_asin( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -546,7 +548,7 @@ template<>
 inline BigFloat Atan( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_atan( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_atan( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -566,7 +568,9 @@ inline BigFloat Atan2( const BigFloat& y, const BigFloat& x )
 {
     BigFloat alpha;
     mpfr_atan2
-    ( alpha.BackEnd(), y.BackEnd(), x.BackEnd(), mpc::RoundingMode() );
+    ( alpha.Pointer(),
+      y.LockedPointer(),
+      x.LockedPointer(), mpc::RoundingMode() );
     return alpha;
 }
 #endif
@@ -598,7 +602,7 @@ template<>
 inline BigFloat Cosh( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_cosh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_cosh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -628,7 +632,7 @@ template<>
 inline BigFloat Sinh( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_sinh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_sinh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -658,7 +662,7 @@ template<>
 inline BigFloat Tanh( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_tanh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_tanh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -690,7 +694,7 @@ template<>
 inline BigFloat Acosh( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_acosh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_acosh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -720,7 +724,7 @@ template<>
 inline BigFloat Asinh( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_asinh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_asinh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -750,7 +754,7 @@ template<>
 inline BigFloat Atanh( const BigFloat& alpha )
 {
     BigFloat beta;
-    mpfr_atanh( beta.BackEnd(), alpha.BackEnd(), mpc::RoundingMode() );
+    mpfr_atanh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -772,6 +776,14 @@ inline Int Round( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 inline Quad Round( const Quad& alpha ) { return rintq(alpha); }
 #endif
+#ifdef EL_HAVE_MPC
+inline BigFloat Round( const BigFloat& alpha )
+{ 
+    BigFloat alphaRound;
+    mpfr_round( alphaRound.Pointer(), alpha.LockedPointer() );
+    return alphaRound;
+}
+#endif
 
 // Ceiling
 // -------
@@ -787,6 +799,14 @@ inline Int Ceil( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 inline Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 #endif
+#ifdef EL_HAVE_MPC
+inline BigFloat Ceil( const BigFloat& alpha )
+{
+    BigFloat alphaCeil;
+    mpfr_ceil( alphaCeil.Pointer(), alpha.LockedPointer() );
+    return alphaCeil;
+}
+#endif
 
 // Floor
 // -----
@@ -801,6 +821,14 @@ inline Complex<Real> Floor( const Complex<Real>& alpha )
 inline Int Floor( const Int& alpha ) { return alpha; }
 #ifdef EL_HAVE_QUAD
 inline Quad Floor( const Quad& alpha ) { return floorq(alpha); }
+#endif
+#ifdef EL_HAVE_MPC
+inline BigFloat Floor( const BigFloat& alpha )
+{
+    BigFloat alphaFloor;
+    mpfr_ceil( alphaFloor.Pointer(), alpha.LockedPointer() );
+    return alphaFloor;
+}
 #endif
 
 // Two-norm formation

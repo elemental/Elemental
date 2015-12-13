@@ -644,7 +644,32 @@ void GetSubmatrix
     const vector<Int>& J, \
           DistMultiVec<T>& ASub );
 
+#define PROTO_BIGFLOAT \
+  /* Views */ \
+  template void GetSubmatrix \
+  ( const Matrix<BigFloat>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          Matrix<BigFloat>& ASub ); \
+  /* Copies */ \
+  template void GetSubmatrix \
+  ( const Matrix<BigFloat>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          Matrix<BigFloat>& ASub ); \
+  template void GetSubmatrix \
+  ( const Matrix<BigFloat>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          Matrix<BigFloat>& ASub ); \
+  template void GetSubmatrix \
+  ( const Matrix<BigFloat>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          Matrix<BigFloat>& ASub );
+
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

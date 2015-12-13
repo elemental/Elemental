@@ -227,7 +227,14 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
   PROTO_TYPES(T,Base<T>) \
   PROTO_TYPES(T,T)
 
+#define PROTO_BIGFLOAT \
+  template void Axpy \
+  ( Int alpha, const Matrix<BigFloat>& A, Matrix<BigFloat>& B ); \
+  template void Axpy \
+  ( BigFloat alpha, const Matrix<BigFloat>& A, Matrix<BigFloat>& B );
+
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

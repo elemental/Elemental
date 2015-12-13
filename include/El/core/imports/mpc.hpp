@@ -22,6 +22,8 @@ namespace El {
 
 namespace mpc {
 
+void RandomState( gmp_randstate_t randState );
+
 mpfr_prec_t Precision();
 void SetPrecision( mpfr_prec_t precision );
 
@@ -37,171 +39,41 @@ private:
     mpfr_t mpfrFloat_;
 
 public:
-          mpfr_t& BackEnd()       { return mpfrFloat_; }
-    const mpfr_t& BackEnd() const { return mpfrFloat_; }
+    mpfr_ptr    Pointer();
+    mpfr_srcptr LockedPointer() const;
 
-    BigFloat()
-    {
-        mpfr_init2( mpfrFloat_, mpc::Precision() );
-    }
+    BigFloat();
+    BigFloat( const BigFloat& a );
+    BigFloat( const unsigned& a );
+    BigFloat( const unsigned long long& a );
+    BigFloat( const int& a );
+    BigFloat( const long long int& a );
+    BigFloat( const double& a );
+    BigFloat( const char* str, int base );
+    BigFloat( const std::string& str, int base );
+    BigFloat( BigFloat&& a );
+    ~BigFloat();
 
-    // Copy constructors
-    // -----------------
-    BigFloat( const BigFloat& a )
-    {
-        if( &a != this )
-        {
-            mpfr_init2( mpfrFloat_, mpc::Precision() );        
-            mpfr_set( mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
-        }
-        DEBUG_ONLY(
-        else
-            LogicError("Tried to construct BigFloat with itself");
-        )
-    }
+    void Zero();
 
-    BigFloat( const unsigned& a )
-    {
-        mpfr_init2( BackEnd(), mpc::Precision() );
-        mpfr_set_ui( BackEnd(), a, mpc::RoundingMode() );
-    }
+    mpfr_prec_t Precision() const;
 
-    BigFloat( const unsigned long long& a )
-    {
-        mpfr_init2( BackEnd(), mpc::Precision() );
-        mpfr_set_uj( BackEnd(), a, mpc::RoundingMode() );
-    }
+    BigFloat& operator=( const BigFloat& a );
+    BigFloat& operator=( const unsigned& a );
+    BigFloat& operator=( const unsigned long long& a );
+    BigFloat& operator=( const int& a );
+    BigFloat& operator=( const long long int& a );
+    BigFloat& operator=( const double& a );
+    BigFloat& operator=( BigFloat&& a );
 
-    BigFloat( const int& a )
-    {
-        mpfr_init2( BackEnd(), mpc::Precision() );
-        mpfr_set_si( BackEnd(), a, mpc::RoundingMode() );
-    }
+    BigFloat& operator+=( const BigFloat& a );
+    BigFloat& operator-=( const BigFloat& a );
+    BigFloat& operator*=( const BigFloat& a );
+    BigFloat& operator/=( const BigFloat& a );
 
-    BigFloat( const long long int& a )
-    {
-        mpfr_init2( BackEnd(), mpc::Precision() );
-        mpfr_set_sj( BackEnd(), a, mpc::RoundingMode() );
-    }
-
-    BigFloat( const double& a )
-    {
-        mpfr_init2( BackEnd(), mpc::Precision() );
-        mpfr_set_d( BackEnd(), a, mpc::RoundingMode() );
-    }
-
-    BigFloat( const char* str, int base )
-    {
-        mpfr_init2( BackEnd(), mpc::Precision() );
-        mpfr_set_str( BackEnd(), str, base, mpc::RoundingMode() );
-    }
-
-    BigFloat( const std::string& str, int base )
-    {
-        mpfr_init2( BackEnd(), mpc::Precision() );
-        mpfr_set_str( BackEnd(), str.c_str(), base, mpc::RoundingMode() );
-    }
-
-    // Move constructor
-    // ----------------
-    BigFloat( BigFloat&& a )
-    {
-        mpfr_swap( BackEnd(), a.BackEnd() );
-    }
-
-    ~BigFloat()
-    {
-        mpfr_clear( BackEnd() );
-    }
-
-    void Zero()
-    {
-        mpfr_set_zero( BackEnd(), 0 );
-    }
-
-    mpfr_prec_t Precision() const
-    {
-        // For now, we know this value a priori
-        return mpc::Precision();
-    }
-
-    BigFloat& operator=( const BigFloat& a )
-    {
-        mpfr_set( BackEnd(), a.BackEnd(), mpc::RoundingMode() );
-        return *this;
-    }
-
-    BigFloat& operator=( BigFloat&& a )
-    {
-        mpfr_swap( BackEnd(), a.BackEnd() );
-        return *this;
-    }
-
-    BigFloat& operator+=( const BigFloat& a )
-    {
-        mpfr_add( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
-        return *this;
-    }
-
-    BigFloat& operator-=( const BigFloat& a )
-    {
-        mpfr_sub( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
-        return *this;
-    }
-
-    BigFloat& operator*=( const BigFloat& a )
-    {
-        mpfr_mul( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
-        return *this;
-    }
-
-    BigFloat& operator/=( const BigFloat& a )
-    {
-        mpfr_div( BackEnd(), BackEnd(), a.BackEnd(), mpc::RoundingMode() );
-        return *this;
-    }
-
-    byte* Serialize( byte* buf ) const
-    {
-        // NOTE: We don't have to necessarily serialize the precisions, as
-        //       they are known a priori (as long as the user does not fiddle
-        //       with SetPrecision)
-
-        std::memcpy( buf, &mpfrFloat_->_mpfr_prec, sizeof(mpfr_prec_t) );
-        buf += sizeof(mpfr_prec_t);
-        std::memcpy( buf, &mpfrFloat_->_mpfr_sign, sizeof(mpfr_sign_t) );
-        buf += sizeof(mpfr_sign_t);
-        std::memcpy( buf, &mpfrFloat_->_mpfr_exp, sizeof(mpfr_exp_t) );
-        buf += sizeof(mpfr_exp_t);
-
-        // TODO: Avoid this integer computation
-        const mpfr_prec_t prec = Precision();
-        const auto numLimbs = (prec-1) / GMP_NUMB_BITS + 1;
-        std::memcpy( buf, mpfrFloat_->_mpfr_d, numLimbs*sizeof(mp_limb_t) );
-        buf += numLimbs*sizeof(mp_limb_t);
-
-        return buf;
-    }
-
-    const byte* Deserialize( const byte* buf )
-    {
-        // TODO: Ensure that the precisions matched already
-        std::memcpy( &mpfrFloat_->_mpfr_prec, buf, sizeof(mpfr_prec_t) );
-        buf += sizeof(mpfr_prec_t);
-        std::memcpy( &mpfrFloat_->_mpfr_sign, buf, sizeof(mpfr_sign_t) );
-        buf += sizeof(mpfr_sign_t);
-        std::memcpy( &mpfrFloat_->_mpfr_exp, buf, sizeof(mpfr_exp_t) );
-        buf += sizeof(mpfr_exp_t);
-
-        const mpfr_prec_t prec = mpfrFloat_->_mpfr_prec;
-        const auto numLimbs = (prec-1) / GMP_NUMB_BITS + 1;
-        std::memcpy( mpfrFloat_->_mpfr_d, buf, numLimbs*sizeof(mp_limb_t) );
-        buf += numLimbs*sizeof(mp_limb_t);
-
-        return buf;
-    }
-    byte* Deserialize( byte* buf )
-    { return const_cast<byte*>(Deserialize(static_cast<const byte*>(buf))); }
+          byte* Serialize( byte* buf ) const;
+          byte* Deserialize( byte* buf );
+    const byte* Deserialize( const byte* buf );
 
     friend bool operator<( const BigFloat& a, const BigFloat& b );
     friend bool operator>( const BigFloat& a, const BigFloat& b );
@@ -210,49 +82,19 @@ public:
     friend bool operator==( const BigFloat& a, const BigFloat& b );
 };
 
-inline const BigFloat& operator+( const BigFloat& a, const BigFloat& b )
-{ return BigFloat(a) += b; }
+BigFloat operator+( const BigFloat& a, const BigFloat& b );
+BigFloat operator-( const BigFloat& a, const BigFloat& b );
+BigFloat operator*( const BigFloat& a, const BigFloat& b );
+BigFloat operator/( const BigFloat& a, const BigFloat& b );
 
-inline const BigFloat& operator-( const BigFloat& a, const BigFloat& b )
-{ return BigFloat(a) -= b; }
+bool operator<( const BigFloat& a, const BigFloat& b );
+bool operator>( const BigFloat& a, const BigFloat& b );
+bool operator<=( const BigFloat& a, const BigFloat& b );
+bool operator>=( const BigFloat& a, const BigFloat& b );
+bool operator==( const BigFloat& a, const BigFloat& b );
+bool operator!=( const BigFloat& a, const BigFloat& b );
 
-inline const BigFloat& operator*( const BigFloat& a, const BigFloat& b )
-{ return BigFloat(a) *= b; }
-
-inline const BigFloat& operator/( const BigFloat& a, const BigFloat& b )
-{ return BigFloat(a) /= b; }
-
-inline bool operator<( const BigFloat& a, const BigFloat& b )
-{ return mpfr_less_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
-
-inline bool operator>( const BigFloat& a, const BigFloat& b )
-{ return mpfr_greater_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
-
-inline bool operator<=( const BigFloat& a, const BigFloat& b )
-{ return mpfr_lessequal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
-
-inline bool operator>=( const BigFloat& a, const BigFloat& b )
-{ return mpfr_greaterequal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
-
-inline bool operator==( const BigFloat& a, const BigFloat& b )
-{ return mpfr_equal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
-
-inline bool operator!=( const BigFloat& a, const BigFloat& b )
-{ return !(a==b); }
-
-inline std::ostream& operator<<( std::ostream& os, const BigFloat& alpha )
-{
-    // Print in the flexible manner that switches between either 
-    // fixed or scientific format
-    char* rawStr = 0;
-    const int numChar = mpfr_asprintf( &rawStr, "%Rg", alpha.BackEnd() );
-    if( numChar >= 0 )
-    {
-        os << std::string(rawStr); 
-        mpfr_free_str( rawStr );
-    }
-    return os;
-}
+std::ostream& operator<<( std::ostream& os, const BigFloat& alpha );
 
 byte* Serialize( Int n, const BigFloat* x, byte* xPacked );
 const byte* Deserialize( Int n, const byte* xPacked, BigFloat* x );

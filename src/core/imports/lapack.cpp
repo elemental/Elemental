@@ -420,6 +420,9 @@ template float SafeNorm( float alpha, float beta );
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( Quad alpha, Quad beta );
 #endif
+#ifdef EL_HAVE_MPC
+template BigFloat SafeNorm( BigFloat alpha, BigFloat beta );
+#endif
 
 double SafeNorm( double alpha, double beta )
 { return EL_LAPACK(dlapy2)( &alpha, &beta ); }
@@ -437,6 +440,9 @@ Real SafeNorm( Real alpha, Real beta, Real gamma )
 template float SafeNorm( float alpha, float beta, float gamma );
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( Quad alpha, Quad beta, Quad gamma );
+#endif
+#ifdef EL_HAVE_MPC
+template BigFloat SafeNorm( BigFloat alpha, BigFloat beta, BigFloat gamma );
 #endif
 
 double SafeNorm( double alpha, double beta, double gamma )
@@ -489,6 +495,11 @@ template void Copy
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
   const Complex<Quad>* A, BlasInt lda, Complex<Quad>* B, BlasInt ldb );
+#endif
+#ifdef EL_HAVE_MPC
+template void Copy
+( char uplo, BlasInt m, BlasInt n, 
+  const BigFloat* A, BlasInt lda, BigFloat* B, BlasInt ldb );
 #endif
 
 void Copy
