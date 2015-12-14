@@ -17,20 +17,26 @@ mpfr_ptr BigFloat::Pointer()
 mpfr_srcptr BigFloat::LockedPointer() const
 { return mpfrFloat_; }
 
-BigFloat::BigFloat()
+mpfr_prec_t BigFloat::Precision() const
+{ return mpfrFloat_->_mpfr_prec; }
+
+mpfr_exp_t BigFloat::Exponent() const
+{ return mpfrFloat_->_mpfr_exp; }
+
+BigFloat::BigFloat( mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [default]"))
-    mpfr_init2( mpfrFloat_, mpc::Precision() );
+    mpfr_init2( mpfrFloat_, prec );
 }
 
 // Copy constructors
 // -----------------
-BigFloat::BigFloat( const BigFloat& a )
+BigFloat::BigFloat( const BigFloat& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [BigFloat]"))
     if( &a != this )
     {
-        mpfr_init2( mpfrFloat_, mpc::Precision() );
+        mpfr_init2( mpfrFloat_, prec );
         mpfr_set( mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
     }
     DEBUG_ONLY(
@@ -39,52 +45,52 @@ BigFloat::BigFloat( const BigFloat& a )
     )
 }
 
-BigFloat::BigFloat( const unsigned& a )
+BigFloat::BigFloat( const unsigned& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned]"))
-    mpfr_init2( Pointer(), mpc::Precision() );
+    mpfr_init2( Pointer(), prec );
     mpfr_set_ui( Pointer(), a, mpc::RoundingMode() );
 }
 
-BigFloat::BigFloat( const unsigned long long& a )
+BigFloat::BigFloat( const unsigned long long& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned long long]"))
-    mpfr_init2( Pointer(), mpc::Precision() );
+    mpfr_init2( Pointer(), prec );
     mpfr_set_uj( Pointer(), a, mpc::RoundingMode() );
 }
 
-BigFloat::BigFloat( const int& a )
+BigFloat::BigFloat( const int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [int]"))
-    mpfr_init2( Pointer(), mpc::Precision() );
+    mpfr_init2( Pointer(), prec );
     mpfr_set_si( Pointer(), a, mpc::RoundingMode() );
 }
 
-BigFloat::BigFloat( const long long int& a )
+BigFloat::BigFloat( const long long int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long long int]"))
-    mpfr_init2( Pointer(), mpc::Precision() );
+    mpfr_init2( Pointer(), prec );
     mpfr_set_sj( Pointer(), a, mpc::RoundingMode() );
 }
 
-BigFloat::BigFloat( const double& a )
+BigFloat::BigFloat( const double& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [double]"))
-    mpfr_init2( Pointer(), mpc::Precision() );
+    mpfr_init2( Pointer(), prec );
     mpfr_set_d( Pointer(), a, mpc::RoundingMode() );
 }
 
-BigFloat::BigFloat( const char* str, int base )
+BigFloat::BigFloat( const char* str, int base, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [char*]"))
-    mpfr_init2( Pointer(), mpc::Precision() );
+    mpfr_init2( Pointer(), prec );
     mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
 }
 
-BigFloat::BigFloat( const std::string& str, int base )
+BigFloat::BigFloat( const std::string& str, int base, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [string]"))
-    mpfr_init2( Pointer(), mpc::Precision() );
+    mpfr_init2( Pointer(), prec );
     mpfr_set_str( Pointer(), str.c_str(), base, mpc::RoundingMode() );
 }
 
@@ -108,12 +114,6 @@ void BigFloat::Zero()
 {
     DEBUG_ONLY(CSE cse("BigFloat::Zero"))
     mpfr_set_zero( Pointer(), 0 );
-}
-
-mpfr_prec_t BigFloat::Precision() const
-{
-    // For now, we know this value a priori
-    return mpc::Precision();
 }
 
 BigFloat& BigFloat::operator=( const BigFloat& a )
@@ -193,6 +193,78 @@ BigFloat& BigFloat::operator/=( const BigFloat& a )
     return *this;
 }
 
+BigFloat BigFloat::operator-() const
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-"))
+    BigFloat alphaNeg(*this);
+    mpfr_neg( alphaNeg.Pointer(), alphaNeg.Pointer(), mpc::RoundingMode() );
+    return alphaNeg;
+}
+
+BigFloat& BigFloat::operator<<=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator<<= [int]"))
+    mpfr_mul_2si
+    ( Pointer(), Pointer(),
+      static_cast<long int>(a), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator<<=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator<<= [long int]"))
+    mpfr_mul_2si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator<<=( const unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator<<= [unsigned]"))
+    mpfr_mul_2ui
+    ( Pointer(), Pointer(),
+      static_cast<long unsigned>(a), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator<<=( const long unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator<<= [long unsigned]"))
+    mpfr_mul_2ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator>>=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator>>= [int]"))
+    mpfr_div_2si
+    ( Pointer(), Pointer(),
+      static_cast<long int>(a), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator>>=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator>>= [long int]"))
+    mpfr_div_2si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator>>=( const unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator>>= [unsigned]"))
+    mpfr_div_2ui
+    ( Pointer(), Pointer(),
+      static_cast<long unsigned>(a), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator>>=( const long unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator>>= [long unsigned]"))
+    mpfr_div_2ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
 byte* BigFloat::Serialize( byte* buf ) const
 {
     DEBUG_ONLY(CSE cse("BigFloat::Serialize"))
@@ -249,6 +321,30 @@ BigFloat operator*( const BigFloat& a, const BigFloat& b )
 
 BigFloat operator/( const BigFloat& a, const BigFloat& b )
 { return BigFloat(a) /= b; }
+
+BigFloat operator<<( const BigFloat& a, const int& b )
+{ return BigFloat(a) <<= b; }
+
+BigFloat operator<<( const BigFloat& a, const long int& b )
+{ return BigFloat(a) <<= b; }
+
+BigFloat operator<<( const BigFloat& a, const unsigned& b )
+{ return BigFloat(a) <<= b; }
+
+BigFloat operator<<( const BigFloat& a, const long unsigned& b )
+{ return BigFloat(a) <<= b; }
+
+BigFloat operator>>( const BigFloat& a, const int& b )
+{ return BigFloat(a) >>= b; }
+
+BigFloat operator>>( const BigFloat& a, const long int& b )
+{ return BigFloat(a) >>= b; }
+
+BigFloat operator>>( const BigFloat& a, const unsigned& b )
+{ return BigFloat(a) >>= b; }
+
+BigFloat operator>>( const BigFloat& a, const long unsigned& b )
+{ return BigFloat(a) >>= b; }
 
 bool operator<( const BigFloat& a, const BigFloat& b )
 { return mpfr_less_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }

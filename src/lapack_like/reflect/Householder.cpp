@@ -64,7 +64,7 @@ F LeftReflector( F& chi, Matrix<F>& x )
         beta = -lapack::SafeNorm( alpha, norm );
 
     // Rescale if the vector is too small
-    const Real safeMin = lapack::MachineSafeMin<Real>();
+    const Real safeMin = SafeMin<Real>();
     const Real epsilon = Epsilon<Real>();
     const Real safeInv = safeMin/epsilon;
     Int count = 0;

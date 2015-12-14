@@ -19,7 +19,7 @@ Base<F> OneCondition( const Matrix<F>& A )
     const Real oneNorm = OneNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e ) 
-    { return std::numeric_limits<Real>::infinity(); }
+    { return Infinity<Real>(); }
     const Real oneNormInv = OneNorm( B );
     return oneNorm*oneNormInv;
 }
@@ -33,7 +33,7 @@ Base<F> OneCondition( const ElementalMatrix<F>& A )
     const Real oneNorm = OneNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e ) 
-    { return std::numeric_limits<Real>::infinity(); }
+    { return Infinity<Real>(); }
     const Real oneNormInv = OneNorm( B );
     return oneNorm*oneNormInv;
 }

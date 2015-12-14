@@ -383,6 +383,7 @@ void Initialize( int& argc, char**& argv )
     ::generator.seed( seed );
     srand( seed );
 #ifdef EL_HAVE_MPC
+    mpfr_set_default_prec( 256 );
     gmp_randinit_default( ::gmpRandState );
     gmp_randseed_ui( ::gmpRandState, seed );
 #endif

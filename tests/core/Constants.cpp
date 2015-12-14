@@ -7,8 +7,22 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include <float.h>
 using namespace El;
+
+template<typename Real>
+void QueryLimits( const std::string& title )
+{
+        const auto safeInv = SafeMin<Real>()/Epsilon<Real>();
+        Output( title );
+        Output("  safeMin:   ",SafeMin<Real>());
+        Output("  epsilon:   ",Epsilon<Real>());
+        Output("  precision: ",Precision<Real>());
+        Output("  safeInv:   ",safeInv);
+        Output("  min:       ",Min<Real>());
+        Output("  max:       ",Max<Real>());
+        Output("  lowest:    ",Lowest<Real>());
+        Output("  infinity:  ",Infinity<Real>());
+}
 
 int 
 main( int argc, char* argv[] )
@@ -18,26 +32,14 @@ main( int argc, char* argv[] )
 
     if( commRank == 0 )
     {
-        const float safeMinFloat = lapack::MachineSafeMin<float>();
-        const float epsilonFloat = lapack::MachineEpsilon<float>();
-        const float safeInvFloat = safeMinFloat/epsilonFloat;
-        const double safeMinDouble = lapack::MachineSafeMin<double>();
-        const double epsilonDouble = lapack::MachineEpsilon<double>();
-        const double safeInvDouble = safeMinDouble/epsilonDouble;
-        std::cout << "Single precision:\n"
-                  << "  safeMin: " << safeMinFloat << "\n"
-                  << "  epsilon: " << epsilonFloat << "\n"
-                  << "  safeInv: " << safeInvFloat << "\n"
-                  << "  FLT_MIN: " << FLT_MIN << "\n"
-                  << "  FLT_MAX: " << FLT_MAX << "\n"
-                  << "\n"
-                  << "Double precision:\n"
-                  << "  safeMin: " << safeMinDouble << "\n"
-                  << "  epsilon: " << epsilonDouble << "\n"
-                  << "  safeInv: " << safeInvDouble << "\n"
-                  << "  DBL_MIN: " << DBL_MIN << "\n"
-                  << "  DBL_MAX: " << DBL_MAX << "\n"
-                  << std::endl;
+        QueryLimits<float>( "Single-precision:" );
+        QueryLimits<double>( "Double-precision:" );
+#ifdef EL_HAVE_QUAD
+        QueryLimits<Quad>( "Quad-precision:" );
+#endif
+#ifdef EL_HAVE_MPC
+        QueryLimits<BigFloat>( "BigFloat:" );
+#endif
     }
 
     return 0;

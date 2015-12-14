@@ -103,6 +103,8 @@ typedef unsigned Unsigned;
 #include "El/core/imports/pmrrr.hpp"
 #include "El/core/imports/scalapack.hpp"
 
+#include "El/core/limits.hpp"
+
 namespace El {
 
 template<typename T=double> class Matrix;

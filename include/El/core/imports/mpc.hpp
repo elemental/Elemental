@@ -33,7 +33,12 @@ mpfr_rnd_t RoundingMode();
 
 // Since MPFR chose to have mpfr_t be a typedef to an array of length 1,
 // it is unnecessarily difficult to use with the STL. The following thus
-// provides a minimal wrapper for emulating value semantics.
+// provides a minimal wrapper for providing value semantics.
+//
+// This API is extremely loosely related to that of Pavel Holoborodko's
+// MPFR C++, which was not used within Elemental for a variety of 
+// idiosyncratic reasons.
+
 class BigFloat {
 private:
     mpfr_t mpfrFloat_;
@@ -41,35 +46,52 @@ private:
 public:
     mpfr_ptr    Pointer();
     mpfr_srcptr LockedPointer() const;
+    mpfr_exp_t  Exponent() const;
+    mpfr_prec_t Precision() const;
 
-    BigFloat();
-    BigFloat( const BigFloat& a );
-    BigFloat( const unsigned& a );
-    BigFloat( const unsigned long long& a );
-    BigFloat( const int& a );
-    BigFloat( const long long int& a );
-    BigFloat( const double& a );
-    BigFloat( const char* str, int base );
-    BigFloat( const std::string& str, int base );
+    BigFloat( mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const BigFloat& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const unsigned& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const unsigned long long& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const int& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const long long int& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const double& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat
+    ( const char* str, int base, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat
+    ( const std::string& str, int base, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( BigFloat&& a );
     ~BigFloat();
 
     void Zero();
 
-    mpfr_prec_t Precision() const;
-
     BigFloat& operator=( const BigFloat& a );
-    BigFloat& operator=( const unsigned& a );
-    BigFloat& operator=( const unsigned long long& a );
+    BigFloat& operator=( const double& a );
     BigFloat& operator=( const int& a );
     BigFloat& operator=( const long long int& a );
-    BigFloat& operator=( const double& a );
+    BigFloat& operator=( const unsigned& a );
+    BigFloat& operator=( const unsigned long long& a );
     BigFloat& operator=( BigFloat&& a );
 
     BigFloat& operator+=( const BigFloat& a );
     BigFloat& operator-=( const BigFloat& a );
     BigFloat& operator*=( const BigFloat& a );
     BigFloat& operator/=( const BigFloat& a );
+
+    // Negation
+    BigFloat operator-() const;
+
+    // Analogue of bit-shifting left
+    BigFloat& operator<<=( const int& a );
+    BigFloat& operator<<=( const long int& a );
+    BigFloat& operator<<=( const unsigned& a ); 
+    BigFloat& operator<<=( const unsigned long& a );
+
+    // Analogue of bit-shifting right
+    BigFloat& operator>>=( const int& a );
+    BigFloat& operator>>=( const long int& a );
+    BigFloat& operator>>=( const unsigned& a ); 
+    BigFloat& operator>>=( const unsigned long& a );
 
           byte* Serialize( byte* buf ) const;
           byte* Deserialize( byte* buf );
@@ -86,6 +108,16 @@ BigFloat operator+( const BigFloat& a, const BigFloat& b );
 BigFloat operator-( const BigFloat& a, const BigFloat& b );
 BigFloat operator*( const BigFloat& a, const BigFloat& b );
 BigFloat operator/( const BigFloat& a, const BigFloat& b );
+
+BigFloat operator<<( const BigFloat& a, const int& b );
+BigFloat operator<<( const BigFloat& a, const long int& b );
+BigFloat operator<<( const BigFloat& a, const unsigned& b );
+BigFloat operator<<( const BigFloat& a, const unsigned long& b );
+
+BigFloat operator>>( const BigFloat& a, const int& b );
+BigFloat operator>>( const BigFloat& a, const long int& b );
+BigFloat operator>>( const BigFloat& a, const unsigned& b );
+BigFloat operator>>( const BigFloat& a, const unsigned long& b );
 
 bool operator<( const BigFloat& a, const BigFloat& b );
 bool operator>( const BigFloat& a, const BigFloat& b );

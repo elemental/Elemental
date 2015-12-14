@@ -19,7 +19,7 @@ Base<F> InfinityCondition( const Matrix<F>& A )
     const Real infNorm = InfinityNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e ) 
-    { return std::numeric_limits<Real>::infinity(); }
+    { return Infinity<Real>(); }
     const Real infNormInv = InfinityNorm( B );
     return infNorm*infNormInv;
 }
@@ -33,7 +33,7 @@ Base<F> InfinityCondition( const ElementalMatrix<F>& A )
     const Real infNorm = InfinityNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e ) 
-    { return std::numeric_limits<Real>::infinity(); }
+    { return Infinity<Real>(); }
     const Real infNormInv = InfinityNorm( B );
     return infNorm*infNormInv;
 }

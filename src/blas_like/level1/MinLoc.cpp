@@ -22,7 +22,7 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
     )
     ValueInt<Real> pivot;
     pivot.index = -1;
-    pivot.value = std::numeric_limits<Real>::max();
+    pivot.value = Max<Real>();
     if( n == 1 )
     {
         for( Int i=0; i<m; ++i )
@@ -64,7 +64,7 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
     )
     ValueInt<Real> pivot;
     pivot.index = -1;
-    pivot.value = std::numeric_limits<Real>::max();
+    pivot.value = Max<Real>();
     if( x.Participating() )
     {
         if( n == 1 )
@@ -115,7 +115,7 @@ ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
     )
     ValueInt<Real> pivot;
     pivot.index = -1;
-    pivot.value = std::numeric_limits<Real>::max();
+    pivot.value = Max<Real>();
     const Int mLocal = x.LocalHeight();
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
@@ -142,7 +142,7 @@ Entry<Real> MinLoc( const Matrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = std::numeric_limits<Real>::max();
+    pivot.value = Max<Real>();
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
@@ -173,7 +173,7 @@ Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = std::numeric_limits<Real>::max();
+    pivot.value = Max<Real>();
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
@@ -217,7 +217,7 @@ Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = std::numeric_limits<Real>::max();
+    pivot.value = Max<Real>();
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
@@ -267,7 +267,7 @@ SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = std::numeric_limits<Real>::max();
+    pivot.value = Max<Real>();
     if( A.Participating() )
     {
         const Int mLocal = A.LocalHeight();

@@ -9,23 +9,14 @@
 #include "El.hpp"
 #ifdef EL_HAVE_MPC
 
-namespace {
-
-// To ease the initial integration of MPFR and MPC into Elemental, it will
-// initially be required that all MPFR/MPC types use a globally-constant
-// precision
-mpfr_prec_t mpfrPrec=1024;
-
-} // anonymous namespace
-
 namespace El {
 namespace mpc {
 
 mpfr_prec_t Precision()
-{ return ::mpfrPrec; }
+{ return mpfr_get_default_prec(); }
 
 void SetPrecision( mpfr_prec_t precision )
-{ ::mpfrPrec = precision; }
+{ mpfr_set_default_prec( precision ); }
 
 mpfr_rnd_t RoundingMode()
 { return mpfr_get_default_rounding_mode(); }

@@ -434,13 +434,6 @@ void Eig
 
 } // namespace lapack
 
-template<typename Real>
-inline Real Epsilon() { return lapack::MachineEpsilon<Real>(); }
-#ifdef EL_HAVE_QUAD
-template<>
-inline Quad Epsilon<Quad>() { return Quad(9.63)/Quad(1e35); }
-#endif
-
 } // namespace El
 
 #endif // ifndef EL_IMPORTS_LAPACK_HPP

@@ -374,8 +374,8 @@ if(NOT EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
   message("Disabling MPFR since MPI_LONG_LONG was not detected")
 endif()
 if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
-  # TODO: Demand a minimum MPFR version number
-  find_package(MPFR)
+  # TODO: See if this requirement could be lowered
+  find_package(MPFR 3.1.0)
   if(MPFR_FOUND)
     set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES})
     set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES})
@@ -397,8 +397,7 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
   endif()
 
   if(EL_HAVE_MPFR)
-    # TODO: Demand a minimum MPC version number
-    find_package(MPC)
+    find_package(MPC 1.0.0)
     if(MPC_FOUND) 
       set(CMAKE_REQUIRED_LIBRARIES ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
       set(CMAKE_REQUIRED_INCLUDES ${MPC_INCLUDES} ${MPFR_INCLUDES})

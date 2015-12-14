@@ -639,7 +639,7 @@ Base<F> LLLDelta( const Matrix<F>& QR )
     if( n <= 1 )
         return 1; // the best-possible delta
     Matrix<F> z;
-    Real delta = std::numeric_limits<Real>::max();
+    Real delta = Max<Real>();
     for( Int i=0; i<n-1; ++i )
     {
         const Real rho_i_i = R.GetRealPart(i,i);
