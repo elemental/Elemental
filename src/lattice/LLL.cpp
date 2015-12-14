@@ -61,6 +61,21 @@
 // Future work will involve investigating blocked algorithms and/or 
 // distributed-memory and/or GPU implementations.
 //
+// The seminal work on distributed-memory implementations of LLL is
+//
+//   G. Villard, "Parallel lattice basis reduction",
+//   Papers from the International Symposium on Symbolic and algebraic
+//   computation, 1992, pp. 269--277.
+//
+// The key idea is that, because only |R(i,i+1)/R(i,i)| <= 1/2 is required
+// in order to achieve the optimality bound of the first column of the 
+// reduced basis (noticed by Lenstra et al. in "Factoring polynomials with
+// rational coefficients"), one can transition to an "all swaps" algorithm
+// which alternates between swapping all possible (b_i,b_{i+1}) columns with
+// odd and even coefficients. The result is then only weakly LLL reduced,
+// but the parallel algorithm is greatly simplified. Furthermore, the QR
+// factorization can easily be patched up with an independent Givens rotation
+// for each swap.
 
 namespace El {
 
@@ -171,6 +186,7 @@ void Step
   Base<F> delta,
   Base<F> loopTol,
   Base<F> zeroTol,
+  bool weak,
   bool progress,
   bool time )
 {
@@ -191,11 +207,13 @@ void Step
 
         if( time )
             roundTimer.Start();
-        for( Int i=k-1; i>=0; --i )
+        const Int lowestIndex = ( weak ? Max(k-1,0) : 0 );
+        for( Int i=k-1; i>=lowestIndex; --i )
         {
             const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
             xBuf[i] = chi;
-            blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
+            if( Abs(chi) > Real(1)/Real(2) )
+                blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
         }
 
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
@@ -206,6 +224,7 @@ void Step
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( time )
             roundTimer.Stop();
+
         if( newNorm*newNorm > loopTol*oldNorm*oldNorm )
         {
             break;
@@ -376,6 +395,7 @@ void BlockStep
   Base<F> delta,
   Base<F> loopTol,
   Base<F> zeroTol,
+  bool weak,
   bool progress,
   bool time )
 {
@@ -396,12 +416,13 @@ void BlockStep
 
         if( time )
             roundTimer.Start();
-
-        for( Int i=k-1; i>=0; --i )
+        const Int lowestIndex = ( weak ? Max(k-1,0) : 0 );
+        for( Int i=k-1; i>=lowestIndex; --i )
         {
             const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
             xBuf[i] = chi;
-            blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
+            if( Abs(chi) > Real(1)/Real(2) )
+                blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
         }
 
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
@@ -410,7 +431,6 @@ void BlockStep
           F(-1), BBuf, BLDim, &xBuf[0], 1,
           F(+1), &BBuf[k*BLDim], 1 );
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-
         if( time )
             roundTimer.Stop();
 
@@ -433,6 +453,7 @@ Int UnblockedAlg
   Matrix<F>& QR,
   Base<F> delta,
   Base<F> loopTol,
+  bool weak,
   bool progress,
   bool time )
 {
@@ -461,7 +482,8 @@ Int UnblockedAlg
     Int k=1, numBacktrack=0;
     while( k < n )
     {
-        lll::Step( k, B, QR, t, d, delta, loopTol, zeroTol, progress, time );
+        lll::Step
+        ( k, B, QR, t, d, delta, loopTol, zeroTol, weak, progress, time );
 
         const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
         const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
@@ -504,6 +526,7 @@ Int BlockedAlg
   Matrix<F>& QR,
   Base<F> delta,
   Base<F> loopTol,
+  bool weak,
   bool progress,
   bool time )
 {
@@ -536,7 +559,8 @@ Int BlockedAlg
     while( k < n )
     {
         lll::BlockStep
-        ( k, B, QR, V, SInv, t, d, delta, loopTol, zeroTol, progress, time );
+        ( k, B, QR, V, SInv, t, d, delta, loopTol, zeroTol,
+          weak, progress, time );
 
         const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
         const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
@@ -583,6 +607,7 @@ Int LLL
   Matrix<F>& QR,
   Base<F> delta,
   Base<F> loopTol,
+  bool weak,
   bool presort,
   bool smallestFirst,
   bool progress,
@@ -612,13 +637,13 @@ Int LLL
 
     const bool useBlocked = false;
     if( useBlocked )
-        return lll::BlockedAlg( B, QR, delta, loopTol, progress, time );
+        return lll::BlockedAlg( B, QR, delta, loopTol, weak, progress, time );
     else
-        return lll::UnblockedAlg( B, QR, delta, loopTol, progress, time );
+        return lll::UnblockedAlg( B, QR, delta, loopTol, weak, progress, time );
 }
 
 template<typename F>
-Base<F> LLLDelta( const Matrix<F>& QR )
+Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
 {
     DEBUG_ONLY(CSE cse("LLLDelta"))
     typedef Base<F> Real;
@@ -634,13 +659,15 @@ Base<F> LLLDelta( const Matrix<F>& QR )
     //
     //   delta R(k,k)^2 <= R(k+1,k+1)^2 + |R(k,k+1)|^2
     //
-    // for 0 <= k < n-1.
+    // for 0 <= k < Min(m,n)-1.
+    //
+    // TODO: Decide if m < n requires checking the k=m-1 case.
     //
     if( n <= 1 )
         return 1; // the best-possible delta
     Matrix<F> z;
     Real delta = Max<Real>();
-    for( Int i=0; i<n-1; ++i )
+    for( Int i=0; i<minDim-1; ++i )
     {
         const Real rho_i_i = R.GetRealPart(i,i);
         const Real rho_i_ip1 = Abs(R.Get(i,i+1));
@@ -654,16 +681,29 @@ Base<F> LLLDelta( const Matrix<F>& QR )
 
     // Ensure that
     //
-    //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < k < n
+    //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < k < Min(m,n),
+    //
+    // unless a weak reduction was requested in which case k=l+1.
+    //
+    // TODO: Decide if m < n requires checking the k=m-1 case.
     //
     // NOTE: This does not seem to hold for complex LLL reductions,
     //       so sqrt(2)/2 is used instead.
-    auto diagR = GetDiagonal(R);
-    DiagonalSolve( LEFT, NORMAL, diagR, R );
-    ShiftDiagonal( R, F(-1) );
-    const Real maxRatio = MaxNorm( R );
     const Real bound = 
       ( IsComplex<F>::value ? Real(1)/Sqrt(Real(2)) : Real(1)/Real(2) );
+    Real maxRatio = 0;
+    if( weak )
+    {
+        for( Int i=0; i<minDim-1; ++i )
+            maxRatio = Max(maxRatio,Abs(R.Get(i,i+1)/R.Get(i,i)));
+    }
+    else
+    {
+        auto diagR = GetDiagonal(R);
+        DiagonalSolve( LEFT, NORMAL, diagR, R );
+        ShiftDiagonal( R, F(-1) );
+        maxRatio = MaxNorm( R );
+    }
     if( maxRatio > bound+Pow(Epsilon<Real>(),Real(3)/Real(4)) )
         return 0; // the worst-possible delta
 
@@ -676,11 +716,12 @@ Base<F> LLLDelta( const Matrix<F>& QR )
     Matrix<F>& QR, \
     Base<F> delta, \
     Base<F> loopTol, \
+    bool weak, \
     bool presort, \
     bool smallestFirst, \
     bool progress, \
     bool time ); \
-  template Base<F> LLLDelta( const Matrix<F>& QR );
+  template Base<F> LLLDelta( const Matrix<F>& QR, bool weak );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

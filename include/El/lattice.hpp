@@ -18,12 +18,13 @@ Int LLL
   Matrix<F>& QR,
   Base<F> delta,
   Base<F> innerTol=0,
+  bool weak=false,
   bool presort=false,
   bool smallestFirst=true,
   bool progress=false,
   bool time=false );
 template<typename F>
-Base<F> LLLDelta( const Matrix<F>& QR );
+Base<F> LLLDelta( const Matrix<F>& QR, bool weak=false );
 
 template<typename F>
 void LatticeGramSchmidt( const Matrix<F>& B, Matrix<F>& G, Matrix<F>& M );

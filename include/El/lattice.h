@@ -15,22 +15,22 @@ extern "C" {
 #endif
 
 EL_EXPORT ElError ElLLL_s
-( ElMatrix_s B, ElMatrix_s QR, float delta, float innerTol,
+( ElMatrix_s B, ElMatrix_s QR, float delta, float innerTol, bool weak,
   bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 EL_EXPORT ElError ElLLL_d
-( ElMatrix_d B, ElMatrix_d QR, double delta, double innerTol,
+( ElMatrix_d B, ElMatrix_d QR, double delta, double innerTol, bool weak,
   bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 EL_EXPORT ElError ElLLL_c
-( ElMatrix_c B, ElMatrix_c QR, float delta, float innerTol,
+( ElMatrix_c B, ElMatrix_c QR, float delta, float innerTol, bool weak,
   bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 EL_EXPORT ElError ElLLL_z
-( ElMatrix_z B, ElMatrix_z QR, double delta, double innerTol,
+( ElMatrix_z B, ElMatrix_z QR, double delta, double innerTol, bool weak,
   bool presort, bool smallestFirst, bool progress, ElInt* numBacktrack );
 
-EL_EXPORT ElError ElLLLDelta_s( ElConstMatrix_s QR, float* delta );
-EL_EXPORT ElError ElLLLDelta_d( ElConstMatrix_d QR, double* delta );
-EL_EXPORT ElError ElLLLDelta_c( ElConstMatrix_c QR, float* delta );
-EL_EXPORT ElError ElLLLDelta_z( ElConstMatrix_z QR, double* delta );
+EL_EXPORT ElError ElLLLDelta_s( ElConstMatrix_s QR, bool weak, float* delta );
+EL_EXPORT ElError ElLLLDelta_d( ElConstMatrix_d QR, bool weak, double* delta );
+EL_EXPORT ElError ElLLLDelta_c( ElConstMatrix_c QR, bool weak, float* delta );
+EL_EXPORT ElError ElLLLDelta_z( ElConstMatrix_z QR, bool weak, double* delta );
 
 EL_EXPORT ElError ElLatticeGramSchmidt_s
 ( ElConstMatrix_s B, ElMatrix_s G, ElMatrix_s M );

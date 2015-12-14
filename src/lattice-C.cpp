@@ -21,16 +21,17 @@ extern "C" {
     ElMatrix_ ## SIG QR, \
     Base<F> delta, \
     Base<F> innerTol, \
+    bool weak, \
     bool presort, \
     bool smallestFirst, \
     bool progress, \
     ElInt* numBacktrack ) \
   { EL_TRY( *numBacktrack = \
-      LLL( *CReflect(B), *CReflect(QR), delta, innerTol, \
+      LLL( *CReflect(B), *CReflect(QR), delta, innerTol, weak,\
            presort, smallestFirst, progress ) ) } \
   ElError ElLLLDelta_ ## SIG \
-  ( ElConstMatrix_ ## SIG QR, Base<F>* delta ) \
-  { EL_TRY( *delta = LLLDelta( *CReflect(QR) ) ) }
+  ( ElConstMatrix_ ## SIG QR, bool weak, Base<F>* delta ) \
+  { EL_TRY( *delta = LLLDelta( *CReflect(QR), weak ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"
