@@ -1001,27 +1001,27 @@ void ID
 ( const Matrix<F>& A,
         Permutation& P, 
         Matrix<F>& Z, 
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ID
 ( const ElementalMatrix<F>& A,
         DistPermutation& P,
         ElementalMatrix<F>& Z, 
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
 void ID
 ( Matrix<F>& A,
   Permutation& P, 
   Matrix<F>& Z,
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
 template<typename F>
 void ID
 ( ElementalMatrix<F>& A,
   DistPermutation& P,
   ElementalMatrix<F>& Z,
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
 
 // Skeleton
@@ -1032,14 +1032,14 @@ void Skeleton
         Permutation& PR,
         Permutation& PC,
         Matrix<F>& Z,
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Skeleton
 ( const ElementalMatrix<F>& A,
         DistPermutation& PR,
         DistPermutation& PC,
         ElementalMatrix<F>& Z,
-  const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 } // namespace El
 

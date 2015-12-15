@@ -24,7 +24,7 @@ void Skeleton
         Permutation& PR,
         Permutation& PC,
         Matrix<F>& Z,
-  const QRCtrl<Base<F>> ctrl )
+  const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Skeleton"))
     // Find the row permutation
@@ -69,7 +69,7 @@ void Skeleton
         DistPermutation& PR,
         DistPermutation& PC,
         ElementalMatrix<F>& Z,
-  const QRCtrl<Base<F>> ctrl )
+  const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("Skeleton"))
 
@@ -120,13 +120,13 @@ void Skeleton
           Permutation& PR, \
           Permutation& PC, \
           Matrix<F>& Z, \
-    const QRCtrl<Base<F>> ctrl ); \
+    const QRCtrl<Base<F>>& ctrl ); \
   template void Skeleton \
   ( const ElementalMatrix<F>& A, \
           DistPermutation& PR, \
           DistPermutation& PC, \
           ElementalMatrix<F>& Z, \
-    const QRCtrl<Base<F>> ctrl );
+    const QRCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
