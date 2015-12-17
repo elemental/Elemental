@@ -58,16 +58,6 @@ public:
     ( const El::DistData& data,
       bool constrain=true, bool allowMismatch=false ) override;
 
-    void AlignWith
-    ( const ElementalData& data,
-      bool constrain=true, bool allowMismatch=false );
-    void AlignColsWith
-    ( const ElementalData& data,
-      bool constrain=true, bool allowMismatch=false );
-    void AlignRowsWith
-    ( const ElementalData& data,
-      bool constrain=true, bool allowMismatch=false );
-
     void AlignAndResize
     ( int colAlign, int rowAlign, Int height, Int width, 
       bool force=false, bool constrain=true );
@@ -145,8 +135,6 @@ public:
     // =====================
     bool DiagonalAlignedWith
     ( const El::DistData& d, Int offset=0 ) const override EL_NO_EXCEPT;
-    bool DiagonalAlignedWith
-    ( const ElementalData& d, Int offset=0 ) const EL_NO_EXCEPT;
     int DiagonalRoot( Int offset=0 ) const override EL_NO_EXCEPT;
     int DiagonalAlign( Int offset=0 ) const override EL_NO_EXCEPT;
 

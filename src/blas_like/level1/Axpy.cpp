@@ -89,6 +89,8 @@ void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
     }
     else
     {
+        // TODO: Consider what happens if one is a row vector and the other
+        //       is a column vector...
         unique_ptr<ElementalMatrix<T>> XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );

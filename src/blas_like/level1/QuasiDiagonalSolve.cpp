@@ -10,12 +10,16 @@
 
 namespace El {
 
+// TODO: Avoid duplication with QuasiDiagonalScale if possible. Only
+//       difference is the inversions
 template<typename F,typename FMain>
 void
 QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo, 
-  const Matrix<FMain>& d, const Matrix<F>& dSub, 
-  Matrix<F>& X, bool conjugated )
+  const Matrix<FMain>& d,
+  const Matrix<F>& dSub, 
+        Matrix<F>& X,
+  bool conjugated )
 {
     DEBUG_ONLY(CSE cse("QuasiDiagonalSolve"))
     const Int m = X.Height();
@@ -52,10 +56,13 @@ QuasiDiagonalSolve
             }
             else
             {
-                D.Set(0,0,d.Get(i,0));    
+                D.Set(0,0,d.Get(i,0));
                 D.Set(1,1,d.Get(i+1,0));
                 D.Set(1,0,dSub.Get(i,0));
-                Symmetric2x2Solve( LEFT, LOWER, D, XRow, conjugated );
+                Symmetric2x2Inv( LOWER, D, conjugated );
+                MakeSymmetric( LOWER, D, conjugated );
+
+                Transform2x2Rows( D, X, i, i+1 );
             }
 
             i += nb;
@@ -95,7 +102,10 @@ QuasiDiagonalSolve
                 D.Set(0,0,d.Get(j,0));    
                 D.Set(1,1,d.Get(j+1,0));
                 D.Set(1,0,dSub.Get(j,0));
-                Symmetric2x2Solve( RIGHT, LOWER, D, XCol, conjugated );
+                Symmetric2x2Inv( LOWER, D, conjugated );
+                MakeSymmetric( LOWER, D, conjugated );
+
+                Transform2x2Cols( D, X, j, j+1 );
             }
 
             j += nb;
@@ -125,7 +135,6 @@ LeftQuasiDiagonalSolve
         LogicError("This option not yet supported");
     const Int m = X.Height();
     const Int mLocal = X.LocalHeight();
-    const Int nLocal = X.LocalWidth();
     const Int colStride = X.ColStride();
     DEBUG_ONLY(
       const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
@@ -162,18 +171,20 @@ LeftQuasiDiagonalSolve
         const Int iLocPrev = iLoc + prevOff;
         const Int iLocNext = iLoc + nextOff;
 
-        auto x1Loc = X.Matrix()( IR(iLoc,iLoc+1), IR(0,nLocal) );
+        auto x1Loc = X.Matrix()( IR(iLoc), ALL );
+
         if( i<m-1 && dSub.GetLocal(iLoc,0) != F(0) )
         {
             // Handle 2x2 starting at i
             D11.Set( 0, 0, d.GetLocal(iLoc,0) ); 
             D11.Set( 1, 1, dNext.GetLocal(iLocNext,0) );
             D11.Set( 1, 0, dSub.GetLocal(iLoc,0) );
+            Symmetric2x2Inv( LOWER, D11, conjugated );
+            MakeSymmetric( LOWER, D11, conjugated );
 
-            const auto& XNextLoc = XNext.LockedMatrix(); 
-            auto x1NextLoc = XNextLoc( IR(iLocNext,iLocNext+1), IR(0,nLocal) );
-            FirstHalfOfSymmetric2x2Solve
-            ( LEFT, LOWER, D11, x1Loc, x1NextLoc, conjugated );
+            auto x1NextLoc = XNext.LockedMatrix()( IR(iLocNext), ALL );
+            Scale( D11.Get(0,0), x1Loc );
+            Axpy( D11.Get(0,1), x1NextLoc, x1Loc );
         }
         else if( i>0 && dSubPrev.GetLocal(iLocPrev,0) != F(0) )
         {
@@ -181,11 +192,12 @@ LeftQuasiDiagonalSolve
             D11.Set( 0, 0, dPrev.GetLocal(iLocPrev,0) );
             D11.Set( 1, 1, d.GetLocal(iLoc,0) );
             D11.Set( 1, 0, dSubPrev.GetLocal(iLocPrev,0) );
+            Symmetric2x2Inv( LOWER, D11, conjugated );
+            MakeSymmetric( LOWER, D11, conjugated );
 
-            const auto& XPrevLoc = XPrev.LockedMatrix();
-            auto x1PrevLoc = XPrevLoc( IR(iLocPrev,iLocPrev+1), IR(0,nLocal) );
-            SecondHalfOfSymmetric2x2Solve
-            ( LEFT, LOWER, D11, x1PrevLoc, x1Loc, conjugated );
+            auto x1PrevLoc = XPrev.LockedMatrix()( IR(iLocPrev), ALL );
+            Scale( D11.Get(1,1), x1Loc );
+            Axpy( D11.Get(1,0), x1PrevLoc, x1Loc );
         }
         else
         {
@@ -214,7 +226,6 @@ RightQuasiDiagonalSolve
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int n = X.Width();
-    const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
     const Int rowStride = X.RowStride();
     DEBUG_ONLY(
@@ -240,7 +251,7 @@ RightQuasiDiagonalSolve
     if( rowStride == 1 )
     {
         QuasiDiagonalSolve
-        ( LEFT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(),
+        ( RIGHT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(),
           conjugated );
         return;
     }
@@ -252,18 +263,20 @@ RightQuasiDiagonalSolve
         const Int jLocPrev = jLoc + prevOff;
         const Int jLocNext = jLoc + nextOff;
 
-        auto x1Loc = X.Matrix()( IR(0,mLocal), IR(jLoc,jLoc+1) );
+        auto x1Loc = X.Matrix()( ALL, IR(jLoc) );
+
         if( j<n-1 && dSub.GetLocal(jLoc,0) != F(0) )
         {
             // Handle 2x2 starting at j
             D11.Set( 0, 0, d.GetLocal(jLoc,0) ); 
             D11.Set( 1, 1, dNext.GetLocal(jLocNext,0) );
             D11.Set( 1, 0, dSub.GetLocal(jLoc,0) );
+            Symmetric2x2Inv( LOWER, D11, conjugated );
+            MakeSymmetric( LOWER, D11, conjugated ); 
 
-            const auto& XNextLoc = XNext.LockedMatrix();
-            auto x1NextLoc = XNextLoc( IR(0,mLocal), IR(jLocNext,jLocNext+1) );
-            FirstHalfOfSymmetric2x2Solve
-            ( RIGHT, LOWER, D11, x1Loc, x1NextLoc, conjugated );
+            auto x1NextLoc = XNext.LockedMatrix()( ALL, IR(jLocNext) );
+            Scale( D11.Get(0,0), x1Loc );
+            Axpy( D11.Get(1,0), x1NextLoc, x1Loc );
         }
         else if( j>0 && dSubPrev.GetLocal(jLocPrev,0) != F(0) )
         {
@@ -271,11 +284,12 @@ RightQuasiDiagonalSolve
             D11.Set( 0, 0, dPrev.GetLocal(jLocPrev,0) );
             D11.Set( 1, 1, d.GetLocal(jLoc,0) );
             D11.Set( 1, 0, dSubPrev.GetLocal(jLocPrev,0) );
+            Symmetric2x2Inv( LOWER, D11, conjugated );
+            MakeSymmetric( LOWER, D11, conjugated ); 
 
-            const auto& XPrevLoc = XPrev.LockedMatrix();
-            auto x1PrevLoc = XPrevLoc( IR(0,mLocal), IR(jLocPrev,jLocPrev+1) );
-            SecondHalfOfSymmetric2x2Solve
-            ( RIGHT, LOWER, D11, x1PrevLoc, x1Loc, conjugated );
+            auto x1PrevLoc = XPrev.LockedMatrix()( ALL, IR(jLocPrev) );
+            Scale( D11.Get(1,1), x1Loc );
+            Axpy( D11.Get(0,1), x1PrevLoc, x1Loc );
         }
         else
         {
@@ -289,8 +303,10 @@ template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo, 
-  const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub, 
-  DistMatrix<F,U,V>& X, bool conjugated )
+  const ElementalMatrix<FMain>& d,
+  const ElementalMatrix<F>& dSub, 
+        DistMatrix<F,U,V>& X,
+  bool conjugated )
 {
     DEBUG_ONLY(CSE cse("QuasiDiagonalSolve"))
     const Grid& g = X.Grid();
@@ -404,14 +420,18 @@ QuasiDiagonalSolve
           bool conjugated ); \
   template void QuasiDiagonalSolve \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub, \
-          DistMatrix<F,U,V>& X, bool conjugated );
+    const ElementalMatrix<FMain>& d, \
+    const ElementalMatrix<F>& dSub, \
+          DistMatrix<F,U,V>& X, \
+    bool conjugated );
 
 #define PROTO_TYPES(F,FMain) \
   template void QuasiDiagonalSolve \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const Matrix<FMain>& d, const Matrix<F>& dSub, \
-          Matrix<F>& X, bool conjugated ); \
+    const Matrix<FMain>& d, \
+    const Matrix<F>& dSub, \
+          Matrix<F>& X, \
+    bool conjugated ); \
   PROTO_TYPES_DIST(F,FMain,MC,  MR  ) \
   PROTO_TYPES_DIST(F,FMain,MC,  STAR) \
   PROTO_TYPES_DIST(F,FMain,MD,  STAR) \

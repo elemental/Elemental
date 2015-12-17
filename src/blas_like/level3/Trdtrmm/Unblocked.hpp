@@ -15,9 +15,9 @@ inline void
 LUnblocked( Matrix<F>& L, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::LUnblocked");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
+      CSE cse("trdtrmm::LUnblocked");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
     )
     const Int n = L.Height();
     const Int ldim = L.LDim();
@@ -69,15 +69,15 @@ inline void
 LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::LUnblocked");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
+      CSE cse("trdtrmm::LUnblocked");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
     )
     const Int n = L.Height();
     const Int ldim = L.LDim();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    Matrix<F> s10, S10, D11(2,2);
+    Matrix<F> s10, S10, D11(2,2), D11Inv(2,2);
 
     Int k=0;
     while( k < n )
@@ -136,16 +136,20 @@ LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
             D11.Set( 0, 0, L11.Get(0,0) );
             D11.Set( 1, 1, L11.Get(1,1) );
             D11.Set( 1, 0, dSub.Get(k,0) );
-            Symmetric2x2Solve( LEFT, LOWER, D11, L10, conjugate );
+
+            D11Inv = D11;
+            Symmetric2x2Inv( LOWER, D11Inv, conjugate );
+            MakeSymmetric( LOWER, D11Inv, conjugate );
+            Transform2x2Rows( D11Inv, L10, 0, 1 );
 
             // L00 := L00 + L10' S10
+            // TODO: Custom rank-2 update 
             Trrk( LOWER, orientation, NORMAL, F(1), L10, S10, F(1), L00 );
 
             // L11 := inv(D11)
-            Symmetric2x2Inv( LOWER, D11, conjugate );
-            L11.Set( 0, 0, D11.Get(0,0) );
-            L11.Set( 1, 0, D11.Get(1,0) );
-            L11.Set( 1, 1, D11.Get(1,1) );
+            L11.Set( 0, 0, D11Inv.Get(0,0) );
+            L11.Set( 1, 0, D11Inv.Get(1,0) );
+            L11.Set( 1, 1, D11Inv.Get(1,1) );
         }
 
         k += nb;
@@ -157,9 +161,9 @@ inline void
 UUnblocked( Matrix<F>& U, bool conjugate=false )
 {
     DEBUG_ONLY(
-        CSE cse("trdtrmm::UUnblocked");
-        if( U.Height() != U.Width() )
-            LogicError("U must be square");
+      CSE cse("trdtrmm::UUnblocked");
+      if( U.Height() != U.Width() )
+          LogicError("U must be square");
     )
     const Int n = U.Height();
 

@@ -119,7 +119,11 @@ Unblocked
             auto A21 = A( ind2, ind1 );
             auto A22 = A( ind2, ind2 );
             Y21 = A21;
-            Symmetric2x2Solve( RIGHT, LOWER, D11, A21, conjugate );
+
+            auto D11Inv = D11;
+            Symmetric2x2Inv( LOWER, D11Inv, conjugate );
+            MakeSymmetric( LOWER, D11Inv, conjugate );
+            Transform2x2Cols( D11Inv, A21, 0, 1 );
             Trr2( LOWER, F(-1), A21, Y21, A22, conjugate );
 
             // Only leave the main diagonal of D in A, so that routines like
@@ -159,7 +163,7 @@ Unblocked
     auto& A = AProx.Get();
 
     DistMatrix<F> Y21(g);
-    DistMatrix<F,STAR,STAR> D11_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> D11_STAR_STAR(g), D11Inv_STAR_STAR(g);
 
     Int k=0;
     while( k < n )
@@ -204,7 +208,12 @@ Unblocked
             auto A22 = A( ind2, ind2 );
             Y21 = A21;
             D11_STAR_STAR = D11;
-            Symmetric2x2Solve( RIGHT, LOWER, D11_STAR_STAR, A21, conjugate );
+
+            D11Inv_STAR_STAR = D11_STAR_STAR;
+            Symmetric2x2Inv( LOWER, D11Inv_STAR_STAR.Matrix(), conjugate );
+            MakeSymmetric( LOWER, D11Inv_STAR_STAR.Matrix(), conjugate );
+            Transform2x2Cols( D11Inv_STAR_STAR, A21, 0, 1 );
+
             Trr2( LOWER, F(-1), A21, Y21, A22, conjugate );
 
             // Only leave the main diagonal of D in A, so that routines like

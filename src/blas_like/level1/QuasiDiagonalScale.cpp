@@ -12,9 +12,12 @@ namespace El {
 
 template<typename F,typename FMain>
 void QuasiDiagonalScale
-( LeftOrRight side, UpperOrLower uplo, 
-  const Matrix<FMain>& d, const Matrix<F>& dSub, 
-  Matrix<F>& X, bool conjugated )
+( LeftOrRight side,
+  UpperOrLower uplo, 
+  const Matrix<FMain>& d,
+  const Matrix<F>& dSub, 
+        Matrix<F>& X,
+  bool conjugated )
 {
     DEBUG_ONLY(CSE cse("QuasiDiagonalScale"))
     const Int m = X.Height();
@@ -41,8 +44,9 @@ void QuasiDiagonalScale
                 D.Set(0,0,d.Get(i,0));    
                 D.Set(1,1,d.Get(i+1,0));
                 D.Set(1,0,dSub.Get(i,0));
-                auto XRow = View( X, i, 0, nb, n );
-                Symmetric2x2Scale( LEFT, LOWER, D, XRow, conjugated );
+                MakeSymmetric( LOWER, D, conjugated );
+
+                Transform2x2Rows( D, X, i, i+1 );
             }
 
             i += nb;
@@ -69,8 +73,9 @@ void QuasiDiagonalScale
                 D.Set(0,0,d.Get(j,0));    
                 D.Set(1,1,d.Get(j+1,0));
                 D.Set(1,0,dSub.Get(j,0));
-                auto XCol = View( X, 0, j, m, nb );
-                Symmetric2x2Scale( RIGHT, LOWER, D, XCol, conjugated );
+                MakeSymmetric( LOWER, D, conjugated );
+
+                Transform2x2Cols( D, X, j, j+1 );
             }
 
             j += nb;
@@ -99,21 +104,20 @@ void LeftQuasiDiagonalScale
         LogicError("This option not yet supported");
     const Int m = X.Height();
     const Int mLocal = X.LocalHeight();
-    const Int nLocal = X.LocalWidth();
     const Int colStride = X.ColStride();
     DEBUG_ONLY(
-        const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
-        const Int colAlignNext = Mod(X.ColAlign()-1,colStride);
-        if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
-            LogicError("data is not properly aligned");
-        if( XPrev.ColAlign() != colAlignPrev ||
-            dPrev.ColAlign() != colAlignPrev || 
-            dSubPrev.ColAlign() != colAlignPrev )
-            LogicError("'previous' data is not properly aligned");
-        if( XNext.ColAlign() != colAlignNext || 
-            dNext.ColAlign() != colAlignNext || 
-            dSubNext.ColAlign() != colAlignNext )
-            LogicError("'next' data is not properly aligned");
+      const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
+      const Int colAlignNext = Mod(X.ColAlign()-1,colStride);
+      if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
+          LogicError("data is not properly aligned");
+      if( XPrev.ColAlign() != colAlignPrev ||
+          dPrev.ColAlign() != colAlignPrev || 
+          dSubPrev.ColAlign() != colAlignPrev )
+          LogicError("'previous' data is not properly aligned");
+      if( XNext.ColAlign() != colAlignNext || 
+          dNext.ColAlign() != colAlignNext || 
+          dSubNext.ColAlign() != colAlignNext )
+          LogicError("'next' data is not properly aligned");
     )
     const Int prevOff = ( XPrev.ColShift()==X.ColShift()-1 ? 0 : -1 );
     const Int nextOff = ( XNext.ColShift()==X.ColShift()+1 ? 0 : +1 );
@@ -129,38 +133,34 @@ void LeftQuasiDiagonalScale
         return;
     }
 
-    Matrix<F> D11( 2, 2 );
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
         const Int i = X.GlobalRow(iLoc);
         const Int iLocPrev = iLoc + prevOff;
         const Int iLocNext = iLoc + nextOff;
 
-        auto x1Loc = View( X.Matrix(), iLoc, 0, 1, nLocal );
+        auto x1Loc = X.Matrix()( IR(iLoc), ALL );
 
         if( i<m-1 && dSub.GetLocal(iLoc,0) != F(0) )
         {
             // Handle 2x2 starting at i
-            D11.Set( 0, 0, d.GetLocal(iLoc,0) ); 
-            D11.Set( 1, 1, dNext.GetLocal(iLocNext,0) );
-            D11.Set( 1, 0, dSub.GetLocal(iLoc,0) );
+            const FMain delta00 = d.GetLocal(iLoc,0);
+            const F delta10 = dSub.GetLocal(iLoc,0);
+            const F delta01 = ( conjugated ? Conj(delta10) : delta10 );
 
-            auto x1NextLoc = 
-                LockedView( XNext.LockedMatrix(), iLocNext, 0, 1, nLocal );
-            FirstHalfOfSymmetric2x2Scale
-            ( LEFT, LOWER, D11, x1Loc, x1NextLoc, conjugated );
+            auto x1NextLoc = XNext.LockedMatrix()( IR(iLocNext), ALL );
+            Scale( delta00, x1Loc );
+            Axpy( delta01, x1NextLoc, x1Loc );
         }
         else if( i>0 && dSubPrev.GetLocal(iLocPrev,0) != F(0) )
         {
             // Handle 2x2 starting at i-1
-            D11.Set( 0, 0, dPrev.GetLocal(iLocPrev,0) );
-            D11.Set( 1, 1, d.GetLocal(iLoc,0) );
-            D11.Set( 1, 0, dSubPrev.GetLocal(iLocPrev,0) );
+            const F delta10 = dSubPrev.GetLocal(iLocPrev,0);
+            const FMain delta11 = d.GetLocal(iLoc,0);
 
-            auto x1PrevLoc = 
-                LockedView( XPrev.LockedMatrix(), iLocPrev, 0, 1, nLocal );
-            SecondHalfOfSymmetric2x2Scale
-            ( LEFT, LOWER, D11, x1PrevLoc, x1Loc, conjugated );
+            auto x1PrevLoc = XPrev.LockedMatrix()( IR(iLocPrev), ALL );
+            Scale( delta11, x1Loc );
+            Axpy( delta10, x1PrevLoc, x1Loc );
         }
         else
         {
@@ -188,22 +188,21 @@ void RightQuasiDiagonalScale
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int n = X.Width();
-    const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
     const Int rowStride = X.RowStride();
     DEBUG_ONLY(
-        const Int rowAlignPrev = Mod(X.RowAlign()+1,rowStride);
-        const Int rowAlignNext = Mod(X.RowAlign()-1,rowStride);
-        if( d.ColAlign() != X.RowAlign() || dSub.ColAlign() != X.RowAlign() )
-            LogicError("data is not properly aligned");
-        if( XPrev.RowAlign() != rowAlignPrev ||
-            dPrev.ColAlign() != rowAlignPrev || 
-            dSubPrev.ColAlign() != rowAlignPrev )
-            LogicError("'previous' data is not properly aligned");
-        if( XNext.RowAlign() != rowAlignNext || 
-            dNext.ColAlign() != rowAlignNext || 
-            dSubNext.ColAlign() != rowAlignNext )
-            LogicError("'next' data is not properly aligned");
+      const Int rowAlignPrev = Mod(X.RowAlign()+1,rowStride);
+      const Int rowAlignNext = Mod(X.RowAlign()-1,rowStride);
+      if( d.ColAlign() != X.RowAlign() || dSub.ColAlign() != X.RowAlign() )
+          LogicError("data is not properly aligned");
+      if( XPrev.RowAlign() != rowAlignPrev ||
+          dPrev.ColAlign() != rowAlignPrev || 
+          dSubPrev.ColAlign() != rowAlignPrev )
+          LogicError("'previous' data is not properly aligned");
+      if( XNext.RowAlign() != rowAlignNext || 
+          dNext.ColAlign() != rowAlignNext || 
+          dSubNext.ColAlign() != rowAlignNext )
+          LogicError("'next' data is not properly aligned");
     )
     const Int prevOff = ( XPrev.RowShift()==X.RowShift()-1 ? 0 : -1 );
     const Int nextOff = ( XNext.RowShift()==X.RowShift()+1 ? 0 : +1 );
@@ -214,43 +213,39 @@ void RightQuasiDiagonalScale
     if( rowStride == 1 )
     {
         QuasiDiagonalScale
-        ( LEFT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(),
+        ( RIGHT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(),
           conjugated );
         return;
     }
 
-    Matrix<F> D11( 2, 2 );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Int j = X.GlobalCol(jLoc);
         const Int jLocPrev = jLoc + prevOff;
         const Int jLocNext = jLoc + nextOff;
 
-        auto x1Loc = View( X.Matrix(), 0, jLoc, mLocal, 1 );
+        auto x1Loc = X.Matrix()( ALL, IR(jLoc) );
 
         if( j<n-1 && dSub.GetLocal(jLoc,0) != F(0) )
         {
             // Handle 2x2 starting at j
-            D11.Set( 0, 0, d.GetLocal(jLoc,0) ); 
-            D11.Set( 1, 1, dNext.GetLocal(jLocNext,0) );
-            D11.Set( 1, 0, dSub.GetLocal(jLoc,0) );
+            const FMain delta00 = d.GetLocal(jLoc,0);
+            const F delta10 = dSub.GetLocal(jLoc,0);
 
-            auto x1NextLoc = 
-                LockedView( XNext.LockedMatrix(), 0, jLocNext, mLocal, 1 );
-            FirstHalfOfSymmetric2x2Scale
-            ( RIGHT, LOWER, D11, x1Loc, x1NextLoc, conjugated );
+            auto x1NextLoc = XNext.LockedMatrix()( ALL, IR(jLocNext) );
+            Scale( delta00, x1Loc );
+            Axpy( delta10, x1NextLoc, x1Loc );
         }
         else if( j>0 && dSubPrev.GetLocal(jLocPrev,0) != F(0) )
         {
             // Handle 2x2 starting at j-1
-            D11.Set( 0, 0, dPrev.GetLocal(jLocPrev,0) );
-            D11.Set( 1, 1, d.GetLocal(jLoc,0) );
-            D11.Set( 1, 0, dSubPrev.GetLocal(jLocPrev,0) );
+            const FMain delta11 = d.GetLocal(jLoc,0);
+            const F delta10 = dSubPrev.GetLocal(jLocPrev,0);
+            const F delta01 = ( conjugated ? Conj(delta10) : delta10 );
 
-            auto x1PrevLoc = 
-                LockedView( XPrev.LockedMatrix(), 0, jLocPrev, mLocal, 1 );
-            SecondHalfOfSymmetric2x2Scale
-            ( RIGHT, LOWER, D11, x1PrevLoc, x1Loc, conjugated );
+            auto x1PrevLoc = XPrev.LockedMatrix()( ALL, IR(jLocPrev) );
+            Scale( delta11, x1Loc );
+            Axpy( delta01, x1PrevLoc, x1Loc );
         }
         else
         {
@@ -264,8 +259,10 @@ template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo, 
-  const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub, 
-  DistMatrix<F,U,V>& X, bool conjugated )
+  const ElementalMatrix<FMain>& d,
+  const ElementalMatrix<F>& dSub, 
+        DistMatrix<F,U,V>& X,
+  bool conjugated )
 {
     DEBUG_ONLY(CSE cse("QuasiDiagonalScale"))
     const Grid& g = X.Grid();
@@ -380,14 +377,18 @@ QuasiDiagonalScale
           bool conjugated ); \
   template void QuasiDiagonalScale \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const ElementalMatrix<FMain>& d, const ElementalMatrix<F>& dSub, \
-          DistMatrix<F,U,V>& X, bool conjugated );
+    const ElementalMatrix<FMain>& d, \
+    const ElementalMatrix<F>& dSub, \
+          DistMatrix<F,U,V>& X, \
+    bool conjugated );
 
 #define PROTO_TYPES(F,FMain) \
   template void QuasiDiagonalScale \
   ( LeftOrRight side, UpperOrLower uplo, \
-    const Matrix<FMain>& d, const Matrix<F>& dSub, \
-          Matrix<F>& X, bool conjugated ); \
+    const Matrix<FMain>& d, \
+    const Matrix<F>& dSub, \
+          Matrix<F>& X, \
+    bool conjugated ); \
   PROTO_TYPES_DIST(F,FMain,MC,  MR  ) \
   PROTO_TYPES_DIST(F,FMain,MC,  STAR) \
   PROTO_TYPES_DIST(F,FMain,MD,  STAR) \

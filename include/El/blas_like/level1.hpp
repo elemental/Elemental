@@ -1506,6 +1506,74 @@ void Reshape
 template<typename T>
 DistSparseMatrix<T> GetSubmatrix( Int m, Int n, const DistSparseMatrix<T>& A );
 
+// Transform2x2 
+// ============
+
+// [a1,a2] := G [a1,a2], where G is 2x2
+// ------------------------------------
+template<typename T>
+void Transform2x2
+( const Matrix<T>& G,
+        Matrix<T>& a1,
+        Matrix<T>& a2 );
+template<typename T>
+void Transform2x2
+( const AbstractDistMatrix<T>& G,
+        AbstractDistMatrix<T>& a1,
+        AbstractDistMatrix<T>& a2 );
+
+// A([i1,i2],:) := G A([i1,i2],:), where G is 2x2
+// ----------------------------------------------
+template<typename T>
+void Transform2x2Rows
+( const Matrix<T>& G,
+        Matrix<T>& A, Int i1, Int i2 );
+template<typename T>
+void Transform2x2Rows
+( const AbstractDistMatrix<T>& G,
+        AbstractDistMatrix<T>& A, Int i1, Int i2 );
+
+// A(:,[j1,j2]) := A(:,[j1,j2]) G, where G is 2x2
+// ----------------------------------------------
+template<typename T>
+void Transform2x2Cols
+( const Matrix<T>& G,
+        Matrix<T>& A, Int j1, Int j2 );
+template<typename T>
+void Transform2x2Cols
+( const AbstractDistMatrix<T>& G,
+        AbstractDistMatrix<T>& A, Int j1, Int j2 );
+
+// TODO: SymmetricTransform2x2?
+
+// Rotate (via Givens)
+// ===================
+// NOTE: BLAS calls this 'rot'
+
+// [a1,a2] := [c s; -conj(s) c] [a1,a2]
+// ------------------------------------
+template<typename F>
+void Rotate( Base<F> c, F s, Matrix<F>& a1, Matrix<F>& a2 );
+template<typename F>
+void Rotate
+( Base<F> c, F s, AbstractDistMatrix<F>& a1, AbstractDistMatrix<F>& a2 );
+
+// A([i1,i2],:) := [c s; -conj(s) c] A([i1,i2],:)
+// ----------------------------------------------
+template<typename F>
+void RotateRows( Base<F> c, F s, Matrix<F>& A, Int i1, Int i2 );
+template<typename F>
+void RotateRows( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 );
+
+// A(:,[j1,j2]) := A(:,[j1,j2]) [c s; -conj(s), c]
+// -----------------------------------------------
+template<typename F>
+void RotateCols( Base<F> c, F s, Matrix<F>& A, Int j1, Int j2 );
+template<typename F>
+void RotateCols( Base<F> c, F s, AbstractDistMatrix<F>& A, Int j1, Int j2 );
+
+// TODO: SymmetricRotation?
+
 // Round
 // =====
 // Round each entry to the nearest integer
@@ -1633,62 +1701,6 @@ void HermitianSwap
 // ===============
 template<typename F>
 void Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate=false );
-
-// Symmetric2x2Scale
-// =================
-template<typename F>
-void
-Symmetric2x2Scale
-( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& A, bool conjugate=false );
-template<typename F>
-void
-Symmetric2x2Scale
-( LeftOrRight side, UpperOrLower uplo,
-  const ElementalMatrix<F>& D, ElementalMatrix<F>& A,
-  bool conjugate=false );
-
-template<typename F>
-void
-FirstHalfOfSymmetric2x2Scale
-( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2,
-  bool conjugate=false );
-
-template<typename F>
-void
-SecondHalfOfSymmetric2x2Scale
-( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2,
-  bool conjugate=false );
-
-// Symmetric2x2Solve
-// =================
-template<typename F>
-void
-Symmetric2x2Solve
-( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& A, bool conjugate=false );
-template<typename F>
-void
-Symmetric2x2Solve
-( LeftOrRight side, UpperOrLower uplo,
-  const ElementalMatrix<F>& D, ElementalMatrix<F>& A,
-  bool conjugate=false );
-
-template<typename F>
-void
-FirstHalfOfSymmetric2x2Solve
-( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2,
-  bool conjugate=false );
-
-template<typename F>
-void
-SecondHalfOfSymmetric2x2Solve
-( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2,
-  bool conjugate=false );
 
 // Shift
 // =====

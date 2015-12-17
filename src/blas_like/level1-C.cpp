@@ -557,7 +557,7 @@ ElError ElGetSubgraphDist
   ElError ElSymmetricSwapDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
   { EL_TRY( SymmetricSwap( CReflect(uplo), *CReflect(A), to, from ) ) } \
-  /* TODO: Symmetric2x2Scale */ \
+  /* TODO: Transform2x2 */ \
   /* B = A^T */ \
   ElError ElTranspose_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -771,8 +771,7 @@ ElError ElGetSubgraphDist
   ( ElConstDistMultiVec_ ## SIG A, Base<F>* norm ) \
   { EL_TRY( *norm = Nrm2( *CReflect(A) ) ) } \
   /* TODO: QuasiDiagonalSolve */ \
-  /* TODO: Symmetric2x2Inv */ \
-  /* TODO: Symmetric2x2Solve */
+  /* TODO: Symmetric2x2Inv */
 
 #define C_PROTO_INT(SIG,T) \
   C_PROTO_BASE(SIG,SIG,T) \

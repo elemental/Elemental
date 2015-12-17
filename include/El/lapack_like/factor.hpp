@@ -814,6 +814,22 @@ void Explicit
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
+// Swap neighboring columns (j,j+1) and update the QR factorization
+// ----------------------------------------------------------------
+template<typename F>
+void NeighborColSwap
+( Matrix<F>& Q,
+  Matrix<F>& R,
+  Int j );
+
+// Swap disjoint sets of neighboring columns and update the QR factorization
+// -------------------------------------------------------------------------
+template<typename F>
+void DisjointNeighborColSwaps
+(       Matrix<F>& Q,
+        Matrix<F>& R,
+  const Matrix<Int>& colSwaps );
+
 template<typename F>
 struct TreeData
 {

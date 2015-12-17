@@ -350,36 +350,6 @@ private:
     template<typename S> friend class BlockMatrix;
 };
 
-struct DistData
-{
-    Dist colDist, rowDist;
-    Int blockHeight, blockWidth;
-    int colAlign, rowAlign;
-    Int colCut, rowCut;
-    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
-    const Grid* grid;
-
-    DistData() { }
-
-    template<typename scalarType>
-    DistData( const BlockMatrix<scalarType>& A )
-    : colDist(A.ColDist()), rowDist(A.RowDist()),
-      blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
-      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
-      colCut(A.ColCut()), rowCut(A.RowCut()),
-      root(A.Root()), grid(&A.Grid())
-    { }
-};
-inline bool operator==( const DistData& A, const DistData& B )
-{ return A.colDist     == B.colDist &&
-         A.rowDist     == B.rowDist &&
-         A.blockHeight == B.blockHeight &&
-         A.blockWidth  == B.blockWidth &&
-         A.colAlign    == B.colAlign &&
-         A.rowAlign    == B.rowAlign &&
-         A.root        == B.root &&
-         A.grid        == B.grid; }
-
 struct ElementalData
 {
     Dist colDist, rowDist;
@@ -403,6 +373,45 @@ inline bool operator==( const ElementalData& A, const ElementalData& B )
          A.rowAlign == B.rowAlign &&
          A.root     == B.root &&
          A.grid     == B.grid; }
+
+struct DistData
+{
+    Dist colDist, rowDist;
+    Int blockHeight, blockWidth;
+    int colAlign, rowAlign;
+    Int colCut, rowCut;
+    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
+    const Grid* grid;
+
+    DistData() { }
+
+    DistData( const ElementalData& data )
+    : colDist(data.colDist), rowDist(data.rowDist),
+      blockHeight(1), blockWidth(1),
+      colAlign(data.colAlign), rowAlign(data.rowAlign),
+      colCut(0), rowCut(0),
+      root(data.root), grid(data.grid)
+    { }
+
+    template<typename scalarType>
+    DistData( const AbstractDistMatrix<scalarType>& A )
+    : colDist(A.ColDist()), rowDist(A.RowDist()),
+      blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
+      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
+      colCut(A.ColCut()), rowCut(A.RowCut()),
+      root(A.Root()), grid(&A.Grid())
+    { }
+};
+inline bool operator==( const DistData& A, const DistData& B )
+{ return A.colDist     == B.colDist &&
+         A.rowDist     == B.rowDist &&
+         A.blockHeight == B.blockHeight &&
+         A.blockWidth  == B.blockWidth &&
+         A.colAlign    == B.colAlign &&
+         A.rowAlign    == B.rowAlign &&
+         A.root        == B.root &&
+         A.grid        == B.grid; }
+
 
 } // namespace El
 

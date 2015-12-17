@@ -14,6 +14,9 @@
 #include "./QR/Householder.hpp"
 #include "./QR/SolveAfter.hpp"
 #include "./QR/Explicit.hpp"
+
+#include "./QR/ColSwap.hpp"
+
 #include "./QR/TS.hpp"
 
 namespace El {
@@ -144,6 +147,14 @@ void QR
     ElementalMatrix<Int>& Omega, \
     bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
+  template void qr::NeighborColSwap \
+  (       Matrix<F>& Q, \
+          Matrix<F>& R, \
+    Int j ); \
+  template void qr::DisjointNeighborColSwaps \
+  (       Matrix<F>& Q, \
+          Matrix<F>& R, \
+    const Matrix<Int>& colSwaps ); \
   template void qr::ApplyQ \
   ( LeftOrRight side, \
     Orientation orientation, \
