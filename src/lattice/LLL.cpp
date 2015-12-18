@@ -180,12 +180,16 @@ template<typename F>
 void Step
 ( Int k,
   Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   Base<F> delta,
   Base<F> loopTol,
   Base<F> zeroTol,
+  bool formU,
+  bool formUInv,
   bool weak,
   bool progress,
   bool time )
@@ -193,12 +197,17 @@ void Step
     DEBUG_ONLY(CSE cse("lll::Step"))
     typedef Base<F> Real;
     const Int m = B.Height();
+    const Int n = B.Width();
 
     vector<F> xBuf(k);
 
     F* BBuf = B.Buffer();
+    F* UBuf = U.Buffer();
+    F* UInvBuf = UInv.Buffer();
     F* QRBuf = QR.Buffer();
     const Int BLDim = B.LDim();
+    const Int ULDim = U.LDim();
+    const Int UInvLDim = UInv.LDim();
     const Int QRLDim = QR.LDim();
 
     while( true ) 
@@ -213,7 +222,10 @@ void Step
             const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
             xBuf[i] = chi;
             if( Abs(chi) > Real(1)/Real(2) )
-                blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
+                blas::Axpy
+                ( i, -chi,
+                  &QRBuf[i*QRLDim], 1,
+                  &QRBuf[k*QRLDim], 1 );
         }
 
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
@@ -221,6 +233,17 @@ void Step
         ( 'N', m, k,
           F(-1), BBuf, BLDim, &xBuf[0], 1,
           F(+1), &BBuf[k*BLDim], 1 );
+        if( formU )
+            blas::Gemv
+            ( 'N', n, k,
+              F(-1), UBuf, ULDim, &xBuf[0], 1,
+              F(+1), &UBuf[k*ULDim], 1 );
+        if( formUInv )
+            blas::Geru
+            ( k, n,
+              F(1), &xBuf[0],    1,
+                    &UInvBuf[k], UInvLDim,
+                    &UInvBuf[0], UInvLDim );
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( time )
             roundTimer.Stop();
@@ -387,6 +410,8 @@ template<typename F>
 void BlockStep
 ( Int k,
   Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& V,
   Matrix<F>& SInv,
@@ -395,6 +420,8 @@ void BlockStep
   Base<F> delta,
   Base<F> loopTol,
   Base<F> zeroTol,
+  bool formU,
+  bool formUInv,
   bool weak,
   bool progress,
   bool time )
@@ -402,12 +429,17 @@ void BlockStep
     DEBUG_ONLY(CSE cse("lll::BlockStep"))
     typedef Base<F> Real;
     const Int m = B.Height();
+    const Int n = B.Width();
 
     vector<F> xBuf(k);
 
     F* BBuf = B.Buffer();
+    F* UBuf = U.Buffer();
+    F* UInvBuf = UInv.Buffer();
     F* QRBuf = QR.Buffer();
     const Int BLDim = B.LDim();
+    const Int ULDim = U.LDim();
+    const Int UInvLDim = UInv.LDim();
     const Int QRLDim = QR.LDim();
 
     while( true ) 
@@ -422,7 +454,10 @@ void BlockStep
             const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
             xBuf[i] = chi;
             if( Abs(chi) > Real(1)/Real(2) )
-                blas::Axpy( i, -chi, &QRBuf[i*QRLDim], 1, &QRBuf[k*QRLDim], 1 );
+                blas::Axpy
+                ( i, -chi,
+                  &QRBuf[i*QRLDim], 1,
+                  &QRBuf[k*QRLDim], 1 ); 
         }
 
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
@@ -430,6 +465,17 @@ void BlockStep
         ( 'N', m, k,
           F(-1), BBuf, BLDim, &xBuf[0], 1,
           F(+1), &BBuf[k*BLDim], 1 );
+        if( formU )
+            blas::Gemv
+            ( 'N', n, k,
+              F(-1), UBuf, ULDim, &xBuf[0], 1,
+              F(+1), &UBuf[k*ULDim], 1 );
+        if( formUInv )
+            blas::Geru
+            ( k, n,
+              F(1), &xBuf[0],    1,
+                    &UInvBuf[k], UInvLDim,
+                    &UInvBuf[0], UInvLDim );
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( time )
             roundTimer.Stop();
@@ -450,9 +496,13 @@ void BlockStep
 template<typename F>
 Int UnblockedAlg
 ( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
   Matrix<F>& QR,
   Base<F> delta,
   Base<F> loopTol,
+  bool formU,
+  bool formUInv,
   bool weak,
   bool progress,
   bool time )
@@ -483,7 +533,9 @@ Int UnblockedAlg
     while( k < n )
     {
         lll::Step
-        ( k, B, QR, t, d, delta, loopTol, zeroTol, weak, progress, time );
+        ( k, B, U, UInv, QR, t, d,
+          delta, loopTol, zeroTol, 
+          formU, formUInv, weak, progress, time );
 
         const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
         const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
@@ -499,6 +551,10 @@ Int UnblockedAlg
             if( progress )
                 Output("Dropping from k=",k," to ",Max(k-1,1));
             ColSwap( B, k-1, k );
+            if( formU )
+                ColSwap( U, k-1, k );
+            if( formUInv )
+                RowSwap( UInv, k-1, k );
             if( k == 1 )
             {
                 // We must reinitialize since we keep k=1
@@ -523,9 +579,13 @@ Int UnblockedAlg
 template<typename F>
 Int BlockedAlg
 ( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
   Matrix<F>& QR,
   Base<F> delta,
   Base<F> loopTol,
+  bool formU,
+  bool formUInv,
   bool weak,
   bool progress,
   bool time )
@@ -559,8 +619,9 @@ Int BlockedAlg
     while( k < n )
     {
         lll::BlockStep
-        ( k, B, QR, V, SInv, t, d, delta, loopTol, zeroTol,
-          weak, progress, time );
+        ( k, B, U, UInv, QR, V, SInv, t, d,
+          delta, loopTol, zeroTol,
+          formU, formUInv, weak, progress, time );
 
         const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
         const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
@@ -576,6 +637,10 @@ Int BlockedAlg
             if( progress )
                 Output("Dropping from k=",k," to ",Max(k-1,1));
             ColSwap( B, k-1, k );
+            if( formU )
+                ColSwap( U, k-1, k );
+            if( formUInv )
+                RowSwap( UInv, k-1, k );
             if( k == 1 )
             {
                 // We must reinitialize since we keep k=1
@@ -600,6 +665,61 @@ Int BlockedAlg
 }
 
 } // namespace lll
+
+template<typename F>
+Int LLL
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& QR,
+  Base<F> delta,
+  Base<F> loopTol,
+  bool weak,
+  bool presort,
+  bool smallestFirst,
+  bool progress,
+  bool time )
+{
+    DEBUG_ONLY(CSE cse("LLL"))
+    typedef Base<F> Real;
+    if( delta > Real(1) )
+        LogicError("delta is assumed to be at most 1");
+
+    // Force the input to be integer-valued; it would be okay to assume this
+    Round( B );
+
+    const Int n = B.Width();
+    Identity( U, n, n ); 
+    Identity( UInv, n, n );
+
+    if( presort )
+    {
+        QRCtrl<Real> ctrl;
+        ctrl.smallestFirst = smallestFirst;
+
+        auto BCopy = B;
+        Matrix<F> t;
+        Matrix<Real> d;
+        Permutation Omega;
+        // TODO: Add support for qr::ProxyHouseholder as well
+        El::QR( BCopy, t, d, Omega, ctrl );
+        Omega.PermuteCols( B );
+        Omega.PermuteCols( U );
+        Omega.PermuteRows( UInv );
+    }
+
+    const bool useBlocked = false;
+    const bool formU = true;
+    const bool formUInv = true;
+    if( useBlocked )
+        return lll::BlockedAlg
+          ( B, U, UInv, QR, delta, loopTol,
+            formU, formUInv, weak, progress, time );
+    else
+        return lll::UnblockedAlg
+          ( B, U, UInv, QR, delta, loopTol,
+            formU, formUInv, weak, progress, time );
+}
 
 template<typename F>
 Int LLL
@@ -636,10 +756,17 @@ Int LLL
     }
 
     const bool useBlocked = false;
+    const bool formU = false;
+    const bool formUInv = false;
+    Matrix<F> U, UInv;
     if( useBlocked )
-        return lll::BlockedAlg( B, QR, delta, loopTol, weak, progress, time );
+        return lll::BlockedAlg
+          ( B, U, UInv, QR, delta, loopTol,
+            formU, formUInv, weak, progress, time );
     else
-        return lll::UnblockedAlg( B, QR, delta, loopTol, weak, progress, time );
+        return lll::UnblockedAlg
+          ( B, U, UInv, QR, delta, loopTol,
+            formU, formUInv, weak, progress, time );
 }
 
 template<typename F>
@@ -713,6 +840,18 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
 #define PROTO(F) \
   template Int LLL \
   ( Matrix<F>& B, \
+    Matrix<F>& QR, \
+    Base<F> delta, \
+    Base<F> loopTol, \
+    bool weak, \
+    bool presort, \
+    bool smallestFirst, \
+    bool progress, \
+    bool time ); \
+  template Int LLL \
+  ( Matrix<F>& B, \
+    Matrix<F>& U, \
+    Matrix<F>& UInv, \
     Matrix<F>& QR, \
     Base<F> delta, \
     Base<F> loopTol, \

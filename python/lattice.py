@@ -36,24 +36,50 @@ def LatticeGramSchmidt(B):
 # ===
 lib.ElLLL_s.argtypes = \
 lib.ElLLL_c.argtypes = \
-  [c_void_p,c_void_p,sType,sType,bType,bType,bType,bType,POINTER(iType)]
+  [c_void_p,c_void_p,
+   sType,sType,bType,bType,bType,bType,POINTER(iType)]
 lib.ElLLL_d.argtypes = \
 lib.ElLLL_z.argtypes = \
-  [c_void_p,c_void_p,dType,dType,bType,bType,bType,bType,POINTER(iType)]
+  [c_void_p,c_void_p,
+   dType,dType,bType,bType,bType,bType,POINTER(iType)]
 
-def LLL(B,delta,innerTol=0,weak=False,
+lib.ElLLLFull_s.argtypes = \
+lib.ElLLLFull_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,
+   sType,sType,bType,bType,bType,bType,POINTER(iType)]
+lib.ElLLLFull_d.argtypes = \
+lib.ElLLLFull_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,c_void_p,
+   dType,dType,bType,bType,bType,bType,POINTER(iType)]
+
+def LLL(B,delta=0.75,innerTol=0,full=True,weak=False,
         presort=False,smallestFirst=True,progress=False):
   numBacktrack = iType()
+  U = Matrix(B.tag)
+  UInv = Matrix(B.tag)
   QRMat = Matrix(B.tag)
   args = [B.obj,QRMat.obj,delta,innerTol,weak,
           presort,smallestFirst,progress,pointer(numBacktrack)]
+  argsFull = [B.obj,U.obj,UInv.obj,QRMat.obj,delta,innerTol,weak,
+              presort,smallestFirst,progress,pointer(numBacktrack)]
   if type(B) is Matrix:
-    if   B.tag == sTag: lib.ElLLL_s(*args)
-    elif B.tag == dTag: lib.ElLLL_d(*args)
-    elif B.tag == cTag: lib.ElLLL_c(*args)
-    elif B.tag == zTag: lib.ElLLL_z(*args)
+    if   B.tag == sTag:
+      if full: lib.ElLLLFull_s(*argsFull)
+      else:    lib.ElLLL_s(*args)
+    elif B.tag == dTag:
+      if full: lib.ElLLLFull_d(*argsFull)
+      else:    lib.ElLLL_d(*args)
+    elif B.tag == cTag: 
+      if full: lib.ElLLLFull_c(*argsFull)
+      else:    lib.ElLLL_c(*args)
+    elif B.tag == zTag:
+      if full: lib.ElLLLFull_z(*argsFull)
+      else:    lib.ElLLL_z(*args)
     else: DataExcept()
-    return QRMat, numBacktrack.value
+    if full:
+      return U, UInv, QRMat, numBacktrack.value
+    else:
+      return QRMat, numBacktrack.value
   else: TypeExcept()
 
 lib.ElLLLDelta_s.argtypes = \

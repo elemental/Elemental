@@ -27,7 +27,24 @@ extern "C" {
     bool progress, \
     ElInt* numBacktrack ) \
   { EL_TRY( *numBacktrack = \
-      LLL( *CReflect(B), *CReflect(QR), delta, innerTol, weak,\
+      LLL( *CReflect(B), *CReflect(QR), \
+           delta, innerTol, weak,\
+           presort, smallestFirst, progress ) ) } \
+  ElError ElLLLFull_ ## SIG \
+  ( ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG U, \
+    ElMatrix_ ## SIG UInv, \
+    ElMatrix_ ## SIG QR, \
+    Base<F> delta, \
+    Base<F> innerTol, \
+    bool weak, \
+    bool presort, \
+    bool smallestFirst, \
+    bool progress, \
+    ElInt* numBacktrack ) \
+  { EL_TRY( *numBacktrack = \
+      LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(QR), \
+           delta, innerTol, weak,\
            presort, smallestFirst, progress ) ) } \
   ElError ElLLLDelta_ ## SIG \
   ( ElConstMatrix_ ## SIG QR, bool weak, Base<F>* delta ) \
