@@ -685,9 +685,6 @@ Int LLL
     if( delta > Real(1) )
         LogicError("delta is assumed to be at most 1");
 
-    // Force the input to be integer-valued; it would be okay to assume this
-    Round( B );
-
     const Int n = B.Width();
     Identity( U, n, n ); 
     Identity( UInv, n, n );
@@ -737,9 +734,6 @@ Int LLL
     typedef Base<F> Real;
     if( delta > Real(1) )
         LogicError("delta is assumed to be at most 1");
-
-    // Force the input to be integer-valued; it would be okay to assume this
-    Round( B );
 
     if( presort )
     {
