@@ -35,7 +35,7 @@ BusingerGolub
     auto ctrlCopy = ctrl;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     // Demand that we will be able to apply inv(R_L) to R_R by ensuring that
     // the minimum singular value is sufficiently (relatively) large
     ctrlCopy.adaptive = true;
@@ -78,7 +78,7 @@ BusingerGolub
     auto ctrlCopy = ctrl;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     // Demand that we will be able to apply inv(R_L) to R_R by ensuring that
     // the minimum singular value is sufficiently (relatively) large
     ctrlCopy.adaptive = true;

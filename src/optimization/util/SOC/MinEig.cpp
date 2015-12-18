@@ -119,7 +119,7 @@ Real MinEig
     const Real* minEigBuf = minEigs.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
-    Real minEig = Max<Real>();
+    Real minEig = limits::Max<Real>();
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
         if( i == firstIndBuf[i] ) 
@@ -151,7 +151,7 @@ Real MinEig
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
     const Int localHeight = x.LocalHeight();
-    Real minEigLocal = Max<Real>();
+    Real minEigLocal = limits::Max<Real>();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( minEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
             minEigLocal = Min(minEigLocal,minEigBuf[iLoc]);
@@ -173,7 +173,7 @@ Real MinEig
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     const Int localHeight = x.LocalHeight();
-    Real minEigLocal = Max<Real>();
+    Real minEigLocal = limits::Max<Real>();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( minEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
             minEigLocal = Min(minEigLocal,minEigBuf[iLoc]);

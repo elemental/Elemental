@@ -32,7 +32,7 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->print = false;
     ctrl->time = false;
 
-    const float eps = Epsilon<float>();
+    const float eps = limits::Epsilon<float>();
     ctrl->wSafeMaxNorm = Pow(eps,float(-0.15));
     ctrl->wMaxLimit = Pow(eps,float(-0.4));
     ctrl->ruizEquilTol = Pow(eps,float(-0.25));
@@ -65,7 +65,7 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
     ctrl->print = false;
     ctrl->time = false;
 
-    const double eps = Epsilon<double>();
+    const double eps = limits::Epsilon<double>();
     ctrl->wSafeMaxNorm = Pow(eps,double(-0.15));
     ctrl->wMaxLimit = Pow(eps,double(-0.4));
     ctrl->ruizEquilTol = Pow(eps,double(-0.25));

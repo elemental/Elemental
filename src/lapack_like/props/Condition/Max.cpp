@@ -19,7 +19,7 @@ Base<F> MaxCondition( const Matrix<F>& A )
     const Real maxNorm = MaxNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e ) 
-    { return Infinity<Real>(); }
+    { return limits::Infinity<Real>(); }
     const Real maxNormInv = MaxNorm( B );
     return maxNorm*maxNormInv;
 }
@@ -33,7 +33,7 @@ Base<F> MaxCondition( const ElementalMatrix<F>& A )
     const Real maxNorm = MaxNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e ) 
-    { return Infinity<Real>(); }
+    { return limits::Infinity<Real>(); }
     const Real maxNormInv = MaxNorm( B );
     return maxNorm*maxNormInv;
 }

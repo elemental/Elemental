@@ -151,7 +151,7 @@ void NormalKKT
     const Int m = A.Height();
     const Int n = A.Width();
     // TODO: Expose this value as a parameter
-    const Real inflateRatio = Pow(Epsilon<Real>(),Real(0.83));
+    const Real inflateRatio = Pow(limits::Epsilon<Real>(),Real(0.83));
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================
@@ -205,7 +205,7 @@ void NormalKKT
         LogicError("Communicators of A and z must match");
 
     // TODO: Expose this value as a parameter
-    const Real inflateRatio = Pow(Epsilon<Real>(),Real(0.83));
+    const Real inflateRatio = Pow(limits::Epsilon<Real>(),Real(0.83));
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================

@@ -49,10 +49,10 @@ struct MehrotraCtrl
     bool primalInit=false, dualInit=false;
 
     // Throw an exception if this tolerance could not be achieved.
-    Real minTol=Pow(Epsilon<Real>(),Real(0.3));
+    Real minTol=Pow(limits::Epsilon<Real>(),Real(0.3));
 
     // Exit the Interior Point Methods if this tolerance has been achieved.
-    Real targetTol=Pow(Epsilon<Real>(),Real(0.5));
+    Real targetTol=Pow(limits::Epsilon<Real>(),Real(0.5));
 
     // The maximum number of iterations of the IPM. This should only be 
     // activated in pathological circumstances, as even 100 iterations of an 
@@ -106,25 +106,25 @@ struct MehrotraCtrl
     // A lower bound on the maximum entry in the Nesterov-Todd scaling point
     // before ad-hoc procedures to enforce the cone constraints should be 
     // employed.
-    Real wSafeMaxNorm=Pow(Epsilon<Real>(),Real(-0.15));
+    Real wSafeMaxNorm=Pow(limits::Epsilon<Real>(),Real(-0.15));
 
     // If the Nesterov-Todd scaling point has an entry of magnitude greater than
     // the following and the minimum tolerance has been achieved, simply stop
     // and declare success. This is meant to prevent expensive (equilibrated)
     // further steps which are too polluted with floating-point error to 
     // make substantial progress.
-    Real wMaxLimit=Pow(Epsilon<Real>(),Real(-0.4));
+    Real wMaxLimit=Pow(limits::Epsilon<Real>(),Real(-0.4));
 
     // If the maximum entry in the NT scaling point is larger in magnitude than
     // this value, then use Ruiz equilibration on the KKT system (with the 
     // specified limit on the number of iterations).
-    Real ruizEquilTol=Pow(Epsilon<Real>(),Real(-0.25));
+    Real ruizEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.25));
     Int ruizMaxIter=3;
 
     // If Ruiz equilibration was not performed, but the max norm of the NT
     // scaling point is larger than this value, then use diagonal equilibration
     // for solving the KKT system.
-    Real diagEquilTol=Pow(Epsilon<Real>(),Real(-0.15));
+    Real diagEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.15));
 
     // Whether or not additional matrix-vector multiplications should be 
     // performed in order to check the accuracy of the solution to each
@@ -527,8 +527,8 @@ struct Ctrl
     Ctrl()
     {
         mehrotraCtrl.system = AUGMENTED_KKT;
-        mehrotraCtrl.minTol = Pow(Epsilon<Real>(),Real(0.25));
-        mehrotraCtrl.targetTol = Pow(Epsilon<Real>(),Real(0.5));
+        mehrotraCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
+        mehrotraCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
     }
 };
 
@@ -557,8 +557,8 @@ struct Ctrl
 
     Ctrl()
     {
-        mehrotraCtrl.minTol = Pow(Epsilon<Real>(),Real(0.25));
-        mehrotraCtrl.targetTol = Pow(Epsilon<Real>(),Real(0.5));
+        mehrotraCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
+        mehrotraCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
     }
 };
 

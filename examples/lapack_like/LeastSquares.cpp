@@ -71,7 +71,7 @@ main( int argc, char* argv[] )
             Gemm( orientation, NORMAL, F(1), A, X, F(-1), R );
 
             // Compute the relevant Frobenius norms and a relative residual
-            const Real eps = Epsilon<Real>();
+            const Real eps = limits::Epsilon<Real>();
             const Real AFrobNorm = FrobeniusNorm( A );
             const Real BFrobNorm = FrobeniusNorm( B );
             const Real XFrobNorm = FrobeniusNorm( X );

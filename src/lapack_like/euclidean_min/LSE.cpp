@@ -304,7 +304,7 @@ void LSE
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
 
@@ -322,7 +322,7 @@ void LSE
     {
         ColumnTwoNorms( W, dC );
         auto normMap = []( Real beta )
-          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dC, function<Real(Real)>(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
@@ -417,7 +417,7 @@ void LSE
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
 
@@ -437,7 +437,7 @@ void LSE
     {
         ColumnTwoNorms( W, dC );
         auto normMap = []( Real beta )
-          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dC, function<Real(Real)>(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }

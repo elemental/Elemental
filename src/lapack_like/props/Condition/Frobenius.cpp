@@ -19,7 +19,7 @@ Base<F> FrobeniusCondition( const Matrix<F>& A )
     const Real oneNorm = FrobeniusNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e )
-    { return Infinity<Real>(); }
+    { return limits::Infinity<Real>(); }
     const Real oneNormInv = FrobeniusNorm( B );
     return oneNorm*oneNormInv;
 }
@@ -33,7 +33,7 @@ Base<F> FrobeniusCondition( const ElementalMatrix<F>& A )
     const Real oneNorm = FrobeniusNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e )
-    { return Infinity<Real>(); }
+    { return limits::Infinity<Real>(); }
     const Real oneNormInv = FrobeniusNorm( B );
     return oneNorm*oneNormInv;
 }

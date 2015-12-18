@@ -41,7 +41,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
     Real L = sMinUpper / Sqrt(Real(n));
@@ -184,7 +184,7 @@ QDWHInner
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
     Real L = sMinUpper / Sqrt(Real(n));
@@ -341,7 +341,7 @@ QDWHInner
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
     Real L = sMinUpper / Sqrt(Real(n));
@@ -484,7 +484,7 @@ QDWHInner
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real tol = 5*eps;
     const Real cubeRootTol = Pow(tol,oneThird);
     Real L = sMinUpper / Sqrt(Real(n));

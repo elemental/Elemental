@@ -515,7 +515,7 @@ Int UnblockedAlg
         roundTimer.Reset();
     }
 
-    Real zeroTol = Pow(Epsilon<Real>(),Real(0.5));
+    Real zeroTol = Pow(limits::Epsilon<Real>(),Real(0.5));
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -599,7 +599,7 @@ Int BlockedAlg
         formSInvTimer.Reset();
     }
 
-    Real zeroTol = Pow(Epsilon<Real>(),Real(0.5));
+    Real zeroTol = Pow(limits::Epsilon<Real>(),Real(0.5));
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -793,7 +793,7 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
     if( n <= 1 )
         return 1; // the best-possible delta
     Matrix<F> z;
-    Real delta = Max<Real>();
+    Real delta = limits::Max<Real>();
     for( Int i=0; i<minDim-1; ++i )
     {
         const Real rho_i_i = R.GetRealPart(i,i);
@@ -831,7 +831,7 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
         ShiftDiagonal( R, F(-1) );
         maxRatio = MaxNorm( R );
     }
-    if( maxRatio > bound+Pow(Epsilon<Real>(),Real(3)/Real(4)) )
+    if( maxRatio > bound+Pow(limits::Epsilon<Real>(),Real(3)/Real(4)) )
         return 0; // the worst-possible delta
 
     return delta;

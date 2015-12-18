@@ -151,7 +151,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
@@ -273,7 +273,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
@@ -413,7 +413,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
@@ -561,7 +561,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));

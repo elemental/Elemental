@@ -222,7 +222,7 @@ void GLM
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
 
@@ -240,7 +240,7 @@ void GLM
     {
         RowTwoNorms( W, dR ); 
         auto normMap = []( Real beta )
-          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dR, function<Real(Real)>(normMap) );
         DiagonalSolve( LEFT, NORMAL, dR, W );
     }
@@ -342,7 +342,7 @@ void GLM
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
 
@@ -362,7 +362,7 @@ void GLM
     {
         RowTwoNorms( W, dR );
         auto normMap = []( Real beta )
-          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
         EntrywiseMap( dR, function<Real(Real)>(normMap) );
         DiagonalSolve( LEFT, NORMAL, dR, W );
     }

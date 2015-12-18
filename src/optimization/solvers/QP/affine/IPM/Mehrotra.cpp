@@ -743,7 +743,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -1133,7 +1133,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::affine::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;

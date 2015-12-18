@@ -103,7 +103,7 @@ int main( int argc, char* argv[] )
                 Gemm( NORMAL, NORMAL, F(1), A, X, F(-1), R );
 
                 // Compute infinity norms and a relative residual
-                const Real eps = Epsilon<Real>();
+                const Real eps = limits::Epsilon<Real>();
                 const Real AInfNorm = InfinityNorm( A );
                 const Real BInfNorm = InfinityNorm( B );
                 const Real XInfNorm = InfinityNorm( X );

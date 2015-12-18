@@ -14,7 +14,7 @@ extern "C" {
 
 ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
 {
-    const float eps = Epsilon<float>();
+    const float eps = limits::Epsilon<float>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
     ctrl->alpha = Pow(eps,float(0.25));
@@ -27,7 +27,7 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
 
 ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
 {
-    const double eps = Epsilon<double>();
+    const double eps = limits::Epsilon<double>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
     ctrl->alpha = Pow(eps,double(0.25));

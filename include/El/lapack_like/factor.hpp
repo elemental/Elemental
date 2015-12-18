@@ -305,7 +305,7 @@ struct RegSolveCtrl
 
     RegSolveCtrl()
     {
-        const Real eps = Epsilon<Real>(); 
+        const Real eps = limits::Epsilon<Real>(); 
         relTol = Pow(eps,Real(0.5));
         relTolRefine = Pow(eps,Real(0.8));
     }

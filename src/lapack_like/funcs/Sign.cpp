@@ -127,7 +127,7 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = A.Height()*Epsilon<Real>();
+        tol = A.Height()*limits::Epsilon<Real>();
 
     Int numIts=0;
     Matrix<F> B;
@@ -166,7 +166,7 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = A.Height()*Epsilon<Real>();
+        tol = A.Height()*limits::Epsilon<Real>();
 
     Int numIts=0;
     DistMatrix<F> B( A.Grid() );

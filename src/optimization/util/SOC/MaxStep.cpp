@@ -113,7 +113,7 @@ namespace {
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real ChooseStepLength
 ( Real x0, Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
-  Real delta=Epsilon<Real>() )
+  Real delta=limits::Epsilon<Real>() )
 {
     DEBUG_ONLY(CSE cse("ChooseStepLength"))
     Real step;

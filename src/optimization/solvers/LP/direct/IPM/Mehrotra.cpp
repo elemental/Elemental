@@ -43,7 +43,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -476,7 +476,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -948,7 +948,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -1502,9 +1502,9 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
-    // TODO: Move these to the control structure
+    // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )

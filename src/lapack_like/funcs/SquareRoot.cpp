@@ -72,7 +72,7 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = A.Height()*Epsilon<Real>();
+        tol = A.Height()*limits::Epsilon<Real>();
 
     Int numIts=0;
     while( numIts < ctrl.maxIts )
@@ -117,7 +117,7 @@ Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = A.Height()*Epsilon<Real>();
+        tol = A.Height()*limits::Epsilon<Real>();
 
     Int numIts=0;
     while( numIts < ctrl.maxIts )
@@ -193,7 +193,7 @@ void HPSDSquareRoot
     }
 
     // Set the tolerance equal to n ||A||_2 eps
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real tolerance = n*twoNorm*eps;
 
     // Ensure that the minimum eigenvalue is not less than - n ||A||_2 eps
@@ -248,7 +248,7 @@ void HPSDSquareRoot
 
     // Set the tolerance equal to n ||A||_2 eps
     const Int n = A.Height();
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real tolerance = n*twoNorm*eps;
 
     // Ensure that the minimum eigenvalue is not less than - n ||A||_2 eps

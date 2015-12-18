@@ -20,8 +20,8 @@ CheckScale( ElementalMatrix<F>& A, Base<F>& scale )
     scale = 1;
     typedef Base<F> Real;
     const Real oneNormOfA = OneNorm( A );
-    const Real safeMin = SafeMin<Real>();
-    const Real precision = Precision<Real>();
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real precision = limits::Precision<Real>();
     const Real smallNumber = safeMin/precision;
     const Real bigNumber = 1/smallNumber;
     const Real rhoMin = Sqrt(smallNumber);

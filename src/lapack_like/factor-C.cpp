@@ -14,7 +14,7 @@ extern "C" {
 
 ElError ElRegSolveCtrlDefault_s( ElRegSolveCtrl_s* ctrl )
 {
-    const float eps = Epsilon<float>();
+    const float eps = limits::Epsilon<float>();
     ctrl->alg = EL_REG_SOLVE_FGMRES;
     ctrl->relTol = Pow(eps,float(0.5));
     ctrl->relTolRefine = Pow(eps,float(0.8));
@@ -28,7 +28,7 @@ ElError ElRegSolveCtrlDefault_s( ElRegSolveCtrl_s* ctrl )
 
 ElError ElRegSolveCtrlDefault_d( ElRegSolveCtrl_d* ctrl )
 {
-    const double eps = Epsilon<double>();
+    const double eps = limits::Epsilon<double>();
     ctrl->alg = EL_REG_SOLVE_FGMRES;
     ctrl->relTol = Pow(eps,0.5);
     ctrl->relTolRefine = Pow(eps,0.8);

@@ -22,7 +22,7 @@ ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x )
     )
     ValueInt<Real> pivot;
     pivot.index = -1;
-    pivot.value = Lowest<Real>();
+    pivot.value = limits::Lowest<Real>();
     if( n == 1 )
     {
         for( Int i=0; i<m; ++i )
@@ -64,7 +64,7 @@ ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x )
     )
     ValueInt<Real> pivot;
     pivot.index = -1;
-    pivot.value = Lowest<Real>();
+    pivot.value = limits::Lowest<Real>();
     if( x.Participating() )
     {
         if( n == 1 )
@@ -115,7 +115,7 @@ ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x )
     )
     ValueInt<Real> pivot;
     pivot.index = -1;
-    pivot.value = Lowest<Real>();
+    pivot.value = limits::Lowest<Real>();
     const Int mLocal = x.LocalHeight();
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
@@ -142,7 +142,7 @@ Entry<Real> MaxLoc( const Matrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = Lowest<Real>();
+    pivot.value = limits::Lowest<Real>();
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
@@ -173,7 +173,7 @@ Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = Lowest<Real>();
+    pivot.value = limits::Lowest<Real>();
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
@@ -217,7 +217,7 @@ Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = Lowest<Real>();
+    pivot.value = limits::Lowest<Real>();
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
@@ -267,7 +267,7 @@ SymmetricMaxLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
     Entry<Real> pivot;
     pivot.i = -1;
     pivot.j = -1;
-    pivot.value = Lowest<Real>();
+    pivot.value = limits::Lowest<Real>();
     if( A.Participating() )
     {
         const Int mLocal = A.LocalHeight();

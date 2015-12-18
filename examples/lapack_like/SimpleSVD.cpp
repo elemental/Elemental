@@ -28,7 +28,7 @@ int main()
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
     const Real frobNormE = FrobeniusNorm( A );
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real scaledResid = frobNormE / (Max(m,n)*eps*twoNormA);
     if( mpi::Rank() == 0 )
     {

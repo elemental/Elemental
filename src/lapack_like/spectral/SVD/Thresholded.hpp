@@ -35,7 +35,7 @@ inline void TallAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         tol = m*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -163,7 +163,7 @@ TallAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         tol = m*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -332,7 +332,7 @@ TallAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         tol = m*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -505,7 +505,7 @@ WideAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         tol = n*frobNorm*eps;
     }
     if( tol >= frobNorm )
@@ -636,7 +636,7 @@ WideAbsoluteThresholded
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         tol = n*frobNorm*eps;
     }
     if( tol >= frobNorm )

@@ -33,7 +33,7 @@ ADMM
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::ADMM"))
-    const Real maxReal = Max<Real>();
+    const Real maxReal = limits::Max<Real>();
 
     Matrix<Real> Q, C;
     Herk( LOWER, ADJOINT, Real(1), A, Q );
@@ -51,7 +51,7 @@ ADMM
   const ADMMCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("nnls::ADMM"))
-    const Real maxReal = Max<Real>();
+    const Real maxReal = limits::Max<Real>();
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();

@@ -12,16 +12,16 @@ using namespace El;
 template<typename Real>
 void QueryLimits( const std::string& title )
 {
-        const auto safeInv = SafeMin<Real>()/Epsilon<Real>();
+        const auto safeInv = limits::SafeMin<Real>()/limits::Epsilon<Real>();
         Output( title );
-        Output("  safeMin:   ",SafeMin<Real>());
-        Output("  epsilon:   ",Epsilon<Real>());
-        Output("  precision: ",Precision<Real>());
+        Output("  safeMin:   ",limits::SafeMin<Real>());
+        Output("  epsilon:   ",limits::Epsilon<Real>());
+        Output("  precision: ",limits::Precision<Real>());
         Output("  safeInv:   ",safeInv);
-        Output("  min:       ",Min<Real>());
-        Output("  max:       ",Max<Real>());
-        Output("  lowest:    ",Lowest<Real>());
-        Output("  infinity:  ",Infinity<Real>());
+        Output("  min:       ",limits::Min<Real>());
+        Output("  max:       ",limits::Max<Real>());
+        Output("  lowest:    ",limits::Lowest<Real>());
+        Output("  infinity:  ",limits::Infinity<Real>());
 }
 
 int 
@@ -38,7 +38,17 @@ main( int argc, char* argv[] )
         QueryLimits<Quad>( "Quad-precision:" );
 #endif
 #ifdef EL_HAVE_MPC
-        QueryLimits<BigFloat>( "BigFloat:" );
+        QueryLimits<BigFloat>( "BigFloat (Default):" );
+        mpc::SetPrecision( 64 );
+        QueryLimits<BigFloat>( "BigFloat (64):" );
+        mpc::SetPrecision( 128 );
+        QueryLimits<BigFloat>( "BigFloat (128):" );
+        mpc::SetPrecision( 256 );
+        QueryLimits<BigFloat>( "BigFloat (256):" );
+        mpc::SetPrecision( 512 );
+        QueryLimits<BigFloat>( "BigFloat (512):" );
+        mpc::SetPrecision( 1024 );
+        QueryLimits<BigFloat>( "BigFloat (1024):" );
 #endif
     }
 
