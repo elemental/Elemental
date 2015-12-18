@@ -167,7 +167,7 @@ inline void Equilibrated
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
 
@@ -293,7 +293,7 @@ void LeastSquares
     if( ctrl.equilibrate )
     {
         auto normMap = []( Real beta ) 
-          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
         if( m >= n )
         {
             ColumnTwoNorms( ABar, dC );
@@ -357,7 +357,7 @@ void Equilibrated
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gammaTmp = Pow(eps,Real(0.25));
     const Real deltaTmp = Pow(eps,Real(0.25));
 
@@ -520,7 +520,7 @@ void LeastSquares
     if( ctrl.equilibrate )
     {
         auto normMap = []( Real beta ) 
-          { return ( beta < Sqrt(Epsilon<Real>()) ? Real(1) : beta ); };
+          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
         if( m >= n )
         {
             ColumnTwoNorms( ABar, dC );

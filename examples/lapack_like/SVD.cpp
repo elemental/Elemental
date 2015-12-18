@@ -128,7 +128,7 @@ main( int argc, char* argv[] )
             Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
             const Real maxNormE = MaxNorm( A );
             const Real frobNormE = FrobeniusNorm( A );
-            const Real eps = Epsilon<Real>();
+            const Real eps = limits::Epsilon<Real>();
             const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
 
             if( commRank == 0 )

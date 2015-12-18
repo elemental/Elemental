@@ -40,7 +40,7 @@ inline void Lanczos
 {
     DEBUG_ONLY(CSE cse("Lanczos"))
     typedef Base<F> Real;
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     Matrix<F> v_km1, v_k, v;
     basisSize = Min(n,basisSize);
@@ -111,7 +111,7 @@ inline Base<F> LanczosDecomp
 {
     DEBUG_ONLY(CSE cse("LanczosDecomp"))
     typedef Base<F> Real;
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     basisSize = Min(n,basisSize);
     Zeros( V, n, basisSize );
@@ -191,7 +191,7 @@ inline void Lanczos
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
     auto& T = TProx.Get();
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     mpi::Comm comm = T.Grid().Comm();
     const int commRank = mpi::Rank( comm );
 
@@ -272,7 +272,7 @@ inline Base<F> LanczosDecomp
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
     auto& T = TProx.Get();
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     mpi::Comm comm = T.Grid().Comm();
     const int commRank = mpi::Rank( comm );
 

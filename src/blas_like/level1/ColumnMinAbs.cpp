@@ -20,7 +20,7 @@ void ColumnMinAbs( const Matrix<F>& X, Matrix<Base<F>>& mins )
     mins.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
     {
-        Real colMin = Max<Real>();
+        Real colMin = limits::Max<Real>();
         for( Int i=0; i<m; ++i )
             colMin = Min(colMin,Abs(X.Get(i,j)));
         mins.Set( j, 0, colMin );
@@ -119,7 +119,7 @@ void ColumnMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
     const Int m = A.Height();
     const Int n = A.Width();
     Zeros( mins, n, 1 );
-    Fill( mins, Max<Real>() );
+    Fill( mins, limits::Max<Real>() );
     const Int* colBuf = A.LockedTargetBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
     const F* values = A.LockedValueBuffer();
@@ -184,13 +184,13 @@ void ColumnMinAbs
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
     Zeros( mins, A.Width(), 1 );
-    Fill( mins, Max<Real>() );
+    Fill( mins, limits::Max<Real>() );
     A.InitializeMultMeta();
     const auto& meta = A.multMeta;
 
     // Pack the send values 
     // --------------------
-    vector<Real> sendVals( meta.numRecvInds, Max<Real>() );
+    vector<Real> sendVals( meta.numRecvInds, limits::Max<Real>() );
     {
         const Int ALocalHeight = A.LocalHeight();
         const Int* offsetBuf = A.LockedOffsetBuffer();
@@ -246,7 +246,7 @@ void ColumnMinAbsNonzero
 
     // Pack the send values 
     // --------------------
-    vector<Real> sendVals( meta.numRecvInds, Max<Real>() );
+    vector<Real> sendVals( meta.numRecvInds, limits::Max<Real>() );
     {
         const Int ALocalHeight = A.LocalHeight();
         const Int* offsetBuf = A.LockedOffsetBuffer();

@@ -777,7 +777,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
@@ -1219,7 +1219,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
 
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;

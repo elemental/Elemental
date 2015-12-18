@@ -60,7 +60,7 @@ QuasiTriangIsNormal( const ElementalMatrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline Base<F> NormCap()
-{ return Base<F>(1)/Epsilon<Base<F>>(); }
+{ return Base<F>(1)/limits::Epsilon<Base<F>>(); }
 
 template<typename F>
 inline bool HasNan( const Matrix<F>& H )

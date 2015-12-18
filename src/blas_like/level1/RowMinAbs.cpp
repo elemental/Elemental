@@ -20,7 +20,7 @@ void RowMinAbs( const Matrix<F>& A, Matrix<Base<F>>& mins )
     mins.Resize( m, 1 );
     for( Int i=0; i<m; ++i )
     {
-        Real rowMin = Max<Real>();
+        Real rowMin = limits::Max<Real>();
         for( Int j=0; j<n; ++j )
             rowMin = Min(rowMin,Abs(A.Get(i,j)));
         mins.Set( i, 0, rowMin );
@@ -108,7 +108,7 @@ void RowMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
     mins.Resize( m, 1 );
     for( Int i=0; i<m; ++i )
     {
-        Real rowMin = Max<Real>();
+        Real rowMin = limits::Max<Real>();
         const Int offset = A.RowOffset( i );
         const Int numConn = A.NumConnections( i );
         for( Int e=offset; e<offset+numConn; ++e )
@@ -152,7 +152,7 @@ void RowMinAbs( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins )
     const Int localHeight = A.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        Real rowMin = Max<Real>();
+        Real rowMin = limits::Max<Real>();
         const Int offset = A.RowOffset( iLoc );
         const Int numConn = A.NumConnections( iLoc );
         for( Int e=offset; e<offset+numConn; ++e )

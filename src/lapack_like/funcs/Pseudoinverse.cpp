@@ -31,7 +31,7 @@ void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
     {
         // Set the tolerance equal to k ||A||_2 eps
         const Int k = Max( A.Height(), A.Width() );
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
     }
@@ -63,7 +63,7 @@ void HermitianPseudoinverse
     {
         // Set the tolerance equal to n ||A||_2 eps
         const Int n = A.Height();
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;
     }
@@ -96,7 +96,7 @@ void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
     {
         // Set the tolerance equal to k ||A||_2 eps
         const Int k = Max( A.Height(), A.Width() );
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
     }
@@ -132,7 +132,7 @@ void HermitianPseudoinverse
     {
         // Set the tolerance equal to n ||A||_2 eps
         const Int n = A.Height();
-        const Real eps = Epsilon<Real>();
+        const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;
     }

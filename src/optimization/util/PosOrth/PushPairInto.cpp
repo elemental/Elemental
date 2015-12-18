@@ -20,7 +20,7 @@ void PushPairInto
 {
     DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
     const Int height = s.Height();
-    const Real maxMod = Pow(Epsilon<Real>(),Real(0.5));
+    const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
     for( Int i=0; i<height; ++i )
     {
         if( w.Get(i,0) > wMaxNormLimit )
@@ -40,7 +40,7 @@ void PushPairInto
 {
     DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
     AssertSameGrids( sPre, zPre, wPre );
-    const Real maxMod = Pow(Epsilon<Real>(),Real(0.5));
+    const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -76,7 +76,7 @@ void PushPairInto
   Real wMaxNormLimit )
 {
     DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
-    const Real maxMod = Pow(Epsilon<Real>(),Real(0.5));
+    const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
     const int localHeight = s.LocalHeight();
     const Real* wBuf = w.LockedMatrix().LockedBuffer();
     Real* zBuf = z.Matrix().Buffer();

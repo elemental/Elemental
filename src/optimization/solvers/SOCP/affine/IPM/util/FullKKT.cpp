@@ -443,7 +443,7 @@ void KKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv = 
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
@@ -561,7 +561,7 @@ void KKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
@@ -903,7 +903,7 @@ void FinishKKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv = 
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
@@ -1008,7 +1008,7 @@ void FinishKKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
@@ -1262,7 +1262,7 @@ void KKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv = 
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
@@ -1396,7 +1396,7 @@ void KKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
@@ -1886,7 +1886,7 @@ void FinishKKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv = 
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
@@ -2006,7 +2006,7 @@ void FinishKKT
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
-                  ( wPsi < Epsilon<Real>() ? Real(1) : 1/wPsi );
+                  ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )

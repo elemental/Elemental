@@ -51,8 +51,8 @@ F Row( F& chi, ElementalMatrix<F>& x )
         beta = -lapack::SafeNorm( alpha, norm );
 
     // Rescale if the vector is too small
-    const Real safeMin = SafeMin<Real>();
-    const Real epsilon = Epsilon<Real>();
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
     const Real safeInv = safeMin/epsilon;
     Int count = 0;
     if( Abs(beta) < safeInv )

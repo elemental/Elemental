@@ -79,7 +79,7 @@ inline void BusingerGolub
     vector<Real> origNorms;
     const Real maxOrigNorm = ColNorms( A, origNorms );
     auto norms = origNorms;
-    const Real updateTol = Sqrt(Epsilon<Real>());
+    const Real updateTol = Sqrt(limits::Epsilon<Real>());
 
     Omega.MakeIdentity( n );
     Omega.ReserveSwaps( n );
@@ -346,7 +346,7 @@ inline void BusingerGolub
     vector<Real> origNorms( A.LocalWidth() );
     const Real maxOrigNorm = ColNorms( A, origNorms );
     auto norms = origNorms;
-    const Real updateTol = Sqrt(Epsilon<Real>());
+    const Real updateTol = Sqrt(limits::Epsilon<Real>());
     vector<Int> inaccurateNorms;
 
     Omega.MakeIdentity( n );

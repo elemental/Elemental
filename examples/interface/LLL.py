@@ -14,19 +14,25 @@ if output:
 
 B=El.Matrix(El.dTag)
 
-for presorted, smallestFirst in (True,False), (True,True), (False,False):
+for presort, smallestFirst in (True,False), (True,True), (False,False):
   for deltaLower in 0.5, 0.75, 0.95, 0.98:
     for weak in True, False:
       El.Copy( A, B )
-      print "weak=%r, presorted=%r, smallestFirst=%r, deltaLower=%f:" % \
-        (weak,presorted,smallestFirst,deltaLower)
+      print "weak=%r, presort=%r, smallestFirst=%r, deltaLower=%f:" % \
+        (weak,presort,smallestFirst,deltaLower)
       startTime = El.mpi.Time()
-      QR, numBacktrack = \
-        El.LLL(B,deltaLower,loopTol,weak,presorted,smallestFirst,progress)
+      U, UInv, QR, numBacktrack = \
+        El.LLL(B,deltaLower,loopTol,full=True,weak=weak,
+          presort=presort,smallestFirst=smallestFirst,progress=progress)
       runTime = El.mpi.Time() - startTime
       print "  runtime: %f seconds" % runTime 
       b1Norm = El.FrobeniusNorm(B[:,0])
       print "  || b_1 ||_2 =", b1Norm
+
+      if output:
+        El.Print( U, "U" );
+        El.Print( UInv, "UInv" );
+        El.Print( B, "BNew" )
 
       numLower = 0
       minInd = 0

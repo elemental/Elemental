@@ -19,7 +19,7 @@ Real Min( const Matrix<Real>& A )
     const Real* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
 
-    Real value = Max<Real>();
+    Real value = limits::Max<Real>();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             value = Min(value,ABuf[i+j*ALDim]);
@@ -34,7 +34,7 @@ Real Min( const AbstractDistMatrix<Real>& A )
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    Real value = Max<Real>();
+    Real value = limits::Max<Real>();
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
@@ -64,7 +64,7 @@ Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
     const Real* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
 
-    Real value = Max<Real>();
+    Real value = limits::Max<Real>();
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
@@ -91,7 +91,7 @@ Real SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
           LogicError("Viewing processes are not allowed");
     )
 
-    Real value = Max<Real>();
+    Real value = limits::Max<Real>();
     if( A.Participating() )
     {
         const Int mLocal = A.LocalHeight();

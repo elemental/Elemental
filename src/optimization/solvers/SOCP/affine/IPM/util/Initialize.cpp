@@ -156,7 +156,7 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
@@ -279,7 +279,7 @@ void Initialize
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(eps)*Max(sNorm,Real(1));
@@ -329,7 +329,7 @@ void Initialize
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
     const Real delta = Pow(eps,Real(0.25));
     const Real beta  = Pow(eps,Real(0.25));
@@ -487,7 +487,7 @@ void Initialize
     DEBUG_ONLY(CSE cse("socp::affine::Initialize"))
 
     // TODO: Expose as control parameters
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
     const Real delta = Pow(eps,Real(0.25));
     const Real beta  = Pow(eps,Real(0.25));

@@ -135,7 +135,7 @@ RandomizedSignDivide
     const Real oneA = OneNorm( A );
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = 500*n*Epsilon<Real>();
+        tol = 500*n*limits::Epsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -205,7 +205,7 @@ RandomizedSignDivide
     const Real oneA = OneNorm( A );
     Real tol = ctrl.tol;
     if( tol == Real(0) )
-        tol = 500*n*Epsilon<Real>();
+        tol = 500*n*limits::Epsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -272,7 +272,7 @@ SpectralDivide
     MakeHermitian( uplo, A );
     const auto median = Median(GetRealPartOfDiagonal(A));
     const Real infNorm = InfinityNorm(A);
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -321,7 +321,7 @@ SpectralDivide
     MakeHermitian( uplo, A );
     const auto median = Median(GetRealPartOfDiagonal(A));
     const Real infNorm = InfinityNorm(A);
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -369,7 +369,7 @@ SpectralDivide
     MakeHermitian( uplo, A );
     const auto median = Median(GetRealPartOfDiagonal(A));
     const Real infNorm = InfinityNorm(A);
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;
@@ -419,7 +419,7 @@ SpectralDivide
     MakeHermitian( uplo, A );
     const Real infNorm = InfinityNorm(A);
     const auto median = Median(GetRealPartOfDiagonal(A));
-    const Real eps = Epsilon<Real>();
+    const Real eps = limits::Epsilon<Real>();
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = 500*n*eps;

@@ -12,6 +12,8 @@
 
 namespace El {
 
+// TODO: Maintain B in BigInt form
+
 template<typename F>
 Int LLL
 ( Matrix<F>& B,
@@ -23,6 +25,21 @@ Int LLL
   bool smallestFirst=true,
   bool progress=false,
   bool time=false );
+
+template<typename F>
+Int LLL
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& QR,
+  Base<F> delta,
+  Base<F> innerTol=0,
+  bool weak=false,
+  bool presort=false,
+  bool smallestFirst=true,
+  bool progress=false,
+  bool time=false );
+
 template<typename F>
 Base<F> LLLDelta( const Matrix<F>& QR, bool weak=false );
 

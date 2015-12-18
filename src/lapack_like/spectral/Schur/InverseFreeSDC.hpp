@@ -33,7 +33,7 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
         LogicError("X must be 2n x n");
     // Compute the tolerance if it is unset
     if( tau == Real(0) )
-        tau = n*Epsilon<Real>();
+        tau = n*limits::Epsilon<Real>();
 
     // Expose A and B in the original and temporary
     Matrix<F> XAlt( 2*n, n );
@@ -106,7 +106,7 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
         LogicError("X must be 2n x n");
     // Compute the tolerance if it is unset
     if( tau == Real(0) )
-        tau = n*Epsilon<Real>();
+        tau = n*limits::Epsilon<Real>();
 
     // Expose A and B in the original and temporary
     DistMatrix<F> XAlt( 2*n, n, g );

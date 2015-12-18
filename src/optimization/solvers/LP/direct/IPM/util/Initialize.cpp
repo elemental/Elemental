@@ -142,7 +142,7 @@ void Initialize
         z *= -1;
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
     const Real xNorm = Nrm2( x );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));
@@ -247,7 +247,7 @@ void Initialize
         z *= -1;
     }
 
-    const Real epsilon = Epsilon<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
     const Real xNorm = Nrm2( x );
     const Real zNorm = Nrm2( z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));

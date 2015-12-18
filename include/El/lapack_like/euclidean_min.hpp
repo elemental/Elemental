@@ -49,7 +49,7 @@ struct LeastSquaresCtrl
     //       alpha ~= 1e-4 is a decent default. After experimenting with the
     //       estimation of the minimum singular value via Lanczos on A^H A
     //       failed (the literature agrees), I fell back to this default value.
-    Real alpha=Pow(Epsilon<Real>(),Real(0.25));
+    Real alpha=Pow(limits::Epsilon<Real>(),Real(0.25));
 
     RegSolveCtrl<Real> solveCtrl;
     bool equilibrate=true;

@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 inline Real DampScaling( Real alpha )
 {
-    const Real tol = Pow(Epsilon<Real>(),Real(0.33));
+    const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
         return 1;
     else 
