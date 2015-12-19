@@ -21,7 +21,7 @@ for presort, smallestFirst in (True,False), (True,True), (False,False):
       print "weak=%r, presort=%r, smallestFirst=%r, deltaLower=%f:" % \
         (weak,presort,smallestFirst,deltaLower)
       startTime = El.mpi.Time()
-      U, UInv, QR, numBacktrack = \
+      U, UInv, QR, nullity, numBacktracks = \
         El.LLL(B,deltaLower,loopTol,full=True,weak=weak,
           presort=presort,smallestFirst=smallestFirst,progress=progress)
       runTime = El.mpi.Time() - startTime
@@ -51,7 +51,8 @@ for presort, smallestFirst in (True,False), (True,True), (False,False):
 
       if output:
         El.Print(B,"B")
-      print "  num backtracks: ", numBacktrack
+      print "  nullity: ", nullity
+      print "  num backtracks: ", numBacktracks
       delta = El.LLLDelta(QR,weak)
       print "  delta=", delta
       print ""

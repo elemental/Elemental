@@ -14,8 +14,14 @@ namespace El {
 
 // TODO: Maintain B in BigInt form
 
+struct LLLInfo
+{
+    Int nullity; 
+    Int numBacktracks;
+};
+
 template<typename F>
-Int LLL
+LLLInfo LLL
 ( Matrix<F>& B,
   Matrix<F>& QR,
   Base<F> delta,
@@ -27,7 +33,7 @@ Int LLL
   bool time=false );
 
 template<typename F>
-Int LLL
+LLLInfo LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
@@ -41,7 +47,10 @@ Int LLL
   bool time=false );
 
 template<typename F>
-Base<F> LLLDelta( const Matrix<F>& QR, bool weak=false );
+Base<F> LLLDelta
+( const Matrix<F>& QR,
+  bool weak=false,
+  Base<F> zeroTol=limits::Epsilon<Base<F>>() );
 
 template<typename F>
 void LatticeGramSchmidt( const Matrix<F>& B, Matrix<F>& G, Matrix<F>& M );

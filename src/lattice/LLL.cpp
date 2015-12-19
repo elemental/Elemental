@@ -85,8 +85,6 @@ namespace lll {
 
 // Put the k'th column of B into the k'th column of QR and then rotate
 // said column with the first k-1 (scaled) Householder reflectors.
-//
-// TODO: Maintain the reflectors in an accumulated form
 
 template<typename F>
 void ExpandQR
@@ -144,22 +142,17 @@ void ExpandQR
 template<typename F>
 void HouseholderStep
 ( Int k,
-  const Matrix<F>& B,
-        Matrix<F>& QR,
-        Matrix<F>& t,
-        Matrix<Base<F>>& d,
-        Base<F> zeroTol,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   bool time )
 {
     DEBUG_ONLY(CSE cse("lll::HouseholderStep"))
     typedef Base<F> Real;
 
-    lll::ExpandQR( k, B, QR, t, d, time );
-
+    // Perform the next step of Householder reduction
     F* QRBuf = QR.Buffer();
     const Int QRLDim = QR.LDim();
-
-    // Perform the next step of Householder reduction
     F& rhokk = QRBuf[k+k*QRLDim]; 
     auto qr21 = QR( IR(k+1,END), IR(k) );
     F tau = LeftReflector( rhokk, qr21 );
@@ -171,13 +164,11 @@ void HouseholderStep
     }
     else
         d.Set( k, 0, +1 );
-    if( RealPart(rhokk) < zeroTol )
-        throw SingularMatrixException();
 }
 
-// NOTE: It is assumed that delta is valid
+// Return true if the new column is a zero vector
 template<typename F>
-void Step
+bool Step
 ( Int k,
   Matrix<F>& B,
   Matrix<F>& U,
@@ -214,36 +205,83 @@ void Step
     {
         lll::ExpandQR( k, B, QR, t, d, time );
 
-        if( time )
-            roundTimer.Start();
-        const Int lowestIndex = ( weak ? Max(k-1,0) : 0 );
-        for( Int i=k-1; i>=lowestIndex; --i )
+        const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+        if( oldNorm <= zeroTol )
         {
-            const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
-            xBuf[i] = chi;
-            if( Abs(chi) > Real(1)/Real(2) )
-                blas::Axpy
-                ( i, -chi,
-                  &QRBuf[i*QRLDim], 1,
-                  &QRBuf[k*QRLDim], 1 );
+            for( Int i=0; i<m; ++i )
+                BBuf[i+k*BLDim] = 0;
+            for( Int i=0; i<m; ++i )
+                QRBuf[i+k*QRLDim] = 0;
+            t.Set( k, 0, Real(1)/Real(2) );
+            d.Set( k, 0, Real(1) );
+            return true;
         }
 
-        const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-        blas::Gemv
-        ( 'N', m, k,
-          F(-1), BBuf, BLDim, &xBuf[0], 1,
-          F(+1), &BBuf[k*BLDim], 1 );
-        if( formU )
+        if( time )
+            roundTimer.Start();
+        if( weak )
+        {
+            if( Abs(QRBuf[(k-1)+(k-1)*QRLDim]) > zeroTol )
+            {
+                const F chi =
+                  Round(QRBuf[(k-1)+k*QRLDim]/QRBuf[(k-1)+(k-1)*QRLDim]);
+                xBuf[k-1] = chi;
+                if( Abs(chi) > Real(1)/Real(2) )
+                {
+                    blas::Axpy
+                    ( k, -chi,
+                      &QRBuf[(k-1)*QRLDim], 1,
+                      &QRBuf[k*QRLDim], 1 );
+                    blas::Axpy
+                    ( m, -chi,
+                      &BBuf[(k-1)*BLDim], 1,
+                      &BBuf[k*BLDim], 1 );
+                    if( formU )
+                        blas::Axpy
+                        ( n, -chi,
+                          &UBuf[(k-1)*ULDim], 1,
+                          &UBuf[k*ULDim], 1 );
+                    if( formUInv )
+                        blas::Axpy
+                        ( n, chi,
+                          &UInvBuf[k], UInvLDim,
+                          &UInvBuf[k-1], UInvLDim );
+                }
+            }
+        }
+        else
+        {
+            for( Int i=k-1; i>=0; --i )
+            {
+                if( Abs(QRBuf[i+i*QRLDim]) <= zeroTol )
+                {
+                    xBuf[i] = 0;
+                    continue;
+                }
+                const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
+                xBuf[i] = chi;
+                if( Abs(chi) > Real(1)/Real(2) )
+                    blas::Axpy
+                    ( i+1, -chi,
+                      &QRBuf[i*QRLDim], 1,
+                      &QRBuf[k*QRLDim], 1 );
+            }
             blas::Gemv
-            ( 'N', n, k,
-              F(-1), UBuf, ULDim, &xBuf[0], 1,
-              F(+1), &UBuf[k*ULDim], 1 );
-        if( formUInv )
-            blas::Geru
-            ( k, n,
-              F(1), &xBuf[0],    1,
-                    &UInvBuf[k], UInvLDim,
-                    &UInvBuf[0], UInvLDim );
+            ( 'N', m, k,
+              F(-1), BBuf, BLDim, &xBuf[0], 1,
+              F(+1), &BBuf[k*BLDim], 1 );
+            if( formU )
+                blas::Gemv
+                ( 'N', n, k,
+                  F(-1), UBuf, ULDim, &xBuf[0], 1,
+                  F(+1), &UBuf[k*ULDim], 1 );
+            if( formUInv )
+                blas::Geru
+                ( k, n,
+                  F(1), &xBuf[0],    1,
+                        &UInvBuf[k], UInvLDim,
+                        &UInvBuf[0], UInvLDim );
+        }
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( time )
             roundTimer.Stop();
@@ -258,7 +296,8 @@ void Step
              " since oldNorm=",oldNorm," and newNorm=",newNorm);
     }
 
-    lll::HouseholderStep( k, B, QR, t, d, zeroTol, time );
+    lll::HouseholderStep( k, QR, t, d, time );
+    return false;
 }
 
 // Assume that V is m x n and SInv is n x n with, the first k columns of V
@@ -343,18 +382,16 @@ void ExpandBlockQR
 template<typename F>
 void BlockHouseholderStep
 ( Int k,
-  const Matrix<F>& B,
-        Matrix<F>& QR,
-        Matrix<F>& V,
-        Matrix<F>& SInv,
-        Matrix<F>& t,
-        Matrix<Base<F>>& d,
-        Base<F> zeroTol,
+  Matrix<F>& QR,
+  Matrix<F>& V,
+  Matrix<F>& SInv,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   bool time )
 {
     DEBUG_ONLY(CSE cse("lll::BlockHouseholderStep"))
     typedef Base<F> Real;
-    const Int m = B.Height();
+    const Int m = QR.Height();
 
     F* QRBuf = QR.Buffer();
     F* VBuf = V.Buffer();
@@ -362,8 +399,6 @@ void BlockHouseholderStep
     const Int QRLDim = QR.LDim();
     const Int VLDim = V.LDim();
     const Int SInvLDim = SInv.LDim();
-
-    lll::ExpandBlockQR( k, B, QR, V, SInv, d, time );
 
     // Perform the next step of Householder reduction
     F& rhokk = QRBuf[k+k*QRLDim]; 
@@ -377,8 +412,6 @@ void BlockHouseholderStep
     }
     else
         d.Set( k, 0, +1 );
-    if( RealPart(rhokk) < zeroTol )
-        throw SingularMatrixException();
 
     // Form the k'th column of V 
     for( Int i=0; i<k; ++i )
@@ -405,9 +438,9 @@ void BlockHouseholderStep
         formSInvTimer.Stop();
 }
 
-// NOTE: It is assumed that delta is valid
+// Return true if the new vector is a zero vector
 template<typename F>
-void BlockStep
+bool BlockStep
 ( Int k,
   Matrix<F>& B,
   Matrix<F>& U,
@@ -446,36 +479,83 @@ void BlockStep
     {
         lll::ExpandBlockQR( k, B, QR, V, SInv, d, time );
 
-        if( time )
-            roundTimer.Start();
-        const Int lowestIndex = ( weak ? Max(k-1,0) : 0 );
-        for( Int i=k-1; i>=lowestIndex; --i )
+        const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+        if( oldNorm <= zeroTol )
         {
-            const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
-            xBuf[i] = chi;
-            if( Abs(chi) > Real(1)/Real(2) )
-                blas::Axpy
-                ( i, -chi,
-                  &QRBuf[i*QRLDim], 1,
-                  &QRBuf[k*QRLDim], 1 ); 
+            for( Int i=0; i<m; ++i )
+                BBuf[i+k*BLDim] = 0;
+            for( Int i=0; i<m; ++i )
+                QRBuf[i+k*QRLDim] = 0;
+            t.Set( k, 0, Real(1)/Real(2) );
+            d.Set( k, 0, Real(1) );
+            return true;
         }
 
-        const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-        blas::Gemv
-        ( 'N', m, k,
-          F(-1), BBuf, BLDim, &xBuf[0], 1,
-          F(+1), &BBuf[k*BLDim], 1 );
-        if( formU )
+        if( time )
+            roundTimer.Start();
+        if( weak )
+        {
+            if( Abs(QRBuf[(k-1)+(k-1)*QRLDim]) > zeroTol )
+            {
+                const F chi =
+                  Round(QRBuf[(k-1)+k*QRLDim]/QRBuf[(k-1)+(k-1)*QRLDim]);
+                xBuf[k-1] = chi;
+                if( Abs(chi) > Real(1)/Real(2) )
+                {
+                    blas::Axpy
+                    ( k, -chi,
+                      &QRBuf[(k-1)*QRLDim], 1,
+                      &QRBuf[k*QRLDim], 1 );
+                    blas::Axpy
+                    ( m, -chi,
+                      &BBuf[(k-1)*BLDim], 1,
+                      &BBuf[k*BLDim], 1 );
+                    if( formU )
+                        blas::Axpy
+                        ( n, -chi,
+                          &UBuf[(k-1)*ULDim], 1,
+                          &UBuf[k*ULDim], 1 );
+                    if( formUInv )
+                        blas::Axpy
+                        ( n, chi,
+                          &UInvBuf[k], UInvLDim,
+                          &UInvBuf[k-1], UInvLDim );
+                }
+            }
+        }
+        else
+        {
+            for( Int i=k-1; i>=0; --i )
+            {
+                if( Abs(QRBuf[i+i*QRLDim]) <= zeroTol )
+                {
+                    xBuf[i] = 0;
+                    continue;
+                }
+                const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
+                xBuf[i] = chi;
+                if( Abs(chi) > Real(1)/Real(2) )
+                    blas::Axpy
+                    ( i+1, -chi,
+                      &QRBuf[i*QRLDim], 1,
+                      &QRBuf[k*QRLDim], 1 );
+            }
             blas::Gemv
-            ( 'N', n, k,
-              F(-1), UBuf, ULDim, &xBuf[0], 1,
-              F(+1), &UBuf[k*ULDim], 1 );
-        if( formUInv )
-            blas::Geru
-            ( k, n,
-              F(1), &xBuf[0],    1,
-                    &UInvBuf[k], UInvLDim,
-                    &UInvBuf[0], UInvLDim );
+            ( 'N', m, k,
+              F(-1), BBuf, BLDim, &xBuf[0], 1,
+              F(+1), &BBuf[k*BLDim], 1 );
+            if( formU )
+                blas::Gemv
+                ( 'N', n, k,
+                  F(-1), UBuf, ULDim, &xBuf[0], 1,
+                  F(+1), &UBuf[k*ULDim], 1 );
+            if( formUInv )
+                blas::Geru
+                ( k, n,
+                  F(1), &xBuf[0],    1,
+                        &UInvBuf[k], UInvLDim,
+                        &UInvBuf[0], UInvLDim );
+        }
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( time )
             roundTimer.Stop();
@@ -490,11 +570,12 @@ void BlockStep
              " since oldNorm=",oldNorm," and newNorm=",newNorm);
     }
 
-    lll::BlockHouseholderStep( k, B, QR, V, SInv, t, d, zeroTol, time );
+    lll::BlockHouseholderStep( k, QR, V, SInv, t, d, time );
+    return false;
 }
 
 template<typename F>
-Int UnblockedAlg
+LLLInfo UnblockedAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
@@ -515,7 +596,9 @@ Int UnblockedAlg
         roundTimer.Reset();
     }
 
-    Real zeroTol = Pow(limits::Epsilon<Real>(),Real(0.5));
+    // TODO: Decide on an appropriate norm threshold for assuming that a vector
+    //       in the basis would have been zero if not for round-off error
+    Real zeroTol = limits::Epsilon<Real>();
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -527,27 +610,44 @@ Int UnblockedAlg
     Zeros( t, minDim, 1 );
 
     // Perform the first step of Householder reduction
-    lll::HouseholderStep( 0, B, QR, t, d, zeroTol, time );
+    lll::ExpandQR( 0, B, QR, t, d, time );
+    lll::HouseholderStep( 0, QR, t, d, time );
+    Int nullity = 0;
+    {
+        auto b0 = B(ALL,IR(0));
+        if( FrobeniusNorm(b0) <= zeroTol )
+        {
+            auto QR0 = QR(ALL,IR(0));
+            Zero( b0 );
+            Zero( QR0 );
+            nullity = 1;
+        }
+    }
 
-    Int k=1, numBacktrack=0;
+    Int k=1, numBacktracks=0;
     while( k < n )
     {
-        lll::Step
-        ( k, B, U, UInv, QR, t, d,
-          delta, loopTol, zeroTol, 
-          formU, formUInv, weak, progress, time );
+        bool zeroVector =
+          lll::Step
+          ( k, B, U, UInv, QR, t, d,
+            delta, loopTol, zeroTol, 
+            formU, formUInv, weak, progress, time );
+        if( zeroVector )
+            nullity = k+1;
+        else
+            nullity = Min(nullity,k);
 
-        const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
-        const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
-        const Real s = bNorm*bNorm - rTNorm*rTNorm;
         const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
-        if( delta*rho_km1_km1*rho_km1_km1 <= s )
+        const F rho_km1_k = QR.Get(k-1,k);
+        const Real rho_k_k = QR.GetRealPart(k,k); 
+        if( delta*rho_km1_km1*rho_km1_km1 <=
+            rho_k_k*rho_k_k + Abs(rho_km1_k)*Abs(rho_km1_k) )
         {
             ++k;
         }
         else
         {
-            ++numBacktrack;
+            ++numBacktracks;
             if( progress )
                 Output("Dropping from k=",k," to ",Max(k-1,1));
             ColSwap( B, k-1, k );
@@ -558,7 +658,20 @@ Int UnblockedAlg
             if( k == 1 )
             {
                 // We must reinitialize since we keep k=1
-                lll::HouseholderStep( 0, B, QR, t, d, zeroTol, time );
+                lll::ExpandQR( 0, B, QR, t, d, time );
+                lll::HouseholderStep( 0, QR, t, d, time );
+                {
+                    auto b0 = B(ALL,IR(0));
+                    if( FrobeniusNorm(b0) <= zeroTol )
+                    {
+                        auto QR0 = QR(ALL,IR(0));
+                        Zero( b0 );
+                        Zero( QR0 );
+                        nullity = 1;
+                    }
+                    else
+                        nullity = 0;
+                }
             }
             else
             {
@@ -573,11 +686,14 @@ Int UnblockedAlg
         Output("  Round time:             ",roundTimer.Total());
     }
 
-    return numBacktrack;
+    LLLInfo info;
+    info.nullity = nullity;
+    info.numBacktracks = numBacktracks; 
+    return info;
 }
 
 template<typename F>
-Int BlockedAlg
+LLLInfo BlockedAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
@@ -599,7 +715,9 @@ Int BlockedAlg
         formSInvTimer.Reset();
     }
 
-    Real zeroTol = Pow(limits::Epsilon<Real>(),Real(0.5));
+    // TODO: Decide on an appropriate norm threshold for assuming that a vector
+    //       in the basis would have been zero if not for round-off error
+    Real zeroTol = limits::Epsilon<Real>();
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -613,27 +731,44 @@ Int BlockedAlg
     Zeros( t, minDim, 1 );
 
     // Perform the first step of Householder reduction
-    lll::BlockHouseholderStep( 0, B, QR, V, SInv, t, d, zeroTol, time );
+    lll::ExpandBlockQR( 0, B, QR, V, SInv, d, time );
+    lll::BlockHouseholderStep( 0, QR, V, SInv, t, d, time );
+    Int nullity = 0;
+    {
+        auto b0 = B(ALL,IR(0));
+        if( FrobeniusNorm(b0) <= zeroTol )
+        {
+            auto QR0 = QR(ALL,IR(0));
+            Zero( b0 );
+            Zero( QR0 );
+            nullity = 1;
+        }
+    }
 
-    Int k=1, numBacktrack=0;
+    Int k=1, numBacktracks=0;
     while( k < n )
     {
-        lll::BlockStep
-        ( k, B, U, UInv, QR, V, SInv, t, d,
-          delta, loopTol, zeroTol,
-          formU, formUInv, weak, progress, time );
+        bool zeroVector =
+          lll::BlockStep
+          ( k, B, U, UInv, QR, V, SInv, t, d,
+            delta, loopTol, zeroTol,
+            formU, formUInv, weak, progress, time );
+        if( zeroVector )
+            nullity = k+1;
+        else
+            nullity = Min(nullity,k);
 
-        const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
-        const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
-        const Real s = bNorm*bNorm - rTNorm*rTNorm;
         const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
-        if( delta*rho_km1_km1*rho_km1_km1 <= s )
+        const F rho_km1_k = QR.Get(k-1,k);
+        const Real rho_k_k = QR.GetRealPart(k,k); 
+        if( delta*rho_km1_km1*rho_km1_km1 <=
+            rho_k_k*rho_k_k + Abs(rho_km1_k)*Abs(rho_km1_k) )
         {
             ++k;
         }
         else
         {
-            ++numBacktrack;
+            ++numBacktracks;
             if( progress )
                 Output("Dropping from k=",k," to ",Max(k-1,1));
             ColSwap( B, k-1, k );
@@ -644,8 +779,21 @@ Int BlockedAlg
             if( k == 1 )
             {
                 // We must reinitialize since we keep k=1
-                lll::BlockHouseholderStep
-                ( 0, B, QR, V, SInv, t, d, zeroTol, time );
+                lll::ExpandBlockQR( 0, B, QR, V, SInv, d, time );
+                lll::BlockHouseholderStep( 0, QR, V, SInv, t, d, time );
+                {
+                    auto b0 = B(ALL,IR(0));
+                    if( FrobeniusNorm(b0) <= zeroTol )
+                    {
+                        auto QR0 = QR(ALL,IR(0));
+                        Zero( b0 );
+                        Zero( QR0 );
+                        nullity = 1;
+                    }
+                    else
+                        nullity = 0;
+                }
+
             }
             else
             {
@@ -661,13 +809,16 @@ Int BlockedAlg
         Output("  Round time:             ",roundTimer.Total());
     }
 
-    return numBacktrack;
+    LLLInfo info;
+    info.nullity = nullity;
+    info.numBacktracks = numBacktracks;
+    return info;
 }
 
 } // namespace lll
 
 template<typename F>
-Int LLL
+LLLInfo LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
@@ -719,7 +870,7 @@ Int LLL
 }
 
 template<typename F>
-Int LLL
+LLLInfo LLL
 ( Matrix<F>& B,
   Matrix<F>& QR,
   Base<F> delta,
@@ -764,7 +915,10 @@ Int LLL
 }
 
 template<typename F>
-Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
+Base<F> LLLDelta
+( const Matrix<F>& QR,
+  bool weak,
+  Base<F> zeroTol )
 {
     DEBUG_ONLY(CSE cse("LLLDelta"))
     typedef Base<F> Real;
@@ -791,6 +945,8 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
     for( Int i=0; i<minDim-1; ++i )
     {
         const Real rho_i_i = R.GetRealPart(i,i);
+        if( Abs(rho_i_i) <= zeroTol )
+            continue;
         const Real rho_i_ip1 = Abs(R.Get(i,i+1));
         const Real rho_ip1_ip1 = R.GetRealPart(i+1,i+1);
 
@@ -802,7 +958,7 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
 
     // Ensure that
     //
-    //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < k < Min(m,n),
+    //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < Min(m,n) and l < k < n
     //
     // unless a weak reduction was requested in which case k=l+1.
     //
@@ -816,14 +972,25 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
     if( weak )
     {
         for( Int i=0; i<minDim-1; ++i )
-            maxRatio = Max(maxRatio,Abs(R.Get(i,i+1)/R.Get(i,i)));
+        {
+            const F rho_ii = R.Get(i,i);
+            if( Abs(rho_ii) <= zeroTol )
+                continue;
+            else
+                maxRatio = Max(maxRatio,Abs(R.Get(i,i+1)/rho_ii));
+        }
     }
     else
     {
-        auto diagR = GetDiagonal(R);
-        DiagonalSolve( LEFT, NORMAL, diagR, R );
-        ShiftDiagonal( R, F(-1) );
-        maxRatio = MaxNorm( R );
+        for( Int i=0; i<minDim-1; ++i )
+        {
+            const F rho_ii = R.Get(i,i);
+            if( Abs(rho_ii) <= zeroTol )
+                continue;
+            else
+                for( Int j=i+1; j<n; ++j )
+                    maxRatio = Max(maxRatio,Abs(R.Get(i,j)/rho_ii));
+        }
     }
     if( maxRatio > bound+Pow(limits::Epsilon<Real>(),Real(3)/Real(4)) )
         return 0; // the worst-possible delta
@@ -832,7 +999,7 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
 }
 
 #define PROTO(F) \
-  template Int LLL \
+  template LLLInfo LLL \
   ( Matrix<F>& B, \
     Matrix<F>& QR, \
     Base<F> delta, \
@@ -842,7 +1009,7 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
     bool smallestFirst, \
     bool progress, \
     bool time ); \
-  template Int LLL \
+  template LLLInfo LLL \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
     Matrix<F>& UInv, \
@@ -854,7 +1021,10 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
     bool smallestFirst, \
     bool progress, \
     bool time ); \
-  template Base<F> LLLDelta( const Matrix<F>& QR, bool weak );
+  template Base<F> LLLDelta \
+  ( const Matrix<F>& QR, \
+    bool weak, \
+    Base<F> zeroTol );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

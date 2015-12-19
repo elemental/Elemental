@@ -25,11 +25,16 @@ extern "C" {
     bool presort, \
     bool smallestFirst, \
     bool progress, \
-    ElInt* numBacktrack ) \
-  { EL_TRY( *numBacktrack = \
-      LLL( *CReflect(B), *CReflect(QR), \
-           delta, innerTol, weak,\
-           presort, smallestFirst, progress ) ) } \
+    ElInt* nullity, \
+    ElInt* numBacktracks ) \
+  { EL_TRY( \
+      auto info = \
+        LLL( *CReflect(B), *CReflect(QR), \
+             delta, innerTol, weak,\
+             presort, smallestFirst, progress ); \
+      *nullity = info.nullity; \
+      *numBacktracks = info.numBacktracks; \
+    ) } \
   ElError ElLLLFull_ ## SIG \
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG U, \
@@ -41,11 +46,16 @@ extern "C" {
     bool presort, \
     bool smallestFirst, \
     bool progress, \
-    ElInt* numBacktrack ) \
-  { EL_TRY( *numBacktrack = \
-      LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(QR), \
-           delta, innerTol, weak,\
-           presort, smallestFirst, progress ) ) } \
+    ElInt* nullity, \
+    ElInt* numBacktracks ) \
+  { EL_TRY( \
+      auto info = \
+        LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(QR), \
+             delta, innerTol, weak,\
+             presort, smallestFirst, progress ); \
+      *nullity = info.nullity; \
+      *numBacktracks = info.numBacktracks; \
+    ) } \
   ElError ElLLLDelta_ ## SIG \
   ( ElConstMatrix_ ## SIG QR, bool weak, Base<F>* delta ) \
   { EL_TRY( *delta = LLLDelta( *CReflect(QR), weak ) ) }

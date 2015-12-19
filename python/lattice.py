@@ -54,14 +54,17 @@ lib.ElLLLFull_z.argtypes = \
 
 def LLL(B,delta=0.75,innerTol=0,full=True,weak=False,
         presort=False,smallestFirst=True,progress=False):
-  numBacktrack = iType()
+  nullity = iType()
+  numBacktracks = iType()
   U = Matrix(B.tag)
   UInv = Matrix(B.tag)
   QRMat = Matrix(B.tag)
   args = [B.obj,QRMat.obj,delta,innerTol,weak,
-          presort,smallestFirst,progress,pointer(numBacktrack)]
+          presort,smallestFirst,progress,
+          pointer(nullity),pointer(numBacktracks)]
   argsFull = [B.obj,U.obj,UInv.obj,QRMat.obj,delta,innerTol,weak,
-              presort,smallestFirst,progress,pointer(numBacktrack)]
+              presort,smallestFirst,progress,
+              pointer(nullity),pointer(numBacktracks)]
   if type(B) is Matrix:
     if   B.tag == sTag:
       if full: lib.ElLLLFull_s(*argsFull)
@@ -77,9 +80,9 @@ def LLL(B,delta=0.75,innerTol=0,full=True,weak=False,
       else:    lib.ElLLL_z(*args)
     else: DataExcept()
     if full:
-      return U, UInv, QRMat, numBacktrack.value
+      return U, UInv, QRMat, nullity.value, numBacktracks.value
     else:
-      return QRMat, numBacktrack.value
+      return QRMat, nullity.value, numBacktracks.value
   else: TypeExcept()
 
 lib.ElLLLDelta_s.argtypes = \
