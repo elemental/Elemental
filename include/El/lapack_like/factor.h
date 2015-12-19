@@ -226,38 +226,38 @@ EL_EXPORT ElError ElLDLPivDist_z
 /* Expert versions 
    ^^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElLDLPivX_s
-( ElMatrix_s A, ElMatrix_s dSub, ElPermutation p, ElLDLPivotCtrl_s );
+( ElMatrix_s A, ElMatrix_s dSub, ElPermutation p, ElLDLPivotCtrl_s ctrl );
 EL_EXPORT ElError ElLDLPivX_d
-( ElMatrix_d A, ElMatrix_d dSub, ElPermutation p, ElLDLPivotCtrl_d );
+( ElMatrix_d A, ElMatrix_d dSub, ElPermutation p, ElLDLPivotCtrl_d ctrl );
 EL_EXPORT ElError ElLDLPivX_c
 ( ElMatrix_c A, ElMatrix_c dSub, ElPermutation p, bool conjugate, 
-  ElLDLPivotCtrl_s );
+  ElLDLPivotCtrl_s ctrl );
 EL_EXPORT ElError ElLDLPivX_z
 ( ElMatrix_z A, ElMatrix_z dSub, ElPermutation p, bool conjugate, 
-  ElLDLPivotCtrl_d );
+  ElLDLPivotCtrl_d ctrl );
 
 EL_EXPORT ElError ElLDLPivXDist_s
 ( ElDistMatrix_s A,
   ElDistMatrix_s dSub,
   ElDistPermutation p,
-  ElLDLPivotCtrl_s );
+  ElLDLPivotCtrl_s ctrl );
 EL_EXPORT ElError ElLDLPivXDist_d
 ( ElDistMatrix_d A,
   ElDistMatrix_d dSub,
   ElDistPermutation p,
-  ElLDLPivotCtrl_d );
+  ElLDLPivotCtrl_d ctrl );
 EL_EXPORT ElError ElLDLPivXDist_c
 ( ElDistMatrix_c A,
   ElDistMatrix_c dSub,
   ElDistPermutation p,
   bool conjugate, 
-  ElLDLPivotCtrl_s );
+  ElLDLPivotCtrl_s ctrl );
 EL_EXPORT ElError ElLDLPivXDist_z
 ( ElDistMatrix_z A,
   ElDistMatrix_z dSub,
   ElDistPermutation p,
   bool conjugate, 
-  ElLDLPivotCtrl_d );
+  ElLDLPivotCtrl_d ctrl );
 
 /* Return the inertia given the quasi-diagonal factor from an LDL^H 
    ---------------------------------------------------------------- */

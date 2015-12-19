@@ -14,52 +14,68 @@
 extern "C" {
 #endif
 
+typedef struct
+{
+    ElInt nullity;    
+    ElInt numSwaps;
+} ElLLLInfo;
+
+typedef struct
+{
+    float delta;
+    bool weak;
+    bool presort;
+    bool smallestFirst;
+    float reorthogTol;
+    float zeroTol;
+    bool progress;
+    bool time;
+} ElLLLCtrl_s;
+EL_EXPORT ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl );
+
+typedef struct
+{
+    double delta;
+    bool weak;
+    bool presort;
+    bool smallestFirst;
+    double reorthogTol;
+    double zeroTol;
+    bool progress;
+    bool time;
+} ElLLLCtrl_d;
+EL_EXPORT ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl );
+
 EL_EXPORT ElError ElLLL_s
-( ElMatrix_s B, ElMatrix_s QR,
-  float delta, float innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+( ElMatrix_s B, ElMatrix_s QR, ElLLLCtrl_s ctrl, ElLLLInfo* info );
 EL_EXPORT ElError ElLLL_d
-( ElMatrix_d B, ElMatrix_d QR,
-  double delta, double innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+( ElMatrix_d B, ElMatrix_d QR, ElLLLCtrl_d ctrl, ElLLLInfo* info );
 EL_EXPORT ElError ElLLL_c
-( ElMatrix_c B, ElMatrix_c QR,
-  float delta, float innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+( ElMatrix_c B, ElMatrix_c QR, ElLLLCtrl_s ctrl, ElLLLInfo* info );
 EL_EXPORT ElError ElLLL_z
-( ElMatrix_z B, ElMatrix_z QR,
-  double delta, double innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+( ElMatrix_z B, ElMatrix_z QR, ElLLLCtrl_d ctrl, ElLLLInfo* info );
 
 EL_EXPORT ElError ElLLLFull_s
 ( ElMatrix_s B, ElMatrix_s U, ElMatrix_s UInv, ElMatrix_s QR,
-  float delta, float innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+  ElLLLCtrl_s ctrl, ElLLLInfo* info );
 EL_EXPORT ElError ElLLLFull_d
 ( ElMatrix_d B, ElMatrix_d U, ElMatrix_d UInv, ElMatrix_d QR,
-  double delta, double innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+  ElLLLCtrl_d ctrl, ElLLLInfo* info );
 EL_EXPORT ElError ElLLLFull_c
 ( ElMatrix_c B, ElMatrix_c U, ElMatrix_c UInv, ElMatrix_c QR,
-  float delta, float innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+  ElLLLCtrl_s ctrl, ElLLLInfo* info );
 EL_EXPORT ElError ElLLLFull_z
 ( ElMatrix_z B, ElMatrix_z U, ElMatrix_z UInv, ElMatrix_z QR,
-  double delta, double innerTol, bool weak,
-  bool presort, bool smallestFirst, bool progress,
-  ElInt* nullity, ElInt* numBacktrack );
+  ElLLLCtrl_d ctrl, ElLLLInfo* info );
 
-EL_EXPORT ElError ElLLLDelta_s( ElConstMatrix_s QR, bool weak, float* delta );
-EL_EXPORT ElError ElLLLDelta_d( ElConstMatrix_d QR, bool weak, double* delta );
-EL_EXPORT ElError ElLLLDelta_c( ElConstMatrix_c QR, bool weak, float* delta );
-EL_EXPORT ElError ElLLLDelta_z( ElConstMatrix_z QR, bool weak, double* delta );
+EL_EXPORT ElError ElLLLDelta_s
+( ElConstMatrix_s QR, ElLLLCtrl_s ctrl, float* delta );
+EL_EXPORT ElError ElLLLDelta_d
+( ElConstMatrix_d QR, ElLLLCtrl_d ctrl, double* delta );
+EL_EXPORT ElError ElLLLDelta_c
+( ElConstMatrix_c QR, ElLLLCtrl_s ctrl, float* delta );
+EL_EXPORT ElError ElLLLDelta_z
+( ElConstMatrix_z QR, ElLLLCtrl_d ctrl, double* delta );
 
 EL_EXPORT ElError ElLatticeGramSchmidt_s
 ( ElConstMatrix_s B, ElMatrix_s G, ElMatrix_s M );

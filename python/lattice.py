@@ -34,37 +34,65 @@ def LatticeGramSchmidt(B):
 
 # LLL
 # ===
+
+class LLLInfo(ctypes.Structure):
+  _fields_ = [("nullity",iType),("numSwaps",iType)]
+
+lib.ElLLLCtrlDefault_s.argtypes = \
+lib.ElLLLCtrlDefault_d.argtypes = \
+  [c_void_p]
+class LLLCtrl_s(ctypes.Structure):
+  _fields_ = [("delta",sType),
+              ("weak",bType),
+              ("presort",bType),
+              ("smallestFirst",bType),
+              ("reorthogTol",sType),
+              ("zeroTol",sType),
+              ("progress",bType),
+              ("time",bType)]
+  def __init__(self):
+    lib.ElLLLCtrlDefault_s(pointer(self))
+class LLLCtrl_d(ctypes.Structure):
+  _fields_ = [("delta",dType),
+              ("weak",bType),
+              ("presort",bType),
+              ("smallestFirst",bType),
+              ("reorthogTol",dType),
+              ("zeroTol",dType),
+              ("progress",bType),
+              ("time",bType)]
+  def __init__(self):
+    lib.ElLLLCtrlDefault_d(pointer(self))
+
 lib.ElLLL_s.argtypes = \
 lib.ElLLL_c.argtypes = \
-  [c_void_p,c_void_p,
-   sType,sType,bType,bType,bType,bType,POINTER(iType)]
+  [c_void_p,c_void_p,LLLCtrl_s,POINTER(LLLInfo)]
 lib.ElLLL_d.argtypes = \
 lib.ElLLL_z.argtypes = \
-  [c_void_p,c_void_p,
-   dType,dType,bType,bType,bType,bType,POINTER(iType)]
+  [c_void_p,c_void_p,LLLCtrl_d,POINTER(LLLInfo)]
 
 lib.ElLLLFull_s.argtypes = \
 lib.ElLLLFull_c.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,
-   sType,sType,bType,bType,bType,bType,POINTER(iType)]
+   LLLCtrl_s,POINTER(LLLInfo)]
 lib.ElLLLFull_d.argtypes = \
 lib.ElLLLFull_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,
-   dType,dType,bType,bType,bType,bType,POINTER(iType)]
+   LLLCtrl_d,POINTER(LLLInfo)]
 
-def LLL(B,delta=0.75,innerTol=0,full=True,weak=False,
-        presort=False,smallestFirst=True,progress=False):
-  nullity = iType()
-  numBacktracks = iType()
+def LLL(B,full=True,ctrl=None):
+  info = LLLInfo()
+  if ctrl==None:
+    if   B.tag == sTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag: ctrl = LLLCtrl_d()
+    else: DataExcept()
+
   U = Matrix(B.tag)
   UInv = Matrix(B.tag)
   QRMat = Matrix(B.tag)
-  args = [B.obj,QRMat.obj,delta,innerTol,weak,
-          presort,smallestFirst,progress,
-          pointer(nullity),pointer(numBacktracks)]
-  argsFull = [B.obj,U.obj,UInv.obj,QRMat.obj,delta,innerTol,weak,
-              presort,smallestFirst,progress,
-              pointer(nullity),pointer(numBacktracks)]
+
+  args = [B.obj,QRMat.obj,ctrl,pointer(info)]
+  argsFull = [B.obj,U.obj,UInv.obj,QRMat.obj,ctrl,pointer(info)]
   if type(B) is Matrix:
     if   B.tag == sTag:
       if full: lib.ElLLLFull_s(*argsFull)
@@ -80,21 +108,26 @@ def LLL(B,delta=0.75,innerTol=0,full=True,weak=False,
       else:    lib.ElLLL_z(*args)
     else: DataExcept()
     if full:
-      return U, UInv, QRMat, nullity.value, numBacktracks.value
+      return U, UInv, QRMat, info
     else:
-      return QRMat, nullity.value, numBacktracks.value
+      return QRMat, info
   else: TypeExcept()
 
 lib.ElLLLDelta_s.argtypes = \
 lib.ElLLLDelta_c.argtypes = \
-  [c_void_p,bType,POINTER(sType)]
+  [c_void_p,LLLCtrl_s,POINTER(sType)]
 lib.ElLLLDelta_d.argtypes = \
 lib.ElLLLDelta_z.argtypes = \
-  [c_void_p,bType,POINTER(dType)]
+  [c_void_p,LLLCtrl_d,POINTER(dType)]
 
-def LLLDelta(QRMat,weak=False):
+def LLLDelta(QRMat,ctrl=None):
+  if ctrl==None:
+    if   B.tag == sTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag: ctrl = LLLCtrl_d()
+    else: DataExcept()
+
   delta = TagToType(Base(QRMat.tag))()
-  args = [QRMat.obj,weak,pointer(delta)]
+  args = [QRMat.obj,ctrl,pointer(delta)]
   if type(QRMat) is Matrix:
     if   QRMat.tag == sTag: lib.ElLLLDelta_s(*args)
     elif QRMat.tag == dTag: lib.ElLLLDelta_d(*args)

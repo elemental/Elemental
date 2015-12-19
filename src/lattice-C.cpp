@@ -12,6 +12,32 @@ using namespace El;
 
 extern "C" {
 
+ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
+{
+    ctrl->delta = 0.75f;
+    ctrl->weak = false;
+    ctrl->presort = true;
+    ctrl->smallestFirst = true;
+    ctrl->reorthogTol = 0;
+    ctrl->zeroTol = limits::Epsilon<float>();
+    ctrl->progress = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
+
+ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
+{
+    ctrl->delta = 0.75;
+    ctrl->weak = false;
+    ctrl->presort = true;
+    ctrl->smallestFirst = true;
+    ctrl->reorthogTol = 0;
+    ctrl->zeroTol = limits::Epsilon<double>();
+    ctrl->progress = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
+
 #define C_PROTO(SIG,SIGBASE,F) \
   ElError ElLatticeGramSchmidt_ ## SIG \
   ( ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG G, ElMatrix_ ## SIG M ) \
@@ -19,46 +45,28 @@ extern "C" {
   ElError ElLLL_ ## SIG \
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG QR, \
-    Base<F> delta, \
-    Base<F> innerTol, \
-    bool weak, \
-    bool presort, \
-    bool smallestFirst, \
-    bool progress, \
-    ElInt* nullity, \
-    ElInt* numBacktracks ) \
+    ElLLLCtrl_ ## SIGBASE ctrl, \
+    ElLLLInfo* infoC ) \
   { EL_TRY( \
-      auto info = \
-        LLL( *CReflect(B), *CReflect(QR), \
-             delta, innerTol, weak,\
-             presort, smallestFirst, progress ); \
-      *nullity = info.nullity; \
-      *numBacktracks = info.numBacktracks; \
+      auto info = LLL( *CReflect(B), *CReflect(QR), CReflect(ctrl) );\
+      *infoC = CReflect(info); \
     ) } \
   ElError ElLLLFull_ ## SIG \
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG U, \
     ElMatrix_ ## SIG UInv, \
     ElMatrix_ ## SIG QR, \
-    Base<F> delta, \
-    Base<F> innerTol, \
-    bool weak, \
-    bool presort, \
-    bool smallestFirst, \
-    bool progress, \
-    ElInt* nullity, \
-    ElInt* numBacktracks ) \
+    ElLLLCtrl_ ## SIGBASE ctrl, \
+    ElLLLInfo* infoC ) \
   { EL_TRY( \
       auto info = \
         LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(QR), \
-             delta, innerTol, weak,\
-             presort, smallestFirst, progress ); \
-      *nullity = info.nullity; \
-      *numBacktracks = info.numBacktracks; \
+             CReflect(ctrl) ); \
+      *infoC = CReflect(info); \
     ) } \
   ElError ElLLLDelta_ ## SIG \
-  ( ElConstMatrix_ ## SIG QR, bool weak, Base<F>* delta ) \
-  { EL_TRY( *delta = LLLDelta( *CReflect(QR), weak ) ) }
+  ( ElConstMatrix_ ## SIG QR, ElLLLCtrl_ ## SIGBASE ctrl, Base<F>* delta ) \
+  { EL_TRY( *delta = LLLDelta( *CReflect(QR), CReflect(ctrl) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"
