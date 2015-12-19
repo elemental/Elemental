@@ -91,16 +91,26 @@ BusingerGolub
         ctrlCopy.tol = Max(ctrl.tol,eps*Min(m,n));
     }
 
+    Timer QRTimer;
+    QRTimer.Start();
     // Perform an adaptive pivoted QR factorization
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
     QR( A, t, d, Omega, ctrlCopy );
     const Int numSteps = t.Height();
+    QRTimer.Stop();
 
+    Timer TrsmTimer;
+    TrsmTimer.Start();
     auto RL = A( IR(0,numSteps), IR(0,numSteps) );
     auto RR = A( IR(0,numSteps), IR(numSteps,n) );
     Copy( RR, Z );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), RL, Z );
+    TrsmTimer.Stop();
+
+    if( mpi::Rank() == 0 )
+    Output("QRtime  : ", QRTimer.Total(), "\n",
+           "Trsmtime: ", TrsmTimer.Total());
 }
 
 } // namespace id

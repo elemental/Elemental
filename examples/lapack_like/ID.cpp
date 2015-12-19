@@ -15,6 +15,7 @@ typedef Complex<Real> F;
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
+    const int commRank = mpi::Rank();
 
     try 
     {
@@ -28,6 +29,8 @@ int main( int argc, char* argv[] )
           Input("--smallestFirst","smallest norm first?",false);
         ProcessInput();
         PrintInputReport();
+
+        Timer timer;
 
         const Grid& g = DefaultGrid();
         DistMatrix<F> U(g), V(g), A(g);
@@ -49,12 +52,11 @@ int main( int argc, char* argv[] )
             ctrl.tol = tol;
         }
         ctrl.smallestFirst = smallestFirst;
-        
-        Timer IDTimer( "IDTimer" );
-        IDTimer.Start();
+        if( commRank == 0 )
+            timer.Start();
         ID( A, Omega, Z, ctrl );
-        IDTimer.Stop();
-
+        if( commRank == 0 )
+            Output("  ID time: ",timer.Stop()," seconds");
         const Int rank = Z.Height();
         if( print )
         {
@@ -96,16 +98,11 @@ int main( int argc, char* argv[] )
         if( print )
             Print( A, "A Omega^T - \\hat{A} [I, Z]" );
 
-        if( mpi::Rank() == 0 )
-        {
+        if( commRank == 0 )
             Output
             ("|| A ||_F = ",frobA,"\n",
              "|| A Omega^T - \\hat{A} [I, Z] ||_F / || A ||_F = ",
              frobError/frobA);
-            Output
-            ("ID time: ",IDTimer.Total(),"\n",
-             "Permutation time: ", permTimer.Total() );
-        }
     }
     catch( exception& e ) { ReportException(e); }
 
