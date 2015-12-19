@@ -568,6 +568,7 @@ bool BlockStep
     return false;
 }
 
+// Consider explicitly returning both Q and R rather than just R (in 'QR')
 template<typename F>
 LLLInfo UnblockedAlg
 ( Matrix<F>& B,
@@ -669,12 +670,16 @@ LLLInfo UnblockedAlg
         Output("  Round time:             ",roundTimer.Total());
     }
 
+    // Force R to be upper-trapezoidal
+    MakeTrapezoidal( UPPER, QR );
+
     LLLInfo info;
     info.nullity = nullity;
     info.numSwaps = numSwaps; 
     return info;
 }
 
+// Consider explicitly returning both Q and R rather than just R (in 'QR')
 template<typename F>
 LLLInfo BlockedAlg
 ( Matrix<F>& B,
@@ -781,6 +786,9 @@ LLLInfo BlockedAlg
         Output("  Round time:             ",roundTimer.Total());
     }
 
+    // Force R to be upper-trapezoidal
+    MakeTrapezoidal( UPPER, QR );
+
     LLLInfo info;
     info.nullity = nullity;
     info.numSwaps = numSwaps;
@@ -794,7 +802,7 @@ LLLInfo LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
-  Matrix<F>& QR,
+  Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LLL"))
@@ -826,15 +834,15 @@ LLLInfo LLL
     const bool formU = true;
     const bool formUInv = true;
     if( useBlocked )
-        return lll::BlockedAlg( B, U, UInv, QR, formU, formUInv, ctrl );
+        return lll::BlockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
     else
-        return lll::UnblockedAlg( B, U, UInv, QR, formU, formUInv, ctrl );
+        return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
 }
 
 template<typename F>
 LLLInfo LLL
 ( Matrix<F>& B,
-  Matrix<F>& QR,
+  Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LLL"))
@@ -861,26 +869,32 @@ LLLInfo LLL
     const bool formUInv = false;
     Matrix<F> U, UInv;
     if( useBlocked )
-        return lll::BlockedAlg( B, U, UInv, QR, formU, formUInv, ctrl );
+        return lll::BlockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
     else
-        return lll::UnblockedAlg( B, U, UInv, QR, formU, formUInv, ctrl );
+        return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
+}
+
+template<typename F>
+LLLInfo LLL
+( Matrix<F>& B,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLL"))
+    Matrix<F> R;
+    return LLL( B, R, ctrl );
 }
 
 template<typename F>
 Base<F> LLLDelta
-( const Matrix<F>& QR,
+( const Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LLLDelta"))
     typedef Base<F> Real;
-    const Int m = QR.Height();
-    const Int n = QR.Width();
+    const Int m = R.Height();
+    const Int n = R.Width();
     const Int minDim = Min(m,n);
 
-    auto QRTop = QR( IR(0,minDim), ALL );
-    auto R = QRTop;
-    MakeTrapezoidal( UPPER, R );
-    
     // Find the maximum delta such that
     //
     //   delta R(k,k)^2 <= R(k+1,k+1)^2 + |R(k,k+1)|^2
@@ -952,16 +966,19 @@ Base<F> LLLDelta
 #define PROTO(F) \
   template LLLInfo LLL \
   ( Matrix<F>& B, \
-    Matrix<F>& QR, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo LLL \
+  ( Matrix<F>& B, \
+    Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl ); \
   template LLLInfo LLL \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
     Matrix<F>& UInv, \
-    Matrix<F>& QR, \
+    Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl ); \
   template Base<F> LLLDelta \
-  ( const Matrix<F>& QR, \
+  ( const Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

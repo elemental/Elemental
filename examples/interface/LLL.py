@@ -34,8 +34,8 @@ for presort, smallestFirst in (True,False), (True,True), (False,False):
 
       # Run the LLL reduction
       startTime = El.mpi.Time()
-      full=True
-      U, UInv, QR, info = El.LLL(B,full,ctrl)
+      mode=El.LLL_FULL
+      U, UInv, R, info = El.LLL(B,mode,ctrl)
       runTime = El.mpi.Time() - startTime
       print "  runtime: %f seconds" % runTime 
       print "  nullity: ", info.nullity
@@ -44,7 +44,7 @@ for presort, smallestFirst in (True,False), (True,True), (False,False):
         El.Print( U, "U" );
         El.Print( UInv, "UInv" );
         El.Print( B, "BNew" )
-        El.Print( QR, "QR" )
+        El.Print( R, "R" )
 
       # Test how small the first column is compared to the others
       b1Norm = El.FrobeniusNorm(B[:,0])
@@ -65,6 +65,6 @@ for presort, smallestFirst in (True,False), (True,True), (False,False):
         print "  %d columns were smaller than b1, with || b_%d ||_2 = %f the smallest" % (numLower,minInd,minNorm)
 
       # Compute the achieved value of delta
-      delta = El.LLLDelta(QR,ctrl)
+      delta = El.LLLDelta(R,ctrl)
       print "  delta=", delta
       print ""

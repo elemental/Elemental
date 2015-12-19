@@ -51,39 +51,12 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
       ctrl.presort = presort
       ctrl.smallestFirst = smallestFirst
 
-      # Run the LLL reduction
+      # Compute the image and kernel
       startTime = El.mpi.Time()
-      mode=El.LLL_FULL
-      U, UInv, R, info = El.LLL(B,mode,ctrl)
+      M, K = El.LatticeImageAndKernel(B,ctrl)
       runTime = El.mpi.Time() - startTime
       print "  runtime: %f seconds" % runTime
-      print "  nullity: ", info.nullity
-      print "  num swaps: ", info.numSwaps
+      print "  nullity: ", K.Width()
       if output:
-        El.Print( U, "U" )
-        El.Print( UInv, "UInv" )
-        El.Print( B, "BNew" )
-        El.Print( R, "R" )
-
-      # Test how small the first column is compared to the others
-      b1Norm = El.FrobeniusNorm(B[:,0])
-      print "  || b_1 ||_2 = ",b1Norm
-      numLower = 0
-      minInd = 0
-      minNorm = b1Norm
-      for j in xrange(1,n):
-        bjNorm = El.FrobeniusNorm(B[:,j])
-        if bjNorm < b1Norm:
-          numLower = numLower + 1
-        if bjNorm < minNorm:
-          minNorm = bjNorm
-          minInd = j
-      if numLower == 0:
-        print "  b1 was the smallest column"
-      else:
-        print "  %d columns were smaller than b1, with || b_%d ||_2 = %f the smallest" % (numLower,minInd,minNorm)
-
-      # Compute the achieved value of delta
-      delta = El.LLLDelta(R,ctrl) 
-      print "  delta=", delta
-      print ""
+        El.Print( M, "Image" )
+        El.Print( K, "Kernel" )

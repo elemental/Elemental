@@ -12,7 +12,37 @@
 
 namespace El {
 
-// TODO: Maintain B in BigInt form
+// Lenstra-Lenstra-Lovasz (LLL) lattice reduction
+// ==============================================
+// A reduced basis, say D, is an LLL(delta) reduction of an m x n matrix B if
+//
+//    B U = D = Q R,
+//
+// where U is unimodular (integer-valued with absolute determinant of 1)
+// and Q R is a floating-point QR factorization of D that satisfies the three
+//  properties:
+//
+//   1. R has non-negative diagonal
+//
+//   2. R is size-reduced:
+//
+//        | R(i,j) / R(i,i) | < phi(F),  for all i < j, and
+//
+//      where phi(F) is 1/2 for a real field F, and sqrt(2)/2 for a complex
+//      field F, and
+//
+//   3. R is (delta-)Lovasz reduced:
+//
+//        delta R(i,i)^2 <= R(i+1,i+1)^2 + |R(i,i+1)|^2,  for all i.
+//
+// Please see
+//
+//   Henri Cohen, "A course in computational algebraic number theory"
+// 
+// for more information on the "MLLL" variant of LLL used by Elemental to 
+// handle linearly dependent vectors (the algorithm was originally suggested by
+// Mike Pohst).
+//
 
 struct LLLInfo
 {
@@ -48,27 +78,57 @@ struct LLLCtrl
     bool time=false;
 };
 
+// TODO: Maintain B in BigInt form
+
 template<typename F>
 LLLInfo LLL
 ( Matrix<F>& B,
-  Matrix<F>& QR,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
+// TODO: Also return Q?
+template<typename F>
+LLLInfo LLL
+( Matrix<F>& B,
+  Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+// TODO: Also return Q?
 template<typename F>
 LLLInfo LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
-  Matrix<F>& QR,
+  Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 template<typename F>
 Base<F> LLLDelta
-( const Matrix<F>& QR,
+( const Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
+// Overwrite B, fill M with its (quasi-reduced) image of B, and fill K with the
+// LLL-reduced basis for the kernel of B.
+//
+// This is essentially Algorithm 2.7.1 from Cohen's
+// "A course in computational algebraic number theory". The main difference
+// is that we avoid solving the normal equations and call a least squares
+// solver.
+// 
 template<typename F>
-void LatticeGramSchmidt( const Matrix<F>& B, Matrix<F>& G, Matrix<F>& M );
+void LatticeImageAndKernel
+( Matrix<F>& B,
+  Matrix<F>& M,
+  Matrix<F>& K,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+// Overwrite B and fill K with the LLL-reduced basis for the kernel of B.
+// This will eventually mirror Algorithm 2.7.2 from Cohen's
+// "A course in computational algebraic number theory".
+template<typename F>
+void LatticeKernel
+( Matrix<F>& B,
+  Matrix<F>& K,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 } // namespace El
 

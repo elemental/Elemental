@@ -11,27 +11,6 @@ from El.core import *
 # Lattice
 # *******
 
-# Gram-Schmidt
-# ============
-lib.ElLatticeGramSchmidt_s.argtypes = \
-lib.ElLatticeGramSchmidt_d.argtypes = \
-lib.ElLatticeGramSchmidt_c.argtypes = \
-lib.ElLatticeGramSchmidt_z.argtypes = \
-  [c_void_p,c_void_p]
-
-def LatticeGramSchmidt(B):
-  if type(B) is Matrix:
-    G = Matrix(B.tag)
-    M = Matrix(B.tag)
-    args = [B.obj,G.obj,M.obj]
-    if   B.tag == sTag: lib.ElLatticeGramSchmidt_s(*args)
-    elif B.tag == dTag: lib.ElLatticeGramSchmidt_d(*args)
-    elif B.tag == cTag: lib.ElLatticeGramSchmidt_c(*args)
-    elif B.tag == zTag: lib.ElLatticeGramSchmidt_z(*args)
-    else: DataExcept()
-    return G, M
-  else: TypeExcept()
-
 # LLL
 # ===
 
@@ -66,9 +45,16 @@ class LLLCtrl_d(ctypes.Structure):
 
 lib.ElLLL_s.argtypes = \
 lib.ElLLL_c.argtypes = \
-  [c_void_p,c_void_p,LLLCtrl_s,POINTER(LLLInfo)]
+  [c_void_p,LLLCtrl_s,POINTER(LLLInfo)]
 lib.ElLLL_d.argtypes = \
 lib.ElLLL_z.argtypes = \
+  [c_void_p,LLLCtrl_d,POINTER(LLLInfo)]
+
+lib.ElLLLFormR_s.argtypes = \
+lib.ElLLLFormR_c.argtypes = \
+  [c_void_p,c_void_p,LLLCtrl_s,POINTER(LLLInfo)]
+lib.ElLLLFormR_d.argtypes = \
+lib.ElLLLFormR_z.argtypes = \
   [c_void_p,c_void_p,LLLCtrl_d,POINTER(LLLInfo)]
 
 lib.ElLLLFull_s.argtypes = \
@@ -80,37 +66,51 @@ lib.ElLLLFull_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,
    LLLCtrl_d,POINTER(LLLInfo)]
 
-def LLL(B,full=True,ctrl=None):
+(LLL_LATTICE_ONLY,LLL_FORM_R,LLL_FULL)=(0,1,2)
+
+def LLL(B,mode=LLL_LATTICE_ONLY,ctrl=None):
   info = LLLInfo()
   if ctrl==None:
     if   B.tag == sTag: ctrl = LLLCtrl_s()
     elif B.tag == dTag: ctrl = LLLCtrl_d()
+    elif B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == zTag: ctrl = LLLCtrl_d()
     else: DataExcept()
 
-  U = Matrix(B.tag)
-  UInv = Matrix(B.tag)
-  QRMat = Matrix(B.tag)
-
-  args = [B.obj,QRMat.obj,ctrl,pointer(info)]
-  argsFull = [B.obj,U.obj,UInv.obj,QRMat.obj,ctrl,pointer(info)]
   if type(B) is Matrix:
+    U = Matrix(B.tag)
+    UInv = Matrix(B.tag)
+    R = Matrix(B.tag)
+
+    args = [B.obj,ctrl,pointer(info)]
+    argsFormR = [B.obj,R.obj,ctrl,pointer(info)]
+    argsFull = [B.obj,U.obj,UInv.obj,R.obj,ctrl,pointer(info)]
+
     if   B.tag == sTag:
-      if full: lib.ElLLLFull_s(*argsFull)
-      else:    lib.ElLLL_s(*args)
+      if   mode==LLL_FULL:   lib.ElLLLFull_s(*argsFull)
+      elif mode==LLL_FORM_R: lib.ElLLLFormR_s(*argsFormR)
+      else:                  lib.ElLLL_s(*args)
     elif B.tag == dTag:
-      if full: lib.ElLLLFull_d(*argsFull)
-      else:    lib.ElLLL_d(*args)
+      if   mode==LLL_FULL:   lib.ElLLLFull_d(*argsFull)
+      elif mode==LLL_FORM_R: lib.ElLLLFormR_d(*argsFormR)
+      else:                  lib.ElLLL_d(*args)
     elif B.tag == cTag: 
-      if full: lib.ElLLLFull_c(*argsFull)
-      else:    lib.ElLLL_c(*args)
+      if   mode==LLL_FULL:   lib.ElLLLFull_c(*argsFull)
+      elif mode==LLL_FORM_R: lib.ElLLLFormR_c(*argsFormR)
+      else:                  lib.ElLLL_c(*args)
     elif B.tag == zTag:
-      if full: lib.ElLLLFull_z(*argsFull)
-      else:    lib.ElLLL_z(*args)
+      if   mode==LLL_FULL:   lib.ElLLLFull_z(*argsFull)
+      elif mode==LLL_FORM_R: lib.ElLLLFormR_z(*argsFormR)
+      else:                  lib.ElLLL_z(*args)
     else: DataExcept()
-    if full:
-      return U, UInv, QRMat, info
+
+    if mode==LLL_FULL:
+      return U, UInv, R, info
+    elif mode==LLL_FORM_R:
+      return R, info
     else:
-      return QRMat, info
+      return info
+
   else: TypeExcept()
 
 lib.ElLLLDelta_s.argtypes = \
@@ -120,19 +120,61 @@ lib.ElLLLDelta_d.argtypes = \
 lib.ElLLLDelta_z.argtypes = \
   [c_void_p,LLLCtrl_d,POINTER(dType)]
 
-def LLLDelta(QRMat,ctrl=None):
+def LLLDelta(R,ctrl=None):
+  if ctrl==None:
+    if   R.tag == sTag: ctrl = LLLCtrl_s()
+    elif R.tag == dTag: ctrl = LLLCtrl_d()
+    elif R.tag == cTag: ctrl = LLLCtrl_s()
+    elif R.tag == zTag: ctrl = LLLCtrl_d()
+    else: DataExcept()
+
+  delta = TagToType(Base(R.tag))()
+  args = [R.obj,ctrl,pointer(delta)]
+  if type(R) is Matrix:
+    if   R.tag == sTag: lib.ElLLLDelta_s(*args)
+    elif R.tag == dTag: lib.ElLLLDelta_d(*args)
+    elif R.tag == cTag: lib.ElLLLDelta_c(*args)
+    elif R.tag == zTag: lib.ElLLLDelta_z(*args)
+    else: DataExcept()
+    return delta.value
+  else: TypeExcept()
+
+# Lattice image/kernel decomposition
+# ==================================
+
+def LatticeImageAndKernel(B,ctrl=None):
   if ctrl==None:
     if   B.tag == sTag: ctrl = LLLCtrl_s()
     elif B.tag == dTag: ctrl = LLLCtrl_d()
-    else: DataExcept()
+    elif B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == zTag: ctrl = LLLCtrl_d()
 
-  delta = TagToType(Base(QRMat.tag))()
-  args = [QRMat.obj,ctrl,pointer(delta)]
-  if type(QRMat) is Matrix:
-    if   QRMat.tag == sTag: lib.ElLLLDelta_s(*args)
-    elif QRMat.tag == dTag: lib.ElLLLDelta_d(*args)
-    elif QRMat.tag == cTag: lib.ElLLLDelta_c(*args)
-    elif QRMat.tag == zTag: lib.ElLLLDelta_z(*args)
+  if type(B) is Matrix:
+    M = Matrix(B.tag)
+    K = Matrix(B.tag)
+    args = [B.obj,M.obj,K.obj,ctrl]
+    if   B.tag == sTag: lib.ElLatticeImageAndKernel_s(*args)
+    elif B.tag == dTag: lib.ElLatticeImageAndKernel_d(*args)
+    elif B.tag == cTag: lib.ElLatticeImageAndKernel_c(*args)
+    elif B.tag == zTag: lib.ElLatticeImageAndKernel_z(*args)
     else: DataExcept()
-    return delta.value
+    return M, K
+  else: TypeExcept()
+
+def LatticeKernel(B,ctrl=None):
+  if ctrl==None:
+    if   B.tag == sTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag: ctrl = LLLCtrl_d()
+    elif B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == zTag: ctrl = LLLCtrl_d()
+
+  if type(B) is Matrix:
+    K = Matrix(B.tag)
+    args = [B.obj,K.obj,ctrl]
+    if   B.tag == sTag: lib.ElLatticeKernel_s(*args)
+    elif B.tag == dTag: lib.ElLatticeKernel_d(*args)
+    elif B.tag == cTag: lib.ElLatticeKernel_c(*args)
+    elif B.tag == zTag: lib.ElLatticeKernel_z(*args)
+    else: DataExcept()
+    return K
   else: TypeExcept()

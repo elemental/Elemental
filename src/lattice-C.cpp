@@ -39,34 +39,51 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
 }
 
 #define C_PROTO(SIG,SIGBASE,F) \
-  ElError ElLatticeGramSchmidt_ ## SIG \
-  ( ElConstMatrix_ ## SIG B, ElMatrix_ ## SIG G, ElMatrix_ ## SIG M ) \
-  { EL_TRY( LatticeGramSchmidt( *CReflect(B), *CReflect(G), *CReflect(M) ) ) } \
   ElError ElLLL_ ## SIG \
   ( ElMatrix_ ## SIG B, \
-    ElMatrix_ ## SIG QR, \
     ElLLLCtrl_ ## SIGBASE ctrl, \
     ElLLLInfo* infoC ) \
   { EL_TRY( \
-      auto info = LLL( *CReflect(B), *CReflect(QR), CReflect(ctrl) );\
+      auto info = LLL( *CReflect(B), CReflect(ctrl) );\
+      *infoC = CReflect(info); \
+    ) } \
+  ElError ElLLLFormR_ ## SIG \
+  ( ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG R, \
+    ElLLLCtrl_ ## SIGBASE ctrl, \
+    ElLLLInfo* infoC ) \
+  { EL_TRY( \
+      auto info = LLL( *CReflect(B), *CReflect(R), CReflect(ctrl) );\
       *infoC = CReflect(info); \
     ) } \
   ElError ElLLLFull_ ## SIG \
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG U, \
     ElMatrix_ ## SIG UInv, \
-    ElMatrix_ ## SIG QR, \
+    ElMatrix_ ## SIG R, \
     ElLLLCtrl_ ## SIGBASE ctrl, \
     ElLLLInfo* infoC ) \
   { EL_TRY( \
       auto info = \
-        LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(QR), \
+        LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(R), \
              CReflect(ctrl) ); \
       *infoC = CReflect(info); \
     ) } \
   ElError ElLLLDelta_ ## SIG \
-  ( ElConstMatrix_ ## SIG QR, ElLLLCtrl_ ## SIGBASE ctrl, Base<F>* delta ) \
-  { EL_TRY( *delta = LLLDelta( *CReflect(QR), CReflect(ctrl) ) ) }
+  ( ElConstMatrix_ ## SIG R, ElLLLCtrl_ ## SIGBASE ctrl, Base<F>* delta ) \
+  { EL_TRY( *delta = LLLDelta( *CReflect(R), CReflect(ctrl) ) ) } \
+  ElError ElLatticeImageAndKernel_ ## SIG \
+  ( ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG M, \
+    ElMatrix_ ## SIG K, \
+    ElLLLCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LatticeImageAndKernel( \
+      *CReflect(B), *CReflect(M), *CReflect(K), CReflect(ctrl) ) ) } \
+  ElError ElLatticeKernel_ ## SIG \
+  ( ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG K, \
+    ElLLLCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LatticeKernel( *CReflect(B), *CReflect(K), CReflect(ctrl) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"
