@@ -80,10 +80,92 @@
 // Henri Cohen's "A course in computational algebraic number theory" was also
 // heavily consulted for extending LLL to support linearly-dependent columns
 // (and its extension to computing integer kernels).
+//
+// Lastly, insights from the excellent survey paper
+//
+//   Damien Stehle, "Floating-Point LLL: Theoretical and Practical Aspects" 
+//
+// are slowly being incorporated.
+//
 
 namespace El {
 
 static Timer applyHouseTimer, roundTimer, formSInvTimer;
+
+// Return the achieved delta and eta reduction properties
+template<typename F>
+inline std::pair<Base<F>,Base<F>> LLLAchieved
+( const Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLLAchieved"))
+    typedef Base<F> Real;
+    const Int m = R.Height();
+    const Int n = R.Width();
+    const Int minDim = Min(m,n);
+
+    // Find the maximum delta such that
+    //
+    //   delta R(k,k)^2 <= R(k+1,k+1)^2 + |R(k,k+1)|^2
+    //
+    // for 0 <= k < Min(m,n)-1.
+    //
+    // TODO: Decide if m < n requires checking the k=m-1 case.
+    //
+    Matrix<F> z;
+    Real delta = limits::Max<Real>();
+    for( Int i=0; i<minDim-1; ++i )
+    {
+        const Real rho_i_i = R.GetRealPart(i,i);
+        if( Abs(rho_i_i) <= ctrl.zeroTol )
+            continue;
+        const Real rho_i_ip1 = Abs(R.Get(i,i+1));
+        const Real rho_ip1_ip1 = R.GetRealPart(i+1,i+1);
+
+        const Real deltaBound =
+          (rho_ip1_ip1*rho_ip1_ip1+rho_i_ip1*rho_i_ip1)/(rho_i_i*rho_i_i);
+ 
+        delta = Min(delta,deltaBound);
+    }
+
+    // Ensure that, for all 0 <= l < Min(m,n) and l < k < n,
+    //
+    //    | R(l,k) | <= phi(F) eta R(l,l),
+    //
+    // unless a weak reduction was requested in which case k=l+1.
+    //
+    // TODO: Decide if m < n requires checking the k=m-1 case.
+    //
+    // NOTE: phi(F) is 1 for real F and sqrt(2) for complex F.
+    //
+    Real eta = 0;
+    if( ctrl.weak )
+    {
+        for( Int i=0; i<minDim-1; ++i )
+        {
+            const F rho_ii = R.Get(i,i);
+            if( Abs(rho_ii) <= ctrl.zeroTol )
+                continue;
+            else
+                eta = Max(eta,Abs(R.Get(i,i+1)/rho_ii));
+        }
+    }
+    else
+    {
+        for( Int i=0; i<minDim-1; ++i )
+        {
+            const F rho_ii = R.Get(i,i);
+            if( Abs(rho_ii) <= ctrl.zeroTol )
+                continue;
+            else
+                for( Int j=i+1; j<n; ++j )
+                    eta = Max(eta,Abs(R.Get(i,j)/rho_ii));
+        }
+    }
+    eta /= ( IsComplex<F>::value ? Sqrt(Real(2)) : Real(1) );
+
+    return std::pair<Real,Real>(delta,eta);
+}
 
 } // namespace El
 
@@ -93,7 +175,7 @@ static Timer applyHouseTimer, roundTimer, formSInvTimer;
 namespace El {
 
 template<typename F>
-LLLInfo LLL
+LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
@@ -102,8 +184,10 @@ LLLInfo LLL
 {
     DEBUG_ONLY(CSE cse("LLL"))
     typedef Base<F> Real;
-    if( ctrl.delta > Real(1) )
-        LogicError("delta is assumed to be at most 1");
+    if( ctrl.delta < Real(1)/Real(2) )
+        LogicError("delta is assumed to be at least 1/2");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
+        LogicError("eta should be in (1/2,sqrt(delta))");
 
     const Int n = B.Width();
     Identity( U, n, n ); 
@@ -135,15 +219,17 @@ LLLInfo LLL
 }
 
 template<typename F>
-LLLInfo LLL
+LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LLL"))
     typedef Base<F> Real;
-    if( ctrl.delta > Real(1) )
-        LogicError("delta is assumed to be at most 1");
+    if( ctrl.delta < Real(1)/Real(2) )
+        LogicError("delta is assumed to be at least 1/2");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
+        LogicError("eta should be in (1/2,sqrt(delta))");
 
     if( ctrl.presort )
     {
@@ -170,7 +256,7 @@ LLLInfo LLL
 }
 
 template<typename F>
-LLLInfo LLL
+LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   const LLLCtrl<Base<F>>& ctrl )
 {
@@ -179,101 +265,19 @@ LLLInfo LLL
     return LLL( B, R, ctrl );
 }
 
-template<typename F>
-Base<F> LLLDelta
-( const Matrix<F>& R,
-  const LLLCtrl<Base<F>>& ctrl )
-{
-    DEBUG_ONLY(CSE cse("LLLDelta"))
-    typedef Base<F> Real;
-    const Int m = R.Height();
-    const Int n = R.Width();
-    const Int minDim = Min(m,n);
-
-    // Find the maximum delta such that
-    //
-    //   delta R(k,k)^2 <= R(k+1,k+1)^2 + |R(k,k+1)|^2
-    //
-    // for 0 <= k < Min(m,n)-1.
-    //
-    // TODO: Decide if m < n requires checking the k=m-1 case.
-    //
-    if( n <= 1 )
-        return 1; // the best-possible delta
-    Matrix<F> z;
-    Real delta = limits::Max<Real>();
-    for( Int i=0; i<minDim-1; ++i )
-    {
-        const Real rho_i_i = R.GetRealPart(i,i);
-        if( Abs(rho_i_i) <= ctrl.zeroTol )
-            continue;
-        const Real rho_i_ip1 = Abs(R.Get(i,i+1));
-        const Real rho_ip1_ip1 = R.GetRealPart(i+1,i+1);
-
-        const Real deltaBound =
-          (rho_ip1_ip1*rho_ip1_ip1+rho_i_ip1*rho_i_ip1)/(rho_i_i*rho_i_i);
- 
-        delta = Min(delta,deltaBound);
-    }
-
-    // Ensure that
-    //
-    //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < Min(m,n) and l < k < n
-    //
-    // unless a weak reduction was requested in which case k=l+1.
-    //
-    // TODO: Decide if m < n requires checking the k=m-1 case.
-    //
-    // NOTE: This does not seem to hold for complex LLL reductions,
-    //       so sqrt(2)/2 is used instead.
-    const Real bound = 
-      ( IsComplex<F>::value ? Real(1)/Sqrt(Real(2)) : Real(1)/Real(2) );
-    Real maxRatio = 0;
-    if( ctrl.weak )
-    {
-        for( Int i=0; i<minDim-1; ++i )
-        {
-            const F rho_ii = R.Get(i,i);
-            if( Abs(rho_ii) <= ctrl.zeroTol )
-                continue;
-            else
-                maxRatio = Max(maxRatio,Abs(R.Get(i,i+1)/rho_ii));
-        }
-    }
-    else
-    {
-        for( Int i=0; i<minDim-1; ++i )
-        {
-            const F rho_ii = R.Get(i,i);
-            if( Abs(rho_ii) <= ctrl.zeroTol )
-                continue;
-            else
-                for( Int j=i+1; j<n; ++j )
-                    maxRatio = Max(maxRatio,Abs(R.Get(i,j)/rho_ii));
-        }
-    }
-    if( maxRatio > bound+Pow(limits::Epsilon<Real>(),Real(3)/Real(4)) )
-        return 0; // the worst-possible delta
-
-    return delta;
-}
-
 #define PROTO(F) \
-  template LLLInfo LLL \
+  template LLLInfo<Base<F>> LLL \
   ( Matrix<F>& B, \
     const LLLCtrl<Base<F>>& ctrl ); \
-  template LLLInfo LLL \
+  template LLLInfo<Base<F>> LLL \
   ( Matrix<F>& B, \
     Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl ); \
-  template LLLInfo LLL \
+  template LLLInfo<Base<F>> LLL \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
     Matrix<F>& UInv, \
     Matrix<F>& R, \
-    const LLLCtrl<Base<F>>& ctrl ); \
-  template Base<F> LLLDelta \
-  ( const Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

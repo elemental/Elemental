@@ -14,14 +14,23 @@ from El.core import *
 # LLL
 # ===
 
-class LLLInfo(ctypes.Structure):
-  _fields_ = [("nullity",iType),("numSwaps",iType)]
+class LLLInfo_s(ctypes.Structure):
+  _fields_ = [("delta",sType),
+              ("eta",sType),
+              ("nullity",iType),
+              ("numSwaps",iType)]
+class LLLInfo_d(ctypes.Structure):
+  _fields_ = [("delta",dType),
+              ("eta",dType),
+              ("nullity",iType),
+              ("numSwaps",iType)]
 
 lib.ElLLLCtrlDefault_s.argtypes = \
 lib.ElLLLCtrlDefault_d.argtypes = \
   [c_void_p]
 class LLLCtrl_s(ctypes.Structure):
   _fields_ = [("delta",sType),
+              ("eta",sType),
               ("weak",bType),
               ("presort",bType),
               ("smallestFirst",bType),
@@ -33,6 +42,7 @@ class LLLCtrl_s(ctypes.Structure):
     lib.ElLLLCtrlDefault_s(pointer(self))
 class LLLCtrl_d(ctypes.Structure):
   _fields_ = [("delta",dType),
+              ("eta",dType),
               ("weak",bType),
               ("presort",bType),
               ("smallestFirst",bType),
@@ -45,36 +55,37 @@ class LLLCtrl_d(ctypes.Structure):
 
 lib.ElLLL_s.argtypes = \
 lib.ElLLL_c.argtypes = \
-  [c_void_p,LLLCtrl_s,POINTER(LLLInfo)]
+  [c_void_p,LLLCtrl_s,POINTER(LLLInfo_s)]
 lib.ElLLL_d.argtypes = \
 lib.ElLLL_z.argtypes = \
-  [c_void_p,LLLCtrl_d,POINTER(LLLInfo)]
+  [c_void_p,LLLCtrl_d,POINTER(LLLInfo_d)]
 
 lib.ElLLLFormR_s.argtypes = \
 lib.ElLLLFormR_c.argtypes = \
-  [c_void_p,c_void_p,LLLCtrl_s,POINTER(LLLInfo)]
+  [c_void_p,c_void_p,LLLCtrl_s,POINTER(LLLInfo_s)]
 lib.ElLLLFormR_d.argtypes = \
 lib.ElLLLFormR_z.argtypes = \
-  [c_void_p,c_void_p,LLLCtrl_d,POINTER(LLLInfo)]
+  [c_void_p,c_void_p,LLLCtrl_d,POINTER(LLLInfo_d)]
 
 lib.ElLLLFull_s.argtypes = \
 lib.ElLLLFull_c.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,
-   LLLCtrl_s,POINTER(LLLInfo)]
+   LLLCtrl_s,POINTER(LLLInfo_s)]
 lib.ElLLLFull_d.argtypes = \
 lib.ElLLLFull_z.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,
-   LLLCtrl_d,POINTER(LLLInfo)]
+   LLLCtrl_d,POINTER(LLLInfo_d)]
 
 (LLL_LATTICE_ONLY,LLL_FORM_R,LLL_FULL)=(0,1,2)
 
 def LLL(B,mode=LLL_LATTICE_ONLY,ctrl=None):
-  info = LLLInfo()
+  if   B.tag == sTag or B.tag == cTag: info = LLLInfo_s()
+  elif B.tag == dTag or B.tag == zTag: info = LLLInfo_d()
+  else: DataExcept()
+
   if ctrl==None:
-    if   B.tag == sTag: ctrl = LLLCtrl_s()
-    elif B.tag == dTag: ctrl = LLLCtrl_d()
-    elif B.tag == cTag: ctrl = LLLCtrl_s()
-    elif B.tag == zTag: ctrl = LLLCtrl_d()
+    if   B.tag == sTag or B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag or B.tag == zTag: ctrl = LLLCtrl_d()
     else: DataExcept()
 
   if type(B) is Matrix:
@@ -113,32 +124,6 @@ def LLL(B,mode=LLL_LATTICE_ONLY,ctrl=None):
 
   else: TypeExcept()
 
-lib.ElLLLDelta_s.argtypes = \
-lib.ElLLLDelta_c.argtypes = \
-  [c_void_p,LLLCtrl_s,POINTER(sType)]
-lib.ElLLLDelta_d.argtypes = \
-lib.ElLLLDelta_z.argtypes = \
-  [c_void_p,LLLCtrl_d,POINTER(dType)]
-
-def LLLDelta(R,ctrl=None):
-  if ctrl==None:
-    if   R.tag == sTag: ctrl = LLLCtrl_s()
-    elif R.tag == dTag: ctrl = LLLCtrl_d()
-    elif R.tag == cTag: ctrl = LLLCtrl_s()
-    elif R.tag == zTag: ctrl = LLLCtrl_d()
-    else: DataExcept()
-
-  delta = TagToType(Base(R.tag))()
-  args = [R.obj,ctrl,pointer(delta)]
-  if type(R) is Matrix:
-    if   R.tag == sTag: lib.ElLLLDelta_s(*args)
-    elif R.tag == dTag: lib.ElLLLDelta_d(*args)
-    elif R.tag == cTag: lib.ElLLLDelta_c(*args)
-    elif R.tag == zTag: lib.ElLLLDelta_z(*args)
-    else: DataExcept()
-    return delta.value
-  else: TypeExcept()
-
 # Lattice image/kernel decomposition
 # ==================================
 
@@ -151,10 +136,8 @@ lib.ElLatticeImageAndKernel_z.argtypes = \
 
 def LatticeImageAndKernel(B,ctrl=None):
   if ctrl==None:
-    if   B.tag == sTag: ctrl = LLLCtrl_s()
-    elif B.tag == dTag: ctrl = LLLCtrl_d()
-    elif B.tag == cTag: ctrl = LLLCtrl_s()
-    elif B.tag == zTag: ctrl = LLLCtrl_d()
+    if   B.tag == sTag or B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag or B.tag == zTag: ctrl = LLLCtrl_d()
 
   if type(B) is Matrix:
     M = Matrix(B.tag)
@@ -177,10 +160,8 @@ lib.ElLatticeKernel_z.argtypes = \
 
 def LatticeKernel(B,ctrl=None):
   if ctrl==None:
-    if   B.tag == sTag: ctrl = LLLCtrl_s()
-    elif B.tag == dTag: ctrl = LLLCtrl_d()
-    elif B.tag == cTag: ctrl = LLLCtrl_s()
-    elif B.tag == zTag: ctrl = LLLCtrl_d()
+    if   B.tag == sTag or B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag or B.tag == zTag: ctrl = LLLCtrl_d()
 
   if type(B) is Matrix:
     K = Matrix(B.tag)
@@ -205,10 +186,8 @@ lib.ElZDependenceSearch_z.argtypes = \
 
 def ZDependenceSearch(z,NSqrt,ctrl=None):
   if ctrl==None:
-    if   z.tag == sTag: ctrl = LLLCtrl_s()
-    elif z.tag == dTag: ctrl = LLLCtrl_d()
-    elif z.tag == cTag: ctrl = LLLCtrl_s()
-    elif z.tag == zTag: ctrl = LLLCtrl_d()
+    if   z.tag == sTag or z.tag == cTag: ctrl = LLLCtrl_s()
+    elif z.tag == dTag or z.tag == zTag: ctrl = LLLCtrl_d()
 
   if type(z) is Matrix:
     numFound = iType()

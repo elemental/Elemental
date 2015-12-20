@@ -171,8 +171,6 @@ bool BlockStep
     const Int m = B.Height();
     const Int n = B.Width();
 
-    vector<F> xBuf(k);
-
     F* BBuf = B.Buffer();
     F* UBuf = U.Buffer();
     F* UInvBuf = UInv.Buffer();
@@ -187,6 +185,8 @@ bool BlockStep
         lll::ExpandBlockQR( k, B, QR, V, SInv, d, ctrl.time );
 
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+        if( !limits::IsFinite(oldNorm) )
+            RuntimeError("Encountered an unbounded norm; increase precision");
         if( oldNorm <= ctrl.zeroTol )
         {
             for( Int i=0; i<m; ++i )
@@ -204,11 +204,11 @@ bool BlockStep
         {
             if( Abs(QRBuf[(k-1)+(k-1)*QRLDim]) > ctrl.zeroTol )
             {
-                const F chi =
-                  Round(QRBuf[(k-1)+k*QRLDim]/QRBuf[(k-1)+(k-1)*QRLDim]);
-                xBuf[k-1] = chi;
-                if( Abs(chi) > Real(1)/Real(2) )
+                F chi = QRBuf[(k-1)+k*QRLDim]/QRBuf[(k-1)+(k-1)*QRLDim];
+                if( Abs(RealPart(chi)) > ctrl.eta ||
+                    Abs(ImagPart(chi)) > ctrl.eta )
                 {
+                    chi = Round(chi);
                     blas::Axpy
                     ( k, -chi,
                       &QRBuf[(k-1)*QRLDim], 1,
@@ -228,10 +228,13 @@ bool BlockStep
                           &UInvBuf[k], UInvLDim,
                           &UInvBuf[k-1], UInvLDim );
                 }
+                else
+                    chi = 0;
             }
         }
         else
         {
+            vector<F> xBuf(k);
             for( Int i=k-1; i>=0; --i )
             {
                 if( Abs(QRBuf[i+i*QRLDim]) <= ctrl.zeroTol )
@@ -239,13 +242,19 @@ bool BlockStep
                     xBuf[i] = 0;
                     continue;
                 }
-                const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
-                xBuf[i] = chi;
-                if( Abs(chi) > Real(1)/Real(2) )
+                F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
+                if( Abs(RealPart(chi)) > ctrl.eta ||
+                    Abs(ImagPart(chi)) > ctrl.eta )
+                {
+                    chi = Round(chi);
                     blas::Axpy
                     ( i+1, -chi,
                       &QRBuf[i*QRLDim], 1,
                       &QRBuf[k*QRLDim], 1 );
+                }
+                else
+                    chi = 0;
+                xBuf[i] = chi;
             }
             blas::Gemv
             ( 'N', m, k,
@@ -266,8 +275,10 @@ bool BlockStep
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )
             roundTimer.Stop();
+        if( !limits::IsFinite(newNorm) )
+            RuntimeError("Encountered an unbounded norm; increase precision");
 
-        if( newNorm*newNorm > ctrl.reorthogTol*oldNorm*oldNorm )
+        if( newNorm > ctrl.reorthogTol*oldNorm )
         {
             break;
         }
@@ -283,7 +294,7 @@ bool BlockStep
 
 // Consider explicitly returning both Q and R rather than just R (in 'QR')
 template<typename F>
-LLLInfo BlockedAlg
+LLLInfo<Base<F>> BlockedAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
@@ -341,8 +352,10 @@ LLLInfo BlockedAlg
         const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
         const F rho_km1_k = QR.Get(k-1,k);
         const Real rho_k_k = QR.GetRealPart(k,k); 
-        if( ctrl.delta*rho_km1_km1*rho_km1_km1 <=
-            rho_k_k*rho_k_k + Abs(rho_km1_k)*Abs(rho_km1_k) )
+
+        const Real leftTerm = Sqrt(ctrl.delta)*rho_km1_km1;
+        const Real rightTerm = lapack::SafeNorm(rho_k_k,rho_km1_k);
+        if( leftTerm <= rightTerm )
         {
             ++k;
         }
@@ -350,7 +363,7 @@ LLLInfo BlockedAlg
         {
             ++numSwaps;
             if( ctrl.progress )
-                Output("Dropping from k=",k," to ",Max(k-1,1));
+                Output("Dropping from k=",k," to ",Max(k-1,1)," since sqrt(delta)*R(k-1,k-1)=",leftTerm," > ",rightTerm);
             ColSwap( B, k-1, k );
             if( formU )
                 ColSwap( U, k-1, k );
@@ -391,7 +404,11 @@ LLLInfo BlockedAlg
     // Force R to be upper-trapezoidal
     MakeTrapezoidal( UPPER, QR );
 
-    LLLInfo info;
+    std::pair<Real,Real> achieved = LLLAchieved(QR,ctrl);
+
+    LLLInfo<Base<F>> info;
+    info.delta = achieved.first;
+    info.eta = achieved.second;
     info.nullity = nullity;
     info.numSwaps = numSwaps;
     return info;

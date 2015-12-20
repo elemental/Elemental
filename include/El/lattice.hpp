@@ -24,14 +24,14 @@ namespace El {
 //
 //   1. R has non-negative diagonal
 //
-//   2. R is size-reduced:
+//   2. R is (eta) size-reduced:
 //
-//        | R(i,j) / R(i,i) | < phi(F),  for all i < j, and
+//        | R(i,j) / R(i,i) | < phi(F) eta,  for all i < j, and
 //
-//      where phi(F) is 1/2 for a real field F, and sqrt(2)/2 for a complex
+//      where phi(F) is 1 for a real field F or sqrt(2) for a complex
 //      field F, and
 //
-//   3. R is (delta-)Lovasz reduced:
+//   3. R is (delta) Lovasz reduced:
 //
 //        delta R(i,i)^2 <= R(i+1,i+1)^2 + |R(i,i+1)|^2,  for all i.
 //
@@ -44,8 +44,11 @@ namespace El {
 // Mike Pohst).
 //
 
+template<typename Real>
 struct LLLInfo
 {
+    Real delta;
+    Real eta; 
     Int nullity; 
     Int numSwaps;
 };
@@ -54,9 +57,10 @@ template<typename Real>
 struct LLLCtrl
 {
     Real delta=Real(3)/Real(4);
+    Real eta=Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9));
 
     // A 'weak' LLL reduction only ensures that | R(i,i+1) / R(i,i) | is
-    // bounded above by one-half (for complex data, by sqrt(2)/2)
+    // bounded above by eta (or, for complex data, by sqrt(2) eta)
     bool weak=false;
 
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
@@ -65,14 +69,16 @@ struct LLLCtrl
     bool presort=true;
     bool smallestFirst=true;
 
-    // If the size-reduced column has a squared two-norm that is less than or
-    // equal to `reorthogTol` times the square of its original two-norm, then
-    // it is reorthogonalized
+    // If the size-reduced column has a two-norm that is less than or
+    // equal to `reorthogTol` times the  original two-norm, then reorthog.
     Real reorthogTol=0;
+
+    // The number of times to execute the orthogonalization
+    Int numOrthog=1;
 
     // If a size-reduced column has a two-norm less than or equal to 'zeroTol',
     // then it is interpreted as a zero vector (and forced to zero)
-    Real zeroTol=limits::Epsilon<Real>();
+    Real zeroTol=Pow(limits::Epsilon<Real>(),Real(0.9));
 
     bool progress=false;
     bool time=false;
@@ -81,29 +87,24 @@ struct LLLCtrl
 // TODO: Maintain B in BigInt form
 
 template<typename F>
-LLLInfo LLL
+LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // TODO: Also return Q?
 template<typename F>
-LLLInfo LLL
+LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // TODO: Also return Q?
 template<typename F>
-LLLInfo LLL
+LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
   Matrix<F>& R,
-  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
-
-template<typename F>
-Base<F> LLLDelta
-( const Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // Overwrite B, fill M with its (quasi-reduced) image of B, and fill K with the

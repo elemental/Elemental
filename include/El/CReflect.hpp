@@ -2561,31 +2561,56 @@ inline SVMCtrl<double> CReflect( const ElSVMCtrl_d& ctrlC )
 // Lattice
 // -------
 
-inline LLLInfo CReflect( const ElLLLInfo& infoC )
+inline LLLInfo<float> CReflect( const ElLLLInfo_s& infoC )
 {
-    LLLInfo info;
+    LLLInfo<float> info;
+    info.delta = infoC.delta;
+    info.eta = infoC.eta;
     info.nullity = infoC.nullity;
     info.numSwaps = infoC.numSwaps;
     return info;
 }
 
-inline ElLLLInfo CReflect( const LLLInfo& info )
+inline LLLInfo<double> CReflect( const ElLLLInfo_d& infoC )
 {
-    ElLLLInfo infoC;
+    LLLInfo<double> info;
+    info.delta = infoC.delta;
+    info.eta = infoC.eta;
+    info.nullity = infoC.nullity;
+    info.numSwaps = infoC.numSwaps;
+    return info;
+}
+
+inline ElLLLInfo_s CReflect( const LLLInfo<float>& info )
+{
+    ElLLLInfo_s infoC;
+    infoC.delta = info.delta;
+    infoC.eta = info.eta;
     infoC.nullity = info.nullity;
     infoC.numSwaps = info.numSwaps;
     return infoC;
 }
 
+inline ElLLLInfo_d CReflect( const LLLInfo<double>& info )
+{
+    ElLLLInfo_d infoC;
+    infoC.delta = info.delta;
+    infoC.eta = info.eta;
+    infoC.nullity = info.nullity;
+    infoC.numSwaps = info.numSwaps;
+    return infoC;
+}
 
 inline LLLCtrl<float> CReflect( const ElLLLCtrl_s& ctrlC )
 {
     LLLCtrl<float> ctrl;
     ctrl.delta = ctrlC.delta;
+    ctrl.eta = ctrlC.eta;
     ctrl.weak = ctrlC.weak;
     ctrl.presort = ctrlC.presort;
     ctrl.smallestFirst = ctrlC.smallestFirst;
     ctrl.reorthogTol = ctrlC.reorthogTol;
+    ctrl.numOrthog = ctrlC.numOrthog;
     ctrl.zeroTol = ctrlC.zeroTol;
     ctrl.progress = ctrlC.progress;
     ctrl.time = ctrlC.time;
@@ -2596,10 +2621,12 @@ inline LLLCtrl<double> CReflect( const ElLLLCtrl_d& ctrlC )
 {
     LLLCtrl<double> ctrl;
     ctrl.delta = ctrlC.delta;
+    ctrl.eta = ctrlC.eta;
     ctrl.weak = ctrlC.weak;
     ctrl.presort = ctrlC.presort;
     ctrl.smallestFirst = ctrlC.smallestFirst;
     ctrl.reorthogTol = ctrlC.reorthogTol;
+    ctrl.numOrthog = ctrlC.numOrthog;
     ctrl.zeroTol = ctrlC.zeroTol;
     ctrl.progress = ctrlC.progress;
     ctrl.time = ctrlC.time;
@@ -2610,10 +2637,12 @@ inline ElLLLCtrl_s CReflect( const LLLCtrl<float>& ctrl )
 {
     ElLLLCtrl_s ctrlC;
     ctrlC.delta = ctrl.delta;
+    ctrlC.eta = ctrl.eta;
     ctrlC.weak = ctrl.weak;
     ctrlC.presort = ctrl.presort;
     ctrlC.smallestFirst = ctrl.smallestFirst;
     ctrlC.reorthogTol = ctrl.reorthogTol;
+    ctrlC.numOrthog = ctrl.numOrthog;
     ctrlC.zeroTol = ctrl.zeroTol;
     ctrlC.progress = ctrl.progress;
     ctrlC.time = ctrl.time;
@@ -2624,10 +2653,12 @@ inline ElLLLCtrl_d CReflect( const LLLCtrl<double>& ctrl )
 {
     ElLLLCtrl_d ctrlC;
     ctrlC.delta = ctrl.delta;
+    ctrlC.eta = ctrl.eta;
     ctrlC.weak = ctrl.weak;
     ctrlC.presort = ctrl.presort;
     ctrlC.smallestFirst = ctrl.smallestFirst;
     ctrlC.reorthogTol = ctrl.reorthogTol;
+    ctrlC.numOrthog = ctrl.numOrthog;
     ctrlC.zeroTol = ctrl.zeroTol;
     ctrlC.progress = ctrl.progress;
     ctrlC.time = ctrl.time;

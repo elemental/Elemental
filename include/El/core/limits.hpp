@@ -19,7 +19,7 @@ namespace limits {
 //       which have configurable properties, can be passed a particular 
 //       instance of the type to extract its limits
 
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 struct ExponentTypeHelper
 { typedef Real type; };
 #ifdef EL_HAVE_MPC
@@ -27,24 +27,24 @@ template<> struct ExponentTypeHelper<BigFloat>
 { typedef mpfr_exp_t type; };
 #endif
 
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 using ExponentType = typename ExponentTypeHelper<Real>::type;
 
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline ExponentType<Real> MaxExponent( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::max_exponent(); }
 
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline ExponentType<Real> MinExponent( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::min_exponent(); }
 
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Max( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::max(); }
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Min( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::min(); }
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Lowest( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::lowest(); }
 
@@ -52,14 +52,14 @@ inline Real Lowest( const Real& alpha=Real(1) )
 //       Demmel/LAPACK-style 'epsilon' and Higham/STL-style 'epsilon'.
 //       We call the former 'epsilon' and the latter 'precision' for
 //       consistency with LAPACK.
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Precision( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::epsilon(); }
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Epsilon( const Real& alpha=Real(1) )
 { return Precision<Real>()*std::numeric_limits<Real>::round_error(); }
 
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real SafeMin( const Real& alpha=Real(1) )
 {
     const Real one = Real(1);
@@ -69,9 +69,13 @@ inline Real SafeMin( const Real& alpha=Real(1) )
     return ( invMax>minVal ? invMax*(one+eps) : minVal );
 }
 
-template<typename Real,typename=EnableIf<IsScalar<Real>>>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Infinity( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::infinity(); }
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+inline bool IsFinite( const Real& alpha )
+{ return std::isfinite(alpha); }
 
 #ifdef EL_HAVE_QUAD
 template<>
@@ -102,6 +106,11 @@ template<> inline Quad Infinity<Quad>( const Quad& alpha )
     // we will instead return the maximum floating-point number
     return Max<Quad>(alpha);
 }
+
+template<>
+inline bool IsFinite( const Quad& alpha )
+{ return finiteq(alpha) != 0; }
+
 #endif // ifdef EL_HAVE_QUAD
 
 #ifdef EL_HAVE_MPC
@@ -162,6 +171,11 @@ inline BigFloat Infinity<BigFloat>( const BigFloat& alpha )
     mpfr_set_inf( inf.Pointer(), 1 );
     return inf;
 }
+
+template<>
+inline bool IsFinite( const BigFloat& alpha )
+{ return mpfr_number_p( alpha.LockedPointer() ) != 0; }
+
 #endif // ifdef EL_HAVE_MPC
 
 } // namespace limits

@@ -6,7 +6,7 @@ import El
 # explosion and I am unsure of whether or not it is inherent to LLL
 # or due to me not using high-enough precision. This will soon be investigated.
 
-n=10
+n=75
 tag=El.zTag
 progress=True
 timeLLL=False
@@ -34,7 +34,7 @@ ctrl=El.LLLCtrl_d()
 ctrl.progress = progress
 ctrl.time = timeLLL
 
-NSqrt=1000.
+NSqrt=10000.
 
 B=El.Matrix()
 for presort, smallestFirst in (True,True), (True,False), (False,False):

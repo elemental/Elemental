@@ -19,17 +19,29 @@ extern "C" {
 
 typedef struct
 {
+    float delta;
+    float eta;
     ElInt nullity;    
     ElInt numSwaps;
-} ElLLLInfo;
+} ElLLLInfo_s;
+
+typedef struct
+{
+    double delta;
+    double eta;
+    ElInt nullity;    
+    ElInt numSwaps;
+} ElLLLInfo_d;
 
 typedef struct
 {
     float delta;
+    float eta;
     bool weak;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
+    ElInt numOrthog;
     float zeroTol;
     bool progress;
     bool time;
@@ -39,51 +51,44 @@ EL_EXPORT ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl );
 typedef struct
 {
     double delta;
+    double eta;
     bool weak;
     bool presort;
     bool smallestFirst;
     double reorthogTol;
+    ElInt numOrthog;
     double zeroTol;
     bool progress;
     bool time;
 } ElLLLCtrl_d;
 EL_EXPORT ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl );
 
-EL_EXPORT ElError ElLLL_s( ElMatrix_s B, ElLLLCtrl_s ctrl, ElLLLInfo* info );
-EL_EXPORT ElError ElLLL_d( ElMatrix_d B, ElLLLCtrl_d ctrl, ElLLLInfo* info );
-EL_EXPORT ElError ElLLL_c( ElMatrix_c B, ElLLLCtrl_s ctrl, ElLLLInfo* info );
-EL_EXPORT ElError ElLLL_z( ElMatrix_z B, ElLLLCtrl_d ctrl, ElLLLInfo* info );
+EL_EXPORT ElError ElLLL_s( ElMatrix_s B, ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
+EL_EXPORT ElError ElLLL_d( ElMatrix_d B, ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
+EL_EXPORT ElError ElLLL_c( ElMatrix_c B, ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
+EL_EXPORT ElError ElLLL_z( ElMatrix_z B, ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 
 EL_EXPORT ElError ElLLLFormR_s
-( ElMatrix_s B, ElMatrix_s R, ElLLLCtrl_s ctrl, ElLLLInfo* info );
+( ElMatrix_s B, ElMatrix_s R, ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFormR_d
-( ElMatrix_d B, ElMatrix_d R, ElLLLCtrl_d ctrl, ElLLLInfo* info );
+( ElMatrix_d B, ElMatrix_d R, ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 EL_EXPORT ElError ElLLLFormR_c
-( ElMatrix_c B, ElMatrix_c R, ElLLLCtrl_s ctrl, ElLLLInfo* info );
+( ElMatrix_c B, ElMatrix_c R, ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFormR_z
-( ElMatrix_z B, ElMatrix_z R, ElLLLCtrl_d ctrl, ElLLLInfo* info );
+( ElMatrix_z B, ElMatrix_z R, ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 
 EL_EXPORT ElError ElLLLFull_s
 ( ElMatrix_s B, ElMatrix_s U, ElMatrix_s UInv, ElMatrix_s R,
-  ElLLLCtrl_s ctrl, ElLLLInfo* info );
+  ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFull_d
 ( ElMatrix_d B, ElMatrix_d U, ElMatrix_d UInv, ElMatrix_d R,
-  ElLLLCtrl_d ctrl, ElLLLInfo* info );
+  ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 EL_EXPORT ElError ElLLLFull_c
 ( ElMatrix_c B, ElMatrix_c U, ElMatrix_c UInv, ElMatrix_c R,
-  ElLLLCtrl_s ctrl, ElLLLInfo* info );
+  ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFull_z
 ( ElMatrix_z B, ElMatrix_z U, ElMatrix_z UInv, ElMatrix_z R,
-  ElLLLCtrl_d ctrl, ElLLLInfo* info );
-
-EL_EXPORT ElError ElLLLDelta_s
-( ElConstMatrix_s R, ElLLLCtrl_s ctrl, float* delta );
-EL_EXPORT ElError ElLLLDelta_d
-( ElConstMatrix_d R, ElLLLCtrl_d ctrl, double* delta );
-EL_EXPORT ElError ElLLLDelta_c
-( ElConstMatrix_c R, ElLLLCtrl_s ctrl, float* delta );
-EL_EXPORT ElError ElLLLDelta_z
-( ElConstMatrix_z R, ElLLLCtrl_d ctrl, double* delta );
+  ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 
 /* Lattice image and kernel
    ======================== */

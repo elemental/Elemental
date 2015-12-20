@@ -57,6 +57,8 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
       U, UInv, R, info = El.LLL(B,mode,ctrl)
       runTime = El.mpi.Time() - startTime
       print "  runtime: %f seconds" % runTime
+      print "  delta=", info.delta
+      print "  eta  =", info.eta
       print "  nullity: ", info.nullity
       print "  num swaps: ", info.numSwaps
       if output:
@@ -82,8 +84,4 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
         print "  b1 was the smallest column"
       else:
         print "  %d columns were smaller than b1, with || b_%d ||_2 = %f the smallest" % (numLower,minInd,minNorm)
-
-      # Compute the achieved value of delta
-      delta = El.LLLDelta(R,ctrl) 
-      print "  delta=", delta
       print ""

@@ -14,12 +14,16 @@ extern "C" {
 
 ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
 {
+    float eps = limits::Epsilon<float>();
+
     ctrl->delta = 0.75f;
+    ctrl->eta = 0.5f + Pow(eps,0.9f);
     ctrl->weak = false;
     ctrl->presort = true;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
-    ctrl->zeroTol = limits::Epsilon<float>();
+    ctrl->numOrthog = 1;
+    ctrl->zeroTol = Pow(eps,0.9f);
     ctrl->progress = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -27,12 +31,16 @@ ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
 
 ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
 {
+    double eps = limits::Epsilon<double>();
+
     ctrl->delta = 0.75;
+    ctrl->eta = 0.5 + Pow(eps,0.5);
     ctrl->weak = false;
     ctrl->presort = true;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
-    ctrl->zeroTol = limits::Epsilon<double>();
+    ctrl->numOrthog = 1;
+    ctrl->zeroTol = Pow(eps,0.9f);
     ctrl->progress = false;
     ctrl->time = false;
     return EL_SUCCESS;
@@ -42,7 +50,7 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
   ElError ElLLL_ ## SIG \
   ( ElMatrix_ ## SIG B, \
     ElLLLCtrl_ ## SIGBASE ctrl, \
-    ElLLLInfo* infoC ) \
+    ElLLLInfo_ ## SIGBASE * infoC ) \
   { EL_TRY( \
       auto info = LLL( *CReflect(B), CReflect(ctrl) );\
       *infoC = CReflect(info); \
@@ -51,7 +59,7 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG R, \
     ElLLLCtrl_ ## SIGBASE ctrl, \
-    ElLLLInfo* infoC ) \
+    ElLLLInfo_ ## SIGBASE * infoC ) \
   { EL_TRY( \
       auto info = LLL( *CReflect(B), *CReflect(R), CReflect(ctrl) );\
       *infoC = CReflect(info); \
@@ -62,16 +70,13 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ElMatrix_ ## SIG UInv, \
     ElMatrix_ ## SIG R, \
     ElLLLCtrl_ ## SIGBASE ctrl, \
-    ElLLLInfo* infoC ) \
+    ElLLLInfo_ ## SIGBASE * infoC ) \
   { EL_TRY( \
       auto info = \
         LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(R), \
              CReflect(ctrl) ); \
       *infoC = CReflect(info); \
     ) } \
-  ElError ElLLLDelta_ ## SIG \
-  ( ElConstMatrix_ ## SIG R, ElLLLCtrl_ ## SIGBASE ctrl, Base<F>* delta ) \
-  { EL_TRY( *delta = LLLDelta( *CReflect(R), CReflect(ctrl) ) ) } \
   ElError ElLatticeImageAndKernel_ ## SIG \
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG M, \
