@@ -533,7 +533,7 @@ class DistSparseMatrix(object):
     elif self.tag == cTag: lib.ElDistSparseMatrixValue_c(*args)
     elif self.tag == zTag: lib.ElDistSparseMatrixValue_z(*args)
     else: DataExcept()
-    return value.value
+    return ScalarData(value)
 
   lib.ElDistSparseMatrixRowOffset_i.argtypes = \
   lib.ElDistSparseMatrixRowOffset_s.argtypes = \

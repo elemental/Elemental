@@ -331,7 +331,7 @@ class SparseMatrix(object):
     elif self.tag == cTag: lib.ElSparseMatrixValue_c(*args)
     elif self.tag == zTag: lib.ElSparseMatrixValue_z(*args)
     else: DataExcept()
-    return value.value
+    return ScalarData(value)
 
   lib.ElSparseMatrixRowOffset_i.argtypes = \
   lib.ElSparseMatrixRowOffset_s.argtypes = \

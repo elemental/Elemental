@@ -83,7 +83,17 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG K, \
     ElLLLCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( LatticeKernel( *CReflect(B), *CReflect(K), CReflect(ctrl) ) ) }
+  { EL_TRY( LatticeKernel( *CReflect(B), *CReflect(K), CReflect(ctrl) ) ) } \
+  ElError ElZDependenceSearch_ ## SIG \
+  ( ElConstMatrix_ ## SIG z, \
+    Base<F> NSqrt, \
+    ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG U, \
+    ElLLLCtrl_ ## SIGBASE ctrl, \
+    ElInt* numFound ) \
+  { EL_TRY( *numFound = \
+      ZDependenceSearch \
+      ( *CReflect(z), NSqrt, *CReflect(B), *CReflect(U), CReflect(ctrl) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

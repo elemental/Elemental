@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+/* Lenstra-Lenstra-Lovasz lattice reduction
+   ======================================== */
+
 typedef struct
 {
     ElInt nullity;    
@@ -81,6 +84,45 @@ EL_EXPORT ElError ElLLLDelta_c
 ( ElConstMatrix_c R, ElLLLCtrl_s ctrl, float* delta );
 EL_EXPORT ElError ElLLLDelta_z
 ( ElConstMatrix_z R, ElLLLCtrl_d ctrl, double* delta );
+
+/* Lattice image and kernel
+   ======================== */
+EL_EXPORT ElError ElLatticeImageAndKernel_s
+( ElMatrix_s B, ElMatrix_s M, ElMatrix_s K, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeImageAndKernel_d
+( ElMatrix_d B, ElMatrix_d M, ElMatrix_d K, ElLLLCtrl_d ctrl );
+EL_EXPORT ElError ElLatticeImageAndKernel_c
+( ElMatrix_c B, ElMatrix_c M, ElMatrix_c K, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeImageAndKernel_z
+( ElMatrix_z B, ElMatrix_z M, ElMatrix_z K, ElLLLCtrl_d ctrl );
+
+EL_EXPORT ElError ElLatticeKernel_s
+( ElMatrix_s B, ElMatrix_s K, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeKernel_d
+( ElMatrix_d B, ElMatrix_d K, ElLLLCtrl_d ctrl );
+EL_EXPORT ElError ElLatticeKernel_c
+( ElMatrix_c B, ElMatrix_c K, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeKernel_z
+( ElMatrix_z B, ElMatrix_z K, ElLLLCtrl_d ctrl );
+
+/* Search for Z-dependence
+   ======================= */
+EL_EXPORT ElError ElZDependenceSearch_s
+( ElConstMatrix_s z, float NSqrt,
+  ElMatrix_s B, ElMatrix_s U, ElLLLCtrl_s ctrl,
+  ElInt* numFound );
+EL_EXPORT ElError ElZDependenceSearch_d
+( ElConstMatrix_d z, double NSqrt,
+  ElMatrix_d B, ElMatrix_d U, ElLLLCtrl_d ctrl,
+  ElInt* numFound );
+EL_EXPORT ElError ElZDependenceSearch_c
+( ElConstMatrix_c z, float NSqrt,
+  ElMatrix_c B, ElMatrix_c U, ElLLLCtrl_s ctrl,
+  ElInt* numFound );
+EL_EXPORT ElError ElZDependenceSearch_z
+( ElConstMatrix_z z, double NSqrt,
+  ElMatrix_z B, ElMatrix_z U, ElLLLCtrl_d ctrl,
+  ElInt* numFound );
 
 #ifdef __cplusplus
 }

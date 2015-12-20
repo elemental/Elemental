@@ -142,6 +142,13 @@ def LLLDelta(R,ctrl=None):
 # Lattice image/kernel decomposition
 # ==================================
 
+lib.ElLatticeImageAndKernel_s.argtypes = \
+lib.ElLatticeImageAndKernel_c.argtypes = \
+  [c_void_p,c_void_p,c_void_p,LLLCtrl_s]
+lib.ElLatticeImageAndKernel_d.argtypes = \
+lib.ElLatticeImageAndKernel_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p,LLLCtrl_d]
+
 def LatticeImageAndKernel(B,ctrl=None):
   if ctrl==None:
     if   B.tag == sTag: ctrl = LLLCtrl_s()
@@ -161,6 +168,13 @@ def LatticeImageAndKernel(B,ctrl=None):
     return M, K
   else: TypeExcept()
 
+lib.ElLatticeKernel_s.argtypes = \
+lib.ElLatticeKernel_c.argtypes = \
+  [c_void_p,c_void_p,LLLCtrl_s]
+lib.ElLatticeKernel_d.argtypes = \
+lib.ElLatticeKernel_z.argtypes = \
+  [c_void_p,c_void_p,LLLCtrl_d]
+
 def LatticeKernel(B,ctrl=None):
   if ctrl==None:
     if   B.tag == sTag: ctrl = LLLCtrl_s()
@@ -177,4 +191,34 @@ def LatticeKernel(B,ctrl=None):
     elif B.tag == zTag: lib.ElLatticeKernel_z(*args)
     else: DataExcept()
     return K
+  else: TypeExcept()
+
+# Z-dependence search
+# ===================
+
+lib.ElZDependenceSearch_s.argtypes = \
+lib.ElZDependenceSearch_c.argtypes = \
+  [c_void_p,sType,c_void_p,c_void_p,LLLCtrl_s,POINTER(iType)]
+lib.ElZDependenceSearch_d.argtypes = \
+lib.ElZDependenceSearch_z.argtypes = \
+  [c_void_p,dType,c_void_p,c_void_p,LLLCtrl_d,POINTER(iType)]
+
+def ZDependenceSearch(z,NSqrt,ctrl=None):
+  if ctrl==None:
+    if   z.tag == sTag: ctrl = LLLCtrl_s()
+    elif z.tag == dTag: ctrl = LLLCtrl_d()
+    elif z.tag == cTag: ctrl = LLLCtrl_s()
+    elif z.tag == zTag: ctrl = LLLCtrl_d()
+
+  if type(z) is Matrix:
+    numFound = iType()
+    B = Matrix(z.tag)
+    U = Matrix(z.tag)
+    args = [z.obj,NSqrt,B.obj,U.obj,ctrl,pointer(numFound)]
+    if   z.tag == sTag: lib.ElZDependenceSearch_s(*args)
+    elif z.tag == dTag: lib.ElZDependenceSearch_d(*args)
+    elif z.tag == cTag: lib.ElZDependenceSearch_c(*args)
+    elif z.tag == zTag: lib.ElZDependenceSearch_z(*args)
+    else: DataExcept()
+    return numFound.value, B, U
   else: TypeExcept()
