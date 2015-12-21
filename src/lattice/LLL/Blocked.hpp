@@ -170,6 +170,7 @@ bool BlockStep
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
+    const Real eps = limits::Epsilon<Real>();
 
     F* BBuf = B.Buffer();
     F* UBuf = U.Buffer();
@@ -187,6 +188,8 @@ bool BlockStep
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( !limits::IsFinite(oldNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
+        if( oldNorm > Real(1)/eps )
+            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
         if( oldNorm <= ctrl.zeroTol )
         {
             for( Int i=0; i<m; ++i )
@@ -277,6 +280,8 @@ bool BlockStep
             roundTimer.Stop();
         if( !limits::IsFinite(newNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
+        if( newNorm > Real(1)/eps )
+            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         if( newNorm > ctrl.reorthogTol*oldNorm )
         {

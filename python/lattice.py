@@ -35,6 +35,7 @@ class LLLCtrl_s(ctypes.Structure):
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",sType),
+              ("numOrthog",iType),
               ("zeroTol",sType),
               ("progress",bType),
               ("time",bType)]
@@ -47,6 +48,7 @@ class LLLCtrl_d(ctypes.Structure):
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",dType),
+              ("numOrthog",iType),
               ("zeroTol",dType),
               ("progress",bType),
               ("time",bType)]

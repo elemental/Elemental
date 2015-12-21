@@ -99,6 +99,19 @@ void HouseholderStep
         d.Set( k, 0, +1 );
 }
 
+template<typename F>
+inline Base<F> LogPotential( const Matrix<F>& R )
+{
+    DEBUG_ONLY(CSE cse("lll::LogPotential"))
+    typedef Base<F> Real;
+    const Int n = R.Width();
+
+    Real logPotential=0;
+    for( Int j=0; j<n; ++j )
+        logPotential += 2*(n-j)*Log(Abs(R.Get(j,j)));
+    return logPotential;
+}
+
 // Return true if the new column is a zero vector
 template<typename F>
 bool Step
@@ -117,6 +130,7 @@ bool Step
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
+    const Real eps = limits::Epsilon<Real>();
 
     F* BBuf = B.Buffer();
     F* UBuf = U.Buffer();
@@ -134,6 +148,8 @@ bool Step
         const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( !limits::IsFinite(oldNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
+        if( oldNorm > Real(1)/eps )
+            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         if( oldNorm <= ctrl.zeroTol )
         {
@@ -150,9 +166,11 @@ bool Step
             roundTimer.Start();
         if( ctrl.weak )
         {
-            if( Abs(QRBuf[(k-1)+(k-1)*QRLDim]) > ctrl.zeroTol )
+            const Real rho_km1_km1 = RealPart(QRBuf[(k-1)+(k-1)*QRLDim]);
+            // We should be able to assume R(k-1,k-1) >= 0
+            if( rho_km1_km1 > ctrl.zeroTol )
             {
-                F chi = QRBuf[(k-1)+k*QRLDim]/QRBuf[(k-1)+(k-1)*QRLDim];
+                F chi = QRBuf[(k-1)+k*QRLDim]/rho_km1_km1;
                 if( Abs(RealPart(chi)) > ctrl.eta ||
                     Abs(ImagPart(chi)) > ctrl.eta )
                 {
@@ -161,10 +179,12 @@ bool Step
                     ( k, -chi,
                       &QRBuf[(k-1)*QRLDim], 1,
                       &QRBuf[k*QRLDim], 1 );
+
                     blas::Axpy
                     ( m, -chi,
                       &BBuf[(k-1)*BLDim], 1,
                       &BBuf[k*BLDim], 1 );
+
                     if( formU )
                         blas::Axpy
                         ( n, -chi,
@@ -223,6 +243,8 @@ bool Step
             roundTimer.Stop();
         if( !limits::IsFinite(newNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
+        if( newNorm > Real(1)/eps )
+            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         if( newNorm > ctrl.reorthogTol*oldNorm )
         {
@@ -306,7 +328,9 @@ LLLInfo<Base<F>> UnblockedAlg
             ++numSwaps;
             if( ctrl.progress )
                 Output("Dropping from k=",k," to ",Max(k-1,1)," since sqrt(delta)*R(k-1,k-1)=",leftTerm," > ",rightTerm);
+
             ColSwap( B, k-1, k );
+
             if( formU )
                 ColSwap( U, k-1, k );
             if( formUInv )
