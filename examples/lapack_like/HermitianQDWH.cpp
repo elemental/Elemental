@@ -35,7 +35,12 @@ main( int argc, char* argv[] )
         PolarCtrl ctrl;
         ctrl.qdwh = true;
         ctrl.colPiv = colPiv;
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         HermitianPolar( LOWER, Q, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
@@ -47,10 +52,13 @@ main( int argc, char* argv[] )
         Herk( LOWER, NORMAL, Real(1), Q, Real(-1), B );
         const Real frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( mpi::Rank() == 0 )
+        {
+            Output("HermitianQDWH time: ",timer.Total()," secs");
             Output
             (ctrl.numIts," iterations of QDWH\n",
              "||A - QP||_F / ||A||_F = ",frobQDWH/frobA,"\n",
              "||I - QQ^H||_F / ||A||_F = ",frobQDWHOrthog/frobA,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

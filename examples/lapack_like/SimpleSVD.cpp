@@ -19,10 +19,15 @@ int main()
     DistMatrix<C> A;
     Uniform( A, m, n );
 
+    Timer timer;
     DistMatrix<C> U, V;
     DistMatrix<Real,VR,STAR> s;
     U = A;
+    if( mpi::Rank() == 0 )
+        timer.Start();
     SVD( U, s, V );
+    if( mpi::Rank() == 0 )
+        timer.Stop();
     const Real twoNormA = MaxNorm( s );
 
     DiagonalScale( RIGHT, NORMAL, s, U );
@@ -32,6 +37,7 @@ int main()
     const Real scaledResid = frobNormE / (Max(m,n)*eps*twoNormA);
     if( mpi::Rank() == 0 )
     {
+        Output("SimpleSVD time: ",timer.Total()," secs");
         Output("||A||_2 = ",twoNormA);
         Output("||A - U Sigma V^H||_F / (max(m,n) eps ||A||_2) = ",scaledResid);
     }

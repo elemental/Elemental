@@ -48,12 +48,19 @@ main( int argc, char* argv[] )
         if( print )
             Print( H, "H" );
 
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         // Replace H with its pseudoinverse
         HermitianPseudoinverse( LOWER, H );
         MakeHermitian( LOWER, H );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
 
         if( print )
             Print( H, "pinv(H)" );
+        if( mpi::Rank() == 0 )
+            Output("HermitianPseudoinverse time: ",timer.Total()," secs");
     }
     catch( exception& e ) { ReportException(e); }
 

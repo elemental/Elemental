@@ -138,8 +138,13 @@ int main( int argc, char* argv[] )
         ctrl.relTol = relTol;
         ctrl.progress = progress;
 
+        Timer timer;
         DistMatrix<F> Z;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         SparseInvCov( D, lambda, Z, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
 
         const Real SInvNorm = FrobeniusNorm( SInv );
         G = Z;
@@ -148,9 +153,12 @@ int main( int argc, char* argv[] )
         if( print )
             Print( Z, "Z" );
         if( mpi::Rank() == 0 )
+        {
+            Output("SparseInvCov time: ",timer.Total()," secs");
             Output
             ("|| SInv     ||_F = ",SInvNorm,"\n",
              "|| Z - SInv ||_F = ",ZErrNorm/SInvNorm,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

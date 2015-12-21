@@ -59,12 +59,20 @@ main( int argc, char* argv[] )
         ctrl.admmCtrl.progress = progress;
 
         DistMatrix<Real> x;
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         BP( A, b, x, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
             Print( x, "x" );
         const Int xZeroNorm = ZeroNorm( x );
         if( mpi::Rank() == 0 )
+        {
+            Output("Basis Pursuit time: ",timer.Total()," secs");
             Output("|| x ||_0 = ",xZeroNorm);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -74,21 +74,23 @@ main( int argc, char* argv[] )
             DistMatrix<C,MC,MR,BLOCK> ABlock( A ), xBlock( x ), yBlock( y );
             Output("Starting ScaLAPACK Gemv");
             mpi::Barrier();
-            const double gemvStart = mpi::Time();
+            Timer gemvScal;
+            gemvScal.Start();
             Gemv( orientation, C(3), A, x, C(4), y );
-            const double gemvRun = mpi::Time() - gemvStart;
+            gemvScal.Stop();
             if( commRank == 0 )
-                Output("  Time: ",gemvRun);
+                Output("  Time: ",gemvScal.Total());
         }
 
         // Run the matrix-vector product
         mpi::Barrier();
         Output("Starting Gemv");
-        const double gemvStart = mpi::Time();
+        Timer gemvElem;
+        gemvElem.Start();
         Gemv( orientation, C(3), A, x, C(4), y );
-        const double gemvRun = mpi::Time() - gemvStart;
+        gemvElem.Stop();
         if( commRank == 0 )
-            Output("  Time: ",gemvRun);
+            Output("  Time: ",gemvElem.Total());
 
         if( print )
         {
