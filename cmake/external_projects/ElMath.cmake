@@ -69,10 +69,29 @@ if(MATH_LIBS)
     message(STATUS "Using Intel MKL via ${MATH_LIBS}")
   endif()
   unset(CMAKE_REQUIRED_LIBRARIES)
+# NOTE:
+# There is a bug in MKL such that, if the following line is used,
+# there is sometimes an error of the form
+#
+#   Intel MKL FATAL ERROR: Cannot load libmkl_avx2.so or libmkl_def.so.
+#
+# when running the executable. Should this occur, manually specify
+#
+#   MATH_LIBS="-L/path/to/mkl/libs -lmkl_rt"
+#
+# e.g.,
+#
+#   MATH_LIBS="-L/opt/intel/mkl/lib/intel64 -lmkl_rt"
+#       
+# Due to this error, as well as the fact that there is no simple support for
+# the ILP64 interface (which is needed when EL_USE_64BIT_BLAS_INTS is enabled),
+# the "-mkl=" detection is now disabled (by the 'AND FALSE' clause).
 elseif(NOT EL_DISABLE_MKL AND
+       NOT EL_USE_64BIT_BLAS_INTS AND
        NOT EL_PREFER_OPENBLAS AND
        NOT EL_PREFER_APPLE_MATH AND
-       NOT EL_PREFER_BLIS_LAPACK)
+       NOT EL_PREFER_BLIS_LAPACK AND
+       FALSE)
   if(EL_HYBRID)
     set(MKL_LIBS "-mkl=parallel")
     message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
@@ -104,19 +123,6 @@ elseif(NOT EL_DISABLE_MKL AND
     unset(CMAKE_REQUIRED_LIBRARIES)
 
     if(NOT EL_FOUND_MKL)
-      # NOTE: There is a bug in MKL such that, if the following line is used,
-      #       there is sometimes an error of the form
-      #
-      #   Intel MKL FATAL ERROR: Cannot load libmkl_avx2.so or libmkl_def.so.
-      #
-      #        when running the executable. Should this occur, manually specify
-      #
-      #   MATH_LIBS="-L/path/to/mkl/libs -lmkl_rt"
-      #
-      #        e.g.,
-      #
-      #   MATH_LIBS="-L/opt/intel/mkl/lib/intel64 -lmkl_rt"
-      #       
       set(MKL_LIBS "-mkl=sequential")
       message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
       set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
@@ -138,7 +144,7 @@ elseif(NOT EL_DISABLE_MKL AND
   endif()
 endif()
 
-if(APPLE)
+if(APPLE AND NOT EL_USE_64BIT_BLAS_INTS)
   # Check for Accelerate
   # ^^^^^^^^^^^^^^^^^^^^
   message(STATUS "Testing for LAPACK support via Accelerate")
@@ -180,11 +186,14 @@ endif()
 
 # Check for reference BLAS/LAPACK
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-find_package(LAPACK)
-if(LAPACK_FOUND AND NOT MATH_LIBS_AT_CONFIG)
-  if(MSVC OR NOT FORTRAN_WORKS OR 
-    (EL_DISABLE_OPENBLAS AND EL_DISABLE_BLIS_LAPACK))
-    set(MATH_LIBS_AT_CONFIG "${LAPACK_LINKER_FLAGS};${LAPACK_LIBRARIES}")
+# TODO: Enable support for 64-bit integer version
+if(NOT EL_USE_64BIT_BLAS_INTS)
+  find_package(LAPACK)
+  if(LAPACK_FOUND AND NOT MATH_LIBS_AT_CONFIG)
+    if(MSVC OR NOT FORTRAN_WORKS OR 
+      (EL_DISABLE_OPENBLAS AND EL_DISABLE_BLIS_LAPACK))
+      set(MATH_LIBS_AT_CONFIG "${LAPACK_LINKER_FLAGS};${LAPACK_LIBRARIES}")
+    endif()
   endif()
 endif()
 

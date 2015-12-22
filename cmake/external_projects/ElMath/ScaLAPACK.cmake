@@ -206,7 +206,7 @@ elseif(USE_FOUND_SCALAPACK)
 elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
        (MATH_LIBS_AT_CONFIG OR NOT MSVC))
   if(NOT DEFINED SCALAPACK_URL)
-    set(SCALAPACK_URL https://github.com/poulson/scalapack.git)
+    set(SCALAPACK_URL https://github.com/scibuilder/scalapack.git)
   endif()
   message(STATUS "Will pull ScaLAPACK from ${SCALAPACK_URL}")
 
