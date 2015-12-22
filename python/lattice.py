@@ -192,7 +192,7 @@ def ZDependenceSearch(z,NSqrt,ctrl=None):
     elif z.tag == dTag or z.tag == zTag: ctrl = LLLCtrl_d()
 
   if type(z) is Matrix:
-    numFound = iType()
+    numExact = iType()
     B = Matrix(z.tag)
     U = Matrix(z.tag)
     args = [z.obj,NSqrt,B.obj,U.obj,ctrl,pointer(numFound)]
@@ -201,5 +201,46 @@ def ZDependenceSearch(z,NSqrt,ctrl=None):
     elif z.tag == cTag: lib.ElZDependenceSearch_c(*args)
     elif z.tag == zTag: lib.ElZDependenceSearch_z(*args)
     else: DataExcept()
-    return numFound.value, B, U
+    return numExact.value, B, U
+  else: TypeExcept()
+
+# Algebraic relation search
+# =========================
+
+lib.ElAlgebraicRelationSearch_s.argtypes = \
+  [sType,iType,sType,c_void_p,c_void_p,LLLCtrl_s,POINTER(iType)]
+lib.ElAlgebraicRelationSearch_d.argtypes = \
+  [dType,iType,dType,c_void_p,c_void_p,LLLCtrl_d,POINTER(iType)]
+lib.ElAlgebraicRelationSearch_c.argtypes = \
+  [cType,iType,sType,c_void_p,c_void_p,LLLCtrl_s,POINTER(iType)]
+lib.ElAlgebraicRelationSearch_z.argtypes = \
+  [zType,iType,dType,c_void_p,c_void_p,LLLCtrl_d,POINTER(iType)]
+
+def AlgebraicRelationSearch(alpha,n,NSqrt,ctrl=None):
+  if   type(alpha) == sType:
+    tag = sTag
+  elif type(alpha) == dType:
+    tag = dTag
+  elif type(alpha) == cType:
+    tag = cTag
+  elif type(alpha) == zType:
+    tag = zTag
+
+  if ctrl==None:
+    if   tag == sTag or tag == cTag: ctrl = LLLCtrl_s()
+    elif tag == dTag or tag == zTag: ctrl = LLLCtrl_d()
+
+  # TODO: Provide a way to pick a different return type from Matrix
+  #if type(z) is Matrix:
+  if True:
+    numExact = iType()
+    B = Matrix(tag)
+    U = Matrix(tag)
+    args = [alpha,n,NSqrt,B.obj,U.obj,ctrl,pointer(numExact)]
+    if   type(alpha) == sType: lib.ElAlgebraicRelationSearch_s(*args)
+    elif type(alpha) == dType: lib.ElAlgebraicRelationSearch_d(*args)
+    elif type(alpha) == cType: lib.ElAlgebraicRelationSearch_c(*args)
+    elif type(alpha) == zType: lib.ElAlgebraicRelationSearch_z(*args)
+    else: DataExcept()
+    return numExact.value, B, U
   else: TypeExcept()

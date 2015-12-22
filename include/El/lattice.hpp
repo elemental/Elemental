@@ -156,6 +156,19 @@ Int ZDependenceSearch
         Matrix<F>& U, 
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
+// Search for an algebraic relation
+// ================================
+// Search for the (Gaussian) integer coefficients of a polynomial of alpha
+// that is (nearly) zero.
+template<typename F>
+Int AlgebraicRelationSearch
+( F alpha,
+  Int n,
+  Base<F> NSqrt,
+  Matrix<F>& B,
+  Matrix<F>& U, 
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
 } // namespace El
 
 #endif // ifndef EL_LATTICE_HPP

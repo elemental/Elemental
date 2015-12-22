@@ -98,7 +98,19 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ElInt* numFound ) \
   { EL_TRY( *numFound = \
       ZDependenceSearch \
-      ( *CReflect(z), NSqrt, *CReflect(B), *CReflect(U), CReflect(ctrl) ) ) }
+      ( *CReflect(z), NSqrt, *CReflect(B), *CReflect(U), CReflect(ctrl) ) ) } \
+  ElError ElAlgebraicRelationSearch_ ## SIG \
+  ( CREFLECT(F) alpha, \
+    ElInt n, \
+    Base<F> NSqrt, \
+    ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG U, \
+    ElLLLCtrl_ ## SIGBASE ctrl, \
+    ElInt* numFound ) \
+  { EL_TRY( *numFound = \
+      AlgebraicRelationSearch \
+      ( CReflect(alpha), n, NSqrt, \
+        *CReflect(B), *CReflect(U), CReflect(ctrl) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

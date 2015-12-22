@@ -115,19 +115,38 @@ EL_EXPORT ElError ElLatticeKernel_z
 EL_EXPORT ElError ElZDependenceSearch_s
 ( ElConstMatrix_s z, float NSqrt,
   ElMatrix_s B, ElMatrix_s U, ElLLLCtrl_s ctrl,
-  ElInt* numFound );
+  ElInt* numExact );
 EL_EXPORT ElError ElZDependenceSearch_d
 ( ElConstMatrix_d z, double NSqrt,
   ElMatrix_d B, ElMatrix_d U, ElLLLCtrl_d ctrl,
-  ElInt* numFound );
+  ElInt* numExact );
 EL_EXPORT ElError ElZDependenceSearch_c
 ( ElConstMatrix_c z, float NSqrt,
   ElMatrix_c B, ElMatrix_c U, ElLLLCtrl_s ctrl,
-  ElInt* numFound );
+  ElInt* numExact );
 EL_EXPORT ElError ElZDependenceSearch_z
 ( ElConstMatrix_z z, double NSqrt,
   ElMatrix_z B, ElMatrix_z U, ElLLLCtrl_d ctrl,
-  ElInt* numFound );
+  ElInt* numExact );
+
+/* Search for an algebraic relation
+   ================================ */
+EL_EXPORT ElError ElAlgebraicRelationSearch_s
+( float alpha, ElInt n, float NSqrt,
+  ElMatrix_s B, ElMatrix_s U, ElLLLCtrl_s ctrl,
+  ElInt* numExact );
+EL_EXPORT ElError ElAlgebraicRelationSearch_d
+( double alpha, ElInt n, double NSqrt,
+  ElMatrix_d B, ElMatrix_d U, ElLLLCtrl_d ctrl,
+  ElInt* numExact );
+EL_EXPORT ElError ElAlgebraicRelationSearch_c
+( complex_float alpha, ElInt n, float NSqrt,
+  ElMatrix_c B, ElMatrix_c U, ElLLLCtrl_s ctrl,
+  ElInt* numExact );
+EL_EXPORT ElError ElAlgebraicRelationSearch_z
+( complex_double alpha, ElInt n, double NSqrt,
+  ElMatrix_z B, ElMatrix_z U, ElLLLCtrl_d ctrl,
+  ElInt* numExact );
 
 #ifdef __cplusplus
 }
