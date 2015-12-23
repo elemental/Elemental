@@ -17,16 +17,20 @@ mpfr_ptr BigFloat::Pointer()
 mpfr_srcptr BigFloat::LockedPointer() const
 { return mpfrFloat_; }
 
+mpfr_exp_t BigFloat::Exponent() const
+{ return mpfrFloat_->_mpfr_exp; }
+
 mpfr_prec_t BigFloat::Precision() const
 { return mpfrFloat_->_mpfr_prec; }
 
-mpfr_exp_t BigFloat::Exponent() const
-{ return mpfrFloat_->_mpfr_exp; }
+size_t BigFloat::NumLimbs() const
+{ return numLimbs_; }
 
 BigFloat::BigFloat( mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [default]"))
     mpfr_init2( mpfrFloat_, prec );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 // Copy constructors
@@ -38,6 +42,7 @@ BigFloat::BigFloat( const BigFloat& a, mpfr_prec_t prec )
     {
         mpfr_init2( mpfrFloat_, prec );
         mpfr_set( mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
+        numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     }
     DEBUG_ONLY(
     else
@@ -50,6 +55,7 @@ BigFloat::BigFloat( const unsigned& a, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned]"))
     mpfr_init2( Pointer(), prec );
     mpfr_set_ui( Pointer(), a, mpc::RoundingMode() );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const unsigned long long& a, mpfr_prec_t prec )
@@ -57,6 +63,7 @@ BigFloat::BigFloat( const unsigned long long& a, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned long long]"))
     mpfr_init2( Pointer(), prec );
     mpfr_set_uj( Pointer(), a, mpc::RoundingMode() );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const int& a, mpfr_prec_t prec )
@@ -64,6 +71,7 @@ BigFloat::BigFloat( const int& a, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [int]"))
     mpfr_init2( Pointer(), prec );
     mpfr_set_si( Pointer(), a, mpc::RoundingMode() );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const long long int& a, mpfr_prec_t prec )
@@ -71,6 +79,7 @@ BigFloat::BigFloat( const long long int& a, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long long int]"))
     mpfr_init2( Pointer(), prec );
     mpfr_set_sj( Pointer(), a, mpc::RoundingMode() );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const double& a, mpfr_prec_t prec )
@@ -78,6 +87,7 @@ BigFloat::BigFloat( const double& a, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [double]"))
     mpfr_init2( Pointer(), prec );
     mpfr_set_d( Pointer(), a, mpc::RoundingMode() );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const char* str, int base, mpfr_prec_t prec )
@@ -85,6 +95,7 @@ BigFloat::BigFloat( const char* str, int base, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [char*]"))
     mpfr_init2( Pointer(), prec );
     mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const std::string& str, int base, mpfr_prec_t prec )
@@ -92,6 +103,7 @@ BigFloat::BigFloat( const std::string& str, int base, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [string]"))
     mpfr_init2( Pointer(), prec );
     mpfr_set_str( Pointer(), str.c_str(), base, mpc::RoundingMode() );
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 // Move constructor
@@ -101,6 +113,7 @@ BigFloat::BigFloat( BigFloat&& a )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [move]"))
     Pointer()->_mpfr_d = 0;
     mpfr_swap( Pointer(), a.Pointer() );
+    std::swap( numLimbs_, a.numLimbs_ );
 }
 
 BigFloat::~BigFloat()
@@ -120,6 +133,9 @@ BigFloat& BigFloat::operator=( const BigFloat& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator= [BigFloat]"))
     mpfr_set( Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    // TODO: Decide if this can be safely removed
+    const mpfr_prec_t prec = Precision();
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     return *this;
 }
 
@@ -162,6 +178,7 @@ BigFloat& BigFloat::operator=( BigFloat&& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator= [move]"))
     mpfr_swap( Pointer(), a.Pointer() );
+    std::swap( numLimbs_, a.numLimbs_ );
     return *this;
 }
 
@@ -265,12 +282,24 @@ BigFloat& BigFloat::operator>>=( const long unsigned& a )
     return *this;
 }
 
+size_t BigFloat::SerializedSize() const
+{
+    DEBUG_ONLY(CSE cse("BigFloat::SerializedSize"))
+    // TODO: Decide whether alignments need to be considered.
+    return sizeof(mpfr_prec_t)+
+           sizeof(mpfr_sign_t)+
+           sizeof(mpfr_exp_t)+
+           sizeof(mp_limb_t)*numLimbs_;
+}
+
 byte* BigFloat::Serialize( byte* buf ) const
 {
     DEBUG_ONLY(CSE cse("BigFloat::Serialize"))
     // NOTE: We don't have to necessarily serialize the precisions, as
     //       they are known a priori (as long as the user does not fiddle
     //       with SetPrecision)
+    // 
+    // TODO: Decide whether alignments need to be considered.
 
     std::memcpy( buf, &mpfrFloat_->_mpfr_prec, sizeof(mpfr_prec_t) );
     buf += sizeof(mpfr_prec_t);
@@ -280,10 +309,8 @@ byte* BigFloat::Serialize( byte* buf ) const
     buf += sizeof(mpfr_exp_t);
 
     // TODO: Avoid this integer computation
-    const mpfr_prec_t prec = Precision();
-    const auto numLimbs = (prec-1) / GMP_NUMB_BITS + 1;
-    std::memcpy( buf, mpfrFloat_->_mpfr_d, numLimbs*sizeof(mp_limb_t) );
-    buf += numLimbs*sizeof(mp_limb_t);
+    std::memcpy( buf, mpfrFloat_->_mpfr_d, numLimbs_*sizeof(mp_limb_t) );
+    buf += numLimbs_*sizeof(mp_limb_t);
 
     return buf;
 }
@@ -299,10 +326,8 @@ const byte* BigFloat::Deserialize( const byte* buf )
     std::memcpy( &mpfrFloat_->_mpfr_exp, buf, sizeof(mpfr_exp_t) );
     buf += sizeof(mpfr_exp_t);
 
-    const mpfr_prec_t prec = mpfrFloat_->_mpfr_prec;
-    const auto numLimbs = (prec-1) / GMP_NUMB_BITS + 1;
-    std::memcpy( mpfrFloat_->_mpfr_d, buf, numLimbs*sizeof(mp_limb_t) );
-    buf += numLimbs*sizeof(mp_limb_t);
+    std::memcpy( mpfrFloat_->_mpfr_d, buf, numLimbs_*sizeof(mp_limb_t) );
+    buf += numLimbs_*sizeof(mp_limb_t);
 
     return buf;
 }

@@ -25,7 +25,12 @@ namespace mpc {
 void RandomState( gmp_randstate_t randState );
 
 mpfr_prec_t Precision();
+size_t NumLimbs();
 void SetPrecision( mpfr_prec_t precision );
+
+// NOTE: These should only be called internally
+void RegisterMPI();
+void FreeMPI();
 
 mpfr_rnd_t RoundingMode();
 
@@ -42,12 +47,14 @@ mpfr_rnd_t RoundingMode();
 class BigFloat {
 private:
     mpfr_t mpfrFloat_;
+    size_t numLimbs_;
 
 public:
     mpfr_ptr    Pointer();
     mpfr_srcptr LockedPointer() const;
     mpfr_exp_t  Exponent() const;
     mpfr_prec_t Precision() const;
+    size_t      NumLimbs() const;
 
     BigFloat( mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const BigFloat& a, mpfr_prec_t prec=mpc::Precision() );
@@ -93,6 +100,7 @@ public:
     BigFloat& operator>>=( const unsigned& a ); 
     BigFloat& operator>>=( const unsigned long& a );
 
+    size_t SerializedSize() const;
           byte* Serialize( byte* buf ) const;
           byte* Deserialize( byte* buf );
     const byte* Deserialize( const byte* buf );
@@ -129,7 +137,11 @@ bool operator!=( const BigFloat& a, const BigFloat& b );
 std::ostream& operator<<( std::ostream& os, const BigFloat& alpha );
 
 byte* Serialize( Int n, const BigFloat* x, byte* xPacked );
+      byte* Deserialize( Int n,       byte* xPacked, BigFloat* x );
 const byte* Deserialize( Int n, const byte* xPacked, BigFloat* x );
+
+void Serialize( Int n, const BigFloat* x, std::vector<byte>& xPacked );
+void Deserialize( Int n, const std::vector<byte>& xPacked, BigFloat* x );
 
 } // namespace El
 #endif // ifdef EL_HAVE_MPC

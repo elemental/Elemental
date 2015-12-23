@@ -136,6 +136,60 @@ El::mpi::Op userBigFloatOp, userBigFloatCommOp;
 } // anonymous namespace   
 
 namespace El {
+
+#ifdef EL_HAVE_MPC
+namespace mpc {
+
+void RegisterMPI()
+{
+    // NOTE: This could likely be simplified. And I'm a little worried about
+    //       proper alignment of member data in memory, but it should be
+    //       easily fixable later via some modular arithmetic.
+    BigFloat alpha;
+    const size_t packedSize = alpha.SerializedSize();
+    vector<byte> buf(packedSize);
+
+    const auto numLimbs = mpc::NumLimbs();
+
+    mpi::Datatype typeList[4];
+    typeList[0] = mpi::TypeMap<mpfr_prec_t>();
+    typeList[1] = mpi::TypeMap<mpfr_sign_t>();
+    typeList[2] = mpi::TypeMap<mpfr_exp_t>();
+    typeList[3] = mpi::TypeMap<mp_limb_t>();
+    
+    int blockLengths[4];
+    blockLengths[0] = 1;
+    blockLengths[1] = 1; 
+    blockLengths[2] = 1;
+    blockLengths[3] = numLimbs;
+
+    byte* ptr = buf.data();
+    MPI_Aint startAddr, addr;
+    MPI_Aint displs[4];
+    MPI_Get_address( ptr, &startAddr );
+    displs[0] = 0;
+    ptr += sizeof(mpfr_prec_t);
+    MPI_Get_address( ptr, &addr );
+    displs[1] = addr - startAddr;
+    ptr += sizeof(mpfr_sign_t);
+    MPI_Get_address( ptr, &addr );
+    displs[2] = addr - startAddr;
+    ptr += sizeof(mpfr_exp_t);
+    displs[3] = addr - startAddr;
+    
+    MPI_Type_create_struct
+    ( 4, blockLengths, displs, typeList, &::BigFloatType );
+    MPI_Type_commit( &::BigFloatType );
+}
+
+void FreeMPI()
+{
+    mpi::Free( ::BigFloatType );
+}
+
+} // namespace mpc
+#endif // ifdef EL_HAVE_MPC
+
 namespace mpi {
 
 // TODO: Expose hooks for these routines so that the user could run
@@ -919,6 +973,9 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     MPI_Type_contiguous( 4, MPI_DOUBLE, &::QuadComplexType );
     MPI_Type_commit( &::QuadComplexType );
 #endif
+#ifdef EL_HAVE_MPC
+    mpc::RegisterMPI();
+#endif
     // A value and an integer
     // ----------------------
     mpi::CreateValueIntType<Int>();
@@ -989,6 +1046,13 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     Create
     ( (UserFunction*)UserComplexQuadReduceComm, true, ::userComplexQuadCommOp );
 #endif
+#ifdef EL_HAVE_MPC
+    Create
+    ( (UserFunction*)UserBigFloatReduce, false, ::userBigFloatOp );
+    Create
+    ( (UserFunction*)UserBigFloatReduceComm, true, ::userBigFloatCommOp );
+    // TODO: Complex versions
+#endif
    
     // Functions for scalar types
     // --------------------------
@@ -997,6 +1061,12 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     Create( (UserFunction*)MinQuad, true, ::minQuadOp );
     Create( (UserFunction*)SumQuad, true, ::sumQuadOp );
     Create( (UserFunction*)SumQuadComplex, true, ::sumQuadComplexOp );
+#endif
+#ifdef EL_HAVE_MPC
+    Create( (UserFunction*)MaxBigFloat, true, ::maxBigFloatOp );
+    Create( (UserFunction*)MinBigFloat, true, ::minBigFloatOp );
+    Create( (UserFunction*)SumBigFloat, true, ::sumBigFloatOp );
+    // TODO: Complex sum
 #endif
     // Functions for the value and integer
     // -----------------------------------
@@ -1017,6 +1087,7 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     Create( (UserFunction*)MaxLocFunc<Quad>,   true, ::maxLocQuadOp   );
     Create( (UserFunction*)MinLocFunc<Quad>,   true, ::minLocQuadOp   );
 #endif
+    // TODO: MPC versions
     // Functions for the triplet of a value and a pair of integers
     // -----------------------------------------------------------
     Create( (UserFunction*)MaxLocPairFunc<Int>,    true, ::maxLocPairIntOp    );
@@ -1029,6 +1100,7 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     Create( (UserFunction*)MaxLocPairFunc<Quad>,   true, ::maxLocPairQuadOp   );
     Create( (UserFunction*)MinLocPairFunc<Quad>,   true, ::minLocPairQuadOp   );
 #endif
+    // TODO: MPC versions
 }
 
 // TODO: Extend for MPC
@@ -1039,6 +1111,9 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QUAD
     Free( ::QuadType );
     Free( ::QuadComplexType );
+#endif
+#ifdef EL_HAVE_MPC
+    mpc::FreeMPI();
 #endif
 
     Free( ValueIntType<Int>() );
@@ -1088,12 +1163,21 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
     Free( ::userComplexQuadOp );
     Free( ::userComplexQuadCommOp );
 #endif
+#ifdef EL_HAVE_MPC
+    Free( ::userBigFloatOp );
+    Free( ::userBigFloatCommOp );
+#endif
 
 #ifdef EL_HAVE_QUAD
     Free( ::maxQuadOp );
     Free( ::minQuadOp );
     Free( ::sumQuadOp );
     Free( ::sumQuadComplexOp );
+#endif
+#ifdef EL_HAVE_MPC
+    Free( ::maxBigFloatOp );
+    Free( ::minBigFloatOp );
+    Free( ::sumBigFloatOp );
 #endif
 
     Free( ::maxLocIntOp );

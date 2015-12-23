@@ -448,19 +448,34 @@ template<typename Real>
 void TaggedSend( const Real* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { 
-    DEBUG_ONLY(CSE cse("mpi::Send"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend"))
     SafeMpi( 
       MPI_Send
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm )
     );
 }
+#ifdef EL_HAVE_MPC
+template<>
+void TaggedSend( const BigFloat* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend [BigFloat]"))
+    std::vector<byte> packedBuf;
+    Serialize( count, buf, packedBuf );
+    SafeMpi( 
+      MPI_Send
+      ( const_cast<BigFloat*>(buf), count,
+        TypeMap<BigFloat>(), to, tag, comm.comm )
+    );
+}
+#endif
 
 template<typename Real>
 void TaggedSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("mpi::Send"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Send
@@ -497,6 +512,16 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
         tag, comm.comm, &request ) );
 }
+#ifdef EL_HAVE_MPC
+template<>
+void TaggedISend
+( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedISend [BigFloat]"))
+    LogicError("There is not currently a means of running ISend for BigFloat"); 
+}
+#endif
 
 template<typename Real>
 void TaggedISend
@@ -544,6 +569,16 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
         tag, comm.comm, &request ) );
 }
+#ifdef EL_HAVE_MPC
+template<>
+void TaggedISSend
+( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ISSend [BigFloat]"))
+    LogicError("There is not corrently a way to perform ISend with BigFloat");
+}
+#endif
 
 template<typename Real>
 void TaggedISSend
@@ -579,11 +614,31 @@ template<typename Real>
 void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("mpi::Recv"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv"))
     Status status;
     SafeMpi
     ( MPI_Recv( buf, count, TypeMap<Real>(), from, tag, comm.comm, &status ) );
 }
+#ifdef EL_HAVE_MPC
+template<>
+void TaggedRecv( BigFloat* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv [BigFloat]"))
+    std::vector<byte> packedBuf;
+    if( count > 0 )
+    {
+        auto packedSize = buf[0].SerializedSize();
+        packedBuf.resize( packedSize*count );
+    }
+    Status status;
+    SafeMpi
+    ( MPI_Recv
+      ( packedBuf.data(), count, TypeMap<BigFloat>(), from, tag,
+        comm.comm, &status ) );
+    Deserialize( count, packedBuf, buf );
+}
+#endif
 
 template<typename Real>
 void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
@@ -615,6 +670,8 @@ template<typename T>
 T Recv( int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { return TaggedRecv<T>( from, ANY_TAG, comm ); }
+
+// Left off HERE for BigFloat additions
 
 template<typename Real>
 void TaggedIRecv
@@ -2420,39 +2477,73 @@ MPI_PROTO(unsigned long)
 MPI_PROTO(long long int)
 MPI_PROTO(unsigned long long)
 #endif
-MPI_PROTO(float)
-MPI_PROTO(double)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(Quad)
-#endif
-MPI_PROTO(Complex<float>)
-MPI_PROTO(Complex<double>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(Complex<Quad>)
-#endif
-
 MPI_PROTO(ValueInt<Int>)
-MPI_PROTO(ValueInt<float>)
-MPI_PROTO(ValueInt<double>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(ValueInt<Quad>)
-#endif
-MPI_PROTO(ValueInt<Complex<float>>)
-MPI_PROTO(ValueInt<Complex<double>>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(ValueInt<Complex<Quad>>)
-#endif
 MPI_PROTO(Entry<Int>)
+MPI_PROTO(float)
+MPI_PROTO(Complex<float>)
+MPI_PROTO(ValueInt<float>)
+MPI_PROTO(ValueInt<Complex<float>>)
 MPI_PROTO(Entry<float>)
-MPI_PROTO(Entry<double>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(Entry<Quad>)
-#endif
 MPI_PROTO(Entry<Complex<float>>)
+MPI_PROTO(double)
+MPI_PROTO(Complex<double>)
+MPI_PROTO(ValueInt<double>)
+MPI_PROTO(ValueInt<Complex<double>>)
+MPI_PROTO(Entry<double>)
 MPI_PROTO(Entry<Complex<double>>)
 #ifdef EL_HAVE_QUAD
+MPI_PROTO(Quad)
+MPI_PROTO(Complex<Quad>)
+MPI_PROTO(ValueInt<Quad>)
+MPI_PROTO(ValueInt<Complex<Quad>>)
+MPI_PROTO(Entry<Quad>)
 MPI_PROTO(Entry<Complex<Quad>>)
 #endif
+#ifdef EL_HAVE_MPC
+//MPI_PROTO(BigFloat)
+// TODO: MPI_PROTO(Complex<BigFloat>)
+// TODO: MPI_PROTO(ValueInt<BigFloat>)
+// TODO: MPI_PROTO(ValueInt<Complex<BigFloat>>)
+// TODO: MPI_PROTO(Entry<BigFloat>)
+// TODO: MPI_PROTO(Entry<Complex<BigFloat>>)
+#endif
+
+// TODO: Eventually integrate these into MPI_PROTO
+#define T BigFloat
+template int GetCount<T>( Status& status ) EL_NO_RELEASE_EXCEPT;
+template void TaggedSend
+( const T* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template void Send( const T* buf, int count, int to, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template void TaggedSend( T b, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template void Send( T b, int to, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template void TaggedISend
+( const T* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
+template void ISend
+( const T* buf, int count, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
+template void TaggedISend
+( T buf, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
+template void ISend( T buf, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
+template void TaggedISSend
+( const T* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
+template void ISSend
+( const T* buf, int count, int to, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT;
+template void TaggedISSend
+( T b, int to, int tag, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
+template void TaggedRecv
+( T* buf, int count, int to, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template void Recv( T* buf, int count, int to, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+#undef T
 
 #define PROTO(T) \
   template void SparseAllToAll \
@@ -2463,6 +2554,9 @@ MPI_PROTO(Entry<Complex<Quad>>)
     const vector<int>& recvCounts, \
     const vector<int>& recvDispls, \
           Comm comm ) EL_NO_RELEASE_EXCEPT;
+
+#define EL_ENABLE_QUAD
+//#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace mpi
