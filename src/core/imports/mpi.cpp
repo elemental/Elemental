@@ -2508,6 +2508,7 @@ MPI_PROTO(Entry<Complex<Quad>>)
 // TODO: MPI_PROTO(Entry<Complex<BigFloat>>)
 #endif
 
+#ifdef EL_HAVE_MPC
 // TODO: Eventually integrate these into MPI_PROTO
 #define T BigFloat
 template int GetCount<T>( Status& status ) EL_NO_RELEASE_EXCEPT;
@@ -2544,6 +2545,7 @@ template void TaggedRecv
 template void Recv( T* buf, int count, int to, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #undef T
+#endif // ifdef EL_HAVE_MPC
 
 #define PROTO(T) \
   template void SparseAllToAll \

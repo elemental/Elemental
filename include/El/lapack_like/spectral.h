@@ -873,6 +873,11 @@ EL_EXPORT ElError ElSingularValuesXDist_c
 EL_EXPORT ElError ElSingularValuesXDist_z
 ( ElDistMatrix_z A, ElDistMatrix_d d, ElSVDCtrl_d ctrl );
 
+EL_EXPORT ElError ElTSQRSingularValues_s( ElDistMatrix_s A, ElDistMatrix_s s );
+EL_EXPORT ElError ElTSQRSingularValues_d( ElDistMatrix_d A, ElDistMatrix_d s );
+EL_EXPORT ElError ElTSQRSingularValues_c( ElDistMatrix_c A, ElDistMatrix_s s );
+EL_EXPORT ElError ElTSQRSingularValues_z( ElDistMatrix_z A, ElDistMatrix_d s );
+
 /* Compute the full SVD
    -------------------- */
 EL_EXPORT ElError ElSVD_s( ElMatrix_s A, ElMatrix_s s, ElMatrix_s V );
@@ -908,6 +913,15 @@ EL_EXPORT ElError ElSVDXDist_c
 ( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V, ElSVDCtrl_s ctrl );
 EL_EXPORT ElError ElSVDXDist_z
 ( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V, ElSVDCtrl_d ctrl );
+
+EL_EXPORT ElError ElTSQRSVD_s
+( ElDistMatrix_s A, ElDistMatrix_s s, ElDistMatrix_s V );
+EL_EXPORT ElError ElTSQRSVD_d
+( ElDistMatrix_d A, ElDistMatrix_d s, ElDistMatrix_d V );
+EL_EXPORT ElError ElTSQRSVD_c
+( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );
+EL_EXPORT ElError ElTSQRSVD_z
+( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
 
 /* Product Lanczos
    =============== */

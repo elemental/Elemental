@@ -951,6 +951,23 @@ def SingularValues(A,ctrl=None):
     return s
   else: TypeExcept()
 
+lib.ElTSQRSingularValues_s.argtypes = \
+lib.ElTSQRSingularValues_d.argtypes = \
+lib.ElTSQRSingularValues_c.argtypes = \
+lib.ElTSQRSingularValues_z.argtypes = \
+  [c_void_p,c_void_p]
+def TSQRSingularValues(A):
+  if type(A) is DistMatrix:
+    s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
+    args = [A.obj,s.obj]
+    if   A.tag == sTag: lib.ElTSQRSingularValues_s(*args)
+    elif A.tag == dTag: lib.ElTSQRSingularValues_d(*args)
+    elif A.tag == cTag: lib.ElTSQRSingularValues_c(*args)
+    elif A.tag == zTag: lib.ElTSQRSingularValues_z(*args)
+    else: DataExcept()
+    return s
+  else: TypeExcept()
+
 lib.ElSVD_s.argtypes = \
 lib.ElSVD_d.argtypes = \
 lib.ElSVD_c.argtypes = \
@@ -1009,6 +1026,24 @@ def SVD(A,ctrl=None):
     elif A.tag == zTag: 
       if ctrl==None: lib.ElSVDDist_z(*args)
       else:          lib.ElSVDXDist_z(*argsCtrl)
+    else: DataExcept()
+    return s, V
+  else: TypeExcept()
+
+lib.ElTSQRSVD_s.argtypes = \
+lib.ElTSQRSVD_d.argtypes = \
+lib.ElTSQRSVD_c.argtypes = \
+lib.ElTSQRSVD_z.argtypes = \
+  [c_void_p,c_void_p,c_void_p]
+def TSQRSVD(A):
+  if type(A) is DistMatrix:
+    s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
+    V = DistMatrix(A.tag,STAR,STAR,A.Grid())
+    args = [A.obj,s.obj,V.obj]
+    if   A.tag == sTag: lib.ElTSQRSVD_s(*args)
+    elif A.tag == dTag: lib.ElTSQRSVD_d(*args)
+    elif A.tag == cTag: lib.ElTSQRSVD_c(*args)
+    elif A.tag == zTag: lib.ElTSQRSVD_z(*args)
     else: DataExcept()
     return s, V
   else: TypeExcept()

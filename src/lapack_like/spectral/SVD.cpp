@@ -160,11 +160,15 @@ void TSQR
     const Int n = A.Width();
     if( m < n )
         LogicError("svd::TSQR assumes m >= n");
-    s.Resize( n, n );
+    const Int minDim = Min(m,n);
+    s.Resize( minDim, 1 );
 
     const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )
-        SVD( A.Matrix(), s.Matrix() );
+    {
+        SVD( A, s );
+        return; 
+    }
 
     qr::TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
@@ -193,12 +197,16 @@ void TSQR
     const Int n = A.Width();
     if( m < n )
         LogicError("svd::TSQR assumes m >= n");
-    s.Resize( n, n );
-    V.Resize( n, n );
+    const Int minDim = Min(m,n);
+    s.Resize( minDim, 1 );
+    V.Resize( minDim, minDim );
 
     const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )
-        SVD( A.Matrix(), s.Matrix(), V.Matrix() );
+    {
+        SVD( A, s, V );
+        return;
+    }
 
     qr::TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();

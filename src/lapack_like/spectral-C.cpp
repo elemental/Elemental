@@ -497,6 +497,9 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
     ElSVDCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( SVD( *CReflect(A), *CReflect(s), CReflect(ctrl) ) ) } \
+  ElError ElTSQRSingularValues_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
+  { EL_TRY( svd::TSQR( *CReflect(A), *CReflect(s) ) ) } \
   /* Compute the full SVD
      -------------------- */ \
   ElError ElSVD_ ## SIG \
@@ -516,6 +519,11 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
     ElDistMatrix_ ## SIG V, ElSVDCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY(SVD( *CReflect(A), *CReflect(s), *CReflect(V), CReflect(ctrl) )) } \
+  ElError ElTSQRSVD_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIGBASE s, \
+    ElDistMatrix_ ## SIG V ) \
+  { EL_TRY( svd::TSQR( *CReflect(A), *CReflect(s), *CReflect(V) ) ) } \
   /* Hermitian Singular Value Decomposition
      ====================================== */ \
   /* Compute the singular values
