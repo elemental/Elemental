@@ -18,7 +18,7 @@ namespace svt {
 template<typename F>
 Int TSQR( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CSE cse("SVT"))
+    DEBUG_ONLY(CSE cse("svt::TSQR"))
 
     DistMatrixReadWriteProxy<F,F,VC,STAR> AProx( APre );
     auto& A = AProx.Get();

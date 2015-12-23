@@ -516,6 +516,15 @@ void SVD
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   Matrix<Base<F>>& s );
 
+namespace svd {
+
+template<typename F>
+void TSQR
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s );
+
+} // namespace svd
+
 template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
@@ -547,6 +556,16 @@ void SVD
   Matrix<Base<F>>& s,
   DistMatrix<F,MC,MR,BLOCK>& U,
   DistMatrix<F,MC,MR,BLOCK>& VH );
+
+namespace svd {
+
+template<typename F>
+void TSQR
+( ElementalMatrix<F>& A,
+  ElementalMatrix<Base<F>>& s,
+  ElementalMatrix<F>& V );
+
+} // namespace svd
 
 template<typename F>
 void HermitianSVD
