@@ -10,8 +10,6 @@
 #ifndef EL_BLAS_COPY_COLALLGATHER_HPP
 #define EL_BLAS_COPY_COLALLGATHER_HPP
 
-#include "./internal.hpp"
-
 namespace El {
 namespace copy {
 

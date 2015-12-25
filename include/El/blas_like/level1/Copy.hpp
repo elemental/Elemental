@@ -10,27 +10,8 @@
 #ifndef EL_BLAS_COPY_HPP
 #define EL_BLAS_COPY_HPP
 
-#include "./Copy/AllGather.hpp"
-#include "./Copy/ColAllGather.hpp"
-#include "./Copy/ColAllToAllDemote.hpp"
-#include "./Copy/ColAllToAllPromote.hpp"
-#include "./Copy/ColFilter.hpp"
-#include "./Copy/Exchange.hpp"
-#include "./Copy/Filter.hpp"
-#include "./Copy/Gather.hpp"
+#include "./Copy/internal_decl.hpp"
 #include "./Copy/GeneralPurpose.hpp"
-#include "./Copy/PartialColAllGather.hpp"
-#include "./Copy/PartialColFilter.hpp"
-#include "./Copy/PartialRowAllGather.hpp"
-#include "./Copy/PartialRowFilter.hpp"
-#include "./Copy/RowAllGather.hpp"
-#include "./Copy/RowAllToAllDemote.hpp"
-#include "./Copy/RowAllToAllPromote.hpp"
-#include "./Copy/RowFilter.hpp"
-#include "./Copy/Scatter.hpp"
-#include "./Copy/TranslateBetweenGrids.hpp"
-#include "./Copy/Translate.hpp"
-#include "./Copy/TransposeDist.hpp"
 #include "./Copy/util.hpp"
 
 namespace El {

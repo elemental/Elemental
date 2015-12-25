@@ -11,7 +11,7 @@
 // as a workaround for the fact that C++11 constructor inheritance is not 
 // yet widely supported.
 
-#include "El/blas_like/level1/Copy/internal.hpp"
+#include "El/blas_like/level1/Copy/internal_impl.hpp"
 
 namespace El {
 

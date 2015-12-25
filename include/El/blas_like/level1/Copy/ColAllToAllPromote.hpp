@@ -10,8 +10,6 @@
 #ifndef EL_BLAS_COPY_COLALLTOALLPROMOTE_HPP
 #define EL_BLAS_COPY_COLALLTOALLPROMOTE_HPP
 
-#include "./internal.hpp"
-
 namespace El {
 namespace copy {
 

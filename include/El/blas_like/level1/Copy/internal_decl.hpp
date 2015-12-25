@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_BLAS1_COPYINTERNALHPP
-#define EL_BLAS1_COPYINTERNALHPP
+#ifndef EL_BLAS1_COPYINTERNAL_DECL_HPP
+#define EL_BLAS1_COPYINTERNAL_DECL_HPP
 
 namespace El {
 
@@ -214,4 +214,4 @@ void Scatter
 
 } // namespace El
 
-#endif // ifndef EL_BLAS1_COPYINTERNALHPP
+#endif // ifndef EL_BLAS1_COPYINTERNAL_DECL_HPP

@@ -10,8 +10,6 @@
 #ifndef EL_BLAS_COPY_PARTIALROWFILTER_HPP
 #define EL_BLAS_COPY_PARTIALROWFILTER_HPP
 
-#include "./internal.hpp"
-
 namespace El {
 namespace copy {
 
