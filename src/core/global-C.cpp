@@ -99,11 +99,6 @@ ElError ElPrintConfig( FILE* stream )
 #else
       "  Have MPI_Reducescatter_block: NO\n"
 #endif
-#ifdef EL_HAVE_MPI_IN_PLACE
-      "  Have MPI_IN_PLACE:            YES\n"
-#else
-      "  Have MPI_IN_PLACE:            NO\n"
-#endif
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
       "  AllReduce ReduceScatterBlock: YES\n"
 #else

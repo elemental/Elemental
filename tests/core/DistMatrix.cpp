@@ -227,6 +227,16 @@ main( int argc, char* argv[] )
             Output("Testing with quad-precision complex:");
         DistMatrixTest<Complex<Quad>>( m, n, g, print );
 #endif
+
+#ifdef EL_HAVE_MPC
+        if( commRank == 0 )
+            Output("Testing with BigFloat (with default=256-bit precision):");
+        DistMatrixTest<BigFloat>( m, n, g, print );
+        mpc::SetPrecision( 512 );
+        if( commRank == 0 )
+            Output("Testing with BigFloat (with 512-bit precision):");
+        DistMatrixTest<BigFloat>( m, n, g, print );
+#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

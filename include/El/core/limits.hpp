@@ -167,7 +167,7 @@ inline BigFloat Lowest<BigFloat>( const BigFloat& alpha )
 template<>
 inline BigFloat Infinity<BigFloat>( const BigFloat& alpha )
 {
-    BigFloat inf(alpha.Precision());
+    BigFloat inf(0,alpha.Precision());
     mpfr_set_inf( inf.Pointer(), 1 );
     return inf;
 }

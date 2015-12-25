@@ -851,6 +851,7 @@ bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 
 #define PROTO(T) template class DistSparseMatrix<T>;
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

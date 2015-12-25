@@ -56,11 +56,16 @@ public:
     mpfr_prec_t Precision() const;
     size_t      NumLimbs() const;
 
-    BigFloat( mpfr_prec_t prec=mpc::Precision() );
+    // NOTE: The default constructor does not take an mpfr_prec_t as input
+    //       due to the ambiguity is would cause with respect to the
+    //       constructors which accept an integer and an (optional) precision
+    BigFloat();
     BigFloat( const BigFloat& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const unsigned& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const unsigned long& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const unsigned long long& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const int& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const long int& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const long long int& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const double& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat
@@ -75,8 +80,10 @@ public:
     BigFloat& operator=( const BigFloat& a );
     BigFloat& operator=( const double& a );
     BigFloat& operator=( const int& a );
+    BigFloat& operator=( const long int& a );
     BigFloat& operator=( const long long int& a );
     BigFloat& operator=( const unsigned& a );
+    BigFloat& operator=( const unsigned long& a );
     BigFloat& operator=( const unsigned long long& a );
     BigFloat& operator=( BigFloat&& a );
 
@@ -99,6 +106,18 @@ public:
     BigFloat& operator>>=( const long int& a );
     BigFloat& operator>>=( const unsigned& a ); 
     BigFloat& operator>>=( const unsigned long& a );
+
+    // Casting
+    explicit operator bool() const;
+    explicit operator int() const;
+    explicit operator long() const;
+    explicit operator long long() const;
+    explicit operator unsigned() const;
+    explicit operator unsigned long() const;
+    explicit operator unsigned long long() const;
+    explicit operator float() const;
+    explicit operator double() const;
+    explicit operator long double() const;
 
     size_t SerializedSize() const;
           byte* Serialize( byte* buf ) const;
@@ -135,13 +154,6 @@ bool operator==( const BigFloat& a, const BigFloat& b );
 bool operator!=( const BigFloat& a, const BigFloat& b );
 
 std::ostream& operator<<( std::ostream& os, const BigFloat& alpha );
-
-byte* Serialize( Int n, const BigFloat* x, byte* xPacked );
-      byte* Deserialize( Int n,       byte* xPacked, BigFloat* x );
-const byte* Deserialize( Int n, const byte* xPacked, BigFloat* x );
-
-void Serialize( Int n, const BigFloat* x, std::vector<byte>& xPacked );
-void Deserialize( Int n, const std::vector<byte>& xPacked, BigFloat* x );
 
 } // namespace El
 #endif // ifdef EL_HAVE_MPC

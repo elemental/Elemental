@@ -229,6 +229,9 @@ set(MPI_IN_PLACE_CODE
          return 0;
      }")
 El_check_c_source_compiles("${MPI_IN_PLACE_CODE}" EL_HAVE_MPI_IN_PLACE)
+if(NOT EL_HAVE_MPI_IN_PLACE)
+  message(FATAL_ERROR "MPI_IN_PLACE support was not detected")
+endif()
 set(MPI_COMM_F2C_CODE
 "#include \"mpi.h\"
  int main( int argc, char* argv[] )

@@ -819,6 +819,7 @@ ElementalMatrix<T>::ShallowSwap( ElementalMatrix<T>& A )
 #endif
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

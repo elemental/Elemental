@@ -159,7 +159,10 @@ template<typename T>
 void SwapClear( T& x );
 
 // Reserve memory in a vector without zero-initializing the variables unless
-// valgrind is currently running
+// valgrind is currently running or the datatype *requires* construction.
+//
+// TODO: Introduce a POD attribute for Elemental's types and specialize for
+//       non-POD.
 template<typename T>
 inline void FastResize( vector<T>& v, Int numEntries )
 {
@@ -174,6 +177,14 @@ inline void FastResize( vector<T>& v, Int numEntries )
     v.reserve( numEntries );
 #endif
 }
+#ifdef EL_HAVE_MPC
+inline void FastResize( vector<BigFloat>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<ValueInt<BigFloat>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<Entry<BigFloat>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+#endif
 
 inline void BuildStream( ostringstream& os ) { }
 

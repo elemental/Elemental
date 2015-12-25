@@ -185,7 +185,7 @@ struct Caster {
 template<typename S,typename T>
 struct Caster<S,Complex<T>,void> {
     static Complex<T> Cast( S alpha )
-    { return Complex<T>( RealPart(alpha), ImagPart(alpha) ); }
+    { return Complex<T>( T(RealPart(alpha)), T(ImagPart(alpha)) ); }
 };
 
 // Set the real/imaginary part of an element

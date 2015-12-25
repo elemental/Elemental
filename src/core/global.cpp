@@ -133,11 +133,6 @@ void PrintConfig( ostream& os )
 #else
       "  Have MPI_Reducescatter_block: NO\n"
 #endif
-#ifdef EL_HAVE_MPI_IN_PLACE
-      "  Have MPI_IN_PLACE:            YES\n"
-#else
-      "  Have MPI_IN_PLACE:            NO\n"
-#endif
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
       "  AllReduce ReduceScatterBlock: YES\n"
 #else
@@ -372,9 +367,6 @@ void Initialize( int& argc, char**& argv )
     // Build the default grid
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
-    // Create the types and ops
-    mpi::CreateCustom();
-
     const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
     // TODO: Allow for switching on/off reproducibility?
     //const long secs = time(NULL);
@@ -387,6 +379,10 @@ void Initialize( int& argc, char**& argv )
     gmp_randinit_default( ::gmpRandState );
     gmp_randseed_ui( ::gmpRandState, seed );
 #endif
+
+    // Create the types and ops
+    // NOTE: mpc::SetPrecision created the BigFloat types
+    mpi::CreateCustom();
 }
 
 void Finalize()

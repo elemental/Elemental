@@ -31,10 +31,10 @@ void SetPrecision( mpfr_prec_t prec )
         return;
 
     if( previouslySet )
-        FreeMPI();    
+        mpi::DestroyBigFloatFamily();
     mpfr_set_default_prec( prec ); 
-    RegisterMPI();
     ::numLimbs = (prec-1) / GMP_NUMB_BITS + 1;
+    mpi::CreateBigFloatFamily();
     previouslySet = true;
 }
 
@@ -42,46 +42,6 @@ mpfr_rnd_t RoundingMode()
 { return mpfr_get_default_rounding_mode(); }
 
 } // namespace mpc
-
-byte* Serialize( Int n, const BigFloat* x, byte* buf )
-{
-    DEBUG_ONLY(CSE cse("mpc::Serialize"))
-    for( Int j=0; j<n; ++j )
-        buf = x[j].Serialize( buf );
-    return buf;
-}
-
-void Serialize( Int n, const BigFloat* x, std::vector<byte>& buf )
-{
-    DEBUG_ONLY(CSE cse("mpc::Serialize"))
-    if( n == 0 )
-    {
-        buf.resize(0);
-        return;
-    }
-    const auto packedSize = x[0].SerializedSize();
-    buf.resize( n*packedSize );
-    Serialize( n, x, buf.data() );
-}
-
-// We assume that the BigFloat's in x are already constructed
-byte* Deserialize( Int n, byte* buf, BigFloat* x )
-{
-    DEBUG_ONLY(CSE cse("mpc::Deserialize"))
-    for( Int j=0; j<n; ++j )
-        buf = x[j].Deserialize( buf );
-    return buf;
-}
-const byte* Deserialize( Int n, const byte* buf, BigFloat* x )
-{
-    DEBUG_ONLY(CSE cse("mpc::Deserialize"))
-    for( Int j=0; j<n; ++j )
-        buf = x[j].Deserialize( buf );
-    return buf;
-}
-void Deserialize( Int n, const std::vector<byte>& buf, BigFloat* x )
-{ Deserialize( n, buf.data(), x ); }
-
 } // namespace El
 
 #endif // ifdef EL_HAVE_MPC
