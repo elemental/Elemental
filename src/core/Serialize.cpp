@@ -8,9 +8,9 @@
 */
 #include "El.hpp"
 
-namespace El {
-
 #ifdef EL_HAVE_MPC
+
+namespace El {
 
 byte* Serialize( Int n, const BigFloat* x, byte* buf )
 {
