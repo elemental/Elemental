@@ -97,6 +97,14 @@ LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+#ifdef EL_HAVE_MPC
+// This will only be needed until there is a BigFloat QR
+template<>
+LLLInfo<BigFloat> LLL
+( Matrix<BigFloat>& B,
+  Matrix<BigFloat>& R,
+  const LLLCtrl<BigFloat>& ctrl );
+#endif
 
 // TODO: Also return Q?
 template<typename F>
@@ -106,6 +114,16 @@ LLLInfo<Base<F>> LLL
   Matrix<F>& UInv,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+#ifdef EL_HAVE_MPC
+// This will only be needed until there is a BigFloat QR
+template<>
+LLLInfo<BigFloat> LLL
+( Matrix<BigFloat>& B,
+  Matrix<BigFloat>& U,
+  Matrix<BigFloat>& UInv,
+  Matrix<BigFloat>& R,
+  const LLLCtrl<BigFloat>& ctrl );
+#endif
 
 // Overwrite B, fill M with its (quasi-reduced) image of B, and fill K with the
 // LLL-reduced basis for the kernel of B.

@@ -48,6 +48,7 @@ Int AlgebraicRelationSearch
     const LLLCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

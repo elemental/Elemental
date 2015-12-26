@@ -452,6 +452,7 @@ bool operator!=( const BigFloat& a, const BigFloat& b )
 
 std::ostream& operator<<( std::ostream& os, const BigFloat& alpha )
 {
+    DEBUG_ONLY(CSE cse("operator<<(std::ostream&,const BigFloat&)"))
     std::ostringstream osFormat;
     osFormat << "%.";
     if( os.precision() >= 0 )
@@ -470,6 +471,16 @@ std::ostream& operator<<( std::ostream& os, const BigFloat& alpha )
         mpfr_free_str( rawStr );
     }
     return os;
+}
+
+std::istream& operator>>( std::istream& is, BigFloat& alpha )
+{
+    DEBUG_ONLY(CSE cse("operator>>(std::istream&,BigFloat&)"))
+    std::string token;
+    is >> token;
+    const int base = 10;
+    mpfr_set_str( alpha.Pointer(), token.c_str(), base, mpc::RoundingMode() );
+    return is;
 }
 
 } // namespace El

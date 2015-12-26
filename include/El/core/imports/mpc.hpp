@@ -154,6 +154,7 @@ bool operator==( const BigFloat& a, const BigFloat& b );
 bool operator!=( const BigFloat& a, const BigFloat& b );
 
 std::ostream& operator<<( std::ostream& os, const BigFloat& alpha );
+std::istream& operator>>( std::istream& is,       BigFloat& alpha );
 
 } // namespace El
 #endif // ifdef EL_HAVE_MPC
