@@ -26,7 +26,7 @@ void TestCorrectness
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
-    Herk( UPPER, ADJOINT, F(-1), Q_MC_MR, F(1), Z );
+    Herk( UPPER, ADJOINT, Base<F>(-1), Q_MC_MR, Base<F>(1), Z );
     Real oneNormOfError = HermitianOneNorm( UPPER, Z );
     Real infNormOfError = HermitianInfinityNorm( UPPER, Z );
     Real frobNormOfError = HermitianFrobeniusNorm( UPPER, Z );
