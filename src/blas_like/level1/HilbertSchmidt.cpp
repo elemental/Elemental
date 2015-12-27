@@ -115,6 +115,7 @@ T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
   ( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

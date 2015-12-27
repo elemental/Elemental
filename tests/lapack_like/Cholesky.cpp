@@ -59,6 +59,8 @@ void TestCholesky
   const Grid& g,
   bool scalapack )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), AOrig(g);
     DistPermutation p(g);
 
@@ -108,7 +110,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -141,24 +142,30 @@ main( int argc, char* argv[] )
         SetLocalTrrkBlocksize<double>( nbLocal );
         SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test Cholesky",uploChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
         if( scalapack )
             TestCholesky<double>
             ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
         TestCholesky<double>
         ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
         if( scalapack )
             TestCholesky<Complex<double>>
             ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
         TestCholesky<Complex<double>>
         ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+
+#ifdef EL_HAVE_QUAD
+        TestCholesky<Quad>
+        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+        TestCholesky<Complex<Quad>>
+        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestCholesky<BigFloat>
+        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

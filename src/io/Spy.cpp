@@ -71,6 +71,7 @@ void Spy( const AbstractDistMatrix<T>& A, string title, Base<T> tol )
   ( const AbstractDistMatrix<T>& A, string title, Base<T> tol );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -41,6 +41,73 @@ typedef Complex<Quad> qcomplex;
 // TODO: Decide on how to handle complex BigFloat
 #endif
 
+// While Elemental used to make use of typeid(T).name() for analogues of the
+// below strings, the 'name' property is not guaranteed to exist for all types,
+// such as __float128
+
+template<typename T>
+std::string TypeName()
+{ return typeid(T).name(); }
+
+template<>
+inline std::string TypeName<bool>()
+{ return std::string("bool"); }
+template<>
+inline std::string TypeName<char>()
+{ return std::string("char"); }
+template<>
+inline std::string TypeName<char*>()
+{ return std::string("char*"); }
+template<>
+inline std::string TypeName<const char*>()
+{ return std::string("const char*"); }
+template<>
+inline std::string TypeName<std::string>()
+{ return std::string("string"); }
+template<>
+inline std::string TypeName<unsigned>()
+{ return std::string("unsigned"); }
+template<>
+inline std::string TypeName<unsigned long>()
+{ return std::string("unsigned long"); }
+template<>
+inline std::string TypeName<unsigned long long>()
+{ return std::string("unsigned long long"); }
+template<>
+inline std::string TypeName<int>()
+{ return std::string("int"); }
+template<>
+inline std::string TypeName<long int>()
+{ return std::string("long int"); }
+template<>
+inline std::string TypeName<long long int>()
+{ return std::string("long long int"); }
+template<>
+inline std::string TypeName<float>()
+{ return std::string("float"); }
+template<>
+inline std::string TypeName<double>()
+{ return std::string("double"); }
+template<>
+inline std::string TypeName<Complex<float>>()
+{ return std::string("Complex<float>"); }
+template<>
+inline std::string TypeName<Complex<double>>()
+{ return std::string("Complex<double>"); }
+#ifdef EL_HAVE_QUAD
+template<>
+inline std::string TypeName<Quad>()
+{ return std::string("Quad"); }
+template<>
+inline std::string TypeName<Complex<Quad>>()
+{ return std::string("Complex<Quad>"); }
+#endif
+#ifdef EL_HAVE_MPC
+template<>
+inline std::string TypeName<BigFloat>()
+{ return std::string("BigFloat"); }
+#endif
+
 // For usage in EnableIf
 // =====================
 
@@ -160,10 +227,13 @@ template<> struct IsData<BigFloat> { static const bool value=true; };
 // TODO: Move into core/imports/quadmath.hpp?
 #ifdef EL_HAVE_QUAD
 std::ostream& operator<<( std::ostream& os, const Quad& alpha );
+std::istream& operator>>( std::istream& is,       Quad& alpha );
 #endif
 
 template<typename Real>
 std::ostream& operator<<( std::ostream& os, const Complex<Real>& alpha );
+template<typename Real>
+std::istream& operator>>( std::istream& os,       Complex<Real>& alpha );
 
 // Return the real/imaginary part of an element
 // --------------------------------------------

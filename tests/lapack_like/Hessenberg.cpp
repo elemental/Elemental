@@ -15,7 +15,8 @@ void TestCorrectness
   const DistMatrix<F>& A, 
   const DistMatrix<F,STAR,STAR>& t,
         DistMatrix<F>& AOrig,
-  bool print, bool display )
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -78,11 +79,17 @@ void TestCorrectness
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo, Int n, const Grid& g, bool testCorrectness, 
-  bool print, bool display )
+( UpperOrLower uplo,
+  Int n,
+  const Grid& g,
+  bool testCorrectness, 
+  bool print,
+  bool display )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
 
     Uniform( A, n, n );
     if( testCorrectness )
@@ -121,7 +128,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -146,14 +152,20 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            Output("Double-precision:");
-        TestHessenberg<double>( uplo, n, g, testCorrectness, print, display );
-
-        if( commRank == 0 )
-            Output("Double-precision complex:");
+        TestHessenberg<double>
+        ( uplo, n, g, testCorrectness, print, display );
         TestHessenberg<Complex<double>>
         ( uplo, n, g, testCorrectness, print, display );
+#ifdef EL_HAVE_QUAD
+        TestHessenberg<Quad>
+        ( uplo, n, g, testCorrectness, print, display );
+        TestHessenberg<Complex<Quad>>
+        ( uplo, n, g, testCorrectness, print, display );
+#endif
+#ifdef EL_HAVE_MPC
+        TestHessenberg<BigFloat>
+        ( uplo, n, g, testCorrectness, print, display );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

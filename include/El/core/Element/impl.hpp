@@ -27,6 +27,14 @@ inline ostream& operator<<( ostream& os, const Quad& alpha )
     os << str;
     return os;
 }
+
+inline istream& operator>>( istream& is, Quad& alpha )
+{
+    string token;
+    is >> token; 
+    alpha = strtoflt128( token.c_str(), NULL );
+    return is;
+}
 #endif
 
 template<typename Real>
@@ -34,6 +42,35 @@ inline ostream& operator<<( ostream& os, const Complex<Real>& alpha )
 {
     os << alpha.real() << "+" << alpha.imag() << "i";
     return os;
+}
+
+template<typename Real>
+inline istream& operator>>( istream& is, Complex<Real>& alpha )
+{
+    Real realPart, imagPart;
+    string token, substring;
+    std::stringstream tokenStream, substream;
+
+    // Grab the full token of the form "3+4i"
+    is >> token;
+
+    // Build a stringstream from the token
+    tokenStream << token;
+
+    // Extract the substring leading up to the '+'
+    std::getline( tokenStream, substring, '+' );
+    substream << substring;
+    substream >> realPart;
+
+    // Extract the substring after the '+' and up to the 'i'
+    std::getline( tokenStream, substring, 'i' );
+    substream.str("");
+    substream << substring;
+    substream >> imagPart;
+    
+    alpha = Complex<Real>(realPart,imagPart);
+
+    return is;
 }
 
 // Return the real/imaginary part of an element

@@ -48,10 +48,7 @@ int main( int argc, char* argv[] )
         // Fill our portion of the graph of a 3D n x n x n 7-point stencil
         // in natural ordering: (x,y,z) at x + y*n + z*n*n
         if( commRank == 0 )
-        {
-            cout << "Filling local portion of graph...";
-            cout.flush();
-        }
+            Output("Filling local portion of graph");
         graph.Reserve( 7*numLocalSources );
         for( int iLocal=0; iLocal<numLocalSources; ++iLocal )
         {
@@ -75,31 +72,22 @@ int main( int argc, char* argv[] )
                 graph.QueueLocalConnection( iLocal, i+n*n );
         }
         graph.ProcessQueues();
-        mpi::Barrier( comm );
-        if( commRank == 0 )
-            cout << "done" << endl;
         if( display )
             Display( graph );
         if( print )
             Print( graph );
 
         if( commRank == 0 )
-        {
-            cout << "Running nested dissection...";
-            cout.flush();
-        }
+            Output("Running nested dissection");
         ldl::DistNodeInfo info;
         ldl::DistSeparator sep;
         DistMap map;
         ldl::NestedDissection( graph, map, sep, info, ctrl );
-        mpi::Barrier( comm );
-        if( commRank == 0 )
-            cout << "done" << endl;
 
         const int rootSepSize = info.size;
         // TODO: Print more than just the root separator size
         if( commRank == 0 )
-            cout << rootSepSize << " vertices in root separator\n" << endl;
+            Output(rootSepSize," vertices in root separator");
     }
     catch( exception& e ) { ReportException(e); }
 

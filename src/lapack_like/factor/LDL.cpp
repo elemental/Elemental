@@ -123,8 +123,7 @@ void LDL
     ChangeFrontType( front, newType );
 }
 
-
-#define PROTO(F) \
+#define PROTO_BASE(F) \
   template void LDL( Matrix<F>& A, bool conjugate ); \
   template void LDL( ElementalMatrix<F>& A, bool conjugate ); \
   template void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate ); \
@@ -185,7 +184,10 @@ void LDL
     const ElementalMatrix<F>& dSub, \
     const DistPermutation& p, \
           ElementalMatrix<F>& B, \
-     bool conjugated ); \
+     bool conjugated );
+
+#define PROTO(F) \
+  PROTO_BASE(F) \
   template void LDL \
   ( const ldl::NodeInfo& info, \
           ldl::Front<F>& front, \
@@ -195,7 +197,15 @@ void LDL
           ldl::DistFront<F>& front, \
     LDLFrontType newType );
 
+// The sparse implementations will be integrated once there is support for
+// sparse LDL
+#define PROTO_QUAD PROTO_BASE(Quad)
+#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
+#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
+
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

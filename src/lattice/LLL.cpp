@@ -218,38 +218,6 @@ LLLInfo<Base<F>> LLL
         return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
 }
 
-#ifdef EL_HAVE_MPC
-// This will only be needed until there are BigFloat QR implementations
-template<>
-LLLInfo<BigFloat> LLL
-( Matrix<BigFloat>& B,
-  Matrix<BigFloat>& U,
-  Matrix<BigFloat>& UInv,
-  Matrix<BigFloat>& R,
-  const LLLCtrl<BigFloat>& ctrl )
-{
-    DEBUG_ONLY(CSE cse("LLL"))
-    typedef BigFloat F;
-    typedef BigFloat Real;
-    if( ctrl.delta < Real(1)/Real(2) )
-        LogicError("delta is assumed to be at least 1/2");
-    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
-        LogicError("eta should be in (1/2,sqrt(delta))");
-
-    const Int n = B.Width();
-    Identity( U, n, n ); 
-    Identity( UInv, n, n );
-
-    const bool useBlocked = false;
-    const bool formU = true;
-    const bool formUInv = true;
-    if( useBlocked )
-        return lll::BlockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
-    else
-        return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
-}
-#endif
-
 template<typename F>
 LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
@@ -287,33 +255,6 @@ LLLInfo<Base<F>> LLL
         return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
 }
 
-#ifdef EL_HAVE_MPC
-// This will only be needed until there is a BigFloat QR
-template<>
-LLLInfo<BigFloat> LLL
-( Matrix<BigFloat>& B,
-  Matrix<BigFloat>& R,
-  const LLLCtrl<BigFloat>& ctrl )
-{
-    DEBUG_ONLY(CSE cse("LLL"))
-    typedef BigFloat F;
-    typedef BigFloat Real;
-    if( ctrl.delta < Real(1)/Real(2) )
-        LogicError("delta is assumed to be at least 1/2");
-    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
-        LogicError("eta should be in (1/2,sqrt(delta))");
-
-    const bool useBlocked = false;
-    const bool formU = false;
-    const bool formUInv = false;
-    Matrix<F> U, UInv;
-    if( useBlocked )
-        return lll::BlockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
-    else
-        return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
-}
-#endif
-
 template<typename F>
 LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
@@ -339,22 +280,8 @@ LLLInfo<Base<F>> LLL
     Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl );
 
-#define PROTO_BIGFLOAT \
-  template LLLInfo<BigFloat> LLL \
-  ( Matrix<BigFloat>& B, \
-    const LLLCtrl<BigFloat>& ctrl ); \
-  template LLLInfo<BigFloat> LLL \
-  ( Matrix<BigFloat>& B, \
-    Matrix<BigFloat>& R, \
-    const LLLCtrl<BigFloat>& ctrl ); \
-  template LLLInfo<BigFloat> LLL \
-  ( Matrix<BigFloat>& B, \
-    Matrix<BigFloat>& U, \
-    Matrix<BigFloat>& UInv, \
-    Matrix<BigFloat>& R, \
-    const LLLCtrl<BigFloat>& ctrl );
-
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 

@@ -74,8 +74,15 @@ void TestCorrectness
 }
 
 template<typename F>
-void TestRQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
+void TestRQ
+( bool testCorrectness,
+  bool print,
+  Int m,
+  Int n,
+  const Grid& g )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
@@ -114,7 +121,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -136,15 +142,8 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test RQ");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
         TestRQ<double>( testCorrectness, print, m, n, g );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
         TestRQ<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }

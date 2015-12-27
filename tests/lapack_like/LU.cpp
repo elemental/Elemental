@@ -15,7 +15,8 @@ void TestCorrectness
   const DistMatrix<F>& A,
   const DistPermutation& P,
   const DistPermutation& Q,
-  Int pivoting, bool print )
+  Int pivoting,
+  bool print )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -56,9 +57,15 @@ void TestCorrectness
 
 template<typename F> 
 void TestLU
-( Int m, const Grid& g, Int pivoting, 
-  bool testCorrectness, bool forceGrowth, bool print )
+( Int m,
+  const Grid& g,
+  Int pivoting, 
+  bool testCorrectness,
+  bool forceGrowth,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), AOrig(g);
     DistPermutation P(g), Q(g);
 
@@ -164,12 +171,8 @@ main( int argc, char* argv[] )
                 Output("Testing LU with full pivoting");
         }
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestLU<double>( m, g, pivot, testCorrectness, forceGrowth, print );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
+        TestLU<double>
+        ( m, g, pivot, testCorrectness, forceGrowth, print );
         TestLU<Complex<double>>
         ( m, g, pivot, testCorrectness, forceGrowth, print );
     }

@@ -93,7 +93,7 @@ MpiArgs::Input( string name, string desc )
         throw ArgException();
     }
 
-    string typeInfo( typeid(T).name() );
+    const string typeInfo = TypeName<T>();
     string usedVal = ( found ? arg[1] : "N/A" );
     requiredArgs_.push_back( RequiredArg(name,desc,typeInfo,usedVal,found) );
 
@@ -143,8 +143,7 @@ MpiArgs::Input( string name, string desc, T defaultVal )
         throw ArgException();
     }
 
-    string typeInfo( typeid(T).name() );
-
+    const string typeInfo = TypeName<T>();
     string defValString = Cast<string>( defaultVal );
     string usedVal = ( found ? arg[1] : defValString );
 

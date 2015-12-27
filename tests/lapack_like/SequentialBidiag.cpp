@@ -98,6 +98,9 @@ template<typename F>
 void TestBidiag
 ( Int m, Int n, bool testCorrectness, bool print, bool display )
 {
+    if( mpi::Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
+
     Matrix<F> A, AOrig;
     Matrix<F> tP, tQ;
 
@@ -139,7 +142,6 @@ int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    const Int commRank = mpi::Rank();
 
     try
     {
@@ -156,12 +158,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            Output("Double-precision:");
         TestBidiag<double>( m, n, testCorrectness, print, display );
-
-        if( commRank == 0 )
-            Output("Double-precision complex:");
         TestBidiag<Complex<double>>( m, n, testCorrectness, print, display );
     }
     catch( exception& e ) { ReportException(e); }

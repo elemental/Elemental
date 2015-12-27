@@ -358,6 +358,7 @@ SymmetricMinAbsLoc( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

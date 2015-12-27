@@ -207,66 +207,104 @@ void EL_LAPACK(zgehrd)
 
 // Generates a unitary matrix defined as the product of Householder reflectors
 void EL_LAPACK(sorghr)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   float* A, const BlasInt* ldA,
-  const float* tau, float* work, const BlasInt* workSize, BlasInt* info );
+  const float* tau,
+  float* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(dorghr)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   double* A, const BlasInt* ldA,
-  const double* tau, double* work, const BlasInt* workSize, BlasInt* info );
+  const double* tau,
+  double* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(cunghr)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   scomplex* A, const BlasInt* ldA,
-  const scomplex* tau, scomplex* work, const BlasInt* workSize, BlasInt* info );
+  const scomplex* tau,
+  scomplex* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(zunghr)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   dcomplex* A, const BlasInt* ldA,
-  const dcomplex* tau, dcomplex* work, const BlasInt* workSize, BlasInt* info );
+  const dcomplex* tau,
+  dcomplex* work, const BlasInt* workSize,
+  BlasInt* info );
 
 // Hessenberg QR algorithm
 void EL_LAPACK(shseqr)
 ( const char* job, const char* compZ, const BlasInt* n, 
-  const BlasInt* ilo, const BlasInt* ihi, float* H, const BlasInt* ldH, 
-  float* wr, float* wi, float* Z, const BlasInt* ldZ, 
-  float* work, const BlasInt* workSize, BlasInt* info );
+  const BlasInt* ilo, const BlasInt* ihi,
+  float* H, const BlasInt* ldH, 
+  float* wr, float* wi,
+  float* Z, const BlasInt* ldZ, 
+  float* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(dhseqr)
 ( const char* job, const char* compZ, const BlasInt* n, 
-  const BlasInt* ilo, const BlasInt* ihi, double* H, const BlasInt* ldH, 
-  double* wr, double* wi, double* Z, const BlasInt* ldZ, 
-  double* work, const BlasInt* workSize, BlasInt* info );
+  const BlasInt* ilo, const BlasInt* ihi,
+  double* H, const BlasInt* ldH, 
+  double* wr, double* wi,
+  double* Z, const BlasInt* ldZ, 
+  double* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(chseqr)
 ( const char* job, const char* compZ, const BlasInt* n,
-  const BlasInt* ilo, const BlasInt* ihi, scomplex* H, const BlasInt* ldH,
-  scomplex* w, scomplex* Z, const BlasInt* ldZ,
-  scomplex* work, const BlasInt* workSize, BlasInt* info );
+  const BlasInt* ilo, const BlasInt* ihi,
+  scomplex* H, const BlasInt* ldH,
+  scomplex* w,
+  scomplex* Z, const BlasInt* ldZ,
+  scomplex* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(zhseqr)
 ( const char* job, const char* compZ, const BlasInt* n,
-  const BlasInt* ilo, const BlasInt* ihi, dcomplex* H, const BlasInt* ldH,
-  dcomplex* w, dcomplex* Z, const BlasInt* ldZ,
-  dcomplex* work, const BlasInt* workSize, BlasInt* info );
+  const BlasInt* ilo, const BlasInt* ihi,
+  dcomplex* H, const BlasInt* ldH,
+  dcomplex* w,
+  dcomplex* Z, const BlasInt* ldZ,
+  dcomplex* work, const BlasInt* workSize,
+  BlasInt* info );
 
 // Compute eigenpairs of a general matrix using the QR algorithm followed
 // by a sequence of careful triangular solves
 void EL_LAPACK(sgeev)
 ( const char* jobVL, const char* jobVR, const BlasInt* n, 
-  float* A, const BlasInt* ldA, float* wr, float* wi, 
-  float* VLPacked, const BlasInt* ldVL, float* VRPacked, const BlasInt* ldVR,
-  float* work, const BlasInt* workSize, BlasInt* info );
+  float* A, const BlasInt* ldA,
+  float* wr, float* wi, 
+  float* VLPacked, const BlasInt* ldVL,
+  float* VRPacked, const BlasInt* ldVR,
+  float* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(dgeev)
 ( const char* jobVL, const char* jobVR, const BlasInt* n, 
-  double* A, const BlasInt* ldA, double* wr, double* wi, 
-  double* VLPacked, const BlasInt* ldVL, double* VRPacked, const BlasInt* ldVR,
-  double* work, const BlasInt* workSize, BlasInt* info );
+  double* A, const BlasInt* ldA,
+  double* wr, double* wi, 
+  double* VLPacked, const BlasInt* ldVL,
+  double* VRPacked, const BlasInt* ldVR,
+  double* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(cgeev)
 ( const char* jobVL, const char* jobVR, const BlasInt* n,
-  scomplex* A, const BlasInt* ldA, scomplex* w,
-  scomplex* VL, const BlasInt* ldVL, scomplex* VR, const BlasInt* ldVR,
-  scomplex* work, const BlasInt* workSize, float* rWork, BlasInt* info );
+  scomplex* A, const BlasInt* ldA,
+  scomplex* w,
+  scomplex* VL, const BlasInt* ldVL,
+  scomplex* VR, const BlasInt* ldVR,
+  scomplex* work, const BlasInt* workSize,
+  float* rWork,
+  BlasInt* info );
 void EL_LAPACK(zgeev)
 ( const char* jobVL, const char* jobVR, const BlasInt* n,
-  dcomplex* A, const BlasInt* ldA, dcomplex* w,
-  dcomplex* VL, const BlasInt* ldVL, dcomplex* VR, const BlasInt* ldVR,
-  dcomplex* work, const BlasInt* workSize, double* rWork, BlasInt* info );
+  dcomplex* A, const BlasInt* ldA,
+  dcomplex* w,
+  dcomplex* VL, const BlasInt* ldVL,
+  dcomplex* VR, const BlasInt* ldVR,
+  dcomplex* work, const BlasInt* workSize,
+  double* rWork,
+  BlasInt* info );
 
 } // extern "C"
 
@@ -448,17 +486,23 @@ template BigFloat SafeNorm( BigFloat alpha, BigFloat beta, BigFloat gamma );
 double SafeNorm( double alpha, double beta, double gamma )
 { return EL_LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
 
-float SafeNorm( Complex<float> alpha, float beta )
+template<typename Real>
+Real SafeNorm( const Complex<Real>& alpha, const Real& beta )
 { return SafeNorm( alpha.real(), alpha.imag(), beta ); }
+template float SafeNorm( const Complex<float>& alpha, const float& beta );
+template double SafeNorm( const Complex<double>& alpha, const double& beta );
+#ifdef EL_HAVE_MPC
+template Quad SafeNorm( const Complex<Quad>& alpha, const Quad& beta );
+#endif
 
-double SafeNorm( Complex<double> alpha, double beta )
-{ return SafeNorm( alpha.real(), alpha.imag(), beta ); }
-
-float SafeNorm( float alpha, Complex<float> beta )
+template<typename Real>
+Real SafeNorm( const Real& alpha, const Complex<Real>& beta )
 { return SafeNorm( beta, alpha ); }
-
-double SafeNorm( double alpha, Complex<double> beta )
-{ return SafeNorm( beta, alpha ); }
+template float SafeNorm( const float& alpha, const Complex<float>& beta );
+template double SafeNorm( const double& alpha, const Complex<double>& beta );
+#ifdef EL_HAVE_MPC
+template Quad SafeNorm( const Quad& alpha, const Complex<Quad>& beta );
+#endif
 
 // Copy a matrix
 // =============
@@ -466,13 +510,13 @@ template<typename T>
 void Copy
 ( char uplo, BlasInt m, BlasInt n, const T* A, BlasInt lda, T* B, BlasInt ldb )
 {
-    if( uplo == 'L' )
+    if( std::toupper(uplo) == 'L' )
     {
         for( Int j=0; j<n; ++j )
             for( Int i=j; i<m; ++i )
                 B[i+j*ldb] = A[i+j*lda];
     }
-    else if( uplo == 'U' ) 
+    else if( std::toupper(uplo) == 'U' ) 
     {
         for( Int j=0; j<n; ++j )
             for( Int i=0; i<=j; ++i )
@@ -533,6 +577,31 @@ scomplex Givens( scomplex phi, scomplex gamma, float* c, scomplex* s )
 
 dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s )
 { dcomplex rho; EL_LAPACK(zlartg)( &phi, &gamma, c, s, &rho ); return rho; }
+
+template<typename Real>
+Real Givens( Real phi, Real gamma, Real* c, Real* s )
+{
+    // TODO: Switch to the approach of LAPACK's dlartg instead of the
+    //       zrotg-like implementation
+    return blas::Givens( phi, gamma, c, s );
+}
+template<typename Real>
+Complex<Real> Givens
+( Complex<Real> phi, Complex<Real> gamma, Real* c, Complex<Real>* s )
+{
+    // TODO: Switch to the approach of LAPACK's zlartg instead of the
+    //       zrotg-like implementation
+    return blas::Givens( phi, gamma, c, s );
+}
+#ifdef EL_HAVE_QUAD
+template Quad Givens( Quad phi, Quad gamma, Quad* c, Quad* s );
+template Complex<Quad> Givens
+( Complex<Quad> phi, Complex<Quad> gamma, Quad* c, Complex<Quad>* s );
+#endif
+#ifdef EL_HAVE_MPC
+template BigFloat Givens
+( BigFloat phi, BigFloat gamma, BigFloat* c, BigFloat* s );
+#endif
 
 // Compute the EVD of a symmetric tridiagonal matrix
 // =================================================

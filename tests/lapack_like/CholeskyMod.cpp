@@ -50,9 +50,17 @@ void TestCorrectness
 
 template<typename F> 
 void TestCholeskyMod
-( bool testCorrectness, bool print, UpperOrLower uplo, Int m, Int n, 
-  Base<F> alpha, const Grid& g )
+( bool testCorrectness,
+  bool print,
+  UpperOrLower uplo,
+  Int m,
+  Int n, 
+  Base<F> alpha,
+  const Grid& g )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
+
     DistMatrix<F> T(g), A(g);
     HermitianUniformSpectrum( T, m, 1e-9, 10 );
     if( testCorrectness )
@@ -99,7 +107,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -124,16 +131,10 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test CholeskyMod",uploChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
         TestCholeskyMod<double>
         ( testCorrectness, print, uplo, m, n, alpha, g );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
         TestCholeskyMod<Complex<double>>
         ( testCorrectness, print, uplo, m, n, alpha, g );
     }

@@ -158,6 +158,8 @@ void TestHermitianGenDefEig
     DistMatrix<F,U,V> A(g), B(g), AOrig(g), BOrig(g);
     DistMatrix<Real,S,STAR> w(g);
     DistMatrix<F> X(g);
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
 
     HermitianUniformSpectrum( A, m, 1, 10 );
     if( pencil == BAX )

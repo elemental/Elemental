@@ -93,10 +93,10 @@ template<typename Real>
 Real SafeNorm( Real alpha, Real beta, Real gamma );
 double SafeNorm( double alpha, double beta, double gamma );
 
-float SafeNorm( scomplex alpha, float beta );
-double SafeNorm( dcomplex alpha, double beta );
-float SafeNorm( float alpha, scomplex beta );
-double SafeNorm( double alpha, dcomplex beta );
+template<typename Real>
+Real SafeNorm( const Complex<Real>& alpha, const Real& beta );
+template<typename Real>
+Real SafeNorm( const Real& alpha, const Complex<Real>& beta );
 
 // Givens rotations
 // ================
@@ -109,6 +109,12 @@ double SafeNorm( double alpha, dcomplex beta );
 // This routine uses the stable approach suggested by Kahan and Demmel and
 // returns the value rho.
 //
+
+template<typename Real>
+Real Givens( Real phi, Real gamma, Real* c, Real* s );
+template<typename Real>
+Complex<Real> Givens
+( Complex<Real> phi, Complex<Real> gamma, Real* c, Complex<Real>* s );
 
 float    Givens( float    phi, float    gamma, float * c, float   * s );
 double   Givens( double   phi, double   gamma, double* c, double  * s );

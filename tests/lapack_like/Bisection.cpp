@@ -96,13 +96,13 @@ main( int argc, char* argv[] )
             if( commRank == 0 )
             {
                 if( haveLeftChild )
-                    std::cout << "Root is on left with sizes: " 
-                              << leftChildSize << ", " << rightChildSize << ", "
-                              << sepSize << std::endl;
+                    Output
+                    ("Root is on left with sizes: ",leftChildSize,",",
+                     rightChildSize,",",sepSize);
                 else
-                    std::cout << "Root is on right with sizes: " 
-                              << leftChildSize << ", " << rightChildSize << ", "
-                              << sepSize << std::endl;
+                    Output
+                    ("Root is on right with sizes: ",leftChildSize,",",
+                     rightChildSize,",",sepSize);
             }
         }
         else
@@ -117,9 +117,9 @@ main( int argc, char* argv[] )
 
             const Int leftChildSize = leftChild.NumSources();
             const Int rightChildSize = rightChild.NumSources();
-            std::cout << "Partition sizes were: "
-                      << leftChildSize << ", " << rightChildSize << ", "
-                      << sepSize << std::endl;
+            Output
+            ("Partition sizes were: ",leftChildSize,",",rightChildSize,",",
+             sepSize);
         }
     }
     catch( std::exception& e ) { ReportException(e); }

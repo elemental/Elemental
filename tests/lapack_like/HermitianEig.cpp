@@ -61,6 +61,8 @@ void TestHermitianEig
     typedef Base<F> Real;
     DistMatrix<F,U,V> A(g), AOrig(g), Z(g);
     DistMatrix<Real,S,STAR> w(g);
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
 
     if( clustered )
         Wilkinson( A, m/2 );
@@ -174,8 +176,6 @@ main( int argc, char* argv[] )
         if( onlyEigvals && testCorrectness && commRank==0 )
             Output("Cannot test correctness with only eigenvalues.");
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test HermitianEig ",uploChar);
 
         HermitianEigSubset<double> subset;
         if( range == 'I' )

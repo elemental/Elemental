@@ -41,7 +41,7 @@ void QR
     qr::Householder( A, t, d );
 }
 
-template<typename F>
+template<typename F,typename>
 void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   DistMatrix<F,MR,STAR,BLOCK>& t )
@@ -93,7 +93,7 @@ void QR
     qr::BusingerGolub( A, t, d, Omega, ctrl );
 }
 
-#define PROTO(F) \
+#define PROTO_BASE(F) \
   template void QR \
   ( Matrix<F>& A, \
     Matrix<F>& t, \
@@ -114,9 +114,6 @@ void QR
     ElementalMatrix<Base<F>>& d, \
     DistPermutation& Omega, \
     const QRCtrl<Base<F>>& ctrl ); \
-  template void QR \
-  ( DistMatrix<F,MC,MR,BLOCK>& A, \
-    DistMatrix<F,MR,STAR,BLOCK>& t ); \
   template void qr::ExplicitTriang \
   ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
@@ -202,7 +199,19 @@ void QR
   template void qr::ts::Scatter \
   ( ElementalMatrix<F>& A, const TreeData<F>& treeData ); 
 
+#define PROTO(F) \
+  PROTO_BASE(F) \
+  template void QR \
+  ( DistMatrix<F,MC,MR,BLOCK>& A, \
+    DistMatrix<F,MR,STAR,BLOCK>& t );
+
+#define PROTO_QUAD PROTO_BASE(Quad)
+#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
+#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
+
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

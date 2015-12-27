@@ -515,6 +515,7 @@ void SlideLockedPartitionDownDiagonal
     const ElementalMatrix<T>& A20, const ElementalMatrix<T>& A21, const ElementalMatrix<T>& A22 );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El
