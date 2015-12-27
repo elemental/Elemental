@@ -48,8 +48,8 @@ template<typename Real>
 inline istream& operator>>( istream& is, Complex<Real>& alpha )
 {
     Real realPart, imagPart;
-    string token, substring;
-    std::stringstream tokenStream, substream;
+    string token;
+    std::stringstream tokenStream;
 
     // Grab the full token of the form "3+4i"
     is >> token;
@@ -58,15 +58,24 @@ inline istream& operator>>( istream& is, Complex<Real>& alpha )
     tokenStream << token;
 
     // Extract the substring leading up to the '+'
-    std::getline( tokenStream, substring, '+' );
-    substream << substring;
-    substream >> realPart;
+    {
+        std::string substring;
+        std::stringstream substream;
+
+        std::getline( tokenStream, substring, '+' );
+        substream << substring;
+        substream >> realPart;
+    }
 
     // Extract the substring after the '+' and up to the 'i'
-    std::getline( tokenStream, substring, 'i' );
-    substream.str("");
-    substream << substring;
-    substream >> imagPart;
+    {
+        std::string substring;
+        std::stringstream substream;
+
+        std::getline( tokenStream, substring, 'i' );
+        substream << substring;
+        substream >> imagPart;
+    }
     
     alpha = Complex<Real>(realPart,imagPart);
 
