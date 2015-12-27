@@ -17,7 +17,7 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const Int n = Input("--n","problem dimension",1000);
+        const Int n = Input("--n","problem dimension",100);
         const bool progress = Input("--progress","print progress?",false); 
         const bool time = Input("--time","time LLL?",false);
         const bool printAll = 
