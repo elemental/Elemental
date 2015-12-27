@@ -491,7 +491,7 @@ Real SafeNorm( const Complex<Real>& alpha, const Real& beta )
 { return SafeNorm( alpha.real(), alpha.imag(), beta ); }
 template float SafeNorm( const Complex<float>& alpha, const float& beta );
 template double SafeNorm( const Complex<double>& alpha, const double& beta );
-#ifdef EL_HAVE_MPC
+#ifdef EL_HAVE_QUAD
 template Quad SafeNorm( const Complex<Quad>& alpha, const Quad& beta );
 #endif
 
@@ -500,7 +500,7 @@ Real SafeNorm( const Real& alpha, const Complex<Real>& beta )
 { return SafeNorm( beta, alpha ); }
 template float SafeNorm( const float& alpha, const Complex<float>& beta );
 template double SafeNorm( const double& alpha, const Complex<double>& beta );
-#ifdef EL_HAVE_MPC
+#ifdef EL_HAVE_QUAD
 template Quad SafeNorm( const Quad& alpha, const Complex<Quad>& beta );
 #endif
 
