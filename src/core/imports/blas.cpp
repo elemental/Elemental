@@ -3458,7 +3458,7 @@ void Trsm
                             B[k+j*BLDim] /= alpha11Conj;
                     }
                     std::vector<F> aRow(m);
-                    for( Int s=0; s<k; ++s )
+                    for( Int s=0; s<m-(k+1); ++s )
                         aRow[s] = Conj(A[k+(k+1+s)*ALDim]);
                     Geru
                     ( m-(k+1), n,
