@@ -164,7 +164,7 @@ inline std::pair<Base<F>,Base<F>> LLLAchieved
     }
     eta /= ( IsComplex<F>::value ? Sqrt(Real(2)) : Real(1) );
 
-    return std::pair<Real,Real>(delta,eta);
+    return std::make_pair(delta,eta);
 }
 
 } // namespace El

@@ -175,6 +175,7 @@ main( int argc, char* argv[] )
 
         TestBidiag<double>( m, n, g, testCorrectness, print, display );
         TestBidiag<Complex<double>>( m, n, g, testCorrectness, print, display );
+
 #ifdef EL_HAVE_QUAD
         TestBidiag<Quad>( m, n, g, testCorrectness, print, display );
         TestBidiag<Complex<Quad>>( m, n, g, testCorrectness, print, display );
