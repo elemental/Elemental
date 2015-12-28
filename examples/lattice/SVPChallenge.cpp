@@ -70,9 +70,12 @@ int main( int argc, char* argv[] )
         ctrl.time = time;
         Matrix<Real> U, UInv, R;
         const double startTime = mpi::Time();
-        LLL( B, U, UInv, R, ctrl );
+        auto info = LLL( B, U, UInv, R, ctrl );
         const double runTime = mpi::Time() - startTime;
         Output("  LLL(",delta,",",eta,") took ",runTime," seconds"); 
+        Output("    achieved delta: ",info.delta);
+        Output("    achieved eta:   ",info.eta);
+        Output("    num swaps:      ",info.numSwaps);
         if( print )
         {
             Print( B, "B" ); 
