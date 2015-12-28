@@ -192,31 +192,6 @@ void csrmv
 
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt lda,
-                   Int* B, BlasInt ldb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i+j*ldb] = A[i+j*lda];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = A[i+j*lda];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = Conj(A[i+j*lda]);
-    }
-}
-
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, const float* A, BlasInt lda,
                      float* B, BlasInt ldb )
 {
@@ -267,85 +242,56 @@ void omatcopy
       reinterpret_cast<      MKL_Complex16*>(B), ldb );
 }
 
-#ifdef EL_HAVE_QUAD
+template<typename T>
 void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  T alpha,
+  const T* A, BlasInt lda,
+        T* B, BlasInt ldb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = A[i+j*lda];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = Conj(A[i+j*lda]);
+    }
+}
+
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, const Int* A, BlasInt lda,
+                   Int* B, BlasInt ldb );
+#ifdef EL_HAVE_QUAD
+template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Quad alpha,
   const Quad* A, BlasInt lda,
-        Quad* B, BlasInt ldb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i+j*ldb] = A[i+j*lda];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = A[i+j*lda];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = Conj(A[i+j*lda]);
-    }
-}
-
-void omatcopy
+        Quad* B, BlasInt ldb );
+template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Complex<Quad> alpha,
   const Complex<Quad>* A, BlasInt lda,
-        Complex<Quad>* B, BlasInt ldb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i+j*ldb] = A[i+j*lda];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = A[i+j*lda];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = Conj(A[i+j*lda]);
-    }
-}
+        Complex<Quad>* B, BlasInt ldb );
 #endif
-
-void omatcopy
+#ifdef EL_HAVE_MPC
+template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha,
-  const Int* A, BlasInt lda, BlasInt stridea,
-        Int* B, BlasInt ldb, BlasInt strideb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i*strideb+j*ldb] = A[i*stridea+j*lda];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*ldb] = A[i*stridea+j*lda];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*ldb] = Conj(A[i*stridea+j*lda]);
-    }
-}
+  BigFloat alpha,
+  const BigFloat* A, BlasInt lda,
+        BigFloat* B, BlasInt ldb );
+#endif
 
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -405,66 +351,57 @@ void omatcopy
       reinterpret_cast<      MKL_Complex16*>(B), ldb, strideb );
 }
 
-#ifdef EL_HAVE_QUAD
+template<typename T>
 void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  T alpha,
+  const T* A, BlasInt lda, BlasInt stridea,
+        T* B, BlasInt ldb, BlasInt strideb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i*strideb+j*ldb] = A[i*stridea+j*lda];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*ldb] = A[i*stridea+j*lda];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*ldb] = Conj(A[i*stridea+j*lda]);
+    }
+}
+
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha,
+  const Int* A, BlasInt lda, BlasInt stridea,
+        Int* B, BlasInt ldb, BlasInt strideb );
+#ifdef EL_HAVE_QUAD
+template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Quad alpha,
   const Quad* A, BlasInt lda, BlasInt stridea,
-        Quad* B, BlasInt ldb, BlasInt strideb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i*strideb+j*ldb] = A[i*stridea+j*lda];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*ldb] = A[i*stridea+j*lda];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*ldb] = Conj(A[i*stridea+j*lda]);
-    }
-}
-
-void omatcopy
+        Quad* B, BlasInt ldb, BlasInt strideb );
+template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Complex<Quad> alpha,
   const Complex<Quad>* A, BlasInt lda, BlasInt stridea,
-        Complex<Quad>* B, BlasInt ldb, BlasInt strideb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i*strideb+j*ldb] = A[i*stridea+j*lda];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*ldb] = A[i*stridea+j*lda];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*ldb] = Conj(A[i*stridea+j*lda]);
-    }
-}
+        Complex<Quad>* B, BlasInt ldb, BlasInt strideb );
 #endif
-
-void imatcopy
+#ifdef EL_HAVE_MPC
+template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, Int* A, BlasInt lda, BlasInt ldb )
-{
-    LogicError("Integer MKL imatcopy not yet supported");
-}
+  BigFloat alpha,
+  const BigFloat* A, BlasInt lda, BlasInt stridea,
+        BigFloat* B, BlasInt ldb, BlasInt strideb );
+#endif
 
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -512,20 +449,29 @@ void imatcopy
       reinterpret_cast<MKL_Complex16*>(A), lda, ldb );
 }
 
-#ifdef EL_HAVE_QUAD
+template<typename T>
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Quad alpha, Quad* A, BlasInt lda, BlasInt ldb )
+  T alpha, T* A, BlasInt lda, BlasInt ldb )
 {
     LogicError("This routine not yet written");
 }
 
-void imatcopy
+template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<Quad> alpha, Complex<Quad>* A, BlasInt lda, BlasInt ldb )
-{
-    LogicError("This routine not yet written");
-}
+  Int alpha, Int* A, BlasInt lda, BlasInt ldb );
+#ifdef EL_HAVE_QUAD
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Quad alpha, Quad* A, BlasInt lda, BlasInt ldb );
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<Quad> alpha, Complex<Quad>* A, BlasInt lda, BlasInt ldb );
+#endif
+#ifdef EL_HAVE_MPC
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  BigFloat alpha, BigFloat* A, BlasInt lda, BlasInt ldb );
 #endif
 
 } // namespace mkl
