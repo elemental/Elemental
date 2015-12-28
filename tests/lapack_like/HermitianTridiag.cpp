@@ -195,7 +195,7 @@ main( int argc, char* argv[] )
         ctrl_complex_quad.symvCtrl.bsize = nbLocal;
         ctrl_complex_quad.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
 #endif
-#ifdef EL_HAVE_BIGFLOAT
+#ifdef EL_HAVE_MPC
         HermitianTridiagCtrl<BigFloat> ctrl_bf;
         ctrl_bf.symvCtrl.bsize = nbLocal;
         ctrl_bf.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
