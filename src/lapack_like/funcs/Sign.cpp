@@ -401,7 +401,7 @@ void HermitianSign
     HermitianFromEVD( uplo, N, wAbs, Z );
 }
 
-#define PROTO(F) \
+#define PROTO_BASE(F) \
   template void Sign \
   ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
@@ -410,7 +410,10 @@ void HermitianSign
   ( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
   ( ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
-    const SignCtrl<Base<F>> ctrl ); \
+    const SignCtrl<Base<F>> ctrl );
+
+#define PROTO(F) \
+  PROTO_BASE(F) \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl ); \
@@ -424,7 +427,13 @@ void HermitianSign
   ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
     const HermitianEigCtrl<F>& ctrl );
 
+#define PROTO_QUAD PROTO_BASE(Quad)
+#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
+#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
+
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

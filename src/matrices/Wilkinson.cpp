@@ -45,6 +45,7 @@ void Wilkinson( AbstractDistMatrix<T>& A, Int k )
   template void Wilkinson( AbstractDistMatrix<T>& A, Int k );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

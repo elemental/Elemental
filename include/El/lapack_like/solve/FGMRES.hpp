@@ -152,8 +152,8 @@ inline Int Single
                 Axpy( -H.Get(i,j), vi, w );
             }
             const Real delta = Nrm2( w );
-            if( std::isnan(delta) )
-                RuntimeError("Arnoldi step produced a NaN");
+            if( !limits::IsFinite(delta) )
+                RuntimeError("Arnoldi step produced a non-finite number");
             if( delta == Real(0) )
                 restart = j+1;
             if( j+1 != restart )
@@ -183,18 +183,18 @@ inline Int Single
             // -----------------------------------------------------------
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
-            if( std::isnan(RealPart(eta_j_j))   ||
-                std::isnan(ImagPart(eta_j_j))   ||
-                std::isnan(RealPart(eta_jp1_j)) ||
-                std::isnan(ImagPart(eta_jp1_j)) )
-                RuntimeError("Either H(j,j) or H(j+1,j) was NaN");
+            if( !limits::IsFinite(RealPart(eta_j_j))   ||
+                !limits::IsFinite(ImagPart(eta_j_j))   ||
+                !limits::IsFinite(RealPart(eta_jp1_j)) ||
+                !limits::IsFinite(ImagPart(eta_jp1_j)) )
+                RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
             F s;
             F rho = lapack::Givens( eta_j_j, eta_jp1_j, &c, &s );
-            if( std::isnan(c) ||
-                std::isnan(RealPart(s)) || std::isnan(ImagPart(s)) ||
-                std::isnan(RealPart(rho)) || std::isnan(ImagPart(rho)) )
-                RuntimeError("Givens rotation produced a NaN");
+            if( !limits::IsFinite(c) ||
+                !limits::IsFinite(RealPart(s)) || !limits::IsFinite(ImagPart(s)) ||
+                !limits::IsFinite(RealPart(rho)) || !limits::IsFinite(ImagPart(rho)) )
+                RuntimeError("Givens rotation produced a non-finite number");
             H.Set( j, j, rho );
             cs.Set( j, 0, c );
             sn.Set( j, 0, s );
@@ -244,8 +244,8 @@ inline Int Single
             // Residual checks
             // ---------------
             const Real residNorm = Nrm2( w );
-            if( std::isnan(residNorm) )
-                RuntimeError("Residual norm was NaN");
+            if( !limits::IsFinite(residNorm) )
+                RuntimeError("Residual norm was not finite");
             const Real relResidNorm = residNorm/origResidNorm;
             if( relResidNorm < relTol )
             {
@@ -445,8 +445,8 @@ inline Int Single
                 Axpy( -H.Get(i,j), q, w );
             }
             const Real delta = Nrm2( w );
-            if( std::isnan(delta) )
-                RuntimeError("Arnoldi step produced a NaN");
+            if( !limits::IsFinite(delta) )
+                RuntimeError("Arnoldi step produced a non-finite number");
             if( delta == Real(0) )
                 restart = j+1;
             if( j+1 != restart )
@@ -476,18 +476,18 @@ inline Int Single
             // -----------------------------------------------------------
             const F eta_j_j = H.Get(j,j);
             const F eta_jp1_j = delta;
-            if( std::isnan(RealPart(eta_j_j))   ||
-                std::isnan(ImagPart(eta_j_j))   ||
-                std::isnan(RealPart(eta_jp1_j)) ||
-                std::isnan(ImagPart(eta_jp1_j)) )
-                RuntimeError("Either H(j,j) or H(j+1,j) was NaN");
+            if( !limits::IsFinite(RealPart(eta_j_j))   ||
+                !limits::IsFinite(ImagPart(eta_j_j))   ||
+                !limits::IsFinite(RealPart(eta_jp1_j)) ||
+                !limits::IsFinite(ImagPart(eta_jp1_j)) )
+                RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
             F s;
             F rho = lapack::Givens( eta_j_j, eta_jp1_j, &c, &s );
-            if( std::isnan(c) ||
-                std::isnan(RealPart(s)) || std::isnan(ImagPart(s)) ||
-                std::isnan(RealPart(rho)) || std::isnan(ImagPart(rho)) )
-                RuntimeError("Givens rotation produced a NaN");
+            if( !limits::IsFinite(c) ||
+                !limits::IsFinite(RealPart(s)) || !limits::IsFinite(ImagPart(s)) ||
+                !limits::IsFinite(RealPart(rho)) || !limits::IsFinite(ImagPart(rho)) )
+                RuntimeError("Givens rotation produced a non-finite number");
             H.Set( j, j, rho );
             cs.Set( j, 0, c );
             sn.Set( j, 0, s );
@@ -538,8 +538,8 @@ inline Int Single
             // Residual checks
             // ---------------
             const Real residNorm = Nrm2( w );
-            if( std::isnan(residNorm) )
-                RuntimeError("Residual norm was NaN");
+            if( !limits::IsFinite(residNorm) )
+                RuntimeError("Residual norm was not finite");
             const Real relResidNorm = residNorm/origResidNorm;
             if( relResidNorm < relTol )
             {

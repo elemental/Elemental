@@ -41,6 +41,7 @@ void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
   ( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

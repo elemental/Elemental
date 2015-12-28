@@ -85,6 +85,7 @@ void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary )
   template void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

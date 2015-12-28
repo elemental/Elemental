@@ -50,6 +50,7 @@ void GEPPGrowth( ElementalMatrix<T>& A, Int n )
   template void GEPPGrowth( ElementalMatrix<T>& A, Int n );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

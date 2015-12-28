@@ -1984,10 +1984,10 @@ void FinishKKT
                 // diag(det(w) R - 2 w w^T)
                 if( i == firstInd )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, +wDet-2*omega_i*omega_i );
+                    ( n+m+iSparse, n+m+iSparse, +wDet-Real(2)*omega_i*omega_i );
                 else
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+iSparse, -wDet-2*omega_i*omega_i );
+                    ( n+m+iSparse, n+m+iSparse, -wDet-Real(2)*omega_i*omega_i );
 
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<firstInd+order; ++j )
@@ -2552,6 +2552,8 @@ void ExpandSolution
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace affine

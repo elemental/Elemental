@@ -9,7 +9,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "ElSuiteSparse/ldl.hpp"
 
 namespace El {
 namespace ldl {
@@ -23,6 +22,7 @@ void AMDOrder
 {
     DEBUG_ONLY(CSE cse("ldl::AMDOrder"))
     const Int numSources = subOffsets.size()-1;
+    // TODO: Simplify this after templating ElSuiteSparse's AMD
 #ifdef EL_USE_64BIT_INTS
     const Int numEdges = subTargets.size();
     vector<int> subOffsets_int( numSources+1 ),

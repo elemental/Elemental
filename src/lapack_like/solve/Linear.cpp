@@ -224,12 +224,13 @@ void LinearSolve
     lin_solve::Overwrite( ACopy, B );
 }
 
-template<typename F>
-void LinearSolve
+namespace lin_solve {
+
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+void ScaLAPACKHelper
 ( const DistMatrix<F,MC,MR,BLOCK>& A,
         DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("LinearSolve"))
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const int m = A.Height();
@@ -255,6 +256,25 @@ void LinearSolve
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
 #endif
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void ScaLAPACKHelper
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    LogicError("ScaLAPACK does not support this datatype");
+}
+
+} // namespace lin_solve
+
+template<typename F>
+void LinearSolve
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    DEBUG_ONLY(CSE cse("LinearSolve"))
+    lin_solve::ScaLAPACKHelper( A, B );
 }
 
 template<typename F>
@@ -299,6 +319,8 @@ void LinearSolve
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

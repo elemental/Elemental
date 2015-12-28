@@ -95,6 +95,9 @@ public:
     // Negation
     BigFloat operator-() const;
 
+    // Identity map
+    BigFloat operator+() const;
+
     // Analogue of bit-shifting left
     BigFloat& operator<<=( const int& a );
     BigFloat& operator<<=( const long int& a );

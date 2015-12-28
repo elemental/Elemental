@@ -249,6 +249,13 @@ BigFloat BigFloat::operator-() const
     return alphaNeg;
 }
 
+BigFloat BigFloat::operator+() const
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+"))
+    BigFloat alpha(*this);
+    return alpha;
+}
+
 BigFloat& BigFloat::operator<<=( const int& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator<<= [int]"))

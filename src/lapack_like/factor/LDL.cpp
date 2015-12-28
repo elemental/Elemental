@@ -197,12 +197,6 @@ void LDL
           ldl::DistFront<F>& front, \
     LDLFrontType newType );
 
-// The sparse implementations will be integrated once there is support for
-// sparse LDL
-#define PROTO_QUAD PROTO_BASE(Quad)
-#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
-#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
-
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT

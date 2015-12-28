@@ -21,7 +21,6 @@
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 
-#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {

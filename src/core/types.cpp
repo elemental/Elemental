@@ -186,13 +186,14 @@ UpperOrLower CharToUpperOrLower( char c )
 
 template struct SafeProduct<float>;
 template struct SafeProduct<double>;
-#ifdef EL_ENABLE_QUAD
-template struct SafeProduct<Quad>;
-#endif
 template struct SafeProduct<Complex<float>>;
 template struct SafeProduct<Complex<double>>;
-#ifdef EL_ENABLE_QUAD
+#ifdef EL_HAVE_QUAD
+template struct SafeProduct<Quad>;
 template struct SafeProduct<Complex<Quad>>;
+#endif
+#ifdef EL_HAVE_MPC
+template struct SafeProduct<BigFloat>;
 #endif
 
 } // namespace El

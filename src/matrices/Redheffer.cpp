@@ -39,6 +39,7 @@ void Redheffer( AbstractDistMatrix<T>& R, Int n )
   template void Redheffer( AbstractDistMatrix<T>& R, Int n );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

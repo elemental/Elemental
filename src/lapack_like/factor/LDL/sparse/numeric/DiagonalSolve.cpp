@@ -18,7 +18,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#include "ElSuiteSparse/ldl.hpp"
 
 namespace El {
 namespace ldl {
@@ -94,10 +93,8 @@ void DiagonalSolve
     DistMatrixNode<F>& X );
 
 #define EL_NO_INT_PROTO
-/*
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-*/
 #include "El/macros/Instantiate.h"
 
 } // namespace ldl

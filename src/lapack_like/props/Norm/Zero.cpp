@@ -72,6 +72,7 @@ Int ZeroNorm( const DistSparseMatrix<T>& A, Base<T> tol )
   template Int ZeroNorm( const DistSparseMatrix<T>& A, Base<T> tol );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

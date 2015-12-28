@@ -121,6 +121,7 @@ void DynamicRegCounter( DistSparseMatrix<T>& A, Int n )
   template void DynamicRegCounter( DistSparseMatrix<T>& A, Int n );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El
