@@ -33,7 +33,7 @@ Int NumOutside
         const Int firstInd = firstInds.Get(i,0);
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
-        const Int det = d.Get(i,0);
+        const Real det = d.Get(i,0);
         if( det < Real(0) )
             ++numNonSO;
         i += order;
