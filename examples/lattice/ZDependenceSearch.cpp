@@ -1,8 +1,7 @@
 #include "El.hpp"
 using namespace El;
 
-//#ifdef EL_HAVE_MPC
-#if 0
+#ifdef EL_HAVE_MPC
 typedef BigFloat F;
 #elif defined(EL_HAVE_QUAD)
 typedef Quad F;
