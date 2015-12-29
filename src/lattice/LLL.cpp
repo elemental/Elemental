@@ -172,22 +172,22 @@ inline std::pair<Base<F>,Base<F>> Achieved
 // Return the log of the absolute value of the determinant of the lattice
 // (the sum of the logs of the nonzero diagonal entries of R)
 template<typename F>
-inline Base<F> LogAbsDet( const Matrix<F>& R )
+inline Base<F> LogVolume( const Matrix<F>& R )
 {
-    DEBUG_ONLY(CSE cse("lll::LogAbsDet"))
+    DEBUG_ONLY(CSE cse("lll::LogVolume"))
     typedef Base<F> Real;
     const Int m = R.Height();
     const Int n = R.Width();
     const Int minDim = Min(m,n);
 
-    Real logAbsDet = 0;
+    Real logVol = 0;
     for( Int j=0; j<minDim; ++j )
     {
         Real rho_j_j = R.GetRealPart(j,j);
         if( rho_j_j > Real(0) )
-            logAbsDet += Log(rho_j_j);
+            logVol += Log(rho_j_j);
     }
-    return logAbsDet;
+    return logVol;
 }
 
 } // namespace lll

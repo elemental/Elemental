@@ -24,7 +24,7 @@ typedef struct
     ElInt rank;
     ElInt nullity;    
     ElInt numSwaps;
-    float logAbsDet;
+    float logVol;
 } ElLLLInfo_s;
 
 typedef struct
@@ -34,7 +34,7 @@ typedef struct
     ElInt rank;
     ElInt nullity;    
     ElInt numSwaps;
-    double logAbsDet;
+    double logVol;
 } ElLLLInfo_d;
 
 typedef struct

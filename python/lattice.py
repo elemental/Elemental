@@ -20,14 +20,14 @@ class LLLInfo_s(ctypes.Structure):
               ("rank",iType),
               ("nullity",iType),
               ("numSwaps",iType),
-              ("logAbsDet",sType)]
+              ("logVol",sType)]
 class LLLInfo_d(ctypes.Structure):
   _fields_ = [("delta",dType),
               ("eta",dType),
               ("rank",iType),
               ("nullity",iType),
               ("numSwaps",iType),
-              ("logAbsDet",dType)]
+              ("logVol",dType)]
 
 lib.ElLLLCtrlDefault_s.argtypes = \
 lib.ElLLLCtrlDefault_d.argtypes = \

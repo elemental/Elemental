@@ -410,7 +410,7 @@ LLLInfo<Base<F>> BlockedAlg
     MakeTrapezoidal( UPPER, QR );
 
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
-    Real logAbsDet = lll::LogAbsDet(QR);
+    Real logVol = lll::LogVolume(QR);
 
     LLLInfo<Base<F>> info;
     info.delta = achieved.first;
@@ -418,7 +418,7 @@ LLLInfo<Base<F>> BlockedAlg
     info.rank = n-nullity;
     info.nullity = nullity;
     info.numSwaps = numSwaps;
-    info.logAbsDet = logAbsDet;
+    info.logVol = logVol;
     return info;
 }
 

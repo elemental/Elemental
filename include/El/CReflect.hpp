@@ -2569,7 +2569,7 @@ inline LLLInfo<float> CReflect( const ElLLLInfo_s& infoC )
     info.rank = infoC.rank;
     info.nullity = infoC.nullity;
     info.numSwaps = infoC.numSwaps;
-    info.logAbsDet = infoC.logAbsDet;
+    info.logVol = infoC.logVol;
     return info;
 }
 
@@ -2581,7 +2581,7 @@ inline LLLInfo<double> CReflect( const ElLLLInfo_d& infoC )
     info.rank = infoC.rank;
     info.nullity = infoC.nullity;
     info.numSwaps = infoC.numSwaps;
-    info.logAbsDet = infoC.logAbsDet;
+    info.logVol = infoC.logVol;
     return info;
 }
 
@@ -2593,7 +2593,7 @@ inline ElLLLInfo_s CReflect( const LLLInfo<float>& info )
     infoC.rank = info.rank;
     infoC.nullity = info.nullity;
     infoC.numSwaps = info.numSwaps;
-    infoC.logAbsDet = info.logAbsDet;
+    infoC.logVol = info.logVol;
     return infoC;
 }
 
@@ -2605,7 +2605,7 @@ inline ElLLLInfo_d CReflect( const LLLInfo<double>& info )
     infoC.rank = info.rank;
     infoC.nullity = info.nullity;
     infoC.numSwaps = info.numSwaps;
-    infoC.logAbsDet = info.logAbsDet;
+    infoC.logVol = info.logVol;
     return infoC;
 }
 

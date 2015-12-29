@@ -76,9 +76,11 @@ int main( int argc, char* argv[] )
         Output("    achieved delta: ",info.delta);
         Output("    achieved eta:   ",info.eta);
         Output("    num swaps:      ",info.numSwaps);
-        Output("    log(|det B|):   ",info.logAbsDet);
-        Output("    GH(B):          ",
-          LatticeGaussianHeuristic(info.rank,info.logAbsDet));
+        Output("    log(vol(L)):    ",info.logVol);
+        const Real GH = LatticeGaussianHeuristic( info.rank, info.logVol );
+        const Real challenge = Real(1.05)*GH;
+        Output("    GH(L):          ",GH);
+        Output("    1.05 GH(L):     ",challenge);
         if( print )
         {
             Print( B, "B" ); 
@@ -94,6 +96,14 @@ int main( int argc, char* argv[] )
         Output("|| b_0 ||_2 = ",b0Norm);
         if( print )
             Print( b0, "b0" );
+        if( b0Norm <= challenge )
+            Output
+            ("SVP Challenge solved: || b_0 ||_2=",b0Norm," <= 1.05*GH(L)",
+             challenge);
+        else
+            Output
+            ("SVP Challenge NOT solved: || b_0 ||_2=",b0Norm," > 1.05*GH(L)=",
+             challenge);
     }
     catch( std::exception& e ) { ReportException(e); }
     return 0;

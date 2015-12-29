@@ -52,7 +52,7 @@ struct LLLInfo
     Int rank;
     Int nullity; 
     Int numSwaps;
-    Real logAbsDet;
+    Real logVol;
 };
 
 // Return the Gaussian estimate of the minimum-length vector
@@ -61,9 +61,9 @@ struct LLLInfo
 //
 // where n is the rank of the lattice L.
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-Real LatticeGaussianHeuristic( Int n, Real logAbsDet )
+Real LatticeGaussianHeuristic( Int n, Real logVol )
 {
-    return Exp((LogGamma(Real(n)/Real(2)+Real(1))+logAbsDet)/Real(n))/
+    return Exp((LogGamma(Real(n)/Real(2)+Real(1))+logVol)/Real(n))/
            Sqrt(Pi<Real>());
 }
 
