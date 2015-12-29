@@ -49,63 +49,27 @@ template<typename T>
 std::string TypeName()
 { return typeid(T).name(); }
 
-template<>
-inline std::string TypeName<bool>()
-{ return std::string("bool"); }
-template<>
-inline std::string TypeName<char>()
-{ return std::string("char"); }
-template<>
-inline std::string TypeName<char*>()
-{ return std::string("char*"); }
-template<>
-inline std::string TypeName<const char*>()
-{ return std::string("const char*"); }
-template<>
-inline std::string TypeName<std::string>()
-{ return std::string("string"); }
-template<>
-inline std::string TypeName<unsigned>()
-{ return std::string("unsigned"); }
-template<>
-inline std::string TypeName<unsigned long>()
-{ return std::string("unsigned long"); }
-template<>
-inline std::string TypeName<unsigned long long>()
-{ return std::string("unsigned long long"); }
-template<>
-inline std::string TypeName<int>()
-{ return std::string("int"); }
-template<>
-inline std::string TypeName<long int>()
-{ return std::string("long int"); }
-template<>
-inline std::string TypeName<long long int>()
-{ return std::string("long long int"); }
-template<>
-inline std::string TypeName<float>()
-{ return std::string("float"); }
-template<>
-inline std::string TypeName<double>()
-{ return std::string("double"); }
-template<>
-inline std::string TypeName<Complex<float>>()
-{ return std::string("Complex<float>"); }
-template<>
-inline std::string TypeName<Complex<double>>()
-{ return std::string("Complex<double>"); }
+template<> std::string TypeName<bool>();
+template<> std::string TypeName<char>();
+template<> std::string TypeName<char*>();
+template<> std::string TypeName<const char*>();
+template<> std::string TypeName<std::string>();
+template<> std::string TypeName<unsigned>();
+template<> std::string TypeName<unsigned long>();
+template<> std::string TypeName<unsigned long long>();
+template<> std::string TypeName<int>();
+template<> std::string TypeName<long int>();
+template<> std::string TypeName<long long int>();
+template<> std::string TypeName<float>();
+template<> std::string TypeName<double>();
+template<> std::string TypeName<Complex<float>>();
+template<> std::string TypeName<Complex<double>>();
 #ifdef EL_HAVE_QUAD
-template<>
-inline std::string TypeName<Quad>()
-{ return std::string("Quad"); }
-template<>
-inline std::string TypeName<Complex<Quad>>()
-{ return std::string("Complex<Quad>"); }
+template<> std::string TypeName<Quad>();
+template<> std::string TypeName<Complex<Quad>>();
 #endif
 #ifdef EL_HAVE_MPC
-template<>
-inline std::string TypeName<BigFloat>()
-{ return std::string("BigFloat"); }
+template<> std::string TypeName<BigFloat>();
 #endif
 
 // For usage in EnableIf
@@ -535,9 +499,12 @@ Complex<Real> Round( const Complex<Real>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-Int Round( const Int& alpha );
+template<> Int Round( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-Quad Round( const Quad& alpha );
+template<> Quad Round( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Round( const BigFloat& alpha );
 #endif
 
 // Ceiling
@@ -549,9 +516,12 @@ Complex<Real> Ceil( const Complex<Real>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-Int Ceil( const Int& alpha );
+template<> Int Ceil( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-Quad Ceil( const Quad& alpha );
+template<> Quad Ceil( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Ceil( const BigFloat& alpha );
 #endif
 
 // Floor
@@ -563,17 +533,51 @@ Complex<Real> Floor( const Complex<Real>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-Int Floor( const Int& alpha );
+template<> Int Floor( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-Quad Floor( const Quad& alpha );
+template<> Quad Floor( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Floor( const BigFloat& alpha );
 #endif
 
 // Two-norm formation
 // ==================
-// TODO: Move this somewhere more fitting
+// TODO: Move this somewhere more fitting; perhaps in blas_like/
 template<typename F,typename=EnableIf<IsScalar<F>>>
 void UpdateScaledSquare
-( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
+( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
+
+// Pi
+// ==
+template<typename Real>
+Real Pi();
+#ifdef EL_HAVE_QUAD
+template<> Quad Pi<Quad>();
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Pi<BigFloat>();
+#endif
+
+// Gamma function (and its natural log)
+// ====================================
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Gamma( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad Gamma( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Gamma( const BigFloat& alpha );
+#endif
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real LogGamma( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad LogGamma( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat LogGamma( const BigFloat& alpha );
+#endif
 
 } // namespace El
 

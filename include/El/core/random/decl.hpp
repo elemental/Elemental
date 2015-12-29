@@ -12,8 +12,6 @@
 
 namespace El {
 
-const double Pi = 3.141592653589793;
-
 template<typename Real>
 Real Choose( Int n, Int k );
 template<typename Real>

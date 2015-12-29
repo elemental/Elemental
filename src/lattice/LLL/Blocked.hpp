@@ -409,13 +409,16 @@ LLLInfo<Base<F>> BlockedAlg
     // Force R to be upper-trapezoidal
     MakeTrapezoidal( UPPER, QR );
 
-    std::pair<Real,Real> achieved = LLLAchieved(QR,ctrl);
+    std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
+    Real logAbsDet = lll::LogAbsDet(QR);
 
     LLLInfo<Base<F>> info;
     info.delta = achieved.first;
     info.eta = achieved.second;
+    info.rank = n-nullity;
     info.nullity = nullity;
     info.numSwaps = numSwaps;
+    info.logAbsDet = logAbsDet;
     return info;
 }
 

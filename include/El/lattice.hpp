@@ -49,9 +49,23 @@ struct LLLInfo
 {
     Real delta;
     Real eta; 
+    Int rank;
     Int nullity; 
     Int numSwaps;
+    Real logAbsDet;
 };
+
+// Return the Gaussian estimate of the minimum-length vector
+// 
+//   GH(L) = (1/sqrt(pi)) Gamma(n/2+1)^{1/n} |det(L)|^{1/n}.
+//
+// where n is the rank of the lattice L.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real LatticeGaussianHeuristic( Int n, Real logAbsDet )
+{
+    return Exp((LogGamma(Real(n)/Real(2)+Real(1))+logAbsDet)/Real(n))/
+           Sqrt(Pi<Real>());
+}
 
 template<typename Real>
 struct LLLCtrl

@@ -17,13 +17,17 @@ from El.core import *
 class LLLInfo_s(ctypes.Structure):
   _fields_ = [("delta",sType),
               ("eta",sType),
+              ("rank",iType),
               ("nullity",iType),
-              ("numSwaps",iType)]
+              ("numSwaps",iType),
+              ("logAbsDet",sType)]
 class LLLInfo_d(ctypes.Structure):
   _fields_ = [("delta",dType),
               ("eta",dType),
+              ("rank",iType),
               ("nullity",iType),
-              ("numSwaps",iType)]
+              ("numSwaps",iType),
+              ("logAbsDet",dType)]
 
 lib.ElLLLCtrlDefault_s.argtypes = \
 lib.ElLLLCtrlDefault_d.argtypes = \

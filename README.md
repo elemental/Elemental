@@ -176,7 +176,7 @@ three external interfaces are currently being externally developed:
 **Distributed dense linear algebra**:
 
 * [ELPA](http://elpa.rzg.mpg.de)
-* [NuLAB](https://github.com/solomonik/NuLAB)
+* [CANDMC](https://github.com/solomonik/CANDMC)
 * [PaRSEC/DPLASMA](http://icl.eecs.utk.edu/projectsdev/parsec/index.html)
 * [PLAPACK](http://www.cs.utexas.edu/~plapack)
 * [ScaLAPACK](http://www.netlib.org/scalapack)

@@ -21,16 +21,20 @@ typedef struct
 {
     float delta;
     float eta;
+    ElInt rank;
     ElInt nullity;    
     ElInt numSwaps;
+    float logAbsDet;
 } ElLLLInfo_s;
 
 typedef struct
 {
     double delta;
     double eta;
+    ElInt rank;
     ElInt nullity;    
     ElInt numSwaps;
+    double logAbsDet;
 } ElLLLInfo_d;
 
 typedef struct

@@ -92,13 +92,15 @@ namespace El {
 
 static Timer applyHouseTimer, roundTimer, formSInvTimer;
 
+namespace lll {
+
 // Return the achieved delta and eta reduction properties
 template<typename F>
-inline std::pair<Base<F>,Base<F>> LLLAchieved
+inline std::pair<Base<F>,Base<F>> Achieved
 ( const Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LLLAchieved"))
+    DEBUG_ONLY(CSE cse("lll::Achieved"))
     typedef Base<F> Real;
     const Int m = R.Height();
     const Int n = R.Width();
@@ -166,6 +168,29 @@ inline std::pair<Base<F>,Base<F>> LLLAchieved
 
     return std::make_pair(delta,eta);
 }
+
+// Return the log of the absolute value of the determinant of the lattice
+// (the sum of the logs of the nonzero diagonal entries of R)
+template<typename F>
+inline Base<F> LogAbsDet( const Matrix<F>& R )
+{
+    DEBUG_ONLY(CSE cse("lll::LogAbsDet"))
+    typedef Base<F> Real;
+    const Int m = R.Height();
+    const Int n = R.Width();
+    const Int minDim = Min(m,n);
+
+    Real logAbsDet = 0;
+    for( Int j=0; j<minDim; ++j )
+    {
+        Real rho_j_j = R.GetRealPart(j,j);
+        if( rho_j_j > Real(0) )
+            logAbsDet += Log(rho_j_j);
+    }
+    return logAbsDet;
+}
+
+} // namespace lll
 
 } // namespace El
 

@@ -76,6 +76,9 @@ int main( int argc, char* argv[] )
         Output("    achieved delta: ",info.delta);
         Output("    achieved eta:   ",info.eta);
         Output("    num swaps:      ",info.numSwaps);
+        Output("    log(|det B|):   ",info.logAbsDet);
+        Output("    GH(B):          ",
+          LatticeGaussianHeuristic(info.rank,info.logAbsDet));
         if( print )
         {
             Print( B, "B" ); 
