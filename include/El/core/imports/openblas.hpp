@@ -14,11 +14,6 @@
 namespace El {
 namespace openblas {
 
-// NOTE: This is a filler routine since it is not provided by OpenBLAS
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt lda, Int* B, BlasInt ldb );  
-
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, const float* A, BlasInt lda, float* B, BlasInt ldb );  
@@ -32,10 +27,11 @@ void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );  
 
-// NOTE: This is a filler routine since it is not provided by OpenBLAS
-void imatcopy
+// NOTE: These are filler routines since they are not provided by OpenBLAS
+template<typename T>
+void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, Int* A, BlasInt lda, BlasInt ldb );  
+  T alpha, const T* A, BlasInt lda, T* B, BlasInt ldb );  
 
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -49,6 +45,12 @@ void imatcopy
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb );  
+
+// NOTE: These are filler routines since they are not provided by OpenBLAS
+template<typename T>
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  T alpha, T* A, BlasInt lda, BlasInt ldb );  
 
 } // namespace openblas
 } // namespace El
