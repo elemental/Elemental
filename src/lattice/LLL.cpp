@@ -354,7 +354,7 @@ RecursiveHelper
     auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
     if( ctrl.time )
         rightTime = timer.Stop();
-    if( ctrl.progress )
+    if( ctrl.progress || ctrl.time )
     {
         Output("n=",n);
         Output("  left swaps=",leftInfo.numSwaps);
@@ -380,8 +380,11 @@ RecursiveHelper
     const Real maxOneNorm = Max(CLOneNorm,CROneNorm);
     const Real fudge = 1.5; // TODO: Make tunable
     const Int neededPrec = Int(Ceil(Log2(maxOneNorm)*fudge));
-    if( ctrl.progress )
-        Output("Needed precision: ",neededPrec);
+    if( ctrl.progress || ctrl.time )
+    {
+        Output("  || C ||_1 = ",maxOneNorm);
+        Output("  Needed precision: ",neededPrec);
+    }
 
     // Attempt to move to a lower precision
     // TODO: Chain up the datatypes via try/catch
@@ -395,7 +398,7 @@ RecursiveHelper
     try {
     if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
     {
-        if( ctrl.progress )
+        if( ctrl.progress || ctrl.time )
             Output("  Dropping to single-precision");
         Matrix<float> BLowerPrec;
         BLowerPrec.Resize( B.Height(), n );
@@ -444,7 +447,7 @@ RecursiveHelper
     }
     else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
     {
-        if( ctrl.progress )
+        if( ctrl.progress || ctrl.time )
             Output("  Dropping to double-precision");
         Matrix<double> BLowerPrec;
         BLowerPrec.Resize( B.Height(), n );
@@ -494,7 +497,7 @@ RecursiveHelper
 #ifdef EL_HAVE_QUAD
     else if( PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
     {
-        if( ctrl.progress )
+        if( ctrl.progress || ctrl.time )
             Output("  Dropping to quad-precision");
         Matrix<Quad> BLowerPrec;
         BLowerPrec.Resize( B.Height(), n );
@@ -545,7 +548,7 @@ RecursiveHelper
 #ifdef EL_HAVE_MPC
     else if( neededPrec <= inputPrec-minPrecDiff )
     {
-        if( ctrl.progress )
+        if( ctrl.progress || ctrl.time )
             Output("  Dropping to prec=",neededPrec);
         mpc::SetPrecision( neededPrec );
         Matrix<BigFloat> BLowerPrec;
@@ -661,7 +664,7 @@ RecursiveHelper
     auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
     if( ctrl.time )
         rightTime = timer.Stop();
-    if( ctrl.progress )
+    if( ctrl.progress || ctrl.time )
     {
         Output("n=",n);
         Output("  left swaps=",leftInfo.numSwaps);
@@ -687,8 +690,11 @@ RecursiveHelper
     const Real maxOneNorm = Max(CLOneNorm,CROneNorm);
     const Real fudge = 1.5; // TODO: Make tunable
     const Int neededPrec = Int(Ceil(Log2(maxOneNorm)*fudge));
-    if( ctrl.progress )
-        Output("Needed precision: ",neededPrec);
+    if( ctrl.progress || ctrl.time )
+    {
+        Output("  || C ||_1 = ",maxOneNorm);
+        Output("  Needed precision: ",neededPrec);
+    }
 
     // Attempt to move to a lower precision
     // TODO: Find a cheap means of checking for errors
@@ -696,7 +702,7 @@ RecursiveHelper
     if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
     {
         typedef ConvertBase<F,float> FFlt;
-        if( ctrl.progress )
+        if( ctrl.progress || ctrl.time )
             Output("  Dropping to single-precision");
         Matrix<FFlt> BLowerPrec;
         BLowerPrec.Resize( B.Height(), n );
@@ -746,7 +752,7 @@ RecursiveHelper
     else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
     {
         typedef ConvertBase<F,double> FDbl;
-        if( ctrl.progress )
+        if( ctrl.progress || ctrl.time )
             Output("  Dropping to double-precision");
         Matrix<FDbl> BLowerPrec;
         BLowerPrec.Resize( B.Height(), n );
@@ -797,7 +803,7 @@ RecursiveHelper
     else if( PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
     {
         typedef ConvertBase<F,Quad> FQuad;
-        if( ctrl.progress )
+        if( ctrl.progress || ctrl.time )
             Output("  Dropping to quad-precision");
         Matrix<FQuad> BLowerPrec;
         BLowerPrec.Resize( B.Height(), n );
