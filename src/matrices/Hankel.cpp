@@ -18,7 +18,9 @@ void Hankel( Matrix<T>& A, Int m, Int n, const vector<T>& a )
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-    auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
+    // NOTE: gcc (Ubuntu 5.2.1-22ubuntu2) 5.2.1 20151010 segfaults here
+    //       if the return type of the lambda is not manually specified.
+    auto hankelFill = [&]( Int i, Int j ) -> T { return a[i+j]; };
     IndexDependentFill( A, function<T(Int,Int)>(hankelFill) );
 }
 
@@ -30,7 +32,7 @@ void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-    auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
+    auto hankelFill = [&]( Int i, Int j ) -> T { return a[i+j]; };
     IndexDependentFill( A, function<T(Int,Int)>(hankelFill) );
 }
 
