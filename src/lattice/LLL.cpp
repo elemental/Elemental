@@ -373,6 +373,9 @@ RecursiveHelper
 
     // Attempt to move to a lower precision
 #ifdef EL_HAVE_MPC
+    // Only move down to a lower-precision MPFR type if the jump is substantial.
+    // The current value has been naively chosen.
+    const mpfr_prec_t minPrecDiff = 32;
     mpfr_prec_t inputPrec = mpc::Precision();
 #endif
     try {
@@ -479,9 +482,7 @@ RecursiveHelper
     }
 #endif
 #ifdef EL_HAVE_MPC
-    // TODO: Debug the problem with this process
-    //else if( neededPrec <= inputPrec )
-    else if( false )
+    else if( neededPrec <= inputPrec-minPrecDiff )
     {
         if( ctrl.progress )
             Output("  Dropping to prec=",neededPrec);
