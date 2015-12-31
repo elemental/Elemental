@@ -142,7 +142,7 @@ Achieved
     // NOTE: phi(F) is 1 for real F and sqrt(2) for complex F.
     //
     Real eta = 0;
-    if( ctrl.weak )
+    if( ctrl.variant == LLL_WEAK )
     {
         for( Int i=0; i<minDim-1; ++i )
         {
@@ -244,7 +244,10 @@ LLLInfo<Base<F>> LLL
     }
     else
     {
-        if( ctrl.deep )
+        if( ctrl.variant == LLL_DEEP_REDUCE )
+            return lll::UnblockedDeepReduceAlg
+                   ( B, U, UInv, R, formU, formUInv, ctrl );
+        else if( ctrl.variant == LLL_DEEP )
             return lll::UnblockedDeepAlg
                    ( B, U, UInv, R, formU, formUInv, ctrl );
         else
@@ -290,11 +293,15 @@ LLL
     }
     else
     {
-        if( ctrl.deep )
+        if( ctrl.variant == LLL_DEEP_REDUCE )
+            return lll::UnblockedDeepReduceAlg
+                   ( B, U, UInv, R, formU, formUInv, ctrl );
+        else if( ctrl.variant == LLL_DEEP )
             return lll::UnblockedDeepAlg
                    ( B, U, UInv, R, formU, formUInv, ctrl );
         else
             return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
+
     }
 }
 
@@ -304,6 +311,9 @@ LLL
 // (notice that this should allow the highest levels to often run at a lower
 //  precision since the reduced basis vectors are likely to be much smaller, 
 //  especially with SVP challenge lattices).
+//
+// C.f. The analogue of Lehmer's version of Euclid's algorithm that Schnorr
+// mentions at the end of "Progress on LLL and Lattice Reduction".
 //
 // NOTE: Until Complex<BigFloat> exists, we must have different implementations
 //       for real and complex F
@@ -409,8 +419,7 @@ RecursiveHelper
 
         LLLCtrl<float> ctrlLowerPrec;
         ctrlLowerPrec.delta = float(ctrl.delta);
-        ctrlLowerPrec.weak = ctrl.weak;
-        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.variant = ctrl.variant;
         ctrlLowerPrec.presort = ctrl.presort;
         ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
         ctrlLowerPrec.reorthogTol = float(ctrl.reorthogTol);
@@ -459,8 +468,7 @@ RecursiveHelper
 
         LLLCtrl<double> ctrlLowerPrec;
         ctrlLowerPrec.delta = double(ctrl.delta);
-        ctrlLowerPrec.weak = ctrl.weak;
-        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.variant = ctrl.variant;
         ctrlLowerPrec.presort = ctrl.presort;
         ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
         ctrlLowerPrec.reorthogTol = double(ctrl.reorthogTol);
@@ -510,8 +518,7 @@ RecursiveHelper
 
         LLLCtrl<Quad> ctrlLowerPrec;
         ctrlLowerPrec.delta = Quad(ctrl.delta);
-        ctrlLowerPrec.weak = ctrl.weak;
-        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.variant = ctrl.variant;
         ctrlLowerPrec.presort = ctrl.presort;
         ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
         ctrlLowerPrec.reorthogTol = Quad(ctrl.reorthogTol);
@@ -563,8 +570,7 @@ RecursiveHelper
 
         LLLCtrl<BigFloat> ctrlLowerPrec;
         ctrlLowerPrec.delta = ctrl.delta;
-        ctrlLowerPrec.weak = ctrl.weak;
-        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.variant = ctrl.variant;
         ctrlLowerPrec.presort = ctrl.presort;
         ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
         ctrlLowerPrec.reorthogTol = ctrl.reorthogTol;
@@ -714,8 +720,7 @@ RecursiveHelper
 
         LLLCtrl<float> ctrlLowerPrec;
         ctrlLowerPrec.delta = float(ctrl.delta);
-        ctrlLowerPrec.weak = ctrl.weak;
-        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.variant = ctrl.variant;
         ctrlLowerPrec.presort = ctrl.presort;
         ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
         ctrlLowerPrec.reorthogTol = float(ctrl.reorthogTol);
@@ -765,8 +770,7 @@ RecursiveHelper
 
         LLLCtrl<double> ctrlLowerPrec;
         ctrlLowerPrec.delta = double(ctrl.delta);
-        ctrlLowerPrec.weak = ctrl.weak;
-        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.variant = ctrl.variant;
         ctrlLowerPrec.presort = ctrl.presort;
         ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
         ctrlLowerPrec.reorthogTol = double(ctrl.reorthogTol);
@@ -817,8 +821,7 @@ RecursiveHelper
 
         LLLCtrl<Quad> ctrlLowerPrec;
         ctrlLowerPrec.delta = Quad(ctrl.delta);
-        ctrlLowerPrec.weak = ctrl.weak;
-        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.variant = ctrl.variant;
         ctrlLowerPrec.presort = ctrl.presort;
         ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
         ctrlLowerPrec.reorthogTol = Quad(ctrl.reorthogTol);

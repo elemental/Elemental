@@ -31,9 +31,8 @@ int main( int argc, char* argv[] )
           Input
           ("--eta","eta for LLL",
            Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9)));
-        const bool weak = Input("--weak","use a weak reduction?",false);
-        const bool deep = Input("--deep","use deep insertion?",false);
-        const bool presort = Input("--presort","presort columns?",true);
+        const Int varInt = Input("--variant","0: weak, 1: normal, 2: deep insertion, 3: deep reduction",2);
+        const bool presort = Input("--presort","presort columns?",false);
         const bool smallestFirst =
           Input("--smallestFirst","sort smallest first?",true);
         const bool recursive = Input("--recursive","try recursive LLL?",true);
@@ -66,8 +65,7 @@ int main( int argc, char* argv[] )
         LLLCtrl<Real> ctrl;
         ctrl.delta = delta;
         ctrl.eta = eta;
-        ctrl.weak = weak;
-        ctrl.deep = deep;
+        ctrl.variant = static_cast<LLLVariant>(varInt);
         ctrl.presort = presort;
         ctrl.smallestFirst = smallestFirst;
         ctrl.progress = progress;
@@ -100,7 +98,7 @@ int main( int argc, char* argv[] )
             Print( b0, "b0" );
         if( b0Norm <= challenge )
             Output
-            ("SVP Challenge solved: || b_0 ||_2=",b0Norm," <= 1.05*GH(L)",
+            ("SVP Challenge solved: || b_0 ||_2=",b0Norm," <= 1.05*GH(L)=",
              challenge);
         else
             Output

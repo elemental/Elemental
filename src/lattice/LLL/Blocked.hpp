@@ -203,7 +203,7 @@ bool BlockStep
 
         if( ctrl.time )
             roundTimer.Start();
-        if( ctrl.weak )
+        if( ctrl.variant == LLL_WEAK )
         {
             if( Abs(QRBuf[(k-1)+(k-1)*QRLDim]) > ctrl.zeroTol )
             {

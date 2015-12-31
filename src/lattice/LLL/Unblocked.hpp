@@ -164,7 +164,7 @@ bool Step
 
         if( ctrl.time )
             roundTimer.Start();
-        if( ctrl.weak )
+        if( ctrl.variant == LLL_WEAK )
         {
             const Real rho_km1_km1 = RealPart(QRBuf[(k-1)+(k-1)*QRLDim]);
             // We should be able to assume R(k-1,k-1) >= 0
@@ -445,8 +445,7 @@ LLLInfo<Base<F>> UnblockedDeepAlg
     Zeros( t, minDim, 1 );
 
     // TODO: Move into a control structure
-    //const bool alwaysRecomputeNorms = false;
-    const bool alwaysRecomputeNorms = true;
+    const bool alwaysRecomputeNorms = false;
     const Real updateTol = Sqrt(limits::Epsilon<Real>());
 
     // Perform the first step of Householder reduction
@@ -542,6 +541,189 @@ LLLInfo<Base<F>> UnblockedDeepAlg
                 }
                 else
                     partialNorm *= Sqrt(gamma);
+            }
+        }
+        if( !swapped )
+            ++k;
+    }
+
+    if( ctrl.time )
+    {
+        Output("  Apply Householder time: ",applyHouseTimer.Total());
+        Output("  Round time:             ",roundTimer.Total());
+    }
+
+    // Force R to be upper-trapezoidal
+    MakeTrapezoidal( UPPER, QR );
+
+    std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
+    Real logVol = lll::LogVolume(QR);
+
+    LLLInfo<Base<F>> info;
+    info.delta = achieved.first;
+    info.eta = achieved.second;
+    info.rank = n-nullity;
+    info.nullity = nullity;
+    info.numSwaps = numSwaps;
+    info.logVol = logVol;
+
+    return info;
+}
+
+template<typename F>
+LLLInfo<Base<F>> UnblockedDeepReduceAlg
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& QR,
+  bool formU,
+  bool formUInv,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("lll::UnblockedDeepReduceAlg"))
+    typedef Base<F> Real;
+    if( ctrl.time )
+    {
+        applyHouseTimer.Reset();
+        roundTimer.Reset();
+    }
+
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+    Matrix<F> t;
+    Matrix<Real> d;
+    Zeros( QR, m, n );
+    Zeros( d, minDim, 1 );
+    Zeros( t, minDim, 1 );
+
+    // Perform the first step of Householder reduction
+    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+    Int nullity = 0;
+    {
+        auto b0 = B(ALL,IR(0));
+        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+        {
+            auto QR0 = QR(ALL,IR(0));
+            Zero( b0 );
+            Zero( QR0 );
+            nullity = 1;
+        }
+    }
+
+    Int k=1, numSwaps=0;
+    while( k < n )
+    {
+        bool zeroVector =
+          lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        if( zeroVector )
+            nullity = k+1;
+        else
+            nullity = Min(nullity,k);
+
+        bool swapped=false;
+        for( Int i=0; i<k; ++i )
+        {
+            // Perform additional reduction before attempting deep insertion
+            // and reverse them if the candidate was not chosen 
+            // (otherwise |R(i,j)|/R(i,i) can be greater than 1/2 for 
+            // some j > i
+            auto rk = QR( IR(0,k+1), IR(k) );
+            auto rkCopy( rk );
+            bool deepReduced = false;
+            Matrix<F> x;
+            Zeros( x, k-i, 1 );
+            for( Int l=i; l<k; ++l )
+            {
+                // TODO: Perform this calculation more carefully, perhaps
+                //       with an equivalent of the scaled squaring approach
+                //       used for norms
+                F dot = blas::Dot(l-i+1,QR.Buffer(i,k),1,QR.Buffer(i,l),1);
+                Real nrm = blas::Nrm2(l-i+1,QR.Buffer(i,l),1);
+                F mu = (dot/nrm)/nrm;
+                if( ctrl.delta*Abs(RealPart(mu)) >= Real(1)/Real(2) ||
+                    ctrl.delta*Abs(ImagPart(mu)) >= Real(1)/Real(2) )
+                {
+                    F chi = Round(mu);
+                    x.Set( l-i, 0, chi );
+                    blas::Axpy
+                    ( l+1, -chi,
+                      QR.Buffer(0,l), 1,
+                      QR.Buffer(0,k), 1 );
+                    deepReduced = true;
+                }
+            }
+
+            const Real rho_i_i = QR.GetRealPart(i,i);
+            const Real leftTerm = Sqrt(ctrl.delta)*rho_i_i;
+            const Real partialNorm =
+              blas::Nrm2( k-i+1, QR.LockedBuffer(i,k), 1 );
+            if( leftTerm > partialNorm )
+            {
+                ++numSwaps;
+                if( ctrl.progress )
+                    Output("Deep inserting k=",k," into position i=",i," since sqrt(delta)*R(i,i)=",leftTerm," > ",partialNorm);
+
+                // Finish applying the deep reductions since they were accepted
+                // TODO: Apply these in a batch instead?
+                for( Int l=i; l<k; ++l )
+                {
+                    F chi = x.Get(l-i,0);
+                    if( Abs(RealPart(chi)) > 0 || Abs(ImagPart(chi)) > 0 )
+                    {
+                        blas::Axpy
+                        ( m, -chi,
+                          B.Buffer(0,l), 1,
+                          B.Buffer(0,k), 1 );
+                        if( formU )
+                            blas::Axpy
+                            ( n, -chi,
+                              U.Buffer(0,l), 1,
+                              U.Buffer(0,k), 1 );
+                        if( formUInv ) 
+                            blas::Axpy
+                            ( n, chi,
+                              UInv.Buffer(k,0), UInv.LDim(),
+                              UInv.Buffer(l,0), UInv.LDim() );
+                    }
+                }
+
+                DeepColSwap( B, i, k );
+                if( formU )
+                    DeepColSwap( U, i, k );
+                if( formUInv )
+                    DeepRowSwap( UInv, i, k );
+                if( i == 0 )
+                {
+                    // We must reinitialize since we keep k=1
+                    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+                    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                    {
+                        auto b0 = B(ALL,IR(0));
+                        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+                        {
+                            auto QR0 = QR(ALL,IR(0));
+                            Zero( b0 );
+                            Zero( QR0 );
+                            nullity = 1;
+                        }
+                        else
+                            nullity = 0;
+                    }
+                    k=1;
+                }
+                else
+                {
+                    k = i;
+                }
+                swapped = true;
+                break;
+            }
+            else if( deepReduced )
+            {
+                // Undo the (partially applied) deep reductions
+                rk = rkCopy;
             }
         }
         if( !swapped )

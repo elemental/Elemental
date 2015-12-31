@@ -37,12 +37,18 @@ typedef struct
     double logVol;
 } ElLLLInfo_d;
 
+typedef enum {
+  EL_LLL_WEAK,
+  EL_LLL_NORMAL,
+  EL_LLL_DEEP,
+  EL_LLL_DEEP_REDUCE
+} ElLLLVariant;
+
 typedef struct
 {
     float delta;
     float eta;
-    bool weak;
-    bool deep;
+    ElLLLVariant variant;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
@@ -57,8 +63,7 @@ typedef struct
 {
     double delta;
     double eta;
-    bool weak;
-    bool deep;
+    ElLLLVariant variant;
     bool presort;
     bool smallestFirst;
     double reorthogTol;

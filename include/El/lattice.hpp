@@ -67,24 +67,36 @@ Real LatticeGaussianHeuristic( Int n, Real logVol )
            Sqrt(Pi<Real>());
 }
 
+enum LLLVariant {
+  // A 'weak' LLL reduction only ensures that | R(i,i+1) / R(i,i) | is
+  // bounded above by eta (or, for complex data, by sqrt(2) eta), but it often
+  // produces much lower-quality basis vectors
+  LLL_WEAK,
+  LLL_NORMAL,
+  // LLL with 'deep insertion' is no longer guaranteed to be polynomial time
+  // but produces significantly higher quality bases than normal LLL.
+  // See Schnorr and Euchner's "Lattice Basis Reduction: Improved Practical
+  // Algorithms and Solving Subset Sum Problems".
+  LLL_DEEP,
+  // Going one step further, one can perform additional size reduction before
+  // checking each deep insertion condition. See Schnorr's article
+  // "Progress on LLL and Lattice Reduction" in the book "The LLL Algorithm",
+  // edited by Nguyen and Vallee.
+  LLL_DEEP_REDUCE
+};
+
 template<typename Real>
 struct LLLCtrl
 {
     Real delta=Real(3)/Real(4);
     Real eta=Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9));
 
-    // A 'weak' LLL reduction only ensures that | R(i,i+1) / R(i,i) | is
-    // bounded above by eta (or, for complex data, by sqrt(2) eta)
-    bool weak=false;
-
-    // LLL with deep insertion requires more work but tends to produce shorter
-    // vectors
-    bool deep=false;
+    LLLVariant variant=LLL_NORMAL;
 
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
-    // (in the manner suggested by Wubben et al.) tends to greatly decrease
-    // the number of swaps within LLL
-    bool presort=true;
+    // (in the manner suggested by Wubben et al.) can greatly decrease
+    // the number of swaps within LLL in some circumstances
+    bool presort=false;
     bool smallestFirst=true;
 
     // If the size-reduced column has a two-norm that is less than or

@@ -29,14 +29,15 @@ class LLLInfo_d(ctypes.Structure):
               ("numSwaps",iType),
               ("logVol",dType)]
 
+(LLL_WEAK,LLL_NORMAL,LLL_DEEP,LLL_DEEP_REDUCE)=(0,1,2,3)
+
 lib.ElLLLCtrlDefault_s.argtypes = \
 lib.ElLLLCtrlDefault_d.argtypes = \
   [c_void_p]
 class LLLCtrl_s(ctypes.Structure):
   _fields_ = [("delta",sType),
               ("eta",sType),
-              ("weak",bType),
-              ("deep",bType),
+              ("variant",c_uint),
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",sType),
@@ -49,8 +50,7 @@ class LLLCtrl_s(ctypes.Structure):
 class LLLCtrl_d(ctypes.Structure):
   _fields_ = [("delta",dType),
               ("eta",dType),
-              ("weak",bType),
-              ("deep",bType),
+              ("variant",c_uint),
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",dType),
@@ -201,7 +201,7 @@ def ZDependenceSearch(z,NSqrt,ctrl=None):
     numExact = iType()
     B = Matrix(z.tag)
     U = Matrix(z.tag)
-    args = [z.obj,NSqrt,B.obj,U.obj,ctrl,pointer(numFound)]
+    args = [z.obj,NSqrt,B.obj,U.obj,ctrl,pointer(numExact)]
     if   z.tag == sTag: lib.ElZDependenceSearch_s(*args)
     elif z.tag == dTag: lib.ElZDependenceSearch_d(*args)
     elif z.tag == cTag: lib.ElZDependenceSearch_c(*args)

@@ -7,7 +7,7 @@ import El
 #       Z-linear dependence of { alpha^j }_{j=0}^{n-1}
 #
 alpha=El.ComplexDouble(1.002,1.003)
-n=50
+n=30
 tag=El.zTag
 progress=False
 timeLLL=False
@@ -29,13 +29,13 @@ NSqrt=100000.
 B=El.Matrix()
 for presort, smallestFirst in (True,True), (True,False), (False,False):
   for deltaLower in 0.5, 0.75, 0.95, 0.98, 0.99:
-    for weak in False,:
+    for variant in El.LLL_NORMAL, El.LLL_DEEP, El.LLL_DEEP_REDUCE:
 
-      print "weak=%r, presort=%r, smallestFirst=%r, deltaLower=%f" % \
-        (weak,presort,smallestFirst,deltaLower)
+      print "variant=%d, presort=%r, smallestFirst=%r, deltaLower=%f" % \
+        (variant,presort,smallestFirst,deltaLower)
 
       ctrl.delta = deltaLower
-      ctrl.weak = weak 
+      ctrl.variant = variant
       ctrl.presort = presort
       ctrl.smallestFirst = smallestFirst
 

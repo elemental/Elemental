@@ -39,25 +39,24 @@ ctrl.time = timeLLL
 B=El.Matrix()
 for presort, smallestFirst in (True,True), (True,False), (False,False):
   for deltaLower in 0.5, 0.75, 0.95, 0.98:
-    for weak in False, True:
-      for deep in False, True:
+    for variant in El.LLL_NORMAL, El.LLL_DEEP, El.LLL_DEEP_REDUCE:
 
-        print "weak=%r, deep=%r, presort=%r, smallest1st=%r, deltaLower=%f" % \
-          (weak,deep,presort,smallestFirst,deltaLower)
+      print "variant=%d, presort=%r, smallest1st=%r, deltaLower=%f" % \
+        (variant,presort,smallestFirst,deltaLower)
 
-        El.Copy( BOrig, B )
+      El.Copy( BOrig, B )
 
-        ctrl.delta = deltaLower
-        ctrl.weak = weak 
-        ctrl.presort = presort
-        ctrl.smallestFirst = smallestFirst
+      ctrl.delta = deltaLower
+      ctrl.variant = variant
+      ctrl.presort = presort
+      ctrl.smallestFirst = smallestFirst
 
-        # Compute the image and kernel
-        startTime = El.mpi.Time()
-        M, K = El.LatticeImageAndKernel(B,ctrl)
-        runTime = El.mpi.Time() - startTime
-        print "  runtime: %f seconds" % runTime
-        print "  nullity: ", K.Width()
-        if output:
-          El.Print( M, "Image" )
-          El.Print( K, "Kernel" )
+      # Compute the image and kernel
+      startTime = El.mpi.Time()
+      M, K = El.LatticeImageAndKernel(B,ctrl)
+      runTime = El.mpi.Time() - startTime
+      print "  runtime: %f seconds" % runTime
+      print "  nullity: ", K.Width()
+      if output:
+        El.Print( M, "Image" )
+        El.Print( K, "Kernel" )

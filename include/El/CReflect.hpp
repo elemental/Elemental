@@ -2560,6 +2560,10 @@ inline SVMCtrl<double> CReflect( const ElSVMCtrl_d& ctrlC )
 
 // Lattice
 // -------
+inline ElLLLVariant CReflect( LLLVariant var )
+{ return static_cast<ElLLLVariant>(var); }
+inline LLLVariant CReflect( ElLLLVariant var )
+{ return static_cast<LLLVariant>(var); }
 
 inline LLLInfo<float> CReflect( const ElLLLInfo_s& infoC )
 {
@@ -2614,8 +2618,7 @@ inline LLLCtrl<float> CReflect( const ElLLLCtrl_s& ctrlC )
     LLLCtrl<float> ctrl;
     ctrl.delta = ctrlC.delta;
     ctrl.eta = ctrlC.eta;
-    ctrl.weak = ctrlC.weak;
-    ctrl.deep = ctrlC.deep;
+    ctrl.variant = CReflect(ctrlC.variant);
     ctrl.presort = ctrlC.presort;
     ctrl.smallestFirst = ctrlC.smallestFirst;
     ctrl.reorthogTol = ctrlC.reorthogTol;
@@ -2631,8 +2634,7 @@ inline LLLCtrl<double> CReflect( const ElLLLCtrl_d& ctrlC )
     LLLCtrl<double> ctrl;
     ctrl.delta = ctrlC.delta;
     ctrl.eta = ctrlC.eta;
-    ctrl.weak = ctrlC.weak;
-    ctrl.deep = ctrlC.deep;
+    ctrl.variant = CReflect(ctrlC.variant);
     ctrl.presort = ctrlC.presort;
     ctrl.smallestFirst = ctrlC.smallestFirst;
     ctrl.reorthogTol = ctrlC.reorthogTol;
@@ -2648,8 +2650,7 @@ inline ElLLLCtrl_s CReflect( const LLLCtrl<float>& ctrl )
     ElLLLCtrl_s ctrlC;
     ctrlC.delta = ctrl.delta;
     ctrlC.eta = ctrl.eta;
-    ctrlC.weak = ctrl.weak;
-    ctrlC.deep = ctrl.deep;
+    ctrlC.variant = CReflect(ctrl.variant);
     ctrlC.presort = ctrl.presort;
     ctrlC.smallestFirst = ctrl.smallestFirst;
     ctrlC.reorthogTol = ctrl.reorthogTol;
@@ -2665,8 +2666,7 @@ inline ElLLLCtrl_d CReflect( const LLLCtrl<double>& ctrl )
     ElLLLCtrl_d ctrlC;
     ctrlC.delta = ctrl.delta;
     ctrlC.eta = ctrl.eta;
-    ctrlC.weak = ctrl.weak;
-    ctrlC.deep = ctrl.deep;
+    ctrlC.variant = CReflect(ctrl.variant);
     ctrlC.presort = ctrl.presort;
     ctrlC.smallestFirst = ctrl.smallestFirst;
     ctrlC.reorthogTol = ctrl.reorthogTol;

@@ -18,9 +18,8 @@ ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
 
     ctrl->delta = 0.75f;
     ctrl->eta = 0.5f + Pow(eps,0.9f);
-    ctrl->weak = false;
-    ctrl->deep = false;
-    ctrl->presort = true;
+    ctrl->variant = EL_LLL_NORMAL;
+    ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
     ctrl->numOrthog = 1;
@@ -36,9 +35,8 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
 
     ctrl->delta = 0.75;
     ctrl->eta = 0.5 + Pow(eps,0.5);
-    ctrl->weak = false;
-    ctrl->deep = false;
-    ctrl->presort = true;
+    ctrl->variant = EL_LLL_NORMAL;
+    ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
     ctrl->numOrthog = 1;

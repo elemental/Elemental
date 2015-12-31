@@ -1,6 +1,6 @@
 import El
 
-n=1000
+n=40
 tag=El.zTag
 progress=False
 timeLLL=False
@@ -36,17 +36,15 @@ NSqrt=1000000.
 #       so these tests will only use strong LLL reductions
 
 B=El.Matrix()
-weak = False
-ctrl.weak = weak 
 for presort, smallestFirst in (True,True), (True,False), (False,False):
   for deltaLower in 0.5, 0.75, 0.95, 0.98, 0.99:
-    for deep in False,True:
+    for variant in El.LLL_NORMAL, El.LLL_DEEP, El.LLL_DEEP_REDUCE:
 
-      print "deep=%r, presort=%r, smallestFirst=%r, deltaLower=%f" % \
-        (deep,presort,smallestFirst,deltaLower)
+      print "variant=%d, presort=%r, smallestFirst=%r, deltaLower=%f" % \
+        (variant,presort,smallestFirst,deltaLower)
 
       ctrl.delta = deltaLower
-      ctrl.deep = deep
+      ctrl.variant = variant
       ctrl.presort = presort
       ctrl.smallestFirst = smallestFirst
 
