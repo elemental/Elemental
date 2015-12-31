@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include "El/core/FlamePart.hpp"
+
 #include "./ApplyPacked/Util.hpp"
 #include "./ExpandPacked/LV.hpp"
 

@@ -21,6 +21,8 @@
 #ifndef EL_FACTOR_LDL_SPARSE_NUMERIC_LOWERMULTIPLY_BACKWARD_HPP
 #define EL_FACTOR_LDL_SPARSE_NUMERIC_LOWERMULTIPLY_BACKWARD_HPP
 
+#include "El/core/FlamePart.hpp"
+
 #include "./FrontBackward.hpp"
 
 namespace El {

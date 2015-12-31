@@ -32,9 +32,12 @@ int main( int argc, char* argv[] )
           ("--eta","eta for LLL",
            Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9)));
         const bool weak = Input("--weak","use a weak reduction?",false);
+        const bool deep = Input("--deep","use deep insertion?",false);
         const bool presort = Input("--presort","presort columns?",true);
         const bool smallestFirst =
           Input("--smallestFirst","sort smallest first?",true);
+        const bool recursive = Input("--recursive","try recursive LLL?",true);
+        const Int cutoff = Input("--cutoff","recursive cutoff",10);
         const bool progress = Input("--progress","print progress?",false); 
         const bool time = Input("--time","time LLL?",false);
         const bool print = Input("--print","output all matrices?",true);
@@ -64,13 +67,17 @@ int main( int argc, char* argv[] )
         ctrl.delta = delta;
         ctrl.eta = eta;
         ctrl.weak = weak;
+        ctrl.deep = deep;
         ctrl.presort = presort;
         ctrl.smallestFirst = smallestFirst;
         ctrl.progress = progress;
         ctrl.time = time;
-        Matrix<Real> U, UInv, R;
         const double startTime = mpi::Time();
-        auto info = LLL( B, U, UInv, R, ctrl );
+        LLLInfo<Real> info;
+        if( recursive )
+            info = RecursiveLLL( B, cutoff, ctrl );
+        else
+            info = LLL( B, ctrl );
         const double runTime = mpi::Time() - startTime;
         Output("  LLL(",delta,",",eta,") took ",runTime," seconds"); 
         Output("    achieved delta: ",info.delta);
@@ -82,12 +89,7 @@ int main( int argc, char* argv[] )
         Output("    GH(L):          ",GH);
         Output("    1.05 GH(L):     ",challenge);
         if( print )
-        {
             Print( B, "B" ); 
-            Print( U, "U" );
-            Print( UInv, "UInv" );
-            Print( R, "R" );
-        }
         const Real BOneNorm = OneNorm( B );
         Output("|| B ||_1 = ",BOneNorm);
 

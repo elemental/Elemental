@@ -241,7 +241,7 @@ inline Int GCD_( Int a, Int b ) EL_NO_EXCEPT
 inline bool PowerOfTwo( Unsigned n )
 { return n && !(n & (n-1)); }
 
-inline Unsigned Log2( Unsigned n )
+inline Unsigned FlooredLog2( Unsigned n )
 {
     Unsigned result=0;
     while( n >>= 1 )

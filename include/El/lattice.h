@@ -42,6 +42,7 @@ typedef struct
     float delta;
     float eta;
     bool weak;
+    bool deep;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
@@ -57,6 +58,7 @@ typedef struct
     double delta;
     double eta;
     bool weak;
+    bool deep;
     bool presort;
     bool smallestFirst;
     double reorthogTol;

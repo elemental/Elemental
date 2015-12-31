@@ -60,8 +60,10 @@ inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
         S21 = AL21;
         DiagonalSolve( RIGHT, NORMAL, d1, AL21 );
 
-        PartitionDown( S21, S21T, S21B, AL22.Width() );
-        PartitionDown( AL21, AL21T, AL21B, AL22.Width() );
+        const Int ind2Size = AL22.Width();
+        auto S21B = S21( IR(ind2Size,END), ALL );
+        auto AL21T = AL21( IR(0,ind2Size), ALL );
+        auto AL21B = AL21( IR(ind2Size,END), ALL );
         Gemm( NORMAL, orientation, F(-1), S21, AL21T, F(1), AL22 );
         MakeTrapezoidal( LOWER, AL22 );
         Trrk( LOWER, NORMAL, orientation, F(-1), S21B, AL21B, F(1), ABR );
@@ -80,8 +82,8 @@ void ProcessFrontIntraPiv
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    Matrix<F> ATL, ABL;
-    PartitionDown( AL, ATL, ABL, n );
+    auto ATL = AL( IR(0,n  ), ALL );
+    auto ABL = AL( IR(n,END), ALL );
 
     LDL( ATL, subdiag, P, conjugate );
     auto diag = GetDiagonal(ATL);
@@ -102,8 +104,10 @@ inline void ProcessFrontBlock
   bool intraPiv )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
-    Matrix<F> ATL, ABL;
-    PartitionDown( AL, ATL, ABL, AL.Width() );
+    const Int n = AL.Width();
+
+    auto ATL = AL( IR(0,n  ), ALL );
+    auto ABL = AL( IR(n,END), ALL );
 
     // Make a copy of the original contents of ABL
     Matrix<F> BBL( ABL );
@@ -247,9 +251,14 @@ inline void ProcessFrontVanilla
         Transpose( AL21_VC_STAR, AL21Trans_STAR_MR, conjugate );
 
         // Partition the update of the bottom-right corner into three pieces
-        PartitionRight( S21Trans_STAR_MC, leftL, leftR, AL22.Width() );
-        PartitionRight( AL21Trans_STAR_MR, rightL, rightR, AL22.Width() );
-        PartitionDown( AL22, AL22T, AL22B, AL22.Width() );
+        const Int ind2Size = AL22.Width();
+        auto leftL = S21Trans_STAR_MC( ALL, IR(0,ind2Size) );
+        auto leftR = S21Trans_STAR_MC( ALL, IR(ind2Size,END) );
+        auto rightL = AL21Trans_STAR_MR( ALL, IR(0,ind2Size) );
+        auto rightR = AL21Trans_STAR_MR( ALL, IR(ind2Size,END) );
+        auto AL22T = AL22( IR(0,ind2Size), ALL );
+        auto AL22B = AL22( IR(ind2Size,END), ALL );
+
         LocalTrrk( LOWER, orientation,  F(-1), leftL, rightL, F(1), AL22T );
         LocalGemm( orientation, NORMAL, F(-1), leftR, rightL, F(1), AL22B );
         LocalTrrk( LOWER, orientation,  F(-1), leftR, rightR, F(1), ABR );
@@ -272,8 +281,8 @@ void ProcessFrontIntraPiv
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     
-    DistMatrix<F> ATL(g), ABL(g);
-    PartitionDown( AL, ATL, ABL, n );
+    auto ATL = AL( IR(0,n  ), ALL );
+    auto ABL = AL( IR(n,END), ALL );
 
     LDL( ATL, subdiag, P, conjugate );
     auto diag = GetDiagonal(ATL);
@@ -302,9 +311,10 @@ inline void ProcessFrontBlock
   bool intraPiv )
 {
     DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
-    const Grid& g = AL.Grid();
-    DistMatrix<F> ATL(g), ABL(g);
-    PartitionDown( AL, ATL, ABL, AL.Width() );
+    const Int n = AL.Width();
+
+    auto ATL = AL( IR(0,n  ), ALL );
+    auto ABL = AL( IR(n,END), ALL );
 
     // Make a copy of the original contents of ABL
     DistMatrix<F> BBL( ABL );

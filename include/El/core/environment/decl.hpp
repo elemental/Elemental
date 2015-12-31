@@ -15,10 +15,8 @@ namespace El {
 using std::size_t;
 
 using std::array;
-using std::deque;
 using std::function;
 using std::pair;
-using std::set;
 using std::vector;
 
 using std::make_shared;

@@ -28,6 +28,8 @@ mpfr_prec_t Precision();
 size_t NumLimbs();
 void SetPrecision( mpfr_prec_t precision );
 
+Int BinaryToDecimalPrecision( mpfr_prec_t precision );
+
 // NOTE: These should only be called internally
 void RegisterMPI();
 void FreeMPI();
@@ -52,8 +54,10 @@ private:
 public:
     mpfr_ptr    Pointer();
     mpfr_srcptr LockedPointer() const;
+    mpfr_sign_t Sign() const;
     mpfr_exp_t  Exponent() const;
     mpfr_prec_t Precision() const;
+    void        SetPrecision( mpfr_prec_t );
     size_t      NumLimbs() const;
 
     // NOTE: The default constructor does not take an mpfr_prec_t as input
@@ -68,6 +72,10 @@ public:
     BigFloat( const long int& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const long long int& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const double& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const long double& a, mpfr_prec_t prec=mpc::Precision() );
+#ifdef EL_HAVE_QUAD
+    BigFloat( const Quad& a, mpfr_prec_t prec=mpc::Precision() );
+#endif
     BigFloat
     ( const char* str, int base, mpfr_prec_t prec=mpc::Precision() );
     BigFloat
@@ -78,6 +86,10 @@ public:
     void Zero();
 
     BigFloat& operator=( const BigFloat& a );
+#ifdef EL_HAVE_QUAD
+    BigFloat& operator=( const Quad& a );
+#endif
+    BigFloat& operator=( const long double& a );
     BigFloat& operator=( const double& a );
     BigFloat& operator=( const int& a );
     BigFloat& operator=( const long int& a );
@@ -121,6 +133,9 @@ public:
     explicit operator float() const;
     explicit operator double() const;
     explicit operator long double() const;
+#ifdef EL_HAVE_QUAD
+    explicit operator Quad() const;
+#endif
 
     size_t SerializedSize() const;
           byte* Serialize( byte* buf ) const;

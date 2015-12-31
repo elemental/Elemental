@@ -10,18 +10,7 @@
 #ifndef EL_ELEMENT_DECL_HPP
 #define EL_ELEMENT_DECL_HPP
 
-// For std::enable_if
-#include <type_traits>
-
-#ifdef EL_HAVE_QUADMATH
-#include <quadmath.h>
-#endif
-
 namespace El {
-
-#ifdef EL_HAVE_QUAD
-typedef __float128 Quad;
-#endif
 
 template<typename Real>
 using Complex = std::complex<Real>;
@@ -85,6 +74,9 @@ using DisableIf = typename std::enable_if<!Condition::value,T>::type;
 
 // Types that Matrix, DistMatrix, etc. are instantiatable with
 // -----------------------------------------------------------
+template<typename T>
+using IsIntegral = std::is_integral<T>;
+
 template<typename T> struct IsScalar { static const bool value=false; };
 template<> struct IsScalar<Int> { static const bool value=true; };
 template<> struct IsScalar<float> { static const bool value=true; };
@@ -109,6 +101,40 @@ template<> struct IsBlasScalar<Complex<float>>
 { static const bool value=true; };
 template<> struct IsBlasScalar<Complex<double>>
 { static const bool value=true; };
+
+template<typename Real1,typename Real2>
+struct PrecisionIsGreater
+{ static const bool value=false; };
+template<> struct PrecisionIsGreater<double,float>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QUAD
+template<> struct PrecisionIsGreater<Quad,double>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<Quad,float>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_MPC
+// While these aren't necessarily always true, it would be a capitally bad
+// idea to use MPFR without using higher than the available fixed precision
+#ifdef EL_HAVE_QUAD
+template<> struct PrecisionIsGreater<BigFloat,Quad>
+{ static const bool value=true; };
+#endif
+template<> struct PrecisionIsGreater<BigFloat,double>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<BigFloat,float>
+{ static const bool value=true; };
+#endif
+
+template<typename Real,typename RealNew>
+struct ConvertBaseHelper
+{ typedef RealNew type; };
+template<typename Real,typename RealNew>
+struct ConvertBaseHelper<Complex<Real>,RealNew>
+{ typedef Complex<RealNew> type; };
+
+template<typename F,typename RealNew>
+using ConvertBase = typename ConvertBaseHelper<F,RealNew>::type;
 
 // Increase the precision (if possible)
 // ------------------------------------
@@ -351,6 +377,17 @@ template<> Complex<Quad> Log( const Complex<Quad>& alpha );
 template<> BigFloat Log( const BigFloat& alpha );
 #endif
 
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Log2( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad Log2( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Log2( const BigFloat& alpha );
+#endif
+template<typename Integer,typename=EnableIf<IsIntegral<Integer>>,typename=void>
+double Log2( const Integer& alpha );
+
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sqrt( const F& alpha );
 #ifdef EL_HAVE_QUAD
@@ -547,6 +584,9 @@ template<> BigFloat Floor( const BigFloat& alpha );
 template<typename F,typename=EnableIf<IsScalar<F>>>
 void UpdateScaledSquare
 ( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
+template<typename F,typename=EnableIf<IsScalar<F>>>
+void DowndateScaledSquare
+( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_RELEASE_EXCEPT;
 
 // Pi
 // ==
@@ -557,6 +597,7 @@ template<> Quad Pi<Quad>();
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Pi<BigFloat>();
+BigFloat Pi( mpfr_prec_t prec );
 #endif
 
 // Gamma function (and its natural log)

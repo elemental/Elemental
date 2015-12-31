@@ -12,7 +12,11 @@
 #ifndef EL_CORE_DISTGRAPH_DECL_HPP
 #define EL_CORE_DISTGRAPH_DECL_HPP
 
+#include <set>
+
 namespace El {
+
+using std::set;
 
 // Forward declare ldl::DistFront
 namespace ldl { template<typename F> struct DistFront; }

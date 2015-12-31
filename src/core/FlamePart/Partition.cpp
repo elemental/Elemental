@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include "El/core/FlamePart.hpp"
+
 namespace El {
 
 // Partition downwards from the top

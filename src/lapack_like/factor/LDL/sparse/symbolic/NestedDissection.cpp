@@ -9,6 +9,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include <set>
 
 namespace El {
 namespace ldl {

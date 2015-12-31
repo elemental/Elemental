@@ -93,9 +93,11 @@ inline void FrontVanillaLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
@@ -111,8 +113,9 @@ inline void FrontIntraPivLowerBackwardSolve
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
-    Matrix<F> XT, XB;
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
     P.InversePermuteRows( XT );
 }
 
@@ -133,6 +136,7 @@ inline void FrontVanillaLowerBackwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -141,9 +145,10 @@ inline void FrontVanillaLowerBackwardSolve
         return;
     }
 
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     if( XB.Height() != 0 )
     {
@@ -172,10 +177,8 @@ inline void FrontIntraPivLowerBackwardSolve
 
     FrontVanillaLowerBackwardSolve( L, X, conjugate, singleL11AllGather );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
@@ -194,6 +197,7 @@ inline void FrontVanillaLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -202,9 +206,10 @@ inline void FrontVanillaLowerBackwardSolve
         return;
     }
 
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
@@ -226,6 +231,7 @@ inline void FrontVanillaLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(XPre,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -236,9 +242,10 @@ inline void FrontVanillaLowerBackwardSolve
 
     DistMatrix<F> X( XPre );
 
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
@@ -258,10 +265,8 @@ inline void FrontIntraPivLowerBackwardSolve
 
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
@@ -282,6 +287,7 @@ inline void FrontFastLowerBackwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -290,10 +296,10 @@ inline void FrontFastLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := XT - LB^{T/H} XB
     DistMatrix<F,STAR,STAR> Z(g);
@@ -320,10 +326,8 @@ inline void FrontFastIntraPivLowerBackwardSolve
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n),   ALL );
     P.InversePermuteRows( XT );
 }
 
@@ -341,6 +345,7 @@ inline void FrontFastLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -349,11 +354,10 @@ inline void FrontFastLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     DistMatrix<F,MR,STAR> ZT_MR_STAR( g );
     DistMatrix<F,VR,STAR> ZT_VR_STAR( g );
@@ -403,10 +407,8 @@ inline void FrontFastIntraPivLowerBackwardSolve
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
@@ -425,6 +427,7 @@ inline void FrontFastLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -433,10 +436,10 @@ inline void FrontFastLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := XT - LB^{T/H} XB
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -459,10 +462,8 @@ inline void FrontFastIntraPivLowerBackwardSolve
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
@@ -479,9 +480,11 @@ inline void FrontBlockLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // YT := LB^[T/H] XB
     Matrix<F> YT;
@@ -509,6 +512,7 @@ inline void FrontBlockLowerBackwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -516,10 +520,10 @@ inline void FrontBlockLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     if( XB.Height() == 0 )
         return;
@@ -552,6 +556,7 @@ inline void FrontBlockLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -559,11 +564,10 @@ inline void FrontBlockLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     if( XB.Height() == 0 )
         return;
@@ -622,6 +626,7 @@ inline void FrontBlockLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -629,10 +634,10 @@ inline void FrontBlockLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
     if( XB.Height() == 0 )
         return;
 
@@ -664,8 +669,9 @@ inline void FrontLowerBackwardSolve
         const F* LValBuf = front.LSparse.LockedValueBuffer();
         const Int* LColBuf = front.LSparse.LockedTargetBuffer();
         const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
-        Matrix<F> WT, WB;
-        PartitionDown( W, WT, WB, n );
+
+        auto WT = W( IR(0,n), ALL );
+        auto WB = W( IR(n,END), ALL );
 
         const Orientation orientation = 
           ( front.isHermitian ? ADJOINT : TRANSPOSE );

@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include "El/core/FlamePart.hpp"
+
 namespace El {
 
 // Horizontally merge two contiguous matrices
@@ -33,7 +35,8 @@ void Merge1x2( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR )
 template<typename T>
 void Merge1x2
 ( ElementalMatrix<T>& A, 
-  ElementalMatrix<T>& BL, ElementalMatrix<T>& BR )
+  ElementalMatrix<T>& BL,
+  ElementalMatrix<T>& BR )
 {
     DEBUG_ONLY(
       CSE cse("Merge1x2");
@@ -137,7 +140,8 @@ void Merge2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 template<typename T>
 void Merge2x1
 ( ElementalMatrix<T>& A, 
-  ElementalMatrix<T>& BT, ElementalMatrix<T>& BB )
+  ElementalMatrix<T>& BT,
+  ElementalMatrix<T>& BB )
 {
     DEBUG_ONLY(
       CSE cse("Merge2x1");
@@ -225,8 +229,10 @@ DistMatrix<T,U,V> LockedMerge2x1
 template<typename T>
 void Merge2x2
 ( Matrix<T>& A,
-  Matrix<T>& BTL, Matrix<T>& BTR,
-  Matrix<T>& BBL, Matrix<T>& BBR )
+  Matrix<T>& BTL,
+  Matrix<T>& BTR,
+  Matrix<T>& BBL,
+  Matrix<T>& BBR )
 {
     DEBUG_ONLY(
       CSE cse("Merge2x2");
@@ -254,8 +260,10 @@ void Merge2x2
 template<typename T>
 void Merge2x2
 ( ElementalMatrix<T>& A,
-  ElementalMatrix<T>& BTL, ElementalMatrix<T>& BTR,
-  ElementalMatrix<T>& BBL, ElementalMatrix<T>& BBR )
+  ElementalMatrix<T>& BTL,
+  ElementalMatrix<T>& BTR,
+  ElementalMatrix<T>& BBL,
+  ElementalMatrix<T>& BBR )
 {
     DEBUG_ONLY(
       CSE cse("Merge2x2");
@@ -271,8 +279,10 @@ void Merge2x2
 template<typename T>
 void LockedMerge2x2
 (       Matrix<T>& A,
-  const Matrix<T>& BTL, const Matrix<T>& BTR,
-  const Matrix<T>& BBL, const Matrix<T>& BBR )
+  const Matrix<T>& BTL,
+  const Matrix<T>& BTR,
+  const Matrix<T>& BBL,
+  const Matrix<T>& BBR )
 {
     DEBUG_ONLY(
       CSE cse("LockedMerge2x2");
@@ -298,8 +308,10 @@ void LockedMerge2x2
 template<typename T>
 void LockedMerge2x2
 (       ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& BTL, const ElementalMatrix<T>& BTR,
-  const ElementalMatrix<T>& BBL, const ElementalMatrix<T>& BBR )
+  const ElementalMatrix<T>& BTL,
+  const ElementalMatrix<T>& BTR,
+  const ElementalMatrix<T>& BBL,
+  const ElementalMatrix<T>& BBR )
 {
     DEBUG_ONLY(
       CSE cse("LockedMerge2x2");

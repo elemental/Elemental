@@ -8,6 +8,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+
+#include <algorithm>
+#include <iomanip>
+#include <set>
+#include <stack>
+
 #ifdef EL_HAVE_QT5
  #include <QApplication>
 #endif

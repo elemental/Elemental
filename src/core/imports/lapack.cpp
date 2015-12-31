@@ -1314,8 +1314,11 @@ void BidiagQRAlg
 // ======================
 
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, float* A, BlasInt ldA, 
-  float* s, float* U, BlasInt ldu, float* VTrans, BlasInt ldvt )
+( BlasInt m, BlasInt n,
+  float* A, BlasInt ldA, 
+  float* s,
+  float* U, BlasInt ldu,
+  float* VTrans, BlasInt ldvt )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
@@ -1343,8 +1346,11 @@ void DivideAndConquerSVD
 }
 
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, double* A, BlasInt ldA, 
-  double* s, double* U, BlasInt ldu, double* VTrans, BlasInt ldvt )
+( BlasInt m, BlasInt n,
+  double* A, BlasInt ldA, 
+  double* s,
+  double* U, BlasInt ldu,
+  double* VTrans, BlasInt ldvt )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
@@ -1372,8 +1378,11 @@ void DivideAndConquerSVD
 }
 
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, 
-  float* s, scomplex* U, BlasInt ldu, scomplex* VH, BlasInt ldva )
+( BlasInt m, BlasInt n,
+  scomplex* A, BlasInt ldA, 
+  float* s,
+  scomplex* U, BlasInt ldu,
+  scomplex* VH, BlasInt ldva )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
@@ -1404,8 +1413,11 @@ void DivideAndConquerSVD
 }
 
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, 
-  double* s, dcomplex* U, BlasInt ldu, dcomplex* VH, BlasInt ldva )
+( BlasInt m, BlasInt n,
+  dcomplex* A, BlasInt ldA, 
+  double* s,
+  dcomplex* U, BlasInt ldu,
+  dcomplex* VH, BlasInt ldva )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
@@ -1439,8 +1451,11 @@ void DivideAndConquerSVD
 // ================
 
 void QRSVD
-( BlasInt m, BlasInt n, float* A, BlasInt ldA, 
-  float* s, float* U, BlasInt ldu, float* VTrans, BlasInt ldvt )
+( BlasInt m, BlasInt n,
+  float* A, BlasInt ldA, 
+  float* s,
+  float* U, BlasInt ldu,
+  float* VTrans, BlasInt ldvt )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
@@ -1466,8 +1481,11 @@ void QRSVD
 }
 
 void QRSVD
-( BlasInt m, BlasInt n, double* A, BlasInt ldA, 
-  double* s, double* U, BlasInt ldu, double* VTrans, BlasInt ldvt )
+( BlasInt m, BlasInt n,
+  double* A, BlasInt ldA, 
+  double* s,
+  double* U, BlasInt ldu,
+  double* VTrans, BlasInt ldvt )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
@@ -1493,8 +1511,11 @@ void QRSVD
 }
 
 void QRSVD
-( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, 
-  float* s, scomplex* U, BlasInt ldu, scomplex* VH, BlasInt ldva )
+( BlasInt m, BlasInt n,
+  scomplex* A, BlasInt ldA, 
+  float* s,
+  scomplex* U, BlasInt ldu,
+  scomplex* VH, BlasInt ldva )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
@@ -1522,8 +1543,11 @@ void QRSVD
 }
 
 void QRSVD
-( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, 
-  double* s, dcomplex* U, BlasInt ldu, dcomplex* VH, BlasInt ldva )
+( BlasInt m, BlasInt n,
+  dcomplex* A, BlasInt ldA, 
+  double* s,
+  dcomplex* U, BlasInt ldu,
+  dcomplex* VH, BlasInt ldva )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )

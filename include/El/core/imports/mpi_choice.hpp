@@ -12,6 +12,8 @@
 #ifndef EL_IMPORTS_MPICHOICE_HPP
 #define EL_IMPORTS_MPICHOICE_HPP
 
+#include <algorithm>
+
 namespace El {
 namespace choice {
 

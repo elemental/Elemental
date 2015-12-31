@@ -33,7 +33,7 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
-    const Int logp = Log2(p);
+    const Int logp = FlooredLog2(p);
 
     Matrix<F> lastZ;
     lastZ = treeData.QR0( IR(0,n), IR(0,n) );
@@ -201,7 +201,7 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
-    const Int logp = Log2(p);
+    const Int logp = FlooredLog2(p);
 
     // Run the binary tree scatter
     Matrix<F> Z(2*n,n,2*n), ZHalf(n,n,n);

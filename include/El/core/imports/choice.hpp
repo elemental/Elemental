@@ -12,6 +12,8 @@
 #ifndef EL_IMPORTS_CHOICE_HPP
 #define EL_IMPORTS_CHOICE_HPP
 
+#include <algorithm>
+
 namespace El {
 
 class ArgException : public std::logic_error

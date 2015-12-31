@@ -17,11 +17,20 @@ mpfr_ptr BigFloat::Pointer()
 mpfr_srcptr BigFloat::LockedPointer() const
 { return mpfrFloat_; }
 
+mpfr_sign_t BigFloat::Sign() const
+{ return mpfrFloat_->_mpfr_sign; }
+
 mpfr_exp_t BigFloat::Exponent() const
 { return mpfrFloat_->_mpfr_exp; }
 
 mpfr_prec_t BigFloat::Precision() const
 { return mpfrFloat_->_mpfr_prec; }
+
+void BigFloat::SetPrecision( mpfr_prec_t prec )
+{
+    mpfr_set_prec( mpfrFloat_, prec ); 
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+}
 
 size_t BigFloat::NumLimbs() const
 { return numLimbs_; }
@@ -41,9 +50,9 @@ BigFloat::BigFloat( const BigFloat& a, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [BigFloat]"))
     if( &a != this )
     {
+        numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
         mpfr_init2( mpfrFloat_, prec );
         mpfr_set( mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
-        numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     }
     DEBUG_ONLY(
     else
@@ -54,65 +63,90 @@ BigFloat::BigFloat( const BigFloat& a, mpfr_prec_t prec )
 BigFloat::BigFloat( const unsigned& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     mpfr_init2( Pointer(), prec );
     mpfr_set_ui( Pointer(), a, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const unsigned long& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned long]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     mpfr_init2( Pointer(), prec );
     mpfr_set_ui( Pointer(), a, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const unsigned long long& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned long long]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     mpfr_init2( Pointer(), prec );
     mpfr_set_uj( Pointer(), a, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [int]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     mpfr_init2( Pointer(), prec );
     mpfr_set_si( Pointer(), a, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const long int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long int]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     mpfr_init2( Pointer(), prec );
     mpfr_set_si( Pointer(), a, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const long long int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long long int]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     mpfr_init2( Pointer(), prec );
     mpfr_set_sj( Pointer(), a, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 BigFloat::BigFloat( const double& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [double]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     mpfr_init2( Pointer(), prec );
     mpfr_set_d( Pointer(), a, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
+
+BigFloat::BigFloat( const long double& a, mpfr_prec_t prec )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long double]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    mpfr_init2( Pointer(), prec );
+    mpfr_set_ld( Pointer(), a, mpc::RoundingMode() ); 
+}
+
+#ifdef EL_HAVE_QUAD
+BigFloat::BigFloat( const Quad& a, mpfr_prec_t prec )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::BigFloat [Quad]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    mpfr_init2( Pointer(), prec );
+#ifdef EL_HAVE_MPFR_FLOAT128
+    mpfr_set_float128( Pointer(), a, mpc::RoundingMode() );
+#else
+    char str[128];
+    quadmath_snprintf( str, 128, "%Qe", a );
+    int base=10;
+    mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
+#endif
+}
+#endif
 
 BigFloat::BigFloat( const char* str, int base, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [char*]"))
     mpfr_init2( Pointer(), prec );
-    mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
     numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const std::string& str, int base, mpfr_prec_t prec )
@@ -150,9 +184,6 @@ BigFloat& BigFloat::operator=( const BigFloat& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator= [BigFloat]"))
     mpfr_set( Pointer(), a.LockedPointer(), mpc::RoundingMode() );
-    // TODO: Decide if this can be safely removed
-    const mpfr_prec_t prec = Precision();
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
     return *this;
 }
 
@@ -204,6 +235,29 @@ BigFloat& BigFloat::operator=( const double& a )
     mpfr_set_d( Pointer(), a, mpc::RoundingMode() );
     return *this;
 }
+
+BigFloat& BigFloat::operator=( const long double& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator= [long double]"))
+    mpfr_set_ld( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+#ifdef EL_HAVE_QUAD
+BigFloat& BigFloat::operator=( const Quad& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator= [Quad]"))
+#ifdef EL_HAVE_MPFR_FLOAT128
+    mpfr_set_float128( Pointer(), a, mpc::RoundingMode() );
+#else
+    char str[128];
+    quadmath_snprintf( str, 128, "%Qe", a );
+    int base=10;
+    mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
+#endif
+    return *this;
+}
+#endif
 
 BigFloat& BigFloat::operator=( BigFloat&& a )
 {
@@ -350,6 +404,31 @@ BigFloat::operator double() const
 BigFloat::operator long double() const
 { return mpfr_get_ld( LockedPointer(), mpc::RoundingMode() ); }
 
+#ifdef EL_HAVE_QUAD
+BigFloat::operator Quad() const
+{
+#ifdef EL_HAVE_MPFR_FLOAT128
+    return mpfr_get_float128( LockedPointer(), mpc::RoundingMode() );
+#else
+    std::ostringstream format;
+    format << "%.";
+    format << mpc::BinaryToDecimalPrecision(Precision())+1;
+    format << "Rg";
+
+    char* rawStr = 0;
+    const int numChar =
+      mpfr_asprintf( &rawStr, format.str().c_str(), LockedPointer() );
+    Quad alpha=0;
+    if( numChar >= 0 )
+    {
+        alpha = strtoflt128( rawStr, NULL );
+        mpfr_free_str( rawStr );
+    }
+    return alpha;
+#endif
+}
+#endif
+
 size_t BigFloat::SerializedSize() const
 {
     DEBUG_ONLY(CSE cse("BigFloat::SerializedSize"))
@@ -462,10 +541,13 @@ std::ostream& operator<<( std::ostream& os, const BigFloat& alpha )
     DEBUG_ONLY(CSE cse("operator<<(std::ostream&,const BigFloat&)"))
     std::ostringstream osFormat;
     osFormat << "%.";
+    /*
     if( os.precision() >= 0 )
         osFormat << os.precision();
     else
-        osFormat << "12";
+        osFormat << mpc::BinaryToDecimalPrecision(alpha.Precision())+1;
+    */
+    osFormat << mpc::BinaryToDecimalPrecision(alpha.Precision())+1;
     // TODO: Support floating-point and exponential as runtime options
     osFormat << "Rg";
 

@@ -77,6 +77,10 @@ struct LLLCtrl
     // bounded above by eta (or, for complex data, by sqrt(2) eta)
     bool weak=false;
 
+    // LLL with deep insertion requires more work but tends to produce shorter
+    // vectors
+    bool deep=false;
+
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
     // (in the manner suggested by Wubben et al.) tends to greatly decrease
     // the number of swaps within LLL
@@ -119,6 +123,17 @@ LLLInfo<Base<F>> LLL
   Matrix<F>& U,
   Matrix<F>& UInv,
   Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+// Perform a tree reduction of subsets of the original basis in order to 
+// expose parallelism and perform as much work as possible in double-precision
+// (which is often possible even for the SVP Challenge).
+// This will not be substantially faster than the above LLL until Elemental
+// supports different MPFR precisions simultaneously
+template<typename F>
+LLLInfo<Base<F>> RecursiveLLL
+( Matrix<F>& B,
+  Int cutoff=10,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // Overwrite B, fill M with its (quasi-reduced) image of B, and fill K with the

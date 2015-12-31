@@ -178,22 +178,22 @@ bool Step
                     blas::Axpy
                     ( k, -chi,
                       &QRBuf[(k-1)*QRLDim], 1,
-                      &QRBuf[k*QRLDim], 1 );
+                      &QRBuf[ k   *QRLDim], 1 );
 
                     blas::Axpy
                     ( m, -chi,
                       &BBuf[(k-1)*BLDim], 1,
-                      &BBuf[k*BLDim], 1 );
+                      &BBuf[ k   *BLDim], 1 );
 
                     if( formU )
                         blas::Axpy
                         ( n, -chi,
                           &UBuf[(k-1)*ULDim], 1,
-                          &UBuf[k*ULDim], 1 );
+                          &UBuf[ k   *ULDim], 1 );
                     if( formUInv )
                         blas::Axpy
                         ( n, chi,
-                          &UInvBuf[k], UInvLDim,
+                          &UInvBuf[k  ], UInvLDim,
                           &UInvBuf[k-1], UInvLDim );
                 }
             }
@@ -224,12 +224,14 @@ bool Step
             }
             blas::Gemv
             ( 'N', m, k,
-              F(-1), BBuf, BLDim, &xBuf[0], 1,
+              F(-1), BBuf,           BLDim,
+                     &xBuf[0],       1,
               F(+1), &BBuf[k*BLDim], 1 );
             if( formU )
                 blas::Gemv
                 ( 'N', n, k,
-                  F(-1), UBuf, ULDim, &xBuf[0], 1,
+                  F(-1), UBuf,           ULDim,
+                         &xBuf[0],       1,
                   F(+1), &UBuf[k*ULDim], 1 );
             if( formUInv )
                 blas::Geru
@@ -358,6 +360,192 @@ LLLInfo<Base<F>> UnblockedAlg
                 k = k-1; 
             }
         }
+    }
+
+    if( ctrl.time )
+    {
+        Output("  Apply Householder time: ",applyHouseTimer.Total());
+        Output("  Round time:             ",roundTimer.Total());
+    }
+
+    // Force R to be upper-trapezoidal
+    MakeTrapezoidal( UPPER, QR );
+
+    std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
+    Real logVol = lll::LogVolume(QR);
+
+    LLLInfo<Base<F>> info;
+    info.delta = achieved.first;
+    info.eta = achieved.second;
+    info.rank = n-nullity;
+    info.nullity = nullity;
+    info.numSwaps = numSwaps;
+    info.logVol = logVol;
+
+    return info;
+}
+
+template<typename F>
+void DeepColSwap( Matrix<F>& B, Int i, Int k )
+{
+    const Int m = B.Height();
+    auto bi = B( ALL, IR(i) );
+    auto bk = B( ALL, IR(k) );
+    auto bkCopy( bk );
+
+    F* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+    for( Int l=k-1; l>=i; --l )
+        blas::Copy( m, &BBuf[l*BLDim], 1, &BBuf[(l+1)*BLDim], 1 );
+
+    bi = bkCopy;
+}
+
+template<typename F>
+void DeepRowSwap( Matrix<F>& B, Int i, Int k )
+{
+    const Int n = B.Width();
+    auto bi = B( IR(i), ALL );
+    auto bk = B( IR(k), ALL );
+    auto bkCopy( bk );
+
+    F* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+    for( Int l=k-1; l>=i; --l )
+        blas::Copy( n, &BBuf[l], BLDim, &BBuf[l+1], BLDim );
+
+    bi = bkCopy;
+}
+
+template<typename F>
+LLLInfo<Base<F>> UnblockedDeepAlg
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& QR,
+  bool formU,
+  bool formUInv,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("lll::UnblockedDeepAlg"))
+    typedef Base<F> Real;
+    if( ctrl.time )
+    {
+        applyHouseTimer.Reset();
+        roundTimer.Reset();
+    }
+
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+    Matrix<F> t;
+    Matrix<Real> d;
+    Zeros( QR, m, n );
+    Zeros( d, minDim, 1 );
+    Zeros( t, minDim, 1 );
+
+    // TODO: Move into a control structure
+    //const bool alwaysRecomputeNorms = false;
+    const bool alwaysRecomputeNorms = true;
+    const Real updateTol = Sqrt(limits::Epsilon<Real>());
+
+    // Perform the first step of Householder reduction
+    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+    Int nullity = 0;
+    {
+        auto b0 = B(ALL,IR(0));
+        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+        {
+            auto QR0 = QR(ALL,IR(0));
+            Zero( b0 );
+            Zero( QR0 );
+            nullity = 1;
+        }
+    }
+
+    Int k=1, numSwaps=0;
+    while( k < n )
+    {
+        bool zeroVector =
+          lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        if( zeroVector )
+            nullity = k+1;
+        else
+            nullity = Min(nullity,k);
+
+        bool swapped=false;
+        // NOTE:
+        // There appears to be a mistake in the "New Step 4" initialization of 
+        // "c" in 
+        //
+        //   Schnorr and Euchner, "Lattice Basis Reduction: Improved Practical
+        //   Algorithms and Solving Subset Sum Problems", 
+        //
+        // as "c" should be initialized to || b_k ||^2, not || b'_k ||^2,
+        // where || b'_k ||_2 = R(k,k) and || b_k ||_2 = norm(R(1:k,k)),
+        // if we count from one.
+        Real origNorm = blas::Nrm2( k+1, QR.LockedBuffer(0,k), 1 );
+        Real partialNorm = origNorm;
+        for( Int i=0; i<k; ++i )
+        {
+            const Real rho_i_i = QR.GetRealPart(i,i);
+            const Real leftTerm = Sqrt(ctrl.delta)*rho_i_i;
+            if( leftTerm > partialNorm )
+            {
+                ++numSwaps;
+                if( ctrl.progress )
+                    Output("Deep inserting k=",k," into position i=",i," since sqrt(delta)*R(i,i)=",leftTerm," > ",partialNorm);
+
+                DeepColSwap( B, i, k );
+                if( formU )
+                    DeepColSwap( U, i, k );
+                if( formUInv )
+                    DeepRowSwap( UInv, i, k );
+                if( i == 0 )
+                {
+                    // We must reinitialize since we keep k=1
+                    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+                    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                    {
+                        auto b0 = B(ALL,IR(0));
+                        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+                        {
+                            auto QR0 = QR(ALL,IR(0));
+                            Zero( b0 );
+                            Zero( QR0 );
+                            nullity = 1;
+                        }
+                        else
+                            nullity = 0;
+                    }
+                    k=1;
+                }
+                else
+                {
+                    k = i;
+                }
+                swapped = true;
+                break;
+            }
+            else
+            {
+                // Downdate the partial norm in the same manner as LAWN 176
+                Real gamma = Abs(QR.Get(i,k)) / partialNorm;
+                gamma = Max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
+                const Real ratio = partialNorm / origNorm; 
+                const Real phi = gamma*(ratio*ratio);
+                if( phi <= updateTol || alwaysRecomputeNorms )
+                {
+                    partialNorm = blas::Nrm2( k-i, QR.LockedBuffer(i+1,k), 1 );
+                    origNorm = partialNorm;
+                }
+                else
+                    partialNorm *= Sqrt(gamma);
+            }
+        }
+        if( !swapped )
+            ++k;
     }
 
     if( ctrl.time )

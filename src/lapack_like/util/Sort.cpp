@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include <algorithm>
+
 namespace El {
 
 // Sort each column of the real matrix X

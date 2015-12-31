@@ -194,6 +194,15 @@ F Pow( const F& alpha, const int& beta ) EL_NO_EXCEPT
 // ----------------------
 template<typename F,typename>
 F Log( const F& alpha ) { return std::log(alpha); }
+
+template<typename Real,typename>
+Real Log2( const Real& alpha )
+{ return std::log2(alpha); }
+
+template<typename Integer,typename,typename>
+double Log2( const Integer& alpha )
+{ return std::log2(alpha); }
+
 template<typename F,typename>
 F Sqrt( const F& alpha ) { return std::sqrt(alpha); }
 
@@ -283,6 +292,27 @@ void UpdateScaledSquare
             scaledSquare = scaledSquare*relScale*relScale + Real(1);
             scale = alphaAbs;
         }
+    }
+}
+
+template<typename F,typename>
+void DowndateScaledSquare
+( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_RELEASE_EXCEPT
+{
+    typedef Base<F> Real;
+    Real alphaAbs = Abs(alpha);
+    if( alphaAbs != 0 )
+    {
+        DEBUG_ONLY(
+          if( alphaAbs > scale )
+              LogicError("Tried to downdate with too large of a value");
+        )
+        const Real relScale = alphaAbs/scale;
+        scaledSquare -= relScale*relScale;
+        DEBUG_ONLY(
+          if( scaledSquare < Real(0) )
+              LogicError("Downdate produced a negative value");
+        )
     }
 }
 

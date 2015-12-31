@@ -60,7 +60,7 @@ Int DiagonalLength( Int height, Int width, Int offset=0 ) EL_NO_EXCEPT;
 Int GCD( Int a, Int b ); 
 Int GCD_( Int a, Int b ) EL_NO_EXCEPT; 
 
-Unsigned Log2( Unsigned n );
+Unsigned FlooredLog2( Unsigned n );
 bool PowerOfTwo( Unsigned n );
 
 } // namespace El

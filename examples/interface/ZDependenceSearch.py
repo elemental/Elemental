@@ -36,15 +36,17 @@ NSqrt=1000000.
 #       so these tests will only use strong LLL reductions
 
 B=El.Matrix()
+weak = False
+ctrl.weak = weak 
 for presort, smallestFirst in (True,True), (True,False), (False,False):
   for deltaLower in 0.5, 0.75, 0.95, 0.98, 0.99:
-    for weak in False,:
+    for deep in False,True:
 
-      print "weak=%r, presort=%r, smallestFirst=%r, deltaLower=%f" % \
-        (weak,presort,smallestFirst,deltaLower)
+      print "deep=%r, presort=%r, smallestFirst=%r, deltaLower=%f" % \
+        (deep,presort,smallestFirst,deltaLower)
 
       ctrl.delta = deltaLower
-      ctrl.weak = weak 
+      ctrl.deep = deep
       ctrl.presort = presort
       ctrl.smallestFirst = smallestFirst
 

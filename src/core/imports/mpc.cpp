@@ -41,6 +41,9 @@ void SetPrecision( mpfr_prec_t prec )
 mpfr_rnd_t RoundingMode()
 { return mpfr_get_default_rounding_mode(); }
 
+Int BinaryToDecimalPrecision( mpfr_prec_t prec )
+{ return Int(Floor(prec*std::log10(2.))); }
+
 } // namespace mpc
 } // namespace El
 

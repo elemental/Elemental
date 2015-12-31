@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include "El/core/FlamePart.hpp"
+
 // This file implements both dense and sparse-direct solutions of 
 // General (Gauss-Markov) Linear Model (GLM):
 //

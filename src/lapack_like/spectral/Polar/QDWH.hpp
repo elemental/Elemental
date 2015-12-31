@@ -49,8 +49,8 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
     Real frobNormADiff;
     Matrix<F> ALast, ATemp, C;
     Matrix<F> Q( m+n, n );
-    Matrix<F> QT, QB;
-    PartitionDown( Q, QT, QB, m );
+    auto QT = Q( IR(0,m  ), ALL );
+    auto QB = Q( IR(m,END), ALL );
     Int numIts=0;
     while( numIts < ctrl.maxIts )
     {
@@ -192,8 +192,8 @@ QDWHInner
     const Grid& g = A.Grid();
     DistMatrix<F> ALast(g), ATemp(g), C(g);
     DistMatrix<F> Q( m+n, n, g );
-    DistMatrix<F> QT(g), QB(g);
-    PartitionDown( Q, QT, QB, m );
+    auto QT = Q( IR(0,m  ), ALL );
+    auto QB = Q( IR(m,END), ALL );
 
     Int numIts=0;
     Real frobNormADiff;
@@ -349,8 +349,9 @@ QDWHInner
     Real frobNormADiff;
     Matrix<F> ALast, ATemp, C;
     Matrix<F> Q( 2*n, n );
-    Matrix<F> QT, QB;
-    PartitionDown( Q, QT, QB, n );
+    auto QT = Q( IR(0,n  ), ALL );
+    auto QB = Q( IR(n,END), ALL );
+
     Int numIts=0;
     while( numIts < ctrl.maxIts )
     {
@@ -492,8 +493,9 @@ QDWHInner
     Real frobNormADiff;
     DistMatrix<F> ALast(g), ATemp(g), C(g);
     DistMatrix<F> Q( 2*n, n, g );
-    DistMatrix<F> QT(g), QB(g);
-    PartitionDown( Q, QT, QB, n );
+    auto QT = Q( IR(0,n  ), ALL );
+    auto QB = Q( IR(n,END), ALL );
+
     Int numIts=0;
     while( numIts < ctrl.maxIts )
     {
