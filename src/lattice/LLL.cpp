@@ -368,10 +368,14 @@ RecursiveHelper
     }
 
     const Real maxOneNorm = Max(CLOneNorm,CROneNorm);
-    const Real fudge = 1.5;
+    const Real fudge = 1.5; // TODO: Make tunable
     const Int neededPrec = Int(Ceil(Log2(maxOneNorm)*fudge));
+    if( ctrl.progress )
+        Output("Needed precision: ",neededPrec);
 
     // Attempt to move to a lower precision
+    // TODO: Chain up the datatypes via try/catch
+    // TODO: Find a cheap means of checking for errors
 #ifdef EL_HAVE_MPC
     // Only move down to a lower-precision MPFR type if the jump is substantial.
     // The current value has been naively chosen.
@@ -379,7 +383,57 @@ RecursiveHelper
     mpfr_prec_t inputPrec = mpc::Precision();
 #endif
     try {
-    if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+    if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+    {
+        if( ctrl.progress )
+            Output("  Dropping to single-precision");
+        Matrix<float> BLowerPrec;
+        BLowerPrec.Resize( B.Height(), n );
+        // Interleave CL and CR to reform B before running LLL again
+        // NOTE: This does not seem to make a substantial difference
+        for( Int jSub=0; jSub<n/2; ++jSub )
+        {
+            auto cl = CL( ALL, IR(jSub) );
+            auto cr = CR( ALL, IR(jSub) ); 
+            auto bl = BLowerPrec( ALL, IR(2*jSub) );
+            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
+            Copy( cl, bl );
+            Copy( cr, br );
+        }
+        if( firstHalf > n/2 )
+        {
+            auto cl = CL( ALL, IR(firstHalf-1) );
+            auto bl = BLowerPrec( ALL, IR(n-1) ); 
+            Copy( cl, bl );
+        }
+
+        LLLCtrl<float> ctrlLowerPrec;
+        ctrlLowerPrec.delta = float(ctrl.delta);
+        ctrlLowerPrec.weak = ctrl.weak;
+        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.presort = ctrl.presort;
+        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
+        ctrlLowerPrec.reorthogTol = float(ctrl.reorthogTol);
+        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
+        ctrlLowerPrec.progress = ctrl.progress;
+        ctrlLowerPrec.time = ctrl.time;
+        if( ctrl.time )
+            timer.Start();
+        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
+        if( ctrl.time )
+            Output("  single-precision LLL took ",timer.Stop()," seconds");
+        Copy( BLowerPrec, B );
+        LLLInfo<Real> parentInfo;
+        parentInfo.delta = parentInfoLowerPrec.delta;
+        parentInfo.eta = parentInfoLowerPrec.eta;
+        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
+                              leftInfo.numSwaps + rightInfo.numSwaps;
+        parentInfo.rank = parentInfoLowerPrec.rank;
+        parentInfo.nullity = parentInfoLowerPrec.nullity;
+        parentInfo.logVol = parentInfoLowerPrec.logVol;
+        return parentInfo;
+    }
+    else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
     {
         if( ctrl.progress )
             Output("  Dropping to double-precision");
@@ -625,12 +679,66 @@ RecursiveHelper
     }
 
     const Real maxOneNorm = Max(CLOneNorm,CROneNorm);
-    const Real fudge = 1.5;
+    const Real fudge = 1.5; // TODO: Make tunable
     const Int neededPrec = Int(Ceil(Log2(maxOneNorm)*fudge));
+    if( ctrl.progress )
+        Output("Needed precision: ",neededPrec);
 
     // Attempt to move to a lower precision
+    // TODO: Find a cheap means of checking for errors
     try {
-    if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+    if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+    {
+        typedef ConvertBase<F,float> FFlt;
+        if( ctrl.progress )
+            Output("  Dropping to single-precision");
+        Matrix<FFlt> BLowerPrec;
+        BLowerPrec.Resize( B.Height(), n );
+        // Interleave CL and CR to reform B before running LLL again
+        // NOTE: This does not seem to make a substantial difference
+        for( Int jSub=0; jSub<n/2; ++jSub )
+        {
+            auto cl = CL( ALL, IR(jSub) );
+            auto cr = CR( ALL, IR(jSub) ); 
+            auto bl = BLowerPrec( ALL, IR(2*jSub) );
+            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
+            Copy( cl, bl );
+            Copy( cr, br );
+        }
+        if( firstHalf > n/2 )
+        {
+            auto cl = CL( ALL, IR(firstHalf-1) );
+            auto bl = BLowerPrec( ALL, IR(n-1) ); 
+            Copy( cl, bl );
+        }
+
+        LLLCtrl<float> ctrlLowerPrec;
+        ctrlLowerPrec.delta = float(ctrl.delta);
+        ctrlLowerPrec.weak = ctrl.weak;
+        ctrlLowerPrec.deep = ctrl.deep;
+        ctrlLowerPrec.presort = ctrl.presort;
+        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
+        ctrlLowerPrec.reorthogTol = float(ctrl.reorthogTol);
+        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
+        ctrlLowerPrec.progress = ctrl.progress;
+        ctrlLowerPrec.time = ctrl.time;
+        if( ctrl.time )
+            timer.Start();
+        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
+        if( ctrl.time )
+            Output("  single-precision LLL took ",timer.Stop()," seconds");
+        Copy( BLowerPrec, B );
+        LLLInfo<Real> parentInfo;
+        parentInfo.delta = parentInfoLowerPrec.delta;
+        parentInfo.eta = parentInfoLowerPrec.eta;
+        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
+                              leftInfo.numSwaps + rightInfo.numSwaps;
+        parentInfo.rank = parentInfoLowerPrec.rank;
+        parentInfo.nullity = parentInfoLowerPrec.nullity;
+        parentInfo.logVol = parentInfoLowerPrec.logVol;
+        return parentInfo;
+    }
+    else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
     {
         typedef ConvertBase<F,double> FDbl;
         if( ctrl.progress )
