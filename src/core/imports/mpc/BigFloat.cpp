@@ -134,9 +134,18 @@ BigFloat::BigFloat( const Quad& a, mpfr_prec_t prec )
     mpfr_set_float128( Pointer(), a, mpc::RoundingMode() );
 #else
     char str[128];
-    quadmath_snprintf( str, 128, "%Qe", a );
-    int base=10;
+    quadmath_snprintf( str, 128, "%Qa", a );
+    int base=16;
     mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
+
+#endif
+#ifdef EL_TEST_ROUNDTRIPS
+    DEBUG_ONLY(
+      // Try a round-trip
+      Quad b = Quad(*this);
+      if( a != b )
+          LogicError("a=",a,", b=",b,", a-b=",a-b,", BF=",*this);
+    )    
 #endif
 }
 #endif
@@ -251,9 +260,17 @@ BigFloat& BigFloat::operator=( const Quad& a )
     mpfr_set_float128( Pointer(), a, mpc::RoundingMode() );
 #else
     char str[128];
-    quadmath_snprintf( str, 128, "%Qe", a );
-    int base=10;
+    quadmath_snprintf( str, 128, "%Qa", a );
+    int base=16;
     mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
+#endif
+#ifdef EL_TEST_ROUNDTRIPS
+    DEBUG_ONLY(
+      // Try a round-trip
+      Quad b = Quad(*this);
+      if( a != b )
+          LogicError("a=",a,", b=",b,", a-b=",a-b,", BF=",*this);
+    )    
 #endif
     return *this;
 }

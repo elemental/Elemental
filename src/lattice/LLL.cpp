@@ -323,319 +323,245 @@ LLL
 
 namespace lll {
 
-template<typename Real>
-LLLInfo<Real>
-RecursiveHelper
-( Matrix<Real>& B,
-  Int cutoff,
-  const LLLCtrl<Real>& ctrl )
+template<typename F,typename RealLower>
+LLLInfo<RealLower>
+LowerPrecisionMerge
+( const Matrix<F>& CL,
+  const Matrix<F>& CR,
+        Matrix<F>& B,
+  const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
+    DEBUG_ONLY(CSE cse("lll::LowerPrecisionMerge"))
+    typedef ConvertBase<F,RealLower> FLower;
+    const string typeString = TypeName<RealLower>();
+
     const Int n = B.Width();
-    if( n < cutoff )
-        return LLL( B, ctrl );
-    Timer timer;
-   
-    auto C( B ); 
-
     const Int firstHalf = n-(n/2);
-    auto CL = C( ALL, IR(0,firstHalf) );
-    auto CR = C( ALL, IR(firstHalf,n) );
 
-    double leftTime, rightTime;
-    if( ctrl.time )
-        timer.Start();
-    auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
-    if( ctrl.time )
-    {
-        leftTime = timer.Stop(); 
-        timer.Start();
-    }
-    auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
-    if( ctrl.time )
-        rightTime = timer.Stop();
     if( ctrl.progress || ctrl.time )
-    {
-        Output("n=",n);
-        Output("  left swaps=",leftInfo.numSwaps);
-        Output("  right swaps=",rightInfo.numSwaps);
-    }
-    if( ctrl.time )
-    {
-        Output("  left time:  ",leftTime," seconds");
-        Output("  right time: ",rightTime," seconds");
-    }
-    const Real CLOneNorm = OneNorm( CL );
-    const Real CROneNorm = OneNorm( CR );
-    const Real CLMaxNorm = MaxNorm( CL );
-    const Real CRMaxNorm = MaxNorm( CR );
-    if( ctrl.progress )
-    {
-        Output("  || C_L ||_1 = ",CLOneNorm);
-        Output("  || C_R ||_1 = ",CROneNorm);
-        Output("  || C_L ||_max = ",CLMaxNorm);
-        Output("  || C_R ||_max = ",CRMaxNorm);
-    }
-
-    const Real maxOneNorm = Max(CLOneNorm,CROneNorm);
-    const Real fudge = 1.5; // TODO: Make tunable
-    const Int neededPrec = Int(Ceil(Log2(maxOneNorm)*fudge));
-    if( ctrl.progress || ctrl.time )
-    {
-        Output("  || C ||_1 = ",maxOneNorm);
-        Output("  Needed precision: ",neededPrec);
-    }
-
-    // Attempt to move to a lower precision
-    // TODO: Chain up the datatypes via try/catch
-    // TODO: Find a cheap means of checking for errors
-#ifdef EL_HAVE_MPC
-    // Only move down to a lower-precision MPFR type if the jump is substantial.
-    // The current value has been naively chosen.
-    const mpfr_prec_t minPrecDiff = 32;
-    mpfr_prec_t inputPrec = mpc::Precision();
-#endif
-    try {
-    if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
-    {
-        if( ctrl.progress || ctrl.time )
-            Output("  Dropping to single-precision");
-        Matrix<float> BLowerPrec;
-        BLowerPrec.Resize( B.Height(), n );
-        // Interleave CL and CR to reform B before running LLL again
-        // NOTE: This does not seem to make a substantial difference
-        for( Int jSub=0; jSub<n/2; ++jSub )
-        {
-            auto cl = CL( ALL, IR(jSub) );
-            auto cr = CR( ALL, IR(jSub) ); 
-            auto bl = BLowerPrec( ALL, IR(2*jSub) );
-            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
-            Copy( cl, bl );
-            Copy( cr, br );
-        }
-        if( firstHalf > n/2 )
-        {
-            auto cl = CL( ALL, IR(firstHalf-1) );
-            auto bl = BLowerPrec( ALL, IR(n-1) ); 
-            Copy( cl, bl );
-        }
-
-        LLLCtrl<float> ctrlLowerPrec;
-        ctrlLowerPrec.delta = float(ctrl.delta);
-        ctrlLowerPrec.variant = ctrl.variant;
-        ctrlLowerPrec.presort = ctrl.presort;
-        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
-        ctrlLowerPrec.reorthogTol = float(ctrl.reorthogTol);
-        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
-        ctrlLowerPrec.progress = ctrl.progress;
-        ctrlLowerPrec.time = ctrl.time;
-        if( ctrl.time )
-            timer.Start();
-        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
-        if( ctrl.time )
-            Output("  single-precision LLL took ",timer.Stop()," seconds");
-        Copy( BLowerPrec, B );
-        LLLInfo<Real> parentInfo;
-        parentInfo.delta = parentInfoLowerPrec.delta;
-        parentInfo.eta = parentInfoLowerPrec.eta;
-        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
-                              leftInfo.numSwaps + rightInfo.numSwaps;
-        parentInfo.rank = parentInfoLowerPrec.rank;
-        parentInfo.nullity = parentInfoLowerPrec.nullity;
-        parentInfo.logVol = parentInfoLowerPrec.logVol;
-        return parentInfo;
-    }
-    else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
-    {
-        if( ctrl.progress || ctrl.time )
-            Output("  Dropping to double-precision");
-        Matrix<double> BLowerPrec;
-        BLowerPrec.Resize( B.Height(), n );
-        // Interleave CL and CR to reform B before running LLL again
-        // NOTE: This does not seem to make a substantial difference
-        for( Int jSub=0; jSub<n/2; ++jSub )
-        {
-            auto cl = CL( ALL, IR(jSub) );
-            auto cr = CR( ALL, IR(jSub) ); 
-            auto bl = BLowerPrec( ALL, IR(2*jSub) );
-            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
-            Copy( cl, bl );
-            Copy( cr, br );
-        }
-        if( firstHalf > n/2 )
-        {
-            auto cl = CL( ALL, IR(firstHalf-1) );
-            auto bl = BLowerPrec( ALL, IR(n-1) ); 
-            Copy( cl, bl );
-        }
-
-        LLLCtrl<double> ctrlLowerPrec;
-        ctrlLowerPrec.delta = double(ctrl.delta);
-        ctrlLowerPrec.variant = ctrl.variant;
-        ctrlLowerPrec.presort = ctrl.presort;
-        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
-        ctrlLowerPrec.reorthogTol = double(ctrl.reorthogTol);
-        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
-        ctrlLowerPrec.progress = ctrl.progress;
-        ctrlLowerPrec.time = ctrl.time;
-        if( ctrl.time )
-            timer.Start();
-        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
-        if( ctrl.time )
-            Output("  double-precision LLL took ",timer.Stop()," seconds");
-        Copy( BLowerPrec, B );
-        LLLInfo<Real> parentInfo;
-        parentInfo.delta = parentInfoLowerPrec.delta;
-        parentInfo.eta = parentInfoLowerPrec.eta;
-        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
-                              leftInfo.numSwaps + rightInfo.numSwaps;
-        parentInfo.rank = parentInfoLowerPrec.rank;
-        parentInfo.nullity = parentInfoLowerPrec.nullity;
-        parentInfo.logVol = parentInfoLowerPrec.logVol;
-        return parentInfo;
-    }
-#ifdef EL_HAVE_QUAD
-    else if( PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
-    {
-        if( ctrl.progress || ctrl.time )
-            Output("  Dropping to quad-precision");
-        Matrix<Quad> BLowerPrec;
-        BLowerPrec.Resize( B.Height(), n );
-        // Interleave CL and CR to reform B before running LLL again
-        // NOTE: This does not seem to make a substantial difference
-        for( Int jSub=0; jSub<n/2; ++jSub )
-        {   
-            auto cl = CL( ALL, IR(jSub) ); 
-            auto cr = CR( ALL, IR(jSub) ); 
-            auto bl = BLowerPrec( ALL, IR(2*jSub) );
-            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
-            Copy( cl, bl );
-            Copy( cr, br );
-        }
-        if( firstHalf > n/2 )
-        {   
-            auto cl = CL( ALL, IR(firstHalf-1) );
-            auto bl = BLowerPrec( ALL, IR(n-1) );
-            Copy( cl, bl );
-        }
-
-        LLLCtrl<Quad> ctrlLowerPrec;
-        ctrlLowerPrec.delta = Quad(ctrl.delta);
-        ctrlLowerPrec.variant = ctrl.variant;
-        ctrlLowerPrec.presort = ctrl.presort;
-        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
-        ctrlLowerPrec.reorthogTol = Quad(ctrl.reorthogTol);
-        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
-        ctrlLowerPrec.progress = ctrl.progress;
-        ctrlLowerPrec.time = ctrl.time;
-        if( ctrl.time )
-            timer.Start();
-        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
-        if( ctrl.time )
-            Output("  quad-precision LLL took ",timer.Stop()," seconds");
-        Copy( BLowerPrec, B );
-        LLLInfo<Real> parentInfo;
-        parentInfo.delta = parentInfoLowerPrec.delta;
-        parentInfo.eta = parentInfoLowerPrec.eta;
-        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
-                              leftInfo.numSwaps + rightInfo.numSwaps;
-        parentInfo.rank = parentInfoLowerPrec.rank;
-        parentInfo.nullity = parentInfoLowerPrec.nullity;
-        parentInfo.logVol = Quad(parentInfoLowerPrec.logVol);
-        return parentInfo;
-    }
-#endif
-#ifdef EL_HAVE_MPC
-    else if( neededPrec <= inputPrec-minPrecDiff )
-    {
-        if( ctrl.progress || ctrl.time )
-            Output("  Dropping to prec=",neededPrec);
-        mpc::SetPrecision( neededPrec );
-        Matrix<BigFloat> BLowerPrec;
-        BLowerPrec.Resize( B.Height(), n );
-        // Interleave CL and CR to reform B before running LLL again
-        // NOTE: This does not seem to make a substantial difference
-        for( Int jSub=0; jSub<n/2; ++jSub )
-        {
-            auto cl = CL( ALL, IR(jSub) );
-            auto cr = CR( ALL, IR(jSub) ); 
-            auto bl = BLowerPrec( ALL, IR(2*jSub) );
-            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
-            Copy( cl, bl );
-            Copy( cr, br );
-        }
-        if( firstHalf > n/2 )
-        {
-            auto cl = CL( ALL, IR(firstHalf-1) );
-            auto bl = BLowerPrec( ALL, IR(n-1) ); 
-            Copy( cl, bl );
-        }
-
-        LLLCtrl<BigFloat> ctrlLowerPrec;
-        ctrlLowerPrec.delta = ctrl.delta;
-        ctrlLowerPrec.variant = ctrl.variant;
-        ctrlLowerPrec.presort = ctrl.presort;
-        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
-        ctrlLowerPrec.reorthogTol = ctrl.reorthogTol;
-        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
-        ctrlLowerPrec.progress = ctrl.progress;
-        ctrlLowerPrec.time = ctrl.time;
-        if( ctrl.time )
-            timer.Start();
-        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
-        if( ctrl.time )
-            Output("  reduced-precision LLL took ",timer.Stop()," seconds");
-        if( ctrl.progress )
-            Output("  reverting back to prec=",inputPrec);
-        mpc::SetPrecision( inputPrec );
-        Copy( BLowerPrec, B );
-        LLLInfo<Real> parentInfo;
-        parentInfo.delta = Real(parentInfoLowerPrec.delta);
-        parentInfo.eta = Real(parentInfoLowerPrec.eta);
-        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
-                              leftInfo.numSwaps + rightInfo.numSwaps;
-        parentInfo.rank = parentInfoLowerPrec.rank;
-        parentInfo.nullity = parentInfoLowerPrec.nullity;
-        parentInfo.logVol = Real(parentInfoLowerPrec.logVol);
-        return parentInfo;
-    }
-#endif
-    }
-    catch( std::exception& e )
-    {
-#ifdef EL_HAVE_MPC
-        mpc::SetPrecision( inputPrec );
-#endif
-        Output("e.what()=",e.what()); 
-    }
-
+        Output("  Dropping to " + typeString);
+    Matrix<FLower> BLower;
+    BLower.Resize( B.Height(), n );
     // Interleave CL and CR to reform B before running LLL again
     // NOTE: This does not seem to make a substantial difference
     for( Int jSub=0; jSub<n/2; ++jSub )
     {
         auto cl = CL( ALL, IR(jSub) );
-        auto cr = CR( ALL, IR(jSub) ); 
-        auto bl = B( ALL, IR(2*jSub) );
-        auto br = B( ALL, IR(2*jSub+1) );
-        bl = cl;
-        br = cr;
+        auto cr = CR( ALL, IR(jSub) );
+        auto bl = BLower( ALL, IR(2*jSub) );
+        auto br = BLower( ALL, IR(2*jSub+1) );
+        Copy( cl, bl );
+        Copy( cr, br );
     }
     if( firstHalf > n/2 )
     {
         auto cl = CL( ALL, IR(firstHalf-1) );
-        auto bl = B( ALL, IR(n-1) ); 
-        bl = cl;
+        auto bl = BLower( ALL, IR(n-1) );
+        Copy( cl, bl );
     }
 
-    auto parentInfo = LLL( B, ctrl );
-    parentInfo.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
-    return parentInfo;
+    LLLCtrl<RealLower> ctrlLower;
+    ctrlLower.delta = RealLower(ctrl.delta);
+    ctrlLower.variant = ctrl.variant;
+    ctrlLower.presort = ctrl.presort;
+    ctrlLower.smallestFirst = ctrl.smallestFirst;
+    ctrlLower.reorthogTol = RealLower(ctrl.reorthogTol);
+    ctrlLower.numOrthog = ctrl.numOrthog;
+    ctrlLower.progress = ctrl.progress;
+    ctrlLower.time = ctrl.time;
+
+    Timer timer;
+    if( ctrl.time )
+        timer.Start();
+    auto infoLower = LLL( BLower, ctrlLower );
+    if( ctrl.time )
+        Output("  " + typeString + " LLL took ",timer.Stop()," seconds");
+    Copy( BLower, B );
+    return infoLower;
 }
 
 template<typename Real>
 LLLInfo<Real>
 RecursiveHelper
+( Matrix<Real>& B,
+  Int numShuffles,
+  Int cutoff,
+  const LLLCtrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
+    typedef Real F;
+    const Int n = B.Width();
+    if( n < cutoff )
+        return LLL( B, ctrl );
+    Timer timer;
+
+    LLLInfo<Real> info;
+    info.numSwaps = 0;
+    for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
+    {
+        if( ctrl.progress || ctrl.time )
+            Output("Shuffle=",shuffle);
+        auto C( B ); 
+
+        const Int firstHalf = n-(n/2);
+        auto CL = C( ALL, IR(0,firstHalf) );
+        auto CR = C( ALL, IR(firstHalf,n) );
+
+        double leftTime, rightTime;
+        if( ctrl.time )
+            timer.Start();
+        auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
+        if( ctrl.time )
+        {
+            leftTime = timer.Stop(); 
+            timer.Start();
+        }
+        auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+        if( ctrl.time )
+            rightTime = timer.Stop();
+        info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
+        if( ctrl.progress || ctrl.time )
+        {
+            Output("n=",n);
+            Output("  left swaps=",leftInfo.numSwaps);
+            Output("  right swaps=",rightInfo.numSwaps);
+        }
+        if( ctrl.time )
+        {
+            Output("  left time:  ",leftTime," seconds");
+            Output("  right time: ",rightTime," seconds");
+        }
+        const Real CLOneNorm = OneNorm( CL );
+        const Real CROneNorm = OneNorm( CR );
+        const Real CLMaxNorm = MaxNorm( CL );
+        const Real CRMaxNorm = MaxNorm( CR );
+        if( ctrl.progress )
+        {
+            Output("  || C_L ||_1 = ",CLOneNorm);
+            Output("  || C_R ||_1 = ",CROneNorm);
+            Output("  || C_L ||_max = ",CLMaxNorm);
+            Output("  || C_R ||_max = ",CRMaxNorm);
+        }
+
+        const Real COneNorm = Max(CLOneNorm,CROneNorm);
+        const Real fudge = 1.5; // TODO: Make tunable
+        const Int neededPrec = Int(Ceil(Log2(COneNorm)*fudge));
+        if( ctrl.progress || ctrl.time )
+        {
+            Output("  || C ||_1 = ",COneNorm);
+            Output("  Needed precision: ",neededPrec);
+        }
+
+        bool succeeded = false;
+        if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+        {
+            try
+            {
+                auto mergeInfo =
+                  LowerPrecisionMerge<F,float>( CL, CR, B, ctrl );
+                info.delta = Real(mergeInfo.delta);
+                info.eta = Real(mergeInfo.eta);
+                info.numSwaps += mergeInfo.numSwaps;
+                info.rank = mergeInfo.rank;
+                info.nullity = mergeInfo.nullity;
+                info.logVol = Real(mergeInfo.logVol);
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+        if( !succeeded && 
+            PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+        {
+            try
+            {
+                auto mergeInfo =
+                  LowerPrecisionMerge<F,double>( CL, CR, B, ctrl );
+                info.delta = Real(mergeInfo.delta);
+                info.eta = Real(mergeInfo.eta);
+                info.numSwaps += mergeInfo.numSwaps;
+                info.rank = mergeInfo.rank;
+                info.nullity = mergeInfo.nullity;
+                info.logVol = Real(mergeInfo.logVol);
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+#ifdef EL_HAVE_QUAD
+        if( !succeeded &&
+            PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+        {
+            try
+            {
+                auto mergeInfo = LowerPrecisionMerge<F,Quad>( CL, CR, B, ctrl );
+                info.delta = Real(mergeInfo.delta);
+                info.eta = Real(mergeInfo.eta);
+                info.numSwaps += mergeInfo.numSwaps;
+                info.rank = mergeInfo.rank;
+                info.nullity = mergeInfo.nullity;
+                info.logVol = Real(mergeInfo.logVol);
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+#endif
+#ifdef EL_HAVE_MPC
+        // Only move down to a lower-precision MPFR type if the jump is
+        // substantial. The current value has been naively chosen.
+        const mpfr_prec_t minPrecDiff = 32;
+        mpfr_prec_t inputPrec = mpc::Precision();
+        if( !succeeded && neededPrec <= inputPrec-minPrecDiff )
+        {
+            mpc::SetPrecision( neededPrec );
+            try {
+                auto mergeInfo =
+                  LowerPrecisionMerge<F,BigFloat>( CL, CR, B, ctrl );
+                info.delta = Real(mergeInfo.delta);
+                info.eta = Real(mergeInfo.eta);
+                info.numSwaps += mergeInfo.numSwaps;
+                info.rank = mergeInfo.rank;
+                info.nullity = mergeInfo.nullity;
+                info.logVol = Real(mergeInfo.logVol);
+                succeeded = true;
+            }
+            catch( std::exception& e ) { Output("e.what()=",e.what()); }
+            mpc::SetPrecision( inputPrec );
+        }
+#endif
+
+        if( !succeeded )
+        {
+            // Interleave CL and CR to reform B before running LLL again
+            for( Int jSub=0; jSub<n/2; ++jSub )
+            {
+                auto cl = CL( ALL, IR(jSub) );
+                auto cr = CR( ALL, IR(jSub) ); 
+                auto bl = B( ALL, IR(2*jSub) );
+                auto br = B( ALL, IR(2*jSub+1) );
+                bl = cl;
+                br = cr;
+            }
+            if( firstHalf > n/2 )
+            {
+                auto cl = CL( ALL, IR(firstHalf-1) );
+                auto bl = B( ALL, IR(n-1) ); 
+                bl = cl;
+            }
+            
+            auto mergeInfo = LLL( B, ctrl );
+            info.delta = mergeInfo.delta;
+            info.eta = mergeInfo.eta;
+            info.numSwaps += mergeInfo.numSwaps;
+            info.rank = mergeInfo.rank;
+            info.nullity = mergeInfo.nullity;
+            info.logVol = mergeInfo.logVol;
+        }
+    }
+    return info;
+}
+
+// Same as the above, but with the Complex<BigFloat> datatype avoided
+template<typename Real>
+LLLInfo<Real>
+RecursiveHelper
 ( Matrix<Complex<Real>>& B,
+  Int numShuffles,
   Int cutoff,
   const LLLCtrl<Real>& ctrl )
 {
@@ -645,239 +571,143 @@ RecursiveHelper
     if( n < cutoff )
         return LLL( B, ctrl );
     Timer timer;
-   
-    auto C( B ); 
 
-    const Int firstHalf = n-(n/2);
-    auto CL = C( ALL, IR(0,firstHalf) );
-    auto CR = C( ALL, IR(firstHalf,n) );
-
-    double leftTime, rightTime;
-    if( ctrl.time )
-        timer.Start();
-    auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
-    if( ctrl.time )
+    LLLInfo<Real> info;
+    info.numSwaps = 0;
+    for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
     {
-        leftTime = timer.Stop(); 
-        timer.Start();
-    }
-    auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
-    if( ctrl.time )
-        rightTime = timer.Stop();
-    if( ctrl.progress || ctrl.time )
-    {
-        Output("n=",n);
-        Output("  left swaps=",leftInfo.numSwaps);
-        Output("  right swaps=",rightInfo.numSwaps);
-    }
-    if( ctrl.time )
-    {
-        Output("  left time:  ",leftTime," seconds");
-        Output("  right time: ",rightTime," seconds");
-    }
-    const Real CLOneNorm = OneNorm( CL );
-    const Real CROneNorm = OneNorm( CR );
-    const Real CLMaxNorm = MaxNorm( CL );
-    const Real CRMaxNorm = MaxNorm( CR );
-    if( ctrl.progress )
-    {
-        Output("  || C_L ||_1 = ",CLOneNorm);
-        Output("  || C_R ||_1 = ",CROneNorm);
-        Output("  || C_L ||_max = ",CLMaxNorm);
-        Output("  || C_R ||_max = ",CRMaxNorm);
-    }
-
-    const Real maxOneNorm = Max(CLOneNorm,CROneNorm);
-    const Real fudge = 1.5; // TODO: Make tunable
-    const Int neededPrec = Int(Ceil(Log2(maxOneNorm)*fudge));
-    if( ctrl.progress || ctrl.time )
-    {
-        Output("  || C ||_1 = ",maxOneNorm);
-        Output("  Needed precision: ",neededPrec);
-    }
-
-    // Attempt to move to a lower precision
-    // TODO: Find a cheap means of checking for errors
-    try {
-    if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
-    {
-        typedef ConvertBase<F,float> FFlt;
         if( ctrl.progress || ctrl.time )
-            Output("  Dropping to single-precision");
-        Matrix<FFlt> BLowerPrec;
-        BLowerPrec.Resize( B.Height(), n );
-        // Interleave CL and CR to reform B before running LLL again
-        // NOTE: This does not seem to make a substantial difference
-        for( Int jSub=0; jSub<n/2; ++jSub )
-        {
-            auto cl = CL( ALL, IR(jSub) );
-            auto cr = CR( ALL, IR(jSub) ); 
-            auto bl = BLowerPrec( ALL, IR(2*jSub) );
-            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
-            Copy( cl, bl );
-            Copy( cr, br );
-        }
-        if( firstHalf > n/2 )
-        {
-            auto cl = CL( ALL, IR(firstHalf-1) );
-            auto bl = BLowerPrec( ALL, IR(n-1) ); 
-            Copy( cl, bl );
-        }
+            Output("Shuffle=",shuffle);
+        auto C( B ); 
 
-        LLLCtrl<float> ctrlLowerPrec;
-        ctrlLowerPrec.delta = float(ctrl.delta);
-        ctrlLowerPrec.variant = ctrl.variant;
-        ctrlLowerPrec.presort = ctrl.presort;
-        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
-        ctrlLowerPrec.reorthogTol = float(ctrl.reorthogTol);
-        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
-        ctrlLowerPrec.progress = ctrl.progress;
-        ctrlLowerPrec.time = ctrl.time;
+        const Int firstHalf = n-(n/2);
+        auto CL = C( ALL, IR(0,firstHalf) );
+        auto CR = C( ALL, IR(firstHalf,n) );
+
+        double leftTime, rightTime;
         if( ctrl.time )
             timer.Start();
-        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
+        auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
         if( ctrl.time )
-            Output("  single-precision LLL took ",timer.Stop()," seconds");
-        Copy( BLowerPrec, B );
-        LLLInfo<Real> parentInfo;
-        parentInfo.delta = parentInfoLowerPrec.delta;
-        parentInfo.eta = parentInfoLowerPrec.eta;
-        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
-                              leftInfo.numSwaps + rightInfo.numSwaps;
-        parentInfo.rank = parentInfoLowerPrec.rank;
-        parentInfo.nullity = parentInfoLowerPrec.nullity;
-        parentInfo.logVol = parentInfoLowerPrec.logVol;
-        return parentInfo;
-    }
-    else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
-    {
-        typedef ConvertBase<F,double> FDbl;
-        if( ctrl.progress || ctrl.time )
-            Output("  Dropping to double-precision");
-        Matrix<FDbl> BLowerPrec;
-        BLowerPrec.Resize( B.Height(), n );
-        // Interleave CL and CR to reform B before running LLL again
-        // NOTE: This does not seem to make a substantial difference
-        for( Int jSub=0; jSub<n/2; ++jSub )
         {
-            auto cl = CL( ALL, IR(jSub) );
-            auto cr = CR( ALL, IR(jSub) ); 
-            auto bl = BLowerPrec( ALL, IR(2*jSub) );
-            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
-            Copy( cl, bl );
-            Copy( cr, br );
+            leftTime = timer.Stop(); 
+            timer.Start();
         }
-        if( firstHalf > n/2 )
+        auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+        if( ctrl.time )
+            rightTime = timer.Stop();
+        info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
+        if( ctrl.progress || ctrl.time )
         {
-            auto cl = CL( ALL, IR(firstHalf-1) );
-            auto bl = BLowerPrec( ALL, IR(n-1) ); 
-            Copy( cl, bl );
+            Output("n=",n);
+            Output("  left swaps=",leftInfo.numSwaps);
+            Output("  right swaps=",rightInfo.numSwaps);
+        }
+        if( ctrl.time )
+        {
+            Output("  left time:  ",leftTime," seconds");
+            Output("  right time: ",rightTime," seconds");
+        }
+        const Real CLOneNorm = OneNorm( CL );
+        const Real CROneNorm = OneNorm( CR );
+        const Real CLMaxNorm = MaxNorm( CL );
+        const Real CRMaxNorm = MaxNorm( CR );
+        if( ctrl.progress )
+        {
+            Output("  || C_L ||_1 = ",CLOneNorm);
+            Output("  || C_R ||_1 = ",CROneNorm);
+            Output("  || C_L ||_max = ",CLMaxNorm);
+            Output("  || C_R ||_max = ",CRMaxNorm);
         }
 
-        LLLCtrl<double> ctrlLowerPrec;
-        ctrlLowerPrec.delta = double(ctrl.delta);
-        ctrlLowerPrec.variant = ctrl.variant;
-        ctrlLowerPrec.presort = ctrl.presort;
-        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
-        ctrlLowerPrec.reorthogTol = double(ctrl.reorthogTol);
-        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
-        ctrlLowerPrec.progress = ctrl.progress;
-        ctrlLowerPrec.time = ctrl.time;
-        if( ctrl.time )
-            timer.Start();
-        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
-        if( ctrl.time )
-            Output("  double-precision LLL took ",timer.Stop()," seconds");
-        Copy( BLowerPrec, B );
-        LLLInfo<Real> parentInfo;
-        parentInfo.delta = parentInfoLowerPrec.delta;
-        parentInfo.eta = parentInfoLowerPrec.eta;
-        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
-                              leftInfo.numSwaps + rightInfo.numSwaps;
-        parentInfo.rank = parentInfoLowerPrec.rank;
-        parentInfo.nullity = parentInfoLowerPrec.nullity;
-        parentInfo.logVol = parentInfoLowerPrec.logVol;
-        return parentInfo;
-    }
+        const Real COneNorm = Max(CLOneNorm,CROneNorm);
+        const Real fudge = 1.5; // TODO: Make tunable
+        const Int neededPrec = Int(Ceil(Log2(COneNorm)*fudge));
+        if( ctrl.progress || ctrl.time )
+        {
+            Output("  || C ||_1 = ",COneNorm);
+            Output("  Needed precision: ",neededPrec);
+        }
+
+        bool succeeded = false;
+        if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+        {
+            try
+            {
+                auto mergeInfo =
+                  LowerPrecisionMerge<F,float>( CL, CR, B, ctrl );
+                info.delta = Real(mergeInfo.delta);
+                info.eta = Real(mergeInfo.eta);
+                info.numSwaps += mergeInfo.numSwaps;
+                info.rank = mergeInfo.rank;
+                info.nullity = mergeInfo.nullity;
+                info.logVol = Real(mergeInfo.logVol);
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+        if( !succeeded && 
+            PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+        {
+            try
+            {
+                auto mergeInfo =
+                  LowerPrecisionMerge<F,double>( CL, CR, B, ctrl );
+                info.delta = Real(mergeInfo.delta);
+                info.eta = Real(mergeInfo.eta);
+                info.numSwaps += mergeInfo.numSwaps;
+                info.rank = mergeInfo.rank;
+                info.nullity = mergeInfo.nullity;
+                info.logVol = Real(mergeInfo.logVol);
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
 #ifdef EL_HAVE_QUAD
-    else if( PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
-    {
-        typedef ConvertBase<F,Quad> FQuad;
-        if( ctrl.progress || ctrl.time )
-            Output("  Dropping to quad-precision");
-        Matrix<FQuad> BLowerPrec;
-        BLowerPrec.Resize( B.Height(), n );
-        // Interleave CL and CR to reform B before running LLL again
-        // NOTE: This does not seem to make a substantial difference
-        for( Int jSub=0; jSub<n/2; ++jSub )
-        {   
-            auto cl = CL( ALL, IR(jSub) ); 
-            auto cr = CR( ALL, IR(jSub) ); 
-            auto bl = BLowerPrec( ALL, IR(2*jSub) );
-            auto br = BLowerPrec( ALL, IR(2*jSub+1) );
-            Copy( cl, bl );
-            Copy( cr, br );
+        if( !succeeded &&
+            PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+        {
+            try
+            {
+                auto mergeInfo = LowerPrecisionMerge<F,Quad>( CL, CR, B, ctrl );
+                info.delta = Real(mergeInfo.delta);
+                info.eta = Real(mergeInfo.eta);
+                info.numSwaps += mergeInfo.numSwaps;
+                info.rank = mergeInfo.rank;
+                info.nullity = mergeInfo.nullity;
+                info.logVol = Real(mergeInfo.logVol);
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
-        if( firstHalf > n/2 )
-        {   
-            auto cl = CL( ALL, IR(firstHalf-1) );
-            auto bl = BLowerPrec( ALL, IR(n-1) );
-            Copy( cl, bl );
-        }
-
-        LLLCtrl<Quad> ctrlLowerPrec;
-        ctrlLowerPrec.delta = Quad(ctrl.delta);
-        ctrlLowerPrec.variant = ctrl.variant;
-        ctrlLowerPrec.presort = ctrl.presort;
-        ctrlLowerPrec.smallestFirst = ctrl.smallestFirst;
-        ctrlLowerPrec.reorthogTol = Quad(ctrl.reorthogTol);
-        ctrlLowerPrec.numOrthog = ctrl.numOrthog;
-        ctrlLowerPrec.progress = ctrl.progress;
-        ctrlLowerPrec.time = ctrl.time;
-        if( ctrl.time )
-            timer.Start();
-        auto parentInfoLowerPrec = LLL( BLowerPrec, ctrlLowerPrec );
-        if( ctrl.time )
-            Output("  quad-precision LLL took ",timer.Stop()," seconds");
-        Copy( BLowerPrec, B );
-        LLLInfo<Real> parentInfo;
-        parentInfo.delta = parentInfoLowerPrec.delta;
-        parentInfo.eta = parentInfoLowerPrec.eta;
-        parentInfo.numSwaps = parentInfoLowerPrec.numSwaps + 
-                              leftInfo.numSwaps + rightInfo.numSwaps;
-        parentInfo.rank = parentInfoLowerPrec.rank;
-        parentInfo.nullity = parentInfoLowerPrec.nullity;
-        parentInfo.logVol = Quad(parentInfoLowerPrec.logVol);
-        return parentInfo;
-    }
 #endif
-    }
-    catch( std::exception& e )
-    {
-        Output("e.what()=",e.what()); 
-    }
 
-    // Interleave CL and CR to reform B before running LLL again
-    // NOTE: This does not seem to make a substantial difference
-    for( Int jSub=0; jSub<n/2; ++jSub )
-    {
-        auto cl = CL( ALL, IR(jSub) );
-        auto cr = CR( ALL, IR(jSub) ); 
-        auto bl = B( ALL, IR(2*jSub) );
-        auto br = B( ALL, IR(2*jSub+1) );
-        bl = cl;
-        br = cr;
+        if( !succeeded )
+        {
+            // Interleave CL and CR to reform B before running LLL again
+            for( Int jSub=0; jSub<n/2; ++jSub )
+            {
+                auto cl = CL( ALL, IR(jSub) );
+                auto cr = CR( ALL, IR(jSub) ); 
+                auto bl = B( ALL, IR(2*jSub) );
+                auto br = B( ALL, IR(2*jSub+1) );
+                bl = cl;
+                br = cr;
+            }
+            if( firstHalf > n/2 )
+            {
+                auto cl = CL( ALL, IR(firstHalf-1) );
+                auto bl = B( ALL, IR(n-1) ); 
+                bl = cl;
+            }
+            
+            auto mergeInfo = LLL( B, ctrl );
+            info.delta = mergeInfo.delta;
+            info.eta = mergeInfo.eta;
+            info.numSwaps += mergeInfo.numSwaps;
+            info.rank = mergeInfo.rank;
+            info.nullity = mergeInfo.nullity;
+            info.logVol = mergeInfo.logVol;
+        }
     }
-    if( firstHalf > n/2 )
-    {
-        auto cl = CL( ALL, IR(firstHalf-1) );
-        auto bl = B( ALL, IR(n-1) ); 
-        bl = cl;
-    }
-
-    auto parentInfo = LLL( B, ctrl );
-    parentInfo.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
-    return parentInfo;
+    return info;
 }
 
 } // namespace lll
@@ -890,7 +720,9 @@ RecursiveLLL
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("RecursiveLLL"))
-    return lll::RecursiveHelper( B, cutoff, ctrl );
+    // TODO: Make this runtime-tunable
+    Int numShuffles = 1;
+    return lll::RecursiveHelper( B, numShuffles, cutoff, ctrl );
 }
 
 template<typename F>
