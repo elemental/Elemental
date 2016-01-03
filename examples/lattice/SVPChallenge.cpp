@@ -40,6 +40,11 @@ int main( int argc, char* argv[] )
         const bool progress = Input("--progress","print progress?",false); 
         const bool time = Input("--time","time LLL?",false);
         const bool print = Input("--print","output all matrices?",true);
+        const Real targetRatio =
+          Input("--targetRatio","targeted ratio of GH(L)",Real(1.05));
+        const bool probEnum =
+          Input("--probEnum","probabalistic enumeration?",true);
+        const bool fullEnum = Input("--fullEnum","SVP via full enum?",false);
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec =
           Input("--prec","MPFR precision",mpfr_prec_t(1024));
@@ -72,10 +77,11 @@ int main( int argc, char* argv[] )
         ctrl.time = time;
         const double startTime = mpi::Time();
         LLLInfo<Real> info;
+        Matrix<Real> R;
         if( recursive )
-            info = RecursiveLLL( B, cutoff, ctrl );
+            info = RecursiveLLL( B, R, cutoff, ctrl );
         else
-            info = LLL( B, ctrl );
+            info = LLL( B, R, ctrl );
         const double runTime = mpi::Time() - startTime;
         Output("  LLL(",delta,",",eta,") took ",runTime," seconds"); 
         Output("    achieved delta: ",info.delta);
@@ -83,11 +89,14 @@ int main( int argc, char* argv[] )
         Output("    num swaps:      ",info.numSwaps);
         Output("    log(vol(L)):    ",info.logVol);
         const Real GH = LatticeGaussianHeuristic( info.rank, info.logVol );
-        const Real challenge = Real(1.05)*GH;
-        Output("    GH(L):          ",GH);
-        Output("    1.05 GH(L):     ",challenge);
+        const Real challenge = targetRatio*GH;
+        Output("    GH(L):             ",GH);
+        Output("    targetRatio*GH(L): ",challenge);
         if( print )
+        {
             Print( B, "B" ); 
+            Print( R, "R" );
+        }
         const Real BOneNorm = OneNorm( B );
         Output("|| B ||_1 = ",BOneNorm);
 
@@ -96,14 +105,48 @@ int main( int argc, char* argv[] )
         Output("|| b_0 ||_2 = ",b0Norm);
         if( print )
             Print( b0, "b0" );
+        bool succeeded = false;
         if( b0Norm <= challenge )
+        {
             Output
-            ("SVP Challenge solved: || b_0 ||_2=",b0Norm," <= 1.05*GH(L)=",
-             challenge);
+            ("SVP Challenge solved via LLL: || b_0 ||_2=",b0Norm,
+             " <= targetRatio*GH(L)=",challenge);
+            succeeded = true;
+        }
         else
             Output
-            ("SVP Challenge NOT solved: || b_0 ||_2=",b0Norm," > 1.05*GH(L)=",
-             challenge);
+            ("SVP Challenge NOT solved via LLL: || b_0 ||_2=",b0Norm,
+             " > targetRatio*GH(L)=",challenge);
+
+        if( !succeeded )
+        {
+            Matrix<F> v;
+            Timer timer;
+            timer.Start();
+            Real result;
+            if( fullEnum )
+              result = 
+                ShortestVectorEnumeration( B, R, challenge, v, probEnum );
+            else
+              result = 
+                ShortVectorEnumeration( B, R, challenge, v, probEnum );
+            if( result < challenge )
+            {
+                Output("Enumeration: ",timer.Stop()," seconds");
+                Print( B, "B" );
+                Print( v, "v" );
+                const Int m = B.Height();
+                Matrix<Real> x;
+                Zeros( x, m, 1 );
+                Gemv( NORMAL, Real(1), B, v, Real(0), x );
+                Print( x, "x" );
+                const Real xNorm = FrobeniusNorm( x );
+                Output("|| x ||_2 = ",xNorm);
+                Output("Claimed || x ||_2 = ",result);
+            }
+            else
+                Output("Enumeration failed after ",timer.Stop()," seconds");
+        }
     }
     catch( std::exception& e ) { ReportException(e); }
     return 0;

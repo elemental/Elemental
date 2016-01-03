@@ -201,14 +201,16 @@ inline Base<F> LogVolume( const Matrix<F>& R )
 namespace El {
 
 template<typename F>
-LLLInfo<Base<F>> LLL
+LLLInfo<Base<F>> LLLWithQ
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
-  Matrix<F>& R,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LLL"))
+    DEBUG_ONLY(CSE cse("LLLWithQ"))
     typedef Base<F> Real;
     if( ctrl.delta < Real(1)/Real(2) )
         LogicError("delta is assumed to be at least 1/2");
@@ -216,20 +218,32 @@ LLLInfo<Base<F>> LLL
         LogicError("eta should be in (1/2,sqrt(delta))");
 
     const Int n = B.Width();
-    Identity( U, n, n ); 
-    Identity( UInv, n, n );
+    if( ctrl.jumpstart )
+    {
+        if( U.Height() != n || U.Width() != n )
+            LogicError("U should have been n x n on input");
+        if( UInv.Height() != n || UInv.Width() != n )
+            LogicError("UInv should have been n x n on input");
+    }
+    else
+    {
+        Identity( U, n, n ); 
+        Identity( UInv, n, n );
+    }
 
     if( ctrl.presort )
     {
+        if( ctrl.jumpstart )
+            LogicError("Cannot combine jumpstarting with presorting");
         QRCtrl<Real> qrCtrl;
         qrCtrl.smallestFirst = ctrl.smallestFirst;
 
         auto BCopy = B;
-        Matrix<F> t;
-        Matrix<Real> d;
+        Matrix<F> tPre;
+        Matrix<Real> dPre;
         Permutation Omega;
         // TODO: Add support for qr::ProxyHouseholder as well
-        El::QR( BCopy, t, d, Omega, qrCtrl );
+        El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
         Omega.PermuteCols( B );
         Omega.PermuteCols( U );
         Omega.PermuteRows( UInv );
@@ -240,18 +254,93 @@ LLLInfo<Base<F>> LLL
     const bool formUInv = true;
     if( useBlocked )
     {
-        return lll::BlockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
+        return lll::BlockedAlg( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
     }
     else
     {
         if( ctrl.variant == LLL_DEEP_REDUCE )
             return lll::UnblockedDeepReduceAlg
-                   ( B, U, UInv, R, formU, formUInv, ctrl );
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
         else if( ctrl.variant == LLL_DEEP )
             return lll::UnblockedDeepAlg
-                   ( B, U, UInv, R, formU, formUInv, ctrl );
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
         else
-            return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
+            return lll::UnblockedAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+    }
+}
+
+template<typename F>
+LLLInfo<Base<F>> LLL
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart from this interface");
+    typedef Base<F> Real;
+    Matrix<F> t;
+    Matrix<Real> d;
+    auto info = LLLWithQ( B, U, UInv, R, t, d, ctrl );
+    MakeTrapezoidal( UPPER, R );
+    return info;
+}
+
+template<typename F>
+LLLInfo<Base<F>>
+LLLWithQ
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLLWithQ"))
+    typedef Base<F> Real;
+    if( ctrl.delta < Real(1)/Real(2) )
+        LogicError("delta is assumed to be at least 1/2");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
+        LogicError("eta should be in (1/2,sqrt(delta))");
+
+    if( ctrl.presort )
+    {
+        if( ctrl.jumpstart )
+            LogicError("Cannot combine jumpstarting with presorting");
+
+        QRCtrl<Real> qrCtrl;
+        qrCtrl.smallestFirst = ctrl.smallestFirst;
+
+        auto BCopy = B;
+        Matrix<F> tPre;
+        Matrix<Real> dPre;
+        Permutation Omega;
+        // TODO: Add support for qr::ProxyHouseholder as well
+        El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
+        Omega.PermuteCols( B );
+    }
+
+    const bool useBlocked = false;
+    const bool formU = false;
+    const bool formUInv = false;
+    Matrix<F> U, UInv;
+    if( useBlocked )
+    {
+        return lll::BlockedAlg( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+    }
+    else
+    {
+        if( ctrl.variant == LLL_DEEP_REDUCE )
+            return lll::UnblockedDeepReduceAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        else if( ctrl.variant == LLL_DEEP )
+            return lll::UnblockedDeepAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        else
+            return lll::UnblockedAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
     }
 }
 
@@ -263,46 +352,14 @@ LLL
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart from this interface");
     typedef Base<F> Real;
-    if( ctrl.delta < Real(1)/Real(2) )
-        LogicError("delta is assumed to be at least 1/2");
-    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
-        LogicError("eta should be in (1/2,sqrt(delta))");
-
-    if( ctrl.presort )
-    {
-        QRCtrl<Real> qrCtrl;
-        qrCtrl.smallestFirst = ctrl.smallestFirst;
-
-        auto BCopy = B;
-        Matrix<F> t;
-        Matrix<Real> d;
-        Permutation Omega;
-        // TODO: Add support for qr::ProxyHouseholder as well
-        El::QR( BCopy, t, d, Omega, qrCtrl );
-        Omega.PermuteCols( B );
-    }
-
-    const bool useBlocked = false;
-    const bool formU = false;
-    const bool formUInv = false;
-    Matrix<F> U, UInv;
-    if( useBlocked )
-    {
-        return lll::BlockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
-    }
-    else
-    {
-        if( ctrl.variant == LLL_DEEP_REDUCE )
-            return lll::UnblockedDeepReduceAlg
-                   ( B, U, UInv, R, formU, formUInv, ctrl );
-        else if( ctrl.variant == LLL_DEEP )
-            return lll::UnblockedDeepAlg
-                   ( B, U, UInv, R, formU, formUInv, ctrl );
-        else
-            return lll::UnblockedAlg( B, U, UInv, R, formU, formUInv, ctrl );
-
-    }
+    Matrix<F> t;
+    Matrix<Real> d;
+    auto info = LLLWithQ( B, R, t, d, ctrl );
+    MakeTrapezoidal( UPPER, R );
+    return info;
 }
 
 // Emulate the flavor of quicksort/mergesort by recursively splitting the 
@@ -329,6 +386,7 @@ LowerPrecisionMerge
 ( const Matrix<F>& CL,
   const Matrix<F>& CR,
         Matrix<F>& B,
+        Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::LowerPrecisionMerge"))
@@ -371,12 +429,14 @@ LowerPrecisionMerge
     ctrlLower.time = ctrl.time;
 
     Timer timer;
+    Matrix<FLower> RLower;
     if( ctrl.time )
         timer.Start();
-    auto infoLower = LLL( BLower, ctrlLower );
+    auto infoLower = LLL( BLower, RLower, ctrlLower );
     if( ctrl.time )
         Output("  " + typeString + " LLL took ",timer.Stop()," seconds");
     Copy( BLower, B );
+    Copy( RLower, R );
     return infoLower;
 }
 
@@ -384,6 +444,7 @@ template<typename Real>
 LLLInfo<Real>
 RecursiveHelper
 ( Matrix<Real>& B,
+  Matrix<Real>& R,
   Int numShuffles,
   Int cutoff,
   const LLLCtrl<Real>& ctrl )
@@ -392,7 +453,7 @@ RecursiveHelper
     typedef Real F;
     const Int n = B.Width();
     if( n < cutoff )
-        return LLL( B, ctrl );
+        return LLL( B, R, ctrl );
     Timer timer;
 
     LLLInfo<Real> info;
@@ -458,7 +519,7 @@ RecursiveHelper
             try
             {
                 auto mergeInfo =
-                  LowerPrecisionMerge<F,float>( CL, CR, B, ctrl );
+                  LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
                 info.delta = Real(mergeInfo.delta);
                 info.eta = Real(mergeInfo.eta);
                 info.numSwaps += mergeInfo.numSwaps;
@@ -474,7 +535,7 @@ RecursiveHelper
             try
             {
                 auto mergeInfo =
-                  LowerPrecisionMerge<F,double>( CL, CR, B, ctrl );
+                  LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
                 info.delta = Real(mergeInfo.delta);
                 info.eta = Real(mergeInfo.eta);
                 info.numSwaps += mergeInfo.numSwaps;
@@ -490,7 +551,8 @@ RecursiveHelper
         {
             try
             {
-                auto mergeInfo = LowerPrecisionMerge<F,Quad>( CL, CR, B, ctrl );
+                auto mergeInfo =
+                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
                 info.delta = Real(mergeInfo.delta);
                 info.eta = Real(mergeInfo.eta);
                 info.numSwaps += mergeInfo.numSwaps;
@@ -511,7 +573,7 @@ RecursiveHelper
             mpc::SetPrecision( neededPrec );
             try {
                 auto mergeInfo =
-                  LowerPrecisionMerge<F,BigFloat>( CL, CR, B, ctrl );
+                  LowerPrecisionMerge<F,BigFloat>( CL, CR, B, R, ctrl );
                 info.delta = Real(mergeInfo.delta);
                 info.eta = Real(mergeInfo.eta);
                 info.numSwaps += mergeInfo.numSwaps;
@@ -544,7 +606,7 @@ RecursiveHelper
                 bl = cl;
             }
             
-            auto mergeInfo = LLL( B, ctrl );
+            auto mergeInfo = LLL( B, R, ctrl );
             info.delta = mergeInfo.delta;
             info.eta = mergeInfo.eta;
             info.numSwaps += mergeInfo.numSwaps;
@@ -561,6 +623,7 @@ template<typename Real>
 LLLInfo<Real>
 RecursiveHelper
 ( Matrix<Complex<Real>>& B,
+  Matrix<Complex<Real>>& R,
   Int numShuffles,
   Int cutoff,
   const LLLCtrl<Real>& ctrl )
@@ -569,7 +632,7 @@ RecursiveHelper
     typedef Complex<Real> F;
     const Int n = B.Width();
     if( n < cutoff )
-        return LLL( B, ctrl );
+        return LLL( B, R, ctrl );
     Timer timer;
 
     LLLInfo<Real> info;
@@ -635,7 +698,7 @@ RecursiveHelper
             try
             {
                 auto mergeInfo =
-                  LowerPrecisionMerge<F,float>( CL, CR, B, ctrl );
+                  LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
                 info.delta = Real(mergeInfo.delta);
                 info.eta = Real(mergeInfo.eta);
                 info.numSwaps += mergeInfo.numSwaps;
@@ -651,7 +714,7 @@ RecursiveHelper
             try
             {
                 auto mergeInfo =
-                  LowerPrecisionMerge<F,double>( CL, CR, B, ctrl );
+                  LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
                 info.delta = Real(mergeInfo.delta);
                 info.eta = Real(mergeInfo.eta);
                 info.numSwaps += mergeInfo.numSwaps;
@@ -667,7 +730,8 @@ RecursiveHelper
         {
             try
             {
-                auto mergeInfo = LowerPrecisionMerge<F,Quad>( CL, CR, B, ctrl );
+                auto mergeInfo =
+                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
                 info.delta = Real(mergeInfo.delta);
                 info.eta = Real(mergeInfo.eta);
                 info.numSwaps += mergeInfo.numSwaps;
@@ -698,7 +762,7 @@ RecursiveHelper
                 bl = cl;
             }
             
-            auto mergeInfo = LLL( B, ctrl );
+            auto mergeInfo = LLL( B, R, ctrl );
             info.delta = mergeInfo.delta;
             info.eta = mergeInfo.eta;
             info.numSwaps += mergeInfo.numSwaps;
@@ -720,9 +784,26 @@ RecursiveLLL
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("RecursiveLLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart LLL from this interface");
+    Matrix<F> R;
+    return RecursiveLLL( B, R, cutoff, ctrl );
+}
+
+template<typename F>
+LLLInfo<Base<F>>
+RecursiveLLL
+( Matrix<F>& B,
+  Matrix<F>& R,
+  Int cutoff,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("RecursiveLLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart LLL from this interface");
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
-    return lll::RecursiveHelper( B, numShuffles, cutoff, ctrl );
+    return lll::RecursiveHelper( B, R, numShuffles, cutoff, ctrl );
 }
 
 template<typename F>
@@ -732,8 +813,42 @@ LLL
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart LLL from this interface");
     Matrix<F> R;
     return LLL( B, R, ctrl );
+}
+
+template<typename F>
+void DeepColSwap( Matrix<F>& B, Int i, Int k )
+{
+    const Int m = B.Height();
+    auto bi = B( ALL, IR(i) );
+    auto bk = B( ALL, IR(k) );
+    auto bkCopy( bk );
+
+    F* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+    for( Int l=k-1; l>=i; --l )
+        blas::Copy( m, &BBuf[l*BLDim], 1, &BBuf[(l+1)*BLDim], 1 );
+
+    bi = bkCopy;
+}
+
+template<typename F>
+void DeepRowSwap( Matrix<F>& B, Int i, Int k )
+{
+    const Int n = B.Width();
+    auto bi = B( IR(i), ALL );
+    auto bk = B( IR(k), ALL );
+    auto bkCopy( bk );
+
+    F* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+    for( Int l=k-1; l>=i; --l )
+        blas::Copy( n, &BBuf[l], BLDim, &BBuf[l+1], BLDim );
+
+    bi = bkCopy;
 }
 
 #define PROTO(F) \
@@ -750,10 +865,31 @@ LLL
     Matrix<F>& UInv, \
     Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> LLLWithQ \
+  ( Matrix<F>& B, \
+    Matrix<F>& QR, \
+    Matrix<F>& t, \
+    Matrix<Base<F>>& d, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> LLLWithQ \
+  ( Matrix<F>& B, \
+    Matrix<F>& U, \
+    Matrix<F>& UInv, \
+    Matrix<F>& QR, \
+    Matrix<F>& t, \
+    Matrix<Base<F>>& d, \
+    const LLLCtrl<Base<F>>& ctrl ); \
   template LLLInfo<Base<F>> RecursiveLLL \
   ( Matrix<F>& B, \
     Int cutoff, \
-    const LLLCtrl<Base<F>>& ctrl );
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> RecursiveLLL \
+  ( Matrix<F>& B, \
+    Matrix<F>& R, \
+    Int cutoff, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template void DeepColSwap( Matrix<F>& B, Int i, Int k ); \
+  template void DeepRowSwap( Matrix<F>& B, Int i, Int k );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

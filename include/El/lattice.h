@@ -56,6 +56,8 @@ typedef struct
     float zeroTol;
     bool progress;
     bool time;
+    bool jumpstart;
+    ElInt startCol;
 } ElLLLCtrl_s;
 EL_EXPORT ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl );
 
@@ -71,6 +73,8 @@ typedef struct
     double zeroTol;
     bool progress;
     bool time;
+    bool jumpstart;
+    ElInt startCol;
 } ElLLLCtrl_d;
 EL_EXPORT ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl );
 

@@ -44,7 +44,9 @@ class LLLCtrl_s(ctypes.Structure):
               ("numOrthog",iType),
               ("zeroTol",sType),
               ("progress",bType),
-              ("time",bType)]
+              ("time",bType),
+              ("jumpstart",bType),
+              ("startCol",iType)]
   def __init__(self):
     lib.ElLLLCtrlDefault_s(pointer(self))
 class LLLCtrl_d(ctypes.Structure):
@@ -57,7 +59,9 @@ class LLLCtrl_d(ctypes.Structure):
               ("numOrthog",iType),
               ("zeroTol",dType),
               ("progress",bType),
-              ("time",bType)]
+              ("time",bType),
+              ("jumpstart",bType),
+              ("startCol",iType)]
   def __init__(self):
     lib.ElLLLCtrlDefault_d(pointer(self))
 

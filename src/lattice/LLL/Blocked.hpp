@@ -304,11 +304,15 @@ LLLInfo<Base<F>> BlockedAlg
   Matrix<F>& U,
   Matrix<F>& UInv,
   Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   bool formU,
   bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::BlockedAlg"))
+    if( ctrl.jumpstart )
+        LogicError("The blocked LLL algorithm does not support jumpstarting");
     typedef Base<F> Real;
     if( ctrl.time )
     {
@@ -320,8 +324,7 @@ LLLInfo<Base<F>> BlockedAlg
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
-    Matrix<F> V, SInv, t;
-    Matrix<Real> d;
+    Matrix<F> V, SInv;
     Zeros( QR, m, n );
     Zeros( V, m, minDim );
     Zeros( SInv, minDim, minDim );
@@ -405,9 +408,6 @@ LLLInfo<Base<F>> BlockedAlg
         Output("  Form SInv time:         ",formSInvTimer.Total());
         Output("  Round time:             ",roundTimer.Total());
     }
-
-    // Force R to be upper-trapezoidal
-    MakeTrapezoidal( UPPER, QR );
 
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
     Real logVol = lll::LogVolume(QR);

@@ -2626,6 +2626,8 @@ inline LLLCtrl<float> CReflect( const ElLLLCtrl_s& ctrlC )
     ctrl.zeroTol = ctrlC.zeroTol;
     ctrl.progress = ctrlC.progress;
     ctrl.time = ctrlC.time;
+    ctrl.jumpstart = ctrlC.jumpstart;
+    ctrl.startCol = ctrlC.startCol;
     return ctrl;
 }
 
@@ -2642,6 +2644,8 @@ inline LLLCtrl<double> CReflect( const ElLLLCtrl_d& ctrlC )
     ctrl.zeroTol = ctrlC.zeroTol;
     ctrl.progress = ctrlC.progress;
     ctrl.time = ctrlC.time;
+    ctrl.jumpstart = ctrlC.jumpstart;
+    ctrl.startCol = ctrlC.startCol;
     return ctrl;
 }
 
@@ -2658,6 +2662,8 @@ inline ElLLLCtrl_s CReflect( const LLLCtrl<float>& ctrl )
     ctrlC.zeroTol = ctrl.zeroTol;
     ctrlC.progress = ctrl.progress;
     ctrlC.time = ctrl.time;
+    ctrlC.jumpstart = ctrl.jumpstart;
+    ctrlC.startCol = ctrl.startCol;
     return ctrlC;
 }
 
@@ -2674,6 +2680,8 @@ inline ElLLLCtrl_d CReflect( const LLLCtrl<double>& ctrl )
     ctrlC.zeroTol = ctrl.zeroTol;
     ctrlC.progress = ctrl.progress;
     ctrlC.time = ctrl.time;
+    ctrlC.jumpstart = ctrl.jumpstart;
+    ctrlC.startCol = ctrl.startCol;
     return ctrlC;
 }
 

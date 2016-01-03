@@ -12,6 +12,13 @@
 
 namespace El {
 
+// Deep insertion
+// ==============
+template<typename F>
+void DeepColSwap( Matrix<F>& B, Int i, Int k );
+template<typename F>
+void DeepRowSwap( Matrix<F>& B, Int i, Int k );
+
 // Lenstra-Lenstra-Lovasz (LLL) lattice reduction
 // ==============================================
 // A reduced basis, say D, is an LLL(delta) reduction of an m x n matrix B if
@@ -112,6 +119,11 @@ struct LLLCtrl
 
     bool progress=false;
     bool time=false;
+
+    // If 'jumpstart' is true, start LLL under the assumption that the first
+    // 'startCol' columns are already processed
+    bool jumpstart=false;
+    Int startCol=0;
 };
 
 // TODO: Maintain B in BigInt form
@@ -121,20 +133,36 @@ LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-// TODO: Also return Q?
 template<typename F>
 LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-// TODO: Also return Q?
 template<typename F>
 LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
   Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename F>
+LLLInfo<Base<F>> LLLWithQ
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename F>
+LLLInfo<Base<F>> LLLWithQ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // Perform a tree reduction of subsets of the original basis in order to 
@@ -145,6 +173,12 @@ LLLInfo<Base<F>> LLL
 template<typename F>
 LLLInfo<Base<F>> RecursiveLLL
 ( Matrix<F>& B,
+  Int cutoff=10,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+template<typename F>
+LLLInfo<Base<F>> RecursiveLLL
+( Matrix<F>& B,
+  Matrix<F>& R,
   Int cutoff=10,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
@@ -209,6 +243,62 @@ Int AlgebraicRelationSearch
   Matrix<F>& B,
   Matrix<F>& U, 
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+// Schnorr-Euchner enumeration
+// ===========================
+
+namespace svp {
+
+// If successful, fills 'v' with the integer coordinates of the columns of 
+// an m x n matrix B (represented by its n x n upper-triangular Gaussian Normal
+// Form; the 'R' from the QR factorization) which had a norm profile
+// underneath the vector 'u' of upper bounds (|| (B v)(0:j) ||_2 < u(j)).
+// Notice that the inequalities are strict.
+//
+// If not successful, the return value is a value greater than u(n-1) and 
+// the contents of 'v' should be ignored.
+//
+// NOTE: There is not currently a complex implementation, though algorithms
+//       exist.
+template<typename F>
+Base<F> BoundedEnumeration
+( const Matrix<F>& R,
+  const Matrix<Base<F>>& u,
+        Matrix<F>& v );
+
+} // namespace svp
+
+// Given a reduced lattice B and its Gaussian Normal Form, R, either find a
+// member of the lattice (given by B v, with v the output) with norm less than
+// the upper bound (and return its norm), or return a value greater than the
+// upper bound.
+template<typename F>
+Base<F> ShortVectorEnumeration
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  bool probabalistic=false );
+
+// Given a reduced lattice B and its Gaussian Normal Form, R, find the shortest
+// member of the lattice (with the shortest vector given by B v).
+//
+// The return value is the norm of the (approximately) shortest vector.
+template<typename F>
+Base<F> ShortestVectorEnumeration
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+        Matrix<F>& v,
+  bool probabalistic=false );
+// If an upper-bound on the shortest vector which is better than || b_0 ||_2 is
+// available
+template<typename F>
+Base<F> ShortestVectorEnumeration
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  bool probabalistic=false );
 
 } // namespace El
 

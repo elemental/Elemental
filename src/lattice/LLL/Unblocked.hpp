@@ -269,6 +269,8 @@ LLLInfo<Base<F>> UnblockedAlg
   Matrix<F>& U,
   Matrix<F>& UInv,
   Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   bool formU,
   bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
@@ -284,17 +286,27 @@ LLLInfo<Base<F>> UnblockedAlg
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
-    Matrix<F> t;
-    Matrix<Real> d;
-    Zeros( QR, m, n );
-    Zeros( d, minDim, 1 );
-    Zeros( t, minDim, 1 );
 
-    // Perform the first step of Householder reduction
-    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-    Int nullity = 0;
+    Int nullity = 0; // This is an assumption if jumpstarting
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
+        if( QR.Height() != m || QR.Width() != n )
+            LogicError("QR should have been m x n");
+        if( t.Height() != minDim || t.Width() != 1 )
+            LogicError("t should have been Min(m,n) x 1");
+        if( d.Height() != minDim || d.Width() != 1 )
+            LogicError("d should have been Min(m,n) x 1");
+    }
+    else
+    {
+        Zeros( QR, m, n );
+        Zeros( t, minDim, 1 );
+        Zeros( d, minDim, 1 );
+
+        // Perform the first step of Householder reduction
+        lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+
         auto b0 = B(ALL,IR(0));
         if( FrobeniusNorm(b0) <= ctrl.zeroTol )
         {
@@ -305,7 +317,8 @@ LLLInfo<Base<F>> UnblockedAlg
         }
     }
 
-    Int k=1, numSwaps=0;
+    Int numSwaps=0;
+    Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
     while( k < n )
     {
         bool zeroVector =
@@ -368,9 +381,6 @@ LLLInfo<Base<F>> UnblockedAlg
         Output("  Round time:             ",roundTimer.Total());
     }
 
-    // Force R to be upper-trapezoidal
-    MakeTrapezoidal( UPPER, QR );
-
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
     Real logVol = lll::LogVolume(QR);
 
@@ -386,43 +396,13 @@ LLLInfo<Base<F>> UnblockedAlg
 }
 
 template<typename F>
-void DeepColSwap( Matrix<F>& B, Int i, Int k )
-{
-    const Int m = B.Height();
-    auto bi = B( ALL, IR(i) );
-    auto bk = B( ALL, IR(k) );
-    auto bkCopy( bk );
-
-    F* BBuf = B.Buffer();
-    const Int BLDim = B.LDim();
-    for( Int l=k-1; l>=i; --l )
-        blas::Copy( m, &BBuf[l*BLDim], 1, &BBuf[(l+1)*BLDim], 1 );
-
-    bi = bkCopy;
-}
-
-template<typename F>
-void DeepRowSwap( Matrix<F>& B, Int i, Int k )
-{
-    const Int n = B.Width();
-    auto bi = B( IR(i), ALL );
-    auto bk = B( IR(k), ALL );
-    auto bkCopy( bk );
-
-    F* BBuf = B.Buffer();
-    const Int BLDim = B.LDim();
-    for( Int l=k-1; l>=i; --l )
-        blas::Copy( n, &BBuf[l], BLDim, &BBuf[l+1], BLDim );
-
-    bi = bkCopy;
-}
-
-template<typename F>
 LLLInfo<Base<F>> UnblockedDeepAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& UInv,
   Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   bool formU,
   bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
@@ -438,21 +418,30 @@ LLLInfo<Base<F>> UnblockedDeepAlg
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
-    Matrix<F> t;
-    Matrix<Real> d;
-    Zeros( QR, m, n );
-    Zeros( d, minDim, 1 );
-    Zeros( t, minDim, 1 );
 
     // TODO: Move into a control structure
     const bool alwaysRecomputeNorms = false;
     const Real updateTol = Sqrt(limits::Epsilon<Real>());
 
-    // Perform the first step of Householder reduction
-    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-    Int nullity = 0;
+    Int nullity = 0; // This is an assumption if jumpstarting
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
+        if( QR.Height() != m || QR.Width() != n )
+            LogicError("QR should have been m x n");
+        if( t.Height() != minDim || t.Width() != 1 )
+            LogicError("t should have been Min(m,n) x 1");
+        if( d.Height() != minDim || d.Width() != 1 )
+            LogicError("d should have been Min(m,n) x 1");
+    }
+    else
+    {
+        Zeros( QR, m, n );
+        Zeros( d, minDim, 1 );
+        Zeros( t, minDim, 1 );
+
+        // Perform the first step of Householder reduction
+        lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
         auto b0 = B(ALL,IR(0));
         if( FrobeniusNorm(b0) <= ctrl.zeroTol )
         {
@@ -463,7 +452,8 @@ LLLInfo<Base<F>> UnblockedDeepAlg
         }
     }
 
-    Int k=1, numSwaps=0;
+    Int numSwaps=0;
+    Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
     while( k < n )
     {
         bool zeroVector =
@@ -553,9 +543,6 @@ LLLInfo<Base<F>> UnblockedDeepAlg
         Output("  Round time:             ",roundTimer.Total());
     }
 
-    // Force R to be upper-trapezoidal
-    MakeTrapezoidal( UPPER, QR );
-
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
     Real logVol = lll::LogVolume(QR);
 
@@ -576,6 +563,8 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
   Matrix<F>& U,
   Matrix<F>& UInv,
   Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   bool formU,
   bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
@@ -591,17 +580,26 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
-    Matrix<F> t;
-    Matrix<Real> d;
-    Zeros( QR, m, n );
-    Zeros( d, minDim, 1 );
-    Zeros( t, minDim, 1 );
 
-    // Perform the first step of Householder reduction
-    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-    Int nullity = 0;
+    Int nullity = 0; // This is an assumption if jumpstarting
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
+        if( QR.Height() != m || QR.Width() != n )
+            LogicError("QR should have been m x n");
+        if( t.Height() != minDim || t.Width() != 1 )
+            LogicError("t should have been Min(m,n) x 1");
+        if( d.Height() != minDim || d.Width() != 1 )
+            LogicError("d should have been Min(m,n) x 1");
+    }
+    else
+    {
+        Zeros( QR, m, n );
+        Zeros( d, minDim, 1 );
+        Zeros( t, minDim, 1 );
+
+        // Perform the first step of Householder reduction
+        lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
         auto b0 = B(ALL,IR(0));
         if( FrobeniusNorm(b0) <= ctrl.zeroTol )
         {
@@ -612,7 +610,8 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
         }
     }
 
-    Int k=1, numSwaps=0;
+    Int numSwaps=0;
+    Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
     while( k < n )
     {
         bool zeroVector =
@@ -735,9 +734,6 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
         Output("  Apply Householder time: ",applyHouseTimer.Total());
         Output("  Round time:             ",roundTimer.Total());
     }
-
-    // Force R to be upper-trapezoidal
-    MakeTrapezoidal( UPPER, QR );
 
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
     Real logVol = lll::LogVolume(QR);

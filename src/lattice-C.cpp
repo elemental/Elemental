@@ -26,6 +26,8 @@ ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
     ctrl->zeroTol = Pow(eps,0.9f);
     ctrl->progress = false;
     ctrl->time = false;
+    ctrl->jumpstart = false;
+    ctrl->startCol = 0;
     return EL_SUCCESS;
 }
 
@@ -43,6 +45,8 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ctrl->zeroTol = Pow(eps,0.9f);
     ctrl->progress = false;
     ctrl->time = false;
+    ctrl->jumpstart = false;
+    ctrl->startCol = 0;
     return EL_SUCCESS;
 }
 
