@@ -32,7 +32,7 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
     auto z = Z( IR(0), ALL );
     Matrix<Real> sqrtWeights( z ), sqrtWeightsTrans;
     for( Int j=0; j<n; ++j )
-        sqrtWeights.Set( 0, j, Sqrt(2)*Abs(sqrtWeights.Get(0,j)) );
+        sqrtWeights.Set( 0, j, Sqrt(Real(2))*Abs(sqrtWeights.Get(0,j)) );
     herm_eig::Sort( x, sqrtWeights, ASCENDING );
     Transpose( sqrtWeights, sqrtWeightsTrans );
 
@@ -83,7 +83,7 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
     DistMatrix<Real,STAR,VR> sqrtWeights( z );
     for( Int jLoc=0; jLoc<sqrtWeights.LocalWidth(); ++jLoc )
         sqrtWeights.SetLocal
-        ( 0, jLoc, Sqrt(2)*Abs(sqrtWeights.GetLocal(0,jLoc)) );
+            ( 0, jLoc, Sqrt(Real(2))*Abs(sqrtWeights.GetLocal(0,jLoc)) );
     herm_eig::Sort( x, sqrtWeights, ASCENDING );
 
     // Form the integral operator
