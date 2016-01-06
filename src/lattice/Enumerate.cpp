@@ -282,8 +282,8 @@ Base<F> ShortVectorEnumeration
                 const Int numCombines = n;
                 for( Int j=0; j<numCombines; ++j )
                 {
-                    const Int c = SampleUniform( 0, n );
-                    const Int scale = SampleUniform( -5, 5 );
+                    const Int c = SampleUniform( Int(0), n );
+                    const Int scale = SampleUniform( Int(-5), Int(5) );
                     if( c == j || scale == 0 )
                         continue; // if scale=-1, we could have singularity
                     if( progress )
